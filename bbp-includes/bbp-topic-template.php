@@ -66,7 +66,7 @@ function bbp_topic_post_type() {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = '' ) {
-	global $wp_rewrite, $bbp, $wpdb;
+	global $wp_rewrite, $bbp;
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
@@ -784,7 +784,8 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 		if ( empty( $topic_id ) || empty( $revision_log ) || !is_array( $revision_log ) )
 			return false;
 
-		if ( !$revisions = bbp_get_topic_revisions( $topic_id ) )
+		$revisions = bbp_get_topic_revisions( $topic_id );
+		if ( empty( $revisions ) )
 			return false;
 
 		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . $topic_id . '" class="bbp-topic-revision-log">' . "\n\n";
@@ -1755,8 +1756,11 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 		else
 			$retval .= $replies;
 
+		// Any deleted replies?
+		$deleted = bbp_get_topic_reply_count_hidden( $topic_id );
+
 		// This forum has hidden topics
-		if ( current_user_can( 'edit_others_replies' ) && ( $deleted = bbp_get_topic_reply_count_hidden( $topic_id ) ) ) {
+		if ( !empty( $deleted ) && current_user_can( 'edit_others_replies' ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -2136,15 +2140,21 @@ function bbp_topic_edit_link( $args = '' ) {
 		if ( !current_user_can( 'edit_others_topics' ) ) {
 
 			// User cannot edit or it is past the lock time
-			if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) )
+			if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
 				return;
+			}
 		}
 
-		// No uri to edit topic
-		if ( !$uri = bbp_get_topic_edit_url( $id ) )
+		// Get uri
+		$uri = bbp_get_topic_edit_url( $id );
+
+		// Bail if no uri
+		if ( empty( $uri ) )
 			return;
 
-		return apply_filters( 'bbp_get_topic_edit_link', $link_before . '<a href="' . $uri . '">' . $edit_text . '</a>' . $link_after, $args );
+		$retval = $link_before . '<a href="' . $uri . '">' . $edit_text . '</a>' . $link_after;
+
+		return apply_filters( 'bbp_get_topic_edit_link', $retval, $args );
 	}
 
 /**
@@ -2175,7 +2185,8 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
 		global $wp_rewrite, $bbp;
 
-		if ( !$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) ) )
+		$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) );
+		if ( empty( $topic ) )
 			return;
 
 		// Pretty permalinks
@@ -2450,9 +2461,10 @@ function bbp_topic_merge_link( $args = '' ) {
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
 
-		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->ID ) ) );
+		$uri    = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->ID ) ) );
+		$retval = $link_before . '<a href="' . $uri . '">' . $merge_text . '</a>' . $link_after;
 
-		return apply_filters( 'bbp_get_topic_merge_link', $link_before . '<a href="' . $uri . '">' . $merge_text . '</a>' . $link_after, $args );
+		return apply_filters( 'bbp_get_topic_merge_link', $retval, $args );
 	}
 
 /**
@@ -2498,7 +2510,6 @@ function bbp_topic_spam_link( $args = '' ) {
 			'spam_text'    => __( 'Spam',   'bbpress' ),
 			'unspam_text'  => __( 'Unspam', 'bbpress' )
 		);
-
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
@@ -2508,11 +2519,11 @@ function bbp_topic_spam_link( $args = '' ) {
 			return;
 
 		$display = bbp_is_topic_spam( $topic->ID ) ? $unspam_text : $spam_text;
+		$uri     = add_query_arg( array( 'action' => 'bbp_toggle_topic_spam', 'topic_id' => $topic->ID ) );
+		$uri     = esc_url( wp_nonce_url( $uri, 'spam-topic_' . $topic->ID ) );
+		$retval  = $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after;
 
-		$uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_spam', 'topic_id' => $topic->ID ) );
-		$uri = esc_url( wp_nonce_url( $uri, 'spam-topic_' . $topic->ID ) );
-
-		return apply_filters( 'bbp_get_topic_spam_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
+		return apply_filters( 'bbp_get_topic_spam_link', $retval, $args );
 	}
 
 /** Topic Pagination **********************************************************/
@@ -2647,7 +2658,8 @@ function bbp_topic_notices() {
 	}
 
 	// Filter notice text and bail if empty
-	if ( !$notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() ) )
+	$notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() );
+	if ( empty( $notice_text ) )
 		return;
 
 	bbp_add_error( 'topic_notice', $notice_text, 'message' );
