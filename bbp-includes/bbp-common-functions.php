@@ -656,7 +656,8 @@ function bbp_deregister_view( $view ) {
  */
 function bbp_view_query( $view = '', $new_args = '' ) {
 
-	if ( !$view = bbp_get_view_id( $view ) )
+	$view = bbp_get_view_id( $view );
+	if ( empty( $view ) )
 		return false;
 
 	$query_args = bbp_get_view_query_args( $view );
@@ -687,7 +688,7 @@ function bbp_get_view_query_args( $view ) {
 	if ( empty( $views ) )
 		return false;
 
-	return $bbp->views[$view]['query'];
+	return apply_filters( 'bbp_get_view_query_args', $bbp->views[$view]['query'], $view );
 }
 
 /** New/edit topic/reply helpers **********************************************/
@@ -729,10 +730,12 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 	extract( $r );
 
 	// Filter variables and add errors if necessary
-	if ( !$bbp_anonymous_name  = apply_filters( 'bbp_pre_anonymous_post_author_name',  $bbp_anonymous_name  ) )
+	$bbp_anonymous_name = apply_filters( 'bbp_pre_anonymous_post_author_name',  $bbp_anonymous_name  );
+	if ( empty( $bbp_anonymous_name ) )
 		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',   'bbpress' ) );
 
-	if ( !$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email ) )
+	$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email );
+	if ( empty( $bbp_anonymous_email ) )
 		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
 
 	// Website is optional
@@ -777,14 +780,10 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Check for anonymous post
 	if ( empty( $post_author ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) {
-
-		// WP 3.2
-		if ( function_exists( 'get_meta_sql' ) )
-			$clauses = get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
-
-		// WP 3.1
-		elseif ( function_exists( '_get_meta_sql' ) )
-			$clauses = _get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+		$clauses = get_meta_sql( array( array(
+			'key'   => '_bbp_anonymous_email',
+			'value' => $anonymous_data['bbp_anonymous_email']
+		) ), 'post', $wpdb->posts, 'ID' );
 
 		$join    = $clauses['join'];
 		$where   = $clauses['where'];
@@ -828,24 +827,31 @@ function bbp_check_for_duplicate( $post_data ) {
  * @uses get_transient() To get the last posted transient of the ip
  * @uses get_user_meta() To get the last posted meta of the user
  * @uses current_user_can() To check if the current user can throttle
- * @return bool True if there is no flooding, true if there is
+ * @return bool True if there is no flooding, false if there is
  */
 function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 
 	// Option disabled. No flood checks.
-	if ( !$throttle_time = get_option( '_bbp_throttle_time' ) )
+	$throttle_time = get_option( '_bbp_throttle_time' );
+	if ( empty( $throttle_time ) )
 		return true;
 
+	// User is anonymous, so check a transient based on the IP
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 		$last_posted = get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' );
-		if ( !empty( $last_posted ) && time() < $last_posted + $throttle_time )
+
+		if ( !empty( $last_posted ) && time() < $last_posted + $throttle_time ) {
 			return false;
+		}
+		
+	// User is logged in, so check their last posted time
 	} elseif ( !empty( $author_id ) ) {
 		$author_id   = (int) $author_id;
 		$last_posted = get_user_meta( $author_id, '_bbp_last_posted', true );
 
-		if ( isset( $last_posted ) && time() < $last_posted + $throttle_time && !current_user_can( 'throttle' ) )
+		if ( isset( $last_posted ) && time() < $last_posted + $throttle_time && !current_user_can( 'throttle' ) ) {
 			return false;
+		}
 	} else {
 		return false;
 	}
@@ -1097,7 +1103,6 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * @return bool True on success, false on failure
  */
 function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
-	global $wpdb;
 
 	// Bail if subscriptions are turned off
 	if ( !bbp_is_subscriptions_active() )
@@ -1273,7 +1278,8 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	if ( !$child_id = wp_cache_get( $cache_id, 'bbpress' ) ) {
+	$child_id = wp_cache_get( $cache_id, 'bbpress' );
+	if ( empty( $child_id ) ) {
 		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress' );
 	}
@@ -1315,7 +1321,8 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	if ( !$child_count = wp_cache_get( $cache_id, 'bbpress' ) ) {
+	$child_count = wp_cache_get( $cache_id, 'bbpress' );
+	if ( empty( $child_count ) ) {
 		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'bbpress' );
 	}
@@ -1357,7 +1364,8 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	if ( !$child_ids = wp_cache_get( $cache_id, 'bbpress' ) ) {
+	$child_ids = wp_cache_get( $cache_id, 'bbpress' );
+	if ( empty( $child_ids ) ) {
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
 	}
@@ -1417,13 +1425,37 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	if ( !$child_ids = wp_cache_get( $cache_id, 'bbpress' ) ) {
+	$child_ids = wp_cache_get( $cache_id, 'bbpress' );
+	if ( empty( $child_ids ) ) {
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
 	}
 
 	// Filter and return
 	return apply_filters( 'bbp_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
+}
+
+/** Globals *******************************************************************/
+
+/**
+ * Get the unfiltered value of a global $post's key
+ *
+ * Used most frequently when editing a forum/topic/reply
+ *
+ * @since bbPress (r3694)
+ *
+ * @global WP_Query $post
+ * @param string $field Name of the key
+ * @param string $context How to sanitize - raw|edit|db|display|attribute|js
+ * @return string Field value
+ */
+function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
+	global $post;
+
+	$retval = isset( $post->$field ) ? $post->$field : '';
+	$retval = sanitize_post_field( $field, $retval, $post->ID, $context );
+
+	return apply_filters( 'bbp_get_global_post_field', $retval, $post );
 }
 
 /** Feeds *********************************************************************/
