@@ -183,7 +183,7 @@ function bbp_recount_list() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_replies() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -227,7 +227,7 @@ function bbp_recount_topic_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_voices() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -270,7 +270,7 @@ function bbp_recount_topic_voices() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_hidden_replies() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of spammed and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -309,7 +309,8 @@ function bbp_recount_forum_topics() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	if ( $forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) ) {
+	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	if ( !empty( $forums ) ) {
 		foreach( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
 		}
@@ -343,7 +344,8 @@ function bbp_recount_forum_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	if ( $forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) ) {
+	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	if ( !empty( $forums ) ) {
 		foreach( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
 		}
@@ -366,7 +368,7 @@ function bbp_recount_forum_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_user_topics_replied() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -705,7 +707,7 @@ function bbp_recount_tag_delete_empty() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_favorites() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -764,7 +766,7 @@ function bbp_recount_clean_favorites() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_subscriptions() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -821,7 +823,7 @@ function bbp_recount_clean_subscriptions() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_rewalk() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -923,7 +925,7 @@ function bbp_recount_rewalk() {
  *
  * @return string The custom post type permalink
  */
-function bbp_filter_sample_permalink( $post_link, $post, $leavename, $sample ) {
+function bbp_filter_sample_permalink( $post_link, $post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
 	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() )
