@@ -1737,6 +1737,9 @@ function bbp_reply_class( $reply_id = 0 ) {
 	 * @since bbPress (r2678)
 	 *
 	 * @param int $reply_id Optional. Reply ID
+	 * @uses bbp_get_reply_id() To validate the reply id
+	 * @uses bbp_get_reply_forum_id() To get the reply's forum id
+	 * @uses bbp_get_reply_topic_id() To get the reply's topic id
 	 * @uses get_post_class() To get all the classes including ours
 	 * @uses apply_filters() Calls 'bbp_get_reply_class' with the classes
 	 * @return string Row class of the reply
@@ -1748,6 +1751,8 @@ function bbp_reply_class( $reply_id = 0 ) {
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
 		$classes   = array();
 		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
+		$classes[] = 'bbp-parent-forum-' . bbp_get_reply_forum_id( $reply_id );
+		$classes[] = 'bbp-parent-topic-' . bbp_get_reply_topic_id( $reply_id );
 		$classes   = get_post_class( $classes, $reply_id );
 		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );
 		$retval    = 'class="' . join( ' ', $classes ) . '"';
@@ -1896,15 +1901,14 @@ function bbp_form_reply_content() {
 	 * @return string Value of reply content field
 	 */
 	function bbp_get_form_reply_content() {
-		global $post;
 
 		// Get _POST data
 		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_content'] ) )
 			$reply_content = $_POST['bbp_reply_content'];
 
 		// Get edit data
-		elseif ( !empty( $post->post_content ) && bbp_is_reply_edit() )
-			$reply_content = $post->post_content;
+		elseif ( bbp_is_reply_edit() )
+			$reply_content = bbp_get_global_post_field( 'post_content' );
 
 		// No data
 		else
@@ -1933,7 +1937,6 @@ function bbp_form_reply_log_edit() {
 	 * @return string Reply log edit checked value
 	 */
 	function bbp_get_form_reply_log_edit() {
-		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_reply_edit'] ) )
@@ -1966,7 +1969,6 @@ function bbp_form_reply_edit_reason() {
 	 * @return string Reply edit reason value
 	 */
 	function bbp_get_form_reply_edit_reason() {
-		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_edit_reason'] ) )
