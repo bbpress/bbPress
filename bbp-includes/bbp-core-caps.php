@@ -153,28 +153,54 @@ function bbp_remove_roles() {
  */
 function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
+	// What capability is being checked?
 	switch ( $cap ) {
 
-		// Reading
+		/** Reading ***********************************************************/
+
 		case 'read_forum' :
 		case 'read_topic' :
 		case 'read_reply' :
 
-			if ( $post = get_post( $args[0] ) ) {
-				$caps      = array();
-				$post_type = get_post_type_object( $post->post_type );
+			// Get the post
+			$post = get_post( $args[0] );
+			if ( !empty( $post ) ) {
 
-				if ( bbp_get_public_status_id() == $post->post_status )
+				// Get caps for post type object
+				$post_type = get_post_type_object( $post->post_type );
+				$caps      = array();
+
+				// Post is public
+				if ( bbp_get_public_status_id() == $post->post_status ) {
 					$caps[] = 'read';
-				elseif ( (int) $user_id == (int) $post->post_author )
+
+				// User is author so allow read
+				} elseif ( (int) $user_id == (int) $post->post_author ) {
 					$caps[] = 'read';
-				else
+
+				// Unknown so map to private posts
+				} else {
 					$caps[] = $post_type->cap->read_private_posts;
+				}
 			}
 
 			break;
 
-		// Editing
+		/** Publishing ********************************************************/
+			
+		case 'publish_forums'  :
+		case 'publish_topics'  :
+		case 'publish_replies' :
+
+			// Add do_not_allow cap if user is spam or deleted
+			if ( bbp_is_user_inactive( $user_id ) )
+				$caps = array( 'do_not_allow' );
+
+			break;
+
+		/** Editing ***********************************************************/
+
+		// Used primarily in wp-admin
 		case 'edit_forums' :
 		case 'edit_topics' :
 		case 'edit_replies' :
@@ -185,47 +211,60 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
 			break;
 
+		// Used everywhere
 		case 'edit_forum' :
 		case 'edit_topic' :
 		case 'edit_reply' :
 
-			if ( $post = get_post( $args[0] ) ) {
-				$caps      = array();
+			// Get the post
+			$post = get_post( $args[0] );
+			if ( !empty( $post ) ) {
+
+				// Get caps for post type object
 				$post_type = get_post_type_object( $post->post_type );
+				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps[] = 'do_not_allow';
 
-				// Map to edit_posts
-				elseif ( (int) $user_id == (int) $post->post_author )
+				// User is author so allow edit
+				} elseif ( (int) $user_id == (int) $post->post_author ) {
 					$caps[] = $post_type->cap->edit_posts;
 
-				// Map to edit_others_posts
-				else
+				// Unknown, so map to edit_others_posts
+				} else {
 					$caps[] = $post_type->cap->edit_others_posts;
+				}
 			}
 
 			break;
 
-		// Deleting
+		/** Deleting **********************************************************/
+
+		// Allow forum authors to delete forums (for BuddyPress groups, etc)
 		case 'delete_forum' :
 
-			if ( $post = get_post( $args[0] ) ) {
-				$caps      = array();
+			// Get the post
+			$post = get_post( $args[0] );
+			if ( !empty( $post ) ) {
+
+				// Get caps for post type object
 				$post_type = get_post_type_object( $post->post_type );
+				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps[] = 'do_not_allow';
 
-				// Map to delete_posts
-				elseif ( (int) $user_id == (int) $post->post_author )
+				// User is author so allow to delete
+				} elseif ( (int) $user_id == (int) $post->post_author ) {
 					$caps[] = $post_type->cap->delete_posts;
 
-				// Map to delete_others_posts
-				else
+				// Unknown so map to delete_others_posts
+				} else {
 					$caps[] = $post_type->cap->delete_others_posts;
+				}
 			}
 
 			break;
@@ -233,17 +272,22 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'delete_topic' :
 		case 'delete_reply' :
 
-			if ( $post = get_post( $args[0] ) ) {
-				$caps      = array();
+			// Get the post
+			$post = get_post( $args[0] );
+			if ( !empty( $post ) ) {
+
+				// Get caps for post type object
 				$post_type = get_post_type_object( $post->post_type );
+				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps[] = 'do_not_allow';
 
-				// Map to delete_others_posts
-				else
-					$caps[]    = $post_type->cap->delete_others_posts;
+				// Unknown so map to delete_others_posts
+				} else {
+					$caps[] = $post_type->cap->delete_others_posts;
+				}
 			}
 
 			break;
@@ -347,10 +391,6 @@ function bbp_get_topic_tag_caps () {
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
-	// Get new role names
-	$moderator_role   = bbp_get_moderator_role();
-	$participant_role = bbp_get_participant_role();
-
 	// Which role are we looking for?
 	switch ( $role ) {
 
@@ -399,7 +439,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 
 		// Moderator
-		case $moderator_role :
+		case bbp_get_moderator_role() :
 
 			$caps = array(
 
@@ -432,20 +472,22 @@ function bbp_get_caps_for_role( $role = '' ) {
 				// Misc
 				'moderate',
 				'throttle',
-				'view_trash',
+				'view_trash'
 			);
 
 			break;
 
 		// WordPress Core Roles
-		case 'editor'          :
-		case 'author'          :
-		case 'contributor'     :
-		case 'subscriber'      :
+		case 'editor'      :
+		case 'author'      :
+		case 'contributor' :
+		case 'subscriber'  :
 
 		// bbPress Participant Role
-		case $participant_role :
-		default                :
+		case bbp_get_participant_role() :
+			
+		// Any other role
+		default :
 
 			$caps = array(
 
@@ -458,8 +500,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'edit_replies',
 
 				// Topic tag caps
-				'assign_topic_tags',
-
+				'assign_topic_tags'
 			);
 
 			break;

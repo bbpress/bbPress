@@ -1188,7 +1188,7 @@ function bbp_current_user_can_publish_topics() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( bbp_is_user_active() && current_user_can( 'publish_topics' ) )
+	elseif ( current_user_can( 'publish_topics' ) )
 		$retval = true;
 
 	// Allow access to be filtered
@@ -1217,7 +1217,7 @@ function bbp_current_user_can_publish_forums() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( bbp_is_user_active() && current_user_can( 'publish_forums' ) )
+	elseif ( current_user_can( 'publish_forums' ) )
 		$retval = true;
 
 	// Allow access to be filtered
@@ -1252,7 +1252,7 @@ function bbp_current_user_can_publish_replies() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( bbp_is_user_active() && current_user_can( 'publish_replies' ) )
+	elseif ( current_user_can( 'publish_replies' ) )
 		$retval = true;
 
 	// Allow access to be filtered
