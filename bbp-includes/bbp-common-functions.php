@@ -671,13 +671,12 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 }
 
 /**
- * Run the view's query's arguments
+ * Return the view's query arguments
  *
  * @since bbPress (r2789)
  *
  * @param string $view View name
  * @uses bbp_get_view_id() To get the view id
- * @uses sanitize_title() To sanitize the view name
  * @return array Query arguments
  */
 function bbp_get_view_query_args( $view ) {
