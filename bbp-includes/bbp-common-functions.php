@@ -683,12 +683,10 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 function bbp_get_view_query_args( $view ) {
 	global $bbp;
 
-	$views = bbp_get_view_id( $view );
+	$view   = bbp_get_view_id( $view );
+	$retval = !empty( $view ) ? $bbp->views[$view]['query'] : false;
 
-	if ( empty( $views ) )
-		return false;
-
-	return apply_filters( 'bbp_get_view_query_args', $bbp->views[$view]['query'], $view );
+	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }
 
 /** New/edit topic/reply helpers **********************************************/
