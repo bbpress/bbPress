@@ -468,7 +468,8 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 	function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		if ( !$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true ) ) {
+		$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true );
+		if ( empty( $last_active ) ) {
 			$reply_id = bbp_get_forum_last_reply_id( $forum_id );
 			if ( !empty( $reply_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
@@ -745,7 +746,7 @@ function bbp_list_forums( $args = '' ) {
 		}
 
 		// Output the list
-		echo $before . $output . $after;
+		echo apply_filters( 'bbp_list_forums', $before . $output . $after, $args );
 	}
 }
 
@@ -1143,8 +1144,11 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		else
 			$retval .= $topics;
 
+		// Get deleted topics
+		$deleted = bbp_get_forum_topic_count_hidden( $forum_id );
+
 		// This forum has hidden topics
-		if ( current_user_can( 'edit_others_topics' ) && ( $deleted = bbp_get_forum_topic_count_hidden( $forum_id ) ) ) {
+		if ( !empty( $deleted ) && current_user_can( 'edit_others_topics' ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -1860,7 +1864,7 @@ function bbp_single_forum_description( $args = '' ) {
 		}
 
 		// Add feeds
-		$feed_links = ( !empty( $feed ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
+		//$feed_links = ( !empty( $feed ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
 
 		// Add the 'view all' filter back
 		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
