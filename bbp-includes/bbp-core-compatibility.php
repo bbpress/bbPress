@@ -1090,13 +1090,10 @@ function bbp_template_include_theme_compat( $template = '' ) {
  * @since bbPress (r3034)
  *
  * @global bbPress $bbp
- * @global WP_Query $post
  * @param string $content
  * @return type
  */
 function bbp_replace_the_content( $content = '' ) {
-
-	// Use the $post global to check it's post_type
 	global $bbp;
 
 	// Define local variable(s)
@@ -1283,16 +1280,10 @@ function bbp_replace_the_content( $content = '' ) {
 		/**
 		 * Supplemental hack to prevent stubborn comments_template() output.
 		 *
-		 * By this time we can safely assume that everything we needed from
-		 * the {$post} global has been rendered into the buffer, so we're
-		 * going to empty it and {$withcomments} for good measure. This has
-		 * the added benefit of preventing an incorrect "Edit" link on the
-		 * bottom of most popular page templates, at the cost of rendering
-		 * these globals useless for the remaining page output without using
-		 * wp_reset_postdata() to get that data back.
-		 *
 		 * @see comments_template() For why we're doing this :)
-		 * @see wp_reset_postdata() If you need to get $post back
+		 *
+		 * Note: In bbPress 2.0, the $post global was unset here too; it
+		 *       caused more harm than good, so it was removed in 2.1.
 		 *
 		 * Note: If a theme uses custom code to output comments, it's
 		 *       possible all of this dancing around is for not.
@@ -1306,10 +1297,10 @@ function bbp_replace_the_content( $content = '' ) {
 		if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
 
 			// Setup the chopping block
-			global $post, $withcomments;
+			global $withcomments;
 
 			// Empty out globals that aren't being used in this loop anymore
-			$withcomments = $post = false;
+			$withcomments = false;			
 		}
 	}
 
