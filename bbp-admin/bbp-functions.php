@@ -41,7 +41,7 @@ function bbp_admin_separator () {
  */
 function bbp_admin_custom_menu_order( $menu_order ) {
 	if ( !current_user_can( 'edit_replies' ) )
-		return false;
+		return $menu_order;
 
 	return true;
 }
