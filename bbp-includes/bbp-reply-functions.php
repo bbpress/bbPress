@@ -152,14 +152,20 @@ function bbp_new_reply_handler() {
 	/** Topic ID **************************************************************/
 
 	// Handle Topic ID to append reply to
-	if ( isset( $_POST['bbp_topic_id'] ) && ( !$topic_id = (int) $_POST['bbp_topic_id'] ) )
+	if ( isset( $_POST['bbp_topic_id'] ) ) {
+		$topic_id = (int) $_POST['bbp_topic_id'];
+	} else {
 		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
+	}
 
 	/** Forum ID **************************************************************/
 
 	// Handle Forum ID to adjust counts of
-	if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = (int) $_POST['bbp_forum_id'] ) )
+	if ( isset( $_POST['bbp_forum_id'] ) ) {
+		$forum_id = (int) $_POST['bbp_forum_id'];
+	} else {
 		bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+	}
 
 	/** Unfiltered HTML *******************************************************/
 
@@ -521,13 +527,16 @@ function bbp_edit_reply_handler() {
 			$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
 
 		// Update revision log
-		if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) && ( $revision_id = wp_save_post_revision( $reply_id ) ) ) {
-			bbp_update_reply_revision_log( array(
-				'reply_id'    => $reply_id,
-				'revision_id' => $revision_id,
-				'author_id'   => bbp_get_current_user_id(),
-				'reason'      => $reply_edit_reason
-			) );
+		if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) ) {
+			$revision_id = wp_save_post_revision( $reply_id );
+			if ( !empty( $revision_id ) ) {
+				bbp_update_reply_revision_log( array(
+					'reply_id'    => $reply_id,
+					'revision_id' => $revision_id,
+					'author_id'   => bbp_get_current_user_id(),
+					'reason'      => $reply_edit_reason
+				) );
+			}
 		}
 
 		/** No Errors *********************************************************/
@@ -1102,7 +1111,8 @@ function bbp_toggle_reply_handler() {
 function bbp_spam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
+	$reply = wp_get_single_post( $reply_id, ARRAY_A );
+	if ( empty( $reply ) )
 		return $reply;
 
 	// Bail if already spam
@@ -1148,7 +1158,8 @@ function bbp_spam_reply( $reply_id = 0 ) {
 function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
+	$reply = wp_get_single_post( $reply_id, ARRAY_A );
+	if ( empty( $reply ) )
 		return $reply;
 
 	// Bail if already not spam
