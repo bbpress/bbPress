@@ -185,7 +185,9 @@ class BBP_BuddyPress {
 		/** Profiles **********************************************************/
 
 		// Override bbPress user profile URL with BuddyPress profile URL
-		add_filter( 'bbp_pre_get_user_profile_url', array( $this, 'user_profile_url' ) );
+		add_filter( 'bbp_pre_get_user_profile_url',    array( $this, 'user_profile_url'            )        );
+		add_filter( 'bbp_get_favorites_permalink',     array( $this, 'get_favorites_permalink'     ), 10, 2 );
+		add_filter( 'bbp_get_subscriptions_permalink', array( $this, 'get_subscriptions_permalink' ), 10, 2 );
 
 		/** Mentions **********************************************************/
 
@@ -341,13 +343,12 @@ class BBP_BuddyPress {
 	 * @since bbPress (r3399)
 	 *
 	 * @global BP_Activity_Template $activities_template
-	 * @global BuddyPress $bp
 	 * @param boolean $can_comment
 	 * @uses bp_get_activity_action_name()
 	 * @return boolean
 	 */
 	public function activity_can_comment( $can_comment = true ) {
-		global $activities_template, $bp;
+		global $activities_template;
 
 		// Already forced off, so comply
 		if ( false === $can_comment )
@@ -443,11 +444,11 @@ class BBP_BuddyPress {
 
 			// 'favorites' action
 			} elseif ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/favorites';
+				$profile_url = $this->get_favorites_permalink( '', $user_id );
 
 			// 'subscriptions' action
 			} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/subscriptions';
+				$profile_url = $this->get_subscriptions_permalink( '', $user_id );
 			}
 
 		// Not in users' forums area
@@ -455,7 +456,37 @@ class BBP_BuddyPress {
 			$profile_url = bp_core_get_user_domain( $user_id );
 		}
 
-		return $profile_url;
+		return trailingslashit( $profile_url );
+	}
+	
+	/**
+	 * Override bbPress favorites URL with BuddyPress profile URL
+	 *
+	 * @since bbPress (r3721)
+	 *
+	 * @param string $url
+	 * @param int $user_id
+	 *
+	 * @return string
+	 */
+	public function get_favorites_permalink( $url, $user_id ) {
+		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/favorites' );
+		return $url;
+	}
+
+	/**
+	 * Override bbPress subscriptions URL with BuddyPress profile URL
+	 *
+	 * @since bbPress (r3721)
+	 *
+	 * @param string $url
+	 * @param int $user_id
+	 *
+	 * @return string
+	 */
+	public function get_subscriptions_permalink( $url, $user_id ) {
+		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/subscriptions' );
+		return $url;
 	}
 
 	/** Topics ****************************************************************/
