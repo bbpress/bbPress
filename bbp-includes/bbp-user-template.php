@@ -196,7 +196,9 @@ function bbp_current_user_avatar( $size = 40 ) {
 		if ( empty( $user ) )
 			$user = bbp_get_current_anonymous_user_data( 'email' );
 
-		return apply_filters( 'bbp_get_current_user_avatar', get_avatar( $user, $size ), $size );
+		$avatar = get_avatar( $user, $size );
+
+		return apply_filters( 'bbp_get_current_user_avatar', $avatar, $size );
 	}
 
 /**
@@ -438,9 +440,10 @@ function bbp_admin_link( $args = '' ) {
 		$args = wp_parse_args( $args, $defaults );
 		extract( $args, EXTR_SKIP );
 
-		$uri = admin_url();
+		$uri    = admin_url();
+		$retval = $before . '<a href="' . $uri . '">' . $text . '</a>' . $after;
 
-		return apply_filters( 'bbp_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
+		return apply_filters( 'bbp_get_admin_link', $retval, $args );
 	}
 
 /** User IP *******************************************************************/
