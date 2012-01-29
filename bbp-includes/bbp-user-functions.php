@@ -316,26 +316,32 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
+	$retval    = false;
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
 
-	if ( !empty( $topic_id ) ) {
-		$topic    = bbp_get_topic( $topic_id );
-		$topic_id = !empty( $topic ) ? $topic->ID : 0;
-	} elseif ( bbp_get_topic_id() ) {
-		$topic_id = bbp_get_topic_id();
-	} elseif ( !bbp_get_topic_id() ) {
-		global $post;
+	if ( !empty( $favorites ) ) {
+		
+		// Checking a specific topic id
+		if ( !empty( $topic_id ) ) {
+			$topic    = bbp_get_topic( $topic_id );
+			$topic_id = !empty( $topic ) ? $topic->ID : 0;
 
-		if ( empty( $post ) )
-			return false;
+		// Using the global topic id
+		} elseif ( bbp_get_topic_id() ) {
+			$topic_id = bbp_get_topic_id();
 
-		$topic_id = $post->ID;
+		// Use the current post id
+		} elseif ( !bbp_get_topic_id() ) {
+			$topic_id = get_the_ID();
+		}
+
+		// Is topic_id in the user's favorites
+		if ( empty( $topic_id ) ) {
+			$retval = in_array( $topic_id, $favorites );
+		}
 	}
 
-	if ( empty( $favorites ) || empty( $topic_id ) )
-		return false;
-
-	return apply_filters( 'bbp_is_user_favorite', (bool) in_array( $topic_id, $favorites ), $user_id, $topic_id, $favorites );
+	return (bool) apply_filters( 'bbp_is_user_favorite', (bool) $retval, $user_id, $topic_id, $favorites );
 }
 
 /**
@@ -613,26 +619,32 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
+	$retval        = false;
 	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
 
-	if ( !empty( $topic_id ) ) {
-		$topic     = bbp_get_topic( $topic_id );
-		$topic_id = !empty( $topic ) ? $topic->ID : 0;
-	} elseif ( bbp_get_topic_id() ) {
-		$topic_id = bbp_get_topic_id();
-	} elseif ( !bbp_get_topic_id() ) {
-		global $post;
+	if ( !empty( $subscriptions ) ) {
 
-		if ( empty( $post ) )
-			return false;
+		// Checking a specific topic id
+		if ( !empty( $topic_id ) ) {
+			$topic     = bbp_get_topic( $topic_id );
+			$topic_id = !empty( $topic ) ? $topic->ID : 0;
 
-		$topic_id = $post->ID;
+		// Using the global topic id
+		} elseif ( bbp_get_topic_id() ) {
+			$topic_id = bbp_get_topic_id();
+
+		// Use the current post id
+		} elseif ( !bbp_get_topic_id() ) {
+			$topic_id = get_the_ID();
+		}
+
+		// Is topic_id in the user's favorites
+		if ( !empty( $topic_id ) ) {
+			$retval = in_array( $topic_id, $subscriptions );
+		}
 	}
 
-	if ( empty( $subscriptions ) || empty( $topic_id ) )
-		return false;
-
-	return apply_filters( 'bbp_is_user_subscribed', (bool) in_array( $topic_id, $subscriptions ), $user_id, $topic_id, $subscriptions );
+	return (bool) apply_filters( 'bbp_is_user_subscribed', (bool) $retval, $user_id, $topic_id, $subscriptions );
 }
 
 /**
