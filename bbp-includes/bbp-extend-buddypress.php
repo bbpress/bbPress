@@ -935,12 +935,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @global bbPress $bbp
 	 */
 	function __construct() {
-		global $bbp;
 
 		// Name and slug
 		$this->name          = __( 'Forums', 'bbpress' );
 		$this->nav_item_name = __( 'Forums', 'bbpress' );
-		$this->slug          = $bbp->forum_slug;
+		$this->slug          = bp_get_option( '_bbp_forum_slug', 'forum' );
 
 		// Forum component is visible @todo configure?
 		$this->visibility = 'public';
@@ -960,7 +959,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	function display() {
-		global $bbp;
 
 		// More than one forum, so show hierarchy
 		if ( count( bbp_get_group_forum_ids( bp_get_current_group_id() ) ) > 1 )
