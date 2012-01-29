@@ -16,13 +16,10 @@
 	<li class="bbp-header">
 
 		<ul class="forum-titles">
-
 			<li class="bbp-topic-title"><?php _e( 'Topic', 'bbpress' ); ?></li>
 			<li class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></li>
 			<li class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></li>
 			<li class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></li>
-			<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><li class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></li><?php endif; ?>
-
 		</ul>
 
 	</li>
