@@ -486,6 +486,7 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 	?>
 
 	<label for="_bbp_group_forums_root_id"><?php _e( 'is the parent for all group forums', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'Using the Forum Root is not recommended. Changing this does not move existing forums.', 'bbpress' ); ?></p>
 
 <?php
 }

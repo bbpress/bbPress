@@ -309,17 +309,17 @@ class BBP_Admin {
 
 		/** BuddyPress ********************************************************/
 
-		if ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && !bp_is_active( 'forums' ) ) {
+		if ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) {
 
 			// Add the per page section
 			add_settings_section( 'bbp_buddypress',          __( 'BuddyPress', 'bbpress' ),          'bbp_admin_setting_callback_buddypress_section',   'bbpress'                   );
 
 			// Topics per page setting
 			add_settings_field( '_bbp_enable_group_forums',  __( 'Enable Group Forums', 'bbpress' ), 'bbp_admin_setting_callback_group_forums',         'bbpress', 'bbp_buddypress' );
-			register_setting  ( 'bbpress',                  '_bbp_enable_group_forums',                  'intval'                                                                       );
+			register_setting  ( 'bbpress',                  '_bbp_enable_group_forums',              'intval'                                                                       );
 
 			// Topics per page setting
-			add_settings_field( '_bbp_group_forums_root_id', __( 'Root Group Forum', 'bbpress' ),    'bbp_admin_setting_callback_group_forums_root_id', 'bbpress', 'bbp_buddypress' );
+			add_settings_field( '_bbp_group_forums_root_id', __( 'Group Forums Parent', 'bbpress' ), 'bbp_admin_setting_callback_group_forums_root_id', 'bbpress', 'bbp_buddypress' );
 			register_setting  ( 'bbpress',                  '_bbp_group_forums_root_id',             'intval'                                                                       );
 		}
 
