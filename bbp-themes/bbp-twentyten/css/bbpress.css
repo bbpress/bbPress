@@ -827,6 +827,14 @@ fieldset div.avatar {
 	padding-top: 20px;
 }
 
+body.my-account #bbpress-forums,
+body.my-account #bbp-author-subscriptions,
+body.my-account #bbp-author-favorites,
+body.my-account #bbp-author-topics-started {
+	border-top: none;
+	padding-top: 0;
+	margin-bottom: 0;
+}
 
 /* =BuddyPress Group Forums
 -------------------------------------------------------------- */

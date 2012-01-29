@@ -1503,10 +1503,18 @@ function bbp_member_forums_screen_subscriptions() {
  *
  * @since bbPress (r3552)
  *
- * @uses bbp_get_template_part()
+ * @uses bbp_get_template_part()s
  */
 function bbp_member_forums_topics_content() {
-	bbp_get_template_part( 'bbpress/user', 'topics-created' );
+?>
+
+	<div id="bbpress-forums">
+
+		<?php bbp_get_template_part( 'bbpress/user', 'topics-created' ); ?>
+
+	</div>
+
+<?php
 }
 
 /**
@@ -1517,7 +1525,15 @@ function bbp_member_forums_topics_content() {
  * @uses bbp_get_template_part()
  */
 function bbp_member_forums_replies_content() {
-	bbp_get_template_part( 'bbpress/user', 'topics-replied-to' );
+?>
+
+	<div id="bbpress-forums">
+
+		<?php bbp_get_template_part( 'bbpress/user', 'topics-replied-to' ); ?>
+
+	</div>
+
+<?php
 }
 
 /**
@@ -1528,7 +1544,15 @@ function bbp_member_forums_replies_content() {
  * @uses bbp_get_template_part()
  */
 function bbp_member_forums_favorites_content() {
-	bbp_get_template_part( 'bbpress/user', 'favorites' );
+?>
+
+	<div id="bbpress-forums">
+
+		<?php bbp_get_template_part( 'bbpress/user', 'favorites' ); ?>
+
+	</div>
+
+<?php
 }
 
 /**
@@ -1539,7 +1563,15 @@ function bbp_member_forums_favorites_content() {
  * @uses bbp_get_template_part()
  */
 function bbp_member_forums_subscriptions_content() {
-	bbp_get_template_part( 'bbpress/user', 'subscriptions' );
+?>
+
+	<div id="bbpress-forums">
+
+		<?php bbp_get_template_part( 'bbpress/user', 'subscriptions' ); ?>
+
+	</div>
+
+<?php
 }
 
 /** Forum/Group Sync **********************************************************/
