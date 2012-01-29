@@ -979,7 +979,8 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	if ( empty( $topic_id ) ) {
 
 		// Loop through children and add together forum reply counts
-		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+		$children = bbp_forum_query_subforum_ids( $forum_id );
+		if ( !empty( $children ) ) {
 			foreach ( (array) $children as $child ) {
 				$children_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive
 			}
@@ -995,7 +996,8 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 		);
 
 		// Get the most recent topic in this forum_id
-		if ( $recent_topic = get_posts( $post_vars ) ) {
+		$recent_topic = get_posts( $post_vars );
+		if ( !empty( $recent_topic ) ) {
 			$topic_id = $recent_topic[0]->ID;
 		}
 	}
@@ -1012,7 +1014,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	if ( bbp_is_topic_published( $topic_id ) )
 		update_post_meta( $forum_id, '_bbp_last_topic_id', $topic_id );
 
-	return apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $forum_id );
 }
 
 /**
@@ -1044,14 +1046,16 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	if ( empty( $reply_id ) ) {
 
 		// Loop through children and get the most recent reply id
-		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+		$children = bbp_forum_query_subforum_ids( $forum_id );
+		if ( !empty( $children ) ) {
 			foreach ( (array) $children as $child ) {
 				$children_last_reply = bbp_update_forum_last_reply_id( $child ); // Recursive
 			}
 		}
 
 		// If this forum has topics...
-		if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) ) {
+		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
+		if ( !empty( $topic_ids ) ) {
 
 			// ...get the most recent reply from those topics...
 			$reply_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
@@ -1073,7 +1077,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	if ( bbp_is_reply_published( $reply_id ) )
 		update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
 
-	return apply_filters( 'bbp_update_forum_last_reply_id', $reply_id, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_last_reply_id', $reply_id, $forum_id );
 }
 
 /**
@@ -1106,12 +1110,16 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	if ( empty( $active_id ) ) {
 
 		// Loop through children and add together forum reply counts
-		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
-			foreach ( (array) $children as $child )
-				$children_last_active = bbp_update_forum_last_active_id ( $child, $active_id );
+		$children = bbp_forum_query_subforum_ids( $forum_id );
+		if ( !empty( $children ) ) {
+			foreach ( (array) $children as $child ) {
+				$children_last_active = bbp_update_forum_last_active_id( $child, $active_id );
+			}
+		}
 
 		// Don't count replies if the forum is a category
-		if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) ) {
+		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
+		if ( !empty( $topic_ids ) ) {
 			$active_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
 			$active_id = $active_id > max( $topic_ids ) ? $active_id : max( $topic_ids );
 
@@ -1133,7 +1141,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	if ( bbp_get_public_status_id() == get_post_status( $active_id ) )
 		update_post_meta( $forum_id, '_bbp_last_active_id', (int) $active_id );
 
-	return apply_filters( 'bbp_update_forum_last_active_id', (int) $active_id, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_last_active_id', (int) $active_id, $forum_id );
 }
 
 /**
@@ -1162,7 +1170,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	if ( !empty( $new_time ) )
 		update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 
-	return apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
 }
 
 /**
@@ -1182,7 +1190,7 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
 
 	update_post_meta( $forum_id, '_bbp_forum_subforum_count', (int) $subforums );
 
-	return apply_filters( 'bbp_update_forum_subforum_count', (int) $subforums, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_subforum_count', (int) $subforums, $forum_id );
 }
 
 /**
@@ -1209,7 +1217,8 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	$children_topic_count = 0;
 
 	// Loop through subforums and add together forum topic counts
-	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+	$children = bbp_forum_query_subforum_ids( $forum_id );
+	if ( !empty( $children ) ) {
 		foreach ( (array) $children as $child ) {
 			$children_topic_count += bbp_update_forum_topic_count( $child ); // Recursive
 		}
@@ -1225,7 +1234,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	update_post_meta( $forum_id, '_bbp_topic_count',       (int) $topics       );
 	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) $total_topics );
 
-	return apply_filters( 'bbp_update_forum_topic_count', (int) $total_topics, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_topic_count', (int) $total_topics, $forum_id );
 }
 
 /**
@@ -1270,7 +1279,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 		update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
 	}
 
-	return apply_filters( 'bbp_update_forum_topic_count_hidden', (int) $topic_count, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_topic_count_hidden', (int) $topic_count, $forum_id );
 }
 
 /**
@@ -1301,12 +1310,16 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$children_reply_count = 0;
 
 	// Loop through children and add together forum reply counts
-	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
-		foreach ( (array) $children as $child )
+	$children = bbp_forum_query_subforum_ids( $forum_id );
+	if ( !empty( $children ) ) {
+		foreach ( (array) $children as $child ) {
 			$children_reply_count += bbp_update_forum_reply_count( $child );
+		}
+	}
 
 	// Don't count replies if the forum is a category
-	if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) )
+	$topic_ids = bbp_forum_query_topic_ids( $forum_id );
+	if ( !empty( $topic_ids ) )
 		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
 	else
 		$reply_count = 0;
@@ -1315,10 +1328,10 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$total_replies = (int) $reply_count + $children_reply_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
-	update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
+	update_post_meta( $forum_id, '_bbp_reply_count',       (int) $reply_count   );
+	update_post_meta( $forum_id, '_bbp_total_reply_count', (int) $total_replies );
 
-	return apply_filters( 'bbp_update_forum_reply_count', $total_replies, $forum_id );
+	return (int) apply_filters( 'bbp_update_forum_reply_count', (int) $total_replies, $forum_id );
 }
 
 /**
@@ -1638,19 +1651,23 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 	global $wpdb;
 
 	$cache_id = 'bbp_get_forum_' . $forum_id . '_reply_id';
+	$reply_id = (int) wp_cache_get( $cache_id, 'bbpress' );
 
-	if ( !$reply_id = (int) wp_cache_get( $cache_id, 'bbpress' ) ) {
+	if ( empty( $reply_id ) ) {
 
-		if ( empty( $topic_ids ) )
+		if ( empty( $topic_ids ) ) {
 			$topic_ids = bbp_forum_query_topic_ids( $forum_id );
+		}
 
-		if ( !empty( $topic_ids ) && ( $reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) ) ) )
-			wp_cache_set( $cache_id, $reply_id, 'bbpress' );
-		else
+		if ( !empty( $topic_ids ) ) {
+			$reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
+			wp_cache_set( $cache_id, $reply_id, 'bbpress' ); // May be (int) 0
+		} else {
 			wp_cache_set( $cache_id, '0', 'bbpress' );
+		}
 	}
 
-	return apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
+	return (int) apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
 }
 
 /** Listeners *****************************************************************/
