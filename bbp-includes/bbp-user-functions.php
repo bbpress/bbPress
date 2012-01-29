@@ -336,7 +336,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		}
 
 		// Is topic_id in the user's favorites
-		if ( empty( $topic_id ) ) {
+		if ( !empty( $topic_id ) ) {
 			$retval = in_array( $topic_id, $favorites );
 		}
 	}
