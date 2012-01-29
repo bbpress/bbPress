@@ -1684,6 +1684,57 @@ function bbp_has_errors() {
 	return $has_errors;
 }
 
+/** Templates ******************************************************************/
+
+/**
+ * Used to guess if page exists at requested path
+ *
+ * @since bbPress (r3304)
+ *
+ * @uses get_option() To see if pretty permalinks are enabled
+ * @uses get_page_by_path() To see if page exists at path
+ *
+ * @param string $path
+ * @return mixed False if no page, Page object if true
+ */
+function bbp_get_page_by_path( $path = '' ) {
+
+	// Default to false
+	$retval = false;
+
+	// Path is not empty
+	if ( !empty( $path ) ) {
+
+		// Pretty permalinks are on so path might exist
+		if ( get_option( 'permalink_structure' ) ) {
+			$retval = get_page_by_path( $path );
+		}
+	}
+
+	return apply_filters( 'bbp_get_page_by_path', $retval, $path );
+}
+
+/**
+ * Sets the 404 status.
+ *
+ * Used primarily with topics/replies inside hidden forums.
+ *
+ * @since bbPress (r3051)
+ *
+ * @global WP_Query $wp_query
+ * @uses WP_Query::set_404()
+ */
+function bbp_set_404() {
+	global $wp_query;
+
+	if ( ! isset( $wp_query ) ) {
+		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.' ), '3.1' );
+		return false;
+	}
+
+	$wp_query->set_404();
+}
+
 /** Post Statuses *************************************************************/
 
 /**

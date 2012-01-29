@@ -438,18 +438,23 @@ class bbPress {
 
 		/** Core **************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-hooks.php'         ); // All filters and actions
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'       ); // Configuration Options
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'          ); // Roles and capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'       ); // Common classes
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'       ); // Sidebar widgets
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php'    ); // Shortcodes for use with pages and posts
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-compatibility.php' ); // Theme compatibility for existing themes
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'        ); // Database updater
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-hooks.php'      ); // All filters and actions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration Options
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php' ); // Shortcodes for use with pages and posts
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'     ); // Database updater
+		
+		/** Templates *********************************************************/
+		
+		require( $this->plugin_dir . 'bbp-includes/bbp-template-functions.php'  ); // Template functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-template-loader.php'     ); // Template loader
+		require( $this->plugin_dir . 'bbp-includes/bbp-theme-compatibility.php' ); // Theme compatibility for existing themes
 		
 		/** Extensions ********************************************************/
 		
-		require( $this->plugin_dir . 'bbp-includes/bbp-extend-akismet.php'     ); // Spam prevention for topics and replies
+		require( $this->plugin_dir . 'bbp-includes/bbp-extend-akismet.php' ); // Spam prevention for topics and replies
 
 		/**
 		 * BuddyPress extension is loaded in bbp-core-hooks.php
