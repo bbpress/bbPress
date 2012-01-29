@@ -500,7 +500,9 @@ class BBP_Replies_Admin {
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $reply_id ); // Prelim array
 
-			if ( !$reply = bbp_get_reply( $reply_id ) ) // Which reply?
+			// Get reply and die if empty
+			$reply = bbp_get_reply( $reply_id );
+			if ( empty( $reply ) ) // Which reply?
 				wp_die( __( 'The reply was not found!', 'bbpress' ) );
 
 			if ( !current_user_can( 'moderate', $reply->ID ) ) // What is the user doing here?
@@ -558,7 +560,12 @@ class BBP_Replies_Admin {
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No reply?
-			if ( empty( $notice ) || empty( $reply_id ) || !$reply = bbp_get_reply( $reply_id ) )
+			if ( empty( $notice ) || empty( $reply_id ) )
+				return;
+
+			// Get reply and bail if empty
+			$reply = bbp_get_reply( $reply_id );
+			if ( empty( $reply ) )
 				return;
 
 			$reply_title = esc_html( bbp_get_reply_title( $reply->ID ) );
@@ -652,8 +659,10 @@ class BBP_Replies_Admin {
 				if ( !empty( $topic_id ) ) {
 
 					// Topic Title
-					if ( !$topic_title = bbp_get_topic_title( $topic_id ) )
+					$topic_title = bbp_get_topic_title( $topic_id );
+					if ( empty( $topic_title ) ) {
 						$topic_title = __( 'No Topic', 'bbpress' );
+					}
 
 					// Output the title
 					echo $topic_title;
@@ -676,8 +685,10 @@ class BBP_Replies_Admin {
 				if ( !empty( $reply_forum_id ) ) {
 
 					// Forum Title
-					if ( !$forum_title = bbp_get_forum_title( $reply_forum_id ) )
+					$forum_title = bbp_get_forum_title( $reply_forum_id );
+					if ( empty( $forum_title ) ) {
 						$forum_title = __( 'No Forum', 'bbpress' );
+					}
 
 					// Alert capable users of reply forum mismatch
 					if ( $reply_forum_id != $topic_forum_id ) {
@@ -873,7 +884,6 @@ class BBP_Replies_Admin {
 	 *
 	 * @since bbPress (r3080)
 	 *
-	 * @global WP_Query $post
 	 * @global int $post_ID
 	 * @uses get_post_type()
 	 * @uses bbp_get_topic_permalink()
@@ -886,13 +896,16 @@ class BBP_Replies_Admin {
 	 * @return array
 	 */
 	function updated_messages( $messages ) {
-		global $post, $post_ID;
+		global $post_ID;
 
 		if ( get_post_type( $post_ID ) != $this->post_type )
 			return $messages;
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( bbp_get_reply_topic_id( $post_ID ) );
+		
+		// Current reply's post_date
+		$post_date = bbp_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
 		$messages[$this->post_type] = array(
@@ -929,7 +942,7 @@ class BBP_Replies_Admin {
 			9 => sprintf( __( 'Reply scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
 					date_i18n( __( 'M j, Y @ G:i' ),
-					strtotime( $post->post_date ) ),
+					strtotime( $post_date ) ),
 					$topic_url ),
 
 			// Reply draft updated

@@ -1905,7 +1905,7 @@ function bbp_form_forum_title() {
 
 		// Get edit data
 		elseif ( bbp_is_forum_edit() )
-			$forum_title = bbp_get_global_post_field( 'post_title' );
+			$forum_title = bbp_get_global_post_field( 'post_title', 'raw' );
 
 		// No data
 		else
@@ -1941,7 +1941,7 @@ function bbp_form_forum_content() {
 
 		// Get edit data
 		elseif ( bbp_is_forum_edit() )
-			$forum_content = bbp_get_global_post_field( 'post_content' );
+			$forum_content = bbp_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
 		else

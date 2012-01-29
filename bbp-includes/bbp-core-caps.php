@@ -163,19 +163,19 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'read_reply' :
 
 			// Get the post
-			$post = get_post( $args[0] );
-			if ( !empty( $post ) ) {
+			$_post = get_post( $args[0] );
+			if ( !empty( $_post ) ) {
 
 				// Get caps for post type object
-				$post_type = get_post_type_object( $post->post_type );
+				$post_type = get_post_type_object( $_post->post_type );
 				$caps      = array();
 
 				// Post is public
-				if ( bbp_get_public_status_id() == $post->post_status ) {
+				if ( bbp_get_public_status_id() == $_post->post_status ) {
 					$caps[] = 'read';
 
 				// User is author so allow read
-				} elseif ( (int) $user_id == (int) $post->post_author ) {
+				} elseif ( (int) $user_id == (int) $_post->post_author ) {
 					$caps[] = 'read';
 
 				// Unknown so map to private posts
@@ -217,11 +217,11 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'edit_reply' :
 
 			// Get the post
-			$post = get_post( $args[0] );
-			if ( !empty( $post ) ) {
+			$_post = get_post( $args[0] );
+			if ( !empty( $_post ) ) {
 
 				// Get caps for post type object
-				$post_type = get_post_type_object( $post->post_type );
+				$post_type = get_post_type_object( $_post->post_type );
 				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
@@ -229,7 +229,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow edit
-				} elseif ( (int) $user_id == (int) $post->post_author ) {
+				} elseif ( (int) $user_id == (int) $_post->post_author ) {
 					$caps[] = $post_type->cap->edit_posts;
 
 				// Unknown, so map to edit_others_posts
@@ -246,11 +246,11 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'delete_forum' :
 
 			// Get the post
-			$post = get_post( $args[0] );
-			if ( !empty( $post ) ) {
+			$_post = get_post( $args[0] );
+			if ( !empty( $_post ) ) {
 
 				// Get caps for post type object
-				$post_type = get_post_type_object( $post->post_type );
+				$post_type = get_post_type_object( $_post->post_type );
 				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
@@ -258,7 +258,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow to delete
-				} elseif ( (int) $user_id == (int) $post->post_author ) {
+				} elseif ( (int) $user_id == (int) $_post->post_author ) {
 					$caps[] = $post_type->cap->delete_posts;
 
 				// Unknown so map to delete_others_posts
@@ -273,11 +273,11 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'delete_reply' :
 
 			// Get the post
-			$post = get_post( $args[0] );
-			if ( !empty( $post ) ) {
+			$_post = get_post( $args[0] );
+			if ( !empty( $_post ) ) {
 
 				// Get caps for post type object
-				$post_type = get_post_type_object( $post->post_type );
+				$post_type = get_post_type_object( $_post->post_type );
 				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted

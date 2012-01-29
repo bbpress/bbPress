@@ -979,21 +979,21 @@ class bbPress_Importer {
 							$replies        = 0;
 							$hidden_replies = 0;
 							$last_reply     = 0;
-							$post           = null;
+							$_post          = null;
 
-							foreach ( (array) $posts as $post ) {
+							foreach ( (array) $posts as $_post ) {
 
 								// Pingback
-								if ( $post->poster_id == 0 && $pingback_uri = bb_get_post_meta( 'pingback_uri', $post->post_id ) ) {
+								if ( $_post->poster_id == 0 && $pingback_uri = bb_get_post_meta( 'pingback_uri', $_post->post_id ) ) {
 									$pingback = wp_insert_comment( wp_filter_comment( array(
 										'comment_post_ID'    => $inserted_topic,
-										'comment_author'     => bb_get_post_meta( 'pingback_title', $post->post_id ),
+										'comment_author'     => bb_get_post_meta( 'pingback_title', $_post->post_id ),
 										'comment_author_url' => $pingback_uri,
-										'comment_author_IP'  => $post->poster_ip,
-										'comment_date_gmt'   => $post->post_time,
-										'comment_date'       => get_date_from_gmt( $post->post_time ),
-										'comment_content'    => $post->post_text,
-										'comment_approved'   => $post->post_status == 0 ? 1 : ( $post->post_status == 2 ? 'spam' : 0 ),
+										'comment_author_IP'  => $_post->poster_ip,
+										'comment_date_gmt'   => $_post->post_time,
+										'comment_date'       => get_date_from_gmt( $_post->post_time ),
+										'comment_content'    => $_post->post_text,
+										'comment_approved'   => $_post->post_status == 0 ? 1 : ( $_post->post_status == 2 ? 'spam' : 0 ),
 										'comment_type'       => 'pingback'
 									) ) );
 
@@ -1003,25 +1003,25 @@ class bbPress_Importer {
 
 									$last_reply         =  wp_insert_post( array(
 										'post_parent'   => $inserted_topic,
-										'post_author'   => $post->poster_id,
-										'post_date_gmt' => $post->post_time,
-										'post_date'     => get_date_from_gmt( $post->post_time ),
+										'post_author'   => $_post->poster_id,
+										'post_date_gmt' => $_post->post_time,
+										'post_date'     => get_date_from_gmt( $_post->post_time ),
 										'post_title'    => $reply_title,
 										'post_name'     => sanitize_title_with_dashes( $reply_title ),
-										'post_status'   => $post_statuses[$post->post_status],
+										'post_status'   => $post_statuses[$_post->post_status],
 										'post_type'     => bbp_get_reply_post_type(),
-										'post_content'  => $post->post_text
+										'post_content'  => $_post->post_text
 									) );
 
 									// Loginless
-									if ( $post->poster_id == 0 ) {
-										update_post_meta( $last_reply, '_bbp_anonymous_name',    bb_get_post_meta( 'post_author', $post->post_id ) );
-										update_post_meta( $last_reply, '_bbp_anonymous_email',   bb_get_post_meta( 'post_email',  $post->post_id ) );
-										update_post_meta( $last_reply, '_bbp_anonymous_website', bb_get_post_meta( 'post_url',    $post->post_id ) );
+									if ( $_post->poster_id == 0 ) {
+										update_post_meta( $last_reply, '_bbp_anonymous_name',    bb_get_post_meta( 'post_author', $_post->post_id ) );
+										update_post_meta( $last_reply, '_bbp_anonymous_email',   bb_get_post_meta( 'post_email',  $_post->post_id ) );
+										update_post_meta( $last_reply, '_bbp_anonymous_website', bb_get_post_meta( 'post_url',    $_post->post_id ) );
 									}
 
 									// Author IP
-									update_post_meta( $last_reply, '_bbp_author_ip', $post->poster_ip );
+									update_post_meta( $last_reply, '_bbp_author_ip', $_post->poster_ip );
 
 									// Reply Parents
 									update_post_meta( $last_reply, '_bbp_forum_id', $inserted_forum );
@@ -1030,7 +1030,7 @@ class bbPress_Importer {
 									bbp_update_reply_walker( $last_reply );
 								}
 
-								if ( $post->post_status != 0 )
+								if ( $_post->post_status != 0 )
 									$hidden_replies++;
 								else
 									$replies++;
@@ -1063,8 +1063,8 @@ class bbPress_Importer {
 							}
 
 							// Last active
-							$last_active_id   = !empty( $last_reply ) ? $last_reply      : $inserted_topic;
-							$last_active_time = !empty( $post       ) ? $post->post_time : $first_post->post_time;
+							$last_active_id   = !empty( $last_reply ) ? $last_reply        : $inserted_topic;
+							$last_active_time = !empty( $_post       ) ? $_post->post_time : $first_post->post_time;
 
 							// Reply topic meta
 							update_post_meta( $inserted_topic, '_bbp_last_reply_id',      $last_reply       );

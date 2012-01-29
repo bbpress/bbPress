@@ -230,7 +230,7 @@ function bbp_new_reply_handler() {
 
 		/** Create new reply **************************************************/
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $reply_data as an array
 		$reply_data = array(
 			'post_author'    => $reply_author,
 			'post_title'     => $reply_title,
@@ -487,7 +487,7 @@ function bbp_edit_reply_handler() {
 	// Handle insertion into posts table
 	if ( !bbp_has_errors() ) {
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $reply_data as an array
 		$reply_data = array(
 			'ID'           => $reply_id,
 			'post_title'   => $reply_title,

@@ -346,7 +346,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @param string $output Passed by reference. Used to append additional
 	 *                        content.
-	 * @param object $post Post data object.
+	 * @param object $_post Post data object.
 	 * @param int $depth Depth of post in reference to parent posts. Used
 	 *                    for padding.
 	 * @param array $args Uses 'selected' argument for selected post to set
@@ -358,19 +358,19 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
 	 *                        title, output, post, depth and args
 	 */
-	function start_el( &$output, $post, $depth, $args ) {
+	function start_el( &$output, $_post, $depth, $args ) {
 		$pad     = str_repeat( '&nbsp;', $depth * 3 );
 		$output .= "\t<option class=\"level-$depth\"";
 
 		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category or is closed
-		if ( true == $args['disable_categories'] && $post->post_type == bbp_get_forum_post_type() && ( bbp_is_forum_category( $post->ID ) || ( !current_user_can( 'edit_forum', $post->ID ) && bbp_is_forum_closed( $post->ID ) ) ) )
+		if ( true == $args['disable_categories'] && $_post->post_type == bbp_get_forum_post_type() && ( bbp_is_forum_category( $_post->ID ) || ( !current_user_can( 'edit_forum', $_post->ID ) && bbp_is_forum_closed( $_post->ID ) ) ) )
 			$output .= ' disabled="disabled" value=""';
 		else
-			$output .= ' value="' .$post->ID .'"' . selected( $args['selected'], $post->ID, false );
+			$output .= ' value="' . $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
 
 		$output .= '>';
-		$title   = esc_html( $post->post_title );
-		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $post->post_title, $output, $post, $depth, $args );
+		$title   = esc_html( $_post->post_title );
+		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
 		$output .= $pad . $title;
 		$output .= "</option>\n";
 	}

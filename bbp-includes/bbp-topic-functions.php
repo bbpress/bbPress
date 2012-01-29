@@ -265,7 +265,7 @@ function bbp_new_topic_handler() {
 
 		/** Create new topic **************************************************/
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $topic_data as an array
 		$topic_data = array(
 			'post_author'    => $topic_author,
 			'post_title'     => $topic_title,
@@ -595,7 +595,7 @@ function bbp_edit_topic_handler() {
 
 		/** Update the topic **************************************************/
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $topic_data as an array
 		$topic_data = array(
 			'ID'           => $topic_id,
 			'post_title'   => $topic_title,

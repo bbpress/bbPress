@@ -1920,7 +1920,7 @@ function bbp_form_reply_content() {
 
 		// Get edit data
 		elseif ( bbp_is_reply_edit() )
-			$reply_content = bbp_get_global_post_field( 'post_content' );
+			$reply_content = bbp_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
 		else

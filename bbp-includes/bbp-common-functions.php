@@ -877,7 +877,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		return true;
 
 	// Define local variable(s)
-	$post      = array();
+	$_post     = array();
 	$match_out = '';
 
 	/** Blacklist *************************************************************/
@@ -893,9 +893,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 
 	// Map anonymous user data
 	if ( !empty( $anonymous_data ) ) {
-		$post['author'] = $anonymous_data['bbp_anonymous_name'];
-		$post['email']  = $anonymous_data['bbp_anonymous_email'];
-		$post['url']    = $anonymous_data['bbp_anonymous_website'];
+		$_post['author'] = $anonymous_data['bbp_anonymous_name'];
+		$_post['email']  = $anonymous_data['bbp_anonymous_email'];
+		$_post['url']    = $anonymous_data['bbp_anonymous_website'];
 
 	// Map current user data
 	} elseif ( !empty( $author_id ) ) {
@@ -905,19 +905,19 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 
 		// If data exists, map it
 		if ( !empty( $user ) ) {
-			$post['author'] = $user->display_name;
-			$post['email']  = $user->user_email;
-			$post['url']    = $user->user_url;
+			$_post['author'] = $user->display_name;
+			$_post['email']  = $user->user_email;
+			$_post['url']    = $user->user_url;
 		}
 	}
 
 	// Current user IP and user agent
-	$post['user_ip'] = bbp_current_author_ip();
-	$post['user_ua'] = bbp_current_author_ua();
+	$_post['user_ip'] = bbp_current_author_ip();
+	$_post['user_ua'] = bbp_current_author_ua();
 
 	// Post title and content
-	$post['title']   = $title;
-	$post['content'] = $content;
+	$_post['title']   = $title;
+	$_post['content'] = $content;
 
 	/** Max Links *************************************************************/
 
@@ -928,7 +928,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		$num_links = preg_match_all( '/<a [^>]*href/i', $content, $match_out );
 
 		// Allow for bumping the max to include the user's URL
-		$num_links = apply_filters( 'comment_max_links_url', $num_links, $post['url'] );
+		$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
 
 		// Das ist zu viele links!
 		if ( $num_links >= $max_links ) {
@@ -956,7 +956,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		$pattern = "#$word#i";
 
 		// Loop through post data
-		foreach( $post as $post_data ) {
+		foreach( $_post as $post_data ) {
 
 			// Check each user data for current word
 			if ( preg_match( $pattern, $post_data ) ) {
@@ -992,7 +992,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 		return true;
 
 	// Define local variable
-	$post = array();
+	$_post = array();
 
 	/** Blacklist *************************************************************/
 
@@ -1007,9 +1007,9 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 
 	// Map anonymous user data
 	if ( !empty( $anonymous_data ) ) {
-		$post['author'] = $anonymous_data['bbp_anonymous_name'];
-		$post['email']  = $anonymous_data['bbp_anonymous_email'];
-		$post['url']    = $anonymous_data['bbp_anonymous_website'];
+		$_post['author'] = $anonymous_data['bbp_anonymous_name'];
+		$_post['email']  = $anonymous_data['bbp_anonymous_email'];
+		$_post['url']    = $anonymous_data['bbp_anonymous_website'];
 
 	// Map current user data
 	} elseif ( !empty( $author_id ) ) {
@@ -1019,19 +1019,19 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 
 		// If data exists, map it
 		if ( !empty( $user ) ) {
-			$post['author'] = $user->display_name;
-			$post['email']  = $user->user_email;
-			$post['url']    = $user->user_url;
+			$_post['author'] = $user->display_name;
+			$_post['email']  = $user->user_email;
+			$_post['url']    = $user->user_url;
 		}
 	}
 
 	// Current user IP and user agent
-	$post['user_ip'] = bbp_current_author_ip();
-	$post['user_ua'] = bbp_current_author_ua();
+	$_post['user_ip'] = bbp_current_author_ip();
+	$_post['user_ua'] = bbp_current_author_ua();
 
 	// Post title and content
-	$post['title']   = $title;
-	$post['content'] = $content;
+	$_post['title']   = $title;
+	$_post['content'] = $content;
 
 	/** Words *****************************************************************/
 
@@ -1053,7 +1053,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 		$pattern = "#$word#i";
 
 		// Loop through post data
-		foreach( $post as $post_data ) {
+		foreach( $_post as $post_data ) {
 
 			// Check each user data for current word
 			if ( preg_match( $pattern, $post_data ) ) {

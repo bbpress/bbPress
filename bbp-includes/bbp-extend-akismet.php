@@ -43,6 +43,9 @@ class BBP_Akismet {
 	 */
 	private function setup_actions() {
 
+		// Prevent debug notices
+		$checks = array();
+
 		// bbPress functions to check for spam
 		$checks['check']  = array(
 			'bbp_new_topic_pre_insert' => 1,  // Topic check
@@ -131,7 +134,7 @@ class BBP_Akismet {
 			$post_permalink = get_permalink( $post_data['post_parent'] );
 
 		// Put post_data back into usable array
-		$post = array(
+		$_post = array(
 			'comment_author'       => $user_data['name'],
 			'comment_author_email' => $user_data['email'],
 			'comment_author_url'   => $user_data['website'],
@@ -147,14 +150,14 @@ class BBP_Akismet {
 		);
 
 		// Check the post_data
-		$post = $this->maybe_spam( $post );
+		$_post = $this->maybe_spam( $_post );
 
 		// Get the result
-		$post_data['bbp_akismet_result'] = $post['bbp_akismet_result'];
-		unset( $post['bbp_akismet_result'] );
+		$post_data['bbp_akismet_result'] = $_post['bbp_akismet_result'];
+		unset( $_post['bbp_akismet_result'] );
 
 		// Store the data as submitted
-		$post_data['bbp_post_as_submitted'] = $post;
+		$post_data['bbp_post_as_submitted'] = $_post;
 
 		// Spam
 		if ( 'true' == $post_data['bbp_akismet_result'] ) {
@@ -209,7 +212,7 @@ class BBP_Akismet {
 	 * @return array Array of existing topic terms
 	 */
 	public function submit_post( $post_id = 0 ) {
-		global $wpdb, $akismet_api_host, $akismet_api_port, $current_user, $current_site;
+		global $current_user, $current_site;
 
 		// Innocent until proven guilty
 		$request_type   = 'ham';
@@ -239,31 +242,31 @@ class BBP_Akismet {
 		$post_id = (int) $post_id;
 
 		// Make sure we have a post
-		$post = get_post( $post_id );
+		$_post = get_post( $post_id );
 
 		// Bail if get_post() fails
-		if ( empty( $post ) )
+		if ( empty( $_post ) )
 			return;
 
 		// Bail if we're spamming, but the post_status isn't spam
-		if ( ( 'spam' == $request_type ) && ( bbp_get_spam_status_id() != $post->post_status ) )
+		if ( ( 'spam' == $request_type ) && ( bbp_get_spam_status_id() != $_post->post_status ) )
 			return;
 
 		// Set some default post_data
 		$post_data = array(
-			'comment_approved'     => $post->post_status,
-			'comment_author'       => $post->post_author ? get_the_author_meta( 'display_name', $post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_name',    true ),
-			'comment_author_email' => $post->post_author ? get_the_author_meta( 'email',        $post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
-			'comment_author_url'   => $post->post_author ? bbp_get_user_profile_url(            $post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
-			'comment_content'      => $post->post_content,
-			'comment_date'         => $post->post_date,
+			'comment_approved'     => $_post->post_status,
+			'comment_author'       => $_post->post_author ? get_the_author_meta( 'display_name', $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_name',    true ),
+			'comment_author_email' => $_post->post_author ? get_the_author_meta( 'email',        $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
+			'comment_author_url'   => $_post->post_author ? bbp_get_user_profile_url(            $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
+			'comment_content'      => $_post->post_content,
+			'comment_date'         => $_post->post_date,
 			'comment_ID'           => $post_id,
-			'comment_post_ID'      => $post->post_parent,
-			'comment_type'         => $post->post_type,
+			'comment_post_ID'      => $_post->post_parent,
+			'comment_type'         => $_post->post_type,
 			'permalink'            => get_permalink( $post_id ),
-			'user_ID'              => $post->post_author,
+			'user_ID'              => $_post->post_author,
 			'user_ip'              => get_post_meta( $post_id, '_bbp_author_ip', true ),
-			'user_role'            => akismet_get_user_roles( $post->post_author ),
+			'user_role'            => akismet_get_user_roles( $_post->post_author ),
 		);
 
 		// Use the original version stored in post_meta if available
@@ -397,7 +400,7 @@ class BBP_Akismet {
 	 * @since bbPress (r3308)
 	 *
 	 * @param int $post_id
-	 * @param object $post
+	 * @param object $_post
 	 *
 	 * @global object $this->last_post
 	 *
@@ -407,7 +410,7 @@ class BBP_Akismet {
 	 * @uses update_post_meta() To update post meta with Akismet data
 	 * @uses BBP_Akismet::update_post_history() To update post Akismet history
 	 */
-	public function update_post_meta( $post_id = 0, $post = false ) {
+	public function update_post_meta( $post_id = 0, $_post = false ) {
 
 		// Define local variable(s)
 		$as_submitted = false;
@@ -416,8 +419,8 @@ class BBP_Akismet {
 		$post_id = (int) $post_id;
 
 		// Ensure we have a post object
-		if ( empty( $post ) )
-			$post = get_post( $post_id );
+		if ( empty( $_post ) )
+			$_post = get_post( $post_id );
 
 		// Set up Akismet last post data
 		if ( !empty( $this->last_post ) )
@@ -425,14 +428,14 @@ class BBP_Akismet {
 
 		// wp_insert_post() might be called in other contexts. Ensure this is
 		// the same topic/reply as was checked by BBP_Akismet::check_post()
-		if ( is_object( $post ) && !empty( $this->last_post ) && is_array( $as_submitted ) ) {
+		if ( is_object( $_post ) && !empty( $this->last_post ) && is_array( $as_submitted ) ) {
 
 			// Get user data
-			$userdata       = get_userdata( $post->post_author );
+			$userdata       = get_userdata( $_post->post_author );
 			$anonymous_data = bbp_filter_anonymous_post_data();
 
 			// More checks
-			if (	intval( $as_submitted['comment_post_ID'] )    == intval( $post->post_parent )
+			if (	intval( $as_submitted['comment_post_ID'] )    == intval( $_post->post_parent )
 					&&      $as_submitted['comment_author']       == ( $anonymous_data ? $anonymous_data['bbp_anonymous_name']  : $userdata->display_name )
 					&&      $as_submitted['comment_author_email'] == ( $anonymous_data ? $anonymous_data['bbp_anonymous_email'] : $userdata->user_email   )
 				) {
@@ -445,8 +448,8 @@ class BBP_Akismet {
 					$this->update_post_history( $post_id, __( 'Akismet caught this post as spam', 'bbpress' ), 'check-spam' );
 
 					// If post_status isn't the spam status, as expected, leave a note
-					if ( $post->post_status != bbp_get_spam_status_id() ) {
-						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $post->post_status ), 'status-changed-' . $post->post_status );
+					if ( $_post->post_status != bbp_get_spam_status_id() ) {
+						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
 					}
 
 				// Normal result: false
@@ -457,11 +460,11 @@ class BBP_Akismet {
 					$this->update_post_history( $post_id, __( 'Akismet cleared this post', 'bbpress' ), 'check-ham' );
 
 					// If post_status is the spam status, which isn't expected, leave a note
-					if ( $post->post_status == bbp_get_spam_status_id() ) {
+					if ( $_post->post_status == bbp_get_spam_status_id() ) {
 
 						// @todo Use wp_blacklist_check()
 
-						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $post->post_status ), 'status-changed-' . $post->post_status );
+						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
 					}
 
 				// Abnormal result: error

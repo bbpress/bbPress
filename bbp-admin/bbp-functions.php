@@ -916,7 +916,7 @@ function bbp_recount_rewalk() {
  * @since bbPress (r3336)
  *
  * @param string $post_link Custom post type permalink
- * @param object $post Post data object
+ * @param object $_post Post data object
  * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
  * @param bool $sample Optional, defaults to false. Is it a sample permalink.
  *
@@ -925,7 +925,7 @@ function bbp_recount_rewalk() {
  *
  * @return string The custom post type permalink
  */
-function bbp_filter_sample_permalink( $post_link, $post, $leavename = false, $sample = false ) {
+function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
 	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() )

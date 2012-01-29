@@ -590,19 +590,19 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 
 		$is_fav = bbp_is_user_favorite( $user_id, $topic_id );
 		if ( !empty( $is_fav ) ) {
-			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
-			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
-			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
-			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
-			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
-			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
+			$url   = esc_url( bbp_get_favorites_permalink( $user_id ) );
+			$rem   = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
+			$favs  = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
+			$pre   = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
+			$mid   = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
+			$_post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
 		} else {
-			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
-			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
-			$favs = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
-			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
-			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
-			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
+			$url   = esc_url( bbp_get_topic_permalink( $topic_id ) );
+			$add   = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
+			$favs  = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
+			$pre   = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
+			$mid   = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
+			$_post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
 		}
 
 		// Create the link based where the user is and if the topic is
@@ -617,7 +617,7 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 
 		$url    = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
 		$is_fav = $is_fav ? 'is-favorite' : '';
-		$html   = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $post . '</span></span>';
+		$html   = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $_post . '</span></span>';
 
 		// Return the link
 		return apply_filters( 'bbp_get_user_favorites_link', $html, $add, $rem, $user_id, $topic_id );

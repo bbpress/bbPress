@@ -224,7 +224,7 @@ function bbp_new_forum_handler() {
 
 		/** Create new forum **************************************************/
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $forum_data as an array
 		$forum_data = array(
 			'post_author'    => $forum_author,
 			'post_title'     => $forum_title,
@@ -481,7 +481,7 @@ function bbp_edit_forum_handler() {
 
 		/** Update the forum **************************************************/
 
-		// Add the content of the form to $post as an array
+		// Add the content of the form to $forum_data as an array
 		$forum_data = array(
 			'ID'           => $forum_id,
 			'post_title'   => $forum_title,

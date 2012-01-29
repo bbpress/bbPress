@@ -1365,7 +1365,6 @@ function bbp_the_content( $args = array() ) {
 	 *
 	 * @since bbPress (r3586)
 	 *
-	 * @global obj $post
 	 * @param array $args
 	 *
 	 * @uses apply_filter() To filter args and output
@@ -1407,9 +1406,9 @@ function bbp_the_content( $args = array() ) {
 		// Use TinyMCE if available
 		if ( function_exists( 'wp_editor' ) && bbp_use_wp_editor() ) {
 
-			// If it's an edit, use the $post global
+			// If it's an edit, use the global post's post_content
 			if ( bbp_is_edit() ) {
-				$post_content = bbp_get_global_post_field( 'post_content' );
+				$post_content = bbp_get_global_post_field( 'post_content', 'raw' );
 			}
 
 			$settings = array(

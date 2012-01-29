@@ -506,7 +506,6 @@ class BBP_Forums_Admin {
 	 *
 	 * @since bbPress (r3080)
 	 *
-	 * @global WP_Query $post
 	 * @global int $post_ID
 	 * @uses get_post_type()
 	 * @uses bbp_get_forum_permalink()
@@ -519,13 +518,16 @@ class BBP_Forums_Admin {
 	 * @return array
 	 */
 	function updated_messages( $messages ) {
-		global $post, $post_ID;
+		global $post_ID;
 
 		if ( get_post_type( $post_ID ) != $this->post_type )
 			return $messages;
 
 		// URL for the current forum
 		$forum_url = bbp_get_forum_permalink( $post_ID );
+
+		// Current forum's post_date
+		$post_date = bbp_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
 		$messages[$this->post_type] = array(
@@ -562,7 +564,7 @@ class BBP_Forums_Admin {
 			9 => sprintf( __( 'Forum scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview forum</a>', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
 					date_i18n( __( 'M j, Y @ G:i' ),
-					strtotime( $post->post_date ) ),
+					strtotime( $post_date ) ),
 					$forum_url ),
 
 			// Forum draft updated

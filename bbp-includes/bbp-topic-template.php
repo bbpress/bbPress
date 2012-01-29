@@ -3139,7 +3139,7 @@ function bbp_form_topic_title() {
 
 		// Get edit data
 		elseif ( bbp_is_topic_edit() )
-			$topic_title = bbp_get_global_post_field( 'post_title' );
+			$topic_title = bbp_get_global_post_field( 'post_title', 'raw' );
 
 		// No data
 		else
@@ -3175,7 +3175,7 @@ function bbp_form_topic_content() {
 
 		// Get edit data
 		elseif ( bbp_is_topic_edit() )
-			$topic_content = bbp_get_global_post_field( 'post_content' );
+			$topic_content = bbp_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
 		else
@@ -3336,7 +3336,6 @@ function bbp_form_topic_subscribed() {
 	 * @return string Checked value of topic subscription
 	 */
 	function bbp_get_form_topic_subscribed() {
-		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) ) {
@@ -3345,9 +3344,12 @@ function bbp_form_topic_subscribed() {
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
 
+			// Get current posts author
+			$post_author = bbp_get_global_post_field( 'post_author', 'raw' );
+
 			// Post author is not the current user
-			if ( $post->post_author != bbp_get_current_user_id() ) {
-				$topic_subscribed = bbp_is_user_subscribed( $post->post_author );
+			if ( bbp_get_current_user_id() != $post_author ) {
+				$topic_subscribed = bbp_is_user_subscribed( $post_author );
 
 			// Post author is the current user
 			} else {

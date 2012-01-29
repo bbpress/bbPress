@@ -524,8 +524,10 @@ class BBP_Topics_Admin {
 			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $topic_id ); // Prelim array
+			$topic     = bbp_get_topic( $topic_id );
 
-			if ( !$topic = bbp_get_topic( $topic_id ) ) // Which topic?
+			// Bail if topic is missing
+			if ( empty( $topic ) )
 				wp_die( __( 'The topic was not found!', 'bbpress' ) );
 
 			if ( !current_user_can( 'moderate', $topic->ID ) ) // What is the user doing here?
@@ -601,8 +603,13 @@ class BBP_Topics_Admin {
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
-			// Empty? No topic?
-			if ( empty( $notice ) || empty( $topic_id ) || !$topic = bbp_get_topic( $topic_id ) )
+			// Bais if no topic_id or notice
+			if ( empty( $notice ) || empty( $topic_id ) )
+				return;
+
+			// Bail if topic is missing
+			$topic = bbp_get_topic( $topic_id );
+			if ( empty( $topic ) )
 				return;
 
 			$topic_title = esc_html( bbp_get_topic_title( $topic->ID ) );
@@ -715,8 +722,10 @@ class BBP_Topics_Admin {
 				if ( !empty( $forum_id ) ) {
 					
 					// Forum Title
-					if ( !$forum_title = bbp_get_forum_title( $forum_id ) )
+					$forum_title = bbp_get_forum_title( $forum_id );
+					if ( empty( $forum_title ) ) {
 						$forum_title = __( 'No Forum', 'bbpress' );
+					}
 
 					// Output the title
 					echo $forum_title;
@@ -754,10 +763,11 @@ class BBP_Topics_Admin {
 			// Freshness
 			case 'bbp_topic_freshness' :
 				$last_active = bbp_get_topic_last_active_time( $topic_id, false );
-				if ( !empty( $last_active ) )
+				if ( !empty( $last_active ) ) {
 					printf( __( '%s ago', 'bbpress' ), $last_active );
-				else
+				} else {
 					_e( 'No Replies', 'bbpress' ); // This should never happen
+				}
 
 				break;
 
@@ -945,7 +955,6 @@ class BBP_Topics_Admin {
 	 *
 	 * @since bbPress (r3080)
 	 *
-	 * @global WP_Query $post
 	 * @global int $post_ID
 	 * @uses get_post_type()
 	 * @uses bbp_get_topic_permalink()
@@ -958,13 +967,16 @@ class BBP_Topics_Admin {
 	 * @return array
 	 */
 	function updated_messages( $messages ) {
-		global $post, $post_ID;
+		global $post_ID;
 
 		if ( get_post_type( $post_ID ) != $this->post_type )
 			return $messages;
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( $post_ID );
+
+		// Current topic's post_date
+		$post_date = bbp_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
 		$messages[$this->post_type] = array(
@@ -1001,7 +1013,7 @@ class BBP_Topics_Admin {
 			9 => sprintf( __( 'Topic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
 					date_i18n( __( 'M j, Y @ G:i' ),
-					strtotime( $post->post_date ) ),
+					strtotime( $post_date ) ),
 					$topic_url ),
 
 			// Topic draft updated
