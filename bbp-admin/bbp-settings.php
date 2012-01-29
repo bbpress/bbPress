@@ -518,7 +518,7 @@ function bbp_admin_setting_callback_akismet() {
 ?>
 
 	<input id="_bbp_enable_akismet" name="_bbp_enable_akismet" type="checkbox" id="_bbp_enable_akismet" value="1" <?php checked( bbp_is_akismet_active( true ) ); ?> />
-	<label for="_bbp_enable_akismet"><?php _e( 'Allow Akismet to actively prevent topic and reply spam', 'bbpress' ); ?></label>
+	<label for="_bbp_enable_akismet"><?php _e( 'Allow Akismet to actively prevent forum spam.', 'bbpress' ); ?></label>
 
 <?php
 }
