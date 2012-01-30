@@ -26,7 +26,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Theme Compatibility base class
- * 
+ *
  * This is only intended to be extended, and is included here as a basic guide
  * for future Theme Packs to use. @link BBP_Twenty_Ten is a good example of
  * extending this class, as is @link bbp_setup_theme_compat()
@@ -34,7 +34,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @since bbPress (r3506)
  */
 class BBP_Theme_Compat {
-	
+
 	/**
 	 * @var string Name of the theme (should match style.css)
 	 */
@@ -72,7 +72,7 @@ function bbp_setup_theme_compat( $theme = '' ) {
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) ) {
 		if ( empty( $theme ) ) {
-			$theme          = new BBP_Theme_Compat();			
+			$theme          = new BBP_Theme_Compat();
 			$theme->name    = 'bbPress (Twenty Ten)';
 			$theme->version = '20110912';
 			$theme->dir     = $bbp->themes_dir . '/bbp-twentyten';
@@ -338,7 +338,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_single  = $dummy['is_single'];
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
-	
+
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active();
 }
@@ -760,9 +760,6 @@ function bbp_replace_the_content( $content = '' ) {
 		 *
 		 * @see comments_template() For why we're doing this :)
 		 *
-		 * Note: In bbPress 2.0, the $post global was unset here too; it
-		 *       caused more harm than good, so it was removed in 2.1.
-		 *
 		 * Note: If a theme uses custom code to output comments, it's
 		 *       possible all of this dancing around is for not.
 		 *
@@ -775,15 +772,44 @@ function bbp_replace_the_content( $content = '' ) {
 		if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
 
 			// Setup the chopping block
-			global $withcomments;
+			global $withcomments, $post;
 
 			// Empty out globals that aren't being used in this loop anymore
-			$withcomments = false;			
+			$withcomments = $post = false;
+
+			// Reset the post data when the next sidebar is fired
+			add_action( 'get_sidebar', 'bbp_reset_post_data' );
+			add_action( 'get_footer',  'bbp_reset_post_data' );
 		}
 	}
 
 	// Return possibly hi-jacked content
 	return $content;
+}
+
+/**
+ * Resets the post data after the content has displayed
+ *
+ * @since bbPress (r3724)
+ * @uses wp_reset_postdata() To reset the post data
+ * @uses remove_action() To unhook itself so it does not fire more than once
+ */
+function bbp_reset_post_data() {
+	static $ran = false;
+
+	// Bail if this already ran
+	if ( true === $ran )
+		return;
+
+	// Reset the post data to whatever our global post is
+	wp_reset_postdata();
+
+	// Prevent this from firing again
+	remove_action( 'get_sidebar', 'bbp_reset_post_data' );
+	remove_action( 'get_footer',  'bbp_reset_post_data' );
+
+	// Set this to true so it does not run again
+	$ran = true;
 }
 
 /** Helpers *******************************************************************/
@@ -817,7 +843,7 @@ function bbp_redirect_canonical( $redirect_url ) {
 			// ...and single forums...
 			} elseif ( bbp_is_single_forum() ) {
 				$redirect_url = false;
-			
+
 			// ...and single replies...
 			} elseif ( bbp_is_single_reply() ) {
 				$redirect_url = false;
