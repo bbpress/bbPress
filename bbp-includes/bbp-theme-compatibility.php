@@ -778,8 +778,8 @@ function bbp_replace_the_content( $content = '' ) {
 			$withcomments = $post = false;
 
 			// Reset the post data when the next sidebar is fired
-			add_action( 'get_sidebar', 'bbp_reset_post_data' );
-			add_action( 'get_footer',  'bbp_reset_post_data' );
+			add_action( 'get_sidebar', 'bbp_theme_compat_reset_post_data' );
+			add_action( 'get_footer',  'bbp_theme_compat_reset_post_data' );
 		}
 	}
 
@@ -794,7 +794,7 @@ function bbp_replace_the_content( $content = '' ) {
  * @uses wp_reset_postdata() To reset the post data
  * @uses remove_action() To unhook itself so it does not fire more than once
  */
-function bbp_reset_post_data() {
+function bbp_theme_compat_reset_post_data() {
 	static $ran = false;
 
 	// Bail if this already ran
@@ -805,8 +805,8 @@ function bbp_reset_post_data() {
 	wp_reset_postdata();
 
 	// Prevent this from firing again
-	remove_action( 'get_sidebar', 'bbp_reset_post_data' );
-	remove_action( 'get_footer',  'bbp_reset_post_data' );
+	remove_action( 'get_sidebar', 'bbp_theme_compat_reset_post_data' );
+	remove_action( 'get_footer',  'bbp_theme_compat_reset_post_data' );
 
 	// Set this to true so it does not run again
 	$ran = true;
