@@ -174,19 +174,23 @@ function bbp_forum_id( $forum_id = 0 ) {
 
 		// Easy empty checking
 		if ( !empty( $forum_id ) && is_numeric( $forum_id ) )
-			$bbp_forum_id = $bbp->current_forum_id = $forum_id;
+			$bbp_forum_id = $forum_id;
 
 		// Currently inside a forum loop
 		elseif ( !empty( $bbp->forum_query->in_the_loop ) && isset( $bbp->forum_query->post->ID ) )
-			$bbp_forum_id = $bbp->current_forum_id = $bbp->forum_query->post->ID;
+			$bbp_forum_id = $bbp->forum_query->post->ID;
+
+		// Currently viewing a forum
+		elseif ( bbp_is_single_forum() && !empty( $bbp->current_forum_id ) )
+			$bbp_forum_id = $bbp->current_forum_id;
 
 		// Currently viewing a forum
 		elseif ( bbp_is_single_forum() && isset( $wp_query->post->ID ) )
-			$bbp_forum_id = $bbp->current_forum_id = $wp_query->post->ID;
+			$bbp_forum_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
 		elseif ( bbp_is_single_topic() )
-			$bbp_forum_id = $bbp->current_forum_id = bbp_get_topic_forum_id();
+			$bbp_forum_id = bbp_get_topic_forum_id();
 
 		// Fallback
 		else
@@ -1412,6 +1416,8 @@ function bbp_forum_type( $forum_id = 0 ) {
 	function bbp_get_forum_type( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$retval   = get_post_meta( $forum_id, '_bbp_forum_type', true );
+		if ( empty( $retval ) )
+			$retval = 'forum';
 
 		return apply_filters( 'bbp_get_forum_type', $retval, $forum_id );
 	}

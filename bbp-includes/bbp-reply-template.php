@@ -255,22 +255,22 @@ function bbp_reply_id( $reply_id = 0 ) {
 			$bbp_reply_id = $reply_id;
 
 		// Currently inside a replies loop
-		elseif ( isset( $bbp->reply_query->post->ID ) )
-			$bbp_reply_id = $bbp->current_reply_id = $bbp->reply_query->post->ID;
+		elseif ( !empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) )
+			$bbp_reply_id = $bbp->reply_query->post->ID;
+
+		// Currently viewing a forum
+		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && !empty( $bbp->current_reply_id ) )
+			$bbp_reply_id = $bbp->current_reply_id;
 
 		// Currently viewing a reply
 		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
+			$bbp_reply_id = $wp_query->post->ID;
 
 		// Fallback
 		else
 			$bbp_reply_id = 0;
 
-		// Check if current_reply_id is set, and check post_type if so
-		if ( !empty( $bbp->current_reply_id ) && ( bbp_get_reply_post_type() != get_post_field( 'post_type', $bbp_reply_id ) ) )
-			$bbp->current_reply_id = null;
-
-		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
 	}
 
 /**
@@ -1470,7 +1470,7 @@ function bbp_reply_edit_link( $args = '' ) {
 
 		// Get uri
 		$uri = bbp_get_reply_edit_url( $id );
-		
+
 		// Bail if no uri
 		if ( empty( $uri ) )
 			return;
@@ -1501,7 +1501,6 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 * @uses bbp_get_reply() To get the reply
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_query_arg() To add custom args to the url
-	 * @uses home_url() To get the home url
 	 * @uses apply_filters() Calls 'bbp_get_reply_edit_url' with the edit
 	 *                        url and reply id
 	 * @return string Reply edit url
@@ -1513,14 +1512,16 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 		if ( empty( $reply ) )
 			return;
 
+		$reply_link = bbp_get_reply_permalink( $reply_id );
+
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
-			$url = home_url( user_trailingslashit( $url ) );
+			$url = $reply_link . $bbp->edit_id;
+			$url = trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, $bbp->edit_id => '1' ), $reply_link );
 		}
 
 		return apply_filters( 'bbp_get_reply_edit_url', $url, $reply_id );

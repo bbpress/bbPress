@@ -367,23 +367,23 @@ function bbp_topic_id( $topic_id = 0) {
 		elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) )
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
+		// Currently viewing a forum
+		elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) )
+			$bbp_topic_id = $bbp->current_topic_id;
+
 		// Currently viewing a topic
 		elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_topic_id = $bbp->current_topic_id = $wp_query->post->ID;
+			$bbp_topic_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
 		elseif ( bbp_is_single_reply() )
-			$bbp_topic_id = $bbp->current_topic_id = bbp_get_reply_topic_id();
+			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
 		else
 			$bbp_topic_id = 0;
 
-		// Check if current_reply_id is set, and check post_type if so
-		if ( !empty( $bbp->current_topic_id ) && ( bbp_get_topic_post_type() != get_post_field( 'post_type', $bbp_topic_id ) ) )
-			$bbp->current_topic_id = null;
-
-		return apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
 	}
 
 /**
@@ -2177,7 +2177,6 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic() To get the topic
 	 * @uses add_query_arg() To add custom args to the url
-	 * @uses home_url() To get the home url
 	 * @uses apply_filters() Calls 'bbp_get_topic_edit_url' with the edit
 	 *                        url and topic id
 	 * @return string Topic edit url
@@ -2189,14 +2188,16 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		if ( empty( $topic ) )
 			return;
 
+		$topic_link = bbp_get_topic_permalink( $topic_id );
+
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
-			$url = home_url( user_trailingslashit( $url ) );
+			$url = $topic_link . $bbp->edit_id;
+			$url = trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, 'edit' => '1' ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, $bbp->edit_id => '1' ), $topic_link );
 		}
 
 		return apply_filters( 'bbp_get_topic_edit_url', $url, $topic_id );
@@ -3037,7 +3038,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
-		global $wp_rewrite;
+		global $wp_rewrite, $bbp;
 
 		// Get the term
 		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
@@ -3048,11 +3049,11 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 
 			// Pretty
 			if ( $wp_rewrite->using_permalinks() ) {
-				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . 'edit' );
+				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . $bbp->edit_id );
 
 			// Ugly
 			} else {
-				$retval = add_query_arg( array( 'edit' => '1' ), bbp_get_topic_tag_link() );
+				$retval = add_query_arg( array( $bbp->edit_id => '1' ), bbp_get_topic_tag_link() );
 			}
 
 		// No link
@@ -3235,7 +3236,7 @@ function bbp_form_topic_tags() {
 					$topic_id = bbp_get_reply_topic_id( get_the_ID() );
 					break;
 			}
-			
+
 			// Topic exists
 			if ( !empty( $topic_id ) ) {
 
