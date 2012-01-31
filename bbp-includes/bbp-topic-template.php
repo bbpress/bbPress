@@ -805,7 +805,11 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
-			$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This topic was modified %1$s ago by %2$s.' : 'This topic was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			if ( !empty( $reason ) ) {
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			} else {
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s ago by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+			}
 			$r .= "\t" . '</li>' . "\n";
 
 		}

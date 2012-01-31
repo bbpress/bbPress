@@ -610,8 +610,13 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
+			
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
-				$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This reply was modified %1$s ago by %2$s.' : 'This reply was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			if ( !empty( $reason ) ) {
+				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			} else {
+				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s ago by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+			}
 			$r .= "\t" . '</li>' . "\n";
 
 		}
