@@ -119,6 +119,16 @@ class BBP_Admin {
 
 		// Add sample permalink filter
 		add_filter( 'post_type_link',     'bbp_filter_sample_permalink',        10, 4 );
+
+		/** Network Admin *****************************************************/
+
+		// Add menu item to settings menu
+		add_action( 'network_admin_menu',  array( $this, 'network_admin_menus' ) );
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_admin_loaded', array( &$this ) );
 	}
 
 	/**
@@ -128,8 +138,6 @@ class BBP_Admin {
 	 * @access private
 	 */
 	private function includes() {
-
-		// Include the files
 		require( $this->admin_dir . 'bbp-tools.php'     );
 		require( $this->admin_dir . 'bbp-settings.php'  );
 		require( $this->admin_dir . 'bbp-functions.php' );
@@ -162,7 +170,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add the navigational menu elements
+	 * Add the admin menus
 	 *
 	 * @since bbPress (r2646)
 	 *
@@ -177,7 +185,39 @@ class BBP_Admin {
 			add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools' );
 
 		// Forums settings
-		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress', 'bbp_admin_settings' );
+		add_options_page(
+			__( 'Forums',  'bbpress' ),
+			__( 'Forums',  'bbpress' ),
+			'manage_options',
+			'bbpress',
+			'bbp_admin_settings'
+		);
+
+		// Update single forum
+		add_dashboard_page(
+			__( 'Update Forum', 'bbpress' ),
+			__( 'Update Forum', 'bbpress' ),
+			( is_multisite() ? 'manage_network' : 'manage_options' ),
+			'bbpress',
+			array( $this, 'update_screen' )
+		);
+	}
+
+	/**
+	 * Add the network admin menus
+	 *
+	 * @since bbPress (r3689)
+	 * @uses add_submenu_page() To add the Update Forums page in Updates
+	 */
+	public function network_admin_menus() {
+		add_submenu_page(
+			'upgrade.php',
+			__( 'Update Forums', 'bbpress' ),
+			__( 'Update Forums', 'bbpress' ),
+			'manage_network',
+			'bbpress',
+			array( $this, 'network_update_screen' )
+		);
 	}
 
 	/**
@@ -228,10 +268,8 @@ class BBP_Admin {
 		}
 
 		// Allow global access setting
-		if ( function_exists( 'wp_editor' ) ) {
-			add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',  'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', 'bbp_main' );
-		 	register_setting  ( 'bbpress',            '_bbp_use_wp_editor',             'intval'                                                          );
-		}
+		add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',  'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', 'bbp_main' );
+		register_setting  ( 'bbpress',            '_bbp_use_wp_editor',             'intval'                                                          );
 
 		/** Per Page Section **************************************************/
 
@@ -693,6 +731,171 @@ class BBP_Admin {
 
 		// Load the admin CSS styling
 		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $css_file, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+	}
+
+	/**
+	 * Update all bbPress forums across all sites
+	 *
+	 * @since bbPress (r3689)
+	 *
+	 * @global WPDB $wpdb
+	 * @uses get_blog_option()
+	 * @uses wp_remote_get()
+	 */
+	public static function update_screen() {
+
+		// Get action
+		$action = isset( $_GET['action'] ) ? $_GET['action'] : ''; ?>
+
+		<div class="wrap">
+			<div id="icon-edit" class="icon32 icon32-posts-topic"><br /></div>
+			<h2><?php _e( 'Update Forum', 'bbpress' ); ?></h2>
+
+		<?php
+
+		// Taking action
+		switch ( $action ) {
+			case 'bbpress-update' :
+
+				// @todo more update stuff here, evaluate performance
+
+				// Remove roles and caps
+				bbp_remove_roles();
+				bbp_remove_caps();
+
+				// Make sure roles, capabilities, and options exist
+				bbp_add_roles();
+				bbp_add_caps();
+				bbp_add_options();
+
+				// Ensure any new permalinks are created
+				flush_rewrite_rules();
+
+				// Ensure proper version in the DB
+				bbp_version_bump();
+
+				?>
+			
+				<p><?php _e( 'All done!', 'bbpress' ); ?></p>
+				<a class="button" href="index.php?page=bbpress"><?php _e( 'Go Back', 'bbpress' ); ?></a>
+
+				<?php
+
+				break;
+
+			case 'show' :
+			default : ?>
+
+				<p><?php _e( 'You can update your forum through this page. Hit the link below to update.', 'bbpress' ); ?></p>
+				<p><a class="button" href="index.php?page=bbpress&amp;action=bbpress-update"><?php _e( 'Update Forum', 'bbpress' ); ?></a></p>
+
+			<?php break;
+
+		} ?>
+
+		</div><?php
+	}
+
+	/**
+	 * Update all bbPress forums across all sites
+	 *
+	 * @since bbPress (r3689)
+	 *
+	 * @global WPDB $wpdb
+	 * @uses get_blog_option()
+	 * @uses wp_remote_get()
+	 */
+	public static function network_update_screen() {
+		global $wpdb;
+
+		// Get action
+		$action = isset( $_GET['action'] ) ? $_GET['action'] : ''; ?>
+
+		<div class="wrap">
+			<div id="icon-edit" class="icon32 icon32-posts-topic"><br /></div>
+			<h2><?php _e( 'Update Forums', 'bbpress' ); ?></h2>
+
+		<?php
+
+		// Taking action
+		switch ( $action ) {
+			case 'bbpress-update' :
+
+				// Site counter
+				$n = isset( $_GET['n'] ) ? intval( $_GET['n'] ) : 0;
+
+				// Get blogs 5 at a time
+				$blogs = $wpdb->get_results( "SELECT * FROM {$wpdb->blogs} WHERE site_id = '{$wpdb->siteid}' AND spam = '0' AND deleted = '0' AND archived = '0' ORDER BY registered DESC LIMIT {$n}, 5", ARRAY_A );
+
+				// No blogs so all done!
+				if ( empty( $blogs ) ) : ?>
+
+					<p><?php _e( 'All done!', 'bbpress' ); ?></p>
+					<a class="button" href="update-core.php?page=bbpress"><?php _e( 'Go Back', 'bbpress' ); ?></a>
+
+					<?php break; ?>
+
+				<?php
+
+				// Still have sites to loop through
+				else : ?>
+
+					<ul>
+
+						<?php foreach ( (array) $blogs as $details ) :
+
+							$siteurl = get_blog_option( $details['blog_id'], 'siteurl' ); ?>
+
+							<li><?php echo $siteurl; ?></li>
+
+							<?php
+
+							// Get the response of the bbPress update on this site
+							$response = wp_remote_get(
+								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbpress&step=bbpress-update',
+								array( 'timeout' => 120, 'httpversion' => '1.1' )
+							);
+
+							// Site errored out, no response?
+							if ( is_wp_error( $response ) )
+								wp_die( sprintf( __( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: <em>%2$s</em>', 'bbpress' ), $siteurl, $response->get_error_message() ) );
+
+							// Do some actions to allow plugins to do things too
+							do_action( 'after_bbpress_upgrade', $response             );
+							do_action( 'bbp_upgrade_site',      $details[ 'blog_id' ] );
+
+						endforeach; ?>
+
+					</ul>
+
+					<p>
+						<?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:', 'bbpress' ); ?>
+						<a class="button" href="update-core.php?page=bbpress&amp;action=bbpress-update&amp;n=<?php echo ( $n + 5 ); ?>"><?php _e( 'Next Forums', 'bbpress' ); ?></a>
+					</p>
+					<script type='text/javascript'>
+						<!--
+						function nextpage() {
+							location.href = 'update-core.php?page=bbpress&action=bbpress-update&n=<?php echo ( $n + 5 ) ?>';
+						}
+						setTimeout( 'nextpage()', 250 );
+						//-->
+					</script><?php
+
+				endif;
+
+				break;
+
+			case 'show' :
+			default : ?>
+
+				<p><?php _e( 'You can update all the forums on your network through this page. It works by calling the update script of each site automatically. Hit the link below to update.', 'bbpress' ); ?></p>
+				<p><a class="button" href="update-core.php?page=bbpress&amp;action=bbpress-update"><?php _e( 'Update Forums', 'bbpress' ); ?></a></p>
+
+			<?php break;
+
+		} ?>
+
+		</div><?php
 	}
 }
 endif; // class_exists check
