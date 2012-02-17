@@ -48,6 +48,7 @@ add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
 add_action( 'template_redirect',      'bbp_template_redirect',      10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
 add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
+add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -795,6 +796,19 @@ function bbp_template_include( $template = '' ) {
  */
 function bbp_template_redirect() {
 	do_action( 'bbp_template_redirect' );
+}
+
+/** Theme Permissions *********************************************************/
+
+/**
+ * The main action used for executing code after the theme has been setup
+ *
+ * @since bbPress (r3732)
+ *
+ * @uses do_action()
+ */
+function bbp_after_setup_theme() {
+	do_action( 'bbp_after_setup_theme' );
 }
 
 ?>
