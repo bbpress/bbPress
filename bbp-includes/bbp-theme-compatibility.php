@@ -72,43 +72,14 @@ function bbp_setup_theme_compat( $theme = '' ) {
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) ) {
 		if ( empty( $theme ) ) {
-			$theme          = new BBP_Theme_Compat();
-			$theme->name    = 'bbPress (Twenty Ten)';
-			$theme->version = '20110912';
-			$theme->dir     = $bbp->themes_dir . '/bbp-twentyten';
-			$theme->url     = $bbp->themes_url . '/bbp-twentyten';
+			$theme->name    = 'bbPress (Default)';
+			$theme->version = bbp_get_version();
+			$theme->dir     = trailingslashit( $bbp->plugin_dir . 'bbp-theme-compat' );
+			$theme->url     = trailingslashit( $bbp->plugin_url . 'bbp-theme-compat' );
 		}
 
 		// Set the theme compat globals for help with loading template parts
-		$bbp->theme_compat->theme = $theme;
-	}
-}
-
-/**
- * If not using a bbPress compatable theme, enqueue some basic styling and js
- *
- * @since bbPress (r3029)
- *
- * @uses bbp_set_compat_theme_dir() Set the compatable theme to bbp-twentyten
- * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
- * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
- */
-function bbp_theme_compat_enqueue_css() {
-
-	// Bail if current theme has this under control
-	if ( current_theme_supports( 'bbpress' ) )
-		return;
-
-	// Version of CSS
-	$version = bbp_get_theme_compat_version();
-
-	// Right to left
-	if ( is_rtl() ) {
-		wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress-rtl.css', '', $version, 'screen' );
-
-	// Left to right
-	} else {
-		wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress.css',     '', $version, 'screen' );
+		$bbp->theme_compat->theme = $theme;		
 	}
 }
 

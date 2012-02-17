@@ -86,6 +86,25 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }
 
+/** Custom Functions **********************************************************/
+
+/**
+ * Attempt to load a custom bbPress functions file, similar to each themes
+ * functions.php file.
+ *
+ * @since bbPress (r3732)
+ *
+ * @global string $pagenow
+ * @uses bbp_locate_template()
+ */
+function bbp_load_theme_functions() {
+	global $pagenow;
+
+	if ( ! defined( 'WP_INSTALLING' ) || ( !empty( $pagenow ) && ( 'wp-activate.php' !== $pagenow ) ) ) {
+		bbp_locate_template( 'bbpress-functions.php', true );
+	}
+}
+
 /** Individual Templates ******************************************************/
 
 /**
