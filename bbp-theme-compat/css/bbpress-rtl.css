@@ -51,8 +51,8 @@
 
 #bbpress-forums ul {
 	list-style: none;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 #bbpress-forums ul.bbp-lead-topic,
@@ -107,7 +107,7 @@
 
 #content .bbp-forum-description p,
 #bbpress-forums li.bbp-footer p {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 
 #bbpress-forums .bbp-topic-content img,
@@ -186,14 +186,14 @@ li.bbp-body div.bbp-reply-author a.bbp-author-name {
 li.bbp-body div.bbp-topic-content,
 li.bbp-body div.bbp-reply-content {
 	margin-right: 140px;
-	padding: 12px 12px 12px 0px;
+	padding: 12px 12px 12px 0;
 	text-align: right;
 }
 
 div.bbp-topic-header,
 div.bbp-reply-header,
 li.bbp-body div.hentry {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 	overflow: hidden;
 	padding: 8px;
 }
@@ -270,7 +270,7 @@ a.bbp-reply-permalink {
 
 .bbp-topic-action #favorite-toggle a {
 	text-decoration: none;
-	padding: 0px 3px 1px;
+	padding: 0 3px 1px;
 	color: #7c7;
 	border: 1px solid #aca;
 	background-color: #dfd;
@@ -299,7 +299,7 @@ a.bbp-reply-permalink {
 
 .bbp-topic-action #subscription-toggle a {
 	text-decoration: none;
-	padding: 0px 3px 1px;
+	padding: 0 3px 1px;
 	color: #7c7;
 	border: 1px solid #aca;
 	background-color: #dfd;
@@ -411,7 +411,7 @@ a.bbp-reply-permalink {
 #content fieldset.bbp-form input,
 #container fieldset.bbp-form input,
 #wrapper fieldset.bbp-form input {
-	margin: 0px 0px 10px;
+	margin: 0 0 10px;
 }
 
 textarea#bbp_reply_content,
@@ -795,7 +795,7 @@ fieldset div.avatar {
 	font-size: 1.4em;
 	margin-bottom: 0;
 	padding-bottom: 10px;
-	padding-top: 0px;
+	padding-top: 0;
 }
 
 #bbpress-forums #entry-author-info {
