@@ -2563,32 +2563,16 @@ function bbp_forum_pagination_count() {
 		$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $start_num + ( $bbp->topic_query->posts_per_page - 1 ) );
-		$total     = bbp_number_format( !empty( $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $bbp->topic_query->post_count );
+		$total_int = (int) !empty( $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $bbp->topic_query->post_count;
+		$total     = bbp_number_format( $total_int );
 
-		/**
-		 * Translators - _n() should not be needed, as singular/plural strings
-		 * are already separated into unique strings for you
-		 */
+		// Several topics in a forum with a single page
+		if ( empty( $to_num ) ) {
+			$retstr = sprintf( _n( 'Viewing %1$s topic', 'Viewing %1$s topics', $total_int, 'bbpress' ), $total );
 
-		// More than one topic
-		if ( $total > 1 ) {
-
-			// Single topic in a forum with several pages
-			if ( (int) $from_num == (int) $to_num ) {
-				$retstr = sprintf( __( 'Viewing topic %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
-
-			// Several topics in a forum with a single page
-			} elseif ( empty( $to_num ) ) {
-				$retstr = sprintf( __( 'Viewing %1$s topics', 'bbpress' ), $total );
-
-			// Several topics in a forum with several pages
-			} elseif ( (int) $from_num != (int) $to_num ) {
-				$retstr = sprintf( __( 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->topic_query->post_count, $from_num, $to_num, $total );
-			}
-
-		// Only 1 topic
+		// Several topics in a forum with several pages
 		} else {
-			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
+			$retstr = sprintf( _n( 'Viewing topic %2$s (of %4$s total)', 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', $total_int, 'bbpress' ), $bbp->topic_query->post_count, $from_num, $to_num, $total );
 		}
 
 		// Filter and return

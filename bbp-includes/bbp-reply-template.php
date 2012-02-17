@@ -1808,59 +1808,31 @@ function bbp_topic_pagination_count() {
 		$start_num = intval( ( $bbp->reply_query->paged - 1 ) * $bbp->reply_query->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp->reply_query->posts_per_page - 1 ) > $bbp->reply_query->found_posts ) ? $bbp->reply_query->found_posts : $start_num + ( $bbp->reply_query->posts_per_page - 1 ) );
-		$total     = bbp_number_format( $bbp->reply_query->found_posts );
-
-		/**
-		 * Translators - _n() should not be needed, as singular/plural strings
-		 * are already separated into unique strings for you
-		 */
+		$total_int = (int) $bbp->reply_query->found_posts;
+		$total     = bbp_number_format( $total_int );
 
 		// We are not including the lead topic
 		if ( bbp_show_lead_topic() ) {
 
-			// More than 1 reply
-			if ( $total > 1 ) {
+			// Several replies in a topic with a single page
+			if ( empty( $to_num ) ) {
+				$retstr = sprintf( _n( 'Viewing %1$s reply', 'Viewing %1$s replies', $total_int, 'bbpress' ), $total );
 
-				// Single reply in a topic with several pages
-				if ( (int) $from_num == (int) $to_num ) {
-					$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
-
-				// Several replies in a topic with a single page
-				} elseif ( empty( $to_num ) ) {
-					$retstr = sprintf( __( 'Viewing %1$s replies', 'bbpress' ), $total );
-
-				// Several replies in a topic with several pages
-				} elseif ( (int) $from_num != (int) $to_num ) {
-					$retstr = sprintf( __( 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
-				}
-
-			// Only one reply
+			// Several replies in a topic with several pages
 			} else {
-				$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
+				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
 			}
 
 		// We are including the lead topic
 		} else {
 
-			// More than 1 post
-			if ( $total > 1 ) {
+			// Several posts in a topic with a single page
+			if ( empty( $to_num ) ) {
+				$retstr = sprintf( _n( 'Viewing %1$s post', 'Viewing %1$s posts', $total_int, 'bbpress' ), $total );
 
-				// Single post in a topic with several pages
-				if( (int) $from_num == (int) $to_num ) {
-					$retstr = sprintf( __( 'Viewing post %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
-
-				// Several posts in a topic with a single page
-				} elseif ( empty( $to_num ) ) {
-					$retstr = sprintf( __( 'Viewing %1$s posts', 'bbpress' ), $total );
-
-				// Several posts in a topic with several pages
-				} elseif ( (int) $from_num != (int) $to_num ) {
-					$retstr = sprintf( __( 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
-				}
-
-			// Only one post
-			} elseif ( $total == 1 ) {
-				$retstr = sprintf( __( 'Viewing %1$s post', 'bbpress' ), $total );
+			// Several posts in a topic with several pages
+			} else {
+				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
 			}
 		}
 
