@@ -1169,7 +1169,7 @@ function bbp_forum_form_fields() {
 
 		if ( bbp_is_single_forum() ) : ?>
 
-			<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />
+			<input type="hidden" name="bbp_forum_parent_id" id="bbp_forum_parent_id" value="<?php bbp_forum_parent_id(); ?>" />
 
 		<?php endif; ?>
 
