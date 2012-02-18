@@ -225,7 +225,7 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->start( 'bbp_forum_archive' );
 
-		bbp_get_template_part( 'bbpress/content', 'archive-forum' );
+		bbp_get_template_part( 'content', 'archive-forum' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -263,11 +263,11 @@ class BBP_Shortcodes {
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
-			bbp_get_template_part( 'bbpress/content',  'single-forum' );
+			bbp_get_template_part( 'content',  'single-forum' );
 
 		// Forum is private and user does not have caps
 		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/feedback', 'no-access'    );
+			bbp_get_template_part( 'feedback', 'no-access'    );
 		}
 
 		// Return contents of output buffer
@@ -288,7 +288,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_forum_form' );
 
 		// Output templates
-		bbp_get_template_part( 'bbpress/form', 'forum' );
+		bbp_get_template_part( 'form', 'forum' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -321,7 +321,7 @@ class BBP_Shortcodes {
 		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topic_index_query' ) );
 
 		// Output template
-		bbp_get_template_part( 'bbpress/content', 'archive-topic' );
+		bbp_get_template_part( 'content', 'archive-topic' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -382,11 +382,11 @@ class BBP_Shortcodes {
 			add_filter( 'bbp_pre_has_replies_query', array( $this, 'display_topic_query' ) );
 
 			// Output template
-			bbp_get_template_part( 'bbpress/content', 'single-topic' );
+			bbp_get_template_part( 'content', 'single-topic' );
 
 		// Forum is private and user does not have caps
 		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/feedback', 'no-access'    );
+			bbp_get_template_part( 'feedback', 'no-access'    );
 		}
 
 		// Return contents of output buffer
@@ -407,7 +407,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_topic_form' );
 
 		// Output templates
-		bbp_get_template_part( 'bbpress/form', 'topic' );
+		bbp_get_template_part( 'form', 'topic' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -465,11 +465,11 @@ class BBP_Shortcodes {
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
-			bbp_get_template_part( 'bbpress/content',  'single-reply' );
+			bbp_get_template_part( 'content',  'single-reply' );
 
 		// Forum is private and user does not have caps
 		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/feedback', 'no-access'    );
+			bbp_get_template_part( 'feedback', 'no-access'    );
 		}
 
 		// Return contents of output buffer
@@ -490,7 +490,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_reply_form' );
 
 		// Output templates
-		bbp_get_template_part( 'bbpress/form', 'reply' );
+		bbp_get_template_part( 'form', 'reply' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -557,7 +557,7 @@ class BBP_Shortcodes {
 		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topics_of_tag_query' ) );
 
 		// Output template
-		bbp_get_template_part( 'bbpress/content', 'archive-topic' );
+		bbp_get_template_part( 'content', 'archive-topic' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -583,7 +583,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_topic_tag_edit' );
 
 		// Output template
-		bbp_get_template_part( 'bbpress/content', 'topic-tag-edit' );
+		bbp_get_template_part( 'content', 'topic-tag-edit' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -623,7 +623,7 @@ class BBP_Shortcodes {
 		bbp_view_query( $view_id );
 
 		// Output template
-		bbp_get_template_part( 'bbpress/content', 'single-view' );
+		bbp_get_template_part( 'content', 'single-view' );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -648,9 +648,9 @@ class BBP_Shortcodes {
 
 		// Output templates
 		if ( !is_user_logged_in() )
-			bbp_get_template_part( 'bbpress/form',     'user-login' );
+			bbp_get_template_part( 'form',     'user-login' );
 		else
-			bbp_get_template_part( 'bbpress/feedback', 'logged-in'  );
+			bbp_get_template_part( 'feedback', 'logged-in'  );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -673,9 +673,9 @@ class BBP_Shortcodes {
 
 		// Output templates
 		if ( !is_user_logged_in() )
-			bbp_get_template_part( 'bbpress/form',     'user-register' );
+			bbp_get_template_part( 'form',     'user-register' );
 		else
-			bbp_get_template_part( 'bbpress/feedback', 'logged-in'     );
+			bbp_get_template_part( 'feedback', 'logged-in'     );
 
 		// Return contents of output buffer
 		return $this->end();
@@ -698,9 +698,9 @@ class BBP_Shortcodes {
 
 		// Output templates
 		if ( !is_user_logged_in() )
-			bbp_get_template_part( 'bbpress/form',     'user-lost-pass' );
+			bbp_get_template_part( 'form',     'user-lost-pass' );
 		else
-			bbp_get_template_part( 'bbpress/feedback', 'logged-in'      );
+			bbp_get_template_part( 'feedback', 'logged-in'      );
 	
 		// Return contents of output buffer
 		return $this->end();

@@ -564,7 +564,7 @@ function bbp_replace_the_content( $content = '' ) {
 	if ( bbp_is_single_user() ) {
 		ob_start();
 
-		bbp_get_template_part( 'bbpress/content', 'single-user' );
+		bbp_get_template_part( 'content', 'single-user' );
 
 		$new_content = ob_get_contents();
 
@@ -574,7 +574,7 @@ function bbp_replace_the_content( $content = '' ) {
 	} elseif ( bbp_is_single_user_edit() ) {
 		ob_start();
 
-		bbp_get_template_part( 'bbpress/content', 'single-user-edit' );
+		bbp_get_template_part( 'content', 'single-user-edit' );
 
 		$new_content = ob_get_contents();
 
@@ -644,7 +644,7 @@ function bbp_replace_the_content( $content = '' ) {
 		if ( bbp_is_topic_split() ) {
 			ob_start();
 
-			bbp_get_template_part( 'bbpress/form', 'topic-split' );
+			bbp_get_template_part( 'form', 'topic-split' );
 
 			$new_content = ob_get_contents();
 
@@ -654,7 +654,7 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_topic_merge() ) {
 			ob_start();
 
-			bbp_get_template_part( 'bbpress/form', 'topic-merge' );
+			bbp_get_template_part( 'form', 'topic-merge' );
 
 			$new_content = ob_get_contents();
 
