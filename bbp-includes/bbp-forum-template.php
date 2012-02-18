@@ -602,7 +602,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$forum     = bbp_get_forum( $forum_id );
 
 	if ( !empty( $forum ) ) {
-		while ( 0 !== $forum->post_parent ) {
+		while ( 0 !== (int) $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
 			$forum       = bbp_get_forum( $forum->post_parent );
 		}
