@@ -23,7 +23,7 @@
 				<h1 class="entry-title"><?php bbp_reply_title(); ?></h1>
 				<div class="entry-content">
 
-					<?php bbp_get_template_part( 'bbpress/content', 'single-reply' ); ?>
+					<?php bbp_get_template_part( 'content', 'single-reply' ); ?>
 
 				</div><!-- .entry-content -->
 			</div><!-- #bbp-reply-wrapper-<?php bbp_reply_id(); ?> -->
@@ -32,7 +32,7 @@
 
 	<?php elseif ( bbp_is_forum_private( bbp_get_reply_forum_id(), false ) ) : ?>
 
-		<?php bbp_get_template_part( 'bbpress/feedback', 'no-access' ); ?>
+		<?php bbp_get_template_part( 'feedback', 'no-access' ); ?>
 
 	<?php endif; ?>
 

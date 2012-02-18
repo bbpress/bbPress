@@ -28,7 +28,7 @@
 
 		<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
-			<?php bbp_get_template_part( 'bbpress/loop', 'single-topic' ); ?>
+			<?php bbp_get_template_part( 'loop', 'single-topic' ); ?>
 
 		<?php endwhile; ?>
 

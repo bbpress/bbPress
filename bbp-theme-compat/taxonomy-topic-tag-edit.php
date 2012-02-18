@@ -20,7 +20,7 @@
 
 		<div class="entry-content">
 
-			<?php bbp_get_template_part( 'bbpress/content', 'topic-tag-edit' ); ?>
+			<?php bbp_get_template_part( 'content', 'topic-tag-edit' ); ?>
 
 		</div>
 	</div><!-- #topic-tag -->

@@ -29,7 +29,7 @@ get_header(); ?>
 
 					<?php bbp_breadcrumb(); ?>
 
-					<?php bbp_get_template_part( 'bbpress/form', 'user-lost-pass' ); ?>
+					<?php bbp_get_template_part( 'form', 'user-lost-pass' ); ?>
 
 				</div>
 			</div>

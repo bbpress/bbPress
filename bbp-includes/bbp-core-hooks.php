@@ -440,6 +440,7 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 
 // Filter bbPress template locations
+add_filter( 'bbp_get_template_part',         'bbp_add_template_locations' );
 add_filter( 'bbp_get_profile_template',      'bbp_add_template_locations' );
 add_filter( 'bbp_get_profileedit_template',  'bbp_add_template_locations' );
 add_filter( 'bbp_get_singleview_template',   'bbp_add_template_locations' );

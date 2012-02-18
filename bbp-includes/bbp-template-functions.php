@@ -3,6 +3,10 @@
 /**
  * bbPress Template Functions
  *
+ * This file contains functions necessary to mirror the WordPress core template
+ * loading process. Many of those functions are not filterable, and even then
+ * would not be robust enough to predict where bbPress templates might exist.
+ *
  * @package bbPress
  * @subpackage TemplateFunctions
  */
@@ -23,14 +27,19 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_get_template_part( $slug, $name = null ) {
 
+	// Execute code for this part
 	do_action( 'get_template_part_' . $slug, $slug, $name );
 
+	// Setup possible parts
 	$templates = array();
 	if ( isset( $name ) )
 		$templates[] = $slug . '-' . $name . '.php';
-
 	$templates[] = $slug . '.php';
 
+	// Allow template parst to be filtered
+	$templates = apply_filters( 'bbp_get_template_part', $templates, $slug, $name );
+
+	// Return the part that is found
 	return bbp_locate_template( $templates, true, false );
 }
 

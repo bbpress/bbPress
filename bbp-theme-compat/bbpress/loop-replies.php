@@ -41,7 +41,7 @@
 
 		<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
 
-			<?php bbp_get_template_part( 'bbpress/loop', 'single-reply' ); ?>
+			<?php bbp_get_template_part( 'loop', 'single-reply' ); ?>
 
 		<?php endwhile; ?>
 

@@ -19,7 +19,7 @@
 		<h1 class="entry-title"><?php printf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ); ?></h1>
 		<div class="entry-content">
 
-			<?php bbp_get_template_part( 'bbpress/content', 'archive-topic' ); ?>
+			<?php bbp_get_template_part( 'content', 'archive-topic' ); ?>
 
 		</div>
 	</div><!-- #topic-tag -->
