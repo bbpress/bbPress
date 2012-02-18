@@ -300,7 +300,9 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			die( '-1' );
 
-		if ( !$topic = bbp_get_topic( $id ) )
+		$topic = bbp_get_topic( $id );
+
+		if ( empty( $topic ) )
 			die( '0' );
 
 		check_ajax_referer( 'toggle-favorite_' . $topic->ID );
@@ -344,7 +346,9 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			die( '-1' );
 
-		if ( !$topic = bbp_get_topic( $id ) )
+		$topic = bbp_get_topic( $id );
+
+		if ( empty( $topic ) )
 			die( '0' );
 
 		check_ajax_referer( 'toggle-subscription_' . $topic->ID );
