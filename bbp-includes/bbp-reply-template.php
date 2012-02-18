@@ -1178,10 +1178,6 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses get_post_meta() To get the reply topic id from meta
-	 * @uses get_post_ancestors() To get the reply's ancestors
-	 * @uses get_post_field() To get the ancestor's post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_update_reply_topic_id() To update the reply topic id
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the topic
 	 *                        id and reply id
