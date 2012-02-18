@@ -124,8 +124,8 @@ function bbp_get_query_template( $type, $templates = array() ) {
  */
 function bbp_get_template_locations() {
 	$locations = array(
-		'bbpress/',
-		'forums/'
+		'bbpress',
+		'forums'
 	);
 	return apply_filters( 'bbp_get_template_locations', $locations );
 }
@@ -140,8 +140,10 @@ function bbp_get_template_locations() {
  */
 function bbp_add_template_locations( $templates = array() ) {
 
-	// Set templates to
+	// Always return at least the templates being requested
 	$retval    = $templates;
+
+	// Get alternate locations
 	$locations = bbp_get_template_locations();
 
 	// Loop through locations and templates and combine
