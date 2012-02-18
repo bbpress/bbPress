@@ -440,15 +440,15 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 
 // Filter bbPress template locations
-add_filter( 'profile',        'bbp_add_template_locations' );
-add_filter( 'profile_edit',   'bbp_add_template_locations' );
-add_filter( 'single_view',    'bbp_add_template_locations' );
-add_filter( 'forum_edit',     'bbp_add_template_locations' );
-add_filter( 'topic_edit',     'bbp_add_template_locations' );
-add_filter( 'topic_split',    'bbp_add_template_locations' );
-add_filter( 'topic_merge',    'bbp_add_template_locations' );
-add_filter( 'topic_tag',      'bbp_add_template_locations' );
-add_filter( 'topic_tag_edit', 'bbp_add_template_locations' );
+add_filter( 'bbp_get_profile_template',      'bbp_add_template_locations' );
+add_filter( 'bbp_get_profileedit_template',  'bbp_add_template_locations' );
+add_filter( 'bbp_get_singleview_template',   'bbp_add_template_locations' );
+add_filter( 'bbp_get_forumedit_template',    'bbp_add_template_locations' );
+add_filter( 'bbp_get_topicedit_template',    'bbp_add_template_locations' );
+add_filter( 'bbp_get_topicsplit_template',   'bbp_add_template_locations' );
+add_filter( 'bbp_get_topicmerge_template',   'bbp_add_template_locations' );
+add_filter( 'bbp_get_topictag_template',     'bbp_add_template_locations' );
+add_filter( 'bbp_get_topictagedit_template', 'bbp_add_template_locations' );
 
 /**
  * Add filters to anonymous post author data
