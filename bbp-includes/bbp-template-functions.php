@@ -116,6 +116,43 @@ function bbp_get_query_template( $type, $templates = array() ) {
 }
 
 /**
+ * Get the possible subdirectories to check for templates in
+ * 
+ * @since bbPress (r3738)
+ *
+ * @return array
+ */
+function bbp_get_template_locations() {
+	$locations = array(
+		'bbpress/',
+		'forums/'
+	);
+	return apply_filters( 'bbp_get_template_locations', $locations );
+}
+
+/**
+ * Add template locations to template files being searched for
+ *
+ * @since bbPress (r3738)
+ *
+ * @param array $templates
+ * @return array() 
+ */
+function bbp_add_template_locations( $templates = array() ) {
+
+	// Set templates to
+	$retval    = $templates;
+	$locations = bbp_get_template_locations();
+
+	// Loop through locations and templates and combine
+	foreach ( $locations as $location )
+		foreach ( $templates as $template )
+			$retval[] = trailingslashit( $location ) . $template;
+
+	return apply_filters( 'bbp_add_template_locations', $retval, $templates );
+}
+
+/**
  * Add checks for bbPress conditions to parse_query action
  *
  * If it's a user page, WP_Query::bbp_is_single_user is set to true.

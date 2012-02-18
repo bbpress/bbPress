@@ -124,23 +124,15 @@ function bbp_get_single_user_template() {
 
 		// Single User nicename
 		'single-user-'         . $nicename . '.php',
-		'bbpress/single-user-' . $nicename . '.php',
-		'forums/single-user-'  . $nicename . '.php',
 
 		// Single User ID
 		'single-user-'         . $user_id . '.php',
-		'bbpress/single-user-' . $user_id . '.php',
-		'forums/single-user-'  . $user_id . '.php',
 
 		// Single User
 		'single-user.php',
-		'bbpress/single-user.php',
-		'forums/single-user.php',
 
 		// User
 		'user.php',
-		'bbpress/user.php',
-		'forums/user.php',
 	);
 
 	return bbp_get_query_template( 'profile', $templates );
@@ -163,27 +155,17 @@ function bbp_get_single_user_edit_template() {
 
 		// Single User nicename
 		'single-user-edit-'         . $nicename . '.php',
-		'bbpress/single-user-edit-' . $nicename . '.php',
-		'forums/single-user-edit-'  . $nicename . '.php',
 
 		// Single User Edit ID
 		'single-user-edit-'         . $user_id . '.php',
-		'bbpress/single-user-edit-' . $user_id . '.php',
-		'forums/single-user-edit-'  . $user_id . '.php',
 
 		// Single User Edit
 		'single-user-edit.php',
-		'bbpress/single-user-edit.php',
-		'forums/single-user-edit.php',
 
 		// User Edit
 		'user-edit.php',
-		'bbpress/user-edit.php',
-		'forums/user-edit.php',
 
 		// User
-		'forums/user.php',
-		'bbpress/user.php',
 		'user.php',
 	);
 
@@ -206,23 +188,15 @@ function bbp_get_single_view_template() {
 
 		// Single View ID
 		'single-view-'         . $view_id . '.php',
-		'bbpress/single-view-' . $view_id . '.php',
-		'forums/single-view-'  . $view_id . '.php',
 
 		// View ID
 		'view-'         . $view_id . '.php',
-		'bbpress/view-' . $view_id . '.php',
-		'forums/view-'  . $view_id . '.php',
 
 		// Single View
 		'single-view.php',
-		'bbpress/single-view.php',
-		'forums/single-view.php',
 
 		// View
 		'view.php',
-		'bbpress/view.php',
-		'forums/view.php',
 	);
 
 	return bbp_get_query_template( 'single_view', $templates );
@@ -244,13 +218,9 @@ function bbp_get_forum_edit_template() {
 
 		// Single Forum Edit
 		'single-'         . $post_type . '-edit.php',
-		'bbpress/single-' . $post_type . '-edit.php',
-		'forums/single-'  . $post_type . '-edit.php',
 
 		// Single Forum
 		'single-'         . $post_type . '.php',
-		'forums/single-'  . $post_type . '.php',
-		'bbpress/single-' . $post_type . '.php',
 	);
 
 	return bbp_get_query_template( 'forum_edit', $templates );
@@ -272,13 +242,9 @@ function bbp_get_topic_edit_template() {
 
 		// Single Topic Edit
 		'single-'         . $post_type . '-edit.php',
-		'bbpress/single-' . $post_type . '-edit.php',
-		'forums/single-'  . $post_type . '-edit.php',
 
 		// Single Topic
 		'single-'         . $post_type . '.php',
-		'forums/single-'  . $post_type . '.php',
-		'bbpress/single-' . $post_type . '.php',
 	);
 
 	return bbp_get_query_template( 'topic_edit', $templates );
@@ -300,9 +266,8 @@ function bbp_get_topic_split_template() {
 
 		// Topic Split
 		'single-'         . $post_type . '-split.php',
-		'bbpress/single-' . $post_type . '-split.php',
-		'forums/single-'  . $post_type . '-split.php',
 	);
+	$templates = bbp_add_template_locations( $templates );
 
 	return bbp_get_query_template( 'topic_split', $templates );
 }
@@ -323,9 +288,8 @@ function bbp_get_topic_merge_template() {
 
 		// Topic Merge
 		'single-'         . $post_type . '-merge.php',
-		'bbpress/single-' . $post_type . '-merge.php',
-		'forums/single-'  . $post_type . '-merge.php',
 	);
+	$templates = bbp_add_template_locations( $templates );
 
 	return bbp_get_query_template( 'topic_merge', $templates );
 }
@@ -346,14 +310,11 @@ function bbp_get_reply_edit_template() {
 
 		// Single Reply Edit
 		'single-'         . $post_type . '-edit.php',
-		'bbpress/single-' . $post_type . '-edit.php',
-		'forums/single-'  . $post_type . '-edit.php',
 
 		// Single Reply
 		'single-'         . $post_type . '.php',
-		'forums/single-'  . $post_type . '.php',
-		'bbpress/single-' . $post_type . '.php',
 	);
+	$templates = bbp_add_template_locations( $templates );
 
 	return bbp_get_query_template( 'reply_edit', $templates );
 }
@@ -379,9 +340,8 @@ function bbp_get_topic_tag_template() {
 		'bbpress/taxonomy-' . $tt_slug . '.php',
 		
 		'taxonomy-'         . $tt_id . '.php',
-		'forums/taxonomy-'  . $tt_id . '.php',
-		'bbpress/taxonomy-' . $tt_id . '.php',
 	);
+	$templates = bbp_add_template_locations( $templates );
 
 	return bbp_get_query_template( 'topic_tag', $templates );
 }
@@ -403,28 +363,21 @@ function bbp_get_topic_tag_edit_template() {
 
 		// Single Topic Tag Edit
 		'taxonomy-'         . $tt_slug . '-edit.php',
-		'bbpress/taxonomy-' . $tt_slug . '-edit.php',
-		'forums/taxonomy-'  . $tt_slug . '-edit.php',
 
 		'taxonomy-'         . $tt_id . '-edit.php',
-		'bbpress/taxonomy-' . $tt_id . '-edit.php',
-		'forums/taxonomy-'  . $tt_id . '-edit.php',
 
 		// Single Topic Tag
 		'taxonomy-'         . $tt_slug . '.php',
-		'forums/taxonomy-'  . $tt_slug . '.php',
-		'bbpress/taxonomy-' . $tt_slug . '.php',
 		
 		'taxonomy-'         . $tt_id . '.php',
-		'forums/taxonomy-'  . $tt_id . '.php',
-		'bbpress/taxonomy-' . $tt_id . '.php',
 	);
+	$templates = bbp_add_template_locations( $templates );
 
 	return bbp_get_query_template( 'topic_tag_edit', $templates );
 }
 
 /**
- * Get the files to fallback on to use for theme compatibility
+ * Get the templates to use as the endpoint for bbPress template parts
  *
  * @since bbPress (r3311)
  *

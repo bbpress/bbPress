@@ -439,6 +439,17 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 // Add post_parent__in to posts_where
 add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 
+// Filter bbPress template locations
+add_filter( 'profile',        'bbp_add_template_locations' );
+add_filter( 'profile_edit',   'bbp_add_template_locations' );
+add_filter( 'single_view',    'bbp_add_template_locations' );
+add_filter( 'forum_edit',     'bbp_add_template_locations' );
+add_filter( 'topic_edit',     'bbp_add_template_locations' );
+add_filter( 'topic_split',    'bbp_add_template_locations' );
+add_filter( 'topic_merge',    'bbp_add_template_locations' );
+add_filter( 'topic_tag',      'bbp_add_template_locations' );
+add_filter( 'topic_tag_edit', 'bbp_add_template_locations' );
+
 /**
  * Add filters to anonymous post author data
  *

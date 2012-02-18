@@ -13,6 +13,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 /** Theme Setup ***************************************************************/
 
+if ( !class_exists( 'BBP_Default' ) ) :
 /**
  * Loads bbPress Default Theme functionality
  *
@@ -367,5 +368,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	}
 }
 new BBP_Default();
+endif;
 
 ?>
