@@ -304,10 +304,9 @@ class BBP_Forums_Admin {
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;
 
-		// Load the forum
-		$forum = bbp_get_forum( $forum_id );
-		if ( empty( $forum ) )
-			return $forum_id;
+		// Bail if post_type is not a topic or reply
+		if ( get_post_type( $forum_id ) != $this->post_type )
+			return;
 
 		// Parent ID
 		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
