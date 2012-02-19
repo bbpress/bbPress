@@ -71,8 +71,8 @@ class BBP_Topics_Admin {
 		add_filter( 'post_row_actions',                                     array( $this, 'topics_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'topic_attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'topic_attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
 		add_action( 'bbp_admin_init', array( $this, 'toggle_topic'        ) );
@@ -264,7 +264,7 @@ class BBP_Topics_Admin {
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
-	function topic_attributes_metabox() {
+	function attributes_metabox() {
 		add_meta_box (
 			'bbp_topic_attributes',
 			__( 'Topic Attributes', 'bbpress' ),
@@ -289,7 +289,7 @@ class BBP_Topics_Admin {
 	 *                    topic id and parent id
 	 * @return int Parent id
 	 */
-	function topic_attributes_metabox_save( $topic_id ) {
+	function attributes_metabox_save( $topic_id ) {
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
