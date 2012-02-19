@@ -171,19 +171,18 @@ function bbp_new_forum_handler() {
 	/** Forum Parent **********************************************************/
 
 	// Forum parent was passed (the norm)
-	if ( !empty( $_POST['bbp_forum_parent_id'] ) ) {
+	if ( !empty( $_POST['bbp_forum_parent_id'] ) )
 		$forum_parent_id = (int) $_POST['bbp_forum_parent_id'];
-
-	// No forum parent was passed (should never happen)
-	} elseif ( !isset( $_POST['bbp_forum_parent_id'] ) ) {
-		bbp_add_error( 'bbp_new_forum_missing_parent', __( '<strong>ERROR</strong>: Your forum must have a parent.', 'bbpress' ) );
-	}
-
+		
 	// Filter and sanitize
 	$forum_parent_id = apply_filters( 'bbp_new_forum_pre_parent_id', $forum_parent_id );
 
+	// No forum parent was passed (should never happen)
+	if ( empty( $forum_parent_id ) ) {
+		bbp_add_error( 'bbp_new_forum_missing_parent', __( '<strong>ERROR</strong>: Your forum must have a parent.', 'bbpress' ) );
+
 	// Forum exists
-	if ( !empty( $forum_parent_id ) ) {
+	} elseif ( !empty( $forum_parent_id ) ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_parent_id ) ) {
