@@ -1387,13 +1387,12 @@ function bbp_the_content( $args = array() ) {
 		if ( !empty( $before ) )
 			echo $before;
 
-		// Use TinyMCE if available
-		if ( function_exists( 'wp_editor' ) && bbp_use_wp_editor() ) {
+		// Get sanitized content
+		if ( bbp_is_edit() )
+			$post_content = call_user_func( 'bbp_get_form_' . $context . '_content' );
 
-			// If it's an edit, use the global post's post_content
-			if ( bbp_is_edit() ) {
-				$post_content = bbp_get_global_post_field( 'post_content', 'raw' );
-			}
+		// Use TinyMCE if available
+		if ( bbp_use_wp_editor() ) :
 
 			$settings = array(
 				'wpautop'       => $wpautop,
@@ -1407,19 +1406,11 @@ function bbp_the_content( $args = array() ) {
 			wp_editor( $post_content, 'bbp_' . $context . '_content', $settings );
 
 		// Fallback to normal textarea
-		} else {
-
-			// Get sanitized content
-			if ( bbp_is_edit() ) {
-				$post_content = call_user_func( 'bbp_get_form_' . $context . '_content' );
-			}
-
-			?>
+		else : ?>
 
 			<textarea id="bbp_<?php echo $context; ?>_content" class="<?php echo $editor_class; ?>" name="bbp_<?php echo $context; ?>_content" cols="60" rows="<?php echo $textarea_rows; ?>" tabindex="<?php echo $tabindex; ?>"><?php echo $post_content; ?></textarea>
 
-			<?php
-		}
+		<?php endif;
 
 		// Output something after the editor
 		if ( !empty( $after ) )
