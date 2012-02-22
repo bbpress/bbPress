@@ -48,6 +48,12 @@ function bbp_get_default_options() {
 
 		// Use the WordPress editor if available
 		'_bbp_use_wp_editor'        => true,
+		
+		// Use the WordPress editor if available
+		'_bbp_use_wp_editor'        => true,
+		
+		// Allow oEmbed in topics and replies
+		'_bbp_allow_oembed'         => false,
 
 		/** Per Page **********************************************************/
 
@@ -328,6 +334,20 @@ function bbp_allow_global_access( $default = false ) {
  */
 function bbp_use_wp_editor( $default = true ) {
 	return (bool) apply_filters( 'bbp_use_wp_editor', (bool) get_option( '_bbp_use_wp_editor', $default ) );
+}
+
+/**
+ * Use WordPress's oEmbed API
+ *
+ * @since bbPress (r3752)
+ *
+ * @param $default bool Optional. Default value true
+ *
+ * @uses get_option() To get the oEmbed option
+ * @return bool Use oEmbed?
+ */
+function bbp_use_autoembed( $default = true ) {
+	return (bool) apply_filters( 'bbp_use_autoembed', (bool) get_option( '_bbp_use_autoembed', $default ) );
 }
 
 /**

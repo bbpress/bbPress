@@ -70,15 +70,19 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  * The load order helps to execute code at the correct time.
  *                                                    v---Load order
  */
-add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
-add_action( 'bbp_init', 'bbp_setup_option_filters',   4   );
-add_action( 'bbp_init', 'bbp_register_post_types',    10  );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 12  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    14  );
-add_action( 'bbp_init', 'bbp_register_views',         16  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    18  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
-add_action( 'bbp_init', 'bbp_ready',                  999 );
+add_action( 'bbp_init', 'bbp_load_textdomain',         2   );
+add_action( 'bbp_init', 'bbp_setup_option_filters',    4   );
+add_action( 'bbp_init', 'bbp_register_post_types',     10  );
+add_action( 'bbp_init', 'bbp_register_post_statuses',  12  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',     14  );
+add_action( 'bbp_init', 'bbp_register_views',          16  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',     18  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',        20  );
+add_action( 'bbp_init', 'bbp_ready',                   999 );
+
+// Autoembeds
+add_filter( 'bbp_init', 'bbp_reply_content_autoembed', 8   );
+add_filter( 'bbp_init', 'bbp_topic_content_autoembed', 8   );
 
 /**
  * bbp_ready - attached to end 'bbp_init' above

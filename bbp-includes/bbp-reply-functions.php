@@ -1340,6 +1340,22 @@ function bbp_get_replies_per_rss_page() {
 	return (int) apply_filters( 'bbp_get_replies_per_rss_page', $retval, $per );
 }
 
+/** Autoembed *****************************************************************/
+
+/**
+ * Check if autoembeds are enabled and hook them in if so
+ *
+ * @since bbPress (r3752)
+ * @global WP_Embed $wp_embed
+ */
+function bbp_reply_content_autoembed() {
+	global $wp_embed;
+
+	if ( bbp_use_autoembed() && is_a( $wp_embed, 'WP_Embed' ) ) {
+		add_filter( 'bbp_get_reply_content', array( $wp_embed, 'autoembed' ), 8 );		
+	}
+}
+
 /** Feeds *********************************************************************/
 
 /**

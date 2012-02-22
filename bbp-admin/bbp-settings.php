@@ -153,6 +153,22 @@ function bbp_admin_setting_callback_use_wp_editor() {
 <?php
 }
 
+/**
+ * Allow oEmbed in replies
+ *
+ * @since bbPress (r3752)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_use_autoembed() {
+?>
+
+	<input id="_bbp_use_autoembed" name="bbp_use_autoembed" type="checkbox" id="_bbp_use_autoembed" value="1" <?php checked( bbp_use_autoembed( true ) ); ?> />
+	<label for="_bbp_use_autoembed"><?php _e( 'Embed media (YouTube, Twitter, Flickr, etc...) directly into topics and replies.', 'bbpress' ); ?></label>
+
+<?php
+}
+
 /** Per Page Section **********************************************************/
 
 /**
@@ -593,6 +609,7 @@ function bbp_admin_settings_help() {
 							'<li>' . __( 'Subscriptions allow users to subscribe for notifications to topics that interest them. This is enabled by default.',                                                                 'bbpress' ) . '</li>' .
 							'<li>' . __( '"Anonymous Posting" allows guest users who do not have accounts on your site to both create topics as well as replies.',                                                             'bbpress' ) . '</li>' .
 							'<li>' . __( 'The Fancy Editor brings the luxury of the Visual editor and HTML editor from the traditional WordPress dashboard into your theme.',                                                  'bbpress' ) . '</li>' .
+							'<li>' . __( 'Auto-embed will embed the media content from a URL directly into the replies. For example: links to Flickr and YouTube.',                                                            'bbpress' ) . '</li>' .
 						'</ul>' .
 					'</p>' .
 					'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.', 'bbpress' ) . '</p>'
