@@ -45,10 +45,11 @@ add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'widgets_init',           'bbp_widgets_init',           10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
+add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
+add_action( 'setup_theme',            'bbp_setup_theme',            10 );
+add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
 add_action( 'template_redirect',      'bbp_template_redirect',      10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
-add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
-add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -820,7 +821,18 @@ function bbp_template_redirect() {
 	do_action( 'bbp_template_redirect' );
 }
 
-/** Theme Permissions *********************************************************/
+/** Theme Helpers *************************************************************/
+
+/**
+ * The main action used for executing code before the theme has been setup
+ *
+ * @since bbPress (r3732)
+ *
+ * @uses do_action()
+ */
+function bbp_setup_theme() {
+	do_action( 'bbp_setup_theme' );
+}
 
 /**
  * The main action used for executing code after the theme has been setup
