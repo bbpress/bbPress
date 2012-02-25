@@ -438,7 +438,8 @@ class bbPress {
 
 		/** Core **************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-hooks.php'      ); // All filters and actions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration Options
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes

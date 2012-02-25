@@ -1,14 +1,14 @@
 <?php
 
 /**
- * bbPress Filters & Actions
+ * bbPress Actions
  *
  * @package bbPress
- * @subpackage Hooks
+ * @subpackage Core
  *
- * This file contains the actions and filters that are used through-out bbPress.
- * They are consolidated here to make searching for them easier, and to help
- * developers understand at a glance the order in which things occur.
+ * This file contains the actions that are used through-out bbPress. They are
+ * consolidated here to make searching for them easier, and to help developers
+ * understand at a glance the order in which things occur.
  *
  * There are a few common places that additional actions can currently be found
  *
@@ -17,6 +17,8 @@
  *                bbp-includes/bbp-classes.php
  *  - Admin: More in {@link BBP_Admin::setup_actions()} in
  *            bbp-admin/bbp-admin.php
+ * 
+ * @see bbp-core-filters.php
  */
 
 // Exit if accessed directly
@@ -49,7 +51,6 @@ add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
 add_action( 'setup_theme',            'bbp_setup_theme',            10 );
 add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
 add_action( 'template_redirect',      'bbp_template_redirect',      10 );
-add_filter( 'template_include',       'bbp_template_include',       10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -82,8 +83,8 @@ add_action( 'bbp_init', 'bbp_add_rewrite_tags',        20  );
 add_action( 'bbp_init', 'bbp_ready',                   999 );
 
 // Autoembeds
-add_filter( 'bbp_init', 'bbp_reply_content_autoembed', 8   );
-add_filter( 'bbp_init', 'bbp_topic_content_autoembed', 8   );
+add_action( 'bbp_init', 'bbp_reply_content_autoembed', 8   );
+add_action( 'bbp_init', 'bbp_topic_content_autoembed', 8   );
 
 /**
  * bbp_ready - attached to end 'bbp_init' above
@@ -116,22 +117,17 @@ add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
 
 // Template - Head, foot, errors and messages
-add_action( 'wp_head',              'bbp_head'                    );
-add_filter( 'wp_title',             'bbp_title',            10, 3 );
-add_action( 'wp_footer',            'bbp_footer'                  );
-add_action( 'bbp_loaded',           'bbp_login_notices'           );
-add_action( 'bbp_head',             'bbp_topic_notices'           );
-add_action( 'bbp_template_notices', 'bbp_template_notices'        );
-
-// Add to body class
-add_filter( 'body_class', 'bbp_body_class', 10, 2 );
+add_action( 'wp_head',              'bbp_head'             );
+add_action( 'wp_footer',            'bbp_footer'           );
+add_action( 'bbp_loaded',           'bbp_login_notices'    );
+add_action( 'bbp_head',             'bbp_topic_notices'    );
+add_action( 'bbp_template_notices', 'bbp_template_notices' );
 
 // Caps & Roles
-add_filter( 'map_meta_cap',     'bbp_map_meta_caps', 10, 4 );
-add_action( 'bbp_activation',   'bbp_add_roles',     1     );
-add_action( 'bbp_activation',   'bbp_add_caps',      2     );
-add_action( 'bbp_deactivation', 'bbp_remove_caps',   1     );
-add_action( 'bbp_deactivation', 'bbp_remove_roles',  2     );
+add_action( 'bbp_activation',   'bbp_add_roles',    1 );
+add_action( 'bbp_activation',   'bbp_add_caps',     2 );
+add_action( 'bbp_deactivation', 'bbp_remove_caps',  1 );
+add_action( 'bbp_deactivation', 'bbp_remove_roles', 2 );
 
 // Options & Settings
 add_action( 'bbp_activation', 'bbp_add_options', 1 );
@@ -332,181 +328,9 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 }
 add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 
-/** FILTERS *******************************************************************/
-
-/**
- * Feeds
- *
- * bbPress comes with a number of custom RSS2 feeds that get handled outside
- * the normal scope of feeds that WordPress would normally serve. To do this,
- * we filter every page request, listen for a feed request, and trap it.
- */
-add_filter( 'request', 'bbp_request_feed_trap' );
-
-/**
- * Template Compatibility
- *
- * If you want to completely bypass this and manage your own custom bbPress
- * template hierarchy, start here by removing this filter, then look at how
- * bbp_template_include() works and do something similar. :)
- */
-add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
-add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
-
-// Links
-add_filter( 'paginate_links',          'bbp_add_view_all' );
-add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
-add_filter( 'bbp_get_reply_permalink', 'bbp_add_view_all' );
-add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
-
-// wp_filter_kses on new/edit topic/reply title
-add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses' );
-add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses' );
-add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses' );
-add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses' );
-
-// balanceTags, wp_filter_kses and wp_rel_nofollow on new/edit topic/reply text
-add_filter( 'bbp_new_reply_pre_content',  'balanceTags'     );
-add_filter( 'bbp_new_reply_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_reply_pre_content',  'wp_filter_kses'  );
-add_filter( 'bbp_new_topic_pre_content',  'balanceTags'     );
-add_filter( 'bbp_new_topic_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_topic_pre_content',  'wp_filter_kses'  );
-add_filter( 'bbp_edit_reply_pre_content', 'balanceTags'     );
-add_filter( 'bbp_edit_reply_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses'  );
-add_filter( 'bbp_edit_topic_pre_content', 'balanceTags'     );
-add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_topic_pre_content', 'wp_filter_kses'  );
-
-// Add number format filter to functions requiring numeric output
-add_filter( 'bbp_get_forum_topic_count',       'bbp_number_format' );
-add_filter( 'bbp_get_forum_topic_reply_count', 'bbp_number_format' );
-
-// No follow and stripslashes on user profile links
-add_filter( 'bbp_get_reply_author_link',      'wp_rel_nofollow' );
-add_filter( 'bbp_get_reply_author_link',      'stripslashes'    );
-add_filter( 'bbp_get_topic_author_link',      'wp_rel_nofollow' );
-add_filter( 'bbp_get_topic_author_link',      'stripslashes'    );
-add_filter( 'bbp_get_user_favorites_link',    'wp_rel_nofollow' );
-add_filter( 'bbp_get_user_favorites_link',    'stripslashes'    );
-add_filter( 'bbp_get_user_subscribe_link',    'wp_rel_nofollow' );
-add_filter( 'bbp_get_user_subscribe_link',    'stripslashes'    );
-add_filter( 'bbp_get_user_profile_link',      'wp_rel_nofollow' );
-add_filter( 'bbp_get_user_profile_link',      'stripslashes'    );
-add_filter( 'bbp_get_user_profile_edit_link', 'wp_rel_nofollow' );
-add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'    );
-
-// Run filters on reply content
-add_filter( 'bbp_get_reply_content', 'capital_P_dangit'         );
-add_filter( 'bbp_get_reply_content', 'wptexturize',        3    );
-add_filter( 'bbp_get_reply_content', 'convert_chars',      5    );
-add_filter( 'bbp_get_reply_content', 'make_clickable',     9    );
-add_filter( 'bbp_get_reply_content', 'force_balance_tags', 25   );
-add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
-add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
-
-// Run filters on topic content
-add_filter( 'bbp_get_topic_content', 'capital_P_dangit'         );
-add_filter( 'bbp_get_topic_content', 'wptexturize',        3    );
-add_filter( 'bbp_get_topic_content', 'convert_chars',      5    );
-add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
-add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
-add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
-add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
-
-// Revisions
-add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1, 2 );
-add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1, 2 );
-
-// Canonical
-add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
-
-// Login/Register/Lost Password
-add_filter( 'login_redirect', 'bbp_redirect_login', 2, 3 );
-add_filter( 'logout_url',     'bbp_logout_url',     2, 2 );
-
-// Fix post author id for anonymous posts (set it back to 0) when the post status is changed
-add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
-
-// Suppress private forum details
-add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta',  10, 2 );
-add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta',  10, 2 );
-add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta',  10, 2 );
-add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  10, 2 );
-add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );
-
-// Force comments_status on bbPress post types
-add_filter( 'comments_open', 'bbp_force_comment_status' );
-
-// Add post_parent__in to posts_where
-add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
-
-// Filter bbPress template locations
-add_filter( 'bbp_get_template_part',         'bbp_add_template_locations' );
-add_filter( 'bbp_get_profile_template',      'bbp_add_template_locations' );
-add_filter( 'bbp_get_profileedit_template',  'bbp_add_template_locations' );
-add_filter( 'bbp_get_singleview_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_forumedit_template',    'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicedit_template',    'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicsplit_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicmerge_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_topictag_template',     'bbp_add_template_locations' );
-add_filter( 'bbp_get_topictagedit_template', 'bbp_add_template_locations' );
-
-/**
- * Add filters to anonymous post author data
- *
- * This is used to clean-up any anonymous user data that is submitted via the
- * new topic and new reply forms.
- *
- * @uses add_filter() To add filters
- */
-function bbp_pre_anonymous_filters () {
-
-	// Post author name
-	$filters = array(
-		'trim'                => 10,
-		'sanitize_text_field' => 10,
-		'wp_filter_kses'      => 10,
-		'_wp_specialchars'    => 30
-	);
-	foreach ( $filters as $filter => $priority )
-		add_filter( 'bbp_pre_anonymous_post_author_name', $filter, $priority );
-
-	// Email saves
-	foreach ( array( 'trim', 'sanitize_email', 'wp_filter_kses' ) as $filter )
-		add_filter( 'bbp_pre_anonymous_post_author_email', $filter );
-
-	// Save URL
-	foreach ( array( 'trim', 'wp_strip_all_tags', 'esc_url_raw', 'wp_filter_kses' ) as $filter )
-		add_filter( 'bbp_pre_anonymous_post_author_website', $filter );
-}
-bbp_pre_anonymous_filters();
-
-/**
- * On multisite installations you must first allow themes to be activated and
- * show up on the theme selection screen. This function will let the bbPress
- * bundled themes show up and bypass this step.
- *
- * @since bbPress (r2944)
- *
- * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
- */
-function bbp_allowed_themes( $themes ) {
-	$themes['bbp-twentyten'] = 1;
-
-	return apply_filters( 'bbp_allowed_themes', $themes );
-}
-add_filter( 'allowed_themes', 'bbp_allowed_themes' );
-
 /** Admin *********************************************************************/
 
 if ( is_admin() ) {
-
-	/** Actions ***************************************************************/
 
 	add_action( 'bbp_init',          'bbp_admin'                   );
 	add_action( 'bbp_admin_init',    'bbp_admin_forums',         9 );
@@ -525,12 +349,6 @@ if ( is_admin() ) {
 	 * permalinks not being flushed properly when a bbPress update occurs.
 	 */
 	add_action( 'bbp_admin_init',    'bbp_setup_updater', 999 );
-
-	/** Filters ***************************************************************/
-
-	// Run wp_kses_data on topic/reply content in admin section
-	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
-	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
 }
 
 /**
@@ -764,19 +582,6 @@ function bbp_add_rewrite_tags() {
 	do_action ( 'bbp_add_rewrite_tags' );
 }
 
-/**
- * Generate bbPress-specific rewrite rules
- *
- * @since bbPress (r2688)
- *
- * @param WP_Rewrite $wp_rewrite
- *
- * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
- */
-function bbp_generate_rewrite_rules( $wp_rewrite ) {
-	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
-}
-
 /** Final Action **************************************************************/
 
 /**
@@ -788,23 +593,6 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  */
 function bbp_ready() {
 	do_action( 'bbp_ready' );
-}
-
-/** Theme Compatibility Filter ************************************************/
-
-/**
- * The main filter used for theme compatibility and displaying custom bbPress
- * theme files.
- *
- * @since bbPress (r3311)
- *
- * @uses apply_filters()
- *
- * @param string $template
- * @return string Template file to use
- */
-function bbp_template_include( $template = '' ) {
-	return apply_filters( 'bbp_template_include', $template );
 }
 
 /** Theme Permissions *********************************************************/
