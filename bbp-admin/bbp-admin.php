@@ -192,15 +192,6 @@ class BBP_Admin {
 			'bbpress',
 			'bbp_admin_settings'
 		);
-
-		// Update single forum
-		add_dashboard_page(
-			__( 'Update Forum', 'bbpress' ),
-			__( 'Update Forum', 'bbpress' ),
-			( is_multisite() ? 'manage_network' : 'manage_options' ),
-			'bbpress-update',
-			array( $this, 'update_screen' )
-		);
 	}
 
 	/**
@@ -781,7 +772,7 @@ class BBP_Admin {
 				?>
 			
 				<p><?php _e( 'All done!', 'bbpress' ); ?></p>
-				<a class="button" href="index.php?page=bbpress"><?php _e( 'Go Back', 'bbpress' ); ?></a>
+				<a class="button" href="index.php?page=bbpress-update"><?php _e( 'Go Back', 'bbpress' ); ?></a>
 
 				<?php
 
@@ -791,7 +782,7 @@ class BBP_Admin {
 			default : ?>
 
 				<p><?php _e( 'You can update your forum through this page. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="index.php?page=bbpress&amp;action=bbpress-update"><?php _e( 'Update Forum', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="index.php?page=bbpress-update&amp;action=bbpress-update"><?php _e( 'Update Forum', 'bbpress' ); ?></a></p>
 
 			<?php break;
 
@@ -835,7 +826,7 @@ class BBP_Admin {
 				if ( empty( $blogs ) ) : ?>
 
 					<p><?php _e( 'All done!', 'bbpress' ); ?></p>
-					<a class="button" href="update-core.php?page=bbpress"><?php _e( 'Go Back', 'bbpress' ); ?></a>
+					<a class="button" href="update-core.php?page=bbpress-update"><?php _e( 'Go Back', 'bbpress' ); ?></a>
 
 					<?php break; ?>
 
@@ -856,7 +847,7 @@ class BBP_Admin {
 
 							// Get the response of the bbPress update on this site
 							$response = wp_remote_get(
-								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbpress&step=bbpress-update',
+								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbpress-update&step=bbpress-update',
 								array( 'timeout' => 120, 'httpversion' => '1.1' )
 							);
 
@@ -874,12 +865,12 @@ class BBP_Admin {
 
 					<p>
 						<?php _e( 'If your browser doesn&#8217;t start loading the next page automatically, click this link:', 'bbpress' ); ?>
-						<a class="button" href="update-core.php?page=bbpress&amp;action=bbpress-update&amp;n=<?php echo ( $n + 5 ); ?>"><?php _e( 'Next Forums', 'bbpress' ); ?></a>
+						<a class="button" href="update-core.php?page=bbpress-update&amp;action=bbpress-update&amp;n=<?php echo ( $n + 5 ); ?>"><?php _e( 'Next Forums', 'bbpress' ); ?></a>
 					</p>
 					<script type='text/javascript'>
 						<!--
 						function nextpage() {
-							location.href = 'update-core.php?page=bbpress&action=bbpress-update&n=<?php echo ( $n + 5 ) ?>';
+							location.href = 'update-core.php?page=bbpress-update&action=bbpress-update&n=<?php echo ( $n + 5 ) ?>';
 						}
 						setTimeout( 'nextpage()', 250 );
 						//-->
@@ -893,7 +884,7 @@ class BBP_Admin {
 			default : ?>
 
 				<p><?php _e( 'You can update all the forums on your network through this page. It works by calling the update script of each site automatically. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="update-core.php?page=bbpress&amp;action=bbpress-update"><?php _e( 'Update Forums', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="update-core.php-update&amp;action=bbpress-update"><?php _e( 'Update Forums', 'bbpress' ); ?></a></p>
 
 			<?php break;
 
