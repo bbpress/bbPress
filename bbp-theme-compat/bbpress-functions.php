@@ -55,7 +55,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @access private
 	 */
 	private function setup_globals() {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Theme name to help identify if it's been extended
 		$this->name = 'bbPress (Default)';

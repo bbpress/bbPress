@@ -31,9 +31,7 @@ function bbp_forum_post_type() {
 	 * @return string The unique forum post type id
 	 */
 	function bbp_get_forum_post_type() {
-		global $bbp;
-
-		return apply_filters( 'bbp_get_forum_post_type', $bbp->forum_post_type );
+		return apply_filters( 'bbp_get_forum_post_type', bbpress()->forum_post_type );
 	}
 
 /** Forum Loop ****************************************************************/
@@ -58,7 +56,7 @@ function bbp_forum_post_type() {
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums( $args = '' ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Setup possible post__not_in array
 	$post_stati[] = bbp_get_public_status_id();
@@ -114,10 +112,9 @@ function bbp_has_forums( $args = '' ) {
  * @return object Forum information
  */
 function bbp_forums() {
-	global $bbp;
 
 	// Put into variable to check against next
-	$have_posts = $bbp->forum_query->have_posts();
+	$have_posts = bbpress()->forum_query->have_posts();
 
 	// Reset the post data when finished
 	if ( empty( $have_posts ) )
@@ -135,8 +132,7 @@ function bbp_forums() {
  * @return object Forum information
  */
 function bbp_the_forum() {
-	global $bbp;
-	return $bbp->forum_query->the_post();
+	return bbpress()->forum_query->the_post();
 }
 
 /** Forum *********************************************************************/
@@ -170,7 +166,9 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @return int The forum id
 	 */
 	function bbp_get_forum_id( $forum_id = 0 ) {
-		global $bbp, $wp_query;
+		global $wp_query;
+
+		$bbp = bbpress();
 
 		// Easy empty checking
 		if ( !empty( $forum_id ) && is_numeric( $forum_id ) )
@@ -328,7 +326,6 @@ function bbp_forum_archive_title( $title = '' ) {
 	 *
 	 * @since bbPress (r3249)
 	 *
-	 * @global bbPress $bbp The main bbPress class
 	 * @param string $title Default text to use as title
 	 *
 	 * @uses bbp_get_page_by_path() Check if page exists at root path
@@ -341,13 +338,12 @@ function bbp_forum_archive_title( $title = '' ) {
 	 * @return string The forum archive title
 	 */
 	function bbp_get_forum_archive_title( $title = '' ) {
-		global $bbp;
 
 		// If no title was passed
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			$page = bbp_get_page_by_path( $bbp->root_slug );
+			$page = bbp_get_page_by_path( bbpress()->root_slug );
 			if ( !empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
@@ -1758,8 +1754,7 @@ function bbp_forum_class( $forum_id = 0 ) {
 	 * @return string Row class of the forum
 	 */
 	function bbp_get_forum_class( $forum_id = 0 ) {
-		global $bbp;
-
+		$bbp       = bbpress();
 		$forum_id  = bbp_get_forum_id( $forum_id );
 		$count     = isset( $bbp->forum_query->current_post ) ? $bbp->forum_query->current_post : 1;
 		$classes   = array();
@@ -2051,7 +2046,6 @@ function bbp_form_forum_visibility() {
 	 * @return string Value of topic content field
 	 */
 	function bbp_get_form_forum_visibility() {
-		global $bbp;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_visibility'] ) )
@@ -2063,7 +2057,7 @@ function bbp_form_forum_visibility() {
 
 		// No data
 		else
-			$forum_visibility = $bbp->public_status_id;
+			$forum_visibility = bbpress()->public_status_id;
 
 		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
 	}

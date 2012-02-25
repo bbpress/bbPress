@@ -932,7 +932,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3552)
 	 *
-	 * @global bbPress $bbp
 	 */
 	function __construct() {
 
@@ -1339,8 +1338,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_get_template_part()
 	 */
 	public function display_forums( $offset = 0 ) {
-		global $bbp, $wpdb;
-		
+		global $wpdb;
+
+		$bbp = bbpress();
+
 		// Forum data
 		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
 		$forum_args = array( 'post__in' => $forum_ids );
@@ -1620,18 +1621,14 @@ endif;
  *
  * @since bbPress (r3653)
  *
- * @global bbPress $bbp
  * @global type $bp
  * @return If bbPress is not active
  */
 function bbp_setup_buddypress_component() {
-	global $bbp, $bp;
+	global $bp;
 
 	// Bail if no BuddyPress
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	// Bail if BuddyPress Forums are already active
 	if ( bp_is_active( 'forums' ) && bp_forums_is_installed_correctly() ) return;

@@ -134,7 +134,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
 function bbp_get_template_locations() {
 	$locations = array(
 		'bbpress',
-		'forums'
+		'forums',
 	);
 	return apply_filters( 'bbp_get_template_locations', $locations );
 }
@@ -148,9 +148,7 @@ function bbp_get_template_locations() {
  * @return array() 
  */
 function bbp_add_template_locations( $templates = array() ) {
-
-	// Always return at least the templates being requested
-	$retval    = $templates;
+	$retval = array();
 
 	// Get alternate locations
 	$locations = bbp_get_template_locations();
@@ -181,7 +179,6 @@ function bbp_add_template_locations( $templates = array() ) {
  *
  * @since bbPress (r2688)
  *
- * @global bbPress $bbp
  * @param WP_Query $posts_query
  *
  * @uses get_query_var() To get {@link WP_Query} query var
@@ -199,7 +196,7 @@ function bbp_add_template_locations( $templates = array() ) {
  * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_parse_query( $posts_query ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Bail if $posts_query is not the main loop
 	if ( ! $posts_query->is_main_query() )

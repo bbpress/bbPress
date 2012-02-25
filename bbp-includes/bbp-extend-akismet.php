@@ -680,23 +680,18 @@ endif;
  *
  * @since bbPress (r3277)
  *
- * @global bbPress $bbp
  * @return If bbPress is not active
  */
 function bbp_setup_akismet() {
-	global $bbp;
 
 	// Bail if no akismet
 	if ( !defined( 'AKISMET_VERSION' ) ) return;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	// Bail if Akismet is turned off
 	if ( !bbp_is_akismet_active() ) return;
 
 	// Instantiate Akismet for bbPress
-	$bbp->extend->akismet = new BBP_Akismet();
+	bbpress()->extend->akismet = new BBP_Akismet();
 }
 
 ?>

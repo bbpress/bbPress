@@ -154,7 +154,7 @@ class BBP_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Admin url
 		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' );
@@ -418,8 +418,6 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2743)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @uses current_user_can() To check notice should be displayed.
 	 */
 	public function activation_notice() {
@@ -436,9 +434,8 @@ class BBP_Admin {
 	 * @return array Processed links
 	 */
 	public function add_settings_link( $links, $file ) {
-		global $bbp;
 
-		if ( plugin_basename( $bbp->file ) == $file ) {
+		if ( plugin_basename( bbpress()->file ) == $file ) {
 			$settings_link = '<a href="' . add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>';
 			array_unshift( $links, $settings_link );
 		}
@@ -903,12 +900,7 @@ endif; // class_exists check
  * @uses BBP_Admin
  */
 function bbp_admin() {
-	global $bbp;
-
-	$bbp->admin = new BBP_Admin();
-
-	if ( defined( 'BBP_CONTENT_DEPTH' ) )
-		$bbp->admin->content_depth = (int) BBP_CONTENT_DEPTH;
+	bbpress()->admin = new BBP_Admin();
 }
 
 ?>

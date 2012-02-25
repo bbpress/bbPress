@@ -860,7 +860,7 @@ class bbPress_Importer {
 			return false;
 		}
 
-		global $wpdb, $bbdb, $bbp; ?>
+		global $bbdb; ?>
 
 			<div id="bbpress-import-status">
 

@@ -280,23 +280,19 @@ add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',    10 );
  *
  * @since bbPress (r3395)
  *
- * @global bbPress $bbp
- * @return If bbPress is not active
+ * @return If BuddyPress is not active
  */
 function bbp_setup_buddypress() {
-	global $bbp, $bp;
+	global $bp;
 
 	// Bail if no BuddyPress
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
 	// Include the BuddyPress Component
-	require( $bbp->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php' );
+	require( bbpress()->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php' );
 
 	// Instantiate BuddyPress for bbPress
-	$bbp->extend->buddypress = new BBP_BuddyPress();
+	bbpress()->extend->buddypress = new BBP_BuddyPress();
 
 	// Add component setup to bp_init action
 	add_action( 'bp_init', 'bbp_setup_buddypress_component' );

@@ -2784,8 +2784,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * @uses update_post_meta() To save a list of just trashed replies for future use
  */
 function bbp_trash_topic( $topic_id = 0 ) {
-	global $bbp;
-
+	$bbp      = bbpress();
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )

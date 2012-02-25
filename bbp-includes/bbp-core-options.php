@@ -229,12 +229,11 @@ function bbp_setup_option_filters() {
  *
  * @since bbPress (r3451)
  *
- * @global bbPress $bbp
  * @param bool $value Optional. Default value false
  * @return mixed false if not overloaded, mixed if set
  */
 function bbp_pre_get_option( $value = false ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Get the name of the current filter so we can manipulate it
 	$filter = current_filter();

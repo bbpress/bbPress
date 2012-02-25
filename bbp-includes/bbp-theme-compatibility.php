@@ -63,11 +63,10 @@ class BBP_Theme_Compat {
  *
  * @since bbPress (r3311)
  *
- * @global bbPress $bbp
  * @param BBP_Theme_Compat $theme
  */
 function bbp_setup_theme_compat( $theme = '' ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) ) {
@@ -91,14 +90,11 @@ function bbp_setup_theme_compat( $theme = '' ) {
  *
  * @since bbPress (r3506)
  *
- * @global bbPress $bbp
  * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_name() {
-	global $bbp;
-
-	return apply_filters( 'bbp_get_theme_compat_name', $bbp->theme_compat->theme->name );
+	return apply_filters( 'bbp_get_theme_compat_name', bbpress()->theme_compat->theme->name );
 }
 
 /**
@@ -109,14 +105,11 @@ function bbp_get_theme_compat_name() {
  *
  * @since bbPress (r3506)
  *
- * @global bbPress $bbp
  * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_version() {
-	global $bbp;
-
-	return apply_filters( 'bbp_get_theme_compat_version', $bbp->theme_compat->theme->version );
+	return apply_filters( 'bbp_get_theme_compat_version', bbpress()->theme_compat->theme->version );
 }
 
 /**
@@ -127,14 +120,11 @@ function bbp_get_theme_compat_version() {
  *
  * @since bbPress (r3032)
  *
- * @global bbPress $bbp
  * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_dir() {
-	global $bbp;
-
-	return apply_filters( 'bbp_get_theme_compat_dir', $bbp->theme_compat->theme->dir );
+	return apply_filters( 'bbp_get_theme_compat_dir', bbpress()->theme_compat->theme->dir );
 }
 
 /**
@@ -145,14 +135,11 @@ function bbp_get_theme_compat_dir() {
  *
  * @since bbPress (r3032)
  *
- * @global bbPress $bbp
  * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_url() {
-	global $bbp;
-
-	return apply_filters( 'bbp_get_theme_compat_url', $bbp->theme_compat->theme->url );
+	return apply_filters( 'bbp_get_theme_compat_url', bbpress()->theme_compat->theme->url );
 }
 
 /**
@@ -160,12 +147,10 @@ function bbp_get_theme_compat_url() {
  *
  * @since bbPress (r3265)
  *
- * @global bbPress $bbp
- *
  * @return bool
  */
 function bbp_is_theme_compat_active() {
-	global $bbp;
+	$bbp = bbpress();
 
 	if ( empty( $bbp->theme_compat->active ) )
 		return false;
@@ -178,18 +163,14 @@ function bbp_is_theme_compat_active() {
  *
  * @since bbPress (r3265)
  *
- * @global bbPress $bbp
- *
  * @param bool $set
  *
  * @return bool
  */
 function bbp_set_theme_compat_active( $set = true ) {
-	global $bbp;
+	bbpress()->theme_compat->active = $set;
 
-	$bbp->theme_compat->active = $set;
-
-	return (bool) $bbp->theme_compat->active;
+	return (bool) bbpress()->theme_compat->active;
 }
 
 /**
@@ -199,15 +180,11 @@ function bbp_set_theme_compat_active( $set = true ) {
  * to override them, or see what files are being scanned for inclusion.
  *
  * @since bbPress (r3311)
- *
- * @global $bbp;
  */
 function bbp_set_theme_compat_templates( $templates = array() ) {
-	global $bbp;
+	bbpress()->theme_compat->templates = $templates;
 
-	$bbp->theme_compat->templates = $templates;
-
-	return $bbp->theme_compat->templates;
+	return bbpress()->theme_compat->templates;
 }
 
 /**
@@ -217,15 +194,11 @@ function bbp_set_theme_compat_templates( $templates = array() ) {
  * to override it, or see what file is being included.
  *
  * @since bbPress (r3311)
- *
- * @global $bbp;
  */
 function bbp_set_theme_compat_template( $template = '' ) {
-	global $bbp;
+	bbpress()->theme_compat->template = $template;
 
-	$bbp->theme_compat->template = $template;
-
-	return $bbp->theme_compat->template;
+	return bbpress()->theme_compat->template;
 }
 
 /**
@@ -243,7 +216,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 
 	// Default arguments
 	$defaults = array(
-		'ID'              => 0,
+		'ID'              => -9999,
 		'post_title'      => '',
 		'post_author'     => 0,
 		'post_date'       => 0,
@@ -538,12 +511,11 @@ function bbp_template_include_theme_compat( $template = '' ) {
  *
  * @since bbPress (r3034)
  *
- * @global bbPress $bbp
  * @param string $content
  * @return type
  */
 function bbp_replace_the_content( $content = '' ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Define local variable(s)
 	$new_content = '';
@@ -848,7 +820,6 @@ function bbp_redirect_canonical( $redirect_url ) {
  *
  * @since bbPress (r3251)
  *
- * @global bbPress $bbp
  * @global WP_filter $wp_filter
  * @global array $merged_filters
  *
@@ -858,7 +829,9 @@ function bbp_redirect_canonical( $redirect_url ) {
  * @return bool
  */
 function bbp_remove_all_filters( $tag, $priority = false ) {
-	global $bbp, $wp_filter, $merged_filters;
+	global $wp_filter, $merged_filters;
+
+	$bbp = bbpress();
 
 	// Filters exist
 	if ( isset( $wp_filter[$tag] ) ) {
@@ -902,7 +875,6 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
  *
  * @since bbPress (r3251)
  *
- * @global bbPress $bbp
  * @global WP_filter $wp_filter
  * @global array $merged_filters
  *
@@ -912,7 +884,9 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
  * @return bool
  */
 function bbp_restore_all_filters( $tag, $priority = false ) {
-	global $bbp, $wp_filter, $merged_filters;
+	global $wp_filter, $merged_filters;
+
+	$bbp = bbpress();
 
 	// Filters exist
 	if ( isset( $bbp->filters->wp_filter[$tag] ) ) {

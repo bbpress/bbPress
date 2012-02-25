@@ -946,8 +946,7 @@ function bbp_edit_user_handler() {
 
 	// Error(s) editng the user, so copy them into the global
 	if ( is_wp_error( $edit_user ) ) {
-		global $bbp;
-		$bbp->errors = $edit_user;
+		bbpress()->errors = $edit_user;
 
 	// Successful edit to redirect
 	} elseif ( is_integer( $edit_user ) ) {

@@ -108,12 +108,7 @@ endif; // class exists
  * @uses BBP_Replies_Admin
  */
 function bbp_users_admin() {
-	global $bbp;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
-	$bbp->admin->users = new BBP_Users_Admin();
+	bbpress()->admin->users = new BBP_Users_Admin();
 }
 
 ?>

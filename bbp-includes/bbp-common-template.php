@@ -281,11 +281,10 @@ function bbp_is_topic_split() {
  *
  * @since bbPress (r3311)
  *
- * @global bbPress $bbp
  * @return bool True if it's a topic tag, false if not
  */
 function bbp_is_topic_tag() {
-	global $bbp;
+	$bbp = bbpress();
 
 	// Return false if editing a topic tag
 	if ( bbp_is_topic_tag_edit() )
@@ -959,7 +958,7 @@ function bbp_tab_index( $auto_increment = true ) {
 	 * @return int $bbp->tab_index The global tab index
 	 */
 	function bbp_get_tab_index( $auto_increment = true ) {
-		global $bbp;
+		$bbp = bbpress();
 
 		if ( true === $auto_increment )
 			++$bbp->tab_index;
@@ -1453,7 +1452,7 @@ function bbp_view_id( $view = '' ) {
 	 * @return bool|string ID on success, false on failure
 	 */
 	function bbp_get_view_id( $view = '' ) {
-		global $bbp;
+		$bbp = bbpress();
 
 		$view = !empty( $view ) ? sanitize_title( $view ) : get_query_var( 'bbp_view' );
 
@@ -1488,7 +1487,7 @@ function bbp_view_title( $view = '' ) {
 	 * @return bool|string Title on success, false on failure
 	 */
 	function bbp_get_view_title( $view = '' ) {
-		global $bbp;
+		$bbp = bbpress();
 
 		$view = bbp_get_view_id( $view );
 		if ( empty( $view ) )
@@ -1522,7 +1521,9 @@ function bbp_view_url( $view = false ) {
 	 * @return string View url (or home url if the view was not found)
 	 */
 	function bbp_get_view_url( $view = false ) {
-		global $bbp, $wp_rewrite;
+		global $wp_rewrite;
+
+		$bbp = bbpress();
 
 		$view = bbp_get_view_id( $view );
 		if ( empty( $view ) )
@@ -1654,7 +1655,6 @@ function bbp_breadcrumb( $args = array() ) {
 	 * @return string Breadcrumbs
 	 */
 	function bbp_get_breadcrumb( $args = array() ) {
-		global $bbp;
 
 		// Turn off breadcrumbs
 		if ( apply_filters( 'bbp_no_breadcrumb', is_front_page() ) )
@@ -1665,6 +1665,9 @@ function bbp_breadcrumb( $args = array() ) {
 		$ancestors        = $breadcrumbs      = $tag_data            = array();
 		$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
 		$pre_include_root = $pre_include_home = $pre_include_current = true;
+
+		// Get bbPress
+		$bbp = bbpress();
 
 		/** Home Text *********************************************************/
 
@@ -1916,7 +1919,6 @@ function bbp_allowed_tags() {
  * @uses is_wp_error() To check if it's a {@link WP_Error}
  */
 function bbp_template_notices() {
-	global $bbp;
 
 	// Bail if no notices or errors
 	if ( !bbp_has_errors() )
@@ -1924,6 +1926,9 @@ function bbp_template_notices() {
 
 	// Define local variable(s)
 	$errors = $messages = array();
+
+	// Get bbPress
+	$bbp = bbpress();
 
 	// Loop through notices
 	foreach ( $bbp->errors->get_error_codes() as $code ) {

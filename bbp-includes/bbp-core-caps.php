@@ -515,8 +515,6 @@ function bbp_get_caps_for_role( $role = '' ) {
  *
  * @since bbPress (r3410)
  *
- * @global bbPress $bbp
- *
  * @uses is_multisite()
  * @uses bbp_allow_global_access()
  * @uses bbp_is_user_inactive()
@@ -542,13 +540,12 @@ function bbp_global_access_auto_role() {
 
 	// Give the user the 'Forum Participant' role
 	if ( current_user_can( 'bbp_masked' ) ) {
-		global $bbp;
 
 		// Get the default role
 		$default_role = bbp_get_participant_role();
 
 		// Set the current users default role
-		$bbp->current_user->set_role( $default_role );
+		bbpress()->current_user->set_role( $default_role );
 	}
 }
 
@@ -607,7 +604,6 @@ function bbp_get_moderator_role() {
  * @uses get_option()
  * @uses bbp_get_caps_for_role()
  *
- * @global bbPress $bbp
  * @return If not multisite, not global, or user is deleted/spammed
  */
 function bbp_global_access_role_mask() {
@@ -642,7 +638,7 @@ function bbp_global_access_role_mask() {
 		$mapped_meta_caps = apply_filters( 'bbp_global_access_mapped_meta_caps', $mapped_meta_caps );
 
 		// Assign the role and mapped caps to the current user
-		global $bbp;
+		$bbp = bbpress();
 		$bbp->current_user->roles[0] = $default_role;
 		$bbp->current_user->caps     = $mapped_meta_caps;
 		$bbp->current_user->allcaps  = $mapped_meta_caps;

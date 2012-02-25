@@ -25,12 +25,10 @@ function bbp_version() {
 	 * Return the bbPress version
 	 *
 	 * @since bbPress (r3468)
-	 * @global bbPress $bbp
 	 * @retrun string The bbPress version
 	 */
 	function bbp_get_version() {
-		global $bbp;
-		return $bbp->version;
+		return bbpress()->version;
 	}
 
 /**
@@ -46,12 +44,10 @@ function bbp_db_version() {
 	 * Return the bbPress database version
 	 *
 	 * @since bbPress (r3468)
-	 * @global bbPress $bbp
 	 * @retrun string The bbPress version
 	 */
 	function bbp_get_db_version() {
-		global $bbp;
-		return $bbp->db_version;
+		return bbpress()->db_version;
 	}
 
 /** Post Meta *****************************************************************/
@@ -577,9 +573,7 @@ function bbp_get_statistics( $args = '' ) {
  * @return array Views
  */
 function bbp_get_views() {
-	global $bbp;
-
-	return $bbp->views;
+	return bbpress()->views;
 }
 
 /**
@@ -598,8 +592,7 @@ function bbp_get_views() {
  * @return array The just registered (but processed) view
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
-	global $bbp;
-
+	$bbp   = bbpress();
 	$view  = sanitize_title( $view );
 	$title = esc_html( $title );
 
@@ -629,8 +622,7 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
  * @return bool False if the view doesn't exist, true on success
  */
 function bbp_deregister_view( $view ) {
-	global $bbp;
-
+	$bbp  = bbpress();
 	$view = sanitize_title( $view );
 
 	if ( !isset( $bbp->views[$view] ) )
@@ -680,10 +672,8 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  * @return array Query arguments
  */
 function bbp_get_view_query_args( $view ) {
-	global $bbp;
-
 	$view   = bbp_get_view_id( $view );
-	$retval = !empty( $view ) ? $bbp->views[$view]['query'] : false;
+	$retval = !empty( $view ) ? bbpress()->views[$view]['query'] : false;
 
 	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }
@@ -1641,8 +1631,6 @@ function bbp_request_feed_trap( $query_vars ) {
  *
  * @since bbPress (r3381)
  *
- * @global bbPress $bbp
- *
  * @see WP_Error()
  * @uses WP_Error::add();
  *
@@ -1651,9 +1639,7 @@ function bbp_request_feed_trap( $query_vars ) {
  * @param string $data Any additional data passed with the error message
  */
 function bbp_add_error( $code = '', $message = '', $data = '' ) {
-	global $bbp;
-
-	$bbp->errors->add( $code, $message, $data );
+	bbpress()->errors->add( $code, $message, $data );
 }
 
 /**
@@ -1661,25 +1647,22 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  *
  * @since bbPress (r3381)
  *
- * @global bbPress $bbp
- *
  * @see WP_Error()
  *
  * @uses is_wp_error()
  * @usese WP_Error::get_error_codes()
  */
 function bbp_has_errors() {
-	global $bbp;
 
 	// Assume no errors
 	$has_errors = false;
 
 	// Check for errors
-	if ( $bbp->errors->get_error_codes() )
+	if ( bbpress()->errors->get_error_codes() )
 		$has_errors = true;
 
 	// Filter return value
-	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, $bbp->errors );
+	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
 
 	return $has_errors;
 }
@@ -1742,12 +1725,10 @@ function bbp_set_404() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_public_status_id() {
-	global $bbp;
-	return $bbp->public_status_id;
+	return bbpress()->public_status_id;
 }
 
 /**
@@ -1755,12 +1736,10 @@ function bbp_get_public_status_id() {
  *
  * @since bbPress (r3581)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_pending_status_id() {
-	global $bbp;
-	return $bbp->pending_status_id;
+	return bbpress()->pending_status_id;
 }
 
 /**
@@ -1768,12 +1747,10 @@ function bbp_get_pending_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_private_status_id() {
-	global $bbp;
-	return $bbp->private_status_id;
+	return bbpress()->private_status_id;
 }
 
 /**
@@ -1781,12 +1758,10 @@ function bbp_get_private_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_hidden_status_id() {
-	global $bbp;
-	return $bbp->hidden_status_id;
+	return bbpress()->hidden_status_id;
 }
 
 /**
@@ -1794,12 +1769,10 @@ function bbp_get_hidden_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_closed_status_id() {
-	global $bbp;
-	return $bbp->closed_status_id;
+	return bbpress()->closed_status_id;
 }
 
 /**
@@ -1807,12 +1780,10 @@ function bbp_get_closed_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_spam_status_id() {
-	global $bbp;
-	return $bbp->spam_status_id;
+	return bbpress()->spam_status_id;
 }
 
 /**
@@ -1820,12 +1791,10 @@ function bbp_get_spam_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_trash_status_id() {
-	global $bbp;
-	return $bbp->trash_status_id;
+	return bbpress()->trash_status_id;
 }
 
 /**
@@ -1833,12 +1802,10 @@ function bbp_get_trash_status_id() {
  *
  * @since bbPress (r3504)
  *
- * @global bbPress $bbp
  * @return string
  */
 function bbp_get_orphan_status_id() {
-	global $bbp;
-	return $bbp->orphan_status_id;
+	return bbpress()->orphan_status_id;
 }
 
 ?>

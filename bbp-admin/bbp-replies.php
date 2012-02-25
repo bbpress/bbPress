@@ -962,12 +962,7 @@ endif; // class_exists check
  * @uses BBP_Replies_Admin
  */
 function bbp_admin_replies() {
-	global $bbp;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
-	$bbp->admin->replies = new BBP_Replies_Admin();
+	bbpress()->admin->replies = new BBP_Replies_Admin();
 }
 
 ?>

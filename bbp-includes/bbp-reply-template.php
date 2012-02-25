@@ -32,9 +32,7 @@ function bbp_reply_post_type() {
 	 * @return string The unique reply post type id
 	 */
 	function bbp_get_reply_post_type() {
-		global $bbp;
-
-		return apply_filters( 'bbp_get_reply_post_type', $bbp->reply_post_type );
+		return apply_filters( 'bbp_get_reply_post_type', bbpress()->reply_post_type );
 	}
 
 /** Reply Loop Functions ******************************************************/
@@ -66,7 +64,7 @@ function bbp_reply_post_type() {
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies( $args = '' ) {
-	global $wp_rewrite, $bbp;
+	global $wp_rewrite;
 
 	// Default status
 	$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
@@ -129,6 +127,9 @@ function bbp_has_replies( $args = '' ) {
 
 	// Extract the query variables
 	extract( $bbp_r );
+
+	// Get bbPress
+	$bbp = bbpress();
 
 	// Call the query
 	$bbp->reply_query = new WP_Query( $bbp_r );
@@ -195,10 +196,9 @@ function bbp_has_replies( $args = '' ) {
  * @return object Replies information
  */
 function bbp_replies() {
-	global $bbp;
 
 	// Put into variable to check against next
-	$have_posts = $bbp->reply_query->have_posts();
+	$have_posts = bbpress()->reply_query->have_posts();
 
 	// Reset the post data when finished
 	if ( empty( $have_posts ) )
@@ -216,8 +216,7 @@ function bbp_replies() {
  * @return object Reply information
  */
 function bbp_the_reply() {
-	global $bbp;
-	return $bbp->reply_query->the_post();
+	return bbpress()->reply_query->the_post();
 }
 
 /**
@@ -248,7 +247,9 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @return int The reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
-		global $bbp, $wp_query;
+		global $wp_query;
+
+		$bbp = bbpress();
 
 		// Easy empty checking
 		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
@@ -1506,8 +1507,9 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 * @return string Reply edit url
 	 */
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
-		global $wp_rewrite, $bbp;
+		global $wp_rewrite;
 
+		$bbp   = bbpress();
 		$reply = bbp_get_reply( bbp_get_reply_id( $reply_id ) );
 		if ( empty( $reply ) )
 			return;
@@ -1758,8 +1760,7 @@ function bbp_reply_class( $reply_id = 0 ) {
 	 * @return string Row class of the reply
 	 */
 	function bbp_get_reply_class( $reply_id = 0 ) {
-		global $bbp;
-
+		$bbp       = bbpress();
 		$reply_id  = bbp_get_reply_id( $reply_id );
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
 		$classes   = array();
@@ -1795,7 +1796,7 @@ function bbp_topic_pagination_count() {
 	 * @return string Topic pagination count
 	 */
 	function bbp_get_topic_pagination_count() {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Define local variable(s)
 		$retstr = '';
@@ -1856,7 +1857,7 @@ function bbp_topic_pagination_links() {
 	 * @return string Topic pagination links
 	 */
 	function bbp_get_topic_pagination_links() {
-		global $bbp;
+		$bbp = bbpress();
 
 		if ( !isset( $bbp->reply_query->pagination_links ) || empty( $bbp->reply_query->pagination_links ) )
 			return false;

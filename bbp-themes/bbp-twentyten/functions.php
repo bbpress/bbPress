@@ -57,7 +57,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	 * @uses apply_filters() Calls various filters
 	 */
 	private function setup_globals() {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Theme name to help identify if it's been extended
 		$this->name = 'bbPress (Twenty Ten)';

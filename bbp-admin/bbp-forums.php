@@ -583,12 +583,7 @@ endif; // class_exists check
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_forums() {
-	global $bbp;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
-	$bbp->admin->forums = new BBP_Forums_Admin();
+	bbpress()->admin->forums = new BBP_Forums_Admin();
 }
 
 ?>

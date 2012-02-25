@@ -38,7 +38,7 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 	 * @return int Validated user id
 	 */
 	function bbp_get_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Easy empty checking
 		if ( !empty( $user_id ) && is_numeric( $user_id ) )
@@ -127,7 +127,7 @@ function bbp_displayed_user_field( $field = '' ) {
 	 * @return string|bool Value of the field if it exists, else false
 	 */
 	function bbp_get_displayed_user_field( $field = '' ) {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Return field if exists
 		if ( isset( $bbp->displayed_user->$field ) )
@@ -268,7 +268,9 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 * @return string User profile url
 	 */
 	function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
-		global $wp_rewrite, $bbp;
+		global $wp_rewrite;
+
+		$bbp = bbpress();
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -370,8 +372,9 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	 * @return string
 	 */
 	function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
-		global $wp_rewrite, $bbp;
+		global $wp_rewrite;
 
+		$bbp     = bbpress();
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
 			return;
@@ -793,8 +796,7 @@ function bbp_notice_edit_user_is_super_admin() {
  * @since bbPress (r2688)
  */
 function bbp_edit_user_display_name() {
-	global $bbp;
-
+	$bbp            = bbpress();
 	$public_display = array();
 	$public_display['display_username'] = $bbp->displayed_user->user_login;
 
@@ -837,17 +839,16 @@ function bbp_edit_user_display_name() {
  * @since bbPress (r2688)
  */
 function bbp_edit_user_role() {
-	global $bbp;
 
 	// Return if no user is displayed
-	if ( !isset( $bbp->displayed_user ) )
+	if ( !isset( bbpress()->displayed_user ) )
 		return;
 
 	// Local variables
 	$p = $r = '';
 
 	// print the 'no role' option. Make it selected if the user has no role yet.
-	$user_role = array_shift( $bbp->displayed_user->roles );
+	$user_role = array_shift( bbpress()->displayed_user->roles );
 	if ( empty( $user_role ) )
 		$r .= '<option value="">' . __( '&mdash; No role for this site &mdash;', 'bbpress' ) . '</option>';
 
@@ -877,10 +878,9 @@ function bbp_edit_user_role() {
  * @return string User contact methods
  */
 function bbp_edit_user_contact_methods() {
-	global $bbp;
 
 	// Get the core WordPress contact methods
-	$contact_methods = _wp_get_user_contactmethods( $bbp->displayed_user );
+	$contact_methods = _wp_get_user_contactmethods( bbpress()->displayed_user );
 
 	return apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }

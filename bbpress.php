@@ -314,7 +314,51 @@ class bbPress {
 	 */
 	public $options = array();
 
-	/** Private Methods *******************************************************/
+	/** Singleton *************************************************************/
+
+	/**
+	 * @var bbPress The one true bbPress
+	 */
+	private static $instance;
+
+	/**
+	 * Main bbPress Instance
+	 *
+	 * bbPress is fun
+	 * Please load it only one time
+	 * For this, we thank you
+	 *
+	 * Insures that only one instance of bbPress exists in memory at any one
+	 * time. Also prevents needing to define globals all over the place.
+	 *
+	 * @since bbPress (r3757)
+	 * @staticvar array $instance
+	 * @uses bbPress::setup_globals() Setup the globals needed
+	 * @uses bbPress::includes() Include the required files
+	 * @uses bbPress::setup_actions() Setup the hooks and actions
+	 * @see bbpress()
+	 * @return The one true bbPress
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new bbPress;
+			self::$instance->setup_globals();
+			self::$instance->includes();
+			self::$instance->setup_actions();
+		}
+		return self::$instance;
+	}
+
+	/** Magic Methods *********************************************************/
+
+	/**
+	 * A dummy constructor to prevent bbPress from being loaded more than once.
+	 *
+	 * @since bbPress (r2464)
+	 * @see bbPress::instance()
+	 * @see bbpress();
+	 */
+	private function __construct() { /* Do nothing here */ }
 
 	/**
 	 * The main bbPress loader
@@ -325,11 +369,20 @@ class bbPress {
 	 * @uses bbPress::includes() Include the required files
 	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 */
-	public function __construct() {
-		$this->setup_globals();
-		$this->includes();
-		$this->setup_actions();
-	}
+	public function __clone() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
+
+	/**
+	 * The main bbPress loader
+	 *
+	 * @since bbPress (r2464)
+	 *
+	 * @uses bbPress::setup_globals() Setup the globals needed
+	 * @uses bbPress::includes() Include the required files
+	 * @uses bbPress::setup_actions() Setup the hooks and actions
+	 */
+	public function __wakeup() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
+
+	/** Private Methods *******************************************************/
 
 	/**
 	 * Component global variables
@@ -1008,8 +1061,33 @@ class bbPress {
 	}
 }
 
+/**
+ * The main function responsible for returning the one true bbPress Instance
+ * to functions everywhere.
+ *
+ * Use this function like you would a global variable, except without needing
+ * to declare the global.
+ *
+ * Example: <?php $bbp = bbpress(); ?>
+ *
+ * @return The one true bbPress Instance
+ */
+function bbpress() {
+	return bbpress::instance();
+}
+
 // "And now here's something we hope you'll really like!"
-$GLOBALS['bbp'] = new bbPress();
+bbpress();
+
+/**
+ * Eperimental:
+ *
+ * Hook bbPress early onto the 'plugins_loaded' action.
+ *
+ * This gives all other plugins the chance to load before bbPress, to get their
+ * actions, filters, and overrides setup without bbPress being in the way.
+ */
+//add_action( 'plugins_loaded', 'bbpress', -999 );
 
 endif; // class_exists check
 

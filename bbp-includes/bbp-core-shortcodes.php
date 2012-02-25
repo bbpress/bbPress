@@ -132,11 +132,9 @@ class BBP_Shortcodes {
 	 * Unset some globals in the $bbp object that hold query related info
 	 *
 	 * @since bbPress (r3034)
-	 *
-	 * @global bbPress $bbp
 	 */
 	private function unset_globals() {
-		global $bbp;
+		$bbp = bbpress();
 
 		// Unset global queries
 		$bbp->forum_query = new stdClass;
@@ -245,14 +243,13 @@ class BBP_Shortcodes {
 	 * @return string
 	 */
 	public function display_forum( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
 			return $content;
 
 		// Set passed attribute to $forum_id for clarity
-		$forum_id = $bbp->current_forum_id = $attr['id'];
+		$forum_id = bbpress()->current_forum_id = $attr['id'];
 
 		// Bail if ID passed is not a forum
 		if ( !bbp_is_forum( $forum_id ) )
@@ -333,15 +330,12 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @param array $attr
 	 * @param string $content
 	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topic( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
@@ -351,7 +345,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Set passed attribute to $forum_id for clarity
-		$topic_id = $bbp->current_topic_id = $attr['id'];
+		$topic_id = bbpress()->current_topic_id = $attr['id'];
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a forum
@@ -360,6 +354,8 @@ class BBP_Shortcodes {
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
+
+			$bbp = bbpress();
 
 			// Reset necessary forum_query attributes for topics loop to function
 			$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -421,15 +417,12 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @param array $attr
 	 * @param string $content
 	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_reply( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
@@ -439,7 +432,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Set passed attribute to $reply_id for clarity
-		$reply_id = $bbp->current_reply_id = $attr['id'];
+		$reply_id = bbpress()->current_reply_id = $attr['id'];
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a forum
@@ -448,6 +441,8 @@ class BBP_Shortcodes {
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
+
+			$bbp = bbpress();
 
 			// Reset necessary forum_query attributes for replys loop to function
 			$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -538,7 +533,6 @@ class BBP_Shortcodes {
 	 * @return string
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
@@ -551,7 +545,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_topics_of_tag' );
 
 		// Set passed attribute to $ag_id for clarity
-		$bbp->current_topic_tag_id = $tag_id = $attr['id'];
+		bbpress()->current_topic_tag_id = $tag_id = $attr['id'];
 
 		// Filter the query
 		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topics_of_tag_query' ) );
@@ -756,11 +750,10 @@ class BBP_Shortcodes {
 	 * @return array
 	 */
 	public function display_topic_query( $args = array() ) {
-		global $bbp;
 
 		$args['meta_query'] = array( array(
 			'key'     => '_bbp_topic_id',
-			'value'   => $bbp->current_topic_id,
+			'value'   => bbpress()->current_topic_id,
 			'compare' => '='
 		) );
 
@@ -772,17 +765,15 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3637)
 	 *
-	 * @global bbPress $bbp
 	 * @param array $args
 	 * @return array
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
-		global $bbp;
 
 		$args['tax_query'] = array( array(
 			'taxonomy' => bbp_get_topic_tag_tax_id(),
 			'field'    => 'id',
-			'terms'    => $bbp->current_topic_tag_id
+			'terms'    => bbpress()->current_topic_tag_id
 		) );
 
 		return $args;
@@ -795,16 +786,10 @@ endif;
  *
  * @since bbPress (r3031)
  *
- * @global bbPress $bbp
  * @uses BBP_Shortcodes
  */
 function bbp_register_shortcodes() {
-	global $bbp;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
-	$bbp->shortcodes = new BBP_Shortcodes();
+	bbpress()->shortcodes = new BBP_Shortcodes();
 }
 
 ?>

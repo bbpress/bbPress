@@ -40,11 +40,10 @@ function bbp_is_update() {
  *
  * @since bbPress (r3421)
  *
- * @global bbPress $bbp
  * @return bool True if activating bbPress, false if not
  */
 function bbp_is_activation( $basename = '' ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	$action = false;
 	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )
@@ -78,11 +77,10 @@ function bbp_is_activation( $basename = '' ) {
  * Determine if bbPress is being deactivated
  *
  * @since bbPress (r3421)
- * @global bbPress $bbp
  * @return bool True if deactivating bbPress, false if not
  */
 function bbp_is_deactivation( $basename = '' ) {
-	global $bbp;
+	$bbp = bbpress();
 
 	$action = false;
 	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )

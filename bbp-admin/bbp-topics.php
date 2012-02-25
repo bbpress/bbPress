@@ -1033,12 +1033,7 @@ endif; // class_exists check
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_topics() {
-	global $bbp;
-
-	// Bail if bbPress is not loaded
-	if ( !is_a( $bbp, 'bbPress' ) ) return;
-
-	$bbp->admin->topics = new BBP_Topics_Admin();
+	bbpress()->admin->topics = new BBP_Topics_Admin();
 }
 
 ?>
