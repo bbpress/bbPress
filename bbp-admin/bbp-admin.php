@@ -198,7 +198,7 @@ class BBP_Admin {
 			__( 'Update Forum', 'bbpress' ),
 			__( 'Update Forum', 'bbpress' ),
 			( is_multisite() ? 'manage_network' : 'manage_options' ),
-			'bbpress',
+			'bbpress-update',
 			array( $this, 'update_screen' )
 		);
 	}
@@ -215,7 +215,7 @@ class BBP_Admin {
 			__( 'Update Forums', 'bbpress' ),
 			__( 'Update Forums', 'bbpress' ),
 			'manage_network',
-			'bbpress',
+			'bbpress-update',
 			array( $this, 'network_update_screen' )
 		);
 	}
