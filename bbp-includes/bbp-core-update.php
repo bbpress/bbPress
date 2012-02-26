@@ -11,6 +11,19 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
+ * If there is no raw DB version, this is the first installation
+ *
+ * @since bbPress (r3764)
+ *
+ * @uses get_option()
+ * @uses bbp_get_db_version() To get bbPress's database version
+ * @return bool True if update, False if not
+ */
+function bbp_is_install() {
+	return ! bbp_get_db_version_raw();
+}
+
+/**
  * Compare the bbPress version to the DB version to determine if updating
  *
  * @since bbPress (r3421)
@@ -20,16 +33,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @return bool True if update, False if not
  */
 function bbp_is_update() {
-
-	// Current DB version of this site (per site in a multisite network)
-	$current_db   = get_option( '_bbp_db_version' );
-	$current_live = bbp_get_db_version();
-
-	// Compare versions (cast as int and bool to be safe)
-	$is_update = (bool) ( (int) $current_db < (int) $current_live );
-
-	// Return the product of version comparison
-	return $is_update;
+	return (bool) ( (int) bbp_get_db_version_raw() < (int) bbp_get_db_version() );
 }
 
 /**
