@@ -1523,15 +1523,13 @@ function bbp_view_url( $view = false ) {
 	function bbp_get_view_url( $view = false ) {
 		global $wp_rewrite;
 
-		$bbp = bbpress();
-
 		$view = bbp_get_view_id( $view );
 		if ( empty( $view ) )
 			return home_url();
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->view_slug . '/' . $view;
+			$url = $wp_rewrite->root . bbp_get_view_slug() . '/' . $view;
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
