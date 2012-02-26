@@ -50,6 +50,25 @@ function bbp_db_version() {
 		return bbpress()->db_version;
 	}
 
+/**
+ * Output the bbPress database version directly from the database
+ *
+ * @since bbPress (r3468)
+ * @uses bbp_get_version() To get the current bbPress version
+ */
+function bbp_db_version_raw() {
+	echo bbp_get_db_version_raw();
+}
+	/**
+	 * Return the bbPress database version directly from the database
+	 *
+	 * @since bbPress (r3468)
+	 * @retrun string The current bbPress version
+	 */
+	function bbp_get_db_version_raw() {
+		return get_option( '_bbp_db_version', '' );
+	}
+
 /** Post Meta *****************************************************************/
 
 /**
