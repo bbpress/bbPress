@@ -1666,9 +1666,6 @@ function bbp_breadcrumb( $args = array() ) {
 		$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
 		$pre_include_root = $pre_include_home = $pre_include_current = true;
 
-		// Get bbPress
-		$bbp = bbpress();
-
 		/** Home Text *********************************************************/
 
 		// No custom home text
@@ -1689,7 +1686,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// No custom root text
 		if ( empty( $args['root_text'] ) ) {
-			$page = bbp_get_page_by_path( $bbp->root_slug );
+			$page = bbp_get_page_by_path( bbp_get_root_slug() );
 			if ( !empty( $page ) ) {
 				$root_id = $page->ID;
 			}
@@ -1799,7 +1796,7 @@ function bbp_breadcrumb( $args = array() ) {
 		if ( !empty( $include_root ) || empty( $root_text ) ) {
 
 			// Page exists at root slug path, so use its permalink
-			$page = bbp_get_page_by_path( $bbp->root_slug );
+			$page = bbp_get_page_by_path( bbp_get_root_slug() );
 			if ( !empty( $page ) ) {
 				$root_url = get_permalink( $page->ID );
 

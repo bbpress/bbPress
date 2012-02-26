@@ -425,4 +425,111 @@ function bbp_is_akismet_active( $default = true ) {
 	return (bool) apply_filters( 'bbp_is_akismet_active', (bool) get_option( '_bbp_enable_akismet', $default ) );
 }
 
+/** Slugs *********************************************************************/
+
+/**
+ * Return the root slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_root_slug( $default = 'forums' ) {
+	return apply_filters( 'bbp_get_root_slug', get_option( '_bbp_root_slug', $default ) );
+}
+
+/**
+ * Are we including the root slug in front of forum pages?
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_include_root_slug( $default = true ) {
+	return (bool) apply_filters( 'bbp_include_root_slug', (bool) get_option( '_bbp_include_root', $default ) );
+}
+
+/**
+ * Maybe return the root slug, based on whether or not it's included in the url
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_maybe_get_root_slug() {
+	$retval = '';
+
+	if ( bbp_get_root_slug() && bbp_include_root_slug() )
+		$retval = trailingslashit( bbp_get_root_slug() );
+
+	return apply_filters( 'bbp_maybe_get_root_slug', $retval );
+}
+
+/**
+ * Return the single forum slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_forum_slug( $default = 'forum' ) {;
+	return apply_filters( 'bbp_get_root_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_forum_slug', $default ) );
+}
+
+/**
+ * Return the topic archive slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_topic_archive_slug( $default = 'topics' ) {
+	return apply_filters( 'bbp_get_topic_archive_slug', get_option( '_bbp_topic_archive_slug', $default ) );
+}
+
+/**
+ * Return the single topic slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_topic_slug( $default = 'topic' ) {
+	return apply_filters( 'bbp_get_topic_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_slug', $default ) );
+}
+
+/**
+ * Return the topic-tag taxonomy slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_topic_tag_taxonomy_slug( $default = 'topic-tag' ) {
+	return apply_filters( 'bbp_get_topic_tag_taxonomy_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
+}
+
+/**
+ * Return the single reply slug (used mostly for editing)
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_reply_slug( $default = 'reply' ) {
+	return apply_filters( 'bbp_get_reply_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_reply_slug', $default ) );
+}
+
+/**
+ * Return the single user slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_user_slug( $default = 'user' ) {
+	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
+}
+
+/**
+ * Return the topic view slug
+ *
+ * @since bbPress (r3759)
+ * @return string
+ */
+function bbp_get_view_slug( $default = 'view' ) {
+	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
+}
+
 ?>

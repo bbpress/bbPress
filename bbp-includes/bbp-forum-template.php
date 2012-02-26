@@ -343,7 +343,7 @@ function bbp_forum_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			$page = bbp_get_page_by_path( bbpress()->root_slug );
+			$page = bbp_get_page_by_path( bbp_get_root_slug() );
 			if ( !empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 

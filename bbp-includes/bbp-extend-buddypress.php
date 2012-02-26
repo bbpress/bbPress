@@ -936,11 +936,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	function __construct() {
 
 		// Name and slug
-		$this->name          = __( 'Forums', 'bbpress' );
-		$this->nav_item_name = __( 'Forums', 'bbpress' );
-		$this->slug          = bp_get_option( '_bbp_forum_slug', 'forum' );
-		$this->topic_slug    = bp_get_option( '_bbp_topic_slug', 'topic' );
-		$this->reply_slug    = bp_get_option( '_bbp_reply_slug', 'reply' );
+		$this->name          = bbp_get_forum_archive_title();
+		$this->nav_item_name = bbp_get_forum_archive_title();
+		$this->slug          = bbp_get_forum_slug();
+		$this->topic_slug    = bbp_get_topic_slug();
+		$this->reply_slug    = bbp_get_reply_slug();
 
 		// Forum component is visible @todo configure?
 		$this->visibility = 'public';

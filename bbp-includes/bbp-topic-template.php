@@ -258,7 +258,7 @@ function bbp_has_topics( $args = '' ) {
 
 			// Topic archive
 			elseif ( bbp_is_topic_archive() )
-				$base = home_url( $bbp->topic_archive_slug );
+				$base = home_url( bbp_get_topic_archive_slug() );
 
 			// Default
 			else
@@ -537,7 +537,7 @@ function bbp_topic_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			$page = bbp_get_page_by_path( bbpress()->topic_archive_slug );
+			$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
 			if ( !empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 

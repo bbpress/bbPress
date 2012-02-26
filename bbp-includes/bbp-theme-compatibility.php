@@ -562,7 +562,7 @@ function bbp_replace_the_content( $content = '' ) {
 	} elseif ( bbp_is_forum_archive() ) {
 
 		// Page exists where this archive should be
-		$page = bbp_get_page_by_path( $bbp->root_slug );
+		$page = bbp_get_page_by_path( bbp_get_root_slug() );
 		if ( !empty( $page ) ) {
 
 			// Start output buffer
@@ -588,7 +588,7 @@ function bbp_replace_the_content( $content = '' ) {
 	} elseif ( bbp_is_topic_archive() ) {
 
 		// Page exists where this archive should be
-		$page = bbp_get_page_by_path( $bbp->topic_archive_slug );
+		$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
 		if ( !empty( $page ) ) {
 
 			// Start output buffer
