@@ -508,18 +508,12 @@ class BBP_Admin {
 				font-size: 14px;
 				position: absolute;
 				top: -17px;
-
-				<?php if ( is_rtl() ) : ?>
-
-					right: 15px;
-
-				<?php else : ?>
-
-					left: 15px;
-
-				<?php endif; ?>
-
+				left: 15px;
 			}
+				body.rtl #bbp-dashboard-right-now p.sub {
+					right: 15px;
+					left: 0;
+				}
 
 			#bbp-dashboard-right-now .table {
 				margin: 0;
@@ -528,36 +522,22 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now .table_content {
-
-				<?php if ( is_rtl() ) : ?>
-
-					float: right;
-
-				<?php else : ?>
-
-					float: left;
-
-				<?php endif; ?>
-
+				float: left;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
+				body.rtl #bbp-dashboard-right-now .table_content {
+					float: right;
+				}
 
 			#bbp-dashboard-right-now .table_discussion {
-
-				<?php if ( is_rtl() ) : ?>
-
-					float: left;
-
-				<?php else : ?>
-
-					float: right;
-
-				<?php endif; ?>
-
+				float: right;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
+				body.rtl #bbp-dashboard-right-now .table_discussion {
+					float: left;
+				}
 
 			#bbp-dashboard-right-now table td {
 				padding: 3px 0;
@@ -569,22 +549,16 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now td.b {
-
-				<?php if ( is_rtl() ) : ?>
-
-					padding-left: 6px;
-
-				<?php else : ?>
-
-					padding-right: 6px;
-
-				<?php endif; ?>
-
+				padding-right: 6px;
 				text-align: right;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 				font-size: 14px;
 				width: 1%;
 			}
+				body.rtl #bbp-dashboard-right-now td.b {
+					padding-left: 6px;
+					padding-right: 0;
+				}
 
 			#bbp-dashboard-right-now td.b a {
 				font-size: 18px;
@@ -596,20 +570,14 @@ class BBP_Admin {
 
 			#bbp-dashboard-right-now .t {
 				font-size: 12px;
-
-				<?php if ( is_rtl() ) : ?>
-
-					padding-left: 12px;
-
-				<?php else : ?>
-
-					padding-right: 12px;
-
-				<?php endif; ?>
-
+				padding-right: 12px;
 				padding-top: 6px;
 				color: #777;
 			}
+				body.rtl #bbp-dashboard-right-now .t {
+					padding-left: 12px;
+					padding-right: 0;
+				}
 
 			#bbp-dashboard-right-now .t a {
 				white-space: nowrap;
@@ -637,22 +605,15 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now a.button {
-
-				<?php if ( is_rtl() ) : ?>
-
-					float: left;
-					clear: left;
-
-				<?php else : ?>
-
-					float: right;
-					clear: right;
-
-				<?php endif; ?>
-
+				float: right;
+				clear: right;
 				position: relative;
 				top: -5px;
 			}
+				body.rtl #bbp-dashboard-right-now a.button {
+					float: left;
+					clear: left;
+				}
 
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px -32px;
