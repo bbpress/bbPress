@@ -88,37 +88,31 @@ class BBP_Admin {
 
 		/** General Actions ***************************************************/
 
-		// Attach the bbPress admin_init action to the WordPress admin_init action.
-		add_action( 'admin_init',         array( $this, 'admin_init'                 ) );
+		// Add menu item to settings menu
+		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) );
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',         array( $this, 'admin_head'                 ) );
-
-		// Add menu item to settings menu
-		add_action( 'admin_menu',         array( $this, 'admin_menus'                ) );
+		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) );
 
 		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices',      array( $this, 'activation_notice'          ) );
+		add_action( 'bbp_admin_notices',           array( $this, 'activation_notice'       ) );
 
 		// Add importers
-		add_action( 'bbp_admin_init',     array( $this, 'register_importers'         ) );
+		add_action( 'bbp_register_importers',      array( $this, 'register_importers'      ) );
 
 		// Add green admin style
-		add_action( 'bbp_admin_init',     array( $this, 'register_admin_style'       ) );
+		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'    ) );
 
 		// Add settings
-		add_action( 'bbp_admin_init',     array( $this, 'register_admin_settings'    ) );
+		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) );
 
 		// Forums 'Right now' Dashboard widget
-		add_action( 'wp_dashboard_setup', array( $this, 'dashboard_widget_right_now' ) );
+		add_action( 'wp_dashboard_setup',  array( $this, 'dashboard_widget_right_now' ) );
 
 		/** Filters ***********************************************************/
 
 		// Add link to settings page
 		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
-
-		// Add sample permalink filter
-		add_filter( 'post_type_link',     'bbp_filter_sample_permalink',        10, 4 );
 
 		/** Network Admin *****************************************************/
 
@@ -219,7 +213,6 @@ class BBP_Admin {
 	 * @uses add_settings_section() To add our own settings section
 	 * @uses add_settings_field() To add various settings fields
 	 * @uses register_setting() To register various settings
-	 * @uses do_action() Calls 'bbp_register_admin_settings'
 	 */
 	public function register_admin_settings() {
 
@@ -367,8 +360,6 @@ class BBP_Admin {
 			add_settings_field( '_bbp_enable_akismet', __( 'Use Akismet',  'bbpress' ), 'bbp_admin_setting_callback_akismet',         'bbpress', 'bbp_akismet' );
 			register_setting  ( 'bbpress',            '_bbp_enable_akismet',            'intval'                                                               );
 		}
-
-		do_action( 'bbp_register_admin_settings' );
 	}
 
 	/**
@@ -376,7 +367,6 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2737)
 	 *
-	 * @uses do_action() Calls 'bbp_register_importers'
 	 * @uses apply_filters() Calls 'bbp_importer_path' filter to allow plugins
 	 *                        to customize the importer script locations.
 	 */
@@ -406,9 +396,6 @@ class BBP_Admin {
 				require( $import_file );
 			}
 		}
-
-		// Don't do anything we wouldn't do
-		do_action( 'bbp_register_importers' );
 	}
 
 	/**
@@ -444,17 +431,6 @@ class BBP_Admin {
 	}
 
 	/**
-	 * bbPress's dedicated admin init action
-	 *
-	 * @since bbPress (r2464)
-	 *
-	 * @uses do_action() Calls 'bbp_admin_init'
-	 */
-	public function admin_init() {
-		do_action( 'bbp_admin_init' );
-	}
-
-	/**
 	 * Add the 'Right now in Forums' dashboard widget
 	 *
 	 * @since bbPress (r2770)
@@ -474,7 +450,6 @@ class BBP_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	public function admin_head() {
 
@@ -652,9 +627,6 @@ class BBP_Admin {
 		</style>
 
 		<?php
-
-		// Add extra actions to bbPress admin header area
-		do_action( 'bbp_admin_head' );
 	}
 
 	/**

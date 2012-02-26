@@ -24,8 +24,6 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-/** ACTIONS *******************************************************************/
-
 /**
  * Attach bbPress to WordPress
  *
@@ -323,29 +321,6 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 	restore_current_blog();
 }
 add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
-
-/** Admin *********************************************************************/
-
-if ( is_admin() ) {
-
-	add_action( 'bbp_init',          'bbp_admin'                   );
-	add_action( 'bbp_admin_init',    'bbp_admin_forums',         9 );
-	add_action( 'bbp_admin_init',    'bbp_admin_topics',         9 );
-	add_action( 'bbp_admin_init',    'bbp_admin_replies',        9 );
-	add_action( 'admin_menu',        'bbp_admin_separator'         );
-	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
-	add_action( 'menu_order',        'bbp_admin_menu_order'        );
-
-	// Contextual Helpers
-	add_action( 'load-settings_page_bbpress', 'bbp_admin_settings_help' );
-
-	/**
-	 * Run the updater late on 'bbp_admin_init' to ensure that all alterations
-	 * to the permalink structure have taken place. This fixes the issue of
-	 * permalinks not being flushed properly when a bbPress update occurs.
-	 */
-	add_action( 'bbp_admin_init',    'bbp_setup_updater', 999 );
-}
 
 /**
  * Plugin Dependency

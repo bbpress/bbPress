@@ -58,7 +58,7 @@ class BBP_Topics_Admin {
 	function setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',            array( $this, 'admin_head'       ) );
+		add_action( 'bbp_admin_head',        array( $this, 'admin_head'       ) );
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
@@ -84,7 +84,7 @@ class BBP_Topics_Admin {
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
-		add_filter( 'request',               array( $this, 'filter_post_rows' ) );
+		add_filter( 'bbp_request',           array( $this, 'filter_post_rows' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );

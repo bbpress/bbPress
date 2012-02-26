@@ -420,9 +420,9 @@ class bbPress {
 
 		/** Core **************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration Options
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration Options
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets
@@ -465,8 +465,10 @@ class bbPress {
 		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
-		if ( is_admin() )
-			require( $this->plugin_dir . 'bbp-admin/bbp-admin.php' );
+		if ( is_admin() ) {
+			require( $this->plugin_dir . 'bbp-admin/bbp-admin.php'   );
+			require( $this->plugin_dir . 'bbp-admin/bbp-actions.php' );
+		}
 	}
 
 	/**
