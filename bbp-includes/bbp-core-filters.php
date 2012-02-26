@@ -40,6 +40,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  *           v--WordPress Actions       v--bbPress Sub-actions
  */
+add_filter( 'request',                 'bbp_request',            10    );
 add_filter( 'template_include',        'bbp_template_include',   10    );
 add_filter( 'wp_title',                'bbp_title',              10, 3 );
 add_filter( 'body_class',              'bbp_body_class',         10, 2 );
@@ -65,7 +66,7 @@ add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
  * the normal scope of feeds that WordPress would normally serve. To do this,
  * we filter every page request, listen for a feed request, and trap it.
  */
-add_filter( 'request', 'bbp_request_feed_trap' );
+add_filter( 'bbp_request', 'bbp_request_feed_trap' );
 
 /**
  * Template Compatibility
@@ -194,13 +195,22 @@ add_filter( 'bbp_pre_anonymous_post_author_website', 'wp_filter_kses',      10 )
 /** Functions *****************************************************************/
 
 /**
+ * Piggy back filter for WordPress's 'request' filter
+ *
+ * @since bbPress (r3758)
+ * @param array $query_vars
+ * @return array 
+ */
+function bbp_request( $query_vars = array() ) {
+	return apply_filters( 'bbp_request', $query_vars );
+}
+
+/**
  * The main filter used for theme compatibility and displaying custom bbPress
  * theme files.
  *
  * @since bbPress (r3311)
- *
  * @uses apply_filters()
- *
  * @param string $template
  * @return string Template file to use
  */
@@ -212,9 +222,7 @@ function bbp_template_include( $template = '' ) {
  * Generate bbPress-specific rewrite rules
  *
  * @since bbPress (r2688)
- *
  * @param WP_Rewrite $wp_rewrite
- *
  * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
  */
 function bbp_generate_rewrite_rules( $wp_rewrite ) {
@@ -225,7 +233,6 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  * Filter the allowed themes list for bbPress specific themes
  *
  * @since bbPress (r2944)
- *
  * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
  */
 function bbp_allowed_themes( $themes ) {

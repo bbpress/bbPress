@@ -1458,7 +1458,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  * @param array $query_vars
  * @return array
  */
-function bbp_request_feed_trap( $query_vars ) {
+function bbp_request_feed_trap( $query_vars = array() ) {
 	global $wp_query;
 
 	// Looking at a feed
@@ -1533,6 +1533,9 @@ function bbp_request_feed_trap( $query_vars ) {
 
 					// All forum topics and replies
 					} else {
+
+						// Maybe exclude private and hidden forums
+						$meta_query = array( bbp_exclude_forum_ids( 'meta_query' ) );
 
 						// The query
 						$the_query = array(
