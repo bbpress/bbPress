@@ -498,8 +498,8 @@ function bbp_get_topic_slug( $default = 'topic' ) {
  * @since bbPress (r3759)
  * @return string
  */
-function bbp_get_topic_tag_taxonomy_slug( $default = 'topic-tag' ) {
-	return apply_filters( 'bbp_get_topic_tag_taxonomy_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
+function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
+	return apply_filters( 'bbp_get_topic_tag_tax_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
 }
 
 /**

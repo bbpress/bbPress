@@ -1811,4 +1811,36 @@ function bbp_get_orphan_status_id() {
 	return bbpress()->orphan_status_id;
 }
 
+/** Rewrite IDs ***************************************************************/
+
+/**
+ * Return the unique ID for user profile rewrite rules
+ *
+ * @since bbPress (r3762)
+ * @return string
+ */
+function bbp_get_user_rewrite_id() {
+	return bbpress()->user_id;
+}
+
+/**
+ * Return the enique ID for all edit rewrite rules (forum|topic|reply|tag|user)
+ *
+ * @since bbPress (r3762)
+ * @return string
+ */
+function bbp_get_edit_rewrite_id() {
+	return bbpress()->edit_id;
+}
+
+/**
+ * Return the unique ID for topic view rewrite rules
+ *
+ * @since bbPress (r3762)
+ * @return string
+ */
+function bbp_get_view_rewrite_id() {
+	return bbpress()->view_id;
+}
+
 ?>

@@ -196,7 +196,6 @@ function bbp_add_template_locations( $templates = array() ) {
  * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_parse_query( $posts_query ) {
-	$bbp = bbpress();
 
 	// Bail if $posts_query is not the main loop
 	if ( ! $posts_query->is_main_query() )
@@ -211,9 +210,9 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_user = $posts_query->get( $bbp->user_id );
-	$bbp_view = $posts_query->get( $bbp->view_id );
-	$is_edit  = $posts_query->get( $bbp->edit_id );
+	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id() );
+	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
+	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id() );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -286,6 +285,7 @@ function bbp_parse_query( $posts_query ) {
 		}
 
 		// Set the displayed user global to this user
+		$bbp = bbpress();
 		$bbp->displayed_user = $user;
 
 	// View Page

@@ -270,8 +270,6 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 		global $wp_rewrite;
 
-		$bbp = bbpress();
-
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
@@ -284,7 +282,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . bbp_get_user_slug() . '/%' . $bbp->user_id . '%';
+			$url = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%';
 
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
@@ -294,12 +292,12 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 				}
 			}
 
-			$url = str_replace( '%' . $bbp->user_id . '%', $user_nicename, $url );
+			$url = str_replace( '%' . bbp_get_user_rewrite_id() . '%', $user_nicename, $url );
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( $bbp->user_id => $user_id ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_user_rewrite_id() => $user_id ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_user_profile_url', $url, $user_id, $user_nicename );

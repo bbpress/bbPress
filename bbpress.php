@@ -223,13 +223,6 @@ class bbPress {
 	 */
 	public $reply_query;
 
-	/** Arrays ****************************************************************/
-
-	/**
-	 * @var array Sub Forums
-	 */
-	public $sub_forums = array();
-
 	/** Errors ****************************************************************/
 
 	/**
@@ -589,12 +582,12 @@ class bbPress {
 	public function register_post_types() {
 
 		// Define local variable(s)
-		$forum = $topic = $reply = $bbp_cpt = array();
+		$post_type = array();
 
 		/** Forums ************************************************************/
 
 		// Forum labels
-		$forum['labels'] = array(
+		$post_type['labels'] = array(
 			'name'               => __( 'Forums',                   'bbpress' ),
 			'menu_name'          => __( 'Forums',                   'bbpress' ),
 			'singular_name'      => __( 'Forum',                    'bbpress' ),
@@ -613,45 +606,45 @@ class bbPress {
 		);
 
 		// Forum rewrite
-		$forum['rewrite'] = array(
+		$post_type['rewrite'] = array(
 			'slug'       => bbp_get_forum_slug(),
 			'with_front' => false
 		);
 
 		// Forum supports
-		$forum['supports'] = array(
+		$post_type['supports'] = array(
 			'title',
 			'editor',
 			'revisions'
 		);
 
-		// Forum filter
-		$bbp_cpt['forum'] = apply_filters( 'bbp_register_forum_post_type', array(
-			'labels'              => $forum['labels'],
-			'rewrite'             => $forum['rewrite'],
-			'supports'            => $forum['supports'],
-			'description'         => __( 'bbPress Forums', 'bbpress' ),
-			'capabilities'        => bbp_get_forum_caps(),
-			'capability_type'     => array( 'forum', 'forums' ),
-			'menu_position'       => 56,
-			'has_archive'         => bbp_get_root_slug(),
-			'exclude_from_search' => true,
-			'show_in_nav_menus'   => true,
-			'public'              => true,
-			'show_ui'             => true,
-			'can_export'          => true,
-			'hierarchical'        => true,
-			'query_var'           => true,
-			'menu_icon'           => ''
-		) );
-
 		// Register Forum content type
-		register_post_type( $this->forum_post_type, $bbp_cpt['forum'] );
+		register_post_type(
+			bbp_get_forum_post_type(), 
+			apply_filters( 'bbp_register_forum_post_type', array(
+				'labels'              => $post_type['labels'],
+				'rewrite'             => $post_type['rewrite'],
+				'supports'            => $post_type['supports'],
+				'description'         => __( 'bbPress Forums', 'bbpress' ),
+				'capabilities'        => bbp_get_forum_caps(),
+				'capability_type'     => array( 'forum', 'forums' ),
+				'menu_position'       => 56,
+				'has_archive'         => bbp_get_root_slug(),
+				'exclude_from_search' => true,
+				'show_in_nav_menus'   => true,
+				'public'              => true,
+				'show_ui'             => true,
+				'can_export'          => true,
+				'hierarchical'        => true,
+				'query_var'           => true,
+				'menu_icon'           => ''
+			) )
+		);
 
 		/** Topics ************************************************************/
 
 		// Topic labels
-		$topic['labels'] = array(
+		$post_type['labels'] = array(
 			'name'               => __( 'Topics',                   'bbpress' ),
 			'menu_name'          => __( 'Topics',                   'bbpress' ),
 			'singular_name'      => __( 'Topic',                    'bbpress' ),
@@ -670,45 +663,45 @@ class bbPress {
 		);
 
 		// Topic rewrite
-		$topic['rewrite'] = array(
+		$post_type['rewrite'] = array(
 			'slug'       => bbp_get_topic_slug(),
 			'with_front' => false
 		);
 
 		// Topic supports
-		$topic['supports'] = array(
+		$post_type['supports'] = array(
 			'title',
 			'editor',
 			'revisions'
 		);
 
-		// Topic Filter
-		$bbp_cpt['topic'] = apply_filters( 'bbp_register_topic_post_type', array(
-			'labels'              => $topic['labels'],
-			'rewrite'             => $topic['rewrite'],
-			'supports'            => $topic['supports'],
-			'description'         => __( 'bbPress Topics', 'bbpress' ),
-			'capabilities'        => bbp_get_topic_caps(),
-			'capability_type'     => array( 'topic', 'topics' ),
-			'menu_position'       => 57,
-			'has_archive'         => bbp_get_topic_archive_slug(),
-			'exclude_from_search' => true,
-			'show_in_nav_menus'   => false,
-			'public'              => true,
-			'show_ui'             => true,
-			'can_export'          => true,
-			'hierarchical'        => false,
-			'query_var'           => true,
-			'menu_icon'           => ''
-		) );
-
 		// Register Topic content type
-		register_post_type( $this->topic_post_type, $bbp_cpt['topic'] );
+		register_post_type(
+			bbp_get_topic_post_type(),
+			apply_filters( 'bbp_register_topic_post_type', array(
+				'labels'              => $post_type['labels'],
+				'rewrite'             => $post_type['rewrite'],
+				'supports'            => $post_type['supports'],
+				'description'         => __( 'bbPress Topics', 'bbpress' ),
+				'capabilities'        => bbp_get_topic_caps(),
+				'capability_type'     => array( 'topic', 'topics' ),
+				'menu_position'       => 57,
+				'has_archive'         => bbp_get_topic_archive_slug(),
+				'exclude_from_search' => true,
+				'show_in_nav_menus'   => false,
+				'public'              => true,
+				'show_ui'             => true,
+				'can_export'          => true,
+				'hierarchical'        => false,
+				'query_var'           => true,
+				'menu_icon'           => ''
+			)
+		) );
 
 		/** Replies ***********************************************************/
 
 		// Reply labels
-		$reply['labels'] = array(
+		$post_type['labels'] = array(
 			'name'               => __( 'Replies',                   'bbpress' ),
 			'menu_name'          => __( 'Replies',                   'bbpress' ),
 			'singular_name'      => __( 'Reply',                     'bbpress' ),
@@ -727,40 +720,40 @@ class bbPress {
 		);
 
 		// Reply rewrite
-		$reply['rewrite'] = array(
+		$post_type['rewrite'] = array(
 			'slug'       => bbp_get_reply_slug(),
 			'with_front' => false
 		);
 
 		// Reply supports
-		$reply['supports'] = array(
+		$post_type['supports'] = array(
 			'title',
 			'editor',
 			'revisions'
 		);
 
-		// Reply filter
-		$bbp_cpt['reply'] = apply_filters( 'bbp_register_reply_post_type', array(
-			'labels'              => $reply['labels'],
-			'rewrite'             => $reply['rewrite'],
-			'supports'            => $reply['supports'],
-			'description'         => __( 'bbPress Replies', 'bbpress' ),
-			'capabilities'        => bbp_get_reply_caps(),
-			'capability_type'     => array( 'reply', 'replies' ),
-			'menu_position'       => 58,
-			'exclude_from_search' => true,
-			'has_archive'         => false,
-			'show_in_nav_menus'   => false,
-			'public'              => true,
-			'show_ui'             => true,
-			'can_export'          => true,
-			'hierarchical'        => false,
-			'query_var'           => true,
-			'menu_icon'           => ''
-		) );
-
 		// Register reply content type
-		register_post_type( $this->reply_post_type, $bbp_cpt['reply'] );
+		register_post_type(
+			bbp_get_reply_post_type(),
+			apply_filters( 'bbp_register_reply_post_type', array(
+				'labels'              => $post_type['labels'],
+				'rewrite'             => $post_type['rewrite'],
+				'supports'            => $post_type['supports'],
+				'description'         => __( 'bbPress Replies', 'bbpress' ),
+				'capabilities'        => bbp_get_reply_caps(),
+				'capability_type'     => array( 'reply', 'replies' ),
+				'menu_position'       => 58,
+				'exclude_from_search' => true,
+				'has_archive'         => false,
+				'show_in_nav_menus'   => false,
+				'public'              => true,
+				'show_ui'             => true,
+				'can_export'          => true,
+				'hierarchical'        => false,
+				'query_var'           => true,
+				'menu_icon'           => ''
+			) )
+		);
 	}
 
 	/**
@@ -783,7 +776,7 @@ class bbPress {
 			'public'            => true,
 			'show_in_admin_all' => true
 		) );
-		register_post_status( $this->closed_status_id, $status );
+		register_post_status( bbp_get_closed_status_id(), $status );
 
 		// Spam
 		$status = apply_filters( 'bbp_register_spam_post_status', array(
@@ -794,7 +787,7 @@ class bbPress {
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all_list'    => false
 		) );
-		register_post_status( $this->spam_status_id, $status );
+		register_post_status( bbp_get_spam_status_id(), $status );
 
 		// Orphan
 		$status = apply_filters( 'bbp_register_orphan_post_status', array(
@@ -805,7 +798,7 @@ class bbPress {
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all_list'    => false
 		) );
-		register_post_status( $this->orphan_status_id, $status );
+		register_post_status( bbp_get_orphan_status_id(), $status );
 
 		// Hidden
 		$status = apply_filters( 'bbp_register_hidden_post_status', array(
@@ -816,7 +809,7 @@ class bbPress {
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all_list'    => true
 		) );
-		register_post_status( $this->hidden_status_id, $status );
+		register_post_status( bbp_get_hidden_status_id(), $status );
 
 		/**
 		 * Trash fix
@@ -868,29 +861,26 @@ class bbPress {
 
 		// Topic tag rewrite
 		$topic_tag['rewrite'] = array(
-			'slug'       => bbp_get_topic_tag_taxonomy_slug(),
+			'slug'       => bbp_get_topic_tag_tax_slug(),
 			'with_front' => false
 		);
 
-		// Topic tag filter
-		$bbp_tt = apply_filters( 'bbp_register_topic_taxonomy', array(
-			'labels'                => $topic_tag['labels'],
-			'rewrite'               => $topic_tag['rewrite'],
-			'capabilities'          => bbp_get_topic_tag_caps(),
-			'update_count_callback' => '_update_post_term_count',
-			'query_var'             => true,
-			'show_tagcloud'         => true,
-			'hierarchical'          => false,
-			'public'                => true,
-			'show_ui'               => true
-		) );
-
 		// Register the topic tag taxonomy
 		register_taxonomy(
-			$this->topic_tag_tax_id, // The topic tag id
-			$this->topic_post_type,  // The topic post type
-			$bbp_tt
-		);
+			bbp_get_topic_tag_tax_id(),
+			bbp_get_topic_post_type(),
+			apply_filters( 'bbp_register_topic_taxonomy', array(
+				'labels'                => $topic_tag['labels'],
+				'rewrite'               => $topic_tag['rewrite'],
+				'capabilities'          => bbp_get_topic_tag_caps(),
+				'update_count_callback' => '_update_post_term_count',
+				'query_var'             => true,
+				'show_tagcloud'         => true,
+				'hierarchical'          => false,
+				'public'                => true,
+				'show_ui'               => true
+			)
+		) );
 	}
 
 	/**
@@ -929,6 +919,8 @@ class bbPress {
 		$this->current_user = &wp_get_current_user();
 	}
 
+	/** Custom Rewrite Rules **************************************************/
+
 	/**
 	 * Add the bbPress-specific rewrite tags
 	 *
@@ -938,23 +930,14 @@ class bbPress {
 	 */
 	public function add_rewrite_tags() {
 
-		// Pad attributes
-		$pad      = 2;
-		$wrapper  = '%';
-
-		// Setup the tags
-		$bbp_user = str_pad( $this->user_id, strlen( $this->user_id ) + $pad, $wrapper, STR_PAD_BOTH );
-		$bbp_view = str_pad( $this->view_id, strlen( $this->view_id ) + $pad, $wrapper, STR_PAD_BOTH );
-		$bbp_edit = str_pad( $this->edit_id, strlen( $this->edit_id ) + $pad, $wrapper, STR_PAD_BOTH );
-
 		// User Profile tag
-		add_rewrite_tag( $bbp_user, '([^/]+)'   );
+		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id() . '%%', '([^/]+)'   );
 
 		// View Page tag
-		add_rewrite_tag( $bbp_view, '([^/]+)'   );
+		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id() . '%%', '([^/]+)'   );
 
 		// Edit Page tag
-		add_rewrite_tag( $bbp_edit, '([1]{1,})' );
+		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id() . '%%', '([1]{1,})' );
 	}
 
 	/**
@@ -967,34 +950,40 @@ class bbPress {
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
 
+		// Slugs
 		$user_slug = bbp_get_user_slug();
 		$view_slug = bbp_get_view_slug();
 
+		// Unique rewrite ID's
+		$user_id   = bbp_get_user_rewrite_id();
+		$view_id   = bbp_get_view_rewrite_id();
+		$edit_id   = bbp_get_edit_rewrite_id();
+
+		// Rewrite rule matches used repeatedly below
 		$root_rule = '/([^/]+)/?$';
 		$edit_rule = '/([^/]+)/edit/?$';
 		$feed_rule = '/([^/]+)/feed/?$';
 		$page_rule = '/([^/]+)/page/?([0-9]{1,})/?$';
 
-		// New rules to merge with existing
+		// New bbPress specific rules to merge with existing that are not
+		// handled automatically by custom post types or taxonomy types
 		$bbp_rules = array(
 
-			// Edit Forum/Topic/Reply
-			bbp_get_forum_slug() . $edit_rule => 'index.php?' . $this->forum_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			bbp_get_topic_slug() . $edit_rule => 'index.php?' . $this->topic_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			bbp_get_reply_slug() . $edit_rule => 'index.php?' . $this->reply_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			// Edit Forum|Topic|Reply|Topic-tag
+			bbp_get_forum_slug()         . $edit_rule => 'index.php?' . bbp_get_forum_post_type()  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
+			bbp_get_topic_slug()         . $edit_rule => 'index.php?' . bbp_get_topic_post_type()  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
+			bbp_get_reply_slug()         . $edit_rule => 'index.php?' . bbp_get_reply_post_type()  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
+			bbp_get_topic_tag_tax_slug() . $edit_rule => 'index.php?' . bbp_get_topic_tag_tax_id() . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
 
-			// Edit Topic Tag
-			bbp_get_topic_tag_taxonomy_slug() . $edit_rule => 'index.php?' . $this->topic_tag_tax_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			// User Pagination|Edit|View
+			$user_slug . $page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $edit_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
+			$user_slug . $root_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ),
 
-			// Profile Page
-			$user_slug . $page_rule => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $edit_rule => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			$user_slug . $root_rule => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ),
-
-			// View Page
-			$view_slug . $page_rule => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$view_slug . $feed_rule => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-			$view_slug . $root_rule => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ),
+			// Topic-View Pagination|Feed|View
+			$view_slug . $page_rule => 'index.php?' . $view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$view_slug . $feed_rule => 'index.php?' . $view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			$view_slug . $root_rule => 'index.php?' . $view_id . '=' . $wp_rewrite->preg_index( 1 ),
 		);
 
 		// Merge bbPress rules with existing
@@ -1024,7 +1013,7 @@ function bbpress() {
 bbpress();
 
 /**
- * Eperimental:
+ * Experimental:
  *
  * Hook bbPress early onto the 'plugins_loaded' action.
  *
