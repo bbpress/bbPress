@@ -33,7 +33,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'post_parent'    => 0, // forum ID
 		'post_status'    => bbp_get_public_status_id(),
 		'post_type'      => bbp_get_topic_post_type(),
-		'post_author'    => 0,
+		'post_author'    => bbp_get_current_user_id(),
 		'post_password'  => '',
 		'post_content'   => '',
 		'post_title'     => '',
