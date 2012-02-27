@@ -1146,6 +1146,17 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
+	// Remove filters from reply content and topic title to prevent content
+	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
+	remove_all_filters( 'bbp_get_reply_content' );
+	remove_all_filters( 'bbp_get_topic_title'   );
+
+	// Strip tags from text
+	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
+	$reply_content = strip_tags( bbp_get_reply_content( $reply_id ) );
+	$reply_url     = bbp_get_reply_url( $reply_id );
+	$blog_name     = get_option( 'blogname' );
+
 	// Loop through users
 	foreach ( (array) $user_ids as $user_id ) {
 
@@ -1154,13 +1165,29 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 			continue;
 
 		// For plugins to filter messages per reply/topic/user
-		$message = __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou are recieving this email because you subscribed to it. Login and visit the topic to unsubscribe from these emails.", 'bbpress' );
-		$message = apply_filters( 'bbp_subscription_mail_message', sprintf( $message, $reply_author_name, strip_tags( bbp_get_reply_content( $reply_id ) ), bbp_get_reply_url( $reply_id ) ), $reply_id, $topic_id, $user_id );
+		$message = sprintf( __( '%1$s wrote:
+
+%2$s
+			
+Post Link: %3$s
+
+-----------
+
+You are recieving this email because you subscribed to a forum topic.
+
+Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
+				
+			$reply_author_name,
+			$reply_content,
+			$reply_url
+		);
+
+		$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id, $user_id );
 		if ( empty( $message ) )
 			continue;
 
 		// For plugins to filter titles per reply/topic/user
-		$subject = apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . bbp_get_topic_title( $topic_id ), $reply_id, $topic_id, $user_id );
+		$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $reply_id, $topic_id, $user_id );
 		if ( empty( $subject ) )
 			continue;
 
