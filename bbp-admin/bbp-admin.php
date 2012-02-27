@@ -106,6 +106,9 @@ class BBP_Admin {
 		// Add settings
 		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) );
 
+		// Add menu item to settings menu
+		add_action( 'bbp_activation',              array( $this, 'new_install'             ) );
+
 		// Forums 'Right now' Dashboard widget
 		add_action( 'wp_dashboard_setup',  array( $this, 'dashboard_widget_right_now' ) );
 
@@ -203,6 +206,19 @@ class BBP_Admin {
 			'bbpress-update',
 			array( $this, 'network_update_screen' )
 		);
+	}
+
+	/**
+	 * If this is a new installation, create some initial forum content.
+	 *
+	 * @since bbPress (r3767)
+	 * @return type 
+	 */
+	public function new_install() {
+		if ( !bbp_is_install() )
+			return;
+
+		bbp_create_initial_content();
 	}
 
 	/**

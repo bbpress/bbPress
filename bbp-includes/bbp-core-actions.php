@@ -121,20 +121,6 @@ add_action( 'bbp_loaded',           'bbp_login_notices'    );
 add_action( 'bbp_head',             'bbp_topic_notices'    );
 add_action( 'bbp_template_notices', 'bbp_template_notices' );
 
-// Caps & Roles
-add_action( 'bbp_activation',   'bbp_add_roles',    1 );
-add_action( 'bbp_activation',   'bbp_add_caps',     2 );
-add_action( 'bbp_deactivation', 'bbp_remove_caps',  1 );
-add_action( 'bbp_deactivation', 'bbp_remove_roles', 2 );
-
-// Options & Settings
-add_action( 'bbp_activation', 'bbp_add_options', 1 );
-
-// Multisite
-add_action( 'bbp_new_site', 'bbp_add_roles',   2 );
-add_action( 'bbp_new_site', 'bbp_add_caps',    4 );
-add_action( 'bbp_new_site', 'bbp_add_options', 6 );
-
 // Parse the main query
 add_action( 'parse_query', 'bbp_parse_query', 2 );
 
@@ -239,10 +225,6 @@ add_action( 'make_spam_user', 'bbp_make_spam_user' );
 add_action( 'bbp_new_topic', 'bbp_global_access_auto_role' );
 add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 
-// Flush rewrite rules
-add_action( 'bbp_activation',   'flush_rewrite_rules' );
-add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
-
 /**
  * bbPress needs to redirect the user around in a few different circumstances:
  *
@@ -295,32 +277,6 @@ function bbp_setup_buddypress() {
 	// Add component setup to bp_init action
 	add_action( 'bp_init', 'bbp_setup_buddypress_component' );
 }
-
-/**
- * When a new site is created in a multisite installation, run the activation
- * routine on that site
- *
- * @since bbPress (r3283)
- *
- * @param int $blog_id
- * @param int $user_id
- * @param string $domain
- * @param string $path
- * @param int $site_id
- * @param array() $meta
- */
-function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
-
-	// Switch to the new blog
-	switch_to_blog( $blog_id );
-
-	// Do the bbPress activation routine
-	do_action( 'bbp_new_site' );
-
-	// restore original blog
-	restore_current_blog();
-}
-add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 
 /**
  * Plugin Dependency
