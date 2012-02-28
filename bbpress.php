@@ -315,9 +315,6 @@ class bbPress {
 	 * A dummy magic method to prevent bbPress from being cloned
 	 *
 	 * @since bbPress (r2464)
-	 * @uses bbPress::setup_globals() Setup the globals needed
-	 * @uses bbPress::includes() Include the required files
-	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 */
 	public function __clone() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
 
@@ -325,9 +322,6 @@ class bbPress {
 	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
 	 * @since bbPress (r2464)
-	 * @uses bbPress::setup_globals() Setup the globals needed
-	 * @uses bbPress::includes() Include the required files
-	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 */
 	public function __wakeup() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
 
