@@ -2196,7 +2196,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $topic_link . $bbp->edit_id;
+			$url = trailingslashit( $topic_link ) . $bbp->edit_id;
 			$url = trailingslashit( $url );
 
 		// Unpretty permalinks

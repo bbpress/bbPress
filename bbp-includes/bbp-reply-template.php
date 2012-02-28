@@ -1518,7 +1518,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $reply_link . $bbp->edit_id;
+			$url = trailingslashit( $reply_link ) . $bbp->edit_id;
 			$url = trailingslashit( $url );
 
 		// Unpretty permalinks
