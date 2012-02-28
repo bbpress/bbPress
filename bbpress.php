@@ -315,7 +315,6 @@ class bbPress {
 	 * A dummy magic method to prevent bbPress from being cloned
 	 *
 	 * @since bbPress (r2464)
-	 *
 	 * @uses bbPress::setup_globals() Setup the globals needed
 	 * @uses bbPress::includes() Include the required files
 	 * @uses bbPress::setup_actions() Setup the hooks and actions
@@ -326,7 +325,6 @@ class bbPress {
 	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
 	 * @since bbPress (r2464)
-	 *
 	 * @uses bbPress::setup_globals() Setup the globals needed
 	 * @uses bbPress::includes() Include the required files
 	 * @uses bbPress::setup_actions() Setup the hooks and actions
@@ -341,7 +339,6 @@ class bbPress {
 	 *
 	 * @since bbPress (r2626)
 	 * @access private
-	 *
 	 * @uses plugin_dir_path() To generate bbPress plugin path
 	 * @uses plugin_dir_url() To generate bbPress plugin url
 	 * @uses apply_filters() Calls various filters
