@@ -312,7 +312,7 @@ class bbPress {
 	private function __construct() { /* Do nothing here */ }
 
 	/**
-	 * The main bbPress loader
+	 * A dummy magic method to prevent bbPress from being cloned
 	 *
 	 * @since bbPress (r2464)
 	 *
@@ -323,7 +323,7 @@ class bbPress {
 	public function __clone() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
 
 	/**
-	 * The main bbPress loader
+	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
 	 * @since bbPress (r2464)
 	 *
@@ -336,7 +336,8 @@ class bbPress {
 	/** Private Methods *******************************************************/
 
 	/**
-	 * Component global variables
+	 * Set some smart defaults to class variables. Allow some of them to be
+	 * filtered to allow for early overriding.
 	 *
 	 * @since bbPress (r2626)
 	 * @access private
@@ -413,7 +414,7 @@ class bbPress {
 	 *
 	 * @since bbPress (r2626)
 	 * @access private
-	 *
+	 * @todo Be smarter about conditionally loading code
 	 * @uses is_admin() If in WordPress admin, load additional file
 	 */
 	private function includes() {
@@ -476,7 +477,7 @@ class bbPress {
 	 *
 	 * @since bbPress (r2644)
 	 * @access private
-	 *
+	 * @todo Not use bbp_is_deactivation()
 	 * @uses register_activation_hook() To register the activation hook
 	 * @uses register_deactivation_hook() To register the deactivation hook
 	 * @uses add_action() To add various actions
@@ -564,7 +565,6 @@ class bbPress {
 	 * Sets up the bbPress theme directory to use in WordPress
 	 *
 	 * @since bbPress (r2507)
-	 *
 	 * @uses register_theme_directory() To register the theme directory
 	 * @return bool True on success, false on failure
 	 */
@@ -576,7 +576,6 @@ class bbPress {
 	 * Setup the post types for forums, topics and replies
 	 *
 	 * @since bbPress (r2597)
-	 *
 	 * @uses register_post_type() To register the post types
 	 * @uses apply_filters() Calls various filters to modify the arguments
 	 *                        sent to register_post_type()
@@ -759,10 +758,12 @@ class bbPress {
 	}
 
 	/**
-	 * Register the post statuses
+	 * Register the post statuses used by bbPress
+	 * 
+	 * We do some manipulation of the 'trash' status so trashed topics and
+	 * replies can be viewed from within the theme.
 	 *
 	 * @since bbPress (r2727)
-	 *
 	 * @uses register_post_status() To register post statuses
 	 * @uses $wp_post_statuses To modify trash and private statuses
 	 * @uses current_user_can() To check if the current user is capable &
@@ -839,7 +840,6 @@ class bbPress {
 	 * Register the topic tag taxonomy
 	 *
 	 * @since bbPress (r2464)
-	 *
 	 * @uses register_taxonomy() To register the taxonomy
 	 */
 	public function register_taxonomies() {
@@ -889,7 +889,6 @@ class bbPress {
 	 * Register the bbPress views
 	 *
 	 * @since bbPress (r2789)
-	 *
 	 * @uses bbp_register_view() To register the views
 	 */
 	public function register_views() {
@@ -914,7 +913,6 @@ class bbPress {
 	 * avoid xmlrpc errors.
 	 *
 	 * @since bbPress (r2697)
-	 *
 	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
@@ -927,7 +925,6 @@ class bbPress {
 	 * Add the bbPress-specific rewrite tags
 	 *
 	 * @since bbPress (r2753)
-	 *
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public function add_rewrite_tags() {
@@ -943,10 +940,13 @@ class bbPress {
 	}
 
 	/**
-	 * Register bbPress-specific rewrite rules
+	 * Register bbPress-specific rewrite rules for uri's that are not
+	 * setup for us by way of custom post types or taxonomies. This includes:
+	 * - Front-end editing
+	 * - Topic views
+	 * - User profiles
 	 *
 	 * @since bbPress (r2688)
-	 *
 	 * @param WP_Rewrite $wp_rewrite bbPress-sepecific rules are appended in
 	 *                                $wp_rewrite->rules
 	 */
