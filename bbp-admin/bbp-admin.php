@@ -267,11 +267,11 @@ class BBP_Admin {
 		 	register_setting  ( 'bbpress',                  '_bbp_allow_global_access',              'intval'                                                          );
 		}
 
-		// Allow Fancy editor setting
+		// Allow fancy editor setting
 		add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',     'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', 'bbp_main' );
 		register_setting  ( 'bbpress',            '_bbp_use_wp_editor',                'intval'                                                          );
 		
-		// Allow oEmbeds setting
+		// Allow auto embedding setting
 		add_settings_field( '_bbp_use_autoembed', __( 'Auto-embed Links', 'bbpress' ), 'bbp_admin_setting_callback_use_autoembed', 'bbpress', 'bbp_main' );
 		register_setting  ( 'bbpress',           '_bbp_use_autoembed',                 'intval'                                                          );
 
