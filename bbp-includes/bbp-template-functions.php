@@ -285,8 +285,7 @@ function bbp_parse_query( $posts_query ) {
 		}
 
 		// Set the displayed user global to this user
-		$bbp = bbpress();
-		$bbp->displayed_user = $user;
+		bbpress()->displayed_user = $user;
 
 	// View Page
 	} elseif ( !empty( $bbp_view ) ) {
