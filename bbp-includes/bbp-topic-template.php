@@ -1996,6 +1996,7 @@ function bbp_topic_class( $topic_id = 0 ) {
 		$classes[] = bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '';
 		$classes[] = bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '';
 		$classes[] = 'bbp-parent-forum-' . bbp_get_topic_forum_id( $topic_id );
+		$classes[] = 'user-id-' . bbp_get_topic_author_id( $topic_id );
 		$classes   = array_filter( $classes );
 		$classes   = get_post_class( $classes, $topic_id );
 		$classes   = apply_filters( 'bbp_get_topic_class', $classes, $topic_id );
