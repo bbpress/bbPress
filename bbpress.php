@@ -485,6 +485,7 @@ class bbPress {
 
 		// Array of bbPress core actions
 		$actions = array(
+			'setup_theme',              // Setup the default theme compat
 			'setup_current_user',       // Setup currently logged in user
 			'register_post_types',      // Register post types (forum|topic|reply)
 			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
@@ -505,6 +506,27 @@ class bbPress {
 	}
 
 	/** Public Methods ********************************************************/
+
+	/**
+	 * Setup the default bbPress theme compatability location.
+	 * 
+	 * @since bbPress (r3778)
+	 */
+	public function setup_theme() {
+
+		// Bail early if theme_compat was set already by a plugin
+		if ( !empty( $this->theme_compat ) )
+			return;
+
+		// Set the defaults
+		$theme          = new BBP_Theme_Compat();
+		$theme->name    = 'bbPress (Default)';
+		$theme->version = bbp_get_version();
+		$theme->dir     = trailingslashit( $this->plugin_dir . 'bbp-theme-compat' );
+		$theme->url     = trailingslashit( $this->plugin_url . 'bbp-theme-compat' );
+
+		bbp_setup_theme_compat( $theme );
+	}
 
 	/**
 	 * Load the translation file for current language. Checks the languages
