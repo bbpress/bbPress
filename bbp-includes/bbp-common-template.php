@@ -135,13 +135,17 @@ function bbp_is_single_forum() {
  * @return bool True if it's the forum edit page, false if not
  */
 function bbp_is_forum_edit() {
-	global $wp_query;
+	global $wp_query, $pagenow;
 
 	// Assume false
 	$retval = false;
 
 	// Check query
 	if ( !empty( $wp_query->bbp_is_forum_edit ) && ( $wp_query->bbp_is_forum_edit == true ) )
+		$retval = true;
+
+	// Editing in admin
+	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == bbp_get_forum_post_type() ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
 		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_forum_edit', $retval );
@@ -224,13 +228,17 @@ function bbp_is_topic_archive() {
  * @return bool True if it's the topic edit page, false if not
  */
 function bbp_is_topic_edit() {
-	global $wp_query;
+	global $wp_query, $pagenow;
 
 	// Assume false
 	$retval = false;
 
 	// Check query
 	if ( !empty( $wp_query->bbp_is_topic_edit ) && ( $wp_query->bbp_is_topic_edit == true ) )
+		$retval = true;
+
+	// Editing in admin
+	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == bbp_get_topic_post_type() ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
 		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_topic_edit', $retval );
@@ -309,7 +317,7 @@ function bbp_is_topic_tag() {
  * @return bool True if editing a topic tag, false if not
  */
 function bbp_is_topic_tag_edit() {
-	global $wp_query;
+	global $wp_query, $pagenow, $taxnow;
 
 	// Assume false
 	$retval = false;
@@ -317,6 +325,10 @@ function bbp_is_topic_tag_edit() {
 	// Check query
 	if ( !empty( $wp_query->bbp_is_topic_tag_edit ) && ( true == $wp_query->bbp_is_topic_tag_edit ) )
 		return true;
+
+	// Editing in admin
+	elseif ( is_admin() && ( 'edit-tags.php' == $pagenow ) && ( bbp_get_topic_tag_tax_id() == $taxnow ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_topic_tag_edit', $retval );
 }
@@ -383,7 +395,7 @@ function bbp_is_reply( $post_id = 0 ) {
  * @return bool True if it's the reply edit page, false if not
  */
 function bbp_is_reply_edit() {
-	global $wp_query;
+	global $wp_query, $pagenow;
 
 	// Assume false
 	$retval = false;
@@ -391,6 +403,10 @@ function bbp_is_reply_edit() {
 	// Check query
 	if ( !empty( $wp_query->bbp_is_reply_edit ) && ( true == $wp_query->bbp_is_reply_edit ) )
 		return true;
+
+	// Editing in admin
+	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == bbp_get_reply_post_type() ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_reply_edit', $retval );
 }
