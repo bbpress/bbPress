@@ -135,6 +135,7 @@ function bbp_get_template_locations() {
 	$locations = array(
 		'bbpress',
 		'forums',
+		''
 	);
 	return apply_filters( 'bbp_get_template_locations', $locations );
 }

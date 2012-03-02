@@ -101,8 +101,8 @@ add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integr
  * file has been included.
  *                                                               v---Load order
  */
-add_action( 'bbp_after_setup_theme', 'bbp_setup_theme_compat',   8  );
-add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
+add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 8 );
+add_action( 'bbp_after_setup_theme', 'bbp_setup_theme_compat',   10  );
 
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask', 10 );
