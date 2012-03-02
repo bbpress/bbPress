@@ -50,27 +50,34 @@ class BBP_Default extends BBP_Theme_Compat {
 
 	/**
 	 * Component global variables
+	 * 
+	 * Note that this function is currently commented out in the constructor.
+	 * It will only be used if you copy this file into your current theme and
+	 * uncomment the line above.
 	 *
 	 * @since bbPress (r3732)
 	 * @access private
+	 * @see bbp_setup_theme_compat()
 	 */
 	private function setup_globals() {
-		$bbp = bbpress();
 
 		// Theme name to help identify if it's been extended
-		$this->name = 'bbPress (Default)';
+		$this->name = 'bbPress (Custom)';
 
 		// Version of theme
 		$this->version = bbp_get_version();
 
 		// Setup the theme path
-		$this->dir = $bbp->plugin_dir . '/bbp-theme-compat';
+		$this->dir = trailingslashit( get_stylesheet_directory() );
 
 		// Setup the theme URL
-		$this->url = $bbp->plugin_url . '/bbp-theme-compat';
+		$this->url = trailingslashit( get_stylesheet_directory_uri() );
 
 		// This theme supports bbPress
 		add_theme_support( 'bbpress' );
+
+		// Make the theme compat be this theme
+		bbp_setup_theme_compat( $this );
 	}
 
 	/**
