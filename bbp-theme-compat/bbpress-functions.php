@@ -14,6 +14,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /** Theme Setup ***************************************************************/
 
 if ( !class_exists( 'BBP_Default' ) ) :
+
+/**
+ * Uncomment the line below if this is for a custom theme.
+ */
+//add_theme_support( 'bbpress' );
+
 /**
  * Loads bbPress Default Theme functionality
  *
@@ -44,7 +50,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses BBP_Twenty_Ten::setup_actions()
 	 */
 	public function __construct() {
-		//$this->setup_globals(); // Uncomment this in your theme
+		$this->setup_globals();
 		$this->setup_actions();
 	}
 
@@ -54,30 +60,29 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Note that this function is currently commented out in the constructor.
 	 * It will only be used if you copy this file into your current theme and
 	 * uncomment the line above.
+	 * 
+	 * You'll want to customize the values in here, so they match whatever your
+	 * needs are.
 	 *
 	 * @since bbPress (r3732)
 	 * @access private
-	 * @see bbp_setup_theme_compat()
 	 */
 	private function setup_globals() {
 
-		// Theme name to help identify if it's been extended
-		$this->name = 'bbPress (Custom)';
+		// Use the default theme compat if current theme has not added support
+		if ( !current_theme_supports( 'bbpress' ) ) {
+			$this->name    = bbp_get_theme_compat_name();
+			$this->version = bbp_get_theme_compat_version();
+			$this->dir     = bbp_get_theme_compat_dir();
+			$this->url     = bbp_get_theme_compat_url();
 
-		// Version of theme
-		$this->version = bbp_get_version();
-
-		// Setup the theme path
-		$this->dir = trailingslashit( get_stylesheet_directory() );
-
-		// Setup the theme URL
-		$this->url = trailingslashit( get_stylesheet_directory_uri() );
-
-		// This theme supports bbPress
-		add_theme_support( 'bbpress' );
-
-		// Make the theme compat be this theme
-		bbp_setup_theme_compat( $this );
+		// Theme supports bbPress, so set some smart defaults
+		} else {
+			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), get_current_theme() ) ;
+			$this->version = bbp_get_version();
+			$this->dir     = trailingslashit( get_stylesheet_directory() );
+			$this->url     = trailingslashit( get_stylesheet_directory_uri() );
+		}
 	}
 
 	/**
@@ -165,13 +170,13 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( is_rtl() ) {
 
 			// bbPress specific
-			wp_enqueue_style( 'bbp-default-bbpress', bbp_get_theme_compat_url() . 'css/bbpress-rtl.css', array(), $this->version, 'screen' );
+			wp_enqueue_style( 'bbp-default-bbpress', $this->url . 'css/bbpress-rtl.css', array(), $this->version, 'screen' );
 
 		// Left to right
 		} else {
 
 			// bbPress specific
-			wp_enqueue_style( 'bbp-default-bbpress', bbp_get_theme_compat_url() . 'css/bbpress.css', array(), $this->version, 'screen' );
+			wp_enqueue_style( 'bbp-default-bbpress', $this->url . 'css/bbpress.css', array(), $this->version, 'screen' );
 		}
 	}
 
@@ -188,7 +193,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	public function enqueue_scripts() {
 
 		if ( bbp_is_single_topic() )
-			wp_enqueue_script( 'bbpress-topic', bbp_get_theme_compat_url() . 'js/topic.js', array( 'wp-lists' ), $this->version, true );
+			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'wp-lists' ), $this->version, true );
 
 		if ( bbp_is_single_user_edit() )
 			wp_enqueue_script( 'user-profile' );
