@@ -126,18 +126,18 @@ function bbp_get_query_template( $type, $templates = array() ) {
 
 /**
  * Get the possible subdirectories to check for templates in
- * 
- * @since bbPress (r3738)
  *
- * @return array
+ * @since bbPress (r3738)
+ * @param array $templates Templates we are looking for
+ * @return array Possible subfolders to look in
  */
-function bbp_get_template_locations() {
+function bbp_get_template_locations( $templates = array() ) {
 	$locations = array(
 		'bbpress',
 		'forums',
 		''
 	);
-	return apply_filters( 'bbp_get_template_locations', $locations );
+	return apply_filters( 'bbp_get_template_locations', $locations, $templates );
 }
 
 /**
@@ -152,7 +152,7 @@ function bbp_add_template_locations( $templates = array() ) {
 	$retval = array();
 
 	// Get alternate locations
-	$locations = bbp_get_template_locations();
+	$locations = bbp_get_template_locations( $templates );
 
 	// Loop through locations and templates and combine
 	foreach ( $locations as $location )
