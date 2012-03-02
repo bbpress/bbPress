@@ -94,15 +94,8 @@ add_action( 'bbp_init', 'bbp_topic_content_autoembed', 8   );
 add_action( 'bbp_ready',  'bbp_setup_akismet',    2  ); // Spam prevention for topics and replies
 add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integration
 
-/**
- * bbp_after_setup_theme  - attached to 'after_setup_theme' above
- *
- * Attach theme related actions to take place after the theme's functions.php
- * file has been included.
- *                                                               v---Load order
- */
-add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 8 );
-add_action( 'bbp_after_setup_theme', 'bbp_setup_theme_compat',   10  );
+// Try to load the bbpress-functions.php file from the active themes
+add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
 
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask', 10 );

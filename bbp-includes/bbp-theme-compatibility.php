@@ -59,27 +59,14 @@ class BBP_Theme_Compat {
 /** Functions *****************************************************************/
 
 /**
- * Set the theme compat theme properties
+ * Setup the default theme compat theme
  *
  * @since bbPress (r3311)
  *
  * @param BBP_Theme_Compat $theme
  */
 function bbp_setup_theme_compat( $theme = '' ) {
-	$bbp = bbpress();
-
-	// Check if current theme supports bbPress
-	if ( empty( $bbp->theme_compat->theme ) ) {
-		if ( empty( $theme ) ) {
-			$theme->name    = 'bbPress (Default)';
-			$theme->version = bbp_get_version();
-			$theme->dir     = trailingslashit( $bbp->plugin_dir . 'bbp-theme-compat' );
-			$theme->url     = trailingslashit( $bbp->plugin_url . 'bbp-theme-compat' );
-		}
-
-		// Set the theme compat globals for help with loading template parts
-		$bbp->theme_compat->theme = $theme;		
-	}
+	bbpress()->theme_compat->theme = $theme;
 }
 
 /**
