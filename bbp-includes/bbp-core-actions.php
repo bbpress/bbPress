@@ -38,13 +38,16 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * For more information on how this works, see the 'Plugin Dependency' section
  * near the bottom of this file.
  *
- *           v--WordPress Actions       v--bbPress Sub-actions
+ *           v--WordPress Actions      v--bbPress Sub-actions
  */
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'widgets_init',           'bbp_widgets_init',           10 );
+add_action( 'parse_query',            'bbp_parse_query',            2  ); // Early for overrides
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
+add_action( 'wp_head',                'bbp_head',                   10 );
+add_action( 'wp_footer',              'bbp_footer',                 10 );
 add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
 add_action( 'setup_theme',            'bbp_setup_theme',            10 );
 add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
@@ -108,14 +111,9 @@ add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
 
 // Template - Head, foot, errors and messages
-add_action( 'wp_head',              'bbp_head'             );
-add_action( 'wp_footer',            'bbp_footer'           );
 add_action( 'bbp_loaded',           'bbp_login_notices'    );
 add_action( 'bbp_head',             'bbp_topic_notices'    );
 add_action( 'bbp_template_notices', 'bbp_template_notices' );
-
-// Parse the main query
-add_action( 'parse_query', 'bbp_parse_query', 2 );
 
 // Always exclude private/hidden forums if needed
 add_action( 'pre_get_posts', 'bbp_pre_get_posts_exclude_forums', 4 );
