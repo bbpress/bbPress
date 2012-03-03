@@ -160,30 +160,30 @@ function bbp_create_initial_content() {
 
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
-		'post_title'     => __( 'General', 'bbpress' ),
-		'post_content'   => __( 'General chit-chat', 'bbpress' )
+		'post_title'   => __( 'General', 'bbpress' ),
+		'post_content' => __( 'General chit-chat', 'bbpress' )
 	) );
 
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
 		array(
-			'post_parent'    => $forum_id,
-			'post_title'     => __( 'Hello World!', 'bbpress' ),
-			'post_content'   => __( 'I am the first topic in your new forums. You can keep me, edit me, trash me, or delete me.', 'bbpress' )
+			'post_parent'  => $forum_id,
+			'post_title'   => __( 'Hello World!', 'bbpress' ),
+			'post_content' => __( 'I am the first topic in your new forums. You can keep me, edit me, trash me, or delete me.', 'bbpress' )
 		),
-		array( 'forum_id'    => $forum_id )
+		array( 'forum_id'  => $forum_id )
 	);
 
-	// Create the initial topic
+	// Create the initial reply
 	bbp_insert_reply(
 		array(
-			'post_parent'    => $topic_id,
-			'post_title'     => __( 'Re: Hello World!', 'bbpress' ),
-			'post_content'   => __( 'Oh, and this is what a reply looks like.', 'bbpress' )
+			'post_parent'  => $topic_id,
+			'post_title'   => __( 'Re: Hello World!', 'bbpress' ),
+			'post_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' )
 		),
 		array(
-			'forum_id'           => $forum_id,
-			'topic_id'           => $topic_id
+			'forum_id'     => $forum_id,
+			'topic_id'     => $topic_id
 		)
 	);
 }
