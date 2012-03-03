@@ -1803,7 +1803,7 @@ function bbp_check_forum_edit() {
 }
 
 /**
- * Trash all topics inside a forum
+ * Delete all topics (and their replies) for a specific forum ID
  *
  * @since bbPress (r3668)
  *
