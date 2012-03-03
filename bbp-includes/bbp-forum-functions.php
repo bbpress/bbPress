@@ -1627,8 +1627,23 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  */
 function bbp_forum_query_subforum_ids( $forum_id ) {
 	$subforum_ids = bbp_get_public_child_ids( $forum_id, bbp_get_forum_post_type() );
+	usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
 
 	return apply_filters( 'bbp_get_forum_subforum_ids', $subforum_ids, $forum_id );
+}
+
+/**
+ * Callback to sort forum ID's based on last active time
+ *
+ * @since bbPress (r3789)
+ * @param int $a First forum ID to compare
+ * @param int $b Second forum ID to compare
+ * @return Position change based on sort
+ */
+function _bbp_forum_query_usort_subforum_ids( $a = 0, $b = 0 ) {
+	$ta = get_post_meta( $a, '_bbp_last_active_time', true );
+	$tb = get_post_meta( $b, '_bbp_last_active_time', true );
+	return ( $ta < $tb ) ? -1 : 1;
 }
 
 /**
