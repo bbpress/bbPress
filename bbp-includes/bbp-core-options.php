@@ -532,4 +532,20 @@ function bbp_get_view_slug( $default = 'view' ) {
 	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
 }
 
+/** Legacy *******************************************************************/
+
+/**
+ * Checks if there is a previous BuddyPress Forum configuration
+ *
+ * @since bbPress (r3790)
+ *
+ * @param $default string Optional. Default empty string
+ *
+ * @uses get_option() To get the old bb-config.php location
+ * @return string The location of the bb-config.php file, if any
+ */
+function bbp_get_config_location( $default = '' ) {
+	return apply_filters( 'bbp_get_config_location', get_option( 'bb-config-location', $default ) );
+}
+
 ?>
