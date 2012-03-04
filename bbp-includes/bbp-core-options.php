@@ -49,9 +49,6 @@ function bbp_get_default_options() {
 		// Use the WordPress editor if available
 		'_bbp_use_wp_editor'        => true,
 		
-		// Use the WordPress editor if available
-		'_bbp_use_wp_editor'        => true,
-		
 		// Allow oEmbed in topics and replies
 		'_bbp_use_autoembed'        => false,
 
