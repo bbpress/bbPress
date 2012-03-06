@@ -1172,6 +1172,8 @@ function bb_get_topic_voices( $id = 0 ) {
 		if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic->topic_id ) ) ) {
 			$voices = count( $voices );
 			bb_update_topicmeta( $topic->topic_id, 'voices_count', $voices );
+		} else {
+			$voices = 0;
 		}
 	} else {
 		$voices = $topic->voices_count;
