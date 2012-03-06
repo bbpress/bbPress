@@ -1172,8 +1172,6 @@ function bb_get_topic_voices( $id = 0 ) {
 		if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic->topic_id ) ) ) {
 			$voices = count( $voices );
 			bb_update_topicmeta( $topic->topic_id, 'voices_count', $voices );
-		} else {
-			$voices = 0;
 		}
 	} else {
 		$voices = $topic->voices_count;
@@ -1221,7 +1219,11 @@ function topic_author( $id = 0 ) {
 function get_topic_author( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	$first_post = bb_get_first_post( $topic );
-	$user_display_name = get_post_author( $first_post->post_id );
+	if ( !empty( $first_post ) ) {
+		$user_display_name = get_post_author( $first_post->post_id );
+	} else {
+		$user_display_name = $topic->topic_poster_name;
+	}
 	return apply_filters( 'get_topic_author', $user_display_name, $topic->topic_poster, $topic->topic_id ); // $topic->topic_poster = user ID
 }
 
