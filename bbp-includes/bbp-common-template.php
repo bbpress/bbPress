@@ -1418,7 +1418,7 @@ function bbp_the_content( $args = array() ) {
 				'tinymce'       => $tinymce,
 				'quicktags'     => $quicktags
 			);
-			wp_editor( $post_content, 'bbp_' . $context . '_content', $settings );
+			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $context . '_content', $settings );
 
 		// Fallback to normal textarea
 		else : ?>
