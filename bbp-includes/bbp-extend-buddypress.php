@@ -1914,7 +1914,7 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 
 	// Get the forums
 	if ( !empty( $forum_id ) )
-		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids' );
+		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids', true );
 
 	// Make sure result is an array
 	if ( !is_array( $group_ids ) )
