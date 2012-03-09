@@ -965,6 +965,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_action( 'bp_actions', 'bbp_edit_forum_handler' );
 		add_action( 'bp_actions', 'bbp_edit_topic_handler' );
 		add_action( 'bp_actions', 'bbp_edit_reply_handler' );
+
+		// Tweak the redirect field
+		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to' ), 10, 3 );
+		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 2 );
 	}
 
 	function display() {
@@ -986,10 +990,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Hide breadcrumb
 		add_filter( 'bbp_no_breadcrumb', '__return_true' );
-
-		// Tweak the redirect field
-		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to' ), 10, 2 );
-		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 2 );
 
 		$this->display_forums( 0 );
 	}
@@ -1192,8 +1192,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( !bp_is_group_creation_step( $this->slug ) )
             return false;
 
-		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' );
-		?>
+		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' ); ?>
 
 		<h4><?php _e( 'Group Forums', 'buddypress' ); ?></h4>
 
@@ -1253,51 +1252,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					'post_status'  => $status
 				) );
 
-				// Create the initial topic
-				$topic_id = bbp_insert_topic(
-					array(
-						'post_parent'  => $forum_id,
-						'post_title'   => __( 'Hello World!', 'bbpress' ),
-						'post_content' => __( 'I am the first topic in your group forum. You can keep me, edit me, trash me, or delete me.', 'bbpress' )
-					),
-					array( 'forum_id'  => $forum_id )
-				);
-
-				// Create the initial reply
-				$reply_id = bbp_insert_reply(
-					array(
-						'post_parent'  => $topic_id,
-						'post_title'   => __( 'Re: Hello World!', 'bbpress' ),
-						'post_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' )
-					),
-					array(
-						'forum_id'     => $forum_id,
-						'topic_id'     => $topic_id
-					)
-				);
-
 				// Add the ID's to group meta
-				groups_update_groupmeta( bp_get_new_group_id(), 'forum_id',       $forum_id );
-				groups_update_groupmeta( bp_get_new_group_id(), 'first_topic_id', $topic_id );
-				groups_update_groupmeta( bp_get_new_group_id(), 'first_reply_id', $reply_id );
+				groups_update_groupmeta( bp_get_new_group_id(), 'forum_id', $forum_id );
 
 				break;
 			case false :
 
 				// Forum was created but is now being undone
 				if ( !empty( $forum_id ) ) {
-					$topic_id = groups_get_groupmeta( bp_get_new_group_id(), 'first_topic_id' );
-					$reply_id = groups_get_groupmeta( bp_get_new_group_id(), 'first_reply_id' );
-
-					// Delete initial content
 					wp_delete_post( $forum_id, true );
-					wp_delete_post( $topic_id, true );
-					wp_delete_post( $reply_id, true );
-
-					// Remove the forum ID to group meta
-					groups_delete_groupmeta( bp_get_new_group_id(), 'forum_id'       );
-					groups_delete_groupmeta( bp_get_new_group_id(), 'first_topic_id' );
-					groups_delete_groupmeta( bp_get_new_group_id(), 'first_reply_id' );
+					groups_delete_groupmeta( bp_get_new_group_id(), 'forum_id' );
 				}
 
 				break;
@@ -1571,14 +1535,50 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Redirect to the group forum screen
 	 *
 	 * @since bbPress (r3653)
-	 *
-	 * @uses groups_get_current_group()
-	 * @uses bp_is_group_admin_screen()
-	 * @uses trailingslashit()
-	 * @uses bp_get_root_domain()
-	 * @uses bp_get_groups_root_slug()
+	 * @param str $redirect_url
+	 * @param str $redirect_to
 	 */
-	public function new_topic_redirect_to( $redirect_url = '', $redirect_to = '' ) {
+	public function new_topic_redirect_to( $redirect_url = '', $redirect_to = '', $topic_id = 0 ) {
+		if ( bp_is_group() ) {
+			$topic        = bbp_get_topic( $topic_id );
+			$topic_hash   = '#post-' . $topic_id;
+			$redirect_url = trailingslashit( bp_get_group_permalink( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name ) . $topic_hash;
+		}
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Redirect to the group forum screen
+	 *
+	 * @since bbPress (r3653)
+	 */
+	public function new_reply_redirect_to( $redirect_url = '', $redirect_to = '', $reply_id = 0 ) {
+		global $wp_rewrite;
+		
+		if ( bp_is_group() ) {
+			$topic_id       = bbp_get_reply_topic_id( $reply_id );
+			$topic          = bbp_get_topic( $topic_id );
+			$reply_position = bbp_get_reply_position( $reply_id, $topic_id );
+			$reply_page     = ceil( (int) $reply_position / (int) bbp_get_replies_per_page() );
+			$reply_hash     = '#post-' . $reply_id;
+			$topic_url      = trailingslashit( bp_get_group_permalink( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name );
+			
+			// Don't include pagination if on first page
+			if ( 1 >= $reply_page ) {
+				$redirect_url = trailingslashit( $topic_url ) . $reply_hash;
+	
+			// Include pagination
+			} else {
+				$redirect_url = trailingslashit( $topic_url ) . trailingslashit( $wp_rewrite->pagination_base ) . trailingslashit( $reply_page ) . $reply_hash;
+			}
+	
+			// Add topic view query arg back to end if it is set
+			if ( bbp_get_view_all() ) {
+				$redirect_url = bbp_add_view_all( $redirect_url );
+			}
+		}
+		
 		return $redirect_url;
 	}
 

@@ -1627,7 +1627,7 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  */
 function bbp_forum_query_subforum_ids( $forum_id ) {
 	$subforum_ids = bbp_get_public_child_ids( $forum_id, bbp_get_forum_post_type() );
-	usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
+	//usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
 
 	return apply_filters( 'bbp_get_forum_subforum_ids', $subforum_ids, $forum_id );
 }

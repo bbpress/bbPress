@@ -364,7 +364,7 @@ function bbp_new_topic_handler() {
 			}
 
 			// Allow to be filtered
-			$redirect_url = apply_filters( 'bbp_new_topic_redirect_to', $redirect_url, $redirect_to );
+			$redirect_url = apply_filters( 'bbp_new_topic_redirect_to', $redirect_url, $redirect_to, $topic_id );
 
 			/** Successful Save ***********************************************/
 

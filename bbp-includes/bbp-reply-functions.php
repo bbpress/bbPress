@@ -313,7 +313,7 @@ function bbp_new_reply_handler() {
 			$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 			// Allow to be filtered
-			$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to );
+			$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to, $reply_id );
 
 			/** Successful Save ***********************************************/
 
