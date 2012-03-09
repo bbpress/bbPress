@@ -1190,7 +1190,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Bail if not looking at this screen
 		if ( !bp_is_group_creation_step( $this->slug ) )
-            return false;
+			return false;
 
 		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' ); ?>
 
@@ -1220,7 +1220,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		check_admin_referer( 'groups_create_save_' . $this->slug );
 
 		$create_forum = !empty( $_POST['bbp-create-group-forum'] ) ? true : false;
-		$forum_id     = groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' );
+		$forum_id     = 0;
+		$forum_ids    = bbp_get_group_forum_ids( bp_get_new_group_id() );
+		if ( !empty( $forum_ids ) )
+			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
 
 		// Create a forum, or not
 		switch ( $create_forum ) {
@@ -1252,8 +1255,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					'post_status'  => $status
 				) );
 
-				// Add the ID's to group meta
-				groups_update_groupmeta( bp_get_new_group_id(), 'forum_id', $forum_id );
+				// Run the BP-specific functions for new groups 
+				$this->new_forum( array( 'forum_id' => $forum_id ) ); 
 
 				break;
 			case false :
