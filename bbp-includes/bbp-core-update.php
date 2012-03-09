@@ -155,36 +155,58 @@ function bbp_setup_updater() {
  * Create a default forum, topic, and reply
  *
  * @since bbPress (r3767)
+ * @param array $args Array of arguments to override default values
  */
-function bbp_create_initial_content() {
+function bbp_create_initial_content( $args = array() ) {
+
+	$defaults = array(
+		'forum_parent'  => 0,
+		'forum_status'  => 'publish',
+		'forum_title'   => __( 'General',                                  'bbpress' ),
+		'forum_content' => __( 'General chit-chat',                        'bbpress' ),
+		'topic_title'   => __( 'Hello World!',                             'bbpress' ),
+		'topic_content' => __( 'I am the first topic in your new forums.', 'bbpress' ),
+		'reply_title'   => __( 'Re: Hello World!',                         'bbpress' ),
+		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
+	);
+	$r = wp_parse_args( apply_filters( 'bbp_pre_create_initial_content', $args ), $defaults );
+	extract( $r );
 
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
-		'post_title'   => __( 'General', 'bbpress' ),
-		'post_content' => __( 'General chit-chat', 'bbpress' )
+		'post_parent'  => $forum_parent,
+		'post_status'  => $forum_status,
+		'post_title'   => $forum_title,
+		'post_content' => $forum_content
 	) );
 
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
 		array(
 			'post_parent'  => $forum_id,
-			'post_title'   => __( 'Hello World!', 'bbpress' ),
-			'post_content' => __( 'I am the first topic in your new forums. You can keep me, edit me, trash me, or delete me.', 'bbpress' )
+			'post_title'   => $topic_title,
+			'post_content' => $topic_content
 		),
 		array( 'forum_id'  => $forum_id )
 	);
 
 	// Create the initial reply
-	bbp_insert_reply(
+	$reply_id = bbp_insert_reply(
 		array(
 			'post_parent'  => $topic_id,
-			'post_title'   => __( 'Re: Hello World!', 'bbpress' ),
-			'post_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' )
+			'post_title'   => $reply_title,
+			'post_content' => $reply_content
 		),
 		array(
 			'forum_id'     => $forum_id,
 			'topic_id'     => $topic_id
 		)
+	);
+
+	return array(
+		'forum_id' => $forum_id,
+		'topic_id' => $topic_id,
+		'reply_id' => $reply_id
 	);
 }
 
