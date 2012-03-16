@@ -9,6 +9,8 @@
 
 ?>
 
+	<?php do_action( 'bbp_template_before_user_favorites' ); ?>
+
 	<?php bbp_set_query_name( 'bbp_user_profile_favorites' ); ?>
 
 	<div id="bbp-author-favorites" class="bbp-author-favorites">
@@ -33,3 +35,5 @@
 	</div><!-- #bbp-author-favorites -->
 
 	<?php bbp_reset_query_name(); ?>
+
+	<?php do_action( 'bbp_template_after_user_favorites' ); ?>
