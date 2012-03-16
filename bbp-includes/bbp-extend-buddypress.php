@@ -1107,7 +1107,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Tweak the redirect field
 		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to' ), 10, 3 );
-		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 2 );
+		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 3 );
 	}
 
 	function display() {
