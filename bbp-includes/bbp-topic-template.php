@@ -923,13 +923,13 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_status() To get the topic status
+	 * @uses apply_filters() Calls 'bbp_is_topic_closed' with the topic id
+	 *
 	 * @return bool True if closed, false if not.
 	 */
 	function bbp_is_topic_closed( $topic_id = 0 ) {
-		if ( bbp_get_closed_status_id() == bbp_get_topic_status( $topic_id ) )
-			return true;
-
-		return false;
+		$closed = bbp_get_topic_status( $topic_id ) == bbp_get_closed_status_id();
+		return (bool) apply_filters( 'bbp_is_topic_closed', (bool) $closed, $topic_id );
 	}
 
 /**
@@ -983,11 +983,12 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_published' with the topic id
  * @return bool True if published, false if not.
  */
 function bbp_is_topic_published( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return bbp_get_public_status_id() == $topic_status;
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_public_status_id();
+	return (bool) apply_filters( 'bbp_is_topic_published', (bool) $topic_status, $topic_id );
 }
 
 /**
@@ -998,11 +999,12 @@ function bbp_is_topic_published( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_spam' with the topic id
  * @return bool True if spam, false if not.
  */
 function bbp_is_topic_spam( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return bbp_get_spam_status_id() == $topic_status;
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_spam_status_id();
+	return (bool) apply_filters( 'bbp_is_topic_spam', (bool) $topic_status, $topic_id );
 }
 
 /**
@@ -1013,11 +1015,12 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_trash' with the topic id
  * @return bool True if trashed, false if not.
  */
 function bbp_is_topic_trash( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return bbp_get_trash_status_id() == $topic_status;
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_trash_status_id();
+	return (bool) apply_filters( 'bbp_is_topic_trash', (bool) $topic_status, $topic_id );
 }
 
 /**
@@ -1029,22 +1032,24 @@ function bbp_is_topic_trash( $topic_id = 0 ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_author_id() To get the topic author id
  * @uses get_post_meta() To get the anonymous user name and email meta
+ * @uses apply_filters() Calls 'bbp_is_topic_anonymous' with the topic id
  * @return bool True if the post is by an anonymous user, false if not.
  */
 function bbp_is_topic_anonymous( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
+	$retval   = false;
 
-	if ( 0 != bbp_get_topic_author_id( $topic_id ) )
-		return false;
+	if ( !bbp_get_topic_author_id( $topic_id ) )
+		$retval = true;
 
-	if ( false == get_post_meta( $topic_id, '_bbp_anonymous_name', true ) )
-		return false;
+	elseif ( get_post_meta( $topic_id, '_bbp_anonymous_name',  true ) )
+		$retval = true;
 
-	if ( false == get_post_meta( $topic_id, '_bbp_anonymous_email', true ) )
-		return false;
+	elseif ( get_post_meta( $topic_id, '_bbp_anonymous_email', true ) )
+		$retval = true;
 
 	// The topic is by an anonymous user
-	return true;
+	return (bool) apply_filters( 'bbp_is_topic_anonymous', $retval, $topic_id );
 }
 
 /**

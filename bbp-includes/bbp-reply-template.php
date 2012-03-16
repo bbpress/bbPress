@@ -717,8 +717,8 @@ function bbp_reply_status( $reply_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_reply_published( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return apply_filters( 'bbp_is_reply_published', bbp_get_public_status_id() == $reply_status, $reply_id );
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_public_status_id();
+	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $reply_status, $reply_id );
 }
 
 /**
@@ -732,8 +732,8 @@ function bbp_is_reply_published( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_spam( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return apply_filters( 'bbp_is_reply_spam', bbp_get_spam_status_id() == $reply_status, $reply_id );
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_spam_status_id();
+	return (bool) apply_filters( 'bbp_is_reply_spam', (bool) $reply_status, $reply_id );
 }
 
 /**
@@ -747,8 +747,8 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_trash( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return apply_filters( 'bbp_is_reply_trash', bbp_get_trash_status_id() == $reply_status, $reply_id );
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_trash_status_id();
+	return (bool) apply_filters( 'bbp_is_reply_trash', (bool) $reply_status, $reply_id );
 }
 
 /**
@@ -764,8 +764,7 @@ function bbp_is_reply_trash( $reply_id = 0 ) {
  */
 function bbp_is_reply_anonymous( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
-
-	$retval = false;
+	$retval   = false;
 
 	if ( !bbp_get_reply_author_id( $reply_id ) )
 		$retval = true;
@@ -776,7 +775,7 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
 	elseif ( get_post_meta( $reply_id, '_bbp_anonymous_email', true ) )
 		$retval = true;
 
-	return apply_filters( 'bbp_is_reply_anonymous', $retval );
+	return (bool) apply_filters( 'bbp_is_reply_anonymous', $retval, $reply_id );
 }
 
 /**
@@ -843,7 +842,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 		$reply_id  = bbp_get_reply_id( $reply_id );
 		$author_id = get_post_field( 'post_author', $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_id', (int) $author_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_author_id', (int) $author_id, $reply_id );
 	}
 
 /**
