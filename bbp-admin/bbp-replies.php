@@ -303,9 +303,13 @@ class BBP_Replies_Admin {
 		if ( empty( $_POST['action'] ) )
 			return $reply_id;
 
+		// Nonce check
+		if ( empty( $_POST['bbp_reply_metabox'] ) || !wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' ) )
+			return $reply_id;
+
 		// Bail if post_type is not a reply
 		if ( get_post_type( $reply_id ) != $this->post_type )
-			return;
+			return $reply_id;
 
 		// Current user cannot edit this reply
 		if ( !current_user_can( 'edit_reply', $reply_id ) )

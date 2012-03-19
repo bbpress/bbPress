@@ -300,13 +300,17 @@ class BBP_Forums_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $forum_id;
 
+		// Nonce check
+		if ( empty( $_POST['bbp_forum_metabox'] ) || !wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) )
+			return $forum_id;
+
 		// Bail if current user cannot edit this forum
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;
 
 		// Bail if post_type is not a topic or reply
 		if ( get_post_type( $forum_id ) != $this->post_type )
-			return;
+			return $forum_id;
 
 		// Parent ID
 		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;

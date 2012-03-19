@@ -314,7 +314,7 @@ function bbp_forum_metabox() {
 	</p>
 
 	<?php
-
+	wp_nonce_field( 'bbp_forum_metabox_save', 'bbp_forum_metabox' );
 	do_action( 'bbp_forum_metabox', $post_id );
 }
 
@@ -357,7 +357,7 @@ function bbp_topic_metabox() {
 	</p>
 
 	<?php
-
+	wp_nonce_field( 'bbp_topic_metabox_save', 'bbp_topic_metabox' );
 	do_action( 'bbp_topic_metabox', $post_id );
 }
 
@@ -428,7 +428,7 @@ function bbp_reply_metabox() {
 	</p>
 
 	<?php
-
+	wp_nonce_field( 'bbp_reply_metabox_save', 'bbp_reply_metabox' );
 	do_action( 'bbp_reply_metabox', $post_id );
 }
 

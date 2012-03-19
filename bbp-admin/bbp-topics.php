@@ -290,7 +290,7 @@ class BBP_Topics_Admin {
 	 * @return int Parent id
 	 */
 	function attributes_metabox_save( $topic_id ) {
-
+		
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $topic_id;
@@ -299,9 +299,13 @@ class BBP_Topics_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $topic_id;
 
+		// Nonce check
+		if ( empty( $_POST['bbp_topic_metabox'] ) || !wp_verify_nonce( $_POST['bbp_topic_metabox'], 'bbp_topic_metabox_save' ) )
+			return $topic_id;
+
 		// Bail if post_type is not a topic
 		if ( get_post_type( $topic_id ) != $this->post_type )
-			return;
+			return $topic_id;
 
 		// Bail if current user cannot edit this topic
 		if ( !current_user_can( 'edit_topic', $topic_id ) )
