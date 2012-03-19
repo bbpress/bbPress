@@ -3215,7 +3215,7 @@ function bbp_form_topic_tags() {
 			$topic_tags = $_POST['bbp_topic_tags'];
 
 		// Get edit data
-		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
+		} elseif ( bbp_is_single_topic() || bbp_is_single_reply() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
 
 			// Determine the topic id based on the post type
 			switch ( get_post_type() ) {
