@@ -22,37 +22,15 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses screen_icon() To display the screen icon
  * @uses wp_nonce_field() To add a hidden nonce field
  */
-function bbp_admin_tools() {
+function bbp_admin_tools_screen() {
 
-	$recount_list = bbp_recount_list();
-
-	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
-		check_admin_referer( 'do-counts' );
-
-		// Stores messages
-		$messages = array();
-
-		wp_cache_flush();
-
-		foreach ( (array) $recount_list as $item )
-			if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) )
-				$messages[] = call_user_func( $item[2] );
-
-
-		if ( count( $messages ) ) {
-			foreach ( $messages as $message ) {
-				bbp_tools_feedback( $message[1] );
-			}
-		}
-	} ?>
+	$recount_list = bbp_recount_list(); ?>
 
 	<div class="wrap">
 
 		<?php screen_icon( 'tools' ); ?>
 
 		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
-
-		<?php do_action( 'admin_notices' ); ?>
 
 		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>
 		<p><?php _e( 'You can also use this form to clean out stale items like empty tags.', 'bbpress' ); ?></p>
@@ -87,12 +65,47 @@ function bbp_admin_tools() {
 
 			<fieldset class="submit">
 				<input class="button-primary" type="submit" name="submit" value="<?php _e( 'Recount Items', 'bbpress' ); ?>" />
-				<?php wp_nonce_field( 'do-counts' ); ?>
+				<?php wp_nonce_field( 'bbpress-do-counts' ); ?>
 			</fieldset>
 		</form>
 	</div>
 
 <?php
+}
+
+/**
+ * Handle the processing and feedback of the admin tools page
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses bbp_recount_list() To get the recount list
+ * @uses check_admin_referer() To verify the nonce and the referer
+ * @uses wp_cache_flush() To flush the cache
+ * @uses do_action() Calls 'admin_notices' to display the notices
+ */
+function bbp_admin_tools_handler() {
+
+	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
+		check_admin_referer( 'bbpress-do-counts' );
+
+		// Stores messages
+		$messages     = array();
+		$recount_list = bbp_recount_list();
+
+		wp_cache_flush();
+
+		foreach ( (array) $recount_list as $item ) {
+			if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) ) {
+				$messages[] = call_user_func( $item[2] );
+			}
+		}
+
+		if ( count( $messages ) ) {
+			foreach ( $messages as $message ) {
+				bbp_tools_feedback( $message[1] );
+			}
+		}
+	}
 }
 
 /**

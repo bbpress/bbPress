@@ -56,6 +56,9 @@ add_action( 'bbp_admin_init', 'bbp_register_importers'          );
 add_action( 'bbp_admin_init', 'bbp_register_admin_style'        );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
 
+// Handle submission of Recount page
+add_action( 'load-tools_page_bbp-recount', 'bbp_admin_tools_handler' );
+
 // Initialize the admin area
 add_action( 'bbp_init', 'bbp_admin' );
 
