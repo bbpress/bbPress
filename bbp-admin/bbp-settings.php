@@ -574,6 +574,241 @@ function bbp_admin_settings() {
 <?php
 }
 
+
+/** Converter Section *********************************************************/
+
+/**
+ * Main settings section description for the settings page
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_main_section() {
+?>
+
+	<p><?php _e( 'Provide some information about your previous forums so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Edit Platform setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_platform() {
+
+	$platform_options = array();
+
+	if ( $curdir = opendir( bbpress()->admin->admin_dir . 'converters/' ) ) {
+		while ( $file = readdir( $curdir ) ) {
+			if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
+				$file = preg_replace( '/.php/', '', $file );
+				$platform_options .= '<option value="' . $file . '">' . $file . '</option>';
+			}
+		}
+		closedir( $curdir );
+	} ?>
+
+	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $platform_options ?></select>
+	<label for="_bbp_converter_platform"><?php _e( 'is the previous forum software', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Database Server setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbserver() {
+?>
+
+	<input name="_bbp_converter_db_server" type="text" id="_bbp_converter_db_server" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_server"><?php _e( 'Database Server IP', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Database Server Port setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbport() {
+?>
+
+	<input name="_bbp_converter_db_port" type="text" id="_bbp_converter_db_port" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" class="small-text" />
+	<label for="_bbp_converter_db_port"><?php _e( 'Database Server Port', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Database User setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbuser() {
+?>
+
+	<input name="_bbp_converter_db_user" type="text" id="_bbp_converter_db_user" value="<?php bbp_form_option( '_bbp_converter_db_user', DB_USER ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_user"><?php _e( 'Database Server User', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Database Pass setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbpass() {
+?>
+
+	<input name="_bbp_converter_db_pass" type="text" id="_bbp_converter_db_pass" value="<?php bbp_form_option( '_bbp_converter_db_pass', DB_PASSWORD ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_pass"><?php _e( 'Database Server Pass', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Database Name setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbname() {
+?>
+
+	<input name="_bbp_converter_db_name" type="text" id="_bbp_converter_db_name" value="<?php bbp_form_option( '_bbp_converter_db_name', DB_NAME ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_name"><?php _e( 'Database Name', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Table Prefix setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_dbprefix() {
+?>
+
+	<input name="_bbp_converter_db_prefix" type="text" id="_bbp_converter_db_prefix" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_prefix"><?php _e( '(If converting from BuddyPress Forums, use "wp_bb_" or your custom prefix)', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Rows Limit setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_rows() {
+?>
+
+	<input name="_bbp_converter_rows" type="text" id="_bbp_converter_rows" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" class="small-text" />
+	<label for="_bbp_converter_rows"><?php _e( 'How many rows to process at a time', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Delay Time setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_delay_time() {
+?>
+
+	<input name="_bbp_converter_delay_time" type="text" id="_bbp_converter_delay_time" value="<?php bbp_form_option( '_bbp_converter_delay_time', '1' ); ?>" class="small-text" />
+	<label for="_bbp_converter_delay_time"><?php _e( 'Time delay between batch converting in seconds', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Clean setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_clean() {
+?>
+
+	<input id="_bbp_converter_clean" name="_bbp_converter_clean" type="checkbox" id="_bbp_converter_clean" value="1" <?php checked( get_option( '_bbp_converter_clean', false ) ); ?> />
+	<label for="_bbp_converter_clean"><?php _e( 'Clean out converted data to start a brand new conversion', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Restart setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_restart() {
+?>
+
+	<input id="_bbp_converter_restart" name="_bbp_converter_restart" type="checkbox" id="_bbp_converter_restart" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
+	<label for="_bbp_converter_restart"><?php _e( 'Restart the conversion process', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Edit Convert Users setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_convert_users() {
+?>
+
+	<input id="_bbp_converter_convert_users" name="_bbp_converter_convert_users" type="checkbox" id="_bbp_converter_convert_users" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> />
+	<label for="_bbp_converter_convert_users"><?php _e( 'Attempt to import user accounts from previous forums', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'It is not possible to batch-convert any old user passwords. They will be converted as each user logs in.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/** Converter Page ************************************************************/
+
+/**
+ * The main settings page
+ *
+ * @uses screen_icon() To display the screen icon
+ * @uses settings_fields() To output the hidden fields for the form
+ * @uses do_settings_sections() To output the settings sections
+ */
+function bbp_converter_settings() {
+?>
+
+	<div class="wrap">
+
+		<?php screen_icon( 'tools' ); ?>
+
+		<h2><?php _e( 'bbPress Converter Settings', 'bbpress' ) ?></h2>
+
+		<form action="#" method="post" id="bbp-converter-settings">
+
+			<?php settings_fields( 'bbpress_converter' ); ?>
+
+			<?php do_settings_sections( 'bbpress_converter' ); ?>
+
+			<p class="submit">
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php _e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start()" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php _e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop()" />
+				<img id="bbp-converter-progress" src="">
+			</p>
+
+			<div class="bbp-converter-updated" id="bbp-converter-message"></div>
+		</form>
+	</div>
+
+<?php
+}
+
+/** Helpers *******************************************************************/
+
 /**
  * Contextual help for bbPress settings page
  *

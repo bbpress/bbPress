@@ -97,9 +97,6 @@ class BBP_Admin {
 		// Add notice if not using a bbPress theme
 		add_action( 'bbp_admin_notices',           array( $this, 'activation_notice'       ) );
 
-		// Add importers
-		add_action( 'bbp_register_importers',      array( $this, 'register_importers'      ) );
-
 		// Add green admin style
 		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'    ) );
 
@@ -136,6 +133,7 @@ class BBP_Admin {
 	 */
 	private function includes() {
 		require( $this->admin_dir . 'bbp-tools.php'     );
+		require( $this->admin_dir . 'bbp-converter.php' );
 		require( $this->admin_dir . 'bbp-settings.php'  );
 		require( $this->admin_dir . 'bbp-functions.php' );
 		require( $this->admin_dir . 'bbp-metaboxes.php' );
@@ -178,8 +176,24 @@ class BBP_Admin {
 	public function admin_menus() {
 
 		// Recounts
-		if ( is_super_admin() || !empty( $this->enable_recounts ) )
-			add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools' );
+		if ( is_super_admin() || !empty( $this->enable_recounts ) ) {
+			add_management_page(
+				__( 'Recount', 'bbpress' ),
+				__( 'Recount', 'bbpress' ),
+				'manage_options',
+				'bbp-recount',
+				'bbp_admin_tools_screen'
+			);
+		}
+
+		// Converter Page
+		add_management_page(
+			__( 'Converter', 'bbpress' ),
+			__( 'Converter', 'bbpress' ),
+			'manage_options',
+			'bbpress',
+			'bbp_converter_settings'
+		);
 
 		// Forums settings
 		add_options_page(
@@ -850,6 +864,8 @@ endif; // class_exists check
  */
 function bbp_admin() {
 	bbpress()->admin = new BBP_Admin();
+
+	bbpress()->admin->converter = new BBP_Converter();
 }
 
 ?>
