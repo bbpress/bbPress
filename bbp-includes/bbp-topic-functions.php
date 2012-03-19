@@ -716,6 +716,10 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Bail if there is no topic
+	if ( empty( $topic_id ) )
+		return;
+
 	// Check author_id
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();

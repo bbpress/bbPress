@@ -613,6 +613,10 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Bail if there is no reply
+	if ( empty( $reply_id ) )
+		return;
+
 	// Check author_id
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
@@ -655,7 +659,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	}
 
 	// Handle Subscription Checkbox
-	if ( bbp_is_subscriptions_active() && !empty( $author_id ) ) {
+	if ( bbp_is_subscriptions_active() && !empty( $author_id ) && !empty( $topic_id ) ) {
 		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ) ? true : false;
 
