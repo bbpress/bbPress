@@ -382,7 +382,7 @@ function bb_akismet_delete_old()
 	}
 }
 
-function bb_ksd_pre_post_status( $post_status )
+function bb_ksd_pre_post_status( $post_status, $post_ID )
 {
 	global $bb_current_user, $bb_ksd_pre_post_status, $bb_ksd_pre_post;
 
@@ -392,13 +392,18 @@ function bb_ksd_pre_post_status( $post_status )
 	}
 
 	$response = bb_ksd_submit( $bb_ksd_pre_post );
+
+	if ( isset( $response[1] ) ) {
+		bb_update_postmeta( $post_ID, 'akismet_response', $response[1] );
+	}
+
 	if ( 'true' == $response[1] ) {
 		$bb_ksd_pre_post_status = '2';
 		return $bb_ksd_pre_post_status;
 	}
 	return $post_status;
 }
-add_filter( 'pre_post_status', 'bb_ksd_pre_post_status' );
+add_filter( 'pre_post_status', 'bb_ksd_pre_post_status', 10, 2 );
 
 function bb_ksd_delete_post( $post_id, $new_status, $old_status )
 {
