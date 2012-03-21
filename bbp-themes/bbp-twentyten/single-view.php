@@ -18,7 +18,7 @@ get_header(); ?>
 					<h1 class="entry-title"><?php bbp_view_title(); ?></h1>
 					<div class="entry-content">
 
-						<?php bbp_get_template_part( 'bbpress/content', 'single-view' ); ?>
+						<?php bbp_get_template_part( 'content', 'single-view' ); ?>
 
 					</div>
 				</div><!-- #bbp-view-<?php bbp_view_id(); ?> -->

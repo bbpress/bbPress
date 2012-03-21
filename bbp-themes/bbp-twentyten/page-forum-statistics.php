@@ -98,11 +98,11 @@ get_header(); ?>
 
 								<h2 class="entry-title"><?php _e( 'Popular Topics', 'bbpress' ); ?></h2>
 
-								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+								<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
 
-								<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+								<?php bbp_get_template_part( 'loop',       'topics' ); ?>
 
-								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+								<?php bbp_get_template_part( 'pagination', 'topics' ); ?>
 
 							<?php endif; ?>
 

@@ -28,7 +28,7 @@ get_header(); ?>
 
 							<?php bbp_breadcrumb(); ?>
 
-							<?php bbp_get_template_part( 'bbpress/form', 'user-register' ); ?>
+							<?php bbp_get_template_part( 'form', 'user-register' ); ?>
 
 						</div>
 					</div><!-- #bbp-register -->

@@ -22,7 +22,7 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php bbp_get_template_part( 'bbpress/content', 'archive-forum' ); ?>
+							<?php bbp_get_template_part( 'content', 'archive-forum' ); ?>
 
 						</div>
 					</div><!-- #forum-front -->

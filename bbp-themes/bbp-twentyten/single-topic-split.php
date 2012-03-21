@@ -20,7 +20,7 @@ get_header(); ?>
 						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
 
-							<?php bbp_get_template_part( 'bbpress/form', 'topic-split' ); ?>
+							<?php bbp_get_template_part( 'form', 'topic-split' ); ?>
 
 						</div>
 					</div><!-- #bbp-edit-page -->

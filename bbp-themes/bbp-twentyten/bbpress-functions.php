@@ -14,6 +14,10 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /** Theme Setup ***************************************************************/
 
 if ( !class_exists( 'BBP_Twenty_Ten' ) ) :
+
+// Theme supports bbPress
+add_theme_support( 'bbpress' );
+
 /**
  * Loads bbPress Twenty Ten Theme functionality
  *
@@ -54,10 +58,10 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	 * @uses get_stylesheet_directory_uri() To get the stylesheet uri
 	 */
 	private function setup_globals() {
-		$this->name    = 'bbPress (Twenty Ten)';
+		$this->name    = __( 'Twenty Ten (bbPress)', 'bbpress' ) ;
 		$this->version = bbp_get_version();
-		$this->dir     = get_stylesheet_directory();
-		$this->url     = get_stylesheet_directory_uri();
+		$this->dir     = trailingslashit( get_stylesheet_directory() );
+		$this->url     = trailingslashit( get_stylesheet_directory_uri() );
 	}
 
 	/**
@@ -69,9 +73,6 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
-
-		// Add theme support for bbPress
-		add_action( 'after_setup_theme',        array( $this, 'add_theme_support'     ) );
 
 		// Enqueue theme CSS
 		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_styles'        ) );
@@ -93,15 +94,6 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	}
 
 	/**
-	 * Sets up theme support for bbPress
-	 *
-	 * @since bbPress (r2652)
-	 */
-	public function add_theme_support() {
-		add_theme_support( 'bbpress' );
-	}
-
-	/**
 	 * Load the theme CSS
 	 *
 	 * @since bbPress (r2652)
@@ -117,7 +109,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 			wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', $this->version, 'screen' );
 
 			// bbPress specific
-			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . '/css/bbpress-rtl.css', 'twentyten-rtl', $this->version, 'screen' );
+			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . 'css/bbpress-rtl.css', 'twentyten-rtl', $this->version, 'screen' );
 
 		// Left to right
 		} else {
@@ -126,7 +118,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 			wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', '', $this->version, 'screen' );
 
 			// bbPress specific
-			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . '/css/bbpress.css', 'twentyten', $this->version, 'screen' );
+			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . 'css/bbpress.css', 'twentyten', $this->version, 'screen' );
 		}
 	}
 
@@ -142,7 +134,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	public function enqueue_scripts() {
 
 		if ( bbp_is_single_topic() )
-			wp_enqueue_script( 'bbp_topic', $this->url . '/js/topic.js', array( 'wp-lists' ), $this->version, true );
+			wp_enqueue_script( 'bbp_topic', $this->url . 'js/topic.js', array( 'wp-lists' ), $this->version, true );
 
 		if ( bbp_is_single_user_edit() )
 			wp_enqueue_script( 'user-profile' );

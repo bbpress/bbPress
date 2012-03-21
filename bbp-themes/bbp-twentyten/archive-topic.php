@@ -18,7 +18,7 @@ get_header(); ?>
 					<h1 class="entry-title"><?php bbp_topic_archive_title(); ?></h1>
 					<div class="entry-content">
 
-						<?php bbp_get_template_part( 'bbpress/content', 'archive-topic' ); ?>
+						<?php bbp_get_template_part( 'content', 'archive-topic' ); ?>
 
 					</div>
 				</div><!-- #topics-front -->

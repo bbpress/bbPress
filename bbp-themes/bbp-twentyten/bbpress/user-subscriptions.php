@@ -23,9 +23,9 @@
 
 					<?php if ( bbp_get_user_subscriptions() ) :
 
-						bbp_get_template_part( 'bbpress/pagination', 'topics' );
-						bbp_get_template_part( 'bbpress/loop',       'topics' );
-						bbp_get_template_part( 'bbpress/pagination', 'topics' );
+						bbp_get_template_part( 'pagination', 'topics' );
+						bbp_get_template_part( 'loop',       'topics' );
+						bbp_get_template_part( 'pagination', 'topics' );
 
 					else : ?>
 

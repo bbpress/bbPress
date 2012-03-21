@@ -17,7 +17,7 @@
 
 	<?php if ( post_password_required() ) : ?>
 
-		<?php bbp_get_template_part( 'bbpress/form', 'protected' ); ?>
+		<?php bbp_get_template_part( 'form', 'protected' ); ?>
 
 	<?php else : ?>
 
@@ -27,21 +27,21 @@
 
 		<?php if ( bbp_show_lead_topic() ) : ?>
 
-			<?php bbp_get_template_part( 'bbpress/content', 'single-topic-lead' ); ?>
+			<?php bbp_get_template_part( 'content', 'single-topic-lead' ); ?>
 
 		<?php endif; ?>
 
 		<?php if ( bbp_has_replies() ) : ?>
 
-			<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+			<?php bbp_get_template_part( 'pagination', 'replies' ); ?>
 
-			<?php bbp_get_template_part( 'bbpress/loop',       'replies' ); ?>
+			<?php bbp_get_template_part( 'loop',       'replies' ); ?>
 
-			<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+			<?php bbp_get_template_part( 'pagination', 'replies' ); ?>
 
 		<?php endif; ?>
 
-		<?php bbp_get_template_part( 'bbpress/form', 'reply' ); ?>
+		<?php bbp_get_template_part( 'form', 'reply' ); ?>
 
 	<?php endif; ?>
 

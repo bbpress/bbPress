@@ -17,11 +17,11 @@
 
 	<?php if ( post_password_required() ) : ?>
 
-		<?php bbp_get_template_part( 'bbpress/form', 'protected' ); ?>
+		<?php bbp_get_template_part( 'form', 'protected' ); ?>
 
 	<?php else : ?>
 
-		<?php bbp_get_template_part( 'bbpress/loop', 'single-reply' ); ?>
+		<?php bbp_get_template_part( 'loop', 'single-reply' ); ?>
 
 	<?php endif; ?>
 
