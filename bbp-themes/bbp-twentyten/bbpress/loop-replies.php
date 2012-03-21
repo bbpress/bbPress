@@ -9,64 +9,61 @@
 
 ?>
 
-<?php do_action( 'bbp_template_before_replies_loop' ); ?>
+	<?php do_action( 'bbp_template_before_replies_loop' ); ?>
 
-<ul id="topic-<?php bbp_topic_id(); ?>-replies" class="forums bbp-replies">
+	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>-replies">
+		<thead>
+			<tr>
+				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
+				<th class="bbp-reply-content">
 
-	<li class="bbp-header">
+					<?php if ( !bbp_show_lead_topic() ) : ?>
 
-		<div class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></div><!-- .bbp-reply-author -->
+						<?php _e( 'Posts', 'bbpress' ); ?>
 
-		<div class="bbp-reply-content">
+						<?php bbp_user_subscribe_link(); ?>
 
-			<?php if ( !bbp_show_lead_topic() ) : ?>
+						<?php bbp_user_favorites_link(); ?>
 
-				<?php _e( 'Posts', 'bbpress' ); ?>
+					<?php else : ?>
 
-				<?php bbp_user_subscribe_link(); ?>
+						<?php _e( 'Replies', 'bbpress' ); ?>
 
-				<?php bbp_user_favorites_link(); ?>
+					<?php endif; ?>
 
-			<?php else : ?>
+				</th>
+			</tr>
+		</thead>
 
-				<?php _e( 'Replies', 'bbpress' ); ?>
+		<tfoot>
+			<tr>
+				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
+				<th class="bbp-reply-content">
 
-			<?php endif; ?>
+					<?php if ( !bbp_show_lead_topic() ) : ?>
 
-		</div><!-- .bbp-reply-content -->
+						<?php _e( 'Posts', 'bbpress' ); ?>
 
-	</li><!-- .bbp-header -->
+					<?php else : ?>
 
-	<li class="bbp-body">
+						<?php _e( 'Replies', 'bbpress' ); ?>
 
-		<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
+					<?php endif; ?>
 
-			<?php bbp_get_template_part( 'bbpress/loop', 'single-reply' ); ?>
+				</th>
+			</tr>
+		</tfoot>
 
-		<?php endwhile; ?>
+		<tbody>
 
-	</li><!-- .bbp-body -->
+			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
 
-	<li class="bbp-footer">
+				<?php bbp_get_template_part( 'bbpress/loop', 'single-reply' ); ?>
 
-		<div class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></div>
+			<?php endwhile; ?>
 
-		<div class="bbp-reply-content">
+		</tbody>
 
-			<?php if ( !bbp_show_lead_topic() ) : ?>
+	</table>
 
-				<?php _e( 'Posts', 'bbpress' ); ?>
-
-			<?php else : ?>
-
-				<?php _e( 'Replies', 'bbpress' ); ?>
-
-			<?php endif; ?>
-
-		</div><!-- .bbp-reply-content -->
-
-	</li>
-
-</ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
-
-<?php do_action( 'bbp_template_after_replies_loop' ); ?>
+	<?php do_action( 'bbp_template_after_replies_loop' ); ?>

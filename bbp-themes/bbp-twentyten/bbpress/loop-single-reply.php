@@ -9,54 +9,52 @@
 
 ?>
 
-<div class="bbp-reply-header">
+	<tr class="bbp-reply-header">
+		<td colspan="2">
 
-	<div class="bbp-meta">
+			<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
-		<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+			<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
 
-		<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
+			<?php do_action( 'bbp_theme_before_reply_admin_links' ); ?>
 
-		<?php do_action( 'bbp_theme_before_reply_admin_links' ); ?>
+			<?php bbp_reply_admin_links(); ?>
 
-		<?php bbp_reply_admin_links(); ?>
+			<?php do_action( 'bbp_theme_after_reply_admin_links' ); ?>
 
-		<?php do_action( 'bbp_theme_after_reply_admin_links' ); ?>
+		</td>
+	</tr>
 
-	</div><!-- .bbp-meta -->
+	<tr id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
-</div><!-- .bbp-reply-header -->
+		<td class="bbp-reply-author">
 
-<div id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
+			<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
 
-	<div class="bbp-reply-author">
+			<?php bbp_reply_author_link( array( 'sep' => '<br />' ) ); ?>
 
-		<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
+			<?php if ( is_super_admin() ) : ?>
 
-		<?php bbp_reply_author_link( array( 'sep' => '<br />' ) ); ?>
+				<?php do_action( 'bbp_theme_before_reply_author_admin_details' ); ?>
 
-		<?php if ( is_super_admin() ) : ?>
+				<div class="bbp-reply-ip"><?php bbp_author_ip( bbp_get_reply_id() ); ?></div>
 
-			<?php do_action( 'bbp_theme_before_reply_author_admin_details' ); ?>
+				<?php do_action( 'bbp_theme_after_reply_author_admin_details' ); ?>
 
-			<div class="bbp-reply-ip"><?php bbp_author_ip( bbp_get_reply_id() ); ?></div>
+			<?php endif; ?>
 
-			<?php do_action( 'bbp_theme_after_reply_author_admin_details' ); ?>
+			<?php do_action( 'bbp_theme_after_reply_author_details' ); ?>
 
-		<?php endif; ?>
+		</td>
 
-		<?php do_action( 'bbp_theme_after_reply_author_details' ); ?>
+		<td class="bbp-reply-content">
 
-	</div><!-- .bbp-reply-author -->
+			<?php do_action( 'bbp_theme_after_reply_content' ); ?>
 
-	<div class="bbp-reply-content">
+			<?php bbp_reply_content(); ?>
 
-		<?php do_action( 'bbp_theme_after_reply_content' ); ?>
+			<?php do_action( 'bbp_theme_before_reply_content' ); ?>
 
-		<?php bbp_reply_content(); ?>
+		</td>
 
-		<?php do_action( 'bbp_theme_before_reply_content' ); ?>
-
-	</div><!-- .bbp-reply-content -->
-
-</div><!-- #post-<?php bbp_topic_id(); ?> -->
+	</tr><!-- #post-<?php bbp_topic_id(); ?> -->

@@ -67,7 +67,7 @@
 
 				<div>
 
-					<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
+					<?php bbp_get_template_part( 'form', 'anonymous' ); ?>
 
 					<?php do_action( 'bbp_theme_before_topic_form_title' ); ?>
 

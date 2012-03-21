@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php get_header(); ?>
+get_header(); ?>
 
 		<div id="container">
 			<div id="content" role="main">
@@ -24,16 +22,14 @@
 
 							<?php get_the_content() ? the_content() : _e( '<p>This is a collection of tags that are currently popular on our forums.</p>', 'bbpress' ); ?>
 
-							<div id="bbpress-forums">
+							<?php bbp_breadcrumb(); ?>
 
-								<?php bbp_breadcrumb(); ?>
+							<div id="bbp-topic-hot-tags">
 
-								<div id="bbp-topic-hot-tags">
+								<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => bbp_get_topic_tag_tax_id() ) ); ?>
 
-									<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => bbp_get_topic_tag_tax_id() ) ); ?>
-
-								</div>
 							</div>
+
 						</div>
 					</div><!-- #bbp-topic-tags -->
 

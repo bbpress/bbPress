@@ -10,7 +10,7 @@
 ?>
 
 <div id="bbpress-forums">
-
+	
 	<?php bbp_breadcrumb(); ?>
 
 	<?php if ( post_password_required() ) : ?>

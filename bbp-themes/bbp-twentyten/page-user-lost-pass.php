@@ -26,13 +26,10 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<div id="bbpress-forums">
+							<?php bbp_breadcrumb(); ?>
 
-								<?php bbp_breadcrumb(); ?>
+							<?php bbp_get_template_part( 'bbpress/form', 'user-lost-pass' ); ?>
 
-								<?php bbp_get_template_part( 'bbpress/form', 'user-lost-pass' ); ?>
-
-							</div>
 						</div>
 					</div><!-- #bbp-lost-pass -->
 

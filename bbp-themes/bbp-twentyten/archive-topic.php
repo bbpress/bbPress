@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php get_header(); ?>
+get_header(); ?>
 
 		<div id="container">
 			<div id="content" role="main">

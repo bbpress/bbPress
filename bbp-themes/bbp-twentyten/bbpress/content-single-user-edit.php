@@ -10,11 +10,13 @@
 ?>
 
 <div id="bbpress-forums">
+	
+	<?php do_action( 'bbp_template_notices' );
 
-	<?php do_action( 'bbp_template_notices' ); ?>
+	// Profile details
+	bbp_get_template_part( 'bbpress/user', 'details' );
 
-	<?php bbp_get_template_part( 'bbpress/user', 'details' ); ?>
-
-	<?php bbp_get_template_part( 'bbpress/form', 'user-edit' ); ?>
+	// User edit form
+	bbp_get_template_part( 'bbpress/form', 'user-edit' ); ?>
 
 </div>
