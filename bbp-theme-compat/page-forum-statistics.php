@@ -11,9 +11,7 @@
 // @todo - remove variable references
 extract( bbp_get_statistics(), EXTR_SKIP );
 
-?>
-
-<?php get_header(); ?>
+get_header(); ?>
 
 	<?php do_action( 'bbp_before_main_content' ); ?>
 

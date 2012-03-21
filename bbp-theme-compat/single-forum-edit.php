@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php get_header(); ?>
+get_header(); ?>
 
 	<?php do_action( 'bbp_before_main_content' ); ?>
 
