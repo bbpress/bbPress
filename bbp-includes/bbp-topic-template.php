@@ -2328,8 +2328,8 @@ function bbp_topic_close_link( $args = '' ) {
 			'link_before' => '',
 			'link_after'  => '',
 			'sep'         => ' | ',
-			'close_text'  => __( 'Close', 'bbpress' ),
-			'open_text'   => __( 'Open',  'bbpress' )
+			'close_text'  => _x( 'Close', 'Topic Status', 'bbpress' ),
+			'open_text'   => _x( 'Open',  'Topic Status', 'bbpress' )
 		);
 
 		$r = wp_parse_args( $args, $defaults );

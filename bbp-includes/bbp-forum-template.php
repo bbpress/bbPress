@@ -2127,8 +2127,8 @@ function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
 	function bbp_get_form_forum_status_dropdown( $forum_id = 0 ) {
 		$forum_id   = bbp_get_forum_id( $forum_id );
 		$forum_attr = apply_filters( 'bbp_forum_statuses', array(
-			'open'   => __( 'Open',   'bbpress' ),
-			'closed' => __( 'Closed', 'bbpress' )
+			'open'   => _x( 'Open',   'Forum Status', 'bbpress' ),
+			'closed' => _x( 'Closed', 'Forum Status', 'bbpress' )
 		) );
 		$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
 
