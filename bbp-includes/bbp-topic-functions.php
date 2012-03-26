@@ -2046,6 +2046,61 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 	}
 }
 
+/** Count Bumpers *************************************************************/
+
+/**
+ * Bump the total reply count of a topic
+ *
+ * @since bbPress (r3825)
+ *
+ * @param int $topic_id Optional. Forum id.
+ * @param int $difference Optional. Default 1
+ * @param bool $update_ancestors Optional. Default true
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses update_post_meta() To update the topic's reply count meta
+ * @uses apply_filters() Calls 'bbp_bump_topic_reply_count' with the reply
+ *                        count, topic id, and difference
+ * @return int Forum reply count
+ */
+function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
+
+	// Get counts
+	$topic_id    = bbp_get_topic_id( $topic_id );
+	$reply_count = bbp_get_topic_reply_count( $topic_id, false );
+	$new_count   = (int) $reply_count + (int) $difference;
+
+	// Update this topic id's reply count
+	update_post_meta( $topic_id, '_bbp_reply_count', (int) $new_count );
+
+	return (int) apply_filters( 'bbp_bump_topic_reply_count', (int) $new_count, $topic_id, (int) $difference );
+}
+
+/**
+ * Bump the total hidden reply count of a topic
+ *
+ * @since bbPress (r3825)
+ *
+ * @param int $topic_id Optional. Forum id.
+ * @param int $difference Optional. Default 1
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses update_post_meta() To update the topic's reply count meta
+ * @uses apply_filters() Calls 'bbp_bump_topic_reply_count_hidden' with the
+ *                        reply count, topic id, and difference
+ * @return int Forum hidden reply count
+ */
+function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
+
+	// Get counts
+	$topic_id    = bbp_get_topic_id( $topic_id );
+	$reply_count = bbp_get_topic_reply_count_hidden( $topic_id, false );
+	$new_count   = (int) $reply_count + (int) $difference;
+
+	// Update this topic id's hidder reply count
+	update_post_meta( $topic_id, '_bbp_reply_count_hidden', (int) $new_count );
+
+	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', (int) $new_count, $topic_id, (int) $difference );
+}
+
 /** Topic Updaters ************************************************************/
 
 /**
@@ -2318,7 +2373,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	// Query the DB to get voices in this topic
 	$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
-	// If there's an error, make sure we at least have 1 voice
+	// If there's an error, make sure we have at least have 1 voice
 	$voices = ( empty( $voices ) || is_wp_error( $voices ) ) ? 1 : $voices[0];
 
 	// Update the voice count for this topic id
