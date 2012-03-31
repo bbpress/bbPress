@@ -115,17 +115,10 @@ class BBP_Component {
 	 *                    'bbp_{@link BBP_Component::name}setup_actions'
 	 */
 	function setup_actions() {
-		// Register post types
-		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
-
-		// Register taxonomies
-		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
-
-		// Add the rewrite tags
-		add_action( 'bbp_add_rewrite_tags',         array ( $this, 'add_rewrite_tags'         ), 10, 2 );
-
-		// Generate rewrite rules
-		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
+		add_action( 'bbp_register_post_types',    array( $this, 'register_post_types'    ), 10, 2 ); // Register post types
+		add_action( 'bbp_register_taxonomies',    array( $this, 'register_taxonomies'    ), 10, 2 ); // Register taxonomies
+		add_action( 'bbp_add_rewrite_tags',       array( $this, 'add_rewrite_tags'       ), 10, 2 ); // Add the rewrite tags
+		add_action( 'bbp_generate_rewrite_rules', array( $this, 'generate_rewrite_rules' ), 10, 2 ); // Generate rewrite rules
 
 		// Additional actions can be attached here
 		do_action( 'bbp_' . $this->name . 'setup_actions' );
@@ -171,8 +164,8 @@ class BBP_Component {
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_generate_rewrite_rules'
 	 */
-	function generate_rewrite_rules ( $wp_rewrite ) {
-		do_action( 'bbp_' . $this->name . '_generate_rewrite_rules' );
+	function generate_rewrite_rules( $wp_rewrite ) {
+		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', $wp_rewrite );
 	}
 }
 endif; // BBP_Component
