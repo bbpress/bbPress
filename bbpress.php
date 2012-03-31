@@ -941,15 +941,9 @@ class bbPress {
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public function add_rewrite_tags() {
-
-		// User Profile tag
-		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id() . '%%', '([^/]+)'   );
-
-		// View Page tag
-		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id() . '%%', '([^/]+)'   );
-
-		// Edit Page tag
-		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id() . '%%', '([1]{1,})' );
+		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id() . '%%', '([^/]+)'   ); // User Profile tag
+		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id() . '%%', '([^/]+)'   ); // View Page tag
+		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id() . '%%', '([1]{1,})' ); // Edit Page tag
 	}
 
 	/**
@@ -1024,18 +1018,19 @@ function bbpress() {
 	return bbpress::instance();
 }
 
-// "And now here's something we hope you'll really like!"
-bbpress();
-
 /**
- * Experimental:
- *
  * Hook bbPress early onto the 'plugins_loaded' action.
  *
  * This gives all other plugins the chance to load before bbPress, to get their
  * actions, filters, and overrides setup without bbPress being in the way.
  */
-//add_action( 'plugins_loaded', 'bbpress', -999 );
+if ( defined( 'BBPRESS_LATE_LOAD' ) ) {
+	add_action( 'plugins_loaded', 'bbpress', (int) BBPRESS_LATE_LOAD );
+
+// "And now here's something we hope you'll really like!"
+} else {
+	bbpress();
+}
 
 endif; // class_exists check
 
