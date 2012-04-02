@@ -1519,7 +1519,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 				// Forum
 				case bbp_get_forum_post_type() :
 
-					// Declare local variable(s)
+					// Define local variable(s)
 					$meta_query = array();
 
 					// Single forum

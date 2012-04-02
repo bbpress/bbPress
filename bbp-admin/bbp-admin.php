@@ -191,7 +191,7 @@ class BBP_Admin {
 			__( 'Converter', 'bbpress' ),
 			__( 'Converter', 'bbpress' ),
 			'manage_options',
-			'bbpress',
+			'bbp-converter',
 			'bbp_converter_settings'
 		);
 
@@ -288,6 +288,15 @@ class BBP_Admin {
 		// Allow auto embedding setting
 		add_settings_field( '_bbp_use_autoembed', __( 'Auto-embed Links', 'bbpress' ), 'bbp_admin_setting_callback_use_autoembed', 'bbpress', 'bbp_main' );
 		register_setting  ( 'bbpress',           '_bbp_use_autoembed',                 'intval'                                                          );
+
+		/** Theme Packages ****************************************************/
+
+		// Add the per page section
+		add_settings_section( 'bbp_theme_compat',    __( 'Theme Packages',  'bbpress' ), 'bbp_admin_setting_callback_subtheme_section', 'bbpress'                     );
+
+		// Replies per page setting
+		add_settings_field( '_bbp_theme_package_id', __( 'Current Package', 'bbpress' ), 'bbp_admin_setting_callback_subtheme_id',      'bbpress', 'bbp_theme_compat' );
+		register_setting  ( 'bbpress',               '_bbp_theme_package_id',            ''                                                                           );
 
 		/** Per Page Section **************************************************/
 

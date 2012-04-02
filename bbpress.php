@@ -249,7 +249,7 @@ class bbPress {
 	/**
 	 * @var string Theme to use for theme compatibility
 	 */
-	public $theme_compat = '';
+	public $theme_compat;
 
 	/** Extensions ************************************************************/
 
@@ -348,11 +348,11 @@ class bbPress {
 		$this->plugin_url = plugin_dir_url ( $this->file );
 
 		// Themes
-		$this->themes_dir = $this->plugin_dir . 'bbp-themes';
-		$this->themes_url = $this->plugin_url . 'bbp-themes';
+		$this->themes_dir = trailingslashit( $this->plugin_dir . 'bbp-themes' );
+		$this->themes_url = trailingslashit( $this->plugin_url . 'bbp-themes' );
 
 		// Languages
-		$this->lang_dir   = $this->plugin_dir . 'bbp-languages';
+		$this->lang_dir   = trailingslashit( $this->plugin_dir . 'bbp-languages' );
 
 		/** Identifiers *******************************************************/
 
@@ -393,6 +393,11 @@ class bbPress {
 
 		// Tab Index
 		$this->tab_index         = apply_filters( 'bbp_default_tab_index', 100 );
+
+		/** Theme Compat ******************************************************/
+
+		// Base theme compatibility class
+		$this->theme_compat      = new stdClass();
 
 		/** Cache *************************************************************/
 
@@ -492,6 +497,7 @@ class bbPress {
 			'register_taxonomies',      // Register taxonomies (topic-tag)
 			'register_views',           // Register the views (no-replies)
 			'register_theme_directory', // Register the theme directory (bbp-themes)
+			'register_theme_packages',  // Register bundled theme packages (bbp-theme-compat/bbp-themes)
 			'load_textdomain',          // Load textdomain (bbpress)
 			'add_rewrite_tags',         // Add rewrite tags (view|user|edit)
 			'generate_rewrite_rules'    // Generate rewrite rules (view|edit)
@@ -508,24 +514,48 @@ class bbPress {
 	/** Public Methods ********************************************************/
 
 	/**
+	 * Register bundled theme packages
+	 *
+	 * @since bbPress (r3829)
+	 */
+	public function register_theme_packages() {
+		
+		/** Default Theme *****************************************************/
+
+		$theme          = new BBP_Theme_Compat();
+		$theme->id      = 'default';
+		$theme->name    = __( 'bbPress Default', 'bbpress' );
+		$theme->version = bbp_get_version();
+		$theme->dir     = trailingslashit( $this->plugin_dir . 'bbp-theme-compat' );
+		$theme->url     = trailingslashit( $this->plugin_url . 'bbp-theme-compat' );
+
+		bbp_register_theme_package( $theme );
+
+		/** Default Theme *****************************************************/
+
+		$theme          = new BBP_Theme_Compat();
+		$theme->id      = 'bbp-twentyten';
+		$theme->name    = __( 'Twenty Ten (bbPress)', 'bbpress' ) ;
+		$theme->version = bbp_get_version();
+		$theme->dir     = trailingslashit( $this->themes_dir . 'bbp-twentyten' );
+		$theme->url     = trailingslashit( $this->themes_url . 'bbp-twentyten' );
+
+		bbp_register_theme_package( $theme );
+	}
+
+	/**
 	 * Setup the default bbPress theme compatability location.
 	 * 
 	 * @since bbPress (r3778)
 	 */
 	public function setup_theme() {
 
-		// Bail early if theme_compat was set already by a plugin
-		if ( !empty( $this->theme_compat ) )
+		// Bail if something already has this under control
+		if ( ! empty( $this->theme_compat->theme ) )
 			return;
 
-		// Set the defaults
-		$theme          = new BBP_Theme_Compat();
-		$theme->name    = 'bbPress (Default)';
-		$theme->version = bbp_get_version();
-		$theme->dir     = trailingslashit( $this->plugin_dir . 'bbp-theme-compat' );
-		$theme->url     = trailingslashit( $this->plugin_url . 'bbp-theme-compat' );
-
-		bbp_setup_theme_compat( $theme );
+		// Setup the theme package to use for compatibility
+		bbp_setup_theme_compat( bbp_get_theme_package_id() );
 	}
 
 	/**
@@ -545,30 +575,23 @@ class bbPress {
 	 * @return bool True on success, false on failure
 	 */
 	public function load_textdomain() {
-
-		// Default locale
-		$locale = get_locale();
-
-		// Traditional WordPress plugin locale filter
-		$locale = apply_filters( 'plugin_locale',  $locale, 'bbpress' );
-
-		// bbPress specific locale filter
-		$locale = apply_filters( 'bbpress_locale', $locale );
-
-		// Get mo file name
-		$mofile = sprintf( 'bbpress-%s.mo', $locale );
+		$locale = get_locale();                                          // Default locale
+		$locale = apply_filters( 'plugin_locale',  $locale, 'bbpress' ); // Traditional WordPress plugin locale filter
+		$locale = apply_filters( 'bbpress_locale', $locale );            // bbPress specific locale filter
+		$mofile = sprintf( 'bbpress-%s.mo', $locale );                   // Get mo file name
 
 		// Setup paths to current locale file
-		$mofile_local  = $this->lang_dir . '/' . $mofile;
+		$mofile_local  = $this->lang_dir . $mofile;
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 
 		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
-		if ( file_exists( $mofile_local ) )
+		if ( file_exists( $mofile_local ) ) {
 			return load_textdomain( 'bbpress', $mofile_local );
 
 		// Look in global /wp-content/languages/bbpress folder
-		elseif ( file_exists( $mofile_global ) )
+		} elseif ( file_exists( $mofile_global ) ) {
 			return load_textdomain( 'bbpress', $mofile_global );
+		}
 
 		// Nothing found
 		return false;
@@ -907,14 +930,16 @@ class bbPress {
 	public function register_views() {
 
 		// Topics with no replies
-		$no_replies = apply_filters( 'bbp_register_view_no_replies', array(
-			'meta_key'     => '_bbp_reply_count',
-			'meta_value'   => 1,
-			'meta_compare' => '<',
-			'orderby'      => ''
+		bbp_register_view(
+			'no-replies',
+			__( 'Topics with no replies', 'bbpress' ),
+			apply_filters( 'bbp_register_view_no_replies', array(
+				'meta_key'     => '_bbp_reply_count',
+				'meta_value'   => 1,
+				'meta_compare' => '<',
+				'orderby'      => ''
+			)
 		) );
-
-		bbp_register_view( 'no-replies', __( 'Topics with no replies', 'bbpress' ), $no_replies );
 	}
 
 	/**

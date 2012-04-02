@@ -90,7 +90,7 @@ class BBP_Akismet {
 	 */
 	public function check_post( $post_data ) {
 
-		// Declare local variables
+		// Define local variables
 		$user_data = array();
 		$post_permalink = '';
 

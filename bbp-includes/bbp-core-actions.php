@@ -65,6 +65,7 @@ add_action( 'bbp_loaded', 'bbp_boot_strap_globals',       4  );
 add_action( 'bbp_loaded', 'bbp_includes',                 6  );
 add_action( 'bbp_loaded', 'bbp_setup_globals',            8  );
 add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
+add_action( 'bbp_loaded', 'bbp_register_theme_packages',  12 );
 
 /**
  * bbp_init - Attached to 'init' above
@@ -250,7 +251,6 @@ add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',    10 );
  * action to bp_init hook. @see bbp_setup_buddypress_component()
  *
  * @since bbPress (r3395)
- *
  * @return If BuddyPress is not active
  */
 function bbp_setup_buddypress() {
@@ -290,7 +290,6 @@ function bbp_setup_buddypress() {
  * Runs on bbPress activation
  *
  * @since bbPress (r2509)
- *
  * @uses register_uninstall_hook() To register our own uninstall hook
  * @uses do_action() Calls 'bbp_activation' hook
  */
@@ -302,7 +301,6 @@ function bbp_activation() {
  * Runs on bbPress deactivation
  *
  * @since bbPress (r2509)
- *
  * @uses do_action() Calls 'bbp_deactivation' hook
  */
 function bbp_deactivation() {
@@ -313,7 +311,6 @@ function bbp_deactivation() {
  * Runs when uninstalling bbPress
  *
  * @since bbPress (r2509)
- *
  * @uses do_action() Calls 'bbp_uninstall' hook
  */
 function bbp_uninstall() {
@@ -326,7 +323,6 @@ function bbp_uninstall() {
  * Main action responsible for constants, globals, and includes
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_loaded'
  */
 function bbp_loaded() {
@@ -337,7 +333,6 @@ function bbp_loaded() {
  * Setup constants
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_constants'
  */
 function bbp_constants() {
@@ -348,7 +343,6 @@ function bbp_constants() {
  * Setup globals BEFORE includes
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_boot_strap_globals'
  */
 function bbp_boot_strap_globals() {
@@ -359,7 +353,6 @@ function bbp_boot_strap_globals() {
  * Include files
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_includes'
  */
 function bbp_includes() {
@@ -370,7 +363,6 @@ function bbp_includes() {
  * Setup globals AFTER includes
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_setup_globals'
  */
 function bbp_setup_globals() {
@@ -381,7 +373,6 @@ function bbp_setup_globals() {
  * Initialize any code after everything has been loaded
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_init'
  */
 function bbp_init() {
@@ -392,7 +383,6 @@ function bbp_init() {
  * Initialize widgets
  *
  * @since bbPress (r3389)
- *
  * @uses do_action() Calls 'bbp_widgets_init'
  */
 function bbp_widgets_init() {
@@ -403,7 +393,6 @@ function bbp_widgets_init() {
  * Setup the currently logged-in user
  *
  * @since bbPress (r2695)
- *
  * @uses do_action() Calls 'bbp_setup_current_user'
  */
 function bbp_setup_current_user() {
@@ -416,7 +405,6 @@ function bbp_setup_current_user() {
  * Load translations for current language
  *
  * @since bbPress (r2599)
- *
  * @uses do_action() Calls 'bbp_load_textdomain'
  */
 function bbp_load_textdomain() {
@@ -427,7 +415,6 @@ function bbp_load_textdomain() {
  * Sets up the theme directory
  *
  * @since bbPress (r2507)
- *
  * @uses do_action() Calls 'bbp_register_theme_directory'
  */
 function bbp_register_theme_directory() {
@@ -438,7 +425,6 @@ function bbp_register_theme_directory() {
  * Setup the post types
  *
  * @since bbPress (r2464)
- *
  * @uses do_action() Calls 'bbp_register_post_type'
  */
 function bbp_register_post_types() {
@@ -449,7 +435,6 @@ function bbp_register_post_types() {
  * Setup the post statuses
  *
  * @since bbPress (r2727)
- *
  * @uses do_action() Calls 'bbp_register_post_statuses'
  */
 function bbp_register_post_statuses() {
@@ -460,7 +445,6 @@ function bbp_register_post_statuses() {
  * Register the built in bbPress taxonomies
  *
  * @since bbPress (r2464)
- *
  * @uses do_action() Calls 'bbp_register_taxonomies'
  */
 function bbp_register_taxonomies() {
@@ -471,7 +455,6 @@ function bbp_register_taxonomies() {
  * Register the default bbPress views
  *
  * @since bbPress (r2789)
- *
  * @uses do_action() Calls 'bbp_register_views'
  */
 function bbp_register_views() {
@@ -482,7 +465,6 @@ function bbp_register_views() {
  * Enqueue bbPress specific CSS and JS
  *
  * @since bbPress (r3373)
- *
  * @uses do_action() Calls 'bbp_enqueue_scripts'
  */
 function bbp_enqueue_scripts() {
@@ -493,7 +475,6 @@ function bbp_enqueue_scripts() {
  * Add the bbPress-specific rewrite tags
  *
  * @since bbPress (r2753)
- *
  * @uses do_action() Calls 'bbp_add_rewrite_tags'
  */
 function bbp_add_rewrite_tags() {
@@ -506,7 +487,6 @@ function bbp_add_rewrite_tags() {
  * bbPress has loaded and initialized everything, and is okay to go
  *
  * @since bbPress (r2618)
- *
  * @uses do_action() Calls 'bbp_ready'
  */
 function bbp_ready() {
@@ -520,7 +500,6 @@ function bbp_ready() {
  * permitted by the current_user
  *
  * @since bbPress (r3605)
- *
  * @uses do_action()
  */
 function bbp_template_redirect() {
@@ -532,8 +511,17 @@ function bbp_template_redirect() {
 /**
  * The main action used for executing code before the theme has been setup
  *
- * @since bbPress (r3732)
+ * @since bbPress (r3829)
+ * @uses do_action()
+ */
+function bbp_register_theme_packages() {
+	do_action( 'bbp_register_theme_packages' );
+}
+
+/**
+ * The main action used for executing code before the theme has been setup
  *
+ * @since bbPress (r3732)
  * @uses do_action()
  */
 function bbp_setup_theme() {
@@ -544,7 +532,6 @@ function bbp_setup_theme() {
  * The main action used for executing code after the theme has been setup
  *
  * @since bbPress (r3732)
- *
  * @uses do_action()
  */
 function bbp_after_setup_theme() {

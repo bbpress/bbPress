@@ -36,6 +36,11 @@ if ( !defined( 'ABSPATH' ) ) exit;
 class BBP_Theme_Compat {
 
 	/**
+	 * @var string ID of the theme (should be unique)
+	 */
+	public $id = '';
+
+	/**
 	 * @var string Name of the theme (should match style.css)
 	 */
 	public $name = '';
@@ -62,11 +67,18 @@ class BBP_Theme_Compat {
  * Setup the default theme compat theme
  *
  * @since bbPress (r3311)
- *
  * @param BBP_Theme_Compat $theme
  */
 function bbp_setup_theme_compat( $theme = '' ) {
-	bbpress()->theme_compat->theme = $theme;
+	$bbp = bbpress();
+
+	// Make sure theme package is available, set to default if not
+	if ( ! isset( $bbp->theme_compat->packages[$theme] ) || ! is_a( $bbp->theme_compat->packages[$theme], 'BBP_Theme_Compat' ) ) {
+		$theme = 'default';
+	}
+
+	// Set the active theme compat theme
+	$bbp->theme_compat->theme = $bbp->theme_compat->packages[$theme];
 }
 
 /**
@@ -76,7 +88,20 @@ function bbp_setup_theme_compat( $theme = '' ) {
  * default and include their own bbPress compatability layers for their themes.
  *
  * @since bbPress (r3506)
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_theme_compat_id() {
+	return apply_filters( 'bbp_get_theme_compat_id', bbpress()->theme_compat->theme->id );
+}
+
+/**
+ * Gets the name of the bbPress compatable theme used, in the event the
+ * currently active WordPress theme does not explicitly support bbPress.
+ * This can be filtered or set manually. Tricky theme authors can override the
+ * default and include their own bbPress compatability layers for their themes.
  *
+ * @since bbPress (r3506)
  * @uses apply_filters()
  * @return string
  */
@@ -91,7 +116,6 @@ function bbp_get_theme_compat_name() {
  * default and include their own bbPress compatability layers for their themes.
  *
  * @since bbPress (r3506)
- *
  * @uses apply_filters()
  * @return string
  */
@@ -106,7 +130,6 @@ function bbp_get_theme_compat_version() {
  * their own bbPress compatability layers for their themes.
  *
  * @since bbPress (r3032)
- *
  * @uses apply_filters()
  * @return string
  */
@@ -121,7 +144,6 @@ function bbp_get_theme_compat_dir() {
  * their own bbPress compatability layers for their themes.
  *
  * @since bbPress (r3032)
- *
  * @uses apply_filters()
  * @return string
  */
@@ -133,7 +155,6 @@ function bbp_get_theme_compat_url() {
  * Gets true/false if page is currently inside theme compatibility
  *
  * @since bbPress (r3265)
- *
  * @return bool
  */
 function bbp_is_theme_compat_active() {
@@ -149,9 +170,7 @@ function bbp_is_theme_compat_active() {
  * Sets true/false if page is currently inside theme compatibility
  *
  * @since bbPress (r3265)
- *
  * @param bool $set
- *
  * @return bool
  */
 function bbp_set_theme_compat_active( $set = true ) {
@@ -189,11 +208,31 @@ function bbp_set_theme_compat_template( $template = '' ) {
 }
 
 /**
+ * Register a new bbPress theme package to the active theme packages array
+ *
+ * @since bbPress (r3829)
+ * @param array $theme
+ */
+function bbp_register_theme_package( $theme = '', $override = true ) {
+
+	// Bail if no name or object passed is not a theme compat theme
+	if ( ! is_a( $theme, 'BBP_Theme_Compat' ) )
+		return;
+
+	// Load up bbPress
+	$bbp = bbpress();
+
+	// Only override if the flag is set and notpreviously registered
+	if ( ! empty( $bbp->theme_compat->packages[$theme->id] ) || ( true === $override ) ) {
+		$bbp->theme_compat->packages[$theme->id] = $theme;
+	}
+}
+
+/**
  * This fun little function fills up some WordPress globals with dummy data to
  * stop your average page template from complaining about it missing.
  *
  * @since bbPress (r3108)
- *
  * @global WP_Query $wp_query
  * @global object $post
  * @param array $args
@@ -246,6 +285,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	unset( $post            );
 
 	// Setup the dummy post object
+	$wp_query->post                 = new stdClass; 
 	$wp_query->post->ID             = $dummy['ID'];
 	$wp_query->post->post_title     = $dummy['post_title'];
 	$wp_query->post->post_author    = $dummy['post_author'];
@@ -279,9 +319,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * template part as needed.
  *
  * @since bbPress (r3032)
- *
  * @param string $template
- *
  * @uses bbp_is_single_user() To check if page is single user
  * @uses bbp_get_single_user_template() To get user template
  * @uses bbp_is_single_user_edit() To check if page is single user edit
@@ -497,7 +535,6 @@ function bbp_template_include_theme_compat( $template = '' ) {
  * exist in the currently active theme.
  *
  * @since bbPress (r3034)
- *
  * @param string $content
  * @return type
  */
@@ -748,7 +785,6 @@ function bbp_theme_compat_reset_post_data() {
  * Remove the canonical redirect to allow pretty pagination
  *
  * @since bbPress (r2628)
- *
  * @param string $redirect_url Redirect url
  * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
  * @uses bbp_get_paged() To get the current page number
@@ -806,13 +842,10 @@ function bbp_redirect_canonical( $redirect_url ) {
  * global in the event they need to be restored later.
  *
  * @since bbPress (r3251)
- *
  * @global WP_filter $wp_filter
  * @global array $merged_filters
- *
  * @param string $tag
  * @param int $priority
- *
  * @return bool
  */
 function bbp_remove_all_filters( $tag, $priority = false ) {
@@ -861,13 +894,10 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
  * bbp_remove_all_filters()
  *
  * @since bbPress (r3251)
- *
  * @global WP_filter $wp_filter
  * @global array $merged_filters
- *
  * @param string $tag
  * @param int $priority
- *
  * @return bool
  */
 function bbp_restore_all_filters( $tag, $priority = false ) {
@@ -915,7 +945,6 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
  * Force comments_status to 'closed' for bbPress post types
  *
  * @since bbPress (r3589)
- *
  * @param bool $open True if open, false if closed
  * @param int $post_id ID of the post to check
  * @return bool True if open, false if closed

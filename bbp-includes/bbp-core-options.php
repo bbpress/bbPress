@@ -14,7 +14,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * Get the default site options and their values
  *
  * @since bbPress (r3421)
- *
  * @return array Filtered option names and values
  */
 function bbp_get_default_options() {
@@ -51,6 +50,9 @@ function bbp_get_default_options() {
 		
 		// Allow oEmbed in topics and replies
 		'_bbp_use_autoembed'        => false,
+
+		// The ID for the current theme package
+		'_bbp_theme_package_id'     => 'default',
 
 		/** Per Page **********************************************************/
 
@@ -158,6 +160,7 @@ function bbp_get_default_options() {
  * Hooked to bbp_activate, it is only called once when bbPress is activated.
  * This is non-destructive, so existing settings will not be overridden.
  *
+ * @since bbPress (r3421)
  * @uses bbp_get_default_options() To get default options
  * @uses add_option() Adds default options
  * @uses do_action() Calls 'bbp_add_options'
@@ -174,12 +177,14 @@ function bbp_add_options() {
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_add_options' );
 }
+
 /**
  * Delete default options
  *
  * Hooked to bbp_uninstall, it is only called once when bbPress is uninstalled.
  * This is destructive, so existing settings will be destroyed.
  *
+ * @since bbPress (r3421)
  * @uses bbp_get_default_options() To get default options
  * @uses delete_option() Removes default options
  * @uses do_action() Calls 'bbp_delete_options'
@@ -202,7 +207,6 @@ function bbp_delete_options() {
  * inside the $bbp->options array.
  *
  * @since bbPress (r3451)
- *
  * @uses bbp_get_default_options() To get default options
  * @uses add_filter() To add filters to 'pre_option_{$key}'
  * @uses do_action() Calls 'bbp_add_option_filters'
@@ -225,7 +229,6 @@ function bbp_setup_option_filters() {
  * $bbp->options array.
  *
  * @since bbPress (r3451)
- *
  * @param bool $value Optional. Default value false
  * @return mixed false if not overloaded, mixed if set
  */
@@ -252,9 +255,7 @@ function bbp_pre_get_option( $value = false ) {
  * Checks if favorites feature is enabled.
  *
  * @since bbPress (r2658)
- *
  * @param $default bool Optional.Default value true
- *
  * @uses get_option() To get the favorites option
  * @return bool Is favorites enabled or not
  */
@@ -266,9 +267,7 @@ function bbp_is_favorites_active( $default = true ) {
  * Checks if subscription feature is enabled.
  *
  * @since bbPress (r2658)
- *
  * @param $default bool Optional.Default value true
- *
  * @uses get_option() To get the subscriptions option
  * @return bool Is subscription enabled or not
  */
@@ -280,9 +279,7 @@ function bbp_is_subscriptions_active( $default = true ) {
  * Are topic and reply revisions allowed
  *
  * @since bbPress (r3412)
- *
  * @param $default bool Optional. Default value true
- *
  * @uses get_option() To get the allow revisions
  * @return bool Are revisions allowed?
  */
@@ -294,9 +291,7 @@ function bbp_allow_revisions( $default = true ) {
  * Is the anonymous posting allowed?
  *
  * @since bbPress (r2659)
- *
  * @param $default bool Optional. Default value
- *
  * @uses get_option() To get the allow anonymous option
  * @return bool Is anonymous posting allowed?
  */
@@ -308,9 +303,7 @@ function bbp_allow_anonymous( $default = false ) {
  * Is this forum available to all users on all sites in this installation?
  *
  * @since bbPress (r3378)
- *
  * @param $default bool Optional. Default value false
- *
  * @uses get_option() To get the global access option
  * @return bool Is global access allowed?
  */
@@ -322,9 +315,7 @@ function bbp_allow_global_access( $default = false ) {
  * Use the WordPress editor if available
  *
  * @since bbPress (r3386)
- *
  * @param $default bool Optional. Default value true
- *
  * @uses get_option() To get the WP editor option
  * @return bool Use WP editor?
  */
@@ -336,9 +327,7 @@ function bbp_use_wp_editor( $default = true ) {
  * Use WordPress's oEmbed API
  *
  * @since bbPress (r3752)
- *
  * @param $default bool Optional. Default value true
- *
  * @uses get_option() To get the oEmbed option
  * @return bool Use oEmbed?
  */
@@ -347,10 +336,21 @@ function bbp_use_autoembed( $default = true ) {
 }
 
 /**
+ * Get the current theme package ID
+ *
+ * @since bbPress (r3829)
+ * @param $default string Optional. Default value 'default'
+ * @uses get_option() To get the subtheme option
+ * @return string ID of the subtheme
+ */
+function bbp_get_theme_package_id( $default = 'default' ) {
+	return apply_filters( 'bbp_get_theme_package_id', get_option( '_bbp_theme_package_id', $default ) );
+}
+
+/**
  * Output the maximum length of a title
  *
  * @since bbPress (r3246)
- *
  * @param $default bool Optional. Default value 80
  */
 function bbp_title_max_length( $default = '80' ) {
@@ -360,9 +360,7 @@ function bbp_title_max_length( $default = '80' ) {
 	 * Return the maximum length of a title
 	 *
 	 * @since bbPress (r3246)
-	 *
 	 * @param $default bool Optional. Default value 80
-	 *
 	 * @uses get_option() To get the maximum title length
 	 * @return int Is anonymous posting allowed?
 	 */
@@ -374,7 +372,6 @@ function bbp_title_max_length( $default = '80' ) {
  * Output the grop forums root parent forum id
  *
  * @since bbPress (r3575)
- *
  * @param $default bool Optional. Default value
  */
 function bbp_group_forums_root_id( $default = '0' ) {
@@ -384,9 +381,7 @@ function bbp_group_forums_root_id( $default = '0' ) {
 	 * Return the grop forums root parent forum id
 	 *
 	 * @since bbPress (r3575)
-	 *
 	 * @param $default bool Optional. Default value 0
-	 *
 	 * @uses get_option() To get the maximum title length
 	 * @return int Is anonymous posting allowed?
 	 */
@@ -398,9 +393,7 @@ function bbp_group_forums_root_id( $default = '0' ) {
  * Checks if BuddyPress Group Forums are enabled
  *
  * @since bbPress (r3575)
- *
  * @param $default bool Optional. Default value true
- *
  * @uses get_option() To get the group forums option
  * @return bool Is group forums enabled or not
  */
@@ -412,9 +405,7 @@ function bbp_is_group_forums_active( $default = true ) {
  * Checks if Akismet is enabled
  *
  * @since bbPress (r3575)
- *
  * @param $default bool Optional. Default value true
- *
  * @uses get_option() To get the Akismet option
  * @return bool Is Akismet enabled or not
  */
@@ -535,9 +526,7 @@ function bbp_get_view_slug( $default = 'view' ) {
  * Checks if there is a previous BuddyPress Forum configuration
  *
  * @since bbPress (r3790)
- *
  * @param $default string Optional. Default empty string
- *
  * @uses get_option() To get the old bb-config.php location
  * @return string The location of the bb-config.php file, if any
  */

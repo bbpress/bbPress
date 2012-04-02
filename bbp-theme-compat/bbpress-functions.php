@@ -16,11 +16,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 if ( !class_exists( 'BBP_Default' ) ) :
 
 /**
- * Uncomment the line below if this is for a custom theme.
- */
-//add_theme_support( 'bbpress' );
-
-/**
  * Loads bbPress Default Theme functionality
  *
  * This is not a real theme by WordPress standards, and is instead used as the
@@ -71,6 +66,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Use the default theme compat if current theme has not added support
 		if ( !current_theme_supports( 'bbpress' ) ) {
+			$this->id      = bbp_get_theme_compat_id();
 			$this->name    = bbp_get_theme_compat_name();
 			$this->version = bbp_get_theme_compat_version();
 			$this->dir     = bbp_get_theme_compat_dir();
@@ -78,10 +74,17 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Theme supports bbPress, so set some smart defaults
 		} else {
-			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), get_current_theme() ) ;
+			$theme         = wp_get_theme();
+			$this->id      = $theme->stylesheet;
+			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), $theme->name ) ;
 			$this->version = bbp_get_version();
 			$this->dir     = trailingslashit( get_stylesheet_directory() );
 			$this->url     = trailingslashit( get_stylesheet_directory_uri() );
+		}
+
+		// Conditionally add theme support if needed
+		if ( in_array( $this->id, array( get_template(), get_stylesheet() ) ) ) {
+			add_theme_support( 'bbpress' );
 		}
 	}
 
@@ -96,31 +99,19 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	private function setup_actions() {
 
-		// Enqueue theme CSS
-		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_styles'        ) );
+		/** Scripts ***********************************************************/
 
-		// Enqueue theme JS
-		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_scripts'       ) );
-
-		// Enqueue theme script localization
-		add_filter( 'bbp_enqueue_scripts',      array( $this, 'localize_topic_script' ) );
-
-		// Output some extra JS in the <head>
-		add_action( 'bbp_head',                 array( $this, 'head_scripts'          ) );
-
-		// Handles the ajax favorite/unfavorite
-		add_action( 'wp_ajax_dim-favorite',     array( $this, 'ajax_favorite'         ) );
-
-		// Handles the ajax subscribe/unsubscribe
-		add_action( 'wp_ajax_dim-subscription', array( $this, 'ajax_subscription'     ) );
+		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_styles'        ) ); // Enqueue theme CSS
+		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_scripts'       ) ); // Enqueue theme JS
+		add_filter( 'bbp_enqueue_scripts',      array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
+		add_action( 'bbp_head',                 array( $this, 'head_scripts'          ) ); // Output some extra JS in the <head>
+		add_action( 'wp_ajax_dim-favorite',     array( $this, 'ajax_favorite'         ) ); // Handles the ajax favorite/unfavorite
+		add_action( 'wp_ajax_dim-subscription', array( $this, 'ajax_subscription'     ) ); // Handles the ajax subscribe/unsubscribe
 
 		/** Template Wrappers *************************************************/
 
-		// Top wrapper HTML
-		add_action( 'bbp_before_main_content', array( $this, 'before_main_content' ) );
-
-		// Bottom wrapper HTML
-		add_action( 'bbp_after_main_content',  array( $this, 'after_main_content'  ) );
+		add_action( 'bbp_before_main_content',  array( $this, 'before_main_content'   ) ); // Top wrapper HTML
+		add_action( 'bbp_after_main_content',   array( $this, 'after_main_content'    ) ); // Bottom wrapper HTML
 
 		/** Override **********************************************************/
 

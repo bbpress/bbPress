@@ -15,9 +15,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'BBP_Twenty_Ten' ) ) :
 
-// Theme supports bbPress
-add_theme_support( 'bbpress' );
-
 /**
  * Loads bbPress Twenty Ten Theme functionality
  *
@@ -58,10 +55,17 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	 * @uses get_stylesheet_directory_uri() To get the stylesheet uri
 	 */
 	private function setup_globals() {
+		$bbp           = bbpress();
+		$this->id      = 'bbp-twentyten';
 		$this->name    = __( 'Twenty Ten (bbPress)', 'bbpress' ) ;
 		$this->version = bbp_get_version();
-		$this->dir     = trailingslashit( get_stylesheet_directory() );
-		$this->url     = trailingslashit( get_stylesheet_directory_uri() );
+		$this->dir     = trailingslashit( $bbp->themes_dir . 'bbp-twentyten' );
+		$this->url     = trailingslashit( $bbp->themes_url . 'bbp-twentyten' );
+
+		// Conditionally add theme support if needed
+		if ( in_array( $this->id, array( get_template(), get_stylesheet() ) ) ) {
+			add_theme_support( 'bbpress' );
+		}
 	}
 
 	/**
@@ -73,24 +77,12 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
-
-		// Enqueue theme CSS
-		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_styles'        ) );
-
-		// Enqueue theme JS
-		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_scripts'       ) );
-
-		// Enqueue theme script localization
-		add_filter( 'bbp_enqueue_scripts',      array( $this, 'localize_topic_script' ) );
-
-		// Output some extra JS in the <head>
-		add_action( 'bbp_head',                 array( $this, 'head_scripts'          ) );
-
-		// Handles the ajax favorite/unfavorite
-		add_action( 'wp_ajax_dim-favorite',     array( $this, 'ajax_favorite'         ) );
-
-		// Handles the ajax subscribe/unsubscribe
-		add_action( 'wp_ajax_dim-subscription', array( $this, 'ajax_subscription'     ) );
+		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_styles'        ) ); // Enqueue theme CSS
+		add_action( 'bbp_enqueue_scripts',      array( $this, 'enqueue_scripts'       ) ); // Enqueue theme JS
+		add_filter( 'bbp_enqueue_scripts',      array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
+		add_action( 'bbp_head',                 array( $this, 'head_scripts'          ) ); // Output some extra JS in the <head>
+		add_action( 'wp_ajax_dim-favorite',     array( $this, 'ajax_favorite'         ) ); // Handles the ajax favorite/unfavorite
+		add_action( 'wp_ajax_dim-subscription', array( $this, 'ajax_subscription'     ) ); // Handles the ajax subscribe/unsubscribe
 	}
 
 	/**

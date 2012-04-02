@@ -154,6 +154,54 @@ function bbp_admin_setting_callback_use_wp_editor() {
 }
 
 /**
+ * Main subtheme section
+ *
+ * @since bbPress (r2786)
+ */
+function bbp_admin_setting_callback_subtheme_section() {
+?>
+
+	<p><?php _e( 'How your forum content is displayed within your existing theme.', 'bbpress' ); ?></p>
+
+<?php	
+}
+
+/**
+ * Use the WordPress editor setting field
+ *
+ * @since bbPress (r3586)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_subtheme_id() {
+
+	// Declare locale variable
+	$theme_options   = '';
+	$current_package = bbp_get_theme_package_id( 'default' );
+
+	// Note: This should never be empty. /bbp-includes/bbp-theme-compat/ is the
+	// canonical backup if no other packages exist. If there's an error here,
+	// something else is wrong.
+	//
+	// @see bbPress::register_theme_packages()
+	foreach ( (array) bbpress()->theme_compat->packages as $id => $theme ) {
+		$theme_options .= '<option value="' . esc_attr( $id ) . '"' . selected( $theme->id, $current_package, false ) . '>' . sprintf( __( '%1$s - %2$s', 'bbpress' ), esc_html( $theme->name ), esc_html( str_replace( WP_CONTENT_DIR, '', $theme->dir ) ) )  . '</option>';
+	}
+
+	if ( !empty( $theme_options ) ) : ?>
+
+		<select name="_bbp_theme_package_id" id="_bbp_theme_package_id" /><?php echo $theme_options ?></select>
+		<label for="_bbp_theme_package_id"><?php _e( 'will serve all bbPress templates', 'bbpress' ); ?></label>
+
+	<?php else : ?>
+
+		<select name="_bbp_theme_package_id" id="_bbp_theme_package_id" /><?php echo $theme_options ?></select>
+		<label for="_bbp_theme_package_id"><?php _e( 'Use the fancy WordPress editor to create and edit topics and replies', 'bbpress' ); ?></label>
+
+	<?php endif;
+}
+
+/**
  * Allow oEmbed in replies
  *
  * @since bbPress (r3752)
