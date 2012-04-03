@@ -516,6 +516,10 @@ class bbPress {
 	/**
 	 * Register bundled theme packages
 	 *
+	 * Note that since we currently have complete control over bbp-themes and
+	 * the bbp-theme-compat folders, it's fine to hardcode these here. If at a
+	 * later date we need to automate this, and API will need to be built.
+	 *
 	 * @since bbPress (r3829)
 	 */
 	public function register_theme_packages() {
