@@ -523,7 +523,7 @@ class bbPress {
 	 * @since bbPress (r3829)
 	 */
 	public function register_theme_packages() {
-		
+
 		/** Default Theme *****************************************************/
 
 		$theme          = new BBP_Theme_Compat();
@@ -549,7 +549,7 @@ class bbPress {
 
 	/**
 	 * Setup the default bbPress theme compatability location.
-	 * 
+	 *
 	 * @since bbPress (r3778)
 	 */
 	public function setup_theme() {
@@ -661,7 +661,7 @@ class bbPress {
 
 		// Register Forum content type
 		register_post_type(
-			bbp_get_forum_post_type(), 
+			bbp_get_forum_post_type(),
 			apply_filters( 'bbp_register_forum_post_type', array(
 				'labels'              => $post_type['labels'],
 				'rewrite'             => $post_type['rewrite'],
@@ -799,7 +799,7 @@ class bbPress {
 
 	/**
 	 * Register the post statuses used by bbPress
-	 * 
+	 *
 	 * We do some manipulation of the 'trash' status so trashed topics and
 	 * replies can be viewed from within the theme.
 	 *
