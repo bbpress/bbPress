@@ -785,7 +785,7 @@ function bbp_check_for_duplicate( $post_data ) {
 	extract( $post_data, EXTR_SKIP );
 
 	// Check for anonymous post
-	if ( empty( $post_author ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) {
+	if ( empty( $post_author ) && ( isset( $anonymous_data ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) ) {
 		$clauses = get_meta_sql( array( array(
 			'key'   => '_bbp_anonymous_email',
 			'value' => $anonymous_data['bbp_anonymous_email']
