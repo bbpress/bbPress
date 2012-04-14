@@ -140,6 +140,18 @@ add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
 
+// Format counts
+add_filter( 'bbp_get_user_topic_count',     'number_format_i18n', 10 );
+add_filter( 'bbp_get_user_reply_count',     'number_format_i18n', 10 );
+add_filter( 'bbp_get_user_post_count',      'number_format_i18n', 10 );
+add_filter( 'bbp_get_forum_subforum_count', 'number_format_i18n', 10 );
+add_filter( 'bbp_get_forum_topic_count',    'number_format_i18n', 10 );
+add_filter( 'bbp_get_forum_reply_count',    'number_format_i18n', 10 );
+add_filter( 'bbp_get_forum_post_count',     'number_format_i18n', 10 );
+add_filter( 'bbp_get_topic_voice_count',    'number_format_i18n', 10 );
+add_filter( 'bbp_get_topic_reply_count',    'number_format_i18n', 10 );
+add_filter( 'bbp_get_topic_post_count',     'number_format_i18n', 10 );
+
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {
 	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );

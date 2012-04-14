@@ -1475,10 +1475,9 @@ function bbp_user_topic_count( $user_id = 0 ) {
 		if ( empty( $user_id ) )
 			return false;
 
-		$count = (int) get_user_meta( $user_id, '_bbp_topic_count', true );
-		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+		$count = get_user_meta( $user_id, '_bbp_topic_count', true );
 
-		return apply_filters( 'bbp_get_user_topic_count', $count, $user_id );
+		return apply_filters( 'bbp_get_user_topic_count', (int) $count, $user_id );
 	}
 
 /**
@@ -1512,10 +1511,9 @@ function bbp_user_reply_count( $user_id = 0 ) {
 		if ( empty( $user_id ) )
 			return false;
 
-		$count = (int) get_user_meta( $user_id, '_bbp_reply_count', true );
-		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+		$count = get_user_meta( $user_id, '_bbp_reply_count', true );
 
-		return apply_filters( 'bbp_get_user_reply_count', $count, $user_id );
+		return apply_filters( 'bbp_get_user_reply_count', (int) $count, $user_id );
 	}
 
 /**
@@ -1549,12 +1547,11 @@ function bbp_user_post_count( $user_id = 0 ) {
 		if ( empty( $user_id ) )
 			return false;
 
-		$topics  = (int) get_user_meta( $user_id, '_bbp_topic_count', true );
-		$replies = (int) get_user_meta( $user_id, '_bbp_reply_count', true );
-		$count   = $topics + $replies;
-		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+		$topics  = get_user_meta( $user_id, '_bbp_topic_count', true );
+		$replies = get_user_meta( $user_id, '_bbp_reply_count', true );
+		$count   = (int) $topics + (int) $replies;
 
-		return apply_filters( 'bbp_get_user_post_count', $count, $user_id );
+		return apply_filters( 'bbp_get_user_post_count', (int) $count, $user_id );
 	}
 
 ?>
