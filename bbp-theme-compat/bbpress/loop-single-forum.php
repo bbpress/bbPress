@@ -27,7 +27,7 @@
 
 		<?php do_action( 'bbp_theme_before_forum_description' ); ?>
 
-		<p class="bbp-forum-content"><?php the_content(); ?></p>
+		<div class="bbp-forum-content"><?php the_content(); ?></div>
 
 		<?php do_action( 'bbp_theme_after_forum_description' ); ?>
 
