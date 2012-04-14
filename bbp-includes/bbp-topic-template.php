@@ -1813,7 +1813,7 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 
-		return (int) apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
+		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
 	}
 
 /**
@@ -1843,7 +1843,7 @@ function bbp_topic_post_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 
-		return (int) apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
+		return apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
 	}
 
 /**
@@ -1905,7 +1905,7 @@ function bbp_topic_voice_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
 
-		return (int) apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
+		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
 	}
 
 /**

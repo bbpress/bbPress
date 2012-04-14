@@ -1193,7 +1193,7 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
 		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
 
-		return (int) apply_filters( 'bbp_get_forum_subforum_count', (int) $forum_count, $forum_id );
+		return apply_filters( 'bbp_get_forum_subforum_count', (int) $forum_count, $forum_id );
 	}
 
 /**
@@ -1226,7 +1226,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count', true );
 
-		return (int) apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
+		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
 	}
 
 /**
@@ -1259,7 +1259,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
 
-		return (int) apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
+		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
 	}
 
 /**
@@ -1293,7 +1293,7 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
 		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count );
 		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
 
-		return (int) apply_filters( 'bbp_get_forum_post_count', (int) $replies + (int) $topics, $forum_id );
+		return apply_filters( 'bbp_get_forum_post_count', (int) $replies + (int) $topics, $forum_id );
 	}
 
 /**
