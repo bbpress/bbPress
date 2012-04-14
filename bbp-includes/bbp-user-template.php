@@ -1464,7 +1464,6 @@ function bbp_user_topic_count( $user_id = 0 ) {
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
-	 * @uses number_format_i18n()
 	 * @uses apply_filters()
 	 * @return string 
 	 */
@@ -1500,7 +1499,6 @@ function bbp_user_reply_count( $user_id = 0 ) {
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
-	 * @uses number_format_i18n()
 	 * @uses apply_filters()
 	 * @return string 
 	 */
@@ -1536,7 +1534,6 @@ function bbp_user_post_count( $user_id = 0 ) {
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
-	 * @uses number_format_i18n()
 	 * @uses apply_filters()
 	 * @return string 
 	 */
