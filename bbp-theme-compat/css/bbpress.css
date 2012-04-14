@@ -106,13 +106,14 @@
 }
 
 #bbpress-forums .bbp-forums-list {
-	margin-left: 5px;
+	margin: 0 0 0 5px;
 	padding-left: 15px;
 	border-left: 1px solid #ddd;
 }
 
 #bbpress-forums .bbp-forums-list li {
 	display: inline;
+	font-size: 11px;
 }
 
 #bbpress-forums li.bbp-footer p {

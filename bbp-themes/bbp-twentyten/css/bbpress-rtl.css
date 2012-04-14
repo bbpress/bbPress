@@ -271,7 +271,7 @@ a.bbp-reply-permalink {
 /* =Forums
 -------------------------------------------------------------- */
 
-#content table tbody tr .bbp-forum-description p {
+#content table tbody tr .bbp-forum-content p {
 	margin-bottom: 0;
 	font-size: 13px;
 	font-style: italic;
