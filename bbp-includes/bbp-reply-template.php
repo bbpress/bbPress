@@ -116,14 +116,8 @@ function bbp_has_replies( $args = '' ) {
 	if ( !empty( $parent_args ) )
 		$default = array_merge( $parent_args, $default );
 
-	// Filter the default arguments
-	$args  = apply_filters( 'bbp_pre_has_replies_query', $args );
-
 	// Set up topic variables
-	$bbp_r = wp_parse_args( $args, $default );
-
-	// Filter the replies query to allow just-in-time modifications
-	$bbp_r = apply_filters( 'bbp_has_replies_query', $bbp_r );
+	$bbp_r = bbp_parse_args( $args, $default, 'has_replies' );
 
 	// Extract the query variables
 	extract( $bbp_r );
@@ -983,7 +977,7 @@ function bbp_reply_author_link( $args = '' ) {
 			'size'       => 80,
 			'sep'        => '&nbsp;'
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_reply_author_link' );
 		extract( $r );
 
 		// Used as reply_id
@@ -1362,7 +1356,7 @@ function bbp_reply_admin_links( $args = '' ) {
 			'sep'    => ' | ',
 			'links'  => array()
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_reply_admin_links' );
 
 		$r['id'] = bbp_get_reply_id( (int) $r['id'] );
 
@@ -1455,7 +1449,7 @@ function bbp_reply_edit_link( $args = '' ) {
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_reply_edit_link' );
 		extract( $r );
 
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
@@ -1577,7 +1571,7 @@ function bbp_reply_trash_link( $args = '' ) {
 			'restore_text' => __( 'Restore', 'bbpress' ),
 			'delete_text'  => __( 'Delete',  'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_reply_trash_link' );
 		extract( $r );
 
 		$actions = array();
@@ -1647,7 +1641,7 @@ function bbp_reply_spam_link( $args = '' ) {
 			'spam_text'    => __( 'Spam',   'bbpress' ),
 			'unspam_text'  => __( 'Unspam', 'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_reply_spam_link' );
 		extract( $r );
 
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
@@ -1711,7 +1705,7 @@ function bbp_topic_split_link( $args = '' ) {
 			'split_text'  => __( 'Split',                           'bbpress' ),
 			'split_title' => __( 'Split the topic from this reply', 'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_split_link' );
 		extract( $r );
 
 		$reply_id = bbp_get_reply_id( $id );

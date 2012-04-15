@@ -18,7 +18,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @since bbPress (r3349)
  *
- * @uses wp_parse_args()
+ * @uses bbp_parse_args()
  * @uses bbp_get_forum_post_type()
  * @uses wp_insert_post()
  * @uses update_post_meta()
@@ -40,9 +40,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 		'menu_order'     => 0,
 		'comment_status' => 'closed'
 	);
-
-	// Parse args
-	$forum_data = wp_parse_args( $forum_data, $default_forum );
+	$forum_data = bbp_parse_args( $forum_data, $default_forum, 'insert_forum' );
 
 	// Insert forum
 	$forum_id   = wp_insert_post( $forum_data );
@@ -64,9 +62,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 		'last_active_time'     => 0,
 		'forum_subforum_count' => 0,
 	);
-
-	// Parse args
-	$forum_meta = wp_parse_args( $forum_meta, $default_meta );
+	$forum_meta = bbp_parse_args( $forum_meta, $default_meta, 'insert_forum_meta' );
 
 	// Insert forum meta
 	foreach ( $forum_meta as $meta_key => $meta_value )
@@ -1497,8 +1493,7 @@ function bbp_update_forum( $args = '' ) {
 		'last_active_time'   => 0,
 		'last_active_status' => bbp_get_public_status_id()
 	);
-
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'update_forum' );
 	extract( $r );
 
 	// Last topic and reply ID's

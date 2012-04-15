@@ -292,7 +292,7 @@ class BBP_BuddyPress {
 	 * @param type $args Array of arguments for bp_activity_add()
 	 * @uses bbp_get_current_user_id()
 	 * @uses bp_core_current_time()
-	 * @uses wp_parse_args()
+	 * @uses bbp_parse_args()
 	 * @uses aplly_filters()
 	 * @uses bp_activity_add()
 	 * @return type Activity ID if successful, false if not
@@ -316,12 +316,7 @@ class BBP_BuddyPress {
 			'recorded_time'     => bp_core_current_time(),
 			'hide_sitewide'     => false
 		);
-
-		// Parse the difference
-		$activity = wp_parse_args( $args, $defaults );
-
-		// Just in-time filtering of activity stream contents
-		$activity = apply_filters( 'bbp_record_activity', $activity );
+		$activity = bbp_parse_args( $args, $defaults, 'record_activity' );
 
 		// Add the activity
 		return bp_activity_add( $activity );
@@ -334,7 +329,7 @@ class BBP_BuddyPress {
 	 * @param type $args Array of arguments for bp_activity_add()
 	 * @uses bbp_get_current_user_id()
 	 * @uses bp_core_current_time()
-	 * @uses wp_parse_args()
+	 * @uses bbp_parse_args()
 	 * @uses aplly_filters()
 	 * @uses bp_activity_add()
 	 * @return type Activity ID if successful, false if not
@@ -353,12 +348,7 @@ class BBP_BuddyPress {
 			'user_id'           => false,
 			'secondary_item_id' => false
 		);
-
-		// Parse the differenc
-		$activity = wp_parse_args( $args, $defaults );
-
-		// Just in-time filtering of activity stream contents
-		$activity = apply_filters( 'bbp_delete_activity', $activity );
+		$activity = bbp_parse_args( $args, $defaults, 'delete_activity' );
 
 		// Delete the activity
 		bp_activity_delete_by_item_id( $activity );

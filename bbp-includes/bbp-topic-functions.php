@@ -18,7 +18,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @since bbPress (r3349)
  *
- * @uses wp_parse_args()
+ * @uses bbp_parse_args()
  * @uses bbp_get_topic_post_type()
  * @uses wp_insert_post()
  * @uses update_post_meta()
@@ -42,7 +42,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	);
 
 	// Parse args
-	$topic_data = wp_parse_args( $topic_data, $default_topic );
+	$topic_data = bbp_parse_args( $topic_data, $default_topic, 'insert_topic' );
 
 	// Insert topic
 	$topic_id   = wp_insert_post( $topic_data );
@@ -65,7 +65,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	);
 
 	// Parse args
-	$topic_meta = wp_parse_args( $topic_meta, $default_meta );
+	$topic_meta = bbp_parse_args( $topic_meta, $default_meta, 'insert_topic_meta' );
 
 	// Insert topic meta
 	foreach ( $topic_meta as $meta_key => $meta_value )
@@ -739,7 +739,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 			'bbp_anonymous_email'   => '',
 			'bbp_anonymous_website' => '',
 		);
-		$r = wp_parse_args( $anonymous_data, $defaults );
+		$r = bbp_parse_args( $anonymous_data, $defaults, 'update_topic' );
 
 		// Update all anonymous metas
 		foreach( $r as $anon_key => $anon_value ) {
@@ -2443,8 +2443,7 @@ function bbp_update_topic_revision_log( $args = '' ) {
 		'author_id'   => 0,
 		'revision_id' => 0
 	);
-
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'update_topic_revision_log' );
 	extract( $r );
 
 	// Populate the variables

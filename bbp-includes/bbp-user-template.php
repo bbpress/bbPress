@@ -438,7 +438,7 @@ function bbp_admin_link( $args = '' ) {
 			'before' => '',
 			'after'  => ''
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args = bbp_parse_args( $args, $defaults, 'get_admin_link' );
 		extract( $args, EXTR_SKIP );
 
 		$uri    = admin_url();
@@ -478,7 +478,7 @@ function bbp_author_ip( $args = '' ) {
 			'after'   => ')</span>'
 		);
 
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_author_ip' );
 		extract( $r );
 
 		// Used as post id
@@ -699,8 +699,7 @@ function bbp_user_subscribe_link( $args = '' ) {
 			'before'      => '&nbsp;|&nbsp;',
 			'after'       => ''
 		);
-
-		$args = wp_parse_args( $args, $defaults );
+		$args = bbp_parse_args( $args, $defaults, 'get_user_subscribe_link' );
 		extract( $args );
 
 		// Validate user and topic ID's
@@ -1074,7 +1073,7 @@ function bbp_author_link( $args = '' ) {
 			'type'       => 'both',
 			'size'       => 80
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_author_link' );
 		extract( $r );
 
 		// Used as reply_id
@@ -1146,7 +1145,7 @@ function bbp_author_link( $args = '' ) {
  * @uses bbp_get_current_user_id()
  * @uses bbp_get_forum_id()
  * @uses bbp_allow_anonymous()
- * @uses wp_parse_args()
+ * @uses bbp_parse_args()
  * @uses bbp_get_user_id()
  * @uses current_user_can()
  * @uses is_super_admin()
@@ -1166,7 +1165,7 @@ function bbp_user_can_view_forum( $args = '' ) {
 		'forum_id'        => bbp_get_forum_id(),
 		'check_ancestors' => false
 	);
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'user_can_view_forum' );
 	extract( $r );
 
 	// Validate parsed values
@@ -1295,6 +1294,7 @@ function bbp_current_user_can_publish_replies() {
 /** Forms *********************************************************************/
 
 /**
+ * Get the forums the current user has the ability to see and post to
  *
  * @since bbPress (r3127)
  *
@@ -1330,7 +1330,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 		'numberposts' => -1,
 		'exclude'     => $post__not_in
 	);
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'get_forums_for_current_user' );
 
 	// Get the forums
 	$forums = get_posts( $r );

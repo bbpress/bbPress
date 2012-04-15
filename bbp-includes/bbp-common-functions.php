@@ -468,8 +468,7 @@ function bbp_get_statistics( $args = '' ) {
 		'count_tags'            => true,
 		'count_empty_tags'      => true
 	);
-
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'get_statistics' );
 	extract( $r );
 
 	// Users
@@ -618,7 +617,7 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
 	if ( empty( $view ) || empty( $title ) )
 		return false;
 
-	$query_args = wp_parse_args( $query_args );
+	$query_args = bbp_parse_args( $query_args, '', 'register_view' );
 
 	// Set exclude_stickies to true if it wasn't supplied
 	if ( !isset( $query_args['show_stickies'] ) )
@@ -674,7 +673,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 	$query_args = bbp_get_view_query_args( $view );
 
 	if ( !empty( $new_args ) ) {
-		$new_args   = wp_parse_args( $new_args );
+		$new_args   = bbp_parse_args( $new_args, '', 'view_query' );
 		$query_args = array_merge( $query_args, $new_args );
 	}
 
@@ -731,8 +730,7 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
 		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
 	);
-
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'filter_anonymous_post_data' );
 	extract( $r );
 
 	// Filter variables and add errors if necessary
@@ -1236,6 +1234,47 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 }
 
 /** Queries *******************************************************************/
+
+/**
+ * Merge user defined arguments into defaults array.
+ *
+ * This function is used throughout bbPress to allow for either a string or array
+ * to be merged into another array. It is identical to wp_parse_args() except
+ * it allows for arguments to be passively or aggressively filtered using the
+ * optional $filter_key parameter.
+ *
+ * @since bbPress (r3839)
+ *
+ * @param string|array $args Value to merge with $defaults
+ * @param array $defaults Array that serves as the defaults.
+ * @param string $filter_key String to key the filters from
+ * @return array Merged user defined values with defaults.
+ */
+function bbp_parse_args( $args, $defaults = '', $filter_key = '' ) {
+
+	// Setup a temporary array from $args
+	if ( is_object( $args ) )
+		$r = get_object_vars( $args );
+	elseif ( is_array( $args ) )
+		$r =& $args;
+	else
+		wp_parse_str( $args, $r );
+
+	// Passively filter the args before the parse
+	if ( !empty( $filter_key ) )
+		$r = apply_filters( 'bbp_before_' . $filter_key . '_parse_args', $r );
+
+	// Parse
+	if ( is_array( $defaults ) )
+		$r = array_merge( $defaults, $r );
+
+	// Aggressively filter the args after the parse
+	if ( !empty( $filter_key ) )
+		$r = apply_filters( 'bbp_after_' . $filter_key . '_parse_args', $r );
+
+	// Return the parsed results
+	return $r;
+}
 
 /**
  * Adds ability to include or exclude specific post_parent ID's

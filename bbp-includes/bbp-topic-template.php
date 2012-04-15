@@ -114,15 +114,7 @@ function bbp_has_topics( $args = '' ) {
 		$default['term']     = bbp_get_topic_tag_slug();
 		$default['taxonomy'] = bbp_get_topic_tag_tax_id();
 	}
-
-	// Filter the default arguments
-	$args  = apply_filters( 'bbp_pre_has_topics_query', $args );
-
-	// Set up topic variables
-	$bbp_t = wp_parse_args( $args, $default );
-
-	// Filter the topics query to allow just-in-time modifications
-	$bbp_t = apply_filters( 'bbp_has_topics_query', $bbp_t );
+	$bbp_t = bbp_parse_args( $args, $default, 'has_topics' );
 
 	// Extract the query variables
 	extract( $bbp_t );
@@ -676,8 +668,7 @@ function bbp_topic_pagination( $args = '' ) {
 			'before'   => '<span class="bbp-topic-pagination">',
 			'after'    => '</span>',
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_pagination' );
 		extract( $r );
 
 		// If pretty permalinks are enabled, make our pagination pretty
@@ -1257,8 +1248,7 @@ function bbp_topic_author_link( $args = '' ) {
 			'size'       => 80,
 			'sep'        => '&nbsp;'
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_author_link' );
 		extract( $r );
 
 		// Used as topic_id
@@ -1937,8 +1927,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 			'sep'    => ', ',
 			'after'  => '</p></div>'
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_tag_list' );
 		extract( $r );
 
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -2057,8 +2046,7 @@ function bbp_topic_admin_links( $args = '' ) {
 			'sep'    => ' | ',
 			'links'  => array()
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_admin_links' );
 
 		if ( !current_user_can( 'edit_topic', $r['id'] ) )
 			return;
@@ -2138,8 +2126,7 @@ function bbp_topic_edit_link( $args = '' ) {
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'bbpress' )
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_edit_link' );
 		extract( $r );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
@@ -2262,7 +2249,7 @@ function bbp_topic_trash_link( $args = '' ) {
 			'restore_text' => __( 'Restore', 'bbpress' ),
 			'delete_text'  => __( 'Delete',  'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_trash_link' );
 		extract( $r );
 
 		$actions = array();
@@ -2331,8 +2318,7 @@ function bbp_topic_close_link( $args = '' ) {
 			'close_text'  => _x( 'Close', 'Topic Status', 'bbpress' ),
 			'open_text'   => _x( 'Open',  'Topic Status', 'bbpress' )
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_close_link' );
 		extract( $r );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
@@ -2393,8 +2379,7 @@ function bbp_topic_stick_link( $args = '' ) {
 			'unstick_text' => __( 'Unstick',  'bbpress' ),
 			'super_text'   => __( 'to front', 'bbpress' ),
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_stick_link' );
 		extract( $r );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
@@ -2463,8 +2448,7 @@ function bbp_topic_merge_link( $args = '' ) {
 			'link_after'   => '',
 			'merge_text'   => __( 'Merge', 'bbpress' ),
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_merge_link' );
 		extract( $r );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
@@ -2521,7 +2505,7 @@ function bbp_topic_spam_link( $args = '' ) {
 			'spam_text'    => __( 'Spam',   'bbpress' ),
 			'unspam_text'  => __( 'Unspam', 'bbpress' )
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_spam_link' );
 		extract( $r );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
@@ -2688,8 +2672,7 @@ function bbp_topic_type_select( $args = '' ) {
 		'tab'          => bbp_get_tab_index(),
 		'topic_id'     => 0
 	);
-
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'topic_type_select' );
 	extract( $r );
 
 	// Edit topic
@@ -2790,7 +2773,7 @@ function bbp_single_topic_description( $args = '' ) {
 			'after'     => '</p></div>',
 			'size'      => 14
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_single_topic_description' );
 		extract( $r );
 
 		// Validate topic_id
@@ -3086,7 +3069,7 @@ function bbp_topic_tag_description( $args = array() ) {
 			'after'  => '</p></div>',
 			'tag'    => ''
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_topic_tag_description' );
 		extract( $r );
 
 		// Get the term

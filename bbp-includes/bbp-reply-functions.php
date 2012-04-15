@@ -18,7 +18,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @since bbPress (r3349)
  *
- * @uses wp_parse_args()
+ * @uses bbp_parse_args()
  * @uses bbp_get_reply_post_type()
  * @uses wp_insert_post()
  * @uses update_post_meta()
@@ -40,9 +40,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'menu_order'     => 0,
 		'comment_status' => 'closed'
 	);
-
-	// Parse args
-	$reply_data = wp_parse_args( $reply_data, $default_reply );
+	$reply_data = bbp_parse_args( $reply_data, $default_reply, 'insert_reply' );
 
 	// Insert reply
 	$reply_id   = wp_insert_post( $reply_data );
@@ -57,9 +55,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'forum_id'  => 0,
 		'topic_id'  => 0,
 	);
-
-	// Parse args
-	$reply_meta = wp_parse_args( $reply_meta, $default_meta );
+	$reply_meta = bbp_parse_args( $reply_meta, $default_meta, 'insert_reply_meta' );
 
 	// Insert reply meta
 	foreach ( $reply_meta as $meta_key => $meta_value )
@@ -640,7 +636,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 			'bbp_anonymous_email'   => '',
 			'bbp_anonymous_website' => '',
 		);
-		$r = wp_parse_args( $anonymous_data, $defaults );
+		$r = bbp_parse_args( $anonymous_data, $defaults, 'update_reply' );
 
 		// Update all anonymous metas
 		foreach( $r as $anon_key => $anon_value ) {
@@ -932,7 +928,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
 		'revision_id' => 0
 	);
 
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'update_reply_revision_log' );
 	extract( $r );
 
 	// Populate the variables

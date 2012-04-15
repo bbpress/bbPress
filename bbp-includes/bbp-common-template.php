@@ -839,7 +839,7 @@ function bbp_wp_login_action( $args = '' ) {
 		'action'  => '',
 		'context' => ''
 	);
-	$r = wp_parse_args( $args, $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'login_action' );
 	extract( $r );
 
 	if ( !empty( $action ) )
@@ -1061,8 +1061,7 @@ function bbp_dropdown( $args = '' ) {
 			'none_found'         => false,
 			'disable_categories' => true
 		);
-
-		$r = wp_parse_args( $args, $defaults );
+		$r = bbp_parse_args( $args, $defaults, 'get_dropdown' );
 
 		if ( empty( $r['walker'] ) ) {
 			$r['walker']            = new BBP_Walker_Dropdown();
@@ -1389,7 +1388,7 @@ function bbp_the_content( $args = array() ) {
 			'tinymce'       => true,
 			'quicktags'     => true
 		);
-		$r = apply_filters( 'bbp_pre_the_content', wp_parse_args( $args, $defaults ) );
+		$r = bbp_parse_args( $args, $defaults, 'get_the_content' );
 		extract( $r );
 
 		// Assume we are not editing
@@ -1793,7 +1792,7 @@ function bbp_breadcrumb( $args = array() ) {
 			'include_current' => $pre_include_current,
 			'current_text'    => $pre_current_text
 		);
-		$r = apply_filters( 'bbp_get_breadcrumb_pre', wp_parse_args( $args, $defaults ) );
+		$r = bbp_parse_args( $args, $defaults, 'get_breadcrumb' );
 		extract( $r );
 
 		/** Ancestors *********************************************************/

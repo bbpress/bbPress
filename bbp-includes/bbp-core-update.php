@@ -169,7 +169,7 @@ function bbp_create_initial_content( $args = array() ) {
 		'reply_title'   => __( 'Re: Hello World!',                         'bbpress' ),
 		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
 	);
-	$r = wp_parse_args( apply_filters( 'bbp_pre_create_initial_content', $args ), $defaults );
+	$r = bbp_parse_args( $args, $defaults, 'create_initial_content' );
 	extract( $r );
 
 	// Create the initial forum

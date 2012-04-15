@@ -277,7 +277,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'is_tax'          => false,
 		);
 	}
-	$dummy = wp_parse_args( $args, $defaults );
+	$dummy = bbp_parse_args( $args, $defaults, 'theme_compat_reset_post' );
 
 	// Clear out the post related globals
 	unset( $wp_query->posts );
