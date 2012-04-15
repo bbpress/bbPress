@@ -74,39 +74,17 @@ function bbp_has_topics( $args = '' ) {
 
 	// Default arguments
 	$default = array(
-
-		// Narrow query down to bbPress topics
-		'post_type'      => bbp_get_topic_post_type(),
-
-		// Forum ID
-		'post_parent'    => bbp_is_single_forum() ? bbp_get_forum_id() : 'any',
-
-		// Make sure topic has some last activity time
-		'meta_key'       => '_bbp_last_active_time',
-
-		// 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'        => 'meta_value',
-
-		// 'ASC', 'DESC'
-		'order'          => 'DESC',
-
-		// Topics per page
-		'posts_per_page' => bbp_get_topics_per_page(),
-
-		// Page Number
-		'paged'          => bbp_get_paged(),
-
-		// Topic Search
-		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
-
-		// Ignore sticky topics?
-		'show_stickies'  => bbp_is_single_forum() || bbp_is_topic_archive(),
-
-		// Maximum number of pages to show
-		'max_num_pages'  => false,
-
-		// Post Status
-		'post_status'    => $default_status,
+		'post_type'      => bbp_get_topic_post_type(),                          // Narrow query down to bbPress topics
+		'post_parent'    => bbp_is_single_forum() ? bbp_get_forum_id() : 'any', // Forum ID
+		'meta_key'       => '_bbp_last_active_time',                            // Make sure topic has some last activity time
+		'orderby'        => 'meta_value',                                       // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
+		'order'          => 'DESC',                                             // 'ASC', 'DESC'
+		'posts_per_page' => bbp_get_topics_per_page(),                          // Topics per page
+		'paged'          => bbp_get_paged(),                                    // Page Number
+		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',   // Topic Search
+		'show_stickies'  => bbp_is_single_forum() || bbp_is_topic_archive(),    // Ignore sticky topics?
+		'max_num_pages'  => false,                                              // Maximum number of pages to show
+		'post_status'    => $default_status,                                    // Post Status
 	);
 
 	// Maybe query for topic tags

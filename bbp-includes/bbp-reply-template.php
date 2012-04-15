@@ -89,27 +89,13 @@ function bbp_has_replies( $args = '' ) {
 
 	// Default query args
 	$default = array(
-
-		// Post type(s) depending on bbp_show_lead_topic()
 		'post_type'      => bbp_show_lead_topic() ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
-
-		// 'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'        => 'date',
-
-		// 'ASC', 'DESC'
-		'order'          => 'ASC',
-
-		// Max number
-		'posts_per_page' => bbp_get_replies_per_page(),
-
-		// Page Number
-		'paged'          => bbp_get_paged(),
-
-		// Reply Search
-		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '',
-
-		// Post Status
-		'post_status'    => $default_status
+		'orderby'        => 'date',                                           // 'author', 'date', 'title', 'modified', 'parent', rand',
+		'order'          => 'ASC',                                            // 'ASC', 'DESC'
+		'posts_per_page' => bbp_get_replies_per_page(),                       // Max number
+		'paged'          => bbp_get_paged(),                                  // Page Number
+		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '', // Reply Search
+		'post_status'    => $default_status                                   // Post Status
 	);
 
 	// Merge the default args and parent args together
