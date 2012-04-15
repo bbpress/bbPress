@@ -768,7 +768,7 @@ class BBP_Topics_Admin {
 			case 'bbp_topic_freshness' :
 				$last_active = bbp_get_topic_last_active_time( $topic_id, false );
 				if ( !empty( $last_active ) ) {
-					printf( __( '%s ago', 'bbpress' ), $last_active );
+					echo $last_active;
 				} else {
 					_e( 'No Replies', 'bbpress' ); // This should never happen
 				}

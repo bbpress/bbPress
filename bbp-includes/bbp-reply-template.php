@@ -607,9 +607,9 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
 			if ( !empty( $reason ) ) {
-				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
 			} else {
-				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s ago by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s by %2$s.', 'bbpress' ), $since, $author ) . "\n";
 			}
 			$r .= "\t" . '</li>' . "\n";
 

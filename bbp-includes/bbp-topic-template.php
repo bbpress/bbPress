@@ -797,9 +797,9 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 
 			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
 			if ( !empty( $reason ) ) {
-				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
 			} else {
-				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s ago by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s.', 'bbpress' ), $since, $author ) . "\n";
 			}
 			$r .= "\t" . '</li>' . "\n";
 
@@ -2795,7 +2795,7 @@ function bbp_single_topic_description( $args = '' ) {
 		$last_reply = bbp_get_topic_last_active_id( $topic_id );
 		if ( !empty( $last_reply ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
+			$retstr          = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
 
 		// Topic has no replies
 		} else {

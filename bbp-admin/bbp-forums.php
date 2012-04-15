@@ -468,7 +468,7 @@ class BBP_Forums_Admin {
 			case 'bbp_forum_freshness' :
 				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
 				if ( !empty( $last_active ) )
-					printf( __( '%s ago', 'bbpress' ), $last_active );
+					echo $last_active;
 				else
 					_e( 'No Topics', 'bbpress' );
 
