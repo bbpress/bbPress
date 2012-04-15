@@ -171,18 +171,22 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  *
  * @since bbPress (r2544)
  *
- * @param $time Unix timestamp from which the difference begins.
+ * @param string $older_date Unix timestamp from which the difference begins.
+ * @param string $newer_date Optional. Unix timestamp from which the
+ *                            difference ends. False for current time.
  * @uses bbp_get_time_since() To get the formatted time
  */
-function bbp_time_since( $time ) {
-	echo bbp_get_time_since( $time );
+function bbp_time_since( $older_date, $newer_date = false ) {
+	echo bbp_get_time_since( $older_date, $newer_date = false );
 }
 	/**
 	 * Return formatted time to display human readable time difference.
 	 *
 	 * @since bbPress (r2544)
 	 *
-	 * @param $time Unix timestamp from which the difference begins.
+	 * @param string $older_date Unix timestamp from which the difference begins.
+	 * @param string $newer_date Optional. Unix timestamp from which the
+	 *                            difference ends. False for current time.
 	 * @uses current_time() To get the current time in mysql format
 	 * @uses human_time_diff() To get the time differene in since format
 	 * @uses apply_filters() Calls 'bbp_get_time_since' with the time
@@ -225,10 +229,10 @@ function bbp_time_since( $time ) {
 		if ( 0 > $since ) {
 			$output = $unknown_text;
 
-		 // We only want to output two chunks of time here, eg:
-		 //     x years, xx months
-		 //     x days, xx hours
-		 // so there's only two bits of calculation below:
+		// We only want to output two chunks of time here, eg:
+		//     x years, xx months
+		//     x days, xx hours
+		// so there's only two bits of calculation below:
 		} else {
 
 			// Step one: the first chunk
@@ -258,7 +262,7 @@ function bbp_time_since( $time ) {
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
-					if ( 0 != $count ) {
+					if ( 0 != $count2 ) {
 						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
 					}
 				}
