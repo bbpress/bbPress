@@ -100,7 +100,7 @@ function bbp_has_topics( $args = '' ) {
 		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 
 		// Ignore sticky topics?
-		'show_stickies'  => bbp_is_single_forum(),
+		'show_stickies'  => bbp_is_single_forum() || bbp_is_topic_archive(),
 
 		// Maximum number of pages to show
 		'max_num_pages'  => false,
