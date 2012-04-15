@@ -182,6 +182,7 @@ function bbp_has_topics( $args = '' ) {
 				$sticky_query = array(
 					'post_type'   => bbp_get_topic_post_type(),
 					'post_parent' => 'any',
+					'post_status' => $post_status,
 					'include'     => $stickies
 				);
 
