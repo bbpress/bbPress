@@ -549,7 +549,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$ancestors = array();
 
 	if ( $forum = bbp_get_forum( $forum_id ) ) {
-		while ( 0 !== $forum->post_parent ) {
+		while ( 0 !== (int) $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
 			$forum       = bbp_get_forum( $forum->post_parent );
 		}
