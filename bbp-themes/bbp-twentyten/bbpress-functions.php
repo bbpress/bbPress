@@ -97,8 +97,10 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 		if ( is_rtl() ) {
 
 			// TwentyTen
-			wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          $this->version, 'screen' );
-			wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', $this->version, 'screen' );
+			if ( 'twentyten' == get_template() ) {
+				wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          $this->version, 'screen' );
+				wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', $this->version, 'screen' );
+			}
 
 			// bbPress specific
 			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . 'css/bbpress-rtl.css', 'twentyten-rtl', $this->version, 'screen' );
@@ -107,7 +109,9 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 		} else {
 
 			// TwentyTen
-			wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', '', $this->version, 'screen' );
+			if ( 'twentyten' == get_template() ) {
+				wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          $this->version, 'screen' );
+			}
 
 			// bbPress specific
 			wp_enqueue_style( 'bbp-twentyten-bbpress', $this->url . 'css/bbpress.css', 'twentyten', $this->version, 'screen' );
