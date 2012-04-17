@@ -802,13 +802,13 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Find this forum in the array
 	if ( in_array( $forum_id, $private ) ) {
 
-		$offset = array_search( $forum_id, (array) $private );
+		$offset = array_search( $forum_id, $private );
 
 		// Splice around it
 		array_splice( $private, $offset, 1 );
 
 		// Update private forums minus this one
-		update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
+		update_option( '_bbp_private_forums', array_unique( array_filter( array_values( $private ) ) ) );
 	}
 
 	// Get hidden forums
@@ -817,13 +817,13 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Find this forum in the array
 	if ( in_array( $forum_id, $hidden ) ) {
 
-		$offset = array_search( $forum_id, (array) $hidden );
+		$offset = array_search( $forum_id, $hidden );
 
 		// Splice around it
 		array_splice( $hidden, $offset, 1 );
 
 		// Update hidden forums minus this one
-		update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
+		update_option( '_bbp_hidden_forums', array_unique( array_filter( array_values( $hidden ) ) ) );
 	}
 
 	// Only run queries if visibility is changing
@@ -858,29 +858,25 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Only run queries if visibility is changing
 	if ( bbp_get_private_status_id() != $current_visibility ) {
 
-		// Remove from _bbp_hidden_forums site option
-		if ( bbp_get_hidden_status_id() == $current_visibility ) {
+		// Get hidden forums
+		$hidden = bbp_get_hidden_forum_ids();
 
-			// Get hidden forums
-			$hidden = bbp_get_hidden_forum_ids();
+		// Find this forum in the array
+		if ( in_array( $forum_id, $hidden ) ) {
 
-			// Find this forum in the array
-			if ( in_array( $forum_id, $hidden ) ) {
+			$offset = array_search( $forum_id, $hidden );
 
-				$offset = array_search( $forum_id, (array) $hidden );
+			// Splice around it
+			array_splice( $hidden, $offset, 1 );
 
-				// Splice around it
-				array_splice( $hidden, $offset, 1 );
-
-				// Update hidden forums minus this one
-				update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
-			}
+			// Update hidden forums minus this one
+			update_option( '_bbp_hidden_forums', array_unique( array_filter( array_values( $hidden ) ) ) );
 		}
 
 		// Add to '_bbp_private_forums' site option
 		$private   = bbp_get_private_forum_ids();
 		$private[] = $forum_id;
-		update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
+		update_option( '_bbp_private_forums', array_unique( array_filter( array_values( $private ) ) ) );
 
 		// Update forums visibility setting
 		global $wpdb;
@@ -911,29 +907,25 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Only run queries if visibility is changing
 	if ( bbp_get_hidden_status_id() != $current_visibility ) {
 
-		// Remove from _bbp_private_forums site option
-		if ( bbp_get_private_status_id() == $current_visibility ) {
+		// Get private forums
+		$private = bbp_get_private_forum_ids();
 
-			// Get private forums
-			$private = bbp_get_private_forum_ids();
+		// Find this forum in the array
+		if ( in_array( $forum_id, $private ) ) {
 
-			// Find this forum in the array
-			if ( in_array( $forum_id, $private ) ) {
+			$offset = array_search( $forum_id, $private );
 
-				$offset = array_search( $forum_id, (array) $private );
+			// Splice around it
+			array_splice( $private, $offset, 1 );
 
-				// Splice around it
-				array_splice( $private, $offset, 1 );
-
-				// Update private forums minus this one
-				update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
-			}
+			// Update private forums minus this one
+			update_option( '_bbp_private_forums', array_unique( array_filter( array_values( $private ) ) ) );
 		}
 
 		// Add to '_bbp_hidden_forums' site option
 		$hidden   = bbp_get_hidden_forum_ids();
 		$hidden[] = $forum_id;
-		update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
+		update_option( '_bbp_hidden_forums', array_unique( array_filter( array_values( $hidden ) ) ) );
 
 		// Update forums visibility setting
 		global $wpdb;
