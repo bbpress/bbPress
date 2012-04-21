@@ -65,9 +65,12 @@ function bb_create_tag( $tag ) {
 	if ( list($term_id, $tt_id) = $wp_taxonomy_object->is_term( $tag, 'bb_topic_tag' ) )
 		return $tt_id;
 
-	list($term_id, $tt_id) = $wp_taxonomy_object->insert_term( $tag, 'bb_topic_tag' );
+	$term = $wp_taxonomy_object->insert_term( $tag, 'bb_topic_tag' );
+	if ( is_wp_error( $term ) )
+		return false;
 
-	if ( is_wp_error($term_id) || is_wp_error($tt_id) || !$tt_id )
+	list( $term_id, $tt_id ) = $term;
+	if ( ! $tt_id )
 		return false;
 
 	return $tt_id;
