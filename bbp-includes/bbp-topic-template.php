@@ -2776,8 +2776,12 @@ function bbp_single_topic_description( $args = '' ) {
 			$retstr          = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
 
 		// Topic has no replies
-		} else {
+		} elseif ( ! empty( $voice_count ) && ! empty( $reply_count ) ) {
 			$retstr = sprintf( __( 'This topic contains %1$s and has %2$s.', 'bbpress' ), $voice_count, $reply_count );
+
+		// Topic has no replies and no voices
+		} elseif ( empty( $voice_count ) && empty( $reply_count ) ) {
+			$retstr = sprintf( __( 'This topic has no replies.', 'bbpress' ), $voice_count, $reply_count );
 		}
 
 		// Add the 'view all' filter back

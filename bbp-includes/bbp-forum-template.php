@@ -1828,40 +1828,71 @@ function bbp_single_forum_description( $args = '' ) {
 		// Unhook the 'view all' query var adder
 		remove_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
-		// Build the forum description
-		$topic_count = bbp_get_forum_topics_link   ( $forum_id );
-		$reply_count = bbp_get_forum_reply_count   ( $forum_id );
-		$time_since  = bbp_get_forum_freshness_link( $forum_id );
+		// Get some forum data
+		$topic_count = bbp_get_forum_topic_count( $forum_id );
+		$reply_count = bbp_get_forum_reply_count( $forum_id );
+		$last_active = bbp_get_forum_last_active_id( $forum_id );
 
-		// Singlular/Plural
-		$reply_count     = sprintf( _n( '%s reply', '%s replies', $reply_count, 'bbpress' ), $reply_count );
+		// Has replies
+		if ( !empty( $reply_count ) ) {
+			$reply_text = sprintf( _n( '%s reply', '%s replies', $reply_count, 'bbpress' ), $reply_count );
+		}
 
-		// Forum has posts
-		$last_reply = bbp_get_forum_last_active_id( $forum_id );
-		if ( !empty( $last_reply ) ) {
+		// Forum has active data
+		if ( !empty( $last_active ) ) {
+			$topic_text      = bbp_get_forum_topics_link( $forum_id );
+			$time_since      = bbp_get_forum_freshness_link( $forum_id );
+			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $size ) );
 
-			// Freshness author
-			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
+		// Forum has no last active data
+		} else {
+			$topic_text      = sprintf( _n( '%s topic', '%s topics', $topic_count, 'bbpress' ), $topic_count );
+		}
 
-			// Category
-			if ( bbp_is_forum_category( $forum_id ) ) {
-				$retstr = sprintf( __( 'This category contains %1$s and %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+		// Forum has active data
+		if ( !empty( $last_active ) ) {
 
-			// Forum
+			if ( !empty( $reply_count ) ) {
+
+				if ( bbp_is_forum_category( $forum_id ) ) {
+					$retstr = sprintf( __( 'This category contains %1$s and %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $topic_text, $reply_text, $last_updated_by, $time_since );
+				} else {
+					$retstr = sprintf( __( 'This forum contains %1$s and %2$s, and was last updated by %3$s %4$s.',    'bbpress' ), $topic_text, $reply_text, $last_updated_by, $time_since );
+				}
+
 			} else {
-				$retstr = sprintf( __( 'This forum contains %1$s and %2$s, and was last updated by %3$s %4$s.',    'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+
+				if ( bbp_is_forum_category( $forum_id ) ) {
+					$retstr = sprintf( __( 'This category contains %1$s, and was last updated by %2$s %3$s.', 'bbpress' ), $topic_text, $last_updated_by, $time_since );
+				} else {
+					$retstr = sprintf( __( 'This forum contains %1$s, and was last updated by %2$s %3$s.',    'bbpress' ), $topic_text, $last_updated_by, $time_since );
+				}
 			}
 
 		// Forum has no last active data
 		} else {
 
-			// Category
-			if ( bbp_is_forum_category( $forum_id ) ) {
-				$retstr = sprintf( __( 'This category contains %1$s and %2$s.', 'bbpress' ), $topic_count, $reply_count );
+			if ( !empty( $reply_count ) ) {
 
-			// Forum
+				if ( bbp_is_forum_category( $forum_id ) ) {
+					$retstr = sprintf( __( 'This category contains %1$s and %2$s.', 'bbpress' ), $topic_text, $reply_text );
+				} else {
+					$retstr = sprintf( __( 'This forum contains %1$s and %2$s.',    'bbpress' ), $topic_text, $reply_text );
+				}
+
 			} else {
-				$retstr = sprintf( __( 'This forum contains %1$s and %2$s.',    'bbpress' ), $topic_count, $reply_count );
+
+				if ( !empty( $topic_count ) ) {
+
+					if ( bbp_is_forum_category( $forum_id ) ) {
+						$retstr = sprintf( __( 'This category contains %1$s.', 'bbpress' ), $topic_text );
+					} else {
+						$retstr = sprintf( __( 'This forum contains %1$s.',    'bbpress' ), $topic_text );
+					}
+
+				} else {
+					$retstr = __( 'This forum is empty.', 'bbpress' );
+				}
 			}
 		}
 
