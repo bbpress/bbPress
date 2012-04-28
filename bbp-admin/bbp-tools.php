@@ -722,12 +722,13 @@ function bbp_recount_clean_favorites() {
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
+	$key       = bbp_get_favorites_key();
+	$users     = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';" );
 
-	$users = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `$wpdb->usermeta` WHERE `meta_key` = '_bbp_favorites';" );
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
 
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
@@ -742,7 +743,7 @@ function bbp_recount_clean_favorites() {
 			continue;
 
 		$favorites = join( ',', $favorites );
-		$values[] = "('$user->user_id', '_bbp_favorites', '$favorites')";
+		$values[] = "('{$user->user_id}', '{$key}, '{$favorites}')";
 	}
 
 	if ( !count( $values ) ) {
@@ -750,7 +751,7 @@ function bbp_recount_clean_favorites() {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `$wpdb->usermeta` WHERE `meta_key` = '_bbp_favorites';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
@@ -781,12 +782,13 @@ function bbp_recount_clean_subscriptions() {
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
+	$key       = bbp_get_subscriptions_key();
+	$users     = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';" );
 
-	$users = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `$wpdb->usermeta` WHERE `meta_key` = '_bbp_subscriptions';" );
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -800,7 +802,7 @@ function bbp_recount_clean_subscriptions() {
 			continue;
 
 		$subscriptions = join( ',', $subscriptions );
-		$values[] = "('$user->user_id', '_bbp_subscriptions', '$subscriptions')";
+		$values[] = "('{$user->user_id}', '{$key}', '{$subscriptions}')";
 	}
 
 	if ( !count( $values ) ) {
@@ -808,14 +810,14 @@ function bbp_recount_clean_subscriptions() {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `$wpdb->usermeta` WHERE `meta_key` = '_bbp_subscriptions';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
 	$values = array_chunk( $values, 10000 );
 	foreach ( $values as $chunk ) {
 		$chunk = "\n" . join( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `$wpdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
+		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) )
 			return array( 5, sprintf( $statement, $result ) );
 	}

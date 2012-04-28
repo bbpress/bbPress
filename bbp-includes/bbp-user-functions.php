@@ -215,6 +215,31 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 /** Favorites *****************************************************************/
 
 /**
+ * Get the meta key for favorites, based on blog prefix
+ *
+ * @since bbPress (r3856)
+ * @param int $blog_id Optional blog id to switch to
+ * @global WPDB $wpdb
+ * @return string 
+ */
+function bbp_get_favorites_key( $blog_id = 0 ) {
+	global $wpdb;
+
+	// If blog ID is passed, switch to that blog
+	if ( !empty( $blog_id ) ) {
+		switch_to_blog( $blog_id );
+		$prefix = $wpdb->prefix;
+		restore_current_blog();
+
+	// Use current blog
+	} else {
+		$prefix = $wpdb->prefix;
+	}
+
+	return apply_filters( 'bbp_get_favorites_key', '_bbp_' . $prefix . 'favorites', $blog_id, $prefix );
+}
+
+/**
  * Get the users who have made the topic favorite
  *
  * @since bbPress (r2658)
@@ -232,7 +257,8 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	global $wpdb;
 
 	// Get the users who have favorited the topic
-	$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_bbp_favorites' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
+	$key   = bbp_get_favorites_key();
+	$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 	$users = apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
 
 	if ( !empty( $users ) )
@@ -288,7 +314,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 		if ( empty( $user_id ) )
 			return false;
 
-		$favorites = (string) get_user_meta( $user_id, '_bbp_favorites', true );
+		$favorites = (string) get_user_meta( $user_id, bbp_get_favorites_key(), true );
 		$favorites = (array) explode( ',', $favorites );
 		$favorites = array_filter( $favorites );
 
@@ -369,7 +395,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		$favorites[] = $topic_id;
 		$favorites   = array_filter( $favorites );
 		$favorites   = (string) implode( ',', $favorites );
-		update_user_meta( $user_id, '_bbp_favorites', $favorites );
+		update_user_meta( $user_id, bbp_get_favorites_key(), $favorites );
 	}
 
 	do_action( 'bbp_add_user_favorite', $user_id, $topic_id );
@@ -406,9 +432,9 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 
 		if ( !empty( $favorites ) ) {
 			$favorites = implode( ',', $favorites );
-			update_user_meta( $user_id, '_bbp_favorites', $favorites );
+			update_user_meta( $user_id, bbp_get_favorites_key(), $favorites );
 		} else {
-			delete_user_meta( $user_id, '_bbp_favorites' );
+			delete_user_meta( $user_id, bbp_get_favorites_key() );
 		}
 	}
 
@@ -519,6 +545,30 @@ function bbp_favorites_handler() {
 /** Subscriptions *************************************************************/
 
 /**
+ * Get the meta key for subscriptions, based on blog prefix
+ *
+ * @since bbPress (r3856)
+ * @global WPDB $wpdb
+ * @return string 
+ */
+function bbp_get_subscriptions_key( $blog_id = 0 ) {
+	global $wpdb;
+
+	// If blog ID is passed, switch to that blog
+	if ( !empty( $blog_id ) ) {
+		switch_to_blog( $blog_id );
+		$prefix = $wpdb->prefix;
+		restore_current_blog();
+
+	// Use current blog
+	} else {
+		$prefix = $wpdb->prefix;
+	}
+
+	return apply_filters( 'bbp_get_subscriptions_key', '_bbp_' . $prefix . 'subscriptions', $blog_id, $prefix );
+}
+
+/**
  * Get the users who have subscribed to the topic
  *
  * @since bbPress (r2668)
@@ -533,9 +583,10 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 
 	global $wpdb;
 
+	$key   = bbp_get_subscriptions_key();
 	$users = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
 	if ( empty( $users ) ) {
-		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_bbp_subscriptions' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
+		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 		wp_cache_set( 'bbp_get_topic_subscribers_' . $topic_id, $users, 'bbpress' );
 	}
 
@@ -593,7 +644,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	$subscriptions = (string) get_user_meta( $user_id, '_bbp_subscriptions', true );
+	$subscriptions = (string) get_user_meta( $user_id, bbp_get_subscriptions_key(), true );
 	$subscriptions = (array) explode( ',', $subscriptions );
 	$subscriptions = array_filter( $subscriptions );
 
@@ -677,7 +728,7 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
 		$subscriptions[] = $topic_id;
 		$subscriptions   = array_filter( $subscriptions );
 		$subscriptions   = (string) implode( ',', $subscriptions );
-		update_user_meta( $user_id, '_bbp_subscriptions', $subscriptions );
+		update_user_meta( $user_id, bbp_get_subscriptions_key(), $subscriptions );
 
 		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
 	}
@@ -718,9 +769,9 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 
 		if ( !empty( $subscriptions ) ) {
 			$subscriptions = implode( ',', $subscriptions );
-			update_user_meta( $user_id, '_bbp_subscriptions', $subscriptions );
+			update_user_meta( $user_id, bbp_get_subscriptions_key(), $subscriptions );
 		} else {
-			delete_user_meta( $user_id, '_bbp_subscriptions' );
+			delete_user_meta( $user_id, bbp_get_subscriptions_key() );
 		}
 
 		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
