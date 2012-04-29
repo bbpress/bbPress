@@ -135,13 +135,33 @@ function bbp_update_reply_id( $post_id, $reply_id ) {
  *                        number and display decimals bool
  * @return string Formatted string
  */
-function bbp_number_format( $number, $decimals = false ) {
+function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
 
-	// If empty, set $number to '0'
-	if ( empty( $number ) || !is_numeric( $number ) )
-		$number = '0';
+	// If empty, set $number to (int) 0
+	if ( ! is_numeric( $number ) )
+		$number = 0;
 
-	return apply_filters( 'bbp_number_format', number_format( $number, $decimals ), $number, $decimals );
+	return apply_filters( 'bbp_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
+}
+
+/**
+ * A bbPress specific method of formatting numeric values
+ *
+ * @since bbPress (r3857)
+ *
+ * @param string $number Number to format
+ * @param string $decimals Optional. Display decimals
+ * @uses apply_filters() Calls 'bbp_number_format' with the formatted values,
+ *                        number and display decimals bool
+ * @return string Formatted string
+ */
+function bbp_number_format_i18n( $number = 0, $decimals = false ) {
+
+	// If empty, set $number to (int) 0
+	if ( ! is_numeric( $number ) )
+		$number = 0;
+
+	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
 }
 
 /**
