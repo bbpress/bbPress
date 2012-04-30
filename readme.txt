@@ -4,6 +4,8 @@ Tags: bbpress, forums, discussion, support, theme, buddypress, akismet, multisit
 Requires at least: 3.2.1
 Tested up to: 3.2.1
 Stable tag: 2.0
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 bbPress is forum software with a twist from the creators of WordPress
 
