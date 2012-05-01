@@ -53,7 +53,7 @@
 
 				<td class="bbp-topic-author">
 
-					<?php bbp_topic_author_link( array( 'sep' => '<br />' ) ); ?>
+					<?php bbp_topic_author_link( array( 'sep' => '<br />', 'show_role' => true ) ); ?>
 
 					<?php if ( is_super_admin() ) : ?>
 

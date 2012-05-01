@@ -964,7 +964,7 @@ function bbp_reply_author_link( $args = '' ) {
 			'type'       => 'both',
 			'size'       => 80,
 			'sep'        => '&nbsp;',
-			'show_role'  => true
+			'show_role'  => false
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_reply_author_link' );
 		extract( $r );

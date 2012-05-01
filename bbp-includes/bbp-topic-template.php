@@ -1230,7 +1230,7 @@ function bbp_topic_author_link( $args = '' ) {
 			'type'       => 'both',
 			'size'       => 80,
 			'sep'        => '&nbsp;',
-			'show_role'  => true
+			'show_role'  => false
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_topic_author_link' );
 		extract( $r );
