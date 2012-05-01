@@ -1213,8 +1213,12 @@ function bbp_topic_author_link( $args = '' ) {
 	 * @uses bbp_get_topic_author_display_name() To get the topic author
 	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
 	 *                                 anonymous user
-	 * @uses bbp_get_topic_author_avatar() To get the topic author avatar
 	 * @uses bbp_get_topic_author_url() To get the topic author url
+	 * @uses bbp_get_topic_author_avatar() To get the topic author avatar
+	 * @uses bbp_get_topic_author_display_name() To get the topic author display
+	 *                                      name
+	 * @uses bbp_get_user_display_role() To get the topic author display role
+	 * @uses bbp_get_topic_author_id() To get the topic author id
 	 * @uses apply_filters() Calls 'bbp_get_topic_author_link' with the link
 	 *                        and args
 	 * @return string Author link of topic
@@ -1225,7 +1229,8 @@ function bbp_topic_author_link( $args = '' ) {
 			'link_title' => '',
 			'type'       => 'both',
 			'size'       => 80,
-			'sep'        => '&nbsp;'
+			'sep'        => '&nbsp;',
+			'show_role'  => true
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_topic_author_link' );
 		extract( $r );
@@ -1271,6 +1276,11 @@ function bbp_topic_author_link( $args = '' ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
 					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
 				}
+
+				if ( true === $show_role ) {
+					$author_link[] = bbp_get_topic_author_role( array( 'topic_id' => $topic_id ) );
+				}
+
 				$author_link = join( $sep, $author_link );
 
 			// No links if anonymous
@@ -1383,6 +1393,48 @@ function bbp_topic_author_email( $topic_id = 0 ) {
 
 		return apply_filters( 'bbp_get_topic_author_email', $author_email, $topic_id );
 	}
+
+/**
+ * Output the topic author role
+ *
+ * @since bbPress (r3860)
+ *
+ * @param array $args Optional.
+ * @uses bbp_get_topic_author_role() To get the topic author role
+ */
+function bbp_topic_author_role( $args = array() ) {
+	echo bbp_get_topic_author_role( $args );
+}
+	/**
+	 * Return the topic author role
+	 *
+	 * @since bbPress (r3860)
+	 *
+	 * @param array $args Optional.
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_get_user_display_role() To get the user display role
+	 * @uses bbp_get_topic_author_id() To get the topic author id
+	 * @uses apply_filters() Calls bbp_get_topic_author_role with the author
+	 *                        role & args
+	 * @return string topic author role
+	 */
+	function bbp_get_topic_author_role( $args = array() ) {
+		$defaults = array(
+			'topic_id' => 0,
+			'class'    => 'bbp-author-role',
+			'before'   => '',
+			'after'    => ''
+		);
+		$args = bbp_parse_args( $args, $defaults, 'get_topic_author_role' );
+		extract( $args, EXTR_SKIP );
+
+		$topic_id    = bbp_get_topic_id( $topic_id );
+		$role        = bbp_get_user_display_role( bbp_get_topic_author_id( $topic_id ) );
+		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $before, $class, $role, $after );
+
+		return apply_filters( 'bbp_get_topic_author_role', $author_role, $args );
+	}
+
 
 /**
  * Output the title of the forum a topic belongs to

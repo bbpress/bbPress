@@ -555,19 +555,28 @@ function bbp_global_access_auto_role() {
  * This is primarily for multisite compatibility when users without roles on
  * sites that have global forums enabled want to create topics and replies
  *
+ * @since bbPress (r3860)
+ *
+ * @uses apply_filters() Allow override of hardcoded anonymous role
+ * @return string
+ */
+function bbp_get_anonymous_role() {
+	return apply_filters( 'bbp_get_anonymous_role', 'bbp_anonymous' );
+}
+
+/**
+ * The participant role for registered users without roles
+ *
+ * This is primarily for multisite compatibility when users without roles on
+ * sites that have global forums enabled want to create topics and replies
+ *
  * @since bbPress (r3410)
  *
- * @param string $role
- * @uses apply_filters()
+ * @uses apply_filters() Allow override of hardcoded participant role
  * @return string
  */
 function bbp_get_participant_role() {
-
-	// Hardcoded participant role
-	$role = 'bbp_participant';
-
-	// Allow override
-	return apply_filters( 'bbp_get_participant_role', $role );
+	return apply_filters( 'bbp_get_participant_role', 'bbp_participant' );
 }
 
 /**
@@ -576,16 +585,11 @@ function bbp_get_participant_role() {
  * @since bbPress (r3410)
  *
  * @param string $role
- * @uses apply_filters()
+ * @uses apply_filters() Allow override of hardcoded moderator role
  * @return string
  */
 function bbp_get_moderator_role() {
-
-	// Hardcoded moderated user role
-	$role = 'bbp_moderator';
-
-	// Allow override
-	return apply_filters( 'bbp_get_moderator_role', $role );
+	return apply_filters( 'bbp_get_moderator_role', 'bbp_moderator' );
 }
 
 /**

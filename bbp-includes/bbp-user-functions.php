@@ -1399,6 +1399,34 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 	return !bbp_is_user_active( $user_id );
 }
 
+/**
+ * Return a user's main role
+ *
+ * @since bbPress (r3860)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses get_userdata() To get the user data
+ * @uses apply_filters() Calls 'bbp_get_user_role' with the
+ *                        role and user id
+ * @return string
+ */
+function bbp_get_user_role( $user_id = 0 ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	if ( empty( $user_id ) )
+		return false;
+
+	// Get userdata
+	$user = get_userdata( $user_id );
+
+	// Get the user's main role
+	$role = isset( $user->roles ) ? array_shift( $user->roles ) : bbp_get_anonymous_role();
+
+	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
+}
+
 /** Premissions ***************************************************************/
 
 /**

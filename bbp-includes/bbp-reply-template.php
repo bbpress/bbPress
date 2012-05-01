@@ -949,8 +949,10 @@ function bbp_reply_author_link( $args = '' ) {
 	 * @uses bbp_get_reply_author() To get the reply author name
 	 * @uses bbp_get_reply_author_url() To get the reply author url
 	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
-	 * bbp_get_reply_author_display_name() To get the reply author display
+	 * @uses bbp_get_reply_author_display_name() To get the reply author display
 	 *                                      name
+	 * @uses bbp_get_user_display_role() To get the reply author display role
+	 * @uses bbp_get_reply_author_id() To get the reply author id
 	 * @uses apply_filters() Calls 'bbp_get_reply_author_link' with the
 	 *                        author link and args
 	 * @return string Author link of reply
@@ -961,7 +963,8 @@ function bbp_reply_author_link( $args = '' ) {
 			'link_title' => '',
 			'type'       => 'both',
 			'size'       => 80,
-			'sep'        => '&nbsp;'
+			'sep'        => '&nbsp;',
+			'show_role'  => true
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_reply_author_link' );
 		extract( $r );
@@ -997,6 +1000,11 @@ function bbp_reply_author_link( $args = '' ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
 					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
 				}
+
+				if ( true === $show_role ) {
+					$author_link[] = bbp_get_reply_author_role( array( 'reply_id' => $reply_id ) );
+				}
+
 				$author_link = join( $sep, $author_link );
 
 			// No links if anonymous
@@ -1106,6 +1114,47 @@ function bbp_reply_author_email( $reply_id = 0 ) {
 		}
 
 		return apply_filters( 'bbp_get_reply_author_email', $author_email, $reply_id );
+	}
+
+/**
+ * Output the reply author role
+ *
+ * @since bbPress (r3860)
+ *
+ * @param array $args Optional.
+ * @uses bbp_get_reply_author_role() To get the reply author role
+ */
+function bbp_reply_author_role( $args = array() ) {
+	echo bbp_get_reply_author_role( $args );
+}
+	/**
+	 * Return the reply author role
+	 *
+	 * @since bbPress (r3860)
+	 *
+	 * @param array $args Optional.
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_user_display_role() To get the user display role
+	 * @uses bbp_get_reply_author_id() To get the reply author id
+	 * @uses apply_filters() Calls bbp_get_reply_author_role with the author
+	 *                        role & args
+	 * @return string Reply author role
+	 */
+	function bbp_get_reply_author_role( $args = array() ) {
+		$defaults = array(
+			'reply_id' => 0,
+			'class'    => 'bbp-author-role',
+			'before'   => '',
+			'after'    => ''
+		);
+		$args = bbp_parse_args( $args, $defaults, 'get_reply_author_role' );
+		extract( $args, EXTR_SKIP );
+
+		$reply_id    = bbp_get_reply_id( $reply_id );
+		$role        = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
+		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $before, $class, $role, $after );
+
+		return apply_filters( 'bbp_get_reply_author_role', $author_role, $args );
 	}
 
 /**
@@ -1747,7 +1796,7 @@ function bbp_reply_class( $reply_id = 0 ) {
 		$classes[] = 'bbp-parent-forum-' . bbp_get_reply_forum_id( $reply_id );
 		$classes[] = 'bbp-parent-topic-' . bbp_get_reply_topic_id( $reply_id );
 		$classes[] = 'user-id-' . bbp_get_reply_author_id( $reply_id );
-		$classes[] = ( bbp_get_reply_author_id( $reply_id ) == bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );		
+		$classes[] = ( bbp_get_reply_author_id( $reply_id ) == bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
 		$classes   = array_filter( $classes );
 		$classes   = get_post_class( $classes, $reply_id );
 		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );

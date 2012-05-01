@@ -375,7 +375,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 		$bbp     = bbpress();
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
-			return;
+			return false;
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -399,6 +399,93 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 		return apply_filters( 'bbp_get_user_edit_profile_url', $url, $user_id, $user_nicename );
 
+	}
+
+/**
+ * Output a user's main role for display
+ *
+ * @since bbPress (r3860)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_display_role To get the user display role
+ */
+function bbp_user_display_role( $user_id = 0 ) {
+	echo bbp_get_user_display_role( $user_id );
+}
+	/**
+	 * Return a user's main role for display
+	 *
+	 * @since bbPress (r3860)
+	 *
+	 * @param int $user_id
+	 * @uses bbp_get_user_role() To get the main user role
+	 * @uses bbp_get_moderator_role() To get the moderator role
+	 * @uses bbp_get_participant_role() To get the participant role
+	 * @uses bbp_get_moderator_role() To get the moderator role
+	 * @uses apply_filters() Calls 'bbp_get_user_display_role' with the
+	 *                        display role, user id, and user role
+	 * @return string
+	 */
+	function bbp_get_user_display_role( $user_id = 0 ) {
+
+		// Validate user id
+		$user_id   = bbp_get_user_id( $user_id, false, false );
+		$user_role = bbp_get_user_role( $user_id );
+
+		// Capes earn Vinz Clortho status
+		if ( is_super_admin( $user_id ) ) {
+			$role = __( 'Key Master', 'bbpress' );
+
+		// Not the keymaster of Gozer
+		} else {
+
+			// Get the user's main role for display
+			switch ( $user_role ) {
+
+				/** bbPress Roles *********************************************/
+
+				// Anonymous
+				case bbp_get_anonymous_role() :
+					$role = __( 'Guest', 'bbpress' );
+					break;
+
+				// Multisite Participant Role
+				case bbp_get_participant_role() :
+					$role = __( 'Member', 'bbpress' );
+					break;
+
+				// Moderator
+				case bbp_get_moderator_role() :
+					$role = __( 'Moderator', 'bbpress' );
+					break;
+
+				/** WordPress Core Roles **************************************/
+
+				case 'administrator' :
+				case 'editor'        :
+				case 'author'        :
+				case 'contributor'   :
+				case 'subscriber'    :
+				default              : // Any other role (plugins, etc...)
+					global $wp_roles;
+
+					// Load roles if not set
+					if ( !isset( $wp_roles ) )
+						$wp_roles = new WP_Roles();					
+
+					// Get a translated role name
+					if ( !empty( $wp_roles->role_names[$user_role] ) )
+						$role = translate_user_role( $wp_roles->role_names[$user_role] );
+
+					// Fallback for registered user
+					else
+						$role = __( 'Member', 'bbpress' );
+
+					break;
+			}
+		}
+
+		return apply_filters( 'bbp_get_user_display_role', $role, $user_id, $user_role );
 	}
 
 /**
@@ -1446,26 +1533,26 @@ function bbp_current_user_can_access_create_reply_form() {
 
 /**
  * Output a users topic count
- * 
+ *
  * @since bbPress (r3632)
  *
  * @param int $user_id
  * @uses bbp_get_user_topic_count()
- * @return string 
+ * @return string
  */
 function bbp_user_topic_count( $user_id = 0 ) {
 	echo bbp_get_user_topic_count( $user_id );
 }
 	/**
 	 * Return a users reply count
-	 * 
+	 *
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
 	 * @uses apply_filters()
-	 * @return string 
+	 * @return string
 	 */
 	function bbp_get_user_topic_count( $user_id = 0 ) {
 
@@ -1481,26 +1568,26 @@ function bbp_user_topic_count( $user_id = 0 ) {
 
 /**
  * Output a users reply count
- * 
+ *
  * @since bbPress (r3632)
  *
  * @param int $user_id
  * @uses bbp_get_user_reply_count()
- * @return string 
+ * @return string
  */
 function bbp_user_reply_count( $user_id = 0 ) {
 	echo bbp_get_user_reply_count( $user_id );
 }
 	/**
 	 * Return a users reply count
-	 * 
+	 *
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
 	 * @uses apply_filters()
-	 * @return string 
+	 * @return string
 	 */
 	function bbp_get_user_reply_count( $user_id = 0 ) {
 
@@ -1516,29 +1603,29 @@ function bbp_user_reply_count( $user_id = 0 ) {
 
 /**
  * Output a users total post count
- * 
+ *
  * @since bbPress (r3632)
  *
  * @param int $user_id
  * @uses bbp_get_user_post_count()
- * @return string 
+ * @return string
  */
 function bbp_user_post_count( $user_id = 0 ) {
 	echo bbp_get_user_post_count( $user_id );
 }
 	/**
 	 * Return a users total post count
-	 * 
+	 *
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_meta()
 	 * @uses apply_filters()
-	 * @return string 
+	 * @return string
 	 */
 	function bbp_get_user_post_count( $user_id = 0 ) {
-		
+
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )

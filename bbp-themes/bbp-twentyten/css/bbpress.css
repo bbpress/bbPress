@@ -139,6 +139,11 @@ span.bbp-author-ip {
 	text-align: center;
 	vertical-align: top;
 }
+#content td.bbp-topic-author .bbp-author-role,
+#content td.bbp-reply-author .bbp-author-role {
+	font-size: 11px;
+	font-style: italic;
+}
 .bbp-topic-title {
 	width: 55%;
 	text-align: left;
