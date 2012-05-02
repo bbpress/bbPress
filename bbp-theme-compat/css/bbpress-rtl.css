@@ -173,13 +173,10 @@ li.bbp-body div.bbp-topic-author img.avatar,
 li.bbp-body div.bbp-reply-author img.avatar {
 	border: 0;
 	max-width: 80px;
-	padding: 12px 20px 0 12px;
 }
 
 li.bbp-body div.bbp-topic-author a.bbp-author-name,
 li.bbp-body div.bbp-reply-author a.bbp-author-name {
-	padding-right: 12px;
-	padding-left: 20px;
 	word-wrap: break-word;
 }
 
