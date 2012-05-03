@@ -3,16 +3,14 @@
 /**
  * Implementation of bbPress Stand Alone converter.
  */
-class bbPress1 extends BBP_Converter_Base
-{
-	function __construct()
-	{
+class bbPress1 extends BBP_Converter_Base {
+	function __construct() {
 		parent::__construct();
 		$this->setup_globals();
 	}
 
-	public function setup_globals()
-	{
+	public function setup_globals() {
+
 		/** Forum Section ******************************************************/
 
 		// Forum id. Stored in postmeta.
@@ -144,6 +142,18 @@ class bbPress1 extends BBP_Converter_Base
 			'translate_method' => 'translate_title'
 		);
 
+		// Topic content.
+		$this->field_map[] = array(
+			'from_tablename'   => 'posts',
+			'from_fieldname'   => 'post_status',
+			'join_tablename'   => 'topics',
+			'join_type'        => 'INNER',
+			'join_expression'  => 'USING (topic_id) WHERE posts.post_position = 1',
+			'to_type'          => 'topic',
+			'to_fieldname'     => 'post_status',
+			'translate_method' => 'translate_status'
+		);
+
 		// Forum id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -256,6 +266,15 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'          => 'reply',
 			'to_fieldname'     => 'post_author',
 			'translate_method' => 'translate_userid'
+		);
+
+		// Reply status
+		$this->field_map[] = array(
+			'from_tablename'   => 'posts',
+			'from_fieldname'   => 'post_status',
+			'to_type'          => 'reply',
+			'to_fieldname'     => 'post_status',
+			'translate_method' => 'translate_status'
 		);
 
 		// Topic title.
@@ -399,6 +418,31 @@ class bbPress1 extends BBP_Converter_Base
 	 */
 	public function info() {
 		return '';
+	}
+
+	/**
+	 * Translate the post status from bbPress 1's numeric's to WordPress's
+	 * strings.
+	 *
+	 * @param int $status bbPress 1.x numeric status
+	 * @return string WordPress safe
+	 */
+	public function translate_status( $status = 0 ) {
+		switch ( $status ) {
+			case 2 :
+				$status = 'spam';    // bbp_get_spam_status_id()
+				break;
+
+			case 1 :
+				$status = 'trash';   // bbp_get_trash_status_id()
+				break;
+
+			case 0  :
+			default :
+				$status = 'publish'; // bbp_get_public_status_id()
+				break;
+		}
+		return $status;
 	}
 
 	/**
