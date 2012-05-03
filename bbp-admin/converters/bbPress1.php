@@ -20,7 +20,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'forum_id',
 			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_converter_forum_id'
+			'to_fieldname'   => '_bbp_forum_id'
 		);
 
 		// Forum parent id.  If no parent, than 0. Stored in postmeta.
@@ -28,7 +28,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'forum_parent',
 			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_converter_parent_id'
+			'to_fieldname'   => '_bbp_forum_parent_id'
 		);
 
 		// Forum title.
@@ -94,7 +94,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename' => 'topics',
 			'from_fieldname' => 'topic_id',
 			'to_type'        => 'topic',
-			'to_fieldname'   => '_bbp_converter_topic_id'
+			'to_fieldname'   => '_bbp_topic_id'
 		);
 
 		// Forum id. Stored in postmeta.
@@ -102,7 +102,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename'   => 'topics',
 			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'topic',
-			'to_fieldname'     => '_bbp_converter_forum_id',
+			'to_fieldname'     => '_bbp_forum_id',
 			'translate_method' => 'translate_forumid'
 		);
 
@@ -220,7 +220,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_fieldname'  => 'post_id',
 			'from_expression' => 'WHERE posts.post_position != 1',
 			'to_type'         => 'reply',
-			'to_fieldname'    => '_bbp_converter_post_id'
+			'to_fieldname'    => '_bbp_post_id'
 		);
 
 		// Forum id. Stores in postmeta.
@@ -228,7 +228,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename'   => 'posts',
 			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'reply',
-			'to_fieldname'     => '_bbp_converter_forum_id',
+			'to_fieldname'     => '_bbp_forum_id',
 			'translate_method' => 'translate_topicid_to_forumid'
 		);
 
@@ -237,7 +237,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename'   => 'posts',
 			'from_fieldname'   => 'topic_id',
 			'to_type'          => 'reply',
-			'to_fieldname'     => '_bbp_converter_topic_id',
+			'to_fieldname'     => '_bbp_topic_id',
 			'translate_method' => 'translate_topicid'
 		);
 
@@ -325,7 +325,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename' => 'users',
 			'from_fieldname' => 'ID',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_converter_user_id'
+			'to_fieldname'   => '_bbp_user_id'
 		);
 
 		// Store User password.
@@ -341,7 +341,7 @@ class bbPress1 extends BBP_Converter_Base
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_pass',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_converter_password'
+			'to_fieldname'   => '_bbp_password'
 		);
 
 		// User name.
