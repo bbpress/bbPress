@@ -22,7 +22,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_converter_forum_id'
 		);
-		
+
 		// Forum parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
@@ -30,7 +30,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_converter_parent_id'
 		);
-		
+
 		// Forum title.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
@@ -38,7 +38,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'post_title'
 		);
-		
+
 		// Forum slug. Clean name.
 		$this->field_map[] = array(
 			'from_tablename'   => 'forums',
@@ -47,7 +47,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => 'post_name',
 			'translate_method' => 'translate_title'
 		);
-		
+
 		// Forum description.
 		$this->field_map[] = array(
 			'from_tablename'   => 'forums',
@@ -56,7 +56,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => 'post_content',
 			'translate_method' => 'translate_null'
 		);
-		
+
 		// Forum display order.  Starts from 1.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
@@ -64,7 +64,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'menu_order'
 		);
-		
+
 		// Forum date update.
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
@@ -96,7 +96,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'topic',
 			'to_fieldname'   => '_bbp_converter_topic_id'
 		);
-		
+
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -105,7 +105,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => '_bbp_converter_forum_id',
 			'translate_method' => 'translate_forumid'
 		);
-				
+
 		// Topic author.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -114,7 +114,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => 'post_author',
 			'translate_method' => 'translate_userid'
 		);
-		
+
 		// Topic content.
 		$this->field_map[] = array(
 			'from_tablename'   => 'posts',
@@ -125,8 +125,8 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_content',
 			'translate_method' => 'translate_html'
-		);	
-				
+		);
+
 		// Topic title.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics',
@@ -134,7 +134,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'topic',
 			'to_fieldname'   => 'post_title'
 		);
-		
+
 		// Topic slug. Clean name.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -143,7 +143,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => 'post_name',
 			'translate_method' => 'translate_title'
 		);
-		
+
 		// Forum id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -180,7 +180,7 @@ class bbPress1 extends BBP_Converter_Base
 		);
 
 		/** Tags Section ******************************************************/
-		
+
 		// Topic id.
 		$this->field_map[] = array(
 			'from_tablename'   => 'term_relationships',
@@ -189,7 +189,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => 'objectid',
 			'translate_method' => 'translate_topicid'
 		);
-		
+
 		// Taxonomy ID.
 		$this->field_map[] = array(
 			'from_tablename'  => 'term_taxonomy',
@@ -199,8 +199,8 @@ class bbPress1 extends BBP_Converter_Base
 			'join_expression' => 'USING (term_taxonomy_id)',
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'taxonomy'
-		);	
-				
+		);
+
 		// Tags text.
 		$this->field_map[] = array(
 			'from_tablename'  => 'terms',
@@ -210,8 +210,8 @@ class bbPress1 extends BBP_Converter_Base
 			'join_expression' => 'USING (term_id)',
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'name'
-		);		
-							
+		);
+
 		/** Post Section ******************************************************/
 
 		// Post id. Stores in postmeta.
@@ -222,16 +222,16 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_converter_post_id'
 		);
-		
+
 		// Forum id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'   => 'posts',
-			'from_fieldname'   => 'topic_id',
+			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'reply',
 			'to_fieldname'     => '_bbp_converter_forum_id',
 			'translate_method' => 'translate_topicid_to_forumid'
 		);
-		
+
 		// Topic id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'   => 'posts',
@@ -240,15 +240,15 @@ class bbPress1 extends BBP_Converter_Base
 			'to_fieldname'     => '_bbp_converter_topic_id',
 			'translate_method' => 'translate_topicid'
 		);
-		
+
 		// Author ip.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'poster_ip',
 			'to_type'        => 'reply',
 			'to_fieldname'   => '_bbp_author_ip'
-		);	
-			
+		);
+
 		// Post author.
 		$this->field_map[] = array(
 			'from_tablename'   => 'posts',
@@ -259,18 +259,22 @@ class bbPress1 extends BBP_Converter_Base
 		);
 
 		// Topic title.
-		//$this->field_map[] = array(
-		//	'from_tablename' => 'posts', 'from_fieldname' => 'title',
-		//	'to_type' => 'reply', 'to_fieldname' => 'post_title'
-		//);
-		
+//		$this->field_map[] = array(
+//			'from_tablename' => 'posts',
+//			'from_fieldname' => 'title',
+//			'to_type'        => 'reply',
+//			'to_fieldname' => 'post_title'
+//		);
+
 		// Topic slug. Clean name.
-		//$this->field_map[] = array(
-		//	'from_tablename' => 'posts', 'from_fieldname' => 'title',
-		//	'to_type' => 'reply', 'to_fieldname' => 'post_name',
-		//	'translate_method' => 'translate_title'
-		//);
-				
+//		$this->field_map[] = array(
+//			'from_tablename'   => 'posts',
+//			'from_fieldname'   => 'title',
+//			'to_type'          => 'reply',
+//			'to_fieldname'     => 'post_name',
+//			'translate_method' => 'translate_title'
+//		);
+
 		// Post content.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
@@ -278,7 +282,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'reply',
 			'to_fieldname'   => 'post_content'
 		);
-		
+
 		// Topic id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename'   => 'posts',
@@ -325,11 +329,13 @@ class bbPress1 extends BBP_Converter_Base
 		);
 
 		// Store User password.
-		//$this->field_map[] = array(
-		//	'from_tablename' => 'users', 'from_fieldname' => 'user_pass',
-		//	'to_type' => 'user', 'to_fieldname' => 'user_pass'
-		//);
-		
+//		$this->field_map[] = array(
+//			'from_tablename' => 'users',
+//			'from_fieldname' => 'user_pass',
+//			'to_type'        => 'user',
+//			'to_fieldname'   => 'user_pass'
+//		);
+
 		// Store old User password. Stores in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -337,7 +343,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_converter_password'
 		);
-		
+
 		// User name.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -345,7 +351,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_login'
 		);
-				
+
 		// User email.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -353,7 +359,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_email'
 		);
-		
+
 		// User homepage.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -361,7 +367,7 @@ class bbPress1 extends BBP_Converter_Base
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_url'
 		);
-		
+
 		// User registered.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -371,16 +377,20 @@ class bbPress1 extends BBP_Converter_Base
 		);
 
 		// User aim.
-		//$this->field_map[] = array(
-		//	'from_tablename' => 'users', 'from_fieldname' => 'aim',
-		//	'to_type' => 'user', 'to_fieldname' => 'aim'
-		//);
-		
+//		$this->field_map[] = array(
+//			'from_tablename' => 'users',
+//			'from_fieldname' => 'aim',
+//			'to_type'        => 'user',
+//			'to_fieldname'   => 'aim'
+//		);
+
 		// User yahoo.
-		//$this->field_map[] = array(
-		//	'from_tablename' => 'users', 'from_fieldname' => 'yahoo',
-		//	'to_type' => 'user', 'to_fieldname' => 'yim'
-		//);
+//		$this->field_map[] = array(
+//			'from_tablename' => 'users',
+//			'from_fieldname' => 'yahoo',
+//			'to_type'        => 'user',
+//			'to_fieldname'   => 'yim'
+//		);
 	}
 
 	/**
