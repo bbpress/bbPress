@@ -89,22 +89,6 @@
 	overflow: hidden;
 }
 
-#bbpress-forums li.bbp-header .bbp-topic-author,
-#bbpress-forums li.bbp-footer .bbp-topic-author,
-#bbpress-forums li.bbp-header .bbp-reply-author,
-#bbpress-forums li.bbp-footer .bbp-reply-author {
-	float: right;
-	width: 120px;
-}
-
-#bbpress-forums li.bbp-header .bbp-topic-content,
-#bbpress-forums li.bbp-footer .bbp-topic-content,
-#bbpress-forums li.bbp-header .bbp-reply-content,
-#bbpress-forums li.bbp-footer .bbp-reply-content {
-	margin-right: 140px;
-	text-align: right;
-}
-
 #content .bbp-forum-description p,
 #bbpress-forums li.bbp-footer p {
 	margin-bottom: 0;
@@ -162,28 +146,46 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 	float: left;
 }
 
-li.bbp-body div.bbp-topic-author,
-li.bbp-body div.bbp-reply-author {
+#bbpress-forums div.bbp-topic-author,
+#bbpress-forums div.bbp-reply-author {
 	float: right;
 	text-align: center;
 	width: 115px;
 }
 
-li.bbp-body div.bbp-topic-author img.avatar,
-li.bbp-body div.bbp-reply-author img.avatar {
+#bbpress-forums div.bbp-topic-author img.avatar,
+#bbpress-forums div.bbp-reply-author img.avatar {
 	border: 0;
 	max-width: 80px;
 }
 
-li.bbp-body div.bbp-topic-author a.bbp-author-name,
-li.bbp-body div.bbp-reply-author a.bbp-author-name {
+#bbpress-forums div.bbp-topic-author a.bbp-author-name,
+#bbpress-forums div.bbp-reply-author a.bbp-author-name {
 	word-wrap: break-word;
 }
 
-li.bbp-body div.bbp-topic-content,
-li.bbp-body div.bbp-reply-content {
+#bbpress-forums div.bbp-topic-content,
+#bbpress-forums div.bbp-reply-content {
 	margin-right: 140px;
 	padding: 12px 12px 12px 0;
+	text-align: right;
+}
+
+#bbpress-forums li.bbp-header .bbp-topic-author,
+#bbpress-forums li.bbp-footer .bbp-topic-author,
+#bbpress-forums li.bbp-header .bbp-reply-author,
+#bbpress-forums li.bbp-footer .bbp-reply-author {
+	float: right;
+	padding: 0;
+	width: 120px;
+}
+
+#bbpress-forums li.bbp-header .bbp-topic-content,
+#bbpress-forums li.bbp-footer .bbp-topic-content,
+#bbpress-forums li.bbp-header .bbp-reply-content,
+#bbpress-forums li.bbp-footer .bbp-reply-content {
+	margin-right: 140px;
+	padding: 0;
 	text-align: right;
 }
 
