@@ -18,13 +18,13 @@ class Invision extends BBP_Converter_Base
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums', 'from_fieldname' => 'id',
-			'to_type' => 'forum', 'to_fieldname' => '_bbc_forum_id'
+			'to_type' => 'forum', 'to_fieldname' => '_bbp_forum_id'
 		);
 		
 		// Forum parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums', 'from_fieldname' => 'parent_id',
-			'to_type' => 'forum', 'to_fieldname' => '_bbc_parent_id'
+			'to_type' => 'forum', 'to_fieldname' => '_bbp_parent_id'
 		);
 		
 		// Forum title.
@@ -37,14 +37,14 @@ class Invision extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'forums', 'from_fieldname' => 'name',
 			'to_type' => 'forum', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Forum description.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums', 'from_fieldname' => 'description',
 			'to_type' => 'forum', 'to_fieldname' => 'post_content',
-			'translate_method' => 'translate_null'
+			'callback_method' => 'callback_null'
 		);
 		
 		// Forum display order.  Starts from 1.
@@ -76,21 +76,21 @@ class Invision extends BBP_Converter_Base
 		// Topic id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'tid',
-			'to_type' => 'topic', 'to_fieldname' => '_bbc_topic_id'
+			'to_type' => 'topic', 'to_fieldname' => '_bbp_topic_id'
 		);
 		
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'forum_id',
-			'to_type' => 'topic', 'to_fieldname' => '_bbc_forum_id',
-			'translate_method' => 'translate_forumid'
+			'to_type' => 'topic', 'to_fieldname' => '_bbp_forum_id',
+			'callback_method' => 'callback_forumid'
 		);
 				
 		// Topic author.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'starter_id',
 			'to_type' => 'topic', 'to_fieldname' => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method' => 'callback_userid'
 		);
 			
 		// Topic content.
@@ -98,7 +98,7 @@ class Invision extends BBP_Converter_Base
 			'from_tablename' => 'posts', 'from_fieldname' => 'post',
 			'join_tablename' => 'topics', 'join_type' => 'INNER', 'join_expression' => 'ON(topics.tid = posts.topic_id) WHERE posts.new_topic = 1',
 			'to_type' => 'topic', 'to_fieldname' => 'post_content',
-			'translate_method' => 'translate_html'
+			'callback_method' => 'callback_html'
 		);	
 		
 		// Topic title.
@@ -111,36 +111,36 @@ class Invision extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'title',
 			'to_type' => 'topic', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Forum id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'forum_id',
 			'to_type' => 'topic', 'to_fieldname' => 'post_parent',
-			'translate_method' => 'translate_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Topic date update.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'start_date',
 			'to_type' => 'topic', 'to_fieldname' => 'post_date',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'start_date',
 			'to_type' => 'topic', 'to_fieldname' => 'post_date_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'last_post',
 			'to_type' => 'topic', 'to_fieldname' => 'post_modified',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'topics', 'from_fieldname' => 'last_post',
 			'to_type' => 'topic', 'to_fieldname' => 'post_modified_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 
 		/** Tags Section ******************************************************/
@@ -149,7 +149,7 @@ class Invision extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'core_tags', 'from_fieldname' => 'tag_meta_id',
 			'to_type' => 'tags', 'to_fieldname' => 'objectid',
-			'translate_method' => 'translate_topicid'
+			'callback_method' => 'callback_topicid'
 		);
 		
 		// Tags text.
@@ -163,34 +163,34 @@ class Invision extends BBP_Converter_Base
 		// Post id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'pid', 'from_expression' => 'WHERE posts.new_topic = 1',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_post_id'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_post_id'
 		);
 		
 		// Forum id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'topic_id',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_forum_id',
-			'translate_method' => 'translate_topicid_to_forumid'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_forum_id',
+			'callback_method' => 'callback_topicid_to_forumid'
 		);
 		
 		// Topic id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'topic_id',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_topic_id',
-			'translate_method' => 'translate_topicid'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_topic_id',
+			'callback_method' => 'callback_topicid'
 		);
 		
 		// Author ip.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'ip_address',
-			'to_type' => 'reply', 'to_fieldname' => '__bbc_author_ip'
+			'to_type' => 'reply', 'to_fieldname' => '__bbp_author_ip'
 		);	
 			
 		// Post author.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'author_id',
 			'to_type' => 'reply', 'to_fieldname' => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method' => 'callback_userid'
 		);
 		
 		// Topic title.
@@ -203,43 +203,43 @@ class Invision extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'post_title',
 			'to_type' => 'reply', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Post content.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'post',
 			'to_type' => 'reply', 'to_fieldname' => 'post_content',
-			'translate_method' => 'translate_html'
+			'callback_method' => 'callback_html'
 		);
 		
 		// Topic id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'topic_id',
 			'to_type' => 'reply', 'to_fieldname' => 'post_parent',
-			'translate_method' => 'translate_topicid'
+			'callback_method' => 'callback_topicid'
 		);
 
 		// Topic date update.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'post_date',
 			'to_type' => 'reply', 'to_fieldname' => 'post_date',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'post_date',
 			'to_type' => 'reply', 'to_fieldname' => 'post_date_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'edit_time',
 			'to_type' => 'reply', 'to_fieldname' => 'post_modified',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'edit_time',
 			'to_type' => 'reply', 'to_fieldname' => 'post_modified_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 
 		/** User Section ******************************************************/
@@ -247,14 +247,14 @@ class Invision extends BBP_Converter_Base
 		// Store old User id. Stores in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'members', 'from_fieldname' => 'member_id',
-			'to_type' => 'user', 'to_fieldname' => '_bbc_user_id'
+			'to_type' => 'user', 'to_fieldname' => '_bbp_user_id'
 		);
 		
 		// Store old User password. Stores in usermeta serialized with salt.
 		$this->field_map[] = array(
 			'from_tablename' => 'members', 'from_fieldname' => 'members_pass_hash',
-			'to_type' => 'user', 'to_fieldname' => '_bbc_password',
-			'translate_method' => 'translate_savepass'
+			'to_type' => 'user', 'to_fieldname' => '_bbp_password',
+			'callback_method' => 'callback_savepass'
 		);
 
 		// Store old User Salt. This is only used for the SELECT row info for the above password save
@@ -265,7 +265,7 @@ class Invision extends BBP_Converter_Base
 				
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
-			'to_type' => 'user', 'to_fieldname' => '_bbc_class',
+			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
 			'default' => 'Invision'
 		);
 		
@@ -285,7 +285,7 @@ class Invision extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'members', 'from_fieldname' => 'joined',
 			'to_type' => 'user', 'to_fieldname' => 'user_registered',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 				
 /*	
@@ -325,7 +325,7 @@ class Invision extends BBP_Converter_Base
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by wordpress.
 	 */
-	public function translate_savepass( $field, $row )
+	public function callback_savepass( $field, $row )
 	{
 		$pass_array = array( 'hash' => $field, 'salt' => $row['members_pass_salt'] );
 		return $pass_array;

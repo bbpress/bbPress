@@ -43,7 +43,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'forum_slug',
 			'to_type'          => 'forum',
 			'to_fieldname'     => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method'  => 'callback_slug'
 		);
 
 		// Forum description.
@@ -52,7 +52,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'forum_desc',
 			'to_type'          => 'forum',
 			'to_fieldname'     => 'post_content',
-			'translate_method' => 'translate_null'
+			'callback_method'  => 'callback_null'
 		);
 
 		// Forum display order.  Starts from 1.
@@ -101,7 +101,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'topic',
 			'to_fieldname'     => '_bbp_forum_id',
-			'translate_method' => 'translate_forumid'
+			'callback_method'  => 'callback_forumid'
 		);
 
 		// Topic author.
@@ -110,7 +110,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'topic_poster',
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method'  => 'callback_userid'
 		);
 
 		// Topic content.
@@ -122,7 +122,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'join_expression'  => 'USING (topic_id) WHERE posts.post_position = 1',
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_content',
-			'translate_method' => 'translate_html'
+			'callback_method'  => 'callback_html'
 		);
 
 		// Topic title.
@@ -139,7 +139,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'topic_title',
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method'  => 'callback_slug'
 		);
 
 		// Topic content.
@@ -151,7 +151,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'join_expression'  => 'USING (topic_id) WHERE posts.post_position = 1',
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_status',
-			'translate_method' => 'translate_status'
+			'callback_method'  => 'callback_status'
 		);
 
 		// Forum id.  If no parent, than 0.
@@ -160,7 +160,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'topic',
 			'to_fieldname'     => 'post_parent',
-			'translate_method' => 'translate_forumid'
+			'callback_method'  => 'callback_forumid'
 		);
 
 		// Topic date update.
@@ -197,7 +197,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'object_id',
 			'to_type'          => 'tags',
 			'to_fieldname'     => 'objectid',
-			'translate_method' => 'translate_topicid'
+			'callback_method'  => 'callback_topicid'
 		);
 
 		// Taxonomy ID.
@@ -239,7 +239,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'forum_id',
 			'to_type'          => 'reply',
 			'to_fieldname'     => '_bbp_forum_id',
-			'translate_method' => 'translate_topicid_to_forumid'
+			'callback_method'  => 'callback_topicid_to_forumid'
 		);
 
 		// Topic id. Stores in postmeta.
@@ -248,7 +248,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'topic_id',
 			'to_type'          => 'reply',
 			'to_fieldname'     => '_bbp_topic_id',
-			'translate_method' => 'translate_topicid'
+			'callback_method'  => 'callback_topicid'
 		);
 
 		// Author ip.
@@ -265,7 +265,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'poster_id',
 			'to_type'          => 'reply',
 			'to_fieldname'     => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method'  => 'callback_userid'
 		);
 
 		// Reply status
@@ -274,7 +274,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'post_status',
 			'to_type'          => 'reply',
 			'to_fieldname'     => 'post_status',
-			'translate_method' => 'translate_status'
+			'callback_method'  => 'callback_status'
 		);
 
 		// Topic title.
@@ -282,7 +282,7 @@ class bbPress1 extends BBP_Converter_Base {
 //			'from_tablename' => 'posts',
 //			'from_fieldname' => 'title',
 //			'to_type'        => 'reply',
-//			'to_fieldname' => 'post_title'
+//			'to_fieldname'   => 'post_title'
 //		);
 
 		// Topic slug. Clean name.
@@ -291,7 +291,7 @@ class bbPress1 extends BBP_Converter_Base {
 //			'from_fieldname'   => 'title',
 //			'to_type'          => 'reply',
 //			'to_fieldname'     => 'post_name',
-//			'translate_method' => 'translate_title'
+//			'callback_method'  => 'callback_slug'
 //		);
 
 		// Post content.
@@ -308,7 +308,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'   => 'topic_id',
 			'to_type'          => 'reply',
 			'to_fieldname'     => 'post_parent',
-			'translate_method' => 'translate_topicid'
+			'callback_method'  => 'callback_topicid'
 		);
 
 		// Topic date update.
@@ -427,7 +427,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * @param int $status bbPress 1.x numeric status
 	 * @return string WordPress safe
 	 */
-	public function translate_status( $status = 0 ) {
+	public function callback_status( $status = 0 ) {
 		switch ( $status ) {
 			case 2 :
 				$status = 'spam';    // bbp_get_spam_status_id()
@@ -450,7 +450,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by wordpress.
 	 */
-	public function translate_savepass( $field, $row ) {
+	public function callback_savepass( $field, $row ) {
 		return false;
 	}
 

@@ -18,13 +18,13 @@ class Example_Converter extends BBP_Converter_Base
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forum', 'from_fieldname' => 'forumid',
-			'to_type' => 'forum', 'to_fieldname' => '_bbc_forum_id'
+			'to_type' => 'forum', 'to_fieldname' => '_bbp_forum_id'
 		);
 		
 		// Forum parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forum', 'from_fieldname' => 'parentid',
-			'to_type' => 'forum', 'to_fieldname' => '_bbc_parent_id'
+			'to_type' => 'forum', 'to_fieldname' => '_bbp_parent_id'
 		);
 		
 		// Forum title.
@@ -37,14 +37,14 @@ class Example_Converter extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'forum', 'from_fieldname' => 'title_clean',
 			'to_type' => 'forum', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Forum description.
 		$this->field_map[] = array(
 			'from_tablename' => 'forum', 'from_fieldname' => 'description',
 			'to_type' => 'forum', 'to_fieldname' => 'post_content',
-			'translate_method' => 'translate_null'
+			'callback_method' => 'callback_null'
 		);
 		
 		// Forum display order.  Starts from 1.
@@ -76,21 +76,21 @@ class Example_Converter extends BBP_Converter_Base
 		// Topic id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'threadid',
-			'to_type' => 'topic', 'to_fieldname' => '_bbc_topic_id'
+			'to_type' => 'topic', 'to_fieldname' => '_bbp_topic_id'
 		);
 		
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'forumid',
-			'to_type' => 'topic', 'to_fieldname' => '_bbc_forum_id',
-			'translate_method' => 'translate_forumid'
+			'to_type' => 'topic', 'to_fieldname' => '_bbp_forum_id',
+			'callback_method' => 'callback_forumid'
 		);
 				
 		// Topic author.
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'postuserid',
 			'to_type' => 'topic', 'to_fieldname' => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method' => 'callback_userid'
 		);
 		
 		// Topic title.
@@ -103,36 +103,36 @@ class Example_Converter extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'title',
 			'to_type' => 'topic', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Forum id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'forumid',
 			'to_type' => 'topic', 'to_fieldname' => 'post_parent',
-			'translate_method' => 'translate_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Topic date update.
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
 			'to_type' => 'topic', 'to_fieldname' => 'post_date',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
 			'to_type' => 'topic', 'to_fieldname' => 'post_date_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
 			'to_type' => 'topic', 'to_fieldname' => 'post_modified',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
 			'to_type' => 'topic', 'to_fieldname' => 'post_modified_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 
 		/** Tags Section ******************************************************/
@@ -141,7 +141,7 @@ class Example_Converter extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'tagcontent', 'from_fieldname' => 'contentid',
 			'to_type' => 'tags', 'to_fieldname' => 'objectid',
-			'translate_method' => 'translate_topicid'
+			'callback_method' => 'callback_topicid'
 		);
 		
 		// Tags text.
@@ -156,34 +156,34 @@ class Example_Converter extends BBP_Converter_Base
 		// Post id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'postid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_post_id'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_post_id'
 		);
 		
 		// Forum id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_forum_id',
-			'translate_method' => 'translate_topicid_to_forumid'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_forum_id',
+			'callback_method' => 'callback_topicid_to_forumid'
 		);
 		
 		// Topic id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbc_topic_id',
-			'translate_method' => 'translate_topicid'
+			'to_type' => 'reply', 'to_fieldname' => '_bbp_topic_id',
+			'callback_method' => 'callback_topicid'
 		);
 		
 		// Author ip.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'ipaddress',
-			'to_type' => 'reply', 'to_fieldname' => '__bbc_author_ip'
+			'to_type' => 'reply', 'to_fieldname' => '__bbp_author_ip'
 		);	
 			
 		// Post author.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'userid',
 			'to_type' => 'reply', 'to_fieldname' => 'post_author',
-			'translate_method' => 'translate_userid'
+			'callback_method' => 'callback_userid'
 		);
 		
 		// Topic title.
@@ -196,43 +196,43 @@ class Example_Converter extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'title',
 			'to_type' => 'reply', 'to_fieldname' => 'post_name',
-			'translate_method' => 'translate_title'
+			'callback_method' => 'callback_slug'
 		);
 		
 		// Post content.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'pagetext',
 			'to_type' => 'reply', 'to_fieldname' => 'post_content',
-			'translate_method' => 'translate_html'
+			'callback_method' => 'callback_html'
 		);
 		
 		// Topic id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
 			'to_type' => 'reply', 'to_fieldname' => 'post_parent',
-			'translate_method' => 'translate_topicid'
+			'callback_method' => 'callback_topicid'
 		);
 
 		// Topic date update.
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
 			'to_type' => 'reply', 'to_fieldname' => 'post_date',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
 			'to_type' => 'reply', 'to_fieldname' => 'post_date_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
 			'to_type' => 'reply', 'to_fieldname' => 'post_modified',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
 			'to_type' => 'reply', 'to_fieldname' => 'post_modified_gmt',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 
 		/** User Section ******************************************************/
@@ -240,14 +240,14 @@ class Example_Converter extends BBP_Converter_Base
 		// Store old User id. Stores in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'user', 'from_fieldname' => 'userid',
-			'to_type' => 'user', 'to_fieldname' => '_bbc_user_id'
+			'to_type' => 'user', 'to_fieldname' => '_bbp_user_id'
 		);
 		
 		// Store old User password. Stores in usermeta serialized with salt.
 		$this->field_map[] = array(
 			'from_tablename' => 'user', 'from_fieldname' => 'password',
-			'to_type' => 'user', 'to_fieldname' => '_bbc_password',
-			'translate_method' => 'translate_savepass'
+			'to_type' => 'user', 'to_fieldname' => '_bbp_password',
+			'callback_method' => 'callback_savepass'
 		);
 
 		// Store old User Salt. This is only used for the SELECT row info for the above password save
@@ -258,7 +258,7 @@ class Example_Converter extends BBP_Converter_Base
 				
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
-			'to_type' => 'user', 'to_fieldname' => '_bbc_class',
+			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
 			'default' => 'Vbulletin'
 		);
 		
@@ -284,7 +284,7 @@ class Example_Converter extends BBP_Converter_Base
 		$this->field_map[] = array(
 			'from_tablename' => 'user', 'from_fieldname' => 'joindate',
 			'to_type' => 'user', 'to_fieldname' => 'user_registered',
-			'translate_method' => 'translate_datetime'
+			'callback_method' => 'callback_datetime'
 		);
 		
 		// User aim.
@@ -314,7 +314,7 @@ class Example_Converter extends BBP_Converter_Base
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by wordpress.
 	 */
-	public function translate_savepass( $field, $row )
+	public function callback_savepass( $field, $row )
 	{
 		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
 		return $pass_array;
