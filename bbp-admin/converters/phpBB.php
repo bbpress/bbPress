@@ -208,90 +208,119 @@ class Phpbb extends BBP_Converter_Base {
 
 		// Post id. Stores in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_id',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_post_id'
+			'from_tablename' => 'posts',
+			'from_fieldname' => 'post_id',
+			'to_type'        => 'reply',
+			'to_fieldname'   => '_bbp_post_id'
 		);
 		
 		// Topic content.
 		$this->field_map[] = array(
-			'from_tablename' => 'topics', 'from_fieldname' => 'topic_id',
-			'join_tablename' => 'posts', 'join_type' => 'LEFT', 'join_expression' => 'USING (topic_id) WHERE posts.post_id != topics.topic_first_post_id',
-			'to_type' => 'reply'
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_id',
+			'join_tablename'  => 'posts',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'USING (topic_id) WHERE posts.post_id != topics.topic_first_post_id',
+			'to_type'         => 'reply'
 		);	
 		
 		// Forum id. Stores in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'forum_id',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_forum_id',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'forum_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_forum_id',
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 		
 		// Topic id. Stores in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'topic_id',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_topic_id',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'topic_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_topic_id',
 			'callback_method' => 'callback_topicid'
 		);
 		
 		// Author ip.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'poster_ip',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_author_ip'
+			'from_tablename' => 'posts',
+			'from_fieldname' => 'poster_ip',
+			'to_type'        => 'reply',
+			'to_fieldname'   => '_bbp_author_ip'
 		);	
 			
 		// Post author.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'poster_id',
-			'to_type' => 'reply', 'to_fieldname' => 'post_author',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'poster_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
 		);
 		
 		// Topic title.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_subject',
-			'to_type' => 'reply', 'to_fieldname' => 'post_title'
+			'from_tablename' => 'posts',
+			'from_fieldname' => 'post_subject',
+			'to_type'        => 'reply',
+			'to_fieldname'   => 'post_title'
 		);
 		
 		// Topic slug. Clean name.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_subject',
-			'to_type' => 'reply', 'to_fieldname' => 'post_name',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_subject',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
 		
 		// Post content.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_text',
-			'to_type' => 'reply', 'to_fieldname' => 'post_content',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_text',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_html'
 		);
 		
 		// Topic id.  If no parent, than 0.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'topic_id',
-			'to_type' => 'reply', 'to_fieldname' => 'post_parent',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'topic_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_parent',
 			'callback_method' => 'callback_topicid'
 		);
 
 		// Topic date update.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_time',
-			'to_type' => 'reply', 'to_fieldname' => 'post_date',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_time',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_date',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_time',
-			'to_type' => 'reply', 'to_fieldname' => 'post_date_gmt',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_time',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_date_gmt',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_time',
-			'to_type' => 'reply', 'to_fieldname' => 'post_modified',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_time',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_modified',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'post_time',
-			'to_type' => 'reply', 'to_fieldname' => 'post_modified_gmt',
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_time',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_modified_gmt',
 			'callback_method' => 'callback_datetime'
 		);
 
@@ -299,64 +328,83 @@ class Phpbb extends BBP_Converter_Base {
 
 		// Store old User id. Stores in usermeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_id',
-			'to_type' => 'user', 'to_fieldname' => '_bbp_user_id'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_id',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_user_id'
 		);
 		
 		// Store old User password. Stores in usermeta serialized with salt.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_password',
-			'to_type' => 'user', 'to_fieldname' => '_bbp_password',
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'user_password',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_password',
 			'callback_method' => 'callback_savepass'
 		);
 
 		// Store old User Salt. This is only used for the SELECT row info for the above password save
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_form_salt',
-			'to_type' => 'user', 'to_fieldname' => ''
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_form_salt',
+			'to_type'        => 'user',
+			'to_fieldname'   => ''
 		);
 				
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
-			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
-			'default' => 'Phpbb'
+			'to_type'      => 'user',
+			'to_fieldname' => '_bbp_class',
+			'default'      => 'Phpbb'
 		);
 				
 		// User name.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'username',
-			'to_type' => 'user', 'to_fieldname' => 'user_login'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'username',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_login'
 		);
 				
 		// User email.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_email',
-			'to_type' => 'user', 'to_fieldname' => 'user_email'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_email',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_email'
 		);
 		
 		// User homepage.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_website',
-			'to_type' => 'user', 'to_fieldname' => 'user_url'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_website',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_url'
 		);
 		
 		// User registered.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_regdate',
-			'to_type' => 'user', 'to_fieldname' => 'user_registered',
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'user_regdate',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_registered',
 			'callback_method' => 'callback_datetime'
 		);
 		
 		// User aim.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_aim',
-			'to_type' => 'user', 'to_fieldname' => 'aim'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_aim',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'aim'
 		);
 		
 		// User yahoo.
 		$this->field_map[] = array(
-			'from_tablename' => 'users', 'from_fieldname' => 'user_yim',
-			'to_type' => 'user', 'to_fieldname' => 'yim'
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_yim',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'yim'
 		);	
 	}
 
