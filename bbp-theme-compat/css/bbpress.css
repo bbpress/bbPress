@@ -176,7 +176,8 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 #bbpress-forums div.bbp-reply-author img.avatar {
 	border: 0;
 	max-width: 80px;
-	margin: 12px 12px 0 12px;
+	margin: 12px auto 0 auto;
+	float: none;
 }
 
 #bbpress-forums div.bbp-topic-author a.bbp-author-name,
