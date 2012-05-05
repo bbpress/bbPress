@@ -29,7 +29,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_parent_id'
 		);
 
-		// Forum topic count.
+		// Forum topic count. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'topics',
@@ -37,7 +37,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_count'
 		);
 
-		// Forum reply count.
+		// Forum reply count. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'posts',
@@ -111,6 +111,15 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_id'
 		);
 
+		// Reply count. Stored in postmeta.
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_posts',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'   => 'topics',
@@ -118,14 +127,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_type'          => 'topic',
 			'to_fieldname'     => '_bbp_forum_id',
 			'callback_method'  => 'callback_forumid'
-		);
-
-		// Reply count
-		$this->field_map[] = array(
-			'from_tablename' => 'topics',
-			'from_fieldname' => 'topic_posts',
-			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_reply_count'
 		);
 
 		// Topic author.
@@ -468,6 +469,17 @@ class bbPress1 extends BBP_Converter_Base {
 				break;
 		}
 		return $status;
+	}
+
+	/**
+	 * Verify the topic reply count.
+	 *
+	 * @param int $count bbPress 1.x reply count
+	 * @return string WordPress safe
+	 */
+	public function callback_topic_reply_count( $count = 1 ) {
+		$count = absint( (int) $count - 1 );
+		return $count;
 	}
 
 	/**

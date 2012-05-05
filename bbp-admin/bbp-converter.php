@@ -685,7 +685,7 @@ abstract class BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		$default_role = get_option( '_bbp_allow_global_access' ) ? bbp_get_participant_role() : get_option( 'default_role' );
+		$default_role = ( is_multisite() && get_option( '_bbp_allow_global_access' ) ) ? bbp_get_participant_role() : get_option( 'default_role' );
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => 'role',
@@ -736,70 +736,103 @@ abstract class BBP_Converter_Base {
 	 */
 	public function convert_table( $to_type, $start ) {
 
+		// Are we usig a sync table, or postmeta?
 		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) == $this->sync_table_name ) {
 			$this->sync_table = true;
 		} else {
 			$this->sync_table = false;
 		}
 
+		// Set some defaults
 		$has_insert     = false;
 		$from_tablename = '';
 		$field_list     = $from_tables = $tablefield_array = array();
 
+		// Toggle Table Name based on $to_type (destination)
 		switch ( $to_type ) {
-			case 'user':
+			case 'user' :
 				$tablename = $this->wpdb->users;
 				break;
 
-			case 'tags':
+			case 'tags' :
 				$tablename = '';
 				break;
 
-			default:
+			default :
 				$tablename = $this->wpdb->posts;
 		}
 
+		// Get the fields from the destination table
 		if ( !empty( $tablename ) ) {
 			$tablefield_array = $this->get_fields( $tablename );
 		}
 
+		/** Step 1 ************************************************************/
+
+		// Loop through the field maps, and look for to_type matches
 		foreach ( $this->field_map as $item ) {
+
+			// Yay a match, and we have a from table, too
 			if ( ( $item['to_type'] == $to_type ) && !empty( $item['from_tablename'] ) ) {
 
-				if ( !empty( $from_tablename ) ) {
+				// $from_tablename was set from a previous loop iteration
+				if ( ! empty( $from_tablename ) ) {
+
+					// Doing some joining
 					if ( !in_array( $item['from_tablename'], $from_tables ) && in_array( $item['join_tablename'], $from_tables ) ) {
 						$from_tablename .= ' ' . $item['join_type'] . ' JOIN ' . $this->opdb->prefix . $item['from_tablename'] . ' AS ' . $item['from_tablename'] . ' ' . $item['join_expression'];
 					}
+
+				// $from_tablename needs to be set
 				} else {
 					$from_tablename = $item['from_tablename'] . ' AS ' . $item['from_tablename'];
 				}
 
+				// Specific FROM expression data used
 				if ( !empty( $item['from_expression'] ) ) {
+
+					// No 'WHERE' in expression
 					if ( stripos( $from_tablename, "WHERE" ) === false ) {
 						$from_tablename .= ' ' . $item['from_expression'];
+
+					// 'WHERE' in expression, so replace with 'AND'
 					} else {
 						$from_tablename .= ' ' . str_replace( "WHERE", "AND", $item['from_expression'] );
 					}
 				}
 
+				// Add tablename and fieldname to arrays, formatted for querying
 				$from_tables[] = $item['from_tablename'];
 				$field_list[]  = 'convert(' . $item['from_tablename'] . '.' . $item['from_fieldname'] . ' USING "' . $this->charset . '") AS ' . $item['from_fieldname'];
 			}
 		}
 
+		/** Step 2 ************************************************************/
+
+		// We have a $from_tablename, so we want to get some data to convert
 		if ( !empty( $from_tablename ) ) {
 
+			// Get some data from the old forums
 			$forum_array = $this->opdb->get_results( 'SELECT ' . implode( ',', $field_list ) . ' FROM ' . $this->opdb->prefix . $from_tablename . ' LIMIT ' . $start . ', ' . $this->max_rows, ARRAY_A );
 
+			// Query returned some results
 			if ( !empty( $forum_array ) ) {
 
+				// Loop through results
 				foreach ( (array) $forum_array as $forum ) {
 
+					// Reset some defaults
 					$insert_post = $insert_postmeta = $insert_data = array();
 
+					// Loop through field map, again...
 					foreach ( $this->field_map as $row ) {
 
-						if ( $row['to_type'] == $to_type && !is_null( $row['to_fieldname'] ) ) {
+						// Types matchand to_fieldname is present. This means
+						// we have some work to do here.
+						if ( ( $row['to_type'] == $to_type ) && ! is_null( $row['to_fieldname'] ) ) {
+
+							// This row has a destination that matches one of the
+							// columns in this table.
 							if ( in_array( $row['to_fieldname'], $tablefield_array ) ) {
 								
 								// Allows us to set default fields.
@@ -808,7 +841,7 @@ abstract class BBP_Converter_Base {
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( $row['callback_method'] == 'callback_userid' && empty( $_POST['_bbp_converter_convert_users'] ) ) {
+									if ( ( 'callback_userid' == $row['callback_method'] ) && empty( $_POST['_bbp_converter_convert_users'] ) ) {
 										$insert_post[$row['to_fieldname']] = $forum[$row['from_fieldname']];
 									} else {
 										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[$row['from_fieldname']], $forum ) );
@@ -819,6 +852,8 @@ abstract class BBP_Converter_Base {
 									$insert_post[$row['to_fieldname']] = $forum[$row['from_fieldname']];
 								}
 
+							// Destination field is not empty, so we might need
+							// to do some extra work or set a default.
 							} elseif ( !empty( $row['to_fieldname'] ) ) {
 								
 								// Allows us to set default fields.
@@ -827,7 +862,7 @@ abstract class BBP_Converter_Base {
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( $row['callback_method'] == 'callback_userid' && $_POST['_bbp_converter_convert_users'] == 0 ) {
+									if ( ( $row['callback_method'] == 'callback_userid' ) && ( 0 == $_POST['_bbp_converter_convert_users'] ) ) {
 										$insert_postmeta[$row['to_fieldname']] = $forum[$row['from_fieldname']];
 									} else {
 										$insert_postmeta[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[$row['from_fieldname']], $forum ) );
@@ -841,8 +876,15 @@ abstract class BBP_Converter_Base {
 						}
 					}
 
+					/** Step 3 ************************************************/
+
+					// Something to insert into the destination field
 					if ( count( $insert_post ) > 0 || ( $to_type == 'tags' && count( $insert_postmeta ) > 0 ) ) {
+
 						switch ( $to_type ) {
+							
+							/** New user **************************************/
+
 							case 'user':
 								if ( username_exists( $insert_post['user_login'] ) ) {
 									$insert_post['user_login'] = 'imported_' . $insert_post['user_login'];
@@ -856,9 +898,10 @@ abstract class BBP_Converter_Base {
 
 								if ( is_numeric( $post_id ) ) {
 
-									add_user_meta( $post_id, $key, $value, true );
-
 									foreach ( $insert_postmeta as $key => $value ) {
+
+										add_user_meta( $post_id, $key, $value, true );
+
 										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'user', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
@@ -866,9 +909,13 @@ abstract class BBP_Converter_Base {
 								}
 								break;
 
+							/** New Topic-Tag *********************************/
+
 							case 'tags':
 								wp_set_object_terms( $insert_postmeta['objectid'], $insert_postmeta['name'], 'topic-tag', true );
 								break;
+
+							/** Forum, Topic, Reply ***************************/
 
 							default:
 								$post_id = wp_insert_post( $insert_post );
@@ -878,6 +925,14 @@ abstract class BBP_Converter_Base {
 									foreach ( $insert_postmeta as $key => $value ) {
 
 										add_post_meta( $post_id, $key, $value, true );
+
+										// Topics need an extra bit of metadata
+										// to be keyed to the new post_id
+										if ( 'topic' == $to_type ) {
+											if ( '_bbp_topic_id' == $key ) {
+												update_post_meta( $post_id, $key, $post_id );
+											}
+										}
 
 										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
