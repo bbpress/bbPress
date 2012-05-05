@@ -168,11 +168,11 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		$tabs = apply_filters( 'bbp_tools_admin_tabs', array(
 			'0' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-recount'   ), 'tools.php' ) ),
-				'name' => __( 'Recount', 'buddypress' )
+				'name' => __( 'Recount Forums', 'buddypress' )
 			),
 			'1' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) ),
-				'name' => __( 'Converter', 'buddypress' )
+				'name' => __( 'Convert Forums', 'buddypress' )
 			)
 		) );
 

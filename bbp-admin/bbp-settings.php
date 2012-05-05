@@ -847,7 +847,7 @@ function bbp_converter_settings() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Converter', 'bbpress' ) ); ?></h2>
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Convert Forums', 'bbpress' ) ); ?></h2>
 
 		<form action="#" method="post" id="bbp-converter-settings">
 

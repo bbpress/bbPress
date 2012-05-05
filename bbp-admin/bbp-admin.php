@@ -49,7 +49,7 @@ class BBP_Admin {
 	/**
 	 * @var bool Enable recounts in Tools area
 	 */
-	public $enable_recounts = false;
+	public $enable_tools = false;
 
 	/** Admin Scheme **********************************************************/
 
@@ -176,7 +176,9 @@ class BBP_Admin {
 	public function admin_menus() {
 
 		// Recounts
-		if ( is_super_admin() || !empty( $this->enable_recounts ) ) {
+		if ( is_super_admin() || !empty( $this->enable_tools ) ) {
+
+			// These are later removed in admin_head
 			add_management_page(
 				__( 'Recount', 'bbpress' ),
 				__( 'Recount', 'bbpress' ),
@@ -184,16 +186,23 @@ class BBP_Admin {
 				'bbp-recount',
 				'bbp_admin_tools_screen'
 			);
-		}
+			add_management_page(
+				__( 'Converter', 'bbpress' ),
+				__( 'Converter', 'bbpress' ),
+				'manage_options',
+				'bbp-converter',
+				'bbp_converter_settings'
+			);
 
-		// Converter Page
-		add_management_page(
-			__( 'Converter', 'bbpress' ),
-			__( 'Converter', 'bbpress' ),
-			'manage_options',
-			'bbp-converter',
-			'bbp_converter_settings'
-		);
+			// Forums tools root
+			add_management_page(
+				__( 'Forums', 'bbpress' ),
+				__( 'Forums', 'bbpress' ),
+				'manage_options',
+				'bbp-recount',
+				'bbp_admin_tools_screen'
+			);
+		}
 
 		// Forums settings
 		add_options_page(
@@ -491,6 +500,11 @@ class BBP_Admin {
 	 * @uses sanitize_html_class() To sanitize the classes
 	 */
 	public function admin_head() {
+
+		// Remove the individual recount and converter menus.
+		// They are grouped together by h2 tabs
+		remove_submenu_page( 'tools.php', 'bbp-recount'   );
+		remove_submenu_page( 'tools.php', 'bbp-converter' );
 
 		// Icons for top level admin menus
 		$menu_icon_url = $this->images_url . 'menu.png';
