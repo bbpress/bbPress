@@ -264,7 +264,7 @@ class BBP_Converter {
 
 		$step  = (int) get_option( '_bbp_converter_step',  1 );
 		$min   = (int) get_option( '_bbp_converter_start', 0 );
-		$max   = $min + (int) get_option( '_bbp_converter_rows', 100 ) - 1;
+		$max   = $min + (int) get_option( '_bbp_converter_rows', !empty( $_POST['_bbp_converter_rows'] ) ? (int) $_POST['_bbp_converter_rows'] : 100 ) - 1;
 		$start = $min;
 
 		// Bail if platform did not get saved
