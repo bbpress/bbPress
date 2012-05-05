@@ -30,7 +30,7 @@ function bbp_admin_tools_screen() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Recount', 'bbpress' ) ); ?></h2>
 
 		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>
 		<p><?php _e( 'You can also use this form to clean out stale items like empty tags.', 'bbpress' ); ?></p>

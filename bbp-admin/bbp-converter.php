@@ -60,55 +60,58 @@ class BBP_Converter {
 	public function register_admin_settings() {
 
 		// Add the main section
-		add_settings_section( 'bbpress_converter',         __( 'Main Settings',   'bbpress' ),  'bbp_converter_setting_callback_main_section', 'bbpress_converter' );
+		add_settings_section( 'bbpress_converter_main',     __( 'Main Settings',   'bbpress' ),  'bbp_converter_setting_callback_main_section', 'bbpress_converter' );
 
 		// System Select
-		add_settings_field( '_bbp_converter_platform',     __( 'Select Platform', 'bbpress' ),  'bbp_converter_setting_callback_platform', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_platform',           'sanitize_title' );
+		add_settings_field( '_bbp_converter_platform',      __( 'Select Platform', 'bbpress' ),  'bbp_converter_setting_callback_platform', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_platform',           'sanitize_title' );
 
 		// Database Server
-		add_settings_field( '_bbp_converter_db_server',    __( 'Database Server', 'bbpress' ),  'bbp_converter_setting_callback_dbserver', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_server',          'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_server',     __( 'Database Server', 'bbpress' ),  'bbp_converter_setting_callback_dbserver', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_server',          'sanitize_title' );
 
 		// Database Server Port
-		add_settings_field( '_bbp_converter_db_port',      __( 'Database Port',   'bbpress' ),  'bbp_converter_setting_callback_dbport', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_port',            'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_port',       __( 'Database Port',   'bbpress' ),  'bbp_converter_setting_callback_dbport', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_port',            'sanitize_title' );
 
 		// Database User
-		add_settings_field( '_bbp_converter_db_user',      __( 'Database User',   'bbpress' ),  'bbp_converter_setting_callback_dbuser', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_user',            'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_user',       __( 'Database User',   'bbpress' ),  'bbp_converter_setting_callback_dbuser', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_user',            'sanitize_title' );
 
 		// Database Pass
-		add_settings_field( '_bbp_converter_db_pass',      __( 'Database Pass',   'bbpress' ),  'bbp_converter_setting_callback_dbpass', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_pass',            'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_pass',       __( 'Database Pass',   'bbpress' ),  'bbp_converter_setting_callback_dbpass', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_pass',            'sanitize_title' );
 
 		// Database Name
-		add_settings_field( '_bbp_converter_db_name',      __( 'Database Name',   'bbpress' ),  'bbp_converter_setting_callback_dbname', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_name',            'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_name',       __( 'Database Name',   'bbpress' ),  'bbp_converter_setting_callback_dbname', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_name',            'sanitize_title' );
 
 		// Database Prefix
-		add_settings_field( '_bbp_converter_db_prefix',    __( 'Table Prefix',    'bbpress' ),  'bbp_converter_setting_callback_dbprefix', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_db_prefix',          'sanitize_title' );
+		add_settings_field( '_bbp_converter_db_prefix',     __( 'Table Prefix',    'bbpress' ),  'bbp_converter_setting_callback_dbprefix', 'bbpress_converter', 'bbpress_converter_main' );
+		register_setting  ( 'bbpress_converter_main',       '_bbp_converter_db_prefix',          'sanitize_title' );
+
+		// Add the options section
+		add_settings_section( 'bbpress_converter_opt',      __( 'Options',         'bbpress' ),  'bbp_converter_setting_callback_options_section', 'bbpress_converter' );
 
 		// Rows Limit
-		add_settings_field( '_bbp_converter_rows',         __( 'Rows Limit',      'bbpress' ),  'bbp_converter_setting_callback_rows', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',           '_bbp_converter_rows',               'intval' );
+		add_settings_field( '_bbp_converter_rows',          __( 'Rows Limit',      'bbpress' ),  'bbp_converter_setting_callback_rows', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_rows',               'intval' );
 
 		// Delay Time
-		add_settings_field( '_bbp_converter_delay_time',    __( 'Delay Time',      'bbpress' ), 'bbp_converter_setting_callback_delay_time', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',            '_bbp_converter_delay_time',        'intval' );
-
-		// Clean
-		add_settings_field( '_bbp_converter_clean',         __( 'Clean',           'bbpress' ), 'bbp_converter_setting_callback_clean', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',            '_bbp_converter_clean',             'intval' );
-
-		// Restart
-		add_settings_field( '_bbp_converter_restart',       __( 'Restart',         'bbpress' ), 'bbp_converter_setting_callback_restart', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',            '_bbp_converter_restart',           'intval' );
+		add_settings_field( '_bbp_converter_delay_time',    __( 'Delay Time',      'bbpress' ), 'bbp_converter_setting_callback_delay_time', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_delay_time',        'intval' );
 
 		// Convert Users ?
-		add_settings_field( '_bbp_converter_convert_users', __( 'Convert Users',   'bbpress' ), 'bbp_converter_setting_callback_convert_users', 'bbpress_converter', 'bbpress_converter' );
-		register_setting  ( 'bbpress_converter',            '_bbp_converter_convert_users',     'intval' );
+		add_settings_field( '_bbp_converter_convert_users', __( 'Convert Users',   'bbpress' ), 'bbp_converter_setting_callback_convert_users', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_convert_users',     'intval' );
+
+		// Clean
+		add_settings_field( '_bbp_converter_clean',         __( 'Clean',           'bbpress' ), 'bbp_converter_setting_callback_clean', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_clean',             'intval' );
+
+		// Restart
+		add_settings_field( '_bbp_converter_restart',       __( 'Restart',         'bbpress' ), 'bbp_converter_setting_callback_restart', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_restart',           'intval' );
 	}
 
 	/**
@@ -238,7 +241,6 @@ class BBP_Converter {
 		</script>
 
 		<?php
-
 	}
 
 	/**
@@ -914,6 +916,7 @@ abstract class BBP_Converter_Base {
 	 * This method deletes data from the wp database.
 	 */
 	public function clean( $start ) {
+		$start      = 0;
 		$has_delete = false;
 
 		/** Delete bbconverter topics/forums/posts ****************************/

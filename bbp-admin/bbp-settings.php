@@ -633,7 +633,7 @@ function bbp_admin_settings() {
 function bbp_converter_setting_callback_main_section() {
 ?>
 
-	<p><?php _e( 'Provide some information about your previous forums so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
+	<p><?php _e( 'Information about your previous forums database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -729,6 +729,19 @@ function bbp_converter_setting_callback_dbname() {
 
 	<input name="_bbp_converter_db_name" type="text" id="_bbp_converter_db_name" value="<?php bbp_form_option( '_bbp_converter_db_name', DB_NAME ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_name"><?php _e( 'Database Name', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Main settings section description for the settings page
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_options_section() {
+?>
+
+	<p><?php _e( 'Some optional parameters to help tune the convertion process.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -834,13 +847,17 @@ function bbp_converter_settings() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2><?php _e( 'bbPress Converter Settings', 'bbpress' ) ?></h2>
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Converter', 'bbpress' ) ); ?></h2>
 
 		<form action="#" method="post" id="bbp-converter-settings">
 
 			<?php settings_fields( 'bbpress_converter' ); ?>
 
 			<?php do_settings_sections( 'bbpress_converter' ); ?>
+
+			<p class="submit">
+				<input type="button" name="submit" class="button" id="bbp-converter-save" value="<?php _e( 'Save', 'bbpress' ); ?>" />
+			</p>
 
 			<p class="submit">
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php _e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start()" />

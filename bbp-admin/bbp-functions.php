@@ -141,4 +141,50 @@ function bbp_do_uninstall( $site_id = 0 ) {
 	restore_current_blog();
 }
 
+/**
+ * Output the tabs in the admin area
+ *
+ * @since bbPress (rxxxx)
+ * @param string $active_tab Name of the tab that is active
+ */
+function bbp_tools_admin_tabs( $active_tab = '' ) {
+	echo bbp_get_tools_admin_tabs( $active_tab );
+}
+
+	/**
+	 * Output the tabs in the admin area
+	 *
+	 * @since bbPress (rxxxx)
+	 * @param string $active_tab Name of the tab that is active
+	 */
+	function bbp_get_tools_admin_tabs( $active_tab = '' ) {
+
+		// Declare local variables
+		$tabs_html    = '';
+		$idle_class   = 'nav-tab';
+		$active_class = 'nav-tab nav-tab-active';
+
+		// Setup core admin tabs
+		$tabs = apply_filters( 'bbp_tools_admin_tabs', array(
+			'0' => array(
+				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-recount'   ), 'tools.php' ) ),
+				'name' => __( 'Recount', 'buddypress' )
+			),
+			'1' => array(
+				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) ),
+				'name' => __( 'Converter', 'buddypress' )
+			)
+		) );
+
+		// Loop through tabs and build navigation
+		foreach( $tabs as $tab_id => $tab_data ) {
+			$is_current = (bool) ( $tab_data['name'] == $active_tab );
+			$tab_class  = $is_current ? $active_class : $idle_class;
+			$tabs_html .= '<a href="' . $tab_data['href'] . '" class="' . $tab_class . '">' . $tab_data['name'] . '</a>';
+		}
+
+		// Output the tabs
+		return $tabs_html;
+	}
+
 ?>
