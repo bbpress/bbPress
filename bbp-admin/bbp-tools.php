@@ -23,8 +23,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_tools_screen() {
-
-	$recount_list = bbp_recount_list(); ?>
+?>
 
 	<div class="wrap">
 
@@ -32,30 +31,23 @@ function bbp_admin_tools_screen() {
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Repair Forums', 'bbpress' ) ); ?></h2>
 
-		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>
-		<p><?php _e( 'You can also use this form to clean out stale items like empty tags.', 'bbpress' ); ?></p>
+		<p><?php _e( 'bbPress keeps track of relationships between forums, topics, replies, and topic tags, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'bbpress' ); ?></p>
+		<p class="description"><?php _e( 'Some of these tools create substantial database overhead. Avoid running more than 1 repair job at a time.', 'bbpress' ); ?></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Things to recount:', 'bbpress' ) ?></th>
+						<th scope="row"><?php _e( 'Relationships to Repair:', 'bbpress' ) ?></th>
 						<td>
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php _e( 'Repair', 'bbpress' ) ?></span></legend>
 
-								<?php if ( !empty( $recount_list ) ) :
+								<?php foreach ( bbp_recount_list() as $item ) : ?>
 
-										foreach ( $recount_list as $item ) {
-											echo '<label><input type="checkbox" class="checkbox" name="' . esc_attr( $item[0] ) . '" id="' . esc_attr( str_replace( '_', '-', $item[0] ) ) . '" value="1" /> ' . esc_html( $item[1] ) . '</label><br />' . "\n";
-										}
-								?>
+									<label><input type="checkbox" class="checkbox" name="<?php echo esc_attr( $item[0] ) . '" id="' . esc_attr( str_replace( '_', '-', $item[0] ) ); ?>" value="1" /> <?php echo esc_html( $item[1] ); ?></label><br />
 
-								<?php else : ?>
-
-									<p><?php _e( 'There are no recount tools available.', 'bbpress' ) ?></p>
-
-								<?php endif; ?>
+								<?php endforeach; ?>
 
 							</fieldset>
 						</td>
@@ -179,7 +171,7 @@ function bbp_recount_list() {
 	);
 
 	ksort( $recount_list );
-	return apply_filters( 'bbp_recount_list', $recount_list );
+	return (array) apply_filters( 'bbp_recount_list', $recount_list );
 }
 
 /**
