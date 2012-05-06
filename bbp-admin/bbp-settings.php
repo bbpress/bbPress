@@ -672,7 +672,7 @@ function bbp_converter_setting_callback_dbserver() {
 ?>
 
 	<input name="_bbp_converter_db_server" type="text" id="_bbp_converter_db_server" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_server"><?php _e( 'Database Server IP', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_server"><?php _e( 'IP or hostname', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -686,7 +686,7 @@ function bbp_converter_setting_callback_dbport() {
 ?>
 
 	<input name="_bbp_converter_db_port" type="text" id="_bbp_converter_db_port" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" class="small-text" />
-	<label for="_bbp_converter_db_port"><?php _e( 'Database Server Port', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_port"><?php _e( 'Use default 3306 if unsure', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -700,7 +700,7 @@ function bbp_converter_setting_callback_dbuser() {
 ?>
 
 	<input name="_bbp_converter_db_user" type="text" id="_bbp_converter_db_user" value="<?php bbp_form_option( '_bbp_converter_db_user', DB_USER ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_user"><?php _e( 'Database Server User', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_user"><?php _e( 'User for your database connection', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -714,7 +714,7 @@ function bbp_converter_setting_callback_dbpass() {
 ?>
 
 	<input name="_bbp_converter_db_pass" type="text" id="_bbp_converter_db_pass" value="<?php bbp_form_option( '_bbp_converter_db_pass', DB_PASSWORD ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_pass"><?php _e( 'Database Server Pass', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_pass"><?php _e( 'Password to access the database', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -728,7 +728,7 @@ function bbp_converter_setting_callback_dbname() {
 ?>
 
 	<input name="_bbp_converter_db_name" type="text" id="_bbp_converter_db_name" value="<?php bbp_form_option( '_bbp_converter_db_name', DB_NAME ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_name"><?php _e( 'Database Name', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_name"><?php _e( 'Name of the database with your old forum data', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -769,7 +769,8 @@ function bbp_converter_setting_callback_rows() {
 ?>
 
 	<input name="_bbp_converter_rows" type="text" id="_bbp_converter_rows" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" class="small-text" />
-	<label for="_bbp_converter_rows"><?php _e( 'How many rows to process at a time', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_rows"><?php _e( 'rows to process at a time', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'Keep this low if you experience out-of-memory issues.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -783,7 +784,8 @@ function bbp_converter_setting_callback_delay_time() {
 ?>
 
 	<input name="_bbp_converter_delay_time" type="text" id="_bbp_converter_delay_time" value="<?php bbp_form_option( '_bbp_converter_delay_time', '1' ); ?>" class="small-text" />
-	<label for="_bbp_converter_delay_time"><?php _e( 'Time delay between batch converting in seconds', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_delay_time"><?php _e( 'second(s) delay between each group of rows', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'Keep this high to prevent too-many-connection issues.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -797,7 +799,8 @@ function bbp_converter_setting_callback_clean() {
 ?>
 
 	<input id="_bbp_converter_clean" name="_bbp_converter_clean" type="checkbox" id="_bbp_converter_clean" value="1" <?php checked( get_option( '_bbp_converter_clean', false ) ); ?> />
-	<label for="_bbp_converter_clean"><?php _e( 'Clean out converted data to start a brand new conversion', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_clean"><?php _e( 'Purge all information from a previously attempted import', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'Use this if an import failed and you want to start over from scratch.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -812,6 +815,7 @@ function bbp_converter_setting_callback_restart() {
 
 	<input id="_bbp_converter_restart" name="_bbp_converter_restart" type="checkbox" id="_bbp_converter_restart" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
 	<label for="_bbp_converter_restart"><?php _e( 'Restart the conversion process', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'The importer keeps track of where it left off in the event of failure.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -826,7 +830,7 @@ function bbp_converter_setting_callback_convert_users() {
 
 	<input id="_bbp_converter_convert_users" name="_bbp_converter_convert_users" type="checkbox" id="_bbp_converter_convert_users" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> />
 	<label for="_bbp_converter_convert_users"><?php _e( 'Attempt to import user accounts from previous forums', 'bbpress' ); ?></label>
-	<p class="description"><?php _e( 'It is not possible to batch-convert any old user passwords. They will be converted as each user logs in.', 'bbpress' ); ?></p>
+	<p class="description"><?php _e( 'Non-bbPress passwords cannot be automatically converted. They will be converted as each user logs in.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -847,7 +851,7 @@ function bbp_converter_settings() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Convert Forums', 'bbpress' ) ); ?></h2>
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Import Forums', 'bbpress' ) ); ?></h2>
 
 		<form action="#" method="post" id="bbp-converter-settings">
 

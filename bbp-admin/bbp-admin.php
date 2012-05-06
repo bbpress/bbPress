@@ -180,10 +180,10 @@ class BBP_Admin {
 
 			// These are later removed in admin_head
 			add_management_page(
-				__( 'Recount', 'bbpress' ),
-				__( 'Recount', 'bbpress' ),
+				__( 'Repair', 'bbpress' ),
+				__( 'Repair', 'bbpress' ),
 				'manage_options',
-				'bbp-recount',
+				'bbp-repair',
 				'bbp_admin_tools_screen'
 			);
 			add_management_page(
@@ -199,7 +199,7 @@ class BBP_Admin {
 				__( 'Forums', 'bbpress' ),
 				__( 'Forums', 'bbpress' ),
 				'manage_options',
-				'bbp-recount',
+				'bbp-repair',
 				'bbp_admin_tools_screen'
 			);
 		}
@@ -503,7 +503,7 @@ class BBP_Admin {
 
 		// Remove the individual recount and converter menus.
 		// They are grouped together by h2 tabs
-		remove_submenu_page( 'tools.php', 'bbp-recount'   );
+		remove_submenu_page( 'tools.php', 'bbp-repair'    );
 		remove_submenu_page( 'tools.php', 'bbp-converter' );
 
 		// Icons for top level admin menus

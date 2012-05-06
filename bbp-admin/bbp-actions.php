@@ -81,10 +81,10 @@ add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );
 add_action( 'bbp_new_site', 'flush_rewrite_rules'           );
 
 // Contextual Helpers
-add_action( 'load-settings_page_bbpress',  'bbp_admin_settings_help' );
+add_action( 'load-settings_page_bbpress', 'bbp_admin_settings_help' );
 
 // Handle submission of Recount page
-add_action( 'load-tools_page_bbp-recount', 'bbp_admin_tools_handler' );
+add_action( 'load-tools_page_bbp-repair', 'bbp_admin_tools_handler' );
 
 // Add sample permalink filter
 add_filter( 'post_type_link', 'bbp_filter_sample_permalink', 10, 4 );

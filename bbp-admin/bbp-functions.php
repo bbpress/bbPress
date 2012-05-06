@@ -167,12 +167,12 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		// Setup core admin tabs
 		$tabs = apply_filters( 'bbp_tools_admin_tabs', array(
 			'0' => array(
-				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-recount'   ), 'tools.php' ) ),
-				'name' => __( 'Recount Forums', 'buddypress' )
+				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-repair'    ), 'tools.php' ) ),
+				'name' => __( 'Repair Forums', 'buddypress' )
 			),
 			'1' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) ),
-				'name' => __( 'Convert Forums', 'buddypress' )
+				'name' => __( 'Import Forums', 'buddypress' )
 			)
 		) );
 
