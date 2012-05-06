@@ -24,7 +24,7 @@
 
 			<?php do_action( 'login_form', 'resetpass' ); ?>
 
-			<input type="submit" name="user-submit" value="<?php _e( 'Reset my password', 'bbpress' ); ?>" class="user-submit" tabindex="<?php bbp_tab_index(); ?>" />
+			<button type="submit" tabindex="<?php bbp_tab_index(); ?>" name="user-submit" class="button submit user-submit"><?php _e( 'Reset My Password', 'bbpress' ); ?></button>
 
 			<?php bbp_user_lost_pass_fields(); ?>
 

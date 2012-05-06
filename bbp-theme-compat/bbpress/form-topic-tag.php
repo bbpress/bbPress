@@ -42,7 +42,7 @@
 					</div>
 
 					<div class="bbp-submit-wrapper">
-						<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php esc_attr_e( 'Update', 'bbpress' ); ?>" /><br />
+						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit"><?php esc_attr_e( 'Update', 'bbpress' ); ?></button>
 
 						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-update-topic-tag" />
@@ -70,8 +70,7 @@
 					</div>
 
 					<div class="bbp-submit-wrapper">
-						<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php esc_attr_e( 'Merge', 'bbpress' ); ?>"
-							onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');" />
+						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Merge', 'bbpress' ); ?></button>
 
 						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-merge-topic-tag" />
@@ -99,8 +98,7 @@
 					<form id="delete_tag" name="delete_tag" method="post" action="">
 
 						<div class="bbp-submit-wrapper">
-							<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php _e( 'Delete', 'bbpress' ); ?>"
-								onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');" />
+							<button type="submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Delete', 'bbpress' ); ?></button>
 
 							<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 							<input type="hidden" name="action" value="bbp-delete-topic-tag" />
