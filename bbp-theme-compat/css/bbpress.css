@@ -153,7 +153,7 @@ li.bbp-topic-freshness{
 
 #bbpress-forums li.bbp-body ul.forum,
 #bbpress-forums li.bbp-body ul.topic {
-	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
 	overflow: hidden;
 	padding: 8px;
 }
@@ -228,8 +228,7 @@ li.bbp-body div.hentry {
 
 div.bbp-topic-header,
 div.bbp-reply-header {
-	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #eee;
+	border-top: 1px solid #ddd;
 	clear: both;
 }
 
