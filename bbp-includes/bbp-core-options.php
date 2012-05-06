@@ -19,7 +19,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_get_default_options() {
 
 	// Default options
-	$options = array (
+	return apply_filters( 'bbp_get_default_options', array(
 
 		/** DB Version ********************************************************/
 
@@ -149,9 +149,7 @@ function bbp_get_default_options() {
 
 		// Users from all sites can post
 		'_bbp_enable_akismet'       => true,
-	);
-
-	return apply_filters( 'bbp_get_default_options', $options );
+	) );
 }
 
 /**
@@ -167,11 +165,8 @@ function bbp_get_default_options() {
  */
 function bbp_add_options() {
 
-	// Get the default options and values
-	$options = bbp_get_default_options();
-
 	// Add default options
-	foreach ( $options as $key => $value )
+	foreach ( bbp_get_default_options() as $key => $value )
 		add_option( $key, $value );
 
 	// Allow previously activated plugins to append their own options.
@@ -191,11 +186,8 @@ function bbp_add_options() {
  */
 function bbp_delete_options() {
 
-	// Get the default options and values
-	$options = bbp_get_default_options();
-
 	// Add default options
-	foreach ( $options as $key => $value )
+	foreach ( bbp_get_default_options() as $key => $value )
 		delete_option( $key );
 
 	// Allow previously activated plugins to append their own options.
@@ -213,11 +205,8 @@ function bbp_delete_options() {
  */
 function bbp_setup_option_filters() {
 
-	// Get the default options and values
-	$options = bbp_get_default_options();
-
 	// Add filters to each bbPress option
-	foreach ( $options as $key => $value )
+	foreach ( bbp_get_default_options() as $key => $value )
 		add_filter( 'pre_option_' . $key, 'bbp_pre_get_option' );
 
 	// Allow previously activated plugins to append their own options.
@@ -235,11 +224,8 @@ function bbp_setup_option_filters() {
 function bbp_pre_get_option( $value = false ) {
 	$bbp = bbpress();
 
-	// Get the name of the current filter so we can manipulate it
-	$filter = current_filter();
-
 	// Remove the filter prefix
-	$option = str_replace( 'pre_option_', '', $filter );
+	$option = str_replace( 'pre_option_', '', current_filter() );
 
 	// Check the options global for preset value
 	if ( !empty( $bbp->options[$option] ) )
