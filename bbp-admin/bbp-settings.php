@@ -860,10 +860,6 @@ function bbp_converter_settings() {
 			<?php do_settings_sections( 'bbpress_converter' ); ?>
 
 			<p class="submit">
-				<input type="button" name="submit" class="button" id="bbp-converter-save" value="<?php _e( 'Save', 'bbpress' ); ?>" />
-			</p>
-
-			<p class="submit">
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php _e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start()" />
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php _e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop()" />
 				<img id="bbp-converter-progress" src="">

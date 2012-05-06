@@ -44,10 +44,10 @@ class BBP_Admin {
 	 */
 	public $styles_url = '';
 
-	/** Recounts **************************************************************/
+	/** Tools *****************************************************************/
 
 	/**
-	 * @var bool Enable recounts in Tools area
+	 * @var bool Enable screens in Tools area
 	 */
 	public $enable_tools = false;
 
@@ -150,18 +150,10 @@ class BBP_Admin {
 	 */
 	private function setup_globals() {
 		$bbp = bbpress();
-
-		// Admin url
-		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' );
-
-		// Admin url
-		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' );
-
-		// Admin images URL
-		$this->images_url = trailingslashit( $this->admin_url . 'images' );
-
-		// Admin images URL
-		$this->styles_url = trailingslashit( $this->admin_url . 'styles' );
+		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' ); // Admin url
+		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' ); // Admin url
+		$this->images_url = trailingslashit( $this->admin_url . 'images'    ); // Admin images URL
+		$this->styles_url = trailingslashit( $this->admin_url . 'styles'    ); // Admin styles URL
 	}
 
 	/**
@@ -175,32 +167,39 @@ class BBP_Admin {
 	 */
 	public function admin_menus() {
 
-		// Recounts
+		// Are tools enabled
 		if ( is_super_admin() || !empty( $this->enable_tools ) ) {
 
 			// These are later removed in admin_head
 			add_management_page(
-				__( 'Repair', 'bbpress' ),
-				__( 'Repair', 'bbpress' ),
+				__( 'Repair Forums', 'bbpress' ),
+				__( 'Forum Repair', 'bbpress' ),
 				'manage_options',
 				'bbp-repair',
-				'bbp_admin_tools_screen'
+				'bbp_admin_repair'
 			);
 			add_management_page(
-				__( 'Converter', 'bbpress' ),
-				__( 'Converter', 'bbpress' ),
+				__( 'Import Forums', 'bbpress' ),
+				__( 'Forum Import', 'bbpress' ),
 				'manage_options',
 				'bbp-converter',
 				'bbp_converter_settings'
 			);
+			add_management_page(
+				__( 'Reset Forums', 'bbpress' ),
+				__( 'Forum Reset', 'bbpress' ),
+				'manage_options',
+				'bbp-reset',
+				'bbp_admin_reset'
+			);
 
-			// Forums tools root
+			// Forums Tools Root
 			add_management_page(
 				__( 'Forums', 'bbpress' ),
 				__( 'Forums', 'bbpress' ),
 				'manage_options',
 				'bbp-repair',
-				'bbp_admin_tools_screen'
+				'bbp_admin_repair'
 			);
 		}
 
@@ -505,6 +504,7 @@ class BBP_Admin {
 		// They are grouped together by h2 tabs
 		remove_submenu_page( 'tools.php', 'bbp-repair'    );
 		remove_submenu_page( 'tools.php', 'bbp-converter' );
+		remove_submenu_page( 'tools.php', 'bbp-reset'     );
 
 		// Icons for top level admin menus
 		$menu_icon_url = $this->images_url . 'menu.png';

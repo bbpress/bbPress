@@ -83,8 +83,9 @@ add_action( 'bbp_new_site', 'flush_rewrite_rules'           );
 // Contextual Helpers
 add_action( 'load-settings_page_bbpress', 'bbp_admin_settings_help' );
 
-// Handle submission of Recount page
-add_action( 'load-tools_page_bbp-repair', 'bbp_admin_tools_handler' );
+// Handle submission of Tools pages
+add_action( 'load-tools_page_bbp-repair', 'bbp_admin_repair_handler' );
+add_action( 'load-tools_page_bbp-reset',  'bbp_admin_reset_handler'  );
 
 // Add sample permalink filter
 add_filter( 'post_type_link', 'bbp_filter_sample_permalink', 10, 4 );

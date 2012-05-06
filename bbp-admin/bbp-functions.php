@@ -17,7 +17,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @since bbPress (r2957)
  */
-function bbp_admin_separator () {
+function bbp_admin_separator() {
 	global $menu;
 
 	// Prevent duplicate separators when no new menu items exist
@@ -168,11 +168,15 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		$tabs = apply_filters( 'bbp_tools_admin_tabs', array(
 			'0' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-repair'    ), 'tools.php' ) ),
-				'name' => __( 'Repair Forums', 'buddypress' )
+				'name' => __( 'Repair Forums', 'bbpress' )
 			),
 			'1' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) ),
-				'name' => __( 'Import Forums', 'buddypress' )
+				'name' => __( 'Import Forums', 'bbpress' )
+			),
+			'2' => array(
+				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-reset'     ), 'tools.php' ) ),
+				'name' => __( 'Reset Forums', 'bbpress' )
 			)
 		) );
 

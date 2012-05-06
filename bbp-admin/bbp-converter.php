@@ -932,13 +932,19 @@ abstract class BBP_Converter_Base {
 
 										// Topics need an extra bit of metadata
 										// to be keyed to the new post_id
-										if ( 'topic' == $to_type ) {
-											if ( '_bbp_topic_id' == $key ) {
-												update_post_meta( $post_id, $key, $post_id );
-											}
-										}
+										if ( ( 'topic' == $to_type ) && ( '_bbp_topic_id' == $key ) ) {
 
-										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
+											// Update the live topic ID
+											update_post_meta( $post_id, $key, $post_id );
+
+											// Save the old topic ID
+											add_post_meta( $post_id, '_bbp_old_topic_id', $value );
+											if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
+												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_bbp_topic_id',     'meta_value' => $post_id ) );
+												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_bbp_old_topic_id', 'meta_value' => $value   ) );
+											}
+
+										} elseif ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
 									}
@@ -1125,9 +1131,9 @@ abstract class BBP_Converter_Base {
 	private function callback_topicid( $field ) {
 		if ( !isset( $this->map_topicid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			}
 
 			if ( !is_null( $row ) ) {
