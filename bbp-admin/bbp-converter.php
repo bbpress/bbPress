@@ -819,9 +819,6 @@ abstract class BBP_Converter_Base {
 			// Query returned some results
 			if ( !empty( $forum_array ) ) {
 
-				// Update output
-				printf( __( 'Found %s (%d - %d)', 'bbpress' ) . '<br />', $to_type, $start, $start + count( $forum_array) - 1 );
-
 				// Loop through results
 				foreach ( (array) $forum_array as $forum ) {
 
