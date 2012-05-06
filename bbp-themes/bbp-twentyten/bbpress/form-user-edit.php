@@ -136,7 +136,7 @@
 			</fieldset>
 		</div>
 
-		<?php if ( !bbp_is_user_home() ) : ?>
+		<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home() ) : ?>
 
 			<div>
 				<label for="role"><?php _e( 'Role:', 'bbpress' ) ?></label>
