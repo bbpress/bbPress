@@ -144,7 +144,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
 /**
  * Output the tabs in the admin area
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r3872)
  * @param string $active_tab Name of the tab that is active
  */
 function bbp_tools_admin_tabs( $active_tab = '' ) {
@@ -154,7 +154,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 	/**
 	 * Output the tabs in the admin area
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3872)
 	 * @param string $active_tab Name of the tab that is active
 	 */
 	function bbp_get_tools_admin_tabs( $active_tab = '' ) {

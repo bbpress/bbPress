@@ -640,9 +640,9 @@ function bbp_recount_rewalk() {
 }
 
 /**
- * Recaches the forum for each topic
+ * Recaches the forum for each post
  *
- * @since bbPress (r3040)
+ * @since bbPress (r3876)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -695,9 +695,9 @@ function bbp_recount_forum_meta() {
 }
 
 /**
- * Recaches the forum for each topic
+ * Recaches the topic for each post
  *
- * @since bbPress (r3040)
+ * @since bbPress (r3876)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
