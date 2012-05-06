@@ -45,6 +45,22 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_reply_count'
 		);
 
+		// Forum topic count. Stored in postmeta.
+		$this->field_map[] = array(
+			'from_tablename' => 'forums',
+			'from_fieldname' => 'topics',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_total_topic_count'
+		);
+
+		// Forum reply count. Stored in postmeta.
+		$this->field_map[] = array(
+			'from_tablename' => 'forums',
+			'from_fieldname' => 'posts',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_total_reply_count'
+		);
+
 		// Forum title.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
