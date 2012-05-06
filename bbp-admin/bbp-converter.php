@@ -145,6 +145,13 @@ class BBP_Converter {
 				margin: 0.5em 0;
 				padding: 2px;
 			}
+			
+			div.bbp-converter-updated p strong.loading {
+				padding: 2px 20px 2px 0;
+				background-image: url('<?php echo admin_url(); ?>images/wpspin_light.gif');
+				background-repeat: no-repeat;
+				background-position: center right;
+			}
 
 			#bbp-converter-stop {
 				display:none;
@@ -212,7 +219,7 @@ class BBP_Converter {
 				bbconverter_log(response);
 				
 				if ( response == 'Conversion Complete' || response.indexOf('error') > -1 ) {
-					bbconverter_log('<b>Repair any missing information: <a href="tools.php?page=bbp-repair">Continue</a></b>');
+					bbconverter_log('<b>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></b>');
 					jQuery('#bbp-converter-start').show();
 					jQuery('#bbp-converter-stop').hide();
 					jQuery('#bbp-converter-progress').hide();
@@ -234,7 +241,8 @@ class BBP_Converter {
 					jQuery('#bbp-converter-message').show();
 				}
 				if( text ) {
-					jQuery('#bbp-converter-message').prepend('<p><strong>' + text + '</strong></p>');
+					jQuery('#bbp-converter-message strong').removeClass( 'loading' );
+					jQuery('#bbp-converter-message').prepend('<p><strong class="loading">' + text + '</strong></p>');
 				}
 			}
 
