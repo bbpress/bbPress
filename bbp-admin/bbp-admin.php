@@ -170,28 +170,35 @@ class BBP_Admin {
 		// Are tools enabled
 		if ( is_super_admin() || !empty( $this->enable_tools ) ) {
 
+			$hooks = array();
+
 			// These are later removed in admin_head
-			add_management_page(
+			$hooks[] = add_management_page(
 				__( 'Repair Forums', 'bbpress' ),
 				__( 'Forum Repair', 'bbpress' ),
 				'manage_options',
 				'bbp-repair',
 				'bbp_admin_repair'
 			);
-			add_management_page(
+			$hooks[] = add_management_page(
 				__( 'Import Forums', 'bbpress' ),
 				__( 'Forum Import', 'bbpress' ),
 				'manage_options',
 				'bbp-converter',
 				'bbp_converter_settings'
 			);
-			add_management_page(
+			$hooks[] = add_management_page(
 				__( 'Reset Forums', 'bbpress' ),
 				__( 'Forum Reset', 'bbpress' ),
 				'manage_options',
 				'bbp-reset',
 				'bbp_admin_reset'
 			);
+
+			// Fudge the highlighted subnav item when on a bbPress admin page
+			foreach( $hooks as $hook ) {
+				add_action( "admin_head-$hook", 'bbp_tools_modify_menu_highlight' );
+			}
 
 			// Forums Tools Root
 			add_management_page(

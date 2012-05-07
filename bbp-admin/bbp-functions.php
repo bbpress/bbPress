@@ -142,6 +142,25 @@ function bbp_do_uninstall( $site_id = 0 ) {
 }
 
 /**
+ * This tells WP to highlight the Tools > Forums menu item,
+ * regardless of which actual bbPress Tools screen we are on.
+ *
+ * The conditional prevents the override when the user is viewing settings or
+ * any third-party plugins.
+ *
+ * @since bbPress (r3888)
+ * @global string $plugin_page
+ * @global array $submenu_file
+ */
+function bbp_tools_modify_menu_highlight() {
+	global $plugin_page, $submenu_file;
+
+	// This tweaks the Tools subnav menu to only show one bbPress menu item
+	if ( ! in_array( $plugin_page, array( 'bbp-settings' ) ) )
+		$submenu_file = 'bbp-repair';
+}
+
+/**
  * Output the tabs in the admin area
  *
  * @since bbPress (r3872)
