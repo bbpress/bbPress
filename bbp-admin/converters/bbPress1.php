@@ -452,34 +452,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => 'display_name'
 		);
-
-		// User aim.
-//		$this->field_map[] = array(
-//			'from_tablename' => 'users',
-//			'from_fieldname' => 'aim',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => 'aim'
-//		);
-
-		// User yahoo.
-//		$this->field_map[] = array(
-//			'from_tablename' => 'users',
-//			'from_fieldname' => 'yahoo',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => 'yim'
-//		);
-
-		/** Meta Section ******************************************************/
-
-		return;
-
-		// User registered.
-		$this->field_map[] = array(
-			'from_tablename' => 'meta',
-			'from_fieldname' => 'meta_value',
-			'to_type'        => 'postmeta',
-			'to_fieldname'   => '_bbp_'
-		);
 	}
 
 	/**

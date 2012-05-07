@@ -189,7 +189,7 @@ class BBP_Converter {
 			}
 
 			function bbconverter_start() {
-				if( !bbconverter_is_running ) {
+				if( false == bbconverter_is_running ) {
 					bbconverter_is_running = true;
 					jQuery('#bbp-converter-start').hide();
 					jQuery('#bbp-converter-stop').show();
@@ -213,6 +213,7 @@ class BBP_Converter {
 
 			function bbconverter_stop() {
 				bbconverter_is_running = false;
+				jQuery('#bbp-converter-message strong').removeClass( 'loading' );
 			}
 
 			function bbconverter_success(response) {
@@ -223,6 +224,7 @@ class BBP_Converter {
 					jQuery('#bbp-converter-start').show();
 					jQuery('#bbp-converter-stop').hide();
 					jQuery('#bbp-converter-progress').hide();
+					bbconverter_stop();
 					clearTimeout( bbconverter_run_timer );
 				} else if( bbconverter_is_running ) { // keep going
 					jQuery('#bbp-converter-progress').show();
@@ -237,10 +239,10 @@ class BBP_Converter {
 			}
 
 			function bbconverter_log(text) {
-				if(jQuery('#bbp-converter-message').css('display') == 'none') {
+				if ( jQuery('#bbp-converter-message').css('display') == 'none' ) {
 					jQuery('#bbp-converter-message').show();
 				}
-				if( text ) {
+				if ( text ) {
 					jQuery('#bbp-converter-message strong').removeClass( 'loading' );
 					jQuery('#bbp-converter-message').prepend('<p><strong class="loading">' + text + '</strong></p>');
 				}
@@ -577,10 +579,12 @@ abstract class BBP_Converter_Base {
 	 */
 	public $sync_table_name;
 
+	/** Methods ***************************************************************/
+
 	/**
 	 * This is the constructor and it connects to the platform databases.
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_globals();
 	}
 
