@@ -493,15 +493,6 @@ p.form-allowed-tags {
 	width: 462px;
 }
 
-input[type="password"] {
-	background: #f9f9f9;
-	border: 1px solid #ccc;
-	box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-	-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-	padding: 2px;
-}
-
 /* =TinyMCE in themes
 -------------------------------------------------------------- */
 #bbpress-forums div.bbp-the-content-wrapper {
@@ -701,12 +692,17 @@ div.bbp-template-notice a {
 	padding: 5px;
 }
 
-.bbp-login-form .bbp-username label,
-.bbp-login-form .bbp-password label {
-	width: 70px;
+.bbp-login-form label {
+	width: 140px;
 	display: inline-block;
 }
+
+#sidebar .bbp-login-form label {
+	width: 70px;
+}
+
 .bbp-login-form .bbp-username,
+.bbp-login-form .bbp-email,
 .bbp-login-form .bbp-password,
 .bbp-login-form .bbp-remember-me,
 .bbp-login-form .bbp-submit-wrapper {
