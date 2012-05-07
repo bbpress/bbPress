@@ -335,15 +335,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_status'
 		);
 
-		// Topic slug. Clean name.
-//		$this->field_map[] = array(
-//			'from_tablename'   => 'posts',
-//			'from_fieldname'   => 'title',
-//			'to_type'          => 'reply',
-//			'to_fieldname'     => 'post_name',
-//			'callback_method'  => 'callback_slug'
-//		);
-
 		// Post content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
@@ -398,14 +389,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_user_id'
 		);
 
-		// Store User password.
-//		$this->field_map[] = array(
-//			'from_tablename' => 'users',
-//			'from_fieldname' => 'user_pass',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => 'user_pass'
-//		);
-
 		// Store old User password. Stores in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
@@ -420,6 +403,14 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname' => 'user_login',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_login'
+		);
+
+		// User nice name.
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_nicename',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_nicename'
 		);
 
 		// User email.
@@ -446,6 +437,22 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => 'user_registered'
 		);
 
+		// User status.
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'user_status',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_status'
+		);
+
+		// User status.
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'display_name',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'display_name'
+		);
+
 		// User aim.
 //		$this->field_map[] = array(
 //			'from_tablename' => 'users',
@@ -460,7 +467,19 @@ class bbPress1 extends BBP_Converter_Base {
 //			'from_fieldname' => 'yahoo',
 //			'to_type'        => 'user',
 //			'to_fieldname'   => 'yim'
-//		);		
+//		);
+
+		/** Meta Section ******************************************************/
+
+		return;
+
+		// User registered.
+		$this->field_map[] = array(
+			'from_tablename' => 'meta',
+			'from_fieldname' => 'meta_value',
+			'to_type'        => 'postmeta',
+			'to_fieldname'   => '_bbp_'
+		);
 	}
 
 	/**
