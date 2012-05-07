@@ -364,6 +364,52 @@ function bbp_admin_repair_forum_reply_count() {
 }
 
 /**
+ * Recount topics by the users
+ *
+ * @since bbPress (r3889)
+ *
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_user_topic_count() {
+	global $wpdb;
+
+	$statement   = __( 'Counting the number of topics each user has created&hellip; %s', 'bbpress' );
+	$result      = __( 'Failed!', 'bbpress' );
+	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
+	$insert_rows = $wpdb->get_results( $sql_select );
+
+	if ( is_wp_error( $insert_rows ) )
+		return array( 1, sprintf( $statement, $result ) );
+
+	$insert_values = array();
+	foreach ( $insert_rows as $insert_row )
+		$insert_values[] = "('{$insert_row->post_author}', '_bbp_topic_count', '{$insert_row->_count}')";
+
+	if ( !count( $insert_values ) )
+		return array( 2, sprintf( $statement, $result ) );
+
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_topic_count';";
+	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
+		return array( 3, sprintf( $statement, $result ) );
+
+	$insert_values = array_chunk( $insert_values, 10000 );
+	foreach ( $insert_values as $chunk ) {
+		$chunk = "\n" . join( ",\n", $chunk );
+		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
+
+		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
+			return array( 4, sprintf( $statement, $result ) );
+		}
+	}
+
+	$result = __( 'Complete!', 'bbpress' );
+	return array( 0, sprintf( $statement, $result ) );
+}
+
+/**
  * Recount topic replied by the users
  *
  * @since bbPress (r2613)
@@ -376,10 +422,9 @@ function bbp_admin_repair_forum_reply_count() {
 function bbp_admin_repair_user_reply_count() {
 	global $wpdb;
 
-	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
-	$result    = __( 'Failed!', 'bbpress' );
-
-	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
+	$statement   = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
+	$result      = __( 'Failed!', 'bbpress' );
+	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
 	$insert_rows = $wpdb->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) )
@@ -387,12 +432,12 @@ function bbp_admin_repair_user_reply_count() {
 
 	$insert_values = array();
 	foreach ( $insert_rows as $insert_row )
-		$insert_values[] = "('{$insert_row->post_author}', '_bbp_topics_replied', '{$insert_row->_count}')";
+		$insert_values[] = "('{$insert_row->post_author}', '_bbp_reply_count', '{$insert_row->_count}')";
 
 	if ( !count( $insert_values ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_topics_replied';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_reply_count';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
@@ -401,8 +446,9 @@ function bbp_admin_repair_user_reply_count() {
 		$chunk = "\n" . join( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
-		if ( is_wp_error( $wpdb->query( $sql_insert ) ) )
+		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
 			return array( 4, sprintf( $statement, $result ) );
+		}
 	}
 
 	$result = __( 'Complete!', 'bbpress' );
