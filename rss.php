@@ -184,7 +184,7 @@ if ( !$bb_db_override ) {
 if ( !$posts ) /* We do typecasting in the template, but all themes don't have that! */
 	$posts = array();
 else /* Only send 304 if there are posts */
-	bb_send_304( $posts[0]->post_time );
+	bb_send_304( gmdate('D, d M Y H:i:s \G\M\T', strtotime( $posts[0]->post_time ) ) );
 
 if (!$description = bb_get_option( 'description' ) ) {
 	$description = $title;
@@ -196,4 +196,3 @@ $link_self = apply_filters( 'bb_link_self_rss', $link_self, $feed );
 
 bb_load_template( 'rss2.php', array('bb_db_override', 'title', 'description', 'link', 'link_self'), $feed );
 
-?>
