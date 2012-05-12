@@ -12,11 +12,11 @@ nocache_headers();
 /** Look for redirection ******************************************************/
 
 // Look for 'redirect_to'
-if ( isset( $_REQUEST['redirect_to'] ) )
+if ( isset( $_REQUEST['redirect_to'] ) && is_string( $_REQUEST['redirect_to'] ) )
 	$re = $_REQUEST['redirect_to'];
 
 	// Look for 're'
-	if ( empty( $re ) && isset( $_REQUEST['re'] ) )
+	if ( empty( $re ) && isset( $_REQUEST['re'] )  && is_string( $_REQUEST['re'] ) )
 		$re = $_REQUEST['re'];
 
 		// Use referer
@@ -31,6 +31,7 @@ if ( isset( $_REQUEST['redirect_to'] ) )
 
 				if ( false !== strpos( $re, $home_path . 'register.php' ) || false !== strpos( $re, $home_path . 'bb-reset-password.php' ) )
 					$re = bb_get_uri( null, null, BB_URI_CONTEXT_HEADER );
+
 			}
 
 /**
