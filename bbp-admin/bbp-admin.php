@@ -51,6 +51,20 @@ class BBP_Admin {
 	 */
 	public $enable_tools = false;
 
+	/** Settings **************************************************************/
+
+	/**
+	 * @var bool Enable screens in Settings area
+	 */
+	public $enable_settings = false;
+
+	/** Capability ************************************************************/
+
+	/**
+	 * @var bool Minimum capability to access Tools and Settings
+	 */
+	public $minimum_capability = 'manage_options';
+
 	/** Admin Scheme **********************************************************/
 
 	/**
@@ -167,30 +181,30 @@ class BBP_Admin {
 	 */
 	public function admin_menus() {
 
-		// Are tools enabled
-		if ( is_super_admin() || !empty( $this->enable_tools ) ) {
+		// Are tools enabled?
+		if ( is_super_admin() || ! empty( $this->enable_tools ) ) {
 
 			$hooks = array();
 
 			// These are later removed in admin_head
 			$hooks[] = add_management_page(
 				__( 'Repair Forums', 'bbpress' ),
-				__( 'Forum Repair', 'bbpress' ),
-				'manage_options',
+				__( 'Forum Repair',  'bbpress' ),
+				$this->minimum_capability,
 				'bbp-repair',
 				'bbp_admin_repair'
 			);
 			$hooks[] = add_management_page(
 				__( 'Import Forums', 'bbpress' ),
-				__( 'Forum Import', 'bbpress' ),
-				'manage_options',
+				__( 'Forum Import',  'bbpress' ),
+				$this->minimum_capability,
 				'bbp-converter',
 				'bbp_converter_settings'
 			);
 			$hooks[] = add_management_page(
 				__( 'Reset Forums', 'bbpress' ),
-				__( 'Forum Reset', 'bbpress' ),
-				'manage_options',
+				__( 'Forum Reset',  'bbpress' ),
+				$this->minimum_capability,
 				'bbp-reset',
 				'bbp_admin_reset'
 			);
@@ -204,20 +218,22 @@ class BBP_Admin {
 			add_management_page(
 				__( 'Forums', 'bbpress' ),
 				__( 'Forums', 'bbpress' ),
-				'manage_options',
+				$this->minimum_capability,
 				'bbp-repair',
 				'bbp_admin_repair'
 			);
 		}
 
-		// Forums settings
-		add_options_page(
-			__( 'Forums',  'bbpress' ),
-			__( 'Forums',  'bbpress' ),
-			'manage_options',
-			'bbpress',
-			'bbp_admin_settings'
-		);
+		// Are settings enabled?
+		if ( is_super_admin() || ! empty( $this->enable_settings ) ) {
+			add_options_page(
+				__( 'Forums',  'bbpress' ),
+				__( 'Forums',  'bbpress' ),
+				$this->minimum_capability,
+				'bbpress',
+				'bbp_admin_settings'
+			);
+		}
 	}
 
 	/**
