@@ -297,29 +297,29 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 	return false;
 }
 
-	/**
-	 * Get a user's favorite topics' ids
-	 *
-	 * @since bbPress (r2652)
-	 *
-	 * @param int $user_id Optional. User id
-	 * @uses bbp_get_user_id() To get the user id
-	 * @uses get_user_meta() To get the user favorites
-	 * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
-	 *                        the favorites and user id
-	 * @return array|bool Results if user has favorites, otherwise false
-	 */
-	function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
-		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
-			return false;
+/**
+ * Get a user's favorite topics' ids
+ *
+ * @since bbPress (r2652)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses get_user_meta() To get the user favorites
+ * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
+ *                        the favorites and user id
+ * @return array|bool Results if user has favorites, otherwise false
+ */
+function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) )
+		return false;
 
-		$favorites = (string) get_user_meta( $user_id, bbp_get_favorites_key(), true );
-		$favorites = (array) explode( ',', $favorites );
-		$favorites = array_filter( $favorites );
+	$favorites = (string) get_user_meta( $user_id, bbp_get_favorites_key(), true );
+	$favorites = (array) explode( ',', $favorites );
+	$favorites = array_filter( $favorites );
 
-		return apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites, $user_id );
-	}
+	return apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites, $user_id );
+}
 
 /**
  * Check if a topic is in user's favorites or not
