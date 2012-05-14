@@ -265,6 +265,13 @@ class bbPress {
 	 */
 	public $options = array();
 
+	/** Function Overload *****************************************************/
+
+	/**
+	 * @var array Optional Overloads WordPress functions with new functions.
+	 */
+	public $functions = array();
+
 	/** Singleton *************************************************************/
 
 	/**
@@ -419,7 +426,8 @@ class bbPress {
 
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration Options
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-functions.php'  ); // Core functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration options
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets

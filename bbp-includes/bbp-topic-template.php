@@ -35,6 +35,19 @@ function bbp_topic_post_type() {
 		return apply_filters( 'bbp_get_topic_post_type', bbpress()->topic_post_type );
 	}
 
+/**
+ * The plugin version of bbPress comes with two topic display options:
+ * - Traditional: Topics are included in the reply loop (default)
+ * - New Style: Topics appear as "lead" posts, ahead of replies
+ *
+ * @since bbPress (r2954)
+ * @param $show_lead Optional. Default false
+ * @return bool Yes if the topic appears as a lead, otherwise false
+ */
+function bbp_show_lead_topic( $show_lead = false ) {
+	return (bool) apply_filters( 'bbp_show_lead_topic', (bool) $show_lead );
+}
+
 /** Topic Loop ****************************************************************/
 
 /**
