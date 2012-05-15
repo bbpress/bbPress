@@ -5,6 +5,7 @@
  *
  * @package bbPress
  * @subpackage BuddyPress
+ * @todo maybe move to BuddyPress Forums once bbPress 1.1 can be removed
  */
 
 // Exit if accessed directly
@@ -102,17 +103,18 @@ class BBP_BuddyPress {
 	 */
 	private $reply_slug = '';
 
-	/** Functions *************************************************************/
+	/** Setup Methods *********************************************************/
 
 	/**
 	 * The main bbPress BuddyPress loader
 	 *
 	 * @since bbPress (r3395)
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
 		$this->setup_filters();
+		$this->fully_loaded();
 	}
 
 	/**
@@ -158,23 +160,27 @@ class BBP_BuddyPress {
 
 		/** Activity **********************************************************/
 
-		// Register the activity stream actions
-		add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
+		// Bail if activity is not active
+		if ( bp_is_active( 'activity' ) ) {
 
-		// Hook into topic creation
-		add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
+			// Register the activity stream actions
+			add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
 
-		// Hook into reply creation
-		add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
+			// Hook into topic creation
+			add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
 
-		// Append forum filters in site wide activity streams
-		add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
+			// Hook into reply creation
+			add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
 
-		// Append forum filters in single member activity streams
-		add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
+			// Append forum filters in site wide activity streams
+			add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
 
-		// Append forum filters in single group activity streams
-		add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
+			// Append forum filters in single member activity streams
+			add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
+
+			// Append forum filters in single group activity streams
+			add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
+		}
 
 		/** Favorites *********************************************************/
 
@@ -242,6 +248,18 @@ class BBP_BuddyPress {
 	}
 
 	/**
+	 * Allow the variables, actions, and filters to be modified by third party
+	 * plugins and themes.
+	 *
+	 * @since bbPress (r3902)
+	 */
+	private function fully_loaded() {
+		do_action_ref_array( 'bbp_buddypress_loaded', array( $this ) );
+	}
+
+	/** Methods ***************************************************************/
+
+	/**
 	 * Strip out BuddyPress activity at-name HTML on topic/reply edit
 	 *
 	 * Copied from bp_forums_strip_mentions_on_post_edit() in case forums
@@ -277,11 +295,7 @@ class BBP_BuddyPress {
 	 * @uses bp_activity_set_action()
 	 */
 	public function register_activity_actions() {
-
-		// Topics
 		bp_activity_set_action( $this->component, $this->topic_create, __( 'New topic created', 'bbpress' ) );
-
-		// Replies
 		bp_activity_set_action( $this->component, $this->reply_create, __( 'New reply created', 'bbpress' ) );
 	}
 
@@ -298,10 +312,6 @@ class BBP_BuddyPress {
 	 * @return type Activity ID if successful, false if not
 	 */
 	private function record_activity( $args = '' ) {
-
-		// Bail if activity is not active
-		if ( !bp_is_active( 'activity' ) )
-			return false;
 
 		// Default activity args
 		$defaults = array (
@@ -335,10 +345,6 @@ class BBP_BuddyPress {
 	 * @return type Activity ID if successful, false if not
 	 */
 	public function delete_activity( $args = '' ) {
-
-		// Bail if activity is not active
-		if ( !bp_is_active( 'activity' ) )
-			return;
 
 		// Default activity args
 		$defaults = array(
@@ -781,7 +787,7 @@ class BBP_BuddyPress {
 		if ( bbp_is_single_forum() ) {
 			$forum_id  = get_the_ID();
 			$group_ids = bbp_get_forum_group_ids( $forum_id );
-		} else if ( bbp_is_single_topic() ) {
+		} elseif ( bbp_is_single_topic() ) {
 			$topic_id  = get_the_ID();
 			$slug      = get_post_field( 'post_name', $topic_id );
 			$forum_id  = bbp_get_topic_forum_id( $topic_id );
@@ -801,7 +807,6 @@ class BBP_BuddyPress {
 
 			bp_core_redirect( $redirect_to );
 		}
-
 	}
 }
 endif;
@@ -823,7 +828,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @since bbPress (r3552)
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::start(
 			'forums',
 			__( 'Forums', 'bbpress' ),
@@ -842,7 +847,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since bbPress (r3552)
 	 * @global BuddyPress $bp
 	 */
-	function setup_globals() {
+	private function setup_globals() {
 		global $bp;
 
 		// Define the parent forum ID
@@ -870,13 +875,11 @@ class BBP_Forums_Component extends BP_Component {
 	 * Setup BuddyBar navigation
 	 *
 	 * @since bbPress (r3552)
-	 * @global BuddyPress $bp
 	 */
-	function setup_nav() {
-		global $bp;
+	private function setup_nav() {
 
 		// Stop if there is no user displayed or logged in
-		if ( !is_user_logged_in() && !isset( $bp->displayed_user->id ) )
+		if ( !is_user_logged_in() && !bp_displayed_user_id() )
 			return;
 
 		// Define local variable(s)
@@ -894,10 +897,10 @@ class BBP_Forums_Component extends BP_Component {
 		);
 
 		// Determine user to use
-		if ( isset( $bp->displayed_user->domain ) )
-			$user_domain = $bp->displayed_user->domain;
-		elseif ( isset( $bp->loggedin_user->domain ) )
-			$user_domain = $bp->loggedin_user->domain;
+		if ( bp_displayed_user_id() )
+			$user_domain = bp_displayed_user_domain();
+		elseif ( bp_loggedin_user_domain() )
+			$user_domain = bp_loggedin_user_domain();
 		else
 			return;
 
@@ -959,7 +962,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since bbPress (r3552)
 	 * @global BuddyPress $bp
 	 */
-	function setup_admin_bar() {
+	private function setup_admin_bar() {
 		global $bp;
 
 		// Prevent debug notices
@@ -969,7 +972,7 @@ class BBP_Forums_Component extends BP_Component {
 		if ( is_user_logged_in() ) {
 
 			// Setup the logged in user variables
-			$user_domain = $bp->loggedin_user->domain;
+			$user_domain = bp_loggedin_user_domain();
 			$forums_link = trailingslashit( $user_domain . $this->slug );
 
 			// Add the "My Account" sub menus
@@ -1023,7 +1026,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @global BuddyPress $bp
 	 */
-	function setup_title() {
+	private function setup_title() {
 		global $bp;
 
 		// Adjust title based on view
@@ -1060,9 +1063,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Setup bbPress group extension variables
 	 *
 	 * @since bbPress (r3552)
-	 *
 	 */
-	function __construct() {
+	public function __construct() {
 
 		// Name and slug
 		$this->name          = bbp_get_forum_archive_title();
@@ -1100,7 +1102,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 3 );
 	}
 
-	function display() {
+	/**
+	 * The primary display function for group forums
+	 */
+	protected function display() {
 
 		// Prevent Topic Parent from appearing
 		add_action( 'bbp_theme_before_topic_form_forum', array( $this, 'ob_start'     ) );
@@ -1118,20 +1123,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$this->display_forums( 0 );
 	}
 
-	/**
-	 * Used to start an output buffer
-	 */
-	public function ob_start() {
-		ob_start();
-	}
-
-	/**
-	 * Used to end an output buffer
-	 */
-	public function ob_end_clean() {
-		ob_end_clean();
-	}
-
 	/** Edit ******************************************************************/
 
 	/**
@@ -1140,7 +1131,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r3563)
 	 * @uses bbp_get_template_part()
 	 */
-	function edit_screen() {
+	protected function edit_screen() {
 
 		// Add group admin actions to forum row actions
 		add_action( 'bbp_forum_row_actions', array( $this, 'forum_row_actions' ) );
@@ -1172,7 +1163,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_new_forum_handler() To check for forum creation
 	 * @uses bbp_edit_forum_handler() To check for forum edit
 	 */
-	function edit_screen_save() {
+	protected function edit_screen_save() {
 
 		// Bail if not a POST action
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
@@ -1229,7 +1220,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	function create_screen() {
+	protected function create_screen() {
 
 		// Bail if not looking at this screen
 		if ( !bp_is_group_creation_step( $this->slug ) )
@@ -1256,7 +1247,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	function create_screen_save() {
+	protected function create_screen_save() {
 
 		check_admin_referer( 'groups_create_save_' . $this->slug );
 
@@ -1310,6 +1301,20 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 				break;
 		}
+	}
+
+	/**
+	 * Used to start an output buffer
+	 */
+	public function ob_start() {
+		ob_start();
+	}
+
+	/**
+	 * Used to end an output buffer
+	 */
+	public function ob_end_clean() {
+		ob_end_clean();
 	}
 
 	/**
@@ -1646,6 +1651,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		return $redirect_url;
 	}
 
+	/** Form Helpers **********************************************************/
+
 	public function forum_parent() {
 	?>
 
@@ -1656,8 +1663,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 	public function topic_parent() {
 
-		$forum_ids = bbp_get_group_forum_ids( bp_get_current_group_id() );
-	?>
+		$forum_ids = bbp_get_group_forum_ids( bp_get_current_group_id() ); ?>
 
 		<p>
 			<label for="bbp_forum_id"><?php _e( 'Forum:', 'bbpress' ); ?></label><br />
