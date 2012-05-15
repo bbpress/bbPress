@@ -76,12 +76,12 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 			break;
 
 		// Check parent theme next
-		} else if ( file_exists( TEMPLATEPATH . '/' . $template_name ) ) {
+		} elseif ( file_exists( TEMPLATEPATH . '/' . $template_name ) ) {
 			$located = TEMPLATEPATH . '/' . $template_name;
 			break;
 
 		// Check theme compatibility last
-		} else if ( file_exists( bbp_get_theme_compat_dir() . '/' . $template_name ) ) {
+		} elseif ( file_exists( bbp_get_theme_compat_dir() . '/' . $template_name ) ) {
 			$located = bbp_get_theme_compat_dir() . '/' . $template_name;
 			break;
 		}
