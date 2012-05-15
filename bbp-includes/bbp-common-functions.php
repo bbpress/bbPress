@@ -3,6 +3,9 @@
 /**
  * bbPress Common Functions
  *
+ * Common functions are ones that are used by more than one component, like
+ * forums, topics, replies, users, topic tags, etc...
+ *
  * @package bbPress
  * @subpackage Functions
  */

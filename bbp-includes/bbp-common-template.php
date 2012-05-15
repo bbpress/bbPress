@@ -3,6 +3,9 @@
 /**
  * bbPress Common Template Tags
  *
+ * Common template tags are ones that are used by more than one component, like
+ * forums, topics, replies, users, topic tags, etc...
+ *
  * @package bbPress
  * @subpackage TemplateTags
  */
@@ -292,7 +295,6 @@ function bbp_is_topic_split() {
  * @return bool True if it's a topic tag, false if not
  */
 function bbp_is_topic_tag() {
-	$bbp = bbpress();
 
 	// Return false if editing a topic tag
 	if ( bbp_is_topic_tag_edit() )
@@ -324,7 +326,7 @@ function bbp_is_topic_tag_edit() {
 
 	// Check query
 	if ( !empty( $wp_query->bbp_is_topic_tag_edit ) && ( true == $wp_query->bbp_is_topic_tag_edit ) )
-		return true;
+		$retval = true;
 
 	// Editing in admin
 	elseif ( is_admin() && ( 'edit-tags.php' == $pagenow ) && ( bbp_get_topic_tag_tax_id() == $taxnow ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
@@ -347,21 +349,18 @@ function bbp_is_topic_tag_edit() {
  */
 function bbp_is_custom_post_type() {
 
-	// Current post type
-	$post_type = get_post_type();
+	// Assume false
+	$retval = false;
 
-	// bbPress post types
-	$bbp_post_types = array(
+	// Viewing one of the bbPress post types
+	if ( in_array( get_post_type(), array(
 		bbp_get_forum_post_type(),
 		bbp_get_topic_post_type(),
 		bbp_get_reply_post_type()
-	);
+	) ) )
+		$retval = true;
 
-	// Viewing one of the bbPress post types
-	if ( in_array( $post_type, $bbp_post_types ) )
-		return true;
-
-	return false;
+	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval );
 }
 
 /**
@@ -402,7 +401,7 @@ function bbp_is_reply_edit() {
 
 	// Check query
 	if ( !empty( $wp_query->bbp_is_reply_edit ) && ( true == $wp_query->bbp_is_reply_edit ) )
-		return true;
+		$retval = true;
 
 	// Editing in admin
 	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == bbp_get_reply_post_type() ) && ( !empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
@@ -819,7 +818,7 @@ function is_bbpress() {
 
 	/** Done ******************************************************************/
 
-	return apply_filters( 'is_bbpress', $retval );
+	return (bool) apply_filters( 'is_bbpress', $retval );
 }
 
 /** Forms *********************************************************************/
