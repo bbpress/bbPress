@@ -1675,7 +1675,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Define variables
 		$front_id         = $root_id                                 = 0;
-		$ancestors        = $breadcrumbs      = $tag_data            = array();
+		$ancestors        = $crumbs           = $tag_data            = array();
 		$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
 		$pre_include_root = $pre_include_home = $pre_include_current = true;
 
@@ -1803,7 +1803,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Do we want to include a link to home?
 		if ( !empty( $include_home ) || empty( $home_text ) )
-			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
+			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
 		if ( !empty( $include_root ) || empty( $root_text ) ) {
@@ -1819,7 +1819,7 @@ function bbp_breadcrumb( $args = array() ) {
 			}
 
 			// Add the breadcrumb
-			$breadcrumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
+			$crumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
 		}
 
 		// Ancestors exist
@@ -1836,53 +1836,57 @@ function bbp_breadcrumb( $args = array() ) {
 
 					// Forum
 					case bbp_get_forum_post_type() :
-						$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '" class="bbp-breadcrumb-forum">' . bbp_get_forum_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '" class="bbp-breadcrumb-forum">' . bbp_get_forum_title( $parent->ID ) . '</a>';
 						break;
 
 					// Topic
 					case bbp_get_topic_post_type() :
-						$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '" class="bbp-breadcrumb-topic">' . bbp_get_topic_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '" class="bbp-breadcrumb-topic">' . bbp_get_topic_title( $parent->ID ) . '</a>';
 						break;
 
 					// Reply (Note: not in most themes)
 					case bbp_get_reply_post_type() :
-						$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '" class="bbp-breadcrumb-reply">' . bbp_get_reply_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '" class="bbp-breadcrumb-reply">' . bbp_get_reply_title( $parent->ID ) . '</a>';
 						break;
 
 					// WordPress Post/Page/Other
 					default :
-						$breadcrumbs[] = '<a href="' . get_permalink( $parent->ID ) . '" class="bbp-breadcrumb-item">' . get_the_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . get_permalink( $parent->ID ) . '" class="bbp-breadcrumb-item">' . get_the_title( $parent->ID ) . '</a>';
 						break;
 				}
 			}
 
 		// Edit topic tag
 		} elseif ( bbp_is_topic_tag_edit() ) {
-			$breadcrumbs[] = '<a href="' . get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
+			$crumbs[] = '<a href="' . get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
 		}
 
 		/** Current ***********************************************************/
 
 		// Add current page to breadcrumb
 		if ( !empty( $include_current ) || empty( $pre_current_text ) )
-			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
+			$crumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
 
-		/** Finish Up *********************************************************/
+		/** Separator *********************************************************/
+
+		// Wrap the separator in a span before padding and filter
+		if ( !empty( $sep ) )
+			$sep = '<span class="bbp-breadcrumb-separator">' . $sep . '</span>';
 
 		// Pad the separator
 		if ( !empty( $pad_sep ) )
 			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
 
-		// Allow the separator of the breadcrumb to be easily changed
-		$sep = apply_filters( 'bbp_breadcrumb_separator', $sep );
+		/** Finish Up *********************************************************/
 
-		// Filter breadcrumbs before imploding them
-		$breadcrumbs = apply_filters( 'bbp_breadcrumbs', $breadcrumbs );
+		// Filter the separator and breadcrumb
+		$sep    = apply_filters( 'bbp_breadcrumb_separator', $sep    );
+		$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
 
 		// Build the trail
-		$trail = !empty( $breadcrumbs ) ? ( $before . implode( $sep, $breadcrumbs ) . $after ) : '';
+		$trail = !empty( $crumbs ) ? ( $before . implode( $sep, $crumbs ) . $after ) : '';
 
-		return apply_filters( 'bbp_get_breadcrumb', $trail, $breadcrumbs, $r );
+		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r );
 	}
 
 /** Topic Tags ***************************************************************/
