@@ -350,16 +350,16 @@ class bbPress {
 
 		// Setup some base path and URL information
 		$this->file       = __FILE__;
-		$this->basename   = plugin_basename( $this->file );
-		$this->plugin_dir = plugin_dir_path( $this->file );
-		$this->plugin_url = plugin_dir_url ( $this->file );
+		$this->basename   = apply_filters( 'bbp_plugin_basenname', plugin_basename( $this->file ) );
+		$this->plugin_dir = apply_filters( 'bbp_plugin_dir_path',  plugin_dir_path( $this->file ) );
+		$this->plugin_url = apply_filters( 'bbp_plugin_dir_url',   plugin_dir_url ( $this->file ) );
 
 		// Themes
-		$this->themes_dir = trailingslashit( $this->plugin_dir . 'bbp-themes' );
-		$this->themes_url = trailingslashit( $this->plugin_url . 'bbp-themes' );
+		$this->themes_dir = apply_filters( 'bbp_themes_dir', trailingslashit( $this->plugin_dir . 'bbp-themes' ) );
+		$this->themes_url = apply_filters( 'bbp_themes_url', trailingslashit( $this->plugin_url . 'bbp-themes' ) );
 
 		// Languages
-		$this->lang_dir   = trailingslashit( $this->plugin_dir . 'bbp-languages' );
+		$this->lang_dir   = apply_filters( 'bbp_lang_dir', trailingslashit( $this->plugin_dir . 'bbp-languages' ) );
 
 		/** Identifiers *******************************************************/
 
