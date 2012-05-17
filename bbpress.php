@@ -392,13 +392,8 @@ class bbPress {
 
 		/** Misc **************************************************************/
 
-		// Errors
 		$this->errors            = new WP_Error();
-
-		// Views
 		$this->views             = array();
-
-		// Tab Index
 		$this->tab_index         = apply_filters( 'bbp_default_tab_index', 100 );
 
 		/** Theme Compat ******************************************************/
