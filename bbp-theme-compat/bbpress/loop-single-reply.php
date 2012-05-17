@@ -51,11 +51,11 @@
 
 	<div class="bbp-reply-content">
 
-		<?php do_action( 'bbp_theme_after_reply_content' ); ?>
+		<?php do_action( 'bbp_theme_before_reply_content' ); ?>
 
 		<?php bbp_reply_content(); ?>
 
-		<?php do_action( 'bbp_theme_before_reply_content' ); ?>
+		<?php do_action( 'bbp_theme_after_reply_content' ); ?>
 
 	</div><!-- .bbp-reply-content -->
 
