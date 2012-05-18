@@ -1105,7 +1105,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * The primary display function for group forums
 	 */
-	protected function display() {
+	public function display() {
 
 		// Prevent Topic Parent from appearing
 		add_action( 'bbp_theme_before_topic_form_forum', array( $this, 'ob_start'     ) );
@@ -1131,7 +1131,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r3563)
 	 * @uses bbp_get_template_part()
 	 */
-	protected function edit_screen() {
+	public function edit_screen() {
 
 		// Add group admin actions to forum row actions
 		add_action( 'bbp_forum_row_actions', array( $this, 'forum_row_actions' ) );
@@ -1163,7 +1163,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_new_forum_handler() To check for forum creation
 	 * @uses bbp_edit_forum_handler() To check for forum edit
 	 */
-	protected function edit_screen_save() {
+	public function edit_screen_save() {
 
 		// Bail if not a POST action
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
@@ -1220,7 +1220,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	protected function create_screen() {
+	public function create_screen() {
 
 		// Bail if not looking at this screen
 		if ( !bp_is_group_creation_step( $this->slug ) )
@@ -1247,7 +1247,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	protected function create_screen_save() {
+	public function create_screen_save() {
 
 		check_admin_referer( 'groups_create_save_' . $this->slug );
 
