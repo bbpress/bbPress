@@ -847,7 +847,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since bbPress (r3552)
 	 * @global BuddyPress $bp
 	 */
-	private function setup_globals() {
+	public function setup_globals() {
 		global $bp;
 
 		// Define the parent forum ID
@@ -876,7 +876,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @since bbPress (r3552)
 	 */
-	private function setup_nav() {
+	public function setup_nav() {
 
 		// Stop if there is no user displayed or logged in
 		if ( !is_user_logged_in() && !bp_displayed_user_id() )
@@ -962,7 +962,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since bbPress (r3552)
 	 * @global BuddyPress $bp
 	 */
-	private function setup_admin_bar() {
+	public function setup_admin_bar() {
 		global $bp;
 
 		// Prevent debug notices
@@ -1026,7 +1026,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @global BuddyPress $bp
 	 */
-	private function setup_title() {
+	public function setup_title() {
 		global $bp;
 
 		// Adjust title based on view
