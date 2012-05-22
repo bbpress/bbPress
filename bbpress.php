@@ -31,7 +31,7 @@ if ( !class_exists( 'bbPress' ) ) :
  *
  * @since bbPress (r2464)
  */
-class bbPress {
+final class bbPress {
 
 	/**
 	 * Note to Plugin and Theme authors:
@@ -626,7 +626,7 @@ class bbPress {
 	 * @uses apply_filters() Calls various filters to modify the arguments
 	 *                        sent to register_post_type()
 	 */
-	public function register_post_types() {
+	public static function register_post_types() {
 
 		// Define local variable(s)
 		$post_type = array();
@@ -815,7 +815,7 @@ class bbPress {
 	 * @uses current_user_can() To check if the current user is capable &
 	 *                           modify $wp_post_statuses accordingly
 	 */
-	public function register_post_statuses() {
+	public static function register_post_statuses() {
 		global $wp_post_statuses;
 
 		// Closed
@@ -888,7 +888,7 @@ class bbPress {
 	 * @since bbPress (r2464)
 	 * @uses register_taxonomy() To register the taxonomy
 	 */
-	public function register_taxonomies() {
+	public static function register_taxonomies() {
 
 		// Define local variable(s)
 		$topic_tag = array();
@@ -937,7 +937,7 @@ class bbPress {
 	 * @since bbPress (r2789)
 	 * @uses bbp_register_view() To register the views
 	 */
-	public function register_views() {
+	public static function register_views() {
 
 		// Topics with no replies
 		bbp_register_view(
@@ -975,7 +975,7 @@ class bbPress {
 	 * @since bbPress (r2753)
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
-	public function add_rewrite_tags() {
+	public static function add_rewrite_tags() {
 		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id() . '%%', '([^/]+)'   ); // User Profile tag
 		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id() . '%%', '([^/]+)'   ); // View Page tag
 		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id() . '%%', '([1]{1,})' ); // Edit Page tag
@@ -992,7 +992,7 @@ class bbPress {
 	 * @param WP_Rewrite $wp_rewrite bbPress-sepecific rules are appended in
 	 *                                $wp_rewrite->rules
 	 */
-	public function generate_rewrite_rules( $wp_rewrite ) {
+	public static function generate_rewrite_rules( $wp_rewrite ) {
 
 		// Slugs
 		$user_slug = bbp_get_user_slug();
