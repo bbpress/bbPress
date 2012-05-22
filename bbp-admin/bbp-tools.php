@@ -384,14 +384,15 @@ function bbp_admin_repair_user_topic_count() {
 	if ( is_wp_error( $insert_rows ) )
 		return array( 1, sprintf( $statement, $result ) );
 
+	$key           = $wpdb->prefix . '_bbp_topic_count';
 	$insert_values = array();
 	foreach ( $insert_rows as $insert_row )
-		$insert_values[] = "('{$insert_row->post_author}', '_bbp_topic_count', '{$insert_row->_count}')";
+		$insert_values[] = "('{$insert_row->post_author}', '{$key}', '{$insert_row->_count}')";
 
 	if ( !count( $insert_values ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_topic_count';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
@@ -430,14 +431,15 @@ function bbp_admin_repair_user_reply_count() {
 	if ( is_wp_error( $insert_rows ) )
 		return array( 1, sprintf( $statement, $result ) );
 
+	$key           = $wpdb->prefix . '_bbp_reply_count';
 	$insert_values = array();
 	foreach ( $insert_rows as $insert_row )
-		$insert_values[] = "('{$insert_row->post_author}', '_bbp_reply_count', '{$insert_row->_count}')";
+		$insert_values[] = "('{$insert_row->post_author}', '{$key}', '{$insert_row->_count}')";
 
 	if ( !count( $insert_values ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_reply_count';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
@@ -470,7 +472,7 @@ function bbp_admin_repair_user_favorites() {
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
-	$key       = bbp_get_favorites_key();
+	$key       = $wpdb->prefix . '_bbp_favorites';
 	$users     = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';" );
 
 	if ( is_wp_error( $users ) )
@@ -530,7 +532,7 @@ function bbp_admin_repair_user_subscriptions() {
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
-	$key       = bbp_get_subscriptions_key();
+	$key       = $wpdb->prefix . '_bbp_subscriptions';
 	$users     = $wpdb->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '{$key}';" );
 
 	if ( is_wp_error( $users ) )

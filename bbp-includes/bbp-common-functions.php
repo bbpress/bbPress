@@ -692,7 +692,7 @@ function bbp_check_for_duplicate( $post_data ) {
  *                        Do not supply if supplying $anonymous_data.
  * @uses get_option() To get the throttle time
  * @uses get_transient() To get the last posted transient of the ip
- * @uses get_user_meta() To get the last posted meta of the user
+ * @uses bbp_get_user_last_posted() To get the last posted time of the user
  * @uses current_user_can() To check if the current user can throttle
  * @return bool True if there is no flooding, false if there is
  */
@@ -714,7 +714,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 	// User is logged in, so check their last posted time
 	} elseif ( !empty( $author_id ) ) {
 		$author_id   = (int) $author_id;
-		$last_posted = get_user_meta( $author_id, '_bbp_last_posted', true );
+		$last_posted = bbp_get_user_last_posted( $author_id );
 
 		if ( isset( $last_posted ) && time() < $last_posted + $throttle_time && !current_user_can( 'throttle' ) ) {
 			return false;

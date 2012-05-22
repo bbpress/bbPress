@@ -694,7 +694,7 @@ function bbp_edit_topic_handler() {
  * @yses bbp_get_topic_forum_id() To get the topic forum id
  * @uses update_post_meta() To update the topic metas
  * @uses set_transient() To update the flood check transient for the ip
- * @uses update_user_meta() To update the last posted meta for the user
+ * @uses bbp_update_user_last_posted() To update the users last posted time
  * @uses bbp_is_subscriptions_active() To check if the subscriptions feature is
  *                                      activated or not
  * @uses bbp_is_user_subscribed() To check if the user is subscribed
@@ -753,7 +753,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 
 	} else {
 		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) ) {
-			update_user_meta( $author_id, '_bbp_last_posted', time() );
+			bbp_update_user_last_posted( $author_id );
 		}
 	}
 

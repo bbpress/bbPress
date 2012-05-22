@@ -215,31 +215,6 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 /** Favorites *****************************************************************/
 
 /**
- * Get the meta key for favorites, based on blog prefix
- *
- * @since bbPress (r3856)
- * @param int $blog_id Optional blog id to switch to
- * @global WPDB $wpdb
- * @return string 
- */
-function bbp_get_favorites_key( $blog_id = 0 ) {
-	global $wpdb;
-
-	// If blog ID is passed, switch to that blog
-	if ( !empty( $blog_id ) ) {
-		switch_to_blog( $blog_id );
-		$prefix = $wpdb->prefix;
-		restore_current_blog();
-
-	// Use current blog
-	} else {
-		$prefix = $wpdb->prefix;
-	}
-
-	return apply_filters( 'bbp_get_favorites_key', '_bbp_' . $prefix . 'favorites', $blog_id, $prefix );
-}
-
-/**
  * Get the users who have made the topic favorite
  *
  * @since bbPress (r2658)
@@ -257,7 +232,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	global $wpdb;
 
 	// Get the users who have favorited the topic
-	$key   = bbp_get_favorites_key();
+	$key   = $wpdb->prefix . '_bbp_favorites';
 	$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 	$users = apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
 
@@ -304,7 +279,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
- * @uses get_user_meta() To get the user favorites
+ * @uses get_user_option() To get the user favorites
  * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
  *                        the favorites and user id
  * @return array|bool Results if user has favorites, otherwise false
@@ -314,7 +289,7 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	$favorites = (string) get_user_meta( $user_id, bbp_get_favorites_key(), true );
+	$favorites = (string) get_user_option( '_bbp_favorites', $user_id );
 	$favorites = (array) explode( ',', $favorites );
 	$favorites = array_filter( $favorites );
 
@@ -378,7 +353,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
- * @uses update_user_meta() To update the user favorites
+ * @uses update_user_option() To update the user favorites
  * @uses do_action() Calls 'bbp_add_user_favorite' with the user id and topic id
  * @return bool Always true
  */
@@ -395,7 +370,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		$favorites[] = $topic_id;
 		$favorites   = array_filter( $favorites );
 		$favorites   = (string) implode( ',', $favorites );
-		update_user_meta( $user_id, bbp_get_favorites_key(), $favorites );
+		update_user_option( $user_id, '_bbp_favorites', $favorites );
 	}
 
 	do_action( 'bbp_add_user_favorite', $user_id, $topic_id );
@@ -411,8 +386,8 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
- * @uses update_user_meta() To update the user favorites
- * @uses delete_user_meta() To delete the user favorites meta
+ * @uses update_user_option() To update the user favorites
+ * @uses delete_user_option() To delete the user favorites meta
  * @uses do_action() Calls 'bbp_remove_user_favorite' with the user & topic id
  * @return bool True if the topic was removed from user's favorites, otherwise
  *               false
@@ -432,9 +407,9 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 
 		if ( !empty( $favorites ) ) {
 			$favorites = implode( ',', $favorites );
-			update_user_meta( $user_id, bbp_get_favorites_key(), $favorites );
+			update_user_option( $user_id, '_bbp_favorites', $favorites );
 		} else {
-			delete_user_meta( $user_id, bbp_get_favorites_key() );
+			delete_user_option( $user_id, '_bbp_favorites' );
 		}
 	}
 
@@ -545,30 +520,6 @@ function bbp_favorites_handler() {
 /** Subscriptions *************************************************************/
 
 /**
- * Get the meta key for subscriptions, based on blog prefix
- *
- * @since bbPress (r3856)
- * @global WPDB $wpdb
- * @return string 
- */
-function bbp_get_subscriptions_key( $blog_id = 0 ) {
-	global $wpdb;
-
-	// If blog ID is passed, switch to that blog
-	if ( !empty( $blog_id ) ) {
-		switch_to_blog( $blog_id );
-		$prefix = $wpdb->prefix;
-		restore_current_blog();
-
-	// Use current blog
-	} else {
-		$prefix = $wpdb->prefix;
-	}
-
-	return apply_filters( 'bbp_get_subscriptions_key', '_bbp_' . $prefix . 'subscriptions', $blog_id, $prefix );
-}
-
-/**
  * Get the users who have subscribed to the topic
  *
  * @since bbPress (r2668)
@@ -583,7 +534,7 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 
 	global $wpdb;
 
-	$key   = bbp_get_subscriptions_key();
+	$key   = $wpdb->prefix . '_bbp_subscriptions';
 	$users = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
 	if ( empty( $users ) ) {
 		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
@@ -634,7 +585,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
- * @uses get_user_meta() To get the user's subscriptions
+ * @uses get_user_option() To get the user's subscriptions
  * @uses apply_filters() Calls 'bbp_get_user_subscribed_topic_ids' with
  *                        the subscriptions and user id
  * @return array|bool Results if user has subscriptions, otherwise false
@@ -644,7 +595,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	$subscriptions = (string) get_user_meta( $user_id, bbp_get_subscriptions_key(), true );
+	$subscriptions = (string) get_user_option( '_bbp_subscriptions', $user_id );
 	$subscriptions = (array) explode( ',', $subscriptions );
 	$subscriptions = array_filter( $subscriptions );
 
@@ -710,7 +661,7 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
  * @uses bbp_get_topic() To get the topic
- * @uses update_user_meta() To update the user's subscriptions
+ * @uses update_user_option() To update the user's subscriptions
  * @uses do_action() Calls 'bbp_add_user_subscription' with the user & topic id
  * @return bool Always true
  */
@@ -728,7 +679,7 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
 		$subscriptions[] = $topic_id;
 		$subscriptions   = array_filter( $subscriptions );
 		$subscriptions   = (string) implode( ',', $subscriptions );
-		update_user_meta( $user_id, bbp_get_subscriptions_key(), $subscriptions );
+		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 
 		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
 	}
@@ -746,8 +697,8 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
- * @uses update_user_meta() To update the user's subscriptions
- * @uses delete_user_meta() To delete the user's subscriptions meta
+ * @uses update_user_option() To update the user's subscriptions
+ * @uses delete_user_option() To delete the user's subscriptions meta
  * @uses do_action() Calls 'bbp_remove_user_subscription' with the user id and
  *                    topic id
  * @return bool True if the topic was removed from user's subscriptions,
@@ -769,9 +720,9 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 
 		if ( !empty( $subscriptions ) ) {
 			$subscriptions = implode( ',', $subscriptions );
-			update_user_meta( $user_id, bbp_get_subscriptions_key(), $subscriptions );
+			update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 		} else {
-			delete_user_meta( $user_id, bbp_get_subscriptions_key() );
+			delete_user_option( $user_id, '_bbp_subscriptions' );
 		}
 
 		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
@@ -993,7 +944,7 @@ function bbp_edit_user_handler() {
 		$edit_user = edit_user( $user_id );
 
 		// stops users being added to current blog when they are edited
-		if ( $delete_role ) {
+		if ( true === $delete_role ) {
 			delete_user_meta( $user_id, $blog_prefix . 'capabilities' );
 		}
 
@@ -1069,7 +1020,7 @@ function bbp_get_total_users() {
 
 	wp_cache_set( 'bbp_total_users', $bbp_total_users, 'bbpress' );
 
-	return (int) apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
+	return apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
 }
 
 /** User Status ***************************************************************/

@@ -58,14 +58,16 @@ add_action( 'template_redirect',      'bbp_template_redirect',      10 );
  *
  * Attach various loader actions to the bbp_loaded action.
  * The load order helps to execute code at the correct time.
- *                                                        v---Load order
+ *                                                         v---Load order
  */
-add_action( 'bbp_loaded', 'bbp_constants',                2  );
-add_action( 'bbp_loaded', 'bbp_boot_strap_globals',       4  );
-add_action( 'bbp_loaded', 'bbp_includes',                 6  );
-add_action( 'bbp_loaded', 'bbp_setup_globals',            8  );
-add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
-add_action( 'bbp_loaded', 'bbp_register_theme_packages',  12 );
+add_action( 'bbp_loaded', 'bbp_constants',                 2  );
+add_action( 'bbp_loaded', 'bbp_boot_strap_globals',        4  );
+add_action( 'bbp_loaded', 'bbp_includes',                  6  );
+add_action( 'bbp_loaded', 'bbp_setup_globals',             8  );
+add_action( 'bbp_loaded', 'bbp_setup_option_filters',      10 );
+add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
+add_action( 'bbp_loaded', 'bbp_register_theme_directory',  14 );
+add_action( 'bbp_loaded', 'bbp_register_theme_packages',   16 );
 
 /**
  * bbp_init - Attached to 'init' above
@@ -75,7 +77,6 @@ add_action( 'bbp_loaded', 'bbp_register_theme_packages',  12 );
  *                                                    v---Load order
  */
 add_action( 'bbp_init', 'bbp_load_textdomain',         2   );
-add_action( 'bbp_init', 'bbp_setup_option_filters',    4   );
 add_action( 'bbp_init', 'bbp_register_post_types',     10  );
 add_action( 'bbp_init', 'bbp_register_post_statuses',  12  );
 add_action( 'bbp_init', 'bbp_register_taxonomies',     14  );

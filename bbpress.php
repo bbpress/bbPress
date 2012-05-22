@@ -261,16 +261,18 @@ class bbPress {
 	/** Option Overload *******************************************************/
 
 	/**
-	 * @var array Optional Overloads default options retrieved from get_option()
+	 * Overloads default options retrieved from get_option()
+	 *
+	 * @var array Optional array( $key => $value );
 	 */
 	public $options = array();
 
-	/** Function Overload *****************************************************/
-
 	/**
-	 * @var array Optional Overloads WordPress functions with new functions.
+	 * Overloads default user options retrieved from get_user_option()
+	 *
+	 * @var array Optional array( $user_id => array( $key => $value ) );
 	 */
-	public $functions = array();
+	public $user_options = array();
 
 	/** Singleton *************************************************************/
 
@@ -461,6 +463,7 @@ class bbPress {
 
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-functions.php'   ); // User functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-template.php'    ); // User template tags
+		require( $this->plugin_dir . 'bbp-includes/bbp-user-options.php'     ); // User options
 
 		/** Admin *************************************************************/
 
