@@ -880,7 +880,7 @@ function bbp_edit_user_handler() {
 	global $wpdb, $user_login, $super_admins;
 
 	// Execute confirmed email change. See send_confirmation_on_profile_email().
-	if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) ) {
+	if ( is_multisite() && bbp_is_user_home_edit() && isset( $_GET['newuseremail'] ) ) {
 
 		$new_email = get_option( $user_id . '_new_email' );
 
@@ -899,7 +899,7 @@ function bbp_edit_user_handler() {
 			exit;
 		}
 
-	} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
+	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
 
 		delete_option( $user_id . '_new_email' );
 		wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
@@ -913,7 +913,7 @@ function bbp_edit_user_handler() {
 		wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
 
 	// Do action based on who's profile you're editing
-	$edit_action = bbp_is_user_home() ? 'personal_options_update' : 'edit_user_profile_update';
+	$edit_action = bbp_is_user_home_edit() ? 'personal_options_update' : 'edit_user_profile_update';
 	do_action( $edit_action, $user_id );
 
 	// Multisite handles the trouble for us ;)
@@ -948,7 +948,7 @@ function bbp_edit_user_handler() {
 			delete_user_meta( $user_id, $blog_prefix . 'capabilities' );
 		}
 
-		if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $user_id ) ) {
+		if ( is_multisite() && is_network_admin() & !bbp_is_user_home_edit() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $user_id ) ) {
 			empty( $_POST['super_admin'] ) ? revoke_super_admin( $user_id ) : grant_super_admin( $user_id );
 		}
 	}
@@ -1396,7 +1396,7 @@ function bbp_check_user_edit() {
 		return;
 
 	// Only allow super admins on multisite to edit every user.
-	if ( !is_user_logged_in() || ( is_multisite() && !current_user_can( 'manage_network_users' ) && bbp_is_user_home() && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
+	if ( !is_user_logged_in() || ( is_multisite() && !current_user_can( 'manage_network_users' ) && bbp_is_user_home_edit() && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
 		wp_safe_redirect( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) );
 		exit();
 	}

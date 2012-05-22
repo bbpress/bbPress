@@ -484,11 +484,10 @@ function bbp_is_topics_created() {
  * Check if current page is the currently logged in users author page
  *
  * @since bbPress (r2688)
- *
- * @uses bbPres Checks if bbPress::displayed_user is set and if
- *               bbPress::displayed_user::ID equals bbPress::current_user::ID
- *               or not
+ * @uses bbp_is_single_user() Check query variable
  * @uses is_user_logged_in() Must be logged in to be home
+ * @uses bbp_get_displayed_user_id()
+ * @uses bbp_get_current_user_id()
  * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home() {
@@ -500,6 +499,27 @@ function bbp_is_user_home() {
 		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
 
 	return (bool) apply_filters( 'bbp_is_user_home', $retval );
+}
+
+/**
+ * Check if current page is the currently logged in users author edit page
+ *
+ * @since bbPress (r3918)
+ * @uses bbp_is_single_user_edit() Check query variable
+ * @uses is_user_logged_in() Must be logged in to be home
+ * @uses bbp_get_displayed_user_id()
+ * @uses bbp_get_current_user_id()
+ * @return bool True if it's the user's home, false if not
+ */
+function bbp_is_user_home_edit() {
+
+	// Assume false
+	$retval = false;
+
+	if ( bbp_is_single_user_edit() && is_user_logged_in() )
+		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
+
+	return (bool) apply_filters( 'bbp_is_user_home_edit', $retval );
 }
 
 /**
@@ -694,6 +714,12 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 		$bbp_classes[] = 'singular';
 	}
 
+	if ( bbp_is_user_home_edit() ) {
+		$bbp_classes[] = 'bbp-user-home-edit';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
+
 	if ( bbp_is_topics_created() ) {
 		$bbp_classes[] = 'bbp-topics-created';
 		$bbp_classes[] = 'single';
@@ -805,6 +831,9 @@ function is_bbpress() {
 		$retval = true;
 
 	elseif ( bbp_is_user_home() )
+		$retval = true;
+
+	elseif ( bbp_is_user_home_edit() )
 		$retval = true;
 
 	elseif ( bbp_is_topics_created() )
@@ -2092,7 +2121,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	} elseif ( bbp_is_single_user_edit() ) {
 
 		// Current users profile
-		if ( bbp_is_user_home() ) {
+		if ( bbp_is_user_home_edit() ) {
 			$title = __( 'Edit Your Profile', 'bbpress' );
 
 		// Other users profile

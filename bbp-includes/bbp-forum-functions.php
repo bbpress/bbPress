@@ -1563,7 +1563,6 @@ function bbp_get_private_forum_ids() {
  * @param string Optional. The type of value to return. (string|array|meta_query)
  *
  * @uses is_super_admin()
- * @uses bbp_is_user_home()
  * @uses bbp_get_hidden_forum_ids()
  * @uses bbp_get_private_forum_ids()
  * @uses apply_filters()

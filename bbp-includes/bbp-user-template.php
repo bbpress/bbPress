@@ -863,12 +863,13 @@ function bbp_notice_edit_user_success() {
  * @uses bbp_get_displayed_user_id() To get the displayed user id
  * @uses is_super_admin() To check if the user is super admin
  * @uses bbp_is_user_home() To check if it's the user home
+ * @uses bbp_is_user_home_edit() To check if it's the user home edit
  */
 function bbp_notice_edit_user_is_super_admin() {
 	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
 	<div class="bbp-template-notice important">
-		<p><?php bbp_is_user_home() ? _e( 'You have super admin privileges.', 'bbpress' ) : _e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
+		<p><?php bbp_is_user_home() || bbp_is_user_home_edit() ? _e( 'You have super admin privileges.', 'bbpress' ) : _e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
 	</div>
 
 <?php endif;
