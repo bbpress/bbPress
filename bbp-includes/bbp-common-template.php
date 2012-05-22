@@ -1169,6 +1169,8 @@ function bbp_forum_form_fields() {
 		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-forum" />
 		<input type="hidden" name="bbp_forum_id" id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
 
+		<?php bbp_redirect_to_field( bbp_get_forum_permalink( bbp_get_forum_id() ) ); ?>
+
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
@@ -1218,6 +1220,8 @@ function bbp_topic_form_fields() {
 		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-topic" />
 		<input type="hidden" name="bbp_topic_id" id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 
+		<?php bbp_redirect_to_field( bbp_get_topic_permalink( bbp_get_topic_id() ) ); ?>
+
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
@@ -1232,8 +1236,6 @@ function bbp_topic_form_fields() {
 		if ( bbp_is_single_forum() ) : ?>
 
 			<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />
-
-			<?php bbp_redirect_to_field( get_permalink() ); ?>
 
 		<?php endif; ?>
 
@@ -1266,6 +1268,8 @@ function bbp_reply_form_fields() {
 		<input type="hidden" name="bbp_reply_id"    id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-edit-reply" />
 
+		<?php bbp_redirect_to_field( bbp_get_reply_url( bbp_get_reply_id() ) ); ?>
+
 		<?php if ( current_user_can( 'unfiltered_html' ) )
 			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_reply_id(), '_bbp_unfiltered_html_reply', false ); ?>
 
@@ -1274,7 +1278,6 @@ function bbp_reply_form_fields() {
 	else : ?>
 
 		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" maxlength="<?php bbp_get_title_max_length(); ?>" />
-		<input type="hidden" name="bbp_forum_id"    id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
 		<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
 

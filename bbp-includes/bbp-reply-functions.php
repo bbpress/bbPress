@@ -159,6 +159,8 @@ function bbp_new_reply_handler() {
 	// Handle Forum ID to adjust counts of
 	if ( isset( $_POST['bbp_forum_id'] ) ) {
 		$forum_id = (int) $_POST['bbp_forum_id'];
+	} elseif ( !empty( $topic_id ) ) {
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 	} else {
 		bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 	}
