@@ -259,7 +259,7 @@ class BBP_Admin {
 	 * @since bbPress (r3767)
 	 * @return type 
 	 */
-	public function new_install() {
+	public static function new_install() {
 		if ( !bbp_is_install() )
 			return;
 
@@ -275,7 +275,7 @@ class BBP_Admin {
 	 * @uses add_settings_field() To add various settings fields
 	 * @uses register_setting() To register various settings
 	 */
-	public function register_admin_settings() {
+	public static function register_admin_settings() {
 
 		/** Main Section ******************************************************/
 
@@ -490,7 +490,7 @@ class BBP_Admin {
 	 * @param string $file Current plugin basename
 	 * @return array Processed links
 	 */
-	public function add_settings_link( $links, $file ) {
+	public static function add_settings_link( $links, $file ) {
 
 		if ( plugin_basename( bbpress()->file ) == $file ) {
 			$settings_link = '<a href="' . add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>';
@@ -507,7 +507,7 @@ class BBP_Admin {
 	 *
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
-	public function dashboard_widget_right_now() {
+	public static function dashboard_widget_right_now() {
 		wp_add_dashboard_widget( 'bbp-dashboard-right-now', __( 'Right Now in Forums', 'bbpress' ), 'bbp_dashboard_widget_right_now' );
 	}
 
