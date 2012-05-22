@@ -667,36 +667,36 @@ class BBP_Admin {
 				}
 
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px -32px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat 0px -32px;
 			}
 			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px 0px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat 0px 0px;
 			}
 			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
-				background: url(<?php echo $icon32_url; ?>) no-repeat -4px 0px;
+				background: url('<?php echo $icon32_url; ?>') no-repeat -4px 0px;
 			}
 
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat -70px -32px;
 			}
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat -70px 0px;
 			}
 			#icon-edit.icon32-posts-<?php echo $topic_class; ?> {
-				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -90px;
+				background: url('<?php echo $icon32_url; ?>') no-repeat -4px -90px;
 			}
 
 			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px -32px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat -35px -32px;
 			}
 			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
+				background: url('<?php echo $menu_icon_url; ?>') no-repeat -35px 0px;
 			}
 			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
+				background: url('<?php echo $icon32_url; ?>') no-repeat -4px -180px;
 			}
 
 		/*]]>*/
