@@ -1017,7 +1017,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  * @uses do_action() Calls 'bbp_merged_topic' with the destination and source
  *                    topic ids and source topic's forum id
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the topic link
+ * @uses wp_safe_redirect() To redirect to the topic link
  */
 function bbp_merge_topic_handler() {
 
@@ -1208,7 +1208,7 @@ function bbp_merge_topic_handler() {
 		do_action( 'bbp_merged_topic', $destination_topic->ID, $source_topic->ID, $source_topic->post_parent );
 
 		// Redirect back to new topic
-		wp_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
+		wp_safe_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
 
 		// For good measure
 		exit();
@@ -1295,7 +1295,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @uses do_action() Calls 'bbp_post_split_topic' with the destination and
  *                    source topic ids and source topic's forum id
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the topic link
+ * @uses wp_safe_redirect() To redirect to the topic link
  */
 function bbp_split_topic_handler() {
 
@@ -1531,7 +1531,7 @@ function bbp_split_topic_handler() {
 		do_action( 'bbp_post_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 		// Redirect back to the topic
-		wp_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
+		wp_safe_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
 
 		// For good measure
 		exit();
@@ -1597,7 +1597,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  * @uses home_url() To get the blog's home page url
  * @uses do_action() Calls actions based on the actions with associated args
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses wp_redirect() To redirect to the url
+ * @uses wp_safe_redirect() To redirect to the url
  */
 function bbp_edit_topic_tag_handler() {
 
@@ -1830,7 +1830,7 @@ function bbp_get_super_stickies() {
  * @uses bbp_get_forum_permalink() To get the forum link
  * @uses bbp_get_topic_permalink() To get the topic link
  * @uses add_query_arg() To add args to the url
- * @uses wp_redirect() To redirect to the topic
+ * @uses wp_safe_redirect() To redirect to the topic
  * @uses bbPress::errors:add() To log the error messages
  */
 function bbp_toggle_topic_handler() {
@@ -1965,7 +1965,7 @@ function bbp_toggle_topic_handler() {
 			$redirect  = bbp_add_view_all( $permalink, $view_all );
 		}
 
-		wp_redirect( $redirect );
+		wp_safe_redirect( $redirect );
 
 		// For good measure
 		exit();

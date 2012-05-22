@@ -432,7 +432,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * @uses bbp_is_favorites() To check if it's the favorites page
  * @uses bbp_get_favorites_link() To get the favorites page link
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the url
+ * @uses wp_safe_redirect() To redirect to the url
  */
 function bbp_favorites_handler() {
 
@@ -501,7 +501,7 @@ function bbp_favorites_handler() {
 				$redirect = get_permalink();
 			}
 
-			wp_redirect( $redirect );
+			wp_safe_redirect( $redirect );
 
 			// For good measure
 			exit();
@@ -749,7 +749,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
  * @uses bbp_is_subscription() To check if it's the subscription page
  * @uses bbp_get_subscription_link() To get the subscription page link
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the url
+ * @uses wp_safe_redirect() To redirect to the url
  */
 function bbp_subscriptions_handler() {
 
@@ -817,7 +817,7 @@ function bbp_subscriptions_handler() {
 				$redirect = get_permalink();
 			}
 
-			wp_redirect( $redirect );
+			wp_safe_redirect( $redirect );
 
 			// For good measure
 			exit();
@@ -848,7 +848,7 @@ function bbp_subscriptions_handler() {
  * @uses wp_update_user() To update the user
  * @uses delete_option() To delete the displayed user's email id option
  * @uses bbp_get_user_profile_edit_url() To get the edit profile url
- * @uses wp_redirect() To redirect to the url
+ * @uses wp_safe_redirect() To redirect to the url
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses current_user_can() To check if the current user can edit the user
  * @uses do_action() Calls 'personal_options_update' or
@@ -895,14 +895,14 @@ function bbp_edit_user_handler() {
 			wp_update_user( get_object_vars( $user ) );
 			delete_option( $user_id . '_new_email' );
 
-			wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
+			wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 			exit;
 		}
 
 	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
 
 		delete_option( $user_id . '_new_email' );
-		wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
+		wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		exit;
 
 	}
@@ -961,7 +961,7 @@ function bbp_edit_user_handler() {
 	} elseif ( is_integer( $edit_user ) ) {
 		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $edit_user ) );
 
-		wp_redirect( $redirect );
+		wp_safe_redirect( $redirect );
 		exit;
 	}
 }

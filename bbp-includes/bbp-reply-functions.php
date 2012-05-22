@@ -972,7 +972,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
  *                    and action
  * @uses bbp_get_reply_url() To get the reply url
  * @uses add_query_arg() To add custom args to the reply url
- * @uses wp_redirect() To redirect to the reply
+ * @uses wp_safe_redirect() To redirect to the reply
  * @uses bbPress::errors:add() To log the error messages
  */
 function bbp_toggle_reply_handler() {
@@ -1084,7 +1084,7 @@ function bbp_toggle_reply_handler() {
 			$reply_url = bbp_add_view_all( $reply_url, true );
 
 		// Redirect back to reply
-		wp_redirect( $reply_url );
+		wp_safe_redirect( $reply_url );
 
 		// For good measure
 		exit();
