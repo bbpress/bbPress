@@ -890,7 +890,7 @@ class BBP_Admin {
 			default : ?>
 
 				<p><?php _e( 'You can update all the forums on your network through this page. It works by calling the update script of each site automatically. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="update-core.php-update&amp;action=bbpress-update"><?php _e( 'Update Forums', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="update-core.php?page=bbpress-update&amp;action=bbpress-update"><?php _e( 'Update Forums', 'bbpress' ); ?></a></p>
 
 			<?php break;
 
