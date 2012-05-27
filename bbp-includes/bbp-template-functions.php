@@ -71,18 +71,18 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 			continue;
 
 		// Check child theme first
-		if ( file_exists( STYLESHEETPATH . '/' . $template_name ) ) {
-			$located = STYLESHEETPATH . '/' . $template_name;
+		if ( file_exists( trailingslashit( STYLESHEETPATH ) . $template_name ) ) {
+			$located = trailingslashit( STYLESHEETPATH ) . $template_name;
 			break;
 
 		// Check parent theme next
-		} elseif ( file_exists( TEMPLATEPATH . '/' . $template_name ) ) {
-			$located = TEMPLATEPATH . '/' . $template_name;
+		} elseif ( file_exists( trailingslashit( TEMPLATEPATH ) . $template_name ) ) {
+			$located = trailingslashit( TEMPLATEPATH ) . $template_name;
 			break;
 
 		// Check theme compatibility last
-		} elseif ( file_exists( bbp_get_theme_compat_dir() . '/' . $template_name ) ) {
-			$located = bbp_get_theme_compat_dir() . '/' . $template_name;
+		} elseif ( file_exists( trailingslashit( bbp_get_theme_compat_dir() ) . $template_name ) ) {
+			$located = trailingslashit( bbp_get_theme_compat_dir() ) . $template_name;
 			break;
 		}
 	}
