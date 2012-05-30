@@ -75,12 +75,8 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Theme supports bbPress, so set some smart defaults
 		} else {
 
-			// @todo Remove when WordPress 3.5 ships
-			if ( function_exists( 'wp_get_theme' ) )
-				$theme = wp_get_theme();
-			else
-				$theme = get_current_theme();
-
+			// @todo Remove function_exists check when WordPress 3.5 ships
+			$theme         = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_current_theme();
 			$this->id      = $theme->stylesheet;
 			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), $theme->name ) ;
 			$this->version = bbp_get_version();
@@ -172,7 +168,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @since bbPress (r3732)
 	 *
 	 * @uses bbp_is_single_topic() To check if it's the topic page
-	 * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
 	 * @uses bbp_is_single_user_edit() To check if it's the profile edit page
 	 * @uses wp_enqueue_script() To enqueue the scripts
 	 */
@@ -181,7 +176,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( bbp_is_single_topic() )
 			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'wp-lists' ), $this->version, true );
 
-		if ( bbp_is_single_user_edit() )
+		elseif ( bbp_is_single_user_edit() )
 			wp_enqueue_script( 'user-profile' );
 	}
 
