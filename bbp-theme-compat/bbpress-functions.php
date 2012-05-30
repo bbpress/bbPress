@@ -74,7 +74,13 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Theme supports bbPress, so set some smart defaults
 		} else {
-			$theme         = wp_get_theme();
+
+			// @todo Remove when WordPress 3.5 ships
+			if ( function_exists( 'wp_get_theme' ) )
+				$theme = wp_get_theme();
+			else
+				$theme = get_current_theme();
+
 			$this->id      = $theme->stylesheet;
 			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), $theme->name ) ;
 			$this->version = bbp_get_version();
@@ -156,19 +162,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses wp_enqueue_style() To enqueue the styles
 	 */
 	public function enqueue_styles() {
-
-		// Right to left
-		if ( is_rtl() ) {
-
-			// bbPress specific
-			wp_enqueue_style( 'bbp-default-bbpress', $this->url . 'css/bbpress-rtl.css', array(), $this->version, 'screen' );
-
-		// Left to right
-		} else {
-
-			// bbPress specific
-			wp_enqueue_style( 'bbp-default-bbpress', $this->url . 'css/bbpress.css', array(), $this->version, 'screen' );
-		}
+		$file = is_rtl() ? 'css/bbpress-rtl.css' : 'css/bbpress.css';
+		wp_enqueue_style( 'bbp-default-bbpress', $this->url . $file, array(), $this->version, 'screen' );
 	}
 
 	/**
@@ -200,24 +195,21 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses bbp_is_single_user_edit() To check if it's the profile edit page
 	 */
 	public function head_scripts() {
-		if ( bbp_is_single_topic() ) : ?>
-
-		<script type='text/javascript'>
-			/* <![CDATA[ */
-			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-			/* ]]> */
-		</script>
-
-		<?php elseif ( bbp_is_single_user_edit() ) : ?>
+	?>
 
 		<script type="text/javascript" charset="utf-8">
+			/* <![CDATA[ */
+			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
+			
+			<?php if ( bbp_is_single_user_edit() ) : ?>
 			if ( window.location.hash == '#password' ) {
 				document.getElementById('pass1').focus();
 			}
+			<?php endif; ?>
+			/* ]]> */
 		</script>
 
-		<?php
-		endif;
+	<?php
 	}
 
 	/**
