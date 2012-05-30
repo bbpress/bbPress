@@ -81,23 +81,27 @@ function bbp_has_topics( $args = '' ) {
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
-		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
+		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
 	else
-		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
+		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
 
-	// Default arguments
+	$default_topic_search    = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
+	$default_show_stickies   = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
+	$default_post_parent     = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
+
+	// Default argument array
 	$default = array(
-		'post_type'      => bbp_get_topic_post_type(),                          // Narrow query down to bbPress topics
-		'post_parent'    => bbp_is_single_forum() ? bbp_get_forum_id() : 'any', // Forum ID
-		'meta_key'       => '_bbp_last_active_time',                            // Make sure topic has some last activity time
-		'orderby'        => 'meta_value',                                       // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
-		'order'          => 'DESC',                                             // 'ASC', 'DESC'
-		'posts_per_page' => bbp_get_topics_per_page(),                          // Topics per page
-		'paged'          => bbp_get_paged(),                                    // Page Number
-		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',   // Topic Search
-		'show_stickies'  => bbp_is_single_forum() || bbp_is_topic_archive(),    // Ignore sticky topics?
-		'max_num_pages'  => false,                                              // Maximum number of pages to show
-		'post_status'    => $default_status,                                    // Post Status
+		'post_type'      => bbp_get_topic_post_type(), // Narrow query down to bbPress topics
+		'post_parent'    => $default_post_parent,      // Forum ID
+		'post_status'    => $default_post_status,      // Post Status
+		'meta_key'       => '_bbp_last_active_time',   // Make sure topic has some last activity time
+		'orderby'        => 'meta_value',              // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
+		'order'          => 'DESC',                    // 'ASC', 'DESC'
+		'posts_per_page' => bbp_get_topics_per_page(), // Topics per page
+		'paged'          => bbp_get_paged(),           // Page Number
+		's'              => $default_topic_search,     // Topic Search
+		'show_stickies'  => $default_show_stickies,    // Ignore sticky topics?
+		'max_num_pages'  => false,                     // Maximum number of pages to show
 	);
 
 	// Maybe query for topic tags
