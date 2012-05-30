@@ -340,8 +340,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
-	// Bail if current theme has this under control
-	if ( current_theme_supports( 'bbpress' ) )
+	// Only filter the main query
+	if ( ! is_main_query() )
 		return $template;
 
 	/** Users *************************************************************/
