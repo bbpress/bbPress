@@ -311,11 +311,13 @@ class BBP_Shortcodes {
 		// Unset globals
 		$this->unset_globals();
 
+		// Filter the query
+		if ( ! bbp_is_topic_archive() ) {
+			add_filter( 'bbp_before_has_topics_parse_args', array( $this, 'display_topic_index_query' ) );
+		}
+
 		// Start output buffer
 		$this->start( 'bbp_topic_archive' );
-
-		// Filter the query
-		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topic_index_query' ) );
 
 		// Output template
 		bbp_get_template_part( 'content', 'archive-topic' );
@@ -368,16 +370,16 @@ class BBP_Shortcodes {
 			$bbp->topic_query->post                    = get_post( $topic_id );
 		}
 
+		// Filter the query
+		if ( ! bbp_is_single_topic() ) {
+			add_filter( 'bbp_before_has_replies_parse_args', array( $this, 'display_topic_query' ) );
+		}
+
 		// Start output buffer
 		$this->start( 'bbp_single_topic' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
-
-			// Filter the query
-			add_filter( 'bbp_pre_has_replies_query', array( $this, 'display_topic_query' ) );
-
-			// Output template
 			bbp_get_template_part( 'content', 'single-topic' );
 
 		// Forum is private and user does not have caps
@@ -541,14 +543,16 @@ class BBP_Shortcodes {
 		// Unset globals
 		$this->unset_globals();
 
+		// Filter the query
+		if ( ! bbp_is_topic_tag() ) {
+			add_filter( 'bbp_before_has_topics_parse_args', array( $this, 'display_topics_of_tag_query' ) );
+		}
+
 		// Start output buffer
-		$this->start( 'bbp_topics_of_tag' );
+		$this->start( 'bbp_topic_tag' );
 
 		// Set passed attribute to $ag_id for clarity
 		bbpress()->current_topic_tag_id = $tag_id = $attr['id'];
-
-		// Filter the query
-		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topics_of_tag_query' ) );
 
 		// Output template
 		bbp_get_template_part( 'content', 'archive-topic' );
@@ -613,7 +617,7 @@ class BBP_Shortcodes {
 		// Unset globals
 		$this->unset_globals();
 
-		// Load the topic index
+		// Load the view
 		bbp_view_query( $view_id );
 
 		// Output template
@@ -750,7 +754,6 @@ class BBP_Shortcodes {
 	 * @return array
 	 */
 	public function display_topic_query( $args = array() ) {
-
 		$args['meta_query'] = array( array(
 			'key'     => '_bbp_topic_id',
 			'value'   => bbpress()->current_topic_id,
@@ -769,7 +772,6 @@ class BBP_Shortcodes {
 	 * @return array
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
-
 		$args['tax_query'] = array( array(
 			'taxonomy' => bbp_get_topic_tag_tax_id(),
 			'field'    => 'id',
