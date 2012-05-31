@@ -567,12 +567,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * To do this, we first remove all filters from 'the_content' and hook
 	 * our own function into it, which runs a series of checks to determine
 	 * the context, and then uses the built in shortcodes to output the
-	 * correct results.
+	 * correct results from inside an output buffer.
 	 *
-	 * Use bbp_get_theme_compat_templates() to provide a fall-back that
-	 * should be coded to work without superfluous elements and logic, like
-	 * prev/next navigation, comments, date/time, etc... You can hook into
-	 * the 'bbp_template_include' filter to override page.php.
+	 * Uses bbp_get_theme_compat_templates() to provide fall-backs that
+	 * should be coded without superfluous mark-up and logic (prev/next
+	 * navigation, comments, date/time, etc...)
+	 * 
+	 * Hook into the 'bbp_get_bbpress_template' to override the array of
+	 * possible templates, or 'bbp_bbpress_template' to override the result.
 	 */
 	if ( bbp_is_theme_compat_active() ) {
 
