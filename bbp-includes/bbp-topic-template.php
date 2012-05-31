@@ -2903,6 +2903,7 @@ function bbp_topic_tag_id( $tag = '' ) {
 	 * @since bbPress (r3109)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 *
@@ -2911,8 +2912,12 @@ function bbp_topic_tag_id( $tag = '' ) {
 	function bbp_get_topic_tag_id( $tag = '' ) {
 
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag  = get_query_var( 'term' );
+			$term = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->term_id ) ) {
@@ -2942,6 +2947,7 @@ function bbp_topic_tag_name( $tag = '' ) {
 	 * @since bbPress (r3109)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 *
@@ -2950,8 +2956,12 @@ function bbp_topic_tag_name( $tag = '' ) {
 	function bbp_get_topic_tag_name( $tag = '' ) {
 
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag  = get_query_var( 'term' );
+			$term = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->name ) ) {
@@ -2981,6 +2991,7 @@ function bbp_topic_tag_slug( $tag = '' ) {
 	 * @since bbPress (r3109)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 *
@@ -2989,8 +3000,12 @@ function bbp_topic_tag_slug( $tag = '' ) {
 	function bbp_get_topic_tag_slug( $tag = '' ) {
 
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag  = get_query_var( 'term' );
+			$term = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->slug ) ) {
@@ -3020,6 +3035,7 @@ function bbp_topic_tag_link( $tag = '' ) {
 	 * @since bbPress (r3348)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 *
@@ -3028,8 +3044,12 @@ function bbp_topic_tag_link( $tag = '' ) {
 	function bbp_get_topic_tag_link( $tag = '' ) {
 
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag  = get_query_var( 'term' );
+			$term = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->term_id ) ) {
@@ -3040,7 +3060,7 @@ function bbp_topic_tag_link( $tag = '' ) {
 			$retval = '';
 		}
 
-		return apply_filters( 'bbp_get_topic_tag_link', $retval );
+		return apply_filters( 'bbp_get_topic_tag_link', $retval, $tag );
 	}
 
 /**
@@ -3059,6 +3079,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @since bbPress (r3348)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 *
@@ -3067,14 +3088,18 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
 		global $wp_rewrite;
 
-		$bbp = bbpress();
-
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag  = get_query_var( 'term' );
+			$term = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->term_id ) ) {
+
+			$bbp = bbpress();
 
 			// Pretty
 			if ( $wp_rewrite->using_permalinks() ) {
@@ -3090,7 +3115,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 			$retval = '';
 		}
 
-		return apply_filters( 'bbp_get_topic_tag_edit_link', $retval );
+		return apply_filters( 'bbp_get_topic_tag_edit_link', $retval, $tag );
 	}
 
 /**
@@ -3109,9 +3134,11 @@ function bbp_topic_tag_description( $args = array() ) {
 	 * @since bbPress (r3109)
 	 *
 	 * @uses get_term_by()
+	 * @uses get_queried_object()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
 	 * @param array $args before|after|tag
+	 *
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_description( $args = array() ) {
@@ -3125,8 +3152,13 @@ function bbp_topic_tag_description( $args = array() ) {
 		extract( $r );
 
 		// Get the term
-		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
-		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		if ( ! empty( $tag ) ) {
+			$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+		} else {
+			$tag         = get_query_var( 'term' );
+			$args['tag'] = $tag;
+			$term        = get_queried_object();
+		}
 
 		// Add before and after if description exists
 		if ( !empty( $term->description ) ) {
