@@ -61,11 +61,6 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 		$this->version = bbp_get_version();
 		$this->dir     = trailingslashit( $bbp->themes_dir . 'bbp-twentyten' );
 		$this->url     = trailingslashit( $bbp->themes_url . 'bbp-twentyten' );
-
-		// Conditionally add theme support if needed
-		if ( in_array( $this->id, array( get_template(), get_stylesheet() ) ) ) {
-			add_theme_support( 'bbpress' );
-		}
 	}
 
 	/**

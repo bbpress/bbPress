@@ -63,31 +63,12 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @access private
 	 */
 	private function setup_globals() {
-
-		// Use the default theme compat if current theme has not added support
-		if ( !current_theme_supports( 'bbpress' ) ) {
-			$this->id      = bbp_get_theme_compat_id();
-			$this->name    = bbp_get_theme_compat_name();
-			$this->version = bbp_get_theme_compat_version();
-			$this->dir     = bbp_get_theme_compat_dir();
-			$this->url     = bbp_get_theme_compat_url();
-
-		// Theme supports bbPress, so set some smart defaults
-		} else {
-
-			// @todo Remove function_exists check when WordPress 3.5 ships
-			$theme         = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_current_theme();
-			$this->id      = $theme->stylesheet;
-			$this->name    = sprintf( __( '%s (bbPress)', 'bbpress' ), $theme->name ) ;
-			$this->version = bbp_get_version();
-			$this->dir     = trailingslashit( get_stylesheet_directory() );
-			$this->url     = trailingslashit( get_stylesheet_directory_uri() );
-		}
-
-		// Conditionally add theme support if needed
-		if ( in_array( $this->id, array( get_template(), get_stylesheet() ) ) ) {
-			add_theme_support( 'bbpress' );
-		}
+		$bbp           = bbpress();
+		$this->id      = 'default';
+		$this->name    = __( 'bbPress Default', 'bbpress' );
+		$this->version = bbp_get_version();
+		$this->dir     = trailingslashit( $bbp->plugin_dir . 'bbp-theme-compat' );
+		$this->url     = trailingslashit( $bbp->plugin_url . 'bbp-theme-compat' );
 	}
 
 	/**

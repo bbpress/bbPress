@@ -532,23 +532,23 @@ final class bbPress {
 
 		/** Default Theme *****************************************************/
 
-		bbp_register_theme_package( new BBP_Theme_Compat( array( 
+		bbp_register_theme_package( array(
 			'id'      => 'default',
 			'name'    => __( 'bbPress Default', 'bbpress' ),
 			'version' => bbp_get_version(),
 			'dir'     => trailingslashit( $this->plugin_dir . 'bbp-theme-compat' ),
 			'url'     => trailingslashit( $this->plugin_url . 'bbp-theme-compat' )
-		) ) );
+		) );
 
 		/** Twenty Ten ********************************************************/
 
-		bbp_register_theme_package( new BBP_Theme_Compat( array( 
+		bbp_register_theme_package( array(
 			'id'      => 'bbp-twentyten',
 			'name'    => __( 'Twenty Ten (bbPress)', 'bbpress' ),
 			'version' => bbp_get_version(),
 			'dir'     => trailingslashit( $this->themes_dir . 'bbp-twentyten' ),
 			'url'     => trailingslashit( $this->themes_url . 'bbp-twentyten' )
-		) ) );
+		) );
 	}
 
 	/**

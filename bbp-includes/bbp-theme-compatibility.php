@@ -267,9 +267,13 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
  * @since bbPress (r3829)
  * @param array $theme
  */
-function bbp_register_theme_package( $theme = '', $override = true ) {
+function bbp_register_theme_package( $theme = array(), $override = true ) {
 
-	// Bail if no name or object passed is not a theme compat theme
+	// Create new BBP_Theme_Compat object from the $theme array
+	if ( is_array( $theme ) )
+		$theme = new BBP_Theme_Compat( $theme );
+
+	// Bail if $theme isn't a proper object
 	if ( ! is_a( $theme, 'BBP_Theme_Compat' ) )
 		return;
 
