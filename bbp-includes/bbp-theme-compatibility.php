@@ -36,29 +36,52 @@ if ( !defined( 'ABSPATH' ) ) exit;
 class BBP_Theme_Compat {
 
 	/**
-	 * @var string ID of the theme (should be unique)
+	 * Should be like:
+	 *
+	 * array(
+	 *     'id'      => ID of the theme (should be unique)
+	 *     'name'    => Name of the theme (should match style.css)
+	 *     'version' => Theme version for cache busting scripts and styling
+	 *     'dir'     => Path to theme
+	 *     'url'     => URL to theme
+	 * );
+	 * @var array 
 	 */
-	public $id = '';
+	private $_data = array();
 
 	/**
-	 * @var string Name of the theme (should match style.css)
+	 * Pass the $properties to the object on creation.
+	 *
+	 * @since bbPress (r3926)
+	 * @param array $properties
 	 */
-	public $name = '';
+    public function __construct( Array $properties = array() ) {
+		$this->_data = $properties;
+	}
 
 	/**
-	 * @var string Theme version for cache busting scripts and styling
+	 * Set a theme's property.
+	 *
+	 * @since bbPress (r3926)
+	 * @param string $property
+	 * @param mixed $value
+	 * @return mixed
 	 */
-	public $version = '';
+	public function __set( $property, $value ) {
+		return $this->_data[$property] = $value;
+	}
 
 	/**
-	 * @var string Path to theme
+	 * Get a theme's property.
+	 *
+	 * @since bbPress (r3926)
+	 * @param string $property
+	 * @param mixed $value
+	 * @return mixed
 	 */
-	public $dir = '';
-
-	/**
-	 * @var string URL to theme
-	 */
-	public $url = '';
+	public function __get( $property ) {
+		return array_key_exists( $property, $this->_data ) ? $this->_data[$property] : '';
+	}
 }
 
 /** Functions *****************************************************************/
@@ -208,6 +231,37 @@ function bbp_set_theme_compat_template( $template = '' ) {
 }
 
 /**
+ * Set the theme compat original_template global
+ *
+ * Stash the original template file for the current query. Useful for checking
+ * if bbPress was able to find a more appropriate template.
+ *
+ * @since bbPress (r3926)
+ */
+function bbp_set_theme_compat_original_template( $template = '' ) {
+	bbpress()->theme_compat->original_template = $template;
+
+	return bbpress()->theme_compat->original_template;
+}
+
+/**
+ * Set the theme compat original_template global
+ *
+ * Stash the original template file for the current query. Useful for checking
+ * if bbPress was able to find a more appropriate template.
+ *
+ * @since bbPress (r3926)
+ */
+function bbp_is_theme_compat_original_template( $template = '' ) {
+	$bbp = bbpress();
+
+	if ( empty( $bbp->theme_compat->original_template ) )
+		return false;
+
+	return (bool) ( $bbp->theme_compat->original_template == $template );
+}
+
+/**
  * Register a new bbPress theme package to the active theme packages array
  *
  * @since bbPress (r3829)
@@ -340,8 +394,10 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
-	// Only filter the main query
-	if ( ! is_main_query() )
+	// Bail if the template doesn't specifically match a bbPress template. This
+	// includes archive-* and single-* WordPress post_type matches, allowing
+	// themes to use the expected format.
+	if ( bbp_is_theme_compat_original_template( $template ) )
 		return $template;
 
 	/** Users *************************************************************/
@@ -738,11 +794,9 @@ function bbp_replace_the_content( $content = '' ) {
 		 */
 		if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
 
-			// Setup the chopping block
-			global $withcomments, $post;
-
-			// Empty out globals that aren't being used in this loop anymore
-			$withcomments = $post = false;
+			// Empty globals that aren't being used in this loop anymore
+			$GLOBALS['withcomments'] = false;
+			$GLOBALS['post']         = false;
 
 			// Reset the post data when the next sidebar is fired
 			add_action( 'get_sidebar', 'bbp_theme_compat_reset_post_data' );

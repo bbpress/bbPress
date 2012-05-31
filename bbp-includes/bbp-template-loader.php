@@ -13,11 +13,9 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Possibly intercept the template being loaded
  *
- * Listens to the 'template_include' filter and waits for a bbPress post_type
- * to appear. If the current theme does not explicitly support bbPress, it
- * intercepts the page template and uses one served from the bbPress compatable
- * theme, set in the $bbp->theme_compat global. If the current theme does
- * support bbPress, we'll explore the template hierarchy and try to locate one.
+ * Listens to the 'template_include' filter and waits for any bbPress specific
+ * template condition to be met. If one is met and the template file exists,
+ * it will be used; otherwise 
  *
  * @since bbPress (r3032)
  *
@@ -45,29 +43,32 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_template_include_theme_supports( $template = '' ) {
 
-	// Viewing a user
-	if     ( bbp_is_single_user()      && ( $new_template = bbp_get_single_user_template()      ) ) :
+	// Set the original template that WordPress found so we can compare the
+	// one bbPress find's in bbp_template_include_theme_compat().
+	bbp_set_theme_compat_original_template( $template );
+
+	/** bbPress Templates *****************************************************/
+	
+	// Note that the _edit() checks are ahead of their counterparts, to
+	// prevent them from being stomped on accident.
 
 	// Editing a user
-	elseif ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :
+	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :
+
+	// Viewing a user
+	elseif ( bbp_is_single_user()      && ( $new_template = bbp_get_single_user_template()      ) ) :
 
 	// Single View
 	elseif ( bbp_is_single_view()      && ( $new_template = bbp_get_single_view_template()      ) ) :
+
+	// Forum edit
+	elseif ( bbp_is_forum_edit()       && ( $new_template = bbp_get_forum_edit_template()       ) ) :
 
 	// Single Forum
 	elseif ( bbp_is_single_forum()     && ( $new_template = bbp_get_single_forum_template()     ) ) :
 
 	// Forum Archive
 	elseif ( bbp_is_forum_archive()    && ( $new_template = bbp_get_forum_archive_template()    ) ) :
-
-	// Forum edit
-	elseif ( bbp_is_forum_edit()       && ( $new_template = bbp_get_forum_edit_template()       ) ) :
-
-	// Single Topic
-	elseif ( bbp_is_single_topic()     && ( $new_template = bbp_get_single_topic_template()     ) ) :
-
-	// Topic Archive
-	elseif ( bbp_is_topic_archive()    && ( $new_template = bbp_get_topic_archive_template()    ) ) :
 
 	// Topic merge
 	elseif ( bbp_is_topic_merge()      && ( $new_template = bbp_get_topic_merge_template()      ) ) :
@@ -78,21 +79,28 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	// Topic edit
 	elseif ( bbp_is_topic_edit()       && ( $new_template = bbp_get_topic_edit_template()       ) ) :
 
-	// Single Reply
-	elseif ( bbp_is_single_reply()     && ( $new_template = bbp_get_single_reply_template()     ) ) :
+	// Single Topic
+	elseif ( bbp_is_single_topic()     && ( $new_template = bbp_get_single_topic_template()     ) ) :
+
+	// Topic Archive
+	elseif ( bbp_is_topic_archive()    && ( $new_template = bbp_get_topic_archive_template()    ) ) :
 
 	// Editing a reply
 	elseif ( bbp_is_reply_edit()       && ( $new_template = bbp_get_reply_edit_template()       ) ) :
 
-	// Viewing a topic tag
-	elseif ( bbp_is_topic_tag()        && ( $new_template = bbp_get_topic_tag_template()        ) ) :
+	// Single Reply
+	elseif ( bbp_is_single_reply()     && ( $new_template = bbp_get_single_reply_template()     ) ) :
 
 	// Editing a topic tag
 	elseif ( bbp_is_topic_tag_edit()   && ( $new_template = bbp_get_topic_tag_edit_template()   ) ) :
+
+	// Viewing a topic tag
+	elseif ( bbp_is_topic_tag()        && ( $new_template = bbp_get_topic_tag_template()        ) ) :
 	endif;
 
-	// Custom template file exists
-	$template = !empty( $new_template ) ? $new_template : $template;
+	// bbPress template file exists
+	if ( !empty( $new_template ) && ! bbp_is_theme_compat_original_template( $new_template ) )
+		$template = $new_template;
 
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }
@@ -402,6 +410,7 @@ function bbp_get_topic_tag_edit_template() {
 function bbp_get_theme_compat_templates() {
 	$templates = array(
 		'bbpress.php',
+		'forums.php',
 		'forum.php',
 		'page.php',
 		'single.php',

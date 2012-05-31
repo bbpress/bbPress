@@ -532,25 +532,23 @@ final class bbPress {
 
 		/** Default Theme *****************************************************/
 
-		$theme          = new BBP_Theme_Compat();
-		$theme->id      = 'default';
-		$theme->name    = __( 'bbPress Default', 'bbpress' );
-		$theme->version = bbp_get_version();
-		$theme->dir     = trailingslashit( $this->plugin_dir . 'bbp-theme-compat' );
-		$theme->url     = trailingslashit( $this->plugin_url . 'bbp-theme-compat' );
+		bbp_register_theme_package( new BBP_Theme_Compat( array( 
+			'id'      => 'default',
+			'name'    => __( 'bbPress Default', 'bbpress' ),
+			'version' => bbp_get_version(),
+			'dir'     => trailingslashit( $this->plugin_dir . 'bbp-theme-compat' ),
+			'url'     => trailingslashit( $this->plugin_url . 'bbp-theme-compat' )
+		) ) );
 
-		bbp_register_theme_package( $theme );
+		/** Twenty Ten ********************************************************/
 
-		/** Default Theme *****************************************************/
-
-		$theme          = new BBP_Theme_Compat();
-		$theme->id      = 'bbp-twentyten';
-		$theme->name    = __( 'Twenty Ten (bbPress)', 'bbpress' ) ;
-		$theme->version = bbp_get_version();
-		$theme->dir     = trailingslashit( $this->themes_dir . 'bbp-twentyten' );
-		$theme->url     = trailingslashit( $this->themes_url . 'bbp-twentyten' );
-
-		bbp_register_theme_package( $theme );
+		bbp_register_theme_package( new BBP_Theme_Compat( array( 
+			'id'      => 'bbp-twentyten',
+			'name'    => __( 'Twenty Ten (bbPress)', 'bbpress' ),
+			'version' => bbp_get_version(),
+			'dir'     => trailingslashit( $this->themes_dir . 'bbp-twentyten' ),
+			'url'     => trailingslashit( $this->themes_url . 'bbp-twentyten' )
+		) ) );
 	}
 
 	/**
