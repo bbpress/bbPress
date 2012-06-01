@@ -1301,42 +1301,26 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 	function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 		// Get required data
-		$reply_position = 0;
 		$reply_id       = bbp_get_reply_id( $reply_id );
+		$reply_position = get_post_field( 'menu_order', $reply_id );
 
-		// Get topic id
-		if ( !empty( $topic_id ) )
-			$topic_id   = bbp_get_topic_id( $topic_id );
-		else
-			$topic_id   = bbp_get_reply_topic_id( $reply_id );
+		// Reply doesn't have a position so get the raw value
+		if ( empty( $reply_position ) ) {
+			$topic_id = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
 
-		// Make sure the topic has replies before running another query
-		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
+			// Post is not the topic
+			if ( $reply_id != $topic_id ) {
+				$reply_position = bbp_get_reply_position_raw( $reply_id, $topic_id );
 
-			// Are we counting hidden replies too?
-			if ( bbp_get_view_all() ) {
-				$topic_replies = bbp_get_all_child_ids   ( $topic_id, bbp_get_reply_post_type() );
-			} else {
-				$topic_replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
-			}
-
-			// Get reply id's
-			if ( !empty( $topic_replies ) ) {
-
-				// Reverse replies array and search for current reply position
-				$topic_replies  = array_reverse( $topic_replies );
-
-				// Position found
-				if ( $reply_position = array_search( (string) $reply_id, $topic_replies ) ) {
-
-					// Bump if topic is in replies loop
-					if ( !bbp_show_lead_topic() ) {
-						$reply_position++;
-					}
-
-					// Bump now so we don't need to do math later
-					$reply_position++;
+				// Update the reply position in the posts table so we'll never have
+				// to hit the DB again.
+				if ( !empty( $reply_position ) ) {
+					bbp_update_reply_position( $reply_id, $reply_position );
 				}
+
+			// Topic's position is always 0
+			} else {
+				$reply_position = 0;
 			}
 		}
 
@@ -1793,8 +1777,9 @@ function bbp_reply_class( $reply_id = 0 ) {
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
 		$classes   = array();
 		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
-		$classes[] = 'bbp-parent-forum-' . bbp_get_reply_forum_id( $reply_id );
-		$classes[] = 'bbp-parent-topic-' . bbp_get_reply_topic_id( $reply_id );
+		$classes[] = 'bbp-parent-forum-'   . bbp_get_reply_forum_id( $reply_id );
+		$classes[] = 'bbp-parent-topic-'   . bbp_get_reply_topic_id( $reply_id );
+		$classes[] = 'bbp-reply-position-' . bbp_get_reply_position( $reply_id );
 		$classes[] = 'user-id-' . bbp_get_reply_author_id( $reply_id );
 		$classes[] = ( bbp_get_reply_author_id( $reply_id ) == bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
 		$classes   = array_filter( $classes );

@@ -208,12 +208,12 @@ function bbp_new_reply_handler() {
 		bbp_add_error( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 	/** Reply Blacklist *******************************************************/
-	
+
 	if ( !bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
 
 	/** Reply Moderation ******************************************************/
-	
+
 	$post_status = bbp_get_public_status_id();
 	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
 		$post_status = bbp_get_pending_status_id();
@@ -242,7 +242,8 @@ function bbp_new_reply_handler() {
 			'post_parent'    => $topic_id,
 			'post_status'    => $post_status,
 			'post_type'      => bbp_get_reply_post_type(),
-			'comment_status' => 'closed'
+			'comment_status' => 'closed',
+			'menu_order'     => (int) ( bbp_get_topic_reply_count( $topic_id ) + 1 )
 		);
 
 		// Just in time manipulation of reply data before being created
@@ -467,12 +468,12 @@ function bbp_edit_reply_handler() {
 		bbp_add_error( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 
 	/** Reply Blacklist *******************************************************/
-	
+
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 
 	/** Reply Moderation ******************************************************/
-	
+
 	$post_status = bbp_get_public_status_id();
 	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
 		$post_status = bbp_get_pending_status_id();
@@ -1173,7 +1174,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Get pre spam status
 	$reply['post_status'] = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
-	
+
 	// Delete pre spam meta
 	delete_post_meta( $reply_id, '_bbp_spam_meta_status' );
 
@@ -1354,7 +1355,7 @@ function bbp_reply_content_autoembed() {
 	global $wp_embed;
 
 	if ( bbp_use_autoembed() && is_a( $wp_embed, 'WP_Embed' ) ) {
-		add_filter( 'bbp_get_reply_content', array( $wp_embed, 'autoembed' ), 8 );		
+		add_filter( 'bbp_get_reply_content', array( $wp_embed, 'autoembed' ), 8 );
 	}
 }
 
@@ -1499,7 +1500,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 /**
  * Redirect if unathorized user is attempting to edit a reply
- * 
+ *
  * @since bbPress (r3605)
  *
  * @uses bbp_is_reply_edit()
@@ -1519,6 +1520,83 @@ function bbp_check_reply_edit() {
 		wp_safe_redirect( bbp_get_reply_url() );
 		exit();
 	}
+}
+
+/** Reply Position ************************************************************/
+
+/**
+ * Update the position of the reply.
+ *
+ * The reply position is stored in the menu_order column of the posts table.
+ * This is done to prevent using a meta_query to retrieve posts in the proper
+ * freshness order. By updating the menu_order accordingly, we're able to
+ * leverage core WordPress query ordering much more effectively.
+ *
+ * @since bbPress (r3933)
+ *
+ * @global type $wpdb
+ * @param type $reply_id
+ * @param type $reply_position
+ * @return mixed
+ */
+function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
+
+	// Bail if reply_id is empty
+	$reply_id = bbp_get_reply_id( $reply_id );
+	if ( empty( $reply_id ) )
+		return false;
+
+	// If no position was passed, get it from the db and update the menu_order
+	if ( empty( $reply_position ) ) {
+		$reply_position = bbp_get_reply_position_raw( $reply_id, bbp_get_reply_topic_id( $reply_id ) );
+	}
+
+	// Update the replies' 'menp_order' with the reply position
+	global $wpdb;
+	$wpdb->update( $wpdb->posts, array( 'menu_order' => $reply_position ), array( 'ID' => $reply_id ) );
+
+	return (int) $reply_position;
+}
+
+/**
+ * Get the position of a reply by querying the DB directly for the replies
+ * of a given topic.
+ *
+ * @since bbPress (r3933)
+ *
+ * @param int $reply_id
+ * @param int $topic_id
+ */
+function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
+
+	// Get required data
+	$reply_id    = bbp_get_reply_id( $reply_id );
+	$topic_id    = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
+
+	// If reply is actually the first post in a topic, return 0
+	if ( $reply_id != $topic_id ) {
+
+		// Make sure the topic has replies before running another query
+		$reply_count = bbp_get_topic_reply_count( $topic_id );
+		if ( !empty( $reply_count ) ) {
+
+			// Get reply id's
+			$topic_replies = bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() );
+			if ( !empty( $topic_replies ) ) {
+
+				// Reverse replies array and search for current reply position
+				$topic_replies  = array_reverse( $topic_replies );
+				$reply_position = array_search( (string) $reply_id, $topic_replies );
+
+				// Bump the position to compensate for the lead topic post
+				$reply_position++;
+			}
+		}
+	} else {
+		$reply_position = 0;
+	}
+
+	return $reply_position;
 }
 
 ?>
