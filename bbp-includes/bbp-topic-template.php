@@ -167,8 +167,9 @@ function bbp_has_topics( $args = '' ) {
 			}
 
 			// If any posts have been excluded specifically, Ignore those that are sticky.
-			if ( !empty( $stickies ) && !empty( $post__not_in ) )
+			if ( !empty( $stickies ) && !empty( $post__not_in ) ) {
 				$stickies = array_diff( $stickies, $post__not_in );
+			}
 
 			// Fetch sticky posts that weren't in the query results
 			if ( !empty( $stickies ) ) {
@@ -177,7 +178,7 @@ function bbp_has_topics( $args = '' ) {
 				$sticky_query = array(
 					'post_type'   => bbp_get_topic_post_type(),
 					'post_parent' => 'any',
-					'post_status' => $post_status,
+					'post_status' => $default_post_status,
 					'include'     => $stickies
 				);
 
