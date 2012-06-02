@@ -286,7 +286,7 @@ td.bbp-topic-counts {
 }
 
 .bbp-topic-header a.bbp-topic-permalink,
-.bbp-topic-header a.bbp-reply-permalink {
+.bbp-reply-header a.bbp-reply-permalink {
 	float: right;
 	margin-left: 10px;
 	color: #ccc;
