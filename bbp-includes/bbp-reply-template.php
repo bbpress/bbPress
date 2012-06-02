@@ -363,6 +363,10 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
 		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
 
+		// Bump the position by one if the lead topic is in the replies loop
+		if ( ! bbp_show_lead_topic() )
+			$reply_position++;
+
 		// Check if in query with pagination
 		$reply_page     = ceil( (int) $reply_position / (int) bbp_get_replies_per_page() );
 
