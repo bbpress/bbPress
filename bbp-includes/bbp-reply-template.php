@@ -355,26 +355,14 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @return string Link to reply relative to paginated topic
 	 */
 	function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
-		global $wp_rewrite;
 
 		// Set needed variables
-		$reply_id       = bbp_get_reply_id       ( $reply_id               );
-		$topic_id       = bbp_get_reply_topic_id ( $reply_id               );
-		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
-		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
-
-		// Bump the position by one if the lead topic is in the replies loop
-		if ( ! bbp_show_lead_topic() )
-			$reply_position++;
-
-		// Check if in query with pagination
-		$reply_page     = ceil( (int) $reply_position / (int) bbp_get_replies_per_page() );
-
-		// Hash to add to end of URL
-		$reply_hash     = '#post-' . $reply_id;
-
-		// Remove the topic view query arg if its set
-		$topic_url      = remove_query_arg( 'view', $topic_url );
+		$reply_id   = bbp_get_reply_id      ( $reply_id );
+		$topic_id   = bbp_get_reply_topic_id( $reply_id );
+		$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id ) / (int) bbp_get_replies_per_page() );
+		$reply_hash = '#post-' . $reply_id;
+		$topic_link = bbp_get_topic_permalink( $topic_id, $redirect_to );
+		$topic_url  = remove_query_arg( 'view', $topic_link );
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
@@ -382,6 +370,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 
 		// Include pagination
 		} else {
+			global $wp_rewrite;
 
 			// Pretty permalinks
 			if ( $wp_rewrite->using_permalinks() ) {
@@ -1327,6 +1316,10 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 				$reply_position = 0;
 			}
 		}
+
+		// Bump the position by one if the lead topic is in the replies loop
+		if ( ! bbp_show_lead_topic() )
+			$reply_position++;
 
 		return apply_filters( 'bbp_get_reply_position', (int) $reply_position, $reply_id, $topic_id );
 	}
