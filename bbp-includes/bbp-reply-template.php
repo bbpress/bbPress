@@ -1321,7 +1321,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 		if ( ! bbp_show_lead_topic() )
 			$reply_position++;
 
-		return apply_filters( 'bbp_get_reply_position', (int) $reply_position, $reply_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_reply_position', (int) $reply_position, $reply_id, $topic_id );
 	}
 
 /** Reply Admin Links *********************************************************/
