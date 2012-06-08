@@ -172,6 +172,9 @@ class BBP_Shortcodes {
 		// Set query name
 		bbp_set_query_name( $query_name );
 
+		// Remove 'bbp_replace_the_content' filter to prevent infinite loops
+		remove_filter( 'the_content', 'bbp_replace_the_content' );
+
 		// Start output buffer
 		ob_start();
 	}
@@ -197,6 +200,9 @@ class BBP_Shortcodes {
 
 		// Reset the query name
 		bbp_reset_query_name();
+
+		// Add 'bbp_replace_the_content' filter back (@see $this::start())
+		add_filter( 'the_content', 'bbp_replace_the_content' );
 
 		return $output;
 	}

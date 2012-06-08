@@ -606,9 +606,6 @@ function bbp_replace_the_content( $content = '' ) {
 	// Define local variable(s)
 	$new_content = '';
 
-	// Remove the filter that was added in bbp_template_include()
-	remove_filter( 'the_content', 'bbp_replace_the_content' );
-
 	// Bail if shortcodes are unset somehow
 	if ( !is_a( $bbp->shortcodes, 'BBP_Shortcodes' ) )
 		return $content;
@@ -651,17 +648,23 @@ function bbp_replace_the_content( $content = '' ) {
 		$page = bbp_get_page_by_path( bbp_get_root_slug() );
 		if ( !empty( $page ) ) {
 
-			// Start output buffer
-			ob_start();
-
 			// Restore previously unset filters
 			bbp_restore_all_filters( 'the_content' );
 
+			// Remove 'bbp_replace_the_content' filter to prevent infinite loops
+			remove_filter( 'the_content', 'bbp_replace_the_content' );
+
+			// Start output buffer
+			ob_start();
+
 			// Grab the content of this page
-			$new_content = do_shortcode( apply_filters( 'the_content', get_post_field( 'post_content', $page->ID ) ) );
+			$new_content = apply_filters( 'the_content', $page->post_content );
 
 			// Clean up the buffer
 			ob_end_clean();
+
+			// Add 'bbp_replace_the_content' filter back (@see $this::start())
+			add_filter( 'the_content', 'bbp_replace_the_content' );
 
 		// No page so show the archive
 		} else {
@@ -677,18 +680,23 @@ function bbp_replace_the_content( $content = '' ) {
 		$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
 		if ( !empty( $page ) ) {
 
-			// Start output buffer
-			ob_start();
-
 			// Restore previously unset filters
 			bbp_restore_all_filters( 'the_content' );
 
+			// Remove 'bbp_replace_the_content' filter to prevent infinite loops
+			remove_filter( 'the_content', 'bbp_replace_the_content' );
+
+			// Start output buffer
+			ob_start();
+
 			// Grab the content of this page
-			$new_content = do_shortcode( apply_filters( 'the_content', get_post_field( 'post_content', $page->ID ) ) );
+			$new_content = apply_filters( 'the_content', $page->post_content );
 
 			// Clean up the buffer
 			ob_end_clean();
 
+			// Add 'bbp_replace_the_content' filter back (@see $this::start())
+			add_filter( 'the_content', 'bbp_replace_the_content' );
 
 		// No page so show the archive
 		} else {
