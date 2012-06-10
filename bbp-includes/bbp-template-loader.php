@@ -409,9 +409,11 @@ function bbp_get_topic_tag_edit_template() {
  */
 function bbp_get_theme_compat_templates() {
 	$templates = array(
+		'plugin-bbpress.php',
 		'bbpress.php',
 		'forums.php',
 		'forum.php',
+		'generic.php',
 		'page.php',
 		'single.php',
 		'index.php'
