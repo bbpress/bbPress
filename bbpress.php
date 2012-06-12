@@ -650,49 +650,56 @@ final class bbPress {
 	 *                           modify $wp_post_statuses accordingly
 	 */
 	public static function register_post_statuses() {
-		global $wp_post_statuses;
 
 		// Closed
-		$status = apply_filters( 'bbp_register_closed_post_status', array(
-			'label'             => _x( 'Closed', 'post', 'bbpress' ),
-			'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
-			'public'            => true,
-			'show_in_admin_all' => true
-		) );
-		register_post_status( bbp_get_closed_status_id(), $status );
+		register_post_status(
+			bbp_get_closed_status_id(),
+			apply_filters( 'bbp_register_closed_post_status', array(
+				'label'             => _x( 'Closed', 'post', 'bbpress' ),
+				'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
+				'public'            => true,
+				'show_in_admin_all' => true
+			) )
+		);
 
 		// Spam
-		$status = apply_filters( 'bbp_register_spam_post_status', array(
-			'label'                     => _x( 'Spam', 'post', 'bbpress' ),
-			'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
-			'protected'                 => true,
-			'exclude_from_search'       => true,
-			'show_in_admin_status_list' => true,
-			'show_in_admin_all_list'    => false
-		) );
-		register_post_status( bbp_get_spam_status_id(), $status );
+		register_post_status(
+			bbp_get_spam_status_id(),
+			apply_filters( 'bbp_register_spam_post_status', array(
+				'label'                     => _x( 'Spam', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
+				'protected'                 => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => false
+			) )
+		 );
 
 		// Orphan
-		$status = apply_filters( 'bbp_register_orphan_post_status', array(
-			'label'                     => _x( 'Orphan', 'post', 'bbpress' ),
-			'label_count'               => _nx_noop( 'Orphan <span class="count">(%s)</span>', 'Orphans <span class="count">(%s)</span>', 'bbpress' ),
-			'protected'                 => true,
-			'exclude_from_search'       => true,
-			'show_in_admin_status_list' => true,
-			'show_in_admin_all_list'    => false
-		) );
-		register_post_status( bbp_get_orphan_status_id(), $status );
+		register_post_status(
+			bbp_get_orphan_status_id(),
+			apply_filters( 'bbp_register_orphan_post_status', array(
+				'label'                     => _x( 'Orphan', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Orphan <span class="count">(%s)</span>', 'Orphans <span class="count">(%s)</span>', 'bbpress' ),
+				'protected'                 => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => false
+			) )
+		);
 
 		// Hidden
-		$status = apply_filters( 'bbp_register_hidden_post_status', array(
-			'label'                     => _x( 'Hidden', 'post', 'bbpress' ),
-			'label_count'               => _nx_noop( 'Hidden <span class="count">(%s)</span>', 'Hidden <span class="count">(%s)</span>', 'bbpress' ),
-			'private'                   => true,
-			'exclude_from_search'       => true,
-			'show_in_admin_status_list' => true,
-			'show_in_admin_all_list'    => true
-		) );
-		register_post_status( bbp_get_hidden_status_id(), $status );
+		register_post_status(
+			bbp_get_hidden_status_id(),
+			apply_filters( 'bbp_register_hidden_post_status', array(
+				'label'                     => _x( 'Hidden', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Hidden <span class="count">(%s)</span>', 'Hidden <span class="count">(%s)</span>', 'bbpress' ),
+				'private'                   => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => true
+			) )
+		);
 
 		/**
 		 * Trash fix
@@ -702,6 +709,8 @@ final class bbPress {
 		 * single trashed topics/replies in the front-end as wp_query
 		 * doesn't allow any hack for the trashed topics to be viewed.
 		 */
+		global $wp_post_statuses;
+
 		if ( !empty( $wp_post_statuses['trash'] ) ) {
 
 			// User can view trash so set internal to false
