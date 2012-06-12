@@ -33,24 +33,36 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 final class bbPress {
 
-	/** Byref *****************************************************************/
+	/** Magic *****************************************************************/
+
+	/**
+	 * bbPress uses many variables, most of which can be filtered to customize
+	 * the way that it works. To prevent unauthorized access, these variables
+	 * are stored in a private array that is magically updated using PHP 5.2+
+	 * methods. This is to prevent third party plugins from tampering with
+	 * essential information indirectly, which would cause issues later.
+	 *
+	 * @see bbPress::setup_globals()
+	 * @var array
+	 */
+	private $data;
+
+	/** Not Magic *************************************************************/
 
 	/**
 	 * @var mixed False when not logged in; WP_User object when logged in
 	 */
 	public $current_user = false;
 
-	/** Arrays ****************************************************************/
+	/**
+	 * @var obj Add-ons append to this (Akismet, BuddyPress, etc...)
+	 */
+	public $extend;
 
 	/**
 	 * @var array Topic views
 	 */
 	public $views        = array();
-
-	/**
-	 * @var array Add-ons append to this (Akismet, BuddyPress, etc...)
-	 */
-	public $extend       = array();
 
 	/**
 	 * @var array Overloads get_option()
@@ -63,11 +75,6 @@ final class bbPress {
 	public $user_options = array();
 
 	/** Singleton *************************************************************/
-
-	/**
-	 * @var array Magic data store to get and set various runtime information.
-	 */
-	private $data;
 
 	/**
 	 * @var bbPress The one true bbPress
@@ -228,6 +235,7 @@ final class bbPress {
 
 		/** Misc **************************************************************/
 
+		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
 
