@@ -678,7 +678,7 @@ final class bbPress {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => true,
 				'public'              => true,
-				'show_ui'             => true,
+				'show_ui'             => bbp_admin_show_ui( bbp_get_forum_post_type() ),
 				'can_export'          => true,
 				'hierarchical'        => true,
 				'query_var'           => true,
@@ -735,7 +735,7 @@ final class bbPress {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => true,
+				'show_ui'             => bbp_admin_show_ui( bbp_get_topic_post_type() ),
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -792,7 +792,7 @@ final class bbPress {
 				'has_archive'         => false,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => true,
+				'show_ui'             => bbp_admin_show_ui( bbp_get_reply_post_type() ),
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -924,7 +924,7 @@ final class bbPress {
 				'show_tagcloud'         => true,
 				'hierarchical'          => false,
 				'public'                => true,
-				'show_ui'               => true
+				'show_ui'               => bbp_admin_show_ui( bbp_get_topic_tag_tax_id() )
 			)
 		) );
 	}

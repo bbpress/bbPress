@@ -652,4 +652,51 @@ function bbp_global_access_role_mask() {
 	}
 }
 
+/**
+ * Should the admin UI be visible?
+ * 
+ * Used when registering post types and taxonomies to decide if 'show_ui' should
+ * be set to true or false
+ *
+ * @since bbPress (r3944)
+ * @uses current_user_can() To check the 'moderate' capability
+ * @return bool Results of current_user_can( 'moderate' ) check.
+ */
+function bbp_admin_show_ui( $component = '' ) {
+
+	// Define local variable
+	$retval = false;
+
+	// Allow for context switching by plugins
+	switch ( $component ) {
+		case 'bbp_converter'             : // Converter
+		case 'bbp_settings_main'         : // Settings
+		case 'bbp_settings_theme_compat' : // Settings - Theme compat
+		case 'bbp_settings_root_slugs'   : // Settings - Root slugs
+		case 'bbp_settings_single_slugs' : // Settings - Single slugs
+		case 'bbp_settings_per_page'     : // Settings - Single slugs
+		case 'bbp_settings_per_page_rss' : // Settings - Single slugs
+			$retval = is_super_admin();
+			break;
+
+		case 'bbp_settings_buddypress'  : // BuddyPress Extension
+			$retval = ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin();
+			break;
+
+		case 'bbp_settings_akismet'     : // Akismet Extension
+			$retval = ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin();
+			break;
+
+		case bbp_get_forum_post_type()  : // Forums
+		case bbp_get_topic_post_type()  : // Topics
+		case bbp_get_reply_post_type()  : // Replies
+		case bbp_get_topic_tag_tax_id() : // Topic-Tags
+		default                         :
+			$retval = current_user_can( 'moderate' );
+			break;
+	}
+
+	return (bool) apply_filters( 'bbp_admin_show_ui', $retval, $component );
+}
+
 ?>
