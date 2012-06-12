@@ -11,7 +11,9 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Get the default site options and their values
+ * Get the default site options and their values.
+ * 
+ * These option
  *
  * @since bbPress (r3421)
  * @return array Filtered option names and values
@@ -23,132 +25,73 @@ function bbp_get_default_options() {
 
 		/** DB Version ********************************************************/
 
-		'_bbp_db_version'           => '200',
+		'_bbp_db_version'             => '200',       // The current database version
 
 		/** Settings **********************************************************/
 
-		// Lock post editing after 5 minutes
-		'_bbp_edit_lock'            => '5',
-
-		// Throttle post time to 10 seconds
-		'_bbp_throttle_time'        => '10',
-
-		// Favorites
-		'_bbp_enable_favorites'     => true,
-
-		// Subscriptions
-		'_bbp_enable_subscriptions' => true,
-
-		// Allow anonymous posting
-		'_bbp_allow_anonymous'      => false,
-
-		// Users from all sites can post
-		'_bbp_allow_global_access'  => false,
-
-		// Use the WordPress editor if available
-		'_bbp_use_wp_editor'        => true,
-		
-		// Allow oEmbed in topics and replies
-		'_bbp_use_autoembed'        => false,
-
-		// The ID for the current theme package
-		'_bbp_theme_package_id'     => 'default',
+		'_bbp_edit_lock'            => '5',              // Lock post editing after 5 minutes
+		'_bbp_throttle_time'        => '10',             // Throttle post time to 10 seconds
+		'_bbp_enable_favorites'     => true,             // Favorites
+		'_bbp_enable_subscriptions' => true,             // Subscriptions
+		'_bbp_allow_anonymous'      => false,            // Allow anonymous posting
+		'_bbp_allow_global_access'  => false,            // Users from all sites can post
+		'_bbp_use_wp_editor'        => true,             // Use the WordPress editor if available
+		'_bbp_use_autoembed'        => false,            // Allow oEmbed in topics and replies
+		'_bbp_theme_package_id'     => 'default',        // The ID for the current theme packag.
 
 		/** Per Page **********************************************************/
 
-		// Topics per page
-		'_bbp_topics_per_page'      => '15',
-
-		// Replies per page
-		'_bbp_replies_per_page'     => '15',
-
-		// Forums per page
-		'_bbp_forums_per_page'      => '50',
-
-		// Topics per RSS page
-		'_bbp_topics_per_rss_page'  => '25',
-
-		// Replies per RSS page
-		'_bbp_replies_per_rss_page' => '25',
+		'_bbp_topics_per_page'      => '15',        // Topics per page
+		'_bbp_replies_per_page'     => '15',        // Replies per page
+		'_bbp_forums_per_page'      => '50',        // Forums per page
+		'_bbp_topics_per_rss_page'  => '25',        // Topics per RSS page
+		'_bbp_replies_per_rss_page' => '25',        // Replies per RSS page
 
 		/** Page For **********************************************************/
 
-		// Page for forums
-		'_bbp_page_for_forums'      => '0',
-
-		// Page for forums
-		'_bbp_page_for_topics'      => '0',
-
-		// Page for login
-		'_bbp_page_for_login'       => '0',
-
-		// Page for register
-		'_bbp_page_for_register'    => '0',
-
-		// Page for lost-pass
-		'_bbp_page_for_lost_pass'   => '0',
+		'_bbp_page_for_forums'      => '0',         // Page for forums
+		'_bbp_page_for_topics'      => '0',         // Page for forums
+		'_bbp_page_for_login'       => '0',         // Page for login
+		'_bbp_page_for_register'    => '0',         // Page for register
+		'_bbp_page_for_lost_pass'   => '0',         // Page for lost-pass
 
 		/** Archive Slugs *****************************************************/
 
-		// Forum archive slug
-		'_bbp_root_slug'            => 'forums',
-
-		// Topic archive slug
-		'_bbp_topic_archive_slug'   => 'topics',
+		'_bbp_root_slug'            => 'forums',    // Forum archive slug
+		'_bbp_topic_archive_slug'   => 'topics',    // Topic archive slug
 
 		/** Single Slugs ******************************************************/
 
-		// Include Forum archive before single slugs
-		'_bbp_include_root'         => true,
-
-		// Forum slug
-		'_bbp_forum_slug'           => 'forum',
-
-		// Topic slug
-		'_bbp_topic_slug'           => 'topic',
-
-		// Reply slug
-		'_bbp_reply_slug'           => 'reply',
-
-		// Topic tag slug
-		'_bbp_topic_tag_slug'       => 'topic-tag',
+		'_bbp_include_root'         => true,        // Include forum-archive before single slugs
+		'_bbp_forum_slug'           => 'forum',     // Forum slug
+		'_bbp_topic_slug'           => 'topic',     // Topic slug
+		'_bbp_reply_slug'           => 'reply',     // Reply slug
+		'_bbp_topic_tag_slug'       => 'topic-tag', // Topic tag slug
 
 		/** Other Slugs *******************************************************/
 
-		// User profile slug
-		'_bbp_user_slug'            => 'users',
-
-		// View slug
-		'_bbp_view_slug'            => 'view',
+		'_bbp_user_slug'            => 'users',     // User profile slug
+		'_bbp_view_slug'            => 'view',      // View slug
 
 		/** Topics ************************************************************/
 
-		// Title Max Length
-		'_bbp_title_max_length'     => '80',
-
-		// Super stickies
-		'_bbp_super_sticky_topics'  => '',
+		'_bbp_title_max_length'     => '80',        // Title Max Length
+		'_bbp_super_sticky_topics'  => '',          // Super stickies
 
 		/** Forums ************************************************************/
 
-		// Private forums
-		'_bbp_private_forums'       => '',
-
-		// Hidden forums
-		'_bbp_hidden_forums'        => '',
+		'_bbp_private_forums'       => '',          // Private forums
+		'_bbp_hidden_forums'        => '',          // Hidden forums
 
 		/** BuddyPress ********************************************************/
 
-		// Enable BuddyPress Group Extension
-		'_bbp_enable_group_forums'  => true,
-
-		// Group Forums parent forum id
-		'_bbp_group_forums_root_id' => '0',
+		'_bbp_enable_group_forums'  => true,        // Enable BuddyPress Group Extension
+		'_bbp_group_forums_root_id' => '0',         // Group Forums parent forum id
 
 		/** Akismet ***********************************************************/
 
-		// Users from all sites can post
-		'_bbp_enable_akismet'       => true,
+		'_bbp_enable_akismet'       => true         // Users from all sites can post
+
 	) );
 }
 
@@ -506,7 +449,7 @@ function bbp_get_view_slug( $default = 'view' ) {
 	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
 }
 
-/** Legacy *******************************************************************/
+/** Legacy ********************************************************************/
 
 /**
  * Checks if there is a previous BuddyPress Forum configuration
