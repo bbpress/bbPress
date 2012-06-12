@@ -739,7 +739,7 @@ class BBP_Shortcodes {
 	/**
 	 * Filter the query for the topic index
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3637)
 	 *
 	 * @param array $args
 	 * @return array
@@ -754,7 +754,7 @@ class BBP_Shortcodes {
 	/**
 	 * Filter the query for the topic index
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3637)
 	 *
 	 * @param array $args
 	 * @return array

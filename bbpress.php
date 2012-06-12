@@ -108,21 +108,21 @@ final class bbPress {
 	/**
 	 * Magic method for checking the existence of a certain custom field
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3951)
 	 */
 	public function __isset( $key ) { return isset( $this->data[$key] ); }
 
 	/**
 	 * Magic method for getting bbPress varibles
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3951)
 	 */
 	public function __get( $key ) { return isset( $this->data[$key] ) ? $this->data[$key] : null; }
 
 	/**
 	 * Magic method for setting bbPress varibles
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r3951)
 	 */
 	public function __set( $key, $value ) { $this->data[$key] = &$value; }
 
