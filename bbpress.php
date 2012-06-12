@@ -38,7 +38,29 @@ final class bbPress {
 	/**
 	 * @var mixed False when not logged in; WP_User object when logged in
 	 */
-	public $current_user   = false;
+	public $current_user = false;
+
+	/** Arrays ****************************************************************/
+
+	/**
+	 * @var array Topic views
+	 */
+	public $views        = array();
+
+	/**
+	 * @var array Add-ons append to this (Akismet, BuddyPress, etc...)
+	 */
+	public $extend       = array();
+
+	/**
+	 * @var array Overloads get_option()
+	 */
+	public $options      = array(); 
+
+	/**
+	 * @var array Overloads get_user_meta()
+	 */
+	public $user_options = array();
 
 	/** Singleton *************************************************************/
 
@@ -124,7 +146,7 @@ final class bbPress {
 	 *
 	 * @since bbPress (r3951)
 	 */
-	public function __set( $key, $value ) { $this->data[$key] = &$value; }
+	public function __set( $key, $value ) { $this->data[$key] = $value; }
 
 	/** Private Methods *******************************************************/
 
@@ -204,19 +226,9 @@ final class bbPress {
 		$this->current_user   = new stdClass(); // Currently logged in user
 		$this->displayed_user = new stdClass(); // Currently displayed user
 
-		/** Plugins ***********************************************************/
-
-		$this->extend         = false;   // Add-ons should append globals to this
-
-		/** Overrides *********************************************************/
-
-		$this->options        = array(); // Overloads get_option()
-		$this->user_options   = array(); // Overloads get_user_meta()
-
 		/** Misc **************************************************************/
 
 		$this->errors         = new WP_Error(); // Feedback
-		$this->views          = array();        // Topic Views
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
