@@ -653,31 +653,44 @@ function bbp_global_access_role_mask() {
 }
 
 /**
- * Should the admin UI be visible?
+ * Can the current user see a specific UI element?
  * 
- * Used when registering post types and taxonomies to decide if 'show_ui' should
- * be set to true or false
+ * Used when registering post-types and taxonomies to decide if 'show_ui' should
+ * be set to true or false. Also used for fine-grained control over which admin
+ * sections are visible under what conditions.
+ *
+ * This function is in bbp-core-caps.php rather than in /bbp-admin so that it
+ * can be used during the bbp_register_post_types action.
  *
  * @since bbPress (r3944)
+ *
  * @uses current_user_can() To check the 'moderate' capability
+ * @uses bbp_get_forum_post_type()
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_get_reply_post_type()
+ * @uses bbp_get_topic_tag_tax_id()
+ * @uses is_plugin_active()
+ * @uses is_super_admin()
  * @return bool Results of current_user_can( 'moderate' ) check.
  */
-function bbp_admin_show_ui( $component = '' ) {
+function bbp_current_user_can_see( $component = '' ) {
 
 	// Define local variable
 	$retval = false;
 
-	// Allow for context switching by plugins
+	// Which component are we checking UI visibility for?
 	switch ( $component ) {
-		case 'bbp_converter'             : // Converter
-		case 'bbp_settings_main'         : // Settings
-		case 'bbp_settings_theme_compat' : // Settings - Theme compat
-		case 'bbp_settings_root_slugs'   : // Settings - Root slugs
-		case 'bbp_settings_single_slugs' : // Settings - Single slugs
-		case 'bbp_settings_per_page'     : // Settings - Single slugs
-		case 'bbp_settings_per_page_rss' : // Settings - Single slugs
-			$retval = is_super_admin();
+
+		/** Everywhere ********************************************************/
+
+		case bbp_get_forum_post_type()   : // Forums
+		case bbp_get_topic_post_type()   : // Topics
+		case bbp_get_reply_post_type()   : // Replies
+		case bbp_get_topic_tag_tax_id()  : // Topic-Tags
+			$retval = current_user_can( 'moderate' );
 			break;
+
+		/** Admin Exclusive ***************************************************/
 
 		case 'bbp_settings_buddypress'  : // BuddyPress Extension
 			$retval = ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin();
@@ -687,16 +700,23 @@ function bbp_admin_show_ui( $component = '' ) {
 			$retval = ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin();
 			break;
 
-		case bbp_get_forum_post_type()  : // Forums
-		case bbp_get_topic_post_type()  : // Topics
-		case bbp_get_reply_post_type()  : // Replies
-		case bbp_get_topic_tag_tax_id() : // Topic-Tags
-		default                         :
-			$retval = current_user_can( 'moderate' );
+		case 'bbp_tools_page'            : // Tools Page
+		case 'bbp_tools_repair_page'     : // Tools - Repair Page
+		case 'bbp_tools_import_page'     : // Tools - Import Page
+		case 'bbp_tools_reset_page'      : // Tools - Reset Page
+		case 'bbp_settings?page'         : // Settings Page
+		case 'bbp_settings_main'         : // Settings - General
+		case 'bbp_settings_theme_compat' : // Settings - Theme compat
+		case 'bbp_settings_root_slugs'   : // Settings - Root slugs
+		case 'bbp_settings_single_slugs' : // Settings - Single slugs
+		case 'bbp_settings_per_page'     : // Settings - Single slugs
+		case 'bbp_settings_per_page_rss' : // Settings - Single slugs
+		default                          : // Anything else
+			$retval = current_user_can( bbpress()->admin->minimum_capability );
 			break;
 	}
 
-	return (bool) apply_filters( 'bbp_admin_show_ui', $retval, $component );
+	return (bool) apply_filters( 'bbp_current_user_can_see', (bool) $retval, $component );
 }
 
 ?>

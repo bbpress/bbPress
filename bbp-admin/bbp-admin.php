@@ -44,20 +44,6 @@ class BBP_Admin {
 	 */
 	public $styles_url = '';
 
-	/** Tools *****************************************************************/
-
-	/**
-	 * @var bool Enable screens in Tools area
-	 */
-	public $enable_tools = false;
-
-	/** Settings **************************************************************/
-
-	/**
-	 * @var bool Enable screens in Settings area
-	 */
-	public $enable_settings = false;
-
 	/** Capability ************************************************************/
 
 	/**
@@ -181,33 +167,39 @@ class BBP_Admin {
 	 */
 	public function admin_menus() {
 
-		// Are tools enabled?
-		if ( is_super_admin() || ! empty( $this->enable_tools ) ) {
+		$hooks = array();
 
-			$hooks = array();
+		// These are later removed in admin_head
+		if ( bbp_current_user_can_see( 'bbp_tools_page' ) ) {
+			if ( bbp_current_user_can_see( 'bbp_tools_repair_page' ) ) {
+				$hooks[] = add_management_page(
+					__( 'Repair Forums', 'bbpress' ),
+					__( 'Forum Repair',  'bbpress' ),
+					$this->minimum_capability,
+					'bbp-repair',
+					'bbp_admin_repair'
+				);
+			}
 
-			// These are later removed in admin_head
-			$hooks[] = add_management_page(
-				__( 'Repair Forums', 'bbpress' ),
-				__( 'Forum Repair',  'bbpress' ),
-				$this->minimum_capability,
-				'bbp-repair',
-				'bbp_admin_repair'
-			);
-			$hooks[] = add_management_page(
-				__( 'Import Forums', 'bbpress' ),
-				__( 'Forum Import',  'bbpress' ),
-				$this->minimum_capability,
-				'bbp-converter',
-				'bbp_converter_settings'
-			);
-			$hooks[] = add_management_page(
-				__( 'Reset Forums', 'bbpress' ),
-				__( 'Forum Reset',  'bbpress' ),
-				$this->minimum_capability,
-				'bbp-reset',
-				'bbp_admin_reset'
-			);
+			if ( bbp_current_user_can_see( 'bbp_tools_import_page' ) ) {
+				$hooks[] = add_management_page(
+					__( 'Import Forums', 'bbpress' ),
+					__( 'Forum Import',  'bbpress' ),
+					$this->minimum_capability,
+					'bbp-converter',
+					'bbp_converter_settings'
+				);
+			}
+
+			if ( bbp_current_user_can_see( 'bbp_tools_reset_page' ) ) {
+				$hooks[] = add_management_page(
+					__( 'Reset Forums', 'bbpress' ),
+					__( 'Forum Reset',  'bbpress' ),
+					$this->minimum_capability,
+					'bbp-reset',
+					'bbp_admin_reset'
+				);
+			}
 
 			// Fudge the highlighted subnav item when on a bbPress admin page
 			foreach( $hooks as $hook ) {
@@ -225,7 +217,7 @@ class BBP_Admin {
 		}
 
 		// Are settings enabled?
-		if ( is_super_admin() || ! empty( $this->enable_settings ) ) {
+		if ( bbp_current_user_can_see( 'bbp_settings_page' ) ) {
 			add_options_page(
 				__( 'Forums',  'bbpress' ),
 				__( 'Forums',  'bbpress' ),
@@ -280,7 +272,7 @@ class BBP_Admin {
 		/** Main Section ******************************************************/
 
 		$section = 'bbp_settings_main';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the main section
 			add_settings_section( $section,                  __( 'Main Settings',           'bbpress' ), 'bbp_admin_setting_callback_main_section',  'bbpress'           );
@@ -327,7 +319,7 @@ class BBP_Admin {
 		/** Theme Packages ****************************************************/
 
 		$section = 'bbp_settings_theme_compat';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( $section,              __( 'Theme Packages',  'bbpress' ), 'bbp_admin_setting_callback_subtheme_section', 'bbpress'           );
@@ -340,7 +332,7 @@ class BBP_Admin {
 		/** Per Page Section **************************************************/
 
 		$section = 'bbp_settings_per_page';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( $section,              __( 'Per Page', 'bbpress' ),          'bbp_admin_setting_callback_per_page_section', 'bbpress'           );
@@ -357,7 +349,7 @@ class BBP_Admin {
 		/** Per RSS Page Section **********************************************/
 
 		$section = 'bbp_settings_per_page_rss';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( $section,              __( 'Per RSS Page', 'bbpress' ),      'bbp_admin_setting_callback_per_rss_page_section', 'bbpress'           );
@@ -374,7 +366,7 @@ class BBP_Admin {
 		/** Front Slugs *******************************************************/
 
 		$section = 'bbp_settings_root_slugs';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( $section,                  __( 'Archive Slugs', 'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress'                  );
@@ -396,7 +388,7 @@ class BBP_Admin {
 		/** Single slugs ******************************************************/
 
 		$section = 'bbp_settings_single_slugs';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( $section,             __( 'Single Slugs',  'bbpress' ), 'bbp_admin_setting_callback_single_slug_section', 'bbpress'           );
@@ -435,7 +427,7 @@ class BBP_Admin {
 		/** BuddyPress ********************************************************/
 
 		$section = 'bbp_settings_buddypress';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( 'bbp_buddypress',          __( 'BuddyPress', 'bbpress' ),          'bbp_admin_setting_callback_buddypress_section',   'bbpress'                   );
@@ -452,7 +444,7 @@ class BBP_Admin {
 		/** Akismet ***********************************************************/
 
 		$section = 'bbp_settings_akismet';
-		if ( bbp_admin_show_ui( $section ) ) {
+		if ( bbp_current_user_can_see( $section ) ) {
 
 			// Add the per page section
 			add_settings_section( 'bbp_akismet',       __( 'Akismet', 'bbpress' ),      'bbp_admin_setting_callback_akismet_section', 'bbpress'                );
