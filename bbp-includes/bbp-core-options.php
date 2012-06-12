@@ -25,19 +25,19 @@ function bbp_get_default_options() {
 
 		/** DB Version ********************************************************/
 
-		'_bbp_db_version'           => bbpress()->db_version, // The current database version
+		'_bbp_db_version'           => bbpress()->db_version,
 
 		/** Settings **********************************************************/
 
-		'_bbp_edit_lock'            => '5',              // Lock post editing after 5 minutes
-		'_bbp_throttle_time'        => '10',             // Throttle post time to 10 seconds
-		'_bbp_enable_favorites'     => true,             // Favorites
-		'_bbp_enable_subscriptions' => true,             // Subscriptions
-		'_bbp_allow_anonymous'      => false,            // Allow anonymous posting
-		'_bbp_allow_global_access'  => false,            // Users from all sites can post
-		'_bbp_use_wp_editor'        => true,             // Use the WordPress editor if available
-		'_bbp_use_autoembed'        => false,            // Allow oEmbed in topics and replies
-		'_bbp_theme_package_id'     => 'default',        // The ID for the current theme packag.
+		'_bbp_edit_lock'            => '5',         // Lock post editing after 5 minutes
+		'_bbp_throttle_time'        => '10',        // Throttle post time to 10 seconds
+		'_bbp_enable_favorites'     => true,        // Favorites
+		'_bbp_enable_subscriptions' => true,        // Subscriptions
+		'_bbp_allow_anonymous'      => false,       // Allow anonymous posting
+		'_bbp_allow_global_access'  => false,       // Users from all sites can post
+		'_bbp_use_wp_editor'        => true,        // Use the WordPress editor if available
+		'_bbp_use_autoembed'        => false,       // Allow oEmbed in topics and replies
+		'_bbp_theme_package_id'     => 'default',   // The ID for the current theme packag.
 
 		/** Per Page **********************************************************/
 
