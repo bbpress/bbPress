@@ -33,248 +33,19 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 final class bbPress {
 
-	/**
-	 * Note to Plugin and Theme authors:
-	 *
-	 * Do not directly reference the variables below in your code. Their names
-	 * and locations in the bbPress class are subject to change at any time.
-	 *
-	 * Most of them have reference functions located in bbp-includes. The ones
-	 * that don't can be accessed via their respective WordPress API's.
-	 */
-
-	/** Version ***************************************************************/
+	/** Byref *****************************************************************/
 
 	/**
-	 * @var string bbPress version
+	 * @var mixed False when not logged in; WP_User object when logged in
 	 */
-	public $version = '2.1-r3947';
-
-	/**
-	 * @var string bbPress DB version
-	 */
-	public $db_version = '201';
-
-	/** Post types ************************************************************/
-
-	/**
-	 * @var string Forum post type id
-	 */
-	public $forum_post_type = '';
-
-	/**
-	 * @var string Topic post type id
-	 */
-	public $topic_post_type = '';
-
-	/**
-	 * @var string Reply post type id
-	 */
-	public $reply_post_type = '';
-
-	/** Taxonomies ************************************************************/
-
-	/**
-	 * @var string Topic tag id
-	 */
-	public $topic_tag_tax_id = '';
-
-	/** Permastructs **********************************************************/
-
-	/**
-	 * @var string User struct
-	 */
-	public $user_id = '';
-
-	/**
-	 * @var string View struct
-	 */
-	public $view_id = '';
-
-	/**
-	 * @var string Edit struct
-	 */
-	public $edit_id = '';
-
-	/** Post statuses *********************************************************/
-
-	/**
-	 * @var string Public post status id. Used by forums, topics, and replies.
-	 */
-	public $public_status_id = '';
-
-	/**
-	 * @var string Pending post status id. Used by topics and replies
-	 */
-	public $pending_status_id = '';
-
-	/**
-	 * @var string Private post status id. Used by forums and topics.
-	 */
-	public $private_status_id = '';
-
-	/**
-	 * @var string Closed post status id. Used by topics.
-	 */
-	public $closed_status_id = '';
-
-	/**
-	 * @var string Spam post status id. Used by topics and replies.
-	 */
-	public $spam_status_id = '';
-
-	/**
-	 * @var string Trash post status id. Used by topics and replies.
-	 */
-	public $trash_status_id = '';
-
-	/**
-	 * @var string Orphan post status id. Used by topics and replies.
-	 */
-	public $orphan_status_id = '';
-
-	/**
-	 * @var string Hidden post status id. Used by forums.
-	 */
-	public $hidden_status_id = '';
-
-	/** Paths *****************************************************************/
-
-	/**
-	 * @var string Basename of the bbPress plugin directory
-	 */
-	public $basename = '';
-
-	/**
-	 * @var string Absolute path to the bbPress plugin directory
-	 */
-	public $plugin_dir = '';
-
-	/**
-	 * @var string Absolute path to the bbPress themes directory
-	 */
-	public $themes_dir = '';
-
-	/**
-	 * @var string Absolute path to the bbPress language directory
-	 */
-	public $lang_dir = '';
-
-	/** URLs ******************************************************************/
-
-	/**
-	 * @var string URL to the bbPress plugin directory
-	 */
-	public $plugin_url = '';
-
-	/**
-	 * @var string URL to the bbPress themes directory
-	 */
-	public $themes_url = '';
-
-	/** Current ID's **********************************************************/
-
-	/**
-	 * @var string Current forum id
-	 */
-	public $current_forum_id = 0;
-
-	/**
-	 * @var string Current topic id
-	 */
-	public $current_topic_id = 0;
-
-	/**
-	 * @var string Current reply id
-	 */
-	public $current_reply_id = 0;
-
-	/**
-	 * @var string Current topic tag id
-	 */
-	public $current_topic_tag_id = 0;
-
-	/** Users *****************************************************************/
-
-	/**
-	 * @var object Current user
-	 */
-	public $current_user = array();
-
-	/**
-	 * @var object Displayed user
-	 */
-	public $displayed_user = array();
-
-	/** Queries ***************************************************************/
-
-	/**
-	 * @var WP_Query For forums
-	 */
-	public $forum_query;
-
-	/**
-	 * @var WP_Query For topics
-	 */
-	public $topic_query;
-
-	/**
-	 * @var WP_Query For replies
-	 */
-	public $reply_query;
-
-	/** Errors ****************************************************************/
-
-	/**
-	 * @var WP_Error Used to log and display errors
-	 */
-	public $errors = array();
-
-	/** Views *****************************************************************/
-
-	/**
-	 * @var array An array of registered bbPress views
-	 */
-	public $views = array();
-
-	/** Forms *****************************************************************/
-
-	/**
-	 * @var int The current tab index for form building
-	 */
-	public $tab_index = 0;
-
-	/** Theme Compat **********************************************************/
-
-	/**
-	 * @var string Theme to use for theme compatibility
-	 */
-	public $theme_compat;
-
-	/** Extensions ************************************************************/
-
-	/**
-	 * @var mixed bbPress add-ons should append globals to this
-	 */
-	public $extend = false;
-
-	/** Option Overload *******************************************************/
-
-	/**
-	 * Overloads default options retrieved from get_option()
-	 *
-	 * @var array Optional array( $key => $value );
-	 */
-	public $options = array();
-
-	/**
-	 * Overloads default user options retrieved from get_user_option()
-	 *
-	 * @var array Optional array( $user_id => array( $key => $value ) );
-	 */
-	public $user_options = array();
+	public $current_user   = false;
 
 	/** Singleton *************************************************************/
+
+	/**
+	 * @var array Magic data store to get and set various runtime information.
+	 */
+	private $data;
 
 	/**
 	 * @var bbPress The one true bbPress
@@ -334,6 +105,27 @@ final class bbPress {
 	 */
 	public function __wakeup() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
 
+	/**
+	 * Magic method for checking the existence of a certain custom field
+	 *
+	 * @since bbPress (rxxxx)
+	 */
+	public function __isset( $key ) { return isset( $this->data[$key] ); }
+
+	/**
+	 * Magic method for getting bbPress varibles
+	 *
+	 * @since bbPress (rxxxx)
+	 */
+	public function __get( $key ) { return isset( $this->data[$key] ) ? $this->data[$key] : null; }
+
+	/**
+	 * Magic method for setting bbPress varibles
+	 *
+	 * @since bbPress (rxxxx)
+	 */
+	public function __set( $key, $value ) { $this->data[$key] = &$value; }
+
 	/** Private Methods *******************************************************/
 
 	/**
@@ -347,6 +139,11 @@ final class bbPress {
 	 * @uses apply_filters() Calls various filters
 	 */
 	private function setup_globals() {
+
+		/** Versions **********************************************************/
+
+		$this->version    = '2.1-r3947'; // bbPress version
+		$this->db_version = '201';       // bbPress DB version
 
 		/** Paths *************************************************************/
 
@@ -388,20 +185,39 @@ final class bbPress {
 
 		/** Queries ***********************************************************/
 
-		$this->forum_query       = new stdClass;
-		$this->topic_query       = new stdClass;
-		$this->reply_query       = new stdClass;
+		$this->current_forum_id     = 0; // Current forum id
+		$this->current_topic_id     = 0; // Current topic id
+		$this->current_reply_id     = 0; // Current reply id
+		$this->current_topic_tag_id = 0; // Current topic tag id
 
-		/** Misc **************************************************************/
-
-		$this->errors            = new WP_Error();
-		$this->views             = array();
-		$this->tab_index         = apply_filters( 'bbp_default_tab_index', 100 );
+		$this->forum_query    = new stdClass; // Main forum query
+		$this->topic_query    = new stdClass; // Main topic query
+		$this->reply_query    = new stdClass; // Main reply query
 
 		/** Theme Compat ******************************************************/
 
-		// Base theme compatibility class
-		$this->theme_compat      = new stdClass();
+		$this->theme_compat   = new stdClass(); // Base theme compatibility class
+		$this->filters        = new stdClass(); // Used when adding/removing filters
+
+		/** Users *************************************************************/
+
+		$this->current_user   = new stdClass(); // Currently logged in user
+		$this->displayed_user = new stdClass(); // Currently displayed user
+
+		/** Plugins ***********************************************************/
+
+		$this->extend         = false;   // Add-ons should append globals to this
+
+		/** Overrides *********************************************************/
+
+		$this->options        = array(); // Overloads get_option()
+		$this->user_options   = array(); // Overloads get_user_meta()
+
+		/** Misc **************************************************************/
+
+		$this->errors         = new WP_Error(); // Feedback
+		$this->views          = array();        // Topic Views
+		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 
