@@ -491,6 +491,9 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 			$caps = array(
 
+				// Forum caps
+				'read_private_forums',
+
 				// Topic caps
 				'publish_topics',
 				'edit_topics',
