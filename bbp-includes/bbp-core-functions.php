@@ -153,7 +153,7 @@ function bbp_get_views() {
  * @return array The just registered (but processed) view
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
-	$bbp   = bbpress();
+	$views = bbpress()->views;
 	$view  = sanitize_title( $view );
 	$title = esc_html( $title );
 
@@ -166,11 +166,13 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
 	if ( !isset( $query_args['show_stickies'] ) )
 		$query_args['show_stickies'] = false;
 
-	$bbp->views[$view]['title'] = $title;
-	$bbp->views[$view]['query'] = $query_args;
-	$bbp->views[$view]['feed']  = $feed;
+	$views[$view] = array(
+		'title'  => $title,
+		'query'  => $query_args,
+		'feed'   => $feed
+	);
 
-	return $bbp->views[$view];
+	return $views[$view];
 }
 
 /**
