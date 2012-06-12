@@ -48,12 +48,12 @@ final class bbPress {
 	/**
 	 * @var string bbPress version
 	 */
-	public $version = '2.1-r3920';
+	public $version = '2.1-r3947';
 
 	/**
 	 * @var string bbPress DB version
 	 */
-	public $db_version = '200';
+	public $db_version = '201';
 
 	/** Post types ************************************************************/
 

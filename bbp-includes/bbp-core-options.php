@@ -25,7 +25,7 @@ function bbp_get_default_options() {
 
 		/** DB Version ********************************************************/
 
-		'_bbp_db_version'             => '200',       // The current database version
+		'_bbp_db_version'           => bbpress()->db_version, // The current database version
 
 		/** Settings **********************************************************/
 
