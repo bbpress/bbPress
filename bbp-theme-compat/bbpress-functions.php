@@ -51,11 +51,11 @@ class BBP_Default extends BBP_Theme_Compat {
 
 	/**
 	 * Component global variables
-	 * 
+	 *
 	 * Note that this function is currently commented out in the constructor.
 	 * It will only be used if you copy this file into your current theme and
 	 * uncomment the line above.
-	 * 
+	 *
 	 * You'll want to customize the values in here, so they match whatever your
 	 * needs are.
 	 *
@@ -139,8 +139,28 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses wp_enqueue_style() To enqueue the styles
 	 */
 	public function enqueue_styles() {
+
+		// LTR or RTL
 		$file = is_rtl() ? 'css/bbpress-rtl.css' : 'css/bbpress.css';
-		wp_enqueue_style( 'bbp-default-bbpress', $this->url . $file, array(), $this->version, 'screen' );
+
+		// Check child theme
+		if ( file_exists( get_stylesheet_directory() . $file ) ) {
+			$location = trailingslashit( get_stylesheet_directory_uri() );
+			$handle   = 'bbp-child-bbpress';
+
+		// Check parent theme
+		} elseif ( file_exists( get_template_directory() . $file ) ) {
+			$location = trailingslashit( get_template_directory_uri() );
+			$handle   = 'bbp-parent-bbpress';
+
+		// bbPress Theme Compatibilty
+		} else {
+			$location = trailingslashit( $this->url );
+			$handle   = 'bbp-default-bbpress';
+		}
+
+		// Enqueue the bbPress styling
+		wp_enqueue_style( $handle, $location . $file, array(), $this->version, 'screen' );
 	}
 
 	/**
@@ -176,7 +196,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		<script type="text/javascript" charset="utf-8">
 			/* <![CDATA[ */
 			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-			
+
 			<?php if ( bbp_is_single_user_edit() ) : ?>
 			if ( window.location.hash == '#password' ) {
 				document.getElementById('pass1').focus();
