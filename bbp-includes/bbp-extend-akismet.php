@@ -696,5 +696,3 @@ function bbp_setup_akismet() {
 	// Instantiate Akismet for bbPress
 	bbpress()->extend->akismet = new BBP_Akismet();
 }
-
-?>

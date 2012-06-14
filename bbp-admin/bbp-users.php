@@ -110,5 +110,3 @@ endif; // class exists
 function bbp_users_admin() {
 	bbpress()->admin->users = new BBP_Users_Admin();
 }
-
-?>

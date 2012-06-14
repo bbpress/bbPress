@@ -186,5 +186,3 @@ function bbp_register_admin_style() {
 function bbp_register_admin_settings() {
 	do_action( 'bbp_register_admin_settings' );
 }
-
-?>

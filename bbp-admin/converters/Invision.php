@@ -361,4 +361,3 @@ class Invision extends BBP_Converter_Base
 		return $output;
 	}
 }
-?>

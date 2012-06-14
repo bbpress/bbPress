@@ -1401,5 +1401,3 @@ function bbp_check_user_edit() {
 		exit();
 	}
 }
-
-?>

@@ -462,5 +462,3 @@ function bbp_get_view_slug( $default = 'view' ) {
 function bbp_get_config_location( $default = '' ) {
 	return apply_filters( 'bbp_get_config_location', get_option( 'bb-config-location', $default ) );
 }
-
-?>

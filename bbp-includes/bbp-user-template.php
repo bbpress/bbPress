@@ -1529,5 +1529,3 @@ function bbp_current_user_can_access_create_reply_form() {
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
 }
-
-?>

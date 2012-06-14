@@ -1088,5 +1088,3 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 		<?php endif; 
 	}
 }
-
-?>

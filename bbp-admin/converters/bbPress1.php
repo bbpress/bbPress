@@ -526,5 +526,3 @@ class bbPress1 extends BBP_Converter_Base {
 		return false;
 	}
 }
-
-?>

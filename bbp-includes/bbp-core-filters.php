@@ -293,5 +293,3 @@ function _bbp_has_replies_query( $args = array() ) {
 	return apply_filters( 'bbp_has_replies_query', $args );
 }
 add_filter( 'bbp_after_has_replies_parse_args', '_bbp_has_replies_query' );
-
-?>

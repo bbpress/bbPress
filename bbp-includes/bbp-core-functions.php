@@ -405,5 +405,3 @@ function bbp_get_edit_rewrite_id() {
 function bbp_get_view_rewrite_id() {
 	return bbpress()->view_id;
 }
-
-?>

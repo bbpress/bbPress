@@ -210,5 +210,3 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		// Output the tabs
 		return $tabs_html;
 	}
-
-?>

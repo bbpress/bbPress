@@ -538,5 +538,3 @@ function bbp_setup_theme() {
 function bbp_after_setup_theme() {
 	do_action( 'bbp_after_setup_theme' );
 }
-
-?>

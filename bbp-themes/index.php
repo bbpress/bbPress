@@ -5,5 +5,3 @@
  *
  * Keep custom bbPress themes in /wp-content/themes/
  */
-
-?>

@@ -338,4 +338,3 @@ class Vbulletin extends BBP_Converter_Base
 		return ( $pass_array['hash'] == md5( md5( $password ). $pass_array['salt'] ) );
 	}
 }
-?>

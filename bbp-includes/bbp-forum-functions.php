@@ -2199,5 +2199,3 @@ function bbp_untrashed_forum( $forum_id = 0 ) {
 
 	do_action( 'bbp_untrashed_forum', $forum_id );
 }
-
-?>

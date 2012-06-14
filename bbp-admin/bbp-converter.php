@@ -1270,5 +1270,3 @@ function bbp_new_converter( $platform ) {
 		return null;
 	}
 }
-
-?>

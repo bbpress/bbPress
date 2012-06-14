@@ -2166,5 +2166,3 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Filter and return
 	return apply_filters( 'bbp_title', $title, $sep, $seplocation );
 }
-
-?>

@@ -378,5 +378,3 @@ class BBP_Walker_Dropdown extends Walker {
 }
 
 endif; // class_exists check
-
-?>

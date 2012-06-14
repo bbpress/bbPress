@@ -718,5 +718,3 @@ function bbp_current_user_can_see( $component = '' ) {
 
 	return (bool) apply_filters( 'bbp_current_user_can_see', (bool) $retval, $component );
 }
-
-?>

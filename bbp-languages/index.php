@@ -5,5 +5,3 @@
  *
  * Keep custom bbPress translations in /wp-content/languages/bbpress/
  */
-
-?>

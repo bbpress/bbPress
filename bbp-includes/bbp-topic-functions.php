@@ -3184,5 +3184,3 @@ function bbp_check_topic_tag_edit() {
 		exit();
 	}
 }
-
-?>

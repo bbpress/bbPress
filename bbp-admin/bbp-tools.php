@@ -934,5 +934,3 @@ function bbp_admin_reset_handler() {
 		}
 	}
 }
-
-?>

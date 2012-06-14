@@ -1598,5 +1598,3 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 
 	return $reply_position;
 }
-
-?>

@@ -1979,5 +1979,3 @@ function bbp_form_reply_edit_reason() {
 
 		return apply_filters( 'bbp_get_form_reply_edit_reason', esc_attr( $reply_edit_reason ) );
 	}
-
-?>

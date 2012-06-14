@@ -420,5 +420,3 @@ function bbp_get_theme_compat_templates() {
 	);
 	return bbp_get_query_template( 'bbpress', $templates );
 }
-
-?>

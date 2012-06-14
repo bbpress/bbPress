@@ -1626,5 +1626,3 @@ function bbp_set_404() {
 
 	$wp_query->set_404();
 }
-
-?>

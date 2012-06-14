@@ -799,5 +799,3 @@ endif;
 function bbp_register_shortcodes() {
 	bbpress()->shortcodes = new BBP_Shortcodes();
 }
-
-?>

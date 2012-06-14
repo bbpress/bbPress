@@ -936,5 +936,3 @@ function bbp_admin() {
 
 	bbpress()->admin->converter = new BBP_Converter();
 }
-
-?>

@@ -968,5 +968,3 @@ endif; // class_exists check
 function bbp_admin_replies() {
 	bbpress()->admin->replies = new BBP_Replies_Admin();
 }
-
-?>

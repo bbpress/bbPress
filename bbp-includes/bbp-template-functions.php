@@ -351,5 +351,3 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->set( 'posts_per_page', bbp_get_topics_per_page() );
 	}
 }
-
-?>

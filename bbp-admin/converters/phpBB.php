@@ -536,5 +536,3 @@ class Phpbb extends BBP_Converter_Base {
 	}
 
 }
-
-?>

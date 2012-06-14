@@ -1039,5 +1039,3 @@ endif; // class_exists check
 function bbp_admin_topics() {
 	bbpress()->admin->topics = new BBP_Topics_Admin();
 }
-
-?>

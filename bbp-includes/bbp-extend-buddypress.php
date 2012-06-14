@@ -2143,5 +2143,3 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 		bbp_remove_forum_id_from_group( $forum_id, $group_id );
 	}
 }
-
-?>

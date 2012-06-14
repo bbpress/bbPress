@@ -279,5 +279,3 @@ function bbp_user_last_posted( $user_id = 0 ) {
 
 		return apply_filters( 'bbp_get_user_last_posted', $time, $user_id );
 	}
-
-?>

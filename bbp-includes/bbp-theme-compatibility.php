@@ -1037,5 +1037,3 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
 	// Allow override of the override
 	return apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }
-
-?>

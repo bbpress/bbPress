@@ -305,5 +305,3 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 }
 new BBP_Twenty_Ten();
 endif;
-
-?>

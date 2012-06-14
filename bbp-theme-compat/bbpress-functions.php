@@ -360,5 +360,3 @@ class BBP_Default extends BBP_Theme_Compat {
 }
 new BBP_Default();
 endif;
-
-?>

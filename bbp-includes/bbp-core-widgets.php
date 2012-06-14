@@ -818,5 +818,3 @@ class BBP_Replies_Widget extends WP_Widget {
 		<?php
 	}
 }
-
-?>

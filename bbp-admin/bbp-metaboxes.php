@@ -486,5 +486,3 @@ function bbp_author_metabox() {
 
 	do_action( 'bbp_author_metabox', $post_id );
 }
-
-?>

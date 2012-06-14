@@ -2338,5 +2338,3 @@ function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_replies_feed_link', $link, $url, $forum_id );
 	}
-
-?>

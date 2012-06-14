@@ -3497,5 +3497,3 @@ function bbp_form_topic_edit_reason() {
 
 		return apply_filters( 'bbp_get_form_topic_edit_reason', esc_attr( $topic_edit_reason ) );
 	}
-
-?>

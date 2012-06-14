@@ -209,5 +209,3 @@ function bbp_create_initial_content( $args = array() ) {
 		'reply_id' => $reply_id
 	);
 }
-
-?>
