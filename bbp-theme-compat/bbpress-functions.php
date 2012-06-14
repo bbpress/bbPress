@@ -144,16 +144,16 @@ class BBP_Default extends BBP_Theme_Compat {
 		$file = is_rtl() ? 'css/bbpress-rtl.css' : 'css/bbpress.css';
 
 		// Check child theme
-		if ( file_exists( get_stylesheet_directory() . $file ) ) {
+		if ( file_exists( trailingslashit( get_stylesheet_directory() ) . $file ) ) {
 			$location = trailingslashit( get_stylesheet_directory_uri() );
 			$handle   = 'bbp-child-bbpress';
 
 		// Check parent theme
-		} elseif ( file_exists( get_template_directory() . $file ) ) {
+		} elseif ( file_exists( trailingslashit( get_template_directory() ) . $file ) ) {
 			$location = trailingslashit( get_template_directory_uri() );
 			$handle   = 'bbp-parent-bbpress';
 
-		// bbPress Theme Compatibilty
+		// bbPress Theme Compatibility
 		} else {
 			$location = trailingslashit( $this->url );
 			$handle   = 'bbp-default-bbpress';
