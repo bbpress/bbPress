@@ -17,7 +17,7 @@
  *                bbp-includes/bbp-classes.php
  *  - Admin: More in {@link BBP_Admin::setup_actions()} in
  *            bbp-admin/bbp-admin.php
- * 
+ *
  * @see bbp-core-actions.php
  */
 
@@ -207,7 +207,7 @@ add_filter( 'bbp_pre_anonymous_post_author_website', 'wp_filter_kses',      10 )
  *
  * @since bbPress (r3758)
  * @param array $query_vars
- * @return array 
+ * @return array
  */
 function bbp_request( $query_vars = array() ) {
 	return apply_filters( 'bbp_request', $query_vars );
@@ -246,5 +246,52 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
 function bbp_allowed_themes( $themes ) {
 	return apply_filters( 'bbp_allowed_themes', $themes );
 }
+
+/** Deprecated ****************************************************************/
+
+/**
+ * The following filters are deprecated.
+ *
+ * These filters were most likely replaced by bbp_parse_args(), which includes
+ * both passive and aggressive filters anywhere parse_args is used to compare
+ * default arguments to passed arguments, without needing to litter the
+ * codebase with _before_ and _after_ filters everywhere.
+ */
+
+/**
+ * Deprecated forums query filter
+ *
+ * @since bbPress (r3961)
+ * @param type $args
+ * @return type
+ */
+function _bbp_has_forums_query( $args = array() ) {
+	return apply_filters( 'bbp_has_forums_query', $args );
+}
+add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
+
+/**
+ * Deprecated topics query filter
+ *
+ * @since bbPress (r3961)
+ * @param type $args
+ * @return type
+ */
+function _bbp_has_topics_query( $args = array() ) {
+	return apply_filters( 'bbp_has_topics_query', $args );
+}
+add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
+
+/**
+ * Deprecated replies query filter
+ *
+ * @since bbPress (r3961)
+ * @param type $args
+ * @return type
+ */
+function _bbp_has_replies_query( $args = array() ) {
+	return apply_filters( 'bbp_has_replies_query', $args );
+}
+add_filter( 'bbp_after_has_replies_parse_args', '_bbp_has_replies_query' );
 
 ?>
