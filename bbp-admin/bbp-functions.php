@@ -25,7 +25,7 @@ function bbp_admin_separator() {
 		return;
 
 	// Prevent duplicate separators when no core menu items exist
-	if ( !current_user_can( 'edit_posts' ) )
+	if ( !current_user_can( 'manage_options' ) )
 		return;
 
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
