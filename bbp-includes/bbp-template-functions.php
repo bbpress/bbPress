@@ -70,6 +70,9 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		if ( empty( $template_name ) )
 			continue;
 
+		// Trim off any slashes from the template name
+		$template_name = ltrim( $template_name, '/' );
+
 		// Check child theme first
 		if ( file_exists( trailingslashit( STYLESHEETPATH ) . $template_name ) ) {
 			$located = trailingslashit( STYLESHEETPATH ) . $template_name;
