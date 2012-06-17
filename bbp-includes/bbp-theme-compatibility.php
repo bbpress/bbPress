@@ -401,7 +401,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	// Bail if the template doesn't specifically match a bbPress template. This
 	// includes archive-* and single-* WordPress post_type matches, allowing
 	// themes to use the expected format.
-	if ( bbp_is_theme_compat_original_template( $template ) )
+	if ( ! bbp_is_theme_compat_original_template( $template ) )
 		return $template;
 
 	/** Users *************************************************************/
