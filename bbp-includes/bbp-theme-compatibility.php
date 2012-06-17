@@ -423,7 +423,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		bbp_theme_compat_reset_post( array(
 			'ID'             => bbp_get_forum_id(),
 			'post_title'     => bbp_get_forum_title(),
-			//'post_author'  => bbp_get_forum_author_id(),
+			'post_author'    => bbp_get_forum_author_id(),
 			'post_date'      => 0,
 			'post_content'   => get_post_field( 'post_content', bbp_get_forum_id() ),
 			'post_type'      => bbp_get_forum_post_type(),
