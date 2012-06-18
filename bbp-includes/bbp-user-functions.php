@@ -1379,7 +1379,12 @@ function bbp_get_user_role( $user_id = 0 ) {
 /** Premissions ***************************************************************/
 
 /**
- * Redirect if unathorized user is attempting to edit a topic
+ * Redirect if unathorized user is attempting to edit another user
+ *
+ * This is hooked to 'bbp_template_redirect' and controls the conditions under
+ * which a user can edit another user (or themselves.) If these conditions are
+ * met. We assume a user cannot perform this task, and look for ways they can
+ * earn the ability to access this template.
  * 
  * @since bbPress (r3605)
  *
@@ -1392,11 +1397,27 @@ function bbp_get_user_role( $user_id = 0 ) {
 function bbp_check_user_edit() {
 
 	// Bail if not editing a topic
-	if ( !bbp_is_single_user_edit() )
+	if ( ! bbp_is_single_user_edit() )
 		return;
 
-	// Only allow super admins on multisite to edit every user.
-	if ( !is_user_logged_in() || ( is_multisite() && !current_user_can( 'manage_network_users' ) && bbp_is_user_home_edit() && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
+	// Default to false
+	$redirect = true;
+
+	// Allow user to edit their own profile
+	if ( bbp_is_user_home_edit() ) {
+		$redirect = false;
+
+	// Allow if current user can edit the displayed user
+	} elseif ( current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
+		$redirect = false;
+
+	// Allow if user can manage network users, or edit-any is enabled
+	} elseif ( current_user_can( 'manage_network_users' ) || apply_filters( 'enable_edit_any_user_configuration', true ) ) {
+		$redirect = false;
+	}
+
+	// Maybe redirect back to profile page
+	if ( true === $redirect ) {
 		wp_safe_redirect( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) );
 		exit();
 	}
