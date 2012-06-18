@@ -45,6 +45,11 @@ function bbp_topic_post_type() {
  * @return bool Yes if the topic appears as a lead, otherwise false
  */
 function bbp_show_lead_topic( $show_lead = false ) {
+
+	// Never separate the lead topic in feeds
+	if ( is_feed() )
+		return false;
+
 	return (bool) apply_filters( 'bbp_show_lead_topic', (bool) $show_lead );
 }
 
