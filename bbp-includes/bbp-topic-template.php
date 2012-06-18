@@ -725,8 +725,8 @@ function bbp_topic_pagination( $args = '' ) {
  */
 function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
 
-	// Bail if in admin
-	if ( is_admin() )
+	// Bail if in admin or feed
+	if ( is_admin() || is_feed() )
 		return;
 
 	// Validate the ID

@@ -515,9 +515,9 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
  */
 function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
 
-	// Bail if in admin
-	if ( is_admin() )
-		return;
+	// Bail if in admin or feed
+	if ( is_admin() || is_feed() )
+		return $content;
 
 	// Validate the ID
 	$reply_id = bbp_get_reply_id( $reply_id );
