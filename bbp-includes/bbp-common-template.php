@@ -37,6 +37,58 @@ function bbp_footer() {
 	do_action( 'bbp_footer' );
 }
 
+/**
+ * Ouput the forum URL
+ * 
+ * @since bbPress (r3979)
+ *
+ * @uses home_url() to get the home URL
+ * @uses bbp_get_root_sulg() To get the forum root location
+ * @param type $path
+ */
+function bbp_forums_url( $path = '/' ) {
+	echo bbp_get_forums_url( $path );
+}
+
+	/**
+	 * Return the forum URL
+	 * 
+	 * @since bbPress (r3979)
+	 *
+	 * @uses home_url() to get the home URL
+	 * @uses bbp_get_root_sulg() To get the forum root location
+	 * @param type $path
+	 */
+	function bbp_get_forums_url( $path = '/' ) {
+		return home_url( bbp_get_root_slug() . $path );
+	}
+
+/**
+ * Ouput the forum URL
+ * 
+ * @since bbPress (r3979)
+ *
+ * @uses home_url() to get the home URL
+ * @uses bbp_get_root_sulg() To get the forum root location
+ * @param type $path
+ */
+function bbp_topics_url( $path = '/' ) {
+	echo bbp_get_topics_url( $path );
+}
+
+	/**
+	 * Return the forum URL
+	 * 
+	 * @since bbPress (r3979)
+	 *
+	 * @uses home_url() to get the home URL
+	 * @uses bbp_get_root_sulg() To get the forum root location
+	 * @param type $path
+	 */
+	function bbp_get_topics_url( $path = '/' ) {
+		return home_url( bbp_get_topic_archive_slug() . $path );
+	}
+
 /** is_ ***********************************************************************/
 
 /**
