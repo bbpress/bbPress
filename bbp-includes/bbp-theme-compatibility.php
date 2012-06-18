@@ -285,45 +285,6 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 		$bbp->theme_compat->packages[$theme->id] = $theme;
 	}
 }
-
-/**
- * This is called from inside bbp_locate_template(). It sets whether or not
- * bbPress should override 'the_content' or if a root-level template was found
- * in either the current child or parent themes.
- *
- * @since bbPress (r3970)
- *
- * @param boolean $override
- * @return boolean
- */
-function bbp_set_the_content_override( $override = false ) {
-	$bbp = bbpress();
-
-	if ( empty( $bbp->theme_compat->query_template ) )
-		return false;
-
-	$bbp->theme_compat->replace_the_content = $override;
-
-	return (bool) $bbp->theme_compat->replace_the_content;
-}
-
-/**
- * Should bbPress try to replace 'the_content' because a template file could
- * not be found in either the child or parent themes.
- *
- * @since bbPress (r3970)
- *
- * @return boolean
- */
-function bbp_is_the_content_override() {
-	$bbp = bbpress();
-
-	if ( empty( $bbp->theme_compat->replace_the_content ) )
-		return false;
-
-	return (bool) $bbp->theme_compat->replace_the_content;
-}
-
 /**
  * This fun little function fills up some WordPress globals with dummy data to
  * stop your average page template from complaining about it missing.
@@ -436,15 +397,11 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
-	// Bail if the template doesn't specifically match a bbPress template. This
-	// includes archive-* and single-* WordPress post_type matches, allowing
-	// themes to use the expected format.
-	if ( bbp_is_theme_compat_original_template( $template ) )
-		return $template;
-
-	// If we know we are not going to override the_content with a bbPress
-	// template part, bail early so we don't reset queries and hook filters in.
-	if ( ! bbp_is_the_content_override() )
+	// Bail if the template already matches a bbPress template. This includes
+	// archive-* and single-* WordPress post_type matches (allowing
+	// themes to use the expected format) as well as all bbPress-specific
+	// template files for users, topics, forums, etc...
+	if ( !empty( bbpress()->theme_compat->bbpress_template ) )
 		return $template;
 
 	/** Users *************************************************************/

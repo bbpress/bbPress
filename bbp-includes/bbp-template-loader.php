@@ -17,6 +17,9 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * template condition to be met. If one is met and the template file exists,
  * it will be used; otherwise 
  *
+ * Note that the _edit() checks are ahead of their counterparts, to prevent them
+ * from being stomped on accident.
+ *
  * @since bbPress (r3032)
  *
  * @param string $template
@@ -42,15 +45,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @return string The path to the template file that is being used
  */
 function bbp_template_include_theme_supports( $template = '' ) {
-
-	// Set the original template that WordPress found so we can compare the
-	// one bbPress find's in bbp_template_include_theme_compat().
-	bbp_set_theme_compat_original_template( $template );
-
-	/** bbPress Templates *****************************************************/
-	
-	// Note that the _edit() checks are ahead of their counterparts, to
-	// prevent them from being stomped on accident.
 
 	// Editing a user
 	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :
@@ -99,8 +93,14 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	endif;
 
 	// bbPress template file exists
-	if ( !empty( $new_template ) && ! bbp_is_theme_compat_original_template( $new_template ) )
+	if ( !empty( $new_template ) ) {
+
+		// Override the WordPress template with a bbPress one
 		$template = $new_template;
+
+		// @see: bbp_template_include_theme_compat()
+		bbpress()->theme_compat->bbpress_template = true;
+	}
 
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }

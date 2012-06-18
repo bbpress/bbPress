@@ -76,19 +76,16 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		// Check child theme first
 		if ( file_exists( trailingslashit( STYLESHEETPATH ) . $template_name ) ) {
 			$located = trailingslashit( STYLESHEETPATH ) . $template_name;
-			bbp_set_the_content_override( false );
 			break;
 
 		// Check parent theme next
 		} elseif ( file_exists( trailingslashit( TEMPLATEPATH ) . $template_name ) ) {
 			$located = trailingslashit( TEMPLATEPATH ) . $template_name;
-			bbp_set_the_content_override( false );
 			break;
 
 		// Check theme compatibility last
 		} elseif ( file_exists( trailingslashit( bbp_get_theme_compat_dir() ) . $template_name ) ) {
 			$located = trailingslashit( bbp_get_theme_compat_dir() ) . $template_name;
-			bbp_set_the_content_override( true );
 			break;
 		}
 	}
@@ -124,7 +121,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
 
 	// Set query_template to true to tell bbp_locate_template() we are trying
 	// to determine if 'the_content' should be overridden or not.
-	bbpress()->theme_compat->query_template = true;
+	bbpress()->theme_compat->query_template = $type;
 
 	// Filter possible templates, try to match one, and set any bbPress theme
 	// compat properties so they can be cross-checked later.
