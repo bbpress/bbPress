@@ -26,6 +26,23 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
+= 2.1-beta-1 =
+* Improved BuddyPress integration
+* Improved Theme-Compatibility
+* Improved template coverage
+* Improved query performance
+* Improved breadcrumb behavior
+* Improved multisite integration
+* Improved coding clarity
+* WordPress 3.4 compatibility
+* Deprecate $bbp global, use bbpress() singleton
+* Private forums now visible to registered users
+* Updated converter
+* RTL fixes
+* Add fancy editor support
+* Add fallback theme picker
+* Add tools for importing, resetting, and uninstalling
+
 = 2.0 =
 * Released on September 21, 2011
 
