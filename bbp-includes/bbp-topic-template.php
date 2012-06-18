@@ -252,7 +252,7 @@ function bbp_has_topics( $args = '' ) {
 
 			// Topic archive
 			elseif ( bbp_is_topic_archive() )
-				$base = bbp_topics_url();
+				$base = bbp_get_topics_url();
 
 			// Default
 			else
