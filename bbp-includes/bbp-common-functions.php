@@ -1432,7 +1432,8 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// Load up our own query
 						query_posts( array(
 							'post_type' => bbp_get_forum_post_type(),
-							'ID'        => $forum_id
+							'ID'        => $forum_id,
+							'feed'      => true
 						) );
 
 						// Restrict to specific forum ID
@@ -1449,6 +1450,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// The query
 						$the_query = array(
 							'author'         => 0,
+							'feed'           => true,
 							'post_type'      => bbp_get_reply_post_type(),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
@@ -1466,6 +1468,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// The query
 						$the_query = array(
 							'author'         => 0,
+							'feed'           => true,
 							'post_type'      => bbp_get_topic_post_type(),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
@@ -1487,6 +1490,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// The query
 						$the_query = array(
 							'author'         => 0,
+							'feed'           => true,
 							'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
@@ -1510,7 +1514,8 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// Load up our own query
 						query_posts( array(
 							'post_type' => bbp_get_topic_post_type(),
-							'name'      => $query_vars[bbp_get_topic_post_type()]
+							'name'      => $query_vars[bbp_get_topic_post_type()],
+							'feed'      => true
 						) );
 
 						// Output the feed
@@ -1522,9 +1527,10 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// The query
 						$the_query = array(
 							'author'         => 0,
+							'feed'           => true,
 							'post_parent'    => 'any',
 							'posts_per_page' => bbp_get_topics_per_rss_page(),
-							'show_stickies'  => false,
+							'show_stickies'  => false
 						);
 
 						// Output the feed
@@ -1539,7 +1545,8 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 					// The query
 					$the_query = array(
 						'posts_per_page' => bbp_get_replies_per_rss_page(),
-						'meta_query'     => array( array( ) )
+						'meta_query'     => array( array( ) ),
+						'feed'           => true
 					);
 
 					// All replies
