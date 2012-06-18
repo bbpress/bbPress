@@ -59,4 +59,4 @@
 
 	</div><!-- .bbp-reply-content -->
 
-</div><!-- #post-<?php bbp_topic_id(); ?> -->
+</div><!-- #post-<?php bbp_reply_id(); ?> -->
