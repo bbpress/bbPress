@@ -13,6 +13,57 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** URLs **********************************************************************/
+
+/**
+ * Ouput the forum URL
+ * 
+ * @since bbPress (r3979)
+ *
+ * @uses bbp_get_forums_url() To get the forums URL
+ * @param string $path Additional path with leading slash
+ */
+function bbp_forums_url( $path = '/' ) {
+	echo bbp_get_forums_url( $path );
+}
+	/**
+	 * Return the forum URL
+	 * 
+	 * @since bbPress (r3979)
+	 *
+	 * @uses home_url() To get the home URL
+	 * @uses bbp_get_root_slug() To get the forum root location
+	 * @param string $path Additional path with leading slash
+	 */
+	function bbp_get_forums_url( $path = '/' ) {
+		return home_url( bbp_get_root_slug() . $path );
+	}
+
+/**
+ * Ouput the forum URL
+ *
+ * @since bbPress (r3979)
+ *
+ * @uses bbp_get_topics_url() To get the topics URL
+ * @param string $path Additional path with leading slash
+ */
+function bbp_topics_url( $path = '/' ) {
+	echo bbp_get_topics_url( $path );
+}
+	/**
+	 * Return the forum URL
+	 *
+	 * @since bbPress (r3979)
+	 *
+	 * @uses home_url() To get the home URL
+	 * @uses bbp_get_topic_archive_slug() To get the topics archive location
+	 * @param string $path Additional path with leading slash
+	 * @return The URL to the topics archive
+	 */
+	function bbp_get_topics_url( $path = '/' ) {
+		return home_url( bbp_get_topic_archive_slug() . $path );
+	}
+
 /** Add-on Actions ************************************************************/
 
 /**
@@ -36,58 +87,6 @@ function bbp_head() {
 function bbp_footer() {
 	do_action( 'bbp_footer' );
 }
-
-/**
- * Ouput the forum URL
- * 
- * @since bbPress (r3979)
- *
- * @uses home_url() to get the home URL
- * @uses bbp_get_root_sulg() To get the forum root location
- * @param type $path
- */
-function bbp_forums_url( $path = '/' ) {
-	echo bbp_get_forums_url( $path );
-}
-
-	/**
-	 * Return the forum URL
-	 * 
-	 * @since bbPress (r3979)
-	 *
-	 * @uses home_url() to get the home URL
-	 * @uses bbp_get_root_sulg() To get the forum root location
-	 * @param type $path
-	 */
-	function bbp_get_forums_url( $path = '/' ) {
-		return home_url( bbp_get_root_slug() . $path );
-	}
-
-/**
- * Ouput the forum URL
- * 
- * @since bbPress (r3979)
- *
- * @uses home_url() to get the home URL
- * @uses bbp_get_root_sulg() To get the forum root location
- * @param type $path
- */
-function bbp_topics_url( $path = '/' ) {
-	echo bbp_get_topics_url( $path );
-}
-
-	/**
-	 * Return the forum URL
-	 * 
-	 * @since bbPress (r3979)
-	 *
-	 * @uses home_url() to get the home URL
-	 * @uses bbp_get_root_sulg() To get the forum root location
-	 * @param type $path
-	 */
-	function bbp_get_topics_url( $path = '/' ) {
-		return home_url( bbp_get_topic_archive_slug() . $path );
-	}
 
 /** is_ ***********************************************************************/
 
