@@ -1402,12 +1402,10 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * @since bbPress (r3171)
  *
- * @global WP_Query $wp_query
  * @param array $query_vars
  * @return array
  */
 function bbp_request_feed_trap( $query_vars = array() ) {
-	global $wp_query;
 
 	// Looking at a feed
 	if ( isset( $query_vars['feed'] ) ) {
@@ -1432,7 +1430,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						$forum_id = $forum->ID;
 
 						// Load up our own query
-						$wp_query = new WP_Query( array(
+						query_posts( array(
 							'post_type' => bbp_get_forum_post_type(),
 							'ID'        => $forum_id
 						) );
@@ -1510,7 +1508,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 					if ( isset( $query_vars[bbp_get_topic_post_type()] ) ) {
 
 						// Load up our own query
-						$wp_query = new WP_Query( array(
+						query_posts( array(
 							'post_type' => bbp_get_topic_post_type(),
 							'name'      => $query_vars[bbp_get_topic_post_type()]
 						) );
