@@ -119,20 +119,12 @@ function bbp_get_query_template( $type, $templates = array() ) {
 	if ( empty( $templates ) )
 		$templates = array( "{$type}.php" );
 
-	// Set query_template to true to tell bbp_locate_template() we are trying
-	// to determine if 'the_content' should be overridden or not.
-	bbpress()->theme_compat->query_template = $type;
-
 	// Filter possible templates, try to match one, and set any bbPress theme
 	// compat properties so they can be cross-checked later.
 	$templates = apply_filters( "bbp_get_{$type}_template", $templates );
 	$templates = bbp_set_theme_compat_templates( $templates );
 	$template  = bbp_locate_template( $templates );
 	$template  = bbp_set_theme_compat_template( $template );
-
-	// Set query_template back to false, since we are done querying for main
-	// template files.
-	bbpress()->theme_compat->query_template = false;
 
 	return apply_filters( "bbp_{$type}_template", $template );
 }
