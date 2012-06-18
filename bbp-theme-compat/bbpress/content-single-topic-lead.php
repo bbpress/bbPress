@@ -91,16 +91,8 @@
 
 		<div class="bbp-topic-content">
 
-			<?php if ( !bbp_show_lead_topic() ) : ?>
-
-				<?php _e( 'Posts', 'bbpress' ); ?>
-
-			<?php else : ?>
-
-				<?php _e( 'Replies', 'bbpress' ); ?>
-
-			<?php endif; ?>
-
+			<?php _e( 'Topic', 'bbpress' ); ?>
+			
 		</div><!-- .bbp-topic-content -->
 
 	</li>
