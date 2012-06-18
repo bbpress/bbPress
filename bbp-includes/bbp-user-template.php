@@ -621,10 +621,11 @@ function bbp_favorites_permalink( $user_id = 0 ) {
  * @param array $add Optional. Add to favorites args
  * @param array $rem Optional. Remove from favorites args
  * @param int $user_id Optional. User id
+ * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_favorites_link() To get the user favorites link
  */
-function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
-	echo bbp_get_user_favorites_link( $add, $rem, $user_id );
+function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, $topic_id = 0 ) {
+	echo bbp_get_user_favorites_link( $add, $rem, $user_id, $topic_id );
 }
 	/**
 	 * User favorites link
@@ -637,6 +638,7 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 	 * @param array $add Optional. Add to favorites args
 	 * @param array $rem Optional. Remove from favorites args
 	 * @param int $user_id Optional. User id
+	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_user_id() To get the user id
 	 * @uses current_user_can() If the current user can edit the user
 	 * @uses bbp_get_topic_id() To get the topic id
@@ -648,13 +650,13 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 	 *                        html, add args, remove args, user & topic id
 	 * @return string User favorites link
 	 */
-	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
+	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, $topic_id = 0 ) {
 		if ( !bbp_is_favorites_active() )
 			return false;
 
 		// Validate user and topic ID's
 		$user_id  = bbp_get_user_id( $user_id, true, true );
-		$topic_id = bbp_get_topic_id();
+		$topic_id = bbp_get_topic_id( $topic_id );
 		if ( empty( $user_id ) || empty( $topic_id ) )
 			return false;
 
@@ -698,6 +700,8 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 		if ( bbp_is_favorites() ) {
 			$permalink = bbp_get_favorites_permalink( $user_id );
 		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+			$permalink = bbp_get_topic_permalink( $topic_id );
+		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} elseif ( bbp_is_query_name( 'bbp_single_topic' ) ) {
 			$permalink = get_permalink();
@@ -816,6 +820,8 @@ function bbp_user_subscribe_link( $args = '' ) {
 		if ( bbp_is_subscriptions() ) {
 			$permalink = bbp_get_subscriptions_permalink( $user_id );
 		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+			$permalink = bbp_get_topic_permalink( $topic_id );
+		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} elseif ( bbp_is_query_name( 'bbp_single_topic' ) ) {
 			$permalink = get_permalink();
