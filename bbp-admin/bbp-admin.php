@@ -723,25 +723,25 @@ class BBP_Admin {
 
 			/* Menu Positions */
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
-				background-position: 0px -33px;
+				background-position: 0px -32px;
 			}
 			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: 0px -1px;
+				background-position: 0px 0px;
 			}
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
-				background-position: -70px -34px;
+				background-position: -70px -32px;
 			}
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: -70px -2px;
+				background-position: -70px 0px;
 			}
 			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image {
-				background-position: -35px -34px;
+				background-position: -35px -32px;
 			}
 			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position:  -35px -2px;
+				background-position:  -35px 0px;
 			}
 
 			/* Menu 2x */
