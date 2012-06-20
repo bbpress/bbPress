@@ -757,7 +757,7 @@ class BBP_Admin {
 				#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
 				#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 					background-image: url('<?php echo $menu_icon_url_2x; ?>');
-					background-size: 200px 128px;
+					background-size: 100px 64px;
 				}
 			}
 
