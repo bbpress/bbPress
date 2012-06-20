@@ -553,8 +553,10 @@ class BBP_Admin {
 		remove_submenu_page( 'tools.php', 'bbp-reset'     );
 
 		// Icons for top level admin menus
-		$menu_icon_url = $this->images_url . 'menu.png';
-		$icon32_url    = $this->images_url . 'icons32.png';
+		$menu_icon_url    = $this->images_url . 'menu.png';
+		$icon32_url       = $this->images_url . 'icons32.png';
+		$menu_icon_url_2x = $this->images_url . 'menu-2x.png';
+		$icon32_url_2x    = $this->images_url . 'icons32-2x.png';
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
@@ -720,6 +722,21 @@ class BBP_Admin {
 			}
 			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
 				background: url('<?php echo $icon32_url; ?>') no-repeat -4px -180px;
+			}
+
+			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+				#menu-posts-<?php echo $forum_class; ?> .wp-menu-image,
+				#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
+				#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,
+				#menu-posts-<?php echo $topic_class; ?> .wp-menu-image,
+				#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
+				#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
+				#menu-posts-<?php echo $reply_class; ?> .wp-menu-image,
+				#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
+				#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
+					background-image: url('<?php echo $menu_icon_url_2x; ?>');
+					background-size: 200px 164px;
+				}
 			}
 
 		/*]]>*/
