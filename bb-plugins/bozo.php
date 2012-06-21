@@ -350,7 +350,7 @@ function bb_bozo_user_search_role_user_ids( $role_user_ids, $roles, $args )
 		return array();
 	}
 
-	return array_intersect( $bozo_user_ids, $role_user_ids );
+	return array_intersect( (array) $bozo_user_ids, $role_user_ids );
 }
 add_filter( 'bb_user_search_role_user_ids', 'bb_bozo_user_search_role_user_ids', 10, 3 );
 
