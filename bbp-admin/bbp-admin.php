@@ -266,193 +266,233 @@ class BBP_Admin {
 	 * @uses add_settings_section() To add our own settings section
 	 * @uses add_settings_field() To add various settings fields
 	 * @uses register_setting() To register various settings
+	 * @todo Put fields into multidimensional array
 	 */
 	public static function register_admin_settings() {
 
-		/** Main Section ******************************************************/
+		// Loop through sections
+		foreach ( self::get_settings_sections() as $section_id => $section ) {
 
-		$section = 'bbp_settings_main';
-		if ( bbp_current_user_can_see( $section ) ) {
+			// Only proceed if current user can see this section
+			if ( ! bbp_current_user_can_see( $section_id ) )
+				continue;
 
-			// Add the main section
-			add_settings_section( $section,                  __( 'Main Settings',           'bbpress' ), 'bbp_admin_setting_callback_main_section',  'bbpress'           );
+			// Add the section
+			add_settings_section( $section_id, $section['title'], $section['callback'], $section['page'] );
 
-			// Edit lock setting
-			add_settings_field( '_bbp_edit_lock',            __( 'Lock post editing after', 'bbpress' ), 'bbp_admin_setting_callback_editlock',      'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_edit_lock',                           'intval'                                                        );
+			switch ( $section_id ) {
 
-			// Throttle setting
-			add_settings_field( '_bbp_throttle_time',        __( 'Throttle time',           'bbpress' ), 'bbp_admin_setting_callback_throttle',      'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_throttle_time',                       'intval'                                                        );
+				/** Main Section **********************************************/
 
-			// Allow topic and reply revisions
-			add_settings_field( '_bbp_allow_revisions',      __( 'Allow Revisions',         'bbpress' ), 'bbp_admin_setting_callback_revisions',     'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_allow_revisions',                     'intval'                                                        );
+				case 'bbp_settings_main' :
 
-			// Allow favorites setting
-			add_settings_field( '_bbp_enable_favorites',     __( 'Allow Favorites',         'bbpress' ), 'bbp_admin_setting_callback_favorites',     'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_enable_favorites',                    'intval'                                                        );
+					// Edit lock setting
+					add_settings_field( '_bbp_edit_lock',            __( 'Lock post editing after', 'bbpress' ), 'bbp_admin_setting_callback_editlock',      'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_edit_lock',                           'intval'                                                           );
 
-			// Allow subscriptions setting
-			add_settings_field( '_bbp_enable_subscriptions', __( 'Allow Subscriptions',     'bbpress' ), 'bbp_admin_setting_callback_subscriptions', 'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_enable_subscriptions',                'intval'                                                        );
+					// Throttle setting
+					add_settings_field( '_bbp_throttle_time',        __( 'Throttle time',           'bbpress' ), 'bbp_admin_setting_callback_throttle',      'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_throttle_time',                       'intval'                                                           );
 
-			// Allow anonymous posting setting
-			add_settings_field( '_bbp_allow_anonymous',      __( 'Allow Anonymous Posting', 'bbpress' ), 'bbp_admin_setting_callback_anonymous',     'bbpress', $section );
-			register_setting  ( 'bbpress',                   '_bbp_allow_anonymous',                     'intval'                                                        );
+					// Allow topic and reply revisions
+					add_settings_field( '_bbp_allow_revisions',      __( 'Allow Revisions',         'bbpress' ), 'bbp_admin_setting_callback_revisions',     'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_allow_revisions',                     'intval'                                                           );
 
-			// Allow global access setting
-			if ( is_multisite() ) {
-				add_settings_field( '_bbp_allow_global_access', __( 'Allow Global Access',  'bbpress' ), 'bbp_admin_setting_callback_global_access', 'bbpress', $section );
-				register_setting  ( 'bbpress',                  '_bbp_allow_global_access',              'intval'                                                        );
+					// Allow favorites setting
+					add_settings_field( '_bbp_enable_favorites',     __( 'Allow Favorites',         'bbpress' ), 'bbp_admin_setting_callback_favorites',     'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_enable_favorites',                    'intval'                                                           );
+
+					// Allow subscriptions setting
+					add_settings_field( '_bbp_enable_subscriptions', __( 'Allow Subscriptions',     'bbpress' ), 'bbp_admin_setting_callback_subscriptions', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_enable_subscriptions',                'intval'                                                           );
+
+					// Allow anonymous posting setting
+					add_settings_field( '_bbp_allow_anonymous',      __( 'Allow Anonymous Posting', 'bbpress' ), 'bbp_admin_setting_callback_anonymous',     'bbpress', $section_id );
+					register_setting  ( 'bbpress',                   '_bbp_allow_anonymous',                     'intval'                                                           );
+
+					// Allow global access setting
+					if ( is_multisite() ) {
+						add_settings_field( '_bbp_allow_global_access', __( 'Allow Global Access',  'bbpress' ), 'bbp_admin_setting_callback_global_access', 'bbpress', $section_id );
+						register_setting  ( 'bbpress',                  '_bbp_allow_global_access',              'intval'                                                           );
+					}
+
+					// Allow fancy editor setting
+					add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',     'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',            '_bbp_use_wp_editor',                'intval'                                                           );
+
+					// Allow auto embedding setting
+					add_settings_field( '_bbp_use_autoembed', __( 'Auto-embed Links', 'bbpress' ), 'bbp_admin_setting_callback_use_autoembed', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',           '_bbp_use_autoembed',                 'intval'                                                           );
+					break;
+
+				/** Theme Packages ********************************************/
+
+				case 'bbp_settings_theme_compat' :
+
+					// Replies per page setting
+					add_settings_field( '_bbp_theme_package_id', __( 'Current Package', 'bbpress' ), 'bbp_admin_setting_callback_subtheme_id',      'bbpress', $section_id );
+					register_setting  ( 'bbpress',               '_bbp_theme_package_id',            ''                                                                    );
+
+					break;
+
+				/** Per Page Section ******************************************/
+
+				case 'bbp_settings_per_page' :
+
+					// Topics per page setting
+					add_settings_field( '_bbp_topics_per_page',  __( 'Topics',   'bbpress' ), 'bbp_admin_setting_callback_topics_per_page',  'bbpress', $section_id );
+					register_setting  ( 'bbpress',               '_bbp_topics_per_page',      'intval'                                                              );
+
+					// Replies per page setting
+					add_settings_field( '_bbp_replies_per_page', __( 'Replies',  'bbpress' ), 'bbp_admin_setting_callback_replies_per_page', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',               '_bbp_replies_per_page',     'intval'                                                              );
+
+					break;
+
+				/** Per RSS Page Section **************************************/
+
+				case 'bbp_settings_per_page_rss' :
+
+					// Topics per page setting
+					add_settings_field( '_bbp_topics_per_page',  __( 'Topics',       'bbpress' ), 'bbp_admin_setting_callback_topics_per_rss_page',  'bbpress', $section_id );
+					register_setting  ( 'bbpress',               '_bbp_topics_per_rss_page',      'intval'                                                                  );
+
+					// Replies per page setting
+					add_settings_field( '_bbp_replies_per_page', __( 'Replies',      'bbpress' ), 'bbp_admin_setting_callback_replies_per_rss_page', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',               '_bbp_replies_per_rss_page',     'intval'                                                                  );
+
+					break;
+
+				/** Front Slugs ***********************************************/
+
+				case 'bbp_settings_root_slugs' :
+
+					/**
+					 * Here we sanitize with 'esc_sql', rather than 'sanitize_title' to
+					 * allow for slashes or any other URI friendly format.
+					 */
+
+					// Root slug setting
+					add_settings_field  ( '_bbp_root_slug',          __( 'Forums base',   'bbpress' ), 'bbp_admin_setting_callback_root_slug',           'bbpress', $section_id );
+					register_setting    ( 'bbpress',                '_bbp_root_slug',                  'esc_sql'                                                                );
+
+					// Topic archive setting
+					add_settings_field  ( '_bbp_topic_archive_slug', __( 'Topics base',   'bbpress' ), 'bbp_admin_setting_callback_topic_archive_slug',  'bbpress', $section_id );
+					register_setting    ( 'bbpress',                 '_bbp_topic_archive_slug',        'esc_sql'                                                                );
+
+					break;
+
+				/** Single slugs **********************************************/
+
+				case 'bbp_settings_single_slugs' :
+
+					// Include root setting
+					add_settings_field( '_bbp_include_root',    __( 'Forum Prefix',  'bbpress' ), 'bbp_admin_setting_callback_include_root',        'bbpress', $section_id );
+					register_setting  ( 'bbpress',              '_bbp_include_root',              'intval'                                                                 );
+
+					// Forum slug setting
+					add_settings_field( '_bbp_forum_slug',      __( 'Forum slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',          'bbpress', $section_id );
+					register_setting  ( 'bbpress',             '_bbp_forum_slug',                 'sanitize_title'                                                         );
+
+					// Topic slug setting
+					add_settings_field( '_bbp_topic_slug',      __( 'Topic slug',    'bbpress' ), 'bbp_admin_setting_callback_topic_slug',          'bbpress', $section_id );
+					register_setting  ( 'bbpress',             '_bbp_topic_slug',                 'sanitize_title'                                                         );
+
+					// Topic tag slug setting
+					add_settings_field( '_bbp_topic_tag_slug', __( 'Topic tag slug', 'bbpress' ), 'bbp_admin_setting_callback_topic_tag_slug',      'bbpress', $section_id );
+					register_setting  ( 'bbpress',             '_bbp_topic_tag_slug',             'sanitize_title'                                                         );
+
+					// Reply slug setting
+					add_settings_field( '_bbp_reply_slug',      __( 'Reply slug',    'bbpress' ), 'bbp_admin_setting_callback_reply_slug',          'bbpress', $section_id );
+					register_setting  ( 'bbpress',             '_bbp_reply_slug',                 'sanitize_title'                                                         );
+
+					/** Other slugs *******************************************/
+
+					// User slug setting
+					add_settings_field( '_bbp_user_slug',       __( 'User base',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',           'bbpress', $section_id );
+					register_setting  ( 'bbpress',              '_bbp_user_slug',                 'sanitize_title'                                                         );
+
+					// View slug setting
+					add_settings_field( '_bbp_view_slug',       __( 'View base',     'bbpress' ), 'bbp_admin_setting_callback_view_slug',           'bbpress', $section_id );
+					register_setting  ( 'bbpress',              '_bbp_view_slug',                 'sanitize_title'                                                         );
+
+					break;
+
+				/** BuddyPress ************************************************/
+
+				case 'bbp_settings_buddypress' :
+
+					// Topics per page setting
+					add_settings_field( '_bbp_enable_group_forums',  __( 'Enable Group Forums', 'bbpress' ), 'bbp_admin_setting_callback_group_forums',         'bbpress', $section_id );
+					register_setting  ( 'bbpress',                  '_bbp_enable_group_forums',              'intval'                                                                  );
+
+					// Topics per page setting
+					add_settings_field( '_bbp_group_forums_root_id', __( 'Group Forums Parent', 'bbpress' ), 'bbp_admin_setting_callback_group_forums_root_id', 'bbpress', $section_id );
+					register_setting  ( 'bbpress',                  '_bbp_group_forums_root_id',             'intval'                                                                  );
+
+					break;
+
+				/** Akismet ***************************************************/
+
+				case 'bbp_settings_akismet' :
+
+					// Replies per page setting
+					add_settings_field( '_bbp_enable_akismet', __( 'Use Akismet',  'bbpress' ), 'bbp_admin_setting_callback_akismet',         'bbpress', $section_id );
+					register_setting  ( 'bbpress',            '_bbp_enable_akismet',            'intval'                                                             );
+
+					break;
 			}
-
-			// Allow fancy editor setting
-			add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',     'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', $section );
-			register_setting  ( 'bbpress',            '_bbp_use_wp_editor',                'intval'                                                                   );
-
-			// Allow auto embedding setting
-			add_settings_field( '_bbp_use_autoembed', __( 'Auto-embed Links', 'bbpress' ), 'bbp_admin_setting_callback_use_autoembed', 'bbpress', $section );
-			register_setting  ( 'bbpress',           '_bbp_use_autoembed',                 'intval'                                                                   );
 		}
+	}
 
-		/** Theme Packages ****************************************************/
-
-		$section = 'bbp_settings_theme_compat';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( $section,              __( 'Theme Packages',  'bbpress' ), 'bbp_admin_setting_callback_subtheme_section', 'bbpress'           );
-
-			// Replies per page setting
-			add_settings_field( '_bbp_theme_package_id', __( 'Current Package', 'bbpress' ), 'bbp_admin_setting_callback_subtheme_id',      'bbpress', $section );
-			register_setting  ( 'bbpress',               '_bbp_theme_package_id',            ''                                                                                    );
-		}
-
-		/** Per Page Section **************************************************/
-
-		$section = 'bbp_settings_per_page';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( $section,              __( 'Per Page', 'bbpress' ),          'bbp_admin_setting_callback_per_page_section', 'bbpress'           );
-
-			// Topics per page setting
-			add_settings_field( '_bbp_topics_per_page',  __( 'Topics',   'bbpress' ),          'bbp_admin_setting_callback_topics_per_page',  'bbpress', $section );
-			register_setting  ( 'bbpress',               '_bbp_topics_per_page',               'intval'                                                           );
-
-			// Replies per page setting
-			add_settings_field( '_bbp_replies_per_page', __( 'Replies',  'bbpress' ),          'bbp_admin_setting_callback_replies_per_page', 'bbpress', $section );
-			register_setting  ( 'bbpress',               '_bbp_replies_per_page',              'intval'                                                           );
-		}
-
-		/** Per RSS Page Section **********************************************/
-
-		$section = 'bbp_settings_per_page_rss';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( $section,              __( 'Per RSS Page', 'bbpress' ),      'bbp_admin_setting_callback_per_rss_page_section', 'bbpress'           );
-
-			// Topics per page setting
-			add_settings_field( '_bbp_topics_per_page',  __( 'Topics',       'bbpress' ),      'bbp_admin_setting_callback_topics_per_rss_page',  'bbpress', $section );
-			register_setting  ( 'bbpress',               '_bbp_topics_per_rss_page',           'intval'                                                               );
-
-			// Replies per page setting
-			add_settings_field( '_bbp_replies_per_page', __( 'Replies',      'bbpress' ),      'bbp_admin_setting_callback_replies_per_rss_page', 'bbpress', $section );
-			register_setting  ( 'bbpress',               '_bbp_replies_per_rss_page',          'intval'                                                               );
-		}
-
-		/** Front Slugs *******************************************************/
-
-		$section = 'bbp_settings_root_slugs';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( $section,                  __( 'Archive Slugs', 'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress'                  );
-
-			/**
-			* Here we sanitize with 'esc_sql', rather than 'sanitize_title' to
-			* allow for slashes or any other URI friendly format.
-			*/
-
-			// Root slug setting
-			add_settings_field  ( '_bbp_root_slug',          __( 'Forums base',   'bbpress' ), 'bbp_admin_setting_callback_root_slug',           'bbpress', $section );
-			register_setting    ( 'bbpress',                '_bbp_root_slug',                  'esc_sql'                                                             );
-
-			// Topic archive setting
-			add_settings_field  ( '_bbp_topic_archive_slug', __( 'Topics base',   'bbpress' ), 'bbp_admin_setting_callback_topic_archive_slug',  'bbpress', $section );
-			register_setting    ( 'bbpress',                 '_bbp_topic_archive_slug',        'esc_sql'                                                             );
-		}
-
-		/** Single slugs ******************************************************/
-
-		$section = 'bbp_settings_single_slugs';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( $section,             __( 'Single Slugs',  'bbpress' ), 'bbp_admin_setting_callback_single_slug_section', 'bbpress'           );
-
-			// Include root setting
-			add_settings_field( '_bbp_include_root',    __( 'Forum Prefix', 'bbpress' ),  'bbp_admin_setting_callback_include_root',        'bbpress', $section );
-			register_setting  ( 'bbpress',              '_bbp_include_root',              'intval'                                                              );
-
-			// Forum slug setting
-			add_settings_field( '_bbp_forum_slug',      __( 'Forum slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',          'bbpress', $section );
-			register_setting  ( 'bbpress',             '_bbp_forum_slug',                 'sanitize_title'                                                      );
-
-			// Topic slug setting
-			add_settings_field( '_bbp_topic_slug',      __( 'Topic slug',    'bbpress' ), 'bbp_admin_setting_callback_topic_slug',          'bbpress', $section );
-			register_setting  ( 'bbpress',             '_bbp_topic_slug',                 'sanitize_title'                                                      );
-
-			// Topic tag slug setting
-			add_settings_field( '_bbp_topic_tag_slug', __( 'Topic tag slug', 'bbpress' ), 'bbp_admin_setting_callback_topic_tag_slug',      'bbpress', $section );
-			register_setting  ( 'bbpress',             '_bbp_topic_tag_slug',             'sanitize_title'                                                      );
-
-			// Reply slug setting
-			add_settings_field( '_bbp_reply_slug',      __( 'Reply slug',    'bbpress' ), 'bbp_admin_setting_callback_reply_slug',          'bbpress', $section );
-			register_setting  ( 'bbpress',             '_bbp_reply_slug',                 'sanitize_title'                                                      );
-
-			/** Other slugs ***************************************************/
-
-			// User slug setting
-			add_settings_field( '_bbp_user_slug',       __( 'User base',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',           'bbpress', $section );
-			register_setting  ( 'bbpress',              '_bbp_user_slug',                 'sanitize_title'                                                      );
-
-			// View slug setting
-			add_settings_field( '_bbp_view_slug',       __( 'View base',     'bbpress' ), 'bbp_admin_setting_callback_view_slug',           'bbpress', $section );
-			register_setting  ( 'bbpress',              '_bbp_view_slug',                 'sanitize_title'                                                      );
-		}
-
-		/** BuddyPress ********************************************************/
-
-		$section = 'bbp_settings_buddypress';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( 'bbp_buddypress',          __( 'BuddyPress', 'bbpress' ),          'bbp_admin_setting_callback_buddypress_section',   'bbpress'                   );
-
-			// Topics per page setting
-			add_settings_field( '_bbp_enable_group_forums',  __( 'Enable Group Forums', 'bbpress' ), 'bbp_admin_setting_callback_group_forums',         'bbpress', 'bbp_buddypress' );
-			register_setting  ( 'bbpress',                  '_bbp_enable_group_forums',              'intval'                                                                       );
-
-			// Topics per page setting
-			add_settings_field( '_bbp_group_forums_root_id', __( 'Group Forums Parent', 'bbpress' ), 'bbp_admin_setting_callback_group_forums_root_id', 'bbpress', 'bbp_buddypress' );
-			register_setting  ( 'bbpress',                  '_bbp_group_forums_root_id',             'intval'                                                                       );
-		}
-
-		/** Akismet ***********************************************************/
-
-		$section = 'bbp_settings_akismet';
-		if ( bbp_current_user_can_see( $section ) ) {
-
-			// Add the per page section
-			add_settings_section( 'bbp_akismet',       __( 'Akismet', 'bbpress' ),      'bbp_admin_setting_callback_akismet_section', 'bbpress'                );
-
-			// Replies per page setting
-			add_settings_field( '_bbp_enable_akismet', __( 'Use Akismet',  'bbpress' ), 'bbp_admin_setting_callback_akismet',         'bbpress', 'bbp_akismet' );
-			register_setting  ( 'bbpress',            '_bbp_enable_akismet',            'intval'                                                               );
-		}
+	/**
+	 * Get the bbPress settings sections.
+	 *
+	 * @since bbPress (rxxxx)
+	 */
+	private static function get_settings_sections() {
+		return apply_filters( 'bbp_admin_get_settings_sections', array(
+			'bbp_settings_main' => array(
+				'title'    => __( 'Main Settings', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_main_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_theme_compat' => array(
+				'title'    => __( 'Theme Packages', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_subtheme_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_per_page' => array(
+				'title'    => __( 'Per Page', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_per_page_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_per_page_rss' => array(
+				'title'    => __( 'Per RSS Page', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_per_rss_page_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_root_slugs' => array(
+				'title'    => __( 'Archive Slugs', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_root_slug_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_single_slugs' => array(
+				'title'    => __( 'Single Slugs', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_single_slug_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_buddypress' => array(
+				'title'    => __( 'BuddyPress', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_buddypress_section',
+				'page'     => 'bbpress',
+			),
+			'bbp_settings_akismet' => array(
+				'title'    => __( 'Akismet', 'bbpress' ),
+				'callback' => 'bbp_admin_setting_callback_akismet_section',
+				'page'     => 'bbpress'
+			)
+		) );
 	}
 
 	/**
