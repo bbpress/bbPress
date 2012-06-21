@@ -626,13 +626,14 @@ function bb_get_recent_user_replies( $user_id ) {
  * @param int $post_id ID of new post
  */
 function bb_notify_subscribers( $post_id ) {
-	global $bbdb, $bb_ksd_pre_post_status;
-
-	if ( !empty( $bb_ksd_pre_post_status ) )
-		return false;
+	global $bbdb;
 
 	if ( !$post = bb_get_post( $post_id ) )
 		return false;
+
+	// bozo or spam
+ 	if ( 2 == $post->post_status )
+ 		return false;
 
 	if ( !$topic = get_topic( $post->topic_id ) )
 		return false;
