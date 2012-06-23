@@ -195,11 +195,7 @@ class BBP_Converter {
 					jQuery('#bbp-converter-stop').show();
 					jQuery('#bbp-converter-progress').show();
 					bbconverter_log( "Starting Conversion..." );
-					jQuery.post(ajaxurl, bbconverter_grab_data(), function(response) {
-						var response_length = response.length - 1;
-						response = response.substring(0,response_length);
-						bbconverter_success(response);
-					});
+					bbconverter_run();
 				}
 			}
 
