@@ -29,7 +29,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'forum_id',
 			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_forum_id',
+			'to_fieldname'   => '_bbp_forum_id'
 		);
 
 		// Forum parent id (If no parent, 0. Stored in postmeta)
@@ -173,7 +173,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Topic slug (Clean name to avoid confilcts)
+		// Topic slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_title',
@@ -183,6 +183,7 @@ class bbPress1 extends BBP_Converter_Base {
 		);
 
 		// Topic content.
+		// Note: We join the posts table because topics do not have content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_text',
@@ -205,6 +206,17 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_status',
 			'callback_method' => 'callback_status'
+		);
+
+		// Author ip.
+		$this->field_map[] = array(
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'poster_ip',
+			'join_tablename'  => 'topics',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (topic_id) WHERE posts.post_position IN (0,1)',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_author_ip'
 		);
 
 		// Forum id (If no parent, 0)
@@ -306,7 +318,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'  => 'forum_id',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_topicid_to_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Topic title (for reply title).
