@@ -275,7 +275,8 @@ class BBP_Converter {
 
 		$step  = (int) get_option( '_bbp_converter_step',  1 );
 		$min   = (int) get_option( '_bbp_converter_start', 0 );
-		$max   = $min + (int) get_option( '_bbp_converter_rows', !empty( $_POST['_bbp_converter_rows'] ) ? (int) $_POST['_bbp_converter_rows'] : 100 ) - 1;
+		$count = (int) empty( $_POST['_bbp_converter_rows'] ) ? $_POST['_bbp_converter_rows'] : 100;
+		$max   = ( $min + $count ) - 1;
 		$start = $min;
 
 		// Bail if platform did not get saved
@@ -594,7 +595,7 @@ abstract class BBP_Converter_Base {
 		/** Get database connections ******************************************/
 
 		$this->wpdb         = $wpdb;
-		$this->max_rows     = $_POST['_bbp_converter_rows'];
+		$this->max_rows     = (int) $_POST['_bbp_converter_rows'];
 		$this->opdb         = new wpdb( $_POST['_bbp_converter_db_user'], $_POST['_bbp_converter_db_pass'], $_POST['_bbp_converter_db_name'], $_POST['_bbp_converter_db_server'] );
 		$this->opdb->prefix = $_POST['_bbp_converter_db_prefix'];
 
@@ -618,7 +619,7 @@ abstract class BBP_Converter_Base {
 		 * Charset
 		 */
 		if ( empty( $this->wpdb->charset ) ) {
-			$this->charset = "UTF8";
+			$this->charset = 'UTF8';
 		} else {
 			$this->charset = $this->wpdb->charset;
 		}
@@ -977,6 +978,7 @@ abstract class BBP_Converter_Base {
 		} else {
 			$forum_array = $this->wpdb->get_results( 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows );
 		}
+
 		foreach ( (array) $forum_array as $row ) {
 			$parent_id = $this->callback_forumid( $row->meta_value );
 			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_parent = "' . $parent_id . '" WHERE ID = "' . $row->value_id . '" LIMIT 1' );
@@ -1264,8 +1266,7 @@ function bbp_new_converter( $platform ) {
 
 	if ( true === $found ) {
 		require_once( bbpress()->admin->admin_dir . 'converters/' . $platform . '.php' );
-		eval( '$obj = new ' . $platform . '();' );
-		return $obj;
+		return new $platform;
 	} else {
 		return null;
 	}
