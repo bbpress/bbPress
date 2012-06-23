@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Implementation of bbPress Stand Alone converter.
+ * bbPress 1.1 Converter
+ *
+ * @since bbPress (rxxxx)
  */
 class bbPress1 extends BBP_Converter_Base {
 	function __construct() {
@@ -11,7 +13,7 @@ class bbPress1 extends BBP_Converter_Base {
 
 	public function setup_globals() {
 
-		/** Forum Section ******************************************************/
+		/** Forum Section *****************************************************/
 
 		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
@@ -117,7 +119,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'default'      => date('Y-m-d H:i:s')
 		);
 
-		/** Topic Section ******************************************************/
+		/** Topic Section *****************************************************/
 
 		// Topic id. Stored in postmeta.
 		$this->field_map[] = array(
@@ -177,19 +179,22 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'  => 'post_text',
 			'join_tablename'  => 'topics',
 			'join_type'       => 'INNER',
-			'join_expression' => 'USING (topic_id) WHERE posts.post_position = 1',
+			//'join_expression' => 'USING (topic_id) WHERE posts.post_position = 1',
+			'join_expression' => 'USING (topic_id)',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_html'
 		);
 
 		// Topic status.
+		// Note: post_status is more accurate than topic_status
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_status',
 			'join_tablename'  => 'topics',
 			'join_type'       => 'INNER',
-			'join_expression' => 'USING (topic_id) WHERE posts.post_position = 1',
+			//'join_expression' => 'USING (topic_id) WHERE posts.post_position = 1',
+			'join_expression' => 'USING (topic_id)',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_status',
 			'callback_method' => 'callback_status'
@@ -297,7 +302,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Topic content.
+		// Topic title.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_title',
@@ -335,13 +340,21 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_status'
 		);
 
-		// Post content.
+		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_text',
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_html'
+		);
+
+		// Reply content.
+		$this->field_map[] = array(
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_position',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'menu_order'
 		);
 
 		// Topic id.  If no parent, than 0.
