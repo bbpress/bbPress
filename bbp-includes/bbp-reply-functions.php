@@ -1570,8 +1570,9 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
 function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 
 	// Get required data
-	$reply_id    = bbp_get_reply_id( $reply_id );
-	$topic_id    = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
+	$reply_id       = bbp_get_reply_id( $reply_id );
+	$topic_id       = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
+	$reply_position = 0;
 
 	// If reply is actually the first post in a topic, return 0
 	if ( $reply_id != $topic_id ) {
@@ -1592,9 +1593,7 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 				$reply_position++;
 			}
 		}
-	} else {
-		$reply_position = 0;
 	}
 
-	return $reply_position;
+	return (int) $reply_position;
 }
