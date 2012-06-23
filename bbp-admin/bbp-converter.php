@@ -145,7 +145,7 @@ class BBP_Converter {
 				margin: 0.5em 0;
 				padding: 2px;
 			}
-			
+
 			div.bbp-converter-updated p strong.loading {
 				padding: 2px 20px 2px 0;
 				background-image: url('<?php echo admin_url(); ?>images/wpspin_light.gif');
@@ -175,7 +175,7 @@ class BBP_Converter {
 				jQuery.each(jQuery('#bbp-converter-settings').serializeArray(), function(i, field) {
 					values[field.name] = field.value;
 				});
-				
+
 				if( values['_bbp_converter_restart'] ) {
 					jQuery('#_bbp_converter_restart').removeAttr("checked");
 				}
@@ -218,7 +218,7 @@ class BBP_Converter {
 
 			function bbconverter_success(response) {
 				bbconverter_log(response);
-				
+
 				if ( response == 'Conversion Complete' || response.indexOf('error') > -1 ) {
 					bbconverter_log('<b>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></b>');
 					jQuery('#bbp-converter-start').show();
@@ -275,7 +275,7 @@ class BBP_Converter {
 
 		$step  = (int) get_option( '_bbp_converter_step',  1 );
 		$min   = (int) get_option( '_bbp_converter_start', 0 );
-		$count = (int) empty( $_POST['_bbp_converter_rows'] ) ? $_POST['_bbp_converter_rows'] : 100;
+		$count = (int) ! empty( $_POST['_bbp_converter_rows'] ) ? $_POST['_bbp_converter_rows'] : 100;
 		$max   = ( $min + $count ) - 1;
 		$start = $min;
 
@@ -296,20 +296,18 @@ class BBP_Converter {
 						update_option( '_bbp_converter_step',  $step + 1 );
 						update_option( '_bbp_converter_start', 0         );
 						$this->sync_table();
-
 						if ( empty( $start ) ) {
 							_e( 'No data to clean', 'bbpress' );
 						}
 					} else {
 						update_option( '_bbp_converter_start', $max + 1 );
-
-						_e( 'Deleting previously converted data (' . $min . ' - ' . $max . ')', 'bbpress' );
+						printf( __( 'Deleting previously converted data (%1$s - %2$s)', 'bbpress' ), $min, $max );
 					}
 				} else {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
 				}
-				
+
 				break;
 
 			// STEP 2. Convert users.
@@ -318,14 +316,12 @@ class BBP_Converter {
 					if ( $converter->convert_users( $start ) ) {
 						update_option( '_bbp_converter_step',  $step + 1 );
 						update_option( '_bbp_converter_start', 0         );
-
 						if ( empty( $start ) ) {
 							_e( 'No users to convert', 'bbpress' );
 						}
 					} else {
 						update_option( '_bbp_converter_start', $max + 1 );
-
-						_e( 'Converting users (' . $min . ' - ' . $max . ')', 'bbpress' );
+						printf( __( 'Converting users (%1$s - %2$s)', 'bbpress' ), $min, $max );
 					}
 				} else {
 					update_option( '_bbp_converter_step',  $step + 1 );
@@ -340,14 +336,12 @@ class BBP_Converter {
 					if ( $converter->clean_passwords( $start ) ) {
 						update_option( '_bbp_converter_step',  $step + 1 );
 						update_option( '_bbp_converter_start', 0         );
-
 						if ( empty( $start ) ) {
 							_e( 'No passwords to clear', 'bbpress' );
 						}
 					} else {
 						update_option( '_bbp_converter_start', $max + 1 );
-
-						_e( 'Delete users wordpress default passwords (' . $min . ' - ' . $max . ')', 'bbpress' );
+						printf( __( 'Delete users wordpress default passwords (%1$s - %2$s)', 'bbpress' ), $min, $max );
 					}
 				} else {
 					update_option( '_bbp_converter_step',  $step + 1 );
@@ -361,32 +355,28 @@ class BBP_Converter {
 				if ( $converter->convert_forums( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
-
 					if ( empty( $start ) ) {
 						_e( 'No forums to convert', 'bbpress' );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-
-					_e( 'Converting forums (' . $min . ' - ' . $max . ')', 'bbpress' );
+					printf( __( 'Converting forums (%1$s - %2$s)', 'bbpress' ), $min, $max );
 				}
 
 				break;
 
 			// STEP 5. Convert forum parents.
 			case 5 :
-				
+
 				if ( $converter->convert_forum_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
-
 					if ( empty( $start ) ) {
 						_e( 'No forum parents to convert', 'bbpress' );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-
-					_e( 'Converting forum parents (' . $min . ' - ' . $max . ')', 'bbpress' );
+					printf( __( 'Calculating forum hierarchy (%1$s - %2$s)', 'bbpress' ), $min, $max );
 				}
 
 				break;
@@ -397,32 +387,28 @@ class BBP_Converter {
 				if ( $converter->convert_topics( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
-
-					if ( !$start ) {
+					if ( empty( $start ) ) {
 						_e( 'No topics to convert', 'bbpress' );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-
-					_e( 'Converting topics (' . $min . ' - ' . $max . ')', 'bbpress' );
+					printf( __( 'Converting topics (%1$s - %2$s)', 'bbpress' ), $min, $max );
 				}
 
 				break;
 
 			// STEP 7. Convert tags.
 			case 7 :
-				
+
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
-
 					if ( empty( $start ) ) {
 						_e( 'No tags to convert', 'bbpress' );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-
-					_e( 'Converting tags (' . $min . ' - ' . $max . ')', 'bbpress' );
+					printf( __( 'Converting topic tags (%1$s - %2$s)', 'bbpress' ), $min, $max );
 				}
 
 				break;
@@ -437,12 +423,11 @@ class BBP_Converter {
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-
-					_e( 'Converting replies (' . $min . ' - ' . $max . ')', 'bbpress' );
+					printf( __( 'Converting replies (%1$s - %2$s)', 'bbpress' ), $min, $max );
 				}
 
 				break;
-			
+
 			default :
 				delete_option( '_bbp_converter_step' );
 				delete_option( '_bbp_converter_start' );
@@ -450,13 +435,13 @@ class BBP_Converter {
 				_e( 'Conversion Complete', 'bbpress' );
 
 				break;
-			
+
 		}
 	}
 
 	/**
 	 * Convert passwords from previous forum to wordpress.
-	 * 
+	 *
 	 * @since bbPress (r3813)
 	 * @global WPDB $wpdb
 	 */
@@ -479,7 +464,7 @@ class BBP_Converter {
 
 	/**
 	 * Create Tables for fast syncing
-	 * 
+	 *
 	 * @since bbPress (r3813)
 	 */
 	public function sync_table( $drop = false ) {
@@ -827,7 +812,12 @@ abstract class BBP_Converter_Base {
 		if ( !empty( $from_tablename ) ) {
 
 			// Get some data from the old forums
-			$forum_array = $this->opdb->get_results( 'SELECT ' . implode( ',', $field_list ) . ' FROM ' . $this->opdb->prefix . $from_tablename . ' LIMIT ' . $start . ', ' . $this->max_rows, ARRAY_A );
+			$field_list  = array_unique( $field_list );
+			$forum_query = 'SELECT ' . implode( ',', $field_list ) . ' FROM ' . $this->opdb->prefix . $from_tablename . ' LIMIT ' . $start . ', ' . $this->max_rows;
+			$forum_array = $this->opdb->get_results( $forum_query, ARRAY_A );
+
+			// Output the query, for better debugging
+			printf( __( '<span title="%s">View Query</span>%s', 'bbpress' ), esc_attr( $forum_query ), '<br />' );
 
 			// Query returned some results
 			if ( !empty( $forum_array ) ) {
@@ -848,7 +838,7 @@ abstract class BBP_Converter_Base {
 							// This row has a destination that matches one of the
 							// columns in this table.
 							if ( in_array( $row['to_fieldname'], $tablefield_array ) ) {
-								
+
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {
 									$insert_post[$row['to_fieldname']] = $row['default'];
@@ -860,7 +850,7 @@ abstract class BBP_Converter_Base {
 									} else {
 										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[$row['from_fieldname']], $forum ) );
 									}
-									
+
 								// Maps the field from the old forum.
 								} else {
 									$insert_post[$row['to_fieldname']] = $forum[$row['from_fieldname']];
@@ -869,7 +859,7 @@ abstract class BBP_Converter_Base {
 							// Destination field is not empty, so we might need
 							// to do some extra work or set a default.
 							} elseif ( !empty( $row['to_fieldname'] ) ) {
-								
+
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {
 									$insert_postmeta[$row['to_fieldname']] = $row['default'];
@@ -896,7 +886,7 @@ abstract class BBP_Converter_Base {
 					if ( count( $insert_post ) > 0 || ( $to_type == 'tags' && count( $insert_postmeta ) > 0 ) ) {
 
 						switch ( $to_type ) {
-							
+
 							/** New user **************************************/
 
 							case 'user':
@@ -1087,14 +1077,14 @@ abstract class BBP_Converter_Base {
 		}
 		return $rval;
 	}
-	
+
 	/** Callbacks *************************************************************/
 
 	/**
 	 * Run password through wp_hash_password()
 	 *
 	 * @param string $username
-	 * @param string $password 
+	 * @param string $password
 	 */
 	public function callback_pass( $username, $password ) {
 		$user = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->users . ' WHERE user_login = "' . $username . '" AND user_pass = "" LIMIT 1' );
@@ -1114,7 +1104,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to forum ID's
 	 *
 	 * @param string $field
-	 * @return string 
+	 * @return string
 	 */
 	private function callback_forumid( $field ) {
 		if ( !isset( $this->map_forumid[$field] ) ) {
@@ -1137,7 +1127,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to topic ID's
 	 *
 	 * @param string $field
-	 * @return string 
+	 * @return string
 	 */
 	private function callback_topicid( $field ) {
 		if ( !isset( $this->map_topicid[$field] ) ) {
@@ -1160,7 +1150,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls to user ID's
 	 *
 	 * @param string $field
-	 * @return string 
+	 * @return string
 	 */
 	private function callback_userid( $field ) {
 		if ( !isset( $this->map_userid[$field] ) ) {
@@ -1187,7 +1177,7 @@ abstract class BBP_Converter_Base {
 	 * A mini cache system to reduce database calls map topics ID's to forum ID's
 	 *
 	 * @param string $field
-	 * @return string 
+	 * @return string
 	 */
 	private function callback_topicid_to_forumid( $field ) {
 		$topicid = $this->callback_topicid( $field );
