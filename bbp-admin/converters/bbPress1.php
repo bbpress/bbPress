@@ -189,7 +189,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'join_tablename'  => 'topics',
 			'join_type'       => 'INNER',
 			'join_expression' => 'USING (topic_id) WHERE posts.post_position IN (0,1)',
-			//'join_expression' => 'USING (topic_id) WHERE posts.topic_id = topics.topic_id',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_html'
@@ -203,7 +202,6 @@ class bbPress1 extends BBP_Converter_Base {
 			'join_tablename'  => 'topics',
 			'join_type'       => 'INNER',
 			'join_expression' => 'USING (topic_id) WHERE posts.post_position IN (0,1)',
-			//'join_expression' => 'USING (topic_id) WHERE posts.topic_id = topics.topic_id',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_status',
 			'callback_method' => 'callback_status'
