@@ -56,8 +56,7 @@ class BBP_Skip_Children {
 	/**
 	 * Only clean post caches for main bbPress posts.
 	 *
-	 * Hooked on to the 'pre_post_update' action via bbp-core-actions.php, this
-	 * function checks that the post being updated is a bbPress post type, saves the
+	 * Check that the post being updated is a bbPress post type, saves the
 	 * post ID to be used later, and adds an action to 'clean_post_cache' that
 	 * prevents child post caches from being cleared.
 	 *
