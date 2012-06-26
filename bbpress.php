@@ -259,6 +259,7 @@ final class bbPress {
 
 		/** Core **************************************************************/
 
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-cache.php'      ); // Cache helpers
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-functions.php'  ); // Core functions
