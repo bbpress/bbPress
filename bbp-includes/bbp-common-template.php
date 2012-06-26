@@ -405,14 +405,14 @@ function bbp_is_custom_post_type( $the_post = false ) {
 	$retval = false;
 
 	// Viewing one of the bbPress post types
-	if ( in_array( get_post_type( $post_id ), array(
+	if ( in_array( get_post_type( $the_post ), array(
 		bbp_get_forum_post_type(),
 		bbp_get_topic_post_type(),
 		bbp_get_reply_post_type()
 	) ) )
 		$retval = true;
 
-	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $post_id );
+	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $the_post );
 }
 
 /**
