@@ -391,6 +391,7 @@ function bbp_is_topic_tag_edit() {
  *
  * @since bbPress (r3311)
  *
+ * @param mixed $the_post Optional. Post object or post ID.
  * @uses get_post_type()
  * @uses bbp_get_forum_post_type()
  * @uses bbp_get_topic_post_type()
@@ -398,20 +399,20 @@ function bbp_is_topic_tag_edit() {
  *
  * @return bool
  */
-function bbp_is_custom_post_type() {
+function bbp_is_custom_post_type( $the_post = false ) {
 
 	// Assume false
 	$retval = false;
 
 	// Viewing one of the bbPress post types
-	if ( in_array( get_post_type(), array(
+	if ( in_array( get_post_type( $post_id ), array(
 		bbp_get_forum_post_type(),
 		bbp_get_topic_post_type(),
 		bbp_get_reply_post_type()
 	) ) )
 		$retval = true;
 
-	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval );
+	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $post_id );
 }
 
 /**
