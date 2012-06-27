@@ -157,7 +157,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_theme_package_id' => array(
 				'title'             => __( 'Current Package', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_subtheme_id',
-				'sanitize_callback' => 'intval',
+				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
 			)
 		),
