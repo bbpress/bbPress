@@ -48,8 +48,10 @@ class BBP_Akismet {
 
 		// bbPress functions to check for spam
 		$checks['check']  = array(
-			'bbp_new_topic_pre_insert' => 1,  // Topic check
-			'bbp_new_reply_pre_insert' => 1   // Reply check
+			'bbp_new_topic_pre_insert'  => 1,  // New topic check
+			'bbp_new_reply_pre_insert'  => 1,  // New reply check
+			'bbp_edit_topic_pre_insert' => 1,  // Edit topic check
+			'bbp_edit_reply_pre_insert' => 1   // Edit reply check
 		);
 
 		// bbPress functions for spam and ham submissions
