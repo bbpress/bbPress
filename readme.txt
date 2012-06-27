@@ -26,6 +26,12 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
+= 2.1-rc-1 =
+* Improved post cache invalidation
+* Improved admin settings API
+* Improved bbPress 1.1 converter
+* Added 2x menu icons for HiDPI displays
+
 = 2.1-beta-1 =
 * Improved BuddyPress integration
 * Improved Theme-Compatibility
@@ -68,7 +74,7 @@ We're keeping things as small and light as possible while still allowing for gre
 * Added Forum Participant role for multisite use
 
 = 2.0-rc-2 =
-* BuddyPress activity actionin tegration
+* BuddyPress activity action integration
 * Multisite integration
 * Fixed a bushel of bugs
 * Fixed tag pagination again
