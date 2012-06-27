@@ -220,7 +220,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_topic_archive_slug' => array(
 				'title'             => __( 'Topics base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
-				'sanitize_callback' => 'intval',
+				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
 			)
 		),
