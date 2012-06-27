@@ -81,7 +81,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Lock post editing after', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_editlock',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -90,7 +89,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Throttle time', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_throttle',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -99,7 +97,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Allow Revisions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_revisions',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -108,7 +105,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Allow Favorites', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_favorites',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -117,7 +113,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Allow Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_subscriptions',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -126,7 +121,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Allow Anonymous Posting', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_anonymous',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -135,7 +129,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Allow Global Access', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_global_access',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -143,7 +136,6 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_use_wp_editor' => array(
 				'title'             => __( 'Fancy Editor', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_use_wp_editor',
-				'page'              => 'bbpress',
 				'args'              => array(),
 				'sanitize_callback' => 'intval'
 			),
@@ -153,7 +145,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Auto-embed Links', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_use_autoembed',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -167,7 +158,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Current Package', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_subtheme_id',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -181,7 +171,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_page',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -190,7 +179,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Replies', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_replies_per_page',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -204,7 +192,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_rss_page',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -213,7 +200,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Replies', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_replies_per_rss_page',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -227,7 +213,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forums base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_root_slug',
 				'sanitize_callback' => 'esc_sql',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -236,7 +221,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -250,7 +234,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forum Prefix', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_include_root',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -259,7 +242,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forum slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_forum_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -268,7 +250,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -277,7 +258,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic tag slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tag_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -286,7 +266,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Reply slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -295,7 +274,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'User slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -304,7 +282,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic view slug', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
 				'sanitize_callback' => 'sanitize_title',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -318,7 +295,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Enable Group Forums', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			),
 
@@ -327,7 +303,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Group Forums Parent', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums_root_id',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		),
@@ -341,7 +316,6 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Use Akismet', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_akismet',
 				'sanitize_callback' => 'intval',
-				'page'              => 'bbpress',
 				'args'              => array()
 			)
 		)
