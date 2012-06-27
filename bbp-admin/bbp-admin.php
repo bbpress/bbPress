@@ -294,7 +294,7 @@ class BBP_Admin {
 					add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
 
 					// Register the setting
-					register_setting( $section_id, $field_id, $field['sanitize_callback'] );
+					register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
 				}
 			}
 		}
