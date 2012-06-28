@@ -118,7 +118,7 @@ function bbp_new_forum_handler() {
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-new-forum' ) ) {
-		bbp_add_error( 'bbp_rew_forum_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_new_forum_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
