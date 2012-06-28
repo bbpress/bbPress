@@ -491,7 +491,7 @@ function bbp_is_single_reply() {
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the favorites page, false if not
  */
 function bbp_is_favorites() {
@@ -506,7 +506,7 @@ function bbp_is_favorites() {
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the subscriptions page, false if not
  */
 function bbp_is_subscriptions() {
@@ -522,7 +522,7 @@ function bbp_is_subscriptions() {
  *
  * @since bbPress (r2688)
  *
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created() {
@@ -622,7 +622,7 @@ function bbp_is_single_user_edit() {
  * @since bbPress (r2789)
  *
  * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true 
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool Is it a view page?
  */
 function bbp_is_single_view() {
