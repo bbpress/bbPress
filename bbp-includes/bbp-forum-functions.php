@@ -386,7 +386,8 @@ function bbp_edit_forum_handler() {
 
 	// Forum id was not passed
 	if ( empty( $_POST['bbp_forum_id'] ) ) {
-		$forum_id = 0;
+		bbp_add_error( 'bbp_edit_forum_id', __( '<strong>ERROR</strong>: Forum ID not found.', 'bbpress' ) );
+		return;
 
 	// Forum id was passed
 	} elseif ( is_numeric( $_POST['bbp_forum_id'] ) ) {

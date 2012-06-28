@@ -434,6 +434,7 @@ function bbp_edit_topic_handler() {
 	// Topic id was not passed
 	if ( empty( $_POST['bbp_topic_id'] ) ) {
 		bbp_add_error( 'bbp_edit_topic_id', __( '<strong>ERROR</strong>: Topic ID not found.', 'bbpress' ) );
+		return;
 
 	// Topic id was passed
 	} elseif ( is_numeric( $_POST['bbp_topic_id'] ) ) {

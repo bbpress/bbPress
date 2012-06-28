@@ -379,6 +379,7 @@ function bbp_edit_reply_handler() {
 	// Reply id was not passed
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
 		bbp_add_error( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found.', 'bbpress' ) );
+		return;
 
 	// Reply id was passed
 	} elseif ( is_numeric( $_POST['bbp_reply_id'] ) ) {
