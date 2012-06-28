@@ -1642,18 +1642,8 @@ function bbp_view_url( $view = false ) {
  * @uses bbp_get_query_name() Get the query var '_bbp_query_name'
  * @return bool True if match, false if not
  */
-function bbp_is_query_name( $query_name )  {
-
-	// No empties
-	if ( empty( $query_name ) )
-		return false;
-
-	// Check if query var matches
-	if ( bbp_get_query_name() == $query_name )
-		return true;
-
-	// No match
-	return false;
+function bbp_is_query_name( $name = '' )  {
+	return (bool) ( bbp_get_query_name() == $name );
 }
 
 /**
