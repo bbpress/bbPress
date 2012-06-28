@@ -422,6 +422,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * Handles the front end adding and removing of favorite topics
  *
  * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the user
  * @uses bbPress:errors:add() To log the error messages
  * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
@@ -458,62 +459,64 @@ function bbp_favorites_handler() {
 		return;
 
 	// What action is taking place?
-	$action  = $_GET['action'];
+	$action      = $_GET['action'];
+	$topic_id    = intval( $_GET['topic_id'] );
+	$user_id     = bbp_get_user_id( 0, true, true );
 
-	// Get user_id
-	$user_id = bbp_get_user_id( 0, true, true );
+	// Check for empty topic
+	if ( empty( $topic_id ) ) {
+		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
+
+	// Check nonce
+	} elseif ( ! bbp_verify_nonce_request( 'toggle-favorite_' . $topic_id ) ) {
+		bbp_add_error( 'bbp_favorite_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
-	if ( !current_user_can( 'edit_user', $user_id ) )
+	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
 		bbp_add_error( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+	}
 
-	// Load favorite info
-	$topic_id = intval( $_GET['topic_id'] );
-	if ( empty( $topic_id ) )
-		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
+	// Bail if errors
+	if ( bbp_has_errors() )
+		return;
+
+	/** No errors *************************************************************/
 
 	$is_favorite = bbp_is_user_favorite( $user_id, $topic_id );
 	$success     = false;
 
-	// Handle insertion into posts table
-	if ( !empty( $topic_id ) && !empty( $user_id ) && ( !bbp_has_errors() ) ) {
+	if ( true == $is_favorite && 'bbp_favorite_remove' == $action )
+		$success = bbp_remove_user_favorite( $user_id, $topic_id );
+	elseif ( false == $is_favorite && 'bbp_favorite_add' == $action )
+		$success = bbp_add_user_favorite( $user_id, $topic_id );
 
-		if ( $is_favorite && 'bbp_favorite_remove' == $action ) {
-			$success = bbp_remove_user_favorite( $user_id, $topic_id );
-		} elseif ( !$is_favorite && 'bbp_favorite_add' == $action ) {
-			$success = bbp_add_user_favorite( $user_id, $topic_id );
+	// Do additional favorites actions
+	do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
+
+	// Success!
+	if ( true == $success ) {
+
+		// Redirect back from whence we came
+		if ( bbp_is_favorites() ) {
+			$redirect = bbp_get_favorites_permalink( $user_id );
+		} elseif ( bbp_is_single_user() ) {
+			$redirect = bbp_get_user_profile_url();
+		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+			$redirect = bbp_get_topic_permalink( $topic_id );
+		} elseif ( is_single() || is_page() ) {
+			$redirect = get_permalink();
 		}
 
-		// Do additional favorites actions
-		do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
+		wp_safe_redirect( $redirect );
 
-		// Check for missing reply_id or error
-		if ( true == $success ) {
+		// For good measure
+		exit();
 
-			// Redirect back to new reply
-			if ( bbp_is_favorites() ) {
-				$redirect = bbp_get_favorites_permalink( $user_id );
-			} elseif ( bbp_is_single_user() ) {
-				$redirect = bbp_get_user_profile_url();
-			} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
-				$redirect = bbp_get_topic_permalink( $topic_id );
-			} elseif ( is_single() || is_page() ) {
-				$redirect = get_permalink();
-			}
-
-			wp_safe_redirect( $redirect );
-
-			// For good measure
-			exit();
-
-		// Handle errors
-		} else {
-			if ( $is_favorite && 'bbp_favorite_remove' == $action ) {
-				bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
-			} elseif ( !$is_favorite && 'bbp_favorite_add' == $action ) {
-				bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
-			}
-		}
+	// Fail! Handle errors
+	} elseif ( true == $is_favorite && 'bbp_favorite_remove' == $action ) {
+		bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
+	} elseif ( false == $is_favorite && 'bbp_favorite_add' == $action ) {
+		bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
 	}
 }
 
@@ -738,6 +741,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
  *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the user
  * @uses bbPress:errors:add() To log the error messages
  * @uses bbp_is_user_subscribed() To check if the topic is in user's
@@ -774,62 +778,65 @@ function bbp_subscriptions_handler() {
 	if ( !in_array( $_GET['action'], $possible_actions ) )
 		return;
 
-	// What action is taking place?
-	$action  = $_GET['action'];
-
-	// Get user_id
-	$user_id = bbp_get_user_id( 0, true, true );
-
-	// Check current user's ability to edit the user
-	if ( !current_user_can( 'edit_user', $user_id ) )
-		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
-
-	// Load subscription info
+	// Get required data
+	$action   = $_GET['action'];
+	$user_id  = bbp_get_user_id( 0, true, true );
 	$topic_id = intval( $_GET['topic_id'] );
-	if ( empty( $topic_id ) )
+
+	// Check for empty topic
+	if ( empty( $topic_id ) ) {
 		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
 
-	if ( !bbp_has_errors() ) {
+	// Check nonce
+	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_' . $topic_id ) ) {
+		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
-		$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
-		$success         = false;
+	// Check current user's ability to edit the user
+	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+	}
 
-		if ( $is_subscription && 'bbp_unsubscribe' == $action ) {
-			$success = bbp_remove_user_subscription( $user_id, $topic_id );
-		} elseif ( !$is_subscription && 'bbp_subscribe' == $action ) {
-			$success = bbp_add_user_subscription( $user_id, $topic_id );
+	// Bail if we have errors
+	if ( bbp_has_errors() )
+		return;
+
+	/** No errors *************************************************************/
+
+	$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
+	$success         = false;
+
+	if ( true == $is_subscription && 'bbp_unsubscribe' == $action )
+		$success = bbp_remove_user_subscription( $user_id, $topic_id );
+	elseif ( false == $is_subscription && 'bbp_subscribe' == $action )
+		$success = bbp_add_user_subscription( $user_id, $topic_id );
+
+	// Do additional subscriptions actions
+	do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
+
+	// Success!
+	if ( true == $success ) {
+
+		// Redirect back from whence we came
+		if ( bbp_is_subscriptions() ) {
+			$redirect = bbp_get_subscriptions_permalink( $user_id );
+		} elseif( bbp_is_single_user() ) {
+			$redirect = bbp_get_user_profile_url();
+		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+			$redirect = bbp_get_topic_permalink( $topic_id );
+		} elseif ( is_single() || is_page() ) {
+			$redirect = get_permalink();
 		}
 
-		// Do additional subscriptions actions
-		do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
+		wp_safe_redirect( $redirect );
 
-		// Check for missing reply_id or error
-		if ( true == $success ) {
+		// For good measure
+		exit();
 
-			// Redirect back to new reply
-			if ( bbp_is_subscriptions() ) {
-				$redirect = bbp_get_subscriptions_permalink( $user_id );
-			} elseif( bbp_is_single_user() ) {
-				$redirect = bbp_get_user_profile_url();
-			} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
-				$redirect = bbp_get_topic_permalink( $topic_id );
-			} elseif ( is_single() || is_page() ) {
-				$redirect = get_permalink();
-			}
-
-			wp_safe_redirect( $redirect );
-
-			// For good measure
-			exit();
-
-		// Handle errors
-		} else {
-			if ( $is_subscription && 'bbp_unsubscribe' == $action ) {
-				bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
-			} elseif ( !$is_subscription && 'bbp_subscribe' == $action ) {
-				bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
-			}
-		}
+	// Fail! Handle errors
+	} elseif ( true == $is_subscription && 'bbp_unsubscribe' == $action ) {
+		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
+	} elseif ( false == $is_subscription && 'bbp_subscribe' == $action ) {
+		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
 	}
 }
 
@@ -849,7 +856,7 @@ function bbp_subscriptions_handler() {
  * @uses delete_option() To delete the displayed user's email id option
  * @uses bbp_get_user_profile_edit_url() To get the edit profile url
  * @uses wp_safe_redirect() To redirect to the url
- * @uses check_admin_referer() To verify the nonce and check the referer
+ * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the user
  * @uses do_action() Calls 'personal_options_update' or
  *                   'edit_user_options_update' (based on if it's the user home)
@@ -907,10 +914,17 @@ function bbp_edit_user_handler() {
 
 	}
 
-	check_admin_referer( 'update-user_' . $user_id );
+	// Nonce check
+	if ( ! bbp_verify_nonce_request( 'update-user_' . $user_id ) ) {
+		bbp_add_error( 'bbp_update_user_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		return;
+	}
 
-	if ( !current_user_can( 'edit_user', $user_id ) )
-		wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
+	// Cap check
+	if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		bbp_add_error( 'bbp_update_user_capability', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		return;
+	}
 
 	// Do action based on who's profile you're editing
 	$edit_action = bbp_is_user_home_edit() ? 'personal_options_update' : 'edit_user_profile_update';
@@ -1412,7 +1426,7 @@ function bbp_check_user_edit() {
 		$redirect = false;
 
 	// Allow if user can manage network users, or edit-any is enabled
-	} elseif ( current_user_can( 'manage_network_users' ) || apply_filters( 'enable_edit_any_user_configuration', true ) ) {
+	} elseif ( current_user_can( 'manage_network_users' ) || apply_filters( 'enable_edit_any_user_configuration', false ) ) {
 		$redirect = false;
 	}
 
