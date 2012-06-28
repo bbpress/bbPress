@@ -1032,7 +1032,7 @@ class BBP_Forums_Component extends BP_Component {
 		// Adjust title based on view
 		if ( bp_is_forums_component() ) {
 			if ( bp_is_my_profile() ) {
-				$bp->bp_options_title = __( 'Forums', 'buddypress' );
+				$bp->bp_options_title = __( 'Forums', 'bbpress' );
 			} else {
 				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
 					'item_id' => $bp->displayed_user->id,
@@ -1228,12 +1228,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' ); ?>
 
-		<h4><?php _e( 'Group Forums', 'buddypress' ); ?></h4>
+		<h4><?php _e( 'Group Forums', 'bbpress' ); ?></h4>
 
-		<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'buddypress' ); ?></p>
+		<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
 		<div class="checkbox">
-			<label><input type="checkbox" name="bbp-create-group-forum" id="bbp-create-group-forum" value="1"<?php checked( $checked ); ?> /> <?php _e( 'Yes. I want this group to have a forum.', 'buddypress' ); ?></label>
+			<label><input type="checkbox" name="bbp-create-group-forum" id="bbp-create-group-forum" value="1"<?php checked( $checked ); ?> /> <?php _e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
 		</div>
 
 		<?php
