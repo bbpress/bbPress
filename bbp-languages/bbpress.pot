@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the bbPress package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress 2.1-rc1\n"
+"Project-Id-Version: bbPress 2.1-rc3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2012-06-27 04:01:25+00:00\n"
+"POT-Creation-Date: 2012-06-28 20:12:03+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,7 +22,7 @@ msgid "Forum Repair"
 msgstr ""
 
 #: bbp-admin/bbp-admin.php:186 bbp-admin/bbp-functions.php:195
-#: bbp-admin/bbp-settings.php:1211
+#: bbp-admin/bbp-settings.php:1185
 msgid "Import Forums"
 msgstr ""
 
@@ -110,7 +110,7 @@ msgid ""
 msgstr ""
 
 #: bbp-admin/bbp-converter.php:63 bbp-admin/bbp-settings.php:24
-#: bbp-admin/bbp-settings.php:1259
+#: bbp-admin/bbp-settings.php:1233
 msgid "Main Settings"
 msgstr ""
 
@@ -239,7 +239,7 @@ msgid "<span title=\"%s\">View Query</span>%s"
 msgstr ""
 
 #: bbp-admin/bbp-forums.php:118 bbp-admin/bbp-replies.php:130
-#: bbp-admin/bbp-settings.php:1251 bbp-admin/bbp-topics.php:130
+#: bbp-admin/bbp-settings.php:1225 bbp-admin/bbp-topics.php:130
 msgid "Overview"
 msgstr ""
 
@@ -349,14 +349,14 @@ msgstr ""
 
 #: bbp-admin/bbp-forums.php:163 bbp-admin/bbp-forums.php:243
 #: bbp-admin/bbp-replies.php:175 bbp-admin/bbp-replies.php:252
-#: bbp-admin/bbp-settings.php:1296 bbp-admin/bbp-topics.php:175
+#: bbp-admin/bbp-settings.php:1270 bbp-admin/bbp-topics.php:175
 #: bbp-admin/bbp-topics.php:252
 msgid "For more information:"
 msgstr ""
 
 #: bbp-admin/bbp-forums.php:164 bbp-admin/bbp-forums.php:244
 #: bbp-admin/bbp-replies.php:176 bbp-admin/bbp-replies.php:253
-#: bbp-admin/bbp-settings.php:1297 bbp-admin/bbp-topics.php:176
+#: bbp-admin/bbp-settings.php:1271 bbp-admin/bbp-topics.php:176
 #: bbp-admin/bbp-topics.php:253
 msgid ""
 "<a href=\"http://bbpress.org/documentation/\" target=\"_blank\">bbPress "
@@ -365,7 +365,7 @@ msgstr ""
 
 #: bbp-admin/bbp-forums.php:165 bbp-admin/bbp-forums.php:245
 #: bbp-admin/bbp-replies.php:177 bbp-admin/bbp-replies.php:254
-#: bbp-admin/bbp-settings.php:1298 bbp-admin/bbp-topics.php:177
+#: bbp-admin/bbp-settings.php:1272 bbp-admin/bbp-topics.php:177
 #: bbp-admin/bbp-topics.php:254
 msgid ""
 "<a href=\"http://bbpress.org/forums/\" target=\"_blank\">bbPress Support "
@@ -514,8 +514,8 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:423 bbp-admin/bbp-settings.php:181
-#: bbp-admin/bbp-settings.php:204 bbp-admin/bbp-topics.php:677
+#: bbp-admin/bbp-forums.php:423 bbp-admin/bbp-settings.php:171
+#: bbp-admin/bbp-settings.php:192 bbp-admin/bbp-topics.php:677
 #: bbp-includes/bbp-extend-buddypress.php:432
 #: bbp-includes/bbp-extend-buddypress.php:1434
 #: bbp-includes/bbp-forum-template.php:2272
@@ -527,8 +527,8 @@ msgstr ""
 msgid "Topics"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:424 bbp-admin/bbp-settings.php:190
-#: bbp-admin/bbp-settings.php:213 bbp-admin/bbp-topics.php:679
+#: bbp-admin/bbp-forums.php:424 bbp-admin/bbp-settings.php:179
+#: bbp-admin/bbp-settings.php:200 bbp-admin/bbp-topics.php:679
 #: bbp-includes/bbp-extend-buddypress.php:433
 #: bbp-includes/bbp-forum-template.php:2336
 #: bbp-includes/bbp-theme-compatibility.php:493
@@ -1072,7 +1072,7 @@ msgstr ""
 msgid "Theme Packages"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:34 bbp-admin/bbp-settings.php:1278
+#: bbp-admin/bbp-settings.php:34 bbp-admin/bbp-settings.php:1252
 msgid "Per Page"
 msgstr ""
 
@@ -1100,415 +1100,415 @@ msgstr ""
 msgid "Lock post editing after"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:90
+#: bbp-admin/bbp-settings.php:89
 msgid "Throttle time"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:99
+#: bbp-admin/bbp-settings.php:97
 msgid "Allow Revisions"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:108
+#: bbp-admin/bbp-settings.php:105
 msgid "Allow Favorites"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:117
+#: bbp-admin/bbp-settings.php:113
 msgid "Allow Subscriptions"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:126
+#: bbp-admin/bbp-settings.php:121
 msgid "Allow Anonymous Posting"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:135
+#: bbp-admin/bbp-settings.php:129
 msgid "Allow Global Access"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:144
+#: bbp-admin/bbp-settings.php:137
 msgid "Fancy Editor"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:153
+#: bbp-admin/bbp-settings.php:145
 msgid "Auto-embed Links"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:167
+#: bbp-admin/bbp-settings.php:158
 msgid "Current Package"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:227 bbp-admin/bbp-settings.php:1391
+#: bbp-admin/bbp-settings.php:213 bbp-admin/bbp-settings.php:1365
 msgid "Forums base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:236 bbp-admin/bbp-settings.php:1394
+#: bbp-admin/bbp-settings.php:221 bbp-admin/bbp-settings.php:1368
 msgid "Topics base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:250
+#: bbp-admin/bbp-settings.php:234
 msgid "Forum Prefix"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:259 bbp-admin/bbp-settings.php:1397
+#: bbp-admin/bbp-settings.php:242 bbp-admin/bbp-settings.php:1371
 msgid "Forum slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:268 bbp-admin/bbp-settings.php:1400
+#: bbp-admin/bbp-settings.php:250 bbp-admin/bbp-settings.php:1374
 msgid "Topic slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:277 bbp-admin/bbp-settings.php:1412
+#: bbp-admin/bbp-settings.php:258 bbp-admin/bbp-settings.php:1386
 msgid "Topic tag slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:286 bbp-admin/bbp-settings.php:1403
+#: bbp-admin/bbp-settings.php:266 bbp-admin/bbp-settings.php:1377
 msgid "Reply slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:295
+#: bbp-admin/bbp-settings.php:274
 msgid "User slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:304
+#: bbp-admin/bbp-settings.php:282
 msgid "Topic view slug"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:318
+#: bbp-admin/bbp-settings.php:295
 msgid "Enable Group Forums"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:327
+#: bbp-admin/bbp-settings.php:303
 msgid "Group Forums Parent"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:341
+#: bbp-admin/bbp-settings.php:316
 msgid "Use Akismet"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:380
+#: bbp-admin/bbp-settings.php:354
 msgid "Main forum settings for enabling features and setting time limits"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:396 bbp-includes/bbp-common-functions.php:121
+#: bbp-admin/bbp-settings.php:370 bbp-includes/bbp-common-functions.php:121
 msgid "minutes"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:412 bbp-includes/bbp-common-functions.php:122
+#: bbp-admin/bbp-settings.php:386 bbp-includes/bbp-common-functions.php:122
 msgid "seconds"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:428
+#: bbp-admin/bbp-settings.php:402
 msgid "Allow users to mark topics as favorites"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:444
+#: bbp-admin/bbp-settings.php:418
 msgid "Allow users to subscribe to topics"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:460
+#: bbp-admin/bbp-settings.php:434
 msgid "Allow topic and reply revision logging"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:476
+#: bbp-admin/bbp-settings.php:450
 msgid "Allow guest users without accounts to create topics and replies"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:492
+#: bbp-admin/bbp-settings.php:466
 msgid ""
 "Allow all users of your multisite installation to create topics and replies"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:508 bbp-admin/bbp-settings.php:556
+#: bbp-admin/bbp-settings.php:482 bbp-admin/bbp-settings.php:530
 msgid "Use the fancy WordPress editor to create and edit topics and replies"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:521
+#: bbp-admin/bbp-settings.php:495
 msgid "How your forum content is displayed within your existing theme."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:545
+#: bbp-admin/bbp-settings.php:519
 msgid "%1$s - %2$s"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:551
+#: bbp-admin/bbp-settings.php:525
 msgid "will serve all bbPress templates"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:572
+#: bbp-admin/bbp-settings.php:546
 msgid ""
 "Embed media (YouTube, Twitter, Flickr, etc...) directly into topics and "
 "replies."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:587
+#: bbp-admin/bbp-settings.php:561
 msgid "How many topics and replies to show per page"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:603 bbp-admin/bbp-settings.php:619
-#: bbp-admin/bbp-settings.php:650 bbp-admin/bbp-settings.php:666
+#: bbp-admin/bbp-settings.php:577 bbp-admin/bbp-settings.php:593
+#: bbp-admin/bbp-settings.php:624 bbp-admin/bbp-settings.php:640
 msgid "per page"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:634
+#: bbp-admin/bbp-settings.php:608
 msgid "How many topics and replies to show per RSS page"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:684
+#: bbp-admin/bbp-settings.php:658
 msgid ""
 "Custom root slugs to prefix your forums and topics with. These can be "
 "partnered with WordPress pages to allow more flexibility."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:733
+#: bbp-admin/bbp-settings.php:707
 msgid ""
 "Custom slugs for single forums, topics, replies, tags, users, and views "
 "here. If you change these, existing permalinks will also change."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:749
+#: bbp-admin/bbp-settings.php:723
 msgid "Prefix your forum area with the Forum Base slug (Recommended)"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:869
+#: bbp-admin/bbp-settings.php:843
 msgid "Forum settings for BuddyPress"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:885
+#: bbp-admin/bbp-settings.php:859
 msgid "Allow BuddyPress Groups to have their own forums"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:903
+#: bbp-admin/bbp-settings.php:877
 msgid "(Forum Root)"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:909
+#: bbp-admin/bbp-settings.php:883
 msgid "is the parent for all group forums"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:910
+#: bbp-admin/bbp-settings.php:884
 msgid ""
 "Using the Forum Root is not recommended. Changing this does not move "
 "existing forums."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:925
+#: bbp-admin/bbp-settings.php:899
 msgid "Forum settings for Akismet"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:942
+#: bbp-admin/bbp-settings.php:916
 msgid "Allow Akismet to actively prevent forum spam."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:965
+#: bbp-admin/bbp-settings.php:939
 msgid "bbPress Settings"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:974
+#: bbp-admin/bbp-settings.php:948
 #: bbp-theme-compat/bbpress/form-user-edit.php:169
 #: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:169
 msgid "Save Changes"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:993
+#: bbp-admin/bbp-settings.php:967
 msgid ""
 "Information about your previous forums database so that they can be "
 "converted. <strong>Backup your database before proceeding.</strong>"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1018
+#: bbp-admin/bbp-settings.php:992
 msgid "is the previous forum software"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1032
+#: bbp-admin/bbp-settings.php:1006
 msgid "IP or hostname"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1046
+#: bbp-admin/bbp-settings.php:1020
 msgid "Use default 3306 if unsure"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1060
+#: bbp-admin/bbp-settings.php:1034
 msgid "User for your database connection"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1074
+#: bbp-admin/bbp-settings.php:1048
 msgid "Password to access the database"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1088
+#: bbp-admin/bbp-settings.php:1062
 msgid "Name of the database with your old forum data"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1101
+#: bbp-admin/bbp-settings.php:1075
 msgid "Some optional parameters to help tune the convertion process."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1115
+#: bbp-admin/bbp-settings.php:1089
 msgid ""
 "(If converting from BuddyPress Forums, use \"wp_bb_\" or your custom prefix)"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1129
+#: bbp-admin/bbp-settings.php:1103
 msgid "rows to process at a time"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1130
+#: bbp-admin/bbp-settings.php:1104
 msgid "Keep this low if you experience out-of-memory issues."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1144
+#: bbp-admin/bbp-settings.php:1118
 msgid "second(s) delay between each group of rows"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1145
+#: bbp-admin/bbp-settings.php:1119
 msgid "Keep this high to prevent too-many-connection issues."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1159
+#: bbp-admin/bbp-settings.php:1133
 msgid "Purge all information from a previously attempted import"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1160
+#: bbp-admin/bbp-settings.php:1134
 msgid "Use this if an import failed and you want to start over from scratch."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1174
+#: bbp-admin/bbp-settings.php:1148
 msgid "Restart the conversion process"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1175
+#: bbp-admin/bbp-settings.php:1149
 msgid "The importer keeps track of where it left off in the event of failure."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1189
+#: bbp-admin/bbp-settings.php:1163
 msgid "Attempt to import user accounts from previous forums"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1190
+#: bbp-admin/bbp-settings.php:1164
 msgid ""
 "Non-bbPress passwords cannot be automatically converted. They will be "
 "converted as each user logs in."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1220
+#: bbp-admin/bbp-settings.php:1194
 msgid "Start"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1221
+#: bbp-admin/bbp-settings.php:1195
 msgid "Stop"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1252
+#: bbp-admin/bbp-settings.php:1226
 msgid "This screen provides access to all of the bbPress settings."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1253
+#: bbp-admin/bbp-settings.php:1227
 msgid ""
 "Please see the additional help tabs for more information on each indiviual "
 "section."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1260
+#: bbp-admin/bbp-settings.php:1234
 msgid "In the Main Settings you have a number of options:"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1263
+#: bbp-admin/bbp-settings.php:1237
 msgid ""
 "You can choose to lock a post after a certain number of minutes. \"Locking "
 "post editing\" will prevent the author from editing some amount of time "
 "after saving a post."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1264
+#: bbp-admin/bbp-settings.php:1238
 msgid ""
 "\"Throttle time\" is the amount of time required between posts from a single "
 "author. The higher the throttle time, the longer a user will need to wait "
 "between posting to the forum."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1265
+#: bbp-admin/bbp-settings.php:1239
 msgid ""
 "Favorites are a way for users to save and later return to topics they favor. "
 "This is enabled by default."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1266
+#: bbp-admin/bbp-settings.php:1240
 msgid ""
 "Subscriptions allow users to subscribe for notifications to topics that "
 "interest them. This is enabled by default."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1267
+#: bbp-admin/bbp-settings.php:1241
 msgid ""
 "\"Anonymous Posting\" allows guest users who do not have accounts on your "
 "site to both create topics as well as replies."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1268
+#: bbp-admin/bbp-settings.php:1242
 msgid ""
 "The Fancy Editor brings the luxury of the Visual editor and HTML editor from "
 "the traditional WordPress dashboard into your theme."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1269
+#: bbp-admin/bbp-settings.php:1243
 msgid ""
 "Auto-embed will embed the media content from a URL directly into the "
 "replies. For example: links to Flickr and YouTube."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1272
+#: bbp-admin/bbp-settings.php:1246
 msgid ""
 "You must click the Save Changes button at the bottom of the screen for new "
 "settings to take effect."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1279
+#: bbp-admin/bbp-settings.php:1253
 msgid ""
 "Per Page settings allow you to control the number of topics and replies "
 "appear on each page."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1280
+#: bbp-admin/bbp-settings.php:1254
 msgid ""
 "This is comparable to the WordPress \"Reading Settings\" page, where you can "
 "set the number of posts that should show on blog pages and in feeds."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1281
+#: bbp-admin/bbp-settings.php:1255
 msgid ""
 "These are broken up into two separate groups: one for what appears in your "
 "theme, another for RSS feeds."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1287
+#: bbp-admin/bbp-settings.php:1261
 msgid "Slugs"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1288
+#: bbp-admin/bbp-settings.php:1262
 msgid ""
 "The Slugs section allows you to control the permalink structure for your "
 "forums."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1289
+#: bbp-admin/bbp-settings.php:1263
 msgid ""
 "\"Archive Slugs\" are used as the \"root\" for your forums and topics. If "
 "you combine these values with existing page slugs, bbPress will attempt to "
 "output the most correct title and content."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1290
+#: bbp-admin/bbp-settings.php:1264
 msgid ""
 "\"Single Slugs\" are used as a prefix when viewing an individual forum, "
 "topic, reply, user, or view."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1291
+#: bbp-admin/bbp-settings.php:1265
 msgid ""
 "In the event of a slug collision with WordPress or BuddyPress, a warning "
 "will appear next to the problem slug(s)."
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1376 bbp-theme-compat/bbpress/loop-forums.php:21
+#: bbp-admin/bbp-settings.php:1350 bbp-theme-compat/bbpress/loop-forums.php:21
 #: bbp-theme-compat/bbpress/loop-replies.php:24
 #: bbp-theme-compat/bbpress/loop-replies.php:58
 #: bbp-theme-compat/bbpress/loop-topics.php:21
@@ -1519,43 +1519,43 @@ msgstr ""
 msgid "Posts"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1377
+#: bbp-admin/bbp-settings.php:1351
 msgid "Pages"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1378
+#: bbp-admin/bbp-settings.php:1352
 msgid "Revisions"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1379
+#: bbp-admin/bbp-settings.php:1353
 msgid "Attachments"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1380
+#: bbp-admin/bbp-settings.php:1354
 msgid "Menus"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1383
+#: bbp-admin/bbp-settings.php:1357
 msgid "Tag base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1386
+#: bbp-admin/bbp-settings.php:1360
 msgid "Category base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1406
+#: bbp-admin/bbp-settings.php:1380
 msgid "User base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1409
+#: bbp-admin/bbp-settings.php:1383
 msgid "View base"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1424
+#: bbp-admin/bbp-settings.php:1398
 msgid "%s page"
 msgstr ""
 
-#: bbp-admin/bbp-settings.php:1443
+#: bbp-admin/bbp-settings.php:1417
 msgid "Possible %1$s conflict: <strong>%2$s</strong>"
 msgstr ""
 
@@ -1718,12 +1718,12 @@ msgstr ""
 msgid "All Forums"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:816 bbp-includes/bbp-topic-functions.php:3088
+#: bbp-admin/bbp-tools.php:816 bbp-includes/bbp-topic-functions.php:3109
 #: bbpress.php:535
 msgid "All Topics"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:817 bbp-includes/bbp-reply-functions.php:1408
+#: bbp-admin/bbp-tools.php:817 bbp-includes/bbp-reply-functions.php:1411
 #: bbpress.php:592
 msgid "All Replies"
 msgstr ""
@@ -2207,7 +2207,7 @@ msgid ""
 "Login and visit the topic to unsubscribe from these emails."
 msgstr ""
 
-#: bbp-includes/bbp-common-functions.php:1628
+#: bbp-includes/bbp-common-functions.php:1663
 msgid ""
 "Conditional query tags do not work before the query is run. Before then, "
 "they always return false."
@@ -2227,8 +2227,8 @@ msgstr ""
 
 #: bbp-includes/bbp-common-template.php:1344
 #: bbp-includes/bbp-common-template.php:1355
-#: bbp-includes/bbp-topic-functions.php:1180
-#: bbp-includes/bbp-topic-functions.php:1500
+#: bbp-includes/bbp-topic-functions.php:1190
+#: bbp-includes/bbp-topic-functions.php:1513
 #: bbp-theme-compat/bbpress/form-reply.php:29
 #: bbp-themes/bbp-twentyten/bbpress/form-reply.php:29
 msgid "Reply To: %s"
@@ -2460,28 +2460,28 @@ msgstr ""
 msgid "Maximum replies to show:"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:302
+#: bbp-includes/bbp-extend-akismet.php:304
 msgid "%1$s reported this %2$s as spam"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:309
+#: bbp-includes/bbp-extend-akismet.php:311
 msgid "%1$s reported this %2$s as not spam"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:451
+#: bbp-includes/bbp-extend-akismet.php:453
 msgid "Akismet caught this post as spam"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:455
-#: bbp-includes/bbp-extend-akismet.php:470
+#: bbp-includes/bbp-extend-akismet.php:457
+#: bbp-includes/bbp-extend-akismet.php:472
 msgid "Post status was changed to %s"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:463
+#: bbp-includes/bbp-extend-akismet.php:465
 msgid "Akismet cleared this post"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:477
+#: bbp-includes/bbp-extend-akismet.php:479
 msgid ""
 "Akismet was unable to check this post (response: %s), will automatically "
 "retry again later."
@@ -2558,77 +2558,95 @@ msgstr ""
 msgid "Forum:"
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:131
+#: bbp-includes/bbp-forum-functions.php:121
+#: bbp-includes/bbp-forum-functions.php:400
+#: bbp-includes/bbp-reply-functions.php:117
+#: bbp-includes/bbp-reply-functions.php:392
+#: bbp-includes/bbp-topic-functions.php:129
+#: bbp-includes/bbp-topic-functions.php:471
+#: bbp-includes/bbp-topic-functions.php:1049
+#: bbp-includes/bbp-topic-functions.php:1351
+#: bbp-includes/bbp-topic-functions.php:1654
+#: bbp-includes/bbp-topic-functions.php:1693
+#: bbp-includes/bbp-topic-functions.php:1750
+#: bbp-includes/bbp-user-functions.php:472
+#: bbp-includes/bbp-user-functions.php:792
+#: bbp-includes/bbp-user-functions.php:919
+#: bbp-includes/bbp-user-functions.php:925
+msgid "<strong>ERROR</strong>: Are you sure you wanted to do that?"
+msgstr ""
+
+#: bbp-includes/bbp-forum-functions.php:134
 msgid ""
 "<strong>ERROR</strong>: You do not have permission to create new forums."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:153
-#: bbp-includes/bbp-forum-functions.php:457
+#: bbp-includes/bbp-forum-functions.php:157
+#: bbp-includes/bbp-forum-functions.php:459
 msgid "<strong>ERROR</strong>: Your forum needs a title."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:165
-#: bbp-includes/bbp-forum-functions.php:469
+#: bbp-includes/bbp-forum-functions.php:169
+#: bbp-includes/bbp-forum-functions.php:471
 msgid "<strong>ERROR</strong>: Your forum description cannot be empty."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:178
+#: bbp-includes/bbp-forum-functions.php:182
 msgid "<strong>ERROR</strong>: Your forum must have a parent."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:185
+#: bbp-includes/bbp-forum-functions.php:189
 msgid ""
 "<strong>ERROR</strong>: This forum is a category. No forums can be created "
 "in this forum."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:190
-#: bbp-includes/bbp-forum-functions.php:433
+#: bbp-includes/bbp-forum-functions.php:194
+#: bbp-includes/bbp-forum-functions.php:435
 msgid "<strong>ERROR</strong>: This forum has been closed to new forums."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:195
-#: bbp-includes/bbp-forum-functions.php:438
+#: bbp-includes/bbp-forum-functions.php:199
+#: bbp-includes/bbp-forum-functions.php:440
 msgid ""
 "<strong>ERROR</strong>: This forum is private and you do not have the "
 "capability to read or create new forums in it."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:200
-#: bbp-includes/bbp-forum-functions.php:443
+#: bbp-includes/bbp-forum-functions.php:204
+#: bbp-includes/bbp-forum-functions.php:445
 msgid ""
 "<strong>ERROR</strong>: This forum is hidden and you do not have the "
 "capability to read or create new forums in it."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:207
-#: bbp-includes/bbp-reply-functions.php:203
-#: bbp-includes/bbp-topic-functions.php:225
+#: bbp-includes/bbp-forum-functions.php:211
+#: bbp-includes/bbp-reply-functions.php:206
+#: bbp-includes/bbp-topic-functions.php:228
 msgid "<strong>ERROR</strong>: Slow down; you move too fast."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:212
+#: bbp-includes/bbp-forum-functions.php:216
 msgid "<strong>ERROR</strong>: This forum already exists."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:217
+#: bbp-includes/bbp-forum-functions.php:221
 msgid "<strong>ERROR</strong>: Your forum cannot be created at this time."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:388
+#: bbp-includes/bbp-forum-functions.php:389
 msgid "<strong>ERROR</strong>: Forum ID not found."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:398
+#: bbp-includes/bbp-forum-functions.php:405
 msgid "<strong>ERROR</strong>: The forum you want to edit was not found."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:408
+#: bbp-includes/bbp-forum-functions.php:410
 msgid "<strong>ERROR</strong>: You do not have permission to edit that forum."
 msgstr ""
 
-#: bbp-includes/bbp-forum-functions.php:474
+#: bbp-includes/bbp-forum-functions.php:476
 msgid "<strong>ERROR</strong>: Your forum cannot be edited at this time."
 msgstr ""
 
@@ -2716,115 +2734,115 @@ msgstr ""
 msgid "Hidden"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:140
+#: bbp-includes/bbp-reply-functions.php:143
 msgid "<strong>ERROR</strong>: You do not have permission to reply."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:154
+#: bbp-includes/bbp-reply-functions.php:157
 msgid "<strong>ERROR</strong>: Topic ID is missing."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:165
-#: bbp-includes/bbp-topic-functions.php:196
-#: bbp-includes/bbp-topic-functions.php:482
+#: bbp-includes/bbp-reply-functions.php:168
+#: bbp-includes/bbp-topic-functions.php:199
+#: bbp-includes/bbp-topic-functions.php:485
 msgid "<strong>ERROR</strong>: Forum ID is missing."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:186
+#: bbp-includes/bbp-reply-functions.php:189
 msgid "<strong>ERROR</strong>: Your reply needs a title."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:198
-#: bbp-includes/bbp-reply-functions.php:468
+#: bbp-includes/bbp-reply-functions.php:201
+#: bbp-includes/bbp-reply-functions.php:473
 msgid "<strong>ERROR</strong>: Your reply cannot be empty."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:208
+#: bbp-includes/bbp-reply-functions.php:211
 msgid ""
 "<strong>ERROR</strong>: Duplicate reply detected; it looks as though "
 "you&#8217;ve already said that!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:213
+#: bbp-includes/bbp-reply-functions.php:216
 msgid "<strong>ERROR</strong>: Your reply cannot be created at this time."
 msgstr ""
 
 #: bbp-includes/bbp-reply-functions.php:270
-#: bbp-includes/bbp-reply-functions.php:519
+#: bbp-includes/bbp-reply-functions.php:523
 msgid ""
 "<strong>ERROR</strong>: There was a problem adding the tags to the topic."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:382
+#: bbp-includes/bbp-reply-functions.php:381
 msgid "<strong>ERROR</strong>: Reply ID not found."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:392
+#: bbp-includes/bbp-reply-functions.php:398
 msgid "<strong>ERROR</strong>: The reply you want to edit was not found."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:405
+#: bbp-includes/bbp-reply-functions.php:409
 msgid "<strong>ERROR</strong>: You do not have permission to edit that reply."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:435
+#: bbp-includes/bbp-reply-functions.php:440
 msgid ""
 "<strong>ERROR</strong>: This forum is a category. No topics or replies can "
 "be created in it."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:439
+#: bbp-includes/bbp-reply-functions.php:444
 msgid ""
 "<strong>ERROR</strong>: This forum has been closed to new topics and replies."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:443
+#: bbp-includes/bbp-reply-functions.php:448
 msgid ""
 "<strong>ERROR</strong>: This forum is private and you do not have the "
 "capability to read or create new replies in it."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:447
+#: bbp-includes/bbp-reply-functions.php:452
 msgid ""
 "<strong>ERROR</strong>: This forum is hidden and you do not have the "
 "capability to read or create new replies in it."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:473
+#: bbp-includes/bbp-reply-functions.php:478
 msgid "<strong>ERROR</strong>: Your reply cannot be edited at this time."
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1013
+#: bbp-includes/bbp-reply-functions.php:1016
 msgid "<strong>ERROR:</strong> You do not have the permission to do that!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1026
+#: bbp-includes/bbp-reply-functions.php:1029
 msgid ""
 "<strong>ERROR</strong>: There was a problem unmarking the reply as spam!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1026
+#: bbp-includes/bbp-reply-functions.php:1029
 msgid "<strong>ERROR</strong>: There was a problem marking the reply as spam!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1045
+#: bbp-includes/bbp-reply-functions.php:1048
 msgid "<strong>ERROR</strong>: There was a problem trashing the reply!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1053
+#: bbp-includes/bbp-reply-functions.php:1056
 msgid "<strong>ERROR</strong>: There was a problem untrashing the reply!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1061
+#: bbp-includes/bbp-reply-functions.php:1064
 msgid "<strong>ERROR</strong>: There was a problem deleting the reply!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1406
+#: bbp-includes/bbp-reply-functions.php:1409
 msgid "All Posts"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1448
-#: bbp-includes/bbp-topic-functions.php:3113
+#: bbp-includes/bbp-reply-functions.php:1451
+#: bbp-includes/bbp-topic-functions.php:3134
 msgid "Replies: %s"
 msgstr ""
 
@@ -2905,232 +2923,232 @@ msgid_plural "Viewing %1$s posts - %2$s through %3$s (of %4$s total)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bbp-includes/bbp-topic-functions.php:154
+#: bbp-includes/bbp-topic-functions.php:157
 msgid ""
 "<strong>ERROR</strong>: You do not have permission to create new topics."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:178
-#: bbp-includes/bbp-topic-functions.php:522
+#: bbp-includes/bbp-topic-functions.php:181
+#: bbp-includes/bbp-topic-functions.php:525
 msgid "<strong>ERROR</strong>: Your topic needs a title."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:190
-#: bbp-includes/bbp-topic-functions.php:534
+#: bbp-includes/bbp-topic-functions.php:193
+#: bbp-includes/bbp-topic-functions.php:537
 msgid "<strong>ERROR</strong>: Your topic cannot be empty."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:207
+#: bbp-includes/bbp-topic-functions.php:210
 msgid ""
 "<strong>ERROR</strong>: This forum is a category. No topics can be created "
 "in this forum."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:211
-#: bbp-includes/bbp-topic-functions.php:501
+#: bbp-includes/bbp-topic-functions.php:214
+#: bbp-includes/bbp-topic-functions.php:504
 msgid "<strong>ERROR</strong>: This forum has been closed to new topics."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:215
-#: bbp-includes/bbp-topic-functions.php:505
+#: bbp-includes/bbp-topic-functions.php:218
+#: bbp-includes/bbp-topic-functions.php:508
 msgid ""
 "<strong>ERROR</strong>: This forum is private and you do not have the "
 "capability to read or create new topics in it."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:219
-#: bbp-includes/bbp-topic-functions.php:509
+#: bbp-includes/bbp-topic-functions.php:222
+#: bbp-includes/bbp-topic-functions.php:512
 msgid ""
 "<strong>ERROR</strong>: This forum is hidden and you do not have the "
 "capability to read or create new topics in it."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:230
+#: bbp-includes/bbp-topic-functions.php:233
 msgid ""
 "<strong>ERROR</strong>: Duplicate topic detected; it looks as though "
 "you&#8217;ve already said that!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:235
+#: bbp-includes/bbp-topic-functions.php:238
 msgid "<strong>ERROR</strong>: Your topic cannot be created at this time."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:438
-#: bbp-includes/bbp-topic-functions.php:1041
+#: bbp-includes/bbp-topic-functions.php:436
+#: bbp-includes/bbp-topic-functions.php:1043
 msgid "<strong>ERROR</strong>: Topic ID not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:448
+#: bbp-includes/bbp-topic-functions.php:447
 msgid "<strong>ERROR</strong>: The topic you want to edit was not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:461
+#: bbp-includes/bbp-topic-functions.php:458
 msgid "<strong>ERROR</strong>: You do not have permission to edit that topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:497
+#: bbp-includes/bbp-topic-functions.php:500
 msgid ""
 "<strong>ERROR</strong>: This forum is a category. No topics can be created "
 "in it."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:539
+#: bbp-includes/bbp-topic-functions.php:542
 msgid "<strong>ERROR</strong>: Your topic cannot be edited at this time."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1050
+#: bbp-includes/bbp-topic-functions.php:1054
 msgid "<strong>ERROR</strong>: The topic you want to merge was not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1054
-#: bbp-includes/bbp-topic-functions.php:1345
+#: bbp-includes/bbp-topic-functions.php:1060
+#: bbp-includes/bbp-topic-functions.php:1357
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the source "
 "topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1060
+#: bbp-includes/bbp-topic-functions.php:1068
 msgid "<strong>ERROR</strong>: Destination topic ID not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1066
+#: bbp-includes/bbp-topic-functions.php:1074
 msgid "<strong>ERROR</strong>: The topic you want to merge to was not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1070
+#: bbp-includes/bbp-topic-functions.php:1078
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the "
 "destination topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1321
+#: bbp-includes/bbp-topic-functions.php:1330
 msgid "<strong>ERROR</strong>: Reply ID to split the topic from not found!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1329
+#: bbp-includes/bbp-topic-functions.php:1338
 msgid "<strong>ERROR</strong>: The reply you want to split from was not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1338
+#: bbp-includes/bbp-topic-functions.php:1347
 msgid "<strong>ERROR</strong>: The topic you want to split was not found."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1354
+#: bbp-includes/bbp-topic-functions.php:1365
 msgid "<strong>ERROR</strong>: You need to choose a valid split option."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1367
+#: bbp-includes/bbp-topic-functions.php:1378
 msgid "<strong>ERROR</strong>: Destination topic ID not found!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1376
+#: bbp-includes/bbp-topic-functions.php:1387
 msgid "<strong>ERROR</strong>: The topic you want to split to was not found!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1380
+#: bbp-includes/bbp-topic-functions.php:1391
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the "
 "destination topic!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1419
+#: bbp-includes/bbp-topic-functions.php:1430
 msgid ""
 "<strong>ERROR</strong>: There was a problem converting the reply into the "
 "topic. Please try again."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1424
+#: bbp-includes/bbp-topic-functions.php:1435
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to create new "
 "topics. The reply could not be converted into a topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1630
+#: bbp-includes/bbp-topic-functions.php:1642
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "getting the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1645
-#: bbp-includes/bbp-topic-functions.php:1681
+#: bbp-includes/bbp-topic-functions.php:1660
+#: bbp-includes/bbp-topic-functions.php:1699
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the topic "
 "tags."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1651
-#: bbp-includes/bbp-topic-functions.php:1687
+#: bbp-includes/bbp-topic-functions.php:1666
+#: bbp-includes/bbp-topic-functions.php:1705
 msgid "<strong>ERROR</strong>: You need to enter a tag name."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1661
+#: bbp-includes/bbp-topic-functions.php:1676
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "updating the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1697
 #: bbp-includes/bbp-topic-functions.php:1715
+#: bbp-includes/bbp-topic-functions.php:1733
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "merging the tags: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1706
+#: bbp-includes/bbp-topic-functions.php:1724
 msgid ""
 "<strong>ERROR</strong>: The tags which are being merged can not be the same."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1735
+#: bbp-includes/bbp-topic-functions.php:1756
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to delete the topic "
 "tags."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1744
+#: bbp-includes/bbp-topic-functions.php:1765
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "deleting the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1873
+#: bbp-includes/bbp-topic-functions.php:1894
 msgid "<strong>ERROR:</strong> You do not have the permission to do that."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1886
+#: bbp-includes/bbp-topic-functions.php:1907
 msgid "<strong>ERROR</strong>: There was a problem closing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1886
+#: bbp-includes/bbp-topic-functions.php:1907
 msgid "<strong>ERROR</strong>: There was a problem opening the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1897
+#: bbp-includes/bbp-topic-functions.php:1918
 msgid "<strong>ERROR</strong>: There was a problem unsticking the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1897
+#: bbp-includes/bbp-topic-functions.php:1918
 msgid "<strong>ERROR</strong>: There was a problem sticking the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1907
+#: bbp-includes/bbp-topic-functions.php:1928
 msgid ""
 "<strong>ERROR</strong>: There was a problem unmarking the topic as spam."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1907
+#: bbp-includes/bbp-topic-functions.php:1928
 msgid "<strong>ERROR</strong>: There was a problem marking the topic as spam."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1926
+#: bbp-includes/bbp-topic-functions.php:1947
 msgid "<strong>ERROR</strong>: There was a problem trashing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1934
+#: bbp-includes/bbp-topic-functions.php:1955
 msgid "<strong>ERROR</strong>: There was a problem untrashing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1942
+#: bbp-includes/bbp-topic-functions.php:1963
 msgid "<strong>ERROR</strong>: There was a problem deleting the topic."
 msgstr ""
 
@@ -3215,46 +3233,41 @@ msgid "This topic has no replies."
 msgstr ""
 
 #: bbp-includes/bbp-user-functions.php:468
-#: bbp-includes/bbp-user-functions.php:785
-msgid ""
-"<strong>ERROR</strong>: You don't have the permission to edit favorites of "
-"that user!"
-msgstr ""
-
-#: bbp-includes/bbp-user-functions.php:473
 msgid ""
 "<strong>ERROR</strong>: No topic was found! Which topic are you marking/"
 "unmarking as favorite?"
 msgstr ""
 
-#: bbp-includes/bbp-user-functions.php:512
+#: bbp-includes/bbp-user-functions.php:476
+#: bbp-includes/bbp-user-functions.php:796
+msgid ""
+"<strong>ERROR</strong>: You don't have the permission to edit favorites of "
+"that user!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:517
 msgid ""
 "<strong>ERROR</strong>: There was a problem removing that topic from "
 "favorites!"
 msgstr ""
 
-#: bbp-includes/bbp-user-functions.php:514
+#: bbp-includes/bbp-user-functions.php:519
 msgid "<strong>ERROR</strong>: There was a problem favoriting that topic!"
 msgstr ""
 
-#: bbp-includes/bbp-user-functions.php:790
+#: bbp-includes/bbp-user-functions.php:788
 msgid ""
 "<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/"
 "unsubscribing to?"
 msgstr ""
 
-#: bbp-includes/bbp-user-functions.php:828
+#: bbp-includes/bbp-user-functions.php:837
 msgid ""
 "<strong>ERROR</strong>: There was a problem unsubscribing from that topic!"
 msgstr ""
 
-#: bbp-includes/bbp-user-functions.php:830
+#: bbp-includes/bbp-user-functions.php:839
 msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
-msgstr ""
-
-#: bbp-includes/bbp-user-functions.php:913
-msgid ""
-"What are you doing here? You do not have the permission to edit this user."
 msgstr ""
 
 #: bbp-includes/bbp-user-template.php:437
@@ -4332,9 +4345,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc3)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc3)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
