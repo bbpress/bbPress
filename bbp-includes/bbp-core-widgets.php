@@ -558,7 +558,16 @@ class BBP_Topics_Widget extends WP_Widget {
 						$widget_query->the_post();
 						$topic_id = bbp_get_topic_id( $widget_query->post->ID ); ?>
 
-						<li><a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( 'on' == $show_date ) : ?><div><?php bbp_topic_last_active_time( $topic_id ); endif; ?></div></li>
+						<li>
+							<a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+
+							<?php if ( 'on' == $show_date ) : ?>
+
+								<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
+
+							<?php endif; ?>
+
+						</li>
 
 					<?php endwhile; ?>
 
@@ -585,7 +594,16 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
-						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( 'on' == $show_date ) : ?><div><?php bbp_topic_last_active_time( $topic_id ); endif; ?></div></li>
+						<li>
+							<a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+
+							<?php if ( 'on' == $show_date ) : ?>
+
+								<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
+
+							<?php endif; ?>
+
+						</li>
 
 					<?php
 
