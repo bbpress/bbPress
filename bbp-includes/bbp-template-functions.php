@@ -194,7 +194,6 @@ function bbp_add_template_locations( $templates = array() ) {
  * @uses WP_Query::set_404() To set a 404 status
  * @uses current_user_can() To check if the current user can edit the user
  * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
- * @uses bbp_is_query_name() Check if query name is 'bbp_widget'
  * @uses bbp_get_view_query_args() To get the view query args
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
@@ -286,9 +285,7 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->set( 'bbp_user_id', $user->ID );
 
 		// Set author_name as current user's nicename to get correct posts
-		if ( !bbp_is_query_name( 'bbp_widget' ) ) {
-			$posts_query->set( 'author_name', $user->user_nicename );
-		}
+		$posts_query->set( 'author_name', $user->user_nicename );
 
 		// Set the displayed user global to this user
 		bbpress()->displayed_user = $user;

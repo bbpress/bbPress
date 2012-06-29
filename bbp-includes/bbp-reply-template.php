@@ -70,22 +70,15 @@ function bbp_has_replies( $args = '' ) {
 	$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
 
 	// Skip topic_id if in the replies widget query
-	if ( !bbp_is_query_name( 'bbp_widget' ) ) {
-		$parent_args['meta_query'] = array( array(
-			'key'     => '_bbp_topic_id',
-			'value'   => bbp_get_topic_id(),
-			'compare' => '='
-		) );
+	$parent_args['meta_query'] = array( array(
+		'key'     => '_bbp_topic_id',
+		'value'   => bbp_get_topic_id(),
+		'compare' => '='
+	) );
 
-		// What are the default allowed statuses (based on user caps)
-		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-			$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
-		}
-
-	// Prevent debug notice
-	} else {
-		$parent_args = array();
-	}
+	// What are the default allowed statuses (based on user caps)
+	if ( bbp_get_view_all( 'edit_others_replies' ) )
+		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
 
 	// Default query args
 	$default = array(
@@ -119,7 +112,7 @@ function bbp_has_replies( $args = '' ) {
 	$bbp->reply_query->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( !bbp_is_query_name( 'bbp_widget' ) && (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
+	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {

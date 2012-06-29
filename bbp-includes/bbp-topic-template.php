@@ -85,7 +85,7 @@ function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
+	if ( bbp_get_view_all() )
 		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
 	else
 		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
@@ -110,7 +110,7 @@ function bbp_has_topics( $args = '' ) {
 	);
 
 	// Maybe query for topic tags
-	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_is_topic_tag() ) {
+	if ( bbp_is_topic_tag() ) {
 		$default['term']     = bbp_get_topic_tag_slug();
 		$default['taxonomy'] = bbp_get_topic_tag_tax_id();
 	}
@@ -225,7 +225,7 @@ function bbp_has_topics( $args = '' ) {
 	$bbp->topic_query->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( !bbp_is_query_name( 'bbp_widget' ) && ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
+	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
 		// Limit the number of topics shown based on maximum allowed pages
 		if ( ( !empty( $max_num_pages ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count )

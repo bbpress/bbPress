@@ -366,7 +366,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @uses get_option() To get the forums per page option
 	 * @uses current_user_can() To check if the current user can read
 	 *                           private() To resety name
-	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
 	 * @uses bbp_reset_query_name() To reset the query name
 	 * @uses bbp_has_forums() The main forum loop
 	 * @uses bbp_forums() To check whether there are more forums available
@@ -380,26 +379,24 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'] );
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : '0';
-
-		$forums_query = array(
+		$widget_query = new WP_Query( array(
 			'post_parent'    => $parent_forum,
+			'post_type'      => bbp_get_forum_post_type(),
 			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
-		);
+		) );
 
-		bbp_set_query_name( 'bbp_widget' );
-
-		if ( bbp_has_forums( $forums_query ) ) :
+		if ( $widget_query->have_posts() ) :
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
 
 			<ul>
 
-				<?php while ( bbp_forums() ) : bbp_the_forum(); ?>
+				<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
 
-					<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>" title="<?php bbp_forum_title(); ?>"><?php bbp_forum_title(); ?></a></li>
+					<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>" title="<?php bbp_forum_title( $widget_query->post->ID ); ?>"><?php bbp_forum_title( $widget_query->post->ID ); ?></a></li>
 
 				<?php endwhile; ?>
 
@@ -515,12 +512,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @param mixed $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_topic_widget_title' with the title
-	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
-	 * @uses bbp_reset_query_name() To reset the query name
-	 * @uses bbp_has_topics() The main topic loop
-	 * @uses bbp_topics() To check whether there are more topics available
-	 *                     in the loop
-	 * @uses bbp_the_topic() Loads up the current topic in the loop
 	 * @uses bbp_topic_permalink() To display the topic permalink
 	 * @uses bbp_topic_title() To display the topic title
 	 * @uses bbp_get_topic_last_active_time() To get the topic last active
@@ -539,19 +530,18 @@ class BBP_Topics_Widget extends WP_Widget {
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		// Query defaults
-		$topics_query = array(
+		$widget_query = new WP_Query( array(
 			'author'         => 0,
+			'post_type'      => bbp_get_topic_post_type(),
 			'post_parent'    => $parent_forum,
 			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'posts_per_page' => $max_shown,
+			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 			'show_stickies'  => false,
 			'order'          => 'DESC',
-		);
-
-		bbp_set_query_name( 'bbp_widget' );
+		) );
 
 		// Topics exist
-		if ( bbp_has_topics( $topics_query ) ) : 
+		if ( $widget_query->have_posts() ) : 
 			
 			// Sort by time
 			if ( $pop_check < $max_shown ) :
@@ -561,11 +551,12 @@ class BBP_Topics_Widget extends WP_Widget {
 
 				<ul>
 
-					<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
+					<?php while ( $widget_query->have_posts() ) :
 
-						<li>
-							<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( 'on' == $show_date ) bbp_get_topic_last_active_time(); ?>
-						</li>
+						$widget_query->the_post();
+						$topic_id = bbp_get_topic_id( $widget_query->post->ID ); ?>
+
+						<li><a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( 'on' == $show_date ) : ?><div><?php bbp_topic_last_active_time( $topic_id ); endif; ?></div></li>
 
 					<?php endwhile; ?>
 
@@ -579,9 +570,8 @@ class BBP_Topics_Widget extends WP_Widget {
 				echo $before_widget;
 				echo $before_title . $title . $after_title;
 
-				while ( bbp_topics() ) {
-					bbp_the_topic();
-					$topics[bbp_get_topic_id()] = bbp_get_topic_reply_count();
+				while ( $widget_query->have_posts() ) {
+					$topics[$widget_query->post->ID] = bbp_get_topic_reply_count( $widget_query->post->ID );
 				}
 
 				arsort( $topics );
@@ -593,7 +583,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
-						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( 'on' == $show_date ) bbp_get_topic_last_active_time( $topic_id ); ?></li>
+						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( 'on' == $show_date ) : ?><div><?php bbp_topic_last_active_time( $topic_id ); endif; ?></div></li>
 
 					<?php
 
@@ -709,12 +699,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @param mixed $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_reply_widget_title' with the title
-	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
-	 * @uses bbp_reset_query_name() To reset the query name
-	 * @uses bbp_has_replies() The main reply loop
-	 * @uses bbp_replies() To check whether there are more replies available
-	 *                     in the loop
-	 * @uses bbp_the_reply() Loads up the current reply in the loop
 	 * @uses bbp_get_reply_author_link() To get the reply author link
 	 * @uses bbp_get_reply_author() To get the reply author name
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -728,41 +712,38 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		extract( $args );
 
-		$title     = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
-		$max_shown = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
-		$show_date = !empty( $instance['show_date'] ) ? 'on'                   : false;
-
-		// Query defaults
-		$replies_query = array(
+		$title        = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
+		$max_shown    = !empty( $instance['max_shown'] ) ? $instance['max_shown']    : '5';
+		$show_date    = !empty( $instance['show_date'] ) ? 'on'                      : false;
+		$post_types   = !empty( $instance['post_type'] ) ? array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) : bbp_get_reply_post_type();
+		$widget_query = new WP_Query( array(
+			'post_type'      => $post_types,
 			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-			'posts_per_page' => $max_shown,
-			'order'          => 'DESC'
-		);
-
-		// Set the query name
-		bbp_set_query_name( 'bbp_widget' );
+			'posts_per_page' => $max_shown
+		) );
 
 		// Get replies and display them
-		if ( bbp_has_replies( $replies_query ) ) :
+		if ( $widget_query->have_posts() ) :
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
 
 			<ul>
 
-				<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
+				<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
 
 					<li>
-
 						<?php
-						$author_link = bbp_get_reply_author_link( array( 'type' => 'both', 'size' => 14 ) );
-						$reply_link  = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>';
+
+						$reply_id    = bbp_get_reply_id( $widget_query->post->ID );
+						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
+						$reply_link  = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . bbp_get_reply_excerpt( $reply_id, 50 ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
 
 						/* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */
 						if ( $show_date == 'on' ) {
-							printf( _x( '%1$s on %2$s, %3$s, %4$s', 'widgets', 'bbpress' ), $author_link, $reply_link, get_the_date(), get_the_time() );
+							printf( _x( '%1$s on %2$s %3$s, %4$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . get_the_date(), get_the_time() . '</div>' );
 						} else {
-							printf( _x( '%1$s on %2$s',             'widgets', 'bbpress' ), $author_link, $reply_link );
+							printf( _x( '%1$s on %2$s',            'widgets', 'bbpress' ), $author_link, $reply_link );
 						}
 
 						?>
@@ -776,8 +757,6 @@ class BBP_Replies_Widget extends WP_Widget {
 			<?php echo $after_widget;
 
 		endif;
-
-		bbp_reset_query_name();
 	}
 
 	/**
