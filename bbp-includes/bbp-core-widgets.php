@@ -528,97 +528,92 @@ class BBP_Topics_Widget extends WP_Widget {
 		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown'] : 5;
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                         : false;
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 'any';
-		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
+		$order_by     = !empty( $instance['order_by']     ) ? $instance['order_by']        : false;
 
+		// How do we want to order our results?
+		switch ( $order_by ) {
+
+			// Order by most recent replies
+			case 'freshness' :
+				$topics_query = array(
+					'author'         => 0,
+					'post_type'      => bbp_get_topic_post_type(),
+					'post_parent'    => $parent_forum,
+					'posts_per_page' => $max_shown,
+					'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
+					'show_stickes'   => false,
+					'meta_key'       => '_bbp_last_active_time',
+					'orderby'        => 'meta_value',
+					'order'          => 'DESC',
+					'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
+				);
+				break;
+
+			// Order by total number of replies
+			case 'popular' :
+				$topics_query = array(
+					'author'         => 0,
+					'post_type'      => bbp_get_topic_post_type(),
+					'post_parent'    => $parent_forum,
+					'posts_per_page' => $max_shown,
+					'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
+					'show_stickes'   => false,
+					'meta_key'       => '_bbp_reply_count',
+					'orderby'        => 'meta_value',
+					'order'          => 'DESC',
+					'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
+				);			
+				break;
+
+			// Order by which topic was created most recently
+			case 'newness' :
+			default :
+				$topics_query = array(
+					'author'         => 0,
+					'post_type'      => bbp_get_topic_post_type(),
+					'post_parent'    => $parent_forum,
+					'posts_per_page' => $max_shown,
+					'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
+					'show_stickes'   => false,
+					'order'          => 'DESC',
+					'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
+				);			
+				break;
+		}
+		
 		// Query defaults
-		$widget_query = new WP_Query( array(
-			'author'         => 0,
-			'post_type'      => bbp_get_topic_post_type(),
-			'post_parent'    => $parent_forum,
-			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-			'show_stickies'  => false,
-			'order'          => 'DESC',
-			'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
-		) );
+		$widget_query = new WP_Query( $topics_query );
 
 		// Topics exist
 		if ( $widget_query->have_posts() ) : 
 			
-			// Sort by time
-			if ( $pop_check < $max_shown ) :
+			echo $before_widget;
+			echo $before_title . $title . $after_title; ?>
 
-				echo $before_widget;
-				echo $before_title . $title . $after_title; ?>
+			<ul>
 
-				<ul>
+				<?php while ( $widget_query->have_posts() ) :
 
-					<?php while ( $widget_query->have_posts() ) :
+					$widget_query->the_post();
+					$topic_id = bbp_get_topic_id( $widget_query->post->ID ); ?>
 
-						$widget_query->the_post();
-						$topic_id = bbp_get_topic_id( $widget_query->post->ID ); ?>
+					<li>
+						<a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
 
-						<li>
-							<a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+						<?php if ( 'on' == $show_date ) : ?>
 
-							<?php if ( 'on' == $show_date ) : ?>
+							<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
 
-								<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
+						<?php endif; ?>
 
-							<?php endif; ?>
+					</li>
 
-						</li>
+				<?php endwhile; ?>
 
-					<?php endwhile; ?>
+			</ul>
 
-				</ul>
+			<?php echo $after_widget;
 
-				<?php echo $after_widget;
-
-			// Sort by popularity
-			elseif ( $pop_check >= $max_shown ) :
-
-				echo $before_widget;
-				echo $before_title . $title . $after_title;
-
-				while ( $widget_query->have_posts() ) {
-					$topics[$widget_query->post->ID] = bbp_get_topic_reply_count( $widget_query->post->ID );
-				}
-
-				arsort( $topics );
-				$topic_count = 1;
-
-				?>
-
-				<ul>
-
-					<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
-
-						<li>
-							<a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
-
-							<?php if ( 'on' == $show_date ) : ?>
-
-								<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
-
-							<?php endif; ?>
-
-						</li>
-
-					<?php
-
-						$topic_count++;
-
-						if ( $topic_count > $max_shown )
-							break;
-
-					endforeach; ?>
-
-				</ul>
-
-				<?php echo $after_widget;
-
-			endif;
 		endif;
 
 		bbp_reset_query_name();
@@ -638,7 +633,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
-		$instance['pop_check'] = strip_tags( $new_instance['pop_check'] );
+		$instance['order_by']  = strip_tags( $new_instance['order_by']  );
 
 		return $instance;
 	}
@@ -656,14 +651,18 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
-		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : ''; ?>
+		$order_by  = !empty( $instance['order_by']  ) ? esc_attr( $instance['order_by']  ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',         'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $show_date ); ?> /></label></p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'pop_check' ); ?>"><?php _e( 'Popularity check:',  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'pop_check' ); ?>" name="<?php echo $this->get_field_name( 'pop_check' ); ?>" type="text" value="<?php echo $pop_check; ?>" /></label>
-			<br /><small><?php _e( 'Number of topics back to check reply count to determine popularity. A number less than the maximum number of topics to show disables the check.', 'bbpress' ); ?></small>
+			<label for="<?php echo $this->get_field_id( 'order_by' ); ?>"><?php _e( 'Order By:',        'bbpress' ); ?></label>
+			<select name="<?php echo $this->get_field_name( 'order_by' ); ?>" id="<?php echo $this->get_field_name( 'order_by' ); ?>">
+				<option <?php selected( $order_by, 'newness' );   ?> value="newness"><?php _e( 'Newest Topics',                'bbpress' ); ?></option>
+				<option <?php selected( $order_by, 'popular' );   ?> value="popular"><?php _e( 'Popular Topics',               'bbpress' ); ?></option>
+				<option <?php selected( $order_by, 'freshness' ); ?> value="freshness"><?php _e( 'Topics With Recent Replies', 'bbpress' ); ?></option>
+			</select>
 		</p>
 
 		<?php
