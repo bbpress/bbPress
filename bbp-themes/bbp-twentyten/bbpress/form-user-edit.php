@@ -88,10 +88,10 @@
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php _e( 'Account' ) ?></h2>
+	<h2 class="entry-title"><?php _e( 'Account', 'bbpress' ) ?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php _e( 'Account' ) ?></legend>
+		<legend><?php _e( 'Account', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_account' ); ?>
 

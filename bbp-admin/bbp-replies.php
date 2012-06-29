@@ -137,7 +137,7 @@ class BBP_Replies_Admin {
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
-				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:' ) . '</p>' .
+				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( 'You can hide/display columns based on your needs and decide how many replies to list per screen using the Screen Options tab.',                                                                                                                                                                          'bbpress' ) . '</li>' .
 					'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Draft, or Trashed replies. The default view is to show all replies.',                                                                                                                   'bbpress' ) . '</li>' .
@@ -172,7 +172,7 @@ class BBP_Replies_Admin {
 
 		// Help Sidebar
 		$current_screen->set_help_sidebar(
-			'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
+			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
 		);
@@ -916,7 +916,7 @@ class BBP_Replies_Admin {
 			0 =>  '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf( __( 'Reply updated. <a href="%s">View topic</a>' ), $topic_url ),
+			1 =>  sprintf( __( 'Reply updated. <a href="%s">View topic</a>', 'bbpress' ), $topic_url ),
 
 			// Custom field updated
 			2 => __( 'Custom field updated.', 'bbpress' ),
@@ -945,7 +945,7 @@ class BBP_Replies_Admin {
 			// Reply scheduled
 			9 => sprintf( __( 'Reply scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
-					date_i18n( __( 'M j, Y @ G:i' ),
+					date_i18n( __( 'M j, Y @ G:i', 'bbpress' ),
 					strtotime( $post_date ) ),
 					$topic_url ),
 

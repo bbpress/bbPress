@@ -1347,17 +1347,17 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 			/** WordPress Core ****************************************************/
 
 			// Core Post Types
-			'post_base'       => array( 'name' => __( 'Posts'         ), 'default' => 'post',          'context' => 'WordPress' ),
-			'page_base'       => array( 'name' => __( 'Pages'         ), 'default' => 'page',          'context' => 'WordPress' ),
-			'revision_base'   => array( 'name' => __( 'Revisions'     ), 'default' => 'revision',      'context' => 'WordPress' ),
-			'attachment_base' => array( 'name' => __( 'Attachments'   ), 'default' => 'attachment',    'context' => 'WordPress' ),
-			'nav_menu_base'   => array( 'name' => __( 'Menus'         ), 'default' => 'nav_menu_item', 'context' => 'WordPress' ),
+			'post_base'       => array( 'name' => __( 'Posts',         'bbpress' ), 'default' => 'post',          'context' => 'WordPress' ),
+			'page_base'       => array( 'name' => __( 'Pages',         'bbpress' ), 'default' => 'page',          'context' => 'WordPress' ),
+			'revision_base'   => array( 'name' => __( 'Revisions',     'bbpress' ), 'default' => 'revision',      'context' => 'WordPress' ),
+			'attachment_base' => array( 'name' => __( 'Attachments',   'bbpress' ), 'default' => 'attachment',    'context' => 'WordPress' ),
+			'nav_menu_base'   => array( 'name' => __( 'Menus',         'bbpress' ), 'default' => 'nav_menu_item', 'context' => 'WordPress' ),
 
 			// Post Tags
-			'tag_base'        => array( 'name' => __( 'Tag base'      ), 'default' => 'tag',           'context' => 'WordPress' ),
+			'tag_base'        => array( 'name' => __( 'Tag base',      'bbpress' ), 'default' => 'tag',           'context' => 'WordPress' ),
 
 			// Post Categories
-			'category_base'   => array( 'name' => __( 'Category base' ), 'default' => 'category',      'context' => 'WordPress' ),
+			'category_base'   => array( 'name' => __( 'Category base', 'bbpress' ), 'default' => 'category',      'context' => 'WordPress' ),
 
 			/** bbPress Core ******************************************************/
 
