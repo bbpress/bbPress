@@ -366,7 +366,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @uses get_option() To get the forums per page option
 	 * @uses current_user_can() To check if the current user can read
 	 *                           private() To resety name
-	 * @uses bbp_reset_query_name() To reset the query name
 	 * @uses bbp_has_forums() The main forum loop
 	 * @uses bbp_forums() To check whether there are more forums available
 	 *                     in the loop
@@ -406,8 +405,6 @@ class BBP_Forums_Widget extends WP_Widget {
 		<?php echo $after_widget;
 
 		endif;
-
-		bbp_reset_query_name();
 	}
 
 	/**
@@ -615,9 +612,6 @@ class BBP_Topics_Widget extends WP_Widget {
 			<?php echo $after_widget;
 
 		endif;
-
-		bbp_reset_query_name();
-
 	}
 
 	/**
