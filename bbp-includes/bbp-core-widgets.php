@@ -384,7 +384,8 @@ class BBP_Forums_Widget extends WP_Widget {
 			'post_type'      => bbp_get_forum_post_type(),
 			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 			'orderby'        => 'menu_order',
-			'order'          => 'ASC'
+			'order'          => 'ASC',
+			'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
 		) );
 
 		if ( $widget_query->have_posts() ) :
@@ -538,6 +539,7 @@ class BBP_Topics_Widget extends WP_Widget {
 			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 			'show_stickies'  => false,
 			'order'          => 'DESC',
+			'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
 		) );
 
 		// Topics exist
@@ -719,7 +721,8 @@ class BBP_Replies_Widget extends WP_Widget {
 		$widget_query = new WP_Query( array(
 			'post_type'      => $post_types,
 			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-			'posts_per_page' => $max_shown
+			'posts_per_page' => $max_shown,
+			'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
 		) );
 
 		// Get replies and display them
