@@ -1278,7 +1278,8 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses bbp_get_public_child_ids() To get the reply ids of the topic id
+	 * @uses bbp_get_reply_position_raw() To get calculate the reply position
+	 * @uses bbp_update_reply_position() To update the reply position
 	 * @uses bbp_show_lead_topic() Bump the count if lead topic is included
 	 * @uses apply_filters() Calls 'bbp_get_reply_position' with the reply
 	 *                        position, reply id and topic id
