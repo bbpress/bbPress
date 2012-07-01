@@ -264,7 +264,7 @@ function bbp_new_topic_handler() {
 
 	/** No Errors *************************************************************/
 
-	do_action( 'bbp_new_topic_pre_extras' );
+	do_action( 'bbp_new_topic_pre_extras', $forum_id );
 
 	// Add the content of the form to $topic_data as an array.
 	// Just in time manipulation of topic data before being created

@@ -227,14 +227,14 @@ function bbp_new_reply_handler() {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 	/** Additional Actions (Before Save) **************************************/
-
-	do_action( 'bbp_new_reply_pre_extras' );
 	
 	// Bail if errors
 	if ( bbp_has_errors() )
 		return;
 
 	/** No Errors *************************************************************/
+
+	do_action( 'bbp_new_reply_pre_extras', $topic_id, $forum_id );
 
 	// Add the content of the form to $reply_data as an array
 	// Just in time manipulation of reply data before being created
