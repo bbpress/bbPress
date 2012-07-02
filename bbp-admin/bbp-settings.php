@@ -1030,7 +1030,7 @@ function bbp_converter_setting_callback_dbport() {
 function bbp_converter_setting_callback_dbuser() {
 ?>
 
-	<input name="_bbp_converter_db_user" type="text" id="_bbp_converter_db_user" value="<?php bbp_form_option( '_bbp_converter_db_user', DB_USER ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_user" type="text" id="_bbp_converter_db_user" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_user"><?php _e( 'User for your database connection', 'bbpress' ); ?></label>
 
 <?php
@@ -1044,7 +1044,7 @@ function bbp_converter_setting_callback_dbuser() {
 function bbp_converter_setting_callback_dbpass() {
 ?>
 
-	<input name="_bbp_converter_db_pass" type="password" id="_bbp_converter_db_pass" value="<?php bbp_form_option( '_bbp_converter_db_pass', DB_PASSWORD ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_pass" type="password" id="_bbp_converter_db_pass" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_pass"><?php _e( 'Password to access the database', 'bbpress' ); ?></label>
 
 <?php
@@ -1058,7 +1058,7 @@ function bbp_converter_setting_callback_dbpass() {
 function bbp_converter_setting_callback_dbname() {
 ?>
 
-	<input name="_bbp_converter_db_name" type="text" id="_bbp_converter_db_name" value="<?php bbp_form_option( '_bbp_converter_db_name', DB_NAME ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_name" type="text" id="_bbp_converter_db_name" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_name"><?php _e( 'Name of the database with your old forum data', 'bbpress' ); ?></label>
 
 <?php
