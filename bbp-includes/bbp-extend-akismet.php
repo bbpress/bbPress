@@ -56,10 +56,10 @@ class BBP_Akismet {
 
 		// bbPress functions for spam and ham submissions
 		$checks['submit'] = array(
-			'bbp_spammed_topic'        => 10, // Spammed topic
-			'bbp_unspammed_topic'      => 10, // Unspammed reply
-			'bbp_spammed_reply'        => 10, // Spammed reply
-			'bbp_unspammed_reply'      => 10, // Unspammed reply
+			'bbp_spammed_topic'   => 10, // Spammed topic
+			'bbp_unspammed_topic' => 10, // Unspammed reply
+			'bbp_spammed_reply'   => 10, // Spammed reply
+			'bbp_unspammed_reply' => 10, // Unspammed reply
 		);
 
 		// Add the checks
@@ -192,7 +192,7 @@ class BBP_Akismet {
 	/**
 	 * Submit a post for spamming or hamming
 	 *
-	 * @since bbPress ({unknown})
+	 * @since bbPress (r3277)
 	 *
 	 * @param int $post_id
 	 *

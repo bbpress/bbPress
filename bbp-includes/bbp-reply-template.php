@@ -1877,7 +1877,7 @@ function bbp_topic_pagination_links() {
 /**
  * Output the value of reply content field
  *
- * @since bbPress {unknown}
+ * @since bbPress (r31301)
  *
  * @uses bbp_get_form_reply_content() To get value of reply content field
  */
@@ -1887,7 +1887,7 @@ function bbp_form_reply_content() {
 	/**
 	 * Return the value of reply content field
 	 *
-	 * @since bbPress {unknown}
+	 * @since bbPress (r31301)
 	 *
 	 * @uses bbp_is_reply_edit() To check if it's the reply edit page
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_content' with the content
@@ -1913,7 +1913,7 @@ function bbp_form_reply_content() {
 /**
  * Output checked value of reply log edit field
  *
- * @since bbPress {unknown}
+ * @since bbPress (r31301)
  *
  * @uses bbp_get_form_reply_log_edit() To get the reply log edit value
  */
@@ -1923,7 +1923,7 @@ function bbp_form_reply_log_edit() {
 	/**
 	 * Return checked value of reply log edit field
 	 *
-	 * @since bbPress {unknown}
+	 * @since bbPress (r31301)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_log_edit' with the
 	 *                        log edit value
@@ -1945,7 +1945,7 @@ function bbp_form_reply_log_edit() {
 /**
  * Output the value of the reply edit reason
  *
- * @since bbPress {unknown}
+ * @since bbPress (r31301)
  *
  * @uses bbp_get_form_reply_edit_reason() To get the reply edit reason value
  */
@@ -1955,7 +1955,7 @@ function bbp_form_reply_edit_reason() {
 	/**
 	 * Return the value of the reply edit reason
 	 *
-	 * @since bbPress {unknown}
+	 * @since bbPress (r31301)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_edit_reason' with the
 	 *                        reply edit reason value

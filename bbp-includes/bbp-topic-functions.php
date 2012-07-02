@@ -258,13 +258,15 @@ function bbp_new_topic_handler() {
 		$terms = array( bbp_get_topic_tag_tax_id() => $terms );
 	}
 
+	/** Additional Actions (Before Save) **************************************/
+
+	do_action( 'bbp_new_topic_pre_extras', $forum_id );
+
 	// Bail if errors
 	if ( bbp_has_errors() )
 		return;
 
 	/** No Errors *************************************************************/
-
-	do_action( 'bbp_new_topic_pre_extras', $forum_id );
 
 	// Add the content of the form to $topic_data as an array.
 	// Just in time manipulation of topic data before being created
@@ -573,7 +575,23 @@ function bbp_edit_topic_handler() {
 
 	/** No Errors *************************************************************/
 
-	/** Stickies **********************************************************/
+	// Add the content of the form to $topic_data as an array
+	// Just in time manipulation of topic data before being edited
+	$topic_data = apply_filters( 'bbp_edit_topic_pre_insert', array(
+		'ID'           => $topic_id,
+		'post_title'   => $topic_title,
+		'post_content' => $topic_content,
+		'post_status'  => $post_status,
+		'post_parent'  => $forum_id,
+		'post_author'  => $topic->post_author,
+		'post_type'    => bbp_get_topic_post_type(),
+		'tax_input'    => $terms,
+	) );
+
+	// Insert topic
+	$topic_id = wp_update_post( $topic_data );
+
+	/** Stickies **************************************************************/
 
 	if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
 
@@ -597,22 +615,6 @@ function bbp_edit_topic_handler() {
 				break;
 		}
 	}
-
-	/** Update the topic ******************************************************/
-
-	// Add the content of the form to $topic_data as an array
-	// Just in time manipulation of topic data before being edited
-	$topic_data = apply_filters( 'bbp_edit_topic_pre_insert', array(
-		'ID'           => $topic_id,
-		'post_title'   => $topic_title,
-		'post_content' => $topic_content,
-		'post_status'  => $post_status,
-		'post_parent'  => $forum_id,
-		'tax_input'    => $terms,
-	) );
-
-	// Insert topic
-	$topic_id = wp_update_post( $topic_data );
 
 	/** Revisions *************************************************************/
 

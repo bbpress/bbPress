@@ -228,13 +228,13 @@ function bbp_new_forum_handler() {
 
 	/** Additional Actions (Before Save) **************************************/
 
+	do_action( 'bbp_new_forum_pre_extras', $forum_parent_id );
+
 	// Bail if errors
 	if ( bbp_has_errors() )
 		return;
 
 	/** No Errors *************************************************************/
-
-	do_action( 'bbp_new_forum_pre_extras', $forum_parent_id );
 
 	// Add the content of the form to $forum_data as an array
 	// Just in time manipulation of forum data before being created

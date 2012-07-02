@@ -227,14 +227,14 @@ function bbp_new_reply_handler() {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 	/** Additional Actions (Before Save) **************************************/
-	
+
+	do_action( 'bbp_new_reply_pre_extras', $topic_id, $forum_id );
+
 	// Bail if errors
 	if ( bbp_has_errors() )
 		return;
 
 	/** No Errors *************************************************************/
-
-	do_action( 'bbp_new_reply_pre_extras', $topic_id, $forum_id );
 
 	// Add the content of the form to $reply_data as an array
 	// Just in time manipulation of reply data before being created
@@ -504,7 +504,10 @@ function bbp_edit_reply_handler() {
 		'ID'           => $reply_id,
 		'post_title'   => $reply_title,
 		'post_content' => $reply_content,
-		'post_status'  => $post_status
+		'post_status'  => $post_status,
+		'post_parent'  => $reply->post_parent,
+		'post_author'  => $reply->post_author,
+		'post_type'    => bbp_get_reply_post_type()
 	) );
 
 	// Insert reply
