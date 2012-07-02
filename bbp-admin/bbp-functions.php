@@ -20,7 +20,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_admin_separator() {
 
 	// Prevent duplicate separators when no new menu items exist
-	if ( !current_user_can( 'edit_replies' ) )
+	if ( !current_user_can( 'edit_forums' ) && !current_user_can( 'edit_topics' ) && !current_user_can( 'edit_replies' ) )
 		return;
 
 	// Prevent duplicate separators when no core menu items exist
@@ -40,8 +40,8 @@ function bbp_admin_separator() {
  * @param bool $menu_order Menu order
  * @return bool Always true
  */
-function bbp_admin_custom_menu_order( $menu_order ) {
-	if ( !current_user_can( 'edit_replies' ) )
+function bbp_admin_custom_menu_order( $menu_order = false ) {
+	if ( !current_user_can( 'edit_forums' ) && !current_user_can( 'edit_topics' ) && !current_user_can( 'edit_replies' ) )
 		return $menu_order;
 
 	return true;
@@ -58,40 +58,40 @@ function bbp_admin_custom_menu_order( $menu_order ) {
  */
 function bbp_admin_menu_order( $menu_order ) {
 
+	// Bail if user cannot see any top level bbPress menus
+	if ( empty( $menu_order ) || ( !current_user_can( 'edit_forums' ) && !current_user_can( 'edit_topics' ) && !current_user_can( 'edit_replies' ) ) )
+		return $menu_order;
+
 	// Initialize our custom order array
 	$bbp_menu_order = array();
 
-	// Get the index of our custom separator
-	$bbp_separator = array_search( 'separator-bbpress', $menu_order );
-
-	// Forums
-	if ( current_user_can( 'edit_forums' ) ) {
-		$top_menu_type = bbp_get_forum_post_type();
-
-	// Topics
-	} elseif ( current_user_can( 'edit_topics' ) ) {
-		$top_menu_type = bbp_get_topic_post_type();
-
-	// Replies
-	} elseif ( current_user_can( 'edit_replies' ) ) {
-		$top_menu_type = bbp_get_reply_post_type();
-
-	// Bail if there are no bbPress menus present
-	} else {
-		return;
-	}
+	// Menu values
+	$second_sep   = 'separator2';
+	$custom_menus = array(
+		'separator-bbpress',                               // Separator
+		'edit.php?post_type=' . bbp_get_forum_post_type(), // Forums
+		'edit.php?post_type=' . bbp_get_topic_post_type(), // Topics
+		'edit.php?post_type=' . bbp_get_reply_post_type()  // Replies
+	);
 
 	// Loop through menu order and do some rearranging
-	foreach ( $menu_order as $index => $item ) {
+	foreach ( $menu_order as $item ) {
 
-		// Current item is ours, so set our separator here
-		if ( ( ( 'edit.php?post_type=' . $top_menu_type ) == $item ) ) {
-			$bbp_menu_order[] = 'separator-bbpress';
-			unset( $menu_order[$bbp_separator] );
-		}
+		// Position bbPress menus above appearance
+		if ( $second_sep == $item ) {
 
-		// Skip our separator
-		if ( !in_array( $item, array( 'separator-bbpress' ) ) ) {
+			// Add our custom menus
+			foreach( $custom_menus as $custom_menu ) {
+				if ( array_search( $custom_menu, $menu_order ) ) {
+					$bbp_menu_order[] = $custom_menu;
+				}
+			}
+
+			// Add the appearance separator
+			$bbp_menu_order[] = $second_sep;
+
+		// Skip our menu items
+		} elseif ( ! in_array( $item, $custom_menus ) ) {
 			$bbp_menu_order[] = $item;
 		}
 	}
