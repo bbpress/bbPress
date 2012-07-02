@@ -26,6 +26,12 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
+= 2.1-rc-4 =
+* Improved cache busting on creation
+* Fixed Akismet edit bug
+* Fixed Widgets nooping globals
+* Fixed translation load order
+
 = 2.1-rc-3 =
 * Improve nonce checks
 * Fixed user-edit bug
