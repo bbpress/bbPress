@@ -1072,7 +1072,7 @@ function bbp_converter_setting_callback_dbname() {
 function bbp_converter_setting_callback_options_section() {
 ?>
 
-	<p><?php _e( 'Some optional parameters to help tune the convertion process.', 'bbpress' ); ?></p>
+	<p><?php _e( 'Some optional parameters to help tune the conversion process.', 'bbpress' ); ?></p>
 
 <?php
 }

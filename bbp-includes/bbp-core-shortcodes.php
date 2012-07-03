@@ -104,7 +104,7 @@ class BBP_Shortcodes {
 			// Register
 			'bbp-register'    => array( $this, 'display_register'     ),
 
-			// LOst Password
+			// Lost Password
 			'bbp-lost-pass'   => array( $this, 'display_lost_pass'    ),
 
 		) );
