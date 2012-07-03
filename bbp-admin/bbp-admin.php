@@ -538,16 +538,34 @@ class BBP_Admin {
 				}
 
 			/* Icon 32 */
-			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
-				background: url('<?php echo $icon32_url; ?>') no-repeat -4px 0px;
+			#icon-edit.icon32-posts-<?php echo $forum_class; ?>,
+			#icon-edit.icon32-posts-<?php echo $topic_class; ?>,
+			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
+				background: url('<?php echo $icon32_url; ?>');
+				background-repeat: no-repeat;
+			}
+
+			/* Icon Positions */
+			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
+				background-position: -4px 0px;
 			}
 
 			#icon-edit.icon32-posts-<?php echo $topic_class; ?> {
-				background: url('<?php echo $icon32_url; ?>') no-repeat -4px -90px;
+				background-position: -4px -90px;
 			}
 
 			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-				background: url('<?php echo $icon32_url; ?>') no-repeat -4px -180px;
+				background-position: -4px -180px;
+			}
+
+			/* Icon 32 2x */
+			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+				#icon-edit.icon32-posts-<?php echo $forum_class; ?>,
+				#icon-edit.icon32-posts-<?php echo $topic_class; ?>,
+				#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
+					background: url('<?php echo $icon32_url_2x; ?>');
+					background-size: 45px 255px;
+				}
 			}
 
 			/* Menu */
