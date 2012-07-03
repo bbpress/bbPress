@@ -819,7 +819,7 @@ function bbp_subscriptions_handler() {
 		// Redirect back from whence we came
 		if ( bbp_is_subscriptions() ) {
 			$redirect = bbp_get_subscriptions_permalink( $user_id );
-		} elseif( bbp_is_single_user() ) {
+		} elseif ( bbp_is_single_user() ) {
 			$redirect = bbp_get_user_profile_url();
 		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
 			$redirect = bbp_get_topic_permalink( $topic_id );
