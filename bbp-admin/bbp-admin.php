@@ -546,7 +546,7 @@ class BBP_Admin {
 			}
 
 			/* Icon Positions */
-			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
+			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
 				background-position: -4px 0px;
 			}
 
@@ -563,7 +563,7 @@ class BBP_Admin {
 				#icon-edit.icon32-posts-<?php echo $forum_class; ?>,
 				#icon-edit.icon32-posts-<?php echo $topic_class; ?>,
 				#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-					background: url('<?php echo $icon32_url_2x; ?>');
+					background-image: url('<?php echo $icon32_url_2x; ?>');
 					background-size: 45px 255px;
 				}
 			}
