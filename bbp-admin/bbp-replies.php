@@ -907,7 +907,7 @@ endif; // class_exists check
 function bbp_admin_replies() {
 	global $typenow;
 
-	if ( bbp_get_reply_post_type() == $typenow )
+	if ( bbp_get_reply_post_type() != $typenow )
 		return;
 
 	bbpress()->admin->replies = new BBP_Replies_Admin();
