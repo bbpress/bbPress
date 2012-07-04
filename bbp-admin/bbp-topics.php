@@ -25,7 +25,7 @@ class BBP_Topics_Admin {
 	/**
 	 * @var The post type of this admin component
 	 */
-	var $post_type = '';
+	private $post_type = '';
 
 	/** Functions *************************************************************/
 
@@ -75,7 +75,7 @@ class BBP_Topics_Admin {
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
-		add_action( 'bbp_admin_init', array( $this, 'toggle_topic'        ) );
+		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_topic_notice' ) );
 
 		// Anonymous metabox actions
@@ -113,19 +113,8 @@ class BBP_Topics_Admin {
 	 */
 	public function edit_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the topic post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		// Overview
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
@@ -133,7 +122,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Screen Content
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
@@ -147,7 +136,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Available Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
@@ -162,7 +151,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Bulk Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
@@ -171,7 +160,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Help Sidebar
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -186,26 +175,15 @@ class BBP_Topics_Admin {
 	 */
 	public function new_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the topic post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'customize-display',
 			'title'   => __( 'Customizing This Display', 'bbpress' ),
 			'content' => $customize_display,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'title-topic-editor',
 			'title'   => __( 'Title and Topic Editor', 'bbpress' ),
 			'content' =>
@@ -223,7 +201,7 @@ class BBP_Topics_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'topic-attributes',
 			'title'   => __( 'Topic Attributes', 'bbpress' ),
 			'content' =>
@@ -234,13 +212,13 @@ class BBP_Topics_Admin {
 				'</ul>'
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'discussion-settings',
 			'title'   => __( 'Discussion Settings', 'bbpress' ),
 			'content' =>
@@ -248,7 +226,7 @@ class BBP_Topics_Admin {
 				'<p>' . __( '<strong>Discussion</strong> - You can turn comments and pings on or off, and if there are comments on the topic, you can see them here and moderate them.', 'bbpress' ) . '</p>'
 		) );
 
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -301,10 +279,6 @@ class BBP_Topics_Admin {
 
 		// Nonce check
 		if ( empty( $_POST['bbp_topic_metabox'] ) || !wp_verify_nonce( $_POST['bbp_topic_metabox'], 'bbp_topic_metabox_save' ) )
-			return $topic_id;
-
-		// Bail if post_type is not a topic
-		if ( get_post_type( $topic_id ) != $this->post_type )
 			return $topic_id;
 
 		// Bail if current user cannot edit this topic
@@ -363,7 +337,7 @@ class BBP_Topics_Admin {
 	function author_metabox() {
 
 		// Bail if post_type is not a topic
-		if ( ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) ) || ( get_post_type() != $this->post_type ) )
+		if ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) )
 			return;
 
 		// Add the metabox
@@ -409,10 +383,6 @@ class BBP_Topics_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $post_id;
 
-		// Bail if post_type is not a topic or reply
-		if ( get_post_type( $post_id ) != $this->post_type )
-			return;
-
 		// Bail if user cannot edit replies
 		if ( !current_user_can( 'edit_topic', $post_id ) )
 			return $post_id;
@@ -440,55 +410,53 @@ class BBP_Topics_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
+		?>
 
-		if ( get_post_type() == $this->post_type ) : ?>
+		<style type="text/css" media="screen">
+		/*<![CDATA[*/
 
-			<style type="text/css" media="screen">
-			/*<![CDATA[*/
+			.column-bbp_forum_topic_count,
+			.column-bbp_forum_reply_count,
+			.column-bbp_topic_reply_count,
+			.column-bbp_topic_voice_count {
+				width: 8% !important;
+			}
 
-				.column-bbp_forum_topic_count,
-				.column-bbp_forum_reply_count,
-				.column-bbp_topic_reply_count,
-				.column-bbp_topic_voice_count {
-					width: 8% !important;
-				}
+			.column-author,
+			.column-bbp_reply_author,
+			.column-bbp_topic_author {
+				width: 10% !important;
+			}
 
-				.column-author,
-				.column-bbp_reply_author,
-				.column-bbp_topic_author {
-					width: 10% !important;
-				}
+			.column-bbp_topic_forum,
+			.column-bbp_reply_forum,
+			.column-bbp_reply_topic {
+				width: 10% !important;
+			}
 
-				.column-bbp_topic_forum,
-				.column-bbp_reply_forum,
-				.column-bbp_reply_topic {
-					width: 10% !important;
-				}
+			.column-bbp_forum_freshness,
+			.column-bbp_topic_freshness {
+				width: 10% !important;
+			}
 
-				.column-bbp_forum_freshness,
-				.column-bbp_topic_freshness {
-					width: 10% !important;
-				}
+			.column-bbp_forum_created,
+			.column-bbp_topic_created,
+			.column-bbp_reply_created {
+				width: 15% !important;
+			}
 
-				.column-bbp_forum_created,
-				.column-bbp_topic_created,
-				.column-bbp_reply_created {
-					width: 15% !important;
-				}
+			.status-closed {
+				background-color: #eaeaea;
+			}
 
-				.status-closed {
-					background-color: #eaeaea;
-				}
+			.status-spam {
+				background-color: #faeaea;
+			}
 
-				.status-spam {
-					background-color: #faeaea;
-				}
+		/*]]>*/
+		</style>
 
-			/*]]>*/
-			</style>
-
-		<?php endif;
-
+		<?php
 	}
 
 	/**
@@ -811,62 +779,60 @@ class BBP_Topics_Admin {
 	 */
 	function topics_row_actions( $actions, $topic ) {
 
-		if ( $topic->post_type == $this->post_type ) {
-			unset( $actions['inline hide-if-no-js'] );
+		unset( $actions['inline hide-if-no-js'] );
 
-			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
-			if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() == $topic->post_status ) && current_user_can( 'view_trash' ) )
-				$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
+		// Show view link if it's not set, the topic is trashed and the user can view trashed topics
+		if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() == $topic->post_status ) && current_user_can( 'view_trash' ) )
+			$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
-			// Only show the actions if the user is capable of viewing them :)
-			if ( current_user_can( 'moderate', $topic->ID ) ) {
+		// Only show the actions if the user is capable of viewing them :)
+		if ( current_user_can( 'moderate', $topic->ID ) ) {
 
-				// Close
-				// Show the 'close' and 'open' link on published and closed posts only
-				if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
-					$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID ) );
-					if ( bbp_is_topic_open( $topic->ID ) )
-						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . _x( 'Close', 'Close a Topic', 'bbpress' ) . '</a>';
-					else
-						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic',  'bbpress' ) . '">' . _x( 'Open',  'Open a Topic',  'bbpress' ) . '</a>';
-				}
-
-				// Dont show sticky if topic links is spam or trash
-				if ( !bbp_is_topic_spam( $topic->ID ) && !bbp_is_topic_trash( $topic->ID ) ) {
-
-					// Sticky
-					$stick_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
-					if ( bbp_is_topic_sticky( $topic->ID ) ) {
-						$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . __( 'Unstick', 'bbpress' ) . '</a>';
-					} else {
-						$super_uri        = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
-						$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . __( 'Stick', 'bbpress' ) . '</a> (<a href="' . $super_uri . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . __( 'to front', 'bbpress' ) . '</a>)';
-					}
-				}
-
-				// Spam
-				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID ) );
-				if ( bbp_is_topic_spam( $topic->ID ) )
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+			// Close
+			// Show the 'close' and 'open' link on published and closed posts only
+			if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
+				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID ) );
+				if ( bbp_is_topic_open( $topic->ID ) )
+					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . _x( 'Close', 'Close a Topic', 'bbpress' ) . '</a>';
 				else
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
-
+					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic',  'bbpress' ) . '">' . _x( 'Open',  'Open a Topic',  'bbpress' ) . '</a>';
 			}
 
-			// Do not show trash links for spam topics, or spam links for trashed topics
-			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
-				if ( bbp_get_trash_status_id() == $topic->post_status ) {
-					$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
-					$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
-				} elseif ( EMPTY_TRASH_DAYS ) {
-					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
-				}
+			// Dont show sticky if topic links is spam or trash
+			if ( !bbp_is_topic_spam( $topic->ID ) && !bbp_is_topic_trash( $topic->ID ) ) {
 
-				if ( bbp_get_trash_status_id() == $topic->post_status || !EMPTY_TRASH_DAYS ) {
-					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
-				} elseif ( bbp_get_spam_status_id() == $topic->post_status ) {
-					unset( $actions['trash'] );
+				// Sticky
+				$stick_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
+				if ( bbp_is_topic_sticky( $topic->ID ) ) {
+					$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . __( 'Unstick', 'bbpress' ) . '</a>';
+				} else {
+					$super_uri        = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
+					$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . __( 'Stick', 'bbpress' ) . '</a> (<a href="' . $super_uri . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . __( 'to front', 'bbpress' ) . '</a>)';
 				}
+			}
+
+			// Spam
+			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID ) );
+			if ( bbp_is_topic_spam( $topic->ID ) )
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+			else
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+
+		}
+
+		// Do not show trash links for spam topics, or spam links for trashed topics
+		if ( current_user_can( 'delete_topic', $topic->ID ) ) {
+			if ( bbp_get_trash_status_id() == $topic->post_status ) {
+				$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
+			} elseif ( EMPTY_TRASH_DAYS ) {
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
+			}
+
+			if ( bbp_get_trash_status_id() == $topic->post_status || !EMPTY_TRASH_DAYS ) {
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+			} elseif ( bbp_get_spam_status_id() == $topic->post_status ) {
+				unset( $actions['trash'] );
 			}
 		}
 
@@ -884,16 +850,6 @@ class BBP_Topics_Admin {
 	 * @return bool False. If post type is not topic or reply
 	 */
 	function filter_dropdown() {
-
-		// Bail if not viewing the topics list
-		if (
-				// post_type exists in _GET
-				empty( $_GET['post_type'] ) ||
-
-				// post_type is not topic type
-				( $_GET['post_type'] != $this->post_type )
-			)
-			return;
 
 		// Add Empty Spam button
 		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
@@ -924,25 +880,6 @@ class BBP_Topics_Admin {
 	 * @return array Processed Query Vars
 	 */
 	function filter_post_rows( $query_vars ) {
-		global $pagenow;
-
-		// Avoid poisoning other requests
-		if (
-				// Only look in admin
-				!is_admin()                 ||
-
-				// Make sure the current page is for post rows
-				( 'edit.php' != $pagenow  ) ||
-
-				// Make sure we're looking for a post_type
-				empty( $_GET['post_type'] ) ||
-
-				// Make sure we're looking at bbPress topics
-				( $_GET['post_type'] != $this->post_type )
-			)
-
-			// We're in no shape to filter anything, so return
-			return $query_vars;
 
 		// Add post_parent query_var if one is present
 		if ( !empty( $_GET['bbp_forum_id'] ) ) {
@@ -960,7 +897,6 @@ class BBP_Topics_Admin {
 	 * @since bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses get_post_type()
 	 * @uses bbp_get_topic_permalink()
 	 * @uses wp_post_revision_title()
 	 * @uses esc_url()
@@ -972,9 +908,6 @@ class BBP_Topics_Admin {
 	 */
 	function updated_messages( $messages ) {
 		global $post_ID;
-
-		if ( get_post_type( $post_ID ) != $this->post_type )
-			return $messages;
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( $post_ID );
@@ -1032,10 +965,18 @@ endif; // class_exists check
 /**
  * Setup bbPress Topics Admin
  *
+ * This is currently here to make hooking and unhooking of the admin UI easy.
+ * It could use dependency injection in the future, but for now this is easier.
+ *
  * @since bbPress (r2596)
  *
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_topics() {
+	global $typenow;
+
+	if ( bbp_get_topic_post_type() != $typenow )
+		return;
+
 	bbpress()->admin->topics = new BBP_Topics_Admin();
 }

@@ -25,7 +25,7 @@ class BBP_Forums_Admin {
 	/**
 	 * @var The post type of this admin component
 	 */
-	var $post_type = '';
+	private $post_type = '';
 
 	/** Functions *************************************************************/
 
@@ -101,19 +101,8 @@ class BBP_Forums_Admin {
 	 */
 	public function edit_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the forum post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		// Overview
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
@@ -121,7 +110,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Screen Content
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
@@ -135,7 +124,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Available Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
@@ -150,7 +139,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Bulk Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
@@ -159,7 +148,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Help Sidebar
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -174,26 +163,15 @@ class BBP_Forums_Admin {
 	 */
 	public function new_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the forum post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		$customize_display = '<p>' . __( 'The title field and the big forum editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'customize-display',
 			'title'   => __( 'Customizing This Display', 'bbpress' ),
 			'content' => $customize_display,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'title-forum-editor',
 			'title'   => __( 'Title and Forum Editor', 'bbpress' ),
 			'content' =>
@@ -211,7 +189,7 @@ class BBP_Forums_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your forum without inserting it. This is usually useful only if your theme makes use of the featured image as a forum thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'forum-attributes',
 			'title'   => __( 'Forum Attributes', 'bbpress' ),
 			'content' =>
@@ -225,13 +203,13 @@ class BBP_Forums_Admin {
 				'</ul>'
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'discussion-settings',
 			'title'   => __( 'Discussion Settings', 'bbpress' ),
 			'content' =>
@@ -239,7 +217,7 @@ class BBP_Forums_Admin {
 				'<p>' . __( '<strong>Discussion</strong> - You can turn comments and pings on or off, and if there are comments on the forum, you can see them here and moderate them.', 'bbpress' ) . '</p>'
 		) );
 
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -308,10 +286,6 @@ class BBP_Forums_Admin {
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;
 
-		// Bail if post_type is not a topic or reply
-		if ( get_post_type( $forum_id ) != $this->post_type )
-			return $forum_id;
-
 		// Parent ID
 		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
 
@@ -338,70 +312,67 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
+		?>
 
-		if ( get_post_type() == $this->post_type ) : ?>
+		<style type="text/css" media="screen">
+		/*<![CDATA[*/
 
-			<style type="text/css" media="screen">
-			/*<![CDATA[*/
+			#misc-publishing-actions,
+			#save-post {
+				display: none;
+			}
 
-				#misc-publishing-actions,
-				#save-post {
-					display: none;
-				}
+			strong.label {
+				display: inline-block;
+				width: 60px;
+			}
 
-				strong.label {
-					display: inline-block;
-					width: 60px;
-				}
+			#bbp_forum_attributes hr {
+				border-style: solid;
+				border-width: 1px;
+				border-color: #ccc #fff #fff #ccc;
+			}
 
-				#bbp_forum_attributes hr {
-					border-style: solid;
-					border-width: 1px;
-					border-color: #ccc #fff #fff #ccc;
-				}
+			.column-bbp_forum_topic_count,
+			.column-bbp_forum_reply_count,
+			.column-bbp_topic_reply_count,
+			.column-bbp_topic_voice_count {
+				width: 8% !important;
+			}
 
-				.column-bbp_forum_topic_count,
-				.column-bbp_forum_reply_count,
-				.column-bbp_topic_reply_count,
-				.column-bbp_topic_voice_count {
-					width: 8% !important;
-				}
+			.column-author,
+			.column-bbp_reply_author,
+			.column-bbp_topic_author {
+				width: 10% !important;
+			}
 
-				.column-author,
-				.column-bbp_reply_author,
-				.column-bbp_topic_author {
-					width: 10% !important;
-				}
+			.column-bbp_topic_forum,
+			.column-bbp_reply_forum,
+			.column-bbp_reply_topic {
+				width: 10% !important;
+			}
 
-				.column-bbp_topic_forum,
-				.column-bbp_reply_forum,
-				.column-bbp_reply_topic {
-					width: 10% !important;
-				}
+			.column-bbp_forum_freshness,
+			.column-bbp_topic_freshness {
+				width: 10% !important;
+			}
 
-				.column-bbp_forum_freshness,
-				.column-bbp_topic_freshness {
-					width: 10% !important;
-				}
+			.column-bbp_forum_created,
+			.column-bbp_topic_created,
+			.column-bbp_reply_created {
+				width: 15% !important;
+			}
 
-				.column-bbp_forum_created,
-				.column-bbp_topic_created,
-				.column-bbp_reply_created {
-					width: 15% !important;
-				}
+			.status-closed {
+				background-color: #eaeaea;
+			}
 
-				.status-closed {
-					background-color: #eaeaea;
-				}
+			.status-spam {
+				background-color: #faeaea;
+			}
 
-				.status-spam {
-					background-color: #faeaea;
-				}
-
-			/*]]>*/
-			</style>
-
-		<?php endif; ?>
+		/*]]>*/
+		</style>
 
 		<?php
 	}
@@ -494,12 +465,10 @@ class BBP_Forums_Admin {
 	 * @return array $actions Actions
 	 */
 	function row_actions( $actions, $forum ) {
-		if ( $forum->post_type == $this->post_type ) {
-			unset( $actions['inline hide-if-no-js'] );
+		unset( $actions['inline hide-if-no-js'] );
 
-			// simple hack to show the forum description under the title
-			bbp_forum_content( $forum->ID );
-		}
+		// simple hack to show the forum description under the title
+		bbp_forum_content( $forum->ID );
 
 		return $actions;
 	}
@@ -510,7 +479,6 @@ class BBP_Forums_Admin {
 	 * @since bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses get_post_type()
 	 * @uses bbp_get_forum_permalink()
 	 * @uses wp_post_revision_title()
 	 * @uses esc_url()
@@ -522,9 +490,6 @@ class BBP_Forums_Admin {
 	 */
 	function updated_messages( $messages ) {
 		global $post_ID;
-
-		if ( get_post_type( $post_ID ) != $this->post_type )
-			return $messages;
 
 		// URL for the current forum
 		$forum_url = bbp_get_forum_permalink( $post_ID );
@@ -582,10 +547,18 @@ endif; // class_exists check
 /**
  * Setup bbPress Forums Admin
  *
+ * This is currently here to make hooking and unhooking of the admin UI easy.
+ * It could use dependency injection in the future, but for now this is easier.
+ *
  * @since bbPress (r2596)
  *
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_forums() {
+	global $typenow;
+
+	if ( bbp_get_forum_post_type() != $typenow )
+		return;
+
 	bbpress()->admin->forums = new BBP_Forums_Admin();
 }

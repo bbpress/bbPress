@@ -25,7 +25,7 @@ class BBP_Replies_Admin {
 	/**
 	 * @var The post type of this admin component
 	 */
-	var $post_type = '';
+	private $post_type = '';
 
 	/** Functions *************************************************************/
 
@@ -75,7 +75,7 @@ class BBP_Replies_Admin {
 		add_action( 'save_post',      array( $this, 'reply_attributes_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
-		add_action( 'bbp_admin_init', array( $this, 'toggle_reply'        ) );
+		add_action( 'load-edit.php',  array( $this, 'toggle_reply'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_reply_notice' ) );
 
 		// Anonymous metabox actions
@@ -113,19 +113,8 @@ class BBP_Replies_Admin {
 	 */
 	public function edit_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the reply post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		// Overview
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
@@ -133,7 +122,7 @@ class BBP_Replies_Admin {
 		) );
 
 		// Screen Content
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
@@ -147,7 +136,7 @@ class BBP_Replies_Admin {
 		) );
 
 		// Available Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
@@ -162,7 +151,7 @@ class BBP_Replies_Admin {
 		) );
 
 		// Bulk Actions
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
@@ -171,7 +160,7 @@ class BBP_Replies_Admin {
 		) );
 
 		// Help Sidebar
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -186,26 +175,15 @@ class BBP_Replies_Admin {
 	 */
 	public function new_help() {
 
-		$current_screen = get_current_screen();
-		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
-
-		// Bail if current screen could not be found
-		if ( empty( $current_screen ) )
-			return;
-
-		// Bail if not the reply post type
-		if ( $post_type != $this->post_type )
-			return;
-
 		$customize_display = '<p>' . __( 'The title field and the big reply editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'customize-display',
 			'title'   => __( 'Customizing This Display', 'bbpress' ),
 			'content' => $customize_display,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'title-reply-editor',
 			'title'   => __( 'Title and Reply Editor', 'bbpress' ),
 			'content' =>
@@ -223,7 +201,7 @@ class BBP_Replies_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your reply without inserting it. This is usually useful only if your theme makes use of the featured image as a reply thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'reply-attributes',
 			'title'   => __( 'Reply Attributes', 'bbpress' ),
 			'content' =>
@@ -234,13 +212,13 @@ class BBP_Replies_Admin {
 				'</ul>'
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
 		) );
 
-		$current_screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'discussion-settings',
 			'title'   => __( 'Discussion Settings', 'bbpress' ),
 			'content' =>
@@ -248,7 +226,7 @@ class BBP_Replies_Admin {
 				'<p>' . __( '<strong>Discussion</strong> - You can turn comments and pings on or off, and if there are comments on the reply, you can see them here and moderate them.', 'bbpress' ) . '</p>'
 		) );
 
-		$current_screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
@@ -307,10 +285,6 @@ class BBP_Replies_Admin {
 		if ( empty( $_POST['bbp_reply_metabox'] ) || !wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' ) )
 			return $reply_id;
 
-		// Bail if post_type is not a reply
-		if ( get_post_type( $reply_id ) != $this->post_type )
-			return $reply_id;
-
 		// Current user cannot edit this reply
 		if ( !current_user_can( 'edit_reply', $reply_id ) )
 			return $reply_id;
@@ -346,7 +320,7 @@ class BBP_Replies_Admin {
 	function author_metabox() {
 
 		// Bail if post_type is not a reply
-		if ( ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) ) || ( get_post_type() != $this->post_type ) )
+		if ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) )
 			return;
 
 		// Add the metabox
@@ -392,10 +366,6 @@ class BBP_Replies_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
 
-		// Bail if post_type is not a topic or reply
-		if ( get_post_type( $post_id ) != $this->post_type )
-			return;
-
 		// Bail if user cannot edit replies or reply is not anonymous
 		if ( !current_user_can( 'edit_reply', $post_id ) )
 			return $post_id;
@@ -423,55 +393,53 @@ class BBP_Replies_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
+		?>
 
-		if ( get_post_type() == $this->post_type ) : ?>
+		<style type="text/css" media="screen">
+		/*<![CDATA[*/
 
-			<style type="text/css" media="screen">
-			/*<![CDATA[*/
+			.column-bbp_forum_topic_count,
+			.column-bbp_forum_reply_count,
+			.column-bbp_topic_reply_count,
+			.column-bbp_topic_voice_count {
+				width: 8% !important;
+			}
 
-				.column-bbp_forum_topic_count,
-				.column-bbp_forum_reply_count,
-				.column-bbp_topic_reply_count,
-				.column-bbp_topic_voice_count {
-					width: 8% !important;
-				}
+			.column-author,
+			.column-bbp_reply_author,
+			.column-bbp_topic_author {
+				width: 10% !important;
+			}
 
-				.column-author,
-				.column-bbp_reply_author,
-				.column-bbp_topic_author {
-					width: 10% !important;
-				}
+			.column-bbp_topic_forum,
+			.column-bbp_reply_forum,
+			.column-bbp_reply_topic {
+				width: 10% !important;
+			}
 
-				.column-bbp_topic_forum,
-				.column-bbp_reply_forum,
-				.column-bbp_reply_topic {
-					width: 10% !important;
-				}
+			.column-bbp_forum_freshness,
+			.column-bbp_topic_freshness {
+				width: 10% !important;
+			}
 
-				.column-bbp_forum_freshness,
-				.column-bbp_topic_freshness {
-					width: 10% !important;
-				}
+			.column-bbp_forum_created,
+			.column-bbp_topic_created,
+			.column-bbp_reply_created {
+				width: 15% !important;
+			}
 
-				.column-bbp_forum_created,
-				.column-bbp_topic_created,
-				.column-bbp_reply_created {
-					width: 15% !important;
-				}
+			.status-closed {
+				background-color: #eaeaea;
+			}
 
-				.status-closed {
-					background-color: #eaeaea;
-				}
+			.status-spam {
+				background-color: #faeaea;
+			}
 
-				.status-spam {
-					background-color: #faeaea;
-				}
+		/*]]>*/
+		</style>
 
-			/*]]>*/
-			</style>
-
-		<?php endif;
-
+		<?php
 	}
 
 	/**
@@ -814,16 +782,6 @@ class BBP_Replies_Admin {
 	 */
 	function filter_dropdown() {
 
-		// Bail if not viewing the topics list
-		if (
-				// post_type exists in _GET
-				empty( $_GET['post_type'] ) ||
-
-				// post_type is reply or topic type
-				( $_GET['post_type'] != $this->post_type )
-			)
-			return;
-
 		// Add Empty Spam button
 		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
@@ -855,24 +813,6 @@ class BBP_Replies_Admin {
 	function filter_post_rows( $query_vars ) {
 		global $pagenow;
 
-		// Avoid poisoning other requests
-		if (
-				// Only look in admin
-				!is_admin()                 ||
-
-				// Make sure the current page is for post rows
-				( 'edit.php' != $pagenow  ) ||
-
-				// Make sure we're looking for a post_type
-				empty( $_GET['post_type'] ) ||
-
-				// Make sure we're looking at bbPress topics
-				( $_GET['post_type'] != $this->post_type )
-			)
-
-			// We're in no shape to filter anything, so return
-			return $query_vars;
-
 		// Add post_parent query_var if one is present
 		if ( !empty( $_GET['bbp_forum_id'] ) ) {
 			$query_vars['meta_key']   = '_bbp_forum_id';
@@ -889,7 +829,6 @@ class BBP_Replies_Admin {
 	 * @since bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses get_post_type()
 	 * @uses bbp_get_topic_permalink()
 	 * @uses wp_post_revision_title()
 	 * @uses esc_url()
@@ -901,9 +840,6 @@ class BBP_Replies_Admin {
 	 */
 	function updated_messages( $messages ) {
 		global $post_ID;
-
-		if ( get_post_type( $post_ID ) != $this->post_type )
-			return $messages;
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( bbp_get_reply_topic_id( $post_ID ) );
@@ -961,10 +897,18 @@ endif; // class_exists check
 /**
  * Setup bbPress Replies Admin
  *
+ * This is currently here to make hooking and unhooking of the admin UI easy.
+ * It could use dependency injection in the future, but for now this is easier.
+ * 
  * @since bbPress (r2596)
  *
  * @uses BBP_Replies_Admin
  */
 function bbp_admin_replies() {
+	global $typenow;
+
+	if ( bbp_get_reply_post_type() == $typenow )
+		return;
+
 	bbpress()->admin->replies = new BBP_Replies_Admin();
 }

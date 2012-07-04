@@ -1145,7 +1145,7 @@ function bbp_converter_setting_callback_restart() {
 ?>
 
 	<input id="_bbp_converter_restart" name="_bbp_converter_restart" type="checkbox" id="_bbp_converter_restart" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
-	<label for="_bbp_converter_restart"><?php _e( 'Restart the conversion process', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_restart"><?php _e( 'Restart conversion from the beginning', 'bbpress' ); ?></label>
 	<p class="description"><?php _e( 'The importer keeps track of where it left off in the event of failure.', 'bbpress' ); ?></p>
 
 <?php

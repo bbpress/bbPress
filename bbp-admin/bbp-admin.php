@@ -76,53 +76,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Admin globals
 	 *
 	 * @since bbPress (r2646)
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses add_filter() To add various filters
 	 */
-	private function setup_actions() {
-
-		/** General Actions ***************************************************/
-
-		// Add menu item to settings menu
-		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) );
-
-		// Add some general styling to the admin area
-		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) );
-
-		// Add notice if not using a bbPress theme
-		add_action( 'bbp_admin_notices',           array( $this, 'activation_notice'       ) );
-
-		// Add green admin style
-		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'    ) );
-
-		// Add settings
-		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) );
-
-		// Add menu item to settings menu
-		add_action( 'bbp_activation',              array( $this, 'new_install'             ) );
-
-		// Forums 'Right now' Dashboard widget
-		add_action( 'wp_dashboard_setup',  array( $this, 'dashboard_widget_right_now' ) );
-
-		/** Filters ***********************************************************/
-
-		// Add link to settings page
-		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
-
-		/** Network Admin *****************************************************/
-
-		// Add menu item to settings menu
-		add_action( 'network_admin_menu',  array( $this, 'network_admin_menus' ) );
-
-		/** Dependencies ******************************************************/
-
-		// Allow plugins to modify these actions
-		do_action_ref_array( 'bbp_admin_loaded', array( &$this ) );
+	private function setup_globals() {
+		$bbp = bbpress();
+		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' ); // Admin path
+		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' ); // Admin url
+		$this->images_url = trailingslashit( $this->admin_url . 'images'    ); // Admin images URL
+		$this->styles_url = trailingslashit( $this->admin_url . 'styles'    ); // Admin styles URL
 	}
 
 	/**
@@ -143,17 +107,40 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Setup the admin hooks, actions and filters
 	 *
 	 * @since bbPress (r2646)
 	 * @access private
+	 *
+	 * @uses add_action() To add various actions
+	 * @uses add_filter() To add various filters
 	 */
-	private function setup_globals() {
-		$bbp = bbpress();
-		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' ); // Admin url
-		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' ); // Admin url
-		$this->images_url = trailingslashit( $this->admin_url . 'images'    ); // Admin images URL
-		$this->styles_url = trailingslashit( $this->admin_url . 'styles'    ); // Admin styles URL
+	private function setup_actions() {
+
+		/** General Actions ***************************************************/
+
+		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'                ) ); // Add menu item to settings menu
+		add_action( 'bbp_admin_head',              array( $this, 'admin_head'                 ) ); // Add some general styling to the admin area
+		add_action( 'bbp_admin_notices',           array( $this, 'activation_notice'          ) ); // Add notice if not using a bbPress theme
+		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'       ) ); // Add green admin style
+		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
+		add_action( 'bbp_activation',              array( $this, 'new_install'                ) ); // Add menu item to settings menu
+		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Forums 'Right now' Dashboard widget
+
+		/** Filters ***********************************************************/
+
+		// Add link to settings page
+		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
+
+		/** Network Admin *****************************************************/
+
+		// Add menu item to settings menu
+		add_action( 'network_admin_menu',  array( $this, 'network_admin_menus' ) );
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_admin_loaded', array( &$this ) );
 	}
 
 	/**
@@ -659,6 +646,8 @@ class BBP_Admin {
 		// Load the admin CSS styling
 		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $css_file, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
+
+	/** Updaters **************************************************************/
 
 	/**
 	 * Update all bbPress forums across all sites

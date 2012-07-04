@@ -99,14 +99,3 @@ class BBP_Users_Admin {
 	function user_profile_forums( $profileuser ) { }
 }
 endif; // class exists
-
-/**
- * Setup bbPress Users Admin
- *
- * @since bbPress (r2596)
- *
- * @uses BBP_Replies_Admin
- */
-function bbp_users_admin() {
-	bbpress()->admin->users = new BBP_Users_Admin();
-}
