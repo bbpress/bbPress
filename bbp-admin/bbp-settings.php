@@ -1122,6 +1122,21 @@ function bbp_converter_setting_callback_delay_time() {
 }
 
 /**
+ * Edit Restart setting field
+ *
+ * @since bbPress (r3813)
+ */
+function bbp_converter_setting_callback_restart() {
+?>
+
+	<input id="_bbp_converter_restart" name="_bbp_converter_restart" type="checkbox" id="_bbp_converter_restart" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
+	<label for="_bbp_converter_restart"><?php _e( 'Start a fresh conversion from the beginning', 'bbpress' ); ?></label>
+	<p class="description"><?php _e( 'You should clean old conversion information before starting over.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
  * Edit Clean setting field
  *
  * @since bbPress (r3813)
@@ -1131,22 +1146,7 @@ function bbp_converter_setting_callback_clean() {
 
 	<input id="_bbp_converter_clean" name="_bbp_converter_clean" type="checkbox" id="_bbp_converter_clean" value="1" <?php checked( get_option( '_bbp_converter_clean', false ) ); ?> />
 	<label for="_bbp_converter_clean"><?php _e( 'Purge all information from a previously attempted import', 'bbpress' ); ?></label>
-	<p class="description"><?php _e( 'Use this if an import failed and you want to start over from scratch.', 'bbpress' ); ?></p>
-
-<?php
-}
-
-/**
- * Edit Restart setting field
- *
- * @since bbPress (r3813)
- */
-function bbp_converter_setting_callback_restart() {
-?>
-
-	<input id="_bbp_converter_restart" name="_bbp_converter_restart" type="checkbox" id="_bbp_converter_restart" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
-	<label for="_bbp_converter_restart"><?php _e( 'Restart conversion from the beginning', 'bbpress' ); ?></label>
-	<p class="description"><?php _e( 'The importer keeps track of where it left off in the event of failure.', 'bbpress' ); ?></p>
+	<p class="description"><?php _e( 'Use this if an import failed and you want to remove that incomplete data.', 'bbpress' ); ?></p>
 
 <?php
 }

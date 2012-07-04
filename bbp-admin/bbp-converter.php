@@ -125,13 +125,13 @@ class BBP_Converter {
 		add_settings_field( '_bbp_converter_convert_users', __( 'Convert Users',     'bbpress' ), 'bbp_converter_setting_callback_convert_users', 'bbpress_converter', 'bbpress_converter_opt' );
 		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_convert_users',     'intval' );
 
-		// Clean
-		add_settings_field( '_bbp_converter_clean',         __( 'Clean',             'bbpress' ), 'bbp_converter_setting_callback_clean', 'bbpress_converter', 'bbpress_converter_opt' );
-		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_clean',             'intval' );
-
 		// Restart
-		add_settings_field( '_bbp_converter_restart',       __( 'Restart',           'bbpress' ), 'bbp_converter_setting_callback_restart', 'bbpress_converter', 'bbpress_converter_opt' );
+		add_settings_field( '_bbp_converter_restart',       __( 'Start Over',        'bbpress' ), 'bbp_converter_setting_callback_restart', 'bbpress_converter', 'bbpress_converter_opt' );
 		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_restart',           'intval' );
+
+		// Clean
+		add_settings_field( '_bbp_converter_clean',         __( 'Purge Previous Import', 'bbpress' ), 'bbp_converter_setting_callback_clean', 'bbpress_converter', 'bbpress_converter_opt' );
+		register_setting  ( 'bbpress_converter_opt',        '_bbp_converter_clean',             'intval' );
 	}
 
 	/**
@@ -336,7 +336,7 @@ class BBP_Converter {
 					if ( $converter->clean( $start ) ) {
 						update_option( '_bbp_converter_step',  $step + 1 );
 						update_option( '_bbp_converter_start', 0         );
-						$this->sync_table();
+						$this->sync_table( true );
 						if ( empty( $start ) ) {
 							$this->converter_output( __( 'No data to clean', 'bbpress' ) );
 						}
@@ -509,35 +509,32 @@ class BBP_Converter {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'bbp_converter_translator';
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
+		if ( ! empty( $drop ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name )
 			$wpdb->query( "DROP TABLE {$table_name}" );
+
+		require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+
+		if ( !empty( $wpdb->charset ) ) {
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
 		}
 
-		if ( empty( $drop ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
-
-			if ( !empty( $wpdb->charset ) ) {
-				$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-			}
-
-			if ( !empty( $wpdb->collate ) ) {
-				$charset_collate .= " COLLATE $wpdb->collate";
-			}
-
-			/** Translator ****************************************************/
-
-			$sql = "CREATE TABLE {$table_name} (
-						meta_id mediumint(8) unsigned not null auto_increment,
-						value_type varchar(25) null,
-						value_id bigint(20) unsigned not null default '0',
-						meta_key varchar(25) null,
-						meta_value varchar(25) null,
-					PRIMARY KEY  (meta_id),
-						KEY value_id (value_id),
-						KEY meta_join (meta_key, meta_value) ) {$charset_collate};";
-
-			dbDelta( $sql );
+		if ( !empty( $wpdb->collate ) ) {
+			$charset_collate .= " COLLATE $wpdb->collate";
 		}
+
+		/** Translator ****************************************************/
+
+		$sql = "CREATE TABLE {$table_name} (
+					meta_id mediumint(8) unsigned not null auto_increment,
+					value_type varchar(25) null,
+					value_id bigint(20) unsigned not null default '0',
+					meta_key varchar(25) null,
+					meta_value varchar(25) null,
+				PRIMARY KEY  (meta_id),
+					KEY value_id (value_id),
+					KEY meta_join (meta_key, meta_value) ) {$charset_collate};";
+
+		dbDelta( $sql );
 	}
 }
 
@@ -1039,7 +1036,7 @@ abstract class BBP_Converter_Base {
 
 		$posts = $this->wpdb->get_results( $query, ARRAY_A );
 
-		if ( !empty( $posts ) ) {
+		if ( isset( $posts[0] ) && ! empty( $posts[0]['value_id'] ) ) {
 			foreach ( (array) $posts as $value ) {
 				wp_delete_post( $value['value_id'], true );
 			}
