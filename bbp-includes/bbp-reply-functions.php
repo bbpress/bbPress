@@ -1392,10 +1392,10 @@ function _bbp_has_replies_where( $where, $query ) {
 	$topic_id = bbp_get_topic_id();
 
 	// The text we're searching for
-	$search   = 'wp_posts.post_parent = ' . $topic_id ;
+	$search   = 'WHERE 1=1  AND wp_posts.post_parent = ' . $topic_id ;
 
 	// The text to replace it with
-	$replace  = '(wp_posts.ID = ' . $topic_id . ' OR wp_posts.post_parent = ' . $topic_id . ')';
+	$replace  = 'FORCE INDEX (PRIMARY, post_parent) WHERE 1=1 AND (wp_posts.ID = ' . $topic_id . ' OR wp_posts.post_parent = ' . $topic_id . ')';
 
 	// Try to replace the search text with the replacement
 	if ( $new_where = str_replace( $search, $replace, $where ) )
