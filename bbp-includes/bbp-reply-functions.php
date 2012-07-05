@@ -1365,6 +1365,45 @@ function bbp_reply_content_autoembed() {
 	}
 }
 
+/** Filters *******************************************************************/
+
+/**
+ * Used by bbp_has_replies() to add the topic to the posts
+ *
+ * This function filters the 'post_where' of the WP_Query, and changes the query
+ * to include both the topic AND its children in the same loop.
+ *
+ * @since bbPress (r4058)
+ *
+ * @param string $where
+ * @return string
+ */
+function _bbp_has_replies_where( $where, $query ) {
+
+	// Bail if no post_parent to replace
+	if ( ! is_numeric( $query->get( 'post_parent' ) ) )
+		return $where;
+
+	// Bail if not a topic and reply query
+	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) )
+		return $where;
+
+	// Get the topic ID
+	$topic_id = bbp_get_topic_id();
+
+	// The text we're searching for
+	$search   = 'wp_posts.post_parent = ' . $topic_id ;
+
+	// The text to replace it with
+	$replace  = '(wp_posts.ID = ' . $topic_id . ' OR wp_posts.post_parent = ' . $topic_id . ')';
+
+	// Try to replace the search text with the replacement
+	if ( $new_where = str_replace( $search, $replace, $where ) )
+		$where = $new_where;
+
+	return $where;
+}
+
 /** Feeds *********************************************************************/
 
 /**

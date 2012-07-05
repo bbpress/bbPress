@@ -66,34 +66,28 @@ function bbp_reply_post_type() {
 function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite;
 
-	// Default status
-	$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
-
-	// Skip topic_id if in the replies widget query
-	$parent_args['meta_query'] = array( array(
-		'key'     => '_bbp_topic_id',
-		'value'   => bbp_get_topic_id(),
-		'compare' => '='
-	) );
-
 	// What are the default allowed statuses (based on user caps)
 	if ( bbp_get_view_all( 'edit_others_replies' ) )
-		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
+		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
+	else
+		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
+
+	// Maybe Search 
+	$default_reply_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
+	$default_post_parent  = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
+	$default_post_type    = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 
 	// Default query args
 	$default = array(
-		'post_type'      => bbp_show_lead_topic() ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
-		'orderby'        => 'date',                                           // 'author', 'date', 'title', 'modified', 'parent', rand',
-		'order'          => 'ASC',                                            // 'ASC', 'DESC'
-		'posts_per_page' => bbp_get_replies_per_page(),                       // Max number
-		'paged'          => bbp_get_paged(),                                  // Page Number
-		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '', // Reply Search
-		'post_status'    => $default_status                                   // Post Status
+		'post_type'      => $default_post_type,         // Only replies
+		'post_parent'    => $default_post_parent,       // Of this topic
+		'post_status'    => $default_post_status,       // Of this status
+		'posts_per_page' => bbp_get_replies_per_page(), // This many
+		'paged'          => bbp_get_paged(),            // On this page
+		'orderby'        => 'date',                     // Sorted by date
+		'order'          => 'ASC',                      // Oldest to newest
+		's'              => $default_reply_search,      // Maybe search
 	);
-
-	// Merge the default args and parent args together
-	if ( !empty( $parent_args ) )
-		$default = array_merge( $parent_args, $default );
 
 	// Set up topic variables
 	$bbp_r = bbp_parse_args( $args, $default, 'has_replies' );

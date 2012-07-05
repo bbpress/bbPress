@@ -376,11 +376,6 @@ class BBP_Shortcodes {
 			$bbp->topic_query->post                    = get_post( $topic_id );
 		}
 
-		// Filter the query
-		if ( ! bbp_is_single_topic() ) {
-			add_filter( 'bbp_before_has_replies_parse_args', array( $this, 'display_topic_query' ) );
-		}
-
 		// Start output buffer
 		$this->start( 'bbp_single_topic' );
 
@@ -748,24 +743,6 @@ class BBP_Shortcodes {
 		$args['author']        = 0;
 		$args['show_stickies'] = true;
 		$args['order']         = 'DESC';
-		return $args;
-	}
-
-	/**
-	 * Filter the query for the topic index
-	 *
-	 * @since bbPress (r3637)
-	 *
-	 * @param array $args
-	 * @return array
-	 */
-	public function display_topic_query( $args = array() ) {
-		$args['meta_query'] = array( array(
-			'key'     => '_bbp_topic_id',
-			'value'   => bbpress()->current_topic_id,
-			'compare' => '='
-		) );
-
 		return $args;
 	}
 

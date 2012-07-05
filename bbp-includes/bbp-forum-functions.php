@@ -1568,8 +1568,23 @@ function bbp_get_private_forum_ids() {
 function bbp_exclude_forum_ids( $type = 'string' ) {
 
 	// Setup arrays
-	$retval = $private = $hidden = $meta_query = $forum_ids = array();
+	$private = $hidden = $meta_query = $forum_ids = array();
 
+	// Default return value
+	switch ( $type ) {
+		case 'string' :
+			$retval = '';
+			break;
+
+		case 'array'  :
+			$retval = array();
+			break;
+
+		case 'meta_query' :
+			$retval = array( array() ) ;
+			break;
+	}
+	
 	// Exclude for everyone but super admins
 	if ( !is_super_admin() ) {
 
@@ -1604,6 +1619,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 					$retval = array(
 						'key'     => '_bbp_forum_id',
 						'value'   => implode( ',', $forum_ids ),
+						'type'    => 'numeric',
 						'compare' => ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!='
 					);
 					break;
@@ -1948,20 +1964,15 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 
 	// Validate forum ID
 	$forum_id = bbp_get_forum_id( $forum_id );
-
 	if ( empty( $forum_id ) )
 		return;
 
 	// Forum is being permanently deleted, so its topics gotta go too
 	if ( bbp_has_topics( array(
 		'post_type'      => bbp_get_topic_post_type(),
+		'post_parent'    => $forum_id,
 		'post_status'    => 'any',
-		'posts_per_page' => -1,
-		'meta_query'     => array( array(
-			'key'        => '_bbp_forum_id',
-			'value'      => $forum_id,
-			'compare'    => '='
-		) )
+		'posts_per_page' => -1
 	) ) ) {
 		while ( bbp_topics() ) {
 			bbp_the_topic();
@@ -1992,7 +2003,6 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 
 	// Validate forum ID
 	$forum_id = bbp_get_forum_id( $forum_id );
-
 	if ( empty( $forum_id ) )
 		return;
 
@@ -2006,13 +2016,9 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	// Forum is being trashed, so its topics are trashed too
 	if ( bbp_has_topics( array(
 		'post_type'      => bbp_get_topic_post_type(),
+		'post_parent'    => $forum_id,
 		'post_status'    => $post_stati,
-		'posts_per_page' => -1,
-		'meta_query'     => array( array(
-			'key'        => '_bbp_forum_id',
-			'value'      => $forum_id,
-			'compare'    => '='
-		) )
+		'posts_per_page' => -1
 	) ) ) {
 
 		// Prevent debug notices

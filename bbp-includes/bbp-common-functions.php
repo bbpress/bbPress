@@ -1470,6 +1470,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						$meta_query = array( array(
 							'key'     => '_bbp_forum_id',
 							'value'   => $forum_id,
+							'type'    => 'numeric',
 							'compare' => '='
 						) );
 					}
@@ -1500,11 +1501,10 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 							'author'         => 0,
 							'feed'           => true,
 							'post_type'      => bbp_get_topic_post_type(),
-							'post_parent'    => 'any',
+							'post_parent'    => $forum_id,
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 							'posts_per_page' => bbp_get_topics_per_rss_page(),
-							'order'          => 'DESC',
-							'meta_query'     => $meta_query
+							'order'          => 'DESC'
 						);
 
 						// Output the feed
@@ -1549,7 +1549,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						) );
 
 						// Output the feed
-						bbp_display_replies_feed_rss2();
+						bbp_display_replies_feed_rss2( array( 'feed' => true ) );
 
 					// All topics
 					} else {

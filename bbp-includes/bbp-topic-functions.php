@@ -2830,6 +2830,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	do_action( 'bbp_delete_topic', $topic_id );
 
 	// Topic is being permanently deleted, so its replies gotta go too
+	// @todo remove meta query
 	if ( bbp_has_replies( array(
 		'post_type'      => bbp_get_reply_post_type(),
 		'post_status'    => 'any',
@@ -2837,6 +2838,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
 		'meta_query'     => array( array(
 			'key'        => '_bbp_topic_id',
 			'value'      => $topic_id,
+			'type'       => 'numeric',
 			'compare'    => '='
 		) )
 	) ) ) {
@@ -2874,6 +2876,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	do_action( 'bbp_trash_topic', $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
+	// @todo remove meta query
 	if ( bbp_has_replies( array( 
 		'post_type'      => bbp_get_reply_post_type(),
 		'post_status'    => bbp_get_public_status_id(),
@@ -2881,6 +2884,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		'meta_query'     => array( array(
 			'key'        => '_bbp_topic_id',
 			'value'      => $topic_id,
+			'type'       => 'numeric',
 			'compare'    => '='
 		) )
 	) ) ) {
