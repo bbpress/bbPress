@@ -1388,14 +1388,19 @@ function _bbp_has_replies_where( $where, $query ) {
 	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) )
 		return $where;
 
+	global $wpdb;
+
+	// Table name for posts
+	$table_name = $wpdb->prefix . 'posts';
+
 	// Get the topic ID
-	$topic_id = bbp_get_topic_id();
+	$topic_id   = bbp_get_topic_id();
 
 	// The text we're searching for
-	$search   = 'WHERE 1=1  AND wp_posts.post_parent = ' . $topic_id ;
+	$search     = "WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}";
 
 	// The text to replace it with
-	$replace  = 'FORCE INDEX (PRIMARY, post_parent) WHERE 1=1 AND (wp_posts.ID = ' . $topic_id . ' OR wp_posts.post_parent = ' . $topic_id . ')';
+	$replace    = "FORCE INDEX (PRIMARY, post_parent) WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR wp_posts.post_parent = {$topic_id})";
 
 	// Try to replace the search text with the replacement
 	if ( $new_where = str_replace( $search, $replace, $where ) )
