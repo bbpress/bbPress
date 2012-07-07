@@ -187,7 +187,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 			break;
 
 		/** Publishing ********************************************************/
-			
+
 		case 'publish_forums'  :
 		case 'publish_topics'  :
 		case 'publish_replies' :
@@ -443,6 +443,9 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 			$caps = array(
 
+				// Read
+				'read',
+
 				// Forum caps
 				'read_private_forums',
 				'read_hidden_forums',
@@ -485,11 +488,14 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 		// bbPress Participant Role
 		case bbp_get_participant_role() :
-			
+
 		// Any other role
 		default :
 
 			$caps = array(
+
+				// Read
+				'read',
 
 				// Forum caps
 				'read_private_forums',
@@ -654,7 +660,7 @@ function bbp_global_access_role_mask() {
 
 /**
  * Can the current user see a specific UI element?
- * 
+ *
  * Used when registering post-types and taxonomies to decide if 'show_ui' should
  * be set to true or false. Also used for fine-grained control over which admin
  * sections are visible under what conditions.
