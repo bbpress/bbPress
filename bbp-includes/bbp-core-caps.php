@@ -443,9 +443,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 			$caps = array(
 
-				// Read
-				'read',
-
 				// Forum caps
 				'read_private_forums',
 				'read_hidden_forums',
@@ -493,9 +490,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 		default :
 
 			$caps = array(
-
-				// Read
-				'read',
 
 				// Forum caps
 				'read_private_forums',
