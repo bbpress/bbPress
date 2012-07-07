@@ -171,7 +171,7 @@ function bbp_pre_get_option( $value = false ) {
 	$option = str_replace( 'pre_option_', '', current_filter() );
 
 	// Check the options global for preset value
-	if ( !empty( $bbp->options[$option] ) )
+	if ( isset( $bbp->options[$option] ) )
 		$value = $bbp->options[$option];
 
 	// Always return a value, even if false
