@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the bbPress package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress 2.1-rc4\n"
+"Project-Id-Version: bbPress 2.1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2012-07-05 06:02:57+00:00\n"
+"POT-Creation-Date: 2012-07-08 11:08:18+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,180 +109,180 @@ msgid ""
 "update."
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:83
+#: bbp-admin/bbp-converter.php:80
 msgid "Database Settings"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:86
+#: bbp-admin/bbp-converter.php:83
 msgid "Select Platform"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:90
+#: bbp-admin/bbp-converter.php:87
 msgid "Database Server"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:94
+#: bbp-admin/bbp-converter.php:91
 msgid "Database Port"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:98
+#: bbp-admin/bbp-converter.php:95
 msgid "Database Name"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:102
+#: bbp-admin/bbp-converter.php:99
 msgid "Database User"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:106
+#: bbp-admin/bbp-converter.php:103
 msgid "Database Password"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:110
+#: bbp-admin/bbp-converter.php:107
 msgid "Table Prefix"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:114
+#: bbp-admin/bbp-converter.php:111
 msgid "Options"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:117
+#: bbp-admin/bbp-converter.php:114
 msgid "Rows Limit"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:121
+#: bbp-admin/bbp-converter.php:118
 msgid "Delay Time"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:125
+#: bbp-admin/bbp-converter.php:122
 msgid "Convert Users"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:129
+#: bbp-admin/bbp-converter.php:126
 msgid "Start Over"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:133
+#: bbp-admin/bbp-converter.php:130
 msgid "Purge Previous Import"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:222
+#: bbp-admin/bbp-converter.php:219
 msgid "Starting Conversion"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:247 bbp-admin/bbp-converter.php:474
+#: bbp-admin/bbp-converter.php:244 bbp-admin/bbp-converter.php:471
 msgid "Conversion Complete"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:341
+#: bbp-admin/bbp-converter.php:338
 msgid "No data to clean"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:345
+#: bbp-admin/bbp-converter.php:342
 msgid "Deleting previously converted data (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:361
+#: bbp-admin/bbp-converter.php:358
 msgid "No users to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:365
+#: bbp-admin/bbp-converter.php:362
 msgid "Converting users (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:381
+#: bbp-admin/bbp-converter.php:378
 msgid "No passwords to clear"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:385
+#: bbp-admin/bbp-converter.php:382
 msgid "Delete users wordpress default passwords (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:400
+#: bbp-admin/bbp-converter.php:397
 msgid "No forums to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:404
+#: bbp-admin/bbp-converter.php:401
 msgid "Converting forums (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:415
+#: bbp-admin/bbp-converter.php:412
 msgid "No forum parents to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:419
+#: bbp-admin/bbp-converter.php:416
 msgid "Calculating forum hierarchy (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:430
+#: bbp-admin/bbp-converter.php:427
 msgid "No topics to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:434
+#: bbp-admin/bbp-converter.php:431
 msgid "Converting topics (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:445
+#: bbp-admin/bbp-converter.php:442
 msgid "No tags to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:449
+#: bbp-admin/bbp-converter.php:446
 msgid "Converting topic tags (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:460
+#: bbp-admin/bbp-converter.php:457
 msgid "No replies to convert"
 msgstr ""
 
-#: bbp-admin/bbp-converter.php:464
+#: bbp-admin/bbp-converter.php:461
 msgid "Converting replies (%1$s - %2$s)"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:107 bbp-admin/bbp-replies.php:119
-#: bbp-admin/bbp-settings.php:1225 bbp-admin/bbp-topics.php:119
+#: bbp-admin/bbp-forums.php:120 bbp-admin/bbp-replies.php:132
+#: bbp-admin/bbp-settings.php:1225 bbp-admin/bbp-topics.php:132
 msgid "Overview"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:109 bbp-admin/bbp-replies.php:121
-#: bbp-admin/bbp-topics.php:121
+#: bbp-admin/bbp-forums.php:122 bbp-admin/bbp-replies.php:134
+#: bbp-admin/bbp-topics.php:134
 msgid ""
 "This screen provides access to all of your replies. You can customize the "
 "display of this screen to suit your workflow."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:115 bbp-admin/bbp-replies.php:127
-#: bbp-admin/bbp-topics.php:127
+#: bbp-admin/bbp-forums.php:128 bbp-admin/bbp-replies.php:140
+#: bbp-admin/bbp-topics.php:140
 msgid "Screen Content"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:117 bbp-admin/bbp-replies.php:129
-#: bbp-admin/bbp-topics.php:129
+#: bbp-admin/bbp-forums.php:130 bbp-admin/bbp-replies.php:142
+#: bbp-admin/bbp-topics.php:142
 msgid ""
 "You can customize the display of this screen&#8217;s contents in a number of "
 "ways:"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:119 bbp-admin/bbp-replies.php:131
-#: bbp-admin/bbp-topics.php:131
+#: bbp-admin/bbp-forums.php:132 bbp-admin/bbp-replies.php:144
+#: bbp-admin/bbp-topics.php:144
 msgid ""
 "You can hide/display columns based on your needs and decide how many replies "
 "to list per screen using the Screen Options tab."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:120
+#: bbp-admin/bbp-forums.php:133
 msgid ""
 "You can filter the list of replies by forum status using the text links in "
 "the upper left to show All, Published, Draft, or Trashed replies. The "
 "default view is to show all replies."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:121 bbp-admin/bbp-replies.php:133
-#: bbp-admin/bbp-topics.php:133
+#: bbp-admin/bbp-forums.php:134 bbp-admin/bbp-replies.php:146
+#: bbp-admin/bbp-topics.php:146
 msgid ""
 "You can view replies in a simple title list or with an excerpt. Choose the "
 "view you prefer by clicking on the icons at the top of the list on the right."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:122
+#: bbp-admin/bbp-forums.php:135
 msgid ""
 "You can refine the list to show only replies in a specific category or from "
 "a specific month by using the dropdown menus above the replies list. Click "
@@ -290,88 +290,88 @@ msgid ""
 "by clicking on the forum author, category or tag in the replies list."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:129 bbp-admin/bbp-replies.php:141
-#: bbp-admin/bbp-topics.php:141
+#: bbp-admin/bbp-forums.php:142 bbp-admin/bbp-replies.php:154
+#: bbp-admin/bbp-topics.php:154
 msgid "Available Actions"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:131
+#: bbp-admin/bbp-forums.php:144
 msgid ""
 "Hovering over a row in the replies list will display action links that allow "
 "you to manage your forum. You can perform the following actions:"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:133
+#: bbp-admin/bbp-forums.php:146
 msgid ""
 "<strong>Edit</strong> takes you to the editing screen for that forum. You "
 "can also reach that screen by clicking on the forum title."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:135
+#: bbp-admin/bbp-forums.php:148
 msgid ""
 "<strong>Trash</strong> removes your forum from this list and places it in "
 "the trash, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:136
+#: bbp-admin/bbp-forums.php:149
 msgid ""
 "<strong>Spam</strong> removes your forum from this list and places it in the "
 "spam queue, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:137
+#: bbp-admin/bbp-forums.php:150
 msgid ""
 "<strong>Preview</strong> will show you what your draft forum will look like "
 "if you publish it. View will take you to your live site to view the forum. "
 "Which link is available depends on your forum&#8217;s status."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:144 bbp-admin/bbp-replies.php:156
-#: bbp-admin/bbp-topics.php:156
+#: bbp-admin/bbp-forums.php:157 bbp-admin/bbp-replies.php:169
+#: bbp-admin/bbp-topics.php:169
 msgid "Bulk Actions"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:146 bbp-admin/bbp-replies.php:158
-#: bbp-admin/bbp-topics.php:158
+#: bbp-admin/bbp-forums.php:159 bbp-admin/bbp-replies.php:171
+#: bbp-admin/bbp-topics.php:171
 msgid ""
 "You can also edit or move multiple replies to the trash at once. Select the "
 "replies you want to act on using the checkboxes, then select the action you "
 "want to take from the Bulk Actions menu and click Apply."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:147
+#: bbp-admin/bbp-forums.php:160
 msgid ""
 "When using Bulk Edit, you can change the metadata (categories, author, etc.) "
 "for all selected replies at once. To remove a forum from the grouping, just "
 "click the x next to its name in the Bulk Edit area that appears."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:152 bbp-admin/bbp-forums.php:221
-#: bbp-admin/bbp-replies.php:164 bbp-admin/bbp-replies.php:230
-#: bbp-admin/bbp-settings.php:1270 bbp-admin/bbp-topics.php:164
-#: bbp-admin/bbp-topics.php:230
+#: bbp-admin/bbp-forums.php:165 bbp-admin/bbp-forums.php:236
+#: bbp-admin/bbp-replies.php:177 bbp-admin/bbp-replies.php:245
+#: bbp-admin/bbp-settings.php:1270 bbp-admin/bbp-topics.php:177
+#: bbp-admin/bbp-topics.php:245
 msgid "For more information:"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:153 bbp-admin/bbp-forums.php:222
-#: bbp-admin/bbp-replies.php:165 bbp-admin/bbp-replies.php:231
-#: bbp-admin/bbp-settings.php:1271 bbp-admin/bbp-topics.php:165
-#: bbp-admin/bbp-topics.php:231
+#: bbp-admin/bbp-forums.php:166 bbp-admin/bbp-forums.php:237
+#: bbp-admin/bbp-replies.php:178 bbp-admin/bbp-replies.php:246
+#: bbp-admin/bbp-settings.php:1271 bbp-admin/bbp-topics.php:178
+#: bbp-admin/bbp-topics.php:246
 msgid ""
 "<a href=\"http://bbpress.org/documentation/\" target=\"_blank\">bbPress "
 "Documentation</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:154 bbp-admin/bbp-forums.php:223
-#: bbp-admin/bbp-replies.php:166 bbp-admin/bbp-replies.php:232
-#: bbp-admin/bbp-settings.php:1272 bbp-admin/bbp-topics.php:166
-#: bbp-admin/bbp-topics.php:232
+#: bbp-admin/bbp-forums.php:167 bbp-admin/bbp-forums.php:238
+#: bbp-admin/bbp-replies.php:179 bbp-admin/bbp-replies.php:247
+#: bbp-admin/bbp-settings.php:1272 bbp-admin/bbp-topics.php:179
+#: bbp-admin/bbp-topics.php:247
 msgid ""
 "<a href=\"http://bbpress.org/forums/\" target=\"_blank\">bbPress Support "
 "Forums</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:166
+#: bbp-admin/bbp-forums.php:181
 msgid ""
 "The title field and the big forum editing Area are fixed in place, but you "
 "can reposition all the other boxes using drag and drop, and can minimize or "
@@ -381,22 +381,22 @@ msgid ""
 "screen."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:170 bbp-admin/bbp-replies.php:182
-#: bbp-admin/bbp-topics.php:182
+#: bbp-admin/bbp-forums.php:185 bbp-admin/bbp-replies.php:197
+#: bbp-admin/bbp-topics.php:197
 msgid "Customizing This Display"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:176
+#: bbp-admin/bbp-forums.php:191
 msgid "Title and Forum Editor"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:178
+#: bbp-admin/bbp-forums.php:193
 msgid ""
 "<strong>Title</strong> - Enter a title for your forum. After you enter a "
 "title, you&#8217;ll see the permalink below, which you can edit."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:179
+#: bbp-admin/bbp-forums.php:194
 msgid ""
 "<strong>Forum Editor</strong> - Enter the text for your forum. There are two "
 "modes of editing: Visual and HTML. Choose the mode by clicking on the "
@@ -410,7 +410,7 @@ msgid ""
 "over the top area. Exit Fullscreen back to the regular forum editor."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:182
+#: bbp-admin/bbp-forums.php:197
 msgid ""
 "<strong>Publish</strong> - You can set the terms of publishing your forum in "
 "the Publish box. For Status, Visibility, and Publish (immediately), click on "
@@ -421,7 +421,7 @@ msgid ""
 "future or backdate a forum."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:185
+#: bbp-admin/bbp-forums.php:200
 msgid ""
 "<strong>forum Format</strong> - This designates how your theme will display "
 "a specific forum. For example, you could have a <em>standard</em> blog forum "
@@ -432,7 +432,7 @@ msgid ""
 "formats."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:189
+#: bbp-admin/bbp-forums.php:204
 msgid ""
 "<strong>Featured Image</strong> - This allows you to associate an image with "
 "your forum without inserting it. This is usually useful only if your theme "
@@ -440,55 +440,55 @@ msgid ""
 "custom header, etc."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:194 bbp-admin/bbp-forums.php:239
+#: bbp-admin/bbp-forums.php:209 bbp-admin/bbp-forums.php:257
 msgid "Forum Attributes"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:196
+#: bbp-admin/bbp-forums.php:211
 msgid "Select the attributes that your forum should have:"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:198
+#: bbp-admin/bbp-forums.php:213
 msgid ""
 "<strong>Type</strong> indicates if the forum is a category or forum. "
 "Categories generally contain other forums."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:199
+#: bbp-admin/bbp-forums.php:214
 msgid ""
 "<strong>Status</strong> allows you to close a forum to new topics and "
 "replies."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:200
+#: bbp-admin/bbp-forums.php:215
 msgid ""
 "<strong>Visibility</strong> lets you pick the scope of each forum and what "
 "users are allowed to access it."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:201
+#: bbp-admin/bbp-forums.php:216
 msgid ""
 "<strong>Parent</strong> dropdown determines the parent forum. Select the "
 "forum or category from the dropdown, or leave the default (No Parent) to "
 "create the forum at the root of your forums."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:202
+#: bbp-admin/bbp-forums.php:217
 msgid "<strong>Order</strong> allows you to order your forums numerically."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:208 bbp-admin/bbp-replies.php:217
-#: bbp-admin/bbp-topics.php:217
+#: bbp-admin/bbp-forums.php:223 bbp-admin/bbp-replies.php:232
+#: bbp-admin/bbp-topics.php:232
 msgid "Publish Box"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:214 bbp-admin/bbp-replies.php:223
-#: bbp-admin/bbp-topics.php:223
+#: bbp-admin/bbp-forums.php:229 bbp-admin/bbp-replies.php:238
+#: bbp-admin/bbp-topics.php:238
 msgid "Discussion Settings"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:216 bbp-admin/bbp-replies.php:225
-#: bbp-admin/bbp-topics.php:225
+#: bbp-admin/bbp-forums.php:231 bbp-admin/bbp-replies.php:240
+#: bbp-admin/bbp-topics.php:240
 msgid ""
 "<strong>Send Trackbacks</strong> - Trackbacks are a way to notify legacy "
 "blog systems that you&#8217;ve linked to them. Enter the URL(s) you want to "
@@ -496,16 +496,16 @@ msgid ""
 "notified automatically using pingbacks, and this field is unnecessary."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:217
+#: bbp-admin/bbp-forums.php:232
 msgid ""
 "<strong>Discussion</strong> - You can turn comments and pings on or off, and "
 "if there are comments on the forum, you can see them here and moderate them."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:393 bbp-admin/bbp-metaboxes.php:50
+#: bbp-admin/bbp-forums.php:419 bbp-admin/bbp-metaboxes.php:50
 #: bbp-admin/bbp-metaboxes.php:345 bbp-admin/bbp-metaboxes.php:348
 #: bbp-admin/bbp-metaboxes.php:396 bbp-admin/bbp-metaboxes.php:399
-#: bbp-admin/bbp-replies.php:582 bbp-admin/bbp-topics.php:646
+#: bbp-admin/bbp-replies.php:616 bbp-admin/bbp-topics.php:680
 #: bbp-includes/bbp-extend-buddypress.php:1405
 #: bbp-includes/bbp-forum-template.php:2124
 #: bbp-theme-compat/bbpress/loop-forums.php:19
@@ -513,8 +513,8 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:394 bbp-admin/bbp-settings.php:171
-#: bbp-admin/bbp-settings.php:192 bbp-admin/bbp-topics.php:645
+#: bbp-admin/bbp-forums.php:420 bbp-admin/bbp-settings.php:171
+#: bbp-admin/bbp-settings.php:192 bbp-admin/bbp-topics.php:679
 #: bbp-includes/bbp-extend-buddypress.php:432
 #: bbp-includes/bbp-extend-buddypress.php:1434
 #: bbp-includes/bbp-forum-template.php:2272
@@ -526,8 +526,8 @@ msgstr ""
 msgid "Topics"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:395 bbp-admin/bbp-settings.php:179
-#: bbp-admin/bbp-settings.php:200 bbp-admin/bbp-topics.php:647
+#: bbp-admin/bbp-forums.php:421 bbp-admin/bbp-settings.php:179
+#: bbp-admin/bbp-settings.php:200 bbp-admin/bbp-topics.php:681
 #: bbp-includes/bbp-extend-buddypress.php:433
 #: bbp-includes/bbp-forum-template.php:2336
 #: bbp-includes/bbp-theme-compatibility.php:493
@@ -546,19 +546,19 @@ msgstr ""
 msgid "Replies"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:396
+#: bbp-admin/bbp-forums.php:422
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:18
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:90
 #: bbp-themes/bbp-twentyten/bbpress/content-single-topic-lead.php:17
 msgid "Creator"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:397 bbp-admin/bbp-replies.php:585
-#: bbp-admin/bbp-topics.php:650
+#: bbp-admin/bbp-forums.php:423 bbp-admin/bbp-replies.php:619
+#: bbp-admin/bbp-topics.php:684
 msgid "Created"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:398 bbp-admin/bbp-topics.php:651
+#: bbp-admin/bbp-forums.php:424 bbp-admin/bbp-topics.php:685
 #: bbp-theme-compat/bbpress/loop-forums.php:22
 #: bbp-theme-compat/bbpress/loop-topics.php:22
 #: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:21
@@ -566,63 +566,63 @@ msgstr ""
 msgid "Freshness"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:432 bbp-admin/bbp-replies.php:691
-#: bbp-admin/bbp-topics.php:728
+#: bbp-admin/bbp-forums.php:461 bbp-admin/bbp-replies.php:727
+#: bbp-admin/bbp-topics.php:764
 msgid "%1$s <br /> %2$s"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:444 bbp-includes/bbp-forum-template.php:541
+#: bbp-admin/bbp-forums.php:473 bbp-includes/bbp-forum-template.php:541
 msgid "No Topics"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:505
+#: bbp-admin/bbp-forums.php:539
 msgid "Forum updated. <a href=\"%s\">View forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:508 bbp-admin/bbp-replies.php:858
-#: bbp-admin/bbp-topics.php:926
+#: bbp-admin/bbp-forums.php:542 bbp-admin/bbp-replies.php:899
+#: bbp-admin/bbp-topics.php:970
 msgid "Custom field updated."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:511 bbp-admin/bbp-replies.php:861
-#: bbp-admin/bbp-topics.php:929
+#: bbp-admin/bbp-forums.php:545 bbp-admin/bbp-replies.php:902
+#: bbp-admin/bbp-topics.php:973
 msgid "Custom field deleted."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:514
+#: bbp-admin/bbp-forums.php:548
 msgid "Forum updated."
 msgstr ""
 
 #. translators: %s: date and time of the revision
-#: bbp-admin/bbp-forums.php:519
+#: bbp-admin/bbp-forums.php:553
 msgid "Forum restored to revision from %s"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:523
+#: bbp-admin/bbp-forums.php:557
 msgid "Forum created. <a href=\"%s\">View forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:526
+#: bbp-admin/bbp-forums.php:560
 msgid "Forum saved."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:529
+#: bbp-admin/bbp-forums.php:563
 msgid "Forum submitted. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:532
+#: bbp-admin/bbp-forums.php:566
 msgid ""
 "Forum scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
 "\">Preview forum</a>"
 msgstr ""
 
 #. translators: Publish box date format, see http:php.net/date
-#: bbp-admin/bbp-forums.php:534 bbp-admin/bbp-replies.php:884
-#: bbp-admin/bbp-topics.php:952
+#: bbp-admin/bbp-forums.php:568 bbp-admin/bbp-replies.php:925
+#: bbp-admin/bbp-topics.php:996
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:539
+#: bbp-admin/bbp-forums.php:573
 msgid "Forum draft updated. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
 msgstr ""
 
@@ -631,7 +631,7 @@ msgid "Discussion"
 msgstr ""
 
 #: bbp-admin/bbp-metaboxes.php:67 bbp-admin/bbp-metaboxes.php:421
-#: bbp-admin/bbp-metaboxes.php:424 bbp-admin/bbp-replies.php:583
+#: bbp-admin/bbp-metaboxes.php:424 bbp-admin/bbp-replies.php:617
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:22
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:94
 #: bbp-theme-compat/bbpress/loop-topics.php:19
@@ -723,7 +723,7 @@ msgstr ""
 msgid "Forum Order"
 msgstr ""
 
-#: bbp-admin/bbp-metaboxes.php:342 bbp-admin/bbp-topics.php:706
+#: bbp-admin/bbp-metaboxes.php:342 bbp-admin/bbp-topics.php:742
 msgid "(No Forum)"
 msgstr ""
 
@@ -765,14 +765,14 @@ msgstr ""
 msgid "IP Address"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:132
+#: bbp-admin/bbp-replies.php:145
 msgid ""
 "You can filter the list of replies by reply status using the text links in "
 "the upper left to show All, Published, Draft, or Trashed replies. The "
 "default view is to show all replies."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:134
+#: bbp-admin/bbp-replies.php:147
 msgid ""
 "You can refine the list to show only replies in a specific category or from "
 "a specific month by using the dropdown menus above the replies list. Click "
@@ -780,45 +780,45 @@ msgid ""
 "by clicking on the reply author, category or tag in the replies list."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:143
+#: bbp-admin/bbp-replies.php:156
 msgid ""
 "Hovering over a row in the replies list will display action links that allow "
 "you to manage your reply. You can perform the following actions:"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:145
+#: bbp-admin/bbp-replies.php:158
 msgid ""
 "<strong>Edit</strong> takes you to the editing screen for that reply. You "
 "can also reach that screen by clicking on the reply title."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:147
+#: bbp-admin/bbp-replies.php:160
 msgid ""
 "<strong>Trash</strong> removes your reply from this list and places it in "
 "the trash, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:148
+#: bbp-admin/bbp-replies.php:161
 msgid ""
 "<strong>Spam</strong> removes your reply from this list and places it in the "
 "spam queue, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:149
+#: bbp-admin/bbp-replies.php:162
 msgid ""
 "<strong>Preview</strong> will show you what your draft reply will look like "
 "if you publish it. View will take you to your live site to view the reply. "
 "Which link is available depends on your reply&#8217;s status."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:159
+#: bbp-admin/bbp-replies.php:172
 msgid ""
 "When using Bulk Edit, you can change the metadata (categories, author, etc.) "
 "for all selected replies at once. To remove a reply from the grouping, just "
 "click the x next to its name in the Bulk Edit area that appears."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:178
+#: bbp-admin/bbp-replies.php:193
 msgid ""
 "The title field and the big reply editing Area are fixed in place, but you "
 "can reposition all the other boxes using drag and drop, and can minimize or "
@@ -828,17 +828,17 @@ msgid ""
 "screen."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:188
+#: bbp-admin/bbp-replies.php:203
 msgid "Title and Reply Editor"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:190
+#: bbp-admin/bbp-replies.php:205
 msgid ""
 "<strong>Title</strong> - Enter a title for your reply. After you enter a "
 "title, you&#8217;ll see the permalink below, which you can edit."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:191
+#: bbp-admin/bbp-replies.php:206
 msgid ""
 "<strong>Reply Editor</strong> - Enter the text for your reply. There are two "
 "modes of editing: Visual and HTML. Choose the mode by clicking on the "
@@ -852,7 +852,7 @@ msgid ""
 "over the top area. Exit Fullscreen back to the regular reply editor."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:194
+#: bbp-admin/bbp-replies.php:209
 msgid ""
 "<strong>Publish</strong> - You can set the terms of publishing your reply in "
 "the Publish box. For Status, Visibility, and Publish (immediately), click on "
@@ -863,7 +863,7 @@ msgid ""
 "future or backdate a reply."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:197
+#: bbp-admin/bbp-replies.php:212
 msgid ""
 "<strong>reply Format</strong> - This designates how your theme will display "
 "a specific reply. For example, you could have a <em>standard</em> blog reply "
@@ -874,7 +874,7 @@ msgid ""
 "formats."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:201
+#: bbp-admin/bbp-replies.php:216
 msgid ""
 "<strong>Featured Image</strong> - This allows you to associate an image with "
 "your reply without inserting it. This is usually useful only if your theme "
@@ -882,67 +882,67 @@ msgid ""
 "custom header, etc."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:206 bbp-admin/bbp-replies.php:248
+#: bbp-admin/bbp-replies.php:221 bbp-admin/bbp-replies.php:266
 msgid "Reply Attributes"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:208
+#: bbp-admin/bbp-replies.php:223
 msgid "Select the attributes that your reply should have:"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:210
+#: bbp-admin/bbp-replies.php:225
 msgid ""
 "<strong>Forum</strong> dropdown determines the parent forum that the reply "
 "belongs to. Select the forum, or leave the default (Use Forum of Topic) to "
 "post the reply in forum of the topic."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:211
+#: bbp-admin/bbp-replies.php:226
 msgid ""
 "<strong>Topic</strong> determines the parent topic that the reply belongs to."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:226
+#: bbp-admin/bbp-replies.php:241
 msgid ""
 "<strong>Discussion</strong> - You can turn comments and pings on or off, and "
 "if there are comments on the reply, you can see them here and moderate them."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:329 bbp-admin/bbp-topics.php:346
+#: bbp-admin/bbp-replies.php:351 bbp-admin/bbp-topics.php:368
 #: bbp-theme-compat/bbpress/form-anonymous.php:17
 #: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:17
 msgid "Author Information"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:478
+#: bbp-admin/bbp-replies.php:507
 msgid "The reply was not found!"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:481 bbp-admin/bbp-topics.php:506
+#: bbp-admin/bbp-replies.php:510 bbp-admin/bbp-topics.php:535
 msgid "You do not have the permission to do that!"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:547
+#: bbp-admin/bbp-replies.php:578
 msgid "There was a problem marking the reply \"%1$s\" as spam."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:547
+#: bbp-admin/bbp-replies.php:578
 msgid "Reply \"%1$s\" successfully marked as spam."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:551
+#: bbp-admin/bbp-replies.php:582
 msgid "There was a problem unmarking the reply \"%1$s\" as spam."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:551
+#: bbp-admin/bbp-replies.php:582
 msgid "Reply \"%1$s\" successfully unmarked as spam."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:581
+#: bbp-admin/bbp-replies.php:615
 msgid "Title"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:584 bbp-admin/bbp-topics.php:649
+#: bbp-admin/bbp-replies.php:618 bbp-admin/bbp-topics.php:683
 #: bbp-theme-compat/bbpress/loop-replies.php:18
 #: bbp-theme-compat/bbpress/loop-replies.php:52
 #: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:17
@@ -951,119 +951,119 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:636 bbp-admin/bbp-replies.php:644
+#: bbp-admin/bbp-replies.php:672 bbp-admin/bbp-replies.php:680
 msgid "No Topic"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:662 bbp-admin/bbp-replies.php:677
-#: bbp-admin/bbp-topics.php:699
+#: bbp-admin/bbp-replies.php:698 bbp-admin/bbp-replies.php:713
+#: bbp-admin/bbp-topics.php:735
 msgid "No Forum"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:668
+#: bbp-admin/bbp-replies.php:704
 msgid "(Mismatch)"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:735 bbp-admin/bbp-topics.php:786
+#: bbp-admin/bbp-replies.php:772 bbp-admin/bbp-topics.php:824
 msgid "View &#8220;%s&#8221;"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:735 bbp-admin/bbp-topics.php:786
+#: bbp-admin/bbp-replies.php:772 bbp-admin/bbp-topics.php:824
 msgid "View"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:746
+#: bbp-admin/bbp-replies.php:783
 msgid "Mark the reply as not spam"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:746 bbp-admin/bbp-topics.php:817
+#: bbp-admin/bbp-replies.php:783 bbp-admin/bbp-topics.php:855
 msgid "Not spam"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:748
+#: bbp-admin/bbp-replies.php:785
 msgid "Mark this reply as spam"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:748 bbp-admin/bbp-topics.php:819
+#: bbp-admin/bbp-replies.php:785 bbp-admin/bbp-topics.php:857
 #: bbp-includes/bbp-reply-template.php:1645
 #: bbp-includes/bbp-topic-template.php:2559
 msgid "Spam"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:757 bbp-admin/bbp-topics.php:827
+#: bbp-admin/bbp-replies.php:794 bbp-admin/bbp-topics.php:865
 #: bbp-includes/bbp-reply-template.php:1589
 #: bbp-includes/bbp-topic-template.php:2317
 msgid "Restore this item from the Trash"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:757 bbp-admin/bbp-topics.php:827
+#: bbp-admin/bbp-replies.php:794 bbp-admin/bbp-topics.php:865
 #: bbp-includes/bbp-reply-template.php:1575
 #: bbp-includes/bbp-topic-template.php:2303
 msgid "Restore"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:759 bbp-admin/bbp-topics.php:829
+#: bbp-admin/bbp-replies.php:796 bbp-admin/bbp-topics.php:867
 #: bbp-includes/bbp-reply-template.php:1591
 #: bbp-includes/bbp-topic-template.php:2319
 msgid "Move this item to the Trash"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:759 bbp-admin/bbp-topics.php:829
+#: bbp-admin/bbp-replies.php:796 bbp-admin/bbp-topics.php:867
 #: bbp-includes/bbp-reply-template.php:1574
 #: bbp-includes/bbp-topic-template.php:2302
 msgid "Trash"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:763 bbp-admin/bbp-topics.php:833
+#: bbp-admin/bbp-replies.php:800 bbp-admin/bbp-topics.php:871
 #: bbp-includes/bbp-reply-template.php:1595
 #: bbp-includes/bbp-topic-template.php:2323
 msgid "Delete this item permanently"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:763 bbp-admin/bbp-topics.php:833
+#: bbp-admin/bbp-replies.php:800 bbp-admin/bbp-topics.php:871
 msgid "Delete Permanently"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:788 bbp-admin/bbp-topics.php:857
+#: bbp-admin/bbp-replies.php:826 bbp-admin/bbp-topics.php:897
 msgid "Empty Spam"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:798 bbp-admin/bbp-topics.php:867
+#: bbp-admin/bbp-replies.php:836 bbp-admin/bbp-topics.php:907
 msgid "In all forums"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:855
+#: bbp-admin/bbp-replies.php:896
 msgid "Reply updated. <a href=\"%s\">View topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:864
+#: bbp-admin/bbp-replies.php:905
 msgid "Reply updated."
 msgstr ""
 
 #. translators: %s: date and time of the revision
-#: bbp-admin/bbp-replies.php:869
+#: bbp-admin/bbp-replies.php:910
 msgid "Reply restored to revision from %s"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:873
+#: bbp-admin/bbp-replies.php:914
 msgid "Reply created. <a href=\"%s\">View topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:876
+#: bbp-admin/bbp-replies.php:917
 msgid "Reply saved."
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:879
+#: bbp-admin/bbp-replies.php:920
 msgid "Reply submitted. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:882
+#: bbp-admin/bbp-replies.php:923
 msgid ""
 "Reply scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
 "\">Preview topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-replies.php:889
+#: bbp-admin/bbp-replies.php:930
 msgid "Reply draft updated. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
 msgstr ""
 
@@ -1727,7 +1727,7 @@ msgstr ""
 msgid "All Topics"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:817 bbp-includes/bbp-reply-functions.php:1453
+#: bbp-admin/bbp-tools.php:817 bbp-includes/bbp-reply-functions.php:1458
 #: bbpress.php:592
 msgid "All Replies"
 msgstr ""
@@ -1804,14 +1804,14 @@ msgstr ""
 msgid "Deleting Roles and Capabilities&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:132
+#: bbp-admin/bbp-topics.php:145
 msgid ""
 "You can filter the list of replies by topic status using the text links in "
 "the upper left to show All, Published, Draft, or Trashed replies. The "
 "default view is to show all replies."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:134
+#: bbp-admin/bbp-topics.php:147
 msgid ""
 "You can refine the list to show only replies in a specific category or from "
 "a specific month by using the dropdown menus above the replies list. Click "
@@ -1819,45 +1819,45 @@ msgid ""
 "by clicking on the topic author, category or tag in the replies list."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:143
+#: bbp-admin/bbp-topics.php:156
 msgid ""
 "Hovering over a row in the replies list will display action links that allow "
 "you to manage your topic. You can perform the following actions:"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:145
+#: bbp-admin/bbp-topics.php:158
 msgid ""
 "<strong>Edit</strong> takes you to the editing screen for that topic. You "
 "can also reach that screen by clicking on the topic title."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:147
+#: bbp-admin/bbp-topics.php:160
 msgid ""
 "<strong>Trash</strong> removes your topic from this list and places it in "
 "the trash, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:148
+#: bbp-admin/bbp-topics.php:161
 msgid ""
 "<strong>Spam</strong> removes your topic from this list and places it in the "
 "spam queue, from which you can permanently delete it."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:149
+#: bbp-admin/bbp-topics.php:162
 msgid ""
 "<strong>Preview</strong> will show you what your draft topic will look like "
 "if you publish it. View will take you to your live site to view the topic. "
 "Which link is available depends on your topic&#8217;s status."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:159
+#: bbp-admin/bbp-topics.php:172
 msgid ""
 "When using Bulk Edit, you can change the metadata (categories, author, etc.) "
 "for all selected replies at once. To remove a topic from the grouping, just "
 "click the x next to its name in the Bulk Edit area that appears."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:178
+#: bbp-admin/bbp-topics.php:193
 msgid ""
 "The title field and the big topic editing Area are fixed in place, but you "
 "can reposition all the other boxes using drag and drop, and can minimize or "
@@ -1867,17 +1867,17 @@ msgid ""
 "screen."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:188
+#: bbp-admin/bbp-topics.php:203
 msgid "Title and Topic Editor"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:190
+#: bbp-admin/bbp-topics.php:205
 msgid ""
 "<strong>Title</strong> - Enter a title for your topic. After you enter a "
 "title, you&#8217;ll see the permalink below, which you can edit."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:191
+#: bbp-admin/bbp-topics.php:206
 msgid ""
 "<strong>Topic Editor</strong> - Enter the text for your topic. There are two "
 "modes of editing: Visual and HTML. Choose the mode by clicking on the "
@@ -1891,7 +1891,7 @@ msgid ""
 "over the top area. Exit Fullscreen back to the regular topic editor."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:194
+#: bbp-admin/bbp-topics.php:209
 msgid ""
 "<strong>Publish</strong> - You can set the terms of publishing your topic in "
 "the Publish box. For Status, Visibility, and Publish (immediately), click on "
@@ -1902,7 +1902,7 @@ msgid ""
 "future or backdate a topic."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:197
+#: bbp-admin/bbp-topics.php:212
 msgid ""
 "<strong>topic Format</strong> - This designates how your theme will display "
 "a specific topic. For example, you could have a <em>standard</em> blog topic "
@@ -1913,7 +1913,7 @@ msgid ""
 "formats."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:201
+#: bbp-admin/bbp-topics.php:216
 msgid ""
 "<strong>Featured Image</strong> - This allows you to associate an image with "
 "your topic without inserting it. This is usually useful only if your theme "
@@ -1921,22 +1921,22 @@ msgid ""
 "custom header, etc."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:206 bbp-admin/bbp-topics.php:248
+#: bbp-admin/bbp-topics.php:221 bbp-admin/bbp-topics.php:266
 msgid "Topic Attributes"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:208
+#: bbp-admin/bbp-topics.php:223
 msgid "Select the attributes that your topic should have:"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:210
+#: bbp-admin/bbp-topics.php:225
 msgid ""
 "<strong>Forum</strong> dropdown determines the parent forum that the topic "
 "belongs to. Select the forum or category from the dropdown, or leave the "
 "default (No Forum) to post the topic without an assigned forum."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:211
+#: bbp-admin/bbp-topics.php:226
 msgid ""
 "<strong>Topic Type</strong> dropdown indicates the sticky status of the "
 "topic. Selecting the super sticky option would stick the topic to the front "
@@ -1944,163 +1944,163 @@ msgid ""
 "its respective forum. Selecting normal would not stick the topic anywhere."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:226
+#: bbp-admin/bbp-topics.php:241
 msgid ""
 "<strong>Discussion</strong> - You can turn comments and pings on or off, and "
 "if there are comments on the topic, you can see them here and moderate them."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:503
+#: bbp-admin/bbp-topics.php:532
 msgid "The topic was not found!"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:591
+#: bbp-admin/bbp-topics.php:622
 msgid "There was a problem opening the topic \"%1$s\"."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:591
+#: bbp-admin/bbp-topics.php:622
 msgid "Topic \"%1$s\" successfully opened."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:595
+#: bbp-admin/bbp-topics.php:626
 msgid "There was a problem closing the topic \"%1$s\"."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:595
+#: bbp-admin/bbp-topics.php:626
 msgid "Topic \"%1$s\" successfully closed."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:599
+#: bbp-admin/bbp-topics.php:630
 msgid "There was a problem sticking the topic \"%1$s\" to front."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:599
+#: bbp-admin/bbp-topics.php:630
 msgid "Topic \"%1$s\" successfully sticked to front."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:603
+#: bbp-admin/bbp-topics.php:634
 msgid "There was a problem sticking the topic \"%1$s\"."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:603
+#: bbp-admin/bbp-topics.php:634
 msgid "Topic \"%1$s\" successfully sticked."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:607
+#: bbp-admin/bbp-topics.php:638
 msgid "There was a problem unsticking the topic \"%1$s\"."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:607
+#: bbp-admin/bbp-topics.php:638
 msgid "Topic \"%1$s\" successfully unsticked."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:611
+#: bbp-admin/bbp-topics.php:642
 msgid "There was a problem marking the topic \"%1$s\" as spam."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:611
+#: bbp-admin/bbp-topics.php:642
 msgid "Topic \"%1$s\" successfully marked as spam."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:615
+#: bbp-admin/bbp-topics.php:646
 msgid "There was a problem unmarking the topic \"%1$s\" as spam."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:615
+#: bbp-admin/bbp-topics.php:646
 msgid "Topic \"%1$s\" successfully unmarked as spam."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:648 bbp-theme-compat/bbpress/loop-topics.php:20
+#: bbp-admin/bbp-topics.php:682 bbp-theme-compat/bbpress/loop-topics.php:20
 #: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:18
 msgid "Voices"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:741 bbp-includes/bbp-topic-template.php:1761
+#: bbp-admin/bbp-topics.php:777 bbp-includes/bbp-topic-template.php:1761
 msgid "No Replies"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:796
+#: bbp-admin/bbp-topics.php:834
 msgid "Close this topic"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:796
+#: bbp-admin/bbp-topics.php:834
 msgctxt "Close a Topic"
 msgid "Close"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:798
+#: bbp-admin/bbp-topics.php:836
 msgid "Open this topic"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:798
+#: bbp-admin/bbp-topics.php:836
 msgctxt "Open a Topic"
 msgid "Open"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:807
+#: bbp-admin/bbp-topics.php:845
 msgid "Unstick this topic"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:807 bbp-includes/bbp-topic-template.php:2433
+#: bbp-admin/bbp-topics.php:845 bbp-includes/bbp-topic-template.php:2433
 msgid "Unstick"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:810
+#: bbp-admin/bbp-topics.php:848
 msgid "Stick this topic to its forum"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:810 bbp-includes/bbp-topic-template.php:2432
+#: bbp-admin/bbp-topics.php:848 bbp-includes/bbp-topic-template.php:2432
 msgid "Stick"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:810
+#: bbp-admin/bbp-topics.php:848
 msgid "Stick this topic to front"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:810 bbp-includes/bbp-topic-template.php:2434
+#: bbp-admin/bbp-topics.php:848 bbp-includes/bbp-topic-template.php:2434
 msgid "to front"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:817
+#: bbp-admin/bbp-topics.php:855
 msgid "Mark the topic as not spam"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:819
+#: bbp-admin/bbp-topics.php:857
 msgid "Mark this topic as spam"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:923
+#: bbp-admin/bbp-topics.php:967
 msgid "Topic updated. <a href=\"%s\">View topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:932
+#: bbp-admin/bbp-topics.php:976
 msgid "Topic updated."
 msgstr ""
 
 #. translators: %s: date and time of the revision
-#: bbp-admin/bbp-topics.php:937
+#: bbp-admin/bbp-topics.php:981
 msgid "Topic restored to revision from %s"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:941
+#: bbp-admin/bbp-topics.php:985
 msgid "Topic created. <a href=\"%s\">View topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:944
+#: bbp-admin/bbp-topics.php:988
 msgid "Topic saved."
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:947
+#: bbp-admin/bbp-topics.php:991
 msgid "Topic submitted. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:950
+#: bbp-admin/bbp-topics.php:994
 msgid ""
 "Topic scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
 "\">Preview topic</a>"
 msgstr ""
 
-#: bbp-admin/bbp-topics.php:957
+#: bbp-admin/bbp-topics.php:1001
 msgid "Topic draft updated. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
 msgstr ""
 
@@ -2849,11 +2849,11 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem deleting the reply!"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1451
+#: bbp-includes/bbp-reply-functions.php:1456
 msgid "All Posts"
 msgstr ""
 
-#: bbp-includes/bbp-reply-functions.php:1493
+#: bbp-includes/bbp-reply-functions.php:1498
 #: bbp-includes/bbp-topic-functions.php:3140
 msgid "Replies: %s"
 msgstr ""
@@ -4352,9 +4352,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc4)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.1-rc4)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
