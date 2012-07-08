@@ -38,7 +38,7 @@ class BBP_Topics_Admin {
 	 * @uses BBP_Topics_Admin::setup_actions() Setup the hooks and actions
 	 * @uses BBP_Topics_Admin::setup_help() Setup the help text
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
 	}
@@ -55,7 +55,7 @@ class BBP_Topics_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
-	function setup_actions() {
+	private function setup_actions() {
 
 		// Add some general styling to the admin area
 		add_action( 'bbp_admin_head',        array( $this, 'admin_head'       ) );
@@ -92,14 +92,25 @@ class BBP_Topics_Admin {
 	}
 
 	/**
+	 * Should we bail out of this method?
+	 *
+	 * @since bbPress (r4067)
+	 * @return boolean
+	 */
+	private function bail() {
+		if ( $this->post_type != get_current_screen()->post_type )
+			return true;
+
+		return false;
+	}
+
+	/**
 	 * Admin globals
 	 *
 	 * @since bbPress (r2646)
 	 * @access private
 	 */
-	function setup_globals() {
-
-		// Setup the post type for this admin component
+	private function setup_globals() {
 		$this->post_type = bbp_get_topic_post_type();
 	}
 
@@ -112,6 +123,8 @@ class BBP_Topics_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
+
+		if ( $this->bail() ) return;
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
@@ -174,6 +187,8 @@ class BBP_Topics_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function new_help() {
+
+		if ( $this->bail() ) return;
 
 		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
@@ -242,7 +257,10 @@ class BBP_Topics_Admin {
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
-	function attributes_metabox() {
+	public function attributes_metabox() {
+
+		if ( $this->bail() ) return;
+
 		add_meta_box (
 			'bbp_topic_attributes',
 			__( 'Topic Attributes', 'bbpress' ),
@@ -267,8 +285,10 @@ class BBP_Topics_Admin {
 	 *                    topic id and parent id
 	 * @return int Parent id
 	 */
-	function attributes_metabox_save( $topic_id ) {
+	public function attributes_metabox_save( $topic_id ) {
 		
+		if ( $this->bail() ) return $topic_id;
+
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $topic_id;
@@ -334,7 +354,9 @@ class BBP_Topics_Admin {
 	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
 	 *                    id
 	 */
-	function author_metabox() {
+	public function author_metabox() {
+
+		if ( $this->bail() ) return;
 
 		// Bail if post_type is not a topic
 		if ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) )
@@ -369,7 +391,9 @@ class BBP_Topics_Admin {
 	 *                    anonymous data
 	 * @return int Topic or reply id
 	 */
-	function author_metabox_save( $post_id ) {
+	public function author_metabox_save( $post_id ) {
+
+		if ( $this->bail() ) return $post_id;
 
 		// Bail if no post_id
 		if ( empty( $post_id ) )
@@ -409,7 +433,10 @@ class BBP_Topics_Admin {
 	 * @uses sanitize_html_class() To sanitize the classes
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
-	function admin_head() {
+	public function admin_head() {
+
+		if ( $this->bail() ) return;
+
 		?>
 
 		<style type="text/css" media="screen">
@@ -488,7 +515,9 @@ class BBP_Topics_Admin {
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_safe_redirect() Redirect the page to custom url
 	 */
-	function toggle_topic() {
+	public function toggle_topic() {
+
+		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
@@ -567,7 +596,9 @@ class BBP_Topics_Admin {
 	 * @uses apply_filters() Calls 'bbp_toggle_topic_notice_admin' with
 	 *                        message, topic id, notice and is it a failure
 	 */
-	function toggle_topic_notice() {
+	public function toggle_topic_notice() {
+
+		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
@@ -639,7 +670,10 @@ class BBP_Topics_Admin {
 	 *                        the columns
 	 * @return array $columns bbPress topic columns
 	 */
-	function topics_column_headers( $columns ) {
+	public function topics_column_headers( $columns ) {
+
+		if ( $this->bail() ) return $columns;
+
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Topics',    'bbpress' ),
@@ -680,6 +714,8 @@ class BBP_Topics_Admin {
 	 *                    column and topic id
 	 */
 	function topics_column_data( $column, $topic_id ) {
+
+		if ( $this->bail() ) return;
 
 		// Get topic forum ID
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
@@ -777,7 +813,9 @@ class BBP_Topics_Admin {
 	 * @uses get_delete_post_link() To get the delete post link of the topic
 	 * @return array $actions Actions
 	 */
-	function topics_row_actions( $actions, $topic ) {
+	public function topics_row_actions( $actions, $topic ) {
+
+		if ( $this->bail() ) return $actions;
 
 		unset( $actions['inline hide-if-no-js'] );
 
@@ -849,7 +887,9 @@ class BBP_Topics_Admin {
 	 * @uses bbp_dropdown() To generate a forum dropdown
 	 * @return bool False. If post type is not topic or reply
 	 */
-	function filter_dropdown() {
+	public function filter_dropdown() {
+
+		if ( $this->bail() ) return;
 
 		// Add Empty Spam button
 		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
@@ -881,6 +921,8 @@ class BBP_Topics_Admin {
 	 */
 	function filter_post_rows( $query_vars ) {
 
+		if ( $this->bail() ) return $query_vars;
+
 		// Add post_parent query_var if one is present
 		if ( !empty( $_GET['bbp_forum_id'] ) ) {
 			$query_vars['meta_key']   = '_bbp_forum_id';
@@ -906,8 +948,10 @@ class BBP_Topics_Admin {
 	 *
 	 * @return array
 	 */
-	function updated_messages( $messages ) {
+	public function updated_messages( $messages ) {
 		global $post_ID;
+
+		if ( $this->bail() ) return $messages;
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( $post_ID );
@@ -973,10 +1017,5 @@ endif; // class_exists check
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_topics() {
-	global $typenow;
-
-	if ( bbp_get_topic_post_type() != $typenow )
-		return;
-
 	bbpress()->admin->topics = new BBP_Topics_Admin();
 }

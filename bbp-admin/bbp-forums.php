@@ -38,7 +38,7 @@ class BBP_Forums_Admin {
 	 * @uses BBP_Forums_Admin::setup_actions() Setup the hooks and actions
 	 * @uses BBP_Forums_Admin::setup_help() Setup the help text
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
 	}
@@ -55,7 +55,7 @@ class BBP_Forums_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
-	function setup_actions() {
+	private function setup_actions() {
 
 		// Add some general styling to the admin area
 		add_action( 'bbp_admin_head',        array( $this, 'admin_head'       ) );
@@ -80,14 +80,25 @@ class BBP_Forums_Admin {
 	}
 
 	/**
+	 * Should we bail out of this method?
+	 *
+	 * @since bbPress (r4067)
+	 * @return boolean
+	 */
+	private function bail() {
+		if ( $this->post_type != get_current_screen()->post_type )
+			return true;
+
+		return false;
+	}
+		
+	/**
 	 * Admin globals
 	 *
 	 * @since bbPress (r2646)
 	 * @access private
 	 */
-	function setup_globals() {
-
-		// Setup the post type for this admin component
+	private function setup_globals() {
 		$this->post_type = bbp_get_forum_post_type();
 	}
 
@@ -100,6 +111,8 @@ class BBP_Forums_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
+
+		if ( $this->bail() ) return;
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
@@ -162,6 +175,8 @@ class BBP_Forums_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function new_help() {
+
+		if ( $this->bail() ) return;
 
 		$customize_display = '<p>' . __( 'The title field and the big forum editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
@@ -233,7 +248,10 @@ class BBP_Forums_Admin {
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
-	function attributes_metabox() {
+	public function attributes_metabox() {
+		
+		if ( $this->bail() ) return;
+
 		add_meta_box (
 			'bbp_forum_attributes',
 			__( 'Forum Attributes', 'bbpress' ),
@@ -268,7 +286,9 @@ class BBP_Forums_Admin {
 	 *                    forum id
 	 * @return int Forum id
 	 */
-	function attributes_metabox_save( $forum_id ) {
+	public function attributes_metabox_save( $forum_id ) {
+
+		if ( $this->bail() ) return $forum_id;
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -311,7 +331,10 @@ class BBP_Forums_Admin {
 	 * @uses sanitize_html_class() To sanitize the classes
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
-	function admin_head() {
+	public function admin_head() {
+		
+		if ( $this->bail() ) return;
+
 		?>
 
 		<style type="text/css" media="screen">
@@ -387,7 +410,10 @@ class BBP_Forums_Admin {
 	 *                        the columns
 	 * @return array $columns bbPress forum columns
 	 */
-	function column_headers( $columns ) {
+	public function column_headers( $columns ) {
+		
+		if ( $this->bail() ) return $columns;
+
 		$columns = array (
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Forum',     'bbpress' ),
@@ -418,7 +444,10 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_admin_forums_column_data' with the
 	 *                    column and forum id
 	 */
-	function column_data( $column, $forum_id ) {
+	public function column_data( $column, $forum_id ) {
+		
+		if ( $this->bail() ) return;
+
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
 				bbp_forum_topic_count( $forum_id );
@@ -464,7 +493,10 @@ class BBP_Forums_Admin {
 	 * @uses the_content() To output forum description
 	 * @return array $actions Actions
 	 */
-	function row_actions( $actions, $forum ) {
+	public function row_actions( $actions, $forum ) {
+		
+		if ( $this->bail() ) return $actions;
+
 		unset( $actions['inline hide-if-no-js'] );
 
 		// simple hack to show the forum description under the title
@@ -488,8 +520,10 @@ class BBP_Forums_Admin {
 	 *
 	 * @return array
 	 */
-	function updated_messages( $messages ) {
+	public function updated_messages( $messages ) {
 		global $post_ID;
+
+		if ( $this->bail() ) return $messages;
 
 		// URL for the current forum
 		$forum_url = bbp_get_forum_permalink( $post_ID );
@@ -555,10 +589,5 @@ endif; // class_exists check
  * @uses BBP_Forums_Admin
  */
 function bbp_admin_forums() {
-	global $typenow;
-
-	if ( bbp_get_forum_post_type() != $typenow )
-		return;
-
 	bbpress()->admin->forums = new BBP_Forums_Admin();
 }
