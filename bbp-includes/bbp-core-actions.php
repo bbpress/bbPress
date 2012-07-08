@@ -52,6 +52,7 @@ add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
 add_action( 'setup_theme',            'bbp_setup_theme',            10 );
 add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
 add_action( 'template_redirect',      'bbp_template_redirect',      10 );
+add_action( 'login_form_login',       'bbp_login_form_login',       10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -254,6 +255,9 @@ add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',        10 );
 add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',        10 );
 add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',        10 );
 add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',    10 );
+
+// Maybe convert the users password
+add_action( 'bbp_login_form_login', 'bbp_user_maybe_convert_pass' );
 
 /**
  * Requires and creates the BuddyPress extension, and adds component creation
@@ -488,6 +492,16 @@ function bbp_enqueue_scripts() {
  */
 function bbp_add_rewrite_tags() {
 	do_action ( 'bbp_add_rewrite_tags' );
+}
+
+/**
+ * Add the bbPress-specific login forum action
+ *
+ * @since bbPress (r2753)
+ * @uses do_action() Calls 'bbp_login_form_login'
+ */
+function bbp_login_form_login() {
+	do_action ( 'bbp_login_form_login' );
 }
 
 /** Final Action **************************************************************/

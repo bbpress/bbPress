@@ -62,9 +62,6 @@ class BBP_Converter {
 		// Attach the bbConverter admin settings action to the WordPress admin init action.
 		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) );
 
-		// Attach to the login process to aid in converting passwords to wordpress.
-		add_action( 'login_form_login',            array( $this, 'convert_pass'            ) );
-
 		// Attach to the admin ajax request to process cycles
 		add_action( 'wp_ajax_bbconverter_process', array( $this, 'process_callback'        ) );
 	}
@@ -474,29 +471,6 @@ class BBP_Converter {
 				$this->converter_output( __( 'Conversion Complete', 'bbpress' ) );
 
 				break;
-		}
-	}
-
-	/**
-	 * Convert passwords from previous forum to wordpress.
-	 *
-	 * @since bbPress (r3813)
-	 * @global WPDB $wpdb
-	 */
-	public function convert_pass() {
-
-		$username = !empty( $_POST['log'] ) ? $_POST['log'] : '';
-
-		if ( !empty( $username ) ) {
-
-			global $wpdb;
-
-			$row = $wpdb->get_row( "SELECT * FROM {$wpdb->users} INNER JOIN {$wpdb->usermeta} ON user_id = ID WHERE meta_key = '_bbp_converter_class' AND user_login = '{$username}' LIMIT 1" );
-
-			if ( !empty( $row ) ) {
-				$converter = bbp_new_converter( $row->meta_value );
-				$converter->callback_pass( $username, $_POST['pwd'] );
-			}
 		}
 	}
 
