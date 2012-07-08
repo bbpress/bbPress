@@ -1698,9 +1698,6 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 		// Replies
 		case bbp_get_reply_post_type() :
 
-		// Topics and replies
-		case array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) :
-
 			// Get forums to exclude
 			$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
 
