@@ -1,13 +1,13 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby
-Tags: bbpress, forums, discussion, support, theme, buddypress, akismet, multisite
+Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.4
 Tested up to: 3.4
-Stable tag: 2.0.3
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-bbPress is forum software with a twist from the creators of WordPress
+bbPress is forum software, made the WordPress way
 
 == Description ==
 
@@ -26,42 +26,33 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
-= 2.1-rc-4 =
-* Improved cache busting on creation
+= 2.1 =
+* WordPress 3.4 compatibility
+* Deprecate $bbp global, use bbpress() singleton
+* Private forums now visible to registered users
+* Updated forum converter
+* Topic and reply edits now ran through Akismet
 * Fixed Akismet edit bug
 * Fixed Widgets nooping globals
 * Fixed translation load order
-
-= 2.1-rc-3 =
-* Improve nonce checks
-* Fixed user-edit bug
-
-= 2.1-rc-2 =
-* Fix settings screen regressions
-* Run topic and reply edits through Akismet
-
-= 2.1-rc-1 =
+* Fixed user-edit bugs
+* Fixed settings screen regressions
 * Improved post cache invalidation
+* Improved admin-side nonce checks
 * Improved admin settings API
 * Improved bbPress 1.1 converter
-* Added 2x menu icons for HiDPI displays
-
-= 2.1-beta-1 =
 * Improved BuddyPress integration
 * Improved Theme-Compatibility
 * Improved template coverage
 * Improved query performance
 * Improved breadcrumb behavior
 * Improved multisite integration
-* Improved coding clarity
-* WordPress 3.4 compatibility
-* Deprecate $bbp global, use bbpress() singleton
-* Private forums now visible to registered users
-* Updated converter
-* RTL fixes
-* Add fancy editor support
-* Add fallback theme picker
-* Add tools for importing, resetting, and uninstalling
+* Improved code clarity
+* Improved RTL styling
+* Added 2x menu icons for HiDPI displays
+* Added fancy editor support
+* Added fallback theme picker
+* Added tools for importing, resetting, and removing
 
 = 2.0 =
 * Released on September 21, 2011
