@@ -23,6 +23,10 @@ function bbp_admin_separator() {
 	if ( !current_user_can( 'edit_forums' ) && !current_user_can( 'edit_topics' ) && !current_user_can( 'edit_replies' ) )
 		return;
 
+	// Prevent duplicate separators when no core menu items exist
+	if ( !current_user_can( 'manage_options' ) )
+		return;
+
 	global $menu;
 
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
