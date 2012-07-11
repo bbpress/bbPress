@@ -518,7 +518,6 @@ function bbp_get_caps_for_role( $role = '' ) {
  *
  * @since bbPress (r3410)
  *
- * @uses is_multisite()
  * @uses bbp_allow_global_access()
  * @uses bbp_is_user_inactive()
  * @uses is_user_logged_in()
@@ -529,8 +528,8 @@ function bbp_get_caps_for_role( $role = '' ) {
  */
 function bbp_global_access_auto_role() {
 
-	// Bail if not multisite or forum is not global
-	if ( !is_multisite() || !bbp_allow_global_access() )
+	// Bail if forum is not global
+	if ( ! bbp_allow_global_access() )
 		return;
 
 	// Bail if user is not active
@@ -603,7 +602,6 @@ function bbp_get_moderator_role() {
  *
  * @since bbPress (r3380)
  *
- * @uses is_multisite()
  * @uses bbp_allow_global_access()
  * @uses bbp_is_user_inactive()
  * @uses is_user_logged_in()
@@ -615,8 +613,8 @@ function bbp_get_moderator_role() {
  */
 function bbp_global_access_role_mask() {
 
-	// Bail if not multisite or forum is not global
-	if ( !is_multisite() || !bbp_allow_global_access() )
+	// Bail if forum is not global
+	if ( ! bbp_allow_global_access() )
 		return;
 
 	// Bail if user is marked as spam or is deleted
