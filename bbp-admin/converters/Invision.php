@@ -162,7 +162,7 @@ class Invision extends BBP_Converter_Base
 
 		// Post id. Stores in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'posts', 'from_fieldname' => 'pid', 'from_expression' => 'WHERE posts.new_topic = 1',
+			'from_tablename' => 'posts', 'from_fieldname' => 'pid', 'from_expression' => 'WHERE posts.new_topic = 0',
 			'to_type' => 'reply', 'to_fieldname' => '_bbp_post_id'
 		);
 		
