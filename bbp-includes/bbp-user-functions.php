@@ -1455,9 +1455,12 @@ function bbp_user_maybe_convert_pass() {
 	global $wpdb;
 
 	// Bail if no user password to convert
-	$row = $wpdb->get_row( "SELECT * FROM {$wpdb->users} INNER JOIN {$wpdb->usermeta} ON user_id = ID WHERE meta_key = '_bbp_converter_class' AND user_login = '{$username}' LIMIT 1" );
+	$row = $wpdb->get_row( "SELECT * FROM {$wpdb->users} INNER JOIN {$wpdb->usermeta} ON user_id = ID WHERE meta_key = '_bbp_class' AND user_login = '{$username}' LIMIT 1" );
 	if ( empty( $row ) || is_wp_error( $row ) )
 		return;
+
+	// Setup admin (to include converter)
+	require_once( bbpress()->plugin_dir . 'bbp-admin/bbp-admin.php' );
 
 	// Convert password
 	require_once( bbpress()->admin->admin_dir . 'bbp-converter.php' );
