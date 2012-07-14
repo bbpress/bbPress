@@ -41,8 +41,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since bbPress (r3732)
 	 *
-	 * @uses BBP_Twenty_Ten::setup_globals()
-	 * @uses BBP_Twenty_Ten::setup_actions()
+	 * @uses BBP_Default::setup_globals()
+	 * @uses BBP_Default::setup_actions()
 	 */
 	public function __construct() {
 		$this->setup_globals();
