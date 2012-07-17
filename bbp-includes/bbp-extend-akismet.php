@@ -393,7 +393,10 @@ class BBP_Akismet {
 		$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
 
 		// Check the high-speed cam
-		$post_data['bbp_akismet_result'] = $response[1];
+		if ( !empty( $response[1] ) && ! is_wp_error( $response[1] ) )
+			$post_data['bbp_akismet_result'] = $response[1];
+		else
+			$post_data['bbp_akismet_result'] = 'false';
 
 		// This is ham
 		return $post_data;
