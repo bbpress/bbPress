@@ -1029,7 +1029,7 @@ Post Link: %3$s
 
 -----------
 
-You are recieving this email because you subscribed to a forum topic.
+You are receiving this email because you subscribed to a forum topic.
 
 Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 				
