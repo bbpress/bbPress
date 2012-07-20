@@ -528,7 +528,7 @@ function bbp_get_statistics( $args = '' ) {
 	}
 
 	// Topic Tags
-	if ( !empty( $count_tags ) ) {
+	if ( !empty( $count_tags ) && bbp_allow_topic_tags() ) {
 
 		// Get the count
 		$topic_tag_count = wp_count_terms( bbp_get_topic_tag_tax_id(), array( 'hide_empty' => true ) );

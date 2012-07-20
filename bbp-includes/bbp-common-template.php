@@ -347,6 +347,10 @@ function bbp_is_topic_split() {
  */
 function bbp_is_topic_tag() {
 
+	// Bail if topic-tags are off
+	if ( ! bbp_allow_topic_tags() )
+		return false;
+
 	// Return false if editing a topic tag
 	if ( bbp_is_topic_tag_edit() )
 		return false;
@@ -371,6 +375,10 @@ function bbp_is_topic_tag() {
  */
 function bbp_is_topic_tag_edit() {
 	global $wp_query, $pagenow, $taxnow;
+
+	// Bail if topic-tags are off
+	if ( ! bbp_allow_topic_tags() )
+		return false;
 
 	// Assume false
 	$retval = false;

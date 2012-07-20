@@ -772,7 +772,7 @@ final class bbPress {
 				'show_tagcloud'         => true,
 				'hierarchical'          => false,
 				'public'                => true,
-				'show_ui'               => bbp_current_user_can_see( bbp_get_topic_tag_tax_id() )
+				'show_ui'               => bbp_allow_topic_tags() && bbp_current_user_can_see( bbp_get_topic_tag_tax_id() )
 			)
 		) );
 	}

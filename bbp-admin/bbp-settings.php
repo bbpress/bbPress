@@ -116,6 +116,14 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Allow topic tags
+			'_bbp_enable_tags' => array(
+				'title'             => __( 'Allow Topic-Tags', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_topic_tags',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Allow anonymous posting setting
 			'_bbp_allow_anonymous' => array(
 				'title'             => __( 'Allow Anonymous Posting', 'bbpress' ),
@@ -416,6 +424,22 @@ function bbp_admin_setting_callback_subscriptions() {
 
 	<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( bbp_is_subscriptions_active( true ) ); ?> />
 	<label for="_bbp_enable_subscriptions"><?php _e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow topic tags setting field
+ *
+ * @since bbPress (r####)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_topic_tags() {
+?>
+
+	<input id="_bbp_allow_topic_tags" name="_bbp_allow_topic_tags" type="checkbox" id="_bbp_allow_topic_tags" value="1" <?php checked( bbp_allow_topic_tags( true ) ); ?> />
+	<label for="_bbp_allow_topic_tags"><?php _e( 'Allow topics to have tags', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1238,6 +1262,7 @@ function bbp_admin_settings_help() {
 							'<li>' . __( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the forum.', 'bbpress' ) . '</li>' .
 							'<li>' . __( 'Favorites are a way for users to save and later return to topics they favor. This is enabled by default.',                                                                           'bbpress' ) . '</li>' .
 							'<li>' . __( 'Subscriptions allow users to subscribe for notifications to topics that interest them. This is enabled by default.',                                                                 'bbpress' ) . '</li>' .
+							'<li>' . __( 'Topic-Tags allow users to filter topics between forums. This is enabled by default.',                                                                                                'bbpress' ) . '</li>' .
 							'<li>' . __( '"Anonymous Posting" allows guest users who do not have accounts on your site to both create topics as well as replies.',                                                             'bbpress' ) . '</li>' .
 							'<li>' . __( 'The Fancy Editor brings the luxury of the Visual editor and HTML editor from the traditional WordPress dashboard into your theme.',                                                  'bbpress' ) . '</li>' .
 							'<li>' . __( 'Auto-embed will embed the media content from a URL directly into the replies. For example: links to Flickr and YouTube.',                                                            'bbpress' ) . '</li>' .

@@ -104,14 +104,18 @@
 
 					<?php endif; ?>
 
-					<?php do_action( 'bbp_theme_before_topic_form_tags' ); ?>
+					<?php if ( bbp_allow_topic_tags() ) : ?>
 
-					<p>
-						<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
-						<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" <?php disabled( bbp_is_topic_spam() ); ?> />
-					</p>
+						<?php do_action( 'bbp_theme_before_topic_form_tags' ); ?>
 
-					<?php do_action( 'bbp_theme_after_topic_form_tags' ); ?>
+						<p>
+							<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
+							<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" <?php disabled( bbp_is_topic_spam() ); ?> />
+						</p>
+
+						<?php do_action( 'bbp_theme_after_topic_form_tags' ); ?>
+
+					<?php endif; ?>
 
 					<?php if ( !bbp_is_single_forum() ) : ?>
 

@@ -1976,6 +1976,10 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 	 */
 	function bbp_get_topic_tag_list( $topic_id = 0, $args = '' ) {
 
+		// Bail if topic-tags are off
+		if ( ! bbp_allow_topic_tags() )
+			return;
+
 		$defaults = array(
 			'before' => '<div class="bbp-topic-tags"><p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',

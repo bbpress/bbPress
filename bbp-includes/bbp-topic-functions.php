@@ -245,7 +245,7 @@ function bbp_new_topic_handler() {
 
 	/** Topic Tags ************************************************************/
 
-	if ( !empty( $_POST['bbp_topic_tags'] ) ) {
+	if ( bbp_allow_topic_tags() && !empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
@@ -552,7 +552,7 @@ function bbp_edit_topic_handler() {
 	/** Topic Tags ************************************************************/
 
 	// Tags
-	if ( !empty( $_POST['bbp_topic_tags'] ) ) {
+	if ( bbp_allow_topic_tags() && !empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );

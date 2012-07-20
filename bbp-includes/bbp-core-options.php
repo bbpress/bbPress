@@ -33,6 +33,7 @@ function bbp_get_default_options() {
 		'_bbp_throttle_time'        => 10,          // Throttle post time to 10 seconds
 		'_bbp_enable_favorites'     => 1,           // Favorites
 		'_bbp_enable_subscriptions' => 1,           // Subscriptions
+		'_bbp_allow_topic_tags'     => 1,           // Topic Tags
 		'_bbp_allow_anonymous'      => 0,           // Allow anonymous posting
 		'_bbp_allow_global_access'  => 0,           // Users from all sites can post
 		'_bbp_use_wp_editor'        => 1,           // Use the WordPress editor if available
@@ -202,6 +203,18 @@ function bbp_is_favorites_active( $default = 1 ) {
  */
 function bbp_is_subscriptions_active( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
+}
+
+/**
+ * Are topic tags allowed
+ *
+ * @since bbPress (r4097)
+ * @param $default bool Optional. Default value true
+ * @uses get_option() To get the allow tags
+ * @return bool Are tags allowed?
+ */
+function bbp_allow_topic_tags( $default = 1 ) {
+	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
 }
 
 /**
