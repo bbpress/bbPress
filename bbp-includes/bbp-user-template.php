@@ -124,17 +124,19 @@ function bbp_displayed_user_field( $field = '' ) {
 	 * @param string $field Field to get
 	 * @uses sanitize_text_field() To sanitize the field
 	 * @uses esc_attr() To sanitize the field
+	 * @uses apply_filters() Calls 'bbp_get_displayed_user_field' with the value
 	 * @return string|bool Value of the field if it exists, else false
 	 */
 	function bbp_get_displayed_user_field( $field = '' ) {
-		$bbp = bbpress();
+		$bbp   = bbpress();
+		$value = false;
 
 		// Return field if exists
 		if ( isset( $bbp->displayed_user->$field ) )
-			return esc_attr( sanitize_text_field( $bbp->displayed_user->$field ) );
+			$value = esc_attr( sanitize_text_field( $bbp->displayed_user->$field ) );
 
 		// Return empty
-		return false;
+		return apply_filters( 'bbp_get_displayed_user_field', $value, $field );
 	}
 
 /**
