@@ -1441,7 +1441,7 @@ function bbp_split_topic_handler() {
 		}
 	}
 
-	// Bail ir there are errors
+	// Bail if there are errors
 	if ( bbp_has_errors() )
 		return;
 
@@ -1506,16 +1506,34 @@ function bbp_split_topic_handler() {
 	// Make sure there are replies to loop through
 	if ( !empty( $replies ) && !is_wp_error( $replies ) ) {
 
+		// Calculate starting point for reply positions
+		switch ( $split_option ) {
+
+			// Get topic reply count for existing topic
+			case 'existing' :
+				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID );
+				break;
+
+			// Account for new lead topic
+			case 'reply'    :
+				$reply_position = 1;
+				break;
+		}
+
 		// Change the post_parent of each reply to the destination topic id
 		foreach ( $replies as $reply ) {
 
+			// Bump the reply position each iteration through the loop
+			$reply_position++;
+
 			// New reply data
 			$postarr = array(
-				'ID'          => $reply->ID,
-				'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
-				'post_name'   => false, // will be automatically generated
-				'post_parent' => $destination_topic->ID,
-				'guid'        => ''
+				'ID'            => $reply->ID,
+				'post_title'    => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+				'post_name'     => false, // will be automatically generated
+				'post_parent'   => $destination_topic->ID,
+				'post_position' => $reply_position,
+				'guid'          => ''
 			);
 
 			// Update the reply
@@ -1528,18 +1546,30 @@ function bbp_split_topic_handler() {
 			// Do additional actions per split reply
 			do_action( 'bbp_split_topic_reply', $reply->ID, $destination_topic->ID );
 		}
+
+		// Set the last reply ID and freshness
+		$last_reply_id = $reply->ID;
+		$freshness     = $reply->post_date;
+
+	// Set the last reply ID and freshness to the from_reply
+	} else {
+		$last_reply_id = $from_reply->ID;
+		$freshness     = $from_reply->post_date;
 	}
 
 	// It is a new topic and we need to set some default metas to make
 	// the topic display in bbp_has_topics() list
 	if ( 'reply' == $split_option ) {
-		$last_reply_id = ( empty( $reply ) || empty( $reply->ID        ) ) ? 0  : $reply->ID;
-		$freshness     = ( empty( $reply ) || empty( $reply->post_date ) ) ? '' : $reply->post_date;
-
 		bbp_update_topic_last_reply_id   ( $destination_topic->ID, $last_reply_id );
+		bbp_update_topic_last_active_id  ( $destination_topic->ID, $last_reply_id );
 		bbp_update_topic_last_active_time( $destination_topic->ID, $freshness     );
 	}
 
+	// Update source topic ID last active
+	bbp_update_topic_last_reply_id   ( $source_topic->ID );
+	bbp_update_topic_last_active_id  ( $source_topic->ID );
+	bbp_update_topic_last_active_time( $source_topic->ID );
+	
 	/** Successful Split ******************************************************/
 
 	// Update counts, etc...
