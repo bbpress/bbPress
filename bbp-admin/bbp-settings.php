@@ -117,8 +117,8 @@ function bbp_admin_get_settings_fields() {
 			),
 
 			// Allow topic tags
-			'_bbp_enable_tags' => array(
-				'title'             => __( 'Allow Topic-Tags', 'bbpress' ),
+			'_bbp_allow_topic_tags' => array(
+				'title'             => __( 'Allow Topic Tags', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tags',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
