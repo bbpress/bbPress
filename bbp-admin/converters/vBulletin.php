@@ -267,7 +267,7 @@ class vBulletin extends BBP_Converter_Base
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
 			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
-     'default' => 'vBulletin'
+			'default' => 'vBulletin'
 		);
 		
 		// User name.

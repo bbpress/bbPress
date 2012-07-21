@@ -355,7 +355,7 @@ class phpBB extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
-     'default'      => 'phpBB'
+			'default'      => 'phpBB'
 		);
 				
 		// User name.
