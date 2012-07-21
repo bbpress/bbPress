@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Implementation of Xenforo converter.
+ * Implementation of phpBB converter.
  */
-class Phpbb extends BBP_Converter_Base {
+class phpBB extends BBP_Converter_Base {
 	function __construct() {
 		parent::__construct();
 		$this->setup_globals();
@@ -355,7 +355,7 @@ class Phpbb extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
-			'default'      => 'Phpbb'
+     'default'      => 'phpBB'
 		);
 				
 		// User name.

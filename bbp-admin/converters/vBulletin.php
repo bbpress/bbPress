@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Implementation of Vbulletin converter.
+ * Implementation of vBulletin converter.
  */
-class Vbulletin extends BBP_Converter_Base
+class vBulletin extends BBP_Converter_Base
 {
 	function __construct()
 	{
@@ -267,7 +267,7 @@ class Vbulletin extends BBP_Converter_Base
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
 			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
-			'default' => 'Vbulletin'
+     'default' => 'vBulletin'
 		);
 		
 		// User name.
