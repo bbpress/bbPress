@@ -611,7 +611,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Bail if forum ID is empty
-	if ( empty( $forum_id ) )
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) )
 		return;
 
 	/** Forum Status ******************************************************/

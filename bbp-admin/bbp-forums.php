@@ -302,6 +302,10 @@ class BBP_Forums_Admin {
 		if ( empty( $_POST['bbp_forum_metabox'] ) || !wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) )
 			return $forum_id;
 
+		// Only save for forum post-types
+		if ( ! bbp_is_forum( $forum_id ) )
+			return $forum_id;
+
 		// Bail if current user cannot edit this forum
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;

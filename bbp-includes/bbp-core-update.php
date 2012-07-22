@@ -140,6 +140,9 @@ function bbp_setup_updater() {
 	// Are we running an outdated version of bbPress?
 	if ( bbp_is_update() ) {
 
+		// Call the automated updater
+		bbp_version_updater();
+
 		// Bump the version
 		bbp_version_bump();
 
@@ -208,4 +211,50 @@ function bbp_create_initial_content( $args = array() ) {
 		'topic_id' => $topic_id,
 		'reply_id' => $reply_id
 	);
+}
+
+/**
+ * bbPress's version updater looks at what the current database version is, and
+ * runs whatever other code is needed.
+ *
+ * This is most-often used when the data schema changes, but should also be used
+ * to correct issues with bbPress meta-data silently on software update.
+ *
+ * @since bbPress (r4104)
+ */
+function bbp_version_updater() {
+
+	// Get the raw database version
+	$raw_db_version = (int) bbp_get_db_version_raw();
+
+	// Bail if no database version exists
+	if ( empty( $raw_db_version ) )
+		return;
+
+	/** 2.0 Branch ************************************************************/
+
+	// 2.0, 2.0.1, 2.0.2, 2.0.3
+	if ( $raw_db_version < 200 ) {
+		// Do nothing
+	}
+
+	/** 2.1 Branch ************************************************************/
+
+	// 2.1, 2.1.1
+	if ( $raw_db_version < 211 ) {
+
+		/**
+		 * Repair private and hidden forum data
+		 *
+		 * @link http://bbpress.trac.wordpress.org/ticket/1891
+		 */
+		bbp_admin_repair_forum_visibility();
+	}
+
+	/** 2.2 Branch ************************************************************/
+
+	// 2.2
+	if ( $raw_db_version < 220 ) {
+		// No changes yet
+	}
 }
