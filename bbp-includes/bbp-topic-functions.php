@@ -1417,6 +1417,7 @@ function bbp_split_topic_handler() {
 						'post_name'   => false,
 						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
+						'menu_order'  => '1',
 						'guid'        => ''
 					);
 
