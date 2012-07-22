@@ -280,8 +280,8 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 	// Load up bbPress
 	$bbp = bbpress();
 
-	// Only override if the flag is set and notpreviously registered
-	if ( ! empty( $bbp->theme_compat->packages[$theme->id] ) || ( true === $override ) ) {
+	// Only override if the flag is set and not previously registered
+	if ( empty( $bbp->theme_compat->packages[$theme->id] ) || ( true === $override ) ) {
 		$bbp->theme_compat->packages[$theme->id] = $theme;
 	}
 }
