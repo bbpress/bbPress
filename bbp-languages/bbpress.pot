@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the bbPress package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress 2.1\n"
+"Project-Id-Version: bbPress 2.1.1\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2012-07-08 11:08:18+00:00\n"
+"POT-Creation-Date: 2012-07-23 16:17:43+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,7 +31,7 @@ msgid "Forum Import"
 msgstr ""
 
 #: bbp-admin/bbp-admin.php:183 bbp-admin/bbp-functions.php:199
-#: bbp-admin/bbp-tools.php:806
+#: bbp-admin/bbp-tools.php:855
 msgid "Reset Forums"
 msgstr ""
 
@@ -502,7 +502,7 @@ msgid ""
 "if there are comments on the forum, you can see them here and moderate them."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:419 bbp-admin/bbp-metaboxes.php:50
+#: bbp-admin/bbp-forums.php:423 bbp-admin/bbp-metaboxes.php:50
 #: bbp-admin/bbp-metaboxes.php:345 bbp-admin/bbp-metaboxes.php:348
 #: bbp-admin/bbp-metaboxes.php:396 bbp-admin/bbp-metaboxes.php:399
 #: bbp-admin/bbp-replies.php:616 bbp-admin/bbp-topics.php:680
@@ -513,7 +513,7 @@ msgstr ""
 msgid "Forum"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:420 bbp-admin/bbp-settings.php:171
+#: bbp-admin/bbp-forums.php:424 bbp-admin/bbp-settings.php:171
 #: bbp-admin/bbp-settings.php:192 bbp-admin/bbp-topics.php:679
 #: bbp-includes/bbp-extend-buddypress.php:432
 #: bbp-includes/bbp-extend-buddypress.php:1434
@@ -526,7 +526,7 @@ msgstr ""
 msgid "Topics"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:421 bbp-admin/bbp-settings.php:179
+#: bbp-admin/bbp-forums.php:425 bbp-admin/bbp-settings.php:179
 #: bbp-admin/bbp-settings.php:200 bbp-admin/bbp-topics.php:681
 #: bbp-includes/bbp-extend-buddypress.php:433
 #: bbp-includes/bbp-forum-template.php:2336
@@ -546,19 +546,19 @@ msgstr ""
 msgid "Replies"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:422
+#: bbp-admin/bbp-forums.php:426
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:18
 #: bbp-theme-compat/bbpress/content-single-topic-lead.php:90
 #: bbp-themes/bbp-twentyten/bbpress/content-single-topic-lead.php:17
 msgid "Creator"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:423 bbp-admin/bbp-replies.php:619
+#: bbp-admin/bbp-forums.php:427 bbp-admin/bbp-replies.php:619
 #: bbp-admin/bbp-topics.php:684
 msgid "Created"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:424 bbp-admin/bbp-topics.php:685
+#: bbp-admin/bbp-forums.php:428 bbp-admin/bbp-topics.php:685
 #: bbp-theme-compat/bbpress/loop-forums.php:22
 #: bbp-theme-compat/bbpress/loop-topics.php:22
 #: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:21
@@ -566,63 +566,63 @@ msgstr ""
 msgid "Freshness"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:461 bbp-admin/bbp-replies.php:727
+#: bbp-admin/bbp-forums.php:465 bbp-admin/bbp-replies.php:727
 #: bbp-admin/bbp-topics.php:764
 msgid "%1$s <br /> %2$s"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:473 bbp-includes/bbp-forum-template.php:541
+#: bbp-admin/bbp-forums.php:477 bbp-includes/bbp-forum-template.php:541
 msgid "No Topics"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:539
+#: bbp-admin/bbp-forums.php:543
 msgid "Forum updated. <a href=\"%s\">View forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:542 bbp-admin/bbp-replies.php:899
+#: bbp-admin/bbp-forums.php:546 bbp-admin/bbp-replies.php:899
 #: bbp-admin/bbp-topics.php:970
 msgid "Custom field updated."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:545 bbp-admin/bbp-replies.php:902
+#: bbp-admin/bbp-forums.php:549 bbp-admin/bbp-replies.php:902
 #: bbp-admin/bbp-topics.php:973
 msgid "Custom field deleted."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:548
+#: bbp-admin/bbp-forums.php:552
 msgid "Forum updated."
 msgstr ""
 
 #. translators: %s: date and time of the revision
-#: bbp-admin/bbp-forums.php:553
+#: bbp-admin/bbp-forums.php:557
 msgid "Forum restored to revision from %s"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:557
+#: bbp-admin/bbp-forums.php:561
 msgid "Forum created. <a href=\"%s\">View forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:560
+#: bbp-admin/bbp-forums.php:564
 msgid "Forum saved."
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:563
+#: bbp-admin/bbp-forums.php:567
 msgid "Forum submitted. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:566
+#: bbp-admin/bbp-forums.php:570
 msgid ""
 "Forum scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
 "\">Preview forum</a>"
 msgstr ""
 
 #. translators: Publish box date format, see http:php.net/date
-#: bbp-admin/bbp-forums.php:568 bbp-admin/bbp-replies.php:925
+#: bbp-admin/bbp-forums.php:572 bbp-admin/bbp-replies.php:925
 #: bbp-admin/bbp-topics.php:996
 msgid "M j, Y @ G:i"
 msgstr ""
 
-#: bbp-admin/bbp-forums.php:573
+#: bbp-admin/bbp-forums.php:577
 msgid "Forum draft updated. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
 msgstr ""
 
@@ -1598,209 +1598,219 @@ msgid "Recalculate the parent forum for each post"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:162
-msgid "Count topics in each forum"
+msgid "Recalculate private and hidden forums"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:163
-msgid "Count replies in each forum"
+msgid "Count topics in each forum"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:164
-msgid "Count replies in each topic"
+msgid "Count replies in each forum"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:165
-msgid "Count voices in each topic"
+msgid "Count replies in each topic"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:166
-msgid "Count spammed & trashed replies in each topic"
+msgid "Count voices in each topic"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:167
-msgid "Count topics for each user"
+msgid "Count spammed & trashed replies in each topic"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:168
-msgid "Count replies for each user"
+msgid "Count topics for each user"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:169
-msgid "Remove trashed topics from user favorites"
+msgid "Count replies for each user"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:170
-msgid "Remove trashed topics from user subscriptions"
+msgid "Remove trashed topics from user favorites"
 msgstr ""
 
 #: bbp-admin/bbp-tools.php:171
+msgid "Remove trashed topics from user subscriptions"
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:172
 msgid "Recalculate last activity in each topic and forum"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:194
+#: bbp-admin/bbp-tools.php:195
 msgid "Counting the number of replies in each topic&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:195 bbp-admin/bbp-tools.php:239
-#: bbp-admin/bbp-tools.php:282 bbp-admin/bbp-tools.php:312
-#: bbp-admin/bbp-tools.php:347 bbp-admin/bbp-tools.php:380
-#: bbp-admin/bbp-tools.php:427 bbp-admin/bbp-tools.php:474
-#: bbp-admin/bbp-tools.php:534 bbp-admin/bbp-tools.php:592
-#: bbp-admin/bbp-tools.php:699 bbp-admin/bbp-tools.php:754
+#: bbp-admin/bbp-tools.php:196 bbp-admin/bbp-tools.php:240
+#: bbp-admin/bbp-tools.php:283 bbp-admin/bbp-tools.php:313
+#: bbp-admin/bbp-tools.php:348 bbp-admin/bbp-tools.php:381
+#: bbp-admin/bbp-tools.php:428 bbp-admin/bbp-tools.php:475
+#: bbp-admin/bbp-tools.php:535 bbp-admin/bbp-tools.php:593
+#: bbp-admin/bbp-tools.php:701 bbp-admin/bbp-tools.php:748
+#: bbp-admin/bbp-tools.php:803
 msgid "Failed!"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:221 bbp-admin/bbp-tools.php:265
-#: bbp-admin/bbp-tools.php:292 bbp-admin/bbp-tools.php:327
-#: bbp-admin/bbp-tools.php:362 bbp-admin/bbp-tools.php:409
-#: bbp-admin/bbp-tools.php:456 bbp-admin/bbp-tools.php:516
-#: bbp-admin/bbp-tools.php:575 bbp-admin/bbp-tools.php:682
-#: bbp-admin/bbp-tools.php:737 bbp-admin/bbp-tools.php:783
+#: bbp-admin/bbp-tools.php:222 bbp-admin/bbp-tools.php:266
+#: bbp-admin/bbp-tools.php:293 bbp-admin/bbp-tools.php:328
+#: bbp-admin/bbp-tools.php:363 bbp-admin/bbp-tools.php:410
+#: bbp-admin/bbp-tools.php:457 bbp-admin/bbp-tools.php:517
+#: bbp-admin/bbp-tools.php:576 bbp-admin/bbp-tools.php:683
+#: bbp-admin/bbp-tools.php:731 bbp-admin/bbp-tools.php:786
+#: bbp-admin/bbp-tools.php:832
 msgid "Complete!"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:238
+#: bbp-admin/bbp-tools.php:239
 msgid "Counting the number of voices in each topic&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:281
+#: bbp-admin/bbp-tools.php:282
 msgid ""
 "Counting the number of spammed and trashed replies in each topic&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:311
+#: bbp-admin/bbp-tools.php:312
 msgid "Counting the number of topics in each forum&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:346
+#: bbp-admin/bbp-tools.php:347
 msgid "Counting the number of replies in each forum&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:379
+#: bbp-admin/bbp-tools.php:380
 msgid "Counting the number of topics each user has created&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:426
+#: bbp-admin/bbp-tools.php:427
 msgid "Counting the number of topics to which each user has replied&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:473
+#: bbp-admin/bbp-tools.php:474
 msgid "Removing trashed topics from user favorites&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:500 bbp-admin/bbp-tools.php:559
+#: bbp-admin/bbp-tools.php:501 bbp-admin/bbp-tools.php:560
 msgid "Nothing to remove!"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:533
+#: bbp-admin/bbp-tools.php:534
 msgid "Removing trashed topics from user subscriptions&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:591
+#: bbp-admin/bbp-tools.php:592
 msgid "Recomputing latest post in every topic and forum&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:698
+#: bbp-admin/bbp-tools.php:700
+msgid "Recalculating forum visibility &hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:747
 msgid "Recalculating the forum for each post &hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:753
+#: bbp-admin/bbp-tools.php:802
 msgid "Recalculating the topic for each post &hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:807
+#: bbp-admin/bbp-tools.php:856
 msgid ""
 "This will revert your forums back to a brand new installation. This process "
 "cannot be undone. <strong>Backup your database before proceeding</strong>."
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:813
+#: bbp-admin/bbp-tools.php:862
 msgid "The following data will be removed:"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:815 bbpress.php:478
+#: bbp-admin/bbp-tools.php:864 bbpress.php:478
 msgid "All Forums"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:816 bbp-includes/bbp-topic-functions.php:3115
+#: bbp-admin/bbp-tools.php:865 bbp-includes/bbp-topic-functions.php:3146
 #: bbpress.php:535
 msgid "All Topics"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:817 bbp-includes/bbp-reply-functions.php:1458
+#: bbp-admin/bbp-tools.php:866 bbp-includes/bbp-reply-functions.php:1458
 #: bbpress.php:592
 msgid "All Replies"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:818
+#: bbp-admin/bbp-tools.php:867
 msgid "All Topic Tags"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:819
+#: bbp-admin/bbp-tools.php:868
 msgid "Related Meta Data"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:820
+#: bbp-admin/bbp-tools.php:869
 msgid "Forum Settings"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:821
+#: bbp-admin/bbp-tools.php:870
 msgid "Forum Activity"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:822
+#: bbp-admin/bbp-tools.php:871
 msgid "Forum User Roles"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:823
+#: bbp-admin/bbp-tools.php:872
 msgid "Importer Helper Data"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:827
+#: bbp-admin/bbp-tools.php:876
 msgid "Are you sure you want to do this?"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:830
+#: bbp-admin/bbp-tools.php:879
 msgid "Say it ain't so!"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:831
+#: bbp-admin/bbp-tools.php:880
 msgid "This process cannot be undone."
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:839
+#: bbp-admin/bbp-tools.php:888
 msgid "Reset bbPress"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:864
+#: bbp-admin/bbp-tools.php:913
 msgid "Failed"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:865
+#: bbp-admin/bbp-tools.php:914
 msgid "Success!"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:872
+#: bbp-admin/bbp-tools.php:921
 msgid "Deleting Posts&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:885
+#: bbp-admin/bbp-tools.php:934
 msgid "Deleting Post Meta&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:898
+#: bbp-admin/bbp-tools.php:947
 msgid "Deleting User Meta&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:905
+#: bbp-admin/bbp-tools.php:954
 msgid "Deleting Conversion Table&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:917
+#: bbp-admin/bbp-tools.php:966
 msgid "Deleting Settings&hellip; %s"
 msgstr ""
 
-#: bbp-admin/bbp-tools.php:923
+#: bbp-admin/bbp-tools.php:972
 msgid "Deleting Roles and Capabilities&hellip; %s"
 msgstr ""
 
@@ -2206,7 +2216,7 @@ msgid ""
 "\n"
 "-----------\n"
 "\n"
-"You are recieving this email because you subscribed to a forum topic.\n"
+"You are receiving this email because you subscribed to a forum topic.\n"
 "\n"
 "Login and visit the topic to unsubscribe from these emails."
 msgstr ""
@@ -2232,7 +2242,7 @@ msgstr ""
 #: bbp-includes/bbp-common-template.php:1344
 #: bbp-includes/bbp-common-template.php:1355
 #: bbp-includes/bbp-topic-functions.php:1192
-#: bbp-includes/bbp-topic-functions.php:1515
+#: bbp-includes/bbp-topic-functions.php:1533
 #: bbp-theme-compat/bbpress/form-reply.php:29
 #: bbp-themes/bbp-twentyten/bbpress/form-reply.php:29
 msgid "Reply To: %s"
@@ -2303,27 +2313,27 @@ msgstr ""
 msgid "View: %s"
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:165
+#: bbp-includes/bbp-core-update.php:168
 msgid "General"
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:166
+#: bbp-includes/bbp-core-update.php:169
 msgid "General chit-chat"
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:167
+#: bbp-includes/bbp-core-update.php:170
 msgid "Hello World!"
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:168
+#: bbp-includes/bbp-core-update.php:171
 msgid "I am the first topic in your new forums."
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:169
+#: bbp-includes/bbp-core-update.php:172
 msgid "Re: Hello World!"
 msgstr ""
 
-#: bbp-includes/bbp-core-update.php:170
+#: bbp-includes/bbp-core-update.php:173
 msgid "Oh, and this is what a reply looks like."
 msgstr ""
 
@@ -2480,20 +2490,20 @@ msgstr ""
 msgid "%1$s reported this %2$s as not spam"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:453
+#: bbp-includes/bbp-extend-akismet.php:456
 msgid "Akismet caught this post as spam"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:457
-#: bbp-includes/bbp-extend-akismet.php:472
+#: bbp-includes/bbp-extend-akismet.php:460
+#: bbp-includes/bbp-extend-akismet.php:475
 msgid "Post status was changed to %s"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:465
+#: bbp-includes/bbp-extend-akismet.php:468
 msgid "Akismet cleared this post"
 msgstr ""
 
-#: bbp-includes/bbp-extend-akismet.php:479
+#: bbp-includes/bbp-extend-akismet.php:482
 msgid ""
 "Akismet was unable to check this post (response: %s), will automatically "
 "retry again later."
@@ -2578,9 +2588,9 @@ msgstr ""
 #: bbp-includes/bbp-topic-functions.php:473
 #: bbp-includes/bbp-topic-functions.php:1051
 #: bbp-includes/bbp-topic-functions.php:1353
-#: bbp-includes/bbp-topic-functions.php:1656
-#: bbp-includes/bbp-topic-functions.php:1695
-#: bbp-includes/bbp-topic-functions.php:1752
+#: bbp-includes/bbp-topic-functions.php:1687
+#: bbp-includes/bbp-topic-functions.php:1726
+#: bbp-includes/bbp-topic-functions.php:1783
 #: bbp-includes/bbp-user-functions.php:472
 #: bbp-includes/bbp-user-functions.php:792
 #: bbp-includes/bbp-user-functions.php:919
@@ -2854,7 +2864,7 @@ msgid "All Posts"
 msgstr ""
 
 #: bbp-includes/bbp-reply-functions.php:1498
-#: bbp-includes/bbp-topic-functions.php:3140
+#: bbp-includes/bbp-topic-functions.php:3171
 msgid "Replies: %s"
 msgstr ""
 
@@ -2868,19 +2878,19 @@ msgstr ""
 
 #: bbp-includes/bbp-reply-template.php:859
 #: bbp-includes/bbp-topic-template.php:1168
-#: bbp-includes/bbp-user-template.php:162
+#: bbp-includes/bbp-user-template.php:164
 msgid "Anonymous"
 msgstr ""
 
 #: bbp-includes/bbp-reply-template.php:960
 #: bbp-includes/bbp-topic-template.php:1273
-#: bbp-includes/bbp-user-template.php:1194
+#: bbp-includes/bbp-user-template.php:1196
 msgid "View %s's profile"
 msgstr ""
 
 #: bbp-includes/bbp-reply-template.php:960
 #: bbp-includes/bbp-topic-template.php:1273
-#: bbp-includes/bbp-user-template.php:1194
+#: bbp-includes/bbp-user-template.php:1196
 msgid "Visit %s's website"
 msgstr ""
 
@@ -3063,104 +3073,104 @@ msgid ""
 "destination topic!"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1432
+#: bbp-includes/bbp-topic-functions.php:1433
 msgid ""
 "<strong>ERROR</strong>: There was a problem converting the reply into the "
 "topic. Please try again."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1437
+#: bbp-includes/bbp-topic-functions.php:1438
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to create new "
 "topics. The reply could not be converted into a topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1644
+#: bbp-includes/bbp-topic-functions.php:1675
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "getting the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1662
-#: bbp-includes/bbp-topic-functions.php:1701
+#: bbp-includes/bbp-topic-functions.php:1693
+#: bbp-includes/bbp-topic-functions.php:1732
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the topic "
 "tags."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1668
-#: bbp-includes/bbp-topic-functions.php:1707
+#: bbp-includes/bbp-topic-functions.php:1699
+#: bbp-includes/bbp-topic-functions.php:1738
 msgid "<strong>ERROR</strong>: You need to enter a tag name."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1678
+#: bbp-includes/bbp-topic-functions.php:1709
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "updating the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1717
-#: bbp-includes/bbp-topic-functions.php:1735
+#: bbp-includes/bbp-topic-functions.php:1748
+#: bbp-includes/bbp-topic-functions.php:1766
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "merging the tags: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1726
+#: bbp-includes/bbp-topic-functions.php:1757
 msgid ""
 "<strong>ERROR</strong>: The tags which are being merged can not be the same."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1758
+#: bbp-includes/bbp-topic-functions.php:1789
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to delete the topic "
 "tags."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1767
+#: bbp-includes/bbp-topic-functions.php:1798
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "deleting the tag: %s"
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1896
+#: bbp-includes/bbp-topic-functions.php:1927
 msgid "<strong>ERROR:</strong> You do not have the permission to do that."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1909
+#: bbp-includes/bbp-topic-functions.php:1940
 msgid "<strong>ERROR</strong>: There was a problem closing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1909
+#: bbp-includes/bbp-topic-functions.php:1940
 msgid "<strong>ERROR</strong>: There was a problem opening the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1920
+#: bbp-includes/bbp-topic-functions.php:1951
 msgid "<strong>ERROR</strong>: There was a problem unsticking the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1920
+#: bbp-includes/bbp-topic-functions.php:1951
 msgid "<strong>ERROR</strong>: There was a problem sticking the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1930
+#: bbp-includes/bbp-topic-functions.php:1961
 msgid ""
 "<strong>ERROR</strong>: There was a problem unmarking the topic as spam."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1930
+#: bbp-includes/bbp-topic-functions.php:1961
 msgid "<strong>ERROR</strong>: There was a problem marking the topic as spam."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1949
+#: bbp-includes/bbp-topic-functions.php:1980
 msgid "<strong>ERROR</strong>: There was a problem trashing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1957
+#: bbp-includes/bbp-topic-functions.php:1988
 msgid "<strong>ERROR</strong>: There was a problem untrashing the topic."
 msgstr ""
 
-#: bbp-includes/bbp-topic-functions.php:1965
+#: bbp-includes/bbp-topic-functions.php:1996
 msgid "<strong>ERROR</strong>: There was a problem deleting the topic."
 msgstr ""
 
@@ -3282,96 +3292,96 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:437
+#: bbp-includes/bbp-user-template.php:439
 msgid "Key Master"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:449
+#: bbp-includes/bbp-user-template.php:451
 msgid "Guest"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:454
-#: bbp-includes/bbp-user-template.php:482
+#: bbp-includes/bbp-user-template.php:456
+#: bbp-includes/bbp-user-template.php:484
 msgid "Member"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:459
+#: bbp-includes/bbp-user-template.php:461
 msgid "Moderator"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:524
+#: bbp-includes/bbp-user-template.php:526
 msgid "Admin"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:668
+#: bbp-includes/bbp-user-template.php:670
 #: bbp-theme-compat/bbpress-functions.php:256
 #: bbp-themes/bbp-twentyten/bbpress-functions.php:207
 msgid "Add this topic to your favorites"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:669
+#: bbp-includes/bbp-user-template.php:671
 msgid " (%?%)"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:675
+#: bbp-includes/bbp-user-template.php:677
 msgid "This topic is one of your %favorites% ["
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:676
+#: bbp-includes/bbp-user-template.php:678
 #: bbp-theme-compat/bbpress-functions.php:255
 #: bbp-themes/bbp-twentyten/bbpress-functions.php:206
 msgid "&times;"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:677
+#: bbp-includes/bbp-user-template.php:679
 msgid "]"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:786
+#: bbp-includes/bbp-user-template.php:788
 #: bbp-theme-compat/bbpress-functions.php:265
 #: bbp-themes/bbp-twentyten/bbpress-functions.php:216
 msgid "Subscribe"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:787
+#: bbp-includes/bbp-user-template.php:789
 #: bbp-theme-compat/bbpress-functions.php:266
 #: bbp-themes/bbp-twentyten/bbpress-functions.php:217
 msgid "Unsubscribe"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:853
+#: bbp-includes/bbp-user-template.php:855
 msgid "User updated."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:878
+#: bbp-includes/bbp-user-template.php:880
 msgid "You have super admin privileges."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:878
+#: bbp-includes/bbp-user-template.php:880
 msgid "This user has super admin privileges."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:944
+#: bbp-includes/bbp-user-template.php:946
 msgid "&mdash; No role for this site &mdash;"
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:992
+#: bbp-includes/bbp-user-template.php:994
 msgid "You are now logged out."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:996
+#: bbp-includes/bbp-user-template.php:998
 msgid "New user registration is currently not allowed."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:1005
+#: bbp-includes/bbp-user-template.php:1007
 msgid "Check your e-mail for the confirmation link."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:1010
+#: bbp-includes/bbp-user-template.php:1012
 msgid "Check your e-mail for your new password."
 msgstr ""
 
-#: bbp-includes/bbp-user-template.php:1015
+#: bbp-includes/bbp-user-template.php:1017
 msgid "Registration complete. Please check your e-mail."
 msgstr ""
 
@@ -3532,9 +3542,7 @@ msgid ""
 msgstr ""
 
 #: bbp-theme-compat/bbpress/form-reply.php:60
-#: bbp-theme-compat/bbpress/form-topic.php:86
 #: bbp-themes/bbp-twentyten/bbpress/form-reply.php:60
-#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:86
 msgid "Reply:"
 msgstr ""
 
@@ -3847,6 +3855,11 @@ msgstr ""
 #: bbp-theme-compat/bbpress/form-topic.php:75
 #: bbp-themes/bbp-twentyten/bbpress/form-topic.php:75
 msgid "Topic Title (Maximum Length: %d):"
+msgstr ""
+
+#: bbp-theme-compat/bbpress/form-topic.php:86
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:86 bbpress.php:603
+msgid "Topic:"
 msgstr ""
 
 #: bbp-theme-compat/bbpress/form-topic.php:110
@@ -4256,10 +4269,6 @@ msgstr ""
 msgid "No replies found in Trash"
 msgstr ""
 
-#: bbpress.php:603
-msgid "Topic:"
-msgstr ""
-
 #: bbpress.php:626
 msgid "bbPress Replies"
 msgstr ""
@@ -4352,9 +4361,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1.1)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.1.1)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
