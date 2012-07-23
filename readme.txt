@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.4
 Tested up to: 3.4
-Stable tag: 2.1
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,15 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.1.1 =
+* Fixed Invision, phpBB, and vBulletin importers
+* Fixed private/hidden forum bugs
+* Fixed topic split meta values
+* Fixed theme compatibility logic error
+* Fixed role mask issues for shared user installs
+* Fixed missing function cruft
+* Fixed missing filter on displayed user fields
 
 = 2.1 =
 * WordPress 3.4 compatibility
