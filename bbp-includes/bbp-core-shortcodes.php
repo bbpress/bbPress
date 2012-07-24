@@ -243,7 +243,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses bbp_has_topics()
 	 * @uses get_template_part()
 	 * @uses bbp_single_forum_description()
 	 * @return string
@@ -308,7 +307,6 @@ class BBP_Shortcodes {
 	 * @param array $attr
 	 * @param string $content
 	 * @uses bbp_get_hidden_forum_ids()
-	 * @uses bbp_has_topics()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -598,7 +596,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses bbp_has_topics()
 	 * @uses get_template_part()
 	 * @uses bbp_single_forum_description()
 	 * @return string
