@@ -1951,7 +1951,6 @@ function bbp_check_forum_edit() {
  * @uses bbp_get_forum_id() To validate the forum ID
  * @uses bbp_is_forum() To make sure it's a forum
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_has_topics() To get the topics
  * @uses bbp_topics() To make sure there are topics to loop through
  * @uses wp_trash_post() To trash the post
  * @uses update_post_meta() To update the forum meta of trashed topics
@@ -1965,15 +1964,17 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 		return;
 
 	// Forum is being permanently deleted, so its topics gotta go too
-	if ( bbp_has_topics( array(
-		'post_type'      => bbp_get_topic_post_type(),
-		'post_parent'    => $forum_id,
-		'post_status'    => 'any',
-		'posts_per_page' => -1
+	if ( $topics = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => bbp_get_topic_post_type(),
+		'post_parent'      => $forum_id,
+		'post_status'      => 'any',
+		'posts_per_page'   => -1,
+		'nopaging'         => true,
+		'fields'           => 'id=>parent'
 	) ) ) {
-		while ( bbp_topics() ) {
-			bbp_the_topic();
-			wp_delete_post( bbpress()->topic_query->post->ID, true );
+		foreach ( $topics->posts as $topic ) {
+			wp_delete_post( $topic->ID, true );
 		}
 	}
 }
@@ -1990,8 +1991,6 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
  * @uses bbp_get_closed_status_id() To return closed post status
  * @uses bbp_get_pending_status_id() To return pending post status
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_has_topics() To get the topics
- * @uses bbp_topics() To make sure there are topics to loop through
  * @uses wp_trash_post() To trash the post
  * @uses update_post_meta() To update the forum meta of trashed topics
  * @return If forum is not valid
@@ -2011,22 +2010,23 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	) );
 
 	// Forum is being trashed, so its topics are trashed too
-	if ( bbp_has_topics( array(
-		'post_type'      => bbp_get_topic_post_type(),
-		'post_parent'    => $forum_id,
-		'post_status'    => $post_stati,
-		'posts_per_page' => -1
+	if ( $topics = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => bbp_get_topic_post_type(),
+		'post_parent'      => $forum_id,
+		'post_status'      => $post_stati,
+		'posts_per_page'   => -1,
+		'nopaging'         => true,
+		'fields'           => 'id=>parent'
 	) ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_topics = array();
-		$bbp                = bbpress();
 
 		// Loop through topics, trash them, and add them to array
-		while ( bbp_topics() ) {
-			bbp_the_topic();
-			wp_trash_post( $bbp->topic_query->post->ID );
-			$pre_trashed_topics[] = $bbp->topic_query->post->ID;
+		foreach ( $topics->posts as $topic ) {
+			wp_trash_post( $topic->ID, true );
+			$pre_trashed_topics[] = $topic->ID;
 		}
 
 		// Set a post_meta entry of the topics that were trashed by this action.
@@ -2086,11 +2086,6 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_forum() To check if the passed id is a forum
  * @uses do_action() Calls 'bbp_delete_forum' with the forum id
- * @uses bbp_has_topics() To check if the forum has topics
- * @uses bbp_topics() To loop through the topics
- * @uses bbp_the_topic() To set a topic as the current topic in the loop
- * @uses bbp_get_topic_id() To get the topic id
- * @uses wp_delete_post() To delete the topic
  */
 function bbp_delete_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -2112,12 +2107,6 @@ function bbp_delete_forum( $forum_id = 0 ) {
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_forum() To check if the passed id is a forum
  * @uses do_action() Calls 'bbp_trash_forum' with the forum id
- * @uses bbp_has_topics() To check if the forum has topics
- * @uses bbp_topics() To loop through the topics
- * @uses bbp_the_topic() To set a topic as the current topic in the loop
- * @uses bbp_get_topic_id() To get the topic id
- * @uses wp_trash_post() To trash the topic
- * @uses update_post_meta() To save a list of just trashed topics for future use
  */
 function bbp_trash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -2135,9 +2124,6 @@ function bbp_trash_forum( $forum_id = 0 ) {
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_forum() To check if the passed id is a forum
  * @uses do_action() Calls 'bbp_untrash_forum' with the forum id
- * @uses get_post_meta() To get the list of topics which were trashed with the
- *                        forum
- * @uses wp_untrash_post() To untrash the topic
  */
 function bbp_untrash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
