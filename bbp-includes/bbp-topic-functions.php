@@ -2860,21 +2860,17 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	do_action( 'bbp_delete_topic', $topic_id );
 
 	// Topic is being permanently deleted, so its replies gotta go too
-	// @todo remove meta query
-	if ( bbp_has_replies( array(
-		'post_type'      => bbp_get_reply_post_type(),
-		'post_status'    => 'any',
-		'posts_per_page' => -1,
-		'meta_query'     => array( array(
-			'key'        => '_bbp_topic_id',
-			'value'      => $topic_id,
-			'type'       => 'numeric',
-			'compare'    => '='
-		) )
+	if ( $replies = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => bbp_get_reply_post_type(),
+		'post_status'      => 'any',
+		'post_parent'      => $topic_id,
+		'posts_per_page'   => -1,
+		'nopaging'         => true,
+		'fields'           => 'id=>parent'
 	) ) ) {
-		while ( bbp_replies() ) {
-			bbp_the_reply();
-			wp_delete_post( bbp_get_reply_id(), true );
+		foreach ( $replies->posts as $reply ) {
+			wp_delete_post( $reply->ID, true );
 		}
 	}
 }
@@ -2889,15 +2885,12 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
  * @uses do_action() Calls 'bbp_trash_topic' with the topic id
- * @uses bbp_has_replies() To check if the topic has replies
- * @uses bbp_replies() To loop through the replies
- * @uses bbp_the_reply() To set a reply as the current reply in the loop
- * @uses bbp_get_reply_id() To get the reply id
  * @uses wp_trash_post() To trash the reply
  * @uses update_post_meta() To save a list of just trashed replies for future use
  */
 function bbp_trash_topic( $topic_id = 0 ) {
-	$bbp      = bbpress();
+
+	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
@@ -2906,27 +2899,23 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	do_action( 'bbp_trash_topic', $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
-	// @todo remove meta query
-	if ( bbp_has_replies( array( 
-		'post_type'      => bbp_get_reply_post_type(),
-		'post_status'    => bbp_get_public_status_id(),
-		'posts_per_page' => -1,
-		'meta_query'     => array( array(
-			'key'        => '_bbp_topic_id',
-			'value'      => $topic_id,
-			'type'       => 'numeric',
-			'compare'    => '='
-		) )
+	if ( $replies = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => bbp_get_reply_post_type(),
+		'post_status'      => bbp_get_public_status_id(),
+		'post_parent'      => $topic_id,
+		'posts_per_page'   => -1,
+		'nopaging'         => true,
+		'fields'           => 'id=>parent'
 	) ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_replies = array();
 
 		// Loop through replies, trash them, and add them to array
-		while ( bbp_replies() ) {
-			bbp_the_reply();
-			wp_trash_post( $bbp->reply_query->post->ID );
-			$pre_trashed_replies[] = $bbp->reply_query->post->ID;
+		foreach ( $replies->posts as $reply ) {
+			wp_trash_post( $reply->ID );
+			$pre_trashed_replies[] = $reply->ID;
 		}
 
 		// Set a post_meta entry of the replies that were trashed by this action.
