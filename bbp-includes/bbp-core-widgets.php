@@ -378,13 +378,15 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'] );
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : '0';
+
+		// Note: private and hidden forums will be excluded via the
+		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( array(
 			'post_parent'    => $parent_forum,
 			'post_type'      => bbp_get_forum_post_type(),
 			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 			'orderby'        => 'menu_order',
-			'order'          => 'ASC',
-			'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
+			'order'          => 'ASC'
 		) );
 
 		if ( $widget_query->have_posts() ) :
@@ -578,7 +580,8 @@ class BBP_Topics_Widget extends WP_Widget {
 				break;
 		}
 		
-		// Query defaults
+		// Note: private and hidden forums will be excluded via the
+		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( $topics_query );
 
 		// Topics exist
@@ -725,10 +728,13 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		extract( $args );
 
-		$title        = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
-		$max_shown    = !empty( $instance['max_shown'] ) ? $instance['max_shown']    : '5';
-		$show_date    = !empty( $instance['show_date'] ) ? 'on'                      : false;
-		$post_types   = !empty( $instance['post_type'] ) ? array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) : bbp_get_reply_post_type();
+		$title      = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
+		$max_shown  = !empty( $instance['max_shown'] ) ? $instance['max_shown']    : '5';
+		$show_date  = !empty( $instance['show_date'] ) ? 'on'                      : false;
+		$post_types = !empty( $instance['post_type'] ) ? array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) : bbp_get_reply_post_type();
+
+		// Note: private and hidden forums will be excluded via the
+		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( array(
 			'post_type'      => $post_types,
 			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
