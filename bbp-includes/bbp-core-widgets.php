@@ -526,6 +526,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
 		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown'] : 5;
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                         : false;
+		$show_user    = !empty( $instance['show_user']    ) ? 'on'                         : false;
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 'any';
 		$order_by     = !empty( $instance['order_by']     ) ? $instance['order_by']        : false;
 
@@ -595,10 +596,17 @@ class BBP_Topics_Widget extends WP_Widget {
 				<?php while ( $widget_query->have_posts() ) :
 
 					$widget_query->the_post();
-					$topic_id = bbp_get_topic_id( $widget_query->post->ID ); ?>
+					$topic_id    = bbp_get_topic_id( $widget_query->post->ID ); 
+					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) ); ?>
 
 					<li>
 						<a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+
+						<?php if ( 'on' == $show_user ) : ?>
+
+							<?php printf( _x( 'by %1$s', 'widgets', 'bbpress' ), '<span class="topic-author">' . $author_link . '</span>' ); ?>
+
+						<?php endif; ?>
 
 						<?php if ( 'on' == $show_date ) : ?>
 
@@ -630,6 +638,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
+		$instance['show_user'] = strip_tags( $new_instance['show_user'] );
 		$instance['order_by']  = strip_tags( $new_instance['order_by']  );
 
 		return $instance;
@@ -648,11 +657,14 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
+		$show_user = !empty( $instance['show_user'] ) ? esc_attr( $instance['show_user'] ) : '';
 		$order_by  = !empty( $instance['order_by']  ) ? esc_attr( $instance['order_by']  ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',         'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $show_date ); ?> /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show topic author:',      'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( 'on', $show_user ); ?> /></label></p>
+
 		<p>
 			<label for="<?php echo $this->get_field_id( 'order_by' ); ?>"><?php _e( 'Order By:',        'bbpress' ); ?></label>
 			<select name="<?php echo $this->get_field_name( 'order_by' ); ?>" id="<?php echo $this->get_field_name( 'order_by' ); ?>">
@@ -729,8 +741,9 @@ class BBP_Replies_Widget extends WP_Widget {
 		extract( $args );
 
 		$title      = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
-		$max_shown  = !empty( $instance['max_shown'] ) ? $instance['max_shown']    : '5';
-		$show_date  = !empty( $instance['show_date'] ) ? 'on'                      : false;
+		$max_shown  = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
+		$show_date  = !empty( $instance['show_date'] ) ? 'on'                   : false;
+		$show_user  = !empty( $instance['show_user'] ) ? 'on'                   : false;
 		$post_types = !empty( $instance['post_type'] ) ? array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) : bbp_get_reply_post_type();
 
 		// Note: private and hidden forums will be excluded via the
@@ -753,18 +766,38 @@ class BBP_Replies_Widget extends WP_Widget {
 				<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
 
 					<li>
+
 						<?php
 
 						$reply_id    = bbp_get_reply_id( $widget_query->post->ID );
 						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
 						$reply_link  = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . bbp_get_reply_excerpt( $reply_id, 50 ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
 
-						/* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */
-						if ( $show_date == 'on' ) {
-							printf( _x( '%1$s on %2$s %3$s, %4$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . get_the_date(), get_the_time() . '</div>' );
-						} else {
-							printf( _x( '%1$s on %2$s',            'widgets', 'bbpress' ), $author_link, $reply_link );
-						}
+						// Reply author, link, and timestamp
+						if ( ( 'on' == $show_date ) && ( 'on' == $show_user ) ) :
+
+							// translators: 1: reply author, 2: reply link, 3: reply timestamp
+							printf( _x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>' );
+
+						// Reply link and timestamp
+						elseif ( $show_date == 'on' ) :
+
+							// translators: 1: reply link, 2: reply timestamp
+							printf( _x( '%1$s %2$s',         'widgets', 'bbpress' ), $reply_link,  '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>'              );
+
+						// Reply author and title
+						elseif ( $show_user == 'on' ) :
+
+							// translators: 1: reply author, 2: reply link
+							printf( _x( '%1$s on %2$s',      'widgets', 'bbpress' ), $author_link, $reply_link                                                                 );
+
+						// Only the reply title
+						else :
+
+							// translators: 1: reply link
+							printf( _x( '%1$s',              'widgets', 'bbpress' ), $reply_link                                                                               );
+
+						endif;
 
 						?>
 
@@ -792,6 +825,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
+		$instance['show_user'] = strip_tags( $new_instance['show_user'] );
 
 		return $instance;
 	}
@@ -808,11 +842,13 @@ class BBP_Replies_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
-		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : ''; ?>
+		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
+		$show_user = !empty( $instance['show_user'] ) ? esc_attr( $instance['show_user'] ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                   'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',          'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $show_date ); ?> /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show reply author:',       'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( 'on', $show_user ); ?> /></label></p>
 
 		<?php
 	}
