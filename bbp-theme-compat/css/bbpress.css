@@ -30,6 +30,10 @@
 	background-color: #fbfbfb;
 }
 
+#bbpress-forums div.reply {
+	height: auto;
+}
+
 #bbpress-forums div.bbp-topic-header,
 #bbpress-forums div.bbp-reply-header {
 	background-color: #f4f4f4;
