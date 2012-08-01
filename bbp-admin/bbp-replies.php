@@ -125,7 +125,7 @@ class BBP_Replies_Admin {
 	public function edit_help() {
 
 		if ( $this->bail() ) return;
-die;
+
 		// Overview
 		get_current_screen()->add_help_tab( array(
 			'id'		=> 'overview',
