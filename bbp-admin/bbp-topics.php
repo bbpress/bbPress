@@ -131,7 +131,7 @@ class BBP_Topics_Admin {
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
-				'<p>' . __( 'This screen provides access to all of your replies. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
+				'<p>' . __( 'This screen displays the individual topics on your site. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
 		) );
 
 		// Screen Content
@@ -141,10 +141,9 @@ class BBP_Topics_Admin {
 			'content'	=>
 				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( 'You can hide/display columns based on your needs and decide how many replies to list per screen using the Screen Options tab.',                                                                                                                                                                          'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can filter the list of replies by topic status using the text links in the upper left to show All, Published, Draft, or Trashed replies. The default view is to show all replies.',                                                                                                                   'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                                                                                                             'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can refine the list to show only replies in a specific category or from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection. You also can refine the list by clicking on the topic author, category or tag in the replies list.', 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                                                                                'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can filter the list of topics by forum status using the text links in the upper left to show All, Published, or Trashed topics. The default view is to show all topics.',                                                                                 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection. You also can refine the list by clicking on the forum creator in the topics list.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -153,11 +152,10 @@ class BBP_Topics_Admin {
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
-				'<p>' . __( 'Hovering over a row in the replies list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
+				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                                                                                 'bbpress' ) . '</li>' .
-					//'<li>' . __( '<strong>Quick Edit</strong> provides inline access to the metadata of your topic, allowing you to update topic details without leaving this screen.',                                                                  'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that forum. You can also reach that screen by clicking on the forum title.',                                                                                 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your forum from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Preview</strong> will show you what your draft topic will look like if you publish it. View will take you to your live site to view the topic. Which link is available depends on your topic&#8217;s status.', 'bbpress' ) . '</li>' .
 				'</ul>'
@@ -168,15 +166,15 @@ class BBP_Topics_Admin {
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
-				'<p>' . __( 'You can also edit or move multiple replies to the trash at once. Select the replies you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
-				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected replies at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
+				'<p>' . __( 'You can also edit or move multiple topics to the trash at once. Select the topics you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
+				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected topics at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
 		) );
 
 		// Help Sidebar
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
-			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
-			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
+			'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',     'bbpress' ) . '</p>' .
+			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',  'bbpress' ) . '</p>'
 		);
 	}
 
@@ -243,8 +241,8 @@ class BBP_Topics_Admin {
 
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
-			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
-			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
+			'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
+			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 		);
 	}
 
@@ -407,7 +405,7 @@ class BBP_Topics_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $post_id;
 
-		// Bail if user cannot edit replies
+		// Bail if user cannot edit topics
 		if ( !current_user_can( 'edit_topic', $post_id ) )
 			return $post_id;
 
