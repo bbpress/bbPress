@@ -1462,6 +1462,9 @@ function bbp_user_maybe_convert_pass() {
 	// Setup admin (to include converter)
 	require_once( bbpress()->plugin_dir . 'bbp-admin/bbp-admin.php' );
 
+	// Create the admin object
+	bbp_admin();
+
 	// Convert password
 	require_once( bbpress()->admin->admin_dir . 'bbp-converter.php' );
 	require_once( bbpress()->admin->admin_dir . 'converters/' . $row->meta_value . '.php' );
