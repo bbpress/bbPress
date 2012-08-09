@@ -8,8 +8,7 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
-#content hr,
-#container hr {
+#bbpress-forums hr {
 	margin: 0 0 24px 0;
 }
 
@@ -18,6 +17,7 @@
 	clear: both;
 	margin-bottom: 20px;
 	overflow: hidden;
+	font-size: 12px;
 }
 
 #bbpress-forums div.even,
@@ -97,9 +97,20 @@
 	overflow: hidden;
 }
 
-#content .bbp-forum-description p,
+#bbpress-forums .bbp-forums-list {
+	margin: 0 5px 0 0;
+	padding-right: 15px;
+	border-right: 1px solid #ddd;
+}
+
+#bbpress-forums .bbp-forums-list li {
+	display: inline;
+	font-size: 11px;
+}
+
 #bbpress-forums li.bbp-footer p {
-	margin-bottom: 0;
+	margin: 0;
+	line-height: 1em;
 }
 
 #bbpress-forums .bbp-topic-content img,
@@ -113,8 +124,8 @@
 	padding-right: 15px;
 }
 
-.bbp-forum-description p {
-	font-size: 13px;
+#bbpress-forums .bbp-forum-content p {
+	margin: 5px 0 0;
 	font-style: italic;
 }
 
