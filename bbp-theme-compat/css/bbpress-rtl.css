@@ -59,6 +59,10 @@
 	padding: 0;
 }
 
+#bbpress-forums li {
+	margin: 0;
+}
+
 #bbpress-forums ul.bbp-lead-topic,
 #bbpress-forums ul.bbp-topics,
 #bbpress-forums ul.bbp-forums,

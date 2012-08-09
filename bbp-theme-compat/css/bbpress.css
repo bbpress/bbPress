@@ -60,7 +60,7 @@
 }
 
 #bbpress-forums li {
-	list-style: none;
+	margin: 0;
 }
 
 #bbpress-forums ul.bbp-lead-topic,
@@ -120,12 +120,8 @@
 
 #bbpress-forums .bbp-topic-content ul,
 #bbpress-forums .bbp-reply-content ul {
-	padding-left: 15px;
-}
-
-#bbpress-forums .bbp-topic-content ul li,
-#bbpress-forums .bbp-reply-content ul li {
 	list-style: square;
+	padding-left: 15px;
 }
 
 #bbpress-forums .bbp-forum-content p {
