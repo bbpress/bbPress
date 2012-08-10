@@ -406,31 +406,22 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 	/** Users *************************************************************/
 
-	if ( bbp_is_single_user() || bbp_is_single_user_edit() ) {
+	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
+			'ID'             => 0,
+			'post_author'    => 0,
+			'post_date'      => 0,
+			'post_content'   => '',
+			'post_type'      => '',
 			'post_title'     => esc_attr( bbp_get_displayed_user_field( 'display_name' ) ),
+			'post_status'    => bbp_get_public_status_id(),
+			'is_archive'     => false,
 			'comment_status' => 'closed'
 		) );
 
 	/** Forums ************************************************************/
-
-	// Single forum edit
-	} elseif ( bbp_is_forum_edit() ) {
-
-		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => bbp_get_forum_id(),
-			'post_title'     => bbp_get_forum_title(),
-			'post_author'    => bbp_get_forum_author_id(),
-			'post_date'      => 0,
-			'post_content'   => get_post_field( 'post_content', bbp_get_forum_id() ),
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_forum_visibility(),
-			'is_single'      => true,
-			'comment_status' => 'closed'
-		) );
 
 	// Forum archive
 	} elseif ( bbp_is_forum_archive() ) {
@@ -445,6 +436,22 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_type'      => bbp_get_forum_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
 			'is_archive'     => true,
+			'comment_status' => 'closed'
+		) );
+
+	// Single Forum
+	} elseif ( bbp_is_forum_edit() || bbp_is_single_forum() ) {
+
+		// Reset post
+		bbp_theme_compat_reset_post( array(
+			'ID'             => bbp_get_forum_id(),
+			'post_title'     => bbp_get_forum_title(),
+			'post_author'    => bbp_get_forum_author_id(),
+			'post_date'      => 0,
+			'post_content'   => get_post_field( 'post_content', bbp_get_forum_id() ),
+			'post_type'      => bbp_get_forum_post_type(),
+			'post_status'    => bbp_get_forum_visibility(),
+			'is_single'      => true,
 			'comment_status' => 'closed'
 		) );
 
@@ -466,8 +473,8 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'comment_status' => 'closed'
 		) );
 
-	// Single topic
-	} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() ) {
+	// Single Topic
+	} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() || bbp_is_single_topic() ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
@@ -499,8 +506,8 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'comment_status' => 'closed'
 		) );
 
-	// Single reply
-	} elseif ( bbp_is_reply_edit() ) {
+	// Single Reply
+	} elseif ( bbp_is_reply_edit() || bbp_is_single_reply() ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
@@ -530,9 +537,9 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'comment_status' => 'closed'
 		) );
 
-
 	/** Topic Tags ********************************************************/
 
+	// Topic Tag Edit
 	} elseif ( bbp_is_topic_tag_edit() ) {
 
 		// Stash the current term in a new var
@@ -540,9 +547,17 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Reset the post with our new title
 		bbp_theme_compat_reset_post( array(
-			'post_title' => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' )
+			'ID'             => 0,
+			'post_author'    => 0,
+			'post_date'      => 0,
+			'post_content'   => '',
+			'post_type'      => '',
+			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
+			'post_status'    => bbp_get_public_status_id(),
+			'comment_status' => 'closed'
 		) );
 
+	// Topc Tag
 	} elseif ( bbp_is_topic_tag() ) {
 
 		// Stash the current term in a new var
@@ -550,13 +565,15 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Reset the post with our new title
 		bbp_theme_compat_reset_post( array(
-			'post_title' => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' )
+			'ID'             => 0,
+			'post_author'    => 0,
+			'post_date'      => 0,
+			'post_content'   => '',
+			'post_type'      => '',
+			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
+			'post_status'    => bbp_get_public_status_id(),
+			'comment_status' => 'closed'
 		) );
-
-	/** Single Forums/Topics/Replies **************************************/
-
-	} elseif ( bbp_is_custom_post_type() ) {
-		bbp_set_theme_compat_active();
 	}
 
 	/**
@@ -637,10 +654,6 @@ function bbp_replace_the_content( $content = '' ) {
 
 	/** Forums ************************************************************/
 
-	// Reply Edit
-	} elseif ( bbp_is_forum_edit() ) {
-		$new_content = $bbp->shortcodes->display_forum_form();
-
 	// Forum archive
 	} elseif ( bbp_is_forum_archive() ) {
 
@@ -670,6 +683,14 @@ function bbp_replace_the_content( $content = '' ) {
 		} else {
 			$new_content = $bbp->shortcodes->display_forum_index();
 		}
+
+	// Forum Edit
+	} elseif ( bbp_is_forum_edit() ) {
+		$new_content = $bbp->shortcodes->display_forum_form();
+
+	// Single Forum
+	} elseif ( bbp_is_single_forum() ) {
+		$new_content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
 
 	/** Topics ************************************************************/
 
@@ -703,7 +724,7 @@ function bbp_replace_the_content( $content = '' ) {
 			$new_content = $bbp->shortcodes->display_topic_index();
 		}
 
-	// Single topic
+	// Topic Edit
 	} elseif ( bbp_is_topic_edit() ) {
 
 		// Split
@@ -731,6 +752,10 @@ function bbp_replace_the_content( $content = '' ) {
 			$new_content = $bbp->shortcodes->display_topic_form();
 		}
 
+	// Single Topic
+	} elseif ( bbp_is_single_topic() ) {
+		$new_content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
+
 	/** Replies ***********************************************************/
 
 	// Reply archive
@@ -740,6 +765,10 @@ function bbp_replace_the_content( $content = '' ) {
 	// Reply Edit
 	} elseif ( bbp_is_reply_edit() ) {
 		$new_content = $bbp->shortcodes->display_reply_form();
+
+	// Single Reply
+	} elseif ( bbp_is_single_reply() ) {
+		$new_content = $bbp->shortcodes->display_reply( array( 'id' => get_the_ID() ) );
 
 	/** Views *************************************************************/
 
@@ -757,29 +786,6 @@ function bbp_replace_the_content( $content = '' ) {
 		// Show topics of tag
 		} else {
 			$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
-		}
-
-	/** Forums/Topics/Replies *********************************************/
-
-	} else {
-
-		// Check the post_type
-		switch ( get_post_type() ) {
-
-			// Single Forum
-			case bbp_get_forum_post_type() :
-				$new_content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
-				break;
-
-			// Single Topic
-			case bbp_get_topic_post_type() :
-				$new_content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
-				break;
-
-			// Single Reply
-			case bbp_get_reply_post_type() :
-				$new_content = $bbp->shortcodes->display_reply( array( 'id' => get_the_ID() ) );
-				break;
 		}
 	}
 
@@ -807,44 +813,12 @@ function bbp_replace_the_content( $content = '' ) {
 		 *       apply_filters( 'bbp_spill_the_beans', '__return_true' );
 		 */
 		if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
-
-			// Empty globals that aren't being used in this loop anymore
-			$GLOBALS['withcomments'] = false;
-			$GLOBALS['post']         = false;
-
-			// Reset the post data when the next sidebar is fired
-			add_action( 'get_sidebar', 'bbp_theme_compat_reset_post_data' );
-			add_action( 'get_footer',  'bbp_theme_compat_reset_post_data' );
+			wp_reset_postdata();
 		}
 	}
 
 	// Return possibly hi-jacked content
 	return $content;
-}
-
-/**
- * Resets the post data after the content has displayed
- *
- * @since bbPress (r3724)
- * @uses wp_reset_postdata() To reset the post data
- * @uses remove_action() To unhook itself so it does not fire more than once
- */
-function bbp_theme_compat_reset_post_data() {
-	static $ran = false;
-
-	// Bail if this already ran
-	if ( true === $ran )
-		return;
-
-	// Reset the post data to whatever our global post is
-	wp_reset_postdata();
-
-	// Prevent this from firing again
-	remove_action( 'get_sidebar', 'bbp_theme_compat_reset_post_data' );
-	remove_action( 'get_footer',  'bbp_theme_compat_reset_post_data' );
-
-	// Set this to true so it does not run again
-	$ran = true;
 }
 
 /** Helpers *******************************************************************/
