@@ -61,6 +61,7 @@
 
 #bbpress-forums li {
 	margin: 0;
+	list-style: none;
 }
 
 #bbpress-forums ul.bbp-lead-topic,
