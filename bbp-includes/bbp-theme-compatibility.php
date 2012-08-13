@@ -798,23 +798,8 @@ function bbp_replace_the_content( $content = '' ) {
 		// Clean up after ourselves
 		unset( $new_content );
 
-		/**
-		 * Supplemental hack to prevent stubborn comments_template() output.
-		 *
-		 * @see comments_template() For why we're doing this :)
-		 *
-		 * Note: If a theme uses custom code to output comments, it's
-		 *       possible all of this dancing around is for not.
-		 *
-		 * Note: If you need to keep these globals around for any special
-		 *       reason, we've provided a failsafe hook to bypass this you
-		 *       can put in your plugin or theme below ---v
-		 *
-		 *       apply_filters( 'bbp_spill_the_beans', '__return_true' );
-		 */
-		if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
-			wp_reset_postdata();
-		}
+		// Reset the $post global
+		wp_reset_postdata();
 	}
 
 	// Return possibly hi-jacked content
