@@ -2872,6 +2872,9 @@ function bbp_delete_topic( $topic_id = 0 ) {
 		foreach ( $replies->posts as $reply ) {
 			wp_delete_post( $reply->ID, true );
 		}
+
+		// Reset the $post global
+		wp_reset_postdata();
 	}
 }
 
@@ -2922,6 +2925,9 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		// This is so we can possibly untrash them, without untrashing replies
 		// that were purposefully trashed before.
 		update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
+
+		// Reset the $post global
+		wp_reset_postdata();
 	}
 }
 

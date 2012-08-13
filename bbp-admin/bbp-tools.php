@@ -727,6 +727,9 @@ function bbp_admin_repair_forum_visibility() {
 	update_option( '_bbp_private_forums', $private_forums->posts ); // Private forums
 	update_option( '_bbp_hidden_forums',  $hidden_forums->posts  ); // Hidden forums
 
+	// Reset the $post global
+	wp_reset_postdata();
+
 	// Complete results
 	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );

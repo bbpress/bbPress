@@ -404,7 +404,10 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			</ul>
 
-		<?php echo $after_widget;
+			<?php echo $after_widget;
+
+			// Reset the $post global
+			wp_reset_postdata();
 
 		endif;
 	}
@@ -622,6 +625,9 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			<?php echo $after_widget;
 
+			// Reset the $post global
+			wp_reset_postdata();
+
 		endif;
 	}
 
@@ -808,6 +814,9 @@ class BBP_Replies_Widget extends WP_Widget {
 			</ul>
 
 			<?php echo $after_widget;
+
+			// Reset the $post global
+			wp_reset_postdata();
 
 		endif;
 	}
