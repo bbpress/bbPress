@@ -1644,7 +1644,6 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * @uses bbp_exclude_forum_ids()
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_reply_post_type()
-
  * @return WP_Query
  */
 function bbp_pre_get_posts_exclude_forums( $posts_query ) {
@@ -1976,6 +1975,9 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 		foreach ( $topics->posts as $topic ) {
 			wp_delete_post( $topic->ID, true );
 		}
+
+		// Reset the $post global
+		wp_reset_postdata();
 	}
 }
 
@@ -2033,6 +2035,9 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		// This is so we can possibly untrash them, without untrashing topics
 		// that were purposefully trashed before.
 		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
+
+		// Reset the $post global
+		wp_reset_postdata();
 	}
 }
 
