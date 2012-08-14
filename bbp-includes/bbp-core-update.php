@@ -73,7 +73,7 @@ function bbp_is_activation( $basename = '' ) {
 	if ( empty( $basename ) )
 		return false;
 
-	// Is bbPress being deactivated?
+	// Is bbPress being activated?
 	return in_array( $basename, $plugins );
 }
 
