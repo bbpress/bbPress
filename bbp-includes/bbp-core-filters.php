@@ -203,53 +203,6 @@ add_filter( 'bbp_pre_anonymous_post_author_website', 'wp_filter_kses',      10 )
 // Queries
 add_filter( 'posts_request', '_bbp_has_replies_where', 10, 2 );
 
-/** Functions *****************************************************************/
-
-/**
- * Piggy back filter for WordPress's 'request' filter
- *
- * @since bbPress (r3758)
- * @param array $query_vars
- * @return array
- */
-function bbp_request( $query_vars = array() ) {
-	return apply_filters( 'bbp_request', $query_vars );
-}
-
-/**
- * The main filter used for theme compatibility and displaying custom bbPress
- * theme files.
- *
- * @since bbPress (r3311)
- * @uses apply_filters()
- * @param string $template
- * @return string Template file to use
- */
-function bbp_template_include( $template = '' ) {
-	return apply_filters( 'bbp_template_include', $template );
-}
-
-/**
- * Generate bbPress-specific rewrite rules
- *
- * @since bbPress (r2688)
- * @param WP_Rewrite $wp_rewrite
- * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
- */
-function bbp_generate_rewrite_rules( $wp_rewrite ) {
-	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
-}
-
-/**
- * Filter the allowed themes list for bbPress specific themes
- *
- * @since bbPress (r2944)
- * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
- */
-function bbp_allowed_themes( $themes ) {
-	return apply_filters( 'bbp_allowed_themes', $themes );
-}
-
 /** Deprecated ****************************************************************/
 
 /**

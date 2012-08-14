@@ -252,23 +252,25 @@ final class bbPress {
 	 *
 	 * @since bbPress (r2626)
 	 * @access private
-	 * @todo Be smarter about conditionally loading code
 	 * @uses is_admin() If in WordPress admin, load additional file
 	 */
 	private function includes() {
 
 		/** Core **************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-cache.php'      ); // Cache helpers
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-dependency.php' ); // Core dependencies
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-functions.php'  ); // Core functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-cache.php'      ); // Cache helpers
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration options
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php' ); // Shortcodes for use with pages and posts
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'     ); // Database updater
+
+		// If bbPress is being deactivated, do not load any more files
+		if ( bbp_is_deactivation( $this->basename ) )
+			return;
 
 		/** Templates *********************************************************/
 
@@ -304,6 +306,11 @@ final class bbPress {
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-template.php'    ); // User template tags
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-options.php'     ); // User options
 
+		/** Hooks *************************************************************/
+
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
+
 		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
@@ -318,9 +325,6 @@ final class bbPress {
 	 *
 	 * @since bbPress (r2644)
 	 * @access private
-	 * @todo Not use bbp_is_deactivation()
-	 * @uses register_activation_hook() To register the activation hook
-	 * @uses register_deactivation_hook() To register the deactivation hook
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
