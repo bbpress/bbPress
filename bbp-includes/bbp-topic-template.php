@@ -631,6 +631,52 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	}
 
 /**
+ * Output the post date and time of a topic
+ *
+ * @since bbPress (r4155)
+ *
+ * @param int $topic_id Optional. Topic id.
+ * @param bool $humanize Optional. Humanize output using time_since
+ * @param bool $gmt Optional. Use GMT
+ * @uses bbp_get_topic_post_date() to get the output
+ */
+function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
+	echo bbp_get_topic_post_date( $topic_id, $humanize, $gmt );
+}
+	/**
+	 * Return the post date and time of a topic
+	 *
+	 * @since bbPress (r4155)
+	 *
+	 * @param int $topic_id Optional. Topic id.
+	 * @param bool $humanize Optional. Humanize output using time_since
+	 * @param bool $gmt Optional. Use GMT
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post_time() to get the topic post time
+	 * @uses bbp_time_since() to maybe humanize the topic post time
+	 * @return string
+	 */
+	function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+		
+		// 4 days, 4 hours ago
+		if ( !empty( $humanize ) ) {
+			$gmt    = !empty( $gmt ) ? 'G' : 'U';
+			$date   = get_post_time( $gmt, $topic_id );
+			$time   = false; // For filter below
+			$result = bbp_time_since( $date );
+
+		// August 4, 2012 at 2:37 pm
+		} else {
+			$date   = get_post_time( get_option( 'date_format' ), $gmt, $topic_id );
+			$time   = get_post_time( get_option( 'time_format' ), $gmt, $topic_id );
+			$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
+		}
+
+		return apply_filters( 'bbp_get_topic_post_date', $result, $topic_id, $humanize, $gmt, $date, $time );
+	}
+
+/**
  * Output pagination links of a topic within the topic loop
  *
  * @since bbPress (r2966)

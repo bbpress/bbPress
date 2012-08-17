@@ -489,6 +489,52 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	}
 
 /**
+ * Output the post date and time of a reply
+ *
+ * @since bbPress (r4155)
+ *
+ * @param int $reply_id Optional. Reply id.
+ * @param bool $humanize Optional. Humanize output using time_since
+ * @param bool $gmt Optional. Use GMT
+ * @uses bbp_get_reply_post_date() to get the output
+ */
+function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
+	echo bbp_get_reply_post_date( $reply_id, $humanize, $gmt );
+}
+	/**
+	 * Return the post date and time of a reply
+	 *
+	 * @since bbPress (r4155)
+	 *
+	 * @param int $reply_id Optional. Reply id.
+	 * @param bool $humanize Optional. Humanize output using time_since
+	 * @param bool $gmt Optional. Use GMT
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_time() to get the reply post time
+	 * @uses bbp_time_since() to maybe humanize the reply post time
+	 * @return string
+	 */
+	function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// 4 days, 4 hours ago
+		if ( !empty( $humanize ) ) {
+			$gmt    = !empty( $gmt ) ? 'G' : 'U';
+			$date   = get_post_time( $gmt, $reply_id );
+			$time   = false; // For filter below
+			$result = bbp_time_since( $date );
+
+		// August 4, 2012 at 2:37 pm
+		} else {
+			$date   = get_post_time( get_option( 'date_format' ), $gmt, $reply_id );
+			$time   = get_post_time( get_option( 'time_format' ), $gmt, $reply_id );
+			$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
+		}
+
+		return apply_filters( 'bbp_get_reply_post_date', $result, $reply_id, $humanize, $gmt, $date, $time );
+	}
+
+/**
  * Append revisions to the reply content
  *
  * @since bbPress (r2782)
