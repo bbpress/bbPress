@@ -42,7 +42,7 @@
 			<tr class="bbp-topic-header">
 				<td colspan="2">
 
-					<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+					<span class="bbp-topic-post-date"><?php bbp_topic_post_date(); ?></span>
 
 					<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>" class="bbp-topic-permalink">#<?php bbp_topic_id(); ?></a>
 
