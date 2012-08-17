@@ -35,7 +35,7 @@
 
 			<div class="bbp-meta">
 
-				<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+				<span class="bbp-topic-post-date"><?php bbp_topic_post_date(); ?></span>
 
 				<a href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>" class="bbp-topic-permalink">#<?php bbp_topic_id(); ?></a>
 
