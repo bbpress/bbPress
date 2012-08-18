@@ -143,6 +143,41 @@ function bbp_do_uninstall( $site_id = 0 ) {
 }
 
 /**
+ * We are activating bbPress
+ *
+ * @since bbPress (r4152)
+ */
+function bbp_activating() {
+	update_option( '_bbp_activated', '0' );
+}
+
+/**
+ * bbPress is activated
+ *
+ * @since bbPress (r4152)
+ */
+function bbp_activated() {
+	update_option( '_bbp_activated', '1' );
+}
+
+/**
+ * bbPress is deactivated
+ *
+ * @since bbPress (r4152)
+ */
+function bbp_deactivated() {
+	delete_option( '_bbp_activated' );
+}
+
+function bbp_activation_redirect() {
+	if ( ! get_option( '_bbp_activated' ) || bbp_is_activation() )
+		return;
+
+	wp_safe_redirect( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) );
+	exit();
+}
+
+/**
  * This tells WP to highlight the Tools > Forums menu item,
  * regardless of which actual bbPress Tools screen we are on.
  *

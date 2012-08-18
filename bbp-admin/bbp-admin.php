@@ -122,8 +122,8 @@ class BBP_Admin {
 
 		/** Filters ***********************************************************/
 
-		// Add link to settings page
-		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
+		// Modify bbPress's admin links
+		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
 		/** Network Admin *****************************************************/
 
@@ -206,6 +206,28 @@ class BBP_Admin {
 				'bbp_admin_settings'
 			);
 		}
+
+		// These are later removed in admin_head
+		if ( bbp_current_user_can_see( 'bbp_about_page' ) ) {
+
+			// About
+			add_dashboard_page(
+				__( 'Welcome to bbPress',  'bbpress' ),
+				__( 'Welcome to bbPress',  'bbpress' ),
+				$this->minimum_capability,
+				'bbp-about',
+				array( $this, 'about_screen' )
+			);
+
+			// Credits
+			add_dashboard_page(
+				__( 'Welcome to bbPress',  'bbpress' ),
+				__( 'Welcome to bbPress',  'bbpress' ),
+				$this->minimum_capability,
+				'bbp-credits',
+				array( $this, 'credits_screen' )
+			);
+		}
 	}
 
 	/**
@@ -229,7 +251,7 @@ class BBP_Admin {
 	 * If this is a new installation, create some initial forum content.
 	 *
 	 * @since bbPress (r3767)
-	 * @return type 
+	 * @return type
 	 */
 	public static function new_install() {
 		if ( !bbp_is_install() )
@@ -338,14 +360,17 @@ class BBP_Admin {
 	 * @param string $file Current plugin basename
 	 * @return array Processed links
 	 */
-	public static function add_settings_link( $links, $file ) {
+	public static function modify_plugin_action_links( $links, $file ) {
 
-		if ( plugin_basename( bbpress()->file ) == $file ) {
-			$settings_link = '<a href="' . add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>';
-			array_unshift( $links, $settings_link );
-		}
+		// Return normal links if not bbPress
+		if ( plugin_basename( bbpress()->file ) != $file )
+			return $links;
 
-		return $links;
+		// Add a few links to the existing links array
+		return array_merge( $links, array(
+			'settings' => '<a href="' . add_query_arg( array( 'page' => 'bbpress'   ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>',
+			'about'    => '<a href="' . add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php'           ) ) . '">' . __( 'About',    'bbpress' ) . '</a>'
+		) );
 	}
 
 	/**
@@ -376,6 +401,8 @@ class BBP_Admin {
 		remove_submenu_page( 'tools.php', 'bbp-repair'    );
 		remove_submenu_page( 'tools.php', 'bbp-converter' );
 		remove_submenu_page( 'tools.php', 'bbp-reset'     );
+		remove_submenu_page( 'index.php', 'bbp-about'     );
+		remove_submenu_page( 'index.php', 'bbp-credits'   );
 
 		// The /wp-admin/images/ folder
 		$wp_admin_url     = admin_url( 'images/' );
@@ -386,6 +413,8 @@ class BBP_Admin {
 		$icon32_url       = $this->images_url . 'icons32.png?ver='    . $version;
 		$menu_icon_url_2x = $this->images_url . 'menu-2x.png?ver='    . $version;
 		$icon32_url_2x    = $this->images_url . 'icons32-2x.png?ver=' . $version;
+		$badge_url        = $this->images_url . 'badge.png?ver='      . $version;
+		$badge_url_2x     = $this->images_url . 'badge-2x.png?ver='   . $version;
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
@@ -394,6 +423,26 @@ class BBP_Admin {
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
+
+			/* Version Badge */
+
+			.bbp-badge {
+				padding-top: 142px;
+				height: 50px;
+				width: 173px;
+				color: #fafafa;
+				font-weight: bold;
+				font-size: 14px;
+				text-align: center;
+				margin: 0 -5px;
+				background: url('<?php echo $badge_url; ?>') no-repeat;
+			}
+
+			.about-wrap .bbp-badge {
+				position: absolute;
+				top: 0;
+				right: 0;
+			}
 
 			#bbp-dashboard-right-now p.sub,
 			#bbp-dashboard-right-now .table,
@@ -560,7 +609,7 @@ class BBP_Admin {
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
 
-			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,				
+			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
 			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url('<?php echo $menu_icon_url; ?>');
@@ -600,18 +649,23 @@ class BBP_Admin {
 				#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 				#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
 
-				#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,				
+				#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,
 				#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
 				#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 					background-image: url('<?php echo $menu_icon_url_2x; ?>');
 					background-size: 100px 64px;
+				}
+
+				.bbp-badge {
+					background-image: url('<?php echo $badge_url_2x; ?>');
+					background-size: 173px 194px;
 				}
 			}
 
 			<?php if ( 'bbpress' == get_user_option( 'admin_color' ) ) : ?>
 
 				/* Green Scheme Images */
-				
+
 				.post-com-count {
 					background-image: url('<?php echo $wp_admin_url; ?>bubble_bg.gif');
 				}
@@ -952,7 +1006,7 @@ class BBP_Admin {
 				.rtl .sidebar-name:hover .sidebar-name-arrow {
 					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
 				}
-				
+
 				@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 					.icon32.icon-post,
 					#icon-edit,
@@ -1040,6 +1094,70 @@ class BBP_Admin {
 		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 
+	/** About *****************************************************************/
+
+	/**
+	 * Output the about screen
+	 *
+	 * @since bbPress (r4159)
+	 */
+	public function about_screen() {
+
+		$display_version = bbp_get_version(); ?>
+
+		<div class="wrap about-wrap">
+			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
+			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s is ready to make your community a safer, faster, and better looking place to hang out!' ), $display_version ); ?></div>
+			<div class="bbp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
+
+			<h2 class="nav-tab-wrapper">
+				<a class="nav-tab nav-tab-active" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>">
+					<?php _e( 'What&#8217;s New' ); ?>
+				</a><a class="nav-tab" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>">
+					<?php _e( 'Credits' ); ?>
+				</a>
+			</h2>
+
+			<div class="return-to-dashboard">
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-settings' ), 'index.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+			</div>
+
+		</div>
+
+		<?php
+	}
+
+	/**
+	 * Output the credits screen
+	 *
+	 * @since bbPress (r4159)
+	 */
+	public function credits_screen() {
+
+		$display_version = bbp_get_version(); ?>
+
+		<div class="wrap about-wrap">
+			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
+			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s is ready to make your community a safer, faster, and better looking place to hang out!' ), $display_version ); ?></div>
+			<div class="bbp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
+
+			<h2 class="nav-tab-wrapper">
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>" class="nav-tab">
+					<?php _e( 'What&#8217;s New' ); ?>
+				</a><a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>" class="nav-tab nav-tab-active">
+					<?php _e( 'Credits' ); ?>
+				</a>
+			</h2>
+
+			<div class="return-to-dashboard">
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-settings' ), 'index.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+			</div>
+
+		</div>
+
+		<?php
+	}
+
 	/** Updaters **************************************************************/
 
 	/**
@@ -1084,7 +1202,7 @@ class BBP_Admin {
 				bbp_version_bump();
 
 				?>
-			
+
 				<p><?php _e( 'All done!', 'bbpress' ); ?></p>
 				<a class="button" href="index.php?page=bbpress-update"><?php _e( 'Go Back', 'bbpress' ); ?></a>
 
