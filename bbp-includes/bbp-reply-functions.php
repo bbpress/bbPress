@@ -1388,6 +1388,10 @@ function _bbp_has_replies_where( $where, $query ) {
 	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) )
 		return $where;
 
+	// Bail if meta query
+	if ( $query->get( 'meta_key' ) || $query->get( 'meta_query' ) )
+		return $where;
+
 	global $wpdb;
 
 	// Table name for posts
