@@ -1226,7 +1226,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	protected function callback_slug( $field ) {
-		return sanitize_title_with_dashes( $field );
+		return sanitize_title( $field );
 	}
 
 	protected function callback_negative( $field ) {
