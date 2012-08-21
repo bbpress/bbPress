@@ -63,21 +63,14 @@ add_action( 'bbp_init', 'bbp_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_activating',     1 );
-add_action( 'bbp_activation', 'bbp_add_roles',      1 );
-add_action( 'bbp_activation', 'bbp_add_caps',       2 );
 add_action( 'bbp_activation', 'bbp_add_options',    1 );
 add_action( 'bbp_activation', 'flush_rewrite_rules'   );
 
 // Deactivation
-add_action( 'bbp_deactivation', 'bbp_remove_caps',    1 );
-add_action( 'bbp_deactivation', 'bbp_remove_roles',   2 );
 add_action( 'bbp_deactivation', 'flush_rewrite_rules'   );
 add_action( 'bbp_deactivation', 'bbp_deactivated'       );
 
-// 
-add_action( 'bbp_new_site', 'bbp_add_roles',              2 );
-add_action( 'bbp_new_site', 'bbp_add_caps',               4 );
+// New Site
 add_action( 'bbp_new_site', 'bbp_add_options',            6 );
 add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );
 add_action( 'bbp_new_site', 'flush_rewrite_rules'           );
@@ -111,7 +104,7 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 	switch_to_blog( $blog_id );
 
 	// Do the bbPress activation routine
-	do_action( 'bbp_new_site' );
+	do_action( 'bbp_new_site', $blog_id, $user_id, $domain, $path, $site_id, $meta );
 
 	// restore original blog
 	restore_current_blog();

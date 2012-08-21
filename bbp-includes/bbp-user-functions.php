@@ -1385,7 +1385,7 @@ function bbp_get_user_role( $user_id = 0 ) {
 	$user = get_userdata( $user_id );
 
 	// Get the user's main role
-	$role = isset( $user->roles ) ? array_shift( $user->roles ) : bbp_get_anonymous_role();
+	$role = isset( $user->roles ) ? array_shift( $user->roles ) : '';
 
 	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
 }

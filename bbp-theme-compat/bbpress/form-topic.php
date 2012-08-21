@@ -104,7 +104,7 @@
 
 					<?php endif; ?>
 
-					<?php if ( bbp_allow_topic_tags() ) : ?>
+					<?php if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_topic_form_tags' ); ?>
 

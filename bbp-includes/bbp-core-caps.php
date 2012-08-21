@@ -11,130 +11,354 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Adds bbPress-specific user roles.
+ * Get the capability groups
  *
- * This is called on plugin activation.
+ * @since bbPress (r4163)
  *
- * @since bbPress (r2741)
- *
- * @uses get_option() To get the default role
- * @uses get_role() To get the default role object
- * @uses add_role() To add our own roles
- * @uses do_action() Calls 'bbp_add_roles'
+ * @return array of groups
  */
-function bbp_add_roles() {
-
-	// Get new role names
-	$moderator_role   = bbp_get_moderator_role();
-	$participant_role = bbp_get_participant_role();
-
-	// Add the Moderator role and add the default role caps.
-	// Mod caps are added by the bbp_add_caps() function
-	$default = get_role( get_option( 'default_role' ) );
-
-	// If role does not exist, default to read cap
-	if ( empty( $default->capabilities ) )
-		$default->capabilities = array( 'read' );
-
-	// Moderators are default role + forum moderating caps in bbp_add_caps()
-	add_role( $moderator_role,   'Forum Moderator',   $default->capabilities );
-
-	// Forum Subscribers are auto added to sites with global forums
-	add_role( $participant_role, 'Forum Participant', $default->capabilities );
-
-	do_action( 'bbp_add_roles' );
+function bbp_get_capability_groups() {
+	return apply_filters( 'bbp_get_capability_groups', array(
+		'general',
+		'forums',
+		'topics',
+		'replies',
+		'topic_tags'
+	) );
 }
 
 /**
- * Adds capabilities to WordPress user roles.
+ * Get capabilities for the group
  *
- * This is called on plugin activation.
+ * @since bbPress (r4163)
  *
- * @since bbPress (r2608)
- *
- * @uses get_role() To get the administrator, default and moderator roles
- * @uses WP_Role::add_cap() To add various capabilities
- * @uses do_action() Calls 'bbp_add_caps'
+ * @param string $group
+ * @return array of capabilities
  */
-function bbp_add_caps() {
-	global $wp_roles;
+function bbp_get_capabilities_for_group( $group = '' ) {
+	switch ( $group ) {
+		case 'general'    :
+			return bbp_get_general_capabilities();
+			break;
+		case 'forums'     :
+			return bbp_get_forums_capabilities();
+			break;
+		case 'topics'     :
+			return bbp_get_topics_capabilities();
+			break;
+		case 'replies'    :
+			return bbp_get_replies_capabilities();
+			break;
+		case 'topic_tags' :
+			return bbp_get_topic_tags_capabilities();
+			break;
+		default :
+			return array();
+			break;
+	}
+}
 
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
+/**
+ * Get the general forum capabilities
+ *
+ * @since bbPress (r4163)
+ *
+ * @return array of general capabilities
+ */
+function bbp_get_general_capabilities() {
+	return apply_filters( 'bbp_get_general_capabilities', array( 
+		'moderate',
+		'throttle',
+		'view_trash',
+		'bozo',
+		'blocked'
+	) );
+}
 
-	// Loop through available roles
-	foreach( $wp_roles->roles as $role => $details ) {
+/**
+ * Get the forum post-type capabilities
+ *
+ * @since bbPress (r4163)
+ *
+ * @return array of forums capabilities
+ */
+function bbp_get_forums_capabilities() {
+	return apply_filters( 'bbp_get_forums_capabilities', array( 
+		'publish_forums',
+		'edit_forums',
+		'edit_others_forums',
+		'delete_forums',
+		'delete_others_forums',
+		'read_private_forums',
+		'read_hidden_forums'
+	) );
+}
 
-		// Load this role
-		$this_role = get_role( $role );
+/**
+ * Get the topic post-type capabilities
+ *
+ * @since bbPress (r4163)
+ *
+ * @return array of topics capabilities
+ */
+function bbp_get_topics_capabilities() {
+	return apply_filters( 'bbp_get_topics_capabilities', array( 
+		'publish_topics',
+		'edit_topics',
+		'edit_others_topics',
+		'delete_topics',
+		'delete_others_topics',
+		'read_private_topics'
+	) );
+}
 
-		// Loop through caps for this role and remove them
-		foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
-			$this_role->add_cap( $cap );
+/**
+ * Get the topic-tag taxonomy capabilities
+ *
+ * @since bbPress (r4163)
+ *
+ * @return array of topic-tag capabilities
+ */
+function bbp_get_topic_tags_capabilities() {
+	return apply_filters( 'bbp_get_topic_tags_capabilities', array( 
+		'manage_topic_tags',
+		'edit_topic_tags',
+		'delete_topic_tags',
+		'assign_topic_tags'
+	) );
+}
+
+/**
+ * Get the reply post-type capabilities
+ *
+ * @since bbPress (r4163)
+ *
+ * @return array of replies capabilities
+ */
+function bbp_get_replies_capabilities() {
+	return apply_filters( 'bbp_get_replies_capabilities', array( 
+		'publish_replies',
+		'edit_replies',
+		'edit_others_replies',
+		'delete_replies',
+		'delete_others_replies',
+		'read_private_replies'
+	) );
+}
+
+/** Output ********************************************************************/
+
+/**
+ * Output the human readable capability group title
+ *
+ * @since bbPress (r4163)
+ *
+ * @param string $group
+ * @uses bbp_get_capability_group_title()
+ */
+function bbp_capability_group_title( $group = '' ) {
+	echo bbp_get_capability_group_title( $group );
+}
+	/**
+	 * Return the human readable capability group title
+	 *
+	 * @since bbPress (r4163)
+	 *
+	 * @param string $group
+	 * @return string
+	 */
+	function bbp_get_capability_group_title( $group = '' ) {
+
+		// Default return value to capability group
+		$retval = $group;
+
+		switch( $group ) {
+			case 'general' :
+				$retval = __( 'General capabilities', 'bbpress' );
+				break;
+			case 'forums' :
+				$retval = __( 'Forum capabilities', 'bbpress' );
+				break;
+			case 'topics' :
+				$retval = __( 'Topic capabilites', 'bbpress' );
+				break;
+			case 'topic_tags' :
+				$retval = __( 'Topic tag capabilities', 'bbpress' );
+				break;
+			case 'replies' :
+				$retval = __( 'Reply capabilities', 'bbpress' );
+				break;
 		}
+
+		return apply_filters( 'bbp_get_capability_group_title', $retval, $group );
 	}
 
-	do_action( 'bbp_add_caps' );
-}
-
 /**
- * Removes capabilities from WordPress user roles.
+ * Output the human readable capability title
  *
- * This is called on plugin deactivation.
+ * @since bbPress (r4163)
  *
- * @since bbPress (r2608)
- *
- * @uses get_role() To get the administrator and default roles
- * @uses WP_Role::remove_cap() To remove various capabilities
- * @uses do_action() Calls 'bbp_remove_caps'
+ * @param string $group
+ * @uses bbp_get_capability_title()
  */
-function bbp_remove_caps() {
-	global $wp_roles;
+function bbp_capability_title( $capability = '' ) {
+	echo bbp_get_capability_title( $capability );
+}
+	/**
+	 * Return the human readable capability title
+	 *
+	 * @since bbPress (r4163)
+	 *
+	 * @param string $capability
+	 * @return string
+	 */
+	function bbp_get_capability_title( $capability = '' ) {
 
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
+		// Default return value to capability
+		$retval = $capability;
 
-	// Loop through available roles
-	foreach( $wp_roles->roles as $role => $details ) {
+		switch( $capability ) {
 
-		// Load this role
-		$this_role = get_role( $role );
+			// Misc
+			case 'moderate' :
+				$retval = __( 'Moderate entire forum', 'bbpress' );
+				break;
+			case 'throttle' :
+				$retval = __( 'Skip forum throttle check', 'bbpress' );
+				break;
+			case 'view_trash' :
+				$retval = __( 'View items in forum trash', 'bbpress' );
+				break;
+			case 'bozo' :
+				$retval = __( 'User is a forum bozo', 'bbpress' );
+				break;
+			case 'blocked' :
+				$retval = __( 'User is blocked', 'bbpress' );
+				break;
 
-		// Loop through caps for this role and remove them
-		foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
-			$this_role->remove_cap( $cap );
+			// Forum caps
+			case 'read_forum' :
+				$retval = __( 'View forum', 'bbpress' );
+				break;
+
+			case 'edit_forum' :
+				$retval = __( 'Edit forum', 'bbpress' );
+				break;
+			case 'trash_forum' :
+				$retval = __( 'Trash forum', 'bbpress' );
+				break;
+			case 'delete_forum' :
+				$retval = __( 'Delete forum', 'bbpress' );
+				break;
+			case 'moderate_forum' :
+				$retval = __( 'Moderate forum', 'bbpress' );
+				break;
+			case 'publish_forums' :
+				$retval = __( 'Create forums', 'bbpress' );
+				break;
+			case 'edit_forums' :
+				$retval = __( 'Edit their own forums', 'bbpress' );
+				break;
+			case 'edit_others_forums' :
+				$retval = __( 'Edit all forums', 'bbpress' );
+				break;
+			case 'delete_forums' :
+				$retval = __( 'Delete their own forums', 'bbpress' );
+				break;
+			case 'delete_others_forums' :
+				$retval = __( 'Delete all forums', 'bbpress' );
+				break;
+			case 'read_private_forums' :
+				$retval = __( 'View private forums', 'bbpress' );
+				break;
+			case 'read_hidden_forums' :
+				$retval = __( 'View hidden forums', 'bbpress' );
+				break;
+
+			// Topic caps
+			case 'read_topic' :
+				$retval = __( 'View topic', 'bbpress' );
+				break;
+			case 'edit_topic' :
+				$retval = __( 'Edit topic', 'bbpress' );
+				break;
+			case 'trash_topic' :
+				$retval = __( 'Trash topic', 'bbpress' );
+				break;
+			case 'moderate_topic' :
+				$retval = __( 'Moderate topic', 'bbpress' );
+				break;
+			case 'delete_topic' :
+				$retval = __( 'Delete topic', 'bbpress' );
+				break;
+			case 'publish_topics' :
+				$retval = __( 'Create topics', 'bbpress' );
+				break;
+			case 'edit_topics' :
+				$retval = __( 'Edit their own topics', 'bbpress' );
+				break;
+			case 'edit_others_topics' :
+				$retval = __( 'Edit others topics', 'bbpress' );
+				break;
+			case 'delete_topics' :
+				$retval = __( 'Delete own topics', 'bbpress' );
+				break;
+			case 'delete_others_topics' :
+				$retval = __( 'Delete others topics', 'bbpress' );
+				break;
+			case 'read_private_topics' :
+				$retval = __( 'View private topics', 'bbpress' );
+				break;
+
+			// Reply caps
+			case 'read_reply' :
+				$retval = __( 'Read reply', 'bbpress' );
+				break;
+			case 'edit_reply' :
+				$retval = __( 'Edit reply', 'bbpress' );
+				break;
+			case 'trash_reply' :
+				$retval = __( 'Trash reply', 'bbpress' );
+				break;
+			case 'delete_reply' :
+				$retval = __( 'Delete reply', 'bbpress' );
+				break;
+			case 'publish_replies' :
+				$retval = __( 'Create replies', 'bbpress' );
+				break;
+			case 'edit_replies' :
+				$retval = __( 'Edit own replies', 'bbpress' );
+				break;
+			case 'edit_others_replies' :
+				$retval = __( 'Edit others replies', 'bbpress' );
+				break;
+			case 'delete_replies' :
+				$retval = __( 'Delete own replies', 'bbpress' );
+				break;
+			case 'delete_others_replies' :
+				$retval = __( 'Delete others replies', 'bbpress' );
+				break;
+			case 'read_private_replies' :
+				$retval = __( 'View private replies', 'bbpress' );
+				break;
+
+			// Topic tag caps
+			case 'manage_topic_tags' :
+				$retval = __( 'Remove tags from topics', 'bbpress' );
+				break;
+			case 'edit_topic_tags' :
+				$retval = __( 'Edit topic tags', 'bbpress' );
+				break;
+			case 'delete_topic_tags' :
+				$retval = __( 'Delete topic tags', 'bbpress' );
+				break;
+			case 'assign_topic_tags' :
+				$retval = __( 'Assign tags to topics', 'bbpress' );
+				break;
 		}
+
+		return apply_filters( 'bbp_get_capability_title', $retval, $capability );
 	}
-
-	do_action( 'bbp_remove_caps' );
-}
-
-/**
- * Removes bbPress-specific user roles.
- *
- * This is called on plugin deactivation.
- *
- * @since bbPress (r2741)
- *
- * @uses remove_role() To remove our roles
- * @uses do_action() Calls 'bbp_remove_roles'
- */
-function bbp_remove_roles() {
-
-	// Get new role names
-	$moderator_role   = bbp_get_moderator_role();
-	$participant_role = bbp_get_participant_role();
-
-	// Remove the Moderator role
-	remove_role( $moderator_role );
-
-	// Remove the Moderator role
-	remove_role( $participant_role );
-
-	do_action( 'bbp_remove_roles' );
-}
 
 /**
  * Maps forum/topic/reply caps to built in WordPress caps
@@ -296,6 +520,8 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
 }
 
+/** Post Types and Taxonomies *************************************************/
+
 /**
  * Return forum capabilities
  *
@@ -305,14 +531,15 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
  * @return array Forum capabilities
  */
 function bbp_get_forum_caps() {
-
-	// Forum meta caps
-	$caps = array (
+	return apply_filters( 'bbp_get_forum_caps', array (
+		'edit_posts'          => 'edit_forums',
+		'edit_others_posts'   => 'edit_others_forums',
+		'publish_posts'       => 'publish_forums',
+		'read_private_posts'  => 'read_private_forums',
+		'read_hidden_posts'   => 'read_hidden_forums',
 		'delete_posts'        => 'delete_forums',
 		'delete_others_posts' => 'delete_others_forums'
-	);
-
-	return apply_filters( 'bbp_get_forum_caps', $caps );
+	) );
 }
 
 /**
@@ -324,14 +551,15 @@ function bbp_get_forum_caps() {
  * @return array Topic capabilities
  */
 function bbp_get_topic_caps() {
-
-	// Topic meta caps
-	$caps = array (
+	return apply_filters( 'bbp_get_topic_caps', array (
+		'edit_posts'          => 'edit_topics',
+		'edit_others_posts'   => 'edit_others_topics',
+		'publish_posts'       => 'publish_topics',
+		'read_private_posts'  => 'read_private_topics',
+		'read_hidden_posts'   => 'read_hidden_topics',
 		'delete_posts'        => 'delete_topics',
 		'delete_others_posts' => 'delete_others_topics'
-	);
-
-	return apply_filters( 'bbp_get_topic_caps', $caps );
+	) );
 }
 
 /**
@@ -342,19 +570,15 @@ function bbp_get_topic_caps() {
  * @uses apply_filters() Calls 'bbp_get_reply_caps' with the capabilities
  * @return array Reply capabilities
  */
-function bbp_get_reply_caps () {
-
-	// Reply meta caps
-	$caps = array (
+function bbp_get_reply_caps() {
+	return apply_filters( 'bbp_get_reply_caps', array (
 		'edit_posts'          => 'edit_replies',
 		'edit_others_posts'   => 'edit_others_replies',
 		'publish_posts'       => 'publish_replies',
 		'read_private_posts'  => 'read_private_replies',
 		'delete_posts'        => 'delete_replies',
 		'delete_others_posts' => 'delete_others_replies'
-	);
-
-	return apply_filters( 'bbp_get_reply_caps', $caps );
+	) );
 }
 
 /**
@@ -365,19 +589,16 @@ function bbp_get_reply_caps () {
  * @uses apply_filters() Calls 'bbp_get_topic_tag_caps' with the capabilities
  * @return array Topic tag capabilities
  */
-function bbp_get_topic_tag_caps () {
-
-	// Topic tag meta caps
-	$caps = array (
+function bbp_get_topic_tag_caps() {
+	return apply_filters( 'bbp_get_topic_tag_caps', array (
 		'manage_terms' => 'manage_topic_tags',
 		'edit_terms'   => 'edit_topic_tags',
 		'delete_terms' => 'delete_topic_tags',
 		'assign_terms' => 'assign_topic_tags'
-	);
-
-	return apply_filters( 'bbp_get_topic_tag_caps', $caps );
+	) );
 }
 
+/** Roles *********************************************************************/
 
 /**
  * Returns an array of capabilities based on the role that is being requested.
@@ -391,130 +612,93 @@ function bbp_get_topic_tag_caps () {
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
+	// No role
+	if ( empty( $role ) ) {
+		$caps = array(
+			'blocked'
+		);
+
 	// Which role are we looking for?
-	switch ( $role ) {
+	} else {
+		switch ( $role ) {
 
-		// Administrator
-		case 'administrator' :
+			// Administrator
+			case 'administrator' :
 
-			$caps = array(
+				$caps = array(
 
-				// Forum caps
-				'publish_forums',
-				'edit_forums',
-				'edit_others_forums',
-				'delete_forums',
-				'delete_others_forums',
-				'read_private_forums',
-				'read_hidden_forums',
+					// Forum caps
+					'publish_forums',
+					'edit_forums',
+					'edit_others_forums',
+					'delete_forums',
+					'delete_others_forums',
+					'read_private_forums',
+					'read_hidden_forums',
 
-				// Topic caps
-				'publish_topics',
-				'edit_topics',
-				'edit_others_topics',
-				'delete_topics',
-				'delete_others_topics',
-				'read_private_topics',
+					// Topic caps
+					'publish_topics',
+					'edit_topics',
+					'edit_others_topics',
+					'delete_topics',
+					'delete_others_topics',
+					'read_private_topics',
 
-				// Reply caps
-				'publish_replies',
-				'edit_replies',
-				'edit_others_replies',
-				'delete_replies',
-				'delete_others_replies',
-				'read_private_replies',
+					// Reply caps
+					'publish_replies',
+					'edit_replies',
+					'edit_others_replies',
+					'delete_replies',
+					'delete_others_replies',
+					'read_private_replies',
 
-				// Topic tag caps
-				'manage_topic_tags',
-				'edit_topic_tags',
-				'delete_topic_tags',
-				'assign_topic_tags',
+					// Topic tag caps
+					'manage_topic_tags',
+					'edit_topic_tags',
+					'delete_topic_tags',
+					'assign_topic_tags',
 
-				// Misc
-				'moderate',
-				'throttle',
-				'view_trash'
-			);
+					// Misc
+					'moderate',
+					'throttle',
+					'view_trash'
+				);
 
-			break;
+				break;
 
-		// Moderator
-		case bbp_get_moderator_role() :
+			// Any other role
+			case 'editor'      :
+			case 'author'      :
+			case 'contributor' :
+			case 'subscriber'  :
+			default            :
+				$caps = array(
 
-			$caps = array(
+					// Forum caps
+					'read_private_forums',
 
-				// Forum caps
-				'read_private_forums',
-				'read_hidden_forums',
+					// Topic caps
+					'publish_topics',
+					'edit_topics',
 
-				// Topic caps
-				'publish_topics',
-				'edit_topics',
-				'edit_others_topics',
-				'delete_topics',
-				'delete_others_topics',
-				'read_private_topics',
+					// Reply caps
+					'publish_replies',
+					'edit_replies',
 
-				// Reply caps
-				'publish_replies',
-				'edit_replies',
-				'edit_others_replies',
-				'delete_replies',
-				'delete_others_replies',
-				'read_private_replies',
+					// Topic tag caps
+					'assign_topic_tags'
+				);
 
-				// Topic tag caps
-				'manage_topic_tags',
-				'edit_topic_tags',
-				'delete_topic_tags',
-				'assign_topic_tags',
-
-				// Misc
-				'moderate',
-				'throttle',
-				'view_trash'
-			);
-
-			break;
-
-		// WordPress Core Roles
-		case 'editor'      :
-		case 'author'      :
-		case 'contributor' :
-		case 'subscriber'  :
-
-		// bbPress Participant Role
-		case bbp_get_participant_role() :
-
-		// Any other role
-		default :
-
-			$caps = array(
-
-				// Forum caps
-				'read_private_forums',
-
-				// Topic caps
-				'publish_topics',
-				'edit_topics',
-
-				// Reply caps
-				'publish_replies',
-				'edit_replies',
-
-				// Topic tag caps
-				'assign_topic_tags'
-			);
-
-			break;
+				break;
+		}
 	}
 
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
 }
 
 /**
- * Give a user the default 'Forum Participant' role when creating a topic/reply
- * on a site they do not have a role or capability on.
+ * Give a user the default role when creating a topic/reply on a site they do
+ * not have a role on.
  *
  * @since bbPress (r3410)
  *
@@ -540,58 +724,10 @@ function bbp_global_access_auto_role() {
 	if ( !is_user_logged_in() )
 		return;
 
-	// Give the user the 'Forum Participant' role
+	// Give the user the default role
 	if ( current_user_can( 'bbp_masked' ) ) {
-
-		// Get the default role
-		$default_role = bbp_get_participant_role();
-
-		// Set the current users default role
-		bbpress()->current_user->set_role( $default_role );
+		bbpress()->current_user->set_role( get_option( 'default_role' ) );
 	}
-}
-
-/**
- * The participant role for registered users without roles
- *
- * This is primarily for multisite compatibility when users without roles on
- * sites that have global forums enabled want to create topics and replies
- *
- * @since bbPress (r3860)
- *
- * @uses apply_filters() Allow override of hardcoded anonymous role
- * @return string
- */
-function bbp_get_anonymous_role() {
-	return apply_filters( 'bbp_get_anonymous_role', 'bbp_anonymous' );
-}
-
-/**
- * The participant role for registered users without roles
- *
- * This is primarily for multisite compatibility when users without roles on
- * sites that have global forums enabled want to create topics and replies
- *
- * @since bbPress (r3410)
- *
- * @uses apply_filters() Allow override of hardcoded participant role
- * @return string
- */
-function bbp_get_participant_role() {
-	return apply_filters( 'bbp_get_participant_role', 'bbp_participant' );
-}
-
-/**
- * The moderator role for bbPress users
- *
- * @since bbPress (r3410)
- *
- * @param string $role
- * @uses apply_filters() Allow override of hardcoded moderator role
- * @return string
- */
-function bbp_get_moderator_role() {
-	return apply_filters( 'bbp_get_moderator_role', 'bbp_moderator' );
 }
 
 /**
@@ -621,11 +757,11 @@ function bbp_global_access_role_mask() {
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Normal user is logged in but has no caps
-	if ( is_user_logged_in() && !current_user_can( 'read' ) ) {
+	// Normal user is logged in but not a member of this site
+	if ( is_user_logged_in() && ! is_user_member_of_blog() ) {
 
-		// Assign user the minimal participant role to map caps to
-		$default_role  = bbp_get_participant_role();
+		// Assign user the default role to map caps to
+		$default_role  = get_option( 'default_role' );
 
 		// Get bbPress caps for the default role
 		$caps_for_role = bbp_get_caps_for_role( $default_role );
@@ -715,4 +851,79 @@ function bbp_current_user_can_see( $component = '' ) {
 	}
 
 	return (bool) apply_filters( 'bbp_current_user_can_see', (bool) $retval, $component );
+}
+
+/** Deprecated ****************************************************************/
+
+/**
+ * Adds bbPress-specific user roles.
+ *
+ * @since bbPress (r2741)
+ * @deprecated since version 2.2
+ */
+function bbp_add_roles() {
+	_doing_it_wrong( 'bbp_add_roles', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * Removes bbPress-specific user roles.
+ *
+ * @since bbPress (r2741)
+ * @deprecated since version 2.2
+ */
+function bbp_remove_roles() {
+	_doing_it_wrong( 'bbp_remove_roles', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * Adds capabilities to WordPress user roles.
+ *
+ * @since bbPress (r2608)
+ * @deprecated since version 2.2
+ */
+function bbp_add_caps() {
+	_doing_it_wrong( 'bbp_add_roles', __( 'Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * Removes capabilities from WordPress user roles.
+ *
+ * @since bbPress (r2608)
+ * @deprecated since version 2.2
+ */
+function bbp_remove_caps() {
+	_doing_it_wrong( 'bbp_remove_caps', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * The anonymous role for unregistered users
+ *
+ * @since bbPress (r3860)
+ *
+ * @deprecated since version 2.2
+ */
+function bbp_get_anonymous_role() {
+	_doing_it_wrong( 'bbp_get_anonymous_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * The participant role for registered users without roles
+ *
+ * @since bbPress (r3410)
+ *
+ * @deprecated since version 2.2
+ */
+function bbp_get_participant_role() {
+	_doing_it_wrong( 'bbp_get_participant_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
+}
+
+/**
+ * The moderator role for bbPress users
+ *
+ * @since bbPress (r3410)
+ *
+ * @deprecated since version 2.2
+ */
+function bbp_get_moderator_role() {
+	_doing_it_wrong( 'bbp_get_moderator_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
 }

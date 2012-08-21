@@ -254,7 +254,42 @@ function bbp_version_updater() {
 	/** 2.2 Branch ************************************************************/
 
 	// 2.2
-	if ( $raw_db_version < 220 ) {
-		// No changes yet
+	if ( $raw_db_version < 213 ) {
+
+		/**
+		 * Remove Roles and Capabilities
+		 *
+		 * bbPress 2.2 moved roles and capabilities to a completely mapped
+		 * system, allowing any existing user in the network to have any other
+		 * set of forum capabilities, regardless of their existing role(s).
+		 */
+		global $wp_roles;
+
+		// Load roles if not set
+		if ( ! isset( $wp_roles ) )
+			$wp_roles = new WP_Roles();
+
+		// Loop through available roles
+		foreach( $wp_roles->roles as $role => $details ) {
+
+			// Load this role
+			$this_role = get_role( $role );
+
+			// Loop through caps for this role and remove them
+			foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
+				$this_role->remove_cap( $cap );
+			}
+		}
+
+		// Remove old custom roles
+		remove_role( 'bbp_moderator'   );
+		remove_role( 'bbp_participant' );
+
+		// Remove bbPress 1.1 roles (BuddyPress)
+		//remove_role( 'member'    );
+		//remove_role( 'inactive'  );
+		//remove_role( 'blocked'   );
+		//remove_role( 'moderator' );
+		//remove_role( 'keymaster' );
 	}
 }

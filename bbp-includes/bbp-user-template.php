@@ -421,9 +421,6 @@ function bbp_user_display_role( $user_id = 0 ) {
 	 *
 	 * @param int $user_id
 	 * @uses bbp_get_user_role() To get the main user role
-	 * @uses bbp_get_moderator_role() To get the moderator role
-	 * @uses bbp_get_participant_role() To get the participant role
-	 * @uses bbp_get_moderator_role() To get the moderator role
 	 * @uses apply_filters() Calls 'bbp_get_user_display_role' with the
 	 *                        display role, user id, and user role
 	 * @return string
@@ -438,31 +435,15 @@ function bbp_user_display_role( $user_id = 0 ) {
 		if ( is_super_admin( $user_id ) ) {
 			$role = __( 'Key Master', 'bbpress' );
 
+		// User is not registered
+		} elseif ( empty( $user_id ) ) {
+			$role = __( 'Guest', 'bbpress' );
+
 		// Not the keymaster of Gozer
 		} else {
 
 			// Get the user's main role for display
 			switch ( $user_role ) {
-
-				/** bbPress Roles *********************************************/
-
-				// Anonymous
-				case bbp_get_anonymous_role() :
-					$role = __( 'Guest', 'bbpress' );
-					break;
-
-				// Multisite Participant Role
-				case bbp_get_participant_role() :
-					$role = __( 'Member', 'bbpress' );
-					break;
-
-				// Moderator
-				case bbp_get_moderator_role() :
-					$role = __( 'Moderator', 'bbpress' );
-					break;
-
-				/** WordPress Core Roles **************************************/
-
 				case 'administrator' :
 				case 'editor'        :
 				case 'author'        :

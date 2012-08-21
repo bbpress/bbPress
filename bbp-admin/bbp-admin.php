@@ -97,6 +97,7 @@ class BBP_Admin {
 		require( $this->admin_dir . 'bbp-forums.php'    );
 		require( $this->admin_dir . 'bbp-topics.php'    );
 		require( $this->admin_dir . 'bbp-replies.php'   );
+		require( $this->admin_dir . 'bbp-users.php'     );
 	}
 
 	/**
@@ -1183,20 +1184,6 @@ class BBP_Admin {
 		// Taking action
 		switch ( $action ) {
 			case 'bbpress-update' :
-
-				// @todo more update stuff here, evaluate performance
-
-				// Remove roles and caps
-				bbp_remove_roles();
-				bbp_remove_caps();
-
-				// Make sure roles, capabilities, and options exist
-				bbp_add_roles();
-				bbp_add_caps();
-				bbp_add_options();
-
-				// Ensure any new permalinks are created
-				flush_rewrite_rules();
 
 				// Ensure proper version in the DB
 				bbp_version_bump();

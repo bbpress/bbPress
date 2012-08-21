@@ -173,8 +173,8 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.2-bleeding'; // bbPress version
-		$this->db_version = '211';          // bbPress DB version
+		$this->version    = '2.1.2-r4146'; // bbPress version
+		$this->db_version = '213';   // bbPress DB version
 
 		/** Paths *************************************************************/
 

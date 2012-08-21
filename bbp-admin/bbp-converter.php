@@ -693,11 +693,10 @@ abstract class BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		$default_role = ( is_multisite() && get_option( '_bbp_allow_global_access' ) ) ? bbp_get_participant_role() : get_option( 'default_role' );
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => 'role',
-			'default'      => $default_role
+			'default'      => get_option( 'default_role' )
 		);
 	}
 
