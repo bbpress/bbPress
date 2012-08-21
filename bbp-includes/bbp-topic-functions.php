@@ -429,7 +429,6 @@ function bbp_edit_topic_handler() {
 	// Define local variable(s)
 	$topic = $topic_id = $forum_id = $anonymous_data = 0;
 	$topic_title = $topic_content = $topic_edit_reason = '';
-	$terms = array( bbp_get_topic_tag_tax_id() => array() );
 
 	/** Topic *****************************************************************/
 
@@ -551,8 +550,8 @@ function bbp_edit_topic_handler() {
 
 	/** Topic Tags ************************************************************/
 
-	// Tags
-	if ( bbp_allow_topic_tags() && !empty( $_POST['bbp_topic_tags'] ) ) {
+	// Either replace terms
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
@@ -563,6 +562,14 @@ function bbp_edit_topic_handler() {
 
 		// Add topic tag ID as main key
 		$terms = array( bbp_get_topic_tag_tax_id() => $terms );
+
+	// ...or remove them.
+	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = array( bbp_get_topic_tag_tax_id() => array() );
+
+	// Existing terms
+	} else {
+		$terms = array( bbp_get_topic_tag_tax_id() => explode( ',', bbp_get_topic_tag_names( $topic_id, ',' ) ) );
 	}
 
 	/** Additional Actions (Before Save) **************************************/
@@ -3066,6 +3073,29 @@ function bbp_get_topics_per_rss_page() {
 
 	// Filter and return
 	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $per );
+}
+
+/** Topic Tags ****************************************************************/
+
+/**
+ * Get topic tags for a specific topic ID
+ *
+ * @since bbPress (r4165)
+ *
+ * @param int $topic_id
+ * @param string $sep
+ * @return string
+ */
+function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
+	$topic_id   = bbp_get_topic_id( $topic_id );
+	$topic_tags = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
+	$terms      = array();
+	foreach( $topic_tags as $term ) {
+		$terms[] = $term->name;
+	}
+	$terms = !empty( $terms ) ? implode( $sep, $terms ) : '';
+
+	return apply_filters( 'bbp_get_topic_tags', $terms, $topic_id );
 }
 
 /** Autoembed *****************************************************************/

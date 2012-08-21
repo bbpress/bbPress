@@ -223,8 +223,18 @@ function bbp_new_reply_handler() {
 
 	/** Topic Tags ************************************************************/
 
-	if ( !empty( $_POST['bbp_topic_tags'] ) )
+	// Either replace terms
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+
+	// ...or remove them.
+	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = '';
+
+	// Existing terms
+	} else {
+		$terms = bbp_get_topic_tag_names( $topic_id );
+	}
 
 	/** Additional Actions (Before Save) **************************************/
 
@@ -485,8 +495,18 @@ function bbp_edit_reply_handler() {
 
 	/** Topic Tags ************************************************************/
 
-	if ( !empty( $_POST['bbp_topic_tags'] ) )
+	// Either replace terms
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+
+	// ...or remove them.
+	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = '';
+
+	// Existing terms
+	} else {
+		$terms = bbp_get_topic_tag_names( $topic_id );
+	}
 
 	/** Additional Actions (Before Save) **************************************/
 
