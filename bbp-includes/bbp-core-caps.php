@@ -882,7 +882,7 @@ function bbp_remove_roles() {
  * @deprecated since version 2.2
  */
 function bbp_add_caps() {
-	_doing_it_wrong( 'bbp_add_roles', __( 'Use mapped capabilities instead', 'bbpress' ), '2.2' );
+	_doing_it_wrong( 'bbp_add_caps', __( 'Use mapped capabilities instead', 'bbpress' ), '2.2' );
 }
 
 /**
