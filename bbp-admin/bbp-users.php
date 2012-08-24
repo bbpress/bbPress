@@ -70,12 +70,9 @@ class BBP_Users_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 			div.bbp-user-capabilities {
-				float: left;
-				margin: 0 20px 0 0;
-			}
-			body.rtl div.bbp-user-capabilities {
-				float: right;
-				margin: 0 0 0 20px;
+				margin: 0 10px 10px;
+				display: inline-block;
+				vertical-align: top;
 			}
 			
 			div.bbp-user-capabilities h4 {
