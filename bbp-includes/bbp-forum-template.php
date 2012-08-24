@@ -61,21 +61,13 @@ function bbp_has_forums( $args = '' ) {
 	// Setup possible post__not_in array
 	$post_stati[] = bbp_get_public_status_id();
 
-	// Super admin get whitelisted post statuses
-	if ( is_super_admin() ) {
-		$post_stati = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
+	// Check if user can read private forums
+	if ( current_user_can( 'read_private_forums' ) )
+		$post_stati[] = bbp_get_private_status_id();
 
-	// Not a super admin, so check caps
-	} else {
-
-		// Check if user can read private forums
-		if ( current_user_can( 'read_private_forums' ) )
-			$post_stati[] = bbp_get_private_status_id();
-
-		// Check if user can read hidden forums
-		if ( current_user_can( 'read_hidden_forums' ) )
-			$post_stati[] = bbp_get_hidden_status_id();
-	}
+	// Check if user can read hidden forums
+	if ( current_user_can( 'read_hidden_forums' ) )
+		$post_stati[] = bbp_get_hidden_status_id();
 
 	// The default forum query for most circumstances
 	$defaults = array (
