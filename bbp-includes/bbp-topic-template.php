@@ -62,6 +62,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
  * @uses current_user_can() To check if the current user can edit other's topics
+ * @uses bbp_is_user_bozo() To add the bozo post status
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses WP_Query To make query and get the topics
  * @uses is_page() To check if it's a page
@@ -85,14 +86,21 @@ function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all() )
-		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
-	else
-		$default_post_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
+	if ( bbp_get_view_all() ) {
+		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() );
+	} else {
+		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
+	}
 
-	$default_topic_search    = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
-	$default_show_stickies   = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
-	$default_post_parent     = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
+	// Add the bozo status if user is a bozo
+	if ( bbp_is_user_bozo() ) {
+		$post_statuses[] = bbp_get_bozo_status_id();
+	}
+
+	$default_topic_search  = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
+	$default_show_stickies = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
+	$default_post_parent   = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
+	$default_post_status   = join( ',', $post_statuses );
 
 	// Default argument array
 	$default = array(
@@ -658,7 +666,7 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 	 */
 	function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		
+
 		// 4 days, 4 hours ago
 		if ( !empty( $humanize ) ) {
 			$gmt    = !empty( $gmt ) ? 'G' : 'U';
