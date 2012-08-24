@@ -711,7 +711,7 @@ final class bbPress {
 
 		// Bozo
 		register_post_status(
-			bbp_get_hidden_status_id(),
+			bbp_get_bozo_status_id(),
 			apply_filters( 'bbp_register_bozo_post_status', array(
 				'label'                     => _x( 'Bozo', 'post', 'bbpress' ),
 				'label_count'               => _nx_noop( 'Bozo <span class="count">(%s)</span>', 'Bozo <span class="count">(%s)</span>', 'bbpress' ),
