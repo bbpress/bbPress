@@ -379,6 +379,21 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 	// What capability is being checked?
 	switch ( $cap ) {
 
+		/** General ***********************************************************/
+
+		case 'bozo' :
+
+			// Inactive users are not bozos
+			if ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Moderators are not bozos
+			} elseif ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'do_not_allow' );
+			}
+
+			break;
+
 		/** Reading ***********************************************************/
 
 		case 'read_forum' :

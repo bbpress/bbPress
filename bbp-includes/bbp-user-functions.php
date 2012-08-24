@@ -1384,10 +1384,6 @@ function bbp_is_user_bozo( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Inactive users are not bozos
-	if ( bbp_is_user_inactive( $user_id ) )
-		return false;
-
 	// Return if a user has the bozo capability
 	return (bool) apply_filters( 'bbp_is_user_bozo', user_can( $user_id, 'bozo' ), $user_id );
 }
