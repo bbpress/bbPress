@@ -1363,6 +1363,36 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 }
 
 /**
+ * Checks if user is a bozo.
+ * 
+ * @since bbPress (r4169)
+ * 
+ * @uses is_user_logged_in() To check if user is logged in
+ * @uses bbp_get_displayed_user_id() To get current user ID
+ * @uses bbp_is_user_active() To check if user is active
+ *
+ * @param int $user_id The user ID to check. Defaults to current user ID
+ * @return bool True if inactive, false if active
+ */
+function bbp_is_user_bozo( $user_id = 0 ) {
+
+	// Default to current user
+	if ( empty( $user_id ) && is_user_logged_in() )
+		$user_id = bbp_get_current_user_id();
+
+	// Anonymous users are not bozos
+	if ( empty( $user_id ) )
+		return false;
+
+	// Inactive users are not bozos
+	if ( bbp_is_user_inactive( $user_id ) )
+		return false;
+
+	// Return if a user has the bozo capability
+	return (bool) apply_filters( 'bbp_is_user_bozo', user_can( $user_id, 'bozo' ), $user_id );
+}
+
+/**
  * Return a user's main role
  *
  * @since bbPress (r3860)
