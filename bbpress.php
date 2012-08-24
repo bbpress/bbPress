@@ -208,6 +208,7 @@ final class bbPress {
 		$this->private_status_id = apply_filters( 'bbp_private_post_status', 'private' );
 		$this->hidden_status_id  = apply_filters( 'bbp_hidden_post_status',  'hidden'  );
 		$this->trash_status_id   = apply_filters( 'bbp_trash_post_status',   'trash'   );
+		$this->bozo_status_id    = apply_filters( 'bbp_bozo_post_status',    'bozo'    );
 
 		// Other identifiers
 		$this->user_id           = apply_filters( 'bbp_user_id', 'bbp_user' );
@@ -428,7 +429,7 @@ final class bbPress {
 	public function load_textdomain() {
 		$locale = get_locale();                                          // Default locale
 		$locale = apply_filters( 'plugin_locale',  $locale, 'bbpress' ); // Traditional WordPress plugin locale filter
-		$locale = apply_filters( 'bbpress_locale', $locale );            // bbPress specific locale filter
+		$locale = apply_filters( 'bbpress_locale', $locale            ); // bbPress specific locale filter
 		$mofile = sprintf( 'bbpress-%s.mo', $locale );                   // Get mo file name
 
 		// Setup paths to current locale file
@@ -705,6 +706,19 @@ final class bbPress {
 				'exclude_from_search'       => true,
 				'show_in_admin_status_list' => true,
 				'show_in_admin_all_list'    => true
+			) )
+		);
+
+		// Bozo
+		register_post_status(
+			bbp_get_hidden_status_id(),
+			apply_filters( 'bbp_register_bozo_post_status', array(
+				'label'                     => _x( 'Bozo', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Bozo <span class="count">(%s)</span>', 'Bozo <span class="count">(%s)</span>', 'bbpress' ),
+				'private'                   => true,
+				'exclude_from_search'       => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => false
 			) )
 		);
 

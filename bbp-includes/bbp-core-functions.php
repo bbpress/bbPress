@@ -271,12 +271,8 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  */
 function bbp_has_errors() {
 
-	// Assume no errors
-	$has_errors = false;
-
 	// Check for errors
-	if ( bbpress()->errors->get_error_codes() )
-		$has_errors = true;
+	$has_errors = bbpress()->errors->get_error_codes() ? true : false;
 
 	// Filter return value
 	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
@@ -372,6 +368,17 @@ function bbp_get_trash_status_id() {
  */
 function bbp_get_orphan_status_id() {
 	return bbpress()->orphan_status_id;
+}
+
+/**
+ * Return the bozo post status ID
+ *
+ * @since bbPress (r4167)
+ *
+ * @return string
+ */
+function bbp_get_bozo_status_id() {
+	return bbpress()->bozo_status_id;
 }
 
 /** Rewrite IDs ***************************************************************/
