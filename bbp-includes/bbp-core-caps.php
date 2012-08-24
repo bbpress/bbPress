@@ -66,12 +66,12 @@ function bbp_get_capabilities_for_group( $group = '' ) {
  * @return array of general capabilities
  */
 function bbp_get_general_capabilities() {
-	return apply_filters( 'bbp_get_general_capabilities', array( 
+	return apply_filters( 'bbp_get_general_capabilities', array(
+		'participate',
 		'moderate',
 		'throttle',
 		'view_trash',
-		'bozo',
-		'blocked'
+		'bozo'
 	) );
 }
 
@@ -83,7 +83,7 @@ function bbp_get_general_capabilities() {
  * @return array of forums capabilities
  */
 function bbp_get_forums_capabilities() {
-	return apply_filters( 'bbp_get_forums_capabilities', array( 
+	return apply_filters( 'bbp_get_forums_capabilities', array(
 		'publish_forums',
 		'edit_forums',
 		'edit_others_forums',
@@ -102,7 +102,7 @@ function bbp_get_forums_capabilities() {
  * @return array of topics capabilities
  */
 function bbp_get_topics_capabilities() {
-	return apply_filters( 'bbp_get_topics_capabilities', array( 
+	return apply_filters( 'bbp_get_topics_capabilities', array(
 		'publish_topics',
 		'edit_topics',
 		'edit_others_topics',
@@ -120,7 +120,7 @@ function bbp_get_topics_capabilities() {
  * @return array of topic-tag capabilities
  */
 function bbp_get_topic_tags_capabilities() {
-	return apply_filters( 'bbp_get_topic_tags_capabilities', array( 
+	return apply_filters( 'bbp_get_topic_tags_capabilities', array(
 		'manage_topic_tags',
 		'edit_topic_tags',
 		'delete_topic_tags',
@@ -136,7 +136,7 @@ function bbp_get_topic_tags_capabilities() {
  * @return array of replies capabilities
  */
 function bbp_get_replies_capabilities() {
-	return apply_filters( 'bbp_get_replies_capabilities', array( 
+	return apply_filters( 'bbp_get_replies_capabilities', array(
 		'publish_replies',
 		'edit_replies',
 		'edit_others_replies',
@@ -220,6 +220,9 @@ function bbp_capability_title( $capability = '' ) {
 		switch( $capability ) {
 
 			// Misc
+			case 'participate' :
+				$retval = __( 'Participate in forums', 'bbpress' );
+				break;
 			case 'moderate' :
 				$retval = __( 'Moderate entire forum', 'bbpress' );
 				break;
@@ -232,15 +235,11 @@ function bbp_capability_title( $capability = '' ) {
 			case 'bozo' :
 				$retval = __( 'User is a forum bozo', 'bbpress' );
 				break;
-			case 'blocked' :
-				$retval = __( 'User is blocked', 'bbpress' );
-				break;
 
 			// Forum caps
 			case 'read_forum' :
 				$retval = __( 'View forum', 'bbpress' );
 				break;
-
 			case 'edit_forum' :
 				$retval = __( 'Edit forum', 'bbpress' );
 				break;
@@ -612,85 +611,80 @@ function bbp_get_topic_tag_caps() {
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
-	// No role
-	if ( empty( $role ) ) {
-		$caps = array(
-			'blocked'
-		);
-
 	// Which role are we looking for?
-	} else {
-		switch ( $role ) {
+	switch ( $role ) {
 
-			// Administrator
-			case 'administrator' :
+		// Administrator
+		case 'administrator' :
 
-				$caps = array(
+			$caps = array(
 
-					// Forum caps
-					'publish_forums',
-					'edit_forums',
-					'edit_others_forums',
-					'delete_forums',
-					'delete_others_forums',
-					'read_private_forums',
-					'read_hidden_forums',
+				// Forum caps
+				'publish_forums',
+				'edit_forums',
+				'edit_others_forums',
+				'delete_forums',
+				'delete_others_forums',
+				'read_private_forums',
+				'read_hidden_forums',
 
-					// Topic caps
-					'publish_topics',
-					'edit_topics',
-					'edit_others_topics',
-					'delete_topics',
-					'delete_others_topics',
-					'read_private_topics',
+				// Topic caps
+				'publish_topics',
+				'edit_topics',
+				'edit_others_topics',
+				'delete_topics',
+				'delete_others_topics',
+				'read_private_topics',
 
-					// Reply caps
-					'publish_replies',
-					'edit_replies',
-					'edit_others_replies',
-					'delete_replies',
-					'delete_others_replies',
-					'read_private_replies',
+				// Reply caps
+				'publish_replies',
+				'edit_replies',
+				'edit_others_replies',
+				'delete_replies',
+				'delete_others_replies',
+				'read_private_replies',
 
-					// Topic tag caps
-					'manage_topic_tags',
-					'edit_topic_tags',
-					'delete_topic_tags',
-					'assign_topic_tags',
+				// Topic tag caps
+				'manage_topic_tags',
+				'edit_topic_tags',
+				'delete_topic_tags',
+				'assign_topic_tags',
 
-					// Misc
-					'moderate',
-					'throttle',
-					'view_trash'
-				);
+				// Misc
+				'moderate',
+				'throttle',
+				'view_trash'
+			);
 
-				break;
+			break;
 
-			// Any other role
-			case 'editor'      :
-			case 'author'      :
-			case 'contributor' :
-			case 'subscriber'  :
-			default            :
-				$caps = array(
+		// Any other role
+		case 'editor'      :
+		case 'author'      :
+		case 'contributor' :
+		case 'subscriber'  :
+		default            :
+			$caps = array(
 
-					// Forum caps
-					'read_private_forums',
+				// General caps
+				'participate',
 
-					// Topic caps
-					'publish_topics',
-					'edit_topics',
+				// Forum caps
+				'read_private_forums',
 
-					// Reply caps
-					'publish_replies',
-					'edit_replies',
+				// Topic caps
+				'publish_topics',
+				'edit_topics',
 
-					// Topic tag caps
-					'assign_topic_tags'
-				);
+				// Reply caps
+				'publish_replies',
+				'edit_replies',
 
-				break;
-		}
+				// Topic tag caps
+				'assign_topic_tags'
+			);
+
+			break;
 	}
 
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
@@ -798,6 +792,7 @@ function bbp_global_access_role_mask() {
  *
  * @since bbPress (r3944)
  *
+ * @todo use meta caps and maybe deprecate
  * @uses current_user_can() To check the 'moderate' capability
  * @uses bbp_get_forum_post_type()
  * @uses bbp_get_topic_post_type()
