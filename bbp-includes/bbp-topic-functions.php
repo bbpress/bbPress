@@ -547,7 +547,7 @@ function bbp_edit_topic_handler() {
 	if ( empty( $topic_content ) )
 		bbp_add_error( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
 
-	/** topic Blacklist *******************************************************/
+	/** Topic Blacklist *******************************************************/
 	
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
