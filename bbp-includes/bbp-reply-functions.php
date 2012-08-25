@@ -215,11 +215,20 @@ function bbp_new_reply_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
 
-	/** Reply Moderation ******************************************************/
+	/** Reply Status **********************************************************/
 
-	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
-		$post_status = bbp_get_pending_status_id();
+	// Maybe put into moderation
+	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
+		$reply_status = bbp_get_pending_status_id();
+
+	// Maybe set as bozo status
+	} elseif ( bbp_is_user_bozo() ) {
+		$reply_status = bbp_get_bozo_status_id();
+
+	// Default
+	} else {
+		$reply_status = bbp_get_public_status_id();
+	}
 
 	/** Topic Tags ************************************************************/
 
@@ -252,8 +261,8 @@ function bbp_new_reply_handler() {
 		'post_author'    => $reply_author,
 		'post_title'     => $reply_title,
 		'post_content'   => $reply_content,
+		'post_status'    => $reply_status,
 		'post_parent'    => $topic_id,
-		'post_status'    => $post_status,
 		'post_type'      => bbp_get_reply_post_type(),
 		'comment_status' => 'closed',
 		'menu_order'     => (int) ( bbp_get_topic_reply_count( $topic_id ) + 1 )
@@ -487,11 +496,20 @@ function bbp_edit_reply_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 
-	/** Reply Moderation ******************************************************/
+	/** Reply Status **********************************************************/
 
-	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
-		$post_status = bbp_get_pending_status_id();
+	// Maybe put into moderation
+	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) ) {
+		$reply_status = bbp_get_pending_status_id();
+
+	// Maybe set as bozo status
+	} elseif ( bbp_is_user_bozo() ) {
+		$reply_status = bbp_get_bozo_status_id();
+
+	// Default
+	} else {
+		$reply_status = bbp_get_public_status_id();
+	}
 
 	/** Topic Tags ************************************************************/
 
@@ -524,7 +542,7 @@ function bbp_edit_reply_handler() {
 		'ID'           => $reply_id,
 		'post_title'   => $reply_title,
 		'post_content' => $reply_content,
-		'post_status'  => $post_status,
+		'post_status'  => $reply_status,
 		'post_parent'  => $reply->post_parent,
 		'post_author'  => $reply->post_author,
 		'post_type'    => bbp_get_reply_post_type()

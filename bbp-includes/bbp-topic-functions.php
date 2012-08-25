@@ -237,11 +237,20 @@ function bbp_new_topic_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be created at this time.', 'bbpress' ) );
 
-	/** Topic Moderation ******************************************************/
-	
-	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
-		$post_status = bbp_get_pending_status_id();
+	/** Topic Status **********************************************************/
+
+	// Maybe put into moderation
+	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
+		$topic_status = bbp_get_pending_status_id();
+
+	// Maybe set as bozo status
+	} elseif ( bbp_is_user_bozo() ) {
+		$topic_status = bbp_get_bozo_status_id();
+
+	// Default to published
+	} else {
+		$topic_status = bbp_get_public_status_id();
+	}
 
 	/** Topic Tags ************************************************************/
 
@@ -251,8 +260,9 @@ function bbp_new_topic_handler() {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 		// Explode by comma
-		if ( strstr( $terms, ',' ) )
+		if ( strstr( $terms, ',' ) ) {
 			$terms = explode( ',', $terms );
+		}
 
 		// Add topic tag ID as main key
 		$terms = array( bbp_get_topic_tag_tax_id() => $terms );
@@ -274,8 +284,8 @@ function bbp_new_topic_handler() {
 		'post_author'    => $topic_author,
 		'post_title'     => $topic_title,
 		'post_content'   => $topic_content,
+		'post_status'    => $topic_status,
 		'post_parent'    => $forum_id,
-		'post_status'    => $post_status,
 		'post_type'      => bbp_get_topic_post_type(),
 		'tax_input'      => $terms,
 		'comment_status' => 'closed'
@@ -542,11 +552,20 @@ function bbp_edit_topic_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
 
-	/** Topic Moderation ******************************************************/
+	/** Topic Status **********************************************************/
 	
-	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
-		$post_status = bbp_get_pending_status_id();
+	// Maybe put into moderation
+	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
+		$topic_status = bbp_get_pending_status_id();
+
+	// Maybe set as bozo status
+	} elseif ( bbp_is_user_bozo() ) {
+		$topic_status = bbp_get_bozo_status_id();
+
+	// Default to published
+	} else {
+		$topic_status = bbp_get_public_status_id();
+	}
 
 	/** Topic Tags ************************************************************/
 
@@ -588,7 +607,7 @@ function bbp_edit_topic_handler() {
 		'ID'           => $topic_id,
 		'post_title'   => $topic_title,
 		'post_content' => $topic_content,
-		'post_status'  => $post_status,
+		'post_status'  => $topic_status,
 		'post_parent'  => $forum_id,
 		'post_author'  => $topic->post_author,
 		'post_type'    => bbp_get_topic_post_type(),
