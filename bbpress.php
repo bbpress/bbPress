@@ -127,14 +127,14 @@ final class bbPress {
 	 *
 	 * @since bbPress (r2464)
 	 */
-	public function __clone() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
+	public function __clone() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '1.7' ); }
 
 	/**
 	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
 	 * @since bbPress (r2464)
 	 */
-	public function __wakeup() { wp_die( __( 'Cheatin&#8217; huh?', 'bbpress' ) ); }
+	public function __wakeup() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '1.7' ); }
 
 	/**
 	 * Magic method for checking the existence of a certain custom field
