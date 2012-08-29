@@ -631,8 +631,13 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 		// Administrator
 		case 'administrator' :
-
 			$caps = array(
+
+				// General caps
+				'participate',
+				'moderate',
+				'throttle',
+				'view_trash',
 
 				// Forum caps
 				'publish_forums',
@@ -663,12 +668,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'manage_topic_tags',
 				'edit_topic_tags',
 				'delete_topic_tags',
-				'assign_topic_tags',
-
-				// Misc
-				'moderate',
-				'throttle',
-				'view_trash'
+				'assign_topic_tags'
 			);
 
 			break;
@@ -762,37 +762,36 @@ function bbp_global_access_role_mask() {
 	if ( ! bbp_allow_global_access() )
 		return;
 
+	// Bail if not logged in or already a member of this site
+	if ( ! is_user_logged_in() || is_user_member_of_blog() )
+		return;
+
 	// Bail if user is marked as spam or is deleted
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Normal user is logged in but not a member of this site
-	if ( is_user_logged_in() && ! is_user_member_of_blog() ) {
+	// Assign user the default role to map caps to
+	$default_role  = get_option( 'default_role', 'subscriber' );
 
-		// Assign user the default role to map caps to
-		$default_role  = get_option( 'default_role' );
+	// Get bbPress caps for the default role
+	$caps_for_role = bbp_get_caps_for_role( $default_role );
 
-		// Get bbPress caps for the default role
-		$caps_for_role = bbp_get_caps_for_role( $default_role );
+	// Set all caps to true
+	foreach ( $caps_for_role as $cap )
+		$default_caps[$cap] = true;
 
-		// Set all caps to true
-		foreach ( $caps_for_role as $cap ) {
-			$mapped_meta_caps[$cap] = true;
-		}
+	// Add 'read' cap just in case
+	$default_caps['read']       = true;
+	$default_caps['bbp_masked'] = true;
 
-		// Add 'read' cap just in case
-		$mapped_meta_caps['read']       = true;
-		$mapped_meta_caps['bbp_masked'] = true;
+	// Allow global access caps to be manipulated
+	$default_caps = apply_filters( 'bbp_global_access_default_caps', $default_caps );
 
-		// Allow global access caps to be manipulated
-		$mapped_meta_caps = apply_filters( 'bbp_global_access_mapped_meta_caps', $mapped_meta_caps );
-
-		// Assign the role and mapped caps to the current user
-		$bbp = bbpress();
-		$bbp->current_user->roles[0] = $default_role;
-		$bbp->current_user->caps     = $mapped_meta_caps;
-		$bbp->current_user->allcaps  = $mapped_meta_caps;
-	}
+	// Assign the role and mapped caps to the current user
+	$bbp = bbpress();
+	$bbp->current_user->roles[0] = $default_role;
+	$bbp->current_user->caps     = $default_caps;
+	$bbp->current_user->allcaps  = $default_caps;
 }
 
 /**
