@@ -725,18 +725,23 @@ function bbp_global_access_auto_role() {
 	if ( ! bbp_allow_global_access() )
 		return;
 
+	// Bail if not logged in or already a member of this site
+	if ( ! is_user_logged_in() || is_user_member_of_blog() )
+		return;
+
 	// Bail if user is not active
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Bail if user is not logged in
-	if ( !is_user_logged_in() )
+	// Give the user the default role
+	if ( ! current_user_can( 'bbp_masked' ) )
 		return;
 
-	// Give the user the default role
-	if ( current_user_can( 'bbp_masked' ) ) {
-		bbpress()->current_user->set_role( get_option( 'default_role' ) );
-	}
+	// Make sure the bbp_masked cap doesn't get saved to the DB
+	bbpress()->current_user->remove_cap( 'bbp_masked' );
+
+	// Set user to default role for blog
+	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
 }
 
 /**
@@ -744,6 +749,11 @@ function bbp_global_access_auto_role() {
  *
  * This function will bail if the forum is not global in a multisite
  * installation of WordPress, or if the user is marked as spam or deleted.
+ *
+ * Note that we do not currently add a capability for the default role of the
+ * site. This is to prevent unauthorized role-based access, since we have no
+ * idea what plugins might be doing to that role. This may change in the future,
+ * so it's best not to rely heavily on this for now.
  *
  * @since bbPress (r3380)
  *
@@ -770,18 +780,11 @@ function bbp_global_access_role_mask() {
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Assign user the default role to map caps to
-	$default_role  = get_option( 'default_role', 'subscriber' );
-
-	// Get bbPress caps for the default role
-	$caps_for_role = bbp_get_caps_for_role( $default_role );
-
 	// Set all caps to true
-	foreach ( $caps_for_role as $cap )
+	foreach ( bbp_get_caps_for_role() as $cap )
 		$default_caps[$cap] = true;
 
 	// Add 'read' cap just in case
-	$default_caps['read']       = true;
 	$default_caps['bbp_masked'] = true;
 
 	// Allow global access caps to be manipulated
@@ -789,7 +792,6 @@ function bbp_global_access_role_mask() {
 
 	// Assign the role and mapped caps to the current user
 	$bbp = bbpress();
-	$bbp->current_user->roles[0] = $default_role;
 	$bbp->current_user->caps     = $default_caps;
 	$bbp->current_user->allcaps  = $default_caps;
 }
