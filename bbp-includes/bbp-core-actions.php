@@ -41,9 +41,9 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *           v--WordPress Actions      v--bbPress Sub-actions
  */
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
-add_action( 'init',                   'bbp_init',                   10 );
-add_action( 'widgets_init',           'bbp_widgets_init',           10 );
+add_action( 'init',                   'bbp_init',                   0  ); // Early for bbp_register
 add_action( 'parse_query',            'bbp_parse_query',            2  ); // Early for overrides
+add_action( 'widgets_init',           'bbp_widgets_init',           10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
 add_action( 'wp_head',                'bbp_head',                   10 );
@@ -76,15 +76,24 @@ add_action( 'bbp_loaded', 'bbp_load_textdomain',           18 );
  *
  * Attach various initialization actions to the init action.
  * The load order helps to execute code at the correct time.
- *                                                    v---Load order
+ *                                              v---Load order
  */
-add_action( 'bbp_init', 'bbp_register_post_types',     10  );
-add_action( 'bbp_init', 'bbp_register_post_statuses',  12  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',     14  );
-add_action( 'bbp_init', 'bbp_register_views',          16  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',     18  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',        20  );
-add_action( 'bbp_init', 'bbp_ready',                   999 );
+add_action( 'bbp_init', 'bbp_register',         0   );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags', 20  );
+add_action( 'bbp_init', 'bbp_ready',            999 );
+
+/**
+ * bbp_register - Attached to 'init' above on 0 priority
+ *
+ * Attach various initialization actions early to the init action.
+ * The load order helps to execute code at the correct time.
+ *                                                         v---Load order
+ */
+add_action( 'bbp_register', 'bbp_register_post_types',     2  );
+add_action( 'bbp_register', 'bbp_register_post_statuses',  4  );
+add_action( 'bbp_register', 'bbp_register_taxonomies',     6  );
+add_action( 'bbp_register', 'bbp_register_views',          8  );
+add_action( 'bbp_register', 'bbp_register_shortcodes',     10 );
 
 // Autoembeds
 add_action( 'bbp_init', 'bbp_reply_content_autoembed', 8   );

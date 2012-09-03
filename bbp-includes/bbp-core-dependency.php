@@ -103,13 +103,23 @@ function bbp_setup_globals() {
 }
 
 /**
+ * Register any objects before anything is initialized
+ *
+ * @since bbPress (r4180)
+ * @uses do_action() Calls 'bbp_register'
+ */
+function bbp_register() {
+	do_action( 'bbp_register' );
+}
+
+/**
  * Initialize any code after everything has been loaded
  *
  * @since bbPress (r2599)
  * @uses do_action() Calls 'bbp_init'
  */
 function bbp_init() {
-	do_action ( 'bbp_init' );
+	do_action( 'bbp_init' );
 }
 
 /**
@@ -119,7 +129,7 @@ function bbp_init() {
  * @uses do_action() Calls 'bbp_widgets_init'
  */
 function bbp_widgets_init() {
-	do_action ( 'bbp_widgets_init' );
+	do_action( 'bbp_widgets_init' );
 }
 
 /**
@@ -129,7 +139,7 @@ function bbp_widgets_init() {
  * @uses do_action() Calls 'bbp_setup_current_user'
  */
 function bbp_setup_current_user() {
-	do_action ( 'bbp_setup_current_user' );
+	do_action( 'bbp_setup_current_user' );
 }
 
 /** Supplemental Actions ******************************************************/
@@ -161,7 +171,7 @@ function bbp_register_theme_directory() {
  * @uses do_action() Calls 'bbp_register_post_type'
  */
 function bbp_register_post_types() {
-	do_action ( 'bbp_register_post_types' );
+	do_action( 'bbp_register_post_types' );
 }
 
 /**
@@ -171,7 +181,7 @@ function bbp_register_post_types() {
  * @uses do_action() Calls 'bbp_register_post_statuses'
  */
 function bbp_register_post_statuses() {
-	do_action ( 'bbp_register_post_statuses' );
+	do_action( 'bbp_register_post_statuses' );
 }
 
 /**
@@ -181,7 +191,7 @@ function bbp_register_post_statuses() {
  * @uses do_action() Calls 'bbp_register_taxonomies'
  */
 function bbp_register_taxonomies() {
-	do_action ( 'bbp_register_taxonomies' );
+	do_action( 'bbp_register_taxonomies' );
 }
 
 /**
@@ -191,7 +201,7 @@ function bbp_register_taxonomies() {
  * @uses do_action() Calls 'bbp_register_views'
  */
 function bbp_register_views() {
-	do_action ( 'bbp_register_views' );
+	do_action( 'bbp_register_views' );
 }
 
 /**
@@ -201,7 +211,7 @@ function bbp_register_views() {
  * @uses do_action() Calls 'bbp_enqueue_scripts'
  */
 function bbp_enqueue_scripts() {
-	do_action ( 'bbp_enqueue_scripts' );
+	do_action( 'bbp_enqueue_scripts' );
 }
 
 /**
@@ -211,7 +221,7 @@ function bbp_enqueue_scripts() {
  * @uses do_action() Calls 'bbp_add_rewrite_tags'
  */
 function bbp_add_rewrite_tags() {
-	do_action ( 'bbp_add_rewrite_tags' );
+	do_action( 'bbp_add_rewrite_tags' );
 }
 
 /**
@@ -221,7 +231,7 @@ function bbp_add_rewrite_tags() {
  * @uses do_action() Calls 'bbp_login_form_login'
  */
 function bbp_login_form_login() {
-	do_action ( 'bbp_login_form_login' );
+	do_action( 'bbp_login_form_login' );
 }
 
 /** Final Action **************************************************************/
