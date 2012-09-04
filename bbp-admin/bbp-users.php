@@ -42,6 +42,10 @@ class BBP_Users_Admin {
 	 */
 	function setup_actions() {
 
+		// Bail if in network admin
+		if ( is_network_admin() )
+			return;
+
 		// Admin styles
 		add_action( 'admin_head',               array( $this, 'admin_head'          ) );
 
@@ -131,7 +135,7 @@ class BBP_Users_Admin {
 			// Add back caps for current role
 			if ( !empty( $user_role ) ) {
 				foreach ( bbp_get_caps_for_role( $user_role ) as $capability ) {
-					$user->add_cap( $capability );
+					$user->add_cap( $capability, true );
 				}
 			}
 
