@@ -269,6 +269,11 @@ function bbp_parse_query( $posts_query ) {
 				require_once( ABSPATH . 'wp-admin/includes/user.php' );
 			}
 
+			// Load the grant/revoke super admin functions
+			if ( is_multisite() && !function_exists( 'revoke_super_admin' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/ms.php' );
+			}
+
 			// Editing a user
 			$posts_query->bbp_is_edit = true;
 

@@ -562,7 +562,7 @@ p.form-allowed-tags {
 	#bbp-your-profile fieldset input,
 	#bbp-your-profile fieldset textarea {
 		margin-bottom: 0;
-		width: 400px;
+		width: 300px;
 		background: #f9f9f9;
 		border: 1px solid #ccc;
 		box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
@@ -576,14 +576,16 @@ p.form-allowed-tags {
 	#bbp-your-profile fieldset legend {
 		display: none;
 	}
-	#bbpress-forums #bbp-your-profile fieldset label {
+	#bbpress-forums #bbp-your-profile fieldset label[for] {
 		float: left;
 		width: 150px;
 		padding-right: 20px;
 		text-align: right;
+		cursor: pointer;
 	}
-	#bbpress-forums #bbp-your-profile fieldset dl label {
+	#bbpress-forums #bbp-your-profile fieldset dl label[for] {
 		text-align: left;
+		width: 160px;
 	}
 	#bbp-your-profile fieldset span.description {
 		margin: 5px 0 0 170px;
@@ -591,7 +593,7 @@ p.form-allowed-tags {
 		font-style: italic;
 		float: left;
 		clear: left;
-		width: 383px;
+		width: 283px;
 		padding: 5px 10px;
 		border: #cee1ef 1px solid;
 		background-color: #f0f8ff;
@@ -832,13 +834,13 @@ body.my-account #bbp-author-topics-started {
 -------------------------------------------------------------- */
 
 #bbpress-forums dl.bbp-user-capabilities {
-	margin: 0 10px 10px;
 	display: inline-block;
 	vertical-align: top;
 }
 
 #bbpress-forums dl.bbp-user-capabilities dt {
 	margin: 0 0 10px;
+	text-transform: capitalize;
 }
 
 #bbpress-forums p.bbp-default-caps-wrapper {

@@ -884,8 +884,6 @@ function bbp_edit_user_handler() {
 	// Get the displayed user ID
 	$user_id = bbp_get_displayed_user_id();
 
-	global $wpdb, $user_login, $super_admins;
-
 	// Execute confirmed email change. See send_confirmation_on_profile_email().
 	if ( is_multisite() && bbp_is_user_home_edit() && isset( $_GET['newuseremail'] ) ) {
 
@@ -896,22 +894,24 @@ function bbp_edit_user_handler() {
 			$user->ID         = $user_id;
 			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
 
-			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login' ) ) ) )
+			global $wpdb;
+
+			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login' ) ) ) ) {
 				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login' ) ) );
+			}
 
 			wp_update_user( get_object_vars( $user ) );
 			delete_option( $user_id . '_new_email' );
 
 			wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-			exit;
+			exit();
 		}
 
+	// Delete new email address from user options
 	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
-
 		delete_option( $user_id . '_new_email' );
 		wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-		exit;
-
+		exit();
 	}
 
 	// Nonce check
@@ -930,42 +930,8 @@ function bbp_edit_user_handler() {
 	$edit_action = bbp_is_user_home_edit() ? 'personal_options_update' : 'edit_user_profile_update';
 	do_action( $edit_action, $user_id );
 
-	// Multisite handles the trouble for us ;)
-	if ( !is_multisite() ) {
-		$edit_user = edit_user( $user_id );
-
-	// Single site means we need to do some manual labor
-	} else {
-		$user = get_userdata( $user_id );
-
-		// Update the email address in signups, if present.
-		if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email'] ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) ) {
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $_POST['email'], $user_login ) );
-		}
-
-		// WPMU must delete the user from the current blog if WP added him after editing.
-		$delete_role = false;
-		$blog_prefix = $wpdb->get_blog_prefix();
-
-		if ( $user_id != $user_id ) {
-			$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$user_id}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
-			if ( !is_network_admin() && null == $cap && $_POST['role'] == '' ) {
-				$_POST['role'] = 'contributor';
-				$delete_role   = true;
-			}
-		}
-
-		$edit_user = edit_user( $user_id );
-
-		// stops users being added to current blog when they are edited
-		if ( true === $delete_role ) {
-			delete_user_meta( $user_id, $blog_prefix . 'capabilities' );
-		}
-
-		if ( is_multisite() && is_network_admin() & !bbp_is_user_home_edit() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $user_id ) ) {
-			empty( $_POST['super_admin'] ) ? revoke_super_admin( $user_id ) : grant_super_admin( $user_id );
-		}
-	}
+	// Handle user edit
+	$edit_user = edit_user( $user_id );
 
 	// Error(s) editng the user, so copy them into the global
 	if ( is_wp_error( $edit_user ) ) {
@@ -973,6 +939,12 @@ function bbp_edit_user_handler() {
 
 	// Successful edit to redirect
 	} elseif ( is_integer( $edit_user ) ) {
+
+		// Maybe update super admin ability
+		if ( is_multisite() && ! bbp_is_user_home_edit() ) {
+			empty( $_POST['super_admin'] ) ? revoke_super_admin( $edit_user ) : grant_super_admin( $edit_user );
+		}
+
 		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $edit_user ) );
 
 		wp_safe_redirect( $redirect );
