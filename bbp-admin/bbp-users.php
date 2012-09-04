@@ -109,8 +109,7 @@ class BBP_Users_Admin {
 			return;
 
 		// Load up the user
-		$user      = new WP_User( $user_id );
-		$user_role = bbp_get_user_role( $user_id );
+		$user = new WP_User( $user_id );
 
 		// Either reset caps for role
 		if ( ! empty( $_POST['bbp-default-caps'] ) ) {
@@ -122,39 +121,20 @@ class BBP_Users_Admin {
 				}
 			}
 
-			// Maybe use users new role
-			if ( ! empty( $_POST['role'] ) ) {
-				$new_role = get_role( $_POST['role'] );
-				$new_role = isset( $new_role->name ) ? $new_role->name : '';
-
-				if ( $new_role != $user_role ) {
-					$user_role = $new_role;
-				}
-			}
-
-			// Add back caps for current role
-			if ( !empty( $user_role ) ) {
-				foreach ( bbp_get_caps_for_role( $user_role ) as $capability ) {
-					$user->add_cap( $capability, true );
-				}
-			}
-
 		// Or set caps individually
 		} else {
 
 			// Loop through capability groups
 			foreach ( bbp_get_capability_groups() as $group ) {
-
-				// Loop through capabilities
 				foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) {
 
 					// Maybe add cap
 					if ( ! empty( $_POST['_bbp_' . $capability] ) && ! $user->has_cap( $capability ) ) {
-						$user->add_cap( $capability );
+						$user->add_cap( $capability, true );
 
 					// Maybe remove cap
 					} elseif ( empty( $_POST['_bbp_' . $capability] ) && $user->has_cap( $capability ) ) {
-						$user->remove_cap( $capability );
+						$user->add_cap( $capability, false );
 					}
 				}
 			}
