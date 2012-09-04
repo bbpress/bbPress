@@ -432,3 +432,13 @@ function bbp_get_user_subscriptions_rewrite_id() {
 function bbp_get_view_rewrite_id() {
 	return bbpress()->view_id;
 }
+
+/**
+ * Delete a blogs rewrite rules, so that they are automatically rebuilt on
+ * the subsequent page load.
+ *
+ * @since bbPress (r4198)
+ */
+function bbp_delete_rewrite_rules() {
+	delete_option( 'rewrite_rules' );
+}

@@ -174,7 +174,7 @@ final class bbPress {
 		/** Versions **********************************************************/
 
 		$this->version    = '2.1.2-bleeding-r4181'; // bbPress version
-		$this->db_version = '213';   // bbPress DB version
+		$this->db_version = '214';   // bbPress DB version
 
 		/** Paths *************************************************************/
 
@@ -270,10 +270,6 @@ final class bbPress {
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php' ); // Shortcodes for use with pages and posts
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'     ); // Database updater
-
-		// If bbPress is being deactivated, do not load any more files
-		if ( bbp_is_deactivation( $this->basename ) )
-			return;
 
 		/** Templates *********************************************************/
 

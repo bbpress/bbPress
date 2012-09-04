@@ -134,27 +134,18 @@ function bbp_version_bump() {
  *
  * @since bbPress (r3419)
  *
+ * @uses bbp_version_updater()
  * @uses bbp_version_bump()
- * @uses bbp_deactivation()
- * @uses bbp_activation()
+ * @uses flush_rewrite_rules()
  */
 function bbp_setup_updater() {
 
-	// Are we running an outdated version of bbPress?
-	if ( bbp_is_update() ) {
+	// Bail if no update needed
+	if ( ! bbp_is_update() )
+		return;
 
-		// Call the automated updater
-		bbp_version_updater();
-
-		// Bump the version
-		bbp_version_bump();
-
-		// Run the deactivation function to wipe roles, caps, and rewrite rules
-		bbp_deactivation();
-
-		// Run the activation function to reset roles, caps, and rewrite rules
-		bbp_activation();
-	}
+	// Call the automated updater
+	bbp_version_updater();
 }
 
 /**
@@ -230,10 +221,6 @@ function bbp_version_updater() {
 	// Get the raw database version
 	$raw_db_version = (int) bbp_get_db_version_raw();
 
-	// Bail if no database version exists
-	if ( empty( $raw_db_version ) )
-		return;
-
 	/** 2.0 Branch ************************************************************/
 
 	// 2.0, 2.0.1, 2.0.2, 2.0.3
@@ -274,4 +261,12 @@ function bbp_version_updater() {
 		bbp_remove_caps();
 		bbp_add_caps();
 	}
+
+	/** All done! *************************************************************/
+
+	// Bump the version
+	bbp_version_bump();
+
+	// Delete rewrite rules to force a flush
+	bbp_delete_rewrite_rules();
 }

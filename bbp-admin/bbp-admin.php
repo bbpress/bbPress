@@ -229,6 +229,19 @@ class BBP_Admin {
 				array( $this, 'credits_screen' )
 			);
 		}
+
+		// Bail if plugin is not network activated
+		if ( ! is_plugin_active_for_network( bbpress()->basename ) )
+			return;
+
+		add_submenu_page(
+			'index.php',
+			__( 'Update Forums', 'bbpress' ),
+			__( 'Update Forums', 'bbpress' ),
+			'manage_network',
+			'bbp-update',
+			array( $this, 'update_screen' )
+		);
 	}
 
 	/**
@@ -238,6 +251,11 @@ class BBP_Admin {
 	 * @uses add_submenu_page() To add the Update Forums page in Updates
 	 */
 	public function network_admin_menus() {
+
+		// Bail if plugin is not network activated
+		if ( ! is_plugin_active_for_network( bbpress()->basename ) )
+			return;
+
 		add_submenu_page(
 			'upgrade.php',
 			__( 'Update Forums', 'bbpress' ),
@@ -1183,15 +1201,13 @@ class BBP_Admin {
 
 		// Taking action
 		switch ( $action ) {
-			case 'bbpress-update' :
+			case 'bbp-update' :
 
-				// Ensure proper version in the DB
-				bbp_version_bump();
-
-				?>
+				// Run the full updater
+				bbp_version_updater(); ?>
 
 				<p><?php _e( 'All done!', 'bbpress' ); ?></p>
-				<a class="button" href="index.php?page=bbpress-update"><?php _e( 'Go Back', 'bbpress' ); ?></a>
+				<a class="button" href="index.php?page=bbp-update"><?php _e( 'Go Back', 'bbpress' ); ?></a>
 
 				<?php
 
@@ -1201,7 +1217,7 @@ class BBP_Admin {
 			default : ?>
 
 				<p><?php _e( 'You can update your forum through this page. Hit the link below to update.', 'bbpress' ); ?></p>
-				<p><a class="button" href="index.php?page=bbpress-update&amp;action=bbpress-update"><?php _e( 'Update Forum', 'bbpress' ); ?></a></p>
+				<p><a class="button" href="index.php?page=bbp-update&amp;action=bbp-update"><?php _e( 'Update Forum', 'bbpress' ); ?></a></p>
 
 			<?php break;
 
@@ -1266,13 +1282,26 @@ class BBP_Admin {
 
 							// Get the response of the bbPress update on this site
 							$response = wp_remote_get(
-								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbpress-update&step=bbpress-update',
-								array( 'timeout' => 120, 'httpversion' => '1.1' )
+								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbp-update&action=bbp-update',
+								array( 'timeout' => 30, 'httpversion' => '1.1' )
 							);
 
 							// Site errored out, no response?
 							if ( is_wp_error( $response ) )
 								wp_die( sprintf( __( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: <em>%2$s</em>', 'bbpress' ), $siteurl, $response->get_error_message() ) );
+
+							// Switch to the new blog
+							switch_to_blog( $details[ 'blog_id' ] );
+
+							$basename = bbpress()->basename;
+
+							// Run the updater on this site
+							if ( is_plugin_active_for_network( $basename ) || is_plugin_active( $basename ) ) {
+								bbp_version_updater();
+							}
+
+							// restore original blog
+							restore_current_blog();
 
 							// Do some actions to allow plugins to do things too
 							do_action( 'after_bbpress_upgrade', $response             );

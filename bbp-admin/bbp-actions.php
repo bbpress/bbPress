@@ -63,17 +63,17 @@ add_action( 'bbp_init', 'bbp_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_add_options',    1 );
-add_action( 'bbp_activation', 'flush_rewrite_rules'   );
+add_action( 'bbp_activation', 'bbp_add_caps'             );
+add_action( 'bbp_activation', 'bbp_delete_rewrite_rules' );
 
 // Deactivation
-add_action( 'bbp_deactivation', 'flush_rewrite_rules'   );
-add_action( 'bbp_deactivation', 'bbp_deactivated'       );
+add_action( 'bbp_deactivation', 'bbp_remove_caps'          );
+add_action( 'bbp_deactivation', 'bbp_delete_rewrite_rules' );
+add_action( 'bbp_deactivation', 'bbp_deactivated'          );
 
 // New Site
-add_action( 'bbp_new_site', 'bbp_add_options',            6 );
+add_action( 'bbp_new_site', 'bbp_add_caps',               6 );
 add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );
-add_action( 'bbp_new_site', 'flush_rewrite_rules'           );
 
 // Contextual Helpers
 add_action( 'load-settings_page_bbpress', 'bbp_admin_settings_help' );
@@ -99,6 +99,10 @@ add_filter( 'post_type_link', 'bbp_filter_sample_permalink', 10, 4 );
  * @param array() $meta
  */
 function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+
+	// Bail if plugin is not network activated
+	if ( ! is_plugin_active_for_network( bbpress()->basename ) )
+		return;
 
 	// Switch to the new blog
 	switch_to_blog( $blog_id );
