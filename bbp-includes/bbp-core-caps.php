@@ -11,6 +11,50 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
+ * Adds capabilities to WordPress user roles.
+ *
+ * @since bbPress (r2608)
+ */
+function bbp_add_caps() {
+	global $wp_roles;
+
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	// Loop through available roles and add caps
+	foreach( $wp_roles->role_objects as $role ) {
+		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
+			$role->add_cap( $cap );
+		}
+	}
+
+	do_action( 'bbp_add_caps' );
+}
+
+/**
+ * Removes capabilities from WordPress user roles.
+ *
+ * @since bbPress (r2608)
+ */
+function bbp_remove_caps() {
+	global $wp_roles;
+
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	// Loop through available roles and remove caps
+	foreach( $wp_roles->role_objects as $role ) {
+		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
+			$role->remove_cap( $cap );
+		}
+	}
+
+	do_action( 'bbp_remove_caps' );
+}
+
+/**
  * Get the capability groups
  *
  * @since bbPress (r4163)
@@ -706,45 +750,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 }
 
 /**
- * Give a user the default role when creating a topic/reply on a site they do
- * not have a role on.
- *
- * @since bbPress (r3410)
- *
- * @uses bbp_allow_global_access()
- * @uses bbp_is_user_inactive()
- * @uses is_user_logged_in()
- * @uses current_user_can()
- * @uses WP_User::set_role()
- *
- * @return If user is not spam/deleted or is already capable
- */
-function bbp_global_access_auto_role() {
-
-	// Bail if forum is not global
-	if ( ! bbp_allow_global_access() )
-		return;
-
-	// Bail if not logged in or already a member of this site
-	if ( ! is_user_logged_in() || is_user_member_of_blog() )
-		return;
-
-	// Bail if user is not active
-	if ( bbp_is_user_inactive() )
-		return;
-
-	// Give the user the default role
-	if ( ! current_user_can( 'bbp_masked' ) )
-		return;
-
-	// Make sure the bbp_masked cap doesn't get saved to the DB
-	bbpress()->current_user->remove_cap( 'bbp_masked' );
-
-	// Set user to default role for blog
-	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
-}
-
-/**
  * Add the default role and mapped bbPress caps to the current user if needed
  *
  * This function will bail if the forum is not global in a multisite
@@ -780,20 +785,8 @@ function bbp_global_access_role_mask() {
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Set all caps to true
-	foreach ( bbp_get_caps_for_role() as $cap )
-		$default_caps[$cap] = true;
-
-	// Add 'read' cap just in case
-	$default_caps['bbp_masked'] = true;
-
-	// Allow global access caps to be manipulated
-	$default_caps = apply_filters( 'bbp_global_access_default_caps', $default_caps );
-
 	// Assign the role and mapped caps to the current user
-	$bbp = bbpress();
-	$bbp->current_user->caps     = $default_caps;
-	$bbp->current_user->allcaps  = $default_caps;
+	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
 }
 
 /**
@@ -849,7 +842,7 @@ function bbp_current_user_can_see( $component = '' ) {
 		case 'bbp_tools_repair_page'     : // Tools - Repair Page
 		case 'bbp_tools_import_page'     : // Tools - Import Page
 		case 'bbp_tools_reset_page'      : // Tools - Reset Page
-		case 'bbp_settings?page'         : // Settings Page
+		case 'bbp_settings_page'         : // Settings Page
 		case 'bbp_settings_main'         : // Settings - General
 		case 'bbp_settings_theme_compat' : // Settings - Theme compat
 		case 'bbp_settings_root_slugs'   : // Settings - Root slugs
@@ -884,26 +877,6 @@ function bbp_add_roles() {
  */
 function bbp_remove_roles() {
 	_doing_it_wrong( 'bbp_remove_roles', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
-}
-
-/**
- * Adds capabilities to WordPress user roles.
- *
- * @since bbPress (r2608)
- * @deprecated since version 2.2
- */
-function bbp_add_caps() {
-	_doing_it_wrong( 'bbp_add_caps', __( 'Use mapped capabilities instead', 'bbpress' ), '2.2' );
-}
-
-/**
- * Removes capabilities from WordPress user roles.
- *
- * @since bbPress (r2608)
- * @deprecated since version 2.2
- */
-function bbp_remove_caps() {
-	_doing_it_wrong( 'bbp_remove_caps', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
 }
 
 /**
