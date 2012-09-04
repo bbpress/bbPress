@@ -215,9 +215,11 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id() );
-	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
-	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id() );
+	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id()               );
+	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id()               );
+	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id()               );
+	$is_favs  = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
+	$is_subs  = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -270,7 +272,15 @@ function bbp_parse_query( $posts_query ) {
 			// Editing a user
 			$posts_query->bbp_is_edit = true;
 
-		// We are viewing a profile
+		// User favorites
+		} elseif ( ! empty( $is_favs ) ) {
+			$posts_query->bbp_is_single_user_favs = true;
+
+		// User subscriptions
+		} elseif ( ! empty( $is_subs ) ) {
+			$posts_query->bbp_is_single_user_subs = true;
+
+		// User profile
 		} else {
 			$posts_query->bbp_is_single_user = true;
 		}

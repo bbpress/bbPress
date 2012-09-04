@@ -173,7 +173,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.1.2-r4146'; // bbPress version
+		$this->version    = '2.1.2-bleeding-r4181'; // bbPress version
 		$this->db_version = '213';   // bbPress DB version
 
 		/** Paths *************************************************************/
@@ -212,6 +212,8 @@ final class bbPress {
 
 		// Other identifiers
 		$this->user_id           = apply_filters( 'bbp_user_id', 'bbp_user' );
+		$this->favs_id           = apply_filters( 'bbp_favs_id', 'bbp_favs' );
+		$this->subs_id           = apply_filters( 'bbp_subs_id', 'bbp_subs' );
 		$this->view_id           = apply_filters( 'bbp_view_id', 'bbp_view' );
 		$this->edit_id           = apply_filters( 'bbp_edit_id', 'edit'     );
 
@@ -840,9 +842,11 @@ final class bbPress {
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public static function add_rewrite_tags() {
-		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id() . '%%', '([^/]+)'   ); // User Profile tag
-		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id() . '%%', '([^/]+)'   ); // View Page tag
-		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id() . '%%', '([1]{1,})' ); // Edit Page tag
+		add_rewrite_tag( '%%' . bbp_get_view_rewrite_id()               . '%%', '([^/]+)'   ); // View Page tag
+		add_rewrite_tag( '%%' . bbp_get_edit_rewrite_id()               . '%%', '([1]{1,})' ); // Edit Page tag
+		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id()               . '%%', '([^/]+)'   ); // User Profile tag
+		add_rewrite_tag( '%%' . bbp_get_user_favorites_rewrite_id()     . '%%', '([1]{1,})' ); // User Favorites tag
+		add_rewrite_tag( '%%' . bbp_get_user_subscriptions_rewrite_id() . '%%', '([1]{1,})' ); // User Subscriptions tag
 	}
 
 	/**
@@ -859,18 +863,22 @@ final class bbPress {
 	public static function generate_rewrite_rules( $wp_rewrite ) {
 
 		// Slugs
-		$user_slug = bbp_get_user_slug();
 		$view_slug = bbp_get_view_slug();
+		$user_slug = bbp_get_user_slug();
 
 		// Unique rewrite ID's
-		$user_id   = bbp_get_user_rewrite_id();
-		$view_id   = bbp_get_view_rewrite_id();
 		$edit_id   = bbp_get_edit_rewrite_id();
+		$view_id   = bbp_get_view_rewrite_id();
+		$user_id   = bbp_get_user_rewrite_id();
+		$favs_id   = bbp_get_user_favorites_rewrite_id();
+		$subs_id   = bbp_get_user_subscriptions_rewrite_id();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule = '/([^/]+)/?$';
 		$edit_rule = '/([^/]+)/edit/?$';
 		$feed_rule = '/([^/]+)/feed/?$';
+		$favs_rule = '/([^/]+)/' . bbp_get_user_favorites_slug()     . '/?$';
+		$subs_rule = '/([^/]+)/' . bbp_get_user_subscriptions_slug() . '/?$';
 		$page_rule = '/([^/]+)/page/?([0-9]{1,})/?$';
 
 		// New bbPress specific rules to merge with existing that are not
@@ -886,6 +894,8 @@ final class bbPress {
 			// User Pagination|Edit|View
 			$user_slug . $page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
 			$user_slug . $edit_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
+			$user_slug . $favs_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id . '=1',
+			$user_slug . $subs_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id . '=1',
 			$user_slug . $root_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ),
 
 			// Topic-View Pagination|Feed|View
