@@ -36,7 +36,7 @@ function bbp_get_default_user_options() {
  * @since bbPress (r3910)
  * @uses bbp_get_default_user_options() To get default options
  * @uses update_user_option() Adds default options
- * @uses do_action() Calls 'bbp_add_options'
+ * @uses do_action() Calls 'bbp_add_user_options'
  */
 function bbp_add_user_options( $user_id = 0 ) {
 
@@ -50,7 +50,7 @@ function bbp_add_user_options( $user_id = 0 ) {
 		update_user_option( $user_id, $key, $value );
 
 	// Allow previously activated plugins to append their own user options.
-	do_action( 'bbp_add_user_options' );
+	do_action( 'bbp_add_user_options', $user_id );
 }
 
 /**
@@ -76,7 +76,7 @@ function bbp_delete_user_options( $user_id = 0 ) {
 		delete_user_option( $user_id, $key );
 
 	// Allow previously activated plugins to append their own options.
-	do_action( 'bbp_delete_user_options' );
+	do_action( 'bbp_delete_user_options', $user_id );
 }
 
 /**
