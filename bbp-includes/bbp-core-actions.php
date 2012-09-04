@@ -113,7 +113,7 @@ add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integr
 add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
 
 // Multisite Global Forum Access
-add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask', 10 );
+add_action( 'bbp_setup_current_user', 'bbp_set_current_user_default_role', 10 );
 
 // Widgets
 add_action( 'bbp_widgets_init', array( 'BBP_Login_Widget',   'register_widget' ), 10 );
@@ -223,10 +223,6 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 // User status
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
-
-// User role
-add_action( 'bbp_new_topic', 'bbp_global_access_auto_role' );
-add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 
 // Caches
 add_action( 'bbp_new_forum_pre_extras',  'bbp_clean_post_cache' );

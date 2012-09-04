@@ -750,15 +750,10 @@ function bbp_get_caps_for_role( $role = '' ) {
 }
 
 /**
- * Add the default role and mapped bbPress caps to the current user if needed
+ * Add the default role to the current user if needed
  *
  * This function will bail if the forum is not global in a multisite
  * installation of WordPress, or if the user is marked as spam or deleted.
- *
- * Note that we do not currently add a capability for the default role of the
- * site. This is to prevent unauthorized role-based access, since we have no
- * idea what plugins might be doing to that role. This may change in the future,
- * so it's best not to rely heavily on this for now.
  *
  * @since bbPress (r3380)
  *
@@ -767,11 +762,10 @@ function bbp_get_caps_for_role( $role = '' ) {
  * @uses is_user_logged_in()
  * @uses current_user_can()
  * @uses get_option()
- * @uses bbp_get_caps_for_role()
  *
  * @return If not multisite, not global, or user is deleted/spammed
  */
-function bbp_global_access_role_mask() {
+function bbp_set_current_user_default_role() {
 
 	// Bail if forum is not global
 	if ( ! bbp_allow_global_access() )
@@ -785,7 +779,7 @@ function bbp_global_access_role_mask() {
 	if ( bbp_is_user_inactive() )
 		return;
 
-	// Assign the role and mapped caps to the current user
+	// Assign the default role to the current user
 	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
 }
 
