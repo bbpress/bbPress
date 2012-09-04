@@ -13,12 +13,20 @@
 
 	<?php do_action( 'bbp_template_notices' ); ?>
 
-	<?php bbp_get_template_part( 'user', 'details' ); ?>
+	<?php
+	
+		bbp_get_template_part( 'user', 'details' );
 
-	<?php bbp_get_template_part( 'user', 'subscriptions' ); ?>
+		if ( bbp_is_favorites() ) :
+			bbp_get_template_part( 'user', 'favorites' );
 
-	<?php bbp_get_template_part( 'user', 'favorites' ); ?>
+		elseif ( bbp_is_subscriptions() ) :
+			bbp_get_template_part( 'user', 'subscriptions' );
 
-	<?php bbp_get_template_part( 'user', 'topics-created' ); ?>
+		else :
+			bbp_get_template_part( 'user', 'topics-created' );
+
+		endif;
+	?>
 
 </div>

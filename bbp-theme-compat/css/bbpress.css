@@ -570,6 +570,9 @@ p.form-allowed-tags {
 		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		padding: 2px;
 	}
+	#bbpress-forums fieldset.bbp-form input.checkbox {
+		width: auto;
+	}
 	#bbp-your-profile fieldset legend {
 		display: none;
 	}
@@ -578,6 +581,9 @@ p.form-allowed-tags {
 		width: 150px;
 		padding-right: 20px;
 		text-align: right;
+	}
+	#bbpress-forums #bbp-your-profile fieldset dl label {
+		text-align: left;
 	}
 	#bbp-your-profile fieldset span.description {
 		margin: 5px 0 0 170px;
@@ -820,6 +826,24 @@ body.my-account #bbp-author-topics-started {
 	border-top: none;
 	padding-top: 0;
 	margin-bottom: 0;
+}
+
+/* =User Capabilities
+-------------------------------------------------------------- */
+
+#bbpress-forums dl.bbp-user-capabilities {
+	margin: 0 10px 10px;
+	display: inline-block;
+	vertical-align: top;
+}
+
+#bbpress-forums dl.bbp-user-capabilities dt {
+	margin: 0 0 10px;
+}
+
+#bbpress-forums p.bbp-default-caps-wrapper {
+	clear: both;
+	margin: 80px -10px 0;
 }
 
 /* =BuddyPress Group Forums

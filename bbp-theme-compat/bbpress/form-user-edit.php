@@ -136,32 +136,63 @@
 			</fieldset>
 		</div>
 
-		<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
-
-			<div>
-				<label for="role"><?php _e( 'Role:', 'bbpress' ) ?></label>
-
-				<?php bbp_edit_user_role(); ?>
-
-			</div>
-
-		<?php endif; ?>
-
-		<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
-
-			<div>
-				<label for="role"><?php _e( 'Super Admin', 'bbpress' ); ?></label>
-				<label>
-					<input type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( bbp_get_displayed_user_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
-					<?php _e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
-				</label>
-			</div>
-
-		<?php endif; ?>
-
 		<?php do_action( 'bbp_user_edit_after_account' ); ?>
 
 	</fieldset>
+
+	<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
+
+		<h2 class="entry-title"><?php _e( 'Capabilities', 'bbpress' ) ?></h2>
+
+		<fieldset class="bbp-form">
+			<legend><?php _e( 'Forum Capabilities', 'bbpress' ); ?></legend>
+
+			<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
+
+				<div>
+					<label for="role"><?php _e( 'Role:', 'bbpress' ) ?></label>
+
+					<?php bbp_edit_user_role(); ?>
+
+				</div>
+
+			<?php endif; ?>
+
+			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
+
+				<div>
+					<label for="role"><?php _e( 'Super Admin', 'bbpress' ); ?></label>
+					<label>
+						<input class="checkbox" type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( bbp_get_displayed_user_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
+						<?php _e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
+					</label>
+				</div>
+
+			<?php endif; ?>
+
+			<?php foreach ( bbp_get_capability_groups() as $group ) : ?>
+
+				<dl class="bbp-user-capabilities">
+					<dt><?php bbp_capability_group_title( $group ); ?></dt>
+
+					<?php foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) : ?>
+
+						<dd>
+							<label for="_bbp_<?php echo $capability; ?>">
+								<input class="checkbox" type="checkbox" id="_bbp_<?php echo $capability; ?>" name="_bbp_<?php echo $capability; ?>" value="1" <?php checked( user_can( bbp_get_displayed_user_id(), $capability ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
+								<?php bbp_capability_title( $capability ); ?>
+							</label>
+						</dd>
+
+					<?php endforeach; ?>
+
+				</dl>
+
+			<?php endforeach; ?>
+
+		</fieldset>
+
+	<?php endif; ?>
 
 	<?php do_action( 'bbp_user_edit_after' ); ?>
 
