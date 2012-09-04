@@ -33,7 +33,10 @@ function bbp_is_install() {
  * @return bool True if update, False if not
  */
 function bbp_is_update() {
-	return (bool) ( (int) bbp_get_db_version_raw() < (int) bbp_get_db_version() );
+	$raw    = (int) bbp_get_db_version_raw();
+	$cur    = (int) bbp_get_db_version();
+	$retval = (bool) ( $raw < $cur );
+	return $retval;
 }
 
 /**
@@ -254,42 +257,21 @@ function bbp_version_updater() {
 	/** 2.2 Branch ************************************************************/
 
 	// 2.2
-	if ( $raw_db_version < 213 ) {
+	if ( $raw_db_version < 214 ) {
 
-		/**
-		 * Remove Roles and Capabilities
-		 *
-		 * bbPress 2.2 moved roles and capabilities to a completely mapped
-		 * system, allowing any existing user in the network to have any other
-		 * set of forum capabilities, regardless of their existing role(s).
-		 */
-		global $wp_roles;
+		// Remove bbPress 1.1 roles (BuddyPress)
+		remove_role( 'member'    );
+		remove_role( 'inactive'  );
+		remove_role( 'blocked'   );
+		remove_role( 'moderator' );
+		remove_role( 'keymaster' );
 
-		// Load roles if not set
-		if ( ! isset( $wp_roles ) )
-			$wp_roles = new WP_Roles();
-
-		// Loop through available roles
-		foreach( $wp_roles->roles as $role => $details ) {
-
-			// Load this role
-			$this_role = get_role( $role );
-
-			// Loop through caps for this role and remove them
-			foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
-				$this_role->remove_cap( $cap );
-			}
-		}
-
-		// Remove old custom roles
+		// Remove bbPress 2.1 roles
 		remove_role( 'bbp_moderator'   );
 		remove_role( 'bbp_participant' );
 
-		// Remove bbPress 1.1 roles (BuddyPress)
-		//remove_role( 'member'    );
-		//remove_role( 'inactive'  );
-		//remove_role( 'blocked'   );
-		//remove_role( 'moderator' );
-		//remove_role( 'keymaster' );
+		// Refresh capabilities
+		bbp_remove_caps();
+		bbp_add_caps();
 	}
 }
