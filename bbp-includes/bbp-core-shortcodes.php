@@ -162,9 +162,15 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3079)
 	 *
+	 * @param string $query_name
+	 *
+	 * @uses bbp_set_query_name()
 	 * @uses ob_start()
 	 */
-	private function start() {
+	private function start( $query_name = '' ) {
+
+		// Set query name
+		bbp_set_query_name( $query_name );
 
 		// Remove 'bbp_replace_the_content' filter to prevent infinite loops
 		remove_filter( 'the_content', 'bbp_replace_the_content' );
@@ -192,6 +198,9 @@ class BBP_Shortcodes {
 		// Flush the output buffer
 		ob_end_clean();
 
+		// Reset the query name
+		bbp_reset_query_name();
+
 		// Add 'bbp_replace_the_content' filter back (@see $this::start())
 		add_filter( 'the_content', 'bbp_replace_the_content' );
 
@@ -218,7 +227,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_forum_archive' );
 
 		bbp_get_template_part( 'content', 'archive-forum' );
 
@@ -252,7 +261,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_single_forum' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -278,7 +287,7 @@ class BBP_Shortcodes {
 	public function display_forum_form() {
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_forum_form' );
 
 		// Output templates
 		bbp_get_template_part( 'form', 'forum' );
@@ -312,7 +321,7 @@ class BBP_Shortcodes {
 		}
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_topic_archive' );
 
 		// Output template
 		bbp_get_template_part( 'content', 'archive-topic' );
@@ -366,7 +375,7 @@ class BBP_Shortcodes {
 		}
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_single_topic' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -392,7 +401,7 @@ class BBP_Shortcodes {
 	public function display_topic_form() {
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_topic_form' );
 
 		// Output templates
 		bbp_get_template_part( 'form', 'topic' );
@@ -448,7 +457,7 @@ class BBP_Shortcodes {
 		}
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_single_reply' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -474,7 +483,7 @@ class BBP_Shortcodes {
 	public function display_reply_form() {
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_reply_form' );
 
 		// Output templates
 		bbp_get_template_part( 'form', 'reply' );
@@ -499,7 +508,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_topic_tags' );
 
 		// Output the topic tags
 		wp_tag_cloud( array(
@@ -539,7 +548,7 @@ class BBP_Shortcodes {
 		}
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_topic_tag' );
 
 		// Set passed attribute to $ag_id for clarity
 		bbpress()->current_topic_tag_id = $tag_id = $attr['id'];
@@ -568,7 +577,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_topic_tag_edit' );
 
 		// Output template
 		bbp_get_template_part( 'content', 'topic-tag-edit' );
@@ -601,7 +610,7 @@ class BBP_Shortcodes {
 		$view_id = $attr['id'];
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_single_view' );
 
 		// Unset globals
 		$this->unset_globals();
@@ -631,7 +640,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_login' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
@@ -656,7 +665,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_register' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
@@ -681,7 +690,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// Start output buffer
-		$this->start();
+		$this->start( 'bbp_lost_pass' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
