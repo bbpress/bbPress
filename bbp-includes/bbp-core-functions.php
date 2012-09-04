@@ -404,6 +404,26 @@ function bbp_get_edit_rewrite_id() {
 }
 
 /**
+ * Return the unique ID for user caps rewrite rules
+ *
+ * @since bbPress (r4181)
+ * @return string
+ */
+function bbp_get_user_favorites_rewrite_id() {
+	return bbpress()->favs_id;
+}
+
+/**
+ * Return the unique ID for user caps rewrite rules
+ *
+ * @since bbPress (r4181)
+ * @return string
+ */
+function bbp_get_user_subscriptions_rewrite_id() {
+	return bbpress()->subs_id;
+}
+
+/**
  * Return the unique ID for topic view rewrite rules
  *
  * @since bbPress (r3762)

@@ -499,12 +499,17 @@ function bbp_is_single_reply() {
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the favorites page, false if not
  */
 function bbp_is_favorites() {
+	global $wp_query;
 
-	$retval = bbp_is_query_name( 'bbp_user_profile_favorites' );
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_favs ) && ( true == $wp_query->bbp_is_single_user_favs ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_favorites', $retval );
 }
@@ -514,12 +519,17 @@ function bbp_is_favorites() {
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the subscriptions page, false if not
  */
 function bbp_is_subscriptions() {
+	global $wp_query;
 
-	$retval = bbp_is_query_name( 'bbp_user_profile_subscriptions' );
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_subs ) && ( true == $wp_query->bbp_is_single_user_subs ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_subscriptions', $retval );
 }
