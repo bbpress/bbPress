@@ -294,8 +294,6 @@ td.bbp-topic-counts {
 	background-color: #dfd;
 	font-weight: bold;
 	font-size: 13px;
-	-moz-border-radius: 8px;
-	-webkit-border-radius: 8px;
 	}
 	.bbp-topic-action #favorite-toggle a:hover {
 		color: #5a5;
@@ -306,8 +304,6 @@ td.bbp-topic-counts {
 		color: #faa;
 		border: 1px solid #faa;
 		background-color: #fee;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
 		}
 		.bbp-topic-action #favorite-toggle span.is-favorite a:hover {
 			color: #c88;
@@ -323,8 +319,6 @@ td.bbp-topic-counts {
 	background-color: #dfd;
 	font-weight: bold;
 	font-size: 13px;
-	-moz-border-radius: 8px;
-	-webkit-border-radius: 8px;
 	}
 	.bbp-topic-action #subscription-toggle a:hover {
 		color: #5a5;
@@ -335,8 +329,6 @@ td.bbp-topic-counts {
 		color: #faa;
 		border: 1px solid #faa;
 		background-color: #fee;
-		-moz-border-radius: 5px;
-		-webkit-border-radius: 5px;
 		}
 		.bbp-topic-action #subscription-toggle span.is-subscribed a:hover {
 			color: #c88;
@@ -437,9 +429,6 @@ textarea#bbp_topic_content,
 textarea#bbp_forum_content {
 	width: 97%;
 	box-sizing: border-box;
-	-webkit-box-sizing:border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
 }
 
 textarea#bbp_forum_content {
@@ -505,8 +494,6 @@ input[type="password"] {
 	background: #f9f9f9;
 	border: 1px solid #ccc;
 	box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-	-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 	padding: 2px;
 }
 
@@ -582,8 +569,6 @@ input[type="password"] {
 		background: #f9f9f9;
 		border: 1px solid #ccc;
 		box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-		-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
-		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		padding: 2px;
 	}
 	#bbp-your-profile fieldset legend {
@@ -634,9 +619,6 @@ div.bbp-template-notice {
 	border-style: solid;
 	padding: 0 0.6em;
 	margin: 5px 0 15px;
-	-moz-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	background-color: #ffffe0;
 	border-color: #e6db55;
@@ -852,6 +834,24 @@ body.my-account #bbp-author-topics-started {
 	border-top: none;
 	padding-top: 0;
 	margin-bottom: 0;
+}
+
+/* =User Capabilities
+-------------------------------------------------------------- */
+
+#bbpress-forums dl.bbp-user-capabilities {
+	display: inline-block;
+	vertical-align: top;
+}
+
+#bbpress-forums dl.bbp-user-capabilities dt {
+	margin: 0 0 10px;
+	text-transform: capitalize;
+}
+
+#bbpress-forums dl.bbp-user-capabilities dd {
+	margin: 0;
+	padding: 0;
 }
 
 /* =BuddyPress Group Forums
