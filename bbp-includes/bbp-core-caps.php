@@ -760,7 +760,7 @@ function bbp_get_caps_for_role( $role = '' ) {
  * @uses bbp_allow_global_access()
  * @uses bbp_is_user_inactive()
  * @uses is_user_logged_in()
- * @uses current_user_can()
+ * @uses is_user_member_of_blog()
  * @uses get_option()
  *
  * @return If not multisite, not global, or user is deleted/spammed
