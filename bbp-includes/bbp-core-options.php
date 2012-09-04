@@ -69,12 +69,15 @@ function bbp_get_default_options() {
 		'_bbp_reply_slug'           => 'reply',     // Reply slug
 		'_bbp_topic_tag_slug'       => 'topic-tag', // Topic tag slug
 
-		/** Other Slugs *******************************************************/
+		/** User Slugs ********************************************************/
 
 		'_bbp_user_slug'            => 'users',         // User profile slug
 		'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
 		'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
-		'_bbp_view_slug'            => 'view',          // View slug
+
+		/** Other Slugs *******************************************************/
+
+		'_bbp_view_slug'            => 'view',      // View slug
 
 		/** Topics ************************************************************/
 
