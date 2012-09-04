@@ -71,8 +71,10 @@ function bbp_get_default_options() {
 
 		/** Other Slugs *******************************************************/
 
-		'_bbp_user_slug'            => 'users',     // User profile slug
-		'_bbp_view_slug'            => 'view',      // View slug
+		'_bbp_user_slug'            => 'users',         // User profile slug
+		'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
+		'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
+		'_bbp_view_slug'            => 'view',          // View slug
 
 		/** Topics ************************************************************/
 
@@ -450,6 +452,26 @@ function bbp_get_reply_slug( $default = 'reply' ) {
  */
 function bbp_get_user_slug( $default = 'user' ) {
 	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
+}
+
+/**
+ * Return the single user favorites slug
+ *
+ * @since bbPress (r4187)
+ * @return string
+ */
+function bbp_get_user_favorites_slug( $default = 'favorites' ) {
+	return apply_filters( 'bbp_get_user_favorites_slug', get_option( '_bbp_user_favs_slug', $default ) );
+}
+
+/**
+ * Return the single user subscriptions slug
+ *
+ * @since bbPress (r4187)
+ * @return string
+ */
+function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
+	return apply_filters( 'bbp_get_user_subscriptions_slug', get_option( '_bbp_user_subs_slug', $default ) );
 }
 
 /**
