@@ -420,7 +420,10 @@ function bbp_user_display_role( $user_id = 0 ) {
 	 * @since bbPress (r3860)
 	 *
 	 * @param int $user_id
-	 * @uses bbp_get_user_role() To get the main user role
+	 * @uses bbp_get_user_id() to verify the user ID
+	 * @uses is_super_admin() to check if user is a super admin
+	 * @uses bbp_is_user_inactive() to check if user is inactive
+	 * @uses user_can() to check if user has special capabilities
 	 * @uses apply_filters() Calls 'bbp_get_user_display_role' with the
 	 *                        display role, user id, and user role
 	 * @return string
@@ -428,47 +431,38 @@ function bbp_user_display_role( $user_id = 0 ) {
 	function bbp_get_user_display_role( $user_id = 0 ) {
 
 		// Validate user id
-		$user_id   = bbp_get_user_id( $user_id, false, false );
-		$user_role = bbp_get_user_role( $user_id );
+		$user_id = bbp_get_user_id( $user_id, false, false );
 
 		// Capes earn Vinz Clortho status
 		if ( is_super_admin( $user_id ) ) {
 			$role = __( 'Key Master', 'bbpress' );
 
+		// Inactive
+		} elseif ( bbp_is_user_inactive() ) {
+			$role = __( 'Inactive', 'bbpress' );
+
 		// User is not registered
 		} elseif ( empty( $user_id ) ) {
 			$role = __( 'Guest', 'bbpress' );
 
-		// Not the keymaster of Gozer
+		// Moderator
+		} elseif ( user_can( $user_id, 'moderate' ) ) {
+			$role = __( 'Moderator', 'bbpress' );
+
+		// Bozo
+		} elseif ( user_can( $user_id, 'bozo' ) ) {
+			$role = __( 'Bozo', 'bbpress' );
+
+		// Participant
+		} elseif ( user_can( $user_id, 'participate' ) ) {
+			$role = __( 'Participant', 'bbpress' );
+
+		// Anyone else
 		} else {
-
-			// Get the user's main role for display
-			switch ( $user_role ) {
-				case 'administrator' :
-				case 'editor'        :
-				case 'author'        :
-				case 'contributor'   :
-				case 'subscriber'    :
-				default              : // Any other role (plugins, etc...)
-					global $wp_roles;
-
-					// Load roles if not set
-					if ( !isset( $wp_roles ) )
-						$wp_roles = new WP_Roles();					
-
-					// Get a translated role name
-					if ( !empty( $wp_roles->role_names[$user_role] ) )
-						$role = translate_user_role( $wp_roles->role_names[$user_role] );
-
-					// Fallback for registered user
-					else
-						$role = __( 'Member', 'bbpress' );
-
-					break;
-			}
+			$role = __( 'Member', 'bbpress' );
 		}
 
-		return apply_filters( 'bbp_get_user_display_role', $role, $user_id, $user_role );
+		return apply_filters( 'bbp_get_user_display_role', $role, $user_id );
 	}
 
 /**
