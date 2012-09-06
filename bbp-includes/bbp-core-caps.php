@@ -772,7 +772,7 @@ function bbp_set_current_user_default_role() {
 		return;
 
 	// Bail if not logged in or already a member of this site
-	if ( ! is_user_logged_in() || is_user_member_of_blog() )
+	if ( ! is_user_logged_in() || current_user_can( 'read' ) )
 		return;
 
 	// Bail if user is marked as spam or is deleted
