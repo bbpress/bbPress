@@ -136,7 +136,7 @@ function bbp_add_options() {
 function bbp_delete_options() {
 
 	// Add default options
-	foreach ( bbp_get_default_options() as $key => $value )
+	foreach ( array_keys( bbp_get_default_options() ) as $key )
 		delete_option( $key );
 
 	// Allow previously activated plugins to append their own options.
@@ -155,7 +155,7 @@ function bbp_delete_options() {
 function bbp_setup_option_filters() {
 
 	// Add filters to each bbPress option
-	foreach ( bbp_get_default_options() as $key => $value )
+	foreach ( array_keys( bbp_get_default_options() ) as $key )
 		add_filter( 'pre_option_' . $key, 'bbp_pre_get_option' );
 
 	// Allow previously activated plugins to append their own options.
@@ -171,14 +171,13 @@ function bbp_setup_option_filters() {
  * @return mixed false if not overloaded, mixed if set
  */
 function bbp_pre_get_option( $value = '' ) {
-	$bbp = bbpress();
 
 	// Remove the filter prefix
 	$option = str_replace( 'pre_option_', '', current_filter() );
 
 	// Check the options global for preset value
-	if ( isset( $bbp->options[$option] ) )
-		$value = $bbp->options[$option];
+	if ( isset( bbpress()->options[$option] ) )
+		$value = bbpress()->options[$option];
 
 	// Always return a value, even if false
 	return $value;
