@@ -361,18 +361,27 @@ class BBP_Walker_Dropdown extends Walker {
 	 */
 	public function start_el( &$output, $_post, $depth, $args ) {
 		$pad     = str_repeat( '&nbsp;', $depth * 3 );
-		$output .= "\t<option class=\"level-$depth\"";
+		$output .= '<option class="level-' . $depth . '"';
 
-		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category or is closed
-		if ( true == $args['disable_categories'] && $_post->post_type == bbp_get_forum_post_type() && ( bbp_is_forum_category( $_post->ID ) || ( !current_user_can( 'edit_forum', $_post->ID ) && bbp_is_forum_closed( $_post->ID ) ) ) )
+		// Disable the <option> if:
+		// - we're told to do so
+		// - the post type is a forum
+		// - the forum is a category
+		// - forum is closed
+		if (	( true == $args['disable_categories'] )
+				&& ( bbp_get_forum_post_type() == $_post->post_type )
+				&& ( bbp_is_forum_category( $_post->ID )
+					|| ( !current_user_can( 'edit_forum', $_post->ID ) && bbp_is_forum_closed( $_post->ID )
+				)
+			) ) {
 			$output .= ' disabled="disabled" value=""';
-		else
+		} else {
 			$output .= ' value="' . $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
+		}
 
 		$output .= '>';
-		$title   = esc_html( $_post->post_title );
 		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
-		$output .= $pad . $title;
+		$output .= $pad . esc_html( $title );
 		$output .= "</option>\n";
 	}
 }
