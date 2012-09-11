@@ -274,16 +274,16 @@ class BBP_BuddyPress {
 	public function strip_mentions_on_edit( $content = '' ) {
 
 		// Backwards compat for members root slug
-		if ( function_exists( 'bp_get_members_root_slug' ) )
+		if ( function_exists( 'bp_get_members_root_slug' ) ) {
 			$members_root = bp_get_members_root_slug();
-		elseif ( defined( 'BP_MEMBERS_SLUG' ) )
+		} elseif ( defined( 'BP_MEMBERS_SLUG' ) ) {
 			$members_root = BP_MEMBERS_SLUG;
-		else
+		} else {
 			$members_root = 'members';
+		}
 
-		$content = htmlspecialchars_decode( $content );
 		$pattern = "|<a href=&#039;" . bp_get_root_domain() . "/" . $members_root . "/[A-Za-z0-9-_\.]+/&#039; rel=&#039;nofollow&#039;>(@[A-Za-z0-9-_\.@]+)</a>|";
-		$content = preg_replace( $pattern, "$1", $content );
+		$content = preg_replace( $pattern, "$1", htmlspecialchars_decode( $content ) );
 
 		return $content;
 	}
