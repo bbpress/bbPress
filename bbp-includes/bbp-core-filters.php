@@ -49,6 +49,7 @@ add_filter( 'allowed_themes',          'bbp_allowed_themes',     10    );
 add_filter( 'redirect_canonical',      'bbp_redirect_canonical', 10    );
 add_filter( 'login_redirect',          'bbp_redirect_login',     2,  3 );
 add_filter( 'logout_url',              'bbp_logout_url',         2,  2 );
+add_filter( 'plugin_locale',           'bbp_plugin_locale',      10, 2 );
 
 // Fix post author id for anonymous posts (set it back to 0) when the post status is changed
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
@@ -213,6 +214,19 @@ add_filter( 'posts_request', '_bbp_has_replies_where', 10, 2 );
  * default arguments to passed arguments, without needing to litter the
  * codebase with _before_ and _after_ filters everywhere.
  */
+
+/**
+ * Deprecated locale filter
+ *
+ * @since bbPress (r4213)
+ *
+ * @param type $locale
+ * @return type
+ */
+function _bbp_filter_locale( $locale = '' ) {
+	return apply_filters( 'bbpress_locale', $locale );
+}
+add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 1 );
 
 /**
  * Deprecated forums query filter

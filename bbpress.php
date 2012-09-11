@@ -426,22 +426,22 @@ final class bbPress {
 	 * @return bool True on success, false on failure
 	 */
 	public function load_textdomain() {
-		$locale = get_locale();                                          // Default locale
-		$locale = apply_filters( 'plugin_locale',  $locale, 'bbpress' ); // Traditional WordPress plugin locale filter
-		$locale = apply_filters( 'bbpress_locale', $locale            ); // bbPress specific locale filter
-		$mofile = sprintf( 'bbpress-%s.mo', $locale );                   // Get mo file name
+
+		// Traditional WordPress plugin locale filter
+		$locale = apply_filters( 'plugin_locale',  get_locale(), 'bbpress' );
+		$mofile = sprintf( 'bbpress-%s.mo', $locale ); // Get mo file name
 
 		// Setup paths to current locale file
 		$mofile_local  = $this->lang_dir . $mofile;
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 
-		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
-		if ( file_exists( $mofile_local ) ) {
-			return load_textdomain( 'bbpress', $mofile_local );
-
 		// Look in global /wp-content/languages/bbpress folder
-		} elseif ( file_exists( $mofile_global ) ) {
+		if ( file_exists( $mofile_global ) ) {
 			return load_textdomain( 'bbpress', $mofile_global );
+
+		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
+		} elseif ( file_exists( $mofile_local ) ) {
+			return load_textdomain( 'bbpress', $mofile_local );
 		}
 
 		// Nothing found

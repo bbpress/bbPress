@@ -301,6 +301,18 @@ function bbp_after_setup_theme() {
 	do_action( 'bbp_after_setup_theme' );
 }
 
+/**
+ * Filter the plugin locale and domain.
+ *
+ * @since bbPress (r4213)
+ *
+ * @param string $locale
+ * @param string $domain
+ */
+function bbp_plugin_locale( $locale = '', $domain = '' ) {
+	return apply_filters( 'bbp_plugin_locale', $locale, $domain );
+}
+
 /** Filters *******************************************************************/
 
 /**
