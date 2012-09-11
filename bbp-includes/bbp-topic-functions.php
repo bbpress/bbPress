@@ -2547,7 +2547,7 @@ function bbp_update_topic_revision_log( $args = '' ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses wp_get_single_post() To get the topic
+ * @uses get_post() To get the topic
  * @uses do_action() Calls 'bbp_close_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
  * @uses wp_insert_post() To update the topic with the new status
@@ -2557,7 +2557,7 @@ function bbp_update_topic_revision_log( $args = '' ) {
 function bbp_close_topic( $topic_id = 0 ) {
 
 	// Get topic
-	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already closed
@@ -2592,7 +2592,7 @@ function bbp_close_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses wp_get_single_post() To get the topic
+ * @uses get_post() To get the topic
  * @uses do_action() Calls 'bbp_open_topic' with the topic id
  * @uses get_post_meta() To get the previous status
  * @uses delete_post_meta() To delete the previous status meta
@@ -2603,7 +2603,7 @@ function bbp_close_topic( $topic_id = 0 ) {
 function bbp_open_topic( $topic_id = 0 ) {
 
 	// Get topic
-	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already open
@@ -2641,7 +2641,7 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses wp_get_single_post() To get the topic
+ * @uses get_post() To get the topic
  * @uses do_action() Calls 'bbp_spam_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
  * @uses wp_insert_post() To update the topic with the new status
@@ -2651,7 +2651,7 @@ function bbp_open_topic( $topic_id = 0 ) {
 function bbp_spam_topic( $topic_id = 0 ) {
 
 	// Get the topic
-	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if topic is spam
@@ -2711,7 +2711,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses wp_get_single_post() To get the topic
+ * @uses get_post() To get the topic
  * @uses do_action() Calls 'bbp_unspam_topic' with the topic id
  * @uses get_post_meta() To get the previous status
  * @uses delete_post_meta() To delete the previous status meta
@@ -2722,7 +2722,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Get the topic
-	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already not spam

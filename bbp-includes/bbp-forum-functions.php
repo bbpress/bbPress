@@ -690,7 +690,6 @@ function bbp_walk_forum( $forums, $depth, $current, $r ) {
  * @since bbPress (r2746)
  *
  * @param int $forum_id forum id
- * @uses wp_get_single_post() To get the forum
  * @uses do_action() Calls 'bbp_close_forum' with the forum id
  * @uses update_post_meta() To add the previous status to a meta
  * @uses do_action() Calls 'bbp_opened_forum' with the forum id
@@ -715,7 +714,6 @@ function bbp_close_forum( $forum_id = 0 ) {
  * @since bbPress (r2746)
  *
  * @param int $forum_id forum id
- * @uses wp_get_single_post() To get the forum
  * @uses do_action() Calls 'bbp_open_forum' with the forum id
  * @uses get_post_meta() To get the previous status
  * @uses update_post_meta() To delete the previous status meta

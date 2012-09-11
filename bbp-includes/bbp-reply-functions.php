@@ -1148,7 +1148,7 @@ function bbp_toggle_reply_handler() {
  * @since bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses wp_get_single_post() To get the reply
+ * @uses get_post() To get the reply
  * @uses do_action() Calls 'bbp_spam_reply' with the reply ID
  * @uses add_post_meta() To add the previous status to a meta
  * @uses wp_insert_post() To insert the updated post
@@ -1158,7 +1158,7 @@ function bbp_toggle_reply_handler() {
 function bbp_spam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	$reply = wp_get_single_post( $reply_id, ARRAY_A );
+	$reply = get_post( $reply_id, ARRAY_A );
 	if ( empty( $reply ) )
 		return $reply;
 
@@ -1194,7 +1194,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses wp_get_single_post() To get the reply
+ * @uses get_post() To get the reply
  * @uses do_action() Calls 'bbp_unspam_reply' with the reply ID
  * @uses get_post_meta() To get the previous status meta
  * @uses delete_post_meta() To delete the previous status meta
@@ -1205,7 +1205,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
 function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	$reply = wp_get_single_post( $reply_id, ARRAY_A );
+	$reply = get_post( $reply_id, ARRAY_A );
 	if ( empty( $reply ) )
 		return $reply;
 
