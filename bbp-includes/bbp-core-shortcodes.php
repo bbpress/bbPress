@@ -68,7 +68,7 @@ class BBP_Shortcodes {
 			/** Topic Tags ****************************************************/
 
 			'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ), // All topic tags in a cloud
-			'bbp-single-topic-tag' => array( $this, 'display_topics_of_tag' ), // Topics of tag Tag
+			'bbp-single-tag'       => array( $this, 'display_topics_of_tag' ), // Topics of Tag
 
 			/** Replies *******************************************************/
 

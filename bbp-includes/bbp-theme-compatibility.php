@@ -587,25 +587,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	/** Topic Tags ********************************************************/
 
 	// Topic Tag Edit
-	} elseif ( bbp_is_topic_tag_edit() ) {
-
-		// Stash the current term in a new var
-		set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
-
-		// Reset the post with our new title
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_author'    => 0,
-			'post_date'      => 0,
-			'post_content'   => '',
-			'post_type'      => '',
-			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
-			'post_status'    => bbp_get_public_status_id(),
-			'comment_status' => 'closed'
-		) );
-
-	// Topc Tag
-	} elseif ( bbp_is_topic_tag() ) {
+	} elseif ( bbp_is_topic_tag_edit() || bbp_is_topic_tag() ) {
 
 		// Stash the current term in a new var
 		set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
@@ -824,16 +806,13 @@ function bbp_replace_the_content( $content = '' ) {
 
 	/** Topic Tags ********************************************************/
 
-	} elseif ( get_query_var( 'bbp_topic_tag' ) ) {
+	// Show topics of tag
+	} elseif ( bbp_is_topic_tag() ) {
+		$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
-		// Edit topic tag
-		if ( bbp_is_topic_tag_edit() ) {
-			$new_content = $bbp->shortcodes->display_topic_tag_form();
-
-		// Show topics of tag
-		} else {
-			$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
-		}
+	// Edit topic tag
+	} elseif ( bbp_is_topic_tag_edit() ) {
+		$new_content = $bbp->shortcodes->display_topic_tag_form();
 	}
 
 	// Juggle the content around and try to prevent unsightly comments
