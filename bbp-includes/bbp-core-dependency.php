@@ -205,6 +205,16 @@ function bbp_register_views() {
 }
 
 /**
+ * Register the default bbPress shortcodes
+ *
+ * @since bbPress (r4211)
+ * @uses do_action() Calls 'bbp_register_shortcodes'
+ */
+function bbp_register_shortcodes() {
+	do_action( 'bbp_register_shortcodes' );
+}
+
+/**
  * Enqueue bbPress specific CSS and JS
  *
  * @since bbPress (r3373)

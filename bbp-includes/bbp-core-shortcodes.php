@@ -55,58 +55,35 @@ class BBP_Shortcodes {
 
 			/** Forums ********************************************************/
 
-			// Forum Index
-			'bbp-forum-index'  => array( $this, 'display_forum_index' ),
-
-			// Topic form
-			'bbp-forum-form'   => array( $this, 'display_forum_form'  ),
-
-			// Specific forum - pass an 'id' attribute
-			'bbp-single-forum' => array( $this, 'display_forum'       ),
+			'bbp-forum-index'      => array( $this, 'display_forum_index'   ), // Forum Index
+			'bbp-forum-form'       => array( $this, 'display_forum_form'    ), // Topic form
+			'bbp-single-forum'     => array( $this, 'display_forum'         ), // Specific forum - pass an 'id' attribute
 
 			/** Topics ********************************************************/
 
-			// Topic index
-			'bbp-topic-index'  => array( $this, 'display_topic_index' ),
-
-			// Topic form
-			'bbp-topic-form'   => array( $this, 'display_topic_form'  ),
-
-			// Specific topic - pass an 'id' attribute
-			'bbp-single-topic' => array( $this, 'display_topic'       ),
+			'bbp-topic-index'      => array( $this, 'display_topic_index'   ), // Topic index
+			'bbp-topic-form'       => array( $this, 'display_topic_form'    ), // Topic form
+			'bbp-single-topic'     => array( $this, 'display_topic'         ), // Specific topic - pass an 'id' attribute
 
 			/** Topic Tags ****************************************************/
 
-			// All topic tags in a cloud
-			'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ),
-
-			// Topics of tag Tag
-			'bbp-single-topic-tag' => array( $this, 'display_topics_of_tag' ),
+			'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ), // All topic tags in a cloud
+			'bbp-single-topic-tag' => array( $this, 'display_topics_of_tag' ), // Topics of tag Tag
 
 			/** Replies *******************************************************/
 
-			// Reply form
-			'bbp-reply-form'   => array( $this, 'display_reply_form'  ),
-
-			// Specific reply - pass an 'id' attribute
-			'bbp-single-reply' => array( $this, 'display_reply'       ),
+			'bbp-reply-form'       => array( $this, 'display_reply_form'    ), // Reply form
+			'bbp-single-reply'     => array( $this, 'display_reply'         ), // Specific reply - pass an 'id' attribute
 
 			/** Views *********************************************************/
 
-			// Single view
-			'bbp-single-view' => array( $this, 'display_view'         ),
+			'bbp-single-view'      => array( $this, 'display_view'          ), // Single view
 
 			/** Account *******************************************************/
 
-			// Login
-			'bbp-login'       => array( $this, 'display_login'        ),
-
-			// Register
-			'bbp-register'    => array( $this, 'display_register'     ),
-
-			// Lost Password
-			'bbp-lost-pass'   => array( $this, 'display_lost_pass'    ),
-
+			'bbp-login'            => array( $this, 'display_login'         ), // Login
+			'bbp-register'         => array( $this, 'display_register'      ), // Register
+			'bbp-lost-pass'        => array( $this, 'display_lost_pass'     ), // Lost Password
 		) );
 	}
 
@@ -119,13 +96,9 @@ class BBP_Shortcodes {
 	 * @uses do_action()
 	 */
 	private function add_shortcodes() {
-
-		// Loop through and add the shortcodes
-		foreach( $this->codes as $code => $function )
+		foreach( (array) $this->codes as $code => $function ) {
 			add_shortcode( $code, $function );
-
-		// Custom shortcodes
-		do_action( 'bbp_register_shortcodes' );
+		}
 	}
 
 	/**
@@ -762,14 +735,3 @@ class BBP_Shortcodes {
 	}
 }
 endif;
-
-/**
- * Register the bbPress shortcodes
- *
- * @since bbPress (r3031)
- *
- * @uses BBP_Shortcodes
- */
-function bbp_register_shortcodes() {
-	bbpress()->shortcodes = new BBP_Shortcodes();
-}

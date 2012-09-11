@@ -343,6 +343,7 @@ final class bbPress {
 			'register_post_types',      // Register post types (forum|topic|reply)
 			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
 			'register_taxonomies',      // Register taxonomies (topic-tag)
+			'register_shortcodes',      // Register shortcodes (bbp-login)
 			'register_views',           // Register the views (no-replies)
 			'register_theme_directory', // Register the theme directory (bbp-themes)
 			'register_theme_packages',  // Register bundled theme packages (bbp-theme-compat/bbp-themes)
@@ -812,6 +813,17 @@ final class bbPress {
 				'orderby'      => ''
 			)
 		) );
+	}
+
+	/**
+	 * Register the bbPress shortcodes
+	 *
+	 * @since bbPress (r3031)
+	 *
+	 * @uses BBP_Shortcodes
+	 */
+	public function register_shortcodes() {
+		$this->shortcodes = new BBP_Shortcodes();
 	}
 
 	/**
