@@ -224,9 +224,9 @@ final class bbPress {
 		$this->current_reply_id     = 0; // Current reply id
 		$this->current_topic_tag_id = 0; // Current topic tag id
 
-		$this->forum_query    = new stdClass; // Main forum query
-		$this->topic_query    = new stdClass; // Main topic query
-		$this->reply_query    = new stdClass; // Main reply query
+		$this->forum_query    = new stdClass(); // Main forum query
+		$this->topic_query    = new stdClass(); // Main topic query
+		$this->reply_query    = new stdClass(); // Main reply query
 
 		/** Theme Compat ******************************************************/
 
@@ -240,6 +240,7 @@ final class bbPress {
 
 		/** Misc **************************************************************/
 
+		$this->domain         = 'bbpress';      // Unique identifier for retrieving translated strings
 		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
@@ -428,8 +429,8 @@ final class bbPress {
 	public function load_textdomain() {
 
 		// Traditional WordPress plugin locale filter
-		$locale = apply_filters( 'plugin_locale',  get_locale(), 'bbpress' );
-		$mofile = sprintf( 'bbpress-%s.mo', $locale ); // Get mo file name
+		$locale        = apply_filters( 'plugin_locale',  get_locale(), $this->domain );
+		$mofile        = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
 
 		// Setup paths to current locale file
 		$mofile_local  = $this->lang_dir . $mofile;
@@ -437,11 +438,11 @@ final class bbPress {
 
 		// Look in global /wp-content/languages/bbpress folder
 		if ( file_exists( $mofile_global ) ) {
-			return load_textdomain( 'bbpress', $mofile_global );
+			return load_textdomain( $this->domain, $mofile_global );
 
 		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
 		} elseif ( file_exists( $mofile_local ) ) {
-			return load_textdomain( 'bbpress', $mofile_local );
+			return load_textdomain( $this->domain, $mofile_local );
 		}
 
 		// Nothing found
