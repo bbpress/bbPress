@@ -107,10 +107,18 @@ function bbp_has_replies( $args = '' ) {
 
 	// Call the query
 	$bbp->reply_query = new WP_Query( $bbp_r );
-
+	
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = $posts_per_page;
 	$bbp->reply_query->paged          = $paged;
+
+	// Never home, regardless of what parse_query says
+	$bbp->reply_query->is_home        = false;
+
+	// Reset is_single if single topic
+	if ( bbp_is_single_topic() ) {
+		$bbp->reply_query->is_single = true;
+	}
 
 	// Only add pagination if query returned results
 	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
@@ -134,26 +142,26 @@ function bbp_has_replies( $args = '' ) {
 			$base = add_query_arg( 'paged', '%#%' );
 		}
 
-		// Pagination settings with filter
-		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
-			'base'      => $base,
-			'format'    => '',
-			'total'     => ceil( (int) $bbp->reply_query->found_posts / (int) $posts_per_page ),
-			'current'   => (int) $bbp->reply_query->paged,
-			'prev_text' => '&larr;',
-			'next_text' => '&rarr;',
-			'mid_size'  => 1,
-			'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
-		) );
-
 		// Add pagination to query object
-		$bbp->reply_query->pagination_links = paginate_links( $bbp_replies_pagination );
+		$bbp->reply_query->pagination_links = paginate_links(
+			apply_filters( 'bbp_replies_pagination', array(
+				'base'      => $base,
+				'format'    => '',
+				'total'     => ceil( (int) $bbp->reply_query->found_posts / (int) $posts_per_page ),
+				'current'   => (int) $bbp->reply_query->paged,
+				'prev_text' => '&larr;',
+				'next_text' => '&rarr;',
+				'mid_size'  => 1,
+				'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
+			) )
+		);
 
 		// Remove first page from pagination
-		if ( $wp_rewrite->using_permalinks() )
+		if ( $wp_rewrite->using_permalinks() ) {
 			$bbp->reply_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $bbp->reply_query->pagination_links );
-		else
+		} else {
 			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );
+		}
 	}
 
 	// Return object
@@ -226,24 +234,25 @@ function bbp_reply_id( $reply_id = 0 ) {
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
+		if ( !empty( $reply_id ) && is_numeric( $reply_id ) ) {
 			$bbp_reply_id = $reply_id;
 
 		// Currently inside a replies loop
-		elseif ( !empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) )
+		} elseif ( !empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) ) {
 			$bbp_reply_id = $bbp->reply_query->post->ID;
 
 		// Currently viewing a forum
-		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && !empty( $bbp->current_reply_id ) )
+		} elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && !empty( $bbp->current_reply_id ) ) {
 			$bbp_reply_id = $bbp->current_reply_id;
 
 		// Currently viewing a reply
-		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
+		} elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) ) {
 			$bbp_reply_id = $wp_query->post->ID;
 
 		// Fallback
-		else
+		} else {
 			$bbp_reply_id = 0;
+		}
 
 		return (int) apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
 	}
