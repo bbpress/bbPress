@@ -51,11 +51,12 @@ class BBP_Users_Admin {
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile',        array( $this, 'user_profile_forums' ) );
-		add_action( 'show_user_profile',        array( $this, 'user_profile_forums' ) );
 
 		// User profile save actions
-		add_action( 'personal_options_update',  array( $this, 'user_profile_update' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'user_profile_update' ) );
+
+		// Noop WordPress additional caps output area
+		add_filter( 'additional_capabilities_display', '__return_false' );
 	}
 
 	/**
@@ -154,10 +155,7 @@ class BBP_Users_Admin {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
-			return;
-
-		// Noop WordPress additional caps output area
-		add_filter( 'additional_capabilities_display', '__return_false' ); ?>
+			return; ?>
 
 		<h3><?php _e( 'Forum Capabilities', 'bbpress' ); ?></h3>
 
