@@ -345,7 +345,6 @@ final class bbPress {
 			'register_taxonomies',      // Register taxonomies (topic-tag)
 			'register_shortcodes',      // Register shortcodes (bbp-login)
 			'register_views',           // Register the views (no-replies)
-			'register_theme_directory', // Register the theme directory (bbp-themes)
 			'register_theme_packages',  // Register bundled theme packages (bbp-theme-compat/bbp-themes)
 			'load_textdomain',          // Load textdomain (bbpress)
 			'add_rewrite_tags',         // Add rewrite tags (view|user|edit)
@@ -372,25 +371,12 @@ final class bbPress {
 	 * @since bbPress (r3829)
 	 */
 	public function register_theme_packages() {
-
-		/** Default Theme *****************************************************/
-
 		bbp_register_theme_package( array(
 			'id'      => 'default',
 			'name'    => __( 'bbPress Default', 'bbpress' ),
 			'version' => bbp_get_version(),
 			'dir'     => trailingslashit( $this->plugin_dir . 'bbp-theme-compat' ),
 			'url'     => trailingslashit( $this->plugin_url . 'bbp-theme-compat' )
-		) );
-
-		/** Twenty Ten ********************************************************/
-
-		bbp_register_theme_package( array(
-			'id'      => 'bbp-twentyten',
-			'name'    => __( 'Twenty Ten (bbPress)', 'bbpress' ),
-			'version' => bbp_get_version(),
-			'dir'     => trailingslashit( $this->themes_dir . 'bbp-twentyten' ),
-			'url'     => trailingslashit( $this->themes_url . 'bbp-twentyten' )
 		) );
 	}
 
@@ -446,17 +432,6 @@ final class bbPress {
 
 		// Nothing found
 		return false;
-	}
-
-	/**
-	 * Sets up the bbPress theme directory to use in WordPress
-	 *
-	 * @since bbPress (r2507)
-	 * @uses register_theme_directory() To register the theme directory
-	 * @return bool True on success, false on failure
-	 */
-	public function register_theme_directory() {
-		return register_theme_directory( $this->themes_dir );
 	}
 
 	/**

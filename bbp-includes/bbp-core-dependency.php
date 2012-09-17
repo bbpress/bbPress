@@ -155,16 +155,6 @@ function bbp_load_textdomain() {
 }
 
 /**
- * Sets up the theme directory
- *
- * @since bbPress (r2507)
- * @uses do_action() Calls 'bbp_register_theme_directory'
- */
-function bbp_register_theme_directory() {
-	do_action( 'bbp_register_theme_directory' );
-}
-
-/**
  * Setup the post types
  *
  * @since bbPress (r2464)
