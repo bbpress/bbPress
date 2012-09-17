@@ -375,8 +375,8 @@ final class bbPress {
 			'id'      => 'default',
 			'name'    => __( 'bbPress Default', 'bbpress' ),
 			'version' => bbp_get_version(),
-			'dir'     => trailingslashit( $this->plugin_dir . 'bbp-theme-compat' ),
-			'url'     => trailingslashit( $this->plugin_url . 'bbp-theme-compat' )
+			'dir'     => trailingslashit( $this->themes_dir . 'bbp-default' ),
+			'url'     => trailingslashit( $this->themes_url . 'bbp-default' )
 		) );
 	}
 
