@@ -109,36 +109,13 @@ class BBP_Users_Admin {
 		if ( empty( $user_id ) )
 			return;
 
-		// Load up the user
-		$user = new WP_User( $user_id );
-
 		// Either reset caps for role
 		if ( ! empty( $_POST['bbp-default-caps'] ) ) {
-
-			// Remove all caps
-			foreach ( bbp_get_capability_groups() as $group ) {
-				foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) {
-					$user->remove_cap( $capability );
-				}
-			}
+			bbp_reset_user_caps( $user_id );
 
 		// Or set caps individually
 		} else {
-
-			// Loop through capability groups
-			foreach ( bbp_get_capability_groups() as $group ) {
-				foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) {
-
-					// Maybe add cap
-					if ( ! empty( $_POST['_bbp_' . $capability] ) && ! $user->has_cap( $capability ) ) {
-						$user->add_cap( $capability, true );
-
-					// Maybe remove cap
-					} elseif ( empty( $_POST['_bbp_' . $capability] ) && $user->has_cap( $capability ) ) {
-						$user->add_cap( $capability, false );
-					}
-				}
-			}
+			bbp_save_user_caps( $user_id );
 		}
 	}
 

@@ -933,6 +933,15 @@ function bbp_edit_user_handler() {
 	// Handle user edit
 	$edit_user = edit_user( $user_id );
 
+	// Either reset caps for role
+	if ( ! empty( $_POST['bbp-default-caps'] ) ) {
+		bbp_reset_user_caps( $user_id );
+
+	// Or set caps individually
+	} else {
+		bbp_save_user_caps( $user_id );
+	}
+
 	// Error(s) editng the user, so copy them into the global
 	if ( is_wp_error( $edit_user ) ) {
 		bbpress()->errors = $edit_user;
@@ -1332,32 +1341,6 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 
 	// Return the inverse of active
 	return !bbp_is_user_active( $user_id );
-}
-
-/**
- * Checks if user is a bozo.
- * 
- * @since bbPress (r4169)
- * 
- * @uses is_user_logged_in() To check if user is logged in
- * @uses bbp_get_displayed_user_id() To get current user ID
- * @uses bbp_is_user_active() To check if user is active
- *
- * @param int $user_id The user ID to check. Defaults to current user ID
- * @return bool True if inactive, false if active
- */
-function bbp_is_user_bozo( $user_id = 0 ) {
-
-	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() )
-		$user_id = bbp_get_current_user_id();
-
-	// Anonymous users are not bozos
-	if ( empty( $user_id ) )
-		return false;
-
-	// Return if a user has the bozo capability
-	return (bool) apply_filters( 'bbp_is_user_bozo', user_can( $user_id, 'bozo' ), $user_id );
 }
 
 /**

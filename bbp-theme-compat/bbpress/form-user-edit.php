@@ -124,7 +124,7 @@
 
 		<div id="password">
 			<label for="pass1"><?php _e( 'New Password', 'bbpress' ); ?></label>
-			<fieldset class="bbp-form">
+			<fieldset class="bbp-form password">
 				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="off" tabindex="<?php bbp_tab_index(); ?>" />
 				<span class="description"><?php _e( 'If you would like to change the password type a new one. Otherwise leave this blank.', 'bbpress' ); ?></span>
 
@@ -142,17 +142,10 @@
 
 	<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
 
-		<h2 class="entry-title"><?php _e( 'Capabilities', 'bbpress' ) ?></h2>
+		<h2 class="entry-title"><?php _e( 'User Role', 'bbpress' ) ?></h2>
 
 		<fieldset class="bbp-form">
-			<legend><?php _e( 'Forum Capabilities', 'bbpress' ); ?></legend>
-
-			<div>
-				<label for="role"><?php _e( 'Role', 'bbpress' ) ?></label>
-
-				<?php bbp_edit_user_role(); ?>
-
-			</div>
+			<legend><?php _e( 'User Role', 'bbpress' ); ?></legend>
 
 			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
 
@@ -167,27 +160,46 @@
 			<?php endif; ?>
 
 			<div>
+				<label for="role"><?php _e( 'Role', 'bbpress' ) ?></label>
 
-				<?php foreach ( bbp_get_capability_groups() as $group ) : ?>
+				<?php bbp_edit_user_role(); ?>
 
-					<dl class="bbp-user-capabilities">
-						<dt><?php bbp_capability_group_title( $group ); ?></dt>
+			</div>
 
-						<?php foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) : ?>
+			<div>
+				<label for=""><?php _e( 'Forum Capabilities', 'bbpress' ); ?></label>
 
-							<dd>
-								<label for="_bbp_<?php echo $capability; ?>">
-									<input class="checkbox" type="checkbox" id="_bbp_<?php echo $capability; ?>" name="_bbp_<?php echo $capability; ?>" value="1" <?php checked( user_can( bbp_get_displayed_user_id(), $capability ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
-									<?php bbp_capability_title( $capability ); ?>
-								</label>
-							</dd>
+				<fieldset class="bbp-form capabilities">
+					<legend><?php _e( 'Forum Capabilities', 'bbpress' ); ?></legend>
 
-						<?php endforeach; ?>
+					<?php foreach ( bbp_get_capability_groups() as $group ) : ?>
 
-					</dl>
+						<dl class="bbp-user-capabilities">
+							<dt><?php bbp_capability_group_title( $group ); ?></dt>
 
-				<?php endforeach; ?>
+							<?php foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) : ?>
 
+								<dd>
+									<label for="_bbp_<?php echo $capability; ?>">
+										<input class="checkbox" type="checkbox" id="_bbp_<?php echo $capability; ?>" name="_bbp_<?php echo $capability; ?>" value="1" <?php checked( user_can( bbp_get_displayed_user_id(), $capability ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
+										<?php bbp_capability_title( $capability ); ?>
+									</label>
+								</dd>
+
+							<?php endforeach; ?>
+
+						</dl>
+
+					<?php endforeach; ?>
+				</fieldset>
+			</div>
+			
+			<div>
+				<label for="bbp-default-caps"><?php _e( 'Reset', 'bbpress' ); ?></label>
+				<label>
+					<input class="checkbox" type="checkbox" id="bbp-default-caps" name="bbp-default-caps" tabindex="<?php bbp_tab_index(); ?>" />
+					<?php _e( 'Reset forum capabilities to match the user role.', 'bbpress' ); ?>
+				</label>
 			</div>
 
 		</fieldset>

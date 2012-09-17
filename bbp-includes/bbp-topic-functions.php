@@ -243,10 +243,6 @@ function bbp_new_topic_handler() {
 	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		$topic_status = bbp_get_pending_status_id();
 
-	// Maybe set as bozo status
-	} elseif ( bbp_is_user_bozo() ) {
-		$topic_status = bbp_get_bozo_status_id();
-
 	// Default to published
 	} else {
 		$topic_status = bbp_get_public_status_id();
@@ -437,7 +433,7 @@ function bbp_edit_topic_handler() {
 		return;
 
 	// Define local variable(s)
-	$topic = $topic_id = $forum_id = $anonymous_data = 0;
+	$topic = $topic_id = $topic_author = $forum_id = $anonymous_data = 0;
 	$topic_title = $topic_content = $topic_edit_reason = '';
 
 	/** Topic *****************************************************************/
@@ -462,12 +458,15 @@ function bbp_edit_topic_handler() {
 	} else {
 
 		// Check users ability to create new topic
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
 
 			// User cannot edit this topic
 			if ( !current_user_can( 'edit_topic', $topic_id ) ) {
 				bbp_add_error( 'bbp_edit_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
 			}
+
+			// Set topic author
+			$topic_author = bbp_get_topic_author_id( $topic_id );
 
 		// It is an anonymous post
 		} else {
@@ -549,7 +548,7 @@ function bbp_edit_topic_handler() {
 
 	/** Topic Blacklist *******************************************************/
 	
-	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
+	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
 
 	/** Topic Status **********************************************************/
@@ -557,10 +556,6 @@ function bbp_edit_topic_handler() {
 	// Maybe put into moderation
 	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		$topic_status = bbp_get_pending_status_id();
-
-	// Maybe set as bozo status
-	} elseif ( bbp_is_user_bozo() ) {
-		$topic_status = bbp_get_bozo_status_id();
 
 	// Default to published
 	} else {
@@ -609,7 +604,7 @@ function bbp_edit_topic_handler() {
 		'post_content' => $topic_content,
 		'post_status'  => $topic_status,
 		'post_parent'  => $forum_id,
-		'post_author'  => $topic->post_author,
+		'post_author'  => $topic_author,
 		'post_type'    => bbp_get_topic_post_type(),
 		'tax_input'    => $terms,
 	) );
@@ -663,7 +658,7 @@ function bbp_edit_topic_handler() {
 	if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic->post_author , true /* Is edit */ );
+		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_author , true /* Is edit */ );
 
 		// If the new forum id is not equal to the old forum id, run the
 		// bbp_move_topic action and pass the topic's forum id as the

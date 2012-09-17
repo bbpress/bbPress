@@ -365,17 +365,6 @@ function bbp_get_orphan_status_id() {
 	return bbpress()->orphan_status_id;
 }
 
-/**
- * Return the bozo post status ID
- *
- * @since bbPress (r4167)
- *
- * @return string
- */
-function bbp_get_bozo_status_id() {
-	return bbpress()->bozo_status_id;
-}
-
 /** Rewrite IDs ***************************************************************/
 
 /**

@@ -221,10 +221,6 @@ function bbp_new_reply_handler() {
 	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 		$reply_status = bbp_get_pending_status_id();
 
-	// Maybe set as bozo status
-	} elseif ( bbp_is_user_bozo() ) {
-		$reply_status = bbp_get_bozo_status_id();
-
 	// Default
 	} else {
 		$reply_status = bbp_get_public_status_id();
@@ -390,7 +386,7 @@ function bbp_edit_reply_handler() {
 		return;
 
 	// Define local variable(s)
-	$reply = $reply_id = $topic_id = $forum_id = $anonymous_data = 0;
+	$reply = $reply_id = $reply_author = $topic_id = $forum_id = $anonymous_data = 0;
 	$reply_title = $reply_content = $reply_edit_reason = $terms = '';
 
 	/** Reply *****************************************************************/
@@ -421,13 +417,16 @@ function bbp_edit_reply_handler() {
 	} else {
 
 		// Check users ability to create new reply
-		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+		if ( ! bbp_is_reply_anonymous( $reply_id ) ) {
 
 			// User cannot edit this reply
 			if ( !current_user_can( 'edit_reply', $reply_id ) ) {
 				bbp_add_error( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
 				return;
 			}
+
+			// Set reply author
+			$reply_author = bbp_get_reply_author_id( $reply_id );
 
 		// It is an anonymous post
 		} else {
@@ -493,18 +492,14 @@ function bbp_edit_reply_handler() {
 
 	/** Reply Blacklist *******************************************************/
 
-	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
+	if ( !bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 
 	/** Reply Status **********************************************************/
 
 	// Maybe put into moderation
-	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) ) {
+	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 		$reply_status = bbp_get_pending_status_id();
-
-	// Maybe set as bozo status
-	} elseif ( bbp_is_user_bozo() ) {
-		$reply_status = bbp_get_bozo_status_id();
 
 	// Default
 	} else {
@@ -543,8 +538,8 @@ function bbp_edit_reply_handler() {
 		'post_title'   => $reply_title,
 		'post_content' => $reply_content,
 		'post_status'  => $reply_status,
-		'post_parent'  => $reply->post_parent,
-		'post_author'  => $reply->post_author,
+		'post_parent'  => $topic_id,
+		'post_author'  => $reply_author,
 		'post_type'    => bbp_get_reply_post_type()
 	) );
 
@@ -588,7 +583,7 @@ function bbp_edit_reply_handler() {
 	if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply->post_author , true /* Is edit */ );
+		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true /* Is edit */ );
 
 		/** Additional Actions (After Save) ***********************************/
 

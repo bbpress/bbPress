@@ -449,10 +449,6 @@ function bbp_user_display_role( $user_id = 0 ) {
 		} elseif ( user_can( $user_id, 'moderate' ) ) {
 			$role = __( 'Moderator', 'bbpress' );
 
-		// Bozo
-		} elseif ( user_can( $user_id, 'bozo' ) ) {
-			$role = __( 'Bozo', 'bbpress' );
-
 		// Participant
 		} elseif ( user_can( $user_id, 'participate' ) ) {
 			$role = __( 'Participant', 'bbpress' );

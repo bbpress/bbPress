@@ -555,11 +555,16 @@ input[type="password"] {
 	#content #bbp-your-profile fieldset fieldset,
 	#container #bbp-your-profile fieldset fieldset {
 		margin: 0;
-		width: 260px;
 		border: none;
 		padding: 0;
 		clear: none;
 		float: none;
+	}
+	#bbp-your-profile fieldset fieldset.password {
+		width: 260px;
+	}
+	#bbp-your-profile fieldset fieldset.capabilities dl {
+		margin: 0;
 	}
 	#bbp-your-profile fieldset fieldset span.description {
 		margin-left: 0;

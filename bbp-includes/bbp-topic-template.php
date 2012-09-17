@@ -62,7 +62,6 @@ function bbp_show_lead_topic( $show_lead = false ) {
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
  * @uses current_user_can() To check if the current user can edit other's topics
- * @uses bbp_is_user_bozo() To add the bozo post status
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses WP_Query To make query and get the topics
  * @uses is_page() To check if it's a page
@@ -90,11 +89,6 @@ function bbp_has_topics( $args = '' ) {
 		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() );
 	} else {
 		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
-	}
-
-	// Add the bozo status if user is a bozo
-	if ( bbp_is_user_bozo() ) {
-		$post_statuses[] = bbp_get_bozo_status_id();
 	}
 
 	$default_topic_search  = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;

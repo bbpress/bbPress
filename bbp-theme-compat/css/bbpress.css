@@ -588,13 +588,18 @@ p.form-allowed-tags {
 
 	#bbpress-forums #bbp-your-profile fieldset fieldset {
 		margin: 0;
-		width: 260px;
 		border: none;
 		padding: 0;
 		clear: none;
 		float: none;
 	}
-	#bbp-your-profile fieldset fieldset span.description {
+	#bbpress-forums #bbp-your-profile fieldset fieldset.password {
+		width: 260px;
+	}
+	#bbpress-forums #bbp-your-profile fieldset fieldset.capabilities dl {
+		margin: 0;
+	}
+	#bbp-your-profile fieldset fieldset.password span.description {
 		margin-left: 0;
 		margin-bottom: 20px;
 	}

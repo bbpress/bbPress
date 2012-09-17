@@ -43,7 +43,6 @@ function bbp_reply_post_type() {
  * @since bbPress (r2553)
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
- * @uses bbp_is_user_bozo() To add the bozo post status
  * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
@@ -72,11 +71,6 @@ function bbp_has_replies( $args = '' ) {
 		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() );
 	} else {
 		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
-	}
-
-	// Add the bozo status if user is a bozo
-	if ( bbp_is_user_bozo() ) {
-		$post_statuses[] = bbp_get_bozo_status_id();
 	}
 
 	$default_reply_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;

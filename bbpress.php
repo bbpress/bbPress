@@ -208,7 +208,6 @@ final class bbPress {
 		$this->private_status_id = apply_filters( 'bbp_private_post_status', 'private' );
 		$this->hidden_status_id  = apply_filters( 'bbp_hidden_post_status',  'hidden'  );
 		$this->trash_status_id   = apply_filters( 'bbp_trash_post_status',   'trash'   );
-		$this->bozo_status_id    = apply_filters( 'bbp_bozo_post_status',    'bozo'    );
 
 		// Other identifiers
 		$this->user_id           = apply_filters( 'bbp_user_id', 'bbp_user' );
@@ -709,19 +708,6 @@ final class bbPress {
 			) )
 		);
 
-		// Bozo
-		register_post_status(
-			bbp_get_bozo_status_id(),
-			apply_filters( 'bbp_register_bozo_post_status', array(
-				'label'                     => _x( 'Bozo', 'post', 'bbpress' ),
-				'label_count'               => _nx_noop( 'Bozo <span class="count">(%s)</span>', 'Bozo <span class="count">(%s)</span>', 'bbpress' ),
-				'private'                   => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false
-			) )
-		);
-
 		/**
 		 * Trash fix
 		 *
@@ -825,6 +811,17 @@ final class bbPress {
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
+	}
+
+	/**
+	 * Register the bbPress capabilities
+	 *
+	 * @since bbPress (r3031)
+	 *
+	 * @uses BBP_Capabilities
+	 */
+	public function register_capabilities() {
+		$this->capabilities = new BBP_Capabilities();
 	}
 
 	/**
