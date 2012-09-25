@@ -32,7 +32,7 @@
 
 				<li class="<?php if ( bbp_is_single_user_topics() ) :?>current<?php endif; ?>">
 					<span class='bbp-user-topics-created-link'>
-						<a href="<?php bbp_user_topics_created_url(); ?>" title="<?php printf( __( "%s's Topics Created", 'bbpress' ), esc_attr( bbp_get_displayed_user_field( 'display_name' ) ) ); ?>"><?php _e( 'Topics Created', 'bbpress' ); ?></a>
+						<a href="<?php bbp_user_topics_created_url(); ?>" title="<?php printf( __( "%s's Topics Started", 'bbpress' ), esc_attr( bbp_get_displayed_user_field( 'display_name' ) ) ); ?>"><?php _e( 'Topics Started', 'bbpress' ); ?></a>
 					</span>
 				</li>
 

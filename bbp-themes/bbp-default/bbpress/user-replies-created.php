@@ -1,7 +1,7 @@
 <?php
 
 /**
- * User Topics Created
+ * User Replies Created
  *
  * @package bbPress
  * @subpackage Theme
