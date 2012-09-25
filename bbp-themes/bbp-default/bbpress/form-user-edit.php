@@ -62,7 +62,7 @@
 
 			<div>
 				<label for="<?php echo $name; ?>"><?php echo apply_filters( 'user_'.$name.'_label', $desc ); ?></label>
-				<input type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'name' ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+				<input type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( bbp_get_displayed_user_field( $name ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 			</div>
 
 		<?php endforeach; ?>
