@@ -36,7 +36,7 @@
 		</div>
 
 		<div>
-			<label for="display_name"><?php _e( 'Display name publicly as', 'bbpress' ) ?></label>
+			<label for="display_name"><?php _e( 'Display Name', 'bbpress' ) ?></label>
 
 			<?php bbp_edit_user_display_name(); ?>
 
@@ -132,7 +132,7 @@
 				<span class="description"><?php _e( 'Type your new password again.', 'bbpress' ); ?></span><br />
 
 				<div id="pass-strength-result"></div>
-				<span class="description indicator-hint"><?php _e( 'Hint: The password should be at least seven characters long. To make it stronger, use upper and lower case letters, numbers and symbols like ! " ? $ % ^ &amp; ).', 'bbpress' ); ?></span>
+				<span class="description indicator-hint"><?php _e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>
 			</fieldset>
 		</div>
 
