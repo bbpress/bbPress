@@ -49,6 +49,12 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	// Editing a user
 	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :
 
+	// User favorites
+	elseif ( bbp_is_favorites()        && ( $new_template = bbp_get_favorites_template()        ) ) :
+
+	// User favorites
+	elseif ( bbp_is_subscriptions()    && ( $new_template = bbp_get_subscriptions_template()    ) ) :
+
 	// Viewing a user
 	elseif ( bbp_is_single_user()      && ( $new_template = bbp_get_single_user_template()      ) ) :
 
@@ -164,13 +170,59 @@ function bbp_get_single_user_edit_template() {
 	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
 	$user_id   = bbp_get_displayed_user_id();
 	$templates = array(
-		'single-user-edit-' . $nicename . '.php', // Single User Edt nicename
+		'single-user-edit-' . $nicename . '.php', // Single User Edit nicename
 		'single-user-edit-' . $user_id  . '.php', // Single User Edit ID
 		'single-user-edit.php',                   // Single User Edit
 		'user-edit.php',                          // User Edit
 		'user.php',                               // User
 	);
 	return bbp_get_query_template( 'profile_edit', $templates );
+}
+
+/**
+ * Get the user favorites template
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses bbp_get_displayed_user_id()
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
+ */
+function bbp_get_favorites_template() {
+	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id   = bbp_get_displayed_user_id();
+	$templates = array(
+		'single-user-favorites-' . $nicename . '.php', // Single User Favs nicename
+		'single-user-favorites-' . $user_id  . '.php', // Single User Favs ID
+		'favorites-' . $nicename  . '.php',            // Favorites nicename
+		'favorites-' . $user_id   . '.php',            // Favorites ID
+		'favorites.php',                               // Favorites
+		'user.php',                                    // User
+	);
+	return bbp_get_query_template( 'favorites', $templates );
+}
+
+/**
+ * Get the user subscriptions template
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses bbp_get_displayed_user_id()
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
+ */
+function bbp_get_subscriptions_template() {
+	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id   = bbp_get_displayed_user_id();
+	$templates = array(
+		'single-user-subscriptions-' . $nicename . '.php', // Single User Subs nicename
+		'single-user-subscriptions-' . $user_id  . '.php', // Single User Subs ID
+		'subscriptions-' . $nicename  . '.php',            // Subscriptions nicename
+		'subscriptions-' . $user_id   . '.php',            // Subscriptions ID
+		'subscriptions.php',                               // Subscriptions
+		'user.php',                                        // User
+	);
+	return bbp_get_query_template( 'subscriptions', $templates );
 }
 
 /**

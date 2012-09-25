@@ -15,7 +15,7 @@
 
 		<?php if ( bbp_is_user_home() || current_user_can( 'edit_users' ) ) : ?>
 
-			<div id="bbp-author-subscriptions" class="bbp-author-subscriptions">
+			<div id="bbp-user-subscriptions" class="bbp-user-subscriptions">
 				<h2 class="entry-title"><?php _e( 'Subscribed Forum Topics', 'bbpress' ); ?></h2>
 				<div class="bbp-user-section">
 
@@ -34,7 +34,7 @@
 					<?php endif; ?>
 
 				</div>
-			</div><!-- #bbp-author-subscriptions -->
+			</div><!-- #bbp-user-subscriptions -->
 
 		<?php endif; ?>
 

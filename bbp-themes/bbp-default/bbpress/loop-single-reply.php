@@ -15,6 +15,15 @@
 
 		<span class="bbp-reply-post-date"><?php bbp_reply_post_date(); ?></span>
 
+		<?php if ( bbp_is_single_user_replies() ) : ?>
+
+			<span class="bbp-header">
+				<?php _e( 'in reply to: ', 'bbpress' ); ?>
+				<a class="bbp-topic-permalink" href="<?php bbp_topic_permalink( bbp_get_reply_topic_id() ); ?>" title="<?php bbp_topic_title( bbp_get_reply_topic_id() ); ?>"><?php bbp_topic_title( bbp_get_reply_topic_id() ); ?></a>
+			</span>
+
+		<?php endif; ?>
+
 		<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
 
 		<?php do_action( 'bbp_theme_before_reply_admin_links' ); ?>

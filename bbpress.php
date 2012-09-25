@@ -848,19 +848,29 @@ final class bbPress {
 		$user_slug = bbp_get_user_slug();
 
 		// Unique rewrite ID's
-		$edit_id   = bbp_get_edit_rewrite_id();
-		$view_id   = bbp_get_view_rewrite_id();
-		$user_id   = bbp_get_user_rewrite_id();
-		$favs_id   = bbp_get_user_favorites_rewrite_id();
-		$subs_id   = bbp_get_user_subscriptions_rewrite_id();
+		$edit_id    = bbp_get_edit_rewrite_id();
+		$view_id    = bbp_get_view_rewrite_id();
+		$user_id    = bbp_get_user_rewrite_id();
+		$favs_id    = bbp_get_user_favorites_rewrite_id();
+		$subs_id    = bbp_get_user_subscriptions_rewrite_id();
+		$topics_id  = bbp_get_topic_post_type();
+		$replies_id = bbp_get_reply_post_type();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule = '/([^/]+)/?$';
 		$edit_rule = '/([^/]+)/edit/?$';
 		$feed_rule = '/([^/]+)/feed/?$';
-		$favs_rule = '/([^/]+)/' . bbp_get_user_favorites_slug()     . '/?$';
-		$subs_rule = '/([^/]+)/' . bbp_get_user_subscriptions_slug() . '/?$';
 		$page_rule = '/([^/]+)/page/?([0-9]{1,})/?$';
+
+		// User profile rules
+		$tops_rule      = '/([^/]+)/topics/?$';
+		$reps_rule      = '/([^/]+)/replies/?$';
+		$favs_rule      = '/([^/]+)/' . bbp_get_user_favorites_slug()     . '/?$';
+		$subs_rule      = '/([^/]+)/' . bbp_get_user_subscriptions_slug() . '/?$';
+		$tops_page_rule = '/([^/]+)/topics/page/?([0-9]{1,})/?$';
+		$reps_page_rule = '/([^/]+)/replies/page/?([0-9]{1,})/?$';
+		$favs_page_rule = '/([^/]+)/' . bbp_get_user_favorites_slug()     . '/page/?([0-9]{1,})/?$';
+		$subs_page_rule = '/([^/]+)/' . bbp_get_user_subscriptions_slug() . '/page/?([0-9]{1,})/?$';
 
 		// New bbPress specific rules to merge with existing that are not
 		// handled automatically by custom post types or taxonomy types
@@ -873,11 +883,16 @@ final class bbPress {
 			bbp_get_topic_tag_tax_slug() . $edit_rule => 'index.php?' . bbp_get_topic_tag_tax_id() . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
 
 			// User Pagination|Edit|View
-			$user_slug . $page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $edit_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
-			$user_slug . $favs_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id . '=1',
-			$user_slug . $subs_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id . '=1',
-			$user_slug . $root_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ),
+			$user_slug . $tops_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $topics_id  . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $reps_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $replies_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $favs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id    . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $subs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id    . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $tops_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $topics_id  . '=1',
+			$user_slug . $reps_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $replies_id . '=1',
+			$user_slug . $favs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id    . '=1',
+			$user_slug . $subs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id    . '=1',
+			$user_slug . $edit_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id    . '=1',
+			$user_slug . $root_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ),
 
 			// Topic-View Pagination|Feed|View
 			$view_slug . $page_rule => 'index.php?' . $view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),

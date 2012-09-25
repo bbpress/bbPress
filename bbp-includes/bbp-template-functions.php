@@ -218,11 +218,9 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id()               );
-	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id()               );
-	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id()               );
-	$is_favs  = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
-	$is_subs  = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
+	$bbp_view   = $posts_query->get( bbp_get_view_rewrite_id()               );
+	$bbp_user   = $posts_query->get( bbp_get_user_rewrite_id()               );
+	$is_edit    = $posts_query->get( bbp_get_edit_rewrite_id()               );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -256,6 +254,11 @@ function bbp_parse_query( $posts_query ) {
 
 		/** User Exists *******************************************************/
 
+		$is_favs    = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
+		$is_subs    = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
+		$is_topics  = $posts_query->get( bbp_get_topic_post_type()               );
+		$is_replies = $posts_query->get( bbp_get_reply_post_type()               );
+
 		// View or edit?
 		if ( !empty( $is_edit ) ) {
 
@@ -288,16 +291,32 @@ function bbp_parse_query( $posts_query ) {
 		} elseif ( ! empty( $is_subs ) ) {
 			$posts_query->bbp_is_single_user_subs = true;
 
+		// User topics
+		} elseif ( ! empty( $is_topics ) ) {
+			$posts_query->bbp_is_single_user_topics = true;
+
+		// User topics
+		} elseif ( ! empty( $is_replies ) ) {
+			$posts_query->bbp_is_single_user_replies = true;
+
 		// User profile
 		} else {
-			$posts_query->bbp_is_single_user = true;
+			$posts_query->bbp_is_single_user_profile = true;
 		}
+
+		// Looking at a single user
+		$posts_query->bbp_is_single_user = true;
 
 		// Make sure 404 is not set
 		$posts_query->is_404  = false;
 
 		// Correct is_home variable
 		$posts_query->is_home = false;
+
+		// User is looking at their own profile
+		if ( get_current_user_id() == $user->ID ) {
+			$posts_query->bbp_is_single_user_home = true;
+		}
 
 		// Set bbp_user_id for future reference
 		$posts_query->set( 'bbp_user_id', $user->ID );

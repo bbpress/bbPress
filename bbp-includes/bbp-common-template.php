@@ -359,7 +359,7 @@ function bbp_is_topic_tag() {
 	$retval = false;
 
 	// Check tax and query vars
-	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( $bbp->topic_query->is_tax ) || get_query_var( 'bbp_topic_tag' ) )
+	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( bbpress()->topic_query->is_tax ) || get_query_var( 'bbp_topic_tag' ) )
 		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_topic_tag', $retval );
@@ -544,10 +544,38 @@ function bbp_is_subscriptions() {
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created() {
+	global $wp_query;
 
-	$retval = bbp_is_query_name( 'bbp_user_profile_topics_created' );
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_topics ) && ( true == $wp_query->bbp_is_single_user_topics ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_topics_created', $retval );
+}
+
+/**
+ * Check if current page shows the topics created by a bbPress user (profile
+ * page)
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses bbp_is_query_name() To get the query name
+ * @return bool True if it's the topics created page, false if not
+ */
+function bbp_is_replies_created() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_replies ) && ( true == $wp_query->bbp_is_single_user_replies ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_replies_created', $retval );
 }
 
 /**
@@ -561,12 +589,14 @@ function bbp_is_topics_created() {
  * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home() {
+	global $wp_query;
 
 	// Assume false
 	$retval = false;
 
-	if ( bbp_is_single_user() && is_user_logged_in() )
-		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_home ) && ( true == $wp_query->bbp_is_single_user_home ) )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_user_home', $retval );
 }
@@ -586,8 +616,8 @@ function bbp_is_user_home_edit() {
 	// Assume false
 	$retval = false;
 
-	if ( bbp_is_single_user_edit() && is_user_logged_in() )
-		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
+	if ( bbp_is_user_home() && bbp_is_single_user_edit() )
+		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_user_home_edit', $retval );
 }
@@ -632,6 +662,69 @@ function bbp_is_single_user_edit() {
 		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_single_user_edit', $retval );
+}
+
+/**
+ * Check if current page is a user profile page
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user_profile is set to true
+ * @return bool True if it's a user's profile page, false if not
+ */
+function bbp_is_single_user_profile() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_profile ) && ( true == $wp_query->bbp_is_single_user_profile ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_single_user_profile', $retval );
+}
+
+/**
+ * Check if current page is a user topics created page
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user_topics is set to true
+ * @return bool True if it's a user's topics page, false if not
+ */
+function bbp_is_single_user_topics() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_topics ) && ( true == $wp_query->bbp_is_single_user_topics ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_single_user_topics', $retval );
+}
+
+/**
+ * Check if current page is a user replies created page
+ *
+ * @since bbPress (r4225)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user_replies is set to true
+ * @return bool True if it's a user's replies page, false if not
+ */
+function bbp_is_single_user_replies() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_single_user_replies ) && ( true == $wp_query->bbp_is_single_user_replies ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_single_user_replies', $retval );
 }
 
 /**
@@ -814,11 +907,8 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 	if ( !empty( $bbp_classes ) )
 		$bbp_classes[] = 'bbPress';
 
-	// Merge WP classes with bbPress classes
-	$classes = array_merge( (array) $bbp_classes, (array) $wp_classes );
-
-	// Remove any duplicates
-	$classes = array_unique( $classes );
+	// Merge WP classes with bbPress classes and remove any duplicates
+	$classes = array_unique( array_merge( (array) $bbp_classes, (array) $wp_classes ) );
 
 	return apply_filters( 'bbp_get_the_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
 }
@@ -1502,7 +1592,6 @@ function bbp_the_content( $args = array() ) {
 
 		// Use TinyMCE if available
 		if ( bbp_use_wp_editor() ) :
-
 			$settings = array(
 				'wpautop'       => $wpautop,
 				'media_buttons' => $media_buttons,
@@ -2213,8 +2302,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 	// sep on right, so reverse the order
 	if ( 'right' == $seplocation ) {
-		$title_array = explode( $t_sep, $title );
-		$title_array = array_reverse( $title_array );
+		$title_array = array_reverse( explode( $t_sep, $title ) );
 		$title       = implode( " $sep ", $title_array ) . $prefix;
 
 	// sep on left, do not reverse

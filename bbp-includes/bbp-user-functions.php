@@ -961,7 +961,7 @@ function bbp_edit_user_handler() {
 	}
 }
 
-/** END - Edit User ***********************************************************/
+/** User Queries **************************************************************/
 
 /**
  * Get the topics that a user created
@@ -996,6 +996,38 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 }
 
 /**
+ * Get the replies that a user created
+ *
+ * @since bbPress (r4225)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_user_id() To get the topic id
+ * @uses bbp_has_replies() To get the topics created by the user
+ * @return array|bool Results if the user has created topics, otherwise false
+ */
+function bbp_get_user_replies_created( $user_id = 0 ) {
+	
+	// Validate user
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) )
+		return false;
+
+	// Try to get the topics
+	$query = bbp_has_replies( array(
+		'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+		'post_parent'    => 'any',
+		'posts_per_page' => bbp_get_replies_per_page(),
+		'paged'          => bbp_get_paged(),
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		'author'         => $user_id,
+		'show_stickies'  => false,
+	) );
+
+	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id );
+}
+
+/**
  * Get the total number of users on the forums
  *
  * @since bbPress (r2769)
@@ -1007,14 +1039,16 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
  */
 function bbp_get_total_users() {
 
+	// Check the cache
 	$bbp_total_users = wp_cache_get( 'bbp_total_users', 'bbpress' );
-	if ( !empty( $bbp_total_users ) )
-		return $bbp_total_users;
 
-	$bbp_total_users = count( get_users() );
+	// No cached value exists, so get it and cache it
+	if ( empty( $bbp_total_users ) ) {		
+		$bbp_total_users = count( get_users() );
+		wp_cache_set( 'bbp_total_users', $bbp_total_users, 'bbpress' );
+	}
 
-	wp_cache_set( 'bbp_total_users', $bbp_total_users, 'bbpress' );
-
+	// Always allow filtering of results
 	return apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
 }
 

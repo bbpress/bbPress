@@ -521,7 +521,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		) );
 
 	// Single Topic
-	} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() || bbp_is_single_topic() ) {
+	} elseif ( bbp_is_topic_edit() || bbp_is_single_topic() ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
@@ -662,20 +662,10 @@ function bbp_replace_the_content( $content = '' ) {
 	/** Users *************************************************************/
 
 	// Profile View
-	if ( bbp_is_single_user() ) {
+	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
 		ob_start();
 
 		bbp_get_template_part( 'content', 'single-user' );
-
-		$new_content = ob_get_contents();
-
-		ob_end_clean();
-
-	// Profile Edit
-	} elseif ( bbp_is_single_user_edit() ) {
-		ob_start();
-
-		bbp_get_template_part( 'content', 'single-user-edit' );
 
 		$new_content = ob_get_contents();
 

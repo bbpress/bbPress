@@ -240,28 +240,33 @@ function bbp_has_topics( $args = '' ) {
 		if ( $wp_rewrite->using_permalinks() ) {
 
 			// Profile page
-			if ( bbp_is_single_user() )
+			if ( bbp_is_single_user() ) {
 				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
 
+			// User's replies
+			} elseif ( bbp_is_single_user_topics() ) {
+				$base = bbp_get_user_topics_created_url( bbp_get_displayed_user_id() );
+
 			// View
-			elseif ( bbp_is_single_view() )
+			} elseif ( bbp_is_single_view() ) {
 				$base = bbp_get_view_url();
 
 			// Topic tag
-			elseif ( bbp_is_topic_tag() )
+			} elseif ( bbp_is_topic_tag() ) {
 				$base = bbp_get_topic_tag_link();
 
 			// Page or single post
-			elseif ( is_page() || is_single() )
+			} elseif ( is_page() || is_single() ) {
 				$base = get_permalink();
 
 			// Topic archive
-			elseif ( bbp_is_topic_archive() )
+			} elseif ( bbp_is_topic_archive() ) {
 				$base = bbp_get_topics_url();
 
 			// Default
-			else
+			} else {
 				$base = get_permalink( $post_parent );
+			}
 
 			// Use pagination base
 			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );

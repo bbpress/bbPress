@@ -11,7 +11,7 @@
 
 	<?php do_action( 'bbp_template_before_user_favorites' ); ?>
 
-	<div id="bbp-author-favorites" class="bbp-author-favorites">
+	<div id="bbp-user-favorites" class="bbp-user-favorites">
 		<h2 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h2>
 		<div class="bbp-user-section">
 
@@ -30,6 +30,6 @@
 			<?php endif; ?>
 
 		</div>
-	</div><!-- #bbp-author-favorites -->
+	</div><!-- #bbp-user-favorites -->
 
 	<?php do_action( 'bbp_template_after_user_favorites' ); ?>

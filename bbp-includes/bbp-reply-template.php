@@ -124,7 +124,11 @@ function bbp_has_replies( $args = '' ) {
 			if ( is_page() || is_single() ) {
 				$base = get_permalink();
 
-			// Topic
+			// User's replies
+			} elseif ( bbp_is_single_user_replies() ) {
+				$base = bbp_get_user_replies_created_url( bbp_get_displayed_user_id() );
+
+			// Single topic
 			} else {
 				$base = get_permalink( bbp_get_topic_id() );
 			}
