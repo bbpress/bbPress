@@ -193,7 +193,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	public function head_scripts() {
 	?>
 
-		<script type="text/javascript" charset="utf-8">
+		<script type="text/javascript">
 			/* <![CDATA[ */
 			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
 
