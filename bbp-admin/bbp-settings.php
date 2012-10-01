@@ -78,7 +78,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Edit lock setting
 			'_bbp_edit_lock' => array(
-				'title'             => __( 'Lock post editing after', 'bbpress' ),
+				'title'             => __( 'Disallow editing after', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_editlock',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -86,7 +86,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Throttle setting
 			'_bbp_throttle_time' => array(
-				'title'             => __( 'Throttle time', 'bbpress' ),
+				'title'             => __( 'Throttle posting every', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_throttle',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -118,7 +118,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow topic tags
 			'_bbp_allow_topic_tags' => array(
-				'title'             => __( 'Topic Tags', 'bbpress' ),
+				'title'             => __( 'Topic tags', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tags',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -126,7 +126,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow anonymous posting setting
 			'_bbp_allow_anonymous' => array(
-				'title'             => __( 'Anonymous Posting', 'bbpress' ),
+				'title'             => __( 'Anonymous posting', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_anonymous',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -134,7 +134,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow global access (on multisite)
 			'_bbp_allow_global_access' => array(
-				'title'             => __( 'Global Access', 'bbpress' ),
+				'title'             => __( 'Default user role', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_global_access',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -142,7 +142,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow fancy editor setting
 			'_bbp_use_wp_editor' => array(
-				'title'             => __( 'Fancy Editor', 'bbpress' ),
+				'title'             => __( 'Fancy editor', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_use_wp_editor',
 				'args'              => array(),
 				'sanitize_callback' => 'intval'
@@ -150,7 +150,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow auto embedding setting
 			'_bbp_use_autoembed' => array(
-				'title'             => __( 'Auto-embed Links', 'bbpress' ),
+				'title'             => __( 'Auto-embed links', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_use_autoembed',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -484,10 +484,18 @@ function bbp_admin_setting_callback_anonymous() {
  * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_global_access() {
-?>
+	global $wp_roles;
+
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	$default_role = get_option( 'default_role', 'subscriber' );
+	$default_role = $wp_roles->role_names[ $default_role ];
+	$default_role = translate_user_role( $default_role ); ?>
 
 	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( false ) ); ?> />
-	<label for="_bbp_allow_global_access"><?php _e( 'Allow all registered users to create topics and replies', 'bbpress' ); ?></label>
+	<label for="_bbp_allow_global_access"><?php printf( __( 'Automatically assign "%s" role to new, registered visitors.', 'bbpress' ), $default_role ); ?></label>
 
 <?php
 }
