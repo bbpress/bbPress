@@ -490,12 +490,10 @@ function bbp_admin_setting_callback_global_access() {
 	if ( ! isset( $wp_roles ) )
 		$wp_roles = new WP_Roles();
 
-	$default_role = get_option( 'default_role', 'subscriber' );
-	$default_role = $wp_roles->role_names[ $default_role ];
-	$default_role = translate_user_role( $default_role ); ?>
+	$default_role = $wp_roles->role_names[ get_option( 'default_role', 'subscriber' ) ]; ?>
 
 	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( false ) ); ?> />
-	<label for="_bbp_allow_global_access"><?php printf( __( 'Automatically assign "%s" role to new, registered visitors.', 'bbpress' ), $default_role ); ?></label>
+	<label for="_bbp_allow_global_access"><?php printf( __( 'Automatically assign "%s" role to new, registered visitors.', 'bbpress' ), translate_user_role( $default_role ) ); ?></label>
 
 <?php
 }
