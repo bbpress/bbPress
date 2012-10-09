@@ -1130,16 +1130,13 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	if ( empty( $blogs ) )
 		$blogs[$wpdb->blogid] = array();
 
-	// We only need the keys
-	$blogs = array_keys( $blogs );
-
 	// Make array of post types to mark as spam
 	$post_types  = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$post_types  = "'" . implode( "', '", $post_types ) . "'";
 	$status      = bbp_get_public_status_id();
 
 	// Loop through blogs and remove their posts
-	foreach ( (array) $blogs as $blog_id ) {
+	foreach ( (array) array_keys( $blogs ) as $blog_id ) {
 
 		// Switch to the blog ID
 		switch_to_blog( $blog_id );
@@ -1218,16 +1215,13 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	if ( empty( $blogs ) )
 		$blogs[$wpdb->blogid] = array();
 
-	// We only need the keys
-	$blogs = array_keys( $blogs );
-
 	// Make array of post types to mark as spam
 	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$post_types = "'" . implode( "', '", $post_types ) . "'";
 	$status     = bbp_get_spam_status_id();
 
 	// Loop through blogs and remove their posts
-	foreach ( (array) $blogs as $blog_id ) {
+	foreach ( (array) array_keys( $blogs ) as $blog_id ) {
 
 		// Switch to the blog ID
 		switch_to_blog( $blog_id );
