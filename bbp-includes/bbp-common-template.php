@@ -1607,7 +1607,7 @@ function bbp_the_content( $args = array() ) {
 		// Fallback to normal textarea
 		else : ?>
 
-	<textarea id="bbp_<?php echo esc_attr( $context ); ?>_content" class="<?php echo $editor_class; ?>" name="bbp_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo esc_textarea( $post_content ); ?></textarea>
+			<textarea id="bbp_<?php echo esc_attr( $context ); ?>_content" class="<?php echo esc_attr( $editor_class ); ?>" name="bbp_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo esc_textarea( $post_content ); ?></textarea>
 
 		<?php endif;
 
