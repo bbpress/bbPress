@@ -47,13 +47,10 @@ class BBP_Users_Admin {
 			return;
 
 		// Admin styles
-		add_action( 'admin_head',               array( $this, 'admin_head'          ) );
+		add_action( 'admin_head',        array( $this, 'admin_head'          ) );
 
 		// User profile edit/display actions
-		add_action( 'edit_user_profile',        array( $this, 'user_profile_forums' ) );
-
-		// User profile save actions
-		add_action( 'edit_user_profile_update', array( $this, 'user_profile_update' ) );
+		add_action( 'edit_user_profile', array( $this, 'user_profile_forums' ) );
 
 		// Noop WordPress additional caps output area
 		add_filter( 'additional_capabilities_display', '__return_false' );
@@ -69,7 +66,7 @@ class BBP_Users_Admin {
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
 	 */
-	public function admin_head() { 
+	public function admin_head() {
 		?>
 
 		<style type="text/css" media="screen">
@@ -79,11 +76,11 @@ class BBP_Users_Admin {
 				display: inline-block;
 				vertical-align: top;
 			}
-			
+
 			div.bbp-user-capabilities h4 {
 				margin: 0 0 10px;
 			}
-			
+
 			p.bbp-default-caps-wrapper {
 				clear: both;
 				margin: 80px -10px 0;
@@ -99,36 +96,11 @@ class BBP_Users_Admin {
 	 *
 	 * @since bbPress (r2464)
 	 *
-	 * @param $user_id The user id
-	 * @uses do_action() Calls 'bbp_user_profile_update'
-	 * @return bool Always false
-	 */
-	public function user_profile_update( $user_id ) { 
-
-		// Bail if no user
-		if ( empty( $user_id ) )
-			return;
-
-		// Either reset caps for role
-		if ( ! empty( $_POST['bbp-default-caps'] ) ) {
-			bbp_reset_user_caps( $user_id );
-
-		// Or set caps individually
-		} else {
-			bbp_save_user_caps( $user_id );
-		}
-	}
-
-	/**
-	 * Responsible for saving additional profile options and settings
-	 *
-	 * @since bbPress (r2464)
-	 *
 	 * @param WP_User $profileuser User data
 	 * @uses do_action() Calls 'bbp_user_profile_forums'
 	 * @return bool Always false
 	 */
-	public function user_profile_forums( $profileuser ) { 
+	public function user_profile_forums( $profileuser ) {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )

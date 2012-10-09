@@ -234,6 +234,19 @@ function bbp_login_form_login() {
 	do_action( 'bbp_login_form_login' );
 }
 
+/** User Actions **************************************************************/
+
+/**
+ * The main action for hooking into a user saving their profile
+ *
+ * @since bbPress (r4235)
+ * @param int $user_id ID of user being edited
+ * @uses do_action() Calls 'bbp_edit_user_profile_update'
+ */
+function bbp_edit_user_profile_update( $user_id = 0 ) {
+	do_action( 'bbp_edit_user_profile_update', $user_id );
+}
+
 /** Final Action **************************************************************/
 
 /**

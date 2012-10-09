@@ -38,21 +38,22 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * For more information on how this works, see the 'Plugin Dependency' section
  * near the bottom of this file.
  *
- *           v--WordPress Actions      v--bbPress Sub-actions
+ *           v--WordPress Actions        v--bbPress Sub-actions
  */
-add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
-add_action( 'init',                   'bbp_init',                   0  ); // Early for bbp_register
-add_action( 'parse_query',            'bbp_parse_query',            2  ); // Early for overrides
-add_action( 'widgets_init',           'bbp_widgets_init',           10 );
-add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
-add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
-add_action( 'wp_head',                'bbp_head',                   10 );
-add_action( 'wp_footer',              'bbp_footer',                 10 );
-add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
-add_action( 'setup_theme',            'bbp_setup_theme',            10 );
-add_action( 'after_setup_theme',      'bbp_after_setup_theme',      10 );
-add_action( 'template_redirect',      'bbp_template_redirect',      10 );
-add_action( 'login_form_login',       'bbp_login_form_login',       10 );
+add_action( 'plugins_loaded',           'bbp_loaded',                   10 );
+add_action( 'init',                     'bbp_init',                     0  ); // Early for bbp_register
+add_action( 'parse_query',              'bbp_parse_query',              2  ); // Early for overrides
+add_action( 'widgets_init',             'bbp_widgets_init',             10 );
+add_action( 'generate_rewrite_rules',   'bbp_generate_rewrite_rules',   10 );
+add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',          10 );
+add_action( 'wp_head',                  'bbp_head',                     10 );
+add_action( 'wp_footer',                'bbp_footer',                   10 );
+add_action( 'set_current_user',         'bbp_setup_current_user',       10 );
+add_action( 'setup_theme',              'bbp_setup_theme',              10 );
+add_action( 'after_setup_theme',        'bbp_after_setup_theme',        10 );
+add_action( 'template_redirect',        'bbp_template_redirect',        10 );
+add_action( 'login_form_login',         'bbp_login_form_login',         10 );
+add_action( 'edit_user_profile_update', 'bbp_edit_user_profile_update', 10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -220,8 +221,12 @@ add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 
 // User status
+// @todo make these sub-actions
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
+
+// User capabilities
+add_action( 'bbp_edit_user_profile_update', 'bbp_edit_user_profile_update_capabilities' );
 
 // Caches
 add_action( 'bbp_new_forum_pre_extras',  'bbp_clean_post_cache' );
@@ -235,7 +240,7 @@ add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
  * bbPress needs to redirect the user around in a few different circumstances:
  *
  * 1. Form submission within a theme (new and edit)
- * 2. Accessing private or hidden forums
+ * 2. Accessing private or hidden content (forums/topics/replies)
  * 3. Editing forums, topics, replies, users, and tags
  */
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',    -1 );

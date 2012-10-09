@@ -933,15 +933,6 @@ function bbp_edit_user_handler() {
 	// Handle user edit
 	$edit_user = edit_user( $user_id );
 
-	// Either reset caps for role
-	if ( ! empty( $_POST['bbp-default-caps'] ) ) {
-		bbp_reset_user_caps( $user_id );
-
-	// Or set caps individually
-	} else {
-		bbp_save_user_caps( $user_id );
-	}
-
 	// Error(s) editng the user, so copy them into the global
 	if ( is_wp_error( $edit_user ) ) {
 		bbpress()->errors = $edit_user;

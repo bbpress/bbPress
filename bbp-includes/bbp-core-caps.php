@@ -874,8 +874,8 @@ function bbp_reset_user_caps( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Bail if not a member of this blog
-	if ( ! user_can( $user_id, 'read' ) )
+	// Bail if current user cannot edit this user
+	if ( ! current_user_can( 'edit_user', $user_id ) )
 		return false;
 
 	// Remove all caps for user
@@ -913,8 +913,8 @@ function bbp_save_user_caps( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Bail if not a member of this blog
-	if ( ! user_can( $user_id, 'read' ) )
+	// Bail if current user cannot edit this user
+	if ( ! current_user_can( 'edit_user', $user_id ) )
 		return false;
 
 	// Load up the user
@@ -937,6 +937,32 @@ function bbp_save_user_caps( $user_id = 0 ) {
 
 	// Success
 	return true;
+}
+
+/**
+ * Helper function hooked to 'bbp_edit_user_profile_update' action to save or update
+ * user roles and capabilities.
+ *
+ * @since bbPress (r4235)
+ *
+ * @param int $user_id
+ * @uses bbp_reset_user_caps() to reset caps
+ * @usse bbp_save_user_caps() to save caps
+ */
+function bbp_edit_user_profile_update_capabilities( $user_id = 0 ) {
+
+	// Bail if no user ID was passed
+	if ( empty( $user_id ) )
+		return;
+
+	// Either reset caps for role
+	if ( ! empty( $_POST['bbp-default-caps'] ) ) {
+		bbp_reset_user_caps( $user_id );
+
+	// Or set caps individually
+	} else {
+		bbp_save_user_caps( $user_id );
+	}
 }
 
 /**
