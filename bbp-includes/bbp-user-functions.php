@@ -152,12 +152,7 @@ function bbp_current_author_ip() {
  * @return string
  */
 function bbp_current_author_ua() {
-
-	// Sanity check the user agent
-	if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		$retval = substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 );
-	else
-		$retval = '';
+	$retval = !empty( $_SERVER['HTTP_USER_AGENT'] ) ? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 ) : '';
 
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
