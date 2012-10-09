@@ -1571,6 +1571,7 @@ function bbp_the_content( $args = array() ) {
 			'tabindex'      => bbp_get_tab_index(),
 			'editor_class'  => 'bbp-the-content',
 			'tinymce'       => true,
+			'teeny'         => true,
 			'quicktags'     => true
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_the_content' );
@@ -1592,21 +1593,21 @@ function bbp_the_content( $args = array() ) {
 
 		// Use TinyMCE if available
 		if ( bbp_use_wp_editor() ) :
-			$settings = array(
+			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $context . '_content', array(
 				'wpautop'       => $wpautop,
 				'media_buttons' => $media_buttons,
 				'textarea_rows' => $textarea_rows,
 				'tabindex'      => $tabindex,
 				'editor_class'  => $editor_class,
 				'tinymce'       => $tinymce,
+				'teeny'         => $teeny,
 				'quicktags'     => $quicktags
-			);
-			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $context . '_content', $settings );
+			) );
 
 		// Fallback to normal textarea
 		else : ?>
 
-			<textarea id="bbp_<?php echo $context; ?>_content" class="<?php echo $editor_class; ?>" name="bbp_<?php echo $context; ?>_content" cols="60" rows="<?php echo $textarea_rows; ?>" tabindex="<?php echo $tabindex; ?>"><?php echo $post_content; ?></textarea>
+	<textarea id="bbp_<?php echo esc_attr( $context ); ?>_content" class="<?php echo $editor_class; ?>" name="bbp_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo esc_textarea( $post_content ); ?></textarea>
 
 		<?php endif;
 
