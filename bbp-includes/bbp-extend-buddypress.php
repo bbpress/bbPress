@@ -166,11 +166,17 @@ class BBP_BuddyPress {
 			// Register the activity stream actions
 			add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
 
-			// Hook into topic creation
+			// Hook into topic and reply creation
 			add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
-
-			// Hook into reply creation
 			add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
+
+			// Hook into topic and reply status changes
+			add_action( 'wp_insert_post',                    array( $this, 'topic_update'              ), 10, 2 );
+			add_action( 'wp_insert_post',                    array( $this, 'reply_update'              ), 10, 2 );
+ 
+			// Hook into topic and reply deletion
+			add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
+			add_action( 'bbp_delete_reply',                  array( $this, 'reply_delete'              ), 10, 1 );
 
 			// Append forum filters in site wide activity streams
 			add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
@@ -315,6 +321,7 @@ class BBP_BuddyPress {
 
 		// Default activity args
 		$defaults = array (
+			'id'                => null,
 			'user_id'           => bbp_get_current_user_id(),
 			'type'              => '',
 			'action'            => '',
@@ -358,6 +365,32 @@ class BBP_BuddyPress {
 
 		// Delete the activity
 		bp_activity_delete_by_item_id( $activity );
+	}
+
+	/**
+	 * Check for an existing activity stream entry for a given post_id
+	 *
+	 * @param int $post_id ID of the topic or reply
+	 * @uses get_post_meta()
+	 * @uses bp_activity_get_specific()
+	 * @return int if an activity id is verified, false if not
+	 */
+	private static function get_activity_id( $post_id = 0 ) {
+
+		// Try to get the activity ID of the post
+		$activity_id = absint( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+
+		// Bail if no activity ID is in post meta
+		if ( empty( $activity_id ) )
+			return false;
+
+		// Get the activity stream item, bail if it doesn't exist
+		$existing = bp_activity_get_specific( array( 'activity_ids' => $activity_id, 'show_hidden' => true, 'spam' => 'all', ) );
+		if ( empty( $existing['total'] ) || ( 1 != $existing['total'] ) )
+			return false;
+
+		// Return the activity ID since we've verified the connection
+		return $activity_id;
 	}
 
 	/**
@@ -506,7 +539,7 @@ class BBP_BuddyPress {
 	/** Topics ****************************************************************/
 
 	/**
-	 * Record an activity stream entry when a topic is created
+	 * Record an activity stream entry when a topic is created or updated
 	 *
 	 * @since bbPress (r3395)
 	 * @param int $topic_id
@@ -523,11 +556,11 @@ class BBP_BuddyPress {
 	 * @uses bbp_get_forum_title()
 	 * @uses bp_create_excerpt()
 	 * @uses apply_filters()
-	 * @return Bail early if topic is by anonywous user
+	 * @return Bail early if topic is by anonymous user
 	 */
 	public function topic_create( $topic_id, $forum_id, $anonymous_data, $topic_author_id ) {
 
-		// Bail early if topic is by anonywous user
+		// Bail early if topic is by anonymous user
 		if ( !empty( $anonymous_data ) )
 			return;
 
@@ -580,7 +613,13 @@ class BBP_BuddyPress {
 			'type'              => $this->topic_create,
 			'item_id'           => $topic_id,
 			'secondary_item_id' => $forum_id,
+			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
 		);
+
+		// Check for existing activity entry ID
+		$activity_id = $this->get_activity_id( $topic_id );
+		if ( ! empty( $activity_id ) )
+			$activity['id'] = $activity_id; 
 
 		// Record the activity
 		$activity_id = $this->record_activity( $activity );
@@ -588,6 +627,64 @@ class BBP_BuddyPress {
 		// Add the activity entry ID as a meta value to the topic
 		if ( !empty( $activity_id ) ) {
 			update_post_meta( $topic_id, '_bbp_activity_id', $activity_id );
+		}
+	}
+
+	/**
+	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted
+	 *
+	 * @param int $topic_id
+	 * @uses bp_activity_delete()
+	 */
+	public function topic_delete( $topic_id ) {
+
+		// Get activity ID, bail if it doesn't exist
+		$activity_id = $this->get_activity_id( $topic_id ); 
+		if ( empty( $activity_id ) )
+			return false;
+
+		return bp_activity_delete( array( 'id' => $activity_id ) );
+	}
+
+	/**
+	 * Update the activity stream entry when a topic status changes
+	 *
+	 * @param int $post_id
+	 * @param obj $post
+	 * @uses get_post_type()
+	 * @uses bbp_get_topic_post_type()
+	 * @uses bbp_get_topic_id()
+	 * @uses bbp_is_topic_anonymous()
+	 * @uses bbp_get_public_status_id()
+	 * @uses bbp_get_closed_status_id()
+	 * @uses bbp_get_topic_forum_id()
+	 * @uses bbp_get_topic_author_id()
+	 * @return Bail early if not a topic, or topic is by anonymous user
+	 */
+	public function topic_update( $topic_id, $post ) {
+
+		// Bail early if not a topic
+		if ( get_post_type( $post ) != bbp_get_topic_post_type() )
+			return;
+
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		// Bail early if topic is by anonymous user
+		if ( bbp_is_topic_anonymous( $topic_id ) )
+			return;
+
+		$anonymous_data = array();
+
+		// Action based on new status
+		if ( in_array( $post->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
+
+			// Validate topic data
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+			$topic_author_id = bbp_get_topic_author_id( $topic_id );
+
+			$this->topic_create( $topic_id, $forum_id, $anonymous_data, $topic_author_id );
+		} else {
+			$this->topic_delete( $topic_id );
 		}
 	}
 
@@ -635,6 +732,10 @@ class BBP_BuddyPress {
 		if ( bbp_is_user_inactive( $user_id ) )
 			return;
 
+		// Bail if reply is not published
+		if ( !bbp_is_reply_published( $reply_id ) )
+			return;
+
 		// Bail if forum is not public
 		if ( !bbp_is_forum_public( $forum_id, false ) )
 			return;
@@ -670,7 +771,13 @@ class BBP_BuddyPress {
 			'type'              => $this->reply_create,
 			'item_id'           => $reply_id,
 			'secondary_item_id' => $topic_id,
+		        'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
 		);
+
+		// Check for existing activity entry ID
+		$activity_id = $this->get_activity_id( $reply_id );
+		if ( ! empty( $activity_id ) )
+			$activity['id'] = $activity_id;
 
 		// Record the activity
 		$activity_id = $this->record_activity( $activity );
@@ -678,6 +785,67 @@ class BBP_BuddyPress {
 		// Add the activity entry ID as a meta value to the reply
 		if ( !empty( $activity_id ) ) {
 			update_post_meta( $reply_id, '_bbp_activity_id', $activity_id );
+		}
+	}
+
+ 	/**
+	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted
+	 *
+	 * @param int $reply_id
+	 * @uses get_post_meta()
+	 * @uses bp_activity_delete()
+	 */
+	public function reply_delete( $reply_id ) {
+
+		// Get activity ID, bail if it doesn't exist
+		$activity_id = $this->get_activity_id( $reply_id ); 
+		if ( empty( $activity_id ) )
+			return false;
+
+		return bp_activity_delete( array( 'id' => $activity_id ) );
+	}
+
+	/**
+	 * Update the activity stream entry when a reply status changes 
+	 *
+	 * @param int $post_id
+	 * @param obj $post
+	 * @uses get_post_type()
+	 * @uses bbp_get_reply_post_type()
+	 * @uses bbp_get_reply_id()
+	 * @uses bbp_is_reply_anonymous()
+	 * @uses bbp_get_public_status_id()
+	 * @uses bbp_get_closed_status_id()
+	 * @uses bbp_get_reply_topic_id()
+	 * @uses bbp_get_reply_forum_id()
+	 * @uses bbp_get_reply_author_id()
+	 * @return Bail early if not a reply, or reply is by anonymous user
+	 */
+	public function reply_update( $reply_id, $post ) {
+
+		// Bail early if not a reply
+		if ( get_post_type( $post ) != bbp_get_reply_post_type() )
+			return;
+
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Bail early if reply is by anonymous user
+		if ( bbp_is_reply_anonymous( $reply_id ) )
+			return;
+
+		$anonymous_data = array();
+
+		// Action based on new status
+		if ( $post->post_status == bbp_get_public_status_id() ) {
+
+			// Validate reply data
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
+			$forum_id = bbp_get_reply_forum_id( $reply_id );
+			$reply_author_id = bbp_get_reply_author_id( $reply_id );
+
+			$this->reply_create( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author_id );
+		} else {
+			$this->reply_delete( $reply_id );
 		}
 	}
 
