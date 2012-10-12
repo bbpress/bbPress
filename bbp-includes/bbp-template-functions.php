@@ -193,9 +193,10 @@ function bbp_add_template_locations( $templates = array() ) {
  * @uses get_query_var() To get {@link WP_Query} query var
  * @uses is_email() To check if the string is an email
  * @uses get_user_by() To try to get the user by email and nicename
- * @uses WP_User to get the user data
- * @uses WP_Query::set_404() To set a 404 status
+ * @uses get_userdata() to get the user data
  * @uses current_user_can() To check if the current user can edit the user
+ * @uses is_user_member_of_blog() To check if user profile page exists
+ * @uses WP_Query::set_404() To set a 404 status
  * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
  * @uses bbp_get_view_query_args() To get the view query args
  * @uses bbp_get_forum_post_type() To get the forum post type
@@ -218,9 +219,9 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_view   = $posts_query->get( bbp_get_view_rewrite_id()               );
-	$bbp_user   = $posts_query->get( bbp_get_user_rewrite_id()               );
-	$is_edit    = $posts_query->get( bbp_get_edit_rewrite_id()               );
+	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
+	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id() );
+	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id() );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -244,10 +245,10 @@ function bbp_parse_query( $posts_query ) {
 		}
 
 		// Create new user
-		$user = new WP_User( $bbp_user );
+		$user = get_userdata( $bbp_user );
 
-		// Bail if no user
-		if ( !isset( $user ) || empty( $user ) || empty( $user->ID ) ) {
+		// 404 and bail if no user found, is inactive, or not a member
+		if ( empty( $user ) || ! is_user_member_of_blog( $user->ID ) || ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) ) {
 			$posts_query->set_404();
 			return;
 		}
