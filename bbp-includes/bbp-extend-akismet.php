@@ -384,16 +384,21 @@ class BBP_Akismet {
 			$query_string .= $key . '=' . urlencode( stripslashes( $data ) ) . '&';
 
 		// Aim...
-		if ( 'check' == $check )
+		if ( 'check' == $check ) {
 			$path = '/1.1/comment-check';
-		elseif ( 'submit' == $check )
+		} elseif ( 'submit' == $check ) {
 			$path = '/1.1/submit-' . $spam;
+		}
 
 		// Fire!
 		$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
 
 		// Check the high-speed cam
-		$post_data['bbp_akismet_result'] = $response[1];
+		if ( !empty( $response[1] ) ) {
+			$post_data['bbp_akismet_result'] = $response[1];
+		} else {
+			$post_data['bbp_akismet_result'] = __( 'No response', 'bbpress' );
+		}
 
 		// This is ham
 		return $post_data;
