@@ -362,3 +362,17 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
 function bbp_allowed_themes( $themes ) {
 	return apply_filters( 'bbp_allowed_themes', $themes );
 }
+
+/**
+ * Maps forum/topic/reply caps to built in WordPress caps
+ *
+ * @since bbPress (r2593)
+ *
+ * @param array $caps Capabilities for meta capability
+ * @param string $cap Capability name
+ * @param int $user_id User id
+ * @param mixed $args Arguments
+ */
+function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
+}

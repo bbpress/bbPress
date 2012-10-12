@@ -204,6 +204,13 @@ add_filter( 'bbp_pre_anonymous_post_author_website', 'wp_filter_kses',      10 )
 // Queries
 add_filter( 'posts_request', '_bbp_has_replies_where', 10, 2 );
 
+// Capabilities
+add_filter( 'bbp_map_meta_caps', 'bbp_map_primary_meta_caps',   10, 4 ); // Primary caps
+add_filter( 'bbp_map_meta_caps', 'bbp_map_forum_meta_caps',     10, 4 ); // Forums
+add_filter( 'bbp_map_meta_caps', 'bbp_map_topic_meta_caps',     10, 4 ); // Topics
+add_filter( 'bbp_map_meta_caps', 'bbp_map_reply_meta_caps',     10, 4 ); // Replies
+add_filter( 'bbp_map_meta_caps', 'bbp_map_topic_tag_meta_caps', 10, 4 ); // Topic tags
+
 /** Deprecated ****************************************************************/
 
 /**

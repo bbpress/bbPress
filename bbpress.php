@@ -173,7 +173,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.2-alpha-4237';
+		$this->version    = '2.2-alpha-4242';
 		$this->db_version = '214';
 
 		/** Paths *************************************************************/
@@ -292,15 +292,19 @@ final class bbPress {
 		require( $this->plugin_dir . 'bbp-includes/bbp-common-functions.php' ); // Common functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-common-template.php'  ); // Common template tags
 
+		require( $this->plugin_dir . 'bbp-includes/bbp-forum-caps.php'       ); // Forum capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-forum-functions.php'  ); // Forum functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-forum-template.php'   ); // Forum template tags
 
+		require( $this->plugin_dir . 'bbp-includes/bbp-topic-caps.php'       ); // Topic capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-topic-functions.php'  ); // Topic functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-topic-template.php'   ); // Topic template tags
 
+		require( $this->plugin_dir . 'bbp-includes/bbp-reply-caps.php'       ); // Reply capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-reply-functions.php'  ); // Reply functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-reply-template.php'   ); // Reply template tags
 
+		require( $this->plugin_dir . 'bbp-includes/bbp-user-caps.php'        ); // User capabilities
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-functions.php'   ); // User functions
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-template.php'    ); // User template tags
 		require( $this->plugin_dir . 'bbp-includes/bbp-user-options.php'     ); // User options
@@ -496,7 +500,7 @@ final class bbPress {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => true,
 				'public'              => true,
-				'show_ui'             => bbp_current_user_can_see( bbp_get_forum_post_type() ),
+				'show_ui'             => current_user_can( 'bbp_forums_admin' ),
 				'can_export'          => true,
 				'hierarchical'        => true,
 				'query_var'           => true,
@@ -553,7 +557,7 @@ final class bbPress {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => bbp_current_user_can_see( bbp_get_topic_post_type() ),
+				'show_ui'             => current_user_can( 'bbp_topics_admin' ),
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -610,7 +614,7 @@ final class bbPress {
 				'has_archive'         => false,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => bbp_current_user_can_see( bbp_get_reply_post_type() ),
+				'show_ui'             => current_user_can( 'bbp_replies_admin' ),
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -751,7 +755,7 @@ final class bbPress {
 				'show_tagcloud'         => true,
 				'hierarchical'          => false,
 				'public'                => true,
-				'show_ui'               => bbp_allow_topic_tags() && bbp_current_user_can_see( bbp_get_topic_tag_tax_id() )
+				'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' )
 			)
 		) );
 	}

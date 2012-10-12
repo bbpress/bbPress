@@ -2,6 +2,10 @@
 
 /**
  * bbPress Capabilites
+ * 
+ * The functions in this file are used primarily as convenient wrappers for
+ * capability output in user profiles. This includes mapping capabilities and 
+ * groups to human readable strings,
  *
  * @package bbPress
  * @subpackage Capabilities
@@ -10,52 +14,10 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-/**
- * Adds capabilities to WordPress user roles.
- *
- * @since bbPress (r2608)
- */
-function bbp_add_caps() {
-	global $wp_roles;
-
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
-
-	// Loop through available roles and add caps
-	foreach( $wp_roles->role_objects as $role ) {
-		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
-			$role->add_cap( $cap );
-		}
-	}
-
-	do_action( 'bbp_add_caps' );
-}
+/** Output ********************************************************************/
 
 /**
- * Removes capabilities from WordPress user roles.
- *
- * @since bbPress (r2608)
- */
-function bbp_remove_caps() {
-	global $wp_roles;
-
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
-
-	// Loop through available roles and remove caps
-	foreach( $wp_roles->role_objects as $role ) {
-		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
-			$role->remove_cap( $cap );
-		}
-	}
-
-	do_action( 'bbp_remove_caps' );
-}
-
-/**
- * Get the capability groups
+ * Return the capability groups
  *
  * @since bbPress (r4163)
  *
@@ -63,7 +25,7 @@ function bbp_remove_caps() {
  */
 function bbp_get_capability_groups() {
 	return apply_filters( 'bbp_get_capability_groups', array(
-		'general',
+		'primary',
 		'forums',
 		'topics',
 		'replies',
@@ -72,7 +34,7 @@ function bbp_get_capability_groups() {
 }
 
 /**
- * Get capabilities for the group
+ * Return capabilities for the group
  *
  * @since bbPress (r4163)
  *
@@ -81,8 +43,8 @@ function bbp_get_capability_groups() {
  */
 function bbp_get_capabilities_for_group( $group = '' ) {
 	switch ( $group ) {
-		case 'general'    :
-			return bbp_get_general_capabilities();
+		case 'primary'    :
+			return bbp_get_primary_capabilities();
 			break;
 		case 'forums'     :
 			return bbp_get_forums_capabilities();
@@ -101,95 +63,6 @@ function bbp_get_capabilities_for_group( $group = '' ) {
 			break;
 	}
 }
-
-/**
- * Get the general forum capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of general capabilities
- */
-function bbp_get_general_capabilities() {
-	return apply_filters( 'bbp_get_general_capabilities', array(
-		'participate',
-		'moderate',
-		'throttle',
-		'view_trash'
-	) );
-}
-
-/**
- * Get the forum post-type capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of forums capabilities
- */
-function bbp_get_forums_capabilities() {
-	return apply_filters( 'bbp_get_forums_capabilities', array(
-		'publish_forums',
-		'edit_forums',
-		'edit_others_forums',
-		'delete_forums',
-		'delete_others_forums',
-		'read_private_forums',
-		'read_hidden_forums'
-	) );
-}
-
-/**
- * Get the topic post-type capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of topics capabilities
- */
-function bbp_get_topics_capabilities() {
-	return apply_filters( 'bbp_get_topics_capabilities', array(
-		'publish_topics',
-		'edit_topics',
-		'edit_others_topics',
-		'delete_topics',
-		'delete_others_topics',
-		'read_private_topics'
-	) );
-}
-
-/**
- * Get the topic-tag taxonomy capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of topic-tag capabilities
- */
-function bbp_get_topic_tags_capabilities() {
-	return apply_filters( 'bbp_get_topic_tags_capabilities', array(
-		'manage_topic_tags',
-		'edit_topic_tags',
-		'delete_topic_tags',
-		'assign_topic_tags'
-	) );
-}
-
-/**
- * Get the reply post-type capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of replies capabilities
- */
-function bbp_get_replies_capabilities() {
-	return apply_filters( 'bbp_get_replies_capabilities', array(
-		'publish_replies',
-		'edit_replies',
-		'edit_others_replies',
-		'delete_replies',
-		'delete_others_replies',
-		'read_private_replies'
-	) );
-}
-
-/** Output ********************************************************************/
 
 /**
  * Output the human readable capability group title
@@ -216,8 +89,8 @@ function bbp_capability_group_title( $group = '' ) {
 		$retval = $group;
 
 		switch( $group ) {
-			case 'general' :
-				$retval = __( 'General capabilities', 'bbpress' );
+			case 'primary' :
+				$retval = __( 'Primary capabilities', 'bbpress' );
 				break;
 			case 'forums' :
 				$retval = __( 'Forum capabilities', 'bbpress' );
@@ -399,354 +272,14 @@ function bbp_capability_title( $capability = '' ) {
 		return apply_filters( 'bbp_get_capability_title', $retval, $capability );
 	}
 
-/**
- * Maps forum/topic/reply caps to built in WordPress caps
- *
- * @since bbPress (r2593)
- *
- * @param array $caps Capabilities for meta capability
- * @param string $cap Capability name
- * @param int $user_id User id
- * @param mixed $args Arguments
- * @uses get_post() To get the post
- * @uses get_post_type_object() To get the post type object
- * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
- *                        args
- * @return array Actual capabilities for meta capability
- */
-function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
-
-	// What capability is being checked?
-	switch ( $cap ) {
-
-		/** General ***********************************************************/
-
-		/**
-		 * The 'participate' capability is similar to WordPress's 'read' cap,
-		 * in that it is the minimum required cap to perform any other bbPress
-		 * related thing.
-		 */
-		case 'participate' :
-
-			// Inactive users cannot participate
-			if ( bbp_is_user_inactive( $user_id ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators are always participants
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-
-			// Map to read
-			} else {
-				$caps = array( 'read' );
-			}
-
-			break;
-			
-		case 'moderate' :
-
-			// All admins are administrators
-			if ( user_can( $user_id, 'administrator' ) ) {
-				$caps = array( 'read' );
-			}
-			break;
-
-		/** Reading ***********************************************************/
-
-		case 'read_private_forums' :
-		case 'read_hidden_forums'  :
-
-			// Non-participants cannot never read private/hidden forums
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators can always read private/hidden forums
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-			}
-
-			break;
-
-		case 'read_forum' :
-		case 'read_topic' :
-		case 'read_reply' :
-
-			// User cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Do some post ID based logic
-			} else {
-			
-				// Get the post
-				$_post = get_post( $args[0] );
-				if ( !empty( $_post ) ) {
-
-					// Get caps for post type object
-					$post_type = get_post_type_object( $_post->post_type );
-
-					// Post is public
-					if ( bbp_get_public_status_id() == $_post->post_status ) {
-						$caps = array( 'particpate' );
-
-					// User is author so allow read
-					} elseif ( (int) $user_id == (int) $_post->post_author ) {
-						$caps = array( 'participate' );
-
-					// Unknown so map to private posts
-					} else {
-						$caps = array( $post_type->cap->read_private_forums );
-					}
-				}
-			}
-
-			break;
-
-		/** Publishing ********************************************************/
-
-		case 'publish_forums'  :
-		case 'publish_topics'  :
-		case 'publish_replies' :
-
-			// Non participants cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators can always edit
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-			}
-
-			break;
-
-		/** Editing ***********************************************************/
-
-		// Used primarily in wp-admin
-		case 'edit_forums'         :
-		case 'edit_topics'         :
-		case 'edit_replies'        :
-		case 'edit_others_topics'  :
-		case 'edit_others_replies' :
-
-			// Moderators can always edit
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators can always edit forum content
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-			}
-
-			break;
-
-		// Used everywhere
-		case 'edit_forum' :
-		case 'edit_topic' :
-		case 'edit_reply' :
-
-			// Get the post
-			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
-
-				// Get caps for post type object
-				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
-
-				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
-
-				// User is author so allow edit
-				} elseif ( (int) $user_id == (int) $_post->post_author ) {
-					$caps[] = $post_type->cap->edit_posts;
-
-				// Unknown, so map to edit_others_posts
-				} else {
-					$caps[] = $post_type->cap->edit_others_posts;
-				}
-			}
-
-			break;
-
-		/** Deleting **********************************************************/
-
-		// Allow forum authors to delete forums (for BuddyPress groups, etc)
-		case 'delete_forum' :
-
-			// Get the post
-			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
-
-				// Get caps for post type object
-				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
-
-				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
-
-				// User is author so allow to delete
-				} elseif ( (int) $user_id == (int) $_post->post_author ) {
-					$caps[] = $post_type->cap->delete_posts;
-
-				// Unknown so map to delete_others_posts
-				} else {
-					$caps[] = $post_type->cap->delete_others_posts;
-				}
-			}
-
-			break;
-
-		case 'delete_topic' :
-		case 'delete_reply' :
-
-			// Get the post
-			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
-
-				// Get caps for post type object
-				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
-
-				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
-
-				// Moderators can always edit forum content
-				} elseif ( user_can( $user_id, 'moderate' ) ) {
-					$caps[] = 'participate';
-
-				// Unknown so map to delete_others_posts
-				} else {
-					$caps[] = $post_type->cap->delete_others_posts;
-				}
-			}
-
-			break;
-			
-		// Moderation override
-		case 'delete_topics'         :
-		case 'delete_replies'        :
-		case 'delete_others_topics'  :
-		case 'delete_others_replies' :
-
-			// Moderators can always edit
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators can always edit forum content
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-			}
-
-			break;
-			
-		/** Topic Tags ********************************************************/
-
-		case 'manage_topic_tags' :
-		case 'edit_topic_tags'   :
-		case 'delete_topic_tags' :
-		case 'assign_topic_tags' :
-
-			// Moderators can always edit
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Moderators can always edit forum content
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-			}
-
-			break;
-	}
-
-	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
-}
-
-/** Post Types and Taxonomies *************************************************/
-
-/**
- * Return forum capabilities
- *
- * @since bbPress (r2593)
- *
- * @uses apply_filters() Calls 'bbp_get_forum_caps' with the capabilities
- * @return array Forum capabilities
- */
-function bbp_get_forum_caps() {
-	return apply_filters( 'bbp_get_forum_caps', array (
-		'edit_posts'          => 'edit_forums',
-		'edit_others_posts'   => 'edit_others_forums',
-		'publish_posts'       => 'publish_forums',
-		'read_private_posts'  => 'read_private_forums',
-		'read_hidden_posts'   => 'read_hidden_forums',
-		'delete_posts'        => 'delete_forums',
-		'delete_others_posts' => 'delete_others_forums'
-	) );
-}
-
-/**
- * Return topic capabilities
- *
- * @since bbPress (r2593)
- *
- * @uses apply_filters() Calls 'bbp_get_topic_caps' with the capabilities
- * @return array Topic capabilities
- */
-function bbp_get_topic_caps() {
-	return apply_filters( 'bbp_get_topic_caps', array (
-		'edit_posts'          => 'edit_topics',
-		'edit_others_posts'   => 'edit_others_topics',
-		'publish_posts'       => 'publish_topics',
-		'read_private_posts'  => 'read_private_topics',
-		'read_hidden_posts'   => 'read_hidden_topics',
-		'delete_posts'        => 'delete_topics',
-		'delete_others_posts' => 'delete_others_topics'
-	) );
-}
-
-/**
- * Return reply capabilities
- *
- * @since bbPress (r2593)
- *
- * @uses apply_filters() Calls 'bbp_get_reply_caps' with the capabilities
- * @return array Reply capabilities
- */
-function bbp_get_reply_caps() {
-	return apply_filters( 'bbp_get_reply_caps', array (
-		'edit_posts'          => 'edit_replies',
-		'edit_others_posts'   => 'edit_others_replies',
-		'publish_posts'       => 'publish_replies',
-		'read_private_posts'  => 'read_private_replies',
-		'delete_posts'        => 'delete_replies',
-		'delete_others_posts' => 'delete_others_replies'
-	) );
-}
-
-/**
- * Return topic tag capabilities
- *
- * @since bbPress (r2593)
- *
- * @uses apply_filters() Calls 'bbp_get_topic_tag_caps' with the capabilities
- * @return array Topic tag capabilities
- */
-function bbp_get_topic_tag_caps() {
-	return apply_filters( 'bbp_get_topic_tag_caps', array (
-		'manage_terms' => 'manage_topic_tags',
-		'edit_terms'   => 'edit_topic_tags',
-		'delete_terms' => 'delete_topic_tags',
-		'assign_terms' => 'assign_topic_tags'
-	) );
-}
-
-/** Roles *********************************************************************/
+/** Mapping *******************************************************************/
 
 /**
  * Returns an array of capabilities based on the role that is being requested.
  *
  * @since bbPress (r2994)
+ *
+ * @todo Map all of these and deprecate
  *
  * @param string $role Optional. Defaults to The role to load caps for
  * @uses apply_filters() Allow return value to be filtered
@@ -762,7 +295,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 		case 'administrator' :
 			$caps = array(
 
-				// General caps
+				// Primary caps
 				'participate',
 				'moderate',
 				'throttle',
@@ -803,14 +336,10 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 
 		// Any other role
-		case 'editor'      :
-		case 'author'      :
-		case 'contributor' :
-		case 'subscriber'  :
-		default            :
+		default :
 			$caps = array(
 
-				// General caps
+				// Primary caps
 				'participate',
 
 				// Forum caps
@@ -835,236 +364,47 @@ function bbp_get_caps_for_role( $role = '' ) {
 }
 
 /**
- * Remove all bbPress capabilities for a given user
+ * Adds capabilities to WordPress user roles.
  *
- * @since bbPress (r4221)
- *
- * @param int $user_id
- * @return boolean True on success, false on failure
+ * @since bbPress (r2608)
  */
-function bbp_remove_user_caps( $user_id = 0 ) {
+function bbp_add_caps() {
+	global $wp_roles;
 
-	// Bail if no user was passed
-	if ( empty( $user_id ) )
-		return false;
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
 
-	// Load up the user
-	$user = new WP_User( $user_id );
-
-	// Remove all caps
-	foreach ( bbp_get_capability_groups() as $group )
-		foreach ( bbp_get_capabilities_for_group( $group ) as $capability )
-			$user->remove_cap( $capability );
-
-	// Success
-	return true;
-}
-
-/**
- * Remove all bbPress capabilities for a given user
- *
- * @since bbPress (r4221)
- *
- * @param int $user_id
- * @return boolean True on success, false on failure
- */
-function bbp_reset_user_caps( $user_id = 0 ) {
-
-	// Bail if no user was passed
-	if ( empty( $user_id ) )
-		return false;
-
-	// Bail if current user cannot edit this user
-	if ( ! current_user_can( 'edit_user', $user_id ) )
-		return false;
-
-	// Remove all caps for user
-	bbp_remove_user_caps( $user_id );
-
-	// Load up the user
-	$user = new WP_User( $user_id );
-
-	// User has no role so bail
-	if ( ! isset( $user->roles ) )
-		return false;
-
-	// Use first user role
-	$caps = bbp_get_caps_for_role( array_shift( $user->roles ) );
-
-	// Add caps for the first role
-	foreach ( $caps as $cap )
-		$user->add_cap( $cap, true );
-
-	// Success
-	return true;
-}
-
-/**
- * Save all bbPress capabilities for a given user
- *
- * @since bbPress (r4221)
- *
- * @param type $user_id
- * @return boolean
- */
-function bbp_save_user_caps( $user_id = 0 ) {
-
-	// Bail if no user was passed
-	if ( empty( $user_id ) )
-		return false;
-
-	// Bail if current user cannot edit this user
-	if ( ! current_user_can( 'edit_user', $user_id ) )
-		return false;
-
-	// Load up the user
-	$user = new WP_User( $user_id );
-
-	// Loop through capability groups
-	foreach ( bbp_get_capability_groups() as $group ) {
-		foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) {
-
-			// Maybe add cap
-			if ( ! empty( $_POST['_bbp_' . $capability] ) && ! $user->has_cap( $capability ) ) {
-				$user->add_cap( $capability, true );
-
-			// Maybe remove cap
-			} elseif ( empty( $_POST['_bbp_' . $capability] ) && $user->has_cap( $capability ) ) {
-				$user->add_cap( $capability, false );
-			}
+	// Loop through available roles and add caps
+	foreach( $wp_roles->role_objects as $role ) {
+		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
+			$role->add_cap( $cap );
 		}
 	}
 
-	// Success
-	return true;
+	do_action( 'bbp_add_caps' );
 }
 
 /**
- * Helper function hooked to 'bbp_edit_user_profile_update' action to save or update
- * user roles and capabilities.
+ * Removes capabilities from WordPress user roles.
  *
- * @since bbPress (r4235)
- *
- * @param int $user_id
- * @uses bbp_reset_user_caps() to reset caps
- * @usse bbp_save_user_caps() to save caps
+ * @since bbPress (r2608)
  */
-function bbp_edit_user_profile_update_capabilities( $user_id = 0 ) {
+function bbp_remove_caps() {
+	global $wp_roles;
 
-	// Bail if no user ID was passed
-	if ( empty( $user_id ) )
-		return;
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
 
-	// Either reset caps for role
-	if ( ! empty( $_POST['bbp-default-caps'] ) ) {
-		bbp_reset_user_caps( $user_id );
-
-	// Or set caps individually
-	} else {
-		bbp_save_user_caps( $user_id );
-	}
-}
-
-/**
- * Add the default role to the current user if needed
- *
- * This function will bail if the forum is not global in a multisite
- * installation of WordPress, or if the user is marked as spam or deleted.
- *
- * @since bbPress (r3380)
- *
- * @uses bbp_allow_global_access()
- * @uses bbp_is_user_inactive()
- * @uses is_user_logged_in()
- * @uses is_user_member_of_blog()
- * @uses get_option()
- *
- * @return If not multisite, not global, or user is deleted/spammed
- */
-function bbp_set_current_user_default_role() {
-
-	// Bail if forum is not global
-	if ( ! bbp_allow_global_access() )
-		return;
-
-	// Bail if not logged in or already a member of this site
-	if ( ! is_user_logged_in() || current_user_can( 'read' ) )
-		return;
-
-	// Bail if user is marked as spam or is deleted
-	if ( bbp_is_user_inactive() )
-		return;
-
-	// Assign the default role to the current user
-	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
-}
-
-/**
- * Can the current user see a specific UI element?
- *
- * Used when registering post-types and taxonomies to decide if 'show_ui' should
- * be set to true or false. Also used for fine-grained control over which admin
- * sections are visible under what conditions.
- *
- * This function is in bbp-core-caps.php rather than in /bbp-admin so that it
- * can be used during the bbp_register_post_types action.
- *
- * @since bbPress (r3944)
- *
- * @todo use meta caps and maybe deprecate
- * @uses current_user_can() To check the 'moderate' capability
- * @uses bbp_get_forum_post_type()
- * @uses bbp_get_topic_post_type()
- * @uses bbp_get_reply_post_type()
- * @uses bbp_get_topic_tag_tax_id()
- * @uses is_plugin_active()
- * @uses is_super_admin()
- * @return bool Results of current_user_can( 'moderate' ) check.
- */
-function bbp_current_user_can_see( $component = '' ) {
-
-	// Define local variable
-	$retval = false;
-
-	// Which component are we checking UI visibility for?
-	switch ( $component ) {
-
-		/** Everywhere ********************************************************/
-
-		case bbp_get_forum_post_type()   : // Forums
-		case bbp_get_topic_post_type()   : // Topics
-		case bbp_get_reply_post_type()   : // Replies
-		case bbp_get_topic_tag_tax_id()  : // Topic-Tags
-			$retval = current_user_can( 'moderate' );
-			break;
-
-		/** Admin Exclusive ***************************************************/
-
-		case 'bbp_settings_buddypress'  : // BuddyPress Extension
-			$retval = ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin();
-			break;
-
-		case 'bbp_settings_akismet'     : // Akismet Extension
-			$retval = ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin();
-			break;
-
-		case 'bbp_tools_page'            : // Tools Page
-		case 'bbp_tools_repair_page'     : // Tools - Repair Page
-		case 'bbp_tools_import_page'     : // Tools - Import Page
-		case 'bbp_tools_reset_page'      : // Tools - Reset Page
-		case 'bbp_settings_page'         : // Settings Page
-		case 'bbp_settings_main'         : // Settings - General
-		case 'bbp_settings_theme_compat' : // Settings - Theme compat
-		case 'bbp_settings_root_slugs'   : // Settings - Root slugs
-		case 'bbp_settings_single_slugs' : // Settings - Single slugs
-		case 'bbp_settings_per_page'     : // Settings - Single slugs
-		case 'bbp_settings_per_page_rss' : // Settings - Single slugs
-		default                          : // Anything else
-			$retval = current_user_can( bbpress()->admin->minimum_capability );
-			break;
+	// Loop through available roles and remove caps
+	foreach( $wp_roles->role_objects as $role ) {
+		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
+			$role->remove_cap( $cap );
+		}
 	}
 
-	return (bool) apply_filters( 'bbp_current_user_can_see', (bool) $retval, $component );
+	do_action( 'bbp_remove_caps' );
 }
 
 /** Deprecated ****************************************************************/

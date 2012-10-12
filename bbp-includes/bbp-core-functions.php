@@ -148,11 +148,17 @@ function bbp_get_views() {
  * @param string $title View title
  * @param mixed $query_args {@link bbp_has_topics()} arguments.
  * @param bool $feed Have a feed for the view? Defaults to true. NOT IMPLEMENTED
+ * @param string $capability Capability that the current user must have
  * @uses sanitize_title() To sanitize the view name
  * @uses esc_html() To sanitize the view title
  * @return array The just registered (but processed) view
  */
-function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
+function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
+
+	// Bail if user does not have capability
+	if ( ! empty( $capability ) && ! current_user_can( $capability ) )
+		return false;
+
 	$bbp   = bbpress();
 	$view  = sanitize_title( $view );
 	$title = esc_html( $title );
@@ -162,7 +168,7 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
 
 	$query_args = bbp_parse_args( $query_args, '', 'register_view' );
 
-	// Set exclude_stickies to true if it wasn't supplied
+	// Set show_stickies to false if it wasn't supplied
 	if ( !isset( $query_args['show_stickies'] ) )
 		$query_args['show_stickies'] = false;
 

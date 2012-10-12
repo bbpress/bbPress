@@ -126,6 +126,9 @@ class BBP_Admin {
 		// Modify bbPress's admin links
 		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
+		// Map settings capabilities
+		add_filter( 'bbp_map_meta_caps',   array( $this, 'map_settings_meta_caps' ), 10, 4 );
+
 		/** Network Admin *****************************************************/
 
 		// Add menu item to settings menu
@@ -151,8 +154,8 @@ class BBP_Admin {
 		$hooks = array();
 
 		// These are later removed in admin_head
-		if ( bbp_current_user_can_see( 'bbp_tools_page' ) ) {
-			if ( bbp_current_user_can_see( 'bbp_tools_repair_page' ) ) {
+		if ( current_user_can( 'bbp_tools_page' ) ) {
+			if ( current_user_can( 'bbp_tools_repair_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Repair Forums', 'bbpress' ),
 					__( 'Forum Repair',  'bbpress' ),
@@ -162,7 +165,7 @@ class BBP_Admin {
 				);
 			}
 
-			if ( bbp_current_user_can_see( 'bbp_tools_import_page' ) ) {
+			if ( current_user_can( 'bbp_tools_import_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Import Forums', 'bbpress' ),
 					__( 'Forum Import',  'bbpress' ),
@@ -172,7 +175,7 @@ class BBP_Admin {
 				);
 			}
 
-			if ( bbp_current_user_can_see( 'bbp_tools_reset_page' ) ) {
+			if ( current_user_can( 'bbp_tools_reset_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Reset Forums', 'bbpress' ),
 					__( 'Forum Reset',  'bbpress' ),
@@ -198,7 +201,7 @@ class BBP_Admin {
 		}
 
 		// Are settings enabled?
-		if ( bbp_current_user_can_see( 'bbp_settings_page' ) ) {
+		if ( current_user_can( 'bbp_settings_page' ) ) {
 			add_options_page(
 				__( 'Forums',  'bbpress' ),
 				__( 'Forums',  'bbpress' ),
@@ -209,7 +212,7 @@ class BBP_Admin {
 		}
 
 		// These are later removed in admin_head
-		if ( bbp_current_user_can_see( 'bbp_about_page' ) ) {
+		if ( current_user_can( 'bbp_about_page' ) ) {
 
 			// About
 			add_dashboard_page(
@@ -299,7 +302,7 @@ class BBP_Admin {
 		foreach ( $sections as $section_id => $section ) {
 
 			// Only proceed if current user can see this section
-			if ( ! bbp_current_user_can_see( $section_id ) )
+			if ( ! current_user_can( $section_id ) )
 				continue;
 
 			// Only add section and fields if section has fields
@@ -319,6 +322,65 @@ class BBP_Admin {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Maps settings capabilities
+	 *
+	 * @since bbPress (r4242)
+	 *
+	 * @param array $caps Capabilities for meta capability
+	 * @param string $cap Capability name
+	 * @param int $user_id User id
+	 * @param mixed $args Arguments
+	 * @uses get_post() To get the post
+	 * @uses get_post_type_object() To get the post type object
+	 * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
+	 *                        args
+	 * @return array Actual capabilities for meta capability
+	 */
+	public static function map_settings_meta_caps( $caps, $cap, $user_id, $args ) {
+
+		// What capability is being checked?
+		switch ( $cap ) {
+
+			// BuddyPress
+			case 'bbp_settings_buddypress' :
+				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin() ) {
+					$caps = array( 'manage_options', $cap );
+				} else {
+					$caps = array( 'do_not_allow' );
+				}
+
+				break;
+
+			// Akismet
+			case 'bbp_settings_akismet' :
+				if ( ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin() ) {
+					$caps = array( 'manage_options', $cap );
+				} else {
+					$caps = array( 'do_not_allow' );
+				}
+
+				break;
+
+			// bbPress
+			case 'bbp_tools_page'            : // Tools Page
+			case 'bbp_tools_repair_page'     : // Tools - Repair Page
+			case 'bbp_tools_import_page'     : // Tools - Import Page
+			case 'bbp_tools_reset_page'      : // Tools - Reset Page
+			case 'bbp_settings_page'         : // Settings Page
+			case 'bbp_settings_main'         : // Settings - General
+			case 'bbp_settings_theme_compat' : // Settings - Theme compat
+			case 'bbp_settings_root_slugs'   : // Settings - Root slugs
+			case 'bbp_settings_single_slugs' : // Settings - Single slugs
+			case 'bbp_settings_per_page'     : // Settings - Single slugs
+			case 'bbp_settings_per_page_rss' : // Settings - Single slugs
+				$caps = array( 'manage_options', bbpress()->admin->minimum_capability );
+				break;
+		}
+
+		return apply_filters( 'bbp_map_settings_meta_caps', $caps, $cap, $user_id, $args );
 	}
 
 	/**
