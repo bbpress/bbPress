@@ -1604,10 +1604,15 @@ function bbp_the_content( $args = array() ) {
 				'quicktags'     => $quicktags
 			) );
 
-		// Fallback to normal textarea
+		/**
+		 * Fallback to normal textarea.
+		 *
+		 * Note that we do not use esc_textarea() here to prevent double
+		 * escaping the editable output, mucking up existing content.
+		 */
 		else : ?>
 
-			<textarea id="bbp_<?php echo esc_attr( $context ); ?>_content" class="<?php echo esc_attr( $editor_class ); ?>" name="bbp_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo esc_textarea( $post_content ); ?></textarea>
+			<textarea id="bbp_<?php echo esc_attr( $context ); ?>_content" class="<?php echo esc_attr( $editor_class ); ?>" name="bbp_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo $post_content; ?></textarea>
 
 		<?php endif;
 
