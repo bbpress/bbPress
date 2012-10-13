@@ -65,7 +65,7 @@
 
 		</div><!-- .bbp-reply-content -->
 
-	</li>
+	</li><!-- .bbp-footer -->
 
 </ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
 
