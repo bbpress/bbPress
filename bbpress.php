@@ -191,6 +191,10 @@ final class bbPress {
 		// Languages
 		$this->lang_dir   = apply_filters( 'bbp_lang_dir', trailingslashit( $this->plugin_dir . 'bbp-languages' ) );
 
+		// Includes
+		$this->includes_dir = apply_filters( 'bbp_includes_dir', trailingslashit( $this->plugin_dir . 'bbp-includes' ) );
+		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'bbp-includes' ) );
+		
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
@@ -318,8 +322,8 @@ final class bbPress {
 
 		// Quick admin check and load if needed
 		if ( is_admin() ) {
-			require( $this->plugin_dir . 'bbp-admin/bbp-admin.php'   );
-			require( $this->plugin_dir . 'bbp-admin/bbp-actions.php' );
+			require( $this->includes_dir . 'admin/bbp-admin.php'   );
+			require( $this->includes_dir . 'admin/bbp-actions.php' );
 		}
 	}
 

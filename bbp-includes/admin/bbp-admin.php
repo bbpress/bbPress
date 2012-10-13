@@ -76,10 +76,10 @@ class BBP_Admin {
 	 */
 	private function setup_globals() {
 		$bbp = bbpress();
-		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' ); // Admin path
-		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' ); // Admin url
-		$this->images_url = trailingslashit( $this->admin_url . 'images'    ); // Admin images URL
-		$this->styles_url = trailingslashit( $this->admin_url . 'styles'    ); // Admin styles URL
+		$this->admin_dir  = trailingslashit( $bbp->includes_dir . 'admin'  ); // Admin path
+		$this->admin_url  = trailingslashit( $bbp->includes_url . 'admin'  ); // Admin url
+		$this->images_url = trailingslashit( $this->admin_url   . 'images' ); // Admin images URL
+		$this->styles_url = trailingslashit( $this->admin_url   . 'styles' ); // Admin styles URL
 	}
 
 	/**

@@ -1455,7 +1455,7 @@ function bbp_user_maybe_convert_pass() {
 		return;
 
 	// Setup admin (to include converter)
-	require_once( bbpress()->plugin_dir . 'bbp-admin/bbp-admin.php' );
+	require_once( bbpress()->includes_dir . 'admin/bbp-admin.php' );
 
 	// Create the admin object
 	bbp_admin();

@@ -13,8 +13,7 @@
  * There are a few common places that additional actions can currently be found
  *
  *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
- *  - Admin: More in {@link BBP_Admin::setup_actions()} in
- *            bbp-admin/bbp-admin.php
+ *  - Admin: More in {@link BBP_Admin::setup_actions()} in admin.php
  * 
  * @see bbp-core-actions.php
  * @see bbp-core-filters.php
