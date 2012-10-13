@@ -1455,13 +1455,13 @@ function bbp_user_maybe_convert_pass() {
 		return;
 
 	// Setup admin (to include converter)
-	require_once( bbpress()->includes_dir . 'admin/bbp-admin.php' );
+	require_once( bbpress()->includes_dir . 'admin/admin.php' );
 
 	// Create the admin object
 	bbp_admin();
 
 	// Convert password
-	require_once( bbpress()->admin->admin_dir . 'bbp-converter.php' );
+	require_once( bbpress()->admin->admin_dir . 'converter.php' );
 	require_once( bbpress()->admin->admin_dir . 'converters/' . $row->meta_value . '.php' );
 
 	// Create the converter

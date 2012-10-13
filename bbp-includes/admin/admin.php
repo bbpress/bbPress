@@ -89,15 +89,15 @@ class BBP_Admin {
 	 * @access private
 	 */
 	private function includes() {
-		require( $this->admin_dir . 'bbp-tools.php'     );
-		require( $this->admin_dir . 'bbp-converter.php' );
-		require( $this->admin_dir . 'bbp-settings.php'  );
-		require( $this->admin_dir . 'bbp-functions.php' );
-		require( $this->admin_dir . 'bbp-metaboxes.php' );
-		require( $this->admin_dir . 'bbp-forums.php'    );
-		require( $this->admin_dir . 'bbp-topics.php'    );
-		require( $this->admin_dir . 'bbp-replies.php'   );
-		require( $this->admin_dir . 'bbp-users.php'     );
+		require( $this->admin_dir . 'tools.php'     );
+		require( $this->admin_dir . 'converter.php' );
+		require( $this->admin_dir . 'settings.php'  );
+		require( $this->admin_dir . 'functions.php' );
+		require( $this->admin_dir . 'metaboxes.php' );
+		require( $this->admin_dir . 'forums.php'    );
+		require( $this->admin_dir . 'topics.php'    );
+		require( $this->admin_dir . 'replies.php'   );
+		require( $this->admin_dir . 'users.php'     );
 	}
 
 	/**

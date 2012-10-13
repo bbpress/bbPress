@@ -318,8 +318,8 @@ final class bbPress {
 
 		// Quick admin check and load if needed
 		if ( is_admin() ) {
-			require( $this->includes_dir . 'admin/bbp-admin.php'   );
-			require( $this->includes_dir . 'admin/bbp-actions.php' );
+			require( $this->includes_dir . 'admin/admin.php'   );
+			require( $this->includes_dir . 'admin/actions.php' );
 		}
 	}
 
