@@ -157,6 +157,13 @@ final class bbPress {
 	 */
 	public function __set( $key, $value ) { $this->data[$key] = $value; }
 
+	/**
+	 * Magic method to prevent notices and errors from invalid method calls
+	 *
+	 * @since bbPress (r4252)
+	 */
+	public function __call( $name = '', $args = array() ) { unset( $name, $args ); return null; }
+
 	/** Private Methods *******************************************************/
 
 	/**
