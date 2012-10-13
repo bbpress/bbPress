@@ -265,58 +265,54 @@ final class bbPress {
 
 		/** Core **************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-dependency.php' ); // Core dependencies
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-functions.php'  ); // Core functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-cache.php'      ); // Cache helpers
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'    ); // Configuration options
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'       ); // Roles and capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'    ); // Common classes
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'    ); // Sidebar widgets
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php' ); // Shortcodes for use with pages and posts
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'     ); // Database updater
-
-		/** Templates *********************************************************/
-
-		require( $this->plugin_dir . 'bbp-includes/bbp-template-functions.php'  ); // Template functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-template-loader.php'     ); // Template loader
-		require( $this->plugin_dir . 'bbp-includes/bbp-theme-compatibility.php' ); // Theme compatibility for existing themes
-
-		/** Extensions ********************************************************/
-
-		require( $this->plugin_dir . 'bbp-includes/bbp-extend-akismet.php' ); // Spam prevention for topics and replies
-
-		/**
-		 * BuddyPress extension is loaded in bbp-core-hooks.php
-		 *
-		 * @since bbPress (r3559)
-		 */
+		require( $this->includes_dir . 'core/sub-actions.php'        );
+		require( $this->includes_dir . 'core/functions.php'          );
+		require( $this->includes_dir . 'core/cache.php'              );
+		require( $this->includes_dir . 'core/options.php'            );
+		require( $this->includes_dir . 'core/capabilities.php'       );
+		require( $this->includes_dir . 'core/classes.php'            );
+		require( $this->includes_dir . 'core/widgets.php'            );
+		require( $this->includes_dir . 'core/shortcodes.php'         );
+		require( $this->includes_dir . 'core/update.php'             );
+		require( $this->includes_dir . 'core/template-functions.php' );
+		require( $this->includes_dir . 'core/template-loader.php'    );
+		require( $this->includes_dir . 'core/theme-compat.php'       );
 
 		/** Components ********************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-common-functions.php' ); // Common functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-common-template.php'  ); // Common template tags
+		// Common
+		require( $this->includes_dir . 'common/functions.php'      );
+		require( $this->includes_dir . 'common/template-tags.php'  );
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-forum-caps.php'       ); // Forum capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-forum-functions.php'  ); // Forum functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-forum-template.php'   ); // Forum template tags
+		// Forums
+		require( $this->includes_dir . 'forums/capabilities.php'   );
+		require( $this->includes_dir . 'forums/functions.php'      );
+		require( $this->includes_dir . 'forums/template-tags.php'  );
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-topic-caps.php'       ); // Topic capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-topic-functions.php'  ); // Topic functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-topic-template.php'   ); // Topic template tags
+		// Topics
+		require( $this->includes_dir . 'topics/capabilities.php'   );
+		require( $this->includes_dir . 'topics/functions.php'      );
+		require( $this->includes_dir . 'topics/template-tags.php'  );
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-reply-caps.php'       ); // Reply capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-reply-functions.php'  ); // Reply functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-reply-template.php'   ); // Reply template tags
+		// Replies
+		require( $this->includes_dir . 'replies/capabilities.php'  );
+		require( $this->includes_dir . 'replies/functions.php'     );
+		require( $this->includes_dir . 'replies/template-tags.php' );
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-user-caps.php'        ); // User capabilities
-		require( $this->plugin_dir . 'bbp-includes/bbp-user-functions.php'   ); // User functions
-		require( $this->plugin_dir . 'bbp-includes/bbp-user-template.php'    ); // User template tags
-		require( $this->plugin_dir . 'bbp-includes/bbp-user-options.php'     ); // User options
+		// Users
+		require( $this->includes_dir . 'users/capabilities.php'    );
+		require( $this->includes_dir . 'users/functions.php'       );
+		require( $this->includes_dir . 'users/template-tags.php'   );
+		require( $this->includes_dir . 'users/options.php'         );
+
+		/** Extensions ********************************************************/
+
+		require( $this->includes_dir . 'extend/akismet.php' );
 
 		/** Hooks *************************************************************/
 
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-actions.php'    ); // All actions
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-filters.php'    ); // All filters
+		require( $this->includes_dir . 'core/actions.php' );
+		require( $this->includes_dir . 'core/filters.php' );
 
 		/** Admin *************************************************************/
 

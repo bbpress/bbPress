@@ -281,7 +281,7 @@ function bbp_setup_buddypress() {
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
 	// Include the BuddyPress Component
-	require( bbpress()->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php' );
+	require( bbpress()->includes_dir . 'extend/buddypress.php' );
 
 	// Instantiate BuddyPress for bbPress
 	bbpress()->extend->buddypress = new BBP_BuddyPress();
