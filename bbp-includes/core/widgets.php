@@ -520,7 +520,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @uses bbp_get_topic_last_active_time() To get the topic last active
 	 *                                         time
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 */
 	public function widget( $args, $instance ) {
 

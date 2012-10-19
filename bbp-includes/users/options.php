@@ -125,11 +125,12 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
  * @since bbPress (r3632)
  *
  * @param int $user_id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_user_topic_count()
  * @return string
  */
-function bbp_user_topic_count( $user_id = 0 ) {
-	echo bbp_get_user_topic_count( $user_id );
+function bbp_user_topic_count( $user_id = 0, $integer = false ) {
+	echo bbp_get_user_topic_count( $user_id, $integer );
 }
 	/**
 	 * Return a users reply count
@@ -137,21 +138,23 @@ function bbp_user_topic_count( $user_id = 0 ) {
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_option()
 	 * @uses apply_filters()
 	 * @return string
 	 */
-	function bbp_get_user_topic_count( $user_id = 0 ) {
+	function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
 			return false;
 
-		$count = get_user_option( '_bbp_topic_count', $user_id );
+		$count  = absint( get_user_option( '_bbp_topic_count', $user_id ) );
+		$filter = ( false == $integer ) ? 'bbp_get_user_topic_count_int' : 'bbp_get_user_topic_count';
 
-		return apply_filters( 'bbp_get_user_topic_count', (int) $count, $user_id );
+		return apply_filters( $filter, $count, $user_id );
 	}
 
 /**
@@ -160,11 +163,12 @@ function bbp_user_topic_count( $user_id = 0 ) {
  * @since bbPress (r3632)
  *
  * @param int $user_id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_user_reply_count()
  * @return string
  */
-function bbp_user_reply_count( $user_id = 0 ) {
-	echo bbp_get_user_reply_count( $user_id );
+function bbp_user_reply_count( $user_id = 0, $integer = false ) {
+	echo bbp_get_user_reply_count( $user_id, $integer );
 }
 	/**
 	 * Return a users reply count
@@ -172,21 +176,23 @@ function bbp_user_reply_count( $user_id = 0 ) {
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_option()
 	 * @uses apply_filters()
 	 * @return string
 	 */
-	function bbp_get_user_reply_count( $user_id = 0 ) {
+	function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
 			return false;
 
-		$count = get_user_option( '_bbp_reply_count', $user_id );
+		$count  = absint( get_user_option( '_bbp_reply_count', $user_id ) );
+		$filter = ( true == $integer ) ? 'bbp_get_user_topic_count_int' : 'bbp_get_user_topic_count';
 
-		return apply_filters( 'bbp_get_user_reply_count', (int) $count, $user_id );
+		return apply_filters( $filter, $count, $user_id );
 	}
 
 /**
@@ -195,11 +201,12 @@ function bbp_user_reply_count( $user_id = 0 ) {
  * @since bbPress (r3632)
  *
  * @param int $user_id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_user_post_count()
  * @return string
  */
-function bbp_user_post_count( $user_id = 0 ) {
-	echo bbp_get_user_post_count( $user_id );
+function bbp_user_post_count( $user_id = 0, $integer = false ) {
+	echo bbp_get_user_post_count( $user_id, $integer );
 }
 	/**
 	 * Return a users total post count
@@ -207,23 +214,25 @@ function bbp_user_post_count( $user_id = 0 ) {
 	 * @since bbPress (r3632)
 	 *
 	 * @param int $user_id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_user_id()
 	 * @uses get_user_option()
 	 * @uses apply_filters()
 	 * @return string
 	 */
-	function bbp_get_user_post_count( $user_id = 0 ) {
+	function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
 			return false;
 
-		$topics  = bbp_get_user_topic_count( $user_id );
-		$replies = bbp_get_user_reply_count( $user_id );
-		$count   = (int) $topics + (int) $replies;
+		$topics  = bbp_get_user_topic_count( $user_id, true );
+		$replies = bbp_get_user_reply_count( $user_id, true );
+		$count   = absint( $topics + $replies );
+		$filter  = ( true == $integer ) ? 'bbp_get_user_post_count_int' : 'bbp_get_user_post_count';
 
-		return apply_filters( 'bbp_get_user_post_count', (int) $count, $user_id );
+		return apply_filters( $filter, $count, $user_id );
 	}
 
 /** Last Posted ***************************************************************/

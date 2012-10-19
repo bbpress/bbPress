@@ -261,7 +261,7 @@ function bbp_new_reply_handler() {
 		'post_parent'    => $topic_id,
 		'post_type'      => bbp_get_reply_post_type(),
 		'comment_status' => 'closed',
-		'menu_order'     => (int) ( bbp_get_topic_reply_count( $topic_id ) + 1 )
+		'menu_order'     => bbp_get_topic_reply_count( $topic_id, false ) + 1
 	) );
 
 	// Insert reply
@@ -1341,24 +1341,22 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
  *
  * @since bbPress (r3540)
  *
+ * @param int $default Default replies per page (15)
  * @uses get_option() To get the setting
  * @uses apply_filters() To allow the return value to be manipulated
  * @return int
  */
-function bbp_get_replies_per_page() {
-
-	// The default per setting
-	$default = 15;
+function bbp_get_replies_per_page( $default = 15 ) {
 
 	// Get database option and cast as integer
-	$per = $retval = (int) get_option( '_bbp_replies_per_page', $default );
+	$retval = get_option( '_bbp_replies_per_page', $default );
 
 	// If return val is empty, set it to default
 	if ( empty( $retval ) )
 		$retval = $default;
 
 	// Filter and return
-	return (int) apply_filters( 'bbp_get_replies_per_page', $retval, $per );
+	return absint( apply_filters( 'bbp_get_replies_per_page', $retval, $default ) );
 }
 
 /**
@@ -1366,24 +1364,22 @@ function bbp_get_replies_per_page() {
  *
  * @since bbPress (r3540)
  *
+ * @param int $default Default replies per page (25)
  * @uses get_option() To get the setting
  * @uses apply_filters() To allow the return value to be manipulated
  * @return int
  */
-function bbp_get_replies_per_rss_page() {
-
-	// The default per setting
-	$default = 25;
+function bbp_get_replies_per_rss_page( $default = 25 ) {
 
 	// Get database option and cast as integer
-	$per = $retval = (int) get_option( '_bbp_replies_per_rss_page', $default );
+	$retval = get_option( '_bbp_replies_per_rss_page', $default );
 
 	// If return val is empty, set it to default
 	if ( empty( $retval ) )
 		$retval = $default;
 
 	// Filter and return
-	return (int) apply_filters( 'bbp_get_replies_per_rss_page', $retval, $per );
+	return absint( apply_filters( 'bbp_get_replies_per_rss_page', $retval, $default ) );
 }
 
 /** Autoembed *****************************************************************/
@@ -1669,7 +1665,7 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 	if ( $reply_id != $topic_id ) {
 
 		// Make sure the topic has replies before running another query
-		$reply_count = bbp_get_topic_reply_count( $topic_id );
+		$reply_count = bbp_get_topic_reply_count( $topic_id, false );
 		if ( !empty( $reply_count ) ) {
 
 			// Get reply id's

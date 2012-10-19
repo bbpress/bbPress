@@ -252,7 +252,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 			$bbp_reply_id = 0;
 		}
 
-		return (int) apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_id', $bbp_reply_id, $reply_id );
 	}
 
 /**
@@ -690,13 +690,17 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
  * @since bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_reply_revisions() To get the reply revisions
  * @uses apply_filters() Calls 'bbp_get_reply_revision_count'
  *                        with the revision count and reply id
  * @return string reply revision count
  */
-function bbp_get_reply_revision_count( $reply_id = 0 ) {
-	return apply_filters( 'bbp_get_reply_revisions', count( bbp_get_reply_revisions( $reply_id ) ), $reply_id );
+function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
+	$count = absint( count( bbp_get_reply_revisions( $reply_id ) ) );
+	$filter = ( true === $integer ) ? 'bbp_get_reply_revision_count_int' : 'bbp_get_reply_revision_count';
+
+	return apply_filters( $filter, $count, $reply_id );
 }
 
 /**
@@ -862,7 +866,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 		$reply_id  = bbp_get_reply_id( $reply_id );
 		$author_id = get_post_field( 'post_author', $reply_id );
 
-		return (int) apply_filters( 'bbp_get_reply_author_id', (int) $author_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_author_id', $author_id, $reply_id );
 	}
 
 /**
@@ -1266,7 +1270,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 				// Validate the topic_id
 				$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 	}
 
 /**
@@ -1306,7 +1310,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 				// Validate the forum_id
 				$forum_id = bbp_get_forum_id( $forum_id );
 
-		return apply_filters( 'bbp_get_reply_forum_id', (int) $forum_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_forum_id', $forum_id, $reply_id );
 	}
 
 /**
@@ -1369,7 +1373,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 		if ( ! bbp_show_lead_topic() )
 			$reply_position++;
 
-		return (int) apply_filters( 'bbp_get_reply_position', (int) $reply_position, $reply_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_reply_position', $reply_position, $reply_id, $topic_id );
 	}
 
 /** Reply Admin Links *********************************************************/

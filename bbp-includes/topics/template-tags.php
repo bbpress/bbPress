@@ -736,7 +736,7 @@ function bbp_topic_pagination( $args = '' ) {
 			$base = add_query_arg( 'paged', '%#%', get_permalink( $topic_id ) );
 
 		// Get total and add 1 if topic is included in the reply loop
-		$total = bbp_get_topic_reply_count( $topic_id );
+		$total = bbp_get_topic_reply_count( $topic_id, true );
 
 		// Bump if topic is in loop
 		if ( !bbp_show_lead_topic() )
@@ -917,8 +917,11 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
  *                        with the revision count and topic id
  * @return string Topic revision count
  */
-function bbp_get_topic_revision_count( $topic_id = 0 ) {
-	return apply_filters( 'bbp_get_topic_revisions', count( bbp_get_topic_revisions( $topic_id ) ), $topic_id );
+function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
+	$count  = absint( count( bbp_get_topic_revisions( $topic_id ) ) );
+	$filter = ( true === $integer ) ? 'bbp_get_topic_revision_count_int' : 'bbp_get_topic_revision_count';
+
+	return apply_filters( $filter, $count, $topic_id );
 }
 
 /**
@@ -1854,8 +1857,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 
 		$topic    = bbp_get_topic( bbp_get_topic_id( (int) $topic_id ) );
 		$topic_id = $topic->ID;
-		$replies  = bbp_get_topic_reply_count( $topic_id );
-		$replies  = sprintf( _n( '%s reply', '%s replies', $replies, 'bbpress' ), $replies );
+		$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id ) );
 		$retval   = '';
 
 		// First link never has view=all
@@ -1892,10 +1894,11 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
  * @since bbPress (r2485)
  *
  * @param int $topic_id Optional. Topic id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_topic_reply_count() To get the topic reply count
  */
-function bbp_topic_reply_count( $topic_id = 0 ) {
-	echo bbp_get_topic_reply_count( $topic_id );
+function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
+	echo bbp_get_topic_reply_count( $topic_id, $integer );
 }
 	/**
 	 * Return total reply count of a topic
@@ -1903,17 +1906,19 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 	 * @since bbPress (r2485)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_meta() To get the topic reply count meta
 	 * @uses apply_filters() Calls 'bbp_get_topic_reply_count' with the
 	 *                        reply count and topic id
 	 * @return int Reply count
 	 */
-	function bbp_get_topic_reply_count( $topic_id = 0 ) {
+	function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
+		$replies  = absint( get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_topic_reply_count_int' : 'bbp_get_topic_reply_count';
 
-		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
+		return apply_filters( $filter, $replies, $topic_id );
 	}
 
 /**
@@ -1922,10 +1927,11 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
  * @since bbPress (r2954)
  *
  * @param int $topic_id Optional. Topic id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_topic_post_count() To get the topic post count
  */
-function bbp_topic_post_count( $topic_id = 0 ) {
-	echo bbp_get_topic_post_count( $topic_id );
+function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
+	echo bbp_get_topic_post_count( $topic_id, $integer );
 }
 	/**
 	 * Return total post count of a topic
@@ -1933,17 +1939,19 @@ function bbp_topic_post_count( $topic_id = 0 ) {
 	 * @since bbPress (r2954)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_meta() To get the topic post count meta
 	 * @uses apply_filters() Calls 'bbp_get_topic_post_count' with the
 	 *                        post count and topic id
 	 * @return int Post count
 	 */
-	function bbp_get_topic_post_count( $topic_id = 0 ) {
+	function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
+		$replies  = absint( get_post_meta( $topic_id, '_bbp_reply_count', true ) ) + 1;
+		$filter   = ( true === $integer ) ? 'bbp_get_topic_post_count_int' : 'bbp_get_topic_post_count';
 
-		return apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
+		return apply_filters( $filter, $replies, $topic_id );
 	}
 
 /**
@@ -1953,10 +1961,11 @@ function bbp_topic_post_count( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Optional. Topic id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_topic_reply_count_hidden() To get the topic hidden reply count
  */
-function bbp_topic_reply_count_hidden( $topic_id = 0 ) {
-	echo bbp_get_topic_reply_count_hidden( $topic_id );
+function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
+	echo bbp_get_topic_reply_count_hidden( $topic_id, $integer );
 }
 	/**
 	 * Return total hidden reply count of a topic (hidden includes trashed
@@ -1965,17 +1974,19 @@ function bbp_topic_reply_count_hidden( $topic_id = 0 ) {
 	 * @since bbPress (r2740)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_meta() To get the hidden reply count
 	 * @uses apply_filters() Calls 'bbp_get_topic_reply_count_hidden' with
 	 *                        the hidden reply count and topic id
 	 * @return int Topic hidden reply count
 	 */
-	function bbp_get_topic_reply_count_hidden( $topic_id = 0 ) {
+	function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
+		$replies  = absint( get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_topic_reply_count_hidden_int' : 'bbp_get_topic_reply_count_hidden';
 
-		return (int) apply_filters( 'bbp_get_topic_reply_count_hidden', (int) $replies, $topic_id );
+		return apply_filters( $filter, $replies, $topic_id );
 	}
 
 /**
@@ -1986,8 +1997,8 @@ function bbp_topic_reply_count_hidden( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_voice_count() To get the topic voice count
  */
-function bbp_topic_voice_count( $topic_id = 0 ) {
-	echo bbp_get_topic_voice_count( $topic_id );
+function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
+	echo bbp_get_topic_voice_count( $topic_id, $integer );
 }
 	/**
 	 * Return total voice count of a topic
@@ -2001,11 +2012,12 @@ function bbp_topic_voice_count( $topic_id = 0 ) {
 	 *                        voice count and topic id
 	 * @return int Voice count of the topic
 	 */
-	function bbp_get_topic_voice_count( $topic_id = 0 ) {
+	function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
+		$voices   = absint( get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_topic_voice_count_int' : 'bbp_get_topic_voice_count';
 
-		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
+		return apply_filters( $filter, $voices, $topic_id );
 	}
 
 /**

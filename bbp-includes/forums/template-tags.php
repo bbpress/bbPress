@@ -693,7 +693,7 @@ function bbp_list_forums( $args = '' ) {
 	extract( $r, EXTR_SKIP );
 
 	// Bail if there are no subforums
-	if ( !bbp_get_forum_subforum_count( $forum_id ) )
+	if ( !bbp_get_forum_subforum_count( $forum_id, false ) )
 		return;
 
 	// Loop through forums and create a list
@@ -1116,11 +1116,9 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	 *                        topics link and forum id
 	 */
 	function bbp_get_forum_topics_link( $forum_id = 0 ) {
-
 		$forum    = bbp_get_forum( $forum_id );
 		$forum_id = $forum->ID;
-		$topics   = bbp_get_forum_topic_count( $forum_id );
-		$topics   = sprintf( _n( '%s topic', '%s topics', $topics, 'bbpress' ), $topics );
+		$topics   = sprintf( _n( '%s topic', '%s topics', bbp_get_forum_topic_count( $forum_id, true, false ), 'bbpress' ), bbp_get_forum_topic_count( $forum_id ) );
 		$retval   = '';
 
 		// First link never has view=all
@@ -1156,11 +1154,12 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
  *
  * @since bbPress (r2464)
  *
- * @uses bbp_get_forum_subforum_count() To get the forum's subforum count
  * @param int $forum_id Optional. Forum id to check
+ * @param boolean $integer Optional. Whether or not to format the result
+ * @uses bbp_get_forum_subforum_count() To get the forum's subforum count
  */
-function bbp_forum_subforum_count( $forum_id = 0 ) {
-	echo bbp_get_forum_subforum_count( $forum_id );
+function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
+	echo bbp_get_forum_subforum_count( $forum_id, $integer );
 }
 	/**
 	 * Return total subforum count of a forum
@@ -1168,17 +1167,19 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
 	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the subforum count
 	 * @uses apply_filters() Calls 'bbp_get_forum_subforum_count' with the
 	 *                        subforum count and forum id
 	 * @return int Forum's subforum count
 	 */
-	function bbp_get_forum_subforum_count( $forum_id = 0 ) {
+	function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
-		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
+		$forum_count = absint( get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+		$filter      = ( true === $integer ) ? 'bbp_get_forum_subforum_count_int' : 'bbp_get_forum_subforum_count';
 
-		return apply_filters( 'bbp_get_forum_subforum_count', (int) $forum_count, $forum_id );
+		return apply_filters( $filter, $forum_count, $forum_id );
 	}
 
 /**
@@ -1188,10 +1189,11 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_forum_topic_count() To get the forum topic count
  */
-function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
-	echo bbp_get_forum_topic_count( $forum_id, $total_count );
+function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
+	echo bbp_get_forum_topic_count( $forum_id, $total_count, $integer );
 }
 	/**
 	 * Return total topic count of a forum
@@ -1201,17 +1203,20 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
 	 *                           count? Defaults to total.
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum topic count
 	 * @uses apply_filters() Calls 'bbp_get_forum_topic_count' with the
 	 *                        topic count and forum id
 	 * @return int Forum topic count
 	 */
-	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true ) {
+	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count', true );
+		$meta_key = empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count';
+		$topics   = absint( get_post_meta( $forum_id, $meta_key, true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_forum_topic_count_int' : 'bbp_get_forum_topic_count';
 
-		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
+		return apply_filters( $filter, $topics, $forum_id );
 	}
 
 /**
@@ -1221,10 +1226,11 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_forum_reply_count() To get the forum reply count
  */
-function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
-	echo bbp_get_forum_reply_count( $forum_id, $total_count );
+function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
+	echo bbp_get_forum_reply_count( $forum_id, $total_count, $integer );
 }
 	/**
 	 * Return total post count of a forum
@@ -1234,17 +1240,20 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
 	 *                           count?
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum reply count
 	 * @uses apply_filters() Calls 'bbp_get_forum_reply_count' with the
 	 *                        reply count and forum id
 	 * @return int Forum reply count
 	 */
-	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true ) {
+	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
+		$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
+		$replies  = absint( get_post_meta( $forum_id, $meta_key, true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_forum_reply_count_int' : 'bbp_get_forum_reply_count';
 
-		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
+		return apply_filters( $filter, $replies, $forum_id );
 	}
 
 /**
@@ -1254,10 +1263,11 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_forum_post_count() To get the forum post count
  */
-function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
-	echo bbp_get_forum_post_count( $forum_id, $total_count );
+function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = false ) {
+	echo bbp_get_forum_post_count( $forum_id, $total_count, $integer );
 }
 	/**
 	 * Return total post count of a forum
@@ -1267,18 +1277,22 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
 	 *                           count?
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum post count
 	 * @uses apply_filters() Calls 'bbp_get_forum_post_count' with the
 	 *                        post count and forum id
 	 * @return int Forum post count
 	 */
-	function bbp_get_forum_post_count( $forum_id = 0, $total_count = true ) {
+	function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count );
-		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
+		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count, true );
+		$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
+		$replies  = absint( get_post_meta( $forum_id, $meta_key, true ) );
+		$retval   = $replies + $topics;
+		$filter   = ( true === $integer ) ? 'bbp_get_forum_post_count_int' : 'bbp_get_forum_post_count';
 
-		return apply_filters( 'bbp_get_forum_post_count', (int) $replies + (int) $topics, $forum_id );
+		return apply_filters( $filter, $retval, $forum_id );
 	}
 
 /**
@@ -1288,10 +1302,11 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
  * @since bbPress (r2883)
  *
  * @param int $forum_id Optional. Topic id
+ * @param boolean $integer Optional. Whether or not to format the result
  * @uses bbp_get_forum_topic_count_hidden() To get the forum hidden topic count
  */
-function bbp_forum_topic_count_hidden( $forum_id = 0 ) {
-	echo bbp_get_forum_topic_count_hidden( $forum_id );
+function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
+	echo bbp_get_forum_topic_count_hidden( $forum_id, $integer );
 }
 	/**
 	 * Return total hidden topic count of a forum (hidden includes trashed
@@ -1300,17 +1315,19 @@ function bbp_forum_topic_count_hidden( $forum_id = 0 ) {
 	 * @since bbPress (r2883)
 	 *
 	 * @param int $forum_id Optional. Topic id
+	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the hidden topic count
 	 * @uses apply_filters() Calls 'bbp_get_forum_topic_count_hidden' with
 	 *                        the hidden topic count and forum id
 	 * @return int Topic hidden topic count
 	 */
-	function bbp_get_forum_topic_count_hidden( $forum_id = 0 ) {
+	function bbp_get_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
+		$topics   = absint( get_post_meta( $forum_id, '_bbp_topic_count_hidden', true ) );
+		$filter   = ( true === $integer ) ? 'bbp_get_forum_topic_count_hidden_int' : 'bbp_get_forum_topic_count_hidden';
 
-		return (int) apply_filters( 'bbp_get_forum_topic_count_hidden', (int) $topics, $forum_id );
+		return apply_filters( $filter, $topics, $forum_id );
 	}
 
 /**
@@ -1821,13 +1838,15 @@ function bbp_single_forum_description( $args = '' ) {
 		remove_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 		// Get some forum data
+		$tc_int      = bbp_get_forum_topic_count( $forum_id, false );
+		$rc_int      = bbp_get_forum_reply_count( $forum_id, false );
 		$topic_count = bbp_get_forum_topic_count( $forum_id );
 		$reply_count = bbp_get_forum_reply_count( $forum_id );
 		$last_active = bbp_get_forum_last_active_id( $forum_id );
 
 		// Has replies
 		if ( !empty( $reply_count ) ) {
-			$reply_text = sprintf( _n( '%s reply', '%s replies', $reply_count, 'bbpress' ), $reply_count );
+			$reply_text = sprintf( _n( '%s reply', '%s replies', $rc_int, 'bbpress' ), $reply_count );
 		}
 
 		// Forum has active data
@@ -1838,7 +1857,7 @@ function bbp_single_forum_description( $args = '' ) {
 
 		// Forum has no last active data
 		} else {
-			$topic_text      = sprintf( _n( '%s topic', '%s topics', $topic_count, 'bbpress' ), $topic_count );
+			$topic_text      = sprintf( _n( '%s topic', '%s topics', $tc_int, 'bbpress' ), $topic_count );
 		}
 
 		// Forum has active data

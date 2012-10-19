@@ -954,8 +954,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 
 	// Get some counts
 	$forum_id          = bbp_get_forum_id( $forum_id );
-	$topic_count       = bbp_get_forum_topic_count( $forum_id, false );
-	$total_topic_count = bbp_get_forum_topic_count( $forum_id, true  );
+	$topic_count       = bbp_get_forum_topic_count( $forum_id, false, false );
+	$total_topic_count = bbp_get_forum_topic_count( $forum_id, true,  false );
 
 	// Update this forum id
 	update_post_meta( $forum_id, '_bbp_topic_count',       (int) $topic_count       + (int) $difference );
@@ -973,8 +973,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 			foreach ( (array) $ancestors as $parent_forum_id ) {
 
 				// Get forum counts
-				$parent_topic_count       = bbp_get_forum_topic_count( $parent_forum_id, false );
-				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true  );
+				$parent_topic_count       = bbp_get_forum_topic_count( $parent_forum_id, false, false );
+				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true,  false );
 
 				// Update counts
 				update_post_meta( $parent_forum_id, '_bbp_topic_count',       (int) $parent_topic_count       + (int) $difference );
