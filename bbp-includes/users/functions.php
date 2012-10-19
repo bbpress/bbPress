@@ -1024,18 +1024,8 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
  * @return int Total number of users
  */
 function bbp_get_total_users() {
-
-	// Check the cache
-	$bbp_total_users = wp_cache_get( 'bbp_total_users', 'bbpress' );
-
-	// No cached value exists, so get it and cache it
-	if ( empty( $bbp_total_users ) ) {		
-		$bbp_total_users = count( get_users() );
-		wp_cache_set( 'bbp_total_users', $bbp_total_users, 'bbpress' );
-	}
-
-	// Always allow filtering of results
-	return apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
+	$user_count = count_users();
+	return apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
 }
 
 /** User Status ***************************************************************/
