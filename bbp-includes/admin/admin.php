@@ -98,6 +98,7 @@ class BBP_Admin {
 		require( $this->admin_dir . 'topics.php'    );
 		require( $this->admin_dir . 'replies.php'   );
 		require( $this->admin_dir . 'users.php'     );
+		require( $this->admin_dir . 'ajax.php'      );
 	}
 
 	/**
