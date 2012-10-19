@@ -2299,7 +2299,8 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		if ( empty( $topic ) )
 			return;
 
-		$topic_link = bbp_get_topic_permalink( $topic_id );
+		// Remove view=all link from edit
+		$topic_link = bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) );
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -2310,6 +2311,9 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		} else {
 			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, $bbp->edit_id => '1' ), $topic_link );
 		}
+
+		// Maybe add view=all
+		$url = bbp_add_view_all( $url );
 
 		return apply_filters( 'bbp_get_topic_edit_url', $url, $topic_id );
 	}

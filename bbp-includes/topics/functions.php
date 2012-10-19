@@ -555,11 +555,15 @@ function bbp_edit_topic_handler() {
 	
 	// Maybe put into moderation
 	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
-		$topic_status = bbp_get_pending_status_id();
 
-	// Default to published
+		// Set post status to pending if public or closed
+		if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
+			$topic_status = bbp_get_pending_status_id();
+		}
+
+	// Use existing post_status
 	} else {
-		$topic_status = bbp_get_public_status_id();
+		$topic_status = $topic->post_status;
 	}
 
 	/** Topic Tags ************************************************************/

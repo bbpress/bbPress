@@ -499,11 +499,15 @@ function bbp_edit_reply_handler() {
 
 	// Maybe put into moderation
 	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
-		$reply_status = bbp_get_pending_status_id();
 
-	// Default
+		// Set post status to pending if public
+		if ( bbp_get_public_status_id() == $reply->post_status ) {
+			$reply_status = bbp_get_pending_status_id();
+		}
+
+	// Use existing post_status
 	} else {
-		$reply_status = bbp_get_public_status_id();
+		$reply_status = $reply->post_status;
 	}
 
 	/** Topic Tags ************************************************************/

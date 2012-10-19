@@ -1571,7 +1571,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 		if ( empty( $reply ) )
 			return;
 
-		$reply_link = bbp_get_reply_permalink( $reply_id );
+		$reply_link = bbp_remove_view_all( bbp_get_reply_permalink( $reply_id ) );
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -1582,6 +1582,9 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 		} else {
 			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, $bbp->edit_id => '1' ), $reply_link );
 		}
+
+		// Maybe add view all
+		$url = bbp_add_view_all( $url );
 
 		return apply_filters( 'bbp_get_reply_edit_url', $url, $reply_id );
 	}
