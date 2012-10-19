@@ -298,23 +298,13 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
-
-		<?php
-			bbp_dropdown( array(
-				'exclude'            => $post_id,
-				'selected'           => $post_parent,
-				'show_none'          => __( '(No Parent)', 'bbpress' ),
-				'select_id'          => 'parent_id',
-				'disable_categories' => false
-			) );
-		?>
-
+		<input name="parent_id" id="parent_id" type="number" step="1" value="<?php echo esc_attr( $post_parent ); ?>" />
 	</p>
 
 	<p>
 		<strong class="label"><?php _e( 'Order:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
-		<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo $menu_order; ?>" />
+		<input name="menu_order" type="number" step="1" size="4" id="menu_order" value="<?php echo esc_attr( $menu_order ); ?>" />
 	</p>
 
 	<?php
@@ -332,32 +322,25 @@ function bbp_forum_metabox() {
  * @since bbPress (r2464)
  *
  * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses bbp_dropdown() To show a dropdown of the forums for topic parent
  * @uses do_action() Calls 'bbp_topic_metabox'
  */
 function bbp_topic_metabox() {
 
 	// Post ID
-	$post_id = get_the_ID();
-
-	$args = array(
-		'selected'  => bbp_get_topic_forum_id( $post_id ),
-		'select_id' => 'parent_id',
-		'show_none' => is_super_admin() ? __( '(No Forum)', 'bbpress' ) : '',
-	); ?>
-
-	<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
-
-	<p>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( $args ); ?>
-	</p>
+	$post_id = get_the_ID(); ?>
 
 	<p><strong><?php _e( 'Topic Type', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="bbp_stick_topic"><?php _e( 'Topic Type', 'bbpress' ); ?></label>
 		<?php bbp_topic_type_select( array( 'topic_id' => $post_id ) ); ?>
+	</p>
+
+	<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
+
+	<p>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+		<input name="parent_id" id="parent_id" type="number" step="1" value="<?php bbp_topic_forum_id( $post_id ); ?>" />
 	</p>
 
 	<?php
@@ -375,7 +358,6 @@ function bbp_topic_metabox() {
  * @since bbPress (r2464)
  *
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_dropdown() To show a dropdown of the topics for reply parent
  * @uses do_action() Calls 'bbp_reply_metabox'
  */
 function bbp_reply_metabox() {
@@ -388,47 +370,22 @@ function bbp_reply_metabox() {
 	$reply_forum_id = bbp_get_reply_forum_id( $post_id );
 
 	// Allow individual manipulation of reply forum
-	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) :
-
-		// Forums
-		$args = array(
-			'selected'  => $reply_forum_id,
-			'select_id' => 'bbp_forum_id',
-			'show_none' => __( '(Use Forum of Topic)', 'bbpress' )
-		); ?>
+	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
 
 		<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
-
-			<?php bbp_dropdown( $args ); ?>
-
+			<input name="bbp_forum_id" id="bbp_forum_id" type="number" step="1" value="<?php echo esc_attr( $reply_forum_id ); ?>" />
 		</p>
 
-	<?php endif;
-
-	// Topics
-	$args = array(
-		'post_type'   => bbp_get_topic_post_type(),
-		'selected'    => $reply_topic_id,
-		'select_id'   => 'parent_id',
-		'orderby'     => 'post_date',
-		'numberposts' => '250',
-		'show_none'   => is_super_admin() ? __( '(No Topic)', 'bbpress' ) : '',
-	);
-
-	// Allow the dropdown to be filtered, to extend or limit the available
-	// topics to choose as the reply parent.
-	$args = apply_filters( 'bbp_reply_parent_dropdown', $args ); ?>
+	<?php endif; ?>
 
 	<p><strong><?php _e( 'Topic', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
-
-		<?php bbp_dropdown( $args ); ?>
-
+		<input name="parent_id" id="parent_id" type="number" step="1" value="<?php echo esc_attr( $reply_topic_id ); ?>" />
 	</p>
 
 	<?php
