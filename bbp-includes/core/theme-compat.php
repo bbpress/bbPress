@@ -417,7 +417,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	 * @see http://bbpress.trac.wordpress.org/ticket/1973
 	 */
 	if ( ! $wp_query->is_404() )
-		status_header( '200' );
+		status_header( 200 );
 
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active();
