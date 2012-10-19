@@ -98,7 +98,6 @@ class BBP_Admin {
 		require( $this->admin_dir . 'topics.php'    );
 		require( $this->admin_dir . 'replies.php'   );
 		require( $this->admin_dir . 'users.php'     );
-		require( $this->admin_dir . 'ajax.php'      );
 	}
 
 	/**
@@ -120,7 +119,15 @@ class BBP_Admin {
 		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'       ) ); // Add green admin style
 		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
 		add_action( 'bbp_activation',              array( $this, 'new_install'                ) ); // Add menu item to settings menu
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
 		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Forums 'Right now' Dashboard widget
+
+		/** Ajax **************************************************************/
+
+		add_action( 'wp_ajax_bbp_suggest_forum',        array( $this, 'suggest_forum' ) );
+		add_action( 'wp_ajax_nopriv_bbp_suggest_forum', array( $this, 'suggest_forum' ) );
+		add_action( 'wp_ajax_bbp_suggest_topic',        array( $this, 'suggest_topic' ) );
+		add_action( 'wp_ajax_nopriv_bbp_suggest_topic', array( $this, 'suggest_topic' ) );
 
 		/** Filters ***********************************************************/
 
@@ -467,6 +474,14 @@ class BBP_Admin {
 	}
 
 	/**
+	 * Enqueue any admin scripts we might need
+	 * @since bbPress (4260)
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_script( 'suggest' );
+	}
+	
+	/**
 	 * Add some general styling to the admin area
 	 *
 	 * @since bbPress (r2464)
@@ -502,6 +517,29 @@ class BBP_Admin {
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
 		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
 		$reply_class = sanitize_html_class( bbp_get_reply_post_type() ); ?>
+
+		<script type="text/javascript">
+			jQuery(document).ready(function() {
+
+				var bbp_forum_id = jQuery( '#bbp_forum_id' );
+
+				bbp_forum_id.suggest( ajaxurl + '?action=bbp_suggest_forum', {
+					onSelect: function() {
+						var value = this.value;
+						bbp_forum_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+					}
+				} );
+
+				var bbp_topic_id = jQuery( '#bbp_topic_id' );
+
+				bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
+					onSelect: function() {
+						var value = this.value;
+						bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+					}
+				} );
+			});
+		</script>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -1174,6 +1212,42 @@ class BBP_Admin {
 	 */
 	public function register_admin_style () {
 		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+	}
+
+	/** Ajax ******************************************************************/
+
+	/**
+	 * Ajax action for facilitating the forum auto-suggest
+	 *
+	 * @since bbPress (rxxxx)
+	 * 
+	 * @uses get_posts()
+	 * @uses bbp_get_forum_post_type()
+	 * @uses bbp_get_forum_id()
+	 * @uses bbp_get_forum_title()
+	 */
+	public function suggest_forum() {
+		foreach ( get_posts( array( 's' => like_escape( $_REQUEST['q'] ), 'post_type' => bbp_get_forum_post_type() ) ) as $post ) {
+			echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_forum_id( $post->ID ), bbp_get_forum_title( $post->ID ) ) . "\n";
+		}
+		die();
+	}
+
+	/**
+	 * Ajax action for facilitating the forum auto-suggest
+	 *
+	 * @since bbPress (rxxxx)
+	 * 
+	 * @uses get_posts()
+	 * @uses bbp_get_topic_post_type()
+	 * @uses bbp_get_topic_id()
+	 * @uses bbp_get_topic_title()
+	 */
+	public function suggest_topic() {
+		foreach ( get_posts( array( 's' => like_escape( $_REQUEST['q'] ), 'post_type' => bbp_get_topic_post_type() ) ) as $post ) {
+			echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
+		}
+		die();
 	}
 
 	/** About *****************************************************************/

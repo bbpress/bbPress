@@ -298,7 +298,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_forum_id" value="<?php echo esc_attr( $post_parent ); ?>" />
+		<input name="parent_id" id="bbp_forum_id" type="text" value="<?php echo esc_attr( $post_parent ); ?>" />
 	</p>
 
 	<p>
@@ -329,16 +329,14 @@ function bbp_topic_metabox() {
 	// Post ID
 	$post_id = get_the_ID(); ?>
 
-	<p><strong><?php _e( 'Topic Type', 'bbpress' ); ?></strong></p>
-
 	<p>
+		<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_stick_topic"><?php _e( 'Topic Type', 'bbpress' ); ?></label>
 		<?php bbp_topic_type_select( array( 'topic_id' => $post_id ) ); ?>
 	</p>
 
-	<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
-
 	<p>
+		<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
 		<input name="parent_id" id="bbp_forum_id" type="text" value="<?php bbp_topic_forum_id( $post_id ); ?>" />
 	</p>
@@ -372,18 +370,16 @@ function bbp_reply_metabox() {
 	// Allow individual manipulation of reply forum
 	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
 
-		<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
-
 		<p>
+			<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
 			<input name="bbp_forum_id" id="bbp_forum_id" type="text" value="<?php echo esc_attr( $reply_forum_id ); ?>" />
 		</p>
 
 	<?php endif; ?>
 
-	<p><strong><?php _e( 'Topic', 'bbpress' ); ?></strong></p>
-
 	<p>
+		<strong class="label"><?php _e( 'Topic:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
 		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" />
 	</p>
@@ -413,34 +409,30 @@ function bbp_author_metabox() {
 	// Show extra bits if topic/reply is anonymous
 	if ( bbp_is_reply_anonymous( $post_id ) || bbp_is_topic_anonymous( $post_id ) ) : ?>
 
-		<p><strong><?php _e( 'Name', 'bbpress' ); ?></strong></p>
-
 		<p>
+			<strong class="label"><?php _e( 'Name:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_name', true ) ); ?>" size="25" />
+			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_name', true ) ); ?>" />
 		</p>
 
-		<p><strong><?php _e( 'Email', 'bbpress' ); ?></strong></p>
-
 		<p>
+			<strong class="label"><?php _e( 'Email:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_email', true ) ); ?>" size="25" />
+			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_email', true ) ); ?>" />
 		</p>
 
-		<p><strong><?php _e( 'Website', 'bbpress' ); ?></strong></p>
-
 		<p>
+			<strong class="label"><?php _e( 'Website:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_website', true ) ); ?>" size="25" />
+			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_website', true ) ); ?>" />
 		</p>
 
 	<?php endif; ?>
 
-	<p><strong><?php _e( 'IP Address', 'bbpress' ); ?></strong></p>
-
 	<p>
+		<strong class="label"><?php _e( 'IP:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_author_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
-		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_author_ip', true ) ); ?>" size="25" disabled="disabled" />
+		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_author_ip', true ) ); ?>" disabled="disabled" />
 	</p>
 
 	<?php

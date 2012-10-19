@@ -440,6 +440,11 @@ class BBP_Topics_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
+			strong.label {
+				display: inline-block;
+				width: 60px;
+			}
+
 			.column-bbp_forum_topic_count,
 			.column-bbp_forum_reply_count,
 			.column-bbp_topic_reply_count,
