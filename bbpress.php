@@ -192,15 +192,15 @@ final class bbPress {
 		$this->plugin_url = apply_filters( 'bbp_plugin_dir_url',   plugin_dir_url ( $this->file ) );
 
 		// Themes
-		$this->themes_dir = apply_filters( 'bbp_themes_dir', trailingslashit( $this->plugin_dir . 'bbp-themes' ) );
-		$this->themes_url = apply_filters( 'bbp_themes_url', trailingslashit( $this->plugin_url . 'bbp-themes' ) );
+		$this->themes_dir = apply_filters( 'bbp_themes_dir', trailingslashit( $this->plugin_dir . 'templates' ) );
+		$this->themes_url = apply_filters( 'bbp_themes_url', trailingslashit( $this->plugin_url . 'templates' ) );
 
 		// Languages
-		$this->lang_dir   = apply_filters( 'bbp_lang_dir', trailingslashit( $this->plugin_dir . 'bbp-languages' ) );
+		$this->lang_dir   = apply_filters( 'bbp_lang_dir', trailingslashit( $this->plugin_dir . 'languages' ) );
 
 		// Includes
-		$this->includes_dir = apply_filters( 'bbp_includes_dir', trailingslashit( $this->plugin_dir . 'bbp-includes' ) );
-		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'bbp-includes' ) );
+		$this->includes_dir = apply_filters( 'bbp_includes_dir', trailingslashit( $this->plugin_dir . 'includes' ) );
+		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'includes' ) );
 		
 		/** Identifiers *******************************************************/
 
