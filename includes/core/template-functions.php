@@ -66,6 +66,10 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	$parent_theme   = get_template_directory();
 	$fallback_theme = bbp_get_theme_compat_dir();
 
+	// Allow templates to be filtered
+	// bbPress core automatically adds bbp_add_template_locations()
+	$template_names = apply_filters( 'bbp_locate_template', $template_names );
+
 	// Try to find a template file
 	foreach ( (array) $template_names as $template_name ) {
 
@@ -163,11 +167,11 @@ function bbp_add_template_locations( $templates = array() ) {
 	$locations = bbp_get_template_locations( $templates );
 
 	// Loop through locations and templates and combine
-	foreach ( $locations as $location )
-		foreach ( $templates as $template )
-			$retval[] = trailingslashit( $location ) . $template;
+	foreach ( (array) $locations as $location )
+		foreach ( (array) $templates as $template )
+			$retval[] = ltrim( trailingslashit( $location ) . $template, '/' );
 
-	return apply_filters( 'bbp_add_template_locations', $retval, $templates );
+	return apply_filters( 'bbp_add_template_locations', array_unique( $retval ), $templates );
 }
 
 /**
