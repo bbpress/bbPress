@@ -110,8 +110,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	public function before_main_content() {
 	?>
 
-		<div id="container">
-			<div id="content" role="main">
+		<div id="bbp-container">
+			<div id="bbp-content" role="main">
 
 	<?php
 	}
@@ -125,8 +125,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	public function after_main_content() {
 	?>
 
-			</div><!-- #content -->
-		</div><!-- #container -->
+			</div><!-- #bbp-content -->
+		</div><!-- #bbp-container -->
 
 	<?php
 	}
