@@ -1047,11 +1047,14 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 		if ( empty( $subject ) )
 			continue;
 
+		// Custom headers
+		$headers = apply_filters( 'bbp_subscription_mail_headers', array() );
+
 		// Get user data of this user
 		$user = get_userdata( $user_id );
 
 		// Send notification email
-		wp_mail( $user->user_email, $subject, $message );
+		wp_mail( $user->user_email, $subject, $message, $headers );
 	}
 
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
