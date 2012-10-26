@@ -790,65 +790,67 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 	$active_id = empty( $reply_id ) ? $topic_id : $reply_id;
 
 	// Setup ancestors array to walk up
-	$ancestors = array_values( array_unique( array_merge( array( $topic_id, $forum_id ), get_post_ancestors( $topic_id ) ) ) );
+	$ancestors = array_values( array_unique( array_merge( array( $topic_id, $forum_id ), (array) get_post_ancestors( $topic_id ) ) ) );
 
 	// If we want a full refresh, unset any of the possibly passed variables
 	if ( true == $refresh )
 		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
 
 	// Walk up ancestors
-	foreach ( $ancestors as $ancestor ) {
+	if ( !empty( $ancestors ) ) {
+		foreach ( $ancestors as $ancestor ) {
 
-		// Reply meta relating to most recent reply
-		if ( bbp_is_reply( $ancestor ) ) {
-			// @todo - hierarchical replies
+			// Reply meta relating to most recent reply
+			if ( bbp_is_reply( $ancestor ) ) {
+				// @todo - hierarchical replies
 
-		// Topic meta relating to most recent reply
-		} elseif ( bbp_is_topic( $ancestor ) ) {
+			// Topic meta relating to most recent reply
+			} elseif ( bbp_is_topic( $ancestor ) ) {
 
-			// Last reply and active ID's
-			bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
-			bbp_update_topic_last_active_id( $ancestor, $active_id );
+				// Last reply and active ID's
+				bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
+				bbp_update_topic_last_active_id( $ancestor, $active_id );
 
-			// Get the last active time if none was passed
-			$topic_last_active_time = $last_active_time;
-			if ( empty( $last_active_time ) ) {
-				$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+				// Get the last active time if none was passed
+				$topic_last_active_time = $last_active_time;
+				if ( empty( $last_active_time ) ) {
+					$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+				}
+
+				// Only update if reply is published
+				if ( bbp_is_reply_published( $reply_id ) ) {
+					bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
+				}
+
+				// Counts
+				bbp_update_topic_voice_count       ( $ancestor );
+				bbp_update_topic_reply_count       ( $ancestor );
+				bbp_update_topic_reply_count_hidden( $ancestor );
+
+			// Forum meta relating to most recent topic
+			} elseif ( bbp_is_forum( $ancestor ) ) {
+
+				// Last topic and reply ID's
+				bbp_update_forum_last_topic_id( $ancestor, $topic_id );
+				bbp_update_forum_last_reply_id( $ancestor, $reply_id );
+
+				// Last Active
+				bbp_update_forum_last_active_id( $ancestor, $active_id );
+
+				// Get the last active time if none was passed
+				$forum_last_active_time = $last_active_time;
+				if ( empty( $last_active_time ) ) {
+					$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
+				}
+
+				// Only update if reply is published
+				if ( bbp_is_reply_published( $reply_id ) ) {
+					bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
+				}
+
+				// Counts
+				bbp_update_forum_reply_count( $ancestor );
 			}
-
-			// Only update if reply is published
-			if ( bbp_is_reply_published( $reply_id ) ) {
-				bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
-			}
-
-			// Counts
-			bbp_update_topic_voice_count       ( $ancestor );
-			bbp_update_topic_reply_count       ( $ancestor );
-			bbp_update_topic_reply_count_hidden( $ancestor );
-
-		// Forum meta relating to most recent topic
-		} elseif ( bbp_is_forum( $ancestor ) ) {
-
-			// Last topic and reply ID's
-			bbp_update_forum_last_topic_id( $ancestor, $topic_id );
-			bbp_update_forum_last_reply_id( $ancestor, $reply_id );
-
-			// Last Active
-			bbp_update_forum_last_active_id( $ancestor, $active_id );
-
-			// Get the last active time if none was passed
-			$forum_last_active_time = $last_active_time;
-			if ( empty( $last_active_time ) ) {
-				$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
-			}
-
-			// Only update if reply is published
-			if ( bbp_is_reply_published( $reply_id ) ) {
-				bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
-			}
-
-			// Counts
-			bbp_update_forum_reply_count( $ancestor );
 		}
 	}
 }
@@ -881,17 +883,19 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	if ( empty( $forum_id ) ) {
 
 		// Get ancestors
-		$ancestors = get_post_ancestors( $reply_id );
+		$ancestors = (array) get_post_ancestors( $reply_id );
 
 		// Loop through ancestors
-		foreach ( $ancestors as $ancestor ) {
+		if ( !empty( $ancestors ) ) {
+			foreach ( $ancestors as $ancestor ) {
 
-			// Get first parent that is a forum
-			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
-				$forum_id = $ancestor;
+				// Get first parent that is a forum
+				if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
+					$forum_id = $ancestor;
 
-				// Found a forum, so exit the loop and continue
-				continue;
+					// Found a forum, so exit the loop and continue
+					continue;
+				}
 			}
 		}
 	}
@@ -928,17 +932,19 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	if ( empty( $topic_id ) ) {
 
 		// Get ancestors
-		$ancestors = get_post_ancestors( $reply_id );
+		$ancestors = (array) get_post_ancestors( $reply_id );
 
 		// Loop through ancestors
-		foreach ( $ancestors as $ancestor ) {
+		if ( !empty( $ancestors ) ) {
+			foreach ( $ancestors as $ancestor ) {
 
-			// Get first parent that is a forum
-			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
-				$topic_id = $ancestor;
+				// Get first parent that is a forum
+				if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
+					$topic_id = $ancestor;
 
-				// Found a forum, so exit the loop and continue
-				continue;
+					// Found a forum, so exit the loop and continue
+					continue;
+				}
 			}
 		}
 	}

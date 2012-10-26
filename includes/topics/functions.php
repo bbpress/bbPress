@@ -866,7 +866,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	}
 
 	// Get topic ancestors
-	$ancestors = array_values( array_unique( array_merge( array( $forum_id ), get_post_ancestors( $topic_id ) ) ) );
+	$ancestors = array_values( array_unique( array_merge( array( $forum_id ), (array) get_post_ancestors( $topic_id ) ) ) );
 
 	// Topic status
 	$topic_status = get_post_status( $topic_id );
@@ -878,20 +878,22 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	}
 
 	// Loop through ancestors
-	foreach ( $ancestors as $ancestor ) {
+	if ( !empty( $ancestors ) ) {
+		foreach ( $ancestors as $ancestor ) {
 
-		// If ancestor is a forum, update counts
-		if ( bbp_is_forum( $ancestor ) ) {
+			// If ancestor is a forum, update counts
+			if ( bbp_is_forum( $ancestor ) ) {
 
-			// Update the forum
-			bbp_update_forum( array(
-				'forum_id'           => $ancestor,
-				'last_topic_id'      => $topic_id,
-				'last_reply_id'      => $reply_id,
-				'last_active_id'     => $active_id,
-				'last_active_time'   => 0,
-				'last_active_status' => $topic_status
-			) );
+				// Update the forum
+				bbp_update_forum( array(
+					'forum_id'           => $ancestor,
+					'last_topic_id'      => $topic_id,
+					'last_reply_id'      => $reply_id,
+					'last_active_id'     => $active_id,
+					'last_active_time'   => 0,
+					'last_active_status' => $topic_status
+				) );
+			}
 		}
 	}
 }
@@ -972,30 +974,10 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	/** Old forum_id **********************************************************/
 
 	// Get topic ancestors
-	$ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), get_post_ancestors( $old_forum_id ) ) ) );
+	$ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
 
 	// Loop through ancestors
-	foreach ( $ancestors as $ancestor ) {
-
-		// If ancestor is a forum, update counts
-		if ( bbp_is_forum( $ancestor ) ) {
-
-			// Update the forum
-			bbp_update_forum( array(
-				'forum_id' => $ancestor,
-			) );
-		}
-	}
-
-	/** New forum_id **********************************************************/
-
-	// Make sure we're not walking twice
-	if ( !in_array( $new_forum_id, $ancestors ) ) {
-
-		// Get topic ancestors
-		$ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), get_post_ancestors( $new_forum_id ) ) ) );
-
-		// Loop through ancestors
+	if ( !empty( $ancestors ) ) {
 		foreach ( $ancestors as $ancestor ) {
 
 			// If ancestor is a forum, update counts
@@ -1005,6 +987,30 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 				bbp_update_forum( array(
 					'forum_id' => $ancestor,
 				) );
+			}
+		}
+	}
+
+	/** New forum_id **********************************************************/
+
+	// Make sure we're not walking twice
+	if ( !in_array( $new_forum_id, $ancestors ) ) {
+
+		// Get topic ancestors
+		$ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), (array) get_post_ancestors( $new_forum_id ) ) ) );
+
+		// Loop through ancestors
+		if ( !empty( $ancestors ) ) {
+			foreach ( $ancestors as $ancestor ) {
+
+				// If ancestor is a forum, update counts
+				if ( bbp_is_forum( $ancestor ) ) {
+
+					// Update the forum
+					bbp_update_forum( array(
+						'forum_id' => $ancestor,
+					) );
+				}
 			}
 		}
 	}
