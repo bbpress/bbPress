@@ -1519,7 +1519,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
-		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', '', false ); ?></pubDate>
+		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', current_time( 'mysql' ), false ); ?></pubDate>
 		<generator>http://bbpress.org/?v=<?php bbp_version(); ?></generator>
 		<language><?php echo get_option( 'rss_language' ); ?></language>
 
