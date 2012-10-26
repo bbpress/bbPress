@@ -173,7 +173,7 @@ class BBP_BuddyPress {
 			// Hook into topic and reply status changes
 			add_action( 'wp_insert_post',                    array( $this, 'topic_update'              ), 10, 2 );
 			add_action( 'wp_insert_post',                    array( $this, 'reply_update'              ), 10, 2 );
- 
+
 			// Hook into topic and reply deletion
 			add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
 			add_action( 'bbp_delete_reply',                  array( $this, 'reply_delete'              ), 10, 1 );
@@ -226,13 +226,27 @@ class BBP_BuddyPress {
 		add_filter( 'bbp_get_favorites_permalink',     array( $this, 'get_favorites_permalink'     ), 10, 2 );
 		add_filter( 'bbp_get_subscriptions_permalink', array( $this, 'get_subscriptions_permalink' ), 10, 2 );
 
+		/** Links and pagination **********************************************/
+
 		// Map forum/topic/replys permalinks to their groups
 		add_filter( 'bbp_get_forum_permalink', array( $this, 'map_forum_permalink_to_group' ), 10, 2 );
 		add_filter( 'bbp_get_topic_permalink', array( $this, 'map_topic_permalink_to_group' ), 10, 2 );
 		add_filter( 'bbp_get_reply_permalink', array( $this, 'map_reply_permalink_to_group' ), 10, 2 );
 
+		// Map reply edit links to their groups
+		add_filter( 'bbp_get_reply_edit_url',  array( $this, 'map_reply_edit_url_to_group'  ), 10, 2 );
+
+		// Map assorted template function permalinks
+		add_filter( 'post_link',               array( $this, 'post_link'                    ), 10, 2 );
+		add_filter( 'page_link',               array( $this, 'page_link'                    ), 10, 2 );
+		add_filter( 'post_type_link',          array( $this, 'post_type_link'               ), 10, 2 );
+
 		// Canonical redirects for normal URLs
 		add_action( 'template_redirect', array( $this, 'redirect_canonical' ) );
+
+		// Group forum pagination
+		add_filter( 'bbp_topic_pagination',   array( $this, 'topic_pagination'   ) );
+		add_filter( 'bbp_replies_pagination', array( $this, 'replies_pagination' ) );
 
 		/** Mentions **********************************************************/
 
@@ -382,12 +396,12 @@ class BBP_BuddyPress {
 
 		// Bail if no activity ID is in post meta
 		if ( empty( $activity_id ) )
-			return false;
+			return null;
 
 		// Get the activity stream item, bail if it doesn't exist
 		$existing = bp_activity_get_specific( array( 'activity_ids' => $activity_id, 'show_hidden' => true, 'spam' => 'all', ) );
 		if ( empty( $existing['total'] ) || ( 1 != $existing['total'] ) )
-			return false;
+			return null;
 
 		// Return the activity ID since we've verified the connection
 		return $activity_id;
@@ -606,6 +620,7 @@ class BBP_BuddyPress {
 
 		// Compile the activity stream results
 		$activity = array(
+			'id'                => $this->get_activity_id( $topic_id ),
 			'user_id'           => $user_id,
 			'action'            => $activity_action,
 			'content'           => $activity_content,
@@ -615,11 +630,6 @@ class BBP_BuddyPress {
 			'secondary_item_id' => $forum_id,
 			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
 		);
-
-		// Check for existing activity entry ID
-		$activity_id = $this->get_activity_id( $topic_id );
-		if ( ! empty( $activity_id ) )
-			$activity['id'] = $activity_id; 
 
 		// Record the activity
 		$activity_id = $this->record_activity( $activity );
@@ -639,11 +649,10 @@ class BBP_BuddyPress {
 	public function topic_delete( $topic_id ) {
 
 		// Get activity ID, bail if it doesn't exist
-		$activity_id = $this->get_activity_id( $topic_id ); 
-		if ( empty( $activity_id ) )
-			return false;
+		if ( $activity_id = $this->get_activity_id( $topic_id ) )
+			return bp_activity_delete( array( 'id' => $activity_id ) );
 
-		return bp_activity_delete( array( 'id' => $activity_id ) );
+		return false;		
 	}
 
 	/**
@@ -679,7 +688,7 @@ class BBP_BuddyPress {
 		if ( in_array( $post->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
 
 			// Validate topic data
-			$forum_id = bbp_get_topic_forum_id( $topic_id );
+			$forum_id        = bbp_get_topic_forum_id( $topic_id );
 			$topic_author_id = bbp_get_topic_author_id( $topic_id );
 
 			$this->topic_create( $topic_id, $forum_id, $anonymous_data, $topic_author_id );
@@ -764,6 +773,7 @@ class BBP_BuddyPress {
 
 		// Compile the activity stream results
 		$activity = array(
+			'id'                => $this->get_activity_id( $reply_id ),
 			'user_id'           => $user_id,
 			'action'            => $activity_action,
 			'content'           => $activity_content,
@@ -771,13 +781,8 @@ class BBP_BuddyPress {
 			'type'              => $this->reply_create,
 			'item_id'           => $reply_id,
 			'secondary_item_id' => $topic_id,
-		        'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
+			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
 		);
-
-		// Check for existing activity entry ID
-		$activity_id = $this->get_activity_id( $reply_id );
-		if ( ! empty( $activity_id ) )
-			$activity['id'] = $activity_id;
 
 		// Record the activity
 		$activity_id = $this->record_activity( $activity );
@@ -798,15 +803,14 @@ class BBP_BuddyPress {
 	public function reply_delete( $reply_id ) {
 
 		// Get activity ID, bail if it doesn't exist
-		$activity_id = $this->get_activity_id( $reply_id ); 
-		if ( empty( $activity_id ) )
-			return false;
+		if ( $activity_id = $this->get_activity_id( $reply_id ) )
+			return bp_activity_delete( array( 'id' => $activity_id ) );
 
-		return bp_activity_delete( array( 'id' => $activity_id ) );
+		return false;		
 	}
 
 	/**
-	 * Update the activity stream entry when a reply status changes 
+	 * Update the activity stream entry when a reply status changes
 	 *
 	 * @param int $post_id
 	 * @param obj $post
@@ -839,8 +843,8 @@ class BBP_BuddyPress {
 		if ( $post->post_status == bbp_get_public_status_id() ) {
 
 			// Validate reply data
-			$topic_id = bbp_get_reply_topic_id( $reply_id );
-			$forum_id = bbp_get_reply_forum_id( $reply_id );
+			$topic_id        = bbp_get_reply_topic_id( $reply_id );
+			$forum_id        = bbp_get_reply_forum_id( $reply_id );
 			$reply_author_id = bbp_get_reply_author_id( $reply_id );
 
 			$this->reply_create( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author_id );
@@ -849,99 +853,214 @@ class BBP_BuddyPress {
 		}
 	}
 
+	/** Permalink Mappers *****************************************************/
+
 	/**
-	 * Map a forum permalink to the corresponding group
+	 * Maybe map a bbPress forum/topic/reply permalink to the corresponding group
+	 *
+	 * @param int $post_id
+	 * @uses get_post()
+	 * @uses bbp_is_reply()
+	 * @uses bbp_get_reply_topic_id()
+	 * @uses bbp_get_reply_forum_id()
+	 * @uses bbp_is_topic()
+	 * @uses bbp_get_topic_forum_id()
+	 * @uses bbp_is_forum()
+	 * @uses get_post_field()
+	 * @uses bbp_get_forum_group_ids()
+	 * @uses groups_get_group()
+	 * @uses bp_get_group_admin_permalink()
+	 * @uses bp_get_group_permalink()
+	 * @return Bail early if not a group forum post
+	 * @return string
+	 */
+	private function maybe_map_permalink_to_group( $post_id = 0, $url = false ) {
+
+		switch ( get_post_type( $post_id ) ) {
+
+			// Reply
+			case bbp_get_reply_post_type() :
+				$topic_id = bbp_get_reply_topic_id( $post_id );
+				$forum_id = bbp_get_reply_forum_id( $post_id );
+				$url_end  = trailingslashit( $this->reply_slug ) . get_post_field( 'post_name', $post_id );
+				break;
+
+			// Topic
+			case bbp_get_topic_post_type() :
+				$topic_id = $post_id;
+				$forum_id = bbp_get_topic_forum_id( $post_id );
+				$url_end  = trailingslashit( $this->topic_slug ) . get_post_field( 'post_name', $post_id );
+				break;
+
+			// Forum
+			case bbp_get_forum_post_type() :
+				$forum_id = $post_id;
+				$url_end  = get_post_field( 'post_name', $post_id );
+				break;
+
+			// Unknown
+			default :
+				return $url;
+				break;
+		}
+		
+		// Get group ID's for this forum
+		$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+		// Bail if the post isn't associated with a group
+		if ( empty( $group_ids ) )
+			return $url;
+
+		// @todo Multiple group forums/forum groups
+		$group_id = $group_ids[0];
+		$group    = groups_get_group( array( 'group_id' => $group_id ) );
+
+		if ( bp_is_group_admin_screen( $this->forums_slug ) ) {
+			$group_permalink = trailingslashit( bp_get_group_admin_permalink( $group ) );
+		} else {
+			$group_permalink = trailingslashit( bp_get_group_permalink( $group ) );
+		}
+
+		return trailingslashit( trailingslashit( $group_permalink . $this->forums_slug ) . $url_end );
+	}
+
+	/**
+	 * Map a forum permalink to its corresponding group
 	 *
 	 * @since bbPress (r3802)
 	 * @param string $url
 	 * @param int $forum_id
+	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_forum_permalink_to_group( $url, $forum_id ) {
-		$slug      = get_post_field( 'post_name', $forum_id );
-		$group_ids = bbp_get_forum_group_ids( $forum_id );
-
-		// If the topic is not associated with a group, don't mess with it
-		if ( !empty( $group_ids ) ) {
-
-			// @todo Multiple group forums/forum groups
-			$group_id = $group_ids[0];
-			$group    = groups_get_group( array( 'group_id' => $group_id ) );
-
-			if ( bp_is_group_admin_screen( $this->forums_slug ) ) {
-				$group_permalink = bp_get_group_admin_permalink( $group );
-			} else {
-				$group_permalink = bp_get_group_permalink( $group );
-			}
-
-			$url = trailingslashit( $group_permalink . $this->forums_slug . '/' . $slug );
-		}
-
-		return $url;
+		return $this->maybe_map_permalink_to_group( $forum_id, $url );
 	}
 
 	/**
-	 * Map a topic permalink to the current group forum
+	 * Map a topic permalink to its group forum
 	 *
 	 * @since bbPress (r3802)
 	 * @param string $url
 	 * @param int $topic_id
+	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_topic_permalink_to_group( $url, $topic_id ) {
-		$slug      = get_post_field( 'post_name', $topic_id );
-		$forum_id  = bbp_get_topic_forum_id( $topic_id );
-		$group_ids = bbp_get_forum_group_ids( $forum_id );
-
-		// If the topic is not associated with a group, don't mess with it
-		if ( !empty( $group_ids ) ) {
-
-			// @todo Multiple group forums/forum groups
-			$group_id = $group_ids[0];
-			$group    = groups_get_group( array( 'group_id' => $group_id ) );
-
-			if ( bp_is_group_admin_screen( $this->forums_slug ) ) {
-				$group_permalink = bp_get_group_admin_permalink( $group );
-			} else {
-				$group_permalink = bp_get_group_permalink( $group );
-			}
-
-			$url = trailingslashit( $group_permalink . $this->forums_slug . '/' . $this->topic_slug . '/' . $slug );
-		}
-
-		return $url;
+		return $this->maybe_map_permalink_to_group( $topic_id, $url );
 	}
 
 	/**
-	 * Map a topic permalink to the current group forum
+	 * Map a reply permalink to its group forum
 	 *
 	 * @since bbPress (r3802)
 	 * @param string $url
 	 * @param int $reply_id
+	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_reply_permalink_to_group( $url, $reply_id ) {
-		$slug      = get_post_field( 'post_name', $reply_id );
-		$forum_id  = bbp_get_reply_forum_id( $reply_id );
-		$group_ids = bbp_get_forum_group_ids( $forum_id );
+		return $this->maybe_map_permalink_to_group( bbp_get_reply_topic_id( $reply_id ), $url );
+	}
 
-		// If the topic is not associated with a group, don't mess with it
-		if ( !empty( $group_ids ) ) {
+	/**
+	 * Map a reply edit link to its group forum
+	 *
+	 * @param string $url
+	 * @param int $reply_id
+	 * @uses maybe_map_permalink_to_group()
+	 * @return string
+	 */
+	public function map_reply_edit_url_to_group( $url, $reply_id ) {
+		$new = $this->maybe_map_permalink_to_group( $reply_id );
 
-			// @todo Multiple group forums/forum groups
-			$group_id = $group_ids[0];
-			$group    = groups_get_group( array( 'group_id' => $group_id ) );
+		if ( empty( $new ) )
+			return $url;
 
-			if ( bp_is_group_admin_screen( $this->forums_slug ) ) {
-				$group_permalink = bp_get_group_admin_permalink( $group );
-			} else {
-				$group_permalink = bp_get_group_permalink( $group );
-			}
+		return trailingslashit( $new ) . bbpress()->edit_id  . '/';
+	}
 
-			$url = trailingslashit( $group_permalink . $this->forums_slug . '/' . $this->topic_slug . '/' . $slug );
-		}
+	/**
+	 * Map a post link to its group forum
+	 *
+	 * @param string $url
+	 * @param obj $post
+	 * @param boolean $leavename
+	 * @uses maybe_map_permalink_to_group()
+	 * @return string
+	 */
+	public function post_link( $url, $post ) {
+		return $this->maybe_map_permalink_to_group( $post->ID, $url );
+	}
 
-		return $url;
+	/**
+	 * Map a page link to its group forum
+	 *
+	 * @param string $url
+	 * @param int $post_id
+	 * @param $sample
+	 * @uses maybe_map_permalink_to_group()
+	 * @return string
+	 */
+	public function page_link( $url, $post_id ) {
+		return $this->maybe_map_permalink_to_group( $post_id, $url );
+	}
+
+	/**
+	 * Map a custom post type link to its group forum
+	 *
+	 * @param string $url
+	 * @param obj $post
+	 * @param $leavename
+	 * @param $sample
+	 * @uses maybe_map_permalink_to_group()
+	 * @return string
+	 */
+	public function post_type_link( $url, $post ) {
+		return $this->maybe_map_permalink_to_group( $post->ID, $url );
+	}
+
+	/**
+	 * Fix pagination of topics on forum view
+	 *
+	 * @param array $args
+	 * @global $wp_rewrite
+	 * @uses bbp_get_forum_id()
+	 * @uses maybe_map_permalink_to_group
+	 * @return array
+ 	 */
+	public function topic_pagination( $args ) {
+		$new = $this->maybe_map_permalink_to_group( bbp_get_forum_id() );
+
+		if ( empty( $new ) )
+			return $args;
+
+		global $wp_rewrite;
+
+		$args['base'] = trailingslashit( $new ) . $wp_rewrite->pagination_base . '/%#%/';
+
+		return $args;
+	}
+
+	/**
+	 * Fix pagination of replies on topic view
+	 *
+	 * @param array $args
+	 * @global $wp_rewrite
+	 * @uses bbp_get_topic_id()
+	 * @uses maybe_map_permalink_to_group
+	 * @return array
+	 */
+	public function replies_pagination( $args ) {
+		$new = $this->maybe_map_permalink_to_group( bbp_get_topic_id() );
+		if ( empty( $new ) )
+			return $args;
+
+		global $wp_rewrite;
+
+		$args['base'] = trailingslashit( $new ) . $wp_rewrite->pagination_base . '/%#%/';
+
+		return $args;
 	}
 
 	/**
@@ -952,29 +1071,39 @@ class BBP_BuddyPress {
 	 */
 	function redirect_canonical() {
 
+		// Viewing a single forum
 		if ( bbp_is_single_forum() ) {
 			$forum_id  = get_the_ID();
 			$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+		// Viewing a single topic
 		} elseif ( bbp_is_single_topic() ) {
 			$topic_id  = get_the_ID();
 			$slug      = get_post_field( 'post_name', $topic_id );
 			$forum_id  = bbp_get_topic_forum_id( $topic_id );
 			$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+		// Not a forum or topic
+		} else {
+			return;
 		}
 
-		if ( !empty( $group_ids ) ) {
-			// @todo Multiple group forums/forum groups
-			$group_id 	     = $group_ids[0];
-			$group    	     = groups_get_group( array( 'group_id' => $group_id ) );
-			$group_permalink = bp_get_group_permalink( $group );
-			$redirect_to     = trailingslashit( $group_permalink . $this->forums_slug );
+		// Bail if not a group forum
+		if ( empty( $group_ids ) )
+			return;
 
-			if ( !empty( $slug ) ) {
-				$redirect_to  = trailingslashit( $redirect_to . $this->topic_slug . '/' . $slug );
-			}
+		// Use the first group ID
+		$group_id 	 = $group_ids[0];
+		$group    	 = groups_get_group( array( 'group_id' => $group_id ) );
+		$group_link  = trailingslashit( bp_get_group_permalink( $group ) );
+		$redirect_to = trailingslashit( $group_link . $this->forums_slug );
 
-			bp_core_redirect( $redirect_to );
+		// Add topic slug to URL
+		if ( bbp_is_single_topic() ) {
+			$redirect_to  = trailingslashit( $redirect_to . $this->topic_slug . '/' . $slug );
 		}
+
+		bp_core_redirect( $redirect_to );
 	}
 }
 endif;
@@ -1301,27 +1430,24 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function edit_screen() {
 
-		// Add group admin actions to forum row actions
-		add_action( 'bbp_forum_row_actions', array( $this, 'forum_row_actions' ) );
-		add_action( 'bbp_topic_row_actions', array( $this, 'topic_row_actions' ) );
+		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_current_group_id(), 'forum_id' ); ?>
 
-		// Prevent Topic Parent from appearing
-		add_action( 'bbp_theme_before_topic_form_forum', array( $this, 'ob_start'     ) );
-		add_action( 'bbp_theme_after_topic_form_forum',  array( $this, 'ob_end_clean' ) );
-		add_action( 'bbp_theme_after_topic_form_forum',  array( $this, 'topic_parent' ) );
+		<h4><?php _e( 'Enable Group Forum', 'bbpress' ); ?></h4>
 
-		// Prevent Forum Parent from appearing
-		add_action( 'bbp_theme_before_forum_form_parent', array( $this, 'ob_start'     ) );
-		add_action( 'bbp_theme_after_forum_form_parent',  array( $this, 'ob_end_clean' ) );
-		add_action( 'bbp_theme_after_forum_form_parent',  array( $this, 'forum_parent' ) );
+		<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
-		// Do not show the new topic form in the moderation area
-		add_filter( 'bbp_current_user_can_access_create_topic_form', '__return_false' );
+		<div class="checkbox">
+			<label><input type="checkbox" name="bbp-create-group-forum" id="bbp-create-group-forum" value="1"<?php checked( $checked ); ?> /> <?php _e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
+		</div>
 
-		// Hide breadcrumb
-		add_filter( 'bbp_no_breadcrumb', '__return_true' );
+		<p class="description"><?php _e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
 
-		$this->display_forums( 1 );
+		<input type="submit" value="<?php _e( 'Save Settings', 'bbpress' ); ?>" />
+
+		<?php
+
+		// Verify intent
+		wp_nonce_field( 'groups_edit_save_' . $this->slug );
 	}
 
 	/**
@@ -1341,44 +1467,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( empty( $_POST['action'] ) )
 			return;
 
-		// Handle the different actions that can happen here
-		switch ( $_POST['action'] ) {
+		check_admin_referer( 'groups_edit_save_' . $this->slug );
 
-			// New forum
-			case 'bbp-new-forum' :
+		$edit_forum   = !empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
+		$forum_id     = 0;
+		$forum_ids    = bbp_get_group_forum_ids( bp_get_current_group_id() );
+		if ( !empty( $forum_ids ) )
+			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
 
-				// Redirect back here, not to the new forum
-				add_filter( 'bbp_new_forum_redirect_to',   array( $this, 'edit_redirect_to' )        );
-
-				// Add actions to bbp_new_forum
-				add_action( 'bbp_new_forum',               array( $this, 'new_forum'        ), 10, 4 );
-
-				// Handle the new forum
-				bbp_new_forum_handler();
-
-				break;
-
-			// Edit existing forum
-			case 'bbp-edit-forum' :
-
-				// Redirect back here, not to the new forum
-				add_filter( 'bbp_edit_forum_redirect_to',  array( $this, 'edit_redirect_to' )        );
-
-				// Handle the forum edit
-				bbp_edit_forum_handler();
-
-				break;
-
-			// Trash a forum
-			case 'bbp-trash-forum' :
-				//bbp_trash_forum_handler();
-				break;
-
-			// Permanently delet a forum
-			case 'bbp-delete-forum' :
-				//bbp_delete_forum_handler();
-				break;
-		}
+		// Update forum active
+		groups_update_groupmeta( bp_get_current_group_id(), '_bbp_forum_enabled_' . $forum_id, $edit_forum );
 	}
 
 	/** Create ****************************************************************/
@@ -1396,7 +1494,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' ); ?>
 
-		<h4><?php _e( 'Group Forums', 'bbpress' ); ?></h4>
+		<h4><?php _e( 'Group Forum', 'bbpress' ); ?></h4>
 
 		<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
@@ -1458,6 +1556,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				// Run the BP-specific functions for new groups
 				$this->new_forum( array( 'forum_id' => $forum_id ) );
 
+				// Update forum active
+				groups_update_groupmeta( bp_get_new_group_id(), '_bbp_forum_enabled_' . $forum_id, true );
+
 				break;
 			case false :
 
@@ -1465,6 +1566,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				if ( !empty( $forum_id ) ) {
 					wp_delete_post( $forum_id, true );
 					groups_delete_groupmeta( bp_get_new_group_id(), 'forum_id' );
+					groups_delete_groupmeta( bp_get_new_group_id(), '_bbp_forum_enabled_' . $forum_id );
 				}
 
 				break;
@@ -1547,42 +1649,62 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_get_template_part()
 	 */
 	public function display_forums( $offset = 0 ) {
-		global $wpdb;
-
 		$bbp = bbpress();
 
 		// Forum data
 		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
-		$forum_args = array( 'post__in' => $forum_ids, 'post_parent' => null ); ?>
+		$forum_args = array( 'post__in' => $forum_ids, 'post_parent' => null );
+
+		// Unset global queries
+		$bbp->forum_query = new stdClass;
+		$bbp->topic_query = new stdClass;
+		$bbp->reply_query = new stdClass;
+
+		// Unset global ID's
+		$bbp->current_forum_id     = 0;
+		$bbp->current_topic_id     = 0;
+		$bbp->current_reply_id     = 0;
+		$bbp->current_topic_tag_id = 0;
+
+		// Reset the post data
+		wp_reset_postdata();
+
+		// Allow admins special views
+		$post_status = array( bbp_get_closed_status_id(), bbp_get_public_status_id() );
+		if ( is_super_admin() || current_user_can( 'moderate' ) || bp_is_item_admin() || bp_is_item_mod() )
+			$post_status = array_merge( $post_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ); ?>
 
 		<div id="bbpress-forums">
 
 			<?php
 
 			// Looking at the group forum root
-			if ( ! bp_action_variable( $offset ) ) :
+			if ( !bp_action_variable( $offset ) ) :
 
-				// Query forums and show them if
+				// Query forums and show them if they exist
 				if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) :
 
-					bbp_the_forum();
-
 					// Only one forum found
-					if ( $bbp->forum_query->post_count == 1 ) :?>
+					if ( 1 == $bbp->forum_query->post_count ) :
 
-						<h3><?php _e( 'Forum', 'bbpress' ); ?></h3>
+						// Get forum data
+						$forum_slug = bp_action_variable( $offset );
+						$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
+						$forums     = get_posts( $forum_args );
 
-						<?php bbp_set_query_name( 'bbp_single_forum' ); ?>
+						bbp_the_forum();
 
-						<?php if ( bbp_has_topics( array( 'post_parent' => bbp_get_forum_id() ) ) ) : ?>
+						// Forum exists
+						if ( !empty( $forums ) ) :
+							$forum = $forums[0];
 
-							<?php bbp_get_template_part( 'pagination', 'topics'    ); ?>
+							// Set up forum data
+							$forum_id = bbpress()->current_forum_id = $forum->ID;
+							bbp_set_query_name( 'bbp_single_forum' ); ?>
 
-							<?php bbp_get_template_part( 'loop',       'topics'    ); ?>
+							<h3><?php bbp_forum_title(); ?></h3>
 
-							<?php bbp_get_template_part( 'pagination', 'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'form',       'topic'     ); ?>
+							<?php bbp_get_template_part( 'content', 'single-forum' ); ?>
 
 						<?php else : ?>
 
@@ -1592,8 +1714,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 						<?php endif;
 
-					// More than 1 forum found
-					elseif ( $bbp->forum_query->post_count > 1 ) : ?>
+					// More than 1 forum found or group forum admin screen
+					elseif ( 1 < $bbp->forum_query->post_count ) : ?>
 
 						<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
 
@@ -1626,10 +1748,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 							<p><?php _e( 'This group does not currently have any forums.', 'bbpress' ); ?></p>
 						</div>
 
-						<?php if ( bp_is_group_admin_screen( $this->slug ) ) :
-							bbp_get_template_part( 'form', 'forum' );
-						endif;
-					endif;
+					<?php endif;
 
 				// No forums found
 				else : ?>
@@ -1638,62 +1757,170 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						<p><?php _e( 'This group does not currently have any forums.', 'bbpress' ); ?></p>
 					</div>
 
-					<?php if ( bp_is_group_admin_screen( $this->slug ) ) :
-						bbp_get_template_part( 'form', 'forum' );
-					endif;
-				endif;
+				<?php endif;
 
 			// Single forum
-			elseif ( ( bp_action_variable( $offset ) != $this->slug ) && ( bp_action_variable( $offset ) != $this->topic_slug ) ) :
+			elseif ( ( bp_action_variable( $offset ) != $this->slug ) && ( bp_action_variable( $offset ) != $this->topic_slug ) && ( bp_action_variable( $offset ) != $this->reply_slug ) ) :
 
-				// Get the forum
-				$forum_post_type = bbp_get_forum_post_type();
-				$forum_slug      = bp_action_variable( $offset );
-				$forums          = $wpdb->get_row( "SELECT ID FROM {$wpdb->posts} WHERE post_name = '{$forum_slug}' AND post_type = '{$forum_post_type}'", ARRAY_N );
+				// Get forum data
+				$forum_slug = bp_action_variable( $offset );
+				$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
+				$forums     = get_posts( $forum_args );
 
 				// Forum exists
 				if ( !empty( $forums ) ) :
-					$forum_id              = $forums[0];
-					$bbp->current_forum_id = $forum_id;
-					bbp_set_query_name( 'bbp_single_forum' ); ?>
+					$forum = $forums[0];
 
-					<h3><?php bbp_forum_title(); ?></h3>
+					// Set up forum data
+					$forum_id = bbpress()->current_forum_id = $forum->ID;
 
-					<?php bbp_get_template_part( 'content', 'single-forum' ); ?>
+					// Reset necessary forum_query attributes for forums loop to function
+					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
+					$bbp->forum_query->in_the_loop             = true;
+					$bbp->forum_query->post                    = get_post( $forum_id );
 
-				<?php else : ?>
+					// Forum edit
+					if ( bp_action_variable( $offset + 1 ) == $bbp->edit_id ) :
+						global $wp_query, $post;
 
-					<?php bbp_get_template_part( 'feedback', 'no-topics'   ); ?>
+						$wp_query->bbp_is_edit       = true;
+						$wp_query->bbp_is_forum_edit = true;
+						$post                        = $forum;
 
-					<?php bbp_get_template_part( 'form',     'topic'       ); ?>
+						bbp_set_query_name( 'bbp_forum_form' );
 
-				<?php endif;
+						bbp_get_template_part( 'form', 'forum' );
+
+					else :
+						bbp_set_query_name( 'bbp_single_forum' ); ?>
+
+						<h3><?php bbp_forum_title(); ?></h3>
+
+						<?php bbp_get_template_part( 'content', 'single-forum' );
+
+					endif;
+
+				else :
+					bbp_get_template_part( 'feedback', 'no-topics' );
+					bbp_get_template_part( 'form',     'topic'     );
+
+				endif;
 
 			// Single topic
-			elseif ( ( bp_action_variable( $offset ) != $this->slug ) && ( bp_action_variable( $offset ) == $this->topic_slug ) ) :
+			elseif ( bp_action_variable( $offset ) == $this->topic_slug ) :
 
-				// Get the topic
-				$topic_post_type = bbp_get_topic_post_type();
-				$topic_slug      = bp_action_variable( $offset + 1 );
-				$topics          = $wpdb->get_row( "SELECT ID FROM {$wpdb->posts} WHERE post_name = '{$topic_slug}' AND post_type = '{$topic_post_type}'", ARRAY_N );
+				// Get topic data
+				$topic_slug = bp_action_variable( $offset + 1 );
+				$topic_args = array( 'name' => $topic_slug, 'post_type' => bbp_get_topic_post_type(), 'post_status' => $post_status );
+				$topics     = get_posts( $topic_args );
 
 				// Topic exists
 				if ( !empty( $topics ) ) :
-					$topic_id              = $topics[0];
-					$bbp->current_topic_id = $topic_id;
-					bbp_set_query_name( 'bbp_single_topic' ); ?>
+					$topic = $topics[0];
 
-					<h3><?php bbp_topic_title(); ?></h3>
+					// Set up topic data
+					$topic_id = bbpress()->current_topic_id = $topic->ID;
+					$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-					<?php bbp_get_template_part( 'content', 'single-topic' ); ?>
+					// Reset necessary forum_query attributes for topics loop to function
+					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
+					$bbp->forum_query->in_the_loop             = true;
+					$bbp->forum_query->post                    = get_post( $forum_id );
 
-				<?php else : ?>
+					// Reset necessary topic_query attributes for topics loop to function
+					$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
+					$bbp->topic_query->in_the_loop             = true;
+					$bbp->topic_query->post                    = $topic;
 
-					<?php bbp_get_template_part( 'feedback', 'no-topics'   ); ?>
+					// Topic edit
+					if ( bp_action_variable( $offset + 2 ) == $bbp->edit_id ) :
+						global $wp_query, $post;
+						$wp_query->bbp_is_edit       = true;
+						$wp_query->bbp_is_topic_edit = true;
+						$post                        = $topic;
 
-					<?php bbp_get_template_part( 'form',     'topic'       ); ?>
+						// Merge
+						if ( !empty( $_GET['action'] ) && 'merge' == $_GET['action'] ) :
+							bbp_set_query_name( 'bbp_topic_merge' );
 
-				<?php endif;
+							bbp_get_template_part( 'form', 'topic-merge' );
+
+						// Split
+						elseif ( !empty( $_GET['action'] ) && 'split' == $_GET['action'] ) :
+							bbp_set_query_name( 'bbp_topic_split' );
+
+							bbp_get_template_part( 'form', 'topic-split' );
+
+						// Edit
+						else :
+							bbp_set_query_name( 'bbp_topic_form' );
+							bbp_get_template_part( 'form', 'topic' );
+
+						endif;
+
+					// Single Topic
+					else:
+
+						bbp_set_query_name( 'bbp_single_topic' ); ?>
+
+						<h3><?php bbp_topic_title(); ?></h3>
+
+						<?php bbp_get_template_part( 'content', 'single-topic' );
+
+					endif;
+
+				// No Topics
+				else :
+					bbp_get_template_part( 'feedback', 'no-topics'   );
+					bbp_get_template_part( 'form',     'topic'       );
+
+				endif;
+
+			// Single reply
+			elseif ( bp_action_variable( $offset ) == $this->reply_slug ) :
+
+				// Get reply data
+				$reply_slug = bp_action_variable( $offset + 1 );
+				$reply_args = array( 'name' => $reply_slug, 'post_type' => bbp_get_reply_post_type() );
+				$replies    = get_posts( $reply_args );
+
+				if ( empty( $replies ) )
+					return;
+
+				// Get the first reply
+				$reply = $replies[0];
+
+				// Set up reply data
+				$reply_id = bbpress()->current_reply_id = $reply->ID;
+				$topic_id = bbp_get_reply_topic_id( $reply_id );
+				$forum_id = bbp_get_reply_forum_id( $reply_id );
+
+				// Reset necessary forum_query attributes for reply to function
+				$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
+				$bbp->forum_query->in_the_loop             = true;
+				$bbp->forum_query->post                    = get_post( $forum_id );
+
+				// Reset necessary topic_query attributes for reply to function
+				$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
+				$bbp->topic_query->in_the_loop             = true;
+				$bbp->topic_query->post                    = get_post( $topic_id );
+
+				// Reset necessary reply_query attributes for reply to function
+				$bbp->reply_query->query_vars['post_type'] = bbp_get_reply_post_type();
+				$bbp->reply_query->in_the_loop             = true;
+				$bbp->reply_query->post                    = $reply;
+
+				if ( bp_action_variable( $offset + 2 ) == $bbp->edit_id ) :
+					global $wp_query, $post;
+
+					$wp_query->bbp_is_edit       = true;
+					$wp_query->bbp_is_reply_edit = true;
+					$post                        = $reply;
+
+					bbp_set_query_name( 'bbp_reply_form' );
+					bbp_get_template_part( 'form', 'reply' );
+
+				endif;
 
 			endif; ?>
 
