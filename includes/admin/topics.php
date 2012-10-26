@@ -142,7 +142,7 @@ class BBP_Topics_Admin {
 				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                                                                                'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can filter the list of topics by forum status using the text links in the upper left to show All, Published, or Trashed topics. The default view is to show all topics.',                                                                                 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, or Trashed topics. The default view is to show all topics.',                                                                                 'bbpress' ) . '</li>' .
 					'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection. You also can refine the list by clicking on the forum creator in the topics list.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
