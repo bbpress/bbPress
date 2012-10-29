@@ -24,7 +24,7 @@ class vBulletin extends BBP_Converter_Base {
 
 		/** Forum Section *****************************************************/
 
-		// Forum id. Stored in postmeta.
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forum',
 			'from_fieldname' => 'forumid',
@@ -32,7 +32,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_id'
 		);
 
-		// Forum parent id.  If no parent, than 0. Stored in postmeta.
+		// Forum parent id (If no parent, than 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forum',
 			'from_fieldname' => 'parentid',
@@ -48,7 +48,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Forum slug. Clean name.
+		// Forum slug (Clean name to avoid confilcts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum',
 			'from_fieldname'  => 'title_clean',
@@ -66,7 +66,7 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_null'
 		);
 
-		// Forum display order.  Starts from 1.
+		// Forum display order (Starts from 1)
 		$this->field_map[] = array(
 			'from_tablename' => 'forum',
 			'from_fieldname' => 'displayorder',
@@ -98,7 +98,7 @@ class vBulletin extends BBP_Converter_Base {
 
 		/** Topic Section *****************************************************/
 
-		// Topic id. Stored in postmeta.
+		// Topic id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'thread',
 			'from_fieldname' => 'threadid',
@@ -106,7 +106,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_id'
 		);
 
-		// Forum id. Stored in postmeta.
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
 			'from_fieldname'  => 'forumid',
@@ -132,7 +132,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Topic slug. Clean name.
+		// Topic slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
 			'from_fieldname'  => 'title',
@@ -141,7 +141,7 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
-		// Forum id.  If no parent, than 0.
+		// Forum id (If no parent, than 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
 			'from_fieldname'  => 'forumid',
@@ -151,6 +151,7 @@ class vBulletin extends BBP_Converter_Base {
 		);
 
 		// Topic content.
+		// Note: We join the posts table because topics do not have content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'pagetext',
@@ -216,7 +217,7 @@ class vBulletin extends BBP_Converter_Base {
 
 		/** Post Section ******************************************************/
 
-		// Post id. Stores in postmeta.
+		// Post id (Stores in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'postid',
@@ -225,7 +226,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'    => '_bbp_post_id'
 		);
 
-		// Forum id. Stores in postmeta.
+		// Forum id (Stores in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'threadid',
@@ -234,7 +235,7 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Topic id. Stores in postmeta.
+		// Topic id (Stores in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'threadid',
@@ -268,7 +269,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Topic slug. Clean name.
+		// Topic slug (Clean name)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'title',
@@ -286,7 +287,7 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Topic id. If no parent, than 0.
+		// Topic id (If no parent, than 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'threadid',
@@ -327,7 +328,7 @@ class vBulletin extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id. Stores in usermeta.
+		// Store old User id (Stores in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'user',
 			'from_fieldname' => 'userid',
@@ -335,7 +336,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_user_id'
 		);
 
-		// Store old User password. Stores in usermeta serialized with salt.
+		// Store old User password (Stores in usermeta serialized with salt)
 		$this->field_map[] = array(
 			'from_tablename'  => 'user',
 			'from_fieldname'  => 'password',
@@ -344,8 +345,8 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old User Salt. This is only used for the SELECT row info for
-		// the above password save.
+		// Store old User Salt (This is only used for the SELECT row info for
+		// the above password save)
 		$this->field_map[] = array(
 			'from_tablename' => 'user',
 			'from_fieldname' => 'salt',
@@ -353,7 +354,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => ''
 		);
 
-		// User password verify class. Stores in usermeta for verifying password.
+		// User password verify class (Stores in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
@@ -366,6 +367,14 @@ class vBulletin extends BBP_Converter_Base {
 			'from_fieldname' => 'username',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'user_login'
+		);
+
+		// User nice name.
+		$this->field_map[] = array(
+			'from_tablename' => 'user',
+			'from_fieldname' => 'user_nicename',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_nicename'
 		);
 
 		// User email.
