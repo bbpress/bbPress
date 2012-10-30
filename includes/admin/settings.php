@@ -540,7 +540,7 @@ function bbp_admin_setting_callback_subtheme_id() {
 	$theme_options   = '';
 	$current_package = bbp_get_theme_package_id( 'default' );
 
-	// Note: This should never be empty. /bbp-includes/bbp-theme-compat/ is the
+	// Note: This should never be empty. /templates/ is the
 	// canonical backup if no other packages exist. If there's an error here,
 	// something else is wrong.
 	//

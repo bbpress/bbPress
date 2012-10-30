@@ -13,11 +13,9 @@
  * There are a few common places that additional actions can currently be found
  *
  *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
- *  - Component: In {@link BBP_Component::setup_actions()} in
- *                bbp-includes/bbp-classes.php
  *  - Admin: More in {@link BBP_Admin::setup_actions()} in admin.php
- * 
- * @see bbp-core-filters.php
+ *
+ * @see /core/filters.php
  */
 
 // Exit if accessed directly
