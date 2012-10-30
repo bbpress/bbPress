@@ -975,7 +975,7 @@ function bbp_admin_settings() {
 			<?php do_settings_sections( 'bbpress' ); ?>
 
 			<p class="submit">
-				<input type="submit" name="submit" class="button-primary" value="<?php _e( 'Save Changes', 'bbpress' ); ?>" />
+				<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'bbpress' ); ?>" />
 			</p>
 		</form>
 	</div>
@@ -1221,8 +1221,8 @@ function bbp_converter_settings() {
 			<?php do_settings_sections( 'bbpress_converter' ); ?>
 
 			<p class="submit">
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php _e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start()" />
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php _e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop()" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php esc_attr_e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start()" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop()" />
 				<img id="bbp-converter-progress" src="">
 			</p>
 

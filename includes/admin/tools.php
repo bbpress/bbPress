@@ -58,7 +58,7 @@ function bbp_admin_repair() {
 			</table>
 
 			<fieldset class="submit">
-				<input class="button-primary" type="submit" name="submit" value="<?php _e( 'Repair Items', 'bbpress' ); ?>" />
+				<input class="button-primary" type="submit" name="submit" value="<?php esc_attr_e( 'Repair Items', 'bbpress' ); ?>" />
 				<?php wp_nonce_field( 'bbpress-do-counts' ); ?>
 			</fieldset>
 		</form>
@@ -888,7 +888,7 @@ function bbp_admin_reset() {
 			</table>
 
 			<fieldset class="submit">
-				<input class="button-primary" type="submit" name="submit" value="<?php _e( 'Reset bbPress', 'bbpress' ); ?>" />
+				<input class="button-primary" type="submit" name="submit" value="<?php esc_attr_e( 'Reset bbPress', 'bbpress' ); ?>" />
 				<?php wp_nonce_field( 'bbpress-reset' ); ?>
 			</fieldset>
 		</form>

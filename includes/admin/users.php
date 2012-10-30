@@ -137,7 +137,7 @@ class BBP_Users_Admin {
 							<?php endforeach; ?>
 
 							<p class="bbp-default-caps-wrapper">
-								<input type="submit" name="bbp-default-caps" class="button" value="<?php _e( 'Reset to Default', 'bbpress' ); ?>"/>
+								<input type="submit" name="bbp-default-caps" class="button" value="<?php esc_attr_e( 'Reset to Default', 'bbpress' ); ?>"/>
 							</p>
 
 						</fieldset>

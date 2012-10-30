@@ -1442,7 +1442,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		<p class="description"><?php _e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
 
-		<input type="submit" value="<?php _e( 'Save Settings', 'bbpress' ); ?>" />
+		<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
 
 		<?php
 
