@@ -41,20 +41,21 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $user_id ) && is_numeric( $user_id ) )
+		if ( !empty( $user_id ) && is_numeric( $user_id ) ) {
 			$bbp_user_id = $user_id;
 
 		// Currently viewing or editing a user
-		elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) )
+		} elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) ) {
 			$bbp_user_id = $bbp->displayed_user->ID;
 
 		// Maybe fallback on the current_user ID
-		elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) )
+		} elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) ) {
 			$bbp_user_id = $bbp->current_user->ID;
 
 		// Failsafe
-		else
+		} else {
 			$bbp_user_id = get_query_var( 'bbp_user_id' );
+		}
 
 		return (int) apply_filters( 'bbp_get_user_id', (int) $bbp_user_id, $displayed_user_fallback, $current_user_fallback );
 	}
@@ -1325,16 +1326,17 @@ function bbp_author_link( $args = '' ) {
 			$post_id = $args;
 
 		// Confirmed topic
-		if ( bbp_is_topic( $post_id ) )
+		if ( bbp_is_topic( $post_id ) ) {
 			return bbp_get_topic_author_link( $args );
 
 		// Confirmed reply
-		elseif ( bbp_is_reply( $post_id ) )
+		} elseif ( bbp_is_reply( $post_id ) ) {
 			return bbp_get_reply_author_link( $args );
 
 		// Get the post author and proceed
-		else
+		} else {
 			$user_id = get_post_field( 'post_author', $post_id );
+		}
 
 		// Neither a reply nor a topic, so could be a revision
 		if ( !empty( $post_id ) ) {
@@ -1418,20 +1420,21 @@ function bbp_user_can_view_forum( $args = '' ) {
 	$retval   = false;
 
 	// User is a super admin
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Forum is public, and user can read forums or is not logged in
-	elseif ( bbp_is_forum_public ( $forum_id, $check_ancestors ) )
+	} elseif ( bbp_is_forum_public ( $forum_id, $check_ancestors ) ) {
 		$retval = true;
 
 	// Forum is private, and user can see it
-	elseif ( bbp_is_forum_private( $forum_id, $check_ancestors ) && current_user_can( 'read_private_forums' ) )
+	} elseif ( bbp_is_forum_private( $forum_id, $check_ancestors ) && current_user_can( 'read_private_forums' ) ) {
 		$retval = true;
 
 	// Forum is hidden, and user can see it
-	elseif ( bbp_is_forum_hidden ( $forum_id, $check_ancestors ) && current_user_can( 'read_hidden_forums'  ) )
+	} elseif ( bbp_is_forum_hidden ( $forum_id, $check_ancestors ) && current_user_can( 'read_hidden_forums'  ) ) {
 		$retval = true;
+	}
 
 	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
 }
@@ -1456,16 +1459,17 @@ function bbp_current_user_can_publish_topics() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
-	elseif ( !is_user_logged_in() && bbp_allow_anonymous() )
+	} elseif ( !is_user_logged_in() && bbp_allow_anonymous() ) {
 		$retval = true;
 
 	// User is logged in
-	elseif ( current_user_can( 'publish_topics' ) )
+	} elseif ( current_user_can( 'publish_topics' ) ) {
 		$retval = true;
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_publish_forums', $retval );
@@ -1489,12 +1493,13 @@ function bbp_current_user_can_publish_forums() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// User is logged in
-	elseif ( current_user_can( 'publish_forums' ) )
+	} elseif ( current_user_can( 'publish_forums' ) ) {
 		$retval = true;
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_publish_forums', $retval );
@@ -1520,16 +1525,17 @@ function bbp_current_user_can_publish_replies() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
-	elseif ( !is_user_logged_in() && bbp_allow_anonymous() )
+	} elseif ( !is_user_logged_in() && bbp_allow_anonymous() ) {
 		$retval = true;
 
 	// User is logged in
-	elseif ( current_user_can( 'publish_replies' ) )
+	} elseif ( current_user_can( 'publish_replies' ) ) {
 		$retval = true;
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_publish_replies', $retval );
@@ -1603,16 +1609,17 @@ function bbp_current_user_can_access_create_forum_form() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Looking at a single forum & forum is open
-	elseif ( ( is_page() || is_single() ) && bbp_is_forum_open() )
+	} elseif ( ( is_page() || is_single() ) && bbp_is_forum_open() ) {
 		$retval = bbp_current_user_can_publish_forums();
 
 	// User can edit this topic
-	elseif ( bbp_is_forum_edit() )
+	} elseif ( bbp_is_forum_edit() ) {
 		$retval = current_user_can( 'edit_forum', bbp_get_forum_id() );
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_forum_form', (bool) $retval );
@@ -1637,16 +1644,17 @@ function bbp_current_user_can_access_create_topic_form() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Looking at a single forum & forum is open
-	elseif ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() )
+	} elseif ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() ) {
 		$retval = bbp_current_user_can_publish_topics();
 
 	// User can edit this topic
-	elseif ( bbp_is_topic_edit() )
+	} elseif ( bbp_is_topic_edit() ) {
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
@@ -1671,16 +1679,17 @@ function bbp_current_user_can_access_create_reply_form() {
 	$retval = false;
 
 	// Always allow super admins
-	if ( is_super_admin() )
+	if ( is_super_admin() ) {
 		$retval = true;
 
 	// Looking at a single topic, topic is open, and forum is open
-	elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() )
+	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
 		$retval = bbp_current_user_can_publish_replies();
 
 	// User can edit this topic
-	elseif ( bbp_is_reply_edit() )
+	} elseif ( bbp_is_reply_edit() ) {
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
+	}
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
