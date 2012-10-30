@@ -17,7 +17,7 @@
 
 		<div id="merge-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-merge">
 
-			<form id="merge_topic" name="merge_topic" method="post" action="">
+			<form id="merge_topic" name="merge_topic" method="post" action="<?php the_permalink(); ?>">
 
 				<fieldset class="bbp-form">
 
