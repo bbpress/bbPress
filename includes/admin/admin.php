@@ -357,7 +357,7 @@ class BBP_Admin {
 			// BuddyPress
 			case 'bbp_settings_buddypress' :
 				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin() ) {
-					$caps = array( 'manage_options', $cap );
+					$caps = array( bbpress()->admin->minimum_capability );
 				} else {
 					$caps = array( 'do_not_allow' );
 				}
@@ -367,7 +367,7 @@ class BBP_Admin {
 			// Akismet
 			case 'bbp_settings_akismet' :
 				if ( ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin() ) {
-					$caps = array( 'manage_options', $cap );
+					$caps = array( bbpress()->admin->minimum_capability );
 				} else {
 					$caps = array( 'do_not_allow' );
 				}
@@ -386,7 +386,7 @@ class BBP_Admin {
 			case 'bbp_settings_single_slugs' : // Settings - Single slugs
 			case 'bbp_settings_per_page'     : // Settings - Single slugs
 			case 'bbp_settings_per_page_rss' : // Settings - Single slugs
-				$caps = array( 'manage_options', bbpress()->admin->minimum_capability );
+				$caps = array( bbpress()->admin->minimum_capability );
 				break;
 		}
 
