@@ -225,6 +225,9 @@ add_action( 'make_spam_user', 'bbp_make_spam_user' );
 // User capabilities
 add_action( 'bbp_edit_user_profile_update', 'bbp_edit_user_profile_update_capabilities' );
 
+// Hook WordPress admin actions to bbPress profiles on save
+add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
+
 // Caches
 add_action( 'bbp_new_forum_pre_extras',  'bbp_clean_post_cache' );
 add_action( 'bbp_new_forum_post_extras', 'bbp_clean_post_cache' );
