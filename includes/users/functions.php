@@ -947,6 +947,26 @@ function bbp_edit_user_handler() {
 	}
 }
 
+/**
+ * Conditionally hook the core WordPress output actions to the end of the
+ * default user's edit profile template.
+ *
+ * This allows clever plugin authors to conditionally unhook the WordPress core
+ * output actions if they don't want any unexpected junk to appear there, and
+ * also avoids needing to pollute the templates with additional logic and actions.
+ *
+ * @since bbPress (r4273)
+ *
+ * @uses bbp_is_user_home_edit() To switch the action fired
+ * @uses get_userdata() To get the current user's data
+ * @uses bbp_get_displayed_user_id() To get the currently displayed user ID
+ */
+function bbp_user_edit_after() {
+	$action = bbp_is_user_home_edit() ? 'show_user_profile' : 'edit_user_profile';
+
+	do_action( $action, get_userdata( bbp_get_displayed_user_id() ) );
+}
+
 /** User Queries **************************************************************/
 
 /**
