@@ -19,7 +19,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @return array
  */
 function bbp_admin_get_settings_sections() {
-	return apply_filters( 'bbp_admin_get_settings_sections', array(
+	return (array) apply_filters( 'bbp_admin_get_settings_sections', array(
 		'bbp_settings_main' => array(
 			'title'    => __( 'Main Settings', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_main_section',
@@ -70,7 +70,7 @@ function bbp_admin_get_settings_sections() {
  * @return type
  */
 function bbp_admin_get_settings_fields() {
-	return apply_filters( 'bbp_admin_get_settings_fields', array(
+	return (array) apply_filters( 'bbp_admin_get_settings_fields', array(
 
 		/** Main Section ******************************************************/
 
@@ -346,7 +346,7 @@ function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 	$fields = bbp_admin_get_settings_fields();
 	$retval = isset( $fields[$section_id] ) ? $fields[$section_id] : false;
 
-	return apply_filters( 'bbp_admin_get_settings_fields_for_section', $retval, $section_id );
+	return (array) apply_filters( 'bbp_admin_get_settings_fields_for_section', $retval, $section_id );
 }
 
 /** Main Section **************************************************************/
@@ -1007,16 +1007,21 @@ function bbp_converter_setting_callback_main_section() {
 function bbp_converter_setting_callback_platform() {
 
 	$platform_options = array();
+	$curdir           = opendir( bbpress()->admin->admin_dir . 'converters/' );
 
-	if ( $curdir = opendir( bbpress()->admin->admin_dir . 'converters/' ) ) {
-		while ( $file = readdir( $curdir ) ) {
-			if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
-				$file = preg_replace( '/.php/', '', $file );
-				$platform_options .= '<option value="' . $file . '">' . $file . '</option>';
-			}
+	// Bail if no directory was found (how did this happen?)
+	if ( empty( $curdir ) )
+		return;
+
+	// Loop through files in the converters folder and assemble some options
+	while ( $file = readdir( $curdir ) ) {
+		if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
+			$file              = preg_replace( '/.php/', '', $file );
+			$platform_options .= '<option value="' . $file . '">' . $file . '</option>';
 		}
-		closedir( $curdir );
-	} ?>
+	}
+
+	closedir( $curdir ); ?>
 
 	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $platform_options ?></select>
 	<label for="_bbp_converter_platform"><?php _e( 'is the previous forum software', 'bbpress' ); ?></label>
@@ -1337,12 +1342,13 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 		$value = get_option( $option, $default );
 
 		// Slug?
-		if ( true === $slug )
+		if ( true === $slug ) {
 			$value = esc_attr( apply_filters( 'editable_slug', $value ) );
 
 		// Not a slug
-		else
+		} else {
 			$value = esc_attr( $value );
+		}
 
 		// Fallback to default
 		if ( empty( $value ) )

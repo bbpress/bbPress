@@ -303,31 +303,33 @@ class BBP_Admin {
 	public static function register_admin_settings() {
 
 		// Bail if no sections available
-		if ( ! $sections = bbp_admin_get_settings_sections() )
+		$sections = bbp_admin_get_settings_sections();
+		if ( empty( $sections ) )
 			return false;
 
 		// Loop through sections
-		foreach ( $sections as $section_id => $section ) {
+		foreach ( (array) $sections as $section_id => $section ) {
 
 			// Only proceed if current user can see this section
 			if ( ! current_user_can( $section_id ) )
 				continue;
 
 			// Only add section and fields if section has fields
-			if ( $fields = bbp_admin_get_settings_fields_for_section( $section_id ) ) {
+			$fields = bbp_admin_get_settings_fields_for_section( $section_id );
+			if ( empty( $fields ) )
+				continue;
 
-				// Add the section
-				add_settings_section( $section_id, $section['title'], $section['callback'], $section['page'] );
+			// Add the section
+			add_settings_section( $section_id, $section['title'], $section['callback'], $section['page'] );
 
-				// Loop through fields for this section
-				foreach ( $fields as $field_id => $field ) {
+			// Loop through fields for this section
+			foreach ( (array) $fields as $field_id => $field ) {
 
-					// Add the field
-					add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
+				// Add the field
+				add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
 
-					// Register the setting
-					register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
-				}
+				// Register the setting
+				register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
 			}
 		}
 	}
@@ -457,8 +459,8 @@ class BBP_Admin {
 
 		// Add a few links to the existing links array
 		return array_merge( $links, array(
-			'settings' => '<a href="' . add_query_arg( array( 'page' => 'bbpress'   ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>',
-			'about'    => '<a href="' . add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php'           ) ) . '">' . __( 'About',    'bbpress' ) . '</a>'
+			'settings' => '<a href="' . add_query_arg( array( 'page' => 'bbpress'   ), admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings', 'bbpress' ) . '</a>',
+			'about'    => '<a href="' . add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php'           ) ) . '">' . esc_html__( 'About',    'bbpress' ) . '</a>'
 		) );
 	}
 
@@ -1211,7 +1213,7 @@ class BBP_Admin {
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	public function register_admin_style () {
-		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 
 	/** Ajax ******************************************************************/
