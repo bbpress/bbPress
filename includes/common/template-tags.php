@@ -1449,7 +1449,7 @@ function bbp_reply_form_fields() {
 
 	if ( bbp_is_reply_edit() ) : ?>
 
-		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" maxlength="<?php bbp_get_title_max_length(); ?>" />
+		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
 		<input type="hidden" name="bbp_reply_id"    id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-edit-reply" />
 
@@ -1460,7 +1460,7 @@ function bbp_reply_form_fields() {
 
 	else : ?>
 
-		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" maxlength="<?php bbp_get_title_max_length(); ?>" />
+		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
 		<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
 
