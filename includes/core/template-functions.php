@@ -67,7 +67,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	$fallback_theme = bbp_get_theme_compat_dir();
 
 	// Allow templates to be filtered
-	// bbPress core automatically adds bbp_add_template_locations()
+	// Note: if you do this, be excellent to each other
 	$template_names = apply_filters( 'bbp_locate_template', $template_names );
 
 	// Try to find a template file
