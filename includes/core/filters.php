@@ -167,7 +167,7 @@ add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 
 add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );
 
 // Filter bbPress template locations
-add_filter( 'bbp_locate_template',           'bbp_add_template_locations' );
+add_filter( 'bbp_get_template_part',         'bbp_add_template_locations' );
 add_filter( 'bbp_get_profile_template',      'bbp_add_template_locations' );
 add_filter( 'bbp_get_profileedit_template',  'bbp_add_template_locations' );
 add_filter( 'bbp_get_singleview_template',   'bbp_add_template_locations' );
