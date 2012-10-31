@@ -1221,7 +1221,7 @@ class BBP_Admin {
 	/**
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r4261)
 	 * 
 	 * @uses get_posts()
 	 * @uses bbp_get_forum_post_type()
@@ -1238,7 +1238,7 @@ class BBP_Admin {
 	/**
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r4261)
 	 * 
 	 * @uses get_posts()
 	 * @uses bbp_get_topic_post_type()
