@@ -631,7 +631,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the forum widget options
+	 * Update the topic widget options
 	 *
 	 * @since bbPress (r2653)
 	 *
@@ -821,7 +821,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the forum widget options
+	 * Update the reply widget options
 	 *
 	 * @since bbPress (r2653)
 	 *
