@@ -327,7 +327,7 @@ class BBP_Shortcodes {
 		$topic_id = bbpress()->current_topic_id = $attr['id'];
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-		// Bail if ID passed is not a forum
+		// Bail if ID passed is not a topic
 		if ( !bbp_is_topic( $topic_id ) )
 			return $content;
 
@@ -409,7 +409,7 @@ class BBP_Shortcodes {
 		$reply_id = bbpress()->current_reply_id = $attr['id'];
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
-		// Bail if ID passed is not a forum
+		// Bail if ID passed is not a reply
 		if ( !bbp_is_reply( $reply_id ) )
 			return $content;
 
