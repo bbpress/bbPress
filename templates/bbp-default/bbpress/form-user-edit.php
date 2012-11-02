@@ -150,7 +150,7 @@
 			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
 
 				<div>
-					<label for="super_admin"><?php _e( 'Super Admin', 'bbpress' ); ?></label>
+					<label for="super_admin"><?php _e( 'Network Role', 'bbpress' ); ?></label>
 					<label>
 						<input class="checkbox" type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( bbp_get_displayed_user_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
 						<?php _e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
@@ -159,48 +159,15 @@
 
 			<?php endif; ?>
 
-			<div>
-				<label for="role"><?php _e( 'Role', 'bbpress' ) ?></label>
+			<?php if ( bbp_use_advanced_capability_editor() ) : ?>
 
-				<?php bbp_edit_user_role(); ?>
+				<?php bbp_get_template_part( 'form', 'user-capabilities' ); ?>
 
-			</div>
+			<?php else : ?>
 
-			<div>
-				<label for=""><?php _e( 'Forum Capabilities', 'bbpress' ); ?></label>
+				<?php bbp_get_template_part( 'form', 'user-roles' ); ?>
 
-				<fieldset class="bbp-form capabilities">
-					<legend><?php _e( 'Forum Capabilities', 'bbpress' ); ?></legend>
-
-					<?php foreach ( bbp_get_capability_groups() as $group ) : ?>
-
-						<dl class="bbp-user-capabilities">
-							<dt><?php bbp_capability_group_title( $group ); ?></dt>
-
-							<?php foreach ( bbp_get_capabilities_for_group( $group ) as $capability ) : ?>
-
-								<dd>
-									<label for="_bbp_<?php echo $capability; ?>">
-										<input class="checkbox" type="checkbox" id="_bbp_<?php echo $capability; ?>" name="_bbp_<?php echo $capability; ?>" value="1" <?php checked( user_can( bbp_get_displayed_user_id(), $capability ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
-										<?php bbp_capability_title( $capability ); ?>
-									</label>
-								</dd>
-
-							<?php endforeach; ?>
-
-						</dl>
-
-					<?php endforeach; ?>
-				</fieldset>
-			</div>
-			
-			<div>
-				<label for="bbp-default-caps"><?php _e( 'Reset', 'bbpress' ); ?></label>
-				<label>
-					<input class="checkbox" type="checkbox" id="bbp-default-caps" name="bbp-default-caps" tabindex="<?php bbp_tab_index(); ?>" />
-					<?php _e( 'Reset forum capabilities to match the user role.', 'bbpress' ); ?>
-				</label>
-			</div>
+			<?php endif; ?>
 
 		</fieldset>
 
