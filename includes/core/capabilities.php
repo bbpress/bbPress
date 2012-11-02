@@ -14,6 +14,16 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/**
+ * Whether or not to show advanced capability editing when editing a user.
+ *
+ * @param type $default
+ * @return type
+ */
+function bbp_use_advanced_capability_editor( $default = false ) {
+	return apply_filters( 'bbp_use_advanced_capability_editor', $default );
+}
+
 /** Output ********************************************************************/
 
 /**
@@ -135,7 +145,10 @@ function bbp_capability_title( $capability = '' ) {
 
 		switch( $capability ) {
 
-			// Misc
+			// Primary
+			case 'spectator' :
+				$retval = __( 'Spectate forum discussion', 'bbpress' );
+				break;
 			case 'participate' :
 				$retval = __( 'Participate in forums', 'bbpress' );
 				break;
@@ -291,70 +304,229 @@ function bbp_get_caps_for_role( $role = '' ) {
 	// Which role are we looking for?
 	switch ( $role ) {
 
-		// Administrator
-		case 'administrator' :
+		// Keymaster
+		case bbp_get_keymaster_role() :
 			$caps = array(
 
 				// Primary caps
-				'participate',
-				'moderate',
-				'throttle',
-				'view_trash',
+				'spectate'               => true,
+				'participate'            => true,
+				'moderate'               => true,
+				'throttle'               => true,
+				'view_trash'             => true,
 
 				// Forum caps
-				'publish_forums',
-				'edit_forums',
-				'edit_others_forums',
-				'delete_forums',
-				'delete_others_forums',
-				'read_private_forums',
-				'read_hidden_forums',
+				'publish_forums'         => true,
+				'edit_forums'            => true,
+				'edit_others_forums'     => true,
+				'delete_forums'          => true,
+				'delete_others_forums'   => true,
+				'read_private_forums'    => true,
+				'read_hidden_forums'     => true,
 
 				// Topic caps
-				'publish_topics',
-				'edit_topics',
-				'edit_others_topics',
-				'delete_topics',
-				'delete_others_topics',
-				'read_private_topics',
+				'publish_topics'         => true,
+				'edit_topics'            => true,
+				'edit_others_topics'     => true,
+				'delete_topics'          => true,
+				'delete_others_topics'   => true,
+				'read_private_topics'    => true,
 
 				// Reply caps
-				'publish_replies',
-				'edit_replies',
-				'edit_others_replies',
-				'delete_replies',
-				'delete_others_replies',
-				'read_private_replies',
+				'publish_replies'        => true,
+				'edit_replies'           => true,
+				'edit_others_replies'    => true,
+				'delete_replies'         => true,
+				'delete_others_replies'  => true,
+				'read_private_replies'   => true,
 
 				// Topic tag caps
-				'manage_topic_tags',
-				'edit_topic_tags',
-				'delete_topic_tags',
-				'assign_topic_tags'
+				'manage_topic_tags'      => true,
+				'edit_topic_tags'        => true,
+				'delete_topic_tags'      => true,
+				'assign_topic_tags'      => true
 			);
 
 			break;
 
-		// Any other role
+		// Moderator
+		case bbp_get_moderator_role() :
+			$caps = array(
+
+				// Primary caps
+				'spectate'              => true,
+				'participate'           => true,
+				'moderate'              => true,
+				'throttle'              => true,
+				'view_trash'            => false,
+
+				// Forum caps
+				'publish_forums'        => true,
+				'edit_forums'           => true,
+				'edit_others_forums'    => false,
+				'delete_forums'         => false,
+				'delete_others_forums'  => false,
+				'read_private_forums'   => true,
+				'read_hidden_forums'    => false,
+
+				// Topic caps
+				'publish_topics'        => true,
+				'edit_topics'           => true,
+				'edit_others_topics'    => true,
+				'delete_topics'         => true,
+				'delete_others_topics'  => true,
+				'read_private_topics'   => true,
+
+				// Reply caps
+				'publish_replies'       => true,
+				'edit_replies'          => true,
+				'edit_others_replies'   => true,
+				'delete_replies'        => true,
+				'delete_others_replies' => true,
+				'read_private_replies'  => true,
+
+				// Topic tag caps
+				'manage_topic_tags'     => true,
+				'edit_topic_tags'       => true,
+				'delete_topic_tags'     => true,
+				'assign_topic_tags'     => true,				
+			);
+
+			break;
+
+		// Spectators can only read
+		case bbp_get_spectator_role()   :
+			$caps = array(
+
+				// Primary caps
+				'spectate'              => true,
+				'participate'           => false,
+				'moderate'              => false,
+				'throttle'              => false,
+				'view_trash'            => false,
+
+				// Forum caps
+				'publish_forums'        => false,
+				'edit_forums'           => false,
+				'edit_others_forums'    => false,
+				'delete_forums'         => false,
+				'delete_others_forums'  => false,
+				'read_private_forums'   => false,
+				'read_hidden_forums'    => false,
+
+				// Topic caps
+				'publish_topics'        => false,
+				'edit_topics'           => false,
+				'edit_others_topics'    => false,
+				'delete_topics'         => false,
+				'delete_others_topics'  => false,
+				'read_private_topics'   => false,
+
+				// Reply caps
+				'publish_replies'       => false,
+				'edit_replies'          => false,
+				'edit_others_replies'   => false,
+				'delete_replies'        => false,
+				'delete_others_replies' => false,
+				'read_private_replies'  => false,
+
+				// Topic tag caps
+				'manage_topic_tags'     => false,
+				'edit_topic_tags'       => false,
+				'delete_topic_tags'     => false,
+				'assign_topic_tags'     => false,				
+			);
+
+			break;
+
+		// Explicitly blocked
+		case bbp_get_blocked_role() :
+			$caps = array(
+
+				// Primary caps
+				'spectate'              => false,
+				'participate'           => false,
+				'moderate'              => false,
+				'throttle'              => false,
+				'view_trash'            => false,
+
+				// Forum caps
+				'publish_forums'        => false,
+				'edit_forums'           => false,
+				'edit_others_forums'    => false,
+				'delete_forums'         => false,
+				'delete_others_forums'  => false,
+				'read_private_forums'   => false,
+				'read_hidden_forums'    => false,
+
+				// Topic caps
+				'publish_topics'        => false,
+				'edit_topics'           => false,
+				'edit_others_topics'    => false,
+				'delete_topics'         => false,
+				'delete_others_topics'  => false,
+				'read_private_topics'   => false,
+
+				// Reply caps
+				'publish_replies'       => false,
+				'edit_replies'          => false,
+				'edit_others_replies'   => false,
+				'delete_replies'        => false,
+				'delete_others_replies' => false,
+				'read_private_replies'  => false,
+
+				// Topic tag caps
+				'manage_topic_tags'     => false,
+				'edit_topic_tags'       => false,
+				'delete_topic_tags'     => false,
+				'assign_topic_tags'     => false,				
+			);
+
+			break;
+
+		// Participant/Default
+		case bbp_get_anonymous_role()   :
+		case bbp_get_participant_role() :
 		default :
 			$caps = array(
 
 				// Primary caps
-				'participate',
+				'spectate'              => true,
+				'participate'           => true,
+				'moderate'              => false,
+				'throttle'              => false,
+				'view_trash'            => false,
 
 				// Forum caps
-				'read_private_forums',
+				'publish_forums'        => false,
+				'edit_forums'           => false,
+				'edit_others_forums'    => false,
+				'delete_forums'         => false,
+				'delete_others_forums'  => false,
+				'read_private_forums'   => true,
+				'read_hidden_forums'    => false,
 
 				// Topic caps
-				'publish_topics',
-				'edit_topics',
+				'publish_topics'        => true,
+				'edit_topics'           => true,
+				'edit_others_topics'    => false,
+				'delete_topics'         => false,
+				'delete_others_topics'  => false,
+				'read_private_topics'   => false,
 
 				// Reply caps
-				'publish_replies',
-				'edit_replies',
+				'publish_replies'       => true,
+				'edit_replies'          => true,
+				'edit_others_replies'   => false,
+				'delete_replies'        => false,
+				'delete_others_replies' => false,
+				'read_private_replies'  => false,
 
 				// Topic tag caps
-				'assign_topic_tags'
+				'manage_topic_tags'     => false,
+				'edit_topic_tags'       => false,
+				'delete_topic_tags'     => false,
+				'assign_topic_tags'     => true,				
 			);
 
 			break;
@@ -377,8 +549,8 @@ function bbp_add_caps() {
 
 	// Loop through available roles and add caps
 	foreach( $wp_roles->role_objects as $role ) {
-		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
-			$role->add_cap( $cap );
+		foreach ( bbp_get_caps_for_role( $role->name ) as $cap => $value ) {
+			$role->add_cap( $cap, $value );
 		}
 	}
 
@@ -399,12 +571,163 @@ function bbp_remove_caps() {
 
 	// Loop through available roles and remove caps
 	foreach( $wp_roles->role_objects as $role ) {
-		foreach ( bbp_get_caps_for_role( $role->name ) as $cap ) {
+		foreach ( array_keys( bbp_get_caps_for_role( $role->name ) ) as $cap ) {
 			$role->remove_cap( $cap );
 		}
 	}
 
 	do_action( 'bbp_remove_caps' );
+}
+
+/** Forum Roles ***************************************************************/
+
+/**
+ * Add the bbPress roles to the $wp_roles global.
+ *
+ * We do this to avoid adding these values to the database.
+ *
+ * @since bbPress (rxxxx)
+ * @global type $wp_roles
+ */
+function bbp_add_forums_roles() {
+	global $wp_roles, $wp_user_roles;
+
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	// Loop through bbPress's roles and add them to the global $wp_roles
+	foreach( bbp_get_forums_editable_roles() as $role_id => $details ) {
+		$wp_roles->roles[$role_id]        = $details;
+		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
+		$wp_roles->role_names[$role_id]   = $details['name'];
+	}
+
+	// Force WordPress not to use the DB
+	$wp_user_roles = $wp_roles;
+}
+
+/**
+ * Fetch a filtered list of forum roles that the current user is
+ * allowed to have.
+ *
+ * Simple function who's main purpose is to allow filtering of the
+ * list of forum roles so that plugins can remove inappropriate ones depending
+ * on the situation or user making edits.
+ *
+ * Specifically because without filtering, anyone with the edit_users
+ * capability can edit others to be administrators, even if they are
+ * only editors or authors. This filter allows admins to delegate
+ * user management.
+ *
+ * @since bbPress (r4284)
+ *
+ * @return array
+ */
+function bbp_get_forums_editable_roles() {
+	return (array) apply_filters( 'bbp_get_forums_editable_roles', array(
+
+		// Keymaster
+		bbp_get_keymaster_role() => array(
+			'name'         => __( 'Keymaster', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_keymaster_role() )
+		),
+
+		// Moderator
+		bbp_get_moderator_role() => array(
+			'name'         => __( 'Moderator', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_moderator_role() )
+		),
+
+		// Participant
+		bbp_get_participant_role() => array(
+			'name'         => __( 'Participant', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
+		),
+
+		// Spectator
+		bbp_get_spectator_role() => array(
+			'name'         => __( 'Spectator', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
+		),
+
+		// Blocked
+		bbp_get_blocked_role() => array(
+			'name'         => __( 'Blocked', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_blocked_role() )
+		)
+	) );
+}
+
+/**
+ * The keymaster role for bbPress users
+ *
+ * @since bbPress (r4284)
+ *
+ * @uses apply_filters() Allow override of hardcoded keymaster role
+ * @return string
+ */
+function bbp_get_keymaster_role() {
+	return apply_filters( 'bbp_get_keymaster_role', 'bbp_keymaster' );
+}
+
+/**
+ * The moderator role for bbPress users
+ *
+ * @since bbPress (r3410)
+ *
+ * @uses apply_filters() Allow override of hardcoded moderator role
+ * @return string
+ */
+function bbp_get_moderator_role() {
+	return apply_filters( 'bbp_get_moderator_role', 'bbp_moderator' );
+}
+
+/**
+ * The participant role for registered user that can participate in forums
+ *
+ * @since bbPress (r3410)
+ *
+ * @uses apply_filters() Allow override of hardcoded participant role
+ * @return string
+ */
+function bbp_get_participant_role() {
+	return apply_filters( 'bbp_get_participant_role', 'bbp_participant' );
+}
+
+/**
+ * The spectator role is for registered users without any capabilities
+ *
+ * @since bbPress (r3860)
+ *
+ * @uses apply_filters() Allow override of hardcoded spectator role
+ * @return string
+ */
+function bbp_get_spectator_role() {
+	return apply_filters( 'bbp_get_spectator_role', 'bbp_spectator' );
+}
+
+/**
+ * The anonymous role for any user without a forum role
+ *
+ * @since bbPress (r3860)
+ *
+ * @uses apply_filters() Allow override of hardcoded anonymous role
+ * @return string
+ */
+function bbp_get_anonymous_role() {
+	return apply_filters( 'bbp_get_anonymous_role', 'bbp_anonymous' );
+}
+
+/**
+ * The blocked role is for registered users that cannot spectate or participate
+ *
+ * @since bbPress (r4284)
+ *
+ * @uses apply_filters() Allow override of hardcoded blocked role
+ * @return string
+ */
+function bbp_get_blocked_role() {
+	return apply_filters( 'bbp_get_blocked_role', 'bbp_blocked' );
 }
 
 /** Deprecated ****************************************************************/
@@ -427,37 +750,4 @@ function bbp_add_roles() {
  */
 function bbp_remove_roles() {
 	_doing_it_wrong( 'bbp_remove_roles', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
-}
-
-/**
- * The anonymous role for unregistered users
- *
- * @since bbPress (r3860)
- *
- * @deprecated since version 2.2
- */
-function bbp_get_anonymous_role() {
-	_doing_it_wrong( 'bbp_get_anonymous_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
-}
-
-/**
- * The participant role for registered users without roles
- *
- * @since bbPress (r3410)
- *
- * @deprecated since version 2.2
- */
-function bbp_get_participant_role() {
-	_doing_it_wrong( 'bbp_get_participant_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
-}
-
-/**
- * The moderator role for bbPress users
- *
- * @since bbPress (r3410)
- *
- * @deprecated since version 2.2
- */
-function bbp_get_moderator_role() {
-	_doing_it_wrong( 'bbp_get_moderator_role', __( 'Special forum roles no longer exist. Use mapped capabilities instead', 'bbpress' ), '2.2' );
 }
