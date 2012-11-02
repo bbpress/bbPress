@@ -2,9 +2,9 @@
 
 /**
  * bbPress Capabilites
- * 
+ *
  * The functions in this file are used primarily as convenient wrappers for
- * capability output in user profiles. This includes mapping capabilities and 
+ * capability output in user profiles. This includes mapping capabilities and
  * groups to human readable strings,
  *
  * @package bbPress
@@ -391,7 +391,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'manage_topic_tags'     => true,
 				'edit_topic_tags'       => true,
 				'delete_topic_tags'     => true,
-				'assign_topic_tags'     => true,				
+				'assign_topic_tags'     => true,
 			);
 
 			break;
@@ -436,7 +436,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'manage_topic_tags'     => false,
 				'edit_topic_tags'       => false,
 				'delete_topic_tags'     => false,
-				'assign_topic_tags'     => false,				
+				'assign_topic_tags'     => false,
 			);
 
 			break;
@@ -481,7 +481,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'manage_topic_tags'     => false,
 				'edit_topic_tags'       => false,
 				'delete_topic_tags'     => false,
-				'assign_topic_tags'     => false,				
+				'assign_topic_tags'     => false,
 			);
 
 			break;
@@ -528,7 +528,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'manage_topic_tags'     => false,
 				'edit_topic_tags'       => false,
 				'delete_topic_tags'     => false,
-				'assign_topic_tags'     => true,				
+				'assign_topic_tags'     => true,
 			);
 
 			break;
