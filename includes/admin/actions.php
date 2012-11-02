@@ -62,7 +62,6 @@ add_action( 'bbp_init', 'bbp_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_add_caps'             );
 add_action( 'bbp_activation', 'bbp_delete_rewrite_rules' );
 
 // Deactivation
@@ -71,7 +70,6 @@ add_action( 'bbp_deactivation', 'bbp_delete_rewrite_rules' );
 add_action( 'bbp_deactivation', 'bbp_deactivated'          );
 
 // New Site
-add_action( 'bbp_new_site', 'bbp_add_caps',               6 );
 add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );
 
 // Contextual Helpers
