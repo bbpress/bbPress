@@ -543,14 +543,9 @@ function bbp_get_caps_for_role( $role = '' ) {
  * @since bbPress (r2608)
  */
 function bbp_add_caps() {
-	global $wp_roles;
-
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
 
 	// Loop through available roles and add caps
-	foreach( $wp_roles->role_objects as $role ) {
+	foreach( bbp_get_wp_roles()->role_objects as $role ) {
 		foreach ( bbp_get_caps_for_role( $role->name ) as $cap => $value ) {
 			$role->add_cap( $cap, $value );
 		}
@@ -565,20 +560,33 @@ function bbp_add_caps() {
  * @since bbPress (r2608)
  */
 function bbp_remove_caps() {
-	global $wp_roles;
-
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
 
 	// Loop through available roles and remove caps
-	foreach( $wp_roles->role_objects as $role ) {
+	foreach( bbp_get_wp_roles()->role_objects as $role ) {
 		foreach ( array_keys( bbp_get_caps_for_role( $role->name ) ) as $cap ) {
 			$role->remove_cap( $cap );
 		}
 	}
 
 	do_action( 'bbp_remove_caps' );
+}
+
+/**
+ * Get the $wp_roles global without needing to declare it everywhere
+ *
+ * @since bbPress (r4293)
+ *
+ * @global WP_Roles $wp_roles
+ * @return WP_Roles
+ */
+function bbp_get_wp_roles() {
+	global $wp_roles;
+
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	return $wp_roles;
 }
 
 /** Forum Roles ***************************************************************/
@@ -588,24 +596,16 @@ function bbp_remove_caps() {
  *
  * We do this to avoid adding these values to the database.
  *
- * @since bbPress (rxxxx)
- * @global type $wp_roles
+ * @since bbPress (r4290)
  */
 function bbp_add_forums_roles() {
-	global $wp_roles, $wp_user_roles;
+	$wp_roles = bbp_get_wp_roles();
 
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
-
-	// Loop through bbPress's roles and add them to the global $wp_roles
-	foreach( bbp_get_forums_editable_roles() as $role_id => $details ) {
+	foreach( bbp_get_editable_roles() as $role_id => $details ) {
 		$wp_roles->roles[$role_id]        = $details;
 		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
 	}
-
-	// Force WordPress not to use the DB
-	$wp_user_roles = $wp_roles;
 }
 
 /**
@@ -625,8 +625,8 @@ function bbp_add_forums_roles() {
  *
  * @return array
  */
-function bbp_get_forums_editable_roles() {
-	return (array) apply_filters( 'bbp_get_forums_editable_roles', array(
+function bbp_get_editable_roles() {
+	return (array) apply_filters( 'bbp_get_editable_roles', array(
 
 		// Keymaster
 		bbp_get_keymaster_role() => array(
