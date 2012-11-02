@@ -133,8 +133,16 @@ function bbp_admin_get_settings_fields() {
 			),
 
 			// Allow global access (on multisite)
-			'_bbp_allow_global_access' => array(
+			'_bbp_default_role' => array(
 				'title'             => __( 'Default user role', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_default_role',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Allow global access (on multisite)
+			'_bbp_allow_global_access' => array(
+				'title'             => __( 'Auto role', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_global_access',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -484,18 +492,34 @@ function bbp_admin_setting_callback_anonymous() {
  * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_global_access() {
-	global $wp_roles;
-
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
-
-	$default_role = $wp_roles->role_names[ get_option( 'default_role', 'subscriber' ) ]; ?>
+?>
 
 	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( false ) ); ?> />
-	<label for="_bbp_allow_global_access"><?php printf( __( 'Automatically assign "%s" role to new, registered visitors.', 'bbpress' ), translate_user_role( $default_role ) ); ?></label>
+	<label for="_bbp_allow_global_access"><?php _e( 'Automatically assign default role to new, registered users upon visiting the site.', 'bbpress' ); ?></label>
 
 <?php
+}
+
+/**
+ * Output forum role selector (for user edit)
+ *
+ * @since bbPress (r4284)
+ */
+function bbp_admin_setting_callback_default_role() {
+
+	$default_role = bbp_get_default_role(); ?>
+
+	<select name="_bbp_default_role" id="_bbp_default_role">
+
+		<?php foreach ( bbp_get_editable_roles() as $role => $details ) : ?>
+
+			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+			
+		<?php endforeach; ?>
+
+	</select>
+
+	<?php
 }
 
 /**
