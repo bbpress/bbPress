@@ -46,14 +46,21 @@ class BBP_Users_Admin {
 		if ( is_network_admin() )
 			return;
 
-		// Admin styles
-		add_action( 'admin_head',        array( $this, 'admin_head'          ) );
-
 		// User profile edit/display actions
-		add_action( 'edit_user_profile', array( $this, 'user_profile_forums' ) );
+		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
 
-		// Noop WordPress additional caps output area
-		add_filter( 'additional_capabilities_display', '__return_false' );
+		// Show advanced capabilities
+		if ( bbp_use_advanced_capability_editor() ) {
+
+			// Admin styles
+			add_action( 'admin_head',        array( $this, 'admin_head' ) );
+
+			// User profile edit/display actions
+			add_action( 'edit_user_profile', array( $this, 'advanced_capability_display' ) );
+
+			// Noop WordPress additional caps output area
+			add_filter( 'additional_capabilities_display', '__return_false' );
+		}
 	}
 
 	/**
@@ -92,7 +99,61 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Responsible for saving additional profile options and settings
+	 * Default interface for setting a forum role
+	 *
+	 * @since bbPress (r4285)
+	 *
+	 * @param WP_User $profileuser User data
+	 * @return bool Always false
+	 */
+	public function secondary_role_display( $profileuser ) {
+
+		// Bail if current user cannot edit users
+		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
+			return; ?>
+
+		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
+
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<th><?php _e( 'Forum Role', 'bbpress' ); ?></th>
+					<td>
+
+						<?php $user_role = bbp_get_user_role( $profileuser->ID ); ?>
+
+						<select name="bbp-forums-role" id="bbp-forums-role">
+
+							<?php if ( ! empty( $user_role ) ) : ?>
+
+								<option value=""><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
+
+							<?php else : ?>
+
+								<option value="" selected="selected"><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
+
+							<?php endif; ?>
+
+							<?php foreach ( bbp_get_editable_roles() as $role => $details ) : ?>
+
+								<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+
+							<?php endforeach; ?>
+
+						</select>
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+
+		<?php
+	}
+
+	/**
+	 * Responsible for displaying bbPress's advanced capability interface.
+	 *
+	 * Hidden by default. Must be explicitly enabled.
 	 *
 	 * @since bbPress (r2464)
 	 *
@@ -100,13 +161,11 @@ class BBP_Users_Admin {
 	 * @uses do_action() Calls 'bbp_user_profile_forums'
 	 * @return bool Always false
 	 */
-	public function user_profile_forums( $profileuser ) {
+	public function advanced_capability_display( $profileuser ) {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
 			return; ?>
-
-		<h3><?php _e( 'Forum Capabilities', 'bbpress' ); ?></h3>
 
 		<table class="form-table">
 			<tbody>
