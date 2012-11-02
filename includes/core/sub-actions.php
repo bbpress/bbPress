@@ -237,14 +237,27 @@ function bbp_login_form_login() {
 /** User Actions **************************************************************/
 
 /**
- * The main action for hooking into a user saving their profile
+ * The main action for hooking into when a user account is updated
  *
- * @since bbPress (r4235)
+ * @since bbPress (r4304)
+ *
  * @param int $user_id ID of user being edited
- * @uses do_action() Calls 'bbp_edit_user_profile_update'
+ * @param array $old_user_data The old, unmodified user data
+ * @uses do_action() Calls 'bbp_profile_update'
  */
-function bbp_edit_user_profile_update( $user_id = 0 ) {
-	do_action( 'bbp_edit_user_profile_update', $user_id );
+function bbp_profile_update( $user_id = 0, $old_user_data = array() ) {
+	do_action( 'bbp_profile_update', $user_id, $old_user_data );
+}
+
+/**
+ * The main action for hooking into a user being registered
+ *
+ * @since bbPress (r4304)
+ * @param int $user_id ID of user being edited
+ * @uses do_action() Calls 'bbp_user_register'
+ */
+function bbp_user_register( $user_id = 0 ) {
+	do_action( 'bbp_user_register', $user_id );
 }
 
 /** Final Action **************************************************************/
