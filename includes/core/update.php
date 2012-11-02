@@ -244,7 +244,7 @@ function bbp_version_updater() {
 	/** 2.2 Branch ************************************************************/
 
 	// 2.2
-	if ( $raw_db_version < 214 ) {
+	if ( $raw_db_version < 216 ) {
 
 		// Remove bbPress 1.1 roles (BuddyPress)
 		remove_role( 'member'    );
@@ -253,13 +253,8 @@ function bbp_version_updater() {
 		remove_role( 'moderator' );
 		remove_role( 'keymaster' );
 
-		// Remove bbPress 2.1 roles
-		remove_role( 'bbp_moderator'   );
-		remove_role( 'bbp_participant' );
-
 		// Refresh capabilities
 		bbp_remove_caps();
-		bbp_add_caps();
 	}
 
 	/** All done! *************************************************************/
