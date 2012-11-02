@@ -661,6 +661,18 @@ function bbp_get_editable_roles() {
 }
 
 /**
+ * Removes the bbPress roles from the editable roles array
+ *
+ * @since bbPress (r4303)
+ *
+ * @param array $all_roles All registered roles
+ * @return array 
+ */
+function bbp_filter_blog_editable_roles( $all_roles = array() ) {
+	return array_diff_assoc( $all_roles, bbp_get_editable_roles() );
+}
+
+/**
  * The keymaster role for bbPress users
  *
  * @since bbPress (r4284)

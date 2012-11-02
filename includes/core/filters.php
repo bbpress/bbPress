@@ -57,6 +57,9 @@ add_filter( 'comments_open', 'bbp_force_comment_status' );
 // Add post_parent__in to posts_where
 add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 
+// Remove forums roles from list of all roles
+add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
+
 /**
  * Feeds
  *
