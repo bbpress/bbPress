@@ -18,10 +18,18 @@
  */
 function bbp_get_primary_capabilities() {
 	return apply_filters( 'bbp_get_primary_capabilities', array(
+
+		// Current caps
+		'spectate',
 		'participate',
 		'moderate',
 		'throttle',
-		'view_trash'
+		'view_trash',
+
+		// Legacy caps
+		'banned',
+		'blocked',
+		'bozo'
 	) );
 }
 
@@ -42,11 +50,10 @@ function bbp_map_primary_meta_caps( $caps, $cap, $user_id, $args ) {
 	// What capability is being checked?
 	switch ( $cap ) {
 
-		/**
-		 * The 'participate' capability is similar to WordPress's 'read' cap,
-		 * in that it is the minimum required cap to perform any other bbPress
-		 * related thing.
-		 */
+		// Minimum required cap to read any forum content
+		case 'spectate' :
+
+		// Minimum required cap to create any forum content
 		case 'participate' :
 
 			// Inactive users cannot participate
@@ -63,7 +70,7 @@ function bbp_map_primary_meta_caps( $caps, $cap, $user_id, $args ) {
 			}
 
 			break;
-			
+
 		case 'moderate' :
 
 			// All admins are moderators
@@ -135,8 +142,8 @@ function bbp_reset_user_caps( $user_id = 0 ) {
 	$caps = bbp_get_caps_for_role( array_shift( $user->roles ) );
 
 	// Add caps for the first role
-	foreach ( $caps as $cap )
-		$user->add_cap( $cap, true );
+	foreach ( $caps as $cap => $value )
+		$user->add_cap( $cap, $value );
 
 	// Success
 	return true;
@@ -192,19 +199,39 @@ function bbp_save_user_caps( $user_id = 0 ) {
  * @uses bbp_reset_user_caps() to reset caps
  * @usse bbp_save_user_caps() to save caps
  */
-function bbp_edit_user_profile_update_capabilities( $user_id = 0 ) {
+function bbp_profile_update_capabilities( $user_id = 0 ) {
 
 	// Bail if no user ID was passed
 	if ( empty( $user_id ) )
 		return;
 
-	// Either reset caps for role
-	if ( ! empty( $_POST['bbp-default-caps'] ) ) {
-		bbp_reset_user_caps( $user_id );
+	// Bail if advanced capability editor is off
+	if ( ! empty( $_POST['bbp-forums-role'] ) ) {
 
-	// Or set caps individually
-	} else {
-		bbp_save_user_caps( $user_id );
+		// Fromus role we want the user to have
+		$new_role    = stripslashes( $_POST['bbp-forums-role'] );
+		$forums_role = bbp_get_user_role( $user_id );
+
+		// Set the new forums role
+		if ( $new_role != $forums_role ) {
+			bbp_set_user_role( $user_id, $new_role );
+		}
+
+		// Remove any interim form user capabilities
+		bbp_remove_user_caps( $user_id );
+	}
+
+	// Save additional capabilities
+	if ( bbp_use_advanced_capability_editor() ) {
+
+		// Either reset caps for role
+		if ( ! empty( $_POST['bbp-default-caps'] ) ) {
+			bbp_reset_user_caps( $user_id );
+
+		// Or set caps individually
+		} else {
+			bbp_save_user_caps( $user_id );
+		}
 	}
 }
 
@@ -239,5 +266,5 @@ function bbp_set_current_user_default_role() {
 		return;
 
 	// Assign the default role to the current user
-	bbpress()->current_user->set_role( get_option( 'default_role', 'subscriber' ) );
+	bbpress()->current_user->add_role( bbp_get_default_role() );
 }
