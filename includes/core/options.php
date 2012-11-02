@@ -29,16 +29,17 @@ function bbp_get_default_options() {
 
 		/** Settings **********************************************************/
 
-		'_bbp_edit_lock'            => 5,           // Lock post editing after 5 minutes
-		'_bbp_throttle_time'        => 10,          // Throttle post time to 10 seconds
-		'_bbp_enable_favorites'     => 1,           // Favorites
-		'_bbp_enable_subscriptions' => 1,           // Subscriptions
-		'_bbp_allow_topic_tags'     => 1,           // Topic Tags
-		'_bbp_allow_anonymous'      => 0,           // Allow anonymous posting
-		'_bbp_allow_global_access'  => 0,           // Users from all sites can post
-		'_bbp_use_wp_editor'        => 1,           // Use the WordPress editor if available
-		'_bbp_use_autoembed'        => 0,           // Allow oEmbed in topics and replies
-		'_bbp_theme_package_id'     => 'default',   // The ID for the current theme packag.
+		'_bbp_edit_lock'            => 5,                          // Lock post editing after 5 minutes
+		'_bbp_throttle_time'        => 10,                         // Throttle post time to 10 seconds
+		'_bbp_enable_favorites'     => 1,                          // Favorites
+		'_bbp_enable_subscriptions' => 1,                          // Subscriptions
+		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
+		'_bbp_allow_anonymous'      => 0,                          // Allow anonymous posting
+		'_bbp_allow_global_access'  => 0,                          // Users from all sites can post
+		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
+		'_bbp_use_autoembed'        => 0,                          // Allow oEmbed in topics and replies
+		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package.
+		'_bbp_default_role'         => bbp_get_participant_role(), // Default forums role
 
 		/** Per Page **********************************************************/
 
@@ -255,6 +256,18 @@ function bbp_allow_anonymous( $default = 0 ) {
  */
 function bbp_allow_global_access( $default = 0 ) {
 	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
+}
+
+/**
+ * Is this forum available to all users on all sites in this installation?
+ *
+ * @since bbPress (r4294)
+ * @param $default string Optional. Default value empty
+ * @uses get_option() To get the default forums role option
+ * @return string The default forums user role
+ */
+function bbp_get_default_role( $default = 'bbp_participant' ) {
+	return apply_filters( 'bbp_get_default_role', get_option( '_bbp_default_role', $default ) );
 }
 
 /**
