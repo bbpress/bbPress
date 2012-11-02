@@ -143,7 +143,7 @@ class BBP_Topics_Admin {
 				'<ul>' .
 					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                                                                                'bbpress' ) . '</li>' .
 					'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, or Trashed topics. The default view is to show all topics.',                                                                                 'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection. You also can refine the list by clicking on the forum creator in the topics list.', 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection. You also can refine the list by clicking on the topic creator in the topics list.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -154,8 +154,8 @@ class BBP_Topics_Admin {
 			'content'	=>
 				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that forum. You can also reach that screen by clicking on the forum title.',                                                                                 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your forum from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                                                                                 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Preview</strong> will show you what your draft topic will look like if you publish it. View will take you to your live site to view the topic. Which link is available depends on your topic&#8217;s status.', 'bbpress' ) . '</li>' .
 				'</ul>'
