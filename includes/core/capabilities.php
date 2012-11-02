@@ -17,11 +17,13 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Whether or not to show advanced capability editing when editing a user.
  *
- * @param type $default
- * @return type
+ * @since bbPress (r4290)
+ *
+ * @param bool $default
+ * @return bool
  */
 function bbp_use_advanced_capability_editor( $default = false ) {
-	return apply_filters( 'bbp_use_advanced_capability_editor', $default );
+	return (bool) apply_filters( 'bbp_use_advanced_capability_editor', $default );
 }
 
 /** Output ********************************************************************/
