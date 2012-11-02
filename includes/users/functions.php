@@ -1375,54 +1375,36 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  * @param int $user_id
  * @uses bbp_get_user_id() To get the user id
  * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_get_user_role' with the
- *                        role and user id
+ * @uses apply_filters() Calls 'bbp_set_user_role' with the role and user id
  * @return string
  */
-function bbp_set_user_role( $user_id = 0, $new_role = '', $context = '' ) {
+function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id, false, false );
-	if ( empty( $user_id ) )
-		return false;
+	$user    = get_userdata( $user_id );
 
-	// Get userdata
-	$user = get_userdata( $user_id );
+	// User exists
+	if ( !empty( $user ) ) {
 
-	// Get the user's main role
-	switch ( strtolower( $context ) ) {
+		// Remove previous forum roles if any exist
+		$roles = bbp_get_user_role( $user_id );
 
-		// bbPress context
-		case 'forum'     :
-		case 'forums'    :
-		case 'bbpress'   :			
-			$forum_roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_forums_editable_roles() ) );
-
-			foreach ( $forum_roles as $forum_role ) {
-				$user->remove_role( $forum_role );
+		if ( !empty( $roles ) ) {
+			foreach ( $roles as $role ) {
+				$user->remove_role( $role );
 			}
+		}
 
-			$user->add_role( $new_role );
+		// Add new forums role
+		$user->add_role( $new_role );
 
-			break;
-
-		// WordPress core context
-		case ''          :
-		case 'blog'      :
-		case 'wordpress' :
-		default          :
-			$blog_roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-
-			foreach ( $blog_roles as $blog_role ) {
-				$user->remove_role( $blog_role );
-			}
-
-			$user->add_role( $new_role );
-
-			break;
+	// User does don exist so return false
+	} else {
+		$new_role = false;
 	}
 
-	return apply_filters( 'bbp_get_user_role', $new_role, $context, $user_id, $user );
+	return apply_filters( 'bbp_get_user_role', $new_role, $user_id, $user );
 }
 
 /**
@@ -1433,72 +1415,27 @@ function bbp_set_user_role( $user_id = 0, $new_role = '', $context = '' ) {
  * @param int $user_id
  * @uses bbp_get_user_id() To get the user id
  * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_get_user_role' with the
- *                        role and user id
+ * @uses apply_filters() Calls 'bbp_get_user_role' with the role and user id
  * @return string
  */
-function bbp_get_user_role( $user_id = 0, $context = '' ) {
+function bbp_get_user_role( $user_id = 0 ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id, false, false );
-	if ( empty( $user_id ) )
-		return false;
-
-	// Get userdata
-	$user = get_userdata( $user_id );
-
-	// User has no roles so set as empty string
-	if ( empty( $user->roles ) ) {
-
-		// Assume the anonymous role if looking for a bbPress role
-		if ( in_array( $context, array( 'forum', 'forums', 'bbpress' ) ) ) {
-			$role = bbp_get_spectator_role();
-
-		// Otherwise trust that there is no role
-		} else {
-			$role = '';
-		}
+	$user    = get_userdata( $user_id );
+	$role    = false;
 
 	// User has roles so lets
-	} else {
+	if ( ! empty( $user->roles ) ) {
+		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_editable_roles() ) );
 
-		// Get the user's main role
-		switch ( strtolower( $context ) ) {
-
-			// bbPress context
-			case 'forum'     :
-			case 'forums'    :
-			case 'bbpress'   :
-				$role = array_intersect( array_values( $user->roles ), array_keys( bbp_get_forums_editable_roles() ) );
-
-				// If there's a role in the array, use the first one
-				if ( !empty( $role ) ) {
-					$role = array_shift( array_values( $role ) );
-
-				// Otherwise, give them the anonymous role
-				} else {
-					$role = bbp_get_spectator_role();
-				}
-
-				break;
-
-			// WordPress core context
-			case ''          :
-			case 'blog'      :
-			case 'wordpress' :
-			default          :
-				$role = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
-
-				// If there's a role in the array, use the first one
-				if ( !empty( $role ) ) {
-					$role = array_shift( array_values( $role ) );
-				}
-
-				break;
+		// If there's a role in the array, use the first one
+		if ( !empty( $roles ) ) {
+			$role = array_shift( array_values( $role ) );
 		}
 	}
 
-	return apply_filters( 'bbp_get_user_role', $role, $context, $user_id, $user );
+	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
 }
 
 /** Premissions ***************************************************************/
