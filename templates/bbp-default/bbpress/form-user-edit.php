@@ -159,13 +159,11 @@
 
 			<?php endif; ?>
 
+			<?php bbp_get_template_part( 'form', 'user-roles' ); ?>
+
 			<?php if ( bbp_use_advanced_capability_editor() ) : ?>
 
 				<?php bbp_get_template_part( 'form', 'user-capabilities' ); ?>
-
-			<?php else : ?>
-
-				<?php bbp_get_template_part( 'form', 'user-roles' ); ?>
 
 			<?php endif; ?>
 
