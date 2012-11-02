@@ -37,20 +37,21 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  *           v--WordPress Actions        v--bbPress Sub-actions
  */
-add_action( 'plugins_loaded',           'bbp_loaded',                   10 );
-add_action( 'init',                     'bbp_init',                     0  ); // Early for bbp_register
-add_action( 'parse_query',              'bbp_parse_query',              2  ); // Early for overrides
-add_action( 'widgets_init',             'bbp_widgets_init',             10 );
-add_action( 'generate_rewrite_rules',   'bbp_generate_rewrite_rules',   10 );
-add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',          10 );
-add_action( 'wp_head',                  'bbp_head',                     10 );
-add_action( 'wp_footer',                'bbp_footer',                   10 );
-add_action( 'set_current_user',         'bbp_setup_current_user',       10 );
-add_action( 'setup_theme',              'bbp_setup_theme',              10 );
-add_action( 'after_setup_theme',        'bbp_after_setup_theme',        10 );
-add_action( 'template_redirect',        'bbp_template_redirect',        10 );
-add_action( 'login_form_login',         'bbp_login_form_login',         10 );
-add_action( 'edit_user_profile_update', 'bbp_edit_user_profile_update', 10 );
+add_action( 'plugins_loaded',           'bbp_loaded',                   10    );
+add_action( 'init',                     'bbp_init',                     0     ); // Early for bbp_register
+add_action( 'parse_query',              'bbp_parse_query',              2     ); // Early for overrides
+add_action( 'widgets_init',             'bbp_widgets_init',             10    );
+add_action( 'generate_rewrite_rules',   'bbp_generate_rewrite_rules',   10    );
+add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',          10    );
+add_action( 'wp_head',                  'bbp_head',                     10    );
+add_action( 'wp_footer',                'bbp_footer',                   10    );
+add_action( 'set_current_user',         'bbp_setup_current_user',       10    );
+add_action( 'setup_theme',              'bbp_setup_theme',              10    );
+add_action( 'after_setup_theme',        'bbp_after_setup_theme',        10    );
+add_action( 'template_redirect',        'bbp_template_redirect',        10    );
+add_action( 'login_form_login',         'bbp_login_form_login',         10    );
+add_action( 'profile_update',           'bbp_profile_update',           10, 2 ); // user_id and old_user_data
+add_action( 'user_register',            'bbp_user_register',            10    );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -76,6 +77,7 @@ add_action( 'bbp_loaded', 'bbp_load_textdomain',           16 );
  *                                              v---Load order
  */
 add_action( 'bbp_init', 'bbp_register',         0   );
+add_action( 'bbp_init', 'bbp_add_forums_roles', 1   );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags', 20  );
 add_action( 'bbp_init', 'bbp_ready',            999 );
 
@@ -223,7 +225,7 @@ add_action( 'make_ham_user',  'bbp_make_ham_user'  );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
 
 // User capabilities
-add_action( 'bbp_edit_user_profile_update', 'bbp_edit_user_profile_update_capabilities' );
+add_action( 'bbp_profile_update', 'bbp_profile_update_capabilities' );
 
 // Hook WordPress admin actions to bbPress profiles on save
 add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
