@@ -117,7 +117,7 @@ class BBP_Users_Admin {
 		<table class="form-table">
 			<tbody>
 				<tr>
-					<th><?php _e( 'Forum Role', 'bbpress' ); ?></th>
+					<th><label for="bbp-forums-role"><?php _e( 'Forum Role', 'bbpress' ); ?></label></th>
 					<td>
 
 						<?php $user_role = bbp_get_user_role( $profileuser->ID ); ?>
