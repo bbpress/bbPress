@@ -964,11 +964,11 @@ function bbp_edit_user_display_name() {
 }
 
 /**
- * Output role selector (for user edit)
+ * Output blog role selector (for user edit)
  *
  * @since bbPress (r2688)
  */
-function bbp_edit_user_role() {
+function bbp_edit_user_blog_role() {
 
 	// Return if no user is being edited
 	if ( ! bbp_is_single_user_edit() )
@@ -980,6 +980,32 @@ function bbp_edit_user_role() {
 		<option value=""><?php _e( '&mdash; No role for this site &mdash;', 'bbpress' ); ?></option>
 
 		<?php foreach ( get_editable_roles() as $role => $details ) : ?>
+
+			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+			
+		<?php endforeach; ?>
+
+	</select>
+
+	<?php
+}
+
+/**
+ * Output forum role selector (for user edit)
+ *
+ * @since bbPress (r4284)
+ */
+function bbp_edit_user_forums_role() {
+
+	// Return if no user is being edited
+	if ( ! bbp_is_single_user_edit() )
+		return;
+
+	$user_role = bbp_get_user_role( bbp_get_displayed_user_id(), 'bbpress' ); ?>
+	
+	<select name="bbp-forums-role" id="bbp-forums-role">
+
+		<?php foreach ( bbp_get_forums_editable_roles() as $role => $details ) : ?>
 
 			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 			
