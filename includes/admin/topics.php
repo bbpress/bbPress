@@ -158,6 +158,9 @@ class BBP_Topics_Admin {
 					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Preview</strong> will show you what your draft topic will look like if you publish it. View will take you to your live site to view the topic. Which link is available depends on your topic&#8217;s status.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the option to post new replies to the topic.',                                                                                 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                                                                     'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.',                                                      'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
