@@ -384,6 +384,8 @@ final class bbPress {
 	 * @since bbPress (r3829)
 	 */
 	public function register_theme_packages() {
+
+		// Register the default theme compatibility package
 		bbp_register_theme_package( array(
 			'id'      => 'default',
 			'name'    => __( 'bbPress Default', 'bbpress' ),
@@ -391,6 +393,11 @@ final class bbPress {
 			'dir'     => trailingslashit( $this->themes_dir . 'bbp-default' ),
 			'url'     => trailingslashit( $this->themes_url . 'bbp-default' )
 		) );
+
+		// Register the basic theme stack. This is really dope.
+		bbp_register_template_stack( 'get_stylesheet_directory', 10 );
+		bbp_register_template_stack( 'get_template_directory',   12 );
+		bbp_register_template_stack( 'bbp_get_theme_compat_dir', 14 );
 	}
 
 	/**
@@ -799,17 +806,6 @@ final class bbPress {
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
-	}
-
-	/**
-	 * Register the bbPress capabilities
-	 *
-	 * @since bbPress (r3031)
-	 *
-	 * @uses BBP_Capabilities
-	 */
-	public function register_capabilities() {
-		$this->capabilities = new BBP_Capabilities();
 	}
 
 	/**
