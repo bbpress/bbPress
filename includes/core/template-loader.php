@@ -287,10 +287,8 @@ function bbp_get_forum_archive_template() {
  * @return string Path to template file
  */
 function bbp_get_forum_edit_template() {
-	$post_type = bbp_get_forum_post_type();
 	$templates = array(
-		'single-' . $post_type . '-edit.php', // Single Forum Edit
-		'single-' . $post_type . '.php',      // Single Forum
+		'single-' . bbp_get_forum_post_type() . '-edit.php' // Single Forum Edit
 	);
 	return bbp_get_query_template( 'forum_edit', $templates );
 }
@@ -337,10 +335,8 @@ function bbp_get_topic_archive_template() {
  * @return string Path to template file
  */
 function bbp_get_topic_edit_template() {
-	$post_type = bbp_get_topic_post_type();
 	$templates = array(
-		'single-' . $post_type . '-edit.php', // Single Topic Edit
-		'single-' . $post_type . '.php',      // Single Topic
+		'single-' . bbp_get_topic_post_type() . '-edit.php' // Single Topic Edit
 	);
 	return bbp_get_query_template( 'topic_edit', $templates );
 }
@@ -355,9 +351,8 @@ function bbp_get_topic_edit_template() {
  * @return string Path to template file
  */
 function bbp_get_topic_split_template() {
-	$post_type = bbp_get_topic_post_type();
 	$templates = array(
-		'single-' . $post_type . '-split.php', // Topic Split
+		'single-' . bbp_get_topic_post_type() . '-split.php', // Topic Split
 	);
 	return bbp_get_query_template( 'topic_split', $templates );
 }
@@ -372,9 +367,8 @@ function bbp_get_topic_split_template() {
  * @return string Path to template file
  */
 function bbp_get_topic_merge_template() {
-	$post_type = bbp_get_topic_post_type();
 	$templates = array(
-		'single-' . $post_type . '-merge.php', // Topic Merge
+		'single-' . bbp_get_topic_post_type() . '-merge.php', // Topic Merge
 	);
 	return bbp_get_query_template( 'topic_merge', $templates );
 }
@@ -405,10 +399,8 @@ function bbp_get_single_reply_template() {
 * @return string Path to template file
  */
 function bbp_get_reply_edit_template() {
-	$post_type = bbp_get_reply_post_type();
 	$templates = array(
-		'single-' . $post_type . '-edit.php', // Single Reply Edit
-		'single-' . $post_type . '.php',      // Single Reply
+		'single-' . bbp_get_reply_post_type() . '-edit.php' // Single Reply Edit
 	);
 	return bbp_get_query_template( 'reply_edit', $templates );
 }
@@ -446,9 +438,7 @@ function bbp_get_topic_tag_edit_template() {
 	$tt_id     = bbp_get_topic_tag_tax_id();
 	$templates = array(
 		'taxonomy-' . $tt_slug . '-edit.php', // Single Topic Tag Edit slug
-		'taxonomy-' . $tt_id   . '-edit.php', // Single Topic Tag Edit ID
-		'taxonomy-' . $tt_slug . '.php',      // Single Topic Tag slug
-		'taxonomy-' . $tt_id   . '.php',      // Single Topic Tag ID
+		'taxonomy-' . $tt_id   . '-edit.php'  // Single Topic Tag Edit ID
 	);
 	return bbp_get_query_template( 'topic_tag_edit', $templates );
 }
