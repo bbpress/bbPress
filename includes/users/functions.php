@@ -1485,6 +1485,30 @@ function bbp_check_user_edit() {
 	}
 }
 
+/**
+ * Check if a user is blocked, or cannot spectate the forums.
+ *
+ * @since bbPress (r2996)
+ *
+ * @uses is_user_logged_in() To check if user is logged in
+ * @uses is_super_admin() To check if user is a super admin
+ * @uses current_user_can() To check if the current user can spectate
+ * @uses is_bbpress() To check if in a bbPress section of the site
+ * @uses bbp_set_404() To set a 404 status
+ */
+function bbp_forum_enforce_blocked() {
+
+	// Bail if not logged in or super admin
+	if ( ! is_user_logged_in() || is_super_admin() ) {
+		return;
+	}
+
+	// Set 404 if in bbPress and user cannot spectate
+	if ( is_bbpress() && ! current_user_can( 'spectate' ) ) {
+		bbp_set_404();
+	}
+}
+
 /** Converter *****************************************************************/
 
 /**

@@ -245,6 +245,7 @@ add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
  * 2. Accessing private or hidden content (forums/topics/replies)
  * 3. Editing forums, topics, replies, users, and tags
  */
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_blocked',   -1 );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',    -1 );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_private',   -1 );
 add_action( 'bbp_template_redirect', 'bbp_new_forum_handler',       10 );
