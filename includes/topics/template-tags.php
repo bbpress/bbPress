@@ -239,13 +239,21 @@ function bbp_has_topics( $args = '' ) {
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
 
-			// Profile page
-			if ( bbp_is_single_user() ) {
-				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
-
-			// User's replies
-			} elseif ( bbp_is_single_user_topics() ) {
+			// User's topics
+			if ( bbp_is_single_user_topics() ) {
 				$base = bbp_get_user_topics_created_url( bbp_get_displayed_user_id() );
+
+			// User's favorites
+			} elseif ( bbp_is_favorites() ) {
+				$base = bbp_get_favorites_permalink( bbp_get_displayed_user_id() );
+
+			// User's subscriptions
+			} elseif ( bbp_is_subscriptions() ) {
+				$base = bbp_get_subscriptions_permalink( bbp_get_displayed_user_id() );
+
+			// Root profile page
+			} elseif ( bbp_is_single_user() ) {
+				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
 
 			// View
 			} elseif ( bbp_is_single_view() ) {

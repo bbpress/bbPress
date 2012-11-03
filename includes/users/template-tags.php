@@ -1075,7 +1075,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/topics';
+			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/topics';
 			$user = get_userdata( $user_id );
 			if ( ! empty( $user->user_nicename ) ) {
 				$user_nicename = $user->user_nicename;
@@ -1088,12 +1088,12 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		// Unpretty permalinks
 		} else {
 			$url = add_query_arg( array(
-				bbp_get_user_rewrite_id() => $user_id,
-				bbp_get_topic_post_type() => 'topics',
+				bbp_get_user_rewrite_id()        => $user_id,
+				bbp_get_user_topics_rewrite_id() => '1',
 			), home_url( '/' ) );
 		}
 
-		return apply_filters( 'bbp_get_favorites_permalink', $url, $user_id );
+		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 	}
 
 /** Topics Created ************************************************************/
@@ -1135,7 +1135,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/replies';
+			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/replies';
 			$user = get_userdata( $user_id );
 			if ( ! empty( $user->user_nicename ) ) {
 				$user_nicename = $user->user_nicename;
@@ -1148,12 +1148,12 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 		// Unpretty permalinks
 		} else {
 			$url = add_query_arg( array(
-				bbp_get_user_rewrite_id() => $user_id,
-				bbp_get_topic_post_type() => 'replies',
+				bbp_get_user_rewrite_id()         => $user_id,
+				bbp_get_user_replies_rewrite_id() => '1',
 			), home_url( '/' ) );
 		}
 
-		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
+		return apply_filters( 'bbp_get_user_replies_created_url', $url, $user_id );
 	}
 
 /** Login *********************************************************************/
