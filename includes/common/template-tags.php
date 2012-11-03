@@ -173,6 +173,10 @@ function bbp_is_single_forum() {
 	// Assume false
 	$retval = false;
 
+	// Edit is not a single forum
+	if ( bbp_is_forum_edit() )
+		return false;
+
 	// Single and a match
 	if ( is_singular( bbp_get_forum_post_type() ) || bbp_is_query_name( 'bbp_single_forum' ) )
 		$retval = true;
@@ -243,6 +247,10 @@ function bbp_is_single_topic() {
 
 	// Assume false
 	$retval = false;
+
+	// Edit is not a single topic
+	if ( bbp_is_topic_edit() )
+		return false;
 
 	// Single and a match
 	if ( is_singular( bbp_get_topic_post_type() ) || bbp_is_query_name( 'bbp_single_topic' ) )
@@ -486,6 +494,10 @@ function bbp_is_single_reply() {
 
 	// Assume false
 	$retval = false;
+
+	// Edit is not a single reply
+	if ( bbp_is_reply_edit() )
+		return false;
 
 	// Single and a match
 	if ( is_singular( bbp_get_reply_post_type() ) || ( bbp_is_query_name( 'bbp_single_reply' ) ) )
