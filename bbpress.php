@@ -222,6 +222,8 @@ final class bbPress {
 
 		// Other identifiers
 		$this->user_id           = apply_filters( 'bbp_user_id', 'bbp_user' );
+		$this->tops_id           = apply_filters( 'bbp_tops_id', 'bbp_tops' );
+		$this->reps_id           = apply_filters( 'bbp_reps_id', 'bbp_reps' );
 		$this->favs_id           = apply_filters( 'bbp_favs_id', 'bbp_favs' );
 		$this->subs_id           = apply_filters( 'bbp_subs_id', 'bbp_subs' );
 		$this->view_id           = apply_filters( 'bbp_view_id', 'bbp_view' );
@@ -839,6 +841,8 @@ final class bbPress {
 		add_rewrite_tag( '%%' . bbp_get_user_rewrite_id()               . '%%', '([^/]+)'   ); // User Profile tag
 		add_rewrite_tag( '%%' . bbp_get_user_favorites_rewrite_id()     . '%%', '([1]{1,})' ); // User Favorites tag
 		add_rewrite_tag( '%%' . bbp_get_user_subscriptions_rewrite_id() . '%%', '([1]{1,})' ); // User Subscriptions tag
+		add_rewrite_tag( '%%' . bbp_get_user_topics_rewrite_id()        . '%%', '([1]{1,})' ); // User Topics Tag
+		add_rewrite_tag( '%%' . bbp_get_user_replies_rewrite_id()       . '%%', '([1]{1,})' ); // User Replies Tag
 	}
 
 	/**
@@ -859,13 +863,13 @@ final class bbPress {
 		$user_slug = bbp_get_user_slug();
 
 		// Unique rewrite ID's
-		$edit_id    = bbp_get_edit_rewrite_id();
-		$view_id    = bbp_get_view_rewrite_id();
-		$user_id    = bbp_get_user_rewrite_id();
-		$favs_id    = bbp_get_user_favorites_rewrite_id();
-		$subs_id    = bbp_get_user_subscriptions_rewrite_id();
-		$topics_id  = bbp_get_topic_post_type();
-		$replies_id = bbp_get_reply_post_type();
+		$edit_id = bbp_get_edit_rewrite_id();
+		$view_id = bbp_get_view_rewrite_id();
+		$user_id = bbp_get_user_rewrite_id();
+		$favs_id = bbp_get_user_favorites_rewrite_id();
+		$subs_id = bbp_get_user_subscriptions_rewrite_id();
+		$tops_id = bbp_get_user_topics_rewrite_id();
+		$reps_id = bbp_get_user_replies_rewrite_id();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule = '/([^/]+)/?$';
@@ -894,15 +898,15 @@ final class bbPress {
 			bbp_get_topic_tag_tax_slug() . $edit_rule => 'index.php?' . bbp_get_topic_tag_tax_id() . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
 
 			// User Pagination|Edit|View
-			$user_slug . $tops_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $topics_id  . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $reps_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $replies_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $favs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id    . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $subs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id    . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
-			$user_slug . $tops_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $topics_id  . '=1',
-			$user_slug . $reps_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $replies_id . '=1',
-			$user_slug . $favs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id    . '=1',
-			$user_slug . $subs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id    . '=1',
-			$user_slug . $edit_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id    . '=1',
+			$user_slug . $tops_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $tops_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $reps_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $reps_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $favs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $subs_page_rule => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id . '=1&paged=' . $wp_rewrite->preg_index( 2 ),
+			$user_slug . $tops_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $tops_id . '=1',
+			$user_slug . $reps_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $reps_id . '=1',
+			$user_slug . $favs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $favs_id . '=1',
+			$user_slug . $subs_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $subs_id . '=1',
+			$user_slug . $edit_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
 			$user_slug . $root_rule      => 'index.php?' . $user_id  . '=' . $wp_rewrite->preg_index( 1 ),
 
 			// Topic-View Pagination|Feed|View

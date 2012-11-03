@@ -261,8 +261,8 @@ function bbp_parse_query( $posts_query ) {
 
 		$is_favs    = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
 		$is_subs    = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
-		$is_topics  = $posts_query->get( bbp_get_topic_post_type()               );
-		$is_replies = $posts_query->get( bbp_get_reply_post_type()               );
+		$is_topics  = $posts_query->get( bbp_get_user_topics_rewrite_id()        );
+		$is_replies = $posts_query->get( bbp_get_user_replies_rewrite_id()       );
 
 		// View or edit?
 		if ( !empty( $is_edit ) ) {
