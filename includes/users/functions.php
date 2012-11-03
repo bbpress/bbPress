@@ -1388,7 +1388,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	if ( !empty( $user ) ) {
 
 		// Remove previous forum roles if any exist
-		$roles = bbp_get_user_role( $user_id );
+		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_editable_roles() ) );
 
 		if ( !empty( $roles ) ) {
 			foreach ( $roles as $role ) {
