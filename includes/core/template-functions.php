@@ -63,27 +63,27 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	// No file found yet
 	$located = false;
 
-	// Loop through template stack
-	foreach ( (array) bbp_get_template_stack() as $template_location ) {
+	// Try to find a template file
+	foreach ( (array) $template_names as $template_name ) {
 
-		// Continue if $template_location is empty
-		if ( empty( $template_location ) )
+		// Continue if template is empty
+		if ( empty( $template_name ) )
 			continue;
 
-		// Try to find a template file
-		foreach ( (array) $template_names as $template_name ) {
+		// Trim off any slashes from the template name
+		$template_name  = ltrim( $template_name, '/' );
 
-			// Continue if template is empty
-			if ( empty( $template_name ) )
+		// Loop through template stack
+		foreach ( (array) bbp_get_template_stack() as $template_location ) {
+
+			// Continue if $template_location is empty
+			if ( empty( $template_location ) )
 				continue;
-
-			// Trim off any slashes from the template name
-			$template_name  = ltrim( $template_name, '/' );
 
 			// Check child theme first
 			if ( file_exists( trailingslashit( $template_location ) . $template_name ) ) {
 				$located = trailingslashit( $template_location ) . $template_name;
-				break;
+				break 2;
 			}
 		}
 	}
