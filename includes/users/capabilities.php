@@ -198,11 +198,13 @@ function bbp_profile_update_capabilities( $user_id = 0 ) {
 
 		// Set the new forums role
 		if ( $new_role != $forums_role ) {
+
+			// Remove any interim form user capabilities
+			bbp_remove_user_caps( $user_id );
+
+			// Set the users new forums role
 			bbp_set_user_role( $user_id, $new_role );
 		}
-
-		// Remove any interim form user capabilities
-		bbp_remove_user_caps( $user_id );
 	}
 
 	// Save additional capabilities
