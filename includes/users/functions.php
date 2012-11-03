@@ -1404,7 +1404,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 		$new_role = false;
 	}
 
-	return apply_filters( 'bbp_get_user_role', $new_role, $user_id, $user );
+	return apply_filters( 'bbp_set_user_role', $new_role, $user_id, $user );
 }
 
 /**

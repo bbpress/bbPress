@@ -193,7 +193,7 @@ function bbp_profile_update_capabilities( $user_id = 0 ) {
 	if ( ! empty( $_POST['bbp-forums-role'] ) ) {
 
 		// Fromus role we want the user to have
-		$new_role    = stripslashes( $_POST['bbp-forums-role'] );
+		$new_role    = sanitize_text_field( $_POST['bbp-forums-role'] );
 		$forums_role = bbp_get_user_role( $user_id );
 
 		// Set the new forums role
@@ -255,6 +255,9 @@ function bbp_set_current_user_default_role() {
 	// Bail if user is marked as spam or is deleted
 	if ( bbp_is_user_inactive( $user_id ) )
 		return;
+
+	// Remove any interim bbPress caps
+	bbp_remove_user_caps( $user_id );
 
 	// Assign the default role to the current user
 	bbpress()->current_user->add_role( bbp_get_default_role() );
