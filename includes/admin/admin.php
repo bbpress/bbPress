@@ -137,6 +137,9 @@ class BBP_Admin {
 		// Map settings capabilities
 		add_filter( 'bbp_map_meta_caps',   array( $this, 'map_settings_meta_caps' ), 10, 4 );
 
+		// Hide the theme compat package selection
+		add_filter( 'bbp_admin_get_settings_sections', array( $this, 'hide_theme_compat_packages' ) );
+
 		/** Network Admin *****************************************************/
 
 		// Add menu item to settings menu
@@ -1214,6 +1217,21 @@ class BBP_Admin {
 	 */
 	public function register_admin_style () {
 		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+	}
+
+	/**
+	 * Hide theme compat package selection if only 1 package is registered
+	 *
+	 * @since bbPress (r4315)
+	 *
+	 * @param array $sections bbPress settings sections
+	 * @return array
+	 */
+	public function hide_theme_compat_packages( $sections = array() ) {
+		if ( count( bbpress()->theme_compat->packages ) <= 1 )
+			unset( $sections['bbp_settings_theme_compat'] );
+
+		return $sections;
 	}
 
 	/** Ajax ******************************************************************/
