@@ -160,6 +160,9 @@ function bbp_capability_title( $capability = '' ) {
 			case 'throttle' :
 				$retval = __( 'Skip forum throttle check', 'bbpress' );
 				break;
+			case 'blocked' :
+				$retval = __( 'Block access to all forums', 'bbpress' );
+				break;
 			case 'view_trash' :
 				$retval = __( 'View items in forum trash', 'bbpress' );
 				break;
@@ -311,42 +314,43 @@ function bbp_get_caps_for_role( $role = '' ) {
 			$caps = array(
 
 				// Primary caps
-				'spectate'               => true,
-				'participate'            => true,
-				'moderate'               => true,
-				'throttle'               => true,
-				'view_trash'             => true,
+				'spectate'              => true,
+				'participate'           => true,
+				'moderate'              => true,
+				'throttle'              => true,
+				'blocked'               => false,
+				'view_trash'            => true,
 
 				// Forum caps
-				'publish_forums'         => true,
-				'edit_forums'            => true,
-				'edit_others_forums'     => true,
-				'delete_forums'          => true,
-				'delete_others_forums'   => true,
-				'read_private_forums'    => true,
-				'read_hidden_forums'     => true,
+				'publish_forums'        => true,
+				'edit_forums'           => true,
+				'edit_others_forums'    => true,
+				'delete_forums'         => true,
+				'delete_others_forums'  => true,
+				'read_private_forums'   => true,
+				'read_hidden_forums'    => true,
 
 				// Topic caps
-				'publish_topics'         => true,
-				'edit_topics'            => true,
-				'edit_others_topics'     => true,
-				'delete_topics'          => true,
-				'delete_others_topics'   => true,
-				'read_private_topics'    => true,
+				'publish_topics'        => true,
+				'edit_topics'           => true,
+				'edit_others_topics'    => true,
+				'delete_topics'         => true,
+				'delete_others_topics'  => true,
+				'read_private_topics'   => true,
 
 				// Reply caps
-				'publish_replies'        => true,
-				'edit_replies'           => true,
-				'edit_others_replies'    => true,
-				'delete_replies'         => true,
-				'delete_others_replies'  => true,
-				'read_private_replies'   => true,
+				'publish_replies'       => true,
+				'edit_replies'          => true,
+				'edit_others_replies'   => true,
+				'delete_replies'        => true,
+				'delete_others_replies' => true,
+				'read_private_replies'  => true,
 
 				// Topic tag caps
-				'manage_topic_tags'      => true,
-				'edit_topic_tags'        => true,
-				'delete_topic_tags'      => true,
-				'assign_topic_tags'      => true
+				'manage_topic_tags'     => true,
+				'edit_topic_tags'       => true,
+				'delete_topic_tags'     => true,
+				'assign_topic_tags'     => true
 			);
 
 			break;
@@ -360,6 +364,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => true,
 				'throttle'              => true,
+				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -405,6 +410,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => false,
 				'moderate'              => false,
 				'throttle'              => false,
+				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -450,6 +456,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => false,
 				'moderate'              => false,
 				'throttle'              => false,
+				'blocked'               => true,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -497,6 +504,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => false,
 				'throttle'              => false,
+				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
