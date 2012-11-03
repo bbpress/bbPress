@@ -61,7 +61,8 @@ function bbp_get_template_part( $slug, $name = null ) {
 function bbp_locate_template( $template_names, $load = false, $require_once = true ) {
 
 	// No file found yet
-	$located = false;
+	$located            = false;
+	$template_locations = bbp_get_template_stack();
 
 	// Try to find a template file
 	foreach ( (array) $template_names as $template_name ) {
@@ -74,7 +75,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		$template_name  = ltrim( $template_name, '/' );
 
 		// Loop through template stack
-		foreach ( (array) bbp_get_template_stack() as $template_location ) {
+		foreach ( (array) $template_locations as $template_location ) {
 
 			// Continue if $template_location is empty
 			if ( empty( $template_location ) )
