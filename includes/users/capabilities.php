@@ -49,33 +49,17 @@ function bbp_map_primary_meta_caps( $caps, $cap, $user_id, $args ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
-
-		// Minimum required cap to read any forum content
-		case 'spectate' :
-
-		// Minimum required cap to create any forum content
+		case 'spectate'    :
 		case 'participate' :
+		case 'moderate'    :
 
-			// Inactive users cannot participate
+			// Do not allow inactive users
 			if ( bbp_is_user_inactive( $user_id ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Moderators are always participants
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
-
-			// Map to read
 			} else {
-				$caps = array( 'read' );
-			}
-
-			break;
-
-		case 'moderate' :
-
-			// All admins are moderators
-			if ( user_can( $user_id, 'administrator' ) ) {
-				$caps = array( 'read' );
+				$caps = array( $cap );
 			}
 
 			break;
@@ -258,11 +242,18 @@ function bbp_set_current_user_default_role() {
 		return;
 
 	// Bail if not logged in or already a member of this site
-	if ( ! is_user_logged_in() || current_user_can( 'read' ) )
+	if ( ! is_user_logged_in() )
+		return;
+
+	// Get the current user ID
+	$user_id = get_current_user_id();
+
+	// Bail if user already has a forums role
+	if ( bbp_get_user_role( $user_id ) )
 		return;
 
 	// Bail if user is marked as spam or is deleted
-	if ( bbp_is_user_inactive() )
+	if ( bbp_is_user_inactive( $user_id ) )
 		return;
 
 	// Assign the default role to the current user
