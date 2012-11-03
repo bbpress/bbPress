@@ -281,6 +281,57 @@ function bbp_has_errors() {
 	return apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
 }
 
+/**
+ * Searches through the content to locate usernames, designated by an @ sign.
+ *
+ * @since bbPress (r4323)
+ *
+ * @param string $content The content
+ * @return bool|array $usernames Existing usernames. False if no matches.
+ */
+function bbp_find_mentions( $content = '' ) {
+	$pattern   = '/[@]+([A-Za-z0-9-_\.@]+)\b/';
+	preg_match_all( $pattern, $content, $usernames );
+	$usernames = array_unique( array_filter( $usernames[1] ) );
+
+	// Bail if no usernames
+	if ( empty( $usernames ) )
+		return false;
+
+	return $usernames;
+}
+
+/**
+ * Finds and links @-mentioned users in the content
+ *
+ * @since bbPress (r4323)
+ *
+ * @uses bbp_find_mentions() To get usernames in content areas
+ * @return string $content Content filtered for mentions
+ */
+function bbp_mention_filter( $content = '' ) {
+
+	// Get Usernames and bail if none exist
+	$usernames = bbp_find_mentions( $content );
+	if ( empty( $usernames ) )
+		return $content;
+
+	// Loop through usernames and link to profiles
+	foreach( (array) $usernames as $username ) {
+
+		// Skip if username does not exist or user is not active
+		$user_id = username_exists( $username );
+		if ( empty( $user_id ) || bbp_is_user_inactive( $user_id ) )
+			continue;
+
+		// Replace name in content
+		$content = preg_replace( '/(@' . $username . '\b)/', "<a href='" . bbp_get_user_profile_url( $user_id ) . "' rel='nofollow' class='bbp-mention-link $username'>@$username</a>", $content );
+	}
+
+	// Return modified content
+	return $content;
+}
+
 /** Post Statuses *************************************************************/
 
 /**

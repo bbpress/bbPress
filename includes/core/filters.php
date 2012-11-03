@@ -127,6 +127,7 @@ add_filter( 'bbp_get_reply_content', 'make_clickable',     9    );
 add_filter( 'bbp_get_reply_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
+add_filter( 'bbp_get_reply_content', 'bbp_mention_filter', 40   );
 
 // Run filters on topic content
 add_filter( 'bbp_get_topic_content', 'capital_P_dangit'         );
@@ -136,6 +137,7 @@ add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
+add_filter( 'bbp_get_topic_content', 'bbp_mention_filter', 40   );
 
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_user_topic_count',     'bbp_number_format', 10 );
