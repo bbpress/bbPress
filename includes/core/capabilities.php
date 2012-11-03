@@ -148,7 +148,7 @@ function bbp_capability_title( $capability = '' ) {
 		switch( $capability ) {
 
 			// Primary
-			case 'spectator' :
+			case 'spectate' :
 				$retval = __( 'Spectate forum discussion', 'bbpress' );
 				break;
 			case 'participate' :
@@ -159,9 +159,6 @@ function bbp_capability_title( $capability = '' ) {
 				break;
 			case 'throttle' :
 				$retval = __( 'Skip forum throttle check', 'bbpress' );
-				break;
-			case 'blocked' :
-				$retval = __( 'Block access to all forums', 'bbpress' );
 				break;
 			case 'view_trash' :
 				$retval = __( 'View items in forum trash', 'bbpress' );
@@ -318,7 +315,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => true,
 				'throttle'              => true,
-				'blocked'               => false,
 				'view_trash'            => true,
 
 				// Forum caps
@@ -364,7 +360,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => true,
 				'throttle'              => true,
-				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -410,7 +405,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => false,
 				'moderate'              => false,
 				'throttle'              => false,
-				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -456,7 +450,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => false,
 				'moderate'              => false,
 				'throttle'              => false,
-				'blocked'               => true,
 				'view_trash'            => false,
 
 				// Forum caps
@@ -504,7 +497,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => false,
 				'throttle'              => false,
-				'blocked'               => false,
 				'view_trash'            => false,
 
 				// Forum caps
