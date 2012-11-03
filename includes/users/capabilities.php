@@ -246,7 +246,7 @@ function bbp_set_current_user_default_role() {
 		return;
 
 	// Get the current user ID
-	$user_id = get_current_user_id();
+	$user_id = bbp_get_current_user_id();
 
 	// Bail if user already has a forums role
 	if ( bbp_get_user_role( $user_id ) )
