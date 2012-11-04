@@ -147,6 +147,8 @@
 		<fieldset class="bbp-form">
 			<legend><?php _e( 'User Role', 'bbpress' ); ?></legend>
 
+			<?php do_action( 'bbp_user_edit_before_role' ); ?>
+
 			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
 
 				<div>
@@ -161,11 +163,7 @@
 
 			<?php bbp_get_template_part( 'form', 'user-roles' ); ?>
 
-			<?php if ( bbp_use_advanced_capability_editor() ) : ?>
-
-				<?php bbp_get_template_part( 'form', 'user-capabilities' ); ?>
-
-			<?php endif; ?>
+			<?php do_action( 'bbp_user_edit_after_role' ); ?>
 
 		</fieldset>
 

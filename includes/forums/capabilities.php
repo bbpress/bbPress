@@ -30,25 +30,6 @@ function bbp_get_forum_caps() {
 }
 
 /**
- * Return forum post-type capabilities, used when registering the post type
- *
- * @since bbPress (r4163)
- *
- * @return array of forums capabilities
- */
-function bbp_get_forums_capabilities() {
-	return apply_filters( 'bbp_get_forums_capabilities', array(
-		'publish_forums',
-		'edit_forums',
-		'edit_others_forums',
-		'delete_forums',
-		'delete_others_forums',
-		'read_private_forums',
-		'read_hidden_forums'
-	) );
-}
-
-/**
  * Maps forum capabilities
  *
  * @since bbPress (r4242)

@@ -29,24 +29,6 @@ function bbp_get_reply_caps() {
 }
 
 /**
- * Get the reply post-type capabilities
- *
- * @since bbPress (r4163)
- *
- * @return array of replies capabilities
- */
-function bbp_get_replies_capabilities() {
-	return apply_filters( 'bbp_get_replies_capabilities', array(
-		'publish_replies',
-		'edit_replies',
-		'edit_others_replies',
-		'delete_replies',
-		'delete_others_replies',
-		'read_private_replies'
-	) );
-}
-
-/**
  * Maps topic capabilities
  *
  * @since bbPress (r4242)

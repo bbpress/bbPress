@@ -47,40 +47,6 @@ function bbp_get_topic_tag_caps() {
 }
 
 /**
- * Return topic post-type capabilities, used when registering the post type
- *
- * @since bbPress (r4163)
- *
- * @return array of topics capabilities
- */
-function bbp_get_topics_capabilities() {
-	return apply_filters( 'bbp_get_topics_capabilities', array(
-		'publish_topics',
-		'edit_topics',
-		'edit_others_topics',
-		'delete_topics',
-		'delete_others_topics',
-		'read_private_topics'
-	) );
-}
-
-/**
- * Return topic-tag taxonomy capabilities, used when registering the taxonomy
- *
- * @since bbPress (r4163)
- *
- * @return array of topic-tag capabilities
- */
-function bbp_get_topic_tags_capabilities() {
-	return apply_filters( 'bbp_get_topic_tags_capabilities', array(
-		'manage_topic_tags',
-		'edit_topic_tags',
-		'delete_topic_tags',
-		'assign_topic_tags'
-	) );
-}
-
-/**
  * Maps topic capabilities
  *
  * @since bbPress (r4242)
@@ -282,5 +248,5 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 			$caps = array( 'moderate' );
 	}
 
-	return apply_filters( 'bbp_map_topic_Tag_meta_caps', $caps, $cap, $user_id, $args );
+	return apply_filters( 'bbp_map_topic_tag_meta_caps', $caps, $cap, $user_id, $args );
 }

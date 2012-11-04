@@ -224,8 +224,8 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
 
-// User capabilities
-add_action( 'bbp_profile_update', 'bbp_profile_update_capabilities' );
+// User role
+add_action( 'bbp_profile_update', 'bbp_profile_update_role' );
 
 // Hook WordPress admin actions to bbPress profiles on save
 add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
