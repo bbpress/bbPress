@@ -279,9 +279,6 @@ final class bbPress {
 		require( $this->includes_dir . 'core/cache.php'              );
 		require( $this->includes_dir . 'core/options.php'            );
 		require( $this->includes_dir . 'core/capabilities.php'       );
-		require( $this->includes_dir . 'core/classes.php'            );
-		require( $this->includes_dir . 'core/widgets.php'            );
-		require( $this->includes_dir . 'core/shortcodes.php'         );
 		require( $this->includes_dir . 'core/update.php'             );
 		require( $this->includes_dir . 'core/template-functions.php' );
 		require( $this->includes_dir . 'core/template-loader.php'    );
@@ -290,8 +287,11 @@ final class bbPress {
 		/** Components ********************************************************/
 
 		// Common
+		require( $this->includes_dir . 'common/classes.php'        );
 		require( $this->includes_dir . 'common/functions.php'      );
 		require( $this->includes_dir . 'common/template-tags.php'  );
+		require( $this->includes_dir . 'common/widgets.php'        );
+		require( $this->includes_dir . 'common/shortcodes.php'     );
 
 		// Forums
 		require( $this->includes_dir . 'forums/capabilities.php'   );
