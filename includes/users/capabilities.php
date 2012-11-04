@@ -93,7 +93,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 function bbp_set_current_user_default_role() {
 
 	// Bail if forum is not global
-	if ( ! bbp_allow_global_access() )
+	if ( ! bbp_allow_global_access( true ) )
 		return;
 
 	// Bail if not logged in or already a member of this site

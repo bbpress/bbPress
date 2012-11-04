@@ -35,7 +35,7 @@ function bbp_get_default_options() {
 		'_bbp_enable_subscriptions' => 1,                          // Subscriptions
 		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
 		'_bbp_allow_anonymous'      => 0,                          // Allow anonymous posting
-		'_bbp_allow_global_access'  => 0,                          // Users from all sites can post
+		'_bbp_allow_global_access'  => 1,                          // Users from all sites can post
 		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
 		'_bbp_use_autoembed'        => 0,                          // Allow oEmbed in topics and replies
 		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package.
@@ -254,7 +254,7 @@ function bbp_allow_anonymous( $default = 0 ) {
  * @uses get_option() To get the global access option
  * @return bool Is global access allowed?
  */
-function bbp_allow_global_access( $default = 0 ) {
+function bbp_allow_global_access( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
 }
 
