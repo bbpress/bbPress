@@ -136,12 +136,17 @@ function bbp_set_current_user_default_role() {
  * @return array Filtered array of WordPress roles to bbPress roles
  */
 function bbp_get_user_role_map() {
+
+	// Get the default role once here
+	$default_role = bbp_get_default_role();
+
+	// Return filtered results, forcing admins to keymasters.
 	return (array) apply_filters( 'bbp_get_user_role_map', array (
 		'administrator' => bbp_get_keymaster_role(),
-		'editor'        => bbp_get_participant_role(),
-		'author'        => bbp_get_participant_role(),
-		'contributor'   => bbp_get_participant_role(),
-		'subscriber'    => bbp_get_participant_role(),
-		''              => bbp_get_participant_role()
+		'editor'        => $default_role,
+		'author'        => $default_role,
+		'contributor'   => $default_role,
+		'subscriber'    => $default_role,
+		''              => $default_role
 	) );
 }
