@@ -392,7 +392,7 @@ class BBP_BuddyPress {
 	private static function get_activity_id( $post_id = 0 ) {
 
 		// Try to get the activity ID of the post
-		$activity_id = absint( get_post_meta( $post_id, '_bbp_activity_id', true ) );
+		$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
 
 		// Bail if no activity ID is in post meta
 		if ( empty( $activity_id ) )

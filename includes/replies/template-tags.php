@@ -697,7 +697,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
  * @return string reply revision count
  */
 function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
-	$count = absint( count( bbp_get_reply_revisions( $reply_id ) ) );
+	$count  = (int) count( bbp_get_reply_revisions( $reply_id ) );
 	$filter = ( true === $integer ) ? 'bbp_get_reply_revision_count_int' : 'bbp_get_reply_revision_count';
 
 	return apply_filters( $filter, $count, $reply_id );

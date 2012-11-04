@@ -3069,7 +3069,7 @@ function bbp_get_topics_per_page( $default = 15 ) {
 		$retval = $default;
 
 	// Filter and return
-	return absint( apply_filters( 'bbp_get_topics_per_page', $retval, $default ) );
+	return (int) apply_filters( 'bbp_get_topics_per_page', $retval, $default );
 }
 
 /**
@@ -3092,7 +3092,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 		$retval = $default;
 
 	// Filter and return
-	return absint( apply_filters( 'bbp_get_topics_per_rss_page', $retval, $default ) );
+	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $default );
 }
 
 /** Topic Tags ****************************************************************/
