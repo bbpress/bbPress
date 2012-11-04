@@ -111,6 +111,37 @@ function bbp_set_current_user_default_role() {
 	if ( bbp_is_user_inactive( $user_id ) )
 		return;
 
-	// Assign the default role to the current user
-	bbpress()->current_user->add_role( bbp_get_default_role() );
+	// Load up bbPress
+	$bbp = bbpress();
+
+	// Get the current user's WordPress role. Set to empty string if none found.
+	$user_role = isset( $bbp->current_user->roles ) ? array_shift( $bbp->current_user->roles ) : '';
+
+	// Loop through the role map, and grant the proper bbPress role
+	foreach ( (array) bbp_get_user_role_map() as $wp_role => $bbp_role ) {
+		if ( $user_role == $wp_role ) {
+			$bbp->current_user->add_role( $bbp_role );
+			break;
+		}
+	}	
+}
+
+/**
+ * Return a map of WordPress roles to bbPress roles. Used to automatically grant
+ * appropriate bbPress roles to WordPress users that wouldn't already have a
+ * role in the forums. Also guarantees WordPress admins get the Keymaster role.
+ *
+ * @since bbPress (r4334)
+ *
+ * @return array Filtered array of WordPress roles to bbPress roles
+ */
+function bbp_get_user_role_map() {
+	return (array) apply_filters( 'bbp_get_user_role_map', array (
+		'administrator' => bbp_get_keymaster_role(),
+		'editor'        => bbp_get_participant_role(),
+		'author'        => bbp_get_participant_role(),
+		'contributor'   => bbp_get_participant_role(),
+		'subscriber'    => bbp_get_participant_role(),
+		''              => bbp_get_participant_role()
+	) );
 }
