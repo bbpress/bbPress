@@ -1969,8 +1969,16 @@ function bbp_breadcrumb( $args = array() ) {
 			// HTML
 			'before'          => '<div class="bbp-breadcrumb"><p>',
 			'after'           => '</p></div>',
+			
+			// Separator
 			'sep'             => __( '&rsaquo;', 'bbpress' ),
 			'pad_sep'         => 1,
+			'sep_before'      => '<span class="bbp-breadcrumb-current">',
+			'sep_after'       => '<span class="bbp-breadcrumb-current">',
+			
+			// Crumbs
+			'crumb_before'    => '',
+			'crumb_after'     => '',
 
 			// Home
 			'include_home'    => $pre_include_home,
@@ -1982,7 +1990,9 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// Current
 			'include_current' => $pre_include_current,
-			'current_text'    => $pre_current_text
+			'current_text'    => $pre_current_text,
+			'current_before'  => '<span class="bbp-breadcrumb-current">',
+			'current_after'   => '</span>',
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_breadcrumb' );
 		extract( $r );
@@ -2057,13 +2067,13 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Add current page to breadcrumb
 		if ( !empty( $include_current ) || empty( $pre_current_text ) )
-			$crumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
+			$crumbs[] = $current_before . $current_text . $current_after;
 
 		/** Separator *********************************************************/
 
-		// Wrap the separator in a span before padding and filter
-		if ( !empty( $sep ) )
-			$sep = '<span class="bbp-breadcrumb-separator">' . $sep . '</span>';
+		// Wrap the separator in before/after before padding and filter
+		if ( ! empty( $sep ) )
+			$sep = $sep_before . $sep . $sep_after;
 
 		// Pad the separator
 		if ( !empty( $pad_sep ) )
@@ -2076,7 +2086,7 @@ function bbp_breadcrumb( $args = array() ) {
 		$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
 
 		// Build the trail
-		$trail = !empty( $crumbs ) ? ( $before . implode( $sep, $crumbs ) . $after ) : '';
+		$trail = !empty( $crumbs ) ? ( $before . $crumb_before . implode( $sep . $crumb_after . $crumb_before , $crumbs ) . $crumb_after . $after ) : '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r );
 	}
