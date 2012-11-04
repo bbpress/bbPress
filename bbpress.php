@@ -19,7 +19,7 @@
  * Author URI:  http://bbpress.org
  * Version:     2.2-beta
  * Text Domain: bbpress
- * Domain Path: /bbp-languages/
+ * Domain Path: /languages/
  */
 
 // Exit if accessed directly
