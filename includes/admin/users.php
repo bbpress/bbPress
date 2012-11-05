@@ -62,7 +62,7 @@ class BBP_Users_Admin {
 	 * @param WP_User $profileuser User data
 	 * @return bool Always false
 	 */
-	public function secondary_role_display( $profileuser ) {
+	public static function secondary_role_display( $profileuser ) {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
@@ -115,7 +115,7 @@ class BBP_Users_Admin {
 	 * @param array $columns Users table columns
 	 * @return array $columns
 	 */
-	function user_role_column( $columns = array() ) {
+	public static function user_role_column( $columns = array() ) {
 		$columns['role']          = __( 'Site Role',  'bbpress' );
     	$columns['bbp_user_role'] = __( 'Forum Role', 'bbpress' );
 
@@ -133,7 +133,7 @@ class BBP_Users_Admin {
 	 *
 	 * @return string Displayable bbPress user role
 	 */
-	function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
+	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
 		// Only looking for bbPress's user role column
 		if ( 'bbp_user_role' == $column_name ) {
