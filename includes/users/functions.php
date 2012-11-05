@@ -1387,17 +1387,24 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	// User exists
 	if ( !empty( $user ) ) {
 
-		// Remove previous forum roles if any exist
-		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_editable_roles() ) );
+		// Get users forum role
+		$role = bbp_get_user_role( $user_id );
 
-		if ( !empty( $roles ) ) {
-			foreach ( $roles as $role ) {
+		// User already has this role so no new role is set
+		if ( $new_role == $role ) {
+			$new_role = false;
+
+		// Users role is different than the new role
+		} else {
+
+			// Remove the old role
+			if ( ! empty( $role ) ) {
 				$user->remove_role( $role );
 			}
-		}
 
-		// Add new forums role
-		$user->add_role( $new_role );
+			// Add the new role
+			$user->add_role( $new_role );
+		}
 
 	// User does don exist so return false
 	} else {
