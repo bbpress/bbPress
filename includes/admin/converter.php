@@ -1237,7 +1237,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	protected function callback_html( $field ) {
-		require_once( bbpress()->admin->admin_dir . 'bbp-parser.php' );
+		require_once( bbpress()->admin->admin_dir . 'parser.php' );
 		$bbcode = BBCode::getInstance();
 		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
