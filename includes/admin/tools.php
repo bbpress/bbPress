@@ -217,8 +217,7 @@ function bbp_admin_repair_topic_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -261,8 +260,7 @@ function bbp_admin_repair_topic_voice_count() {
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -288,8 +286,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -323,8 +320,7 @@ function bbp_admin_repair_forum_topic_count() {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -358,8 +354,7 @@ function bbp_admin_repair_forum_reply_count() {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -395,8 +390,7 @@ function bbp_admin_repair_user_topic_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
-	$insert_values = array_chunk( $insert_values, 10000 );
-	foreach ( $insert_values as $chunk ) {
+	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
 		$chunk = "\n" . join( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
@@ -405,8 +399,7 @@ function bbp_admin_repair_user_topic_count() {
 		}
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -442,8 +435,7 @@ function bbp_admin_repair_user_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
-	$insert_values = array_chunk( $insert_values, 10000 );
-	foreach ( $insert_values as $chunk ) {
+	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
 		$chunk = "\n" . join( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
@@ -452,8 +444,7 @@ function bbp_admin_repair_user_reply_count() {
 		}
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -491,8 +482,11 @@ function bbp_admin_repair_user_favorites() {
 		if ( empty( $favorites ) || !is_array( $favorites ) )
 			continue;
 
-		$favorites = join( ',', $favorites );
-		$values[] = "('{$user->user_id}', '{$key}, '{$favorites}')";
+		$favorites_joined = join( ',', $favorites );
+		$values[]         = "('{$user->user_id}', '{$key}, '{$favorites_joined}')";
+
+		// Cleanup
+		unset( $favorites, $favorites_joined );
 	}
 
 	if ( !count( $values ) ) {
@@ -504,16 +498,15 @@ function bbp_admin_repair_user_favorites() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
-	$values = array_chunk( $values, 10000 );
-	foreach ( $values as $chunk ) {
+	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . join( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `$wpdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
-		if ( is_wp_error( $wpdb->query( $sql_insert ) ) )
+		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
+		}
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -550,8 +543,11 @@ function bbp_admin_repair_user_subscriptions() {
 		if ( empty( $subscriptions ) || !is_array( $subscriptions ) )
 			continue;
 
-		$subscriptions = join( ',', $subscriptions );
-		$values[] = "('{$user->user_id}', '{$key}', '{$subscriptions}')";
+		$subscriptions_joined = join( ',', $subscriptions );
+		$values[]             = "('{$user->user_id}', '{$key}', '{$subscriptions_joined}')";
+
+		// Cleanup
+		unset( $subscriptions, $subscriptions_joined );
 	}
 
 	if ( !count( $values ) ) {
@@ -563,16 +559,15 @@ function bbp_admin_repair_user_subscriptions() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
-	$values = array_chunk( $values, 10000 );
-	foreach ( $values as $chunk ) {
+	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . join( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
-		if ( is_wp_error( $wpdb->query( $sql_insert ) ) )
+		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
+		}
 	}
 
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -590,13 +585,12 @@ function bbp_admin_repair_user_subscriptions() {
 function bbp_admin_repair_user_roles() {
 	
 	$statement = __( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
-	$result    = __( 'Failed!', 'bbpress' );
 	$changed   = 0;
 	$role_map  = bbp_get_user_role_map();
 
 	// Bail if no role map exists
 	if ( empty( $role_map ) )
-		return array( 1, sprintf( $statement, $result ) );
+		return array( 1, sprintf( $statement, __( 'Failed!', 'bbpress' ) ) );
 
 	// Iterate through each role...
 	foreach ( array_keys( get_editable_roles() ) as $role ) {
@@ -723,8 +717,7 @@ function bbp_admin_repair_freshness() {
 	}
 	
 	// Complete results
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -774,8 +767,7 @@ function bbp_admin_repair_forum_visibility() {
 	wp_reset_postdata();
 
 	// Complete results
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -829,8 +821,7 @@ function bbp_admin_repair_forum_meta() {
 		return array( 4, sprintf( $statement, $result ) );
 
 	// Complete results
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /**
@@ -875,8 +866,7 @@ function bbp_admin_repair_topic_meta() {
 		return array( 4, sprintf( $statement, $result ) );
 
 	// Complete results
-	$result = __( 'Complete!', 'bbpress' );
-	return array( 0, sprintf( $statement, $result ) );
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
 /** Reset ********************************************************************/
