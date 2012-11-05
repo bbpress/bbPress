@@ -160,21 +160,19 @@ function bbp_admin_repair_list() {
 		0  => array( 'bbp-sync-topic-meta',        __( 'Recalculate the parent topic for each post',          'bbpress' ), 'bbp_admin_repair_topic_meta'               ),
 		5  => array( 'bbp-sync-forum-meta',        __( 'Recalculate the parent forum for each post',          'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
 		10 => array( 'bbp-sync-forum-visibility',  __( 'Recalculate private and hidden forums',               'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
-		15 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
-		20 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
-		25 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
-		30 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
-		35 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
-		40 => array( 'bbp-user-replies',           __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
-		45 => array( 'bbp-user-topics',            __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
-		50 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
-		55 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
-		60 => array( 'bbp-sync-all-topics-forums', __( 'Recalculate last activity in each topic and forum',   'bbpress' ), 'bbp_admin_repair_freshness'                )
+		15 => array( 'bbp-sync-all-topics-forums', __( 'Recalculate last activity in each topic and forum',   'bbpress' ), 'bbp_admin_repair_freshness'                ),
+		20 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
+		25 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
+		30 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
+		35 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
+		40 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
+		45 => array( 'bbp-user-replies',           __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
+		50 => array( 'bbp-user-topics',            __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
+		55 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
+		60 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
+		65 => array( 'bbp-user-role-map',          __( 'Remap existing users to default forum roles',             'bbpress' ), 'bbp_admin_repair_user_roles'               )
 	);
 	ksort( $repair_list );
-
-	// DO NOT USE: Legacy filter
-	$repair_list = apply_filters( 'bbp_recount_list', $repair_list );
 
 	return (array) apply_filters( 'bbp_repair_list', $repair_list );
 }
@@ -574,6 +572,51 @@ function bbp_admin_repair_user_subscriptions() {
 	}
 
 	$result = __( 'Complete!', 'bbpress' );
+	return array( 0, sprintf( $statement, $result ) );
+}
+
+/**
+ * This repair tool will map each user of the current site to their respective
+ * forums role. By default, Admins will be Key Masters, and every other role
+ * will be the default role defined in Settings > Forums (Participant).
+ *
+ * @since bbPress (r4340)
+ *
+ * @uses bbp_get_user_role_map() To get the map of user roles
+ * @uses get_editable_roles() To get the current WordPress roles
+ * @uses get_users() To get the users of each role (limited to ID field)
+ * @uses bbp_set_user_role() To set each user's forums role
+ */
+function bbp_admin_repair_user_roles() {
+	
+	$statement = __( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
+	$result    = __( 'Failed!', 'bbpress' );
+	$changed   = 0;
+	$role_map  = bbp_get_user_role_map();
+
+	// Bail if no role map exists
+	if ( empty( $role_map ) )
+		return array( 1, sprintf( $statement, $result ) );
+
+	// Iterate through each role...
+	foreach ( array_keys( get_editable_roles() ) as $role ) {
+
+		// Get users of 
+		$users = get_users( array( 'role' => $role, 'fields' => 'ID' ) );
+
+		// Keep iterating if no users exist for this role
+		if ( empty( $users ) )
+			continue;
+
+		// Iterate through each user of $role and try to set it
+		foreach ( $users as $user_id ) {
+			if ( bbp_set_user_role( $user_id, $role_map[$role] ) ) {
+				++$changed; // Keep a count to display at the end
+			}
+		}
+	}
+
+	$result = sprintf( __( 'Complete! %s users updated.', 'bbpress' ), bbp_number_format( $changed ) );
 	return array( 0, sprintf( $statement, $result ) );
 }
 
