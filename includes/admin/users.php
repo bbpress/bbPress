@@ -48,6 +48,10 @@ class BBP_Users_Admin {
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
+
+		// WordPress user screen
+		add_filter( 'manage_users_columns',       array( $this, 'user_role_column' )        );
+		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'    ), 10, 3 );
 	}
 
 	/**
@@ -100,6 +104,53 @@ class BBP_Users_Admin {
 		</table>
 
 		<?php
+	}
+
+	/**
+	 * Add Forum Role column to the WordPress Users table, and change the
+	 * core role title to "Site Role"
+	 *
+	 * @since bbPress (r4337)
+	 *
+	 * @param array $columns Users table columns
+	 * @return array $columns
+	 */
+	function user_role_column( $columns = array() ) {
+		$columns['role']          = __( 'Site Role',  'bbpress' );
+    	$columns['bbp_user_role'] = __( 'Forum Role', 'bbpress' );
+
+		return $columns;
+	}
+
+	/**
+	 * Return user's forums role for display in the WordPress Users list table
+	 *
+	 * @since bbPress (r4337)
+	 *
+	 * @param string $retval
+	 * @param string $column_name
+	 * @param int $user_id
+	 *
+	 * @return string Displayable bbPress user role
+	 */
+	function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
+
+		// Only looking for bbPress's user role column
+		if ( 'bbp_user_role' == $column_name ) {
+			
+			// Get the users role
+			$user_role = bbp_get_user_role( $user_id );
+			$retval    = false;
+
+			// Translate user role for display
+			if ( ! empty( $user_role ) ) {
+				$roles  = bbp_get_editable_roles();
+				$retval = translate_user_role( $roles[$user_role]['name'] );
+			}
+		}
+
+		// Pass retval through
+		return $retval;
 	}
 }
 new BBP_Users_Admin();
