@@ -287,7 +287,7 @@ class BBP_Topics_Admin {
 	 * @return int Parent id
 	 */
 	public function attributes_metabox_save( $topic_id ) {
-		
+
 		if ( $this->bail() ) return $topic_id;
 
 		// Bail if doing an autosave
@@ -734,7 +734,7 @@ class BBP_Topics_Admin {
 
 				// Output forum name
 				if ( !empty( $forum_id ) ) {
-					
+
 					// Forum Title
 					$forum_title = bbp_get_forum_title( $forum_id );
 					if ( empty( $forum_title ) ) {

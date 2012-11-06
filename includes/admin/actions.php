@@ -14,7 +14,7 @@
  *
  *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
  *  - Admin: More in {@link BBP_Admin::setup_actions()} in admin.php
- * 
+ *
  * @see bbp-core-actions.php
  * @see bbp-core-filters.php
  */

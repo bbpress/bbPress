@@ -129,7 +129,7 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
  * Uninstall all bbPress options and capabilities from a specific site.
  *
  * @since bbPress (r3765)
- * @param type $site_id 
+ * @param type $site_id
  */
 function bbp_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) )

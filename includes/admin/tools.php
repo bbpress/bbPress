@@ -583,7 +583,7 @@ function bbp_admin_repair_user_subscriptions() {
  * @uses bbp_set_user_role() To set each user's forums role
  */
 function bbp_admin_repair_user_roles() {
-	
+
 	$statement = __( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
 	$changed   = 0;
 	$role_map  = bbp_get_user_role_map();
@@ -723,7 +723,7 @@ function bbp_admin_repair_freshness() {
 			bbp_update_forum( array( 'forum_id' => $forum_id ) );
 		}
 	}
-	
+
 	// Complete results
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
@@ -968,7 +968,7 @@ function bbp_admin_reset_handler() {
 		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
 
-		
+
 		/** Post Meta *********************************************************/
 
 		if ( !empty( $sql_posts ) ) {
@@ -1004,7 +1004,7 @@ function bbp_admin_reset_handler() {
 			$result = $failed;
 		}
 		$messages[] = sprintf( $statement, $result );
-		
+
 		/** Options ***********************************************************/
 
 		$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );

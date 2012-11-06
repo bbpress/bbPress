@@ -103,7 +103,7 @@ class BBP_Replies_Admin {
 
 		return false;
 	}
-		
+
 	/**
 	 * Admin globals
 	 *
@@ -417,7 +417,7 @@ class BBP_Replies_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	public function admin_head() {
-		
+
 		if ( $this->bail() ) return;
 
 		?>
@@ -889,7 +889,7 @@ class BBP_Replies_Admin {
 
 		// URL for the current topic
 		$topic_url = bbp_get_topic_permalink( bbp_get_reply_topic_id( $post_ID ) );
-		
+
 		// Current reply's post_date
 		$post_date = bbp_get_global_post_field( 'post_date', 'raw' );
 
@@ -945,7 +945,7 @@ endif; // class_exists check
  *
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
- * 
+ *
  * @since bbPress (r2596)
  *
  * @uses BBP_Replies_Admin

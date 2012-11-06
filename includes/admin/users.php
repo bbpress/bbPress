@@ -137,7 +137,7 @@ class BBP_Users_Admin {
 
 		// Only looking for bbPress's user role column
 		if ( 'bbp_user_role' == $column_name ) {
-			
+
 			// Get the users role
 			$user_role = bbp_get_user_role( $user_id );
 			$retval    = false;

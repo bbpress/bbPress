@@ -91,7 +91,7 @@ class BBP_Forums_Admin {
 
 		return false;
 	}
-		
+
 	/**
 	 * Admin globals
 	 *
@@ -246,7 +246,7 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-		
+
 		if ( $this->bail() ) return;
 
 		add_meta_box (
@@ -333,7 +333,7 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	public function admin_head() {
-		
+
 		if ( $this->bail() ) return;
 
 		?>
@@ -412,7 +412,7 @@ class BBP_Forums_Admin {
 	 * @return array $columns bbPress forum columns
 	 */
 	public function column_headers( $columns ) {
-		
+
 		if ( $this->bail() ) return $columns;
 
 		$columns = array (
@@ -446,7 +446,7 @@ class BBP_Forums_Admin {
 	 *                    column and forum id
 	 */
 	public function column_data( $column, $forum_id ) {
-		
+
 		if ( $this->bail() ) return;
 
 		switch ( $column ) {
@@ -495,7 +495,7 @@ class BBP_Forums_Admin {
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $forum ) {
-		
+
 		if ( $this->bail() ) return $actions;
 
 		unset( $actions['inline hide-if-no-js'] );

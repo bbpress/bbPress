@@ -514,7 +514,7 @@ function bbp_admin_setting_callback_default_role() {
 		<?php foreach ( bbp_get_editable_roles() as $role => $details ) : ?>
 
 			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
-			
+
 		<?php endforeach; ?>
 
 	</select>

@@ -485,7 +485,7 @@ class BBP_Admin {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'suggest' );
 	}
-	
+
 	/**
 	 * Add some general styling to the admin area
 	 *
@@ -1240,7 +1240,7 @@ class BBP_Admin {
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
 	 * @since bbPress (r4261)
-	 * 
+	 *
 	 * @uses get_posts()
 	 * @uses bbp_get_forum_post_type()
 	 * @uses bbp_get_forum_id()
@@ -1257,7 +1257,7 @@ class BBP_Admin {
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
 	 * @since bbPress (r4261)
-	 * 
+	 *
 	 * @uses get_posts()
 	 * @uses bbp_get_topic_post_type()
 	 * @uses bbp_get_topic_id()
