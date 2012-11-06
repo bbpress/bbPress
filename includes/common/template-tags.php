@@ -1259,7 +1259,8 @@ function bbp_dropdown( $args = '' ) {
 			'options_only'       => false,
 			'show_none'          => false,
 			'none_found'         => false,
-			'disable_categories' => true
+			'disable_categories' => true,
+			'disabled'           => ''
 		);
 		$r = bbp_parse_args( $args, $defaults, 'get_dropdown' );
 
@@ -1310,6 +1311,7 @@ function bbp_dropdown( $args = '' ) {
 		$tab       = (int) $tab;
 		$retval    = '';
 		$posts     = get_posts( $r );
+		$disabled  = disabled( isset( bbpress()->options[$disabled] ), true, false );
 
 		/** Drop Down *********************************************************/
 
@@ -1317,7 +1319,7 @@ function bbp_dropdown( $args = '' ) {
 		if ( !empty( $posts ) ) {
 			if ( empty( $options_only ) ) {
 				$tab     = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
-				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab . '>' . "\n";
+				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $disabled . '>' . "\n";
 			}
 
 			$retval .= !empty( $show_none ) ? "\t<option value=\"\" class=\"level-0\">" . $show_none . '</option>' : '';
