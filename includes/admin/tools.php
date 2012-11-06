@@ -598,7 +598,7 @@ function bbp_admin_repair_user_roles() {
 		// Reset the offset
 		$offset = 0;
 
-		// Get users of 
+		// Get users of this site, limited to 1000
 		while ( $users = get_users( array(
 				'role'   => $role,
 				'fields' => 'ID',
@@ -606,18 +606,14 @@ function bbp_admin_repair_user_roles() {
 				'offset' => $offset
 			) ) ) {
 
-			// Keep iterating if no users exist for this role
-			if ( empty( $users ) )
-				continue;
-
 			// Iterate through each user of $role and try to set it
-			foreach ( $users as $user_id ) {
+			foreach ( (array) $users as $user_id ) {
 				if ( bbp_set_user_role( $user_id, $role_map[$role] ) ) {
 					++$changed; // Keep a count to display at the end
 				}
 			}
 
-			// Bump the offset
+			// Bump the offset for the next query iteration
 			$offset = $offset + 1000;
 		}
 	}
