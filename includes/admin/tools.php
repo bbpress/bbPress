@@ -595,18 +595,30 @@ function bbp_admin_repair_user_roles() {
 	// Iterate through each role...
 	foreach ( array_keys( get_editable_roles() ) as $role ) {
 
+		// Reset the offset
+		$offset = 0;
+
 		// Get users of 
-		$users = get_users( array( 'role' => $role, 'fields' => 'ID' ) );
+		while ( $users = get_users( array(
+				'role'   => $role,
+				'fields' => 'ID',
+				'number' => 1000,
+				'offset' => $offset
+			) ) ) {
 
-		// Keep iterating if no users exist for this role
-		if ( empty( $users ) )
-			continue;
+			// Keep iterating if no users exist for this role
+			if ( empty( $users ) )
+				continue;
 
-		// Iterate through each user of $role and try to set it
-		foreach ( $users as $user_id ) {
-			if ( bbp_set_user_role( $user_id, $role_map[$role] ) ) {
-				++$changed; // Keep a count to display at the end
+			// Iterate through each user of $role and try to set it
+			foreach ( $users as $user_id ) {
+				if ( bbp_set_user_role( $user_id, $role_map[$role] ) ) {
+					++$changed; // Keep a count to display at the end
+				}
 			}
+
+			// Bump the offset
+			$offset = $offset + 1000;
 		}
 	}
 
