@@ -62,7 +62,7 @@ function bbp_map_forum_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		case 'read_forum' :
 
-			// User cannot participate
+			// User cannot spectate
 			if ( ! user_can( $user_id, 'spectate' ) ) {
 				$caps = array( 'do_not_allow' );
 
