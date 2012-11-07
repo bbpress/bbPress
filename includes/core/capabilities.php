@@ -328,7 +328,7 @@ function bbp_get_wp_roles() {
 function bbp_add_forums_roles() {
 	$wp_roles = bbp_get_wp_roles();
 
-	foreach( bbp_get_editable_roles() as $role_id => $details ) {
+	foreach( bbp_get_dynamic_roles() as $role_id => $details ) {
 		$wp_roles->roles[$role_id]        = $details;
 		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
@@ -352,8 +352,8 @@ function bbp_add_forums_roles() {
  *
  * @return array
  */
-function bbp_get_editable_roles() {
-	return (array) apply_filters( 'bbp_get_editable_roles', array(
+function bbp_get_dynamic_roles() {
+	return (array) apply_filters( 'bbp_get_dynamic_roles', array(
 
 		// Keymaster
 		bbp_get_keymaster_role() => array(
@@ -402,7 +402,7 @@ function bbp_get_editable_roles() {
  * @return array 
  */
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
-	return array_diff_assoc( $all_roles, bbp_get_editable_roles() );
+	return array_diff_assoc( $all_roles, bbp_get_dynamic_roles() );
 }
 
 /**

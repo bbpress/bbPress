@@ -90,7 +90,7 @@ class BBP_Users_Admin {
 
 							<?php endif; ?>
 
-							<?php foreach ( bbp_get_editable_roles() as $role => $details ) : ?>
+							<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
 
 								<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 
@@ -144,7 +144,7 @@ class BBP_Users_Admin {
 
 			// Translate user role for display
 			if ( ! empty( $user_role ) ) {
-				$roles  = bbp_get_editable_roles();
+				$roles  = bbp_get_dynamic_roles();
 				$retval = translate_user_role( $roles[$user_role]['name'] );
 			}
 		}

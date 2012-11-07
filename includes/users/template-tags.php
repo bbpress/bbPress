@@ -1008,7 +1008,7 @@ function bbp_edit_user_forums_role() {
 	<select name="bbp-forums-role" id="bbp-forums-role">
 		<option value=""><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
 
-		<?php foreach ( bbp_get_editable_roles() as $role => $details ) : ?>
+		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
 
 			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 

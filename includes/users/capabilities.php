@@ -111,7 +111,7 @@ function bbp_get_user_role( $user_id = 0 ) {
 
 	// User has roles so lets
 	if ( ! empty( $user->roles ) ) {
-		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_editable_roles() ) );
+		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_dynamic_roles() ) );
 
 		// If there's a role in the array, use the first one
 		if ( !empty( $roles ) ) {
