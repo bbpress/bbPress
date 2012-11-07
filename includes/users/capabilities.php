@@ -206,7 +206,17 @@ function bbp_set_current_user_default_role() {
 
 			// Add role to user account, making them a user of this site
 			if ( true == $add_to_site ) {
+
+				// Override map to prevent accidental "Visitor"
+				if ( empty( $wp_role ) ) {
+					$bbp_role = bbp_get_default_role();
+				}
+
+				// Add the mapped forums role to the user's account
 				$bbp->current_user->add_role( $bbp_role );
+
+				// @todo Add the default site role too?
+				//$bbp->current_user->add_role( get_option( 'default_role' ) );
 
 			// Dynamically assign capabilities, making them "anonymous"
 			} else {
