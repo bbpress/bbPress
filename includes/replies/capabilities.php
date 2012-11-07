@@ -2,7 +2,7 @@
 
 /**
  * bbPress Reply Capabilites
- * 
+ *
  * Used to map reply capabilities to WordPress's existing capabilities.
  *
  * @package bbPress
@@ -52,12 +52,12 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'read_reply' :
 
 			// User cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
+			if ( ! user_can( $user_id, 'spectate' ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Do some post ID based logic
 			} else {
-			
+
 				// Get the post
 				$_post = get_post( $args[0] );
 				if ( !empty( $_post ) ) {
@@ -67,11 +67,11 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 
 					// Post is public
 					if ( bbp_get_public_status_id() == $_post->post_status ) {
-						$caps = array( 'particpate' );
+						$caps = array( 'spectate' );
 
 					// User is author so allow read
 					} elseif ( (int) $user_id == (int) $_post->post_author ) {
-						$caps = array( 'participate' );
+						$caps = array( 'spectate' );
 
 					// Unknown so map to private posts
 					} else {
@@ -86,13 +86,9 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		case 'publish_replies' :
 
-			// Non participants cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always publish
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 			}
 
 			break;
@@ -103,13 +99,9 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'edit_replies'        :
 		case 'edit_others_replies' :
 
-			// Non participants cannot manage content
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always edit
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 			}
 
 			break;
@@ -159,7 +151,7 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 
 				// Moderators can always edit forum content
 				} elseif ( user_can( $user_id, 'moderate' ) ) {
-					$caps[] = 'participate';
+					$caps[] = 'moderate';
 
 				// Unknown so map to delete_others_posts
 				} else {
@@ -168,22 +160,18 @@ function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
 			}
 
 			break;
-			
+
 		// Moderation override
 		case 'delete_replies'        :
 		case 'delete_others_replies' :
 
-			// Non participants cannot manage content
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always delete
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 			}
 
 			break;
-			
+
 		/** Admin *************************************************************/
 
 		case 'bbp_replies_admin' :

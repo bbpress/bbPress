@@ -2,7 +2,7 @@
 
 /**
  * bbPress Topic Capabilites
- * 
+ *
  * Used to map topic capabilities to WordPress's existing capabilities.
  *
  * @package bbPress
@@ -70,12 +70,12 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'read_topic' :
 
 			// User cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
+			if ( ! user_can( $user_id, 'spectate' ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Do some post ID based logic
 			} else {
-			
+
 				// Get the post
 				$_post = get_post( $args[0] );
 				if ( !empty( $_post ) ) {
@@ -85,11 +85,11 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 
 					// Post is public
 					if ( bbp_get_public_status_id() == $_post->post_status ) {
-						$caps = array( 'particpate' );
+						$caps = array( 'spectate' );
 
 					// User is author so allow read
 					} elseif ( (int) $user_id == (int) $_post->post_author ) {
-						$caps = array( 'participate' );
+						$caps = array( 'spectate' );
 
 					// Unknown so map to private posts
 					} else {
@@ -104,13 +104,9 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		case 'publish_topics'  :
 
-			// Non participants cannot participate
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always publish
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 			}
 
 			break;
@@ -121,12 +117,8 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'edit_topics'        :
 		case 'edit_others_topics' :
 
-			// Non participants cannot manage content
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always edit
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
+			if ( user_can( $user_id, 'moderate' ) ) {
 				$caps = array( $cap );
 			}
 
@@ -177,7 +169,7 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 
 				// Moderators can always edit forum content
 				} elseif ( user_can( $user_id, 'moderate' ) ) {
-					$caps[] = 'participate';
+					$caps[] = 'moderate';
 
 				// Unknown so map to delete_others_posts
 				} else {
@@ -186,22 +178,18 @@ function bbp_map_topic_meta_caps( $caps, $cap, $user_id, $args ) {
 			}
 
 			break;
-			
+
 		// Moderation override
 		case 'delete_topics'         :
 		case 'delete_others_topics'  :
 
-			// Non participants cannot manage content
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
-
 			// Moderators can always delete
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
+			if ( user_can( $user_id, 'moderate' ) ) {
 				$caps = array( $cap );
 			}
 
 			break;
-			
+
 		/** Admin *************************************************************/
 
 		case 'bbp_topics_admin' :
@@ -228,24 +216,16 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
-		case 'manage_topic_tags' :
-		case 'edit_topic_tags'   :
-		case 'delete_topic_tags' :
-		case 'assign_topic_tags' :
-
-			// Non participants cannot manage content
-			if ( ! user_can( $user_id, 'participate' ) ) {
-				$caps = array( 'do_not_allow' );
+		case 'manage_topic_tags'    :
+		case 'edit_topic_tags'      :
+		case 'delete_topic_tags'    :
+		case 'assign_topic_tags'    :
+		case 'bbp_topic_tags_admin' :
 
 			// Moderators can always edit
-			} elseif ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( $cap );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 			}
-
-			break;
-
-		case 'bbp_topic_tags_admin' :
-			$caps = array( 'moderate' );
 	}
 
 	return apply_filters( 'bbp_map_topic_tag_meta_caps', $caps, $cap, $user_id, $args );

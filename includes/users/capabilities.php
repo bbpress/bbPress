@@ -2,7 +2,7 @@
 
 /**
  * bbPress User Capabilites
- * 
+ *
  * Used to map user capabilities to WordPress's existing capabilities.
  *
  * @package bbPress
@@ -170,9 +170,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
  */
 function bbp_set_current_user_default_role() {
 
-	// Bail if forum is not global
-	if ( ! bbp_allow_global_access( true ) )
-		return;
+	/** Sanity ****************************************************************/
 
 	// Bail if not logged in or already a member of this site
 	if ( ! is_user_logged_in() )
@@ -189,19 +187,36 @@ function bbp_set_current_user_default_role() {
 	if ( bbp_is_user_inactive( $user_id ) )
 		return;
 
-	// Load up bbPress
-	$bbp = bbpress();
+	/** Ready *****************************************************************/
+
+	// Load up bbPress once
+	$bbp         = bbpress();
+
+	// Get whether or not to add a role to the user account
+	$add_to_site = bbp_allow_global_access();
 
 	// Get the current user's WordPress role. Set to empty string if none found.
-	$user_role = isset( $bbp->current_user->roles ) ? array_shift( $bbp->current_user->roles ) : '';
+	$user_role   = isset( $bbp->current_user->roles ) ? array_shift( $bbp->current_user->roles ) : '';
 
 	// Loop through the role map, and grant the proper bbPress role
 	foreach ( (array) bbp_get_user_role_map() as $wp_role => $bbp_role ) {
+
+		// User's role matches a possible WordPress role (including none at all)
 		if ( $user_role == $wp_role ) {
-			$bbp->current_user->add_role( $bbp_role );
+
+			// Add role to user account, making them a user of this site
+			if ( true == $add_to_site ) {
+				$bbp->current_user->add_role( $bbp_role );
+
+			// Dynamically assign capabilities, making them "anonymous"
+			} else {
+				$bbp->current_user->caps[$bbp_role] = true;
+				$bbp->current_user->get_role_caps();
+			}
+
 			break;
 		}
-	}	
+	}
 }
 
 /**
@@ -225,7 +240,7 @@ function bbp_get_user_role_map() {
 		'author'        => $default_role,
 		'contributor'   => $default_role,
 		'subscriber'    => $default_role,
-		''              => $default_role
+		''              => bbp_get_anonymous_role()
 	) );
 }
 
@@ -489,9 +504,9 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 
 /**
  * Checks if user is active
- * 
+ *
  * @since bbPress (r3502)
- * 
+ *
  * @uses is_user_logged_in() To check if user is logged in
  * @uses bbp_get_displayed_user_id() To get current user ID
  * @uses bbp_is_user_spammer() To check if user is spammer
@@ -524,9 +539,9 @@ function bbp_is_user_active( $user_id = 0 ) {
 
 /**
  * Checks if user is not active.
- * 
+ *
  * @since bbPress (r3502)
- * 
+ *
  * @uses is_user_logged_in() To check if user is logged in
  * @uses bbp_get_displayed_user_id() To get current user ID
  * @uses bbp_is_user_active() To check if user is active
