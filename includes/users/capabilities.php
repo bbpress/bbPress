@@ -240,7 +240,7 @@ function bbp_get_user_role_map() {
 		'author'        => $default_role,
 		'contributor'   => $default_role,
 		'subscriber'    => $default_role,
-		''              => bbp_get_anonymous_role()
+		''              => bbp_get_visitor_role()
 	) );
 }
 
