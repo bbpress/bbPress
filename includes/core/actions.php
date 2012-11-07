@@ -77,9 +77,16 @@ add_action( 'bbp_loaded', 'bbp_load_textdomain',           16 );
  *                                              v---Load order
  */
 add_action( 'bbp_init', 'bbp_register',         0   );
-add_action( 'bbp_init', 'bbp_add_forums_roles', 1   );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags', 20  );
 add_action( 'bbp_init', 'bbp_ready',            999 );
+
+/**
+ * There is no action API for roles to use, so hook in immediately after the
+ * $wp_roles global is set, which is the 'setup_theme' action.
+ *
+ * This is kind of lame, but is all we have for now.
+ */
+add_action( 'bbp_setup_theme', 'bbp_add_forums_roles', 1 );
 
 /**
  * bbp_register - Attached to 'init' above on 0 priority

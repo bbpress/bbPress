@@ -379,6 +379,12 @@ function bbp_get_editable_roles() {
 			'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
 		),
 
+		// Anonymous
+		bbp_get_anonymous_role() => array(
+			'name'         => __( 'Anonymous', 'bbpress' ),
+			'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
+		),
+
 		// Blocked
 		bbp_get_blocked_role() => array(
 			'name'         => __( 'Blocked', 'bbpress' ),
