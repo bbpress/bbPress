@@ -118,9 +118,6 @@ add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integr
 // Try to load the bbpress-functions.php file from the active themes
 add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
 
-// Multisite Global Forum Access
-add_action( 'bbp_setup_current_user', 'bbp_set_current_user_default_role', 10 );
-
 // Widgets
 add_action( 'bbp_widgets_init', array( 'BBP_Login_Widget',   'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Views_Widget',   'register_widget' ), 10 );

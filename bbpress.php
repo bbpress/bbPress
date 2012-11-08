@@ -821,6 +821,9 @@ final class bbPress {
 	 */
 	public function setup_current_user() {
 		$this->current_user = &wp_get_current_user();
+
+		// Setup the default user role
+		bbp_set_current_user_default_role();
 	}
 
 	/** Custom Rewrite Rules **************************************************/
