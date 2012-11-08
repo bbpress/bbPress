@@ -1251,8 +1251,23 @@ class BBP_Admin {
 	 * @uses bbp_get_forum_title()
 	 */
 	public function suggest_forum() {
-		foreach ( get_posts( array( 's' => like_escape( $_REQUEST['q'] ), 'post_type' => bbp_get_forum_post_type() ) ) as $post ) {
-			echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_forum_id( $post->ID ), bbp_get_forum_title( $post->ID ) ) . "\n";
+
+		// Try to get some forums
+		$forums = get_posts( array(
+			's'           => like_escape( $_REQUEST['q'] ),
+			'post_type'   => bbp_get_forum_post_type(),
+			'post_status' => array(
+				bbp_get_public_status_id(),
+				bbp_get_hidden_status_id(),
+				bbp_get_private_status_id()
+			) 
+		) );
+
+		// If we found some forums, loop through and display them
+		if ( ! empty( $forums ) ) {
+			foreach ( (array) $forums as $post ) {
+				echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_forum_id( $post->ID ), bbp_get_forum_title( $post->ID ) ) . "\n";
+			}
 		}
 		die();
 	}
@@ -1268,8 +1283,18 @@ class BBP_Admin {
 	 * @uses bbp_get_topic_title()
 	 */
 	public function suggest_topic() {
-		foreach ( get_posts( array( 's' => like_escape( $_REQUEST['q'] ), 'post_type' => bbp_get_topic_post_type() ) ) as $post ) {
-			echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
+
+		// TRy to get some topics
+		$topics = get_posts( array(
+			's'         => like_escape( $_REQUEST['q'] ),
+			'post_type' => bbp_get_topic_post_type()
+		) );
+
+		// If we found some topics, loop through and display them
+		if ( ! empty( $topics ) ) {
+			foreach ( (array) $topics as $post ) {
+				echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
+			}
 		}
 		die();
 	}
