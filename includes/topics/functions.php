@@ -1481,6 +1481,24 @@ function bbp_split_topic_handler() {
 	// Update counts, etc...
 	do_action( 'bbp_pre_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
 
+	/** Date Check ************************************************************/
+
+	// Check if the destination topic is older than the from reply
+	if ( strtotime( $from_reply->post_date ) < strtotime( $destination_topic->post_date ) ) {
+
+		// Set destination topic post_date to 1 second before from reply
+		$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $from_reply->post_date ) - 1 );
+
+		$postarr = array(
+			'ID'            => $destination_topic_id,
+			'post_date'     => $destination_post_date,
+			'post_date_gmt' => get_gmt_from_date( $destination_post_date )
+		);
+
+		// Update destination topic
+		wp_update_post( $postarr );
+	}
+
 	/** Subscriptions *********************************************************/
 
 	// Copy the subscribers
