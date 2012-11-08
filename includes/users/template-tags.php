@@ -1391,7 +1391,7 @@ function bbp_author_link( $args = '' ) {
 			}
 
 			// Add links if not anonymous
-			if ( empty( $anonymous ) ) {
+			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
 				foreach ( $author_links as $link_text ) {
 					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
 				}

@@ -1359,7 +1359,7 @@ function bbp_topic_author_link( $args = '' ) {
 			$link_class = ' class="bbp-author-' . $type . '"';
 
 			// Add links if not anonymous
-			if ( empty( $anonymous ) ) {
+			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {

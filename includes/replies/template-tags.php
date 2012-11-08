@@ -1039,7 +1039,7 @@ function bbp_reply_author_link( $args = '' ) {
 			}
 
 			// Add links if not anonymous
-			if ( empty( $anonymous ) ) {
+			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
 					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );

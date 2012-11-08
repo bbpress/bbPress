@@ -160,10 +160,12 @@ function bbp_profile_update_role( $user_id = 0 ) {
  *
  * @since bbPress (r3380)
  *
- * @uses bbp_allow_global_access()
- * @uses bbp_is_user_inactive()
- * @uses is_user_logged_in()
- * @uses is_user_member_of_blog()
+ * @uses is_user_logged_in() To bail if user is not logged in
+ * @uses bbp_get_user_role() To bail if user already has a role
+ * @uses bbp_is_user_inactive() To bail if user is inactive
+ * @uses bbp_allow_global_access() To know whether to save role to database
+ * @uses bbp_get_user_role_map() To get the WP to BBP role map array
+ * @uses bbp_get_default_role() To get the site's default forums role
  * @uses get_option()
  *
  * @return If not multisite, not global, or user is deleted/spammed
@@ -571,4 +573,49 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 
 	// Return the inverse of active
 	return !bbp_is_user_active( $user_id );
+}
+
+/**
+ * Does a user have a profile for the current site
+ *
+ * @since bbPress (r4362)
+ *
+ * @param int $user_id User ID to check
+ * @param int $blog_id Blog ID to check
+ *
+ * @uses bbp_get_user_id() To verify the user ID
+ * @uses get_userdata() To get the user's data
+ * @uses is_super_admin() To determine if user can see inactive users
+ * @uses bbp_is_user_inactive() To check if user is spammer or deleted
+ * @uses apply_filters() To allow override of this functions result
+ *
+ * @return boolean Whether or not the user has a profile on this blog_id
+ */
+function bbp_user_has_profile( $user_id = 0 ) {
+
+	// Validate user ID, default to displayed or current user
+	$user_id = bbp_get_user_id( $user_id, true, true );
+
+	// Try to get this user's data
+	$user    = get_userdata( $user_id );
+
+	// No user found, return false
+	if ( empty( $user ) ) {
+		$retval = false;
+
+	// User found
+	} else {
+
+		// User is inactive, and current user is not a super admin
+		if ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) {
+			$retval = false;
+
+		// Check for site caps
+		} else {
+			$retval  = (bool) bbp_get_user_role( $user_id );
+		}
+	}
+
+	// Filter and return
+	return (bool) apply_filters( 'bbp_show_user_profile', $retval, $user_id );
 }

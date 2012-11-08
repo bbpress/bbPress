@@ -316,11 +316,11 @@ function bbp_parse_query( $posts_query ) {
 			}
 		}
 
-		// Create new user
-		$user = get_userdata( $bbp_user );
+		// Cast as int, just in case
+		$bbp_user = (int) $bbp_user;
 
-		// 404 and bail if no user found, is inactive, or not a member
-		if ( empty( $user ) || ! is_user_member_of_blog( $user->ID ) || ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) ) {
+		// 404 and bail if user does not have a profile
+		if ( ! bbp_user_has_profile( $bbp_user ) ) {
 			$posts_query->set_404();
 			return;
 		}
@@ -385,6 +385,9 @@ function bbp_parse_query( $posts_query ) {
 
 		// Correct is_home variable
 		$posts_query->is_home = false;
+
+		// Get the user data
+		$user = get_userdata( $bbp_user );
 
 		// User is looking at their own profile
 		if ( get_current_user_id() == $user->ID ) {
