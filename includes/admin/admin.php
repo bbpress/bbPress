@@ -111,6 +111,10 @@ class BBP_Admin {
 	 */
 	private function setup_actions() {
 
+		// Bail to prevent interfering with the deactivation process
+		if ( bbp_is_deactivation() )
+			return;
+
 		/** General Actions ***************************************************/
 
 		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'                ) ); // Add menu item to settings menu
