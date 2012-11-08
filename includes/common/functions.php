@@ -1407,17 +1407,20 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
 	// Get the home URL
-	$home_url = strtolower( home_url() );
+	$home_url      = strtolower( home_url() );
 
 	// Build the currently requested URL
 	$scheme        = is_ssl() ? 'https://' : 'http://';
 	$requested_url = strtolower( $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 
+	// Filter the requested URL, for configurations like reverse proxying
+	$matched_url   = apply_filters( 'bbp_verify_nonce_request_url', $requested_url );
+
 	// Check the nonce
 	$result = isset( $_REQUEST[$query_arg] ) ? wp_verify_nonce( $_REQUEST[$query_arg], $action ) : false;
 
 	// Nonce check failed
-	if ( empty( $result ) || empty( $action ) || ( strpos( $requested_url, $home_url ) !== 0 ) )
+	if ( empty( $result ) || empty( $action ) || ( strpos( $matched_url, $home_url ) !== 0 ) )
 		$result = false;
 
 	// Do extra things
