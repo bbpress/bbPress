@@ -1975,8 +1975,8 @@ function bbp_breadcrumb( $args = array() ) {
 			// Separator
 			'sep'             => __( '&rsaquo;', 'bbpress' ),
 			'pad_sep'         => 1,
-			'sep_before'      => '<span class="bbp-breadcrumb-current">',
-			'sep_after'       => '<span class="bbp-breadcrumb-current">',
+			'sep_before'      => '<span class="bbp-breadcrumb-sep">',
+			'sep_after'       => '</span>',
 			
 			// Crumbs
 			'crumb_before'    => '',
