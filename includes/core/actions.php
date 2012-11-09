@@ -99,8 +99,11 @@ add_action( 'bbp_setup_theme', 'bbp_add_forums_roles', 1 );
  * Resetting the role on blog-switch enables us to maintain the user's dynamic
  * role between sites. Note that if a user already has a role on that site, no
  * mapping will occur.
+ *
+ * We also hook to 'bbp_setup_current_user' -- naturally.
  */
-add_action( 'switch_blog', 'bbp_set_current_user_default_role', 1 );
+add_action( 'switch_blog',            'bbp_set_current_user_default_role' );
+add_action( 'bbp_setup_current_user', 'bbp_set_current_user_default_role' );
 
 /**
  * bbp_register - Attached to 'init' above on 0 priority
