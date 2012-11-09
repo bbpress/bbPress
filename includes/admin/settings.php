@@ -13,7 +13,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /** Sections ******************************************************************/
 
 /**
- * Get the bbPress settings sections.
+ * Get the Forums settings sections.
  *
  * @since bbPress (r4001)
  * @return array
@@ -990,7 +990,7 @@ function bbp_admin_settings() {
 
 		<?php screen_icon(); ?>
 
-		<h2><?php _e( 'bbPress Settings', 'bbpress' ) ?></h2>
+		<h2><?php _e( 'Forums Settings', 'bbpress' ) ?></h2>
 
 		<form action="options.php" method="post">
 
@@ -1265,7 +1265,7 @@ function bbp_converter_settings() {
 /** Helpers *******************************************************************/
 
 /**
- * Contextual help for bbPress settings page
+ * Contextual help for Forums settings page
  *
  * @since bbPress (r3119)
  * @uses get_current_screen()
@@ -1282,7 +1282,7 @@ function bbp_admin_settings_help() {
 	$current_screen->add_help_tab( array(
 		'id'      => 'overview',
 		'title'   => __( 'Overview', 'bbpress' ),
-		'content' => '<p>' . __( 'This screen provides access to all of the bbPress settings.',                         'bbpress' ) . '</p>' .
+		'content' => '<p>' . __( 'This screen provides access to all of the Forums settings.',                          'bbpress' ) . '</p>' .
 					 '<p>' . __( 'Please see the additional help tabs for more information on each indiviual section.', 'bbpress' ) . '</p>'
 	) );
 

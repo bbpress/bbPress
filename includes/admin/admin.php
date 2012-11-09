@@ -1228,7 +1228,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r4315)
 	 *
-	 * @param array $sections bbPress settings sections
+	 * @param array $sections Forums settings sections
 	 * @return array
 	 */
 	public function hide_theme_compat_packages( $sections = array() ) {
