@@ -37,6 +37,9 @@ function bbp_get_caps_for_role( $role = '' ) {
 		case bbp_get_keymaster_role() :
 			$caps = array(
 
+				// Keymasters only
+				'keep_gate'             => true,
+
 				// Primary caps
 				'spectate'              => true,
 				'participate'           => true,
@@ -333,6 +336,50 @@ function bbp_add_forums_roles() {
 		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
 	}
+}
+
+/**
+ * Helper function to add filter to option_wp_user_roles
+ *
+ * @since bbPress (r4363)
+ *
+ * @see _bbp_reinit_dynamic_roles()
+ *
+ * @global WPDB $wpdb Used to get the database prefix
+ */
+function bbp_filter_user_roles_option() {
+	global $wpdb;
+
+	$role_key = $wpdb->prefix . 'user_roles';
+
+	add_filter( 'option_' . $role_key, '_bbp_reinit_dynamic_roles' );
+}
+
+/**
+ * This is necessary because in a few places (noted below) WordPress initializes
+ * a blog's roles directly from the database option. When this happens, the
+ * $wp_roles global gets flushed, causing a user to magically lose any
+ * dynamically assigned roles or capabilities when $current_user in refreshed.
+ *
+ * Because dynamic multiple roles is a new concept in WordPress, we work around
+ * it here for now, knowing that improvements will come to WordPress core later.
+ *
+ * @see switch_to_blog()
+ * @see restore_current_blog()
+ * @see WP_Roles::_init()
+ *
+ * @since bbPress (r4363)
+ *
+ * @internal Used by bbPress to reinitialize dynamic roles on blog switch
+ *
+ * @param array $roles
+ * @return array Combined array of database roles and dynamic bbPress roles
+ */
+function _bbp_reinit_dynamic_roles( $roles = array() ) {
+	foreach( bbp_get_dynamic_roles() as $role_id => $details ) {
+		$roles[$role_id] = $details;
+	}
+	return $roles;
 }
 
 /**

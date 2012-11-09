@@ -68,6 +68,7 @@ add_action( 'bbp_loaded', 'bbp_setup_option_filters',      10 );
 add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
 add_action( 'bbp_loaded', 'bbp_register_theme_packages',   14 );
 add_action( 'bbp_loaded', 'bbp_load_textdomain',           16 );
+add_action( 'bbp_loaded', 'bbp_filter_user_roles_option',  18 );
 
 /**
  * bbp_init - Attached to 'init' above
