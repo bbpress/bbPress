@@ -522,6 +522,13 @@ class BBP_Admin {
 		$badge_url        = $this->images_url . 'badge.png?ver='      . $version;
 		$badge_url_2x     = $this->images_url . 'badge-2x.png?ver='   . $version;
 
+		// The image size changed in WordPress 3.5
+		if ( function_exists( 'wp_enqueue_media' ) ) {
+			$icon32_size = '756px 45px';
+		} else {
+			$icon32_size = '708px 45px';
+		}
+
 		// Top level menu classes
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
 		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
@@ -1169,7 +1176,7 @@ class BBP_Admin {
 					.icon32.icon-site,
 					#icon-ms-admin {
 						background-image: url('<?php echo $wp_admin_url; ?>icons32-2x.png?ver=20120412') !important;
-						background-size: 708px 45px;
+						background-size: <?php echo $icon32_size; ?>
 					}
 
 					.icon16.icon-dashboard,
@@ -1220,7 +1227,17 @@ class BBP_Admin {
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	public function register_admin_style () {
-		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+
+		// Updated admin color scheme CSS
+		if ( function_exists( 'wp_enqueue_media' ) ) {
+			$green_scheme = $this->styles_url . 'green.css';
+
+		} else {
+			$green_scheme = $this->styles_url . 'green-34.css';
+		}
+
+		// Register the green scheme
+		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $green_scheme, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 
 	/**

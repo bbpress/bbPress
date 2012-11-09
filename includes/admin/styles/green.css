@@ -87,7 +87,7 @@ a.page-numbers:hover {
 body,
 #wpbody,
 .form-table .pre {
-	color: #333;
+	color: #555;
 }
 
 body > #upload-menu {
@@ -978,12 +978,14 @@ table.widefat .spam a:hover,
 }
 
 #adminmenu li.wp-has-current-submenu.wp-menu-open .wp-menu-toggle,
+#adminmenu li.wp-has-current-submenu.opensub .wp-menu-toggle,
 #adminmenu li.wp-has-current-submenu:hover .wp-menu-toggle {
 	background-color: transparent;
 	background-repeat: no-repeat;
 	background-position: -1px 6px;
 }
 
+#adminmenu .wp-has-submenu.opensub .wp-menu-toggle,
 #adminmenu .wp-has-submenu:hover .wp-menu-toggle,
 #adminmenu .wp-menu-open .wp-menu-toggle {
 	background-color: transparent;
@@ -1002,6 +1004,7 @@ table.widefat .spam a:hover,
 	border-color: #dfdfdf;
 }
 
+#adminmenu li.menu-top.opensub > a,
 #adminmenu li.menu-top:hover > a,
 #adminmenu li.menu-top.focused > a,
 #adminmenu li.menu-top > a:focus {
@@ -1045,6 +1048,7 @@ table.widefat .spam a:hover,
 	border-color: #ccc;
 }
 
+.folded #adminmenu li.menu-top li.opensub a,
 .folded #adminmenu li.menu-top li:hover a {
 	background-image: none;
 }
@@ -1090,6 +1094,7 @@ table.widefat .spam a:hover,
 	-moz-box-shadow: 2px 2px 5px rgba( 0, 0, 0, 0.4 );
 	-webkit-box-shadow: 2px 2px 5px rgba( 0, 0, 0, 0.4 );
 	box-shadow: 2px 2px 5px rgba( 0, 0, 0, 0.4 );
+	background: #f9f9f9;
 }
 
 #adminmenu .wp-submenu .wp-submenu-head {
@@ -1104,6 +1109,7 @@ table.widefat .spam a:hover,
 /* collapse menu button */
 #collapse-menu {
 	color: #aaa;
+	border-color: transparent;
 }
 
 #collapse-menu:hover {
@@ -1163,7 +1169,7 @@ table.widefat .spam a:hover,
 	background-color: transparent;
 	background-repeat: no-repeat;
 	background-attachment: scroll;
-	background-position: -271px -31px;
+	background-position: -271px -33px;
 }
 
 .icon16.icon-media,
@@ -2012,12 +2018,14 @@ div.widgets-sortables,
 }
 
 .rtl #adminmenu li.wp-has-current-submenu.wp-menu-open .wp-menu-toggle,
+.rtl #adminmenu li.wp-has-current-submenu.opensub .wp-menu-toggle,
 .rtl #adminmenu li.wp-has-current-submenu:hover .wp-menu-toggle {
 	background-color: transparent;
 	background-repeat: no-repeat;
 	background-position: 8px 6px;
 }
 
+.rtl #adminmenu .wp-has-submenu.opensub .wp-menu-toggle,
 .rtl #adminmenu .wp-has-submenu:hover .wp-menu-toggle,
 .rtl #adminmenu .wp-menu-open .wp-menu-toggle {
 	background-color: transparent;
