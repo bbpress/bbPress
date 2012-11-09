@@ -39,8 +39,8 @@ Twitter: jjj
 Favorite Food: Truffle Lasagna
 
 /* THANKS */
-Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, cnorris23, anointed, andy, nacin, netweb
+Mike Adams, Gautam Gupta, jmdodd, Ben L, Justin Tadlock, cnorris23, anointed, andy, nacin, netweb
 
 /* META */
-Updated: 2011/05/29
+Updated: 2012/11/09
 See: http://humanstxt.org/
