@@ -1424,6 +1424,9 @@ class BBP_Admin {
 	/**
 	 * Output the credits screen
 	 *
+	 * Hardcoding this in here is pretty janky. It's fine for 2.2, but we'll
+	 * want to leverage api.wordpress.org eventually.
+	 *
 	 * @since bbPress (r4159)
 	 */
 	public function credits_screen() {
@@ -1442,6 +1445,81 @@ class BBP_Admin {
 					<?php _e( 'Credits' ); ?>
 				</a>
 			</h2>
+
+			<p class="about-description"><?php _e( 'bbPress is created by a worldwide swarm of busy, busy bees.', 'bbpress' ); ?></p>
+
+			<h4 class="wp-people-group"><?php _e( 'Project Leaders', 'bbpress' ); ?></h4>
+			<ul class="wp-people-group " id="wp-people-group-project-leaders">
+				<li class="wp-person" id="wp-person-matt">
+					<a href="http://profiles.wordpress.org/matt"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="Matt Mullenweg" /></a>
+					<a class="web" href="http://profiles.wordpress.org/matt">Matt Mullenweg</a>
+					<span class="title"><?php _e( 'Founding Developer', 'bbpress' ); ?></span>
+				</li>
+				<li class="wp-person" id="wp-person-johnjamesjacoby">
+					<a href="http://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/81ec16063d89b162d55efe72165c105f?s=60" class="gravatar" alt="John James Jacoby" /></a>
+					<a class="web" href="http://profiles.wordpress.org/nacin">John James Jacoby</a>
+					<span class="title"><?php _e( 'Lead Developer', 'bbpress' ); ?></span>
+				</li>
+			</ul>
+
+			<h4 class="wp-people-group"><?php _e( 'Contributing Developers', 'bbpress' ); ?></h4>
+			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
+				<li class="wp-person" id="wp-person-jmdodd">
+					<a href="http://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
+					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
+					<span class="title"></span>
+				</li>
+				<li class="wp-person" id="wp-person-jmdodd">
+					<a href="http://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
+					<a class="web" href="http://profiles.wordpress.org/jaredatch">Jared Atchison</a>
+					<span class="title"></span>
+				</li>
+				<li class="wp-person" id="wp-person-gautamgupta">
+					<a href="http://profiles.wordpress.org/gautamgupta"><img src="http://1.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
+					<a class="web" href="http://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
+					<span class="title"></span>
+				</li>
+			</ul>
+
+			<h4 class="wp-people-group"><?php _e( 'Core Contributors to bbPress 2.2', 'bbpress' ); ?></h4>
+			<p class="wp-credits-list">
+				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
+				<a href="http://profiles.wordpress.org/anointed">anointed</a>,
+				<a href="http://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
+				<a href="http://profiles.wordpress.org/chexee">chexee</a>,
+				<a href="http://profiles.wordpress.org/cnorris23">cnorris23</a>,
+				<a href="http://profiles.wordpress.org/DanielJuhl">DanielJuhl</a>,
+				<a href="http://profiles.wordpress.org/DanielJuhl">daveshine</a>,
+				<a href="http://profiles.wordpress.org/dimadin">dimadin</a>,
+				<a href="http://profiles.wordpress.org/DJPaul">DJPaul</a>,
+				<a href="http://profiles.wordpress.org/duck_">duck_</a>,
+				<a href="http://profiles.wordpress.org/gawain">gawain</a>,
+				<a href="http://profiles.wordpress.org/iamzippy">iamzippy</a>,
+				<a href="http://profiles.wordpress.org/isaacchapman">isaacchapman</a>,
+				<a href="http://profiles.wordpress.org/jane">jane</a>,
+				<a href="http://profiles.wordpress.org/jkudish">jkudish</a>,
+				<a href="http://profiles.wordpress.org/mamaduka">mamaduka</a>,
+				<a href="http://profiles.wordpress.org/mercime">mercime</a>,
+				<a href="http://profiles.wordpress.org/mesayre">mesayre</a>,
+				<a href="http://profiles.wordpress.org/mordauk">mordauk</a>,
+				<a href="http://profiles.wordpress.org/MZAWeb">MZAWeb</a>,
+				<a href="http://profiles.wordpress.org/netweb">netweb</a>,
+				<a href="http://profiles.wordpress.org/nexia">nexia</a>,
+				<a href="http://profiles.wordpress.org/Omicron7">Omicron7</a>,
+				<a href="http://profiles.wordpress.org/otto42">otto42</a>,
+				<a href="http://profiles.wordpress.org/pavelevap">pavelevap</a>,
+				<a href="http://profiles.wordpress.org/plescheff">plescheff</a>,
+				<a href="http://profiles.wordpress.org/scribu">scribu</a>,
+				<a href="http://profiles.wordpress.org/sorich87">sorich87</a>,
+				<a href="http://profiles.wordpress.org/SteveAtty">SteveAtty</a>,
+				<a href="http://profiles.wordpress.org/tmoorewp">tmoorewp</a>,
+				<a href="http://profiles.wordpress.org/tott">tott</a>,
+				<a href="http://profiles.wordpress.org/tungdo">tungdo</a>,
+				<a href="http://profiles.wordpress.org/vibol">vibol</a>,
+				<a href="http://profiles.wordpress.org/wonderboymusic">wonderboymusic</a>,
+				<a href="http://profiles.wordpress.org/westi">westi</a>,
+				<a href="http://profiles.wordpress.org/xiosen">xiosen</a>,
+			</p>
 
 			<div class="return-to-dashboard">
 				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-settings' ), 'index.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
