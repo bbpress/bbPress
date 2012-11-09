@@ -286,18 +286,12 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 	if ( empty( $user ) ) {
 		$is_spammer = false;
 
-	// User found
-	} else {
-
-		// Check if spam
-		if ( !empty( $user->spam ) )
-			$is_spammer = true;
-
-		if ( 1 == $user->user_status )
-			$is_spammer = true;
+	// Check if spam
+	} elseif ( !empty( $user->spam ) ) {
+		$is_spammer = true;
 	}
 
-	return apply_filters( 'bp_core_is_user_spammer', (bool) $is_spammer );
+	return (bool) apply_filters( 'bp_core_is_user_spammer', $is_spammer );
 }
 
 /**
@@ -499,19 +493,12 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 	if ( empty( $user ) ) {
 		$is_deleted = true;
 
-	// User found
-	} else {
-
-		// Check if deleted
-		if ( !empty( $user->deleted ) )
-			$is_deleted = true;
-
-		if ( 2 == $user->user_status )
-			$is_deleted = true;
-
+	// Check if deleted
+	} elseif ( !empty( $user->deleted ) ) {
+		$is_deleted = true;
 	}
 
-	return apply_filters( 'bp_core_is_user_deleted', (bool) $is_deleted );
+	return (bool) apply_filters( 'bp_core_is_user_deleted', $is_deleted );
 }
 
 /**
