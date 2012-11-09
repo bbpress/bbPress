@@ -174,6 +174,10 @@ function bbp_set_current_user_default_role() {
 
 	/** Sanity ****************************************************************/
 
+	// Bail if deactivating bbPress
+	if ( bbp_is_deactivation() )
+		return;
+
 	// Bail if not logged in or already a member of this site
 	if ( ! is_user_logged_in() )
 		return;
