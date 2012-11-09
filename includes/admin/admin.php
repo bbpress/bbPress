@@ -1325,7 +1325,7 @@ class BBP_Admin {
 	 */
 	public function about_screen() {
 
-		$display_version = bbp_get_version(); ?>
+		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
@@ -1356,7 +1356,7 @@ class BBP_Admin {
 	 */
 	public function credits_screen() {
 
-		$display_version = bbp_get_version(); ?>
+		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
