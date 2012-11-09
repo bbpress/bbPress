@@ -593,6 +593,9 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  */
 function bbp_user_has_profile( $user_id = 0 ) {
 
+	// Assume every user has a profile
+	$retval  = true;
+
 	// Validate user ID, default to displayed or current user
 	$user_id = bbp_get_user_id( $user_id, true, true );
 
@@ -603,17 +606,9 @@ function bbp_user_has_profile( $user_id = 0 ) {
 	if ( empty( $user ) ) {
 		$retval = false;
 
-	// User found
-	} else {
-
-		// User is inactive, and current user is not a super admin
-		if ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) {
-			$retval = false;
-
-		// Check for site caps
-		} else {
-			$retval  = (bool) bbp_get_user_role( $user_id );
-		}
+	// User is inactive, and current user is not a super admin
+	} elseif ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) {
+		$retval = false;
 	}
 
 	// Filter and return
