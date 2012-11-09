@@ -50,8 +50,12 @@ class BBP_Users_Admin {
 		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
 
 		// WordPress user screen
-		add_filter( 'manage_users_columns',       array( $this, 'user_role_column' )        );
-		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'    ), 10, 3 );
+		add_action( 'restrict_manage_users',      array( $this, 'user_role_bulk_dropdown' )        );
+		add_filter( 'manage_users_columns',       array( $this, 'user_role_column'        )        );
+		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'           ), 10, 3 );
+
+		// Process bulk role change
+		add_action( 'load-users.php',             array( $this, 'user_role_bulk_change'   )        );
 	}
 
 	/**
@@ -66,7 +70,14 @@ class BBP_Users_Admin {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
-			return; ?>
+			return;
+
+		// Get the roles
+		$dynamic_roles = bbp_get_dynamic_roles();
+
+		// Only keymasters can set other keymasters
+		if ( ! current_user_can( 'keep_gate' ) )
+			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
 
@@ -90,7 +101,7 @@ class BBP_Users_Admin {
 
 							<?php endif; ?>
 
-							<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
+							<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 
 								<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 
@@ -107,6 +118,92 @@ class BBP_Users_Admin {
 	}
 
 	/**
+	 * Add bulk forums role dropdown to the WordPress users table
+	 *
+	 * @since bbPress (r4360)
+	 */
+	public static function user_role_bulk_dropdown() {
+
+		// Bail if current user cannot promote users 
+		if ( !current_user_can( 'promote_users' ) )
+			return;
+
+		// Get the roles
+		$dynamic_roles = bbp_get_dynamic_roles();
+
+		// Only keymasters can set other keymasters
+		if ( ! current_user_can( 'keep_gate' ) )
+			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
+
+		<label class="screen-reader-text" for="bbp-new-role"><?php _e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
+		<select name="bbp-new-role" id="bbp-new-role" style="display:inline-block; float:none;">
+			<option value=''><?php _e( 'Change forum role to&hellip;', 'bbpress' ) ?></option>
+			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
+
+				<option value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+
+			<?php endforeach; ?>
+		</select>
+
+		<?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
+	}
+
+	/**
+	 * Process bulk dropdown form submission from the WordPress Users
+	 * Table
+	 *
+	 * @uses current_user_can() to check for 'promote users' capability
+	 * @uses bbp_get_dynamic_roles() to get forum roles
+	 * @uses bbp_get_user_role() to get a user's current forums role
+	 * @uses bbp_set_user_role() to set the user's new forums role
+	 * @return bool Always false
+	 */
+	public function user_role_bulk_change() {
+
+		// Bail if current user cannot promote users 
+		if ( !current_user_can( 'promote_users' ) )
+			return;
+
+		// Bail if no users specified
+		if ( empty( $_REQUEST['users'] ) )
+			return;
+
+		// Bail if this isn't a bbPress action
+		if ( empty( $_REQUEST['bbp-new-role'] ) || empty( $_REQUEST['bbp-change-role'] ) )
+			return;
+
+		// Check that the new role exists
+		$dynamic_roles = bbp_get_dynamic_roles();
+		if ( empty( $dynamic_roles[ $_REQUEST['bbp-new-role'] ] ) )
+			return;
+
+		// Get the current user ID
+		$current_user_id = (int) bbp_get_current_user_id();
+
+		// Run through user ids
+		foreach ( (array) $_REQUEST['users'] as $user_id ) {
+			$user_id = (int) $user_id;
+
+			// Don't let a user change their own role
+			if ( $user_id == $current_user_id ) 
+				continue;
+
+			// Set up user and role data
+			$user_role = bbp_get_user_role( $user_id );			
+			$new_role  = sanitize_text_field( $_REQUEST['bbp-new-role'] );
+
+			// Only keymasters can set other keymasters
+			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! current_user_can( 'keep_gate' ) )
+				continue;
+
+			// Set the new forums role
+			if ( $new_role != $user_role ) {
+				bbp_set_user_role( $user_id, $new_role );
+			}
+		}
+	}
+
+	/**
 	 * Add Forum Role column to the WordPress Users table, and change the
 	 * core role title to "Site Role"
 	 *
@@ -117,7 +214,7 @@ class BBP_Users_Admin {
 	 */
 	public static function user_role_column( $columns = array() ) {
 		$columns['role']          = __( 'Site Role',  'bbpress' );
-    	$columns['bbp_user_role'] = __( 'Forum Role', 'bbpress' );
+		$columns['bbp_user_role'] = __( 'Forum Role', 'bbpress' );
 
 		return $columns;
 	}

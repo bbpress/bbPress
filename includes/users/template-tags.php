@@ -1003,12 +1003,20 @@ function bbp_edit_user_forums_role() {
 	if ( ! bbp_is_single_user_edit() )
 		return;
 
-	$user_role = bbp_get_user_role( bbp_get_displayed_user_id() ); ?>
+	// Get the user's role
+	$user_role     = bbp_get_user_role( bbp_get_displayed_user_id() );
+
+	// Get the roles
+	$dynamic_roles = bbp_get_dynamic_roles();
+
+	// Only keymasters can set other keymasters
+	if ( ! current_user_can( 'keep_gate' ) )
+		unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
 		<option value=""><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
 
-		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
+		<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 
 			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 
