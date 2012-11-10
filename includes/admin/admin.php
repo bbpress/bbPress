@@ -1413,7 +1413,7 @@ class BBP_Admin {
 			</div>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'index.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
 			</div>
 
 		</div>
@@ -1522,7 +1522,7 @@ class BBP_Admin {
 			</p>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'index.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
 			</div>
 
 		</div>
