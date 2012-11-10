@@ -1457,7 +1457,7 @@ class BBP_Admin {
 				</li>
 				<li class="wp-person" id="wp-person-johnjamesjacoby">
 					<a href="http://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/81ec16063d89b162d55efe72165c105f?s=60" class="gravatar" alt="John James Jacoby" /></a>
-					<a class="web" href="http://profiles.wordpress.org/nacin">John James Jacoby</a>
+					<a class="web" href="http://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
 					<span class="title"><?php _e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
 			</ul>
