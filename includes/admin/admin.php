@@ -382,6 +382,7 @@ class BBP_Admin {
 				break;
 
 			// bbPress
+			case 'bbp_about_page'            : // About and Credits
 			case 'bbp_tools_page'            : // Tools Page
 			case 'bbp_tools_repair_page'     : // Tools - Repair Page
 			case 'bbp_tools_import_page'     : // Tools - Import Page
