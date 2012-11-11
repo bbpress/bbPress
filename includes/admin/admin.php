@@ -1470,14 +1470,33 @@ class BBP_Admin {
 					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
 					<span class="title"></span>
 				</li>
-				<li class="wp-person" id="wp-person-jmdodd">
+				<li class="wp-person" id="wp-person-jaredatch">
 					<a href="http://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
 					<a class="web" href="http://profiles.wordpress.org/jaredatch">Jared Atchison</a>
 					<span class="title"></span>
 				</li>
 				<li class="wp-person" id="wp-person-gautamgupta">
-					<a href="http://profiles.wordpress.org/gautamgupta"><img src="http://1.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
+					<a href="http://profiles.wordpress.org/gautamgupta"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
 					<a class="web" href="http://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
+					<span class="title"></span>
+				</li>
+			</ul>
+
+			<h4 class="wp-people-group"><?php _e( 'Codex Rockstars', 'bbpress' ); ?></h4>
+			<ul class="wp-people-group " id="wp-people-group-codex-rockstars">
+				<li class="wp-person" id="wp-person-masonjames">
+					<a href="http://profiles.wordpress.org/masonjames"><img src="http://0.gravatar.com/avatar/99dee4d5287d0f9e26ff72e7228d97ac?s=60" class="gravatar" alt="Mason James" /></a>
+					<a class="web" href="http://profiles.wordpress.org/masonjames">Mason James</a>
+					<span class="title"></span>
+				</li>
+				<li class="wp-person" id="wp-person-wordsforwp">
+					<a href="http://profiles.wordpress.org/wordsforwp"><img src="http://0.gravatar.com/avatar/5437119b446adad1af813c44944e6c9c?s=60" class="gravatar" alt="Siobhan McKeown" /></a>
+					<a class="web" href="http://profiles.wordpress.org/wordsforwp">Siobhan McKeown</a>
+					<span class="title"></span>
+				</li>
+				<li class="wp-person" id="wp-person-JarretC">
+					<a href="http://profiles.wordpress.org/JarretC"><img src="http://0.gravatar.com/avatar/e00501bf782b42d5db19ff75fca14f6a?s=60" class="gravatar" alt="Jarret Cade" /></a>
+					<a class="web" href="http://profiles.wordpress.org/JarretC">Jarret Cade</a>
 					<span class="title"></span>
 				</li>
 			</ul>
