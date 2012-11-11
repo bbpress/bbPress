@@ -161,16 +161,17 @@ function bbp_admin_repair_list() {
 		5  => array( 'bbp-sync-forum-meta',        __( 'Recalculate the parent forum for each post',          'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
 		10 => array( 'bbp-sync-forum-visibility',  __( 'Recalculate private and hidden forums',               'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
 		15 => array( 'bbp-sync-all-topics-forums', __( 'Recalculate last activity in each topic and forum',   'bbpress' ), 'bbp_admin_repair_freshness'                ),
-		20 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
-		25 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
-		30 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
-		35 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
-		40 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
-		45 => array( 'bbp-user-replies',           __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
-		50 => array( 'bbp-user-topics',            __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
-		55 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
-		60 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
-		65 => array( 'bbp-user-role-map',          __( 'Remap existing users to default forum roles',             'bbpress' ), 'bbp_admin_repair_user_roles'               )
+		20 => array( 'bbp-group-forums',           __( 'Repair BuddyPress Group Forum relationships',         'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
+		25 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
+		30 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
+		35 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
+		40 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
+		45 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
+		50 => array( 'bbp-user-replies',           __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
+		55 => array( 'bbp-user-topics',            __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
+		60 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
+		65 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
+		70 => array( 'bbp-user-role-map',          __( 'Remap existing users to default forum roles',         'bbpress' ), 'bbp_admin_repair_user_roles'               )
 	);
 	ksort( $repair_list );
 
@@ -287,6 +288,61 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 		return array( 2, sprintf( $statement, $result ) );
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Repair group forum ID mappings after a bbPress 1.1 to bbPress 2.2 conversion
+ *
+ * @since bbPress (r4395)
+ *
+ * @global WPDB $wpdb
+ * @return If a wp_error() occurs and no converted forums are found
+ */
+function bbp_admin_repair_group_forum_relationship() {
+	global $wpdb;
+
+	$statement = __( 'Repairing BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
+	$count     = 0;
+
+	// Copy the BuddyPress filter here, incase BuddyPress is not active
+	$prefix    = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
+	$tablename = $prefix . 'groups_groupmeta';
+
+	// Get the converted forum IDs
+	$forum_ids = $wpdb->query( "SELECT `forum`.`ID`, `forummeta`.`meta_value`
+								FROM `{$wpdb->posts}` AS `forum`
+									LEFT JOIN `{$wpdb->postmeta}` AS `forummeta`
+										ON `forum`.`ID` = `forummeta`.`post_id`
+										AND `forummeta`.`meta_key` = '_bbp_forum_id'
+								WHERE `forum`.`post_type` = 'forum'
+								GROUP BY `forum`.`ID`;" );
+
+	// Bail if forum IDs returned an error
+	if ( is_wp_error( $forum_ids ) || empty( $wpdb->last_result ) )
+		return array( 2, sprintf( $statement, __( 'Failed!', 'bbpress' ) ) );
+
+	// Stash the last results
+	$results = $wpdb->last_result;
+
+	// Update each group forum
+	foreach ( $results as $group_forums ) {
+
+		// Only update if is a converted forum
+		if ( ! isset( $group_forums->meta_value ) )
+			continue;
+
+		// Attempt to update group meta
+		$updated = $wpdb->query( "UPDATE `{$tablename}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}';" );
+
+		// Bump the count
+		if ( !empty( $updated ) && ! is_wp_error( $updated ) ) {
+			++$count;
+		}
+	}
+
+	// Complete results
+	$result = sprintf( __( 'Complete! %s group forums updated.', 'bbpress' ), bbp_number_format( $count ) );
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
