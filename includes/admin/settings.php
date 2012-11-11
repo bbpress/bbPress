@@ -1462,7 +1462,7 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 		/** BuddyPress Core *******************************************************/
 
 		if ( defined( 'BP_VERSION' ) ) {
-			global $bp;
+			$bp = buddypress();
 
 			// Loop through root slugs and check for conflict
 			if ( !empty( $bp->pages ) ) {

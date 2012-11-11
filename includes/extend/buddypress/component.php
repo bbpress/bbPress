@@ -43,10 +43,9 @@ class BBP_Forums_Component extends BP_Component {
 	 * backwards compatibility.
 	 *
 	 * @since bbPress (r3552)
-	 * @global BuddyPress $bp
 	 */
 	public function setup_globals() {
-		global $bp;
+		$bp = buddypress();
 
 		// Define the parent forum ID
 		if ( !defined( 'BP_FORUMS_PARENT_FORUM_ID' ) )
@@ -158,10 +157,8 @@ class BBP_Forums_Component extends BP_Component {
 	 * Set up the admin bar
 	 *
 	 * @since bbPress (r3552)
-	 * @global BuddyPress $bp
 	 */
 	public function setup_admin_bar() {
-		global $bp;
 
 		// Prevent debug notices
 		$wp_admin_nav = array();
@@ -175,7 +172,7 @@ class BBP_Forums_Component extends BP_Component {
 
 			// Add the "My Account" sub menus
 			$wp_admin_nav[] = array(
-				'parent' => $bp->my_account_menu_id,
+				'parent' => buddypress()->my_account_menu_id,
 				'id'     => 'my-account-' . $this->id,
 				'title'  => __( 'Forums', 'bbpress' ),
 				'href'   => trailingslashit( $forums_link )
@@ -221,11 +218,9 @@ class BBP_Forums_Component extends BP_Component {
 	 * Sets up the title for pages and <title>
 	 *
 	 * @since bbPress (r3552)
-	 *
-	 * @global BuddyPress $bp
 	 */
 	public function setup_title() {
-		global $bp;
+		$bp = buddypress();
 
 		// Adjust title based on view
 		if ( bp_is_forums_component() ) {

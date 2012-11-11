@@ -44,8 +44,21 @@ function bbp_setup_akismet() {
  */
 function bbp_setup_buddypress() {
 
+	if ( ! function_exists( 'buddypress' ) ) {
+
+		/**
+		 * Helper for BuddyPress 1.6 and earlier
+		 *
+		 * @since bbPress (r4395)
+		 * @return BuddyPress
+		 */
+		function buddypress() {
+			return isset( $GLOBALS['bp'] ) ? $GLOBALS['bp'] : false;
+		}
+	}
+
 	// Bail if in maintenance mode
-	if ( buddypress()->maintenance_mode )
+	if ( ! buddypress() || buddypress()->maintenance_mode )
 		return;
 
 	// Include the BuddyPress Component

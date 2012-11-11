@@ -18,10 +18,10 @@ if ( !defined( 'ABSPATH' ) ) exit;
  *
  * @since bbPress (r3552)
  *
- * @global BuddyPress $bp
  * @param int $user_id
  * @param bool $displayed_user_fallback
  * @param bool $current_user_fallback
+ *
  * @return int User ID
  */
 function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
