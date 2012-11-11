@@ -54,6 +54,7 @@ add_action( 'bbp_admin_init', 'bbp_setup_updater',          999 );
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );
 add_action( 'bbp_admin_init', 'bbp_register_admin_style'        );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
+add_action( 'bbp_admin_init', 'bbp_do_activation_redirect', 1   );
 
 // Initialize the admin area
 add_action( 'bbp_init', 'bbp_admin' );
@@ -62,12 +63,11 @@ add_action( 'bbp_init', 'bbp_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_delete_rewrite_rules' );
+add_action( 'bbp_activation', 'bbp_delete_rewrite_rules'    );
 
 // Deactivation
 add_action( 'bbp_deactivation', 'bbp_remove_caps'          );
 add_action( 'bbp_deactivation', 'bbp_delete_rewrite_rules' );
-add_action( 'bbp_deactivation', 'bbp_deactivated'          );
 
 // New Site
 add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );

@@ -143,38 +143,36 @@ function bbp_do_uninstall( $site_id = 0 ) {
 }
 
 /**
- * We are activating bbPress
+ * Redirect user to bbPress's What's New page on activation
  *
- * @since bbPress (r4152)
- */
-function bbp_activating() {
-	update_option( '_bbp_activated', '0' );
-}
-
-/**
- * bbPress is activated
+ * @since bbPress (r4389)
  *
- * @since bbPress (r4152)
- */
-function bbp_activated() {
-	update_option( '_bbp_activated', '1' );
-}
-
-/**
- * bbPress is deactivated
+ * @internal Used internally to redirect bbPress to the about page on activation
  *
- * @since bbPress (r4152)
+ * @uses get_transient() To see if transient to redirect exists
+ * @uses delete_transient() To delete the transient if it exists
+ * @uses is_network_admin() To bail if being network activated
+ * @uses wp_safe_redirect() To redirect
+ * @uses add_query_arg() To help build the URL to redirect to
+ * @uses admin_url() To get the admin URL to index.php
+ *
+ * @return If no transient, or in network admin, or is bulk activation
  */
-function bbp_deactivated() {
-	delete_option( '_bbp_activated' );
-}
+function bbp_do_activation_redirect() {
 
-function bbp_activation_redirect() {
-	if ( ! get_option( '_bbp_activated' ) || bbp_is_activation() )
+	// Bail if no activation redirect
+    if ( ! get_transient( '_bbp_activation_redirect' ) )
 		return;
 
-	wp_safe_redirect( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) );
-	exit();
+	// Delete the redirect transient
+	delete_transient( '_bbp_activation_redirect' );
+
+	// Bail if activating from network, or bulk
+	if ( is_network_admin() || isset( $_GET['activate-multi'] ) )
+		return;
+
+	// Redirect to bbPress about page
+	wp_safe_redirect( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) );
 }
 
 /**

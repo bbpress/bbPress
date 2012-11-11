@@ -267,3 +267,25 @@ function bbp_version_updater() {
 	// Delete rewrite rules to force a flush
 	bbp_delete_rewrite_rules();
 }
+
+/**
+ * Redirect user to bbPress's What's New page on activation
+ *
+ * @since bbPress (r4389)
+ *
+ * @internal Used internally to redirect bbPress to the about page on activation
+ *
+ * @uses is_network_admin() To bail if being network activated
+ * @uses set_transient() To drop the activation transient for 30 seconds
+ *
+ * @return If network admin or bulk activation
+ */
+function bbp_add_activation_redirect() {
+
+	// Bail if activating from network, or bulk
+	if ( is_network_admin() || isset( $_GET['activate-multi'] ) )
+		return;
+
+	// Add the transient to redirect
+    set_transient( '_bbp_activation_redirect', true, 30 );
+}
