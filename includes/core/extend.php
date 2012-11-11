@@ -65,5 +65,5 @@ function bbp_setup_buddypress() {
 	require( bbpress()->includes_dir . 'extend/buddypress/loader.php' );
 
 	// Instantiate BuddyPress for bbPress
-	bbpress()->extend->buddypress = new BBP_BuddyPress();
+	bbpress()->extend->buddypress = new BBP_Forums_Component();
 }
