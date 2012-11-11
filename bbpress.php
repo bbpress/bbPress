@@ -314,12 +314,9 @@ final class bbPress {
 		require( $this->includes_dir . 'users/template-tags.php'   );
 		require( $this->includes_dir . 'users/options.php'         );
 
-		/** Extensions ********************************************************/
-
-		require( $this->includes_dir . 'extend/akismet.php' );
-
 		/** Hooks *************************************************************/
 
+		require( $this->includes_dir . 'core/extend.php'  );
 		require( $this->includes_dir . 'core/actions.php' );
 		require( $this->includes_dir . 'core/filters.php' );
 

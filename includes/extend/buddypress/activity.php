@@ -129,47 +129,29 @@ class BBP_BuddyPress_Activity {
 	 */
 	private function setup_actions() {
 
-		/** Activity **********************************************************/
+		// Register the activity stream actions
+		add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
 
-		// Bail if activity is not active
-		if ( bp_is_active( 'activity' ) ) {
+		// Hook into topic and reply creation
+		add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
+		add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
 
-			// Register the activity stream actions
-			add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
+		// Hook into topic and reply status changes
+		add_action( 'wp_insert_post',                    array( $this, 'topic_update'              ), 10, 2 );
+		add_action( 'wp_insert_post',                    array( $this, 'reply_update'              ), 10, 2 );
 
-			// Hook into topic and reply creation
-			add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
-			add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
+		// Hook into topic and reply deletion
+		add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
+		add_action( 'bbp_delete_reply',                  array( $this, 'reply_delete'              ), 10, 1 );
 
-			// Hook into topic and reply status changes
-			add_action( 'wp_insert_post',                    array( $this, 'topic_update'              ), 10, 2 );
-			add_action( 'wp_insert_post',                    array( $this, 'reply_update'              ), 10, 2 );
+		// Append forum filters in site wide activity streams
+		add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
 
-			// Hook into topic and reply deletion
-			add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
-			add_action( 'bbp_delete_reply',                  array( $this, 'reply_delete'              ), 10, 1 );
+		// Append forum filters in single member activity streams
+		add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
 
-			// Append forum filters in site wide activity streams
-			add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
-
-			// Append forum filters in single member activity streams
-			add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
-
-			// Append forum filters in single group activity streams
-			add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
-		}
-
-		/** Favorites *********************************************************/
-
-		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
-		remove_action( 'template_redirect', 'bbp_favorites_handler', 1 );
-		add_action(    'bp_actions',        'bbp_favorites_handler', 1 );
-
-		/** Subscriptions *****************************************************/
-
-		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
-		remove_action( 'template_redirect', 'bbp_subscriptions_handler', 1 );
-		add_action(    'bp_actions',        'bbp_subscriptions_handler', 1 );
+		// Append forum filters in single group activity streams
+		add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
 	}
 
 	/**
@@ -190,26 +172,15 @@ class BBP_BuddyPress_Activity {
 		// Link directly to the topic or reply
 		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
 
-		/** Profiles **********************************************************/
-
-		// Override bbPress user profile URL with BuddyPress profile URL
-		add_filter( 'bbp_pre_get_user_profile_url',    array( $this, 'user_profile_url'            )        );
-		add_filter( 'bbp_get_favorites_permalink',     array( $this, 'get_favorites_permalink'     ), 10, 2 );
-		add_filter( 'bbp_get_subscriptions_permalink', array( $this, 'get_subscriptions_permalink' ), 10, 2 );
-
 		/** Mentions **********************************************************/
 
-		// Only link mentions if activity component is active
-		if ( bp_is_active( 'activity' ) ) {
+		// Convert mentions into links on create
+		add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
+		add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
 
-			// Convert mentions into links on create
-			add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
-			add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
-
-			// Convert mentions into links on edit
-			add_filter( 'bbp_edit_topic_pre_content', 'bp_activity_at_name_filter' );
-			add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
-		}
+		// Convert mentions into links on edit
+		add_filter( 'bbp_edit_topic_pre_content', 'bp_activity_at_name_filter' );
+		add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
 
 		// Revert links into text on edit
 		add_filter( 'bbp_get_form_topic_content', array( $this, 'strip_mentions_on_edit' ) );
@@ -429,74 +400,6 @@ class BBP_BuddyPress_Activity {
 		<option value="<?php echo $this->reply_create; ?>"><?php _e( 'Replies', 'bbpress' ); ?></option>
 
 	<?php
-	}
-
-	/**
-	 * Override bbPress profile URL with BuddyPress profile URL
-	 *
-	 * @since bbPress (r3401)
-	 * @param string $url
-	 * @param int $user_id
-	 * @param string $user_nicename
-	 * @return string
-	 */
-	public function user_profile_url( $user_id ) {
-
-		// Define local variable(s)
-		$profile_url = '';
-
-		// Special handling for forum component
-		if ( bp_is_current_component( 'forums' ) ) {
-
-			// Empty action or 'topics' action
-			if ( !bp_current_action() || bp_is_current_action( 'topics' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/topics';
-
-			// Empty action or 'topics' action
-			} elseif ( bp_is_current_action( 'replies' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/replies';
-
-			// 'favorites' action
-			} elseif ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
-				$profile_url = $this->get_favorites_permalink( '', $user_id );
-
-			// 'subscriptions' action
-			} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
-				$profile_url = $this->get_subscriptions_permalink( '', $user_id );
-			}
-
-		// Not in users' forums area
-		} else {
-			$profile_url = bp_core_get_user_domain( $user_id );
-		}
-
-		return trailingslashit( $profile_url );
-	}
-
-	/**
-	 * Override bbPress favorites URL with BuddyPress profile URL
-	 *
-	 * @since bbPress (r3721)
-	 * @param string $url
-	 * @param int $user_id
-	 * @return string
-	 */
-	public function get_favorites_permalink( $url, $user_id ) {
-		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/favorites' );
-		return $url;
-	}
-
-	/**
-	 * Override bbPress subscriptions URL with BuddyPress profile URL
-	 *
-	 * @since bbPress (r3721)
-	 * @param string $url
-	 * @param int $user_id
-	 * @return string
-	 */
-	public function get_subscriptions_permalink( $url, $user_id ) {
-		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/subscriptions' );
-		return $url;
 	}
 
 	/** Topics ****************************************************************/
