@@ -86,6 +86,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'post_link',               array( $this, 'post_link'                    ), 10, 2 );
 		add_filter( 'page_link',               array( $this, 'page_link'                    ), 10, 2 );
 		add_filter( 'post_type_link',          array( $this, 'post_type_link'               ), 10, 2 );
+
+		// Map group forum activity items to groups
+		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 	}
 
 	/**
@@ -968,6 +971,39 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		bp_core_redirect( $redirect_to );
+	}
+
+	/** Activity ***************************************************************/
+
+	/**
+	 * Map a forum post to its corresponding group in the group activity stream.
+	 *
+	 * @since bbPress (r4396)
+	 *
+	 * @param array $args Arguments from BBP_BuddyPress_Activity::record_activity()
+	 * @uses groups_get_current_group() To see if we're posting from a BP group
+	 *
+	 * @return array
+	 */
+	function map_activity_to_group( $args = array() ) {
+
+		// Get current BP group
+		$group = groups_get_current_group();
+
+		// Not posting from a BuddyPress group? stop now!
+		if ( empty( $group ) )
+			return $args;
+
+		// Set the component to 'groups' so the activity item shows up in the group
+		$args['component']         = buddypress()->groups->id;
+
+		// Move the forum post ID to the secondary item ID
+		$args['secondary_item_id'] = $args['item_id'];
+
+		// Set the item ID to the group ID so the activity item shows up in the group
+		$args['item_id']           = $group->id;
+
+		return $args;
 	}
 }
 endif;
