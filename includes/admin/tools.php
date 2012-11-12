@@ -360,11 +360,13 @@ function bbp_admin_repair_group_forum_relationship() {
 	// Found the group root forum
 	if ( ! empty( $posts ) ) {
 
-		// Rename the group root, since it's now visible in sitewide forums
-		wp_update_post( array(
-			'ID'         => $posts[0]->ID,
-			'post_title' => __( 'Group Forums', 'bbpress' ),
-		) );
+		// Rename 'Default Forum'  since it's now visible in sitewide forums
+		if ( 'Default Forum' == $posts[0]->post_title ) {
+			wp_update_post( array(
+				'ID'         => $posts[0]->ID,
+				'post_title' => __( 'Group Forums', 'bbpress' ),
+			) );
+		}
 
 		// Update the group forums root metadata
 		update_option( '_bbp_group_forums_root_id', $posts[0]->ID );
