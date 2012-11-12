@@ -306,7 +306,7 @@ function bbp_admin_repair_group_forum_relationship() {
 
 	// Copy the BuddyPress filter here, incase BuddyPress is not active
 	$prefix    = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
-	$tablename = $prefix . 'groups_groupmeta';
+	$tablename = $prefix . 'bp_groups_groupmeta';
 
 	// Get the converted forum IDs
 	$forum_ids = $wpdb->query( "SELECT `forum`.`ID`, `forummeta`.`meta_value`
