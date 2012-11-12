@@ -938,6 +938,10 @@ abstract class BBP_Converter_Base {
 
 										add_post_meta( $post_id, $key, $value, true );
 
+										// Forums need to save their old ID for group forum association
+										if ( ( 'forum' == $to_type ) && ( '_bbp_forum_id' == $key ) )
+											add_post_meta( $post_id, '_bbp_old_forum_id', $value );
+
 										// Topics need an extra bit of metadata
 										// to be keyed to the new post_id
 										if ( ( 'topic' == $to_type ) && ( '_bbp_topic_id' == $key ) ) {

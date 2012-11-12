@@ -313,7 +313,7 @@ function bbp_admin_repair_group_forum_relationship() {
 								FROM `{$wpdb->posts}` AS `forum`
 									LEFT JOIN `{$wpdb->postmeta}` AS `forummeta`
 										ON `forum`.`ID` = `forummeta`.`post_id`
-										AND `forummeta`.`meta_key` = '_bbp_forum_id'
+										AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
 								WHERE `forum`.`post_type` = 'forum'
 								GROUP BY `forum`.`ID`;" );
 
