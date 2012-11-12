@@ -340,6 +340,36 @@ function bbp_admin_repair_group_forum_relationship() {
 		}
 	}
 
+	// Make some logical guesses at the old group root forum
+	if ( function_exists( 'bp_forums_parent_forum_id' ) ) {
+		$old_default_forum_id = bp_forums_parent_forum_id();
+	} elseif ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
+		$old_default_forum_id = (int) BP_FORUMS_PARENT_FORUM_ID;
+	} else {
+		$old_default_forum_id = 1;
+	}
+
+	// Try to get the group root forum
+	$posts = get_posts( array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'meta_key'    => '_bbp_old_forum_id',
+		'meta_value'  => $old_default_forum_id,
+		'numberposts' => 1
+	) );
+
+	// Found the group root forum
+	if ( ! empty( $posts ) ) {
+
+		// Rename the group root, since it's now visible in sitewide forums
+		wp_update_post( array(
+			'ID'         => $posts[0]->ID,
+			'post_title' => __( 'Group Forums', 'bbpress' ),
+		) );
+
+		// Update the group forums root metadata
+		update_option( '_bbp_group_forums_root_id', $posts[0]->ID );
+	}
+
 	// Complete results
 	$result = sprintf( __( 'Complete! %s group forums updated.', 'bbpress' ), bbp_number_format( $count ) );
 	return array( 0, sprintf( $statement, $result ) );
