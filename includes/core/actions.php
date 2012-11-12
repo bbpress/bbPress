@@ -67,8 +67,7 @@ add_action( 'bbp_loaded', 'bbp_setup_globals',             8  );
 add_action( 'bbp_loaded', 'bbp_setup_option_filters',      10 );
 add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
 add_action( 'bbp_loaded', 'bbp_register_theme_packages',   14 );
-add_action( 'bbp_loaded', 'bbp_load_textdomain',           16 );
-add_action( 'bbp_loaded', 'bbp_filter_user_roles_option',  18 );
+add_action( 'bbp_loaded', 'bbp_filter_user_roles_option',  16 );
 
 /**
  * bbp_init - Attached to 'init' above
@@ -78,6 +77,7 @@ add_action( 'bbp_loaded', 'bbp_filter_user_roles_option',  18 );
  *                                              v---Load order
  */
 add_action( 'bbp_init', 'bbp_register',         0   );
+add_action( 'bbp_init', 'bbp_load_textdomain',  10  );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags', 20  );
 add_action( 'bbp_init', 'bbp_ready',            999 );
 
