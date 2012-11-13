@@ -189,7 +189,7 @@ class BBP_Forums_Component extends BP_Component {
 
 		// Replies to topics
 		$sub_nav[] = array(
-			'name'            => __( 'Topics Replied To', 'bbpress' ),
+			'name'            => __( 'Replies Created', 'bbpress' ),
 			'slug'            => 'replies',
 			'parent_url'      => $forums_link,
 			'parent_slug'     => $this->slug,
@@ -262,7 +262,7 @@ class BBP_Forums_Component extends BP_Component {
 			$wp_admin_nav[] = array(
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-replies',
-				'title'  => __( 'Topics Replied To', 'bbpress' ),
+				'title'  => __( 'Replies Created', 'bbpress' ),
 				'href'   => trailingslashit( $forums_link . 'replies' )
 			);
 

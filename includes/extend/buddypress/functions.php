@@ -168,7 +168,7 @@ function bbp_member_forums_replies_content() {
 
 	<div id="bbpress-forums">
 
-		<?php bbp_get_template_part( 'user', 'topics-replied-to' ); ?>
+		<?php bbp_get_template_part( 'user', 'replies-created' ); ?>
 
 	</div>
 
