@@ -302,7 +302,8 @@ function bbp_admin_repair_group_forum_relationship() {
 	global $wpdb;
 
 	$statement = __( 'Repairing BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
-	$count     = 0;
+	$g_count     = 0;
+	$f_count     = 0;
 
 	// Copy the BuddyPress filter here, incase BuddyPress is not active
 	$prefix    = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
@@ -336,7 +337,14 @@ function bbp_admin_repair_group_forum_relationship() {
 
 		// Bump the count
 		if ( !empty( $updated ) && ! is_wp_error( $updated ) ) {
-			++$count;
+			++$g_count;
+		}
+
+		// Update group's forum metadata
+		$group_id = (int) $wpdb->get_var( "SELECT `group_id` FROM `{$tablename}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}';" );
+		if ( !empty( $group_id ) ) {
+			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
+			++$f_count;
 		}
 	}
 
@@ -373,7 +381,7 @@ function bbp_admin_repair_group_forum_relationship() {
 	}
 
 	// Complete results
-	$result = sprintf( __( 'Complete! %s group forums updated.', 'bbpress' ), bbp_number_format( $count ) );
+	$result = sprintf( __( 'Complete! %s groups updated; %s forums updated.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ) );
 	return array( 0, sprintf( $statement, $result ) );
 }
 
