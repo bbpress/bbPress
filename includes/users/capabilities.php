@@ -178,6 +178,10 @@ function bbp_set_current_user_default_role() {
 	if ( bbp_is_deactivation() )
 		return;
 
+	// Catch all, to prevent premature user initialization
+	if ( ! did_action( 'set_current_user' ) )
+		return;
+
 	// Bail if not logged in or already a member of this site
 	if ( ! is_user_logged_in() )
 		return;
