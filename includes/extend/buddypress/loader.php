@@ -3,6 +3,16 @@
 /**
  * bbPress BuddyPress Component Class
  *
+ * bbPress and BuddyPress are designed to connect together seamlessly and
+ * invisibly, and this is the hunk of code necessary to make that happen.
+ *
+ * The code in this BuddyPress Extension does some pretty complicated stuff,
+ * far outside the realm of the simplicity bbPress is traditionally known for.
+ *
+ * While the rest of bbPress serves as an example of how to write pretty, simple
+ * code, what's in these files is pure madness. It should not be used as an
+ * example of anything other than successfully juggling chainsaws and puppy-dogs.
+ *
  * @package bbPress
  * @subpackage BuddyPress
  */
