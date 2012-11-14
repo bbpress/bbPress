@@ -652,6 +652,11 @@ function bbp_template_include_theme_compat( $template = '' ) {
  * @return type
  */
 function bbp_replace_the_content( $content = '' ) {
+
+	// Bail if not inside the main query loop
+	if ( ! in_the_loop() || ! is_main_query() )
+		return $content;
+
 	$bbp = bbpress();
 
 	// Define local variable(s)
