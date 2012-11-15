@@ -443,13 +443,30 @@ function bbp_get_dynamic_roles() {
 /**
  * Removes the bbPress roles from the editable roles array
  *
+ * This used to use array_diff_assoc() but it randomly broke before 2.2 release.
+ * Need to research what happened, and if there's a way to speed this up.
+ *
  * @since bbPress (r4303)
  *
  * @param array $all_roles All registered roles
  * @return array 
  */
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
-	return array_diff_assoc( $all_roles, bbp_get_dynamic_roles() );
+
+	// Loop through bbPress roles
+	foreach ( bbp_get_dynamic_roles() as $bbp_role => $details ) {
+
+		// Loop through WordPress roles
+		foreach ( $all_roles as $wp_role => $details ) {
+
+			// If keys match, unset
+			if ( $wp_role == $bbp_role ) {
+				unset( $all_roles[$wp_role] );
+			}
+		}
+	}
+
+	return $all_roles;
 }
 
 /**
