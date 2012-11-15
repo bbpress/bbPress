@@ -176,7 +176,7 @@ function bbp_map_forum_meta_caps( $caps, $cap, $user_id, $args ) {
 		/** Admin *************************************************************/
 
 		case 'bbp_forums_admin' :
-			$caps = array( 'moderate' );
+			$caps = array( 'manage_options' );
 			break;
 	}
 
