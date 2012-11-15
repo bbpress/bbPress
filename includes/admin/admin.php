@@ -550,6 +550,13 @@ class BBP_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
+			/* Kludge for too-wide forums dropdown */
+			#bbp_forum_attributes select#parent_id,
+			#bbp_topic_attributes select#parent_id,
+			#bbp_reply_attributes select#bbp_forum_id {
+				max-width: 170px;
+			}
+
 			/* Version Badge */
 
 			.bbp-badge {
