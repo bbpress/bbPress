@@ -454,10 +454,10 @@ function bbp_get_dynamic_roles() {
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 
 	// Loop through bbPress roles
-	foreach ( bbp_get_dynamic_roles() as $bbp_role => $details ) {
+	foreach ( array_keys( bbp_get_dynamic_roles() ) as $bbp_role ) {
 
 		// Loop through WordPress roles
-		foreach ( $all_roles as $wp_role => $details ) {
+		foreach ( array_keys( $all_roles ) as $wp_role ) {
 
 			// If keys match, unset
 			if ( $wp_role == $bbp_role ) {
