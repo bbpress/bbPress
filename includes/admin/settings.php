@@ -927,7 +927,8 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 	bbp_dropdown( array(
 		'selected'           => bbp_get_group_forums_root_id(),
 		'show_none'          => __( '&mdash; Forum root &mdash;', 'bbpress' ),
-		'sort_column'        => 'post_title',
+		'orderby'            => 'title',
+		'order'              => 'ASC',
 		'select_id'          => '_bbp_group_forums_root_id',
 		'disable_categories' => false,
 		'disabled'           => '_bbp_group_forums_root_id'
