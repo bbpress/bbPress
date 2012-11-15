@@ -922,17 +922,16 @@ function bbp_admin_setting_callback_group_forums() {
  * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_group_forums_root_id() {
-?>
 
-	<?php
-		bbp_dropdown( array(
-			'selected'           => bbp_get_group_forums_root_id(),
-			'show_none'          => __( '(Forum Root)', 'bbpress' ),
-			'select_id'          => '_bbp_group_forums_root_id',
-			'disable_categories' => false,
-			'disabled'           => '_bbp_group_forums_root_id'
-		) );
-	?>
+	// Output the dropdown for all forums
+	bbp_dropdown( array(
+		'selected'           => bbp_get_group_forums_root_id(),
+		'show_none'          => __( '&mdash; Forum root &mdash;', 'bbpress' ),
+		'sort_column'        => 'post_title',
+		'select_id'          => '_bbp_group_forums_root_id',
+		'disable_categories' => false,
+		'disabled'           => '_bbp_group_forums_root_id'
+	) ); ?>
 
 	<label for="_bbp_group_forums_root_id"><?php _e( 'is the parent for all group forums', 'bbpress' ); ?></label>
 	<p class="description"><?php _e( 'Using the Forum Root is not recommended. Changing this does not move existing forums.', 'bbpress' ); ?></p>

@@ -128,8 +128,6 @@ class BBP_Admin {
 
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_bbp_suggest_forum',        array( $this, 'suggest_forum' ) );
-		add_action( 'wp_ajax_nopriv_bbp_suggest_forum', array( $this, 'suggest_forum' ) );
 		add_action( 'wp_ajax_bbp_suggest_topic',        array( $this, 'suggest_topic' ) );
 		add_action( 'wp_ajax_nopriv_bbp_suggest_topic', array( $this, 'suggest_topic' ) );
 
@@ -537,15 +535,6 @@ class BBP_Admin {
 
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
-
-				var bbp_forum_id = jQuery( '#bbp_forum_id' );
-
-				bbp_forum_id.suggest( ajaxurl + '?action=bbp_suggest_forum', {
-					onSelect: function() {
-						var value = this.value;
-						bbp_forum_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
-					}
-				} );
 
 				var bbp_topic_id = jQuery( '#bbp_topic_id' );
 
@@ -1257,38 +1246,6 @@ class BBP_Admin {
 	}
 
 	/** Ajax ******************************************************************/
-
-	/**
-	 * Ajax action for facilitating the forum auto-suggest
-	 *
-	 * @since bbPress (r4261)
-	 *
-	 * @uses get_posts()
-	 * @uses bbp_get_forum_post_type()
-	 * @uses bbp_get_forum_id()
-	 * @uses bbp_get_forum_title()
-	 */
-	public function suggest_forum() {
-
-		// Try to get some forums
-		$forums = get_posts( array(
-			's'           => like_escape( $_REQUEST['q'] ),
-			'post_type'   => bbp_get_forum_post_type(),
-			'post_status' => array(
-				bbp_get_public_status_id(),
-				bbp_get_hidden_status_id(),
-				bbp_get_private_status_id()
-			) 
-		) );
-
-		// If we found some forums, loop through and display them
-		if ( ! empty( $forums ) ) {
-			foreach ( (array) $forums as $post ) {
-				echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_forum_id( $post->ID ), bbp_get_forum_title( $post->ID ) ) . "\n";
-			}
-		}
-		die();
-	}
 
 	/**
 	 * Ajax action for facilitating the forum auto-suggest

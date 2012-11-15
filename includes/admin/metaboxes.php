@@ -298,7 +298,25 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_forum_id" type="text" value="<?php echo esc_attr( $post_parent ); ?>" />
+		<?php bbp_dropdown( array(
+			'post_type'          => bbp_get_forum_post_type(),
+			'selected'           => $post_parent,
+			'sort_column'        => 'post_title',
+			'child_of'           => '0',
+			'numberposts'        => -1,
+			'order'              => 'DESC',
+			'walker'             => '',
+			'exclude'            => $post_id,
+
+			// Output-related
+			'select_id'          => 'parent_id',
+			'tab'                => bbp_get_tab_index(),
+			'options_only'       => false,
+			'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
+			'none_found'         => false,
+			'disable_categories' => true,
+			'disabled'           => ''
+		) ); ?>
 	</p>
 
 	<p>
@@ -338,7 +356,25 @@ function bbp_topic_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_forum_id" type="text" value="<?php bbp_topic_forum_id( $post_id ); ?>" />
+		<?php bbp_dropdown( array(
+			'post_type'          => bbp_get_forum_post_type(),
+			'selected'           => bbp_get_topic_forum_id( $post_id ),
+			'sort_column'        => 'post_title',
+			'child_of'           => '0',
+			'numberposts'        => -1,
+			'order'              => 'DESC',
+			'walker'             => '',
+			'exclude'            => '',
+
+			// Output-related
+			'select_id'          => 'parent_id',
+			'tab'                => bbp_get_tab_index(),
+			'options_only'       => false,
+			'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
+			'none_found'         => false,
+			'disable_categories' => true,
+			'disabled'           => ''
+		) ); ?>
 	</p>
 
 	<?php
@@ -373,7 +409,25 @@ function bbp_reply_metabox() {
 		<p>
 			<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
-			<input name="bbp_forum_id" id="bbp_forum_id" type="text" value="<?php echo esc_attr( $reply_forum_id ); ?>" />
+			<?php bbp_dropdown( array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => $reply_forum_id,
+				'sort_column'        => 'post_title',
+				'child_of'           => '0',
+				'numberposts'        => -1,
+				'order'              => 'DESC',
+				'walker'             => '',
+				'exclude'            => '',
+
+				// Output-related
+				'select_id'          => 'bbp_forum_id',
+				'tab'                => bbp_get_tab_index(),
+				'options_only'       => false,
+				'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
+				'none_found'         => false,
+				'disable_categories' => true,
+				'disabled'           => ''
+			) ); ?>
 		</p>
 
 	<?php endif; ?>
