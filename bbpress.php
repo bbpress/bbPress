@@ -387,8 +387,8 @@ final class bbPress {
 			'id'      => 'default',
 			'name'    => __( 'bbPress Default', 'bbpress' ),
 			'version' => bbp_get_version(),
-			'dir'     => trailingslashit( $this->themes_dir . 'bbp-default' ),
-			'url'     => trailingslashit( $this->themes_url . 'bbp-default' )
+			'dir'     => trailingslashit( $this->themes_dir . 'default' ),
+			'url'     => trailingslashit( $this->themes_url . 'default' )
 		) );
 
 		// Register the basic theme stack. This is really dope.

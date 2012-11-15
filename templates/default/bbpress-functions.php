@@ -67,8 +67,8 @@ class BBP_Default extends BBP_Theme_Compat {
 		$this->id      = 'default';
 		$this->name    = __( 'bbPress Default', 'bbpress' );
 		$this->version = bbp_get_version();
-		$this->dir     = trailingslashit( $bbp->themes_dir . 'bbp-default' );
-		$this->url     = trailingslashit( $bbp->themes_url . 'bbp-default' );
+		$this->dir     = trailingslashit( $bbp->themes_dir . 'default' );
+		$this->url     = trailingslashit( $bbp->themes_url . 'default' );
 	}
 
 	/**
