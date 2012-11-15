@@ -551,9 +551,9 @@ class BBP_Admin {
 		/*<![CDATA[*/
 
 			/* Kludge for too-wide forums dropdown */
-			#bbp_forum_attributes select#parent_id,
-			#bbp_topic_attributes select#parent_id,
-			#bbp_reply_attributes select#bbp_forum_id {
+			#poststuff #bbp_forum_attributes select#parent_id,
+			#poststuff #bbp_topic_attributes select#parent_id,
+			#poststuff #bbp_reply_attributes select#bbp_forum_id {
 				max-width: 170px;
 			}
 
