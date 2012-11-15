@@ -447,6 +447,13 @@ textarea#bbp_forum_content {
 	margin-right: 25px;
 }
 
+/**
+ * Fix for too-long forum names, usually from conversion
+ */
+#bbpress-forums fieldset select#bbp_forum_id {
+	max-width: 200px;
+}
+
 .bbp-topic-form,
 .bbp-reply-form,
 .bbp-topic-tag-form {
