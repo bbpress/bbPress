@@ -603,7 +603,14 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	function bbp_get_reply_revision_log( $reply_id = 0 ) {
 
 		// Create necessary variables
-		$reply_id     = bbp_get_reply_id( $reply_id );
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Show the topic reply log if this is a topic in a reply loop
+		if ( bbp_is_topic( $reply_id ) ) {
+			return bbp_get_topic_revision_log( $reply_id );
+		}
+
+		// Get the reply revision log (out of post meta
 		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
 
 		// Check reply and revision log exist
