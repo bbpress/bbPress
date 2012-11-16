@@ -80,7 +80,9 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 			}
 
 			// Add the new role
-			$user->add_role( $new_role );
+			if ( !empty( $new_role ) ) {
+				$user->add_role( $new_role );
+			}
 		}
 
 	// User does don exist so return false
