@@ -549,9 +549,9 @@ function bbp_edit_reply_handler() {
 	) );
 
 	// Toggle revisions to avoid duplicates
-	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+	if ( post_type_supports( bbp_get_reply_post_type(), 'revisions' ) ) {
 		$revisions_removed = true;
-		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+		remove_post_type_support( bbp_get_reply_post_type(), 'revisions' );
 	}
 
 	// Insert topic
@@ -560,7 +560,7 @@ function bbp_edit_reply_handler() {
 	// Toggle revisions back on
 	if ( true === $revisions_removed ) {
 		$revisions_removed = true;
-		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+		add_post_type_support( bbp_get_reply_post_type(), 'revisions' );
 	}
 
 	/** Topic Tags ************************************************************/
