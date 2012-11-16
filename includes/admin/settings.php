@@ -1030,7 +1030,7 @@ function bbp_converter_setting_callback_main_section() {
  */
 function bbp_converter_setting_callback_platform() {
 
-	$platform_options = array();
+	$platform_options = '';
 	$curdir           = opendir( bbpress()->admin->admin_dir . 'converters/' );
 
 	// Bail if no directory was found (how did this happen?)
