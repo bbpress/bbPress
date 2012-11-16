@@ -364,7 +364,7 @@ function bbp_new_reply_handler() {
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbp_has_errors() To get the {@link WP_Error} errors
  * @uses wp_save_post_revision() To save a reply revision
- * @uses bbp_update_topic_revision_log() To update the reply revision log
+ * @uses bbp_update_reply_revision_log() To update the reply revision log
  * @uses wp_update_post() To update the reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
@@ -386,6 +386,7 @@ function bbp_edit_reply_handler() {
 		return;
 
 	// Define local variable(s)
+	$revisions_removed = false;
 	$reply = $reply_id = $reply_author = $topic_id = $forum_id = $anonymous_data = 0;
 	$reply_title = $reply_content = $reply_edit_reason = $terms = '';
 
@@ -547,8 +548,20 @@ function bbp_edit_reply_handler() {
 		'post_type'    => bbp_get_reply_post_type()
 	) );
 
-	// Insert reply
+	// Toggle revisions to avoid duplicates
+	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+		$revisions_removed = true;
+		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
+
+	// Insert topic
 	$reply_id = wp_update_post( $reply_data );
+
+	// Toggle revisions back on
+	if ( true === $revisions_removed ) {
+		$revisions_removed = true;
+		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	/** Topic Tags ************************************************************/
 
@@ -571,7 +584,7 @@ function bbp_edit_reply_handler() {
 
 	// Update revision log
 	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) ) {
-		$revision_id = wp_save_post_revision( $reply_id );
+		$revision_id = wp_is_post_revision( $reply_id );
 		if ( !empty( $revision_id ) ) {
 			bbp_update_reply_revision_log( array(
 				'reply_id'    => $reply_id,

@@ -433,6 +433,7 @@ function bbp_edit_topic_handler() {
 		return;
 
 	// Define local variable(s)
+	$revisions_removed = false;
 	$topic = $topic_id = $topic_author = $forum_id = $anonymous_data = 0;
 	$topic_title = $topic_content = $topic_edit_reason = '';
 
@@ -613,8 +614,20 @@ function bbp_edit_topic_handler() {
 		'tax_input'    => $terms,
 	) );
 
+	// Toggle revisions to avoid duplicates
+	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+		$revisions_removed = true;
+		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
+
 	// Insert topic
 	$topic_id = wp_update_post( $topic_data );
+
+	// Toggle revisions back on
+	if ( true === $revisions_removed ) {
+		$revisions_removed = true;
+		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	/** Stickies **************************************************************/
 
@@ -648,13 +661,16 @@ function bbp_edit_topic_handler() {
 		$topic_edit_reason = esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) );
 
 	// Update revision log
-	if ( !empty( $_POST['bbp_log_topic_edit'] ) && ( 1 == $_POST['bbp_log_topic_edit'] ) && ( $revision_id = wp_save_post_revision( $topic_id ) ) ) {
-		bbp_update_topic_revision_log( array(
-			'topic_id'    => $topic_id,
-			'revision_id' => $revision_id,
-			'author_id'   => bbp_get_current_user_id(),
-			'reason'      => $topic_edit_reason
-		) );
+	if ( !empty( $_POST['bbp_log_topic_edit'] ) && ( 1 == $_POST['bbp_log_topic_edit'] ) )  {
+		$revision_id = wp_save_post_revision( $topic_id );
+		if ( ! empty( $revision_id ) ) {
+			bbp_update_topic_revision_log( array(
+				'topic_id'    => $topic_id,
+				'revision_id' => $revision_id,
+				'author_id'   => bbp_get_current_user_id(),
+				'reason'      => $topic_edit_reason
+			) );
+		}
 	}
 
 	/** No Errors *************************************************************/
