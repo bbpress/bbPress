@@ -51,9 +51,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$this->enable_nav_item      = true;
 		$this->enable_edit_item     = true;
 
-		// I forget what these do
-		$this->display_hook         = 'bp_template_content';
+		// Template file to load, and action to hook display on to
 		$this->template_file        = 'groups/single/plugins';
+		$this->display_hook         = 'bp_template_content';
 
 		// Add handlers to bp_actions
 		add_action( 'bp_actions', 'bbp_new_forum_handler'  );
@@ -64,29 +64,36 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_action( 'bp_actions', 'bbp_edit_reply_handler' );
 
 		// Possibly redirect
-		add_action( 'template_redirect', array( $this, 'redirect_canonical' ) );
-
-		// Tweak the redirect field
-		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to' ), 10, 3 );
-		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to' ), 10, 3 );
+		add_action( 'bbp_template_redirect',     array( $this, 'redirect_canonical' ) );
 
 		// Group forum pagination
-		add_filter( 'bbp_topic_pagination',   array( $this, 'topic_pagination'   ) );
-		add_filter( 'bbp_replies_pagination', array( $this, 'replies_pagination' ) );
+		add_filter( 'bbp_topic_pagination',      array( $this, 'topic_pagination'   ) );
+		add_filter( 'bbp_replies_pagination',    array( $this, 'replies_pagination' ) );
+
+		// Tweak the redirect field
+		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to'        ), 10, 3 );
+		add_filter( 'bbp_new_reply_redirect_to', array( $this, 'new_reply_redirect_to'        ), 10, 3 );
 
 		// Map forum/topic/replys permalinks to their groups
-		add_filter( 'bbp_get_forum_permalink', array( $this, 'map_forum_permalink_to_group' ), 10, 2 );
-		add_filter( 'bbp_get_topic_permalink', array( $this, 'map_topic_permalink_to_group' ), 10, 2 );
-		add_filter( 'bbp_get_reply_permalink', array( $this, 'map_reply_permalink_to_group' ), 10, 2 );
+		add_filter( 'bbp_get_forum_permalink',   array( $this, 'map_forum_permalink_to_group' ), 10, 2 );
+		add_filter( 'bbp_get_topic_permalink',   array( $this, 'map_topic_permalink_to_group' ), 10, 2 );
+		add_filter( 'bbp_get_reply_permalink',   array( $this, 'map_reply_permalink_to_group' ), 10, 2 );
 
 		// Map reply edit links to their groups
-		add_filter( 'bbp_get_reply_edit_url',  array( $this, 'map_reply_edit_url_to_group'  ), 10, 2 );
+		add_filter( 'bbp_get_reply_edit_url',    array( $this, 'map_reply_edit_url_to_group'  ), 10, 2 );
 
 		// Map assorted template function permalinks
-		add_filter( 'post_link',               array( $this, 'post_link'                    ), 10, 2 );
-		add_filter( 'page_link',               array( $this, 'page_link'                    ), 10, 2 );
-		add_filter( 'post_type_link',          array( $this, 'post_type_link'               ), 10, 2 );
+		add_filter( 'post_link',                 array( $this, 'post_link'                    ), 10, 2 );
+		add_filter( 'page_link',                 array( $this, 'page_link'                    ), 10, 2 );
+		add_filter( 'post_type_link',            array( $this, 'post_type_link'               ), 10, 2 );
 
+		// Allow group member to view private/hidden forums
+		add_filter( 'bbp_map_topic_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
+		add_filter( 'bbp_map_reply_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
+
+		// Remove topic cap map when view is done
+		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_topic_meta_cap_map' ) );
+		
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 
@@ -113,6 +120,70 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'bbp_no_breadcrumb', '__return_true' );
 
 		$this->display_forums( 0 );
+	}
+
+	/**
+	 * Allow group members to have advanced priviledges in group forum topics.
+	 *
+	 * @since bbPress (r4434)
+	 *
+	 * @param array $caps
+	 * @param string $cap
+	 * @param int $user_id
+	 * @param array $args
+	 * @return array
+	 */
+	public function map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+
+		// Bail if not viewing a single topic
+		if ( ! bp_is_single_item() || ! bp_is_groups_component() || ! bp_is_current_action( 'forum' ) || ! bp_is_action_variable( 0, 'topic' ) )
+			return $caps;
+
+		switch ( $cap ) {
+
+			// If user is a group mmember, allow them to create content.
+			case 'read_forum'          :
+			case 'publish_replies'     :
+			case 'publish_topics'      :
+			case 'read_hidden_forums'  :
+			case 'read_private_forums' :
+				if ( bp_group_is_member() ) {
+					$caps = array( 'participate' );
+				}
+				break;
+
+			// If user is a group mod ar admin, map to participate cap.
+			case 'moderate'     :
+			case 'edit_topic'   :
+			case 'edit_reply'   :
+			case 'view_trash'   :
+			case 'edit_others_replies' :
+			case 'edit_others_topics'  :
+				if ( bp_group_is_mod() || bp_group_is_admin() ) {
+					$caps = array( 'participate' );
+				}
+				break;
+
+			// If user is a group admin, allow them to delete topics and replies.
+			case 'delete_topic' :
+			case 'delete_reply' :
+				if ( bp_group_is_admin() ) {
+					$caps = array( 'participate' );
+				}
+				break;
+		}
+
+		return apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
+	}
+
+	/**
+	 * Remove the topic meta cap map, so it doesn't interfere with sidebars.
+	 *
+	 * @since bbPress (r4434)
+	 */
+	public function remove_topic_meta_cap_map() {
+		remove_filter( 'bbp_map_topic_meta_caps', array( $this, 'map_topic_meta_caps' ), 10, 4 );
+		remove_filter( 'bbp_map_reply_meta_caps', array( $this, 'map_topic_meta_caps' ), 10, 4 );
 	}
 
 	/** Edit ******************************************************************/
@@ -346,6 +417,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_get_template_part()
 	 */
 	public function display_forums( $offset = 0 ) {
+
+		// Allow actions immediately before group forum output
+		do_action( 'bbp_before_group_forum_display' );
+
+		// Load up bbPress once
 		$bbp = bbpress();
 
 		// Forum data
@@ -634,6 +710,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		</div>
 
 		<?php
+
+		// Allow actions immediately after group forum output
+		do_action( 'bbp_after_group_forum_display' );
 	}
 
 	/** Redirect Helpers ******************************************************/
@@ -949,7 +1028,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3802)
 	 */
-	function redirect_canonical() {
+	public function redirect_canonical() {
 
 		// Viewing a single forum
 		if ( bbp_is_single_forum() ) {
@@ -998,7 +1077,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @return array
 	 */
-	function map_activity_to_group( $args = array() ) {
+	public function map_activity_to_group( $args = array() ) {
 
 		// Get current BP group
 		$group = groups_get_current_group();
