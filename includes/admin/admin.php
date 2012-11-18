@@ -354,7 +354,7 @@ class BBP_Admin {
 	 *                        args
 	 * @return array Actual capabilities for meta capability
 	 */
-	public static function map_settings_meta_caps( $caps, $cap, $user_id, $args ) {
+	public static function map_settings_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 		// What capability is being checked?
 		switch ( $cap ) {

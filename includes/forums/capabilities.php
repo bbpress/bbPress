@@ -43,7 +43,7 @@ function bbp_get_forum_caps() {
  * @uses apply_filters() Filter capability map results
  * @return array Actual capabilities for meta capability
  */
-function bbp_map_forum_meta_caps( $caps, $cap, $user_id, $args ) {
+function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {

@@ -42,7 +42,7 @@ function bbp_get_reply_caps() {
  * @uses apply_filters() Filter mapped results
  * @return array Actual capabilities for meta capability
  */
-function bbp_map_reply_meta_caps( $caps, $cap, $user_id, $args ) {
+function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
