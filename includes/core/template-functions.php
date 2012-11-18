@@ -153,14 +153,14 @@ function bbp_get_template_stack() {
 	reset( $wp_filter[ $tag ] );
 
 	// Loop through 'bbp_template_stack' filters, and call callback functions
-	while ( next( $wp_filter[$tag] ) !== false ) {
+	do {
 		foreach( (array) current( $wp_filter[$tag] ) as $the_ ) {
 			if ( ! is_null( $the_['function'] ) ) {
 				$args[1] = $stack;
 				$stack[] = call_user_func_array( $the_['function'], array_slice( $args, 1, (int) $the_['accepted_args'] ) );
 			}
 		}
-	};
+	} while ( next( $wp_filter[$tag] ) !== false );
 
 	// Remove 'bbp_template_stack' from the current filter array
 	array_pop( $wp_current_filter );
