@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.2-rc2\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2012-11-16 02:55:42+00:00\n"
+"Report-Msgid-Bugs-To: http://bbpress.org\n"
+"POT-Creation-Date: 2012-11-18 17:29:16+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: bbpress.php:471 bbpress.php:472 includes/admin/admin.php:208
 #: includes/admin/admin.php:209 includes/admin/admin.php:219
 #: includes/admin/admin.php:220 includes/admin/users.php:82
-#: includes/extend/buddypress/group.php:427
+#: includes/extend/buddypress/group.php:503
 #: includes/extend/buddypress/loader.php:42
 #: includes/extend/buddypress/loader.php:170
 #: includes/extend/buddypress/loader.php:259
@@ -93,7 +93,7 @@ msgstr ""
 #: bbpress.php:528 bbpress.php:529 includes/admin/forums.php:421
 #: includes/admin/settings.php:187 includes/admin/settings.php:208
 #: includes/admin/topics.php:685 includes/extend/buddypress/activity.php:399
-#: includes/extend/buddypress/group.php:431
+#: includes/extend/buddypress/group.php:507
 #: includes/forums/template-tags.php:2283
 #: templates/default/bbpress/loop-forums.php:20
 #: templates/default/extras/page-forum-statistics.php:44
@@ -142,7 +142,7 @@ msgid "No topics found in Trash"
 msgstr ""
 
 #: bbpress.php:542 includes/admin/metaboxes.php:357
-#: includes/admin/metaboxes.php:410 includes/extend/buddypress/group.php:729
+#: includes/admin/metaboxes.php:410 includes/extend/buddypress/group.php:808
 #: templates/default/bbpress/form-topic.php:125
 msgid "Forum:"
 msgstr ""
@@ -3070,36 +3070,36 @@ msgstr ""
 msgid "%1$s replied to the topic %2$s in the forum %3$s"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:130
+#: includes/extend/buddypress/group.php:201
 msgid "Enable Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:132
-#: includes/extend/buddypress/group.php:196
+#: includes/extend/buddypress/group.php:203
+#: includes/extend/buddypress/group.php:267
 msgid ""
 "Create a discussion forum to allow members of this group to communicate in a "
 "structured, bulletin-board style fashion."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:135
-#: includes/extend/buddypress/group.php:199
+#: includes/extend/buddypress/group.php:206
+#: includes/extend/buddypress/group.php:270
 msgid "Yes. I want this group to have a forum."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:138
+#: includes/extend/buddypress/group.php:209
 msgid "Saying no will not delete existing forum content."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:140
+#: includes/extend/buddypress/group.php:211
 msgid "Save Settings"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:194
+#: includes/extend/buddypress/group.php:265
 msgid "Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:455
-#: includes/extend/buddypress/group.php:464
+#: includes/extend/buddypress/group.php:531
+#: includes/extend/buddypress/group.php:540
 msgid "This group does not currently have any forums."
 msgstr ""
 
