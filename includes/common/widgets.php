@@ -49,7 +49,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @uses register_widget()
 	 */
-	public function register_widget() {
+	public static function register_widget() {
 		register_widget( 'BBP_Login_Widget' );
 	}
 
@@ -234,7 +234,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @uses register_widget()
 	 */
-	public function register_widget() {
+	public static function register_widget() {
 		register_widget( 'BBP_Views_Widget' );
 	}
 
@@ -351,7 +351,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @uses register_widget()
 	 */
-	public function register_widget() {
+	public static function register_widget() {
 		register_widget( 'BBP_Forums_Widget' );
 	}
 
@@ -503,7 +503,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @uses register_widget()
 	 */
-	public function register_widget() {
+	public static function register_widget() {
 		register_widget( 'BBP_Topics_Widget' );
 	}
 
@@ -720,7 +720,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @uses register_widget()
 	 */
-	public function register_widget() {
+	public static function register_widget() {
 		register_widget( 'BBP_Replies_Widget' );
 	}
 
