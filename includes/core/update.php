@@ -246,7 +246,7 @@ function bbp_version_updater() {
 	/** 2.2 Branch ************************************************************/
 
 	// 2.2
-	if ( $raw_db_version < 216 ) {
+	if ( $raw_db_version < 220 ) {
 
 		// Remove bbPress 1.1 roles (BuddyPress)
 		remove_role( 'member'    );
