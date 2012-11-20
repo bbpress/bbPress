@@ -2827,8 +2827,12 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 function bbp_stick_topic( $topic_id = 0, $super = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// We may have a super sticky to which we want to convert into a normal sticky and vice versa
-	// So, unstick the topic first to avoid any possible error
+	// Bail if a topic is not a topic (prevents revisions as stickies)
+	if ( ! bbp_is_topic( $topic_id ) )
+		return false;
+
+	// We may have a super sticky to which we want to convert into a normal
+	// sticky and vice versa; unstick the topic first to avoid any possible error.
 	bbp_unstick_topic( $topic_id );
 
 	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
@@ -2836,18 +2840,29 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 
 	do_action( 'bbp_stick_topic', $topic_id, $super );
 
-	if ( !is_array( $stickies ) )
+	if ( !is_array( $stickies ) ) {
 		$stickies   = array( $topic_id );
-	else
+	} else {
 		$stickies[] = $topic_id;
+	}
 
+	// Pull out duplicates and empties
 	$stickies = array_unique( array_filter( $stickies ) );
 
-	$success = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+	// Unset incorrectly stuck revisions
+	foreach ( (array) $stickies as $key => $id ) {
+		if ( ! bbp_is_topic( $id ) ) {
+			unset( $stickies[$key] );
+		}
+	}
+
+	// Reset keys
+	$stickies = array_values( $stickies );
+	$success  = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
 
 	do_action( 'bbp_sticked_topic', $topic_id, $super, $success );
 
-	return $success;
+	return (bool) $success;
 }
 
 /**
@@ -2885,15 +2900,16 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 		$success = true;
 	} else {
 		array_splice( $stickies, $offset, 1 );
-		if ( empty( $stickies ) )
+		if ( empty( $stickies ) ) {
 			$success = !empty( $super ) ? delete_option( '_bbp_super_sticky_topics'            ) : delete_post_meta( $forum_id, '_bbp_sticky_topics'            );
-		else
+		} else {
 			$success = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+		}
 	}
 
 	do_action( 'bbp_unsticked_topic', $topic_id, $success );
 
-	return true;
+	return (bool) $success;
 }
 
 /** Before Delete/Trash/Untrash ***********************************************/
