@@ -94,7 +94,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 }
 
 /**
- * Return a user's main role
+ * Return a user's forums role
  *
  * @since bbPress (r3860)
  *
@@ -122,6 +122,37 @@ function bbp_get_user_role( $user_id = 0 ) {
 	}
 
 	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
+}
+
+/**
+ * Return a user's blog role
+ *
+ * @since bbPress (r4446)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses get_userdata() To get the user data
+ * @uses apply_filters() Calls 'bbp_get_user_blog_role' with the role and user id
+ * @return string
+ */
+function bbp_get_user_blog_role( $user_id = 0 ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id, false, false );
+	$user    = get_userdata( $user_id );
+	$role    = false;
+
+	// User has roles so lets
+	if ( ! empty( $user->roles ) ) {
+		$roles = array_intersect( array_values( $user->roles ), array_keys( get_editable_roles() ) );
+
+		// If there's a role in the array, use the first one
+		if ( !empty( $roles ) ) {
+			$role = array_shift( array_values( $roles ) );
+		}
+	}
+
+	return apply_filters( 'bbp_get_user_blog_role', $role, $user_id, $user );
 }
 
 /**
@@ -208,36 +239,32 @@ function bbp_set_current_user_default_role() {
 	$add_to_site = bbp_allow_global_access();
 
 	// Get the current user's WordPress role. Set to empty string if none found.
-	$user_role   = isset( $bbp->current_user->roles ) ? array_shift( $bbp->current_user->roles ) : '';
+	$user_role   = bbp_get_user_blog_role( $user_id );
 
-	// Loop through the role map, and grant the proper bbPress role
-	foreach ( (array) bbp_get_user_role_map() as $wp_role => $bbp_role ) {
+	// Get the role map
+	$role_map    = bbp_get_user_role_map();
 
-		// User's role matches a possible WordPress role (including none at all)
-		if ( $user_role == $wp_role ) {
+	/** Forum Role ************************************************************/
 
-			// Add role to user account, making them a user of this site
-			if ( true == $add_to_site ) {
+	// Use a mapped role
+	if ( isset( $role_map[$user_role] ) ) {
+		$new_role = $role_map[$user_role];
 
-				// Override map to prevent accidental "Visitor"
-				if ( empty( $wp_role ) ) {
-					$bbp_role = bbp_get_default_role();
-				}
+	// Use the default role
+	} else {
+		$new_role = bbp_get_default_role();
+	}
 
-				// Add the mapped forums role to the user's account
-				$bbp->current_user->add_role( $bbp_role );
+	/** Add or Map ************************************************************/
 
-				// @todo Add the default site role too?
-				//$bbp->current_user->add_role( get_option( 'default_role' ) );
+	// Add the user to the site
+	if ( true == $add_to_site ) {
+		$bbp->current_user->add_role( $new_role );
 
-			// Dynamically assign capabilities, making them "anonymous"
-			} else {
-				$bbp->current_user->caps[$bbp_role] = true;
-				$bbp->current_user->get_role_caps();
-			}
-
-			break;
-		}
+	// Don't add the user, but still give them the correct caps dynamically
+	} else {		
+		$bbp->current_user->caps[$new_role] = true;
+		$bbp->current_user->get_role_caps();
 	}
 }
 
@@ -261,8 +288,7 @@ function bbp_get_user_role_map() {
 		'editor'        => $default_role,
 		'author'        => $default_role,
 		'contributor'   => $default_role,
-		'subscriber'    => $default_role,
-		''              => bbp_get_visitor_role()
+		'subscriber'    => $default_role
 	) );
 }
 
