@@ -217,7 +217,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 
 		// Participant/Default
-		case bbp_get_visitor_role()   :
 		case bbp_get_participant_role() :
 		default :
 			$caps = array(
@@ -426,12 +425,6 @@ function bbp_get_dynamic_roles() {
 			'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
 		),
 
-		// Visitor
-		bbp_get_visitor_role() => array(
-			'name'         => __( 'Visitor', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_visitor_role() )
-		),
-
 		// Blocked
 		bbp_get_blocked_role() => array(
 			'name'         => __( 'Blocked', 'bbpress' ),
@@ -515,18 +508,6 @@ function bbp_get_participant_role() {
  */
 function bbp_get_spectator_role() {
 	return apply_filters( 'bbp_get_spectator_role', 'bbp_spectator' );
-}
-
-/**
- * The visitor role for any registered user without a set forum role.
- *
- * @since bbPress (r3860)
- *
- * @uses apply_filters() Allow override of hardcoded visitor role
- * @return string
- */
-function bbp_get_visitor_role() {
-	return apply_filters( 'bbp_get_visitor_role', 'bbp_visitor' );
 }
 
 /**
