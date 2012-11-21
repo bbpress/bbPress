@@ -680,9 +680,10 @@ function bbp_admin_repair_user_subscriptions() {
  */
 function bbp_admin_repair_user_roles() {
 
-	$statement = __( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
-	$changed   = 0;
-	$role_map  = bbp_get_user_role_map();
+	$statement    = __( 'Remapping forum role for each user on this site&hellip; %s', 'bbpress' );
+	$changed      = 0;
+	$role_map     = bbp_get_user_role_map();
+	$default_role = bbp_get_default_role();
 
 	// Bail if no role map exists
 	if ( empty( $role_map ) )
@@ -694,6 +695,9 @@ function bbp_admin_repair_user_roles() {
 		// Reset the offset
 		$offset = 0;
 
+		// If no role map exists, give the default forum role (bbp-participant)
+		$new_role = isset( $role_map[$role] ) ? $role_map[$role] : $default_role;
+			
 		// Get users of this site, limited to 1000
 		while ( $users = get_users( array(
 				'role'   => $role,
@@ -704,7 +708,7 @@ function bbp_admin_repair_user_roles() {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
-				if ( bbp_set_user_role( $user_id, $role_map[$role] ) ) {
+				if ( bbp_set_user_role( $user_id, $new_role ) ) {
 					++$changed; // Keep a count to display at the end
 				}
 			}
