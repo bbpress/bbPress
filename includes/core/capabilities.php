@@ -99,7 +99,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'delete_forums'         => false,
 				'delete_others_forums'  => false,
 				'read_private_forums'   => true,
-				'read_hidden_forums'    => false,
+				'read_hidden_forums'    => true,
 
 				// Topic caps
 				'publish_topics'        => true,
