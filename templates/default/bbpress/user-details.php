@@ -16,7 +16,7 @@
 
 			<span class='vcard'>
 				<a class="url fn n" href="<?php bbp_user_profile_url(); ?>" title="<?php bbp_displayed_user_field( 'display_name' ); ?>" rel="me">
-					<?php echo get_avatar( bbp_get_displayed_user_field( 'user_email' ), apply_filters( 'twentyten_author_bio_avatar_size', 150 ) ); ?>
+					<?php echo get_avatar( bbp_get_displayed_user_field( 'user_email' ), apply_filters( 'bbp_single_user_details_avatar_size', 150 ) ); ?>
 				</a>
 			</span>
 
