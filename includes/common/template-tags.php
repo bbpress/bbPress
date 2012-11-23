@@ -1882,8 +1882,9 @@ function bbp_breadcrumb( $args = array() ) {
 		// No custom home text
 		if ( empty( $args['home_text'] ) ) {
 
-			// Set home text to page title
 			$front_id = get_option( 'page_on_front' );
+
+			// Set home text to page title			
 			if ( !empty( $front_id ) ) {
 				$pre_front_text = get_the_title( $front_id );
 
@@ -1907,16 +1908,19 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Includes **********************************************************/
 
 		// Root slug is also the front page
-		if ( !empty( $front_id ) && ( $front_id == $root_id ) )
+		if ( !empty( $front_id ) && ( $front_id == $root_id ) ) {
 			$pre_include_root = false;
+		}
 
 		// Don't show root if viewing forum archive
-		if ( bbp_is_forum_archive() )
+		if ( bbp_is_forum_archive() ) {
 			$pre_include_root = false;
+		}
 
 		// Don't show root if viewing page in place of forum archive
-		if ( !empty( $root_id ) && ( ( is_single() || is_page() ) && ( $root_id == get_the_ID() ) ) )
+		if ( !empty( $root_id ) && ( ( is_single() || is_page() ) && ( $root_id == get_the_ID() ) ) ) {
 			$pre_include_root = false;
+		}
 
 		/** Current Text ******************************************************/
 
@@ -1970,7 +1974,7 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Parse Args ********************************************************/
 
 		// Parse args
-		$defaults = array(
+		$r = bbp_parse_args( $args, array(
 
 			// HTML
 			'before'          => '<div class="bbp-breadcrumb"><p>',
@@ -1999,22 +2003,22 @@ function bbp_breadcrumb( $args = array() ) {
 			'current_text'    => $pre_current_text,
 			'current_before'  => '<span class="bbp-breadcrumb-current">',
 			'current_after'   => '</span>',
-		);
-		$r = bbp_parse_args( $args, $defaults, 'get_breadcrumb' );
-		extract( $r );
+		), 'get_breadcrumb' );
 
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() )
+		if ( is_page() || is_single() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
 			$ancestors = array_reverse( (array) get_post_ancestors( get_the_ID() ) );
+		}
 
 		// Do we want to include a link to home?
-		if ( !empty( $include_home ) || empty( $home_text ) )
-			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
+		if ( !empty( $r['include_home'] ) || empty( $r['home_text'] ) ) {
+			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $r['home_text'] . '</a>';
+		}
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) || empty( $root_text ) ) {
+		if ( !empty( $r['include_root'] ) || empty( $r['root_text'] ) ) {
 
 			// Page exists at root slug path, so use its permalink
 			$page = bbp_get_page_by_path( bbp_get_root_slug() );
@@ -2027,7 +2031,7 @@ function bbp_breadcrumb( $args = array() ) {
 			}
 
 			// Add the breadcrumb
-			$crumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
+			$crumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $r['root_text'] . '</a>';
 		}
 
 		// Ancestors exist
@@ -2072,18 +2076,21 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Current ***********************************************************/
 
 		// Add current page to breadcrumb
-		if ( !empty( $include_current ) || empty( $pre_current_text ) )
-			$crumbs[] = $current_before . $current_text . $current_after;
+		if ( !empty( $r['include_current'] ) || empty( $r['pre_current_text'] ) ) {
+			$crumbs[] = $r['current_before'] . $r['current_text'] . $r['current_after'];
+		}
 
 		/** Separator *********************************************************/
 
 		// Wrap the separator in before/after before padding and filter
-		if ( ! empty( $sep ) )
-			$sep = $sep_before . $sep . $sep_after;
+		if ( ! empty( $r['sep'] ) ) {
+			$sep = $r['sep_before'] . $r['sep'] . $r['sep_after'];
+		}
 
 		// Pad the separator
-		if ( !empty( $pad_sep ) )
-			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
+		if ( !empty( $r['pad_sep'] ) ) {
+			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $r['pad_sep'] * 2 ), ' ', STR_PAD_BOTH );
+		}
 
 		/** Finish Up *********************************************************/
 
@@ -2092,7 +2099,7 @@ function bbp_breadcrumb( $args = array() ) {
 		$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
 
 		// Build the trail
-		$trail = !empty( $crumbs ) ? ( $before . $crumb_before . implode( $sep . $crumb_after . $crumb_before , $crumbs ) . $crumb_after . $after ) : '';
+		$trail = !empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r );
 	}
