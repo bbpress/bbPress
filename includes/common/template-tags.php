@@ -1035,19 +1035,23 @@ function is_bbpress() {
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
 function bbp_wp_login_action( $args = '' ) {
-	$defaults = array (
+
+	// Parse args with default parameters
+	$r = bbp_parse_args( $args, array(
 		'action'  => '',
 		'context' => ''
-	);
-	$r = bbp_parse_args( $args, $defaults, 'login_action' );
-	extract( $r );
+	), 'login_action' );
 
-	if ( !empty( $action ) )
-		$login_url = add_query_arg( array( 'action' => $action ), 'wp-login.php' );
-	else
+	// Add action as query arg
+	if ( !empty( $r['action'] ) ) {
+		$login_url = add_query_arg( array( 'action' => $r['action'] ), 'wp-login.php' );
+
+	// No query arg
+	} else {
 		$login_url = 'wp-login.php';
+	}
 
-	$login_url = site_url( $login_url, $context );
+	$login_url = site_url( $login_url, $r['context'] );
 
 	echo apply_filters( 'bbp_wp_login_action', $login_url, $args );
 }
