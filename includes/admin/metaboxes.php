@@ -35,7 +35,7 @@
 function bbp_dashboard_widget_right_now() {
 
 	// Get the statistics and extract them
-	extract( bbp_get_statistics(), EXTR_SKIP ); ?>
+	$r = bbp_get_statistics(); ?>
 
 	<div class="table table_content">
 
@@ -46,8 +46,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr class="first">
 
 				<?php
-					$num  = $forum_count;
-					$text = _n( 'Forum', 'Forums', $forum_count, 'bbpress' );
+					$num  = $r['forum_count'];
+					$text = _n( 'Forum', 'Forums', $r['forum_count'], 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -63,8 +63,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr>
 
 				<?php
-					$num  = $topic_count;
-					$text = _n( 'Topic', 'Topics', $topic_count, 'bbpress' );
+					$num  = $r['topic_count'];
+					$text = _n( 'Topic', 'Topics', $r['topic_count'], 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -80,8 +80,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr>
 
 				<?php
-					$num  = $reply_count;
-					$text = _n( 'Reply', 'Replies', $reply_count, 'bbpress' );
+					$num  = $r['reply_count'];
+					$text = _n( 'Reply', 'Replies', $r['reply_count'], 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -99,8 +99,8 @@ function bbp_dashboard_widget_right_now() {
 				<tr>
 
 					<?php
-						$num  = $topic_tag_count;
-						$text = _n( 'Topic Tag', 'Topic Tags', $topic_tag_count, 'bbpress' );
+						$num  = $r['topic_tag_count'];
+						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
 							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 							$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -131,8 +131,8 @@ function bbp_dashboard_widget_right_now() {
 			<tr class="first">
 
 				<?php
-					$num  = $user_count;
-					$text = _n( 'User', 'Users', $user_count, 'bbpress' );
+					$num  = $r['user_count'];
+					$text = _n( 'User', 'Users', $r['user_count'], 'bbpress' );
 					if ( current_user_can( 'edit_users' ) ) {
 						$link = get_admin_url( null, 'users.php' );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -145,19 +145,19 @@ function bbp_dashboard_widget_right_now() {
 
 			</tr>
 
-			<?php if ( isset( $topic_count_hidden ) ) : ?>
+			<?php if ( isset( $r['topic_count_hidden'] ) ) : ?>
 
 				<tr>
 
 					<?php
-						$num  = $topic_count_hidden;
-						$text = _n( 'Hidden Topic', 'Hidden Topics', $topic_count_hidden, 'bbpress' );
+						$num  = $r['topic_count_hidden'];
+						$text = _n( 'Hidden Topic', 'Hidden Topics', $r['topic_count_hidden'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
 						if ( '0' != $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $text . '</a>';
+                        $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-topics"><?php echo $num; ?></td>
@@ -167,19 +167,19 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php if ( isset( $reply_count_hidden ) ) : ?>
+			<?php if ( isset( $r['reply_count_hidden'] ) ) : ?>
 
 				<tr>
 
 					<?php
-						$num  = $reply_count_hidden;
-						$text = _n( 'Hidden Reply', 'Hidden Replies', $reply_count_hidden, 'bbpress' );
+						$num  = $r['reply_count_hidden'];
+						$text = _n( 'Hidden Reply', 'Hidden Replies', $r['reply_count_hidden'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 						if ( '0' != $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $text . '</a>';
+                        $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-replies"><?php echo $num; ?></td>
@@ -189,13 +189,13 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php if ( bbp_allow_topic_tags() && isset( $empty_topic_tag_count ) ) : ?>
+			<?php if ( bbp_allow_topic_tags() && isset( $r['empty_topic_tag_count'] ) ) : ?>
 
 				<tr>
 
 					<?php
-						$num  = $empty_topic_tag_count;
-						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $empty_topic_tag_count, 'bbpress' );
+						$num  = $r['empty_topic_tag_count'];
+						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count'], 'bbpress' );
 						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
