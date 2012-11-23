@@ -158,7 +158,7 @@ function bbp_setup_updater() {
  */
 function bbp_create_initial_content( $args = array() ) {
 
-	$defaults = array(
+	$r = bbp_parse_args( $args, array(
 		'forum_parent'  => 0,
 		'forum_status'  => 'publish',
 		'forum_title'   => __( 'General',                                  'bbpress' ),
@@ -167,24 +167,22 @@ function bbp_create_initial_content( $args = array() ) {
 		'topic_content' => __( 'I am the first topic in your new forums.', 'bbpress' ),
 		'reply_title'   => __( 'Re: Hello World!',                         'bbpress' ),
 		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
-	);
-	$r = bbp_parse_args( $args, $defaults, 'create_initial_content' );
-	extract( $r );
+	), 'create_initial_content' );
 
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
-		'post_parent'  => $forum_parent,
-		'post_status'  => $forum_status,
-		'post_title'   => $forum_title,
-		'post_content' => $forum_content
+		'post_parent'  => $r['forum_parent'],
+		'post_status'  => $r['forum_status'],
+		'post_title'   => $r['forum_title'],
+		'post_content' => $r['forum_content']
 	) );
 
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
 		array(
-			'post_parent'  => $forum_id,
-			'post_title'   => $topic_title,
-			'post_content' => $topic_content
+			'post_parent'  => forum_id,
+			'post_title'   => $r['topic_title'],
+			'post_content' => $r['topic_content']
 		),
 		array( 'forum_id'  => $forum_id )
 	);
@@ -193,8 +191,8 @@ function bbp_create_initial_content( $args = array() ) {
 	$reply_id = bbp_insert_reply(
 		array(
 			'post_parent'  => $topic_id,
-			'post_title'   => $reply_title,
-			'post_content' => $reply_content
+			'post_title'   => $r['reply_title'],
+			'post_content' => $r['reply_content']
 		),
 		array(
 			'forum_id'     => $forum_id,
