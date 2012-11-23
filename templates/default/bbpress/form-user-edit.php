@@ -81,7 +81,6 @@
 		<div>
 			<label for="description"><?php _e( 'Biographical Info', 'bbpress' ); ?></label>
 			<textarea name="description" id="description" rows="5" cols="30" tabindex="<?php bbp_tab_index(); ?>"><?php echo esc_attr( bbp_get_displayed_user_field( 'description' ) ); ?></textarea>
-			<span class="description"><?php _e( 'Share a little biographical information to fill out your profile. This may be shown publicly.', 'bbpress' ); ?></span>
 		</div>
 
 		<?php do_action( 'bbp_user_edit_after_about' ); ?>
@@ -98,7 +97,6 @@
 		<div>
 			<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?></label>
 			<input type="text" name="user_login" id="user_login" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'user_login' ) ); ?>" disabled="disabled" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
-			<span class="description"><?php _e( 'Usernames cannot be changed.', 'bbpress' ); ?></span>
 		</div>
 
 		<div>
