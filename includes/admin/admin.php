@@ -531,7 +531,9 @@ class BBP_Admin {
 		// Top level menu classes
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
 		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
-		$reply_class = sanitize_html_class( bbp_get_reply_post_type() ); ?>
+		$reply_class = sanitize_html_class( bbp_get_reply_post_type() );
+
+		if ( ( 'post' == get_current_screen()->base ) && ( bbp_get_reply_post_type() == get_current_screen()->post_type ) ) : ?>
 
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
@@ -546,6 +548,8 @@ class BBP_Admin {
 				} );
 			});
 		</script>
+
+		<?php endif; ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
