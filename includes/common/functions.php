@@ -598,31 +598,27 @@ function bbp_get_statistics( $args = '' ) {
  */
 function bbp_filter_anonymous_post_data( $args = '' ) {
 
-	// Assign variables
-	$defaults = array (
+	// Parse arguments with default parameters
+	$r = bbp_parse_args( $args, array (
 		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
 		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
 		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
-	);
-	$r = bbp_parse_args( $args, $defaults, 'filter_anonymous_post_data' );
-	extract( $r );
+	), 'filter_anonymous_post_data' );
 
 	// Filter variables and add errors if necessary
-	$bbp_anonymous_name = apply_filters( 'bbp_pre_anonymous_post_author_name',  $bbp_anonymous_name  );
-	if ( empty( $bbp_anonymous_name ) )
+	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name',  $r['bbp_anonymous_name']  );
+	if ( empty( $r['bbp_anonymous_name'] ) )
 		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',   'bbpress' ) );
 
-	$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email );
-	if ( empty( $bbp_anonymous_email ) )
+	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
+	if ( empty( $r['bbp_anonymous_email'] ) )
 		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
 
 	// Website is optional
-	$bbp_anonymous_website = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
+	$r['bbp_anonymous_website'] = apply_filters( 'bbp_pre_anonymous_post_author_website', $r['bbp_anonymous_website'] );
 
-	if ( !bbp_has_errors() )
-		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website' );
-	else
-		$retval = false;
+	// Return false if we have any errors
+	$retval = bbp_has_errors() ? false : $r;
 
 	// Finally, return sanitized data or false
 	return apply_filters( 'bbp_filter_anonymous_post_data', $retval, $args );
