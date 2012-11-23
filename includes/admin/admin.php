@@ -580,6 +580,10 @@ class BBP_Admin {
 				top: 0;
 				right: 0;
 			}
+				body.rtl .about-wrap .bbp-badge {
+					right: auto;
+					left: 0;
+				}
 
 			#bbp-dashboard-right-now p.sub,
 			#bbp-dashboard-right-now .table,
