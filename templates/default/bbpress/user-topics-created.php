@@ -11,7 +11,7 @@
 
 	<?php do_action( 'bbp_template_before_user_topics_created' ); ?>
 
-	<div id="bbp-user-topics-started" class="bbp-usec-topics-started">
+	<div id="bbp-user-topics-started" class="bbp-user-topics-started">
 		<h2 class="entry-title"><?php _e( 'Forum Topics Started', 'bbpress' ); ?></h2>
 		<div class="bbp-user-section">
 
@@ -30,6 +30,6 @@
 			<?php endif; ?>
 
 		</div>
-	</div><!-- #bbp-author-topics-started -->
+	</div><!-- #bbp-user-topics-started -->
 
 	<?php do_action( 'bbp_template_after_user_topics_created' ); ?>
