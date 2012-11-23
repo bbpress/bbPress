@@ -2555,27 +2555,27 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
  * @return mixed False on failure, true on success
  */
 function bbp_update_topic_revision_log( $args = '' ) {
-	$defaults = array (
+
+	// Parse arguments with default values
+	$r = bbp_parse_args( $args, array(
 		'reason'      => '',
 		'topic_id'    => 0,
 		'author_id'   => 0,
 		'revision_id' => 0
-	);
-	$r = bbp_parse_args( $args, $defaults, 'update_topic_revision_log' );
-	extract( $r );
+	), 'update_topic_revision_log' );
 
 	// Populate the variables
-	$reason      = bbp_format_revision_reason( $reason );
-	$topic_id    = bbp_get_topic_id( $topic_id );
-	$author_id   = bbp_get_user_id ( $author_id, false, true );
-	$revision_id = (int) $revision_id;
+	$r['reason']      = bbp_format_revision_reason( $r['reason'] );
+	$r['topic_id']    = bbp_get_topic_id( $r['topic_id'] );
+	$r['author_id']   = bbp_get_user_id ( $r['author_id'], false, true );
+	$r['revision_id'] = (int) $r['revision_id'];
 
 	// Get the logs and append the new one to those
-	$revision_log               = bbp_get_topic_raw_revision_log( $topic_id );
-	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
+	$revision_log                      = bbp_get_topic_raw_revision_log( $r['topic_id'] );
+	$revision_log[ $r['revision_id'] ] = array( 'author' => $r['author_id'], 'reason' => $r['reason'] );
 
 	// Finally, update
-	return update_post_meta( $topic_id, '_bbp_revision_log', $revision_log );
+	return update_post_meta( $r['topic_id'], '_bbp_revision_log', $revision_log );
 }
 
 /** Topic Actions *************************************************************/
