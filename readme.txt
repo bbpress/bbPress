@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.2
+Stable tag: 2.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,18 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.2.2 =
+* RTL and i18n fixes
+* Improved user profile theme compatibility
+* Fixed incorrect link in credits page
+* Fixed admin area JS issues related to topic suggest
+* Fixed template part reference in extras user edit template
+
+= 2.2.1 =
+* Fix role mapping for non-WordPress roles
+* Fix issue with private forums being blocked
+* Allow moderators to see hidden forums
 
 = 2.2 =
 * Improved user roles and capabilities
