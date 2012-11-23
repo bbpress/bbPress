@@ -1472,7 +1472,9 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  * @uses bbp_update_forum_topic_count_hidden() To update the hidden topic count
  */
 function bbp_update_forum( $args = '' ) {
-	$defaults = array(
+
+	// Parse arguments with default values
+	$r = bbp_parse_args( $args, array(
 		'forum_id'           => 0,
 		'post_parent'        => 0,
 		'last_topic_id'      => 0,
@@ -1480,36 +1482,35 @@ function bbp_update_forum( $args = '' ) {
 		'last_active_id'     => 0,
 		'last_active_time'   => 0,
 		'last_active_status' => bbp_get_public_status_id()
-	);
-	$r = bbp_parse_args( $args, $defaults, 'update_forum' );
-	extract( $r );
+	), 'update_forum' );
 
 	// Last topic and reply ID's
-	bbp_update_forum_last_topic_id( $forum_id, $last_topic_id );
-	bbp_update_forum_last_reply_id( $forum_id, $last_reply_id );
+	bbp_update_forum_last_topic_id( $r['forum_id'], $r['last_topic_id'] );
+	bbp_update_forum_last_reply_id( $r['forum_id'], $r['last_reply_id'] );
 
 	// Active dance
-	$last_active_id = bbp_update_forum_last_active_id( $forum_id, $last_active_id );
+	$r['last_active_id'] = bbp_update_forum_last_active_id( $r['forum_id'], $r['last_active_id'] );
 
 	// If no active time was passed, get it from the last_active_id
-	if ( empty( $last_active_time ) )
-		$last_active_time = get_post_field( 'post_date', $last_active_id );
+	if ( empty( $r['last_active_time'] ) ) {
+		$r['last_active_time'] = get_post_field( 'post_date', $r['last_active_id'] );
+	}
 
-	if ( bbp_get_public_status_id() == $last_active_status ) {
-		bbp_update_forum_last_active_time( $forum_id, $last_active_time );
+	if ( bbp_get_public_status_id() == $r['last_active_status'] ) {
+		bbp_update_forum_last_active_time( $r['forum_id'], $r['last_active_time'] );
 	}
 
 	// Counts
-	bbp_update_forum_subforum_count    ( $forum_id );
-	bbp_update_forum_reply_count       ( $forum_id );
-	bbp_update_forum_topic_count       ( $forum_id );
-	bbp_update_forum_topic_count_hidden( $forum_id );
+	bbp_update_forum_subforum_count    ( $r['forum_id'] );
+	bbp_update_forum_reply_count       ( $r['forum_id'] );
+	bbp_update_forum_topic_count       ( $r['forum_id'] );
+	bbp_update_forum_topic_count_hidden( $r['forum_id'] );
 
 	// Update the parent forum if one was passed
-	if ( !empty( $post_parent ) && is_numeric( $post_parent ) ) {
+	if ( !empty( $r['post_parent'] ) && is_numeric( $r['post_parent'] ) ) {
 		bbp_update_forum( array(
-			'forum_id'    => $post_parent,
-			'post_parent' => get_post_field( 'post_parent', $post_parent )
+			'forum_id'    => $r['post_parent'],
+			'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
 		) );
 	}
 }
