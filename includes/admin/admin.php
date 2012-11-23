@@ -1473,7 +1473,7 @@ class BBP_Admin {
 				<a href="http://profiles.wordpress.org/chexee">chexee</a>,
 				<a href="http://profiles.wordpress.org/cnorris23">cnorris23</a>,
 				<a href="http://profiles.wordpress.org/DanielJuhl">DanielJuhl</a>,
-				<a href="http://profiles.wordpress.org/DanielJuhl">daveshine</a>,
+				<a href="http://profiles.wordpress.org/daveshine">daveshine</a>,
 				<a href="http://profiles.wordpress.org/dimadin">dimadin</a>,
 				<a href="http://profiles.wordpress.org/DJPaul">DJPaul</a>,
 				<a href="http://profiles.wordpress.org/duck_">duck_</a>,
