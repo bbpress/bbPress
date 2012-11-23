@@ -1247,7 +1247,7 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
-		$defaults = array (
+		$r = bbp_parse_args( $args, array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
@@ -1265,8 +1265,7 @@ function bbp_dropdown( $args = '' ) {
 			'none_found'         => false,
 			'disable_categories' => true,
 			'disabled'           => ''
-		);
-		$r = bbp_parse_args( $args, $defaults, 'get_dropdown' );
+		), 'get_dropdown' );
 
 		if ( empty( $r['walker'] ) ) {
 			$r['walker']            = new BBP_Walker_Dropdown();
@@ -1274,10 +1273,9 @@ function bbp_dropdown( $args = '' ) {
 		}
 
 		// Force 0
-		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
 			$r['selected'] = 0;
-
-		extract( $r );
+		}
 
 		// Unset the args not needed for WP_Query to avoid any possible conflicts.
 		// Note: walker and disable_categories are not unset
@@ -1292,7 +1290,7 @@ function bbp_dropdown( $args = '' ) {
 		$post_stati[] = bbp_get_public_status_id();
 
 		// Forums
-		if ( bbp_get_forum_post_type() == $post_type ) {
+		if ( bbp_get_forum_post_type() == $r['post_type'] ) {
 
 			// Private forums
 			if ( current_user_can( 'read_private_forums' ) ) {
@@ -1310,33 +1308,34 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Setup variables ***************************************************/
 
-		$name      = esc_attr( $select_id );
+		$name      = esc_attr( $r['select_id'] );
 		$select_id = $name;
-		$tab       = (int) $tab;
+		$tab       = (int) $r['tab'];
 		$retval    = '';
 		$posts     = get_posts( $r );
-		$disabled  = disabled( isset( bbpress()->options[$disabled] ), true, false );
+		$disabled  = disabled( isset( bbpress()->options[$r['disabled']] ), true, false );
 
 		/** Drop Down *********************************************************/
 
 		// Items found
 		if ( !empty( $posts ) ) {
-			if ( empty( $options_only ) ) {
+			if ( empty( $r['options_only'] ) ) {
 				$tab     = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
 				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $disabled . '>' . "\n";
 			}
 
-			$retval .= !empty( $show_none ) ? "\t<option value=\"\" class=\"level-0\">" . $show_none . '</option>' : '';
+			$retval .= !empty( $r['show_none'] ) ? "\t<option value=\"\" class=\"level-0\">" . $r['show_none'] . '</option>' : '';
 			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
 
-			if ( empty( $options_only ) )
+			if ( empty( $r['options_only'] ) ) {
 				$retval .= '</select>';
+			}
 
 		// No items found - Display feedback if no custom message was passed
-		} elseif ( empty( $none_found ) ) {
+		} elseif ( empty( $r['none_found'] ) ) {
 
 			// Switch the response based on post type
-			switch ( $post_type ) {
+			switch ( $r['post_type'] ) {
 
 				// Topics
 				case bbp_get_topic_post_type() :
