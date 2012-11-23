@@ -1431,10 +1431,11 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 
 	// Don't count replies if the forum is a category
 	$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-	if ( !empty( $topic_ids ) )
+	if ( !empty( $topic_ids ) ) {
 		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
-	else
+	} else {
 		$reply_count = 0;
+	}
 
 	// Calculate total replies in this forum
 	$total_replies = (int) $reply_count + $children_reply_count;
