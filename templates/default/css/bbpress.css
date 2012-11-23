@@ -72,6 +72,7 @@
 	overflow: hidden;
 	border: 1px solid #eee;
 	margin-bottom: 20px;
+	clear: both;
 }
 
 #bbpress-forums li.bbp-header,
@@ -806,6 +807,10 @@ fieldset div.avatar {
 	clear: none;
 }
 
+#bbpress-forums #bbp-user-wrapper ul.bbp-lead-topic,
+#bbpress-forums #bbp-user-wrapper ul.bbp-topics,
+#bbpress-forums #bbp-user-wrapper ul.bbp-forums,
+#bbpress-forums #bbp-user-wrapper ul.bbp-replies,
 #bbpress-forums #bbp-user-wrapper fieldset.bbp-form {
 	clear: none;
 }
