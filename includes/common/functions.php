@@ -642,21 +642,26 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
  *                    it is found that it is a duplicate
  * @return bool True if it is not a duplicate, false if it is
  */
-function bbp_check_for_duplicate( $post_data ) {
+function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// No duplicate checks for those who can throttle
 	if ( current_user_can( 'throttle' ) )
 		return true;
 
-	global $wpdb;
-
-	extract( $post_data, EXTR_SKIP );
+	$r = bbp_parse_args( $post_data, array(
+		'post_author'    => 0,
+		'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+		'post_parent'    => 0,
+		'post_content'   => '',
+		'post_status'    => bbp_get_trash_status_id(),
+		'anonymous_data' => false
+	), 'check_for_duplicate' );
 
 	// Check for anonymous post
-	if ( empty( $post_author ) && ( isset( $anonymous_data ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) ) {
+	if ( empty( $r['post_author'] ) && ( !empty( $r['anonymous_data'] ) && !empty( $r['anonymous_data']['bbp_anonymous_email'] ) ) ) {
 		$clauses = get_meta_sql( array( array(
 			'key'   => '_bbp_anonymous_email',
-			'value' => $anonymous_data['bbp_anonymous_email']
+			'value' => $r['anonymous_data']['bbp_anonymous_email']
 		) ), 'post', $wpdb->posts, 'ID' );
 
 		$join    = $clauses['join'];
@@ -667,11 +672,12 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Simple duplicate check
 	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	$status = bbp_get_trash_status_id();
-	$dupe   = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$post_type}' AND post_status != '{$status}' AND post_author = {$post_author} AND post_content = '{$post_content}' {$where}";
-	$dupe  .= !empty( $post_parent ) ? " AND post_parent = '{$post_parent}'" : '';
-	$dupe  .= " LIMIT 1";
-	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $dupe, $post_data );
+	$query  = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$r['post_type']}' AND post_status != '{$r['post_status']}' AND post_author = {$r['post_author']} AND post_content = '{$r['post_content']}' {$where}";
+	$query .= !empty( $r['post_parent'] ) ? " AND post_parent = '{$r['post_parent']}'" : '';
+	$query .= " LIMIT 1";
+	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
+
+	global $wpdb;
 
 	if ( $wpdb->get_var( $dupe ) ) {
 		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
