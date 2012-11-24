@@ -574,7 +574,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					'orderby'        => 'meta_value',
 					'order'          => 'DESC',
 					'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
-				);			
+				);
 				break;
 
 			// Order by which topic was created most recently
@@ -589,17 +589,17 @@ class BBP_Topics_Widget extends WP_Widget {
 					'show_stickes'   => false,
 					'order'          => 'DESC',
 					'meta_query'     => array( bbp_exclude_forum_ids( 'meta_query' ) )
-				);			
+				);
 				break;
 		}
-		
+
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( $topics_query );
 
 		// Topics exist
-		if ( $widget_query->have_posts() ) : 
-			
+		if ( $widget_query->have_posts() ) :
+
 			echo $args['before_widget'];
 			echo $args['before_title'] . $title . $args['after_title']; ?>
 
@@ -608,7 +608,7 @@ class BBP_Topics_Widget extends WP_Widget {
 				<?php while ( $widget_query->have_posts() ) :
 
 					$widget_query->the_post();
-					$topic_id    = bbp_get_topic_id( $widget_query->post->ID ); 
+					$topic_id    = bbp_get_topic_id( $widget_query->post->ID );
 					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) ); ?>
 
 					<li>
@@ -690,6 +690,111 @@ class BBP_Topics_Widget extends WP_Widget {
 		</p>
 
 		<?php
+	}
+}
+
+/**
+ * bbPress Stats Widget
+ *
+ * Adds a widget which displays the forum statistics
+ *
+ * @since bbPress (r4509)
+ *
+ * @uses WP_Widget
+ */
+class BBP_Stats_Widget extends WP_Widget {
+
+	/**
+	 * bbPress Stats Widget
+	 *
+	 * Registers the stats widget
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @uses  apply_filters() Calls 'bbp_stats_widget_options' with the
+	 *        widget options
+	 */
+	public function __construct() {
+		$widget_ops = apply_filters( 'bbp_stats_widget_options', array(
+			'classname'   => 'widget_display_stats',
+			'description' => __( 'Some statistics from your forum.', 'bbpress' )
+		) );
+
+		parent::__construct( false, __( '(bbPress) Statistics', 'bbpress' ), $widget_ops );
+	}
+
+	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @uses register_widget()
+	 */
+	public static function register_widget() {
+		register_widget( 'BBP_Stats_Widget' );
+	}
+
+	/**
+	 * Displays the output, the statistics
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @param mixed $args     Arguments
+	 * @param array $instance Instance
+	 *
+	 * @uses apply_filters() Calls 'bbp_stats_widget_title' with the title
+	 * @uses bbp_get_template_part() To get the content-forum-statistics template
+	 */
+	public function widget( $args, $instance ) {
+
+		$title = apply_filters( 'widget_title',           $instance['title'], $instance, $this->id_base );
+		$title = apply_filters( 'bbp_stats_widget_title', $instance['title'], $instance, $this->id_base );
+
+		echo $args['before_widget'];
+		echo $args['before_title'] . $title . $args['after_title'];
+
+		bbp_get_template_part( 'content', 'statistics' );
+
+		echo $args['after_widget'];
+	}
+
+	/**
+	 * Update the stats widget options
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @param array $new_instance The new instance options
+	 * @param array $old_instance The old instance options
+	 *
+	 * @return array
+	 */
+	public function update( $new_instance, $old_instance ) {
+		$instance          = $old_instance;
+		$instance['title'] = strip_tags( $new_instance['title'] );
+
+		return $instance;
+	}
+
+	/**
+	 * Output the stats widget options form
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @param $instance
+	 *
+	 * @return string|void
+	 */
+	public function form( $instance ) {
+		$title = !empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : ''; ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
+				<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>"
+			       name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>"/>
+			</label>
+		</p>
+
+	<?php
 	}
 }
 

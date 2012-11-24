@@ -141,6 +141,7 @@ add_action( 'bbp_widgets_init', array( 'BBP_Views_Widget',   'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Forums_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Stats_Widget',   'register_widget' ), 10 );
 
 // Template - Head, foot, errors and messages
 add_action( 'bbp_loaded',           'bbp_login_notices'    );

@@ -7,9 +7,6 @@
  * @subpackage Theme
  */
 
-// Get the statistics and extract them for later use in this template
-$stats = bbp_get_statistics();
-
 get_header(); ?>
 
 	<?php do_action( 'bbp_before_main_content' ); ?>
@@ -26,69 +23,7 @@ get_header(); ?>
 
 				<div id="bbpress-forums">
 
-					<dl role="main">
-
-						<?php do_action( 'bbp_before_statistics' ); ?>
-
-						<dt><?php _e( 'Registered Users', 'bbpress' ); ?></dt>
-						<dd>
-							<strong><?php echo $stats['user_count']; ?></strong>
-						</dd>
-
-						<dt><?php _e( 'Forums', 'bbpress' ); ?></dt>
-						<dd>
-							<strong><?php echo $stats['forum_count']; ?></strong>
-						</dd>
-
-						<dt><?php _e( 'Topics', 'bbpress' ); ?></dt>
-						<dd>
-							<strong><?php echo $stats['topic_count']; ?></strong>
-						</dd>
-
-						<dt><?php _e( 'Replies', 'bbpress' ); ?></dt>
-						<dd>
-							<strong><?php echo $stats['reply_count']; ?></strong>
-						</dd>
-
-						<dt><?php _e( 'Topic Tags', 'bbpress' ); ?></dt>
-						<dd>
-							<strong><?php echo $stats['topic_tag_count']; ?></strong>
-						</dd>
-
-						<?php if ( !empty( $stats['empty_topic_tag_count'] ) ) : ?>
-
-							<dt><?php _e( 'Empty Topic Tags', 'bbpress' ); ?></dt>
-							<dd>
-								<strong><?php echo $stats['empty_topic_tag_count']; ?></strong>
-							</dd>
-
-						<?php endif; ?>
-
-						<?php if ( !empty( $stats['topic_count_hidden'] ) ) : ?>
-
-							<dt><?php _e( 'Hidden Topics', 'bbpress' ); ?></dt>
-							<dd>
-								<strong>
-									<abbr title="<?php echo esc_attr( $stats['hidden_topic_title'] ); ?>"><?php echo $stats['topic_count_hidden']; ?></abbr>
-								</strong>
-							</dd>
-
-						<?php endif; ?>
-
-						<?php if ( !empty( $stats['reply_count_hidden'] ) ) : ?>
-
-							<dt><?php _e( 'Hidden Replies', 'bbpress' ); ?></dt>
-							<dd>
-								<strong>
-									<abbr title="<?php echo esc_attr( $stats['hidden_reply_title'] ); ?>"><?php echo $stats['reply_count_hidden']; ?></abbr>
-								</strong>
-							</dd>
-
-						<?php endif; ?>
-
-						<?php do_action( 'bbp_after_statistics' ); ?>
-
-					</dl>
+					<?php bbp_get_template_part( 'content', 'statistics' ); ?>
 
 					<?php do_action( 'bbp_before_popular_topics' ); ?>
 
@@ -117,8 +52,6 @@ get_header(); ?>
 	<?php endwhile; ?>
 
 	<?php do_action( 'bbp_after_main_content' ); ?>
-
-<?php unset( $stats ); ?>
 
 <?php get_sidebar(); ?>
 

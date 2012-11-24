@@ -84,6 +84,10 @@ class BBP_Shortcodes {
 			'bbp-login'            => array( $this, 'display_login'         ), // Login
 			'bbp-register'         => array( $this, 'display_register'      ), // Register
 			'bbp-lost-pass'        => array( $this, 'display_lost_pass'     ), // Lost Password
+
+			/** Others *******************************************************/
+
+			'bbp-stats'            => array( $this, 'display_stats'         ), // Stats
 		) );
 	}
 
@@ -676,6 +680,28 @@ class BBP_Shortcodes {
 	}
 
 	/** Other *****************************************************************/
+
+	/**
+	 * Display forum statistics
+	 *
+	 * @since bbPress (r4509)
+	 *
+	 * @return shring
+	 */
+	public function display_stats() {
+
+		// Unset globals
+		$this->unset_globals();
+
+		// Start output buffer
+		$this->start();
+
+		// Output statistics
+		bbp_get_template_part( 'content', 'statistics' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
 
 	/**
 	 * Display a breadcrumb
