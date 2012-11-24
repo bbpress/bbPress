@@ -1277,10 +1277,6 @@ function bbp_dropdown( $args = '' ) {
 			$r['selected'] = 0;
 		}
 
-		// Unset the args not needed for WP_Query to avoid any possible conflicts.
-		// Note: walker and disable_categories are not unset
-		unset( $r['select_id'], $r['tab'], $r['options_only'], $r['show_none'], $r['none_found'] );
-
 		/** Post Status *******************************************************/
 
 		// Define local variable(s)
@@ -1312,8 +1308,16 @@ function bbp_dropdown( $args = '' ) {
 		$select_id = $name;
 		$tab       = (int) $r['tab'];
 		$retval    = '';
-		$posts     = get_posts( $r );
 		$disabled  = disabled( isset( bbpress()->options[$r['disabled']] ), true, false );
+		$posts     = get_posts( array(
+			'post_type'   => $r['post_type'],
+			'post_status' => $r['post_status'],
+			'sort_column' => $r['sort_column'],
+			'child_of'    => $r['child_of'],
+			'numberposts' => $r['numberposts'],
+			'orderby'     => $r['orderby'],
+			'order'       => $r['order'],
+		) );
 
 		/** Drop Down *********************************************************/
 
