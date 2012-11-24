@@ -493,18 +493,15 @@ function bbp_admin_link( $args = '' ) {
 		if ( !empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) )
 			$args = array( 'text' => $args );
 
-		$defaults = array(
+		$r = bbp_parse_args( $args, array(
 			'text'   => __( 'Admin', 'bbpress' ),
 			'before' => '',
 			'after'  => ''
-		);
-		$args = bbp_parse_args( $args, $defaults, 'get_admin_link' );
-		extract( $args, EXTR_SKIP );
+		), 'get_admin_link' );
 
-		$uri    = admin_url();
-		$retval = $before . '<a href="' . $uri . '">' . $text . '</a>' . $after;
+		$retval = $r['before'] . '<a href="' . admin_url() . '">' . $r['text'] . '</a>' . $r['after'];
 
-		return apply_filters( 'bbp_get_admin_link', $retval, $args );
+		return apply_filters( 'bbp_get_admin_link', $retval, $r );
 	}
 
 /** User IP *******************************************************************/
@@ -531,31 +528,25 @@ function bbp_author_ip( $args = '' ) {
 	 */
 	function bbp_get_author_ip( $args = '' ) {
 
-		// Default arguments
-		$defaults = array(
-			'post_id' => 0,
+		// Used as post id
+		$post_id = is_numeric( $args ) ? (int) $args : 0;
+		$r       = bbp_parse_args( $args, array(
+			'post_id' => $post_id,
 			'before'  => '<span class="bbp-author-ip">(',
 			'after'   => ')</span>'
-		);
-
-		$r = bbp_parse_args( $args, $defaults, 'get_author_ip' );
-		extract( $r );
-
-		// Used as post id
-		if ( is_numeric( $args ) )
-			$post_id = $args;
+		), 'get_author_ip' );
 
 		// Get the author IP meta value
-		$author_ip = get_post_meta( $post_id, '_bbp_author_ip', true );
+		$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
 		if ( !empty( $author_ip ) ) {
-			$author_ip = $before . $author_ip . $after;
+			$author_ip = $r['before'] . $author_ip . $r['after'];
 
 		// No IP address
 		} else {
 			$author_ip = '';
 		}
 
-		return apply_filters( 'bbp_get_author_ip', $author_ip, $args );
+		return apply_filters( 'bbp_get_author_ip', $author_ip, $r );
 	}
 
 /** Favorites *****************************************************************/
@@ -821,20 +812,18 @@ function bbp_user_subscribe_link( $args = '' ) {
 		if ( !bbp_is_subscriptions_active() )
 			return;
 
-		$defaults = array (
+		$r = bbp_parse_args( $args, array(
 			'subscribe'   => __( 'Subscribe',   'bbpress' ),
 			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
 			'user_id'     => 0,
 			'topic_id'    => 0,
 			'before'      => '&nbsp;|&nbsp;',
 			'after'       => ''
-		);
-		$args = bbp_parse_args( $args, $defaults, 'get_user_subscribe_link' );
-		extract( $args );
+		), 'get_user_subscribe_link' );
 
 		// Validate user and topic ID's
-		$user_id  = bbp_get_user_id( $user_id, true, true );
-		$topic_id = bbp_get_topic_id( $topic_id );
+		$user_id  = bbp_get_user_id( $r['user_id'], true, true );
+		$topic_id = bbp_get_topic_id( $r['topic_id'] );
 		if ( empty( $user_id ) || empty( $topic_id ) ) {
 			return false;
 		}
@@ -847,10 +836,10 @@ function bbp_user_subscribe_link( $args = '' ) {
 		// Decine which link to show
 		$is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id );
 		if ( !empty( $is_subscribed ) ) {
-			$text       = $unsubscribe;
+			$text       = $r['unsubscribe'];
 			$query_args = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
 		} else {
-			$text       = $subscribe;
+			$text       = $r['subscribe'];
 			$query_args = array( 'action' => 'bbp_subscribe', 'topic_id' => $topic_id );
 		}
 
@@ -866,12 +855,12 @@ function bbp_user_subscribe_link( $args = '' ) {
 			$permalink = get_permalink();
 		}
 
-		$url           = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
-		$is_subscribed = $is_subscribed ? 'is-subscribed' : '';
-		$html          = '<span id="subscription-toggle">' . $before . '<span id="subscribe-' . $topic_id . '" class="' . $is_subscribed . '"><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $after . '</span>';
+		$url        = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
+		$subscribed = $is_subscribed ? ' class="is_subscribed"' : '';
+		$html       = '<span id="subscription-toggle">' . $r['before'] . '<span id="subscribe-' . $topic_id . '"' . $subscribed . '><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $r['after'] . '</span>';
 
 		// Return the link
-		return apply_filters( 'bbp_get_user_subscribe_link', $html, $args, $user_id, $topic_id );
+		return apply_filters( 'bbp_get_user_subscribe_link', $html, $r, $user_id, $topic_id );
 	}
 
 
@@ -1348,53 +1337,46 @@ function bbp_author_link( $args = '' ) {
 	 */
 	function bbp_get_author_link( $args = '' ) {
 
-		// Default arguments
-		$defaults = array(
-			'post_id'    => 0,
+		$post_id = is_numeric( $args ) ? (int) $args : 0;
+		$r       = bbp_parse_args( $args, array(
+			'post_id'    => $post_id,
 			'link_title' => '',
 			'type'       => 'both',
 			'size'       => 80
-		);
-		$r = bbp_parse_args( $args, $defaults, 'get_author_link' );
-		extract( $r );
-
-		// Used as reply_id
-		if ( is_numeric( $args ) )
-			$post_id = $args;
+		), 'get_author_link' );
 
 		// Confirmed topic
-		if ( bbp_is_topic( $post_id ) ) {
-			return bbp_get_topic_author_link( $args );
+		if ( bbp_is_topic( $r['post_id'] ) ) {
+			return bbp_get_topic_author_link( $r );
 
 		// Confirmed reply
-		} elseif ( bbp_is_reply( $post_id ) ) {
-			return bbp_get_reply_author_link( $args );
-
-		// Get the post author and proceed
-		} else {
-			$user_id = get_post_field( 'post_author', $post_id );
+		} elseif ( bbp_is_reply( $r['post_id'] ) ) {
+			return bbp_get_reply_author_link( $r );
 		}
 
+		// Get the post author and proceed
+		$user_id = get_post_field( 'post_author', $r['post_id'] );
+
 		// Neither a reply nor a topic, so could be a revision
-		if ( !empty( $post_id ) ) {
+		if ( !empty( $r['post_id'] ) ) {
 
 			// Generate title with the display name of the author
-			if ( empty( $link_title ) ) {
-				$link_title = sprintf( !bbp_is_reply_anonymous( $post_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
+			if ( empty( $r['link_title'] ) ) {
+				$r['link_title'] = sprintf( !bbp_is_reply_anonymous( $r['post_id'] ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
 			}
 
 			// Assemble some link bits
-			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$link_title = !empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
 			$author_url = bbp_get_user_profile_url( $user_id );
-			$anonymous  = bbp_is_reply_anonymous( $post_id );
+			$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
 
 			// Get avatar
-			if ( 'avatar' == $type || 'both' == $type ) {
-				$author_links[] = get_avatar( $user_id, $size );
+			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {
+				$author_links[] = get_avatar( $user_id, $r['size'] );
 			}
 
 			// Get display name
-			if ( 'name' == $type   || 'both' == $type ) {
+			if ( 'name' == $r['type'] || 'both' == $r['type'] ) {
 				$author_links[] = get_the_author_meta( 'display_name', $user_id );
 			}
 
@@ -1415,7 +1397,7 @@ function bbp_author_link( $args = '' ) {
 			$author_link = '';
 		}
 
-		return apply_filters( 'bbp_get_author_link', $author_link, $args );
+		return apply_filters( 'bbp_get_author_link', $author_link, $r );
 	}
 
 /** Capabilities **************************************************************/
@@ -1443,17 +1425,15 @@ function bbp_author_link( $args = '' ) {
 function bbp_user_can_view_forum( $args = '' ) {
 
 	// Default arguments
-	$defaults = array(
+	$r = bbp_parse_args( $args, array(
 		'user_id'         => bbp_get_current_user_id(),
 		'forum_id'        => bbp_get_forum_id(),
 		'check_ancestors' => false
-	);
-	$r = bbp_parse_args( $args, $defaults, 'user_can_view_forum' );
-	extract( $r );
+	), 'user_can_view_forum' );
 
 	// Validate parsed values
-	$user_id  = bbp_get_user_id ( $user_id, false, false );
-	$forum_id = bbp_get_forum_id( $forum_id );
+	$user_id  = bbp_get_user_id ( $r['user_id'], false, false );
+	$forum_id = bbp_get_forum_id( $r['forum_id'] );
 	$retval   = false;
 
 	// User is a super admin
@@ -1461,15 +1441,15 @@ function bbp_user_can_view_forum( $args = '' ) {
 		$retval = true;
 
 	// Forum is public, and user can read forums or is not logged in
-	} elseif ( bbp_is_forum_public ( $forum_id, $check_ancestors ) ) {
+	} elseif ( bbp_is_forum_public ( $forum_id, $r['check_ancestors'] ) ) {
 		$retval = true;
 
 	// Forum is private, and user can see it
-	} elseif ( bbp_is_forum_private( $forum_id, $check_ancestors ) && current_user_can( 'read_private_forums' ) ) {
+	} elseif ( bbp_is_forum_private( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_private_forums' ) ) {
 		$retval = true;
 
 	// Forum is hidden, and user can see it
-	} elseif ( bbp_is_forum_hidden ( $forum_id, $check_ancestors ) && current_user_can( 'read_hidden_forums'  ) ) {
+	} elseif ( bbp_is_forum_hidden ( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_hidden_forums'  ) ) {
 		$retval = true;
 	}
 
