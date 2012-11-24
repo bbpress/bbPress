@@ -1598,7 +1598,7 @@ function bbp_the_content( $args = array() ) {
 		), 'get_the_content' );
 
 		// Assume we are not editing
-		$post_content = '';
+		$post_content = call_user_func( 'bbp_get_form_' . $r['context'] . '_content' );
 
 		// Start an output buffor
 		ob_start();
@@ -1606,11 +1606,6 @@ function bbp_the_content( $args = array() ) {
 		// Output something before the editor
 		if ( !empty( $r['before'] ) ) {
 			echo $r['before'];
-		}
-
-		// Get sanitized content
-		if ( bbp_is_edit() ) {
-			$post_content = call_user_func( 'bbp_get_form_' . $r['context'] . '_content' );
 		}
 
 		// Use TinyMCE if available
