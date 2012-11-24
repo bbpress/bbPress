@@ -3236,7 +3236,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		<description><?php //?></description>
 		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', current_time( 'mysql' ), false ); ?></pubDate>
 		<generator>http://bbpress.org/?v=<?php bbp_version(); ?></generator>
-		<language><?php echo get_option( 'rss_language' ); ?></language>
+		<language><?php bloginfo_rss( 'language' ); ?></language>
 
 		<?php do_action( 'bbp_feed_head' ); ?>
 
