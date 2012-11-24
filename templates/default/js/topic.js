@@ -82,6 +82,5 @@ jQuery(document).ready( function() {
 		}
 
 		subscriptionToggleSpan.html( html );
-		subscriptionToggle.get(0).wpList.process( subscriptionToggle );
 	}
 } );
