@@ -8,8 +8,7 @@
  */
 
 // Get the statistics and extract them for later use in this template
-// @todo - remove variable references
-extract( bbp_get_statistics(), EXTR_SKIP );
+$stats = bbp_get_statistics();
 
 get_header(); ?>
 
@@ -33,55 +32,55 @@ get_header(); ?>
 
 						<dt><?php _e( 'Registered Users', 'bbpress' ); ?></dt>
 						<dd>
-							<strong><?php echo $user_count; ?></strong>
+							<strong><?php echo $stats['user_count']; ?></strong>
 						</dd>
 
 						<dt><?php _e( 'Forums', 'bbpress' ); ?></dt>
 						<dd>
-							<strong><?php echo $forum_count; ?></strong>
+							<strong><?php echo $stats['forum_count']; ?></strong>
 						</dd>
 
 						<dt><?php _e( 'Topics', 'bbpress' ); ?></dt>
 						<dd>
-							<strong><?php echo $topic_count; ?></strong>
+							<strong><?php echo $stats['topic_count']; ?></strong>
 						</dd>
 
 						<dt><?php _e( 'Replies', 'bbpress' ); ?></dt>
 						<dd>
-							<strong><?php echo $reply_count; ?></strong>
+							<strong><?php echo $stats['reply_count']; ?></strong>
 						</dd>
 
 						<dt><?php _e( 'Topic Tags', 'bbpress' ); ?></dt>
 						<dd>
-							<strong><?php echo $topic_tag_count; ?></strong>
+							<strong><?php echo $stats['topic_tag_count']; ?></strong>
 						</dd>
 
-						<?php if ( !empty( $empty_topic_tag_count ) ) : ?>
+						<?php if ( !empty( $stats['empty_topic_tag_count'] ) ) : ?>
 
 							<dt><?php _e( 'Empty Topic Tags', 'bbpress' ); ?></dt>
 							<dd>
-								<strong><?php echo $empty_topic_tag_count; ?></strong>
+								<strong><?php echo $stats['empty_topic_tag_count']; ?></strong>
 							</dd>
 
 						<?php endif; ?>
 
-						<?php if ( !empty( $topic_count_hidden ) ) : ?>
+						<?php if ( !empty( $stats['topic_count_hidden'] ) ) : ?>
 
 							<dt><?php _e( 'Hidden Topics', 'bbpress' ); ?></dt>
 							<dd>
 								<strong>
-									<abbr title="<?php echo esc_attr( $hidden_topic_title ); ?>"><?php echo $topic_count_hidden; ?></abbr>
+									<abbr title="<?php echo esc_attr( $stats['hidden_topic_title'] ); ?>"><?php echo $stats['topic_count_hidden']; ?></abbr>
 								</strong>
 							</dd>
 
 						<?php endif; ?>
 
-						<?php if ( !empty( $reply_count_hidden ) ) : ?>
+						<?php if ( !empty( $stats['reply_count_hidden'] ) ) : ?>
 
 							<dt><?php _e( 'Hidden Replies', 'bbpress' ); ?></dt>
 							<dd>
 								<strong>
-									<abbr title="<?php echo esc_attr( $hidden_reply_title ); ?>"><?php echo $reply_count_hidden; ?></abbr>
+									<abbr title="<?php echo esc_attr( $stats['hidden_reply_title'] ); ?>"><?php echo $stats['reply_count_hidden']; ?></abbr>
 								</strong>
 							</dd>
 
@@ -119,5 +118,8 @@ get_header(); ?>
 
 	<?php do_action( 'bbp_after_main_content' ); ?>
 
+<?php unset( $stats ); ?>
+
 <?php get_sidebar(); ?>
-<?php get_footer(); ?>
+
+<?php get_footer();
