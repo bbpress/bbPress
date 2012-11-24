@@ -64,7 +64,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @uses get_template_part() To get the login/logged in form
 	 */
 	public function widget( $args, $instance ) {
-		extract( $args );
 
 		// Typical WordPress filter
 		$title    = apply_filters( 'widget_title',              $instance['title'],    $instance, $this->id_base );
@@ -74,10 +73,10 @@ class BBP_Login_Widget extends WP_Widget {
 		$register = apply_filters( 'bbp_login_widget_register', $instance['register'], $instance, $this->id_base );
 		$lostpass = apply_filters( 'bbp_login_widget_lostpass', $instance['lostpass'], $instance, $this->id_base );
 
-		echo $before_widget;
+		echo $args['before_widget'];
 
 		if ( !empty( $title ) )
-			echo $before_title . $title . $after_title;
+			echo $args['before_title'] . $title . $args['after_title'];
 
 		if ( !is_user_logged_in() ) : ?>
 
@@ -144,7 +143,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 		<?php endif;
 
-		echo $after_widget;
+		echo $args['after_widget'];
 	}
 
 	/**
@@ -259,16 +258,14 @@ class BBP_Views_Widget extends WP_Widget {
 		// Only output widget contents if views exist
 		if ( bbp_get_views() ) :
 
-			extract( $args );
-
 			// Typical WordPress filter
 			$title = apply_filters( 'widget_title',          $instance['title'], $instance, $this->id_base );
 
 			// bbPress filter
 			$title = apply_filters( 'bbp_view_widget_title', $instance['title'], $instance, $this->id_base );
 
-			echo $before_widget;
-			echo $before_title . $title . $after_title; ?>
+			echo $args['before_widget'];
+			echo $args['before_title'] . $title . $args['after_title']; ?>
 
 			<ul>
 
@@ -280,7 +277,7 @@ class BBP_Views_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php echo $after_widget;
+			<?php echo $args['after_widget'];
 
 		endif;
 	}
@@ -382,7 +379,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @uses bbp_forum_title() To display the forum title
 	 */
 	public function widget( $args, $instance ) {
-		extract( $args );
 
 		// Typical WordPress filter
 		$title        = apply_filters( 'widget_title',           $instance['title'], $instance, $this->id_base );
@@ -403,8 +399,8 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		if ( $widget_query->have_posts() ) :
 
-			echo $before_widget;
-			echo $before_title . $title . $after_title; ?>
+			echo $args['before_widget'];
+			echo $args['before_title'] . $title . $args['after_title']; ?>
 
 			<ul>
 
@@ -416,7 +412,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php echo $after_widget;
+			<?php echo $args['after_widget'];
 
 			// Reset the $post global
 			wp_reset_postdata();
@@ -535,8 +531,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 
-		extract( $args );
-
 		// Typical WordPress filter
 		$title        = apply_filters( 'widget_title',           $instance['title'], $instance, $this->id_base );
 
@@ -606,8 +600,8 @@ class BBP_Topics_Widget extends WP_Widget {
 		// Topics exist
 		if ( $widget_query->have_posts() ) : 
 			
-			echo $before_widget;
-			echo $before_title . $title . $after_title; ?>
+			echo $args['before_widget'];
+			echo $args['before_title'] . $title . $args['after_title']; ?>
 
 			<ul>
 
@@ -638,7 +632,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php echo $after_widget;
+			<?php echo $$args['after_widget'];
 
 			// Reset the $post global
 			wp_reset_postdata();
@@ -759,8 +753,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 
-		extract( $args );
-
 		// Typical WordPress filter
 		$title      = apply_filters( 'widget_title',             $instance['title'], $instance, $this->id_base );
 
@@ -783,8 +775,8 @@ class BBP_Replies_Widget extends WP_Widget {
 		// Get replies and display them
 		if ( $widget_query->have_posts() ) :
 
-			echo $before_widget;
-			echo $before_title . $title . $after_title; ?>
+			echo $args['before_widget'];
+			echo $args['before_title'] . $title . $args['after_title']; ?>
 
 			<ul>
 
@@ -832,7 +824,7 @@ class BBP_Replies_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php echo $after_widget;
+			<?php echo $args['after_widget'];
 
 			// Reset the $post global
 			wp_reset_postdata();
