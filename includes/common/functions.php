@@ -430,7 +430,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  */
 function bbp_get_statistics( $args = '' ) {
 
-	// Parse arguments
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'count_users'           => true,
 		'count_forums'          => true,
@@ -598,7 +598,7 @@ function bbp_get_statistics( $args = '' ) {
  */
 function bbp_filter_anonymous_post_data( $args = '' ) {
 
-	// Parse arguments with default parameters
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array (
 		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
 		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
@@ -651,6 +651,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	// Define global to use get_meta_sql() and get_var() methods
 	global $wpdb;
 
+	// Parse arguments against default values
 	$r = bbp_parse_args( $post_data, array(
 		'post_author'    => 0,
 		'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),

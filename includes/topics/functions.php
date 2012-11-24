@@ -28,8 +28,8 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 
-	// Forum
-	$default_topic = array(
+	// Parse arguments against default values
+	$topic_data = bbp_parse_args( $topic_data, array(
 		'post_parent'    => 0, // forum ID
 		'post_status'    => bbp_get_public_status_id(),
 		'post_type'      => bbp_get_topic_post_type(),
@@ -39,10 +39,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'post_title'     => '',
 		'comment_status' => 'closed',
 		'menu_order'     => 0,
-	);
-
-	// Parse args
-	$topic_data = bbp_parse_args( $topic_data, $default_topic, 'insert_topic' );
+	), 'insert_topic' );
 
 	// Insert topic
 	$topic_id   = wp_insert_post( $topic_data );
@@ -51,8 +48,8 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	if ( empty( $topic_id ) )
 		return false;
 
-	// Forum meta
-	$default_meta = array(
+	// Parse arguments against default values
+	$topic_meta = bbp_parse_args( $topic_meta, array(
 		'author_ip'          => bbp_current_author_ip(),
 		'forum_id'           => 0,
 		'topic_id'           => $topic_id,
@@ -62,10 +59,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'last_reply_id'      => 0,
 		'last_active_id'     => $topic_id,
 		'last_active_time'   => get_post_field( 'post_date', $topic_id, 'db' ),
-	);
-
-	// Parse args
-	$topic_meta = bbp_parse_args( $topic_meta, $default_meta, 'insert_topic_meta' );
+	), 'insert_topic_meta' );
 
 	// Insert topic meta
 	foreach ( $topic_meta as $meta_key => $meta_value )
@@ -778,13 +772,12 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	// Check bbp_filter_anonymous_post_data() for sanitization.
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 
-		// Always set at least these three values to empty
-		$defaults = array(
+		// Parse arguments against default values
+		$r = bbp_parse_args( $anonymous_data, array(
 			'bbp_anonymous_name'    => '',
 			'bbp_anonymous_email'   => '',
 			'bbp_anonymous_website' => '',
-		);
-		$r = bbp_parse_args( $anonymous_data, $defaults, 'update_topic' );
+		), 'update_topic' );
 
 		// Update all anonymous metas
 		foreach( $r as $anon_key => $anon_value ) {
@@ -2556,7 +2549,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
  */
 function bbp_update_topic_revision_log( $args = '' ) {
 
-	// Parse arguments with default values
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'reason'      => '',
 		'topic_id'    => 0,

@@ -1455,7 +1455,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  */
 function bbp_update_forum( $args = '' ) {
 
-	// Parse arguments with default values
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'forum_id'           => 0,
 		'post_parent'        => 0,

@@ -68,7 +68,7 @@ function bbp_has_forums( $args = '' ) {
 	if ( current_user_can( 'read_hidden_forums' ) )
 		$post_stati[] = bbp_get_hidden_status_id();
 
-	// The default forum query for most circumstances
+	// Parse arguments with default forum query for most circumstances
 	$bbp_f = bbp_parse_args( $args, array(
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_is_forum_archive() ? 0 : bbp_get_forum_id() ,
@@ -634,15 +634,15 @@ function bbp_forum_get_subforums( $args = '' ) {
 		}
 	}
 
-	$defaults = array(
+	// Parse arguments against default values
+	$r = bbp_parse_args( $args, array(
 		'post_parent'    => 0,
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 		'orderby'        => 'menu_order',
 		'order'          => 'ASC'
-	);
-	$r = bbp_parse_args( $args, $defaults, 'forum_get_subforums' );
+	), 'forum_get_subforums' );
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
 	// No forum passed
@@ -677,7 +677,7 @@ function bbp_list_forums( $args = '' ) {
 	$i = 0;
 	$count = array();
 
-	// Defaults and arguments
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'before'            => '<ul class="bbp-forums-list">',
 		'after'             => '</ul>',
@@ -1820,7 +1820,7 @@ function bbp_single_forum_description( $args = '' ) {
 	 */
 	function bbp_get_single_forum_description( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'forum_id'  => 0,
 			'before'    => '<div class="bbp-template-notice info"><p class="bbp-forum-description">',

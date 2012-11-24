@@ -1036,7 +1036,7 @@ function is_bbpress() {
  */
 function bbp_wp_login_action( $args = '' ) {
 
-	// Parse args with default parameters
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'action'  => '',
 		'context' => ''
@@ -1247,6 +1247,7 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
@@ -1581,7 +1582,7 @@ function bbp_the_content( $args = array() ) {
 	 */
 	function bbp_get_the_content( $args = array() ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'context'       => 'topic',
 			'before'        => '<div class="bbp-the-content-wrapper">',

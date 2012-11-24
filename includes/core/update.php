@@ -158,6 +158,7 @@ function bbp_setup_updater() {
  */
 function bbp_create_initial_content( $args = array() ) {
 
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'forum_parent'  => 0,
 		'forum_status'  => 'publish',

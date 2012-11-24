@@ -689,13 +689,12 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	// Check bbp_filter_anonymous_post_data() for sanitization.
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 
-		// Always set at least these three values to empty
-		$defaults = array(
+		// Parse arguments against default values
+		$r = bbp_parse_args( $anonymous_data, array(
 			'bbp_anonymous_name'    => '',
 			'bbp_anonymous_email'   => '',
 			'bbp_anonymous_website' => '',
-		);
-		$r = bbp_parse_args( $anonymous_data, $defaults, 'update_reply' );
+		), 'update_reply' );
 
 		// Update all anonymous metas
 		foreach( $r as $anon_key => $anon_value ) {
@@ -987,7 +986,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
  */
 function bbp_update_reply_revision_log( $args = '' ) {
 
-	// Parse arguments with default values
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'reason'      => '',
 		'reply_id'    => 0,

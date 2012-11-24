@@ -493,6 +493,7 @@ function bbp_admin_link( $args = '' ) {
 		if ( !empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) )
 			$args = array( 'text' => $args );
 
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'text'   => __( 'Admin', 'bbpress' ),
 			'before' => '',
@@ -530,7 +531,9 @@ function bbp_author_ip( $args = '' ) {
 
 		// Used as post id
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
-		$r       = bbp_parse_args( $args, array(
+		
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
 			'post_id' => $post_id,
 			'before'  => '<span class="bbp-author-ip">(',
 			'after'   => ')</span>'
@@ -812,6 +815,7 @@ function bbp_user_subscribe_link( $args = '' ) {
 		if ( !bbp_is_subscriptions_active() )
 			return;
 
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'subscribe'   => __( 'Subscribe',   'bbpress' ),
 			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
@@ -1338,7 +1342,9 @@ function bbp_author_link( $args = '' ) {
 	function bbp_get_author_link( $args = '' ) {
 
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
-		$r       = bbp_parse_args( $args, array(
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
 			'post_id'    => $post_id,
 			'link_title' => '',
 			'type'       => 'both',
@@ -1424,7 +1430,7 @@ function bbp_author_link( $args = '' ) {
  */
 function bbp_user_can_view_forum( $args = '' ) {
 
-	// Default arguments
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'user_id'         => bbp_get_current_user_id(),
 		'forum_id'        => bbp_get_forum_id(),
@@ -1591,13 +1597,13 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	if ( !empty( $forum_ids ) )
 		$post__not_in = implode( ',', $forum_ids );
 
-	$defaults = array(
+	// Parse arguments against default values
+	$r = bbp_parse_args( $args, array(
 		'post_type'   => bbp_get_forum_post_type(),
 		'post_status' => bbp_get_public_status_id(),
 		'numberposts' => -1,
 		'exclude'     => $post__not_in
-	);
-	$r = bbp_parse_args( $args, $defaults, 'get_forums_for_current_user' );
+	), 'get_forums_for_current_user' );
 
 	// Get the forums
 	$forums = get_posts( $r );

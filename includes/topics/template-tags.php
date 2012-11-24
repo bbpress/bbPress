@@ -121,7 +121,7 @@ function bbp_has_topics( $args = '' ) {
 
 	/** Setup *****************************************************************/
 
-	// Parse arguments with default values
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, $default, 'has_topics' );
 
 	// Get bbPress
@@ -734,6 +734,7 @@ function bbp_topic_pagination( $args = '' ) {
 	function bbp_get_topic_pagination( $args = '' ) {
 		global $wp_rewrite;
 
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'topic_id' => bbp_get_topic_id(),
 			'before'   => '<span class="bbp-topic-pagination">',
@@ -2176,14 +2177,14 @@ function bbp_topic_admin_links( $args = '' ) {
 		if ( !bbp_is_single_topic() )
 			return;
 
-		$defaults = array (
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array (
 			'id'     => bbp_get_topic_id(),
 			'before' => '<span class="bbp-admin-links">',
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array()
-		);
-		$r = bbp_parse_args( $args, $defaults, 'get_topic_admin_links' );
+		), 'get_topic_admin_links' );
 
 		if ( !current_user_can( 'edit_topic', $r['id'] ) )
 			return;
@@ -2512,7 +2513,7 @@ function bbp_topic_stick_link( $args = '' ) {
 	 */
 	function bbp_get_topic_stick_link( $args = '' ) {
 
-		// Parse argmuntes against default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
@@ -2818,7 +2819,7 @@ function bbp_topic_type_select( $args = '' ) {
 	if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
 
 		// Get current topic id
-		$topic_id = bbp_get_topic_id( $topic_id );
+		$topic_id = bbp_get_topic_id( $r['topic_id'] );
 
 		// Post value is passed
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[ $r['select_id'] ] ) ) {
@@ -2905,7 +2906,7 @@ function bbp_single_topic_description( $args = '' ) {
 	 */
 	function bbp_get_single_topic_description( $args = '' ) {
 
-		// Parse argmuents against default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'topic_id'  => 0,
 			'before'    => '<div class="bbp-template-notice info"><p class="bbp-topic-description">',

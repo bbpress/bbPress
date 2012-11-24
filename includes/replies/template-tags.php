@@ -94,7 +94,7 @@ function bbp_has_replies( $args = '' ) {
 
 	/** Setup *****************************************************************/
 
-	// Parse arguments with default values
+	// Parse arguments against default values
 	$r = bbp_parse_args( $args, $default, 'has_replies' );
 
 	// Get bbPress
@@ -1011,7 +1011,7 @@ function bbp_reply_author_link( $args = '' ) {
 	 */
 	function bbp_get_reply_author_link( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'post_id'    => 0,
 			'link_title' => '',
@@ -1195,7 +1195,7 @@ function bbp_reply_author_role( $args = array() ) {
 	 */
 	function bbp_get_reply_author_role( $args = array() ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'reply_id' => 0,
 			'class'    => 'bbp-author-role',
@@ -1426,7 +1426,7 @@ function bbp_reply_admin_links( $args = '' ) {
 	 */
 	function bbp_get_reply_admin_links( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'     => 0,
 			'before' => '<span class="bbp-admin-links">',
@@ -1521,7 +1521,7 @@ function bbp_reply_edit_link( $args = '' ) {
 	 */
 	function bbp_get_reply_edit_link( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
@@ -1644,7 +1644,7 @@ function bbp_reply_trash_link( $args = '' ) {
 	 */
 	function bbp_get_reply_trash_link( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
@@ -1716,7 +1716,7 @@ function bbp_reply_spam_link( $args = '' ) {
 	 */
 	function bbp_get_reply_spam_link( $args = '' ) {
 		
-		// Parse argmuments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
@@ -1780,7 +1780,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 */
 	function bbp_get_topic_split_link( $args = '' ) {
 
-		// Parse arguments with default values
+		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'          => 0,
 			'link_before' => '',
