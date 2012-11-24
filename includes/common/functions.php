@@ -648,6 +648,9 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	if ( current_user_can( 'throttle' ) )
 		return true;
 
+	// Define global to use get_meta_sql() and get_var() methods
+	global $wpdb;
+
 	$r = bbp_parse_args( $post_data, array(
 		'post_author'    => 0,
 		'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
@@ -676,8 +679,6 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	$query .= !empty( $r['post_parent'] ) ? " AND post_parent = '{$r['post_parent']}'" : '';
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
-
-	global $wpdb;
 
 	if ( $wpdb->get_var( $dupe ) ) {
 		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
