@@ -56,7 +56,6 @@ function bbp_forum_post_type() {
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums( $args = '' ) {
-	$bbp = bbpress();
 
 	// Setup possible post__not_in array
 	$post_stati[] = bbp_get_public_status_id();
@@ -70,17 +69,17 @@ function bbp_has_forums( $args = '' ) {
 		$post_stati[] = bbp_get_hidden_status_id();
 
 	// The default forum query for most circumstances
-	$defaults = array (
+	$bbp_f = bbp_parse_args( $args, array(
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_is_forum_archive() ? 0 : bbp_get_forum_id() ,
 		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 		'orderby'        => 'menu_order',
 		'order'          => 'ASC'
-	);
-	$bbp_f = bbp_parse_args( $args, $defaults, 'has_forums' );
+	), 'has_forums' );
 
 	// Run the query
+	$bbp              = bbpress();
 	$bbp->forum_query = new WP_Query( $bbp_f );
 
 	return apply_filters( 'bbp_has_forums', $bbp->forum_query->have_posts(), $bbp->forum_query );
