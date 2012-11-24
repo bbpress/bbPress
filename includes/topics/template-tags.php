@@ -1832,7 +1832,7 @@ function bbp_topic_freshness_link( $topic_id = 0 ) {
 		else
 			$anchor = __( 'No Replies', 'bbpress' );
 
-		return apply_filters( 'bbp_get_topic_freshness_link', $anchor, $topic_id );
+		return apply_filters( 'bbp_get_topic_freshness_link', $anchor, $topic_id, $time_since, $link_url, $title );
 	}
 
 /**

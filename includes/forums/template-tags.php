@@ -534,7 +534,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 		else
 			$anchor = __( 'No Topics', 'bbpress' );
 
-		return apply_filters( 'bbp_get_forum_freshness_link', $anchor, $forum_id );
+		return apply_filters( 'bbp_get_forum_freshness_link', $anchor, $forum_id, $time_since, $link_url, $title, $active_id );
 	}
 
 /**
