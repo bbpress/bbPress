@@ -1820,19 +1820,17 @@ function bbp_single_forum_description( $args = '' ) {
 	 */
 	function bbp_get_single_forum_description( $args = '' ) {
 
-		// Default arguments
-		$defaults = array (
+		// Parse arguments with default values
+		$r = bbp_parse_args( $args, array(
 			'forum_id'  => 0,
 			'before'    => '<div class="bbp-template-notice info"><p class="bbp-forum-description">',
 			'after'     => '</p></div>',
 			'size'      => 14,
 			'feed'      => true
-		);
-		$r = bbp_parse_args( $args, $defaults, 'get_single_forum_description' );
-		extract( $r );
+		), 'get_single_forum_description' );
 
 		// Validate forum_id
-		$forum_id = bbp_get_forum_id( $forum_id );
+		$forum_id = bbp_get_forum_id( $r['forum_id'] );
 
 		// Unhook the 'view all' query var adder
 		remove_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
@@ -1853,7 +1851,7 @@ function bbp_single_forum_description( $args = '' ) {
 		if ( !empty( $last_active ) ) {
 			$topic_text      = bbp_get_forum_topics_link( $forum_id );
 			$time_since      = bbp_get_forum_freshness_link( $forum_id );
-			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $size ) );
+			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
 
 		// Forum has no last active data
 		} else {
@@ -1908,13 +1906,13 @@ function bbp_single_forum_description( $args = '' ) {
 		}
 
 		// Add feeds
-		//$feed_links = ( !empty( $feed ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
+		//$feed_links = ( !empty( $r['feed'] ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
 
 		// Add the 'view all' filter back
 		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 		// Combine the elements together
-		$retstr = $before . $retstr . $after;
+		$retstr = $r['before'] . $retstr . $r['after'];
 
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_forum_description', $retstr, $args );
