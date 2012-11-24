@@ -549,15 +549,15 @@ function bbp_get_statistics( $args = '' ) {
 	}
 
 	// Tally the tallies
-	$statistics = array_map( 'number_format_i18n', array_map( 'absint', array(
-		$user_count,
-		$forum_count,
-		$topic_count,
-		$topic_count_hidden,
-		$reply_count,
-		$reply_count_hidden,
-		$topic_tag_count,
-		$empty_topic_tag_count
+	$statistics = array_map( 'number_format_i18n', array_map( 'absint', compact(
+		'user_count',
+		'forum_count',
+		'topic_count',
+		'topic_count_hidden',
+		'reply_count',
+		'reply_count_hidden',
+		'topic_tag_count',
+		'empty_topic_tag_count'
 	) ) );
 	
 	// Add the hidden (topic/reply) count title attribute strings because we don't need to run the math functions on these (see above)
