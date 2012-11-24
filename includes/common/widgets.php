@@ -632,7 +632,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php echo $$args['after_widget'];
+			<?php echo $args['after_widget'];
 
 			// Reset the $post global
 			wp_reset_postdata();
