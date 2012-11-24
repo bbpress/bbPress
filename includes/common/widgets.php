@@ -269,7 +269,7 @@ class BBP_Views_Widget extends WP_Widget {
 
 			<ul>
 
-				<?php foreach ( bbp_get_views() as $view => $args ) : ?>
+				<?php foreach ( array_keys( bbp_get_views() ) as $view ) : ?>
 
 					<li><a class="bbp-view-title" href="<?php bbp_view_url( $view ); ?>" title="<?php bbp_view_title( $view ); ?>"><?php bbp_view_title( $view ); ?></a></li>
 
