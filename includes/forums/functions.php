@@ -663,25 +663,6 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 	}
 }
 
-/** Walk **********************************************************************/
-
-/**
- * Walk the forum tree
- *
- * @param object $forums Forums
- * @param int $depth Depth
- * @param int $current Current forum
- * @param array $r Parsed arguments, supported by the walker. If you want to
- *                  use your own walker, pass the 'walker' arg with the walker.
- *                  The walker defaults to {@link BBP_Walker_Forum}
- * @return object Walked forum tree
- */
-function bbp_walk_forum( $forums, $depth, $current, $r ) {
-	$walker = empty( $r['walker'] ) ? new BBP_Walker_Forum : $r['walker'];
-	$args   = array( $forums, $depth, $r, $current );
-	return call_user_func_array( array( &$walker, 'walk' ), $args );
-}
-
 /** Forum Actions *************************************************************/
 
 /**
