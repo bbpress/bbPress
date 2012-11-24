@@ -66,9 +66,13 @@ class BBP_Login_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		extract( $args );
 
-		$title    = apply_filters( 'bbp_login_widget_title',    $instance['title']    );
-		$register = apply_filters( 'bbp_login_widget_register', $instance['register'] );
-		$lostpass = apply_filters( 'bbp_login_widget_lostpass', $instance['lostpass'] );
+		// Typical WordPress filter
+		$title    = apply_filters( 'widget_title',              $instance['title'],    $instance, $this->id_base );
+
+		// bbPress filters
+		$title    = apply_filters( 'bbp_login_widget_title',    $instance['title'],    $instance, $this->id_base );
+		$register = apply_filters( 'bbp_login_widget_register', $instance['register'], $instance, $this->id_base );
+		$lostpass = apply_filters( 'bbp_login_widget_lostpass', $instance['lostpass'], $instance, $this->id_base );
 
 		echo $before_widget;
 
@@ -257,7 +261,11 @@ class BBP_Views_Widget extends WP_Widget {
 
 			extract( $args );
 
-			$title = apply_filters( 'bbp_view_widget_title', $instance['title'] );
+			// Typical WordPress filter
+			$title = apply_filters( 'widget_title',          $instance['title'], $instance, $this->id_base );
+
+			// bbPress filter
+			$title = apply_filters( 'bbp_view_widget_title', $instance['title'], $instance, $this->id_base );
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
@@ -376,7 +384,11 @@ class BBP_Forums_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		extract( $args );
 
-		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'] );
+		// Typical WordPress filter
+		$title        = apply_filters( 'widget_title',           $instance['title'], $instance, $this->id_base );
+
+		// bbPress filter
+		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'], $instance, $this->id_base );
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : '0';
 
 		// Note: private and hidden forums will be excluded via the
@@ -525,7 +537,11 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		extract( $args );
 
-		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
+		// Typical WordPress filter
+		$title        = apply_filters( 'widget_title',           $instance['title'], $instance, $this->id_base );
+
+		// bbPress filter
+		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'], $instance, $this->id_base );
 		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown'] : 5;
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                         : false;
 		$show_user    = !empty( $instance['show_user']    ) ? 'on'                         : false;
@@ -745,7 +761,11 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		extract( $args );
 
-		$title      = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
+		// Typical WordPress filter
+		$title      = apply_filters( 'widget_title',             $instance['title'], $instance, $this->id_base );
+
+		// bbPress filter
+		$title      = apply_filters( 'bbp_replies_widget_title', $instance['title'], $instance, $this->id_base );
 		$max_shown  = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
 		$show_date  = !empty( $instance['show_date'] ) ? 'on'                   : false;
 		$show_user  = !empty( $instance['show_user'] ) ? 'on'                   : false;
