@@ -202,6 +202,30 @@ class BBP_Default extends BBP_Theme_Compat {
 				document.getElementById('pass1').focus();
 			}
 			<?php endif; ?>
+			
+			<?php if ( bbp_use_wp_editor() ) : ?>
+			jQuery(document).ready( function() {
+				jQuery( '#bbp_topic_title' ).bind( 'keydown.editor-focus', function(e) {
+					if ( e.which != 9 )
+						return;
+
+					if ( !e.ctrlKey && !e.altKey && !e.shiftKey ) {
+						if ( typeof( tinymce ) != 'undefined' ) {
+							if ( ! tinymce.activeEditor.isHidden() ) {
+								var editor = tinymce.activeEditor.editorContainer;
+								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
+							} else {
+								jQuery( 'textarea.bbp-the-content' ).focus();
+							}
+						} else {
+							jQuery( 'textarea.bbp-the-content' ).focus();
+						}
+
+						e.preventDefault();
+					}
+				});
+			});
+			<?php endif; ?>
 			/* ]]> */
 		</script>
 
