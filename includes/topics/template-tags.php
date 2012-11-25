@@ -132,7 +132,7 @@ function bbp_has_topics( $args = '' ) {
 
 	// Set post_parent back to 0 if originally set to 'any'
 	if ( 'any' == $r['post_parent'] )
-		$r['post_parent'] = $post_parent = 0;
+		$r['post_parent'] = 0;
 
 	// Limited the number of pages shown
 	if ( !empty( $r['max_num_pages'] ) )
@@ -278,7 +278,7 @@ function bbp_has_topics( $args = '' ) {
 
 			// Default
 			} else {
-				$base = get_permalink( $post_parent );
+				$base = get_permalink( (int) $r['post_parent'] );
 			}
 
 			// Use pagination base

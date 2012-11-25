@@ -1663,10 +1663,10 @@ function bbp_split_topic_handler() {
 function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_topic_id ) {
 
 	// Forum Topic Counts
-	bbp_update_forum_topic_count( $destination_topic_id );
+	bbp_update_forum_topic_count( bbp_get_topic_forum_id( $destination_topic_id ) );
 
 	// Forum Reply Counts
-	bbp_update_forum_reply_count( $destination_topic_id );
+	bbp_update_forum_reply_count( bbp_get_topic_forum_id( $destination_topic_id ) );
 
 	// Topic Reply Counts
 	bbp_update_topic_reply_count( $source_topic_id      );

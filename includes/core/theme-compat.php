@@ -443,6 +443,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @uses bbp_get_topic_split_template() To get topic split template
  * @uses bbp_is_topic_edit() To check if page is topic edit
  * @uses bbp_get_topic_edit_template() To get topic edit template
+ * @uses bbp_is_reply_move() To check if page is reply move
+ * @uses bbp_get_reply_move_template() To get reply move template
  * @uses bbp_is_reply_edit() To check if page is reply edit
  * @uses bbp_get_reply_edit_template() To get reply edit template
  * @uses bbp_set_theme_compat_template() To set the global theme compat template
@@ -793,7 +795,21 @@ function bbp_replace_the_content( $content = '' ) {
 
 	// Reply Edit
 	} elseif ( bbp_is_reply_edit() ) {
-		$new_content = $bbp->shortcodes->display_reply_form();
+	
+		// Move
+		if ( bbp_is_reply_move() ) {
+			ob_start();
+
+			bbp_get_template_part( 'form', 'reply-move' );
+
+			$new_content = ob_get_contents();
+
+			ob_end_clean();
+	
+		// Edit
+		} else {
+			$new_content = $bbp->shortcodes->display_reply_form();
+		}
 
 	// Single Reply
 	} elseif ( bbp_is_single_reply() ) {

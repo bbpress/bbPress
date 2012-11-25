@@ -203,6 +203,9 @@ add_action( 'bbp_edit_topic', 'bbp_update_topic', 10, 5 );
 add_action( 'bbp_merged_topic',     'bbp_merge_topic_count', 1, 3 );
 add_action( 'bbp_post_split_topic', 'bbp_split_topic_count', 1, 3 );
 
+// Move Reply
+add_action( 'bbp_post_move_reply', 'bbp_move_reply_count', 1, 3 );
+
 // Before Delete/Trash/Untrash Topic
 add_action( 'wp_trash_post', 'bbp_trash_topic'   );
 add_action( 'trash_post',    'bbp_trash_topic'   );
@@ -281,6 +284,7 @@ add_action( 'bbp_template_redirect', 'bbp_edit_topic_handler',      1  );
 add_action( 'bbp_template_redirect', 'bbp_merge_topic_handler',     1  );
 add_action( 'bbp_template_redirect', 'bbp_split_topic_handler',     1  );
 add_action( 'bbp_template_redirect', 'bbp_toggle_topic_handler',    1  );
+add_action( 'bbp_template_redirect', 'bbp_move_reply_handler',      1  );
 add_action( 'bbp_template_redirect', 'bbp_toggle_reply_handler',    1  );
 add_action( 'bbp_template_redirect', 'bbp_favorites_handler',       1  );
 add_action( 'bbp_template_redirect', 'bbp_subscriptions_handler',   1  );

@@ -479,6 +479,24 @@ function bbp_is_reply_edit() {
 }
 
 /**
+ * Check if current page is a reply move page
+ *
+ * @uses bbp_is_reply_move() To check if it's a reply move page
+ * @return bool True if it's the reply move page, false if not
+ */
+function bbp_is_reply_move() {
+
+	// Assume false
+	$retval = false;
+
+	// Check reply edit and GET params
+	if ( bbp_is_reply_edit() && !empty( $_GET['action'] ) && ( 'move' == $_GET['action'] ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_reply_move', $retval );
+}
+
+/**
  * Viewing a single reply
  *
  * @since bbPress (r3344)
@@ -800,7 +818,7 @@ function bbp_is_edit() {
  * @uses bbp_is_topic_split()
  * @uses bbp_is_single_reply()
  * @uses bbp_is_reply_edit()
- * @uses bbp_is_reply_edit()
+ * @uses bbp_is_reply_move()
  * @uses bbp_is_single_view()
  * @uses bbp_is_single_user_edit()
  * @uses bbp_is_single_user()
@@ -865,6 +883,9 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	if ( bbp_is_reply_edit() )
 		$bbp_classes[] = bbp_get_reply_post_type() . '-edit';
+		
+	if ( bbp_is_reply_move() )
+		$bbp_classes[] = bbp_get_reply_post_type() . '-move';
 
 	if ( bbp_is_single_view() )
 		$bbp_classes[] = 'bbp-view';
@@ -937,7 +958,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
  * @uses bbp_is_topic_split()
  * @uses bbp_is_single_reply()
  * @uses bbp_is_reply_edit()
- * @uses bbp_is_reply_edit()
+ * @uses bbp_is_reply_move()
  * @uses bbp_is_single_view()
  * @uses bbp_is_single_user_edit()
  * @uses bbp_is_single_user()
@@ -989,6 +1010,9 @@ function is_bbpress() {
 		$retval = true;
 
 	elseif ( bbp_is_reply_edit() )
+		$retval = true;
+
+	elseif ( bbp_is_reply_move() )
 		$retval = true;
 
 	elseif ( bbp_is_single_view() )
@@ -1550,7 +1574,7 @@ function bbp_merge_topic_form_fields() {
  *
  * @since bbPress (r2756)
  *
- * @uses wp_nonce_field() To generete a hidden nonce field
+ * @uses wp_nonce_field() To generate a hidden nonce field
  */
 function bbp_split_topic_form_fields() {
 ?>
@@ -1559,6 +1583,22 @@ function bbp_split_topic_form_fields() {
 	<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php echo absint( $_GET['reply_id'] ); ?>" />
 
 	<?php wp_nonce_field( 'bbp-split-topic_' . bbp_get_topic_id() );
+}
+
+/**
+ * Move reply form fields
+ *
+ * Output the required hidden fields when moving a reply
+ *
+ * @uses wp_nonce_field() To generate a hidden nonce field
+ */
+function bbp_move_reply_form_fields() {
+?>
+
+	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-move-reply" />
+	<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php echo absint( $_GET['reply_id'] ); ?>" />
+
+	<?php wp_nonce_field( 'bbp-move-reply_' . bbp_get_reply_id() );
 }
 
 /**

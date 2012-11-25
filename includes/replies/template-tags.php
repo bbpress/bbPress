@@ -1410,13 +1410,14 @@ function bbp_reply_admin_links( $args = '' ) {
 	 *  - after: HTML after the links. Defaults to '</span>'
 	 *  - sep: Separator. Defaults to ' | '
 	 *  - links: Array of the links to display. By default, edit, trash,
-	 *            spam and topic split links are displayed
+	 *            spam, reply move, and topic split links are displayed
 	 * @uses bbp_is_topic() To check if it's the topic page
 	 * @uses bbp_is_reply() To check if it's the reply page
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_edit_link() To get the reply edit link
 	 * @uses bbp_get_reply_trash_link() To get the reply trash link
 	 * @uses bbp_get_reply_spam_link() To get the reply spam link
+	 * @uses bbp_get_reply_move_link() To get the reply move link
 	 * @uses bbp_get_topic_split_link() To get the topic split link
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the reply
@@ -1457,6 +1458,7 @@ function bbp_reply_admin_links( $args = '' ) {
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array (
 				'edit'  => bbp_get_reply_edit_link ( $r ),
+				'move'  => bbp_get_reply_move_link ( $r ),
 				'split' => bbp_get_topic_split_link( $r ),
 				'trash' => bbp_get_reply_trash_link( $r ),
 				'spam'  => bbp_get_reply_spam_link ( $r ),
@@ -1739,9 +1741,76 @@ function bbp_reply_spam_link( $args = '' ) {
 	}
 
 /**
+ * Move reply link
+ *
+ * Output the move link of the reply
+ *
+ * @since bbPress (r4521)
+ *
+ * @param mixed $args See {@link bbp_get_reply_move_link()}
+ * @uses bbp_get_reply_move_link() To get the reply move link
+ */
+function bbp_reply_move_link( $args = '' ) {
+	echo bbp_get_reply_move_link( $args );
+}
+
+	/**
+	 * Get move reply link
+	 *
+	 * Return the move link of the reply
+	 *
+	 * @since bbPress (r4521)
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Reply id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - move_text: Move text
+	 *  - move_title: Move title attribute
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           topic
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_reply_edit_url() To get the reply edit url
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_reply_move_link' with the reply
+	 *                        move link and args
+	 * @return string Reply move link
+	 */
+	function bbp_get_reply_move_link( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'split_text'  => __( 'Move',            'bbpress' ),
+			'split_title' => __( 'Move this reply', 'bbpress' )
+		), 'get_reply_move_link' );
+
+		$reply_id = bbp_get_reply_id( $r['id'] );
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		if ( empty( $reply_id ) || !current_user_can( 'moderate', $topic_id ) )
+			return;
+
+		$uri = esc_url( add_query_arg( array(
+			'action'   => 'move',
+			'reply_id' => $reply_id
+		), bbp_get_reply_edit_url( $reply_id ) ) );
+
+		$retval = $r['link_before'] . '<a href="' . $uri . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
+
+		return apply_filters( 'bbp_get_reply_move_link', $retval, $r );
+	}
+
+/**
  * Split topic link
  *
- * Output the split link of the topic (but is bundled with each topic)
+ * Output the split link of the topic (but is bundled with each reply)
  *
  * @since bbPress (r2756)
  *
@@ -1776,7 +1845,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 * @uses esc_url() To escape the url
 	 * @uses apply_filters() Calls 'bbp_get_topic_split_link' with the topic
 	 *                        split link and args
-	 * @return string Reply spam link
+	 * @return string Topic split link
 	 */
 	function bbp_get_topic_split_link( $args = '' ) {
 

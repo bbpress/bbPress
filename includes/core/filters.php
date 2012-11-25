@@ -182,6 +182,7 @@ add_filter( 'bbp_get_topicsplit_template',   'bbp_add_template_locations' );
 add_filter( 'bbp_get_topicmerge_template',   'bbp_add_template_locations' );
 add_filter( 'bbp_get_topictag_template',     'bbp_add_template_locations' );
 add_filter( 'bbp_get_topictagedit_template', 'bbp_add_template_locations' );
+add_filter( 'bbp_get_replymove_template',    'bbp_add_template_locations' );
 
 /**
  * Add filters to anonymous post author data

@@ -38,6 +38,8 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses bbp_get_topic_split_template() To get topic split template
  * @uses bbp_is_topic_edit() To check if page is topic edit
  * @uses bbp_get_topic_edit_template() To get topic edit template
+ * @uses bbp_is_reply_move() To check if page is reply move
+ * @uses bbp_get_reply_move_template() To get reply move template
  * @uses bbp_is_reply_edit() To check if page is reply edit
  * @uses bbp_get_reply_edit_template() To get reply edit template
  * @uses bbp_set_theme_compat_template() To set the global theme compat template
@@ -84,6 +86,9 @@ function bbp_template_include_theme_supports( $template = '' ) {
 
 	// Topic Archive
 	elseif ( bbp_is_topic_archive()    && ( $new_template = bbp_get_topic_archive_template()    ) ) :
+
+	// Reply move
+	elseif ( bbp_is_reply_move()       && ( $new_template = bbp_get_reply_move_template()       ) ) :
 
 	// Editing a reply
 	elseif ( bbp_is_reply_edit()       && ( $new_template = bbp_get_reply_edit_template()       ) ) :
@@ -403,6 +408,22 @@ function bbp_get_reply_edit_template() {
 		'single-' . bbp_get_reply_post_type() . '-edit.php' // Single Reply Edit
 	);
 	return bbp_get_query_template( 'reply_edit', $templates );
+}
+
+/**
+ * Get the reply move template
+ *
+ * @since bbPress (r4521)
+ *
+ * @uses bbp_get_reply_post_type()
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
+ */
+function bbp_get_reply_move_template() {
+	$templates = array(
+		'single-' . bbp_get_reply_post_type() . '-move.php', // Reply move
+	);
+	return bbp_get_query_template( 'reply_move', $templates );
 }
 
 /**
