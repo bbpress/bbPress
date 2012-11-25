@@ -301,7 +301,7 @@ function bbp_forum_metabox() {
 		<?php bbp_dropdown( array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => $post_parent,
-			'child_of'           => '0',
+			'post_parent'        => 0,
 			'numberposts'        => -1,
 			'orderby'            => 'title',
 			'order'              => 'ASC',
@@ -359,7 +359,7 @@ function bbp_topic_metabox() {
 		<?php bbp_dropdown( array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => bbp_get_topic_forum_id( $post_id ),
-			'child_of'           => '0',
+			'post_parent'        => 0,
 			'numberposts'        => -1,
 			'orderby'            => 'title',
 			'order'              => 'ASC',
@@ -412,7 +412,7 @@ function bbp_reply_metabox() {
 			<?php bbp_dropdown( array(
 				'post_type'          => bbp_get_forum_post_type(),
 				'selected'           => $reply_forum_id,
-				'child_of'           => '0',
+				'post_parent'        => 0,
 				'numberposts'        => -1,
 				'orderby'            => 'title',
 				'order'              => 'ASC',
