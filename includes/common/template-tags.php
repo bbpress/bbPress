@@ -1212,7 +1212,7 @@ function bbp_dropdown( $args = '' ) {
 	 *               box, the first value would of course be selected -
 	 *               though you can have that as none (pass 'show_none' arg))
 	 *  - sort_column: Sort by? Defaults to 'menu_order, post_title'
-	 *  - child_of: Child of. Defaults to 0
+	 *  - post_parent: Post parent. Defaults to 0
 	 *  - post_status: Which all post_statuses to find in? Can be an array
 	 *                  or CSV of publish, category, closed, private, spam,
 	 *                  trash (based on post type) - if not set, these are
@@ -1252,7 +1252,8 @@ function bbp_dropdown( $args = '' ) {
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
-			'child_of'           => '0',
+			'post_parent'        => 0,
+			'exclude'            => array(),
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order',
 			'order'              => 'ASC',
@@ -1276,6 +1277,11 @@ function bbp_dropdown( $args = '' ) {
 		// Force 0
 		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
 			$r['selected'] = 0;
+		}
+
+		// Force array
+		if ( !empty( $r['exclude'] ) && !is_array( $r['exclude'] ) ) {
+			$r['exclude'] = explode( ',', $r['exclude'] );
 		}
 
 		/** Post Status *******************************************************/
@@ -1314,7 +1320,8 @@ function bbp_dropdown( $args = '' ) {
 			'post_type'   => $r['post_type'],
 			'post_status' => $r['post_status'],
 			'sort_column' => $r['sort_column'],
-			'child_of'    => $r['child_of'],
+			'post_parent' => $r['post_parent'],
+			'exclude'     => $r['exclude'],
 			'numberposts' => $r['numberposts'],
 			'orderby'     => $r['orderby'],
 			'order'       => $r['order'],
