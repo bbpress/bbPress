@@ -512,6 +512,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 	function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
 		$active_id = bbp_get_forum_last_active_id( $forum_id );
+		$link_url  = $title = '';
 
 		if ( empty( $active_id ) )
 			$active_id = bbp_get_forum_last_reply_id( $forum_id );
