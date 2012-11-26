@@ -571,7 +571,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						$post                        = $forum;
 
 						bbp_set_query_name( 'bbp_forum_form' );
-
 						bbp_get_template_part( 'form', 'forum' );
 
 					else :
@@ -625,13 +624,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						// Merge
 						if ( !empty( $_GET['action'] ) && 'merge' == $_GET['action'] ) :
 							bbp_set_query_name( 'bbp_topic_merge' );
-
 							bbp_get_template_part( 'form', 'topic-merge' );
 
 						// Split
 						elseif ( !empty( $_GET['action'] ) && 'split' == $_GET['action'] ) :
 							bbp_set_query_name( 'bbp_topic_split' );
-
 							bbp_get_template_part( 'form', 'topic-split' );
 
 						// Edit
@@ -643,7 +640,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					// Single Topic
 					else:
-
 						bbp_set_query_name( 'bbp_single_topic' ); ?>
 
 						<h3><?php bbp_topic_title(); ?></h3>
@@ -700,8 +696,17 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					$wp_query->bbp_is_reply_edit = true;
 					$post                        = $reply;
 
-					bbp_set_query_name( 'bbp_reply_form' );
-					bbp_get_template_part( 'form', 'reply' );
+					// Move
+					if ( !empty( $_GET['action'] ) && ( 'move' == $_GET['action'] ) ) :
+						bbp_set_query_name( 'bbp_reply_move' );
+						bbp_get_template_part( 'form', 'reply-move' );
+
+					// Edit
+					else :
+						bbp_set_query_name( 'bbp_reply_form' );
+						bbp_get_template_part( 'form', 'reply' );
+
+					endif;
 
 				endif;
 
