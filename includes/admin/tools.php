@@ -380,6 +380,13 @@ function bbp_admin_repair_group_forum_relationship() {
 		update_option( '_bbp_group_forums_root_id', $posts[0]->ID );
 	}
 
+	// Remove bbPress 1.1 roles (BuddyPress)
+	remove_role( 'member'    );
+	remove_role( 'inactive'  );
+	remove_role( 'blocked'   );
+	remove_role( 'moderator' );
+	remove_role( 'keymaster' );
+
 	// Complete results
 	$result = sprintf( __( 'Complete! %s groups updated; %s forums updated.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ) );
 	return array( 0, sprintf( $statement, $result ) );
@@ -1108,14 +1115,15 @@ function bbp_admin_reset_handler() {
 		/** Options ***********************************************************/
 
 		$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );
-		$sql_delete = bbp_delete_options();
+		bbp_delete_options();
 		$messages[] = sprintf( $statement, $success );
 
 		/** Roles *************************************************************/
 
 		$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
-		$sql_delete = bbp_remove_roles();
-		$sql_delete = bbp_remove_caps();
+		remove_role( bbp_get_moderator_role() );
+		remove_role( bbp_get_participant_role() );
+		bbp_remove_caps();
 		$messages[] = sprintf( $statement, $success );
 
 		/** Output ************************************************************/
