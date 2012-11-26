@@ -247,13 +247,6 @@ function bbp_version_updater() {
 	// 2.2
 	if ( $raw_db_version < 220 ) {
 
-		// Remove bbPress 1.1 roles (BuddyPress)
-		remove_role( 'member'    );
-		remove_role( 'inactive'  );
-		remove_role( 'blocked'   );
-		remove_role( 'moderator' );
-		remove_role( 'keymaster' );
-
 		// Refresh capabilities
 		bbp_remove_caps();
 	}
