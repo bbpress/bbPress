@@ -1943,16 +1943,21 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 	if ( empty( $forum_id ) )
 		return;
 
-	// Forum is being permanently deleted, so its topics gotta go too
-	if ( $topics = new WP_Query( array(
+	// Forum is being permanently deleted, so its content has go too
+	// Note that we get all post statuses here
+	$topics = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => bbp_get_topic_post_type(),
 		'post_parent'      => $forum_id,
-		'post_status'      => 'any',
+		'post_status'      => array_keys( get_post_stati() ),
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
 		'fields'           => 'id=>parent'
-	) ) ) {
+	) );
+
+	// Loop through and delete child topics. Topic replies will get deleted by
+	// the bbp_delete_topic() action.
+	if ( !empty( $topics->posts ) ) {
 		foreach ( $topics->posts as $topic ) {
 			wp_delete_post( $topic->ID, true );
 		}
@@ -1960,6 +1965,9 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
+
+	// Cleanup
+	unset( $topics );
 }
 
 /**

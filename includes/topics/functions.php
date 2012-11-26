@@ -2934,15 +2934,19 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	do_action( 'bbp_delete_topic', $topic_id );
 
 	// Topic is being permanently deleted, so its replies gotta go too
-	if ( $replies = new WP_Query( array(
+	// Note that we get all post statuses here
+	$replies = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => bbp_get_reply_post_type(),
-		'post_status'      => 'any',
+		'post_status'      => array_keys( get_post_stati() ),
 		'post_parent'      => $topic_id,
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
 		'fields'           => 'id=>parent'
-	) ) ) {
+	) );
+
+	// Loop through and delete child replies
+	if ( ! empty( $replies->posts ) ) {
 		foreach ( $replies->posts as $reply ) {
 			wp_delete_post( $reply->ID, true );
 		}
@@ -2950,6 +2954,9 @@ function bbp_delete_topic( $topic_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
+
+	// Cleanup
+	unset( $replies );
 }
 
 /**
@@ -2976,7 +2983,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	do_action( 'bbp_trash_topic', $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
-	if ( $replies = new WP_Query( array(
+	$replies = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => bbp_get_reply_post_type(),
 		'post_status'      => bbp_get_public_status_id(),
@@ -2984,7 +2991,9 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
 		'fields'           => 'id=>parent'
-	) ) ) {
+	) );
+
+	if ( !empty( $replies->posts ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_replies = array();
@@ -3003,6 +3012,9 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
+
+	// Cleanup
+	unset( $replies );
 }
 
 /**
