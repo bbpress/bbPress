@@ -247,7 +247,13 @@ function bbp_version_updater() {
 	// 2.2
 	if ( $raw_db_version < 220 ) {
 
-		// Refresh capabilities
+		// Remove the Moderator role from the database
+		remove_role( bbp_get_moderator_role() );
+
+		// Remove the Participant role from the database
+		remove_role( bbp_get_participant_role() );
+
+		// Remove capabilities
 		bbp_remove_caps();
 	}
 

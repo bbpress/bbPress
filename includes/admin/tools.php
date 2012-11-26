@@ -1115,14 +1115,15 @@ function bbp_admin_reset_handler() {
 		/** Options ***********************************************************/
 
 		$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );
-		$sql_delete = bbp_delete_options();
+		bbp_delete_options();
 		$messages[] = sprintf( $statement, $success );
 
 		/** Roles *************************************************************/
 
 		$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
-		$sql_delete = bbp_remove_roles();
-		$sql_delete = bbp_remove_caps();
+		remove_role( bbp_get_moderator_role() );
+		remove_role( bbp_get_participant_role() );
+		bp_remove_caps();
 		$messages[] = sprintf( $statement, $success );
 
 		/** Output ************************************************************/
