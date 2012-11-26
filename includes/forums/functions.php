@@ -2000,8 +2000,8 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		bbp_get_pending_status_id()
 	) );
 
-	// Forum is being trashed, so its topics are trashed too
-	if ( $topics = new WP_Query( array(
+	// Forum is being trashed, so its topics and replies are trashed too
+	$topics = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => bbp_get_topic_post_type(),
 		'post_parent'      => $forum_id,
@@ -2009,7 +2009,11 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
 		'fields'           => 'id=>parent'
-	) ) ) {
+	) );
+
+	// Loop through and trash child topics. Topic replies will get trashed by
+	// the bbp_trash_topic() action.
+	if ( !empty( $topics->posts ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_topics = array();
@@ -2028,6 +2032,9 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
+
+	// Cleanup
+	unset( $topics );
 }
 
 /**
