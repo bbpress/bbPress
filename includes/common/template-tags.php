@@ -1084,25 +1084,21 @@ function bbp_wp_login_action( $args = '' ) {
  * Output hidden request URI field for user forms.
  *
  * The referer link is the current Request URI from the server super global. The
- * input name is '_wp_http_referer', in case you wanted to check manually.
+ * input name is 'redirect_to', in case you wanted to check manually.
  *
  * @since bbPress (r2815)
  *
- * @param string $url Pass a URL to redirect to
+ * @param string $redirect_to Pass a URL to redirect to
+ *
  * @uses wp_get_referer() To get the referer
  * @uses esc_attr() To escape the url
- * @uses apply_filters() Calls 'bbp_redirect_to_field' with the referer field
- *                        and url
+ * @uses apply_filters() Calls 'bbp_redirect_to_field', passes field and to
  */
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
-	// Rejig the $redirect_to
-	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to == home_url( $_SERVER['REDIRECT_URL'] ) ) )
-		$redirect_to = wp_get_referer();
-
 	// Make sure we are directing somewhere
 	if ( empty( $redirect_to ) )
-		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' );
+		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : wp_get_referer() );
 
 	// Remove loggedout query arg if it's there
 	$redirect_to    = (string) esc_attr( remove_query_arg( 'loggedout', $redirect_to ) );
