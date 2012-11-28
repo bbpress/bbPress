@@ -1495,7 +1495,7 @@ function bbp_current_user_can_publish_topics() {
 	}
 
 	// Allow access to be filtered
-	return (bool) apply_filters( 'bbp_current_user_can_publish_forums', $retval );
+	return (bool) apply_filters( 'bbp_current_user_can_publish_topics', $retval );
 }
 
 /**
