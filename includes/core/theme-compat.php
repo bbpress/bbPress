@@ -649,14 +649,18 @@ function bbp_template_include_theme_compat( $template = '' ) {
  * normally be handled by bbPress, but proper single page templates do not
  * exist in the currently active theme.
  *
+ * Note that we do *not* currently use is_main_query() here. This is because so
+ * many existing themes either use query_posts() or fail to use wp_reset_query()
+ * when running queries before the main loop, causing theme compat to fail.
+ *
  * @since bbPress (r3034)
  * @param string $content
  * @return type
  */
 function bbp_replace_the_content( $content = '' ) {
 
-	// Bail if not inside the main query loop
-	if ( ! in_the_loop() || ! is_main_query() )
+	// Bail if not inside the query loop
+	if ( ! in_the_loop() )
 		return $content;
 
 	$bbp = bbpress();
