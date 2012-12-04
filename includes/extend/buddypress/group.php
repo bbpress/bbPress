@@ -93,7 +93,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Remove topic cap map when view is done
 		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_topic_meta_cap_map' ) );
-		
+
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 
@@ -425,6 +425,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$bbp = bbpress();
 
 		// Forum data
+		$forum_slug = bp_action_variable( $offset );
 		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
 		$forum_args = array( 'post__in' => $forum_ids, 'post_parent' => null );
 
@@ -452,7 +453,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			<?php
 
 			// Looking at the group forum root
-			if ( !bp_action_variable( $offset ) ) :
+			if ( empty( $forum_slug ) || ( 'page' == $forum_slug ) ) :
 
 				// Query forums and show them if they exist
 				if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) :
@@ -460,10 +461,15 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// Only one forum found
 					if ( 1 == $bbp->forum_query->post_count ) :
 
-						// Get forum data
-						$forum_slug = bp_action_variable( $offset );
-						$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
-						$forums     = get_posts( $forum_args );
+						// Remove 'name' check for paginated requests
+						if ( 'page' == $forum_slug ) {
+							$forum_args = array( 'post_type' => bbp_get_forum_post_type() );
+						} else {
+							$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
+						}
+
+						// Get the forums
+						$forums = get_posts( $forum_args );
 
 						bbp_the_forum();
 
@@ -475,18 +481,18 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 							add_filter( 'bbp_get_forum_subforum_count', '__return_false' );
 
 							// Set up forum data
-							$forum_id = bbpress()->current_forum_id = $forum->ID;
+							bbpress()->current_forum_id = $forum->ID;
 							bbp_set_query_name( 'bbp_single_forum' ); ?>
 
 							<h3><?php bbp_forum_title(); ?></h3>
 
 							<?php bbp_get_template_part( 'content', 'single-forum' ); ?>
 
-							<?php 
+							<?php
 
 							// Remove the subforum suppression filter
 							remove_filter( 'bbp_get_forum_subforum_count', '__return_false' );
-							
+
 							?>
 
 						<?php else : ?>
@@ -867,7 +873,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				return $url;
 				break;
 		}
-		
+
 		// Get group ID's for this forum
 		$group_ids = bbp_get_forum_group_ids( $forum_id );
 
@@ -1026,7 +1032,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		return $args;
 	}
-	
+
 	/**
 	 * Ensure that forum content associated with a BuddyPress group can only be
 	 * viewed via the group URL.
@@ -1101,6 +1107,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$args['item_id']           = $group->id;
 
 		return $args;
-	}	
+	}
 }
 endif;
