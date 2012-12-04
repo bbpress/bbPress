@@ -476,7 +476,7 @@ class BBP_BuddyPress_Activity {
 			'item_id'           => $topic_id,
 			'secondary_item_id' => $forum_id,
 			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
-			'hide_sitewide'     => bbp_is_forum_public( $forum_id, false )
+			'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
 		);
 
 		// Record the activity
@@ -626,7 +626,7 @@ class BBP_BuddyPress_Activity {
 			'item_id'           => $reply_id,
 			'secondary_item_id' => $topic_id,
 			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
-			'hide_sitewide'     => bbp_is_forum_public( $forum_id, false )
+			'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
 		);
 
 		// Record the activity
