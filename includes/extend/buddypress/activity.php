@@ -254,7 +254,7 @@ class BBP_BuddyPress_Activity {
 	private function record_activity( $args = '' ) {
 
 		// Default activity args
-		$defaults = array (
+		$activity = bbp_parse_args( $args, array(
 			'id'                => null,
 			'user_id'           => bbp_get_current_user_id(),
 			'type'              => '',
@@ -266,8 +266,7 @@ class BBP_BuddyPress_Activity {
 			'component'         => $this->component,
 			'recorded_time'     => bp_core_current_time(),
 			'hide_sitewide'     => false
-		);
-		$activity = bbp_parse_args( $args, $defaults, 'record_activity' );
+		), 'record_activity' );
 
 		// Add the activity
 		return bp_activity_add( $activity );
@@ -447,10 +446,6 @@ class BBP_BuddyPress_Activity {
 		if ( !bbp_is_topic_published( $topic_id ) )
 			return;
 
-		// Bail if forum is not public
-		if ( !bbp_is_forum_public( $forum_id, false ) )
-			return;
-
 		// User link for topic author
 		$user_link  = bbp_get_user_profile_link( $user_id  );
 
@@ -481,6 +476,7 @@ class BBP_BuddyPress_Activity {
 			'item_id'           => $topic_id,
 			'secondary_item_id' => $forum_id,
 			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
+			'hide_sitewide'     => bbp_is_forum_public( $forum_id, false )
 		);
 
 		// Record the activity
@@ -597,10 +593,6 @@ class BBP_BuddyPress_Activity {
 		if ( !bbp_is_reply_published( $reply_id ) )
 			return;
 
-		// Bail if forum is not public
-		if ( !bbp_is_forum_public( $forum_id, false ) )
-			return;
-
 		// Setup links for activity stream
 		$user_link  = bbp_get_user_profile_link( $user_id  );
 
@@ -634,6 +626,7 @@ class BBP_BuddyPress_Activity {
 			'item_id'           => $reply_id,
 			'secondary_item_id' => $topic_id,
 			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
+			'hide_sitewide'     => bbp_is_forum_public( $forum_id, false )
 		);
 
 		// Record the activity
