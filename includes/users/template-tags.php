@@ -1007,7 +1007,7 @@ function bbp_edit_user_forums_role() {
 		unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
-		<option value=""><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
+		<option value=""><?php _e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
 
 		<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 

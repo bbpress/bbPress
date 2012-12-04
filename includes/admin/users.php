@@ -93,11 +93,11 @@ class BBP_Users_Admin {
 
 							<?php if ( ! empty( $user_role ) ) : ?>
 
-								<option value=""><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
+								<option value=""><?php _e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
 
 							<?php else : ?>
 
-								<option value="" selected="selected"><?php _e( '&mdash; No role for this forum &mdash;', 'bbpress' ); ?></option>
+								<option value="" selected="selected"><?php _e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
 
 							<?php endif; ?>
 
