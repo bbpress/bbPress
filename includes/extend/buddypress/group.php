@@ -147,7 +147,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			case 'publish_topics'      :
 			case 'read_hidden_forums'  :
 			case 'read_private_forums' :
-				if ( bp_group_is_member() ) {
+				if ( bp_group_is_member() || bp_group_is_mod() || bp_group_is_admin() ) {
 					$caps = array( 'participate' );
 				}
 				break;
