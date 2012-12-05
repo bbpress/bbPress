@@ -1,86 +1,31 @@
-bbpTopicJS = jQuery.extend( {
-	// User and Topic
-	currentUserId: '0',
-	topicId: '0',
+jQuery( document ).ready( function ( $ ) {
 
-	// Favorites
-	favoritesLink: '',
-	favoritesActive: 0,
-	isFav: 0,
-	favLinkYes: 'favorites',
-	favLinkNo: '?',
-	favYes: 'This topic is one of your %favLinkYes% [%favDel%]',
-	favNo: '%favAdd% (%favLinkNo%)',
-	favDel: 'x',
-	favAdd: 'Add this topic to your favorites',
+	function bbp_ajax_call( action, topic_id, nonce, update_selector ) {
+		var $data = {
+			action : action,
+			id     : topic_id,
+			nonce  : nonce
+		};
 
-	// Subscriptions
-	subsLink: '',
-	subsActive: 0,
-	isSubscribed: 0,
-	subsSub: 'Subscribe',
-	subsUns: 'Unsubscribe'
-}, bbpTopicJS );
-
-// Topic Global
-bbpTopicJS.favoritesActive = parseInt( bbpTopicJS.favoritesActive );
-bbpTopicJS.isFav           = parseInt( bbpTopicJS.isFav );
-bbpTopicJS.subsActive      = parseInt( bbpTopicJS.subsActive );
-bbpTopicJS.isSubscribed    = parseInt( bbpTopicJS.isSubscribed );
-
-// Run it
-jQuery(document).ready( function() {
-
-	/** Favorites *************************************************************/
-
-	if ( 1 == bbpTopicJS.favoritesActive ) {
-		var favoritesToggle = jQuery( '#favorite-toggle' )
-			.addClass( 'list:favorite' )
-			.wpList( { alt: '', dimAfter: favLinkSetup } );
-
-		var favoritesToggleSpan = favoritesToggle.children( 'span' )
-			[bbpTopicJS.isFav ? 'addClass' : 'removeClass' ]( 'is-favorite' );
+		$.post( bbpTopicJS.ajaxurl, $data, function ( response ) {
+			if ( response.success ) {
+				$( update_selector ).html( response.content );
+			} else {
+				if ( !response.content ) {
+					response.content = bbpTopicJS.generic_ajax_error;
+				}
+				alert( response.content );
+			}
+		} );
 	}
 
-	function favLinkSetup() {
-		bbpTopicJS.isFav = favoritesToggleSpan.is( '.is-favorite' );
-		var aLink = "<a href='" + bbpTopicJS.favoritesLink + "'>";
-		var aDim  = "<a href='" + favoritesToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:favorite-toggle:" + favoritesToggleSpan.attr( 'id' ) + ":is-favorite'>";
-		if ( bbpTopicJS.isFav ) {
-			html = bbpTopicJS.favYes
-				.replace( /%favLinkYes%/, aLink + bbpTopicJS.favLinkYes + "</a>" )
-				.replace( /%favDel%/, aDim + bbpTopicJS.favDel + "</a>" );
-		} else {
-			html = bbpTopicJS.favNo
-				.replace( /%favLinkNo%/, aLink + bbpTopicJS.favLinkNo + "</a>" )
-				.replace( /%favAdd%/, aDim + bbpTopicJS.favAdd + "</a>" );
-		}
-		favoritesToggleSpan.html( html );
-		favoritesToggle.get(0).wpList.process( favoritesToggle );
-	}
+	$( '#favorite-toggle' ).on( 'click', 'span a.favorite-toggle', function( e ) {
+		e.preventDefault();
+		bbp_ajax_call( 'dim-favorite', $( this ).attr( 'data-topic' ), bbpTopicJS.fav_nonce, '#favorite-toggle' );
+	} );
 
-	/** Subscriptions *********************************************************/
-
-	if ( 1 == bbpTopicJS.subsActive ) {
-		var subscriptionToggle = jQuery( '#subscription-toggle' )
-			.addClass( 'list:subscription' )
-			.wpList( { alt: '', dimAfter: subsLinkSetup } );
-
-		var subscriptionToggleSpan = subscriptionToggle.children( 'span' )
-			[bbpTopicJS.isSubscribed ? 'addClass' : 'removeClass' ]( 'is-subscribed' );
-	}
-
-	function subsLinkSetup() {
-		bbpTopicJS.isSubscribed = subscriptionToggleSpan.is( '.is-subscribed' );
-		var aLink = "<a href='" + bbpTopicJS.subsLink + "'>";
-		var aDim  = "<a href='" + subscriptionToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:subscription-toggle:" + subscriptionToggleSpan.attr( 'id' ) + ":is-subscribed'>";
-
-		if ( bbpTopicJS.isSubscribed ) {
-			html = aDim + bbpTopicJS.subsUns + '</a>';
-		} else {
-			html = aDim + bbpTopicJS.subsSub + '</a>';
-		}
-
-		subscriptionToggleSpan.html( html );
-	}
+	$( '#subscription-toggle' ).on( 'click', 'span a.subscription-toggle', function( e ) {
+		e.preventDefault();
+		bbp_ajax_call( 'dim-subscription', $( this ).attr( 'data-topic' ), bbpTopicJS.subs_nonce, '#subscription-toggle' );
+	} );
 } );

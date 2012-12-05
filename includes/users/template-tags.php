@@ -639,6 +639,7 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, 
 	 * @param array $rem Optional. Remove from favorites args
 	 * @param int $user_id Optional. User id
 	 * @param int $topic_id Optional. Topic id
+	 * @param bool $wrap Optional. If you want to wrap the link in <span id="favorite-toggle">. See ajax_favorite()
 	 * @uses bbp_get_user_id() To get the user id
 	 * @uses current_user_can() If the current user can edit the user
 	 * @uses bbp_get_topic_id() To get the topic id
@@ -650,7 +651,7 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, 
 	 *                        html, add args, remove args, user & topic id
 	 * @return string User favorites link
 	 */
-	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, $topic_id = 0 ) {
+	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, $topic_id = 0, $wrap = true ) {
 		if ( !bbp_is_favorites_active() )
 			return false;
 
@@ -703,13 +704,18 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, 
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
-		} elseif ( bbp_is_query_name( 'bbp_single_topic' ) ) {
+		} else {
 			$permalink = get_permalink();
 		}
 
-		$url    = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
-		$is_fav = $is_fav ? 'is-favorite' : '';
-		$html   = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $_post . '</span></span>';
+		$url  = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
+		$fav  = $is_fav ? 'is-favorite' : '';
+		$html = sprintf( '<span id="favorite-%d" class="%s">%s<a href="%s" class="favorite-toggle" data-topic="%d" >%s</a>%s</span>', $topic_id, $fav, $pre, $url, $topic_id, $mid, $_post );
+
+		// Initial output is wrapped in a span, ajax output is hooked to this
+		if ( !empty( $wrap ) ) {
+			$html = '<span id="favorite-toggle">' . $html . '</span>';
+		}
 
 		// Return the link
 		return apply_filters( 'bbp_get_user_favorites_link', $html, $add, $rem, $user_id, $topic_id );
@@ -800,6 +806,7 @@ function bbp_user_subscribe_link( $args = '' ) {
 	 *  - before: Before the link
 	 *  - after: After the link
 	 * @param int $user_id Optional. User id
+	 * @param bool $wrap Optional. If you want to wrap the link in <span id="favorite-toggle">.
 	 * @uses bbp_get_user_id() To get the user id
 	 * @uses current_user_can() To check if the current user can edit user
 	 * @uses bbp_get_topic_id() To get the topic id
@@ -811,7 +818,7 @@ function bbp_user_subscribe_link( $args = '' ) {
 	 *                        link, args, user id & topic id
 	 * @return string Permanent link to topic
 	 */
-	function bbp_get_user_subscribe_link( $args = '', $user_id = 0 ) {
+	function bbp_get_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 		if ( !bbp_is_subscriptions_active() )
 			return;
 
@@ -855,13 +862,18 @@ function bbp_user_subscribe_link( $args = '' ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
-		} elseif ( bbp_is_query_name( 'bbp_single_topic' ) ) {
+		} else {
 			$permalink = get_permalink();
 		}
 
-		$url        = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
-		$subscribed = $is_subscribed ? ' class="is_subscribed"' : '';
-		$html       = '<span id="subscription-toggle">' . $r['before'] . '<span id="subscribe-' . $topic_id . '"' . $subscribed . '><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $r['after'] . '</span>';
+		$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
+		$sub  = $is_subscribed ? ' class="is_subscribed"' : '';
+		$html = sprintf( '%s <span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>' . $r['after'] . '</span>', $r['before'], $topic_id, $sub, $url, $topic_id, $text );
+
+		// Initial output is wrapped in a span, ajax output is hooked to this
+		if ( !empty( $wrap ) ) {
+			$html = '<span id="subscription-toggle">' . $html . '</span>';
+		}
 
 		// Return the link
 		return apply_filters( 'bbp_get_user_subscribe_link', $html, $r, $user_id, $topic_id );

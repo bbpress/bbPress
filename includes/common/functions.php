@@ -1687,3 +1687,36 @@ function bbp_set_404() {
 
 	$wp_query->set_404();
 }
+
+/**
+ * Helper method to return JSON response for the ajax calls
+ *
+ * @since bbPress (r4542)
+ *
+ * @param bool $success
+ * @param string $content
+ * @param array $extras
+ */
+function bbp_ajax_response( $success = false, $content = '', $status = -1, $extras = array() ) {
+
+	// Set status to 200 if setting response as successful
+	if ( ( true === $success ) && ( -1 === $status ) )
+		$status = 200;
+
+	// Setup the response array
+	$response = array(
+		'success' => $success,
+		'status'  => $status,
+		'content' => $content
+	);
+
+	// Merge extra response parameters in
+	if ( !empty( $extras ) && is_array( $extras ) ) {
+		$response = array_merge( $response, $extras );
+	}
+
+	// Send back the JSON
+	header( 'Content-type: application/json' );
+	echo json_encode( $response );
+	die();
+}
