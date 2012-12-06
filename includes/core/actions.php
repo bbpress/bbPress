@@ -269,6 +269,7 @@ add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
  * 1. Form submission within a theme (new and edit)
  * 2. Accessing private or hidden content (forums/topics/replies)
  * 3. Editing forums, topics, replies, users, and tags
+ * 4. bbPress specific AJAX requests
  */
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_blocked',   -1 );
 add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',    -1 );
@@ -288,6 +289,7 @@ add_action( 'bbp_template_redirect', 'bbp_move_reply_handler',      1  );
 add_action( 'bbp_template_redirect', 'bbp_toggle_reply_handler',    1  );
 add_action( 'bbp_template_redirect', 'bbp_favorites_handler',       1  );
 add_action( 'bbp_template_redirect', 'bbp_subscriptions_handler',   1  );
+add_action( 'bbp_template_redirect', 'bbp_do_ajax',                 1  );
 add_action( 'bbp_template_redirect', 'bbp_check_user_edit',         10 );
 add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',        10 );
 add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',        10 );

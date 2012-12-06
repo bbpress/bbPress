@@ -7,7 +7,7 @@ jQuery( document ).ready( function ( $ ) {
 			nonce  : nonce
 		};
 
-		$.post( bbpTopicJS.ajaxurl, $data, function ( response ) {
+		$.post( bbpTopicJS.bbp_ajaxurl, $data, function ( response ) {
 			if ( response.success ) {
 				$( update_selector ).html( response.content );
 			} else {
@@ -21,11 +21,11 @@ jQuery( document ).ready( function ( $ ) {
 
 	$( '#favorite-toggle' ).on( 'click', 'span a.favorite-toggle', function( e ) {
 		e.preventDefault();
-		bbp_ajax_call( 'dim-favorite', $( this ).attr( 'data-topic' ), bbpTopicJS.fav_nonce, '#favorite-toggle' );
+		bbp_ajax_call( 'favorite', $( this ).attr( 'data-topic' ), bbpTopicJS.fav_nonce, '#favorite-toggle' );
 	} );
 
 	$( '#subscription-toggle' ).on( 'click', 'span a.subscription-toggle', function( e ) {
 		e.preventDefault();
-		bbp_ajax_call( 'dim-subscription', $( this ).attr( 'data-topic' ), bbpTopicJS.subs_nonce, '#subscription-toggle' );
+		bbp_ajax_call( 'subscription', $( this ).attr( 'data-topic' ), bbpTopicJS.subs_nonce, '#subscription-toggle' );
 	} );
 } );

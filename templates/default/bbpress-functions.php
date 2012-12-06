@@ -84,14 +84,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		/** Scripts ***********************************************************/
 
-		add_action( 'bbp_enqueue_scripts',             array( $this, 'enqueue_styles'        ) ); // Enqueue theme CSS
-		add_action( 'bbp_enqueue_scripts',             array( $this, 'enqueue_scripts'       ) ); // Enqueue theme JS
-		add_filter( 'bbp_enqueue_scripts',             array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
-		add_action( 'bbp_head',                        array( $this, 'head_scripts'          ) ); // Output some extra JS in the <head>
-		add_action( 'wp_ajax_dim-favorite',            array( $this, 'ajax_favorite'         ) ); // Handles the ajax favorite/unfavorite
-		add_action( 'wp_ajax_dim-subscription',        array( $this, 'ajax_subscription'     ) ); // Handles the ajax subscribe/unsubscribe
-		add_action( 'wp_ajax_nopriv_dim-favorite',     array( $this, 'ajax_favorite'         ) ); // Handles the ajax favorite/unfavorite
-		add_action( 'wp_ajax_nopriv_dim-subscription', array( $this, 'ajax_subscription'     ) ); // Handles the ajax subscribe/unsubscribe
+		add_action( 'bbp_enqueue_scripts',   array( $this, 'enqueue_styles'        ) ); // Enqueue theme CSS
+		add_action( 'bbp_enqueue_scripts',   array( $this, 'enqueue_scripts'       ) ); // Enqueue theme JS
+		add_filter( 'bbp_enqueue_scripts',   array( $this, 'localize_topic_script' ) ); // Enqueue theme script localization
+		add_action( 'bbp_head',              array( $this, 'head_scripts'          ) ); // Output some extra JS in the <head>
+		add_action( 'bbp_ajax_favorite',     array( $this, 'ajax_favorite'         ) ); // Handles the ajax favorite/unfavorite
+		add_action( 'bbp_ajax_subscription', array( $this, 'ajax_subscription'     ) ); // Handles the ajax subscribe/unsubscribe
 
 		/** Template Wrappers *************************************************/
 
@@ -178,7 +176,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Topic favorite/subscribe
 		if ( bbp_is_single_topic() ) {
-			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'jquery' ), $this->version, true );
+			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'jquery' ), $this->version );
 		}
 
 		// User Profile edit
@@ -197,12 +195,13 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses bbp_is_single_user_edit() To check if it's the profile edit page
 	 */
 	public function head_scripts() {
-	?>
+
+		// Bail if no extra JS is needed
+		if ( ! bbp_is_single_user_edit() && ! bbp_use_wp_editor() )
+			return; ?>
 
 		<script type="text/javascript">
 			/* <![CDATA[ */
-			var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-
 			<?php if ( bbp_is_single_user_edit() ) : ?>
 			if ( window.location.hash == '#password' ) {
 				document.getElementById('pass1').focus();
@@ -263,7 +262,7 @@ class BBP_Default extends BBP_Theme_Compat {
 			return;
 
 		wp_localize_script( 'bbpress-topic', 'bbpTopicJS', array(
-			'ajaxurl'            => admin_url( 'admin-ajax.php', ( is_ssl() ? 'https' : 'http' ) ),
+			'bbp_ajaxurl'        => bbp_get_ajax_url(),
 			'generic_ajax_error' => __( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
 			'is_user_logged_in'  => is_user_logged_in(),
 			'fav_nonce'          => wp_create_nonce( 'toggle-favorite_' .     get_the_ID() ),
