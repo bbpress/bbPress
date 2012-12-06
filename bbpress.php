@@ -287,6 +287,7 @@ final class bbPress {
 		/** Components ********************************************************/
 
 		// Common
+		require( $this->includes_dir . 'common/ajax.php'           );
 		require( $this->includes_dir . 'common/classes.php'        );
 		require( $this->includes_dir . 'common/functions.php'      );
 		require( $this->includes_dir . 'common/template-tags.php'  );
