@@ -55,14 +55,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$this->template_file        = 'groups/single/plugins';
 		$this->display_hook         = 'bp_template_content';
 
-		// Add handlers to bp_actions
-		add_action( 'bp_actions', 'bbp_new_forum_handler'  );
-		add_action( 'bp_actions', 'bbp_new_topic_handler'  );
-		add_action( 'bp_actions', 'bbp_new_reply_handler'  );
-		add_action( 'bp_actions', 'bbp_edit_forum_handler' );
-		add_action( 'bp_actions', 'bbp_edit_topic_handler' );
-		add_action( 'bp_actions', 'bbp_edit_reply_handler' );
-
 		// Possibly redirect
 		add_action( 'bbp_template_redirect',     array( $this, 'redirect_canonical' ) );
 

@@ -77,6 +77,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  *
  * @since bbPress (r2574)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
@@ -102,14 +103,10 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                              message
  */
-function bbp_new_reply_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_new_reply_handler( $action = '' ) {
 
 	// Bail if action is not bbp-new-reply
-	if ( empty( $_POST['action'] ) || ( 'bbp-new-reply' !== $_POST['action'] ) )
+	if ( 'bbp-new-reply' !== $action )
 		return;
 
 	// Nonce check
@@ -348,6 +345,7 @@ function bbp_new_reply_handler() {
 /**
  * Handles the front end edit reply submission
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
  * @uses bbp_get_reply() To get the reply
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -375,14 +373,10 @@ function bbp_new_reply_handler() {
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                             message
  */
-function bbp_edit_reply_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_edit_reply_handler( $action = '' ) {
 
 	// Bail if action is not bbp-edit-reply
-	if ( empty( $_POST['action'] ) || ( 'bbp-edit-reply' !== $_POST['action'] ) )
+	if ( 'bbp-edit-reply' !== $action )
 		return;
 
 	// Define local variable(s)
@@ -1017,6 +1011,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
  *
  * @since bbPress (r4521)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_get_reply() To get the reply
  * @uses bbp_get_topic() To get the topics
@@ -1042,14 +1037,10 @@ function bbp_update_reply_revision_log( $args = '' ) {
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_safe_redirect() To redirect to the topic link
  */
-function bbp_move_reply_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_move_reply_handler( $action = '' ) {
 
 	// Bail if action is not 'bbp-move-reply'
-	if ( empty( $_POST['action'] ) || ( 'bbp-move-reply' !== $_POST['action'] ) )
+	if ( 'bbp-move-reply' !== $action )
 		return;
 
 	// Prevent debug notices
@@ -1313,6 +1304,7 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  *
  * @since bbPress (r2740)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_get_reply() To get the reply
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the reply
@@ -1331,14 +1323,10 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  * @uses wp_safe_redirect() To redirect to the reply
  * @uses bbPress::errors:add() To log the error messages
  */
-function bbp_toggle_reply_handler() {
-
-	// Bail if not a GET action
-	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_toggle_reply_handler( $action = '' ) {
 
 	// Bail if required GET actions aren't passed
-	if ( empty( $_GET['reply_id'] ) || empty( $_GET['action'] ) )
+	if ( empty( $_GET['reply_id'] ) )
 		return;
 
 	// Setup possible get actions
@@ -1348,12 +1336,11 @@ function bbp_toggle_reply_handler() {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $_GET['action'], $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) )
 		return;
 
 	$failure   = '';                         // Empty failure string
 	$view_all  = false;                      // Assume not viewing all
-	$action    = $_GET['action'];            // What action is taking place?
 	$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
 	$success   = false;                      // Flag
 	$post_data = array( 'ID' => $reply_id ); // Prelim array

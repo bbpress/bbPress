@@ -79,6 +79,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 /**
  * Handles the front end topic submission
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_verify_nonce_request() To verify the nonce and check the referer
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
@@ -108,14 +109,10 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
-function bbp_new_topic_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_new_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-new-topic
-	if ( empty( $_POST['action'] ) || ( 'bbp-new-topic' !== $_POST['action'] ) )
+	if ( 'bbp-new-topic' !== $action )
 		return;
 
 	// Nonce check
@@ -385,6 +382,7 @@ function bbp_new_topic_handler() {
 /**
  * Handles the front end edit topic submission
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_get_topic() To get the topic
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -416,14 +414,10 @@ function bbp_new_topic_handler() {
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
-function bbp_edit_topic_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_edit_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-edit-topic
-	if ( empty( $_POST['action'] ) || ( 'bbp-edit-topic' !== $_POST['action'] ) )
+	if ( 'bbp-edit-topic' !== $action )
 		return;
 
 	// Define local variable(s)
@@ -1032,6 +1026,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  *
  * @since bbPress (r2756)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_get_topic() To get the topics
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -1063,14 +1058,10 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_safe_redirect() To redirect to the topic link
  */
-function bbp_merge_topic_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_merge_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-merge-topic
-	if ( empty( $_POST['action'] ) || ( 'bbp-merge-topic' !== $_POST['action'] ) )
+	if ( 'bbp-merge-topic' !== $action )
 		return;
 
 	// Define local variable(s)
@@ -1317,6 +1308,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  *
  * @since bbPress (r2756)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_get_reply() To get the reply
  * @uses bbp_get_topic() To get the topics
@@ -1348,14 +1340,10 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_safe_redirect() To redirect to the topic link
  */
-function bbp_split_topic_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_split_topic_handler( $action = '' ) {
 
 	// Bail if action is not 'bbp-split-topic'
-	if ( empty( $_POST['action'] ) || ( 'bbp-split-topic' !== $_POST['action'] ) )
+	if ( 'bbp-split-topic' !== $action )
 		return;
 
 	global $wpdb;
@@ -1688,6 +1676,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  *
  * @since bbPress (r2768)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit/delete tags
  * @uses bbPress::errors::add() To log the error messages
@@ -1701,14 +1690,10 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses wp_safe_redirect() To redirect to the url
  */
-function bbp_edit_topic_tag_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_edit_topic_tag_handler( $action = '' ) {
 
 	// Bail if required POST actions aren't passed
-	if ( empty( $_POST['tag-id'] ) || empty( $_POST['action'] ) )
+	if ( empty( $_POST['tag-id'] ) )
 		return;
 
 	// Setup possible get actions
@@ -1719,11 +1704,10 @@ function bbp_edit_topic_tag_handler() {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $_POST['action'], $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) )
 		return;
 
 	// Setup vars
-	$action = $_POST['action'];
 	$tag_id = (int) $_POST['tag-id'];
 	$tag    = get_term( $tag_id, bbp_get_topic_tag_tax_id() );
 
@@ -1919,6 +1903,7 @@ function bbp_get_super_stickies() {
  *
  * @since bbPress (r2727)
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_get_topic() To get the topic
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the topic
@@ -1944,14 +1929,10 @@ function bbp_get_super_stickies() {
  * @uses wp_safe_redirect() To redirect to the topic
  * @uses bbPress::errors:add() To log the error messages
  */
-function bbp_toggle_topic_handler() {
-
-	// Bail if not a GET action
-	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_toggle_topic_handler( $action = '' ) {
 
 	// Bail if required GET actions aren't passed
-	if ( empty( $_GET['topic_id'] ) || empty( $_GET['action'] ) )
+	if ( empty( $_GET['topic_id'] ) )
 		return;
 
 	// Setup possible get actions
@@ -1963,12 +1944,11 @@ function bbp_toggle_topic_handler() {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $_GET['action'], $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) )
 		return;
 
 	$failure   = '';                         // Empty failure string
 	$view_all  = false;                      // Assume not viewing all
-	$action    = $_GET['action'];            // What action is taking place?
 	$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 	$success   = false;                      // Flag
 	$post_data = array( 'ID' => $topic_id ); // Prelim array

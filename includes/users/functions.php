@@ -416,6 +416,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 /**
  * Handles the front end adding and removing of favorite topics
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_get_user_id() To get the user id
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the user
@@ -430,17 +431,13 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_safe_redirect() To redirect to the url
  */
-function bbp_favorites_handler() {
+function bbp_favorites_handler( $action = '' ) {
 
 	if ( !bbp_is_favorites_active() )
 		return false;
 
-	// Bail if not a GET action
-	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
-
-	// Bail if required GET actions aren't passed
-	if ( empty( $_GET['topic_id'] ) || empty( $_GET['action'] ) )
+	// Bail if no topic ID is passed
+	if ( empty( $_GET['topic_id'] ) )
 		return;
 
 	// Setup possible get actions
@@ -450,11 +447,10 @@ function bbp_favorites_handler() {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $_GET['action'], $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) )
 		return;
 
 	// What action is taking place?
-	$action      = $_GET['action'];
 	$topic_id    = intval( $_GET['topic_id'] );
 	$user_id     = bbp_get_user_id( 0, true, true );
 
@@ -734,6 +730,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 /**
  * Handles the front end subscribing and unsubscribing topics
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_user_id() To get the user id
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -750,17 +747,13 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_safe_redirect() To redirect to the url
  */
-function bbp_subscriptions_handler() {
+function bbp_subscriptions_handler( $action = '' ) {
 
 	if ( !bbp_is_subscriptions_active() )
 		return false;
 
-	// Bail if not a GET action
-	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
-
-	// Bail if required GET actions aren't passed
-	if ( empty( $_GET['topic_id'] ) || empty( $_GET['action'] ) )
+	// Bail if no topic ID is passed
+	if ( empty( $_GET['topic_id'] ) )
 		return;
 
 	// Setup possible get actions
@@ -770,11 +763,10 @@ function bbp_subscriptions_handler() {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $_GET['action'], $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) )
 		return;
 
 	// Get required data
-	$action   = $_GET['action'];
 	$user_id  = bbp_get_user_id( 0, true, true );
 	$topic_id = intval( $_GET['topic_id'] );
 
@@ -840,6 +832,7 @@ function bbp_subscriptions_handler() {
 /**
  * Handles the front end user editing
  *
+ * @param string $action The requested action to compare this function to
  * @uses is_multisite() To check if it's a multisite
  * @uses bbp_is_user_home() To check if the user is at home (the display page
  *                           is the one of the logged in user)
@@ -866,14 +859,10 @@ function bbp_subscriptions_handler() {
  * @uses grant_super_admin() To grant super admin priviledges
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  */
-function bbp_edit_user_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_edit_user_handler( $action = '' ) {
 
 	// Bail if action is not 'bbp-update-user'
-	if ( empty( $_POST['action'] ) || ( 'bbp-update-user' !== $_POST['action'] ) )
+	if ( 'bbp-update-user' !== $action )
 		return;
 
 	// Get the displayed user ID

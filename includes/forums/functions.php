@@ -77,6 +77,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 /**
  * Handles the front end forum submission
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
@@ -106,14 +107,10 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
-function bbp_new_forum_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_new_forum_handler( $action = '' ) {
 
 	// Bail if action is not bbp-new-forum
-	if ( empty( $_POST['action'] ) || ( 'bbp-new-forum' !== $_POST['action'] ) )
+	if ( 'bbp-new-forum' !== $action )
 		return;
 
 	// Nonce check
@@ -338,6 +335,7 @@ function bbp_new_forum_handler() {
 /**
  * Handles the front end edit forum submission
  *
+ * @param string $action The requested action to compare this function to
  * @uses bbPress:errors::add() To log various error messages
  * @uses bbp_get_forum() To get the forum
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -367,14 +365,10 @@ function bbp_new_forum_handler() {
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
-function bbp_edit_forum_handler() {
-
-	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
-		return;
+function bbp_edit_forum_handler( $action = '' ) {
 
 	// Bail if action is not bbp-edit-forum
-	if ( empty( $_POST['action'] ) || ( 'bbp-edit-forum' !== $_POST['action'] ) )
+	if ( 'bbp-edit-forum' !== $action )
 		return;
 
 	// Define local variable(s)

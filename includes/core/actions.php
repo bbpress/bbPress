@@ -266,35 +266,41 @@ add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
 /**
  * bbPress needs to redirect the user around in a few different circumstances:
  *
- * 1. Form submission within a theme (new and edit)
+ * 1. POST and GET requests
  * 2. Accessing private or hidden content (forums/topics/replies)
  * 3. Editing forums, topics, replies, users, and tags
  * 4. bbPress specific AJAX requests
  */
-add_action( 'bbp_template_redirect', 'bbp_forum_enforce_blocked',   -1 );
-add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',    -1 );
-add_action( 'bbp_template_redirect', 'bbp_forum_enforce_private',   -1 );
-add_action( 'bbp_template_redirect', 'bbp_new_forum_handler',       10 );
-add_action( 'bbp_template_redirect', 'bbp_new_reply_handler',       10 );
-add_action( 'bbp_template_redirect', 'bbp_new_topic_handler',       10 );
-add_action( 'bbp_template_redirect', 'bbp_edit_topic_tag_handler',  1  );
-add_action( 'bbp_template_redirect', 'bbp_edit_user_handler',       1  );
-add_action( 'bbp_template_redirect', 'bbp_edit_forum_handler',      1  );
-add_action( 'bbp_template_redirect', 'bbp_edit_reply_handler',      1  );
-add_action( 'bbp_template_redirect', 'bbp_edit_topic_handler',      1  );
-add_action( 'bbp_template_redirect', 'bbp_merge_topic_handler',     1  );
-add_action( 'bbp_template_redirect', 'bbp_split_topic_handler',     1  );
-add_action( 'bbp_template_redirect', 'bbp_toggle_topic_handler',    1  );
-add_action( 'bbp_template_redirect', 'bbp_move_reply_handler',      1  );
-add_action( 'bbp_template_redirect', 'bbp_toggle_reply_handler',    1  );
-add_action( 'bbp_template_redirect', 'bbp_favorites_handler',       1  );
-add_action( 'bbp_template_redirect', 'bbp_subscriptions_handler',   1  );
-add_action( 'bbp_template_redirect', 'bbp_do_ajax',                 1  );
-add_action( 'bbp_template_redirect', 'bbp_check_user_edit',         10 );
-add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',        10 );
-add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',        10 );
-add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',        10 );
-add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',    10 );
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_blocked', 1  );
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',  1  );
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_private', 1  );
+add_action( 'bbp_template_redirect', 'bbp_post_request',          10 );
+add_action( 'bbp_template_redirect', 'bbp_get_request',           10 );
+add_action( 'bbp_template_redirect', 'bbp_check_user_edit',       10 );
+add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',      10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',      10 );
+add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',      10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',  10 );
+
+// Theme-side POST requests
+add_action( 'bbp_post_request', 'bbp_do_ajax',                1  );
+add_action( 'bbp_post_request', 'bbp_edit_topic_tag_handler', 1  );
+add_action( 'bbp_post_request', 'bbp_edit_user_handler',      1  );
+add_action( 'bbp_post_request', 'bbp_edit_forum_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_edit_reply_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_edit_topic_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_merge_topic_handler',    1  );
+add_action( 'bbp_post_request', 'bbp_split_topic_handler',    1  );
+add_action( 'bbp_post_request', 'bbp_move_reply_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_new_forum_handler',      10 );
+add_action( 'bbp_post_request', 'bbp_new_reply_handler',      10 );
+add_action( 'bbp_post_request', 'bbp_new_topic_handler',      10 );
+
+// Theme-side GET requests
+add_action( 'bbp_get_request', 'bbp_toggle_topic_handler',   1  );
+add_action( 'bbp_get_request', 'bbp_toggle_reply_handler',   1  );
+add_action( 'bbp_get_request', 'bbp_favorites_handler',      1  );
+add_action( 'bbp_get_request', 'bbp_subscriptions_handler',  1  );
 
 // Maybe convert the users password
 add_action( 'bbp_login_form_login', 'bbp_user_maybe_convert_pass' );

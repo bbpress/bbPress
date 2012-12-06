@@ -318,6 +318,46 @@ function bbp_after_setup_theme() {
 }
 
 /**
+ * The main action used for handling theme-side POST requests
+ *
+ * @since bbPress (r4550)
+ * @uses do_action()
+ */
+function bbp_post_request() {
+
+	// Bail if not a POST action
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
+
+	// Bail if action is not bbp-new-reply
+	if ( empty( $_POST['action'] ) )
+		return;
+
+	do_action( 'bbp_post_request', $_POST['action'] );
+}
+
+/**
+ * The main action used for handling theme-side GET requests
+ *
+ * @since bbPress (r4550)
+ * @uses do_action()
+ */
+function bbp_get_request() {
+
+	// Bail if not a POST action
+	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
+
+	// Bail if action is not bbp-new-reply
+	if ( empty( $_GET['action'] ) )
+		return;
+
+	do_action( 'bbp_get_request', $_GET['action'] );
+}
+
+/** Filters *******************************************************************/
+
+/**
  * Filter the plugin locale and domain.
  *
  * @since bbPress (r4213)
@@ -328,8 +368,6 @@ function bbp_after_setup_theme() {
 function bbp_plugin_locale( $locale = '', $domain = '' ) {
 	return apply_filters( 'bbp_plugin_locale', $locale, $domain );
 }
-
-/** Filters *******************************************************************/
 
 /**
  * Piggy back filter for WordPress's 'request' filter
