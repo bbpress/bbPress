@@ -1426,8 +1426,10 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  */
 function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
-	// Get the home URL
-	$home_url      = strtolower( home_url() );
+	// Parse home_url() into pieces to remove query-strings, strange characters, 
+	// and other funny things that plugins might to do to it.
+	$parsed_home   = parse_url( home_url( '/', ( is_ssl() ? 'https://' : 'http://' ) ) );
+	$home_url      = trim( strtolower( $parsed_home['scheme'] . '://' . $parsed_home['host'] . $parsed_home['path'] ), '/' );
 
 	// Build the currently requested URL
 	$scheme        = is_ssl() ? 'https://' : 'http://';
