@@ -633,8 +633,7 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @param int $reply_id Optional. Reply id
  * @param int $topic_id Optional. Topic id
  * @param int $forum_id Optional. Forum id
- * @param bool|array $anonymous_data Optional. If it is an array, it is
- *                    extracted and anonymous user info is saved
+ * @param bool|array $anonymous_data Optional logged-out user data.
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @uses bbp_get_reply_id() To get the reply id

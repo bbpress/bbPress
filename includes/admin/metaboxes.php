@@ -34,7 +34,7 @@
  */
 function bbp_dashboard_widget_right_now() {
 
-	// Get the statistics and extract them
+	// Get the statistics
 	$r = bbp_get_statistics(); ?>
 
 	<div class="table table_content">

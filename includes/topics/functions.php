@@ -717,8 +717,7 @@ function bbp_edit_topic_handler( $action = '' ) {
  *
  * @param int $topic_id Optional. Topic id
  * @param int $forum_id Optional. Forum id
- * @param bool|array $anonymous_data Optional. If it is an array, it is
- *                    extracted and anonymous user info is saved
+ * @param bool|array $anonymous_data Optional logged-out user data.
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @uses bbp_get_topic_id() To get the topic id
