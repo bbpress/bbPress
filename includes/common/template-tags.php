@@ -2051,7 +2051,7 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
+		if ( is_singular() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
 			$ancestors = array_reverse( (array) get_post_ancestors( get_the_ID() ) );
 		}
 
