@@ -31,6 +31,18 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r3552)
 	 */
 	public function __construct() {
+		$this->setup_variables();
+		$this->setup_actions();
+		$this->setup_filters();
+		$this->maybe_unset_forum_menu();
+	}
+
+	/**
+	 * Setup the group forums class variables
+	 *
+	 * @since bbPress ()
+	 */
+	private function setup_variables() {
 
 		// Name and slug
 		$this->name          = __( 'Forum', 'bbpress' );
@@ -54,9 +66,28 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Template file to load, and action to hook display on to
 		$this->template_file        = 'groups/single/plugins';
 		$this->display_hook         = 'bp_template_content';
+	}
+
+	/**
+	 * Setup the group forums class actions
+	 *
+	 * @since bbPress (r4552)
+	 */
+	private function setup_actions() {
 
 		// Possibly redirect
-		add_action( 'bbp_template_redirect',     array( $this, 'redirect_canonical' ) );
+		add_action( 'bbp_template_redirect',         array( $this, 'redirect_canonical'        ) );
+
+		// Remove topic cap map when view is done
+		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_topic_meta_cap_map' ) );
+	}
+
+	/**
+	 * Setup the group forums class filters
+	 *
+	 * @since bbPress (r4552)
+	 */
+	private function setup_filters() {
 
 		// Group forum pagination
 		add_filter( 'bbp_topic_pagination',      array( $this, 'topic_pagination'   ) );
@@ -82,9 +113,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Allow group member to view private/hidden forums
 		add_filter( 'bbp_map_topic_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
 		add_filter( 'bbp_map_reply_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
-
-		// Remove topic cap map when view is done
-		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_topic_meta_cap_map' ) );
 
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
@@ -112,6 +140,26 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'bbp_no_breadcrumb', '__return_true' );
 
 		$this->display_forums( 0 );
+	}
+
+	/**
+	 * Maybe unset the group forum nav item if group does not have a forum
+	 *
+	 * @since bbPress (r4552)
+	 *
+	 * @return If not viewing a single group
+	 */
+	public function maybe_unset_forum_menu() {
+
+		// Bail if not viewing a single group
+		if ( ! bp_is_group() )
+			return;
+
+		// Are forums enabled for this group?
+		$checked = (bool) ( bp_get_new_group_enable_forum() );
+
+		// Tweak the nav item variable based on if group has forum or not
+		$this->enable_nav_item = $checked;
 	}
 
 	/**
