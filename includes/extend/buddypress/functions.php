@@ -385,7 +385,7 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 
 	// Maybe update the groups forums
 	if ( in_array( $group_id, $group_ids ) ) {
-		unset( $group_ids[$group_id] );
+		$group_ids = array_diff( array_values( $group_ids ), (array) $group_id );
 		return bbp_update_forum_group_ids( $forum_id, $group_ids );
 	}
 }
@@ -410,7 +410,7 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 
 	// Maybe update the groups forums
 	if ( in_array( $forum_id, $forum_ids ) ) {
-		unset( $forum_ids[$forum_id] );
+		$forum_ids = array_diff( array_values( $forum_ids ), (array) $forum_id );
 		return bbp_update_group_forum_ids( $group_id, $forum_ids );
 	}
 }

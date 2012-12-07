@@ -274,14 +274,61 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$edit_forum   = !empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
 		$forum_id     = 0;
 		$group_id     = bp_get_current_group_id();
-		$forum_ids    = bbp_get_group_forum_ids( $group_id );
-		if ( !empty( $forum_ids ) )
-			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
+		$forum_ids    = array_values( bbp_get_group_forum_ids( $group_id ) );
+
+		// Normalize group forum relationships now
+		if ( !empty( $forum_ids ) ) {
+
+			// Loop through forums, and make sure they exist
+			foreach ( $forum_ids as $forum_id ) {
+
+				// Look for forum
+				$forum = bbp_get_forum( $forum_id );
+
+				// No forum exists, so break the relationship
+				if ( empty( $forum ) ) {
+					$this->remove_forum( array( 'forum_id' => $forum_id ) );
+					unset( $forum_ids[$forum_id] );
+				}
+			}
+
+			// No support for multiple forums yet
+			$forum_id = (int) ( is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids );
+		}
 
 		// Update the group forum setting
 		$group               = new BP_Groups_Group( $group_id );
 		$group->enable_forum = $edit_forum;
 		$group->save();
+
+		// Create a new forum
+		if ( empty( $forum_id ) && ( true === $edit_forum ) ) {
+
+			// Set the default forum status
+			switch ( $group->status ) {
+				case 'hidden'  :
+					$status = bbp_get_hidden_status_id();
+					break;
+				case 'private' :
+					$status = bbp_get_private_status_id();
+					break;
+				case 'public'  :
+				default        :
+					$status = bbp_get_public_status_id();
+					break;
+			}
+
+			// Create the initial forum
+			$forum_id = bbp_insert_forum( array(
+				'post_parent'  => bbp_get_group_forums_root_id(),
+				'post_title'   => $group->name,
+				'post_content' => $group->description,
+				'post_status'  => $status
+			) );
+
+			// Run the BP-specific functions for new groups
+			$this->new_forum( array( 'forum_id' => $forum_id ) );
+		}
 
 		// Redirect after save
 		bp_core_redirect( trailingslashit( bp_get_group_permalink( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
