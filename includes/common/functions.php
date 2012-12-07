@@ -560,12 +560,10 @@ function bbp_get_statistics( $args = '' ) {
 		'empty_topic_tag_count'
 	) ) );
 	
-	// Add the hidden (topic/reply) count title attribute strings because we don't need to run the math functions on these (see above)
-	if ( isset( $hidden_topic_title ) )
-		$statistics['hidden_topic_title'] = $hidden_topic_title;
-
-	if ( isset( $hidden_reply_title ) )
-		$statistics['hidden_reply_title'] = $hidden_reply_title;
+	// Add the hidden (topic/reply) count title attribute strings because we
+	// don't need to run the math functions on these (see above)
+	$statistics['hidden_topic_title'] = isset( $hidden_topic_title ) ? $hidden_topic_title : '';
+	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
 
 	return apply_filters( 'bbp_get_statistics', $statistics, $args );
 }
