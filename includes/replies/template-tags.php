@@ -1456,13 +1456,13 @@ function bbp_reply_admin_links( $args = '' ) {
 
 		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
-			$r['links'] = array (
+			$r['links'] = apply_filters( 'bbp_reply_admin_links', array(
 				'edit'  => bbp_get_reply_edit_link ( $r ),
 				'move'  => bbp_get_reply_move_link ( $r ),
 				'split' => bbp_get_topic_split_link( $r ),
 				'trash' => bbp_get_reply_trash_link( $r ),
 				'spam'  => bbp_get_reply_spam_link ( $r ),
-			);
+			), $r['id'] );
 		}
 
 		// Check caps for trashing the topic

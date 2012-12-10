@@ -2190,14 +2190,14 @@ function bbp_topic_admin_links( $args = '' ) {
 			return;
 
 		if ( empty( $r['links'] ) ) {
-			$r['links'] = array(
+			$r['links'] = apply_filters( 'bbp_topic_admin_links', array(
 				'edit'  => bbp_get_topic_edit_link ( $r ),
 				'close' => bbp_get_topic_close_link( $r ),
 				'stick' => bbp_get_topic_stick_link( $r ),
 				'merge' => bbp_get_topic_merge_link( $r ),
 				'trash' => bbp_get_topic_trash_link( $r ),
 				'spam'  => bbp_get_topic_spam_link ( $r ),
-			);
+			), $r['id'] );
 		}
 
 		// Check caps for trashing the topic
