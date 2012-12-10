@@ -135,8 +135,7 @@ function bbp_is_deactivation( $basename = '' ) {
  * @uses bbp_get_db_version() To get bbPress's database version
  */
 function bbp_version_bump() {
-	$db_version = bbp_get_db_version();
-	update_option( '_bbp_db_version', $db_version );
+	update_option( '_bbp_db_version', bbp_get_db_version() );
 }
 
 /**
