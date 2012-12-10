@@ -75,6 +75,11 @@ function bbp_has_replies( $args = '' ) {
 		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
 	}
 
+	// Add support for private status
+	if ( current_user_can( 'read_private_replies' ) ) {
+		$post_statuses[] = bbp_get_private_status_id();
+	}
+
 	$default_reply_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
 	$default_post_parent  = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
 	$default_post_type    = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
