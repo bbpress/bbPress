@@ -50,17 +50,19 @@ function bbp_is_update() {
  * @return bool True if activating bbPress, false if not
  */
 function bbp_is_activation( $basename = '' ) {
-	$bbp = bbpress();
-
+	$bbp    = bbpress();
 	$action = false;
-	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )
+
+	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
-	elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) )
+	} elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) ) {
 		$action = $_REQUEST['action2'];
+	}
 
 	// Bail if not activating
-	if ( empty( $action ) || !in_array( $action, array( 'activate', 'activate-selected' ) ) )
+	if ( empty( $action ) || !in_array( $action, array( 'activate', 'activate-selected' ) ) ) {
 		return false;
+	}
 
 	// The plugin(s) being activated
 	if ( $action == 'activate' ) {
@@ -70,12 +72,14 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $bbp->basename ) )
+	if ( empty( $basename ) && !empty( $bbp->basename ) ) {
 		$basename = $bbp->basename;
+	}
 
 	// Bail if no basename
-	if ( empty( $basename ) )
+	if ( empty( $basename ) ) {
 		return false;
+	}
 
 	// Is bbPress being activated?
 	return in_array( $basename, $plugins );
@@ -88,17 +92,19 @@ function bbp_is_activation( $basename = '' ) {
  * @return bool True if deactivating bbPress, false if not
  */
 function bbp_is_deactivation( $basename = '' ) {
-	$bbp = bbpress();
-
+	$bbp    = bbpress();
 	$action = false;
-	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )
+	
+	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
-	elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) )
+	} elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) ) {
 		$action = $_REQUEST['action2'];
+	}
 
 	// Bail if not deactivating
-	if ( empty( $action ) || !in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) )
+	if ( empty( $action ) || !in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) ) {
 		return false;
+	}
 
 	// The plugin(s) being deactivated
 	if ( $action == 'deactivate' ) {
@@ -108,12 +114,14 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $bbp->basename ) )
+	if ( empty( $basename ) && !empty( $bbp->basename ) ) {
 		$basename = $bbp->basename;
+	}
 
 	// Bail if no basename
-	if ( empty( $basename ) )
+	if ( empty( $basename ) ) {
 		return false;
+	}
 
 	// Is bbPress being deactivated?
 	return in_array( $basename, $plugins );
