@@ -839,10 +839,11 @@ function bbp_reply_author( $reply_id = 0 ) {
 	function bbp_get_reply_author( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		if ( !bbp_is_reply_anonymous( $reply_id ) )
+		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
 			$author = get_the_author_meta( 'display_name', bbp_get_reply_author_id( $reply_id ) );
-		else
+		} else {
 			$author = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
+		}
 
 		return apply_filters( 'bbp_get_reply_author', $author, $reply_id );
 	}

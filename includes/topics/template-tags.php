@@ -378,28 +378,29 @@ function bbp_topic_id( $topic_id = 0) {
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $topic_id ) && is_numeric( $topic_id ) )
+		if ( !empty( $topic_id ) && is_numeric( $topic_id ) ) {
 			$bbp_topic_id = $topic_id;
 
 		// Currently inside a topic loop
-		elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) )
+		} elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) ) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
 		// Currently viewing a forum
-		elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) )
+		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) ) {
 			$bbp_topic_id = $bbp->current_topic_id;
 
 		// Currently viewing a topic
-		elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
+		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) ) {
 			$bbp_topic_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( bbp_is_single_reply() )
+		} elseif ( bbp_is_single_reply() ) {
 			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
-		else
+		} else {
 			$bbp_topic_id = 0;
+		}
 
 		return (int) apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
 	}
@@ -1147,10 +1148,11 @@ function bbp_topic_author( $topic_id = 0 ) {
 	function bbp_get_topic_author( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		if ( !bbp_is_topic_anonymous( $topic_id ) )
+		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
 			$author = get_the_author_meta( 'display_name', bbp_get_topic_author_id( $topic_id ) );
-		else
+		} else {
 			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+		}
 
 		return apply_filters( 'bbp_get_topic_author', $author, $topic_id );
 	}
@@ -1786,10 +1788,11 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 
-		if ( !empty( $reply_id ) && ( $reply_id != $topic_id ) )
+		if ( !empty( $reply_id ) && ( $reply_id != $topic_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
-		else
+		} else {
 			$reply_url = bbp_get_topic_permalink( $topic_id );
+		}
 
 		return apply_filters( 'bbp_get_topic_last_reply_url', $reply_url );
 	}
