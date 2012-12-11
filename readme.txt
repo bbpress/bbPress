@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,11 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.2.3 =
+* Improve compatibility with some themes
+* Fix integration with BuddyPress Group Forums
+* Fix BuddyPress Activity Stream integration
 
 = 2.2.2 =
 * RTL and i18n fixes
