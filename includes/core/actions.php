@@ -222,9 +222,9 @@ add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_favorites' );
 add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_favorites' );
 
 // Subscriptions
-add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_subscriptions'      );
-add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_subscriptions'      );
-add_action( 'bbp_new_reply',    'bbp_notify_subscribers',                 1, 5 );
+add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_subscriptions'       );
+add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_subscriptions'       );
+add_action( 'bbp_new_reply',    'bbp_notify_subscribers',                 11, 5 );
 
 // Sticky
 add_action( 'bbp_trash_topic',  'bbp_unstick_topic' );
