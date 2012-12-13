@@ -1530,7 +1530,7 @@ function bbp_topic_author_role( $args = array() ) {
 			'after'    => ''
 		), 'get_topic_author_role' );
 
-		$topic_id    = bbp_get_topic_id( $topic_id );
+		$topic_id    = bbp_get_topic_id( $r['topic_id'] );
 		$role        = bbp_get_user_display_role( bbp_get_topic_author_id( $topic_id ) );
 		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $r['before'], $r['class'], $role, $r['after'] );
 
