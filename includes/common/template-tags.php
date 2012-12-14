@@ -1336,15 +1336,17 @@ function bbp_dropdown( $args = '' ) {
 		$tab       = (int) $r['tab'];
 		$retval    = '';
 		$disabled  = disabled( isset( bbpress()->options[$r['disabled']] ), true, false );
-		$posts     = get_posts( array(
-			'post_type'   => $r['post_type'],
-			'post_status' => $r['post_status'],
-			'sort_column' => $r['sort_column'],
-			'post_parent' => $r['post_parent'],
-			'exclude'     => $r['exclude'],
-			'numberposts' => $r['numberposts'],
-			'orderby'     => $r['orderby'],
-			'order'       => $r['order'],
+		$posts     = get_pages( array(
+			'post_type'          => $r['post_type'],
+			'post_status'        => $r['post_status'],
+			'sort_column'        => $r['sort_column'],
+			'post_parent'        => $r['post_parent'],
+			'exclude'            => $r['exclude'],
+			'numberposts'        => $r['numberposts'],
+			'orderby'            => $r['orderby'],
+			'order'              => $r['order'],
+			'walker'             => $r['walker'],
+			'disable_categories' => $r['disable_categories']
 		) );
 
 		/** Drop Down *********************************************************/
