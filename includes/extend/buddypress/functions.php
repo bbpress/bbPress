@@ -453,3 +453,28 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 		bbp_remove_forum_id_from_group( $forum_id, $group_id );
 	}
 }
+
+/**
+ * Return true if a forum is a group forum
+ *
+ * @since bbPress (r4571)
+ *
+ * @param int $forum_id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_forum_group_ids() To get the forum's group ids
+ * @uses apply_filters() Calls 'bbp_forum_is_group_forum' with the forum id 
+ * @return bool True if it is a group forum, false if not
+ */
+function bbp_is_forum_group_forum( $forum_id = 0 ) {
+
+	// Validate
+	$forum_id  = bbp_get_forum_id( $forum_id );
+
+	// Check for group ID's
+	$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+	// Check if the forum has groups
+	$retval    = (bool) !empty( $group_ids );
+
+	return (bool) apply_filters( 'bbp_is_forum_group_forum', $retval, $forum_id, $group_ids );
+}
