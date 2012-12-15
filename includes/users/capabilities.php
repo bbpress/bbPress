@@ -369,11 +369,11 @@ function bbp_make_spam_user( $user_id = 0 ) {
 
 	// Bail if no user ID
 	if ( empty( $user_id ) )
-		return;
+		return false;
 
 	// Bail if user ID is super admin
 	if ( is_super_admin( $user_id ) )
-		return;
+		return false;
 
 	// Arm the torpedos
 	global $wpdb;
@@ -421,6 +421,9 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		// Switch back to current blog
 		restore_current_blog();
 	}
+
+	// Success
+	return true;
 }
 
 /**
@@ -454,11 +457,11 @@ function bbp_make_ham_user( $user_id = 0 ) {
 
 	// Bail if no user ID
 	if ( empty( $user_id ) )
-		return;
+		return false;
 
 	// Bail if user ID is super admin
 	if ( is_super_admin( $user_id ) )
-		return;
+		return false;
 
 	// Arm the torpedos
 	global $wpdb;
@@ -506,6 +509,9 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		// Switch back to current blog
 		restore_current_blog();
 	}
+
+	// Success
+	return true;
 }
 
 /**
