@@ -2856,7 +2856,7 @@ function bbp_topic_type_select( $args = '' ) {
 	}
 
 	// Used variables
-	$tab             = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
+	$tab             = !empty( $r['tab'] ) ? ' tabindex="' . $r['tab'] . '"' : '';
 	$select_id       = esc_attr( $r['select_id'] );
 	$sticky_statuses = array (
 		'unstick' => $r['unstick_text'],
