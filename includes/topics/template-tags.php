@@ -390,16 +390,16 @@ function bbp_topic_id( $topic_id = 0) {
 		} elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) ) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
-		// Currently viewing a forum
+		// Currently viewing/editing a topic, likely alone
 		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) ) {
 			$bbp_topic_id = $bbp->current_topic_id;
 
-		// Currently viewing a topic
+		// Currently viewing/editing a topic, likely in a loop
 		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) ) {
 			$bbp_topic_id = $wp_query->post->ID;
 
-		// Currently viewing a topic
-		} elseif ( bbp_is_single_reply() ) {
+		// Currently viewing/editing a reply
+		} elseif ( bbp_is_single_reply() || bbp_is_reply_edit() ) {
 			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
