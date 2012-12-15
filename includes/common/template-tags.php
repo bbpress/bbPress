@@ -1629,17 +1629,19 @@ function bbp_the_content( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'context'       => 'topic',
-			'before'        => '<div class="bbp-the-content-wrapper">',
-			'after'         => '</div>',
-			'wpautop'       => true,
-			'media_buttons' => false,
-			'textarea_rows' => '12',
-			'tabindex'      => bbp_get_tab_index(),
-			'editor_class'  => 'bbp-the-content',
-			'tinymce'       => true,
-			'teeny'         => true,
-			'quicktags'     => true
+			'context'           => 'topic',
+			'before'            => '<div class="bbp-the-content-wrapper">',
+			'after'             => '</div>',
+			'wpautop'           => true,
+			'media_buttons'     => false,
+			'textarea_rows'     => '12',
+			'tabindex'          => bbp_get_tab_index(),
+			'tabfocus_elements' => '#bbp_topic_title,#bbp_topic_tags',
+			'editor_class'      => 'bbp-the-content',
+			'tinymce'           => true,
+			'teeny'             => true,
+			'quicktags'         => true,
+			'dfw'               => false
 		), 'get_the_content' );
 
 		// Assume we are not editing
@@ -1655,16 +1657,28 @@ function bbp_the_content( $args = array() ) {
 
 		// Use TinyMCE if available
 		if ( bbp_use_wp_editor() ) :
+
+			// Enable additional TinyMCE plugins before outputting the editor
+			add_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins' );
+			add_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins' );
+
+			// Output the editor
 			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $r['context'] . '_content', array(
-				'wpautop'       => $r['wpautop'],
-				'media_buttons' => $r['media_buttons'],
-				'textarea_rows' => $r['textarea_rows'],
-				'tabindex'      => $r['tabindex'],
-				'editor_class'  => $r['editor_class'],
-				'tinymce'       => $r['tinymce'],
-				'teeny'         => $r['teeny'],
-				'quicktags'     => $r['quicktags']
+				'wpautop'           => $r['wpautop'],
+				'media_buttons'     => $r['media_buttons'],
+				'textarea_rows'     => $r['textarea_rows'],
+				'tabindex'          => $r['tabindex'],
+				'tabfocus_elements' => $r['tabfocus_elements'],
+				'editor_class'      => $r['editor_class'],
+				'tinymce'           => $r['tinymce'],
+				'teeny'             => $r['teeny'],
+				'quicktags'         => $r['quicktags'],
+				'dfw'               => $r['dfw'],
 			) );
+
+			// Remove additional TinyMCE plugins after outputting the editor
+			remove_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins' );
+			remove_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins' );
 
 		/**
 		 * Fallback to normal textarea.
@@ -1691,6 +1705,31 @@ function bbp_the_content( $args = array() ) {
 
 		return apply_filters( 'bbp_get_the_content', $output, $args, $post_content );
 	}
+
+/**
+ * Edit TinyMCE plugins to match core behaviour
+ *
+ * @since bbPress (r4574)
+ *
+ * @param array $plugins
+ * @see tiny_mce_plugins, teeny_mce_plugins
+ * @return array
+ */
+function bbp_get_tiny_mce_plugins( $plugins = array() ) {
+
+	// Unset fullscreen
+	foreach ( $plugins as $key => $value ) {
+		if ( 'fullscreen' == $value ) {
+			unset( $plugins[$key] );
+			break;
+		}
+	}
+
+	// Add the tabfocus plugin
+	$plugins[] = 'tabfocus';
+
+	return apply_filters( 'bbp_get_tiny_mce_plugins', $plugins );
+}
 
 /** Views *********************************************************************/
 
