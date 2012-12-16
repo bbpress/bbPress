@@ -435,6 +435,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @uses bbp_get_single_user_edit_template() To get user edit template
  * @uses bbp_is_single_view() To check if page is single view
  * @uses bbp_get_single_view_template() To get view template
+ * @uses bbp_is_search() To check if page is search
+ * @uses bbp_get_search_template() To get search template
  * @uses bbp_is_forum_edit() To check if page is forum edit
  * @uses bbp_get_forum_edit_template() To get forum edit template
  * @uses bbp_is_topic_merge() To check if page is topic merge
@@ -583,6 +585,22 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		bbp_theme_compat_reset_post( array(
 			'ID'             => 0,
 			'post_title'     => bbp_get_view_title(),
+			'post_author'    => 0,
+			'post_date'      => 0,
+			'post_content'   => '',
+			'post_type'      => '',
+			'post_status'    => bbp_get_public_status_id(),
+			'comment_status' => 'closed'
+		) );
+
+	/** Search ************************************************************/
+
+	} elseif ( bbp_is_search() ) {
+
+		// Reset post
+		bbp_theme_compat_reset_post( array(
+			'ID'             => 0,
+			'post_title'     => bbp_get_search_title(),
 			'post_author'    => 0,
 			'post_date'      => 0,
 			'post_content'   => '',
@@ -823,6 +841,11 @@ function bbp_replace_the_content( $content = '' ) {
 
 	} elseif ( bbp_is_single_view() ) {
 		$new_content = $bbp->shortcodes->display_view( array( 'id' => get_query_var( 'bbp_view' ) ) );
+
+	/** Search ************************************************************/
+
+	} elseif ( bbp_is_search() ) {
+		$new_content = $bbp->shortcodes->display_search( array( 'search' => get_query_var( 'bbp_search' ) ) );
 
 	/** Topic Tags ********************************************************/
 

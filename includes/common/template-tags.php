@@ -784,6 +784,36 @@ function bbp_is_single_view() {
 }
 
 /**
+ * Check if current page is a search page
+ *
+ * @since bbPress (r4579)
+ *
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true
+ * @uses bbp_is_query_name() To get the query name
+ * @return bool Is it a search page?
+ */
+function bbp_is_search() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_search ) && ( true == $wp_query->bbp_is_search ) )
+		$retval = true;
+
+	// Check query name
+	if ( empty( $retval ) && bbp_is_query_name( 'bbp_search' ) )
+		$retval = true;
+
+	// Check $_GET
+	if ( empty( $retval ) && isset( $_GET[bbp_get_search_rewrite_id()] ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_search', $retval );
+}
+
+/**
  * Check if current page is an edit page
  *
  * @since bbPress (r3585)
@@ -2409,6 +2439,12 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Views
 	} elseif ( bbp_is_single_view() ) {
 		$title = sprintf( __( 'View: %s', 'bbpress' ), bbp_get_view_title() );
+
+	/** Search ****************************************************************/
+
+	// Search
+	} elseif ( bbp_is_search() ) {
+		$title = bbp_get_search_title();
 	}
 
 	// Filter the raw title

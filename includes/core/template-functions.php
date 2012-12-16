@@ -257,6 +257,7 @@ function bbp_add_template_locations( $templates = array() ) {
  * If it's a reply edit, WP_Query::bbp_is_reply_edit is set to true.
  *
  * If it's a view page, WP_Query::bbp_is_view is set to true
+ * If it's a search page, WP_Query::bbp_is_search is set to true
  *
  * @since bbPress (r2688)
  *
@@ -291,9 +292,10 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
-	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id() );
-	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id() );
+	$bbp_view   = $posts_query->get( bbp_get_view_rewrite_id() );
+	$bbp_search = $posts_query->get( bbp_get_search_rewrite_id() );
+	$bbp_user   = $posts_query->get( bbp_get_user_rewrite_id() );
+	$is_edit    = $posts_query->get( bbp_get_edit_rewrite_id() );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -420,6 +422,20 @@ function bbp_parse_query( $posts_query ) {
 
 		// We are in a custom topic view
 		$posts_query->bbp_is_view = true;
+
+	// Search Page
+	} elseif ( !empty( $bbp_search ) ) {
+
+		// Check if there are search query args set
+		$search_terms = bbp_get_search_terms();
+		if ( !empty( $search_terms ) )
+			$posts_query->bbp_search_terms = $search_terms;
+
+		// Correct is_home variable
+		$posts_query->is_home = false;
+
+		// We are in a search query
+		$posts_query->bbp_is_search = true;
 
 	// Forum/Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {

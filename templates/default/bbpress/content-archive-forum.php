@@ -11,6 +11,12 @@
 
 <div id="bbpress-forums">
 
+	<div class="bbp-search-form">
+
+		<?php bbp_get_template_part( 'form', 'search' ); ?>
+
+	</div>
+
 	<?php bbp_breadcrumb(); ?>
 
 	<?php do_action( 'bbp_template_before_forums_index' ); ?>

@@ -79,6 +79,7 @@ function bbp_get_default_options() {
 		/** Other Slugs *******************************************************/
 
 		'_bbp_view_slug'            => 'view',      // View slug
+		'_bbp_search_slug'          => 'search',    // Search slug
 
 		/** Topics ************************************************************/
 
@@ -497,6 +498,17 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
  */
 function bbp_get_view_slug( $default = 'view' ) {
 	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
+}
+
+/**
+ * Return the search slug
+ *
+ * @since bbPress (r4579)
+ *
+ * @return string
+ */
+function bbp_get_search_slug( $default = 'search' ) {
+	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
 }
 
 /** Legacy ********************************************************************/

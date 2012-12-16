@@ -299,6 +299,14 @@ function bbp_admin_get_settings_fields() {
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
+			),
+
+			// Search slug setting
+			'_bbp_search_slug' => array(
+				'title'             => __( 'Search slug', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_search_slug',
+				'sanitize_callback' => 'sanitize_title',
+				'args'              => array()
 			)
 		),
 
@@ -881,6 +889,23 @@ function bbp_admin_setting_callback_view_slug() {
 <?php
 	// Slug Check
 	bbp_form_slug_conflict_check( '_bbp_view_slug', 'view' );
+}
+
+/**
+ * Search slug setting field
+ *
+ * @since bbPress (r4579)
+ *
+ * @uses bbp_form_option() To output the option value
+ */
+function bbp_admin_setting_callback_search_slug() {
+?>
+
+	<input name="_bbp_search_slug" type="text" id="_bbp_search_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_search_slug', 'search', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_search_slug' ); ?> />
+
+<?php
+	// Slug Check
+	bbp_form_slug_conflict_check( '_bbp_search_slug', 'search' );
 }
 
 /** BuddyPress ****************************************************************/

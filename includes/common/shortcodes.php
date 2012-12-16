@@ -79,6 +79,10 @@ class BBP_Shortcodes {
 
 			'bbp-single-view'      => array( $this, 'display_view'          ), // Single view
 
+			/** Search ********************************************************/
+
+			'bbp-search'           => array( $this, 'display_search'        ), // Search
+
 			/** Account *******************************************************/
 
 			'bbp-login'            => array( $this, 'display_login'         ), // Login
@@ -114,9 +118,10 @@ class BBP_Shortcodes {
 		$bbp = bbpress();
 
 		// Unset global queries
-		$bbp->forum_query = new stdClass;
-		$bbp->topic_query = new stdClass;
-		$bbp->reply_query = new stdClass;
+		$bbp->forum_query  = new stdClass;
+		$bbp->topic_query  = new stdClass;
+		$bbp->reply_query  = new stdClass;
+		$bbp->search_query = new stdClass;
 
 		// Unset global ID's
 		$bbp->current_forum_id     = 0;
@@ -597,6 +602,40 @@ class BBP_Shortcodes {
 
 		// Output template
 		bbp_get_template_part( 'content', 'single-view' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	/** Search ****************************************************************/
+
+	/**
+	 * Display the contents of search results in an output buffer and return to
+	 * ensure that post/page contents are displayed first.
+	 *
+	 * @since bbPress (r4579)
+	 *
+	 * @param array $attr
+	 * @param string $content
+	 * @uses bbp_search_query()
+	 * @uses get_template_part()
+	 */
+	public function display_search( $attr, $content = '' ) {
+
+		// Set passed attribute to $search_terms for clarity
+		$search_terms = $attr['search'];
+
+		// Start output buffer
+		$this->start( 'bbp_search' );
+
+		// Unset globals
+		$this->unset_globals();
+
+		// Load the search
+		bbp_search_query( array( 's' => $search_terms ) );
+
+		// Output template
+		bbp_get_template_part( 'content', 'search' );
 
 		// Return contents of output buffer
 		return $this->end();

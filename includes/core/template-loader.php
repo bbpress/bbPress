@@ -30,6 +30,8 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses bbp_get_single_user_edit_template() To get user edit template
  * @uses bbp_is_single_view() To check if page is single view
  * @uses bbp_get_single_view_template() To get view template
+ * @uses bbp_is_search() To check if page is search
+ * @uses bbp_get_search_template() To get search template
  * @uses bbp_is_forum_edit() To check if page is forum edit
  * @uses bbp_get_forum_edit_template() To get forum edit template
  * @uses bbp_is_topic_merge() To check if page is topic merge
@@ -62,6 +64,9 @@ function bbp_template_include_theme_supports( $template = '' ) {
 
 	// Single View
 	elseif ( bbp_is_single_view()      && ( $new_template = bbp_get_single_view_template()      ) ) :
+
+	// Search
+	elseif ( bbp_is_search()           && ( $new_template = bbp_get_search_template()           ) ) :
 
 	// Forum edit
 	elseif ( bbp_is_forum_edit()       && ( $new_template = bbp_get_forum_edit_template()       ) ) :
@@ -248,6 +253,22 @@ function bbp_get_single_view_template() {
 		'view.php',                         // View
 	);
 	return bbp_get_query_template( 'single_view', $templates );
+}
+
+/**
+ * Get the search template
+ *
+ * @since bbPress (r4579)
+ *
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
+ */
+function bbp_get_search_template() {
+	$templates = array(
+		'page-forum-search.php', // Single Search
+		'forum-search.php',      // Search
+	);
+	return bbp_get_query_template( 'single_search', $templates );
 }
 
 /**

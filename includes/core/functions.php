@@ -435,13 +435,24 @@ function bbp_get_user_rewrite_id() {
 }
 
 /**
- * Return the enique ID for all edit rewrite rules (forum|topic|reply|tag|user)
+ * Return the unique ID for all edit rewrite rules (forum|topic|reply|tag|user)
  *
  * @since bbPress (r3762)
  * @return string
  */
 function bbp_get_edit_rewrite_id() {
 	return bbpress()->edit_id;
+}
+
+/**
+ * Return the unique ID for all search rewrite rules
+ *
+ * @since bbPress (r4579)
+ *
+ * @return string
+ */
+function bbp_get_search_rewrite_id() {
+	return bbpress()->search_id;
 }
 
 /**

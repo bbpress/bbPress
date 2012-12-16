@@ -365,6 +365,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 *
 	 * @param $topic_id Optional. Used to check emptiness
 	 * @uses bbPress::topic_query::post::ID To get the topic id
+	 * @uses bbp_is_topic() To check if the search result is a topic
 	 * @uses bbp_is_single_topic() To check if it's a topic page
 	 * @uses bbp_is_topic_edit() To check if it's a topic edit page
 	 * @uses bbp_is_single_reply() To check if it it's a reply page
@@ -389,6 +390,10 @@ function bbp_topic_id( $topic_id = 0) {
 		// Currently inside a topic loop
 		} elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) ) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
+
+		// Currently inside a search loop
+		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_topic( $bbp->search_query->post->ID ) ) {
+			$bbp_topic_id = $bbp->search_query->post->ID;
 
 		// Currently viewing/editing a topic, likely alone
 		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) ) {

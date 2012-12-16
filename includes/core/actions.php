@@ -138,6 +138,7 @@ add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
 // Widgets
 add_action( 'bbp_widgets_init', array( 'BBP_Login_Widget',   'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Views_Widget',   'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Search_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Forums_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );

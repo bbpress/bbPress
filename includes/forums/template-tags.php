@@ -140,6 +140,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @uses bbPress::forum_query::in_the_loop To check if we're in the loop
 	 * @uses bbPress::forum_query::post::ID To get the forum id
 	 * @uses WP_Query::post::ID To get the forum id
+	 * @uses bbp_is_forum() To check if the search result is a forum
 	 * @uses bbp_is_single_forum() To check if it's a forum page
 	 * @uses bbp_is_single_topic() To check if it's a topic page
 	 * @uses bbp_get_topic_forum_id() To get the topic forum id
@@ -160,6 +161,10 @@ function bbp_forum_id( $forum_id = 0 ) {
 		// Currently inside a forum loop
 		} elseif ( !empty( $bbp->forum_query->in_the_loop ) && isset( $bbp->forum_query->post->ID ) ) {
 			$bbp_forum_id = $bbp->forum_query->post->ID;
+
+		// Currently inside a search loop
+		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_forum( $bbp->search_query->post->ID ) ) {
+			$bbp_forum_id = $bbp->search_query->post->ID;
 
 		// Currently viewing a forum
 		} elseif ( bbp_is_single_forum() && !empty( $bbp->current_forum_id ) ) {

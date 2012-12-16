@@ -223,7 +223,8 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 *
 	 * @param $reply_id Optional. Used to check emptiness
 	 * @uses bbPress::reply_query::post::ID To get the reply id
-	 * @uses bbp_is_reply() To check if it's a reply page
+	 * @uses bbp_is_reply() To check if the search result is a reply
+	 * @uses bbp_is_single_reply() To check if it's a reply page
 	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
 	 * @uses get_post_field() To get the post's post type
 	 * @uses WP_Query::post::ID To get the reply id
@@ -244,6 +245,10 @@ function bbp_reply_id( $reply_id = 0 ) {
 		// Currently inside a replies loop
 		} elseif ( !empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) ) {
 			$bbp_reply_id = $bbp->reply_query->post->ID;
+
+		// Currently inside a search loop
+		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_reply( $bbp->search_query->post->ID ) ) {
+			$bbp_reply_id = $bbp->search_query->post->ID;
 
 		// Currently viewing a forum
 		} elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && !empty( $bbp->current_reply_id ) ) {
