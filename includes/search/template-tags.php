@@ -105,7 +105,7 @@ function bbp_has_search_results( $args = '' ) {
 		}
 
 		// Add args
-		$add_args = array( bbp_get_search_rewrite_id() => esc_attr( bbp_get_search_terms() ) );
+		$add_args = array( bbp_get_search_rewrite_id() => urlencode( bbp_get_search_terms() ) );
 		if ( bbp_get_view_all() )
 			$add_args['view'] = 'all';
 
@@ -241,7 +241,7 @@ function bbp_search_url() {
 		// Unpretty permalinks
 		} else {
 			$search_terms = bbp_get_search_terms();
-			$url = add_query_arg( array( 'bbp_search' => $search_terms ), home_url( '/' ) );
+			$url = add_query_arg( array( 'bbp_search' => urlencode( $search_terms ) ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_search_url', $url );
