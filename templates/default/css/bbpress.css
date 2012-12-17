@@ -175,7 +175,6 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 	margin: 8px 0;
 }
 
-#bbpress-forums div.bbp-search-author,
 #bbpress-forums div.bbp-forum-author,
 #bbpress-forums div.bbp-topic-author,
 #bbpress-forums div.bbp-reply-author {
@@ -216,6 +215,8 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 	text-align: left;
 }
 
+#bbpress-forums li.bbp-header .bbp-search-author,
+#bbpress-forums li.bbp-footer .bbp-search-author,
 #bbpress-forums li.bbp-header .bbp-forum-author,
 #bbpress-forums li.bbp-footer .bbp-forum-author,
 #bbpress-forums li.bbp-header .bbp-topic-author,
@@ -228,6 +229,8 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 	width: 120px;
 }
 
+#bbpress-forums li.bbp-header .bbp-search-content,
+#bbpress-forums li.bbp-header .bbp-search-content,
 #bbpress-forums li.bbp-header .bbp-forum-content,
 #bbpress-forums li.bbp-footer .bbp-forum-content,
 #bbpress-forums li.bbp-header .bbp-topic-content,
