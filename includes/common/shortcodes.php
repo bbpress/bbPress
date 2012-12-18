@@ -81,6 +81,7 @@ class BBP_Shortcodes {
 
 			/** Search ********************************************************/
 
+			'bbp-search-form'      => array( $this, 'display_search_form'   ), // Search form
 			'bbp-search'           => array( $this, 'display_search'        ), // Search
 
 			/** Account *******************************************************/
@@ -610,6 +611,26 @@ class BBP_Shortcodes {
 	/** Search ****************************************************************/
 
 	/**
+	 * Display the search form in an output buffer and return to ensure
+	 * post/page contents are displayed first.
+	 *
+	 * @since bbPress (r4585)
+	 *
+	 * @uses get_template_part()
+	 */
+	public function display_search_form() {
+
+		// Start output buffer
+		$this->start( 'bbp_search_form' );
+
+		// Output templates
+		bbp_get_template_part( 'form', 'search' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	/**
 	 * Display the contents of search results in an output buffer and return to
 	 * ensure that post/page contents are displayed first.
 	 *
@@ -622,17 +643,21 @@ class BBP_Shortcodes {
 	 */
 	public function display_search( $attr, $content = '' ) {
 
-		// Set passed attribute to $search_terms for clarity
-		$search_terms = $attr['search'];
+		// Sanity check required info
+		if ( !empty( $content ) )
+			return $content;
 
-		// Start output buffer
-		$this->start( 'bbp_search' );
+		// Set passed attribute to $search_terms for clarity
+		$search_terms = empty( $attr['search'] ) ? bbp_get_search_terms() : $attr['search'];
 
 		// Unset globals
 		$this->unset_globals();
 
-		// Load the search
-		bbp_search_query( array( 's' => $search_terms ) );
+		// Set terms for query
+		set_query_var( bbp_get_search_rewrite_id(), $search_terms );
+
+		// Start output buffer
+		$this->start( 'bbp_search' );
 
 		// Output template
 		bbp_get_template_part( 'content', 'search' );

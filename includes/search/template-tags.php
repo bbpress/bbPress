@@ -96,8 +96,18 @@ function bbp_has_search_results( $args = '' ) {
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
 
-			// Search
-			$base = trailingslashit( bbp_get_search_url() ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+			// Shortcode territory
+			if ( is_page() || is_single() ) {
+				$base = trailingslashit( get_permalink() );
+
+			// Default search location
+			} else {
+				$base = trailingslashit( bbp_get_search_url() );
+
+			}
+
+			// Add pagination base
+			$base = $base . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 
 		// Unpretty permalinks
 		} else {
@@ -105,7 +115,7 @@ function bbp_has_search_results( $args = '' ) {
 		}
 
 		// Add args
-		$add_args = array( bbp_get_search_rewrite_id() => urlencode( bbp_get_search_terms() ) );
+		$add_args = isset( $_GET[bbp_get_search_rewrite_id()] ) ? array( bbp_get_search_rewrite_id() => urlencode( bbp_get_search_terms() ) ) : array();
 		if ( bbp_get_view_all() )
 			$add_args['view'] = 'all';
 
