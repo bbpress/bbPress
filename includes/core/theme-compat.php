@@ -453,6 +453,17 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
+	/**
+	 * If BuddyPress is activated at a network level, the action order is
+	 * reversed, which causes the template integration to fail. If we're looking
+	 * at a BuddyPress page here, bail to prevent the extra processing.
+	 *
+	 * This is a bit more brute-force than is probably necessary, but gets the
+	 * job done while we work towards something more elegant.
+	 */
+	if ( function_exists( 'is_buddypress' ) && is_buddypress() )
+		return $template;
+
 	/** Users *************************************************************/
 
 	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
