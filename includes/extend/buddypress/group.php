@@ -119,6 +119,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// No subforums yet, so suppress them for now
 		add_filter( 'bbp_get_forum_subforum_count_int', array( $this, 'no_subforums_yet' ) );
+
+		// Group member permissions to view the topic and reply forms
+		add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
+		add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
 	}
 
 	/**
@@ -909,6 +913,43 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		</p>
 
 	<?php
+	}
+
+	/**
+	 * Permissions to view the 'New Topic'/'Reply To' form in a BuddyPress group.
+	 *
+	 * @since bbPress (r4608)
+	 *
+	 * @param bool $retval Are we allowed to view the reply form?
+	 * @uses bp_is_group() To determine if we're on a group page
+	 * @uses bp_loggedin_user_id() To determine if a user is logged in.
+	 * @uses bp_group_is_member() Is the current user a member of the group?
+	 * @uses bp_group_is_user_banned() Is the current user banned from the group?
+	 *
+	 * @return bool
+	 */
+	public function form_permissions( $retval = false ) {
+
+		// Bail if not a group
+		if ( ! bp_is_group() ) {
+			return $retval;
+		}
+
+		// Bail if user is not logged in
+		if ( ! is_user_logged_in() ) {
+			return $retval;
+		}
+
+		// Non-members cannot see forms
+		if ( ! bp_group_is_member() ) {
+			$retval = false;
+
+		// Banned users cannot see forms
+		} elseif ( bp_group_is_user_banned() ) {
+			$retval = false;
+		}
+
+		return $retval;
 	}
 
 	/** Permalink Mappers *****************************************************/
