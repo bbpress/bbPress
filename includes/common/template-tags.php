@@ -1689,8 +1689,9 @@ function bbp_the_content( $args = array() ) {
 		if ( bbp_use_wp_editor() ) :
 
 			// Enable additional TinyMCE plugins before outputting the editor
-			add_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins' );
-			add_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins' );
+			add_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins'  );
+			add_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins'  );
+			add_filter( 'teeny_mce_buttons', 'bbp_get_teeny_mce_buttons' );
 
 			// Output the editor
 			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $r['context'] . '_content', array(
@@ -1707,8 +1708,9 @@ function bbp_the_content( $args = array() ) {
 			) );
 
 			// Remove additional TinyMCE plugins after outputting the editor
-			remove_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins' );
-			remove_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins' );
+			remove_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins'  );
+			remove_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins'  );
+			remove_filter( 'teeny_mce_buttons', 'bbp_get_teeny_mce_buttons' );
 
 		/**
 		 * Fallback to normal textarea.
@@ -1759,6 +1761,31 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 	$plugins[] = 'tabfocus';
 
 	return apply_filters( 'bbp_get_tiny_mce_plugins', $plugins );
+}
+
+/**
+ * Edit TinyMCE buttons to match allowedtags
+ *
+ * @since bbPress (r4605)
+ *
+ * @param array $buttons
+ * @see teeny_mce_buttons
+ * @return array
+ */
+function bbp_get_teeny_mce_buttons( $buttons = array() ) {
+
+	// Remove some buttons from TeenyMCE
+	$buttons = array_diff( $buttons, array(
+		'underline',
+		'justifyleft',
+		'justifycenter',
+		'justifyright'
+	) );
+
+	// Images?
+	//array_push( $buttons, 'image' );
+
+	return apply_filters( 'bbp_get_teeny_mce_buttons', $buttons );
 }
 
 /** Views *********************************************************************/

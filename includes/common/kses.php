@@ -41,9 +41,6 @@ function bbp_kses_allowed_tags() {
 		// Formatting
 		'em'           => array(),
 		'strong'       => array(),
-		'span'         => array(
-			'style'    => true
-		),
 		'del'          => array(
 			'datetime' => true,
 		),
@@ -56,12 +53,15 @@ function bbp_kses_allowed_tags() {
 		'li'           => array(),
 
 		// Images
+		/*
 		'img'          => array(
 			'src'      => true,
+			'border'   => true,
 			'alt'      => true,
 			'height'   => true,
 			'width'    => true,
 		)
+		*/
 	) );
 }
 
