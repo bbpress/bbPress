@@ -1326,7 +1326,7 @@ class BBP_Admin {
 			</div>
 
 			<div class="changelog">
-				<h3><?php _e( 'Theme Compatability', 'bbpress' ); ?></h3>
+				<h3><?php _e( 'Theme Compatibility', 'bbpress' ); ?></h3>
 
 				<div class="feature-section">
 					<h4><?php _e( 'Twenty Twelve', 'bbpress' ); ?></h4>

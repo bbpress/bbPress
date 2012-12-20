@@ -108,7 +108,7 @@ function bbp_setup_theme_compat( $theme = '' ) {
  * Gets the name of the bbPress compatable theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
- * default and include their own bbPress compatability layers for their themes.
+ * default and include their own bbPress compatibility layers for their themes.
  *
  * @since bbPress (r3506)
  * @uses apply_filters()
@@ -122,7 +122,7 @@ function bbp_get_theme_compat_id() {
  * Gets the name of the bbPress compatable theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
- * default and include their own bbPress compatability layers for their themes.
+ * default and include their own bbPress compatibility layers for their themes.
  *
  * @since bbPress (r3506)
  * @uses apply_filters()
@@ -136,7 +136,7 @@ function bbp_get_theme_compat_name() {
  * Gets the version of the bbPress compatable theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
- * default and include their own bbPress compatability layers for their themes.
+ * default and include their own bbPress compatibility layers for their themes.
  *
  * @since bbPress (r3506)
  * @uses apply_filters()
@@ -150,7 +150,7 @@ function bbp_get_theme_compat_version() {
  * Gets the bbPress compatable theme used in the event the currently active
  * WordPress theme does not explicitly support bbPress. This can be filtered,
  * or set manually. Tricky theme authors can override the default and include
- * their own bbPress compatability layers for their themes.
+ * their own bbPress compatibility layers for their themes.
  *
  * @since bbPress (r3032)
  * @uses apply_filters()
@@ -164,7 +164,7 @@ function bbp_get_theme_compat_dir() {
  * Gets the bbPress compatable theme used in the event the currently active
  * WordPress theme does not explicitly support bbPress. This can be filtered,
  * or set manually. Tricky theme authors can override the default and include
- * their own bbPress compatability layers for their themes.
+ * their own bbPress compatibility layers for their themes.
  *
  * @since bbPress (r3032)
  * @uses apply_filters()

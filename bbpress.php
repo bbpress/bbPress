@@ -405,7 +405,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Setup the default bbPress theme compatability location.
+	 * Setup the default bbPress theme compatibility location.
 	 *
 	 * @since bbPress (r3778)
 	 */
