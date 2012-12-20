@@ -19,17 +19,17 @@
 
 		<?php do_action( 'bbp_theme_after_forum_title' ); ?>
 
-		<?php do_action( 'bbp_theme_before_forum_sub_forums' ); ?>
-
-		<?php bbp_list_forums(); ?>
-
-		<?php do_action( 'bbp_theme_after_forum_sub_forums' ); ?>
-
 		<?php do_action( 'bbp_theme_before_forum_description' ); ?>
 
 		<div class="bbp-forum-content"><?php the_content(); ?></div>
 
 		<?php do_action( 'bbp_theme_after_forum_description' ); ?>
+
+		<?php do_action( 'bbp_theme_before_forum_sub_forums' ); ?>
+
+		<?php bbp_list_forums(); ?>
+
+		<?php do_action( 'bbp_theme_after_forum_sub_forums' ); ?>
 
 		<?php bbp_forum_row_actions(); ?>
 

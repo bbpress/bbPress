@@ -138,11 +138,6 @@
 	list-style: square;
 }
 
-#bbpress-forums .bbp-forum-content p {
-	margin: 5px 0 0;
-	font-style: italic;
-}
-
 li.bbp-forum-info,
 li.bbp-topic-title {
 	float: left;
@@ -391,8 +386,10 @@ td.bbp-topic-counts {
 			background-color: #fdd;
 		}
 
+#bbpress-forums .bbp-forum-info .bbp-forum-content,
 #bbpress-forums p.bbp-topic-meta {
 	margin: 5px 0 5px;
+	padding: 0;
 	font-size: 11px;
 }
 
