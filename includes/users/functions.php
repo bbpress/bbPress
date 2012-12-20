@@ -1026,9 +1026,7 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
  * Get the total number of users on the forums
  *
  * @since bbPress (r2769)
- * @uses wp_cache_get() Check if query is in cache
- * @uses get_users() To execute our query and get the var back
- * @uses wp_cache_set() Set the query in the cache
+ * @uses count_users() To execute our query and get the var back
  * @uses apply_filters() Calls 'bbp_get_total_users' with number of users
  * @return int Total number of users
  */
