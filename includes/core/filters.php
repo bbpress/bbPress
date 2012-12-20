@@ -94,16 +94,16 @@ add_filter( 'bbp_edit_topic_pre_title',    'wp_filter_kses' );
 // balanceTags, wp_filter_kses and wp_rel_nofollow on new/edit topic/reply text
 add_filter( 'bbp_new_reply_pre_content',  'balanceTags'     );
 add_filter( 'bbp_new_reply_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_reply_pre_content',  'wp_filter_kses'  );
+add_filter( 'bbp_new_reply_pre_content',  'bbp_filter_kses' );
 add_filter( 'bbp_new_topic_pre_content',  'balanceTags'     );
 add_filter( 'bbp_new_topic_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_topic_pre_content',  'wp_filter_kses'  );
+add_filter( 'bbp_new_topic_pre_content',  'bbp_filter_kses' );
 add_filter( 'bbp_edit_reply_pre_content', 'balanceTags'     );
 add_filter( 'bbp_edit_reply_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses'  );
+add_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses' );
 add_filter( 'bbp_edit_topic_pre_content', 'balanceTags'     );
 add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_topic_pre_content', 'wp_filter_kses'  );
+add_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses' );
 
 // No follow and stripslashes on user profile links
 add_filter( 'bbp_get_reply_author_link',      'wp_rel_nofollow' );
@@ -153,8 +153,8 @@ add_filter( 'bbp_get_topic_post_count',     'bbp_number_format', 10 );
 
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {
-	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
-	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
+	add_filter( 'bbp_get_reply_content', 'bbp_kses_data' );
+	add_filter( 'bbp_get_topic_content', 'bbp_kses_data' );
 
 // Revisions (only when not in admin)
 } else {

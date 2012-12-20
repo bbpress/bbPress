@@ -2241,12 +2241,25 @@ function bbp_allowed_tags() {
 	 *
 	 * @since bbPress (r2780)
 	 *
-	 * @uses allowed_tags() To get the allowed tags
+	 * @uses bbp_kses_allowed_tags() To get the allowed tags
 	 * @uses apply_filters() Calls 'bbp_allowed_tags' with the tags
 	 * @return string HTML allowed tags entity encoded.
 	 */
 	function bbp_get_allowed_tags() {
-		return apply_filters( 'bbp_get_allowed_tags', allowed_tags() );
+
+		$allowed = '';
+
+		foreach ( (array) bbp_kses_allowed_tags() as $tag => $attributes ) {
+			$allowed .= '<' . $tag;
+			if ( 0 < count( $attributes ) ) {
+				foreach ( array_keys( $attributes ) as $attribute ) {
+					$allowed .= ' ' . $attribute . '=""';
+				}
+			}
+			$allowed .= '> ';
+		}
+
+		return apply_filters( 'bbp_get_allowed_tags', htmlentities( $allowed ) );
 	}
 
 /** Errors & Messages *********************************************************/
