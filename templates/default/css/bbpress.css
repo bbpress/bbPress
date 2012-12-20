@@ -122,21 +122,20 @@
 }
 
 #bbpress-forums .bbp-topic-content ul,
-#bbpress-forums .bbp-reply-content ul {
-	list-style: square;
-	padding-left: 15px;
-}
-
+#bbpress-forums .bbp-reply-content ul,
 #bbpress-forums .bbp-topic-content ol,
 #bbpress-forums .bbp-reply-content ol {
-	list-style: decimal;
-	padding-left: 15px;
+	margin: 15px;
 }
 
-#bbpress-forums .bbp-topic-content li,
-#bbpress-forums .bbp-reply-content li {
+#bbpress-forums .bbp-topic-content ol li,
+#bbpress-forums .bbp-reply-content ol li {
+	list-style: decimal;
+}
+
+#bbpress-forums .bbp-topic-content ul li,
+#bbpress-forums .bbp-reply-content ul li {
 	list-style: square;
-	padding-left: 15px;
 }
 
 #bbpress-forums .bbp-forum-content p {
