@@ -453,13 +453,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
-	// Bail if the template already matches a bbPress template. This includes
-	// archive-* and single-* WordPress post_type matches (allowing
-	// themes to use the expected format) as well as all bbPress-specific
-	// template files for users, topics, forums, etc...
-	if ( !empty( bbpress()->theme_compat->bbpress_template ) )
-		return $template;
-
 	/** Users *************************************************************/
 
 	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
@@ -629,6 +622,20 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'comment_status' => 'closed'
 		) );
 	}
+
+	/**
+	 * Bail if the template already matches a bbPress template. This includes
+	 * archive-* and single-* WordPress post_type matches (allowing
+	 * themes to use the expected format) as well as all bbPress-specific
+	 * template files for users, topics, forums, etc...
+	 *
+	 * We do this after the above checks to prevent incorrect 404 body classes
+	 * and header statuses.
+	 *
+	 * @see http://bbpress.trac.wordpress.org/ticket/1478/
+	 */
+	if ( !empty( bbpress()->theme_compat->bbpress_template ) )
+		return $template;
 
 	/**
 	 * If we are relying on bbPress's built in theme compatibility to load
