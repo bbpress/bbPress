@@ -1123,7 +1123,7 @@ function bbp_admin_reset_handler() {
 		$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
 		remove_role( bbp_get_moderator_role() );
 		remove_role( bbp_get_participant_role() );
-		bp_remove_caps();
+		bbp_remove_caps();
 		$messages[] = sprintf( $statement, $success );
 
 		/** Output ************************************************************/
