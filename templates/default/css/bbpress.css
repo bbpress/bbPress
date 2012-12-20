@@ -127,6 +127,18 @@
 	padding-left: 15px;
 }
 
+#bbpress-forums .bbp-topic-content ol,
+#bbpress-forums .bbp-reply-content ol {
+	list-style: decimal;
+	padding-left: 15px;
+}
+
+#bbpress-forums .bbp-topic-content li,
+#bbpress-forums .bbp-reply-content li {
+	list-style: square;
+	padding-left: 15px;
+}
+
 #bbpress-forums .bbp-forum-content p {
 	margin: 5px 0 0;
 	font-style: italic;
