@@ -36,7 +36,7 @@
 
 </div><!-- .bbp-reply-header -->
 
-<div id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
+<div id="bbp-reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
 	<div class="bbp-reply-author">
 
@@ -68,4 +68,4 @@
 
 	</div><!-- .bbp-reply-content -->
 
-</div><!-- #post-<?php bbp_reply_id(); ?> -->
+</div><!-- #bbp-reply-<?php bbp_reply_id(); ?> -->

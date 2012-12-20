@@ -9,7 +9,7 @@
 
 ?>
 
-<ul id="topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
+<ul id="bbp-topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
 
 	<li class="bbp-topic-title">
 
@@ -102,4 +102,4 @@
 		</p>
 	</li>
 
-</ul><!-- #topic-<?php bbp_topic_id(); ?> -->
+</ul><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
