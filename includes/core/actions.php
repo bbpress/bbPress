@@ -90,19 +90,11 @@ add_action( 'bbp_init', 'bbp_ready',            999 );
 add_action( 'bbp_setup_theme', 'bbp_add_forums_roles', 1 );
 
 /**
- * When switching to a new blog, a users mapped role will get wiped out by
- * WP_User::for_blog() and WP_User::_init_caps().
+ * When setting up the current user, make sure they have a role for the forums.
  *
- * This happens naturally in multisite setups during WP_Admin_Bar::initialize(),
- * which is annoying because it will happen on each page-load.
- *
- * Resetting the role on blog-switch enables us to maintain the user's dynamic
- * role between sites. Note that if a user already has a role on that site, no
- * mapping will occur.
- *
- * We also hook to 'bbp_setup_current_user' -- naturally.
+ * This is multisite aware, thanks to bbp_filter_user_roles_option(), hooked to
+ * the 'bbp_loaded' action above.
  */
-add_action( 'switch_blog',            'bbp_set_current_user_default_role' );
 add_action( 'bbp_setup_current_user', 'bbp_set_current_user_default_role' );
 
 /**
