@@ -1689,9 +1689,10 @@ function bbp_the_content( $args = array() ) {
 		if ( bbp_use_wp_editor() ) :
 
 			// Enable additional TinyMCE plugins before outputting the editor
-			add_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins'  );
-			add_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins'  );
-			add_filter( 'teeny_mce_buttons', 'bbp_get_teeny_mce_buttons' );
+			add_filter( 'tiny_mce_plugins',   'bbp_get_tiny_mce_plugins'   );
+			add_filter( 'teeny_mce_plugins',  'bbp_get_tiny_mce_plugins'   );
+			add_filter( 'teeny_mce_buttons',  'bbp_get_teeny_mce_buttons'  );
+			add_filter( 'quicktags_settings', 'bbp_get_quicktags_settings' );
 
 			// Output the editor
 			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $r['context'] . '_content', array(
@@ -1708,9 +1709,10 @@ function bbp_the_content( $args = array() ) {
 			) );
 
 			// Remove additional TinyMCE plugins after outputting the editor
-			remove_filter( 'tiny_mce_plugins',  'bbp_get_tiny_mce_plugins'  );
-			remove_filter( 'teeny_mce_plugins', 'bbp_get_tiny_mce_plugins'  );
-			remove_filter( 'teeny_mce_buttons', 'bbp_get_teeny_mce_buttons' );
+			remove_filter( 'tiny_mce_plugins',   'bbp_get_tiny_mce_plugins'   );
+			remove_filter( 'teeny_mce_plugins',  'bbp_get_tiny_mce_plugins'   );
+			remove_filter( 'teeny_mce_buttons',  'bbp_get_teeny_mce_buttons'  );
+			remove_filter( 'quicktags_settings', 'bbp_get_quicktags_settings' );
 
 		/**
 		 * Fallback to normal textarea.
@@ -1764,7 +1766,7 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 }
 
 /**
- * Edit TinyMCE buttons to match allowedtags
+ * Edit TeenyMCE buttons to match allowedtags
  *
  * @since bbPress (r4605)
  *
@@ -1786,6 +1788,34 @@ function bbp_get_teeny_mce_buttons( $buttons = array() ) {
 	//array_push( $buttons, 'image' );
 
 	return apply_filters( 'bbp_get_teeny_mce_buttons', $buttons );
+}
+
+/**
+ * Edit TinyMCE quicktags buttons to match allowedtags
+ *
+ * @since bbPress (r4606)
+ *
+ * @param array $buttons
+ * @see quicktags_settings
+ * @return array Quicktags settings
+ */
+function bbp_get_quicktags_settings( $settings = array() ) {
+
+	// Get buttons out of settings
+	$buttons_array = explode( ',', $settings['buttons'] );
+
+	// Diff the ones we don't want out
+	$buttons = array_diff( $buttons_array, array(
+		'ins',
+		'img',
+		'more',
+		'spell'
+	) );
+
+	// Put them back into a string in the $settings array
+	$settings['buttons'] = implode( ',', $buttons );
+
+	return apply_filters( 'bbp_get_quicktags_settings', $settings );
 }
 
 /** Views *********************************************************************/
