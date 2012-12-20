@@ -363,6 +363,9 @@ function bbp_filter_user_roles_option() {
  * Because dynamic multiple roles is a new concept in WordPress, we work around
  * it here for now, knowing that improvements will come to WordPress core later.
  *
+ * Also note that if using the $wp_user_roles global non-database approach,
+ * bbPress does not have an intercept point to add its dynamic roles.
+ *
  * @see switch_to_blog()
  * @see restore_current_blog()
  * @see WP_Roles::_init()
