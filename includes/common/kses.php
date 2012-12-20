@@ -13,10 +13,11 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Custom allowed tags for forum topics and replies
  *
- * Allows all users to post links, quotes, code, formatting
+ * Allows all users to post links, quotes, code, formatting, lists, and images
+ *
  * @since bbPress (r4603)
  *
- * @return array
+ * @return array Associative array of allowed tags and attributes
  */
 function bbp_kses_allowed_tags() {
 	return apply_filters( 'bbp_kses_allowed_tags', array(
