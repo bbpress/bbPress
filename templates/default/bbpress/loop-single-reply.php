@@ -9,7 +9,7 @@
 
 ?>
 
-<div class="bbp-reply-header">
+<div id="post-<?php bbp_reply_id(); ?>" class="bbp-reply-header">
 
 	<div class="bbp-meta">
 
@@ -34,9 +34,9 @@
 
 	</div><!-- .bbp-meta -->
 
-</div><!-- .bbp-reply-header -->
+</div><!-- #post-<?php bbp_reply_id(); ?> -->
 
-<div id="bbp-reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
+<div <?php bbp_reply_class(); ?>>
 
 	<div class="bbp-reply-author">
 
@@ -68,4 +68,4 @@
 
 	</div><!-- .bbp-reply-content -->
 
-</div><!-- #bbp-reply-<?php bbp_reply_id(); ?> -->
+</div><!-- .reply -->
