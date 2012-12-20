@@ -536,7 +536,7 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 	 * @param bool $gmt Optional. Use GMT
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses get_post_time() to get the reply post time
-	 * @uses bbp_time_since() to maybe humanize the reply post time
+	 * @uses bbp_get_time_since() to maybe humanize the reply post time
 	 * @return string
 	 */
 	function bbp_get_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
@@ -547,7 +547,7 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 			$gmt    = !empty( $gmt ) ? 'G' : 'U';
 			$date   = get_post_time( $gmt, $reply_id );
 			$time   = false; // For filter below
-			$result = bbp_time_since( $date );
+			$result = bbp_get_time_since( $date );
 
 		// August 4, 2012 at 2:37 pm
 		} else {

@@ -684,7 +684,7 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 	 * @param bool $gmt Optional. Use GMT
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_time() to get the topic post time
-	 * @uses bbp_time_since() to maybe humanize the topic post time
+	 * @uses bbp_get_time_since() to maybe humanize the topic post time
 	 * @return string
 	 */
 	function bbp_get_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
@@ -695,7 +695,7 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 			$gmt    = !empty( $gmt ) ? 'G' : 'U';
 			$date   = get_post_time( $gmt, $topic_id );
 			$time   = false; // For filter below
-			$result = bbp_time_since( $date );
+			$result = bbp_get_time_since( $date );
 
 		// August 4, 2012 at 2:37 pm
 		} else {
