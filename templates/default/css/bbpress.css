@@ -355,6 +355,10 @@ div.bbp-topic-tags {
 	float: right;
 }
 
+#bbp-topic-hot-tags {
+	clear: both;
+}
+
 /* =Search
 -------------------------------------------------------------- */
 
