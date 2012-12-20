@@ -116,28 +116,6 @@
 	line-height: 1em;
 }
 
-#bbpress-forums .bbp-topic-content img,
-#bbpress-forums .bbp-reply-content img {
-	max-width: 100%;
-}
-
-#bbpress-forums .bbp-topic-content ul,
-#bbpress-forums .bbp-reply-content ul,
-#bbpress-forums .bbp-topic-content ol,
-#bbpress-forums .bbp-reply-content ol {
-	margin: 15px;
-}
-
-#bbpress-forums .bbp-topic-content ol li,
-#bbpress-forums .bbp-reply-content ol li {
-	list-style: decimal;
-}
-
-#bbpress-forums .bbp-topic-content ul li,
-#bbpress-forums .bbp-reply-content ul li {
-	list-style: square;
-}
-
 li.bbp-forum-info,
 li.bbp-topic-title {
 	float: left;
@@ -213,14 +191,6 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 	font-style: italic;
 }
 
-#bbpress-forums div.bbp-forum-content,
-#bbpress-forums div.bbp-topic-content,
-#bbpress-forums div.bbp-reply-content {
-	margin-left: 140px;
-	padding: 12px 12px 12px 0;
-	text-align: left;
-}
-
 #bbpress-forums li.bbp-header .bbp-search-author,
 #bbpress-forums li.bbp-footer .bbp-search-author,
 #bbpress-forums li.bbp-header .bbp-forum-author,
@@ -269,6 +239,99 @@ span.bbp-author-ip {
 	font-size: 11px;
 	font-weight: bold;
 	color: #aaa;
+}
+
+/* =Topic and reply content
+-------------------------------------------------------------- */
+
+#bbpress-forums div.bbp-forum-content,
+#bbpress-forums div.bbp-topic-content,
+#bbpress-forums div.bbp-reply-content {
+	margin-left: 140px;
+	padding: 12px 12px 12px 0;
+	text-align: left;
+}
+
+#bbpress-forums div.bbp-topic-content a,
+#bbpress-forums div.bbp-reply-content a {
+	background: none;
+	border: none;
+	display: inline;
+	font-weight: normal;
+	margin: 0;
+	padding: 0;
+}
+
+#bbpress-forums div.bbp-topic-content h1,
+#bbpress-forums div.bbp-reply-content h1,
+#bbpress-forums div.bbp-topic-content h2,
+#bbpress-forums div.bbp-reply-content h2,
+#bbpress-forums div.bbp-topic-content h3,
+#bbpress-forums div.bbp-reply-content h3,
+#bbpress-forums div.bbp-topic-content h4,
+#bbpress-forums div.bbp-reply-content h4,
+#bbpress-forums div.bbp-topic-content h5,
+#bbpress-forums div.bbp-reply-content h5,
+#bbpress-forums div.bbp-topic-content h6,
+#bbpress-forums div.bbp-reply-content h6 {
+	clear: none;
+	line-height: 1em;
+	margin: 24px 0;
+	padding: 0;
+}
+
+#bbpress-forums div.bbp-topic-content img,
+#bbpress-forums div.bbp-reply-content img {
+	max-width: 100%;
+}
+
+#bbpress-forums div.bbp-topic-content ul,
+#bbpress-forums div.bbp-reply-content ul,
+#bbpress-forums div.bbp-topic-content ol,
+#bbpress-forums div.bbp-reply-content ol {
+	margin: 0 15px 15px;
+	padding: 0;
+}
+
+#bbpress-forums div.bbp-topic-content ul li,
+#bbpress-forums div.bbp-reply-content ul li {
+	list-style-type: disc;
+}
+
+#bbpress-forums div.bbp-topic-content ol li,
+#bbpress-forums div.bbp-reply-content ol li {
+	list-style-type: decimal;
+}
+
+#bbpress-forums div.bbp-topic-content ol li li,
+#bbpress-forums div.bbp-reply-content ol li li {
+	list-style-type: lower-alpha;
+}
+
+#bbpress-forums div.bbp-topic-content ol li li li,
+#bbpress-forums div.bbp-reply-content ol li li li {
+	list-style-type: upper-roman;
+}
+
+#bbpress-forums div.bbp-topic-content code,
+#bbpress-forums div.bbp-reply-content code,
+#bbpress-forums div.bbp-topic-content pre,
+#bbpress-forums div.bbp-reply-content pre {
+	font-family: Inconsolata, Consolas, Monaco, Lucida Console, monospace;
+	display: inline;
+}
+
+#bbpress-forums div.bbp-topic-content pre,
+#bbpress-forums div.bbp-reply-content pre {
+	background-color: #f9f9f9;
+	border: 1px solid #ddd;
+	display: block;
+	line-height: 18px;
+	margin: 24px 0;
+	padding: 10px;
+	white-space: pre;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
 /* =Breadcrumb and Tags
