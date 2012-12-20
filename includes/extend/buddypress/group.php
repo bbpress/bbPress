@@ -156,10 +156,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return;
 
 		// Are forums enabled for this group?
-		$checked = (bool) ( bp_get_new_group_enable_forum() );
+		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' );
 
 		// Tweak the nav item variable based on if group has forum or not
-		$this->enable_nav_item = $checked;
+		$this->enable_nav_item = (bool) $checked;
 	}
 
 	/**
@@ -375,6 +375,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$create_forum = !empty( $_POST['bbp-create-group-forum'] ) ? true : false;
 		$forum_id     = 0;
 		$forum_ids    = bbp_get_group_forum_ids( bp_get_new_group_id() );
+
 		if ( !empty( $forum_ids ) )
 			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
 
