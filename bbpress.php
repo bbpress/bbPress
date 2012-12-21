@@ -180,7 +180,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.3-bleeding-4612';
+		$this->version    = '2.3-bleeding-4618';
 		$this->db_version = '220';
 
 		/** Paths *************************************************************/
@@ -923,8 +923,8 @@ final class bbPress {
 			$view_slug . $root_rule => 'index.php?' . $view_id . '=' . $wp_rewrite->preg_index( 1 ),
 
 			// Search All
-			$search_slug . $search_page_rule => 'index.php?&paged=' . $wp_rewrite->preg_index( 1 ),
-			$search_slug . $search_root_rule => 'index.php?',
+			$search_slug . $search_page_rule => 'index.php?paged=' . $wp_rewrite->preg_index( 1 ),
+			$search_slug . $search_root_rule => 'index.php?' . $search_id,
 		);
 
 		// Merge bbPress rules with existing

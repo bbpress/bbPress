@@ -2242,6 +2242,10 @@ function bbp_breadcrumb( $args = array() ) {
 		// Edit topic tag
 		} elseif ( bbp_is_topic_tag_edit() ) {
 			$crumbs[] = '<a href="' . get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
+
+		// Search
+		} elseif ( bbp_is_search() && bbp_get_search_terms() ) {
+			$crumbs[] = '<a href="' . home_url( bbp_get_search_slug() ) . '" class="bbp-breadcrumb-search">' . __( 'Search', 'bbpress' ) . '</a>';
 		}
 
 		/** Current ***********************************************************/

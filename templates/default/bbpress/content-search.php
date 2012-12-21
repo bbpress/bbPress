@@ -25,13 +25,15 @@
 
 		 <?php bbp_get_template_part( 'pagination', 'search' ); ?>
 
-	<?php else : ?>
+	<?php elseif ( bbp_get_search_terms() ) : ?>
 
 		 <?php bbp_get_template_part( 'feedback',   'no-search' ); ?>
 
-	<?php endif; ?>
+	<?php else : ?>
 
-	<?php bbp_get_template_part( 'form', 'search' ); ?>
+		<?php bbp_get_template_part( 'form', 'search' ); ?>
+
+	<?php endif; ?>
 
 	<?php do_action( 'bbp_template_after_search_results' ); ?>
 

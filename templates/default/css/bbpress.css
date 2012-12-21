@@ -362,7 +362,11 @@ div.bbp-topic-tags {
 /* =Search
 -------------------------------------------------------------- */
 
-div.bbp-search-form {
+#bbpress-forums #bbp-search {
+	clear: left;
+}
+
+#bbpress-forums div.bbp-search-form {
 	float: right;
 }
 

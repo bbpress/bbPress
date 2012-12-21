@@ -424,7 +424,7 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->bbp_is_view = true;
 
 	// Search Page
-	} elseif ( !empty( $bbp_search ) ) {
+	} elseif ( isset( $bbp_search ) ) {
 
 		// Check if there are search query args set
 		$search_terms = bbp_get_search_terms();
