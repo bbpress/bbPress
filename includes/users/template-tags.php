@@ -860,7 +860,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 		}
 
 		$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
-		$sub  = $is_subscribed ? ' class="is_subscribed"' : '';
+		$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
 		$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
 
 		// Initial output is wrapped in a span, ajax output is hooked to this
