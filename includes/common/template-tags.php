@@ -2152,7 +2152,7 @@ function bbp_breadcrumb( $args = array() ) {
 			'after'           => '</p></div>',
 			
 			// Separator
-			'sep'             => __( '&rsaquo;', 'bbpress' ),
+			'sep'             => is_rtl() ? __( '&lsaquo;', 'bbpress' ) : __( '&rsaquo;', 'bbpress' ),
 			'pad_sep'         => 1,
 			'sep_before'      => '<span class="bbp-breadcrumb-sep">',
 			'sep_after'       => '</span>',
@@ -2272,6 +2272,10 @@ function bbp_breadcrumb( $args = array() ) {
 		// Filter the separator and breadcrumb
 		$sep    = apply_filters( 'bbp_breadcrumb_separator', $sep    );
 		$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
+
+		// If right-to-left, reverse the crumb order
+		if ( is_rtl() )
+			array_reverse( $crumbs );
 
 		// Build the trail
 		$trail = !empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';

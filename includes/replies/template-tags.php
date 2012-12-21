@@ -153,8 +153,8 @@ function bbp_has_replies( $args = '' ) {
 				'format'    => '',
 				'total'     => ceil( (int) $bbp->reply_query->found_posts / (int) $r['posts_per_page'] ),
 				'current'   => (int) $bbp->reply_query->paged,
-				'prev_text' => '&larr;',
-				'next_text' => '&rarr;',
+				'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
+				'next_text' => is_rtl() ? '&larr;' : '&rarr;',
 				'mid_size'  => 1,
 				'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
 			) )

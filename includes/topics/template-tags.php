@@ -300,8 +300,8 @@ function bbp_has_topics( $args = '' ) {
 			'format'    => '',
 			'total'     => $r['posts_per_page'] == $bbp->topic_query->found_posts ? 1 : ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] ),
 			'current'   => (int) $bbp->topic_query->paged,
-			'prev_text' => '&larr;',
-			'next_text' => '&rarr;',
+			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
+			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
 			'mid_size'  => 1
 		) );
 
