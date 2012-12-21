@@ -300,8 +300,14 @@ class BBP_Default extends BBP_Theme_Compat {
 			bbp_ajax_response( false, __( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
 		}
 
+		// Put subscription attributes in convenient array
+		$attrs = array(
+			'topic_id' => $topic->ID,
+			'user_id'  => $user_id
+		);
+
 		// Action succeeded
-		bbp_ajax_response( true, bbp_get_user_favorites_link( array(), array(), $user_id, $id, false ), 200 );
+		bbp_ajax_response( true, bbp_get_user_favorites_link( $attrs, $user_id, false ), 200 );
 	}
 
 	/**
