@@ -42,6 +42,9 @@ class BBP_BuddyPress_Members {
 	 */
 	private function setup_actions() {
 
+		// Allow unsubscribe/unfavorite links to work
+		add_action( 'bp_template_redirect', array( $this, 'set_member_forum_query_vars' ) );
+
 		/** Favorites *********************************************************/
 
 		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
@@ -138,6 +141,33 @@ class BBP_BuddyPress_Members {
 	public function get_subscriptions_permalink( $url, $user_id ) {
 		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/subscriptions' );
 		return $url;
+	}
+
+	/**
+	 * Set favorites and subscriptions query variables if viewing member profile
+	 * pages.
+	 *
+	 * @since bbPress (r4615)
+	 *
+	 * @global WP_Query $wp_query
+	 * @return If not viewing your own profile
+	 */
+	public function set_member_forum_query_vars() {
+
+		// Special handling for forum component
+		if ( ! bp_is_my_profile() )
+			return;
+
+		global $wp_query;
+
+		// 'favorites' action
+		if ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
+			$wp_query->bbp_is_single_user_favs = true;
+
+		// 'subscriptions' action
+		} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
+			$wp_query->bbp_is_single_user_subs = true;
+		}
 	}
 }
 endif;
