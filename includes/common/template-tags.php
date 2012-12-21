@@ -2275,7 +2275,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// If right-to-left, reverse the crumb order
 		if ( is_rtl() )
-			array_reverse( $crumbs );
+			$crumbs = array_reverse( $crumbs );
 
 		// Build the trail
 		$trail = !empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
