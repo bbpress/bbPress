@@ -351,7 +351,7 @@ div.bbp-topic-tags {
 	margin-bottom: 10px
 }
 
-div.bbp-topic-tags {
+#bbpress-forums div.bbp-topic-tags {
 	float: right;
 }
 
