@@ -473,10 +473,37 @@ td.bbp-topic-counts {
 
 .bbp-pagination-count {
 	float: left;
+	border: 1px solid transparent;
 }
+
 .bbp-pagination-links {
 	float: right;
-}
+	list-style: none;
+	display: inline;
+	}
+	.bbp-pagination-links a,
+	.bbp-pagination-links span.current {
+		display: block;
+		float: left;
+		padding: 0px 5px;
+		margin-left: 5px;
+		border: 1px solid #efefef;
+		text-decoration: none;
+		}
+		.bbp-pagination-links a:hover,
+		.bbp-pagination-links span.current {
+			background: #eee;
+			opacity: 0.8;
+			border: 1px solid #ddd;
+		}
+
+	.bbp-pagination-links span.dots {
+		display: block;
+		float: left;
+		padding: 1px 4px;
+		margin-left: 5px;
+	}
+
 .bbp-pagination {
 	float: left;
 	width: 100%;
@@ -495,6 +522,7 @@ td.bbp-topic-counts {
 		border: 1px solid #ddd;
 		text-decoration: none;
 	}
+
 
 /* =Forms
 -------------------------------------------------------------- */
