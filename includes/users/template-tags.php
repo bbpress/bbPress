@@ -700,9 +700,7 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0, 
 		// already the user's favorite
 		if ( bbp_is_favorites() ) {
 			$permalink = bbp_get_favorites_permalink( $user_id );
-		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
-			$permalink = bbp_get_topic_permalink( $topic_id );
-		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
+		} elseif ( bbp_is_single_topic() || bbp_is_single_reply() ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} else {
 			$permalink = get_permalink();
@@ -858,9 +856,7 @@ function bbp_user_subscribe_link( $args = '' ) {
 		// subscribed already
 		if ( bbp_is_subscriptions() ) {
 			$permalink = bbp_get_subscriptions_permalink( $user_id );
-		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
-			$permalink = bbp_get_topic_permalink( $topic_id );
-		} elseif ( is_singular( bbp_get_reply_post_type() ) ) {
+		} elseif ( bbp_is_single_topic() || bbp_is_single_reply() ) {
 			$permalink = bbp_get_topic_permalink( $topic_id );
 		} else {
 			$permalink = get_permalink();
