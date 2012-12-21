@@ -358,12 +358,16 @@ div.bbp-topic-tags {
 	clear: both;
 }
 
-/* =Search 
--------------------------------------------------------------- */ 
+/* =Search
+-------------------------------------------------------------- */
 
-div.bbp-search-form {
+#bbpress-forums #bbp-search {
+	clear: right;
+}
+
+#bbpress-forums div.bbp-search-form {
 	float: left;
-} 
+}
 
 /* =Admin Links
 -------------------------------------------------------------- */
