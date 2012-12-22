@@ -292,10 +292,9 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$bbp_view   = $posts_query->get( bbp_get_view_rewrite_id() );
-	$bbp_search = $posts_query->get( bbp_get_search_rewrite_id() );
-	$bbp_user   = $posts_query->get( bbp_get_user_rewrite_id() );
-	$is_edit    = $posts_query->get( bbp_get_edit_rewrite_id() );
+	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
+	$bbp_user = $posts_query->get( bbp_get_user_rewrite_id() );
+	$is_edit  = $posts_query->get( bbp_get_edit_rewrite_id() );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -424,7 +423,7 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->bbp_is_view = true;
 
 	// Search Page
-	} elseif ( isset( $bbp_search ) ) {
+	} elseif ( isset( $posts_query->query_vars[ bbp_get_search_rewrite_id() ] ) ) {
 
 		// Check if there are search query args set
 		$search_terms = bbp_get_search_terms();
