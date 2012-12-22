@@ -180,7 +180,16 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_modified_gmt',
 			'callback_method' => 'callback_datetime'
 		);
-		
+
+		// Topic status (Open or Closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_status',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
 		/** Tags Section ******************************************************/
 		/*
 		// Topic id.
@@ -206,7 +215,7 @@ class phpBB extends BBP_Converter_Base {
 		
 		/** Post Section ******************************************************/
 
-		// Post id. Stores in postmeta.
+		// Post id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'post_id',
@@ -224,7 +233,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_type'         => 'reply'
 		);	
 		
-		// Forum id. Stores in postmeta.
+		// Forum id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'forum_id',
@@ -233,7 +242,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 		
-		// Topic id. Stores in postmeta.
+		// Topic id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'topic_id',
@@ -242,7 +251,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid'
 		);
 		
-		// Author ip.
+		// Author ip. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'poster_ip',
@@ -326,7 +335,7 @@ class phpBB extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id. Stores in usermeta.
+		// Store old User id. Stored in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_id',
@@ -334,7 +343,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_user_id'
 		);
 		
-		// Store old User password. Stores in usermeta serialized with salt.
+		// Store old User password. Stored in usermeta serialized with salt.
 		$this->field_map[] = array(
 			'from_tablename'  => 'users',
 			'from_fieldname'  => 'user_password',
@@ -351,7 +360,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'   => ''
 		);
 				
-		// User password verify class. Stores in usermeta for verifying password.
+		// User password verify class. Stored in usermeta for verifying password.
 		$this->field_map[] = array(
 			'to_type'      => 'user',
 			'to_fieldname' => '_bbp_class',
@@ -535,4 +544,23 @@ class phpBB extends BBP_Converter_Base {
 		return $output;
 	}
 
+	/**
+	 * Translate the post status from phpBB numeric's to WordPress's strings.
+	 *
+	 * @param int $status phpBB 3.x numeric topic status
+	 * @return string WordPress safe
+	 */
+	public function callback_topic_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'closed';
+				break;
+
+			case 0  :
+			default :
+				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
 }
