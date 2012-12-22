@@ -492,7 +492,7 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
  * @uses get_current_user_id()
  * @uses bp_get_current_group_id()
  * @uses groups_is_user_admin()
- * @return If current user is an admin of the current group
+ * @return bool If current user is an admin of the current group
  */
 function bbp_group_is_admin() {
 
@@ -521,7 +521,7 @@ function bbp_group_is_admin() {
  * @uses get_current_user_id()
  * @uses bp_get_current_group_id()
  * @uses groups_is_user_admin()
- * @return If current user is a moderator of the current group
+ * @return bool If current user is a moderator of the current group
  */
 function bbp_group_is_mod() {
 
@@ -550,7 +550,7 @@ function bbp_group_is_mod() {
  * @uses get_current_user_id()
  * @uses bp_get_current_group_id()
  * @uses groups_is_user_admin()
- * @return If current user is a member of the current group
+ * @return bool If current user is a member of the current group
  */
 function bbp_group_is_member() {
 
@@ -579,7 +579,7 @@ function bbp_group_is_member() {
  * @uses get_current_user_id()
  * @uses bp_get_current_group_id()
  * @uses groups_is_user_admin()
- * @return If current user is banned from the current group
+ * @return bool If current user is banned from the current group
  */
 function bbp_group_is_banned() {
 
@@ -608,7 +608,7 @@ function bbp_group_is_banned() {
  * @uses get_current_user_id()
  * @uses bp_get_current_group_id()
  * @uses groups_is_user_admin()
- * @return If current user the creator of the current group
+ * @return bool If current user the creator of the current group
  */
 function bbp_group_is_creator() {
 
