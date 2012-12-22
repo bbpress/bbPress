@@ -27,7 +27,7 @@
 
 		<?php do_action( 'bbp_theme_after_forum_title' ); ?>
 
-	</div><!-- .bbp-forum-title">
+	</div><!-- .bbp-forum-title -->
 
 </div><!-- .bbp-forum-header -->
 
