@@ -144,18 +144,25 @@ final class bbPress {
 	public function __isset( $key ) { return isset( $this->data[$key] ); }
 
 	/**
-	 * Magic method for getting bbPress varibles
+	 * Magic method for getting bbPress variables
 	 *
 	 * @since bbPress (r3951)
 	 */
 	public function __get( $key ) { return isset( $this->data[$key] ) ? $this->data[$key] : null; }
 
 	/**
-	 * Magic method for setting bbPress varibles
+	 * Magic method for setting bbPress variables
 	 *
 	 * @since bbPress (r3951)
 	 */
 	public function __set( $key, $value ) { $this->data[$key] = $value; }
+
+	/**
+	 * Magic method for unsetting bbPress variables
+	 *
+	 * @since bbPress (r4628)
+	 */
+	public function __unset( $key ) { if ( isset( $this->data[$key] ) ) unset( $this->data[$key] ); }
 
 	/**
 	 * Magic method to prevent notices and errors from invalid method calls
