@@ -191,7 +191,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			case 'publish_topics'      :
 			case 'read_hidden_forums'  :
 			case 'read_private_forums' :
-				if ( bp_group_is_member() || bp_group_is_mod() || bp_group_is_admin() ) {
+				if ( bbp_group_is_member() || bbp_group_is_mod() || bbp_group_is_admin() ) {
 					$caps = array( 'participate' );
 				}
 				break;
@@ -203,7 +203,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			case 'view_trash'   :
 			case 'edit_others_replies' :
 			case 'edit_others_topics'  :
-				if ( bp_group_is_mod() || bp_group_is_admin() ) {
+				if ( bbp_group_is_mod() || bbp_group_is_admin() ) {
 					$caps = array( 'participate' );
 				}
 				break;
@@ -211,7 +211,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			// If user is a group admin, allow them to delete topics and replies.
 			case 'delete_topic' :
 			case 'delete_reply' :
-				if ( bp_group_is_admin() ) {
+				if ( bbp_group_is_admin() ) {
 					$caps = array( 'participate' );
 				}
 				break;
@@ -978,11 +978,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Non-members cannot see forms
-		if ( ! bp_group_is_member() ) {
+		if ( ! bbp_group_is_member() ) {
 			$retval = false;
 
 		// Banned users cannot see forms
-		} elseif ( bp_group_is_user_banned() ) {
+		} elseif ( bbp_group_is_user_banned() ) {
 			$retval = false;
 		}
 

@@ -478,3 +478,150 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 
 	return (bool) apply_filters( 'bbp_is_forum_group_forum', $retval, $forum_id, $group_ids );
 }
+
+/*** Group Member Status ******************************************************/
+
+/**
+ * Is the current user an admin of the current group
+ *
+ * @since bbPress (r4632)
+ *
+ * @uses is_user_logged_in()
+ * @uses bp_is_group()
+ * @uses bbpress()
+ * @uses get_current_user_id()
+ * @uses bp_get_current_group_id()
+ * @uses groups_is_user_admin()
+ * @return If current user is an admin of the current group
+ */
+function bbp_group_is_admin() {
+
+	// Bail if user is not logged in or not looking at a group
+	if ( ! is_user_logged_in() || ! bp_is_group() )
+		return false;
+
+	$bbp = bbpress();
+
+	// Set the global if not set
+	if ( ! isset( $bbp->current_user->is_group_admin ) )
+		$bbp->current_user->is_group_admin = groups_is_user_admin( get_current_user_id(), bp_get_current_group_id() );
+
+	// Return the value
+	return (bool) $bbp->current_user->is_group_admin;
+}
+
+/**
+ * Is the current user a moderator of the current group
+ *
+ * @since bbPress (r4632)
+ *
+ * @uses is_user_logged_in()
+ * @uses bp_is_group()
+ * @uses bbpress()
+ * @uses get_current_user_id()
+ * @uses bp_get_current_group_id()
+ * @uses groups_is_user_admin()
+ * @return If current user is a moderator of the current group
+ */
+function bbp_group_is_mod() {
+
+	// Bail if user is not logged in or not looking at a group
+	if ( ! is_user_logged_in() || ! bp_is_group() )
+		return false;
+
+	$bbp = bbpress();
+
+	// Set the global if not set
+	if ( ! isset( $bbp->current_user->is_group_mod ) )
+		$bbp->current_user->is_group_mod = groups_is_user_mod( get_current_user_id(), bp_get_current_group_id() );
+
+	// Return the value
+	return (bool) $bbp->current_user->is_group_mod;
+}
+
+/**
+ * Is the current user a member of the current group
+ *
+ * @since bbPress (r4632)
+ *
+ * @uses is_user_logged_in()
+ * @uses bp_is_group()
+ * @uses bbpress()
+ * @uses get_current_user_id()
+ * @uses bp_get_current_group_id()
+ * @uses groups_is_user_admin()
+ * @return If current user is a member of the current group
+ */
+function bbp_group_is_member() {
+
+	// Bail if user is not logged in or not looking at a group
+	if ( ! is_user_logged_in() || ! bp_is_group() )
+		return false;
+
+	$bbp = bbpress();
+
+	// Set the global if not set
+	if ( ! isset( $bbp->current_user->is_group_member ) )
+		$bbp->current_user->is_group_member = groups_is_user_member( get_current_user_id(), bp_get_current_group_id() );
+
+	// Return the value
+	return (bool) $bbp->current_user->is_group_member;
+}
+
+/**
+ * Is the current user banned from the current group
+ *
+ * @since bbPress (r4632)
+ *
+ * @uses is_user_logged_in()
+ * @uses bp_is_group()
+ * @uses bbpress()
+ * @uses get_current_user_id()
+ * @uses bp_get_current_group_id()
+ * @uses groups_is_user_admin()
+ * @return If current user is banned from the current group
+ */
+function bbp_group_is_banned() {
+
+	// Bail if user is not logged in or not looking at a group
+	if ( ! is_user_logged_in() || ! bp_is_group() )
+		return false;
+
+	$bbp = bbpress();
+
+	// Set the global if not set
+	if ( ! isset( $bbp->current_user->is_group_banned ) )
+		$bbp->current_user->is_group_banned = groups_is_user_banned( get_current_user_id(), bp_get_current_group_id() );
+
+	// Return the value
+	return (bool) $bbp->current_user->is_group_banned;
+}
+
+/**
+ * Is the current user the creator of the current group
+ *
+ * @since bbPress (r4632)
+ *
+ * @uses is_user_logged_in()
+ * @uses bp_is_group()
+ * @uses bbpress()
+ * @uses get_current_user_id()
+ * @uses bp_get_current_group_id()
+ * @uses groups_is_user_admin()
+ * @return If current user the creator of the current group
+ */
+function bbp_group_is_creator() {
+
+	// Bail if user is not logged in or not looking at a group
+	if ( ! is_user_logged_in() || ! bp_is_group() )
+		return false;
+
+	$bbp = bbpress();
+
+	// Set the global if not set
+	if ( ! isset( $bbp->current_user->is_group_creator ) )
+		$bbp->current_user->is_group_creator = groups_is_user_creator( get_current_user_id(), bp_get_current_group_id() );
+
+	// Return the value
+	return (bool) $bbp->current_user->is_group_creator;
+}
