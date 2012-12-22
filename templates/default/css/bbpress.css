@@ -939,6 +939,10 @@ fieldset div.avatar {
 	width: 100%;
 }
 
+#bbpress-forums .bbp-user-section {
+	overflow: auto;
+}
+
 #bbpress-forums #bbp-user-wrapper h2.entry-title {
 	font-size: 1.4em;
 	margin: 0;
