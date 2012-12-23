@@ -125,7 +125,6 @@ add_filter( 'bbp_get_reply_content', 'convert_chars',      5    );
 add_filter( 'bbp_get_reply_content', 'make_clickable',     9    );
 add_filter( 'bbp_get_reply_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
-add_filter( 'bbp_get_reply_content', 'bbp_pre_code_tags',  25   );
 add_filter( 'bbp_get_reply_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
 add_filter( 'bbp_get_reply_content', 'bbp_mention_filter', 40   );
@@ -136,7 +135,6 @@ add_filter( 'bbp_get_topic_content', 'convert_chars',      5    );
 add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
 add_filter( 'bbp_get_topic_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
-add_filter( 'bbp_get_topic_content', 'bbp_pre_code_tags',  25   );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
 add_filter( 'bbp_get_topic_content', 'bbp_mention_filter', 40   );
@@ -152,6 +150,18 @@ add_filter( 'bbp_get_forum_post_count',     'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_voice_count',    'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_reply_count',    'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_post_count',     'bbp_number_format', 10 );
+
+// Code filters on input
+add_filter( 'bbp_new_reply_pre_content',  'bbp_code_trick_reverse' );
+add_filter( 'bbp_edit_reply_pre_content', 'bbp_code_trick_reverse' );
+add_filter( 'bbp_new_topic_pre_content',  'bbp_code_trick_reverse' );
+add_filter( 'bbp_edit_topic_pre_content', 'bbp_code_trick_reverse' );
+
+// Code filters on output
+add_filter( 'bbp_get_reply_content', 'bbp_code_trick' );
+add_filter( 'bbp_get_reply_content', 'bbp_encode_bad' );
+add_filter( 'bbp_get_topic_content', 'bbp_code_trick' );
+add_filter( 'bbp_get_topic_content', 'bbp_encode_bad' );
 
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {

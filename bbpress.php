@@ -297,9 +297,9 @@ final class bbPress {
 
 		// Common
 		require( $this->includes_dir . 'common/ajax.php'           );
-		require( $this->includes_dir . 'common/kses.php'           );
 		require( $this->includes_dir . 'common/classes.php'        );
 		require( $this->includes_dir . 'common/functions.php'      );
+		require( $this->includes_dir . 'common/formatting.php'     );
 		require( $this->includes_dir . 'common/template-tags.php'  );
 		require( $this->includes_dir . 'common/widgets.php'        );
 		require( $this->includes_dir . 'common/shortcodes.php'     );
