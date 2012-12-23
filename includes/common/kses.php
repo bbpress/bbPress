@@ -88,3 +88,32 @@ function bbp_filter_kses( $data = '' ) {
 function bbp_kses_data( $data = '' ) {
 	return wp_kses( $data , bbp_kses_allowed_tags() );
 }
+
+/** Formatting ****************************************************************/
+
+/**
+ * Filter the content of topics and replies, and turn the value of pre and code
+ * tags into entities where appropriate.
+ *
+ * @since bbPress (r4639)
+ *
+ * @param string $content
+ * @return string
+ */
+function bbp_pre_code_tags( $content = '' ) {
+	return preg_replace_callback( '/<pre.*?>(.*?)<\/pre>/imsu', '_bbp_pre_entities_callback', $content );
+}
+
+/**
+ * Callback used by bbp_pre_code_tags()
+ *
+ * @since bbPress (r4639)
+ *
+ * @internal Used by bbp_improve_pre_code_tags() to make code into entities
+ *
+ * @param string $matches
+ * @return string
+ */
+function _bbp_pre_entities_callback( $matches = array() ) {
+	return str_replace( $matches[1], htmlentities( $matches[1] ), $matches[0] );
+}
