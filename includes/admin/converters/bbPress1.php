@@ -476,7 +476,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => 'user_status'
 		);
 
-		// User status.
+		// User display name.
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'display_name',
@@ -555,5 +555,20 @@ class bbPress1 extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
+	}
+
+	/**
+	 * This callback:
+	 *
+	 * - turns off smiley parsing
+	 * - processes any custom parser.php attributes
+	 * - decodes necessary HTML entities
+	 */
+	protected function callback_html( $field ) {
+		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		$bbcode = BBCode::getInstance(); 
+		$bbcode->enable_smileys = false;
+		$bbcode->smiley_regex   = false;
+		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }
