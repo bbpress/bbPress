@@ -29,7 +29,7 @@ if ( !class_exists( 'bbPress' ) ) :
 /**
  * Main bbPress Class
  *
- * How doth the little busy bee, improve each shining hour...
+ * "How doth the little busy bee, improve each shining hour..."
  *
  * @since bbPress (r2464)
  */
@@ -187,7 +187,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.3-bleeding-4635';
+		$this->version    = '2.3-bleeding-4644';
 		$this->db_version = '220';
 
 		/** Paths *************************************************************/
