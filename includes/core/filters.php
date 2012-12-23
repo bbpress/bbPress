@@ -86,24 +86,24 @@ add_filter( 'bbp_get_reply_permalink',   'bbp_add_view_all' );
 add_filter( 'bbp_get_forum_permalink',   'bbp_add_view_all' );
 
 // wp_filter_kses on new/edit topic/reply title
-add_filter( 'bbp_new_reply_pre_title',     'wp_filter_kses' );
-add_filter( 'bbp_new_topic_pre_title',     'wp_filter_kses' );
-add_filter( 'bbp_edit_reply_pre_title',    'wp_filter_kses' );
-add_filter( 'bbp_edit_topic_pre_title',    'wp_filter_kses' );
+add_filter( 'bbp_new_reply_pre_title',    'wp_filter_kses'  );
+add_filter( 'bbp_new_topic_pre_title',    'wp_filter_kses'  );
+add_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'  );
+add_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses'  );
 
 // balanceTags, wp_filter_kses and wp_rel_nofollow on new/edit topic/reply text
-add_filter( 'bbp_new_reply_pre_content',  'balanceTags'     );
-add_filter( 'bbp_new_reply_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_reply_pre_content',  'bbp_filter_kses' );
-add_filter( 'bbp_new_topic_pre_content',  'balanceTags'     );
-add_filter( 'bbp_new_topic_pre_content',  'wp_rel_nofollow' );
-add_filter( 'bbp_new_topic_pre_content',  'bbp_filter_kses' );
-add_filter( 'bbp_edit_reply_pre_content', 'balanceTags'     );
-add_filter( 'bbp_edit_reply_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses' );
-add_filter( 'bbp_edit_topic_pre_content', 'balanceTags'     );
-add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow' );
-add_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses' );
+add_filter( 'bbp_new_reply_pre_content',  'wp_rel_nofollow'    );
+add_filter( 'bbp_new_reply_pre_content',  'bbp_filter_kses'    );
+add_filter( 'bbp_new_reply_pre_content',  'balanceTags',    50 );
+add_filter( 'bbp_new_topic_pre_content',  'wp_rel_nofollow'    );
+add_filter( 'bbp_new_topic_pre_content',  'bbp_filter_kses'    );
+add_filter( 'bbp_new_topic_pre_content',  'balanceTags',    50 );
+add_filter( 'bbp_edit_reply_pre_content', 'wp_rel_nofollow'    );
+add_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses'    );
+add_filter( 'bbp_edit_reply_pre_content', 'balanceTags',    50 );
+add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow'    );
+add_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses'    );
+add_filter( 'bbp_edit_topic_pre_content', 'balanceTags',    50 );
 
 // No follow and stripslashes on user profile links
 add_filter( 'bbp_get_reply_author_link',      'wp_rel_nofollow' );
@@ -120,20 +120,20 @@ add_filter( 'bbp_get_user_profile_edit_link', 'wp_rel_nofollow' );
 add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'    );
 
 // Run filters on reply content
-add_filter( 'bbp_get_reply_content', 'capital_P_dangit'         );
 add_filter( 'bbp_get_reply_content', 'wptexturize',        3    );
 add_filter( 'bbp_get_reply_content', 'convert_chars',      5    );
 add_filter( 'bbp_get_reply_content', 'make_clickable',     9    );
+add_filter( 'bbp_get_reply_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_reply_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
 add_filter( 'bbp_get_reply_content', 'bbp_mention_filter', 40   );
 
 // Run filters on topic content
-add_filter( 'bbp_get_topic_content', 'capital_P_dangit'         );
 add_filter( 'bbp_get_topic_content', 'wptexturize',        3    );
 add_filter( 'bbp_get_topic_content', 'convert_chars',      5    );
 add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
+add_filter( 'bbp_get_topic_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
