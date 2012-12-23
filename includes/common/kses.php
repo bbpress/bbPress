@@ -97,11 +97,12 @@ function bbp_kses_data( $data = '' ) {
  *
  * @since bbPress (r4639)
  *
+ * @link: http://coreyworrell.com/blog/article/convert-to-html-entities-between-code-tags/
  * @param string $content
  * @return string
  */
 function bbp_pre_code_tags( $content = '' ) {
-	return preg_replace_callback( '/<pre.*?>(.*?)<\/pre>/imsu', '_bbp_pre_entities_callback', $content );
+	return preg_replace_callback( '#<(code|pre)([^>]*)>(((?!</?\1).)*|(?R))*</\1>#si', '_bbp_pre_entities_callback', $content );
 }
 
 /**
@@ -115,5 +116,5 @@ function bbp_pre_code_tags( $content = '' ) {
  * @return string
  */
 function _bbp_pre_entities_callback( $matches = array() ) {
-	return str_replace( $matches[1], htmlentities( $matches[1] ), $matches[0] );
+	return '<' . $matches[1] . $matches[2] . '>' . htmlspecialchars( substr( str_replace( '<' . $matches[1] . $matches[2] . '>', '', $matches[0] ), 0, - ( strlen( $matches[1] ) + 3 ) ) ) . '</' . $matches[1] . '>';
 }
