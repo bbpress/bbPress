@@ -159,8 +159,9 @@ function bbp_encode_bad( $content = '' ) {
 		'embed' => true
 	);
 
-	// Add 'p' tags to allowed array, so they are not accidentally encoded
-	$allowed['p'] = array();
+	// Add 'p' and 'br' tags to allowed array, so they are not encoded
+	$allowed['p']  = array();
+	$allowed['br'] = array();
 
 	// Loop through allowed tags and compare for empty and normal tags
 	foreach ( $allowed as $tag => $args ) {
