@@ -1361,7 +1361,7 @@ class BBP_Admin {
 			<div class="changelog">
 				<h3><?php _e( 'Under the Hood', 'bbpress' ); ?></h3>
 
-				<div class="feature-section three-col">
+				<div class="feature-section col three-col">
 					<div>
 						<h4><?php _e( 'Template Logic', 'bbpress' ); ?></h4>
 						<p><?php _e( 'New functions and template stacks are in place to help plugin developers extend bbPress further.', 'bbpress' ); ?></p> 
