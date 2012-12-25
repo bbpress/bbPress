@@ -318,7 +318,7 @@ function bbp_new_reply_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// Get the reply URL
 		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
@@ -603,7 +603,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// Get the reply URL
 		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
@@ -1416,7 +1416,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// Get the reply URL
 		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );

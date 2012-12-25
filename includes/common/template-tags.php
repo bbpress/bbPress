@@ -1113,8 +1113,8 @@ function bbp_wp_login_action( $args = '' ) {
 /**
  * Output hidden request URI field for user forms.
  *
- * The referer link is the current Request URI from the server super global. The
- * input name is 'redirect_to', in case you wanted to check manually.
+ * The referer link is the current Request URI from the server super global. To
+ * check the field manually, use bbp_get_redirect_to().
  *
  * @since bbPress (r2815)
  *

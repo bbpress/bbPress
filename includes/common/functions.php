@@ -229,6 +229,19 @@ function bbp_format_revision_reason( $reason = '' ) {
 /** Misc **********************************************************************/
 
 /**
+ * Return the unescaped redirect_to request value
+ *
+ * @bbPress (r4655)
+ *
+ * @return string The URL to redirect to, if set
+ */
+function bbp_get_redirect_to() {
+	$retval = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+	return apply_filters( 'bbp_get_redirect_to', $retval );
+}
+
+/**
  * Append 'view=all' to query string if it's already there from referer
  *
  * @since bbPress (r3325)

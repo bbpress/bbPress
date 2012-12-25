@@ -343,7 +343,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// Get the topic URL
 		$redirect_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
@@ -681,7 +681,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// View all?
 		$view_all = bbp_get_view_all();

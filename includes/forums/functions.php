@@ -296,7 +296,7 @@ function bbp_new_forum_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to  = bbp_get_redirect_to();
 
 		// Get the forum URL
 		$redirect_url = bbp_get_forum_permalink( $forum_id, $redirect_to );
@@ -548,7 +548,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 		/** Redirect **********************************************************/
 
 		// Redirect to
-		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+		$redirect_to = bbp_get_redirect_to();
 
 		// View all?
 		$view_all = bbp_get_view_all();
