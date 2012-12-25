@@ -248,9 +248,9 @@ span.bbp-author-ip {
 #bbpress-forums div.bbp-forum-content,
 #bbpress-forums div.bbp-topic-content,
 #bbpress-forums div.bbp-reply-content {
-	margin-left: 140px;
-	padding: 12px 12px 12px 0;
-	text-align: left;
+	margin-right: 130px;
+	padding: 12px 0 12px 12px;
+	text-align: right;
 }
 
 #bbpress-forums div.bbp-topic-content a,
