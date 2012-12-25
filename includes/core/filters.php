@@ -170,8 +170,8 @@ if ( is_admin() ) {
 
 // Revisions (only when not in admin)
 } else {
-	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1,  2 );
-	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1,  2 );
+	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  99,  2 );
+	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  99,  2 );
 }
 
 // Suppress private forum details
