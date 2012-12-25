@@ -182,6 +182,7 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 #bbpress-forums div.bbp-reply-author a.bbp-author-name {
 	margin: 0 12px;
 	word-break: break-word;
+	display: inline-block;
 }
 
 #bbpress-forums div.bbp-forum-author .bbp-author-role,
