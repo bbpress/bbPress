@@ -145,7 +145,7 @@ function bbp_code_trick_reverse( $content = '' ) {
 function bbp_encode_bad( $content = '' ) {
 
 	// Setup variables
-	$content = wp_specialchars( $content, ENT_NOQUOTES );
+	$content = _wp_specialchars( $content, ENT_NOQUOTES );
 	$content = preg_split( '@(`[^`]*`)@m', $content, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE );
 	$allowed = bbp_kses_allowed_tags();
 	$empty   = array(
