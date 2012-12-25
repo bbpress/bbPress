@@ -827,15 +827,22 @@ div.bbp-template-notice a {
 
 /* =Revisions
 -------------------------------------------------------------- */
-#bbpress-forums .bbp-topic-revision-log,
-#bbpress-forums .bbp-reply-revision-log {
+
+#bbpress-forums .bbp-topic-content ul.bbp-topic-revision-log,
+#bbpress-forums .bbp-reply-content ul.bbp-topic-revision-log,
+#bbpress-forums .bbp-reply-content ul.bbp-reply-revision-log {
 	border-top: 1px dotted #ddd;
-	list-style: none;
 	width: 100%;
 	margin: 0;
 	padding: 8px 0 0 0;
 	font-size: 11px;
 	color: #aaa;
+}
+
+#bbpress-forums .bbp-topic-content ul.bbp-topic-revision-log li,
+#bbpress-forums .bbp-reply-content ul.bbp-topic-revision-log li,
+#bbpress-forums .bbp-reply-content ul.bbp-reply-revision-log li {
+	list-style-type: none;
 }
 
 /* =Widgets

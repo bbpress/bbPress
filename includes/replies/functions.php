@@ -553,7 +553,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Toggle revisions back on
 	if ( true === $revisions_removed ) {
-		$revisions_removed = true;
+		$revisions_removed = false;
 		add_post_type_support( bbp_get_reply_post_type(), 'revisions' );
 	}
 
@@ -578,7 +578,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Update revision log
 	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) ) {
-		$revision_id = wp_is_post_revision( $reply_id );
+		$revision_id = wp_save_post_revision( $reply_id );
 		if ( !empty( $revision_id ) ) {
 			bbp_update_reply_revision_log( array(
 				'reply_id'    => $reply_id,

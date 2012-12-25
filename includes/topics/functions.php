@@ -613,7 +613,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// Toggle revisions back on
 	if ( true === $revisions_removed ) {
-		$revisions_removed = true;
+		$revisions_removed = false;
 		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
 	}
 
