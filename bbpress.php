@@ -38,11 +38,12 @@ final class bbPress {
 	/** Magic *****************************************************************/
 
 	/**
-	 * bbPress uses many variables, most of which can be filtered to customize
-	 * the way that it works. To prevent unauthorized access, these variables
-	 * are stored in a private array that is magically updated using PHP 5.2+
-	 * methods. This is to prevent third party plugins from tampering with
-	 * essential information indirectly, which would cause issues later.
+	 * bbPress uses many variables, several of which can be filtered to
+	 * customize the way it operates. Most of these variables are stored in a
+	 * private array that gets updated with the help of PHP magic methods.
+	 *
+	 * This is a precautionary measure, to avoid potential errors produced by
+	 * unanticipated direct manipulation of bbPress's run-time data.
 	 *
 	 * @see bbPress::setup_globals()
 	 * @var array
