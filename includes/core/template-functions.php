@@ -116,7 +116,26 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
 		return false;
 
 	// Add location callback to template stack
-	add_filter( 'bbp_template_stack', $location_callback, (int) $priority );
+	return add_filter( 'bbp_template_stack', $location_callback, (int) $priority );
+}
+
+/**
+ * Deregisters a previously registered template stack location.
+ *
+ * @since bbPress (r4652)
+ *
+ * @param string $location Callback function that returns the
+ * @param int $priority
+ * @see bbp_register_template_stack()
+ */
+function bbp_deregister_template_stack( $location_callback = '', $priority = 10 ) {
+
+	// Bail if no location, or function does not exist
+	if ( empty( $location_callback ) || ! function_exists( $location_callback ) )
+		return false;
+
+	// Remove location callback to template stack
+	return remove_filter( 'bbp_template_stack', $location_callback, (int) $priority );
 }
 
 /**
