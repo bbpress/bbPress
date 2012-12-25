@@ -929,8 +929,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 
 	// Get some counts
 	$forum_id          = bbp_get_forum_id( $forum_id );
-	$topic_count       = bbp_get_forum_topic_count( $forum_id, false, false );
-	$total_topic_count = bbp_get_forum_topic_count( $forum_id, true,  false );
+	$topic_count       = bbp_get_forum_topic_count( $forum_id, false, true );
+	$total_topic_count = bbp_get_forum_topic_count( $forum_id, true,  true );
 
 	// Update this forum id
 	update_post_meta( $forum_id, '_bbp_topic_count',       (int) $topic_count       + (int) $difference );
@@ -948,8 +948,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 			foreach ( (array) $ancestors as $parent_forum_id ) {
 
 				// Get forum counts
-				$parent_topic_count       = bbp_get_forum_topic_count( $parent_forum_id, false, false );
-				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true,  false );
+				$parent_topic_count       = bbp_get_forum_topic_count( $parent_forum_id, false, true );
+				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true,  true );
 
 				// Update counts
 				update_post_meta( $parent_forum_id, '_bbp_topic_count',       (int) $parent_topic_count       + (int) $difference );
@@ -978,7 +978,7 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1 ) {
 
 	// Get some counts
 	$forum_id    = bbp_get_forum_id( $forum_id );
-	$topic_count = bbp_get_forum_topic_count_hidden( $forum_id, false );
+	$topic_count = bbp_get_forum_topic_count_hidden( $forum_id, true );
 	$new_count   = (int) $topic_count + (int) $difference;
 
 	// Update this forum id
@@ -1005,8 +1005,8 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 
 	// Get some counts
 	$forum_id          = bbp_get_forum_id( $forum_id );
-	$topic_count       = bbp_get_forum_reply_count( $forum_id, false );
-	$total_reply_count = bbp_get_forum_reply_count( $forum_id, true  );
+	$topic_count       = bbp_get_forum_reply_count( $forum_id, false, true );
+	$total_reply_count = bbp_get_forum_reply_count( $forum_id, true,  true );
 
 	// Update this forum id
 	update_post_meta( $forum_id, '_bbp_reply_count',       (int) $topic_count       + (int) $difference );
@@ -1024,8 +1024,8 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 			foreach ( (array) $ancestors as $parent_forum_id ) {
 
 				// Get forum counts
-				$parent_topic_count       = bbp_get_forum_reply_count( $parent_forum_id, false );
-				$parent_total_reply_count = bbp_get_forum_reply_count( $parent_forum_id, true  );
+				$parent_topic_count       = bbp_get_forum_reply_count( $parent_forum_id, false, true );
+				$parent_total_reply_count = bbp_get_forum_reply_count( $parent_forum_id, true,  true );
 
 				// Update counts
 				update_post_meta( $parent_forum_id, '_bbp_reply_count',       (int) $parent_topic_count       + (int) $difference );

@@ -2156,7 +2156,7 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 
 	// Get counts
 	$topic_id    = bbp_get_topic_id( $topic_id );
-	$reply_count = bbp_get_topic_reply_count( $topic_id, false );
+	$reply_count = bbp_get_topic_reply_count( $topic_id, true );
 	$new_count   = (int) $reply_count + (int) $difference;
 
 	// Update this topic id's reply count
@@ -2182,7 +2182,7 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 
 	// Get counts
 	$topic_id    = bbp_get_topic_id( $topic_id );
-	$reply_count = bbp_get_topic_reply_count_hidden( $topic_id, false );
+	$reply_count = bbp_get_topic_reply_count_hidden( $topic_id, true );
 	$new_count   = (int) $reply_count + (int) $difference;
 
 	// Update this topic id's hidder reply count
