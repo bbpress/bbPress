@@ -45,7 +45,6 @@ class BBP_Forums_Component extends BP_Component {
 		$this->includes();
 		$this->setup_globals();
 		$this->setup_actions();
-		$this->setup_nav();
 		$this->fully_loaded();
 	}
 
