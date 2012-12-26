@@ -336,6 +336,15 @@ span.bbp-author-ip {
 	word-wrap: break-word;
 }
 
+#bbpress-forums div.bbp-topic-content pre code,
+#bbpress-forums div.bbp-reply-content pre code {
+	display: block;
+	border: none;
+	padding: 0;
+	margin: 0;
+	background-color: transparent;
+}
+
 /* =Breadcrumb and Tags
 -------------------------------------------------------------- */
 
