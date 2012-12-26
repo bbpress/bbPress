@@ -228,12 +228,8 @@ function bbp_decode_callback( $matches = array() ) {
 	$content = str_replace( $amps,    '&',            $content );
 	$content = str_replace( '&#39;',  "'",            $content );
 
-	// Wrap pre + code blocks in new lines
-	if ( '<pre><code>' == $matches[1] )
-		$content = "\n" . $content . "\n";
-
 	// Return content wrapped in code tags
-	return '<code>' . $content . '</code>';
+	return '`' . $content . '`';
 }
 
 /**
