@@ -329,7 +329,7 @@ span.bbp-author-ip {
 #bbpress-forums div.bbp-reply-content pre {
 	display: block;
 	line-height: 18px;
-	margin: 24px 0;
+	margin: 0 0 24px;
 	padding: 5px 10px;
 	white-space: pre;
 	white-space: pre-wrap;
