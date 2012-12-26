@@ -668,9 +668,8 @@ p.form-allowed-tags {
 #bbpress-forums div.bbp-the-content-wrapper input {
 	font-size: 12px;
 	padding: 5px;
-	margin: 3px 0 0;
+	margin: 0 2px 0 0;
 	line-height: 1em;
-	margin: 0;
 }
 
 #bbpress-forums div.bbp-the-content-wrapper div.quicktags-toolbar {
