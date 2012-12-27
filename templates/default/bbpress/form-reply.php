@@ -134,10 +134,6 @@
 
 						<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
 
-					<?php else : ?>
-
-						<?php bbp_topic_admin_links(); ?>
-
 					<?php endif; ?>
 
 					<?php do_action( 'bbp_theme_before_reply_form_submit_wrapper' ); ?>
