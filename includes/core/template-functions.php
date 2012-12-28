@@ -319,7 +319,7 @@ function bbp_parse_query( $posts_query ) {
 	if ( !empty( $bbp_user ) ) {
 
 		// Not a user_id so try email and slug
-		if ( !is_numeric( $bbp_user ) ) {
+		if ( get_option( 'permalink_structure' ) || ! is_numeric( $bbp_user ) ) {
 
 			// Email was passed
 			if ( is_email( $bbp_user ) ) {
