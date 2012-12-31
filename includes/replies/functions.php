@@ -299,13 +299,22 @@ function bbp_new_reply_handler( $action = '' ) {
 
 			// Update the pre_trashed_reply post meta
 			update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
-		}
 
 		/** Spam Check ********************************************************/
 
 		// If reply or topic are spam, officially spam this reply
-		if ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == bbp_get_spam_status_id() ) )
+		} elseif ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == bbp_get_spam_status_id() ) ) {
 			add_post_meta( $reply_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
+
+			// Get pre_trashed_replies for topic
+			$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
+
+			// Add this reply to the end of the existing replies
+			$pre_spammed_replies[] = $reply_id;
+
+			// Update the pre_trashed_reply post meta
+			update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
+		}
 
 		/** Update counts, etc... *********************************************/
 

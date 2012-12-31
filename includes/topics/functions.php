@@ -2690,6 +2690,44 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	// Execute pre spam code
 	do_action( 'bbp_spam_topic', $topic_id );
 
+	/** Trash Replies *********************************************************/
+
+	// Topic is being spammed, so its replies are trashed
+	$replies = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => bbp_get_reply_post_type(),
+		'post_status'      => bbp_get_public_status_id(),
+		'post_parent'      => $topic_id,
+		'posts_per_page'   => -1,
+		'nopaging'         => true,
+		'fields'           => 'id=>parent'
+	) );
+
+	if ( !empty( $replies->posts ) ) {
+
+		// Prevent debug notices
+		$pre_spammed_replies = array();
+
+		// Loop through replies, trash them, and add them to array
+		foreach ( $replies->posts as $reply ) {
+			wp_trash_post( $reply->ID );
+			$pre_spammed_replies[] = $reply->ID;
+		}
+
+		// Set a post_meta entry of the replies that were trashed by this action.
+		// This is so we can possibly untrash them, without untrashing replies
+		// that were purposefully trashed before.
+		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
+
+		// Reset the $post global
+		wp_reset_postdata();
+	}
+
+	// Cleanup
+	unset( $replies );
+
+	/** Topic Tags ************************************************************/
+
 	// Add the original post status as post meta for future restoration
 	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic['post_status'] );
 
@@ -2761,17 +2799,25 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	// Execute pre unspam code
 	do_action( 'bbp_unspam_topic', $topic_id );
 
-	// Get pre spam status
-	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
+	/** Untrash Replies *******************************************************/
 
-	// Set post status to pre spam
-	$topic['post_status'] = $topic_status;
+	// Get the replies that were not previously trashed
+	$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
 
-	// Delete pre spam meta
-	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
+	// There are replies to untrash
+	if ( !empty( $pre_spammed_replies ) ) {
 
-	// No revisions
-	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+		// Maybe reverse the trashed replies array
+		if ( is_array( $pre_spammed_replies ) )
+			$pre_spammed_replies = array_reverse( $pre_spammed_replies );
+
+		// Loop through replies
+		foreach ( (array) $pre_spammed_replies as $reply ) {
+			wp_untrash_post( $reply );
+		}
+	}
+
+	/** Topic Tags ************************************************************/
 
 	// Get pre-spam topic tags
 	$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
@@ -2785,6 +2831,20 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 		// Delete pre-spam topic tag meta
 		delete_post_meta( $topic_id, '_bbp_spam_topic_tags' );
 	}
+
+	/** Topic Status **********************************************************/
+
+	// Get pre spam status
+	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
+
+	// Set post status to pre spam
+	$topic['post_status'] = $topic_status;
+
+	// Delete pre spam meta
+	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update the topic
 	$topic_id = wp_insert_post( $topic );
