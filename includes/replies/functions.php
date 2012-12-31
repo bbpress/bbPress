@@ -313,13 +313,13 @@ function bbp_new_reply_handler( $action = '' ) {
 			// Only add to pre-spammed array if topic is spam
 			if ( bbp_is_topic_spam( $topic_id ) ) {
 
-				// Get pre_trashed_replies for topic
+				// Get pre_spammed_replies for topic
 				$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
 
 				// Add this reply to the end of the existing replies
 				$pre_spammed_replies[] = $reply_id;
 
-				// Update the pre_trashed_reply post meta
+				// Update the pre_spammed_replies post meta
 				update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
 			}
 		}
