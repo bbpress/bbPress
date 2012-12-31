@@ -49,7 +49,7 @@ class BBP_Admin {
 	/**
 	 * @var bool Minimum capability to access Tools and Settings
 	 */
-	public $minimum_capability = 'manage_options';
+	public $minimum_capability = 'keep_gate';
 
 	/** Functions *************************************************************/
 
@@ -141,6 +141,9 @@ class BBP_Admin {
 
 		// Hide the theme compat package selection
 		add_filter( 'bbp_admin_get_settings_sections', array( $this, 'hide_theme_compat_packages' ) );
+
+		// Allow keymasters to save forums settings
+		add_filter( 'option_page_capability_bbpress',  array( $this, 'option_page_capability_bbpress' ) );
 
 		/** Network Admin *****************************************************/
 
@@ -1258,6 +1261,19 @@ class BBP_Admin {
 			unset( $sections['bbp_settings_theme_compat'] );
 
 		return $sections;
+	}
+
+	/**
+	 * Allow keymaster role to save Forums settings
+	 *
+	 * @since bbPress (r4678)
+	 *
+	 * @param string $capability
+	 * @return string Return 'keep_gate' capability
+	 */
+	public function option_page_capability_bbpress( $capability = 'manage_options' ) {
+		$capability = 'keep_gate';
+		return $capability;
 	}
 
 	/** Ajax ******************************************************************/

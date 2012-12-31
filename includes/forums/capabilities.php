@@ -176,7 +176,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		/** Admin *************************************************************/
 
 		case 'bbp_forums_admin' :
-			$caps = array( 'manage_options' );
+			$caps = array( 'keep_gate' );
 			break;
 	}
 
