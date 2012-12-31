@@ -243,6 +243,58 @@ function bbp_user_profile_link( $user_id = 0 ) {
 	}
 
 /**
+ * Output a users nicename to the screen
+ *
+ * @since bbPress (r4671)
+ *
+ * @param int $user_id User ID whose nicename to get
+ * @param array $args before|after|user_id|force
+ */
+function bbp_user_nicename( $user_id = 0, $args = array() ) {
+	echo bbp_get_user_nicename( $user_id, $args );
+}
+	/**
+	 * Return a users nicename to the screen
+	 *
+	 * @since bbPress (r4671)
+	 *
+	 * @param int $user_id User ID whose nicename to get
+	 * @param array $args before|after|user_id|force
+	 * @return string User nicename, maybe wrapped in before/after strings
+	 */
+	function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
+
+		// Bail if no user ID passed
+		$user_id = bbp_get_user_id( $user_id, false, false );
+		if ( empty( $user_id ) )
+			return false;
+
+		// Parse default arguments
+		$r = bbp_parse_args( $args, array(
+			'user_id' => $user_id,
+			'before'  => '',
+			'after'   => '',
+			'force'   => ''
+		), 'get_user_nicename' );
+
+		// Get the user data and nicename
+		if ( empty( $r['force'] ) ) {
+			$user     = get_userdata( $user_id );
+			$nicename = $user->user_nicename;
+
+		// Force the nicename to something else
+		} else {
+			$nicename = (string) $r['force'];
+		}
+
+		// Maybe wrap the nicename
+		$retval = !empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
+
+		// Filter and return
+		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $args );
+	}
+
+/**
  * Output URL to the profile page of a user
  *
  * @since bbPress (r2688)
@@ -289,10 +341,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
-				$user = get_userdata( $user_id );
-				if ( !empty( $user->user_nicename ) ) {
-					$user_nicename = $user->user_nicename;
-				}
+				$user_nicename = bbp_get_user_nicename( $user_id );
 			}
 
 			$url = str_replace( '%' . bbp_get_user_rewrite_id() . '%', $user_nicename, $url );
