@@ -68,34 +68,45 @@ function bbp_has_replies( $args = '' ) {
 
 	/** Defaults **************************************************************/
 
-	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() );
-	} else {
-		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
-	}
-
-	// Add support for private status
-	if ( current_user_can( 'read_private_replies' ) ) {
-		$post_statuses[] = bbp_get_private_status_id();
-	}
-
+	// Other defaults
 	$default_reply_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
 	$default_post_parent  = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
 	$default_post_type    = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$default_post_status  = join( ',', $post_statuses );
 
 	// Default query args
 	$default = array(
 		'post_type'      => $default_post_type,         // Only replies
 		'post_parent'    => $default_post_parent,       // Of this topic
-		'post_status'    => $default_post_status,       // Of this status
 		'posts_per_page' => bbp_get_replies_per_page(), // This many
 		'paged'          => bbp_get_paged(),            // On this page
 		'orderby'        => 'date',                     // Sorted by date
 		'order'          => 'ASC',                      // Oldest to newest
 		's'              => $default_reply_search,      // Maybe search
 	);
+
+	// What are the default allowed statuses (based on user caps)
+	if ( bbp_get_view_all() ) {
+
+		// Default view=all statuses
+		$post_statuses = array(
+			bbp_get_public_status_id(),
+			bbp_get_closed_status_id(),
+			bbp_get_spam_status_id(),
+			bbp_get_trash_status_id()
+		);
+
+		// Add support for private status
+		if ( current_user_can( 'read_private_replies' ) ) {
+			$post_statuses[] = bbp_get_private_status_id();
+		}
+
+		// Join post statuses together
+		$default['post_status'] = join( ',', $post_statuses );
+
+	// Lean on the 'perm' query var value of 'readable' to provide statuses
+	} else {
+		$default['perm'] = 'readable';
+	}
 
 	/** Setup *****************************************************************/
 

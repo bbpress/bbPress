@@ -86,28 +86,15 @@ function bbp_has_topics( $args = '' ) {
 
 	/** Defaults **************************************************************/
 
-	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all() ) {
-		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() );
-	} else {
-		$post_statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
-	}
-
-	// Add support for private status
-	if ( current_user_can( 'read_private_topics' ) ) {
-		$post_statuses[] = bbp_get_private_status_id();
-	}
-
+	// Other defaults
 	$default_topic_search  = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
 	$default_show_stickies = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
 	$default_post_parent   = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
-	$default_post_status   = join( ',', $post_statuses );
 
 	// Default argument array
 	$default = array(
 		'post_type'      => bbp_get_topic_post_type(), // Narrow query down to bbPress topics
 		'post_parent'    => $default_post_parent,      // Forum ID
-		'post_status'    => $default_post_status,      // Post Status
 		'meta_key'       => '_bbp_last_active_time',   // Make sure topic has some last activity time
 		'orderby'        => 'meta_value',              // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
 		'order'          => 'DESC',                    // 'ASC', 'DESC'
@@ -117,6 +104,30 @@ function bbp_has_topics( $args = '' ) {
 		'show_stickies'  => $default_show_stickies,    // Ignore sticky topics?
 		'max_num_pages'  => false,                     // Maximum number of pages to show
 	);
+
+	// What are the default allowed statuses (based on user caps)
+	if ( bbp_get_view_all() ) {
+
+		// Default view=all statuses
+		$post_statuses = array(
+			bbp_get_public_status_id(),
+			bbp_get_closed_status_id(),
+			bbp_get_spam_status_id(),
+			bbp_get_trash_status_id()
+		);
+
+		// Add support for private status
+		if ( current_user_can( 'read_private_topics' ) ) {
+			$post_statuses[] = bbp_get_private_status_id();
+		}
+
+		// Join post statuses together
+		$default['post_status'] = join( ',', $post_statuses );
+
+	// Lean on the 'perm' query var value of 'readable' to provide statuses
+	} else {
+		$default['perm'] = 'readable';
+	}
 
 	// Maybe query for topic tags
 	if ( bbp_is_topic_tag() ) {
