@@ -174,6 +174,11 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function enqueue_scripts() {
 
+		// Always pull in jQuery for TinyMCE shortcode usage
+		if ( bbp_use_wp_editor() ) {
+			wp_enqueue_script( 'jquery' );
+		}
+
 		// Topic favorite/subscribe
 		if ( bbp_is_single_topic() ) {
 			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'jquery' ), $this->version );
