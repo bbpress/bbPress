@@ -1009,7 +1009,7 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
 
 	// Try to get the topics
 	$query = bbp_has_replies( array(
-		'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+		'post_type'      => bbp_get_reply_post_type(),
 		'post_parent'    => 'any',
 		'posts_per_page' => bbp_get_replies_per_page(),
 		'paged'          => bbp_get_paged(),
