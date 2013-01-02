@@ -196,6 +196,14 @@ add_filter( 'bbp_get_topictag_template',     'bbp_add_template_locations' );
 add_filter( 'bbp_get_topictagedit_template', 'bbp_add_template_locations' );
 add_filter( 'bbp_get_replymove_template',    'bbp_add_template_locations' );
 
+// Topic and reply author display names
+add_filter( 'bbp_get_topic_author_display_name', 'wptexturize'   );
+add_filter( 'bbp_get_topic_author_display_name', 'convert_chars' );
+add_filter( 'bbp_get_topic_author_display_name', 'esc_html'      );
+add_filter( 'bbp_get_reply_author_display_name', 'wptexturize'   );
+add_filter( 'bbp_get_reply_author_display_name', 'convert_chars' );
+add_filter( 'bbp_get_reply_author_display_name', 'esc_html'      );
+
 /**
  * Add filters to anonymous post author data
  */

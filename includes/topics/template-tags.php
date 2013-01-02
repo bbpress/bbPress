@@ -1262,7 +1262,11 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 		if ( empty( $author_name ) )
 			$author_name = __( 'Anonymous', 'bbpress' );
 
-		return apply_filters( 'bbp_get_topic_author_display_name', esc_attr( $author_name ), $topic_id );
+		// Encode possible UTF8 display names
+		if ( seems_utf8( $author_name ) === false )
+			$author_name = utf8_encode( $author_name );
+
+		return apply_filters( 'bbp_get_topic_author_display_name', $author_name, $topic_id );
 	}
 
 /**
@@ -1366,12 +1370,16 @@ function bbp_topic_author_link( $args = '' ) {
 			// Tweak link title if empty
 			if ( empty( $r['link_title'] ) ) {
 				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
+
+			// Use what was passed if not
+			} else {
+				$link_title = $r['link_title'];
 			}
 
-			$r['link_title'] = !empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
-			$author_url      = bbp_get_topic_author_url( $topic_id );
-			$anonymous       = bbp_is_topic_anonymous( $topic_id );
-			$author_links    = array();
+			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url   = bbp_get_topic_author_url( $topic_id );
+			$anonymous    = bbp_is_topic_anonymous( $topic_id );
+			$author_links = array();
 
 			// Get avatar
 			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {

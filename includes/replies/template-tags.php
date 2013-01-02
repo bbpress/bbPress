@@ -952,7 +952,11 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 		if ( empty( $author_name ) )
 			$author_name = __( 'Anonymous', 'bbpress' );
 
-		return apply_filters( 'bbp_get_reply_author_display_name', esc_attr( $author_name ), $reply_id );
+		// Encode possible UTF8 display names
+		if ( seems_utf8( $author_name ) === false )
+			$author_name = utf8_encode( $author_name );
+
+		return apply_filters( 'bbp_get_reply_author_display_name', $author_name, $reply_id );
 	}
 
 /**
@@ -1050,14 +1054,22 @@ function bbp_reply_author_link( $args = '' ) {
 			$reply_id = bbp_get_reply_id( $r['post_id'] );
 		}
 
+		// Reply ID is good
 		if ( !empty( $reply_id ) ) {
+
+			// Tweak link title if empty
 			if ( empty( $$r['link_title'] ) ) {
 				$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author_display_name( $reply_id ) );
+
+			// Use what was passed if not
+			} else {
+				$link_title = $r['link_title'];
 			}
 
-			$link_title = !empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
-			$author_url = bbp_get_reply_author_url( $reply_id );
-			$anonymous  = bbp_is_reply_anonymous( $reply_id );
+			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url   = bbp_get_reply_author_url( $reply_id );
+			$anonymous    = bbp_is_reply_anonymous( $reply_id );
+			$author_links = array();
 
 			// Get avatar
 			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {
@@ -1069,15 +1081,20 @@ function bbp_reply_author_link( $args = '' ) {
 				$author_links['name'] = bbp_get_reply_author_display_name( $reply_id );
 			}
 
+			// Link class
+			$link_class = ' class="bbp-author-' . $r['type'] . '"';
+
 			// Add links if not anonymous
-			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
+			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $topic_id ) ) ) {
+
+				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
 					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
 				}
 
 				if ( true === $r['show_role'] ) {
-					$author_link[] = bbp_get_reply_author_role( array( 'reply_id' => $reply_id ) );
+					$author_link[] = bbp_get_reply_author_role( array( 'topic_id' => $topic_id ) );
 				}
 
 				$author_link = join( $r['sep'], $author_link );
