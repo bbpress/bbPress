@@ -502,7 +502,7 @@ function bbp_admin_setting_callback_anonymous() {
 function bbp_admin_setting_callback_global_access() {
 ?>
 
-	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
+	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
 	<label for="_bbp_allow_global_access"><?php _e( 'Automatically assign default role to new, registered users upon visiting the site.', 'bbpress' ); ?></label>
 
 <?php
