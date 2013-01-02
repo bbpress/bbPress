@@ -1085,7 +1085,7 @@ function bbp_reply_author_link( $args = '' ) {
 			$link_class = ' class="bbp-author-' . $r['type'] . '"';
 
 			// Add links if not anonymous
-			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $topic_id ) ) ) {
+			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
 
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
@@ -1094,7 +1094,7 @@ function bbp_reply_author_link( $args = '' ) {
 				}
 
 				if ( true === $r['show_role'] ) {
-					$author_link[] = bbp_get_reply_author_role( array( 'topic_id' => $topic_id ) );
+					$author_link[] = bbp_get_reply_author_role( array( 'reply_id' => $reply_id ) );
 				}
 
 				$author_link = join( $r['sep'], $author_link );
