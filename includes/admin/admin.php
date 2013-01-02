@@ -364,7 +364,7 @@ class BBP_Admin {
 
 			// BuddyPress
 			case 'bbp_settings_buddypress' :
-				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) ) && is_super_admin() ) {
+				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && bp_is_root_blog() ) && is_super_admin() ) {
 					$caps = array( bbpress()->admin->minimum_capability );
 				} else {
 					$caps = array( 'do_not_allow' );
