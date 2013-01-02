@@ -139,13 +139,9 @@ class BBP_Users_Admin {
 		<select name="bbp-new-role" id="bbp-new-role" style="display:inline-block; float:none;">
 			<option value=''><?php _e( 'Change forum role to&hellip;', 'bbpress' ) ?></option>
 			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
-
 				<option value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
-
 			<?php endforeach; ?>
-		</select>
-
-		<?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
+		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
 	}
 
 	/**
