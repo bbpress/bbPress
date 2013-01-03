@@ -206,12 +206,20 @@ function bbp_has_topics( $args = '' ) {
 				$sticky_query = array(
 					'post_type'   => bbp_get_topic_post_type(),
 					'post_parent' => 'any',
-					'post_status' => $default_post_status,
 					'meta_key'    => '_bbp_last_active_time',
 					'orderby'     => 'meta_value',
 					'order'       => 'DESC',
 					'include'     => $stickies
 				);
+
+				// What are the default allowed statuses (based on user caps)
+				if ( bbp_get_view_all() ) {
+					$sticky_query['post_status'] = $r['post_status'];
+
+				// Lean on the 'perm' query var value of 'readable' to provide statuses
+				} else {
+					$sticky_query['post_status'] = $r['perm'];
+				}
 
 				// Get all stickies
 				$sticky_posts = get_posts( $sticky_query );
