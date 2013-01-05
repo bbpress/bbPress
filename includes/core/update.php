@@ -188,7 +188,7 @@ function bbp_create_initial_content( $args = array() ) {
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
 		array(
-			'post_parent'  => forum_id,
+			'post_parent'  => $forum_id,
 			'post_title'   => $r['topic_title'],
 			'post_content' => $r['topic_content']
 		),
