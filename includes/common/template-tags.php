@@ -1303,6 +1303,7 @@ function bbp_dropdown( $args = '' ) {
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
 			'exclude'            => array(),
+			'post_parent'        => null,
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order',
 			'order'              => 'ASC',
@@ -1370,14 +1371,13 @@ function bbp_dropdown( $args = '' ) {
 			'post_status'        => $r['post_status'],
 			'sort_column'        => $r['sort_column'],
 			'exclude'            => $r['exclude'],
+			'post_parent'        => $r['post_parent'],
 			'numberposts'        => $r['numberposts'],
 			'orderby'            => $r['orderby'],
 			'order'              => $r['order'],
 			'walker'             => $r['walker'],
 			'disable_categories' => $r['disable_categories']
 		);
-		if ( isset( $r['post_parent'] ) )
-			$post_arr['post_parent'] = $r['post_parent'];
 
 		$posts = get_posts( $post_arr );
 
