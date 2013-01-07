@@ -1302,7 +1302,6 @@ function bbp_dropdown( $args = '' ) {
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
-			'post_parent'        => 0,
 			'exclude'            => array(),
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order',
@@ -1366,18 +1365,21 @@ function bbp_dropdown( $args = '' ) {
 		$tab       = (int) $r['tab'];
 		$retval    = '';
 		$disabled  = disabled( isset( bbpress()->options[$r['disabled']] ), true, false );
-		$posts     = get_pages( array(
+		$post_arr  = array(
 			'post_type'          => $r['post_type'],
 			'post_status'        => $r['post_status'],
 			'sort_column'        => $r['sort_column'],
-			'post_parent'        => $r['post_parent'],
 			'exclude'            => $r['exclude'],
 			'numberposts'        => $r['numberposts'],
 			'orderby'            => $r['orderby'],
 			'order'              => $r['order'],
 			'walker'             => $r['walker'],
 			'disable_categories' => $r['disable_categories']
-		) );
+		);
+		if ( isset( $r['post_parent'] ) )
+			$post_arr['post_parent'] = $r['post_parent'];
+
+		$posts = get_posts( $post_arr );
 
 		/** Drop Down *********************************************************/
 
