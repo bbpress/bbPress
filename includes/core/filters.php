@@ -157,11 +157,11 @@ add_filter( 'bbp_edit_reply_pre_content', 'bbp_code_trick_reverse' );
 add_filter( 'bbp_new_topic_pre_content',  'bbp_code_trick_reverse' );
 add_filter( 'bbp_edit_topic_pre_content', 'bbp_code_trick_reverse' );
 
-// Code filters on output
-add_filter( 'bbp_get_reply_content', 'bbp_code_trick' );
-add_filter( 'bbp_get_reply_content', 'bbp_encode_bad' );
-add_filter( 'bbp_get_topic_content', 'bbp_code_trick' );
-add_filter( 'bbp_get_topic_content', 'bbp_encode_bad' );
+// Code filters on output (hooked in early for plugin compatibility)
+add_filter( 'bbp_get_reply_content', 'bbp_code_trick', 4 );
+add_filter( 'bbp_get_reply_content', 'bbp_encode_bad', 6 );
+add_filter( 'bbp_get_topic_content', 'bbp_code_trick', 4 );
+add_filter( 'bbp_get_topic_content', 'bbp_encode_bad', 6 );
 
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {
