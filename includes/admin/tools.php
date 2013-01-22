@@ -1149,7 +1149,10 @@ function bbp_admin_reset_handler() {
 
 		/** Topic Tags ********************************************************/
 
-		// @todo
+		$statement  = __( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
+		$sql_delete = "DELETE a,b,c FROM `{$wpdb->terms}` AS a LEFT JOIN `{$wpdb->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$wpdb->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag';";
+		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+		$messages[] = sprintf( $statement, $result );
 
 		/** User Meta *********************************************************/
 
