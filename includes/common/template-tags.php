@@ -2268,12 +2268,8 @@ function bbp_breadcrumb( $args = array() ) {
 		$sep    = apply_filters( 'bbp_breadcrumb_separator', $sep    );
 		$crumbs = apply_filters( 'bbp_breadcrumbs',          $crumbs );
 
-		// If right-to-left, reverse the crumb order
-		if ( is_rtl() )
-			$crumbs = array_reverse( $crumbs );
-
 		// Build the trail
-		$trail = !empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
+		$trail  = !empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r );
 	}
