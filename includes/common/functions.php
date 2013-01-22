@@ -768,6 +768,10 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  */
 function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
 
+	// Allow for moderation check to be skipped
+	if ( apply_filters( 'bbp_bypass_check_for_moderation', false, $anonymous_data, $author_id, $title, $content ) )
+		return true;
+
 	// Bail if super admin is author
 	if ( is_super_admin( $author_id ) )
 		return true;
@@ -882,6 +886,10 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
  * @return bool True if test is passed, false if fail
  */
 function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
+
+	// Allow for blacklist check to be skipped
+	if ( apply_filters( 'bbp_bypass_check_for_blacklist', false, $anonymous_data, $author_id, $title, $content ) )
+		return true;
 
 	// Bail if super admin is author
 	if ( is_super_admin( $author_id ) )
