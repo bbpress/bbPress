@@ -161,17 +161,18 @@ function bbp_admin_repair_list() {
 		5  => array( 'bbp-sync-forum-meta',        __( 'Recalculate the parent forum for each post',          'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
 		10 => array( 'bbp-sync-forum-visibility',  __( 'Recalculate private and hidden forums',               'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
 		15 => array( 'bbp-sync-all-topics-forums', __( 'Recalculate last activity in each topic and forum',   'bbpress' ), 'bbp_admin_repair_freshness'                ),
-		20 => array( 'bbp-group-forums',           __( 'Repair BuddyPress Group Forum relationships',         'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
-		25 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
-		30 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
-		35 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
-		40 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
-		45 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
-		50 => array( 'bbp-user-topics',            __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
-		55 => array( 'bbp-user-replies',           __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
-		60 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
-		65 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
-		70 => array( 'bbp-user-role-map',          __( 'Remap existing users to default forum roles',         'bbpress' ), 'bbp_admin_repair_user_roles'               )
+		20 => array( 'bbp-sync-all-topics-sticky', __( 'Recalculate the sticky replationship of each topic',  'bbpress' ), 'bbp_admin_repair_sticky'                   ),
+		25 => array( 'bbp-group-forums',           __( 'Repair BuddyPress Group Forum relationships',         'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
+		30 => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                          'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
+		35 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                         'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
+		40 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                         'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
+		45 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                          'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
+		50 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',       'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
+		55 => array( 'bbp-user-topics',            __( 'Count topics for each user',                          'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
+		60 => array( 'bbp-user-replies',           __( 'Count replies for each user',                         'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
+		65 => array( 'bbp-user-favorites',         __( 'Remove trashed topics from user favorites',           'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
+		70 => array( 'bbp-user-subscriptions',     __( 'Remove trashed topics from user subscriptions',       'bbpress' ), 'bbp_admin_repair_user_subscriptions'       ),
+		75 => array( 'bbp-user-role-map',          __( 'Remap existing users to default forum roles',         'bbpress' ), 'bbp_admin_repair_user_roles'               )
 	);
 	ksort( $repair_list );
 
@@ -704,7 +705,7 @@ function bbp_admin_repair_user_roles() {
 
 		// If no role map exists, give the default forum role (bbp-participant)
 		$new_role = isset( $role_map[$role] ) ? $role_map[$role] : $default_role;
-			
+
 		// Get users of this site, limited to 1000
 		while ( $users = get_users( array(
 				'role'   => $role,
@@ -829,6 +830,63 @@ function bbp_admin_repair_freshness() {
 		if ( bbp_is_forum_category( $forum_id ) ) {
 			bbp_update_forum( array( 'forum_id' => $forum_id ) );
 		}
+	}
+
+	// Complete results
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Repairs the relationship of sticky topics to the actual parent forum
+ *
+ * @since bbPress (r4695)
+ *
+ * @uses wpdb::get_col() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_sticky() {
+	global $wpdb;
+
+	$statement = __( 'Repairing the sticky topic to the parent forum relationships&hellip; %s', 'bbpress' );
+	$result    = __( 'Failed!', 'bbpress' );
+	$forums    = $wpdb->get_col( "SELECT ID FROM `{$wpdb->posts}` WHERE `post_type` = 'forum';" );
+
+	// Bail if no forums found
+	if ( empty( $forums ) || is_wp_error( $forums ) )
+		return array( 1, sprintf( $statement, $result ) );
+
+	// Loop through forums and get their sticky topics
+	foreach ( $forums as $forum ) {
+		$forum_stickies[$forum] = get_post_meta( $forum, '_bbp_sticky_topics', true );
+	}
+
+	// Cleanup
+	unset( $forums, $forum );
+
+	// Loop through each forum with sticky topics
+	foreach ( $forum_stickies as $forum_id => $stickies ) {
+
+		// Skip if no stickies
+		if ( empty( $stickies ) ) {
+			continue;
+		}
+
+		// Loop through each sticky topic
+		foreach ( $stickies as $id => $topic_id ) {
+
+			// If the topic is not a super sticky, and the forum ID does not
+			// match the topic's forum ID, unset the forum's sticky meta.
+			if ( ! bbp_is_topic_super_sticky( $topic_id ) && $forum_id != bbp_get_topic_forum_id( $topic_id ) ) {
+				unset( $forum_stickies[$forum_id][$id] );
+			}
+		}
+
+		// Get sticky topic ID's, or use empty string
+		$stickers = empty( $forum_stickies[$forum_id] ) ? '' : array_values( $forum_stickies[$forum_id] );
+
+		// Update the forum's sticky topics meta
+		update_post_meta( $forum_id, '_bbp_sticky_topics', $stickers );
 	}
 
 	// Complete results
