@@ -17,7 +17,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Ouput the forum URL
- * 
+ *
  * @since bbPress (r3979)
  *
  * @uses bbp_get_forums_url() To get the forums URL
@@ -28,7 +28,7 @@ function bbp_forums_url( $path = '/' ) {
 }
 	/**
 	 * Return the forum URL
-	 * 
+	 *
 	 * @since bbPress (r3979)
 	 *
 	 * @uses home_url() To get the home URL
@@ -762,7 +762,7 @@ function bbp_is_single_user_replies() {
  *
  * @since bbPress (r2789)
  *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true 
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true
  * @uses bbp_is_query_name() To get the query name
  * @return bool Is it a view page?
  */
@@ -871,94 +871,85 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	/** Archives **************************************************************/
 
-	if ( bbp_is_forum_archive() )
+	if ( bbp_is_forum_archive() ) {
 		$bbp_classes[] = bbp_get_forum_post_type() . '-archive';
 
-	if ( bbp_is_topic_archive() )
+	} elseif ( bbp_is_topic_archive() ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-archive';
 
 	/** Topic Tags ************************************************************/
 
-	if ( bbp_is_topic_tag() ) {
+	} elseif ( bbp_is_topic_tag() ) {
 		$bbp_classes[] = bbp_get_topic_tag_tax_id();
 		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_slug();
 		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_id();
-	}
-
-	if ( bbp_is_topic_tag_edit() ) {
+	} elseif ( bbp_is_topic_tag_edit() ) {
 		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-edit';
 		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_slug() . '-edit';
 		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_id()   . '-edit';
-	}
 
 	/** Components ************************************************************/
 
-	if ( bbp_is_single_forum() )
+	} elseif ( bbp_is_single_forum() ) {
 		$bbp_classes[] = bbp_get_forum_post_type();
 
-	if ( bbp_is_single_topic() )
+	} elseif ( bbp_is_single_topic() ) {
 		$bbp_classes[] = bbp_get_topic_post_type();
 
-	if ( bbp_is_single_reply() )
+	} elseif ( bbp_is_single_reply() ) {
 		$bbp_classes[] = bbp_get_reply_post_type();
 
-	if ( bbp_is_topic_edit() )
+	} elseif ( bbp_is_topic_edit() ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-edit';
 
-	if ( bbp_is_topic_merge() )
+	} elseif ( bbp_is_topic_merge() ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-merge';
 
-	if ( bbp_is_topic_split() )
+	} elseif ( bbp_is_topic_split() ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-split';
 
-	if ( bbp_is_reply_edit() )
+	} elseif ( bbp_is_reply_edit() ) {
 		$bbp_classes[] = bbp_get_reply_post_type() . '-edit';
-		
-	if ( bbp_is_reply_move() )
+
+	} elseif ( bbp_is_reply_move() ) {
 		$bbp_classes[] = bbp_get_reply_post_type() . '-move';
 
-	if ( bbp_is_single_view() )
+	} elseif ( bbp_is_single_view() ) {
 		$bbp_classes[] = 'bbp-view';
 
 	/** User ******************************************************************/
 
-	if ( bbp_is_single_user_edit() ) {
+	} elseif ( bbp_is_single_user_edit() ) {
 		$bbp_classes[] = 'bbp-user-edit';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_single_user() ) {
+	} elseif ( bbp_is_single_user() ) {
 		$bbp_classes[] = 'bbp-user-page';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_user_home() ) {
+	} elseif ( bbp_is_user_home() ) {
 		$bbp_classes[] = 'bbp-user-home';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_user_home_edit() ) {
+	} elseif ( bbp_is_user_home_edit() ) {
 		$bbp_classes[] = 'bbp-user-home-edit';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_topics_created() ) {
+	} elseif ( bbp_is_topics_created() ) {
 		$bbp_classes[] = 'bbp-topics-created';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_favorites() ) {
+	} elseif ( bbp_is_favorites() ) {
 		$bbp_classes[] = 'bbp-favorites';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
-	}
 
-	if ( bbp_is_subscriptions() ) {
+	} elseif ( bbp_is_subscriptions() ) {
 		$bbp_classes[] = 'bbp-subscriptions';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
@@ -967,8 +958,9 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 	/** Clean up **************************************************************/
 
 	// Add bbPress class if we are within a bbPress page
-	if ( !empty( $bbp_classes ) )
+	if ( !empty( $bbp_classes ) ) {
 		$bbp_classes[] = 'bbPress';
+	}
 
 	// Merge WP classes with bbPress classes and remove any duplicates
 	$classes = array_unique( array_merge( (array) $bbp_classes, (array) $wp_classes ) );
@@ -1005,71 +997,72 @@ function is_bbpress() {
 
 	/** Archives **************************************************************/
 
-	if ( bbp_is_forum_archive() )
+	if ( bbp_is_forum_archive() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topic_archive() )
+	} elseif ( bbp_is_topic_archive() ) {
 		$retval = true;
 
 	/** Topic Tags ************************************************************/
 
-	elseif ( bbp_is_topic_tag() )
+	} elseif ( bbp_is_topic_tag() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topic_tag_edit() )
+	} elseif ( bbp_is_topic_tag_edit() ) {
 		$retval = true;
 
 	/** Components ************************************************************/
 
-	elseif ( bbp_is_single_forum() )
+	} elseif ( bbp_is_single_forum() ) {
 		$retval = true;
 
-	elseif ( bbp_is_single_topic() )
+	} elseif ( bbp_is_single_topic() ) {
 		$retval = true;
 
-	elseif ( bbp_is_single_reply() )
+	} elseif ( bbp_is_single_reply() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topic_edit() )
+	} elseif ( bbp_is_topic_edit() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topic_merge() )
+	} elseif ( bbp_is_topic_merge() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topic_split() )
+	} elseif ( bbp_is_topic_split() ) {
 		$retval = true;
 
-	elseif ( bbp_is_reply_edit() )
+	} elseif ( bbp_is_reply_edit() ) {
 		$retval = true;
 
-	elseif ( bbp_is_reply_move() )
+	} elseif ( bbp_is_reply_move() ) {
 		$retval = true;
 
-	elseif ( bbp_is_single_view() )
+	} elseif ( bbp_is_single_view() ) {
 		$retval = true;
 
 	/** User ******************************************************************/
 
-	elseif ( bbp_is_single_user_edit() )
+	} elseif ( bbp_is_single_user_edit() ) {
 		$retval = true;
 
-	elseif ( bbp_is_single_user() )
+	} elseif ( bbp_is_single_user() ) {
 		$retval = true;
 
-	elseif ( bbp_is_user_home() )
+	} elseif ( bbp_is_user_home() ) {
 		$retval = true;
 
-	elseif ( bbp_is_user_home_edit() )
+	} elseif ( bbp_is_user_home_edit() ) {
 		$retval = true;
 
-	elseif ( bbp_is_topics_created() )
+	} elseif ( bbp_is_topics_created() ) {
 		$retval = true;
 
-	elseif ( bbp_is_favorites() )
+	} elseif ( bbp_is_favorites() ) {
 		$retval = true;
 
-	elseif ( bbp_is_subscriptions() )
+	} elseif ( bbp_is_subscriptions() ) {
 		$retval = true;
+	}
 
 	/** Done ******************************************************************/
 
@@ -1655,7 +1648,7 @@ function bbp_the_content( $args = array() ) {
 	 * @uses bbp_is_edit() To see if we are editing something
 	 * @uses wp_editor() To output the WordPress editor
 	 *
-	 * @return string HTML from output buffer 
+	 * @return string HTML from output buffer
 	 */
 	function bbp_get_the_content( $args = array() ) {
 
@@ -2057,7 +2050,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 			$front_id = get_option( 'page_on_front' );
 
-			// Set home text to page title			
+			// Set home text to page title
 			if ( !empty( $front_id ) ) {
 				$pre_front_text = get_the_title( $front_id );
 
@@ -2152,13 +2145,13 @@ function bbp_breadcrumb( $args = array() ) {
 			// HTML
 			'before'          => '<div class="bbp-breadcrumb"><p>',
 			'after'           => '</p></div>',
-			
+
 			// Separator
 			'sep'             => is_rtl() ? __( '&lsaquo;', 'bbpress' ) : __( '&rsaquo;', 'bbpress' ),
 			'pad_sep'         => 1,
 			'sep_before'      => '<span class="bbp-breadcrumb-sep">',
 			'sep_after'       => '</span>',
-			
+
 			// Crumbs
 			'crumb_before'    => '',
 			'crumb_after'     => '',
