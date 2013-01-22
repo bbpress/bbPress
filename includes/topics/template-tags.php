@@ -3494,7 +3494,7 @@ function bbp_form_topic_forum() {
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_id'] ) ) {
-			$topic_forum = $_POST['bbp_forum_id'];
+			$topic_forum = (int) $_POST['bbp_forum_id'];
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() ) {
@@ -3505,7 +3505,7 @@ function bbp_form_topic_forum() {
 			$topic_forum = 0;
 		}
 
-		return apply_filters( 'bbp_get_form_topic_forum', esc_attr( $topic_forum ) );
+		return apply_filters( 'bbp_get_form_topic_forum', $topic_forum );
 	}
 
 /**
@@ -3534,7 +3534,7 @@ function bbp_form_topic_subscribed() {
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) ) {
-			$topic_subscribed = $_POST['bbp_topic_subscription'];
+			$topic_subscribed = (bool) $_POST['bbp_topic_subscription'];
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
@@ -3557,7 +3557,7 @@ function bbp_form_topic_subscribed() {
 
 		// No data
 		} else {
-			$topic_subscribed = 0;
+			$topic_subscribed = false;
 		}
 
 		// Get checked output
@@ -3589,14 +3589,17 @@ function bbp_form_topic_log_edit() {
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_topic_edit'] ) ) {
-			$topic_revision = $_POST['bbp_log_topic_edit'];
+			$topic_revision = (int) $_POST['bbp_log_topic_edit'];
 
 		// No data
 		} else {
 			$topic_revision = 1;
 		}
 
-		return apply_filters( 'bbp_get_form_topic_log_edit', checked( $topic_revision, true, false ) );
+		// Get checked output
+		$checked = checked( $topic_revision, true, false );
+
+		return apply_filters( 'bbp_get_form_topic_log_edit', $checked, $topic_revision );
 	}
 
 /**
