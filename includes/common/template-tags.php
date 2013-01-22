@@ -1131,8 +1131,13 @@ function bbp_wp_login_action( $args = '' ) {
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
 	// Make sure we are directing somewhere
-	if ( empty( $redirect_to ) )
-		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : wp_get_referer() );
+	if ( empty( $redirect_to ) ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			$redirect_to = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		} else {
+			$redirect_to = wp_get_referer();
+		}
+	}
 
 	// Remove loggedout query arg if it's there
 	$redirect_to    = (string) esc_attr( remove_query_arg( 'loggedout', $redirect_to ) );
