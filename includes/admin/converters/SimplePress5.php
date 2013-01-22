@@ -1,21 +1,30 @@
 <?php
 
 /**
- * SimplePress 5 converter.
+ * Implementation of SimplePress v5 converter.
  *
  * @since bbPress (r4638)
  */
 class SimplePress5 extends BBP_Converter_Base {
+
+	/**
+	 * Main Constructor
+	 *
+	 * @uses SimplePress5::setup_globals()
+	 */
 	function __construct() {
 		parent::__construct();
 		$this->setup_globals();
 	}
 
+	/**
+	 * Sets up the field mappings
+	 */
 	public function setup_globals() {
 
 		/** Forum Section ******************************************************/
 
-		// Forum id. Stored in postmeta.
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'sfforums',
 			'from_fieldname' => 'forum_id',
@@ -23,7 +32,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_id'
 		);
 
-		// Forum parent id.  If no parent, than 0. Stored in postmeta.
+		// Forum parent id (If no parent, than 0, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'sfforums',
 			'from_fieldname' => 'parent',
@@ -39,7 +48,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Forum slug. Clean name.
+		// Forum slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfforums',
 			'from_fieldname'  => 'forum_name',
@@ -57,7 +66,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_null'
 		);
 
-		// Forum display order.  Starts from 1.
+		// Forum display order (Starts from 1)
 		$this->field_map[] = array(
 			'from_tablename' => 'sfforums',
 			'from_fieldname' => 'forum_seq',
@@ -89,7 +98,7 @@ class SimplePress5 extends BBP_Converter_Base {
 
 		/** Topic Section ******************************************************/
 
-		// Topic id. Stored in postmeta.
+		// Topic id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'sftopics',
 			'from_fieldname' => 'topic_id',
@@ -97,7 +106,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_id'
 		);
 
-		// Forum id. Stored in postmeta.
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sftopics',
 			'from_fieldname'  => 'forum_id',
@@ -116,6 +125,7 @@ class SimplePress5 extends BBP_Converter_Base {
 		);
 
 		// Topic content.
+		// Note: We join the sfposts table because sftopics do not have content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfposts',
 			'from_fieldname'  => 'post_content',
@@ -135,7 +145,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Topic slug. Clean name.
+		// Topic slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sftopics',
 			'from_fieldname'  => 'topic_name',
@@ -144,7 +154,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
-		// Forum id.  If no parent, than 0.
+		// Forum id (If no parent, than 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sftopics',
 			'from_fieldname'  => 'forum_id',
@@ -183,6 +193,15 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_datetime'
 		);
 
+		// Topic status (Open or Closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'sftopics',
+			'from_fieldname'  => 'topic_status',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_status'
+		);
+
 		/** Tags Section ******************************************************/
 		/*
 		// Topic id.
@@ -206,9 +225,9 @@ class SimplePress5 extends BBP_Converter_Base {
 		);
 		*/
 
-		/** Post Section ******************************************************/
+		/** Reply Section *****************************************************/
 
-		// Post id. Stores in postmeta.
+		// Post id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'sfposts',
 			'from_fieldname' => 'post_id',
@@ -226,7 +245,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_type'         => 'reply'
 		);
 
-		// Forum id. Stores in postmeta.
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfposts',
 			'from_fieldname'  => 'forum_id',
@@ -235,7 +254,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Topic id. Stores in postmeta.
+		// Topic id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfposts',
 			'from_fieldname'  => 'topic_id',
@@ -244,7 +263,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid'
 		);
 
-		// Author ip.
+		// Author ip (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'sfposts',
 			'from_fieldname' => 'poster_ip',
@@ -273,7 +292,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_title'
 		);
 
-		// Topic slug. Clean name.
+		// Topic slug (Clean name to avoid conflicts)
 		// Note: We join the sftopics table because sfposts do not have topic_name.
 		$this->field_map[] = array(
 			'from_tablename'  => 'sftopics',
@@ -295,7 +314,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Topic id.  If no parent, than 0.
+		// Topic id (If no parent, than 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfposts',
 			'from_fieldname'  => 'topic_id',
@@ -336,7 +355,7 @@ class SimplePress5 extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id. Stores in usermeta.
+		// Store old User id (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'ID',
@@ -344,7 +363,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_user_id'
 		);
 
-		// Store old User password. Stores in usermeta.
+		// Store old User password (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_pass',
@@ -435,30 +454,58 @@ class SimplePress5 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * This callback processes any custom parser.php attributes and custom code with preg_replace
+	 * Translate the post status from Simple:Press numeric's to WordPress's strings.
+	 *
+	 * @param int $status Simple:Press numeric status
+	 * @return string WordPress safe
+	 */
+	public function callback_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'closed';
+				break;
+
+			case 0  :
+			default :
+				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * This callback processes any custom parser.php attributes and custom HTML code with preg_replace
 	 */
 	protected function callback_html( $field ) {
 
-		// Parse out bbCodes
+		// Strip any custom HTML not supported by parser.php first from $field before parsing $field to parser.php
+		$simplepress_markup = $field;
+		$simplepress_markup = html_entity_decode( $simplepress_markup );
+
+		// Replace any SimplePress smilies from path '/sp-resources/forum-smileys/sf-smily.gif' with the equivelant WordPress Smilie
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused\.gif(.*?)\" \/>/'   , ':?'      , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cool\.gif(.*?)\" \/>/'       , ':cool:'  , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cry\.gif(.*?)\" \/>/'        , ':cry:'   , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed\.gif(.*?)\" \/>/' , ':oops:'  , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-frown\.gif(.*?)\" \/>/'      , ':('      , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-kiss\.gif(.*?)\" \/>/'       , ':P'      , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-laugh\.gif(.*?)\" \/>/'      , ':D'      , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-smile\.gif(.*?)\" \/>/'      , ':smile:' , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-surprised\.gif(.*?)\" \/>/'  , ':o'      , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-wink\.gif(.*?)\" \/>/'       , ':wink:'  , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-yell\.gif(.*?)\" \/>/'       , ':x'      , $simplepress_markup );
+
+		// Replace <div class="sfcode">example code</div> with <code>*</code>
+		$simplepress_markup = preg_replace( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/' , '<code>$1</code>' , $simplepress_markup );
+
+		// Now that SimplePress' custom HTML codes have been stripped put the cleaned HTML back in $field
+		$field = $simplepress_markup;
+
+		// Parse out any bbCodes with the BBCode 'parser.php'
 		require_once( bbpress()->admin->admin_dir . 'parser.php' );
 		$bbcode = BBCode::getInstance();
 		$bbcode->enable_smileys = false;
 		$bbcode->smiley_regex   = false;
-		$field = html_entity_decode( $bbcode->Parse( $field ) );
-
-		// Replace SimplePress smilies with the equivelant WordPress
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused.gif(.*?)" \/>/'   , ':?'      , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cool.gif(.*?)" \/>/'       , ':cool:'  , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cry.gif(.*?)" \/>/'        , ':cry:'   , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed.gif(.*?)" \/>/' , ':oops:'  , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-frown.gif(.*?)" \/>/'      , ':('      , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-kiss.gif(.*?)" \/>/'       , ':P'      , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-laugh.gif(.*?)" \/>/'      , ':D'      , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-smile.gif(.*?)" \/>/'      , ':smile:' , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-surprised.gif(.*?)" \/>/'  , ':o'      , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-wink.gif(.*?)" \/>/'       , ':wink:'  , $field );
-		$field = preg_replace ( '/<img src=(.*?)\/sp-resources\/forum-smileys\/sf-yell.gif(.*?)" \/>/'       , ':x'      , $field );
-
-		return $field;
+		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }
