@@ -982,7 +982,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			$retval = false;
 
 		// Banned users cannot see forms
-		} elseif ( bbp_group_is_user_banned() ) {
+		} elseif ( bbp_group_is_banned() ) {
 			$retval = false;
 		}
 
