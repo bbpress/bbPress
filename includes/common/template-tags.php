@@ -1068,6 +1068,11 @@ function is_bbpress() {
 
 	} elseif ( bbp_is_subscriptions() ) {
 		$retval = true;
+
+	/** Search ****************************************************************/
+
+	} elseif ( bbp_is_search() ) {
+		$retval = true;
 	}
 
 	/** Done ******************************************************************/
