@@ -1042,7 +1042,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
 	$reply_content = strip_tags( bbp_get_reply_content( $reply_id ) );
 	$reply_url     = bbp_get_reply_url( $reply_id );
-	$blog_name     = get_option( 'blogname' );
+	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 	// Loop through users
 	foreach ( (array) $user_ids as $user_id ) {
