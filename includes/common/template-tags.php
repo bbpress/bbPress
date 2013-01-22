@@ -953,6 +953,12 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 		$bbp_classes[] = 'bbp-subscriptions';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
+
+	/** Search ****************************************************************/
+
+	} elseif ( bbp_is_search() ) {
+		$bbp_classes[] = 'bbp-search';
+		$bbp_classes[] = 'forum-search';
 	}
 
 	/** Clean up **************************************************************/
