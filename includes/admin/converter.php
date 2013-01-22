@@ -976,10 +976,11 @@ abstract class BBP_Converter_Base {
 
 		$has_update = false;
 
-		if ( !empty( $this->sync_table ) )
+		if ( !empty( $this->sync_table ) ) {
 			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
-		else
+		} else {
 			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+		}
 
 		update_option( '_bbp_converter_query', $query );
 
@@ -1004,10 +1005,11 @@ abstract class BBP_Converter_Base {
 
 		/** Delete bbconverter topics/forums/posts ****************************/
 
-		if ( true === $this->sync_table )
+		if ( true === $this->sync_table ) {
 			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->posts . ' ON(value_id = ID) WHERE meta_key LIKE "_bbp_%" AND value_type = "post" GROUP BY value_id ORDER BY value_id DESC LIMIT ' . $this->max_rows;
-		else
+		} else {
 			$query = 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key LIKE "_bbp_%" GROUP BY post_id ORDER BY post_id DESC LIMIT ' . $this->max_rows;
+		}
 
 		update_option( '_bbp_converter_query', $query );
 
@@ -1022,10 +1024,11 @@ abstract class BBP_Converter_Base {
 
 		/** Delete bbconverter users ******************************************/
 
-		if ( true === $this->sync_table )
+		if ( true === $this->sync_table ) {
 			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->users . ' ON(value_id = ID) WHERE meta_key = "_bbp_user_id" AND value_type = "user" LIMIT ' . $this->max_rows;
-		else
+		} else {
 			$query = 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_user_id" LIMIT ' . $this->max_rows;
+		}
 
 		update_option( '_bbp_converter_query', $query );
 
@@ -1119,7 +1122,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $password
 	 */
 	public function callback_pass( $username, $password ) {
-		$user = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->users . ' WHERE user_login = "' . $username . '" AND user_pass = "" LIMIT 1' );
+		$user = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT * FROM ' . $this->wpdb->users . ' WHERE user_login = "%s" AND user_pass = "" LIMIT 1', $username ) );
 		if ( !empty( $user ) ) {
 			$usermeta = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_password" AND user_id = "' . $user->ID . '" LIMIT 1' );
 
@@ -1141,9 +1144,9 @@ abstract class BBP_Converter_Base {
 	private function callback_forumid( $field ) {
 		if ( !isset( $this->map_forumid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1164,9 +1167,9 @@ abstract class BBP_Converter_Base {
 	private function callback_topicid( $field ) {
 		if ( !isset( $this->map_topicid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1187,9 +1190,9 @@ abstract class BBP_Converter_Base {
 	private function callback_userid( $field ) {
 		if ( !isset( $this->map_userid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
