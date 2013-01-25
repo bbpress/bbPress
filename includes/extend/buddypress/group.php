@@ -111,8 +111,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'post_type_link',            array( $this, 'post_type_link'               ), 10, 2 );
 
 		// Allow group member to view private/hidden forums
-		add_filter( 'bbp_map_topic_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
-		add_filter( 'bbp_map_reply_meta_caps',   array( $this, 'map_topic_meta_caps'          ), 10, 4 );
+		add_filter( 'bbp_map_meta_caps',         array( $this, 'map_group_forum_meta_caps'    ), 99, 4 );
 
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
@@ -177,10 +176,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param array $args
 	 * @return array
 	 */
-	public function map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+	public function map_group_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
-		// Bail if not viewing a single topic
-		if ( ! bp_is_single_item() || ! bp_is_groups_component() || ! bp_is_current_action( 'forum' ) || ! bp_is_action_variable( 0, 'topic' ) )
+		// Bail if not viewing a group forum
+		if ( ! bp_is_single_item() || ! bp_is_groups_component() || ! bp_is_current_action( 'forum' ) )
 			return $caps;
 
 		switch ( $cap ) {
