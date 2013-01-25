@@ -120,9 +120,9 @@ add_filter( 'bbp_get_user_profile_edit_link', 'wp_rel_nofollow' );
 add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'    );
 
 // Run filters on reply content
-add_filter( 'bbp_get_reply_content', 'wptexturize',        3    );
-add_filter( 'bbp_get_reply_content', 'convert_chars',      5    );
-add_filter( 'bbp_get_reply_content', 'make_clickable',     9    );
+add_filter( 'bbp_get_reply_content', 'make_clickable',     4    );
+add_filter( 'bbp_get_reply_content', 'wptexturize',        6    );
+add_filter( 'bbp_get_reply_content', 'convert_chars',      8    );
 add_filter( 'bbp_get_reply_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_reply_content', 'force_balance_tags', 25   );
@@ -130,9 +130,9 @@ add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
 add_filter( 'bbp_get_reply_content', 'bbp_mention_filter', 40   );
 
 // Run filters on topic content
-add_filter( 'bbp_get_topic_content', 'wptexturize',        3    );
-add_filter( 'bbp_get_topic_content', 'convert_chars',      5    );
-add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
+add_filter( 'bbp_get_topic_content', 'make_clickable',     4    );
+add_filter( 'bbp_get_topic_content', 'wptexturize',        6    );
+add_filter( 'bbp_get_topic_content', 'convert_chars',      8    );
 add_filter( 'bbp_get_topic_content', 'capital_P_dangit',   10   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
