@@ -496,6 +496,8 @@ function bbp_favorites_handler( $action = '' ) {
 			$redirect = bbp_get_topic_permalink( $topic_id );
 		} elseif ( is_single() || is_page() ) {
 			$redirect = get_permalink();
+		} else {
+			$redirect = get_permalink( $topic_id );
 		}
 
 		wp_safe_redirect( $redirect );
@@ -812,6 +814,8 @@ function bbp_subscriptions_handler( $action = '' ) {
 			$redirect = bbp_get_topic_permalink( $topic_id );
 		} elseif ( is_single() || is_page() ) {
 			$redirect = get_permalink();
+		} else {
+			$redirect = get_permalink( $topic_id );
 		}
 
 		wp_safe_redirect( $redirect );
