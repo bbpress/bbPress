@@ -76,10 +76,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	private function setup_actions() {
 
 		// Possibly redirect
-		add_action( 'bbp_template_redirect',         array( $this, 'redirect_canonical'        ) );
+		add_action( 'bbp_template_redirect',         array( $this, 'redirect_canonical'              ) );
 
-		// Remove topic cap map when view is done
-		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_topic_meta_cap_map' ) );
+		// Remove group forum cap map when view is done
+		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_group_forum_meta_cap_map' ) );
 	}
 
 	/**
@@ -224,9 +224,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r4434)
 	 */
-	public function remove_topic_meta_cap_map() {
-		remove_filter( 'bbp_map_topic_meta_caps', array( $this, 'map_topic_meta_caps' ), 10, 4 );
-		remove_filter( 'bbp_map_reply_meta_caps', array( $this, 'map_topic_meta_caps' ), 10, 4 );
+	public function remove_group_forum_meta_cap_map() {
+		remove_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 99, 4 );
 	}
 
 	/** Edit ******************************************************************/
