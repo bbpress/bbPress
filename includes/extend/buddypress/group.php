@@ -110,18 +110,24 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_filter( 'page_link',                 array( $this, 'page_link'                    ), 10, 2 );
 		add_filter( 'post_type_link',            array( $this, 'post_type_link'               ), 10, 2 );
 
-		// Allow group member to view private/hidden forums
-		add_filter( 'bbp_map_meta_caps',         array( $this, 'map_group_forum_meta_caps'    ), 99, 4 );
-
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 
 		// No subforums yet, so suppress them for now
 		add_filter( 'bbp_get_forum_subforum_count_int', array( $this, 'no_subforums_yet' ) );
 
-		// Group member permissions to view the topic and reply forms
-		add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
-		add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
+		/** Caps **************************************************************/
+
+		// Only add these filters if inside a group forum
+		if ( bp_is_single_item() && bp_is_groups_component() && bp_is_current_action( 'forum' ) ) {
+
+			// Allow group member to view private/hidden forums
+			add_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 10, 4 );
+
+			// Group member permissions to view the topic and reply forms
+			add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
+			add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
+		}
 	}
 
 	/**
@@ -177,10 +183,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @return array
 	 */
 	public function map_group_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
-
-		// Bail if not viewing a group forum
-		if ( ! bp_is_single_item() || ! bp_is_groups_component() || ! bp_is_current_action( 'forum' ) )
-			return $caps;
 
 		switch ( $cap ) {
 
