@@ -237,8 +237,8 @@ class BBP_BuddyPress_Activity {
 	public function register_activity_actions() {
 
 		// Sitewide activity stream items
-		bp_activity_set_action( $this->component, $this->topic_create, __( 'New topic created', 'bbpress' ) );
-		bp_activity_set_action( $this->component, $this->reply_create, __( 'New reply created', 'bbpress' ) );
+		bp_activity_set_action( $this->component, $this->topic_create, __( 'New forum topic', 'bbpress' ) );
+		bp_activity_set_action( $this->component, $this->reply_create, __( 'New forum reply', 'bbpress' ) );
 	}
 
 	/**
