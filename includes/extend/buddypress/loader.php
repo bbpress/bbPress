@@ -103,6 +103,23 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
+	 * Setup the actions
+	 *
+	 * @since bbPress (r3395)
+	 * @access private
+	 * @uses add_filter() To add various filters
+	 * @uses add_action() To add various actions
+	 * @link http://bbpress.trac.wordpress.org/ticket/2176
+	 */
+	public function setup_actions() {
+
+		// Setup the components
+		add_action( 'bp_init', array( $this, 'setup_components' ), 7 );
+
+		parent::setup_actions();
+	}
+
+	/**
 	 * Instantiate classes for BuddyPress integration
 	 *
 	 * @since bbPress (r3395)
@@ -121,22 +138,6 @@ class BBP_Forums_Component extends BP_Component {
 		if ( bbp_is_group_forums_active() && bp_is_active( 'groups' ) ) {
 			bp_register_group_extension( 'BBP_Forums_Group_Extension' );
 		}
-	}
-
-	/**
-	 * Setup the actions
-	 *
-	 * @since bbPress (r3395)
-	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
-	 */
-	public function setup_actions() {
-
-		// Setup the components
-		add_action( 'bp_init', array( $this, 'setup_components' ) );
-
-		parent::setup_actions();
 	}
 
 	/**
