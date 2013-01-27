@@ -23,7 +23,7 @@
 
 		<?php bbp_single_forum_description(); ?>
 
-		<?php if ( bbp_get_forum_subforum_count() && bbp_has_forums() ) : ?>
+		<?php if ( bbp_has_forums() ) : ?>
 
 			<?php bbp_get_template_part( 'loop', 'forums' ); ?>
 
