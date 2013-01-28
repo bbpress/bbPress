@@ -1795,8 +1795,8 @@ function bbp_get_teeny_mce_buttons( $buttons = array() ) {
 		'justifyright'
 	) );
 
-	// Images?
-	//array_push( $buttons, 'image' );
+	// Images
+	array_push( $buttons, 'image' );
 
 	return apply_filters( 'bbp_get_teeny_mce_buttons', $buttons );
 }
@@ -1818,7 +1818,6 @@ function bbp_get_quicktags_settings( $settings = array() ) {
 	// Diff the ones we don't want out
 	$buttons = array_diff( $buttons_array, array(
 		'ins',
-		'img',
 		'more',
 		'spell'
 	) );
