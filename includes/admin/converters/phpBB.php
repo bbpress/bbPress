@@ -4,6 +4,7 @@
  * Implementation of phpBB v3 Converter.
  *
  * @since bbPress (r4689)
+ * @link Codex Docs http://codex.bbpress.org/import-forums/phpbb
  */
 class phpBB extends BBP_Converter_Base {
 
@@ -20,7 +21,6 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-
 	public function setup_globals() {
 
 		/** Forum Section ******************************************************/
@@ -33,7 +33,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_id'
 		);
 
-		// Forum parent id (If no parent, than 0, Stored in postmeta)
+		// Forum parent id (If no parent, then 0, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'parent_id',
@@ -65,6 +65,14 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_total_topic_count'
 		);
 
+		// Forum total reply count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'forums',
+			'from_fieldname' => 'forum_posts',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_total_reply_count'
+		);
+
 		// Forum title.
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
@@ -94,17 +102,18 @@ class phpBB extends BBP_Converter_Base {
 		// Forum display order (Starts from 1)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
-			'from_fieldname' => 'display_on_index',
+			'from_fieldname' => 'left_id',
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'menu_order'
 		);
 
 		// Forum status (Locked =1 Unlocked =0, Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'forums',
-			'from_fieldname' => 'forum_status',
-			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_status'
+			'from_tablename'  => 'forums',
+			'from_fieldname'  => 'forum_status',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_status',
+			'callback_method' => 'callback_forum_status'
 		);
 
 		// Forum dates.
@@ -157,7 +166,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_topic_reply_count'
 		);
 
-		// Topic forum id (Stored in postmeta)
+		// Topic parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'forum_id',
@@ -205,7 +214,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
-		// Topic forum id (If no parent, than 0)
+		// Topic parent forum id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'forum_id',
@@ -214,7 +223,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
-		// Topic date update.
+		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_time',
@@ -274,31 +283,14 @@ class phpBB extends BBP_Converter_Base {
 		// Sticky Status
 
 		/** Tags Section ******************************************************/
-		/*
-		// Topic id.
-		$this->field_map[] = array(
-			'from_tablename'  => 'tagcontent',
-			'from_fieldname'  => 'contentid',
-			'to_type'         => 'tags',
-			'to_fieldname'    => 'objectid',
-			'callback_method' => 'callback_topicid'
-		);
 
-		// Tags text.
-		$this->field_map[] = array(
-			'from_tablename'  => 'tag',
-			'from_fieldname'  => 'tagtext',
-			'join_tablename'  => 'tagcontent',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (tagid)',
-			'to_type'         => 'tags',
-			'to_fieldname'    => 'name'
-		);
-		*/
+		/**
+		 * phpBB Forums do not support topic tags
+		 */
 
 		/** Reply Section *****************************************************/
 
-		// Post id (Stored in postmeta)
+		// Reply id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'post_id',
@@ -306,7 +298,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_post_id'
 		);
 
-		// Topic content.
+		// Setup reply section table joins
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_id',
@@ -316,7 +308,7 @@ class phpBB extends BBP_Converter_Base {
 			'to_type'         => 'reply'
 		);
 
-		// Forum id (Stored in postmeta)
+		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'forum_id',
@@ -325,7 +317,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Topic id (Stored in postmeta)
+		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'topic_id',
@@ -351,7 +343,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Topic title (for reply title).
+		// Reply title.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'post_subject',
@@ -368,7 +360,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
-		// Post content.
+		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_text',
@@ -377,7 +369,7 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Parent topic id (If no parent, than 0)
+		// Reply parent topic id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'topic_id',
@@ -699,7 +691,27 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from phpBB numeric's to WordPress's strings.
+	 * Translate the forum status from phpBB v3.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status phpBB v3.x numeric forum status
+	 * @return string WordPress safe
+	 */
+	public function callback_forum_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'closed';
+				break;
+
+			case 0  :
+			default :
+				$status = 'open';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic status from phpBB v3.x numeric's to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric topic status
 	 * @return string WordPress safe
