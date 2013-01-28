@@ -4,6 +4,7 @@
  * Implementation of Mingle Forums converter.
  *
  * @since bbPress (r4691)
+ * @link Codex Docs http://codex.bbpress.org/import-forums/mingle
  */
 class Mingle extends BBP_Converter_Base {
 
@@ -20,7 +21,6 @@ class Mingle extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-
 	public function setup_globals()	{
 
 		/** Forum Section ******************************************************/
@@ -33,12 +33,12 @@ class Mingle extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_id'
 		);
 
-		// Forum parent id (If no parent, than 0. Stored in postmeta)
+		// Forum parent id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forum_forums',
 			'from_fieldname' => 'parent_id',
 			'to_type'        => 'forum',
-			'to_fieldname'   => '_bbp_parent_id'
+			'to_fieldname'   => '_bbp_forum_parent_id'
 		);
 
 		// Forum title.
@@ -106,7 +106,7 @@ class Mingle extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_id'
 		);
 
-		// Topic parent forum id (Stored in postmeta)
+		// Topic parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'parent_id',
@@ -153,7 +153,7 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
-		// Topic parent forum id (If no parent, 0)
+		// Topic parent forum id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'parent_id',
@@ -167,29 +167,25 @@ class Mingle extends BBP_Converter_Base {
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_date',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_date'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_date_gmt',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_date_gmt'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'last_post',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_modified',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_modified'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'last_post',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_modified_gmt',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_modified_gmt'
 		);
 		$this->field_map[] = array(
 			'from_tablename' => 'forum_threads',
@@ -208,13 +204,14 @@ class Mingle extends BBP_Converter_Base {
 		);
 
 		/** Tags Section ******************************************************/
-		/*
-		/* Mingle Forums do not support topic tags
-        */
+
+		/**
+		 * Mingle Forums do not support topic tags
+         */
 
 		/** Reply Section ******************************************************/
 
-		// Reply post id. Stores in postmeta.
+		// Reply id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forum_posts',
 			'from_fieldname' => 'id',
@@ -222,8 +219,8 @@ class Mingle extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_post_id'
 		);
 
-		// Join the 'forum_threads' table to only import replies
-		// Hacky to say the least, but it gets the job done!
+		// Setup reply section table joins
+		// We need join the 'forum_threads' table to only import replies
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
 			'from_fieldname'  => 'date',
@@ -235,7 +232,7 @@ class Mingle extends BBP_Converter_Base {
 			'to_fieldname'    => '_bbp_last_active_time'
 		);
 
-		// Forum id (Stored in postmeta)
+		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'parent_id',
@@ -244,7 +241,7 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Topic id (Stores in postmeta)
+		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'id',
@@ -262,7 +259,7 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Topic title (for reply title)
+		// Reply title.
 		$this->field_map[] = array(
 			'from_tablename' => 'forum_posts',
 			'from_fieldname' => 'subject',
@@ -288,7 +285,7 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Reply parent topic id (If no parent, than 0)
+		// Reply parent topic id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'parent_id',
@@ -302,29 +299,25 @@ class Mingle extends BBP_Converter_Base {
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_date',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_date'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_date_gmt',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_date_gmt'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_modified',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_modified'
 		);
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
 			'from_fieldname'  => 'date',
 			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_modified_gmt',
-			'callback_method' => 'callback_datetime'
+			'to_fieldname'    => 'post_modified_gmt'
 		);
 
 		/** User Section ******************************************************/
@@ -406,8 +399,7 @@ class Mingle extends BBP_Converter_Base {
 	 * This method allows us to indicates what is or is not converted for each
 	 * converter.
 	 */
-	public function info()
-	{
+	public function info() {
 		return '';
 	}
 
