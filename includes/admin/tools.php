@@ -305,10 +305,12 @@ function bbp_admin_repair_group_forum_relationship() {
 	$statement = __( 'Repairing BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
 	$g_count     = 0;
 	$f_count     = 0;
+	$s_count     = 0;
 
 	// Copy the BuddyPress filter here, incase BuddyPress is not active
-	$prefix    = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
-	$tablename = $prefix . 'bp_groups_groupmeta';
+	$prefix            = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
+	$groups_table      = $prefix . 'bp_groups';
+	$groups_meta_table = $prefix . 'bp_groups_groupmeta';
 
 	// Get the converted forum IDs
 	$forum_ids = $wpdb->query( "SELECT `forum`.`ID`, `forummeta`.`meta_value`
@@ -334,17 +336,45 @@ function bbp_admin_repair_group_forum_relationship() {
 			continue;
 
 		// Attempt to update group meta
-		$updated = $wpdb->query( "UPDATE `{$tablename}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}';" );
+		$updated = $wpdb->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}';" );
 
 		// Bump the count
 		if ( !empty( $updated ) && ! is_wp_error( $updated ) ) {
 			++$g_count;
 		}
 
-		// Update group's forum metadata
-		$group_id = (int) $wpdb->get_var( "SELECT `group_id` FROM `{$tablename}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}';" );
+		// Update group to forum relationship data
+		$group_id = (int) $wpdb->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}';" );
 		if ( !empty( $group_id ) ) {
+
+			// Update the group to forum meta connection in forums
 			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
+
+			// Get the group status
+			$group_status = $wpdb->get_var( "SELECT `status` FROM `{$groups_table}` WHERE `id` = '{$group_id}';" );
+
+			// Sync up forum visibility based on group status
+			switch ( $group_status ) {
+
+				// Public groups have public forums
+				case 'public' :
+					bbp_publicize_forum( $group_forums->ID );
+
+					// Bump the count for output later
+					++$s_count;
+					break;
+
+				// Private/hidden groups have hidden forums
+				case 'private' :
+				case 'hidden'  :
+					bbp_hide_forum( $group_forums->ID );
+
+					// Bump the count for output later
+					++$s_count;
+					break;
+			}
+
+			// Bump the count for output later
 			++$f_count;
 		}
 	}
@@ -389,7 +419,7 @@ function bbp_admin_repair_group_forum_relationship() {
 	remove_role( 'keymaster' );
 
 	// Complete results
-	$result = sprintf( __( 'Complete! %s groups updated; %s forums updated.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ) );
+	$result = sprintf( __( 'Complete! %s groups updated; %s forums updated; %s forum statuses synced.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ), bbp_number_format( $s_count ) );
 	return array( 0, sprintf( $statement, $result ) );
 }
 
