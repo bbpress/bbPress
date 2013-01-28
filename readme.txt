@@ -1,7 +1,7 @@
 === bbPress ===
-Contributors: matt, johnjamesjacoby
+Contributors: matt, johnjamesjacoby, jmdodd
 Tags: forums, discussion, support, theme, akismet, multisite
-Requires at least: 3.4
+Requires at least: 3.5
 Tested up to: 3.5
 Stable tag: 2.2.4
 License: GPLv2 or later
