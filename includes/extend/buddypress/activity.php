@@ -171,20 +171,6 @@ class BBP_BuddyPress_Activity {
 
 		// Link directly to the topic or reply
 		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
-
-		/** Mentions **********************************************************/
-
-		// Convert mentions into links on create
-		add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
-		add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
-
-		// Convert mentions into links on edit
-		add_filter( 'bbp_edit_topic_pre_content', 'bp_activity_at_name_filter' );
-		add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
-
-		// Revert links into text on edit
-		add_filter( 'bbp_get_form_topic_content', array( $this, 'strip_mentions_on_edit' ) );
-		add_filter( 'bbp_get_form_reply_content', array( $this, 'strip_mentions_on_edit' ) );
 	}
 
 	/**
@@ -198,35 +184,6 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/** Methods ***************************************************************/
-
-	/**
-	 * Strip out BuddyPress activity at-name HTML on topic/reply edit
-	 *
-	 * Copied from bp_forums_strip_mentions_on_post_edit() in case forums
-	 * component is not active or is not loaded in yet.
-	 *
-	 * @since bbPress (r3475)
-	 * @param type $content Optional
-	 * @uses bp_get_root_domain()
-	 * @uses bp_get_members_root_slug()
-	 * @return string
-	 */
-	public function strip_mentions_on_edit( $content = '' ) {
-
-		// Backwards compat for members root slug
-		if ( function_exists( 'bp_get_members_root_slug' ) ) {
-			$members_root = bp_get_members_root_slug();
-		} elseif ( defined( 'BP_MEMBERS_SLUG' ) ) {
-			$members_root = BP_MEMBERS_SLUG;
-		} else {
-			$members_root = 'members';
-		}
-
-		$pattern = "|<a href=&#039;" . bp_get_root_domain() . "/" . $members_root . "/[A-Za-z0-9-_\.]+/&#039; rel=&#039;nofollow&#039;>(@[A-Za-z0-9-_\.@]+)</a>|";
-		$content = preg_replace( $pattern, "$1", htmlspecialchars_decode( $content ) );
-
-		return $content;
-	}
 
 	/**
 	 * Register our activity actions with BuddyPress
