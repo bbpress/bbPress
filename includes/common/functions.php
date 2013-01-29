@@ -681,14 +681,14 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 		$join    = $clauses['join'];
 		$where   = $clauses['where'];
-	} else{
+	} else {
 		$join    = $where = '';
 	}
 
 	// Simple duplicate check
 	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	$query  = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$r['post_type']}' AND post_status != '{$r['post_status']}' AND post_author = {$r['post_author']} AND post_content = '{$r['post_content']}' {$where}";
-	$query .= !empty( $r['post_parent'] ) ? " AND post_parent = '{$r['post_parent']}'" : '';
+	$query  = $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '%s' AND post_status != '%s' AND post_author = '%d' AND post_content = '%s' {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= !empty( $r['post_parent'] ) ? $wpdb->prepare( " AND post_parent = '%d'", $r['post_parent'] ) : '';
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
