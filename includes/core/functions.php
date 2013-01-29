@@ -327,7 +327,7 @@ function bbp_mention_filter( $content = '' ) {
 			continue;
 
 		// Replace name in content
-		$content = preg_replace( '/(@' . $username . '\b)/', sprintf( '<a href="%1$s" rel="nofollow" class="bbp-mention-link">@%2$s</a>', bbp_get_user_profile_url( $user->ID ), $username ), $content );
+		$content = preg_replace( '/(@' . $username . '\b)/', sprintf( '<a href="%1$s" rel="nofollow">@%2$s</a>', bbp_get_user_profile_url( $user->ID ), $username ), $content );
 	}
 
 	// Return modified content
