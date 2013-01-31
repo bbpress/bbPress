@@ -118,7 +118,7 @@ function bbp_has_replies( $args = '' ) {
 
 	// Call the query
 	$bbp->reply_query = new WP_Query( $r );
-	
+
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = $r['posts_per_page'];
 	$bbp->reply_query->paged          = $r['paged'];
@@ -137,13 +137,17 @@ function bbp_has_replies( $args = '' ) {
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
 
-			// Page or single
-			if ( is_page() || is_single() ) {
-				$base = get_permalink();
-
 			// User's replies
-			} elseif ( bbp_is_single_user_replies() ) {
+			if ( bbp_is_single_user_replies() ) {
 				$base = bbp_get_user_replies_created_url( bbp_get_displayed_user_id() );
+
+			// Root profile page
+			} elseif ( bbp_is_single_user() ) {
+				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
+
+			// Page or single post
+			} elseif ( is_page() || is_single() ) {
+				$base = get_permalink();
 
 			// Single topic
 			} else {
@@ -1756,7 +1760,7 @@ function bbp_reply_spam_link( $args = '' ) {
 	 * @return string Reply spam link
 	 */
 	function bbp_get_reply_spam_link( $args = '' ) {
-		
+
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'id'           => 0,
