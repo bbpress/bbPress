@@ -404,6 +404,7 @@ function bbp_admin_repair_group_forum_relationship() {
 			wp_update_post( array(
 				'ID'         => $posts[0]->ID,
 				'post_title' => __( 'Group Forums', 'bbpress' ),
+				'post_name'  => __( 'group-forums', 'bbpress' ),
 			) );
 		}
 
