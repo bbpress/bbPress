@@ -3,7 +3,8 @@
 /**
  * bbPress 1.1 Converter
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r3816)
+ * @link Codex Docs http://codex.bbpress.org/import-forums/bbpress-1-x-buddypress-group-forums
  */
 class bbPress1 extends BBP_Converter_Base {
 
@@ -32,7 +33,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_forum_id'
 		);
 
-		// Forum parent id (If no parent, 0. Stored in postmeta)
+		// Forum parent id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'forum_parent',
@@ -56,7 +57,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_reply_count'
 		);
 
-		// Forum topic count (Stored in postmeta)
+		// Forum total topic count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'topics',
@@ -64,7 +65,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_total_topic_count'
 		);
 
-		// Forum reply count (Stored in postmeta)
+		// Forum total reply count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
 			'from_fieldname' => 'posts',
@@ -138,7 +139,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_topic_id'
 		);
 
-		// Reply count (Stored in postmeta)
+		// Topic reply count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_posts',
@@ -147,7 +148,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topic_reply_count'
 		);
 
-		// Forum id (Stored in postmeta)
+		// Topic parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'forum_id',
@@ -195,7 +196,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Post status (Spam, Trash or Publish)
+		// Topic status (Spam, Trash or Publish)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_status',
@@ -207,7 +208,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_status'
 		);
 
-		// Author ip.
+		// Topic author ip (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'poster_ip',
@@ -218,7 +219,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'    => '_bbp_author_ip'
 		);
 
-		// Forum id (If no parent, 0)
+		// Topic parent forum id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'forum_id',
@@ -294,7 +295,7 @@ class bbPress1 extends BBP_Converter_Base {
 
 		/** Reply Section *****************************************************/
 
-		// Post id. Stores in postmeta.
+		// Reply id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_id',
@@ -302,7 +303,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'    => '_bbp_post_id'
 		);
 
-		// Topic id (Stores in postmeta)
+		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'topic_id',
@@ -311,7 +312,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid'
 		);
 
-		// Forum id (Stored in postmeta)
+		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'forum_id',
@@ -320,7 +321,8 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
-		// Topic title (for reply title).
+		// Reply title.
+		// Note: We join the topics table because post table does not include topic title.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_title',
@@ -332,7 +334,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_reply_title'
 		);
 
-		// Author ip.
+		// Reply author ip (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'poster_ip',
@@ -349,7 +351,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply status
+		// Reply status (Spam, Trash or Publish)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_status',
@@ -375,7 +377,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'    => 'menu_order'
 		);
 
-		// Topic id.  If no parent, than 0.
+		// Reply parent topic id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'topic_id',
@@ -412,7 +414,7 @@ class bbPress1 extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id. Stores in usermeta.
+		// Store old User id (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'ID',
@@ -420,7 +422,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_user_id'
 		);
 
-		// Store old User password. Stores in usermeta.
+		// Store old User password (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_pass',
@@ -521,7 +523,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * Verify the topic reply count.
 	 *
-	 * @param int $count bbPress 1.x reply count
+	 * @param int $count bbPress 1.x topic and reply counts
 	 * @return string WordPress safe
 	 */
 	public function callback_topic_reply_count( $count = 1 ) {
@@ -566,7 +568,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 */
 	protected function callback_html( $field ) {
 		require_once( bbpress()->admin->admin_dir . 'parser.php' );
-		$bbcode = BBCode::getInstance(); 
+		$bbcode = BBCode::getInstance();
 		$bbcode->enable_smileys = false;
 		$bbcode->smiley_regex   = false;
 		return html_entity_decode( $bbcode->Parse( $field ) );
