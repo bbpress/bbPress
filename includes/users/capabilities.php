@@ -140,12 +140,9 @@ function bbp_get_user_role( $user_id = 0 ) {
  * @return string
  */
 function bbp_get_user_blog_role( $user_id = 0 ) {
-	global $wp_roles;
 
-	// This really shold not be necessary anymore, and will likely be removed
-	// at a later date. If roles aren't loaded yet, something else is wrong.
-	if ( ! isset( $wp_roles ) )
-		$wp_roles = new WP_Roles();
+	// Add bbPress roles (returns $wp_roles global)
+	$wp_roles  = bbp_add_forums_roles();
 
 	// Validate user id
 	$user_id   = bbp_get_user_id( $user_id, false, false );
