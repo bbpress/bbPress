@@ -3242,7 +3242,7 @@ function bbp_topic_content_autoembed() {
 	global $wp_embed;
 
 	if ( bbp_use_autoembed() && is_a( $wp_embed, 'WP_Embed' ) ) {
-		add_filter( 'bbp_get_topic_content', array( $wp_embed, 'autoembed' ), 8 );		
+		add_filter( 'bbp_get_topic_content', array( $wp_embed, 'autoembed' ), 2 );
 	}
 }
 
