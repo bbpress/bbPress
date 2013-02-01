@@ -113,9 +113,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 
-		// No subforums yet, so suppress them for now
-		add_filter( 'bbp_get_forum_subforum_count_int', array( $this, 'no_subforums_yet' ) );
-
 		/** Caps **************************************************************/
 
 		// Only add these filters if inside a group forum
@@ -606,9 +603,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						if ( !empty( $forums ) ) :
 							$forum = $forums[0];
 
-							// Suppress subforums for now
-							add_filter( 'bbp_get_forum_subforum_count', '__return_false' );
-
 							// Set up forum data
 							bbpress()->current_forum_id = $forum->ID;
 							bbp_set_query_name( 'bbp_single_forum' ); ?>
@@ -616,13 +610,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 							<h3><?php bbp_forum_title(); ?></h3>
 
 							<?php bbp_get_template_part( 'content', 'single-forum' ); ?>
-
-							<?php
-
-							// Remove the subforum suppression filter
-							remove_filter( 'bbp_get_forum_subforum_count', '__return_false' );
-
-							?>
 
 						<?php else : ?>
 
