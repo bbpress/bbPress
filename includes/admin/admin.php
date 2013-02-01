@@ -1342,9 +1342,12 @@ class BBP_Admin {
 			</div>
 
 			<div class="changelog">
-				<h3><?php _e( 'New Forum Importers', 'bbpress' ); ?></h3>
+				<h3><?php _e( 'New & Improved Forum Importers', 'bbpress' ); ?></h3>
 
 				<div class="feature-section">
+					<h4><?php _e( 'BBCodes & Smilies', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Happy faces all-around now that the importers properly convert BBCodes & smilies. :)', 'bbpress' ); ?></p>
+
 					<h4><?php _e( 'Vanilla', 'bbpress' ); ?></h4>
 					<p><?php _e( 'Tired of plain old Vanilla? Now you can easily switch to <del>Mint Chocolate Chip</del> bbPress!', 'bbpress' ); ?></p>
 
