@@ -1318,7 +1318,7 @@ class BBP_Admin {
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s is ready to make your community a safer, faster, and better looking place to hang out!' ), $display_version ); ?></div>
+			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s goes great with pizza and popcorn, and will nicely complement your community too!' ), $display_version ); ?></div>
 			<div class="bbp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
 
 			<h2 class="nav-tab-wrapper">
@@ -1330,47 +1330,38 @@ class BBP_Admin {
 			</h2>
 
 			<div class="changelog">
-				<h3><?php _e( 'In-depth User Profiles', 'bbpress' ); ?></h3>
+				<h3><?php _e( 'Forum Search', 'bbpress' ); ?></h3>
 
 				<div class="feature-section">
-					<h4><?php _e( 'User Details', 'bbpress' ); ?></h4>
-					<p><?php _e( 'Forum profiles include the details of your forum activity, including your topics and replies, subscriptions, and favorites.', 'bbpress' ); ?></p>
+					<h4><?php _e( 'Only Forum Content', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Allow your forums to be searched without mixing in your posts or pages.', 'bbpress' ); ?></p>
 
-					<h4><?php _e( 'Easy Updating', 'bbpress' ); ?></h4>
-					<p><?php _e( 'You can easily update your profile without leaving bbPress.', 'bbpress' ); ?></p>
+					<h4><?php _e( 'Choose Your Own Slug', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Setup your forum search to live anywhere relative to the forum index.', 'bbpress' ); ?></p>
 				</div>
 			</div>
 
 			<div class="changelog">
-				<h3><?php _e( 'Theme Compatibility', 'bbpress' ); ?></h3>
+				<h3><?php _e( 'New Forum Importers', 'bbpress' ); ?></h3>
 
 				<div class="feature-section">
-					<h4><?php _e( 'Twenty Twelve', 'bbpress' ); ?></h4>
-					<p><?php _e( 'Updated default templates are now Twenty Twelve compatible, and we refreshed our CSS to better integrate with other popular themes, too.', 'bbpress' ); ?></p>
+					<h4><?php _e( 'Vanilla', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Tired of plain old Vanilla? Now you can easily switch to <del>Mint Chocolate Chip</del> bbPress!', 'bbpress' ); ?></p>
+
+					<h4><?php _e( 'SimplePress', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Converting an existing SimplePress powered forum to bbPress has never been "simpler!"', 'bbpress' ); ?></p>
+
+					<h4><?php _e( 'Mingle', 'bbpress' ); ?></h4>
+					<p><?php _e( 'No time to... chit-chat; convert your Mingle forums to bbPress today!', 'bbpress' ); ?></p>
 				</div>
 			</div>
 
 			<div class="changelog">
-				<h3><?php _e( 'Improved User Management', 'bbpress' ); ?></h3>
+				<h3><?php _e( 'Even Better BuddyPress Integration', 'bbpress' ); ?></h3>
 
 				<div class="feature-section">
-					<h4><?php _e( 'Dynamic User Roles and Capabilities', 'bbpress' ); ?></h4>
-					<p><?php _e( 'bbPress now includes some fancy user-roles with smart default capabilities to help you manage your forums. New roles include Key Master (for complete administrative access), Moderator, and Participant for regular forum users.', 'bbpress' ); ?></p>
-
-					<h4><?php _e( 'Manage Forum Users from WordPress', 'bbpress' ); ?></h4>
-					<p><?php _e( 'You can assign Forums roles to users individually, or bulk update them from the WordPress Users page. Users automatically start out as forum participants.', 'bbpress' ); ?></p>
-				</div>
-			</div>
-
-			<div class="changelog">
-				<h3><?php _e( 'Better BuddyPress Integration', 'bbpress' ); ?></h3>
-
-				<div class="feature-section">
-					<h4><?php _e( 'Use bbPress for Your BuddyPress Group Forums', 'bbpress' ); ?></h4>
-					<p><?php _e( 'You can now use bbPress to manage your BuddyPress Group Forums, allowing for seamless integration and improved plugin performance. Plugins developed for bbPress can now be extended to improve the BuddyPress Group Forums experience.', 'bbpress' ); ?></p>
-
-					<h4><?php _e( 'Activity Stream Syncing', 'bbpress' ); ?></h4>
-					<p><?php _e( 'bbPress now keeps track of changes to topics and replies and keeps their corresponding BuddyPress Activity Stream updates synced.', 'bbpress' ); ?></p>
+					<h4><?php _e( 'bbPress powered BuddyPress Group Forums', 'bbpress' ); ?></h4>
+					<p><?php _e( 'Use bbPress to manage your BuddyPress Group Forums, allowing for seamless integration and improved plugin performance.', 'bbpress' ); ?></p>
 				</div>
 			</div>
 
@@ -1379,24 +1370,27 @@ class BBP_Admin {
 
 				<div class="feature-section col three-col">
 					<div>
-						<h4><?php _e( 'Template Logic', 'bbpress' ); ?></h4>
-						<p><?php _e( 'New functions and template stacks are in place to help plugin developers extend bbPress further.', 'bbpress' ); ?></p> 
+						<h4><?php _e( 'Smarter Fancy Editor', 'bbpress' ); ?></h4>
+						<p><?php _e( 'We simplified the Fancy Editor, and the allowed HTML tags that work with it.', 'bbpress' ); ?></p>
 
-						<h4><?php _e( 'Plugin Directory Structure', 'bbpress' ); ?></h4>
-						<p><?php _e( 'We simplified the bbPress plugin directory structure, making it easier for plugin developers to find the relevant code.', 'bbpress' ); ?></p>
+						<h4><?php _e( 'Better Code Posting', 'bbpress' ); ?></h4>
+						<p><?php _e( 'Your users can now post code snippets without too much hassle.', 'bbpress' ); ?></p>
 					</div>
 
 					<div>
-						<h4><?php _e( 'Autocomplete', 'bbpress' ); ?></h4>
-						<p><?php _e( 'In WordPress Admin, you now select a parent forum or topic via autocomplete rather than a dropdown.', 'bbpress' ); ?></p>
+						<h4><?php _e( 'Template Stacking', 'bbpress' ); ?></h4>
+						<p><?php _e( 'Now you can replace specific template parts on the fly without modifying the existing theme.', 'bbpress' ); ?></p>
 
-						<h4><?php _e( 'Fancy Editor Support', 'bbpress' ); ?></h4>
-						<p><?php _e( 'We improved our support of the Fancy Editor, giving forum users a better experience.', 'bbpress' ); ?></p>
+						<h4><?php _e( 'TwentyThirteen Tested', 'bbpress' ); ?></h4>
+						<p><?php _e( 'bbPress 2.3 already works with the in-development TwentyThirteen theme, coming in a future version of WordPress.', 'bbpress' ); ?></p>
 					</div>
 
 					<div class="last-feature">
-						<h4><?php _e( 'WordPress 3.5-ready', 'bbpress' ); ?></h4>
-						<p><?php _e( 'bbPress 2.2 has been thoroughly tested against the ongoing development of WordPress 3.5.', 'bbpress' ); ?></p>
+						<h4><?php _e( 'Statistics Shortcode', 'bbpress' ); ?></h4>
+						<p><?php _e( 'The old statistics easter-egg page was turned into an easy to use shortcode.', 'bbpress' ); ?></p>
+
+						<h4><?php _e( 'Green Theme Updated', 'bbpress' ); ?></h4>
+						<p><?php _e( 'The green admin theme easter-egg was updated to work with WordPress 3.5 changes.', 'bbpress' ); ?></p>
 					</div>
 				</div>
 			</div>
