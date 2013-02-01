@@ -92,9 +92,7 @@ add_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'  );
 add_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses'  );
 
 // Code filters on output (hooked in early for plugin compatibility)
-add_filter( 'bbp_get_reply_content', 'bbp_encode_bad', 2 );
 add_filter( 'bbp_get_reply_content', 'bbp_code_trick', 3 );
-add_filter( 'bbp_get_topic_content', 'bbp_encode_bad', 2 );
 add_filter( 'bbp_get_topic_content', 'bbp_code_trick', 3 );
 
 // Code filters on input
