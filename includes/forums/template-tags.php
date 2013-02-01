@@ -1816,7 +1816,6 @@ function bbp_single_forum_description( $args = '' ) {
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses bbp_get_forum_topic_count() To get the forum topic count
 	 * @uses bbp_get_forum_reply_count() To get the forum reply count
-	 * @uses bbp_get_forum_subforum_count() To get the forum subforum count
 	 * @uses bbp_get_forum_freshness_link() To get the forum freshness link
 	 * @uses bbp_get_forum_last_active_id() To get the forum last active id
 	 * @uses bbp_get_author_link() To get the author link
