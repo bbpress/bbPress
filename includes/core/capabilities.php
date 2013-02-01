@@ -326,6 +326,7 @@ function bbp_get_wp_roles() {
  * We do this to avoid adding these values to the database.
  *
  * @since bbPress (r4290)
+ * @return WP_Roles The main $wp_roles global
  */
 function bbp_add_forums_roles() {
 	$wp_roles = bbp_get_wp_roles();
@@ -335,6 +336,8 @@ function bbp_add_forums_roles() {
 		$wp_roles->role_objects[$role_id] = new WP_Role( $role_id, $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
 	}
+
+	return $wp_roles;
 }
 
 /**
