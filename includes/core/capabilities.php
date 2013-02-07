@@ -335,6 +335,8 @@ function bbp_add_forums_roles() {
 		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
 	}
+
+	return $wp_roles;
 }
 
 /**
