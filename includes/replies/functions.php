@@ -1740,6 +1740,10 @@ function _bbp_has_replies_where( $where, $query ) {
 	if ( $query->get( 'meta_key' ) || $query->get( 'meta_query' ) )
 		return $where;
 
+	// Bail if including or excluding specific post ID's
+	if ( $query->get( 'post__not_in' ) || $query->get( 'post__in' ) )
+		return $where;
+
 	global $wpdb;
 
 	// Table name for posts
