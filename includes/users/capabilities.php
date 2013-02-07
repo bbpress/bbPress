@@ -164,7 +164,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 }
 
 /**
- * Helper function hooked to 'bbp_edit_user_profile_update' action to save or
+ * Helper function hooked to 'bbp_profile_update' action to save or
  * update user roles and capabilities.
  *
  * @since bbPress (r4235)
@@ -187,10 +187,20 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	$new_role    = sanitize_text_field( $_POST['bbp-forums-role'] );
 	$forums_role = bbp_get_user_role( $user_id );
 
+	// Bail if no role change
+	if ( $new_role == $forums_role )
+		return;
+
+	// Bail if trying to set their own role
+	if ( bbp_is_user_home_edit() )
+		return;
+	
+	// Bail if current user cannot promote the passing user
+	if ( ! current_user_can( 'promote_user', $user_id ) )
+		return;
+
 	// Set the new forums role
-	if ( $new_role != $forums_role ) {
-		bbp_set_user_role( $user_id, $new_role );
-	}
+	bbp_set_user_role( $user_id, $new_role );
 }
 
 /**
