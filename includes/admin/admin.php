@@ -1317,15 +1317,15 @@ class BBP_Admin {
 		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
 
 		<div class="wrap about-wrap">
-			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s goes great with pizza and popcorn, and will nicely complement your community too!' ), $display_version ); ?></div>
-			<div class="bbp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
+			<h1><?php printf( __( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
+			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s goes great with pizza and popcorn, and will nicely complement your community too!', 'bbpress' ), $display_version ); ?></div>
+			<div class="bbp-badge"><?php printf( __( 'Version %s', 'bbpress' ), $display_version ); ?></div>
 
 			<h2 class="nav-tab-wrapper">
 				<a class="nav-tab nav-tab-active" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>">
-					<?php _e( 'What&#8217;s New' ); ?>
+					<?php _e( 'What&#8217;s New', 'bbpress' ); ?>
 				</a><a class="nav-tab" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>">
-					<?php _e( 'Credits' ); ?>
+					<?php _e( 'Credits', 'bbpress' ); ?>
 				</a>
 			</h2>
 
@@ -1399,7 +1399,7 @@ class BBP_Admin {
 			</div>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings', 'bbpress' ); ?></a>
 			</div>
 
 		</div>
@@ -1420,15 +1420,15 @@ class BBP_Admin {
 		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
 
 		<div class="wrap about-wrap">
-			<h1><?php printf( __( 'Welcome to bbPress %s' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s is ready to make your community a safer, faster, and better looking place to hang out!' ), $display_version ); ?></div>
+			<h1><?php printf( __( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
+			<div class="about-text"><?php printf( __( 'Thank you for updating to the latest version! bbPress %s goes great with pizza and popcorn, and will nicely complement your community too!', 'bbpress' ), $display_version ); ?></div>
 			<div class="bbp-badge"><?php printf( __( 'Version %s' ), $display_version ); ?></div>
 
 			<h2 class="nav-tab-wrapper">
 				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>" class="nav-tab">
-					<?php _e( 'What&#8217;s New' ); ?>
+					<?php _e( 'What&#8217;s New', 'bbpress' ); ?>
 				</a><a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>" class="nav-tab nav-tab-active">
-					<?php _e( 'Credits' ); ?>
+					<?php _e( 'Credits', 'bbpress' ); ?>
 				</a>
 			</h2>
 
@@ -1486,7 +1486,7 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php _e( 'Core Contributors to bbPress 2.2', 'bbpress' ); ?></h4>
+			<h4 class="wp-people-group"><?php _e( 'Core Contributors to bbPress 2.3', 'bbpress' ); ?></h4>
 			<p class="wp-credits-list">
 				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
 				<a href="http://profiles.wordpress.org/anointed">anointed</a>,
@@ -1527,7 +1527,7 @@ class BBP_Admin {
 			</p>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php _e( 'Go to Forum Settings', 'bbpress' ); ?></a>
 			</div>
 
 		</div>

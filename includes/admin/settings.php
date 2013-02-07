@@ -1352,7 +1352,7 @@ function bbp_admin_settings_help() {
 
 	// Help Sidebar
 	$current_screen->set_help_sidebar(
-		'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
+		'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 		'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 		'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 	);
