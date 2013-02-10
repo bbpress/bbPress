@@ -76,8 +76,11 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
  * template hierarchy, start here by removing this filter, then look at how
  * bbp_template_include() works and do something similar. :)
  */
-add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
-add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
+add_filter( 'bbp_template_include',   'bbp_template_include_theme_supports', 2, 1 );
+add_filter( 'bbp_template_include',   'bbp_template_include_theme_compat',   4, 2 );
+
+// Filter bbPress template locations
+add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations'          );
 
 // Links
 add_filter( 'paginate_links',            'bbp_add_view_all' );
@@ -180,19 +183,6 @@ add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  
 add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 2 );
 add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 2 );
 add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );
-
-// Filter bbPress template locations
-add_filter( 'bbp_get_template_part',         'bbp_add_template_locations' );
-add_filter( 'bbp_get_profile_template',      'bbp_add_template_locations' );
-add_filter( 'bbp_get_profileedit_template',  'bbp_add_template_locations' );
-add_filter( 'bbp_get_singleview_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_forumedit_template',    'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicedit_template',    'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicsplit_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_topicmerge_template',   'bbp_add_template_locations' );
-add_filter( 'bbp_get_topictag_template',     'bbp_add_template_locations' );
-add_filter( 'bbp_get_topictagedit_template', 'bbp_add_template_locations' );
-add_filter( 'bbp_get_replymove_template',    'bbp_add_template_locations' );
 
 // Topic and reply author display names
 add_filter( 'bbp_get_topic_author_display_name', 'wptexturize'   );
