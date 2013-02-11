@@ -258,7 +258,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 		foreach ( (array) $locations as $custom_location )
 			$retval[] = untrailingslashit( trailingslashit( $stack ) . $custom_location );
 
-	return apply_filters( 'bbp_add_template_stack_locations', array_unique( $locations ), $stacks );
+	return apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
 }
 
 /**
