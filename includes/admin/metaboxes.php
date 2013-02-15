@@ -410,7 +410,6 @@ function bbp_reply_metabox() {
 			<?php bbp_dropdown( array(
 				'post_type'          => bbp_get_forum_post_type(),
 				'selected'           => $reply_forum_id,
-				'post_parent'        => 0,
 				'numberposts'        => -1,
 				'orderby'            => 'title',
 				'order'              => 'ASC',
