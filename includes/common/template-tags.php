@@ -2105,8 +2105,12 @@ function bbp_breadcrumb( $args = array() ) {
 
 		/** Current Text ******************************************************/
 
+		// Search page
+		if ( bbp_is_search() ) {
+			$pre_current_text = bbp_get_search_title();
+
 		// Forum archive
-		if ( bbp_is_forum_archive() ) {
+		} elseif ( bbp_is_forum_archive() ) {
 			$pre_current_text = bbp_get_forum_archive_title();
 
 		// Topic archive
