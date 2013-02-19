@@ -608,7 +608,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Always load up the group forum
 		bbp_has_forums( array(
-			'ID'          => $forum_id,
+			'p'           => $forum_id,
 			'post_parent' => null
 		) );
 
