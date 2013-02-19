@@ -44,9 +44,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	private function setup_variables() {
 
-		// Name and slug
+		// Component Name
 		$this->name          = __( 'Forum', 'bbpress' );
 		$this->nav_item_name = __( 'Forum', 'bbpress' );
+
+		// Component slugs (hardcoded to match bbPress 1.x functionality)
 		$this->slug          = 'forum';
 		$this->topic_slug    = 'topic';
 		$this->reply_slug    = 'reply';
@@ -237,19 +239,43 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function edit_screen() {
 
+		$forum_ids    = bbp_get_group_forum_ids( bp_get_new_group_id() );
+
+		if ( !empty( $forum_ids ) )
+			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
+
 		$checked = bp_get_new_group_enable_forum() || bp_group_is_forum_enabled( bp_get_group_id() ); ?>
 
-		<h4><?php _e( 'Enable Group Forum', 'bbpress' ); ?></h4>
+		<h4><?php _e( 'Group Forum Settings', 'bbpress' ); ?></h4>
 
-		<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
+		<fieldset>
+			<legend class="screen-reader-text"><?php _e( 'Group Forum Settings', 'bbpress' ); ?></legend>
+			<p><?php _e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
-		<div class="checkbox">
-			<label><input type="checkbox" name="bbp-edit-group-forum" id="bbp-edit-group-forum" value="1"<?php checked( $checked ); ?> /> <?php _e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
-		</div>
+			<div class="field-group">
+				<div class="checkbox">
+					<label><input type="checkbox" name="bbp-edit-group-forum" id="bbp-edit-group-forum" value="1"<?php checked( $checked ); ?> /> <?php _e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
+				</div>
 
-		<p class="description"><?php _e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
+				<p class="description"><?php _e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
+			</div>
 
-		<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
+			<?php if ( is_super_admin() ) : ?>
+				<div class="field-group">
+					<label for="bbp_group_forum_id"><?php _e( 'Group Forum:', 'bbpress' ); ?></label>
+					<?php
+						bbp_dropdown( array(
+							'select_id' => 'bbp_group_forum_id',
+							'show_none' => __( '(No Forum)', 'bbpress' ),
+							'selected'  => $forum_id
+						) );
+					?>
+					<p class="description"><?php _e( 'Network administrators can reconfigure which forum belongs to this group.', 'bbpress' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
+		</fieldset>
 
 		<?php
 
@@ -270,12 +296,24 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return;
 
-		check_admin_referer( 'groups_edit_save_' . $this->slug );
+		// Nonce check
+		if ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
+			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			return;
+		}
 
 		$edit_forum   = !empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
 		$forum_id     = 0;
 		$group_id     = bp_get_current_group_id();
-		$forum_ids    = array_values( bbp_get_group_forum_ids( $group_id ) );
+
+		// Super admins have the ability to reconfigure forums
+		if ( is_super_admin() ) {
+			$forum_ids = ! empty( $_POST['bbp_group_forum_id'] ) ? (array) (int) $_POST['bbp_group_forum_id'] : array();
+
+		// Use the existing forum IDs
+		} else {
+			$forum_ids = array_values( bbp_get_group_forum_ids( $group_id ) );
+		}
 
 		// Normalize group forum relationships now
 		if ( !empty( $forum_ids ) ) {
@@ -296,6 +334,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			// No support for multiple forums yet
 			$forum_id = (int) ( is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids );
 		}
+
+		// Update the group ID and forum ID relationships
+		bbp_update_group_forum_ids( $group_id, (array) $forum_ids );
+		bbp_update_forum_group_ids( $forum_id, (array) $group_id  );
 
 		// Update the group forum setting
 		$group = $this->toggle_group_forum( $group_id, $edit_forum );
@@ -369,7 +411,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function create_screen_save() {
 
-		check_admin_referer( 'groups_create_save_' . $this->slug );
+		// Nonce check
+		if ( ! bbp_verify_nonce_request( 'groups_create_save_' . $this->slug ) ) {
+			bbp_add_error( 'bbp_create_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			return;
+		}
 
 		$create_forum = !empty( $_POST['bbp-create-group-forum'] ) ? true : false;
 		$forum_id     = 0;
@@ -536,6 +582,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Output the forums for a group in the edit screens
 	 *
+	 * As of right now, bbPress only supports 1-to-1 group forum relationships.
+	 * In the future, many-to-many should be allowed.
+	 *
 	 * @since bbPress (r3653)
 	 * @uses bp_get_current_group_id()
 	 * @uses bbp_get_group_forum_ids()
@@ -543,6 +592,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_get_template_part()
 	 */
 	public function display_forums( $offset = 0 ) {
+		global $wp_query;
 
 		// Allow actions immediately before group forum output
 		do_action( 'bbp_before_group_forum_display' );
@@ -550,198 +600,88 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Load up bbPress once
 		$bbp = bbpress();
 
+		/** Query Resets ******************************************************/
+
 		// Forum data
-		$forum_slug = bp_action_variable( $offset );
-		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
-		$forum_args = array( 'post__in' => $forum_ids, 'post_parent' => null );
+		$forum_action = bp_action_variable( $offset );
+		$forum_id     = array_shift( bbp_get_group_forum_ids( bp_get_current_group_id() ) );
 
-		// Unset global queries
-		$bbp->forum_query = new stdClass;
-		$bbp->topic_query = new stdClass;
-		$bbp->reply_query = new stdClass;
+		// Always load up the group forum
+		bbp_has_forums( array(
+			'ID'          => $forum_id,
+			'post_parent' => null
+		) );
 
-		// Unset global ID's
-		$bbp->current_forum_id     = 0;
-		$bbp->current_topic_id     = 0;
-		$bbp->current_reply_id     = 0;
-		$bbp->current_topic_tag_id = 0;
+		// Set the global forum ID
+		$bbp->current_forum_id = $forum_id;
 
-		// Reset the post data
-		wp_reset_postdata();
-
-		// Allow admins special views
-		$post_status = array( bbp_get_closed_status_id(), bbp_get_public_status_id() );
-		if ( is_super_admin() || current_user_can( 'moderate' ) || bp_is_item_admin() || bp_is_item_mod() )
-			$post_status = array_merge( $post_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ); ?>
+		// Assume forum query
+		bbp_set_query_name( 'bbp_single_forum' ); ?>
 
 		<div id="bbpress-forums">
 
-			<?php
+			<?php switch ( $forum_action ) :
 
-			// Looking at the group forum root
-			if ( empty( $forum_slug ) || ( 'page' == $forum_slug ) ) :
+				/** Single Forum **********************************************/
 
-				// Query forums and show them if they exist
-				if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) :
+				case false  :
+				case 'page' :
 
-					// Only one forum found
-					if ( 1 == $bbp->forum_query->post_count ) :
+					// Query forums and show them if they exist
+					if ( bbp_forums() ) :
 
-						// Remove 'name' check for paginated requests
-						if ( 'page' == $forum_slug ) {
-							$forum_args = array( 'post_type' => bbp_get_forum_post_type() );
-						} else {
-							$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
-						}
-
-						// Get the forums
-						$forums = get_posts( $forum_args );
-
-						bbp_the_forum();
-
-						// Forum exists
-						if ( !empty( $forums ) ) :
-							$forum = $forums[0];
-
-							// Set up forum data
-							bbpress()->current_forum_id = $forum->ID;
-							bbp_set_query_name( 'bbp_single_forum' ); ?>
-
-							<h3><?php bbp_forum_title(); ?></h3>
-
-							<?php bbp_get_template_part( 'content', 'single-forum' ); ?>
-
-						<?php else : ?>
-
-							<?php bbp_get_template_part( 'feedback',   'no-topics' ); ?>
-
-							<?php bbp_get_template_part( 'form',       'topic'     ); ?>
-
-						<?php endif;
-
-					// More than 1 forum found or group forum admin screen
-					elseif ( 1 < $bbp->forum_query->post_count ) : ?>
-
-						<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
-
-						<?php bbp_get_template_part( 'loop', 'forums' ); ?>
-
-						<h3><?php _e( 'Topics', 'bbpress' ); ?></h3>
-
-						<?php if ( bbp_has_topics( array( 'post_parent__in' => $forum_ids ) ) ) : ?>
-
-							<?php bbp_get_template_part( 'pagination', 'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'loop',       'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'pagination', 'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'form',       'topic'     ); ?>
-
-						<?php else : ?>
-
-							<?php bbp_get_template_part( 'feedback',   'no-topics' ); ?>
-
-							<?php bbp_get_template_part( 'form',       'topic'     ); ?>
-
-						<?php endif;
-
-					// No forums found
-					else : ?>
-
-						<div id="message" class="info">
-							<p><?php _e( 'This group does not currently have any forums.', 'bbpress' ); ?></p>
-						</div>
-
-					<?php endif;
-
-				// No forums found
-				else : ?>
-
-					<div id="message" class="info">
-						<p><?php _e( 'This group does not currently have any forums.', 'bbpress' ); ?></p>
-					</div>
-
-				<?php endif;
-
-			// Single forum
-			elseif ( ( bp_action_variable( $offset ) != $this->slug ) && ( bp_action_variable( $offset ) != $this->topic_slug ) && ( bp_action_variable( $offset ) != $this->reply_slug ) ) :
-
-				// Get forum data
-				$forum_slug = bp_action_variable( $offset );
-				$forum_args = array( 'name' => $forum_slug, 'post_type' => bbp_get_forum_post_type() );
-				$forums     = get_posts( $forum_args );
-
-				// Forum exists
-				if ( !empty( $forums ) ) :
-					$forum = $forums[0];
-
-					// Set up forum data
-					$forum_id = bbpress()->current_forum_id = $forum->ID;
-
-					// Reset necessary forum_query attributes for forums loop to function
-					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
-					$bbp->forum_query->in_the_loop             = true;
-					$bbp->forum_query->post                    = get_post( $forum_id );
-
-					// Forum edit
-					if ( bp_action_variable( $offset + 1 ) == $bbp->edit_id ) :
-						global $wp_query, $post;
-
-						$wp_query->bbp_is_edit       = true;
-						$wp_query->bbp_is_forum_edit = true;
-						$post                        = $forum;
-
-						bbp_set_query_name( 'bbp_forum_form' );
-						bbp_get_template_part( 'form', 'forum' );
-
-					else :
-						bbp_set_query_name( 'bbp_single_forum' ); ?>
+						// Setup the forum
+						bbp_the_forum(); ?>
 
 						<h3><?php bbp_forum_title(); ?></h3>
 
 						<?php bbp_get_template_part( 'content', 'single-forum' );
 
-					endif;
+					// No forums found
+					else : ?>
 
-				else :
-					bbp_get_template_part( 'feedback', 'no-topics' );
-					bbp_get_template_part( 'form',     'topic'     );
+						<div id="message" class="info">
+							<p><?php _e( 'This group does not currently have a forum.', 'bbpress' ); ?></p>
+						</div>
 
-				endif;
+					<?php endif;
 
-			// Single topic
-			elseif ( bp_action_variable( $offset ) == $this->topic_slug ) :
+					break;
 
-				// Get topic data
-				$topic_slug = bp_action_variable( $offset + 1 );
-				$topic_args = array( 'name' => $topic_slug, 'post_type' => bbp_get_topic_post_type(), 'post_status' => $post_status );
-				$topics     = get_posts( $topic_args );
+				/** Single Topic **********************************************/
 
-				// Topic exists
-				if ( !empty( $topics ) ) :
-					$topic = $topics[0];
+				case $this->topic_slug :
 
-					// Set up topic data
-					$topic_id = bbpress()->current_topic_id = $topic->ID;
-					$forum_id = bbp_get_topic_forum_id( $topic_id );
+					// Get the topic
+					bbp_has_topics( array(
+						'name'           => bp_action_variable( $offset + 1 ),
+						'posts_per_page' => 1
+					) );
 
-					// Reset necessary forum_query attributes for topics loop to function
-					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
-					$bbp->forum_query->in_the_loop             = true;
-					$bbp->forum_query->post                    = get_post( $forum_id );
+					// If no topic, 404
+					if ( ! bbp_topics() ) {
+						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
+						<h3><?php bbp_forum_title(); ?></h3>
+						<?php bbp_get_template_part( 'feedback', 'no-topics' );
+						return;
+					}
 
-					// Reset necessary topic_query attributes for topics loop to function
-					$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
-					$bbp->topic_query->in_the_loop             = true;
-					$bbp->topic_query->post                    = $topic;
+					// Setup the topic
+					bbp_the_topic(); ?>
+
+					<h3><?php bbp_topic_title(); ?></h3>
+
+					<?php
 
 					// Topic edit
-					if ( bp_action_variable( $offset + 2 ) == $bbp->edit_id ) :
-						global $wp_query, $post;
+					if ( bp_action_variable( $offset + 2 ) == bbp_get_edit_rewrite_id() ) :
+
+						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
 						$wp_query->bbp_is_topic_edit = true;
-						$post                        = $topic;
+
+						// Setup the global forum ID
+						$bbp->current_topic_id       = get_the_ID();
 
 						// Merge
 						if ( !empty( $_GET['action'] ) && 'merge' == $_GET['action'] ) :
@@ -762,78 +702,60 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					// Single Topic
 					else:
-						bbp_set_query_name( 'bbp_single_topic' ); ?>
-
-						<h3><?php bbp_topic_title(); ?></h3>
-
-						<?php bbp_get_template_part( 'content', 'single-topic' );
-
+						bbp_set_query_name( 'bbp_single_topic' );
+						bbp_get_template_part( 'content', 'single-topic' );
 					endif;
+					break;
 
-				// No Topics
-				else :
-					bbp_get_template_part( 'feedback', 'no-topics'   );
-					bbp_get_template_part( 'form',     'topic'       );
+				/** Single Reply **********************************************/
 
-				endif;
+				case $this->reply_slug :
 
-			// Single reply
-			elseif ( bp_action_variable( $offset ) == $this->reply_slug ) :
+					// Get the reply
+					bbp_has_replies( array(
+						'name'           => bp_action_variable( $offset + 1 ),
+						'posts_per_page' => 1
+					) );
 
-				// Get reply data
-				$reply_slug = bp_action_variable( $offset + 1 );
-				$reply_args = array( 'name' => $reply_slug, 'post_type' => bbp_get_reply_post_type() );
-				$replies    = get_posts( $reply_args );
+					// If no topic, 404
+					if ( ! bbp_replies() ) {
+						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
+						<h3><?php bbp_forum_title(); ?></h3>
+						<?php bbp_get_template_part( 'feedback', 'no-replies' );
+						return;
+					}
 
-				if ( empty( $replies ) )
-					return;
+					// Setup the reply
+					bbp_the_reply(); ?>
 
-				// Get the first reply
-				$reply = $replies[0];
+					<h3><?php bbp_reply_title(); ?></h3>
 
-				// Set up reply data
-				$reply_id = bbpress()->current_reply_id = $reply->ID;
-				$topic_id = bbp_get_reply_topic_id( $reply_id );
-				$forum_id = bbp_get_reply_forum_id( $reply_id );
+					<?php if ( bp_action_variable( $offset + 2 ) == bbp_get_edit_rewrite_id() ) :
 
-				// Reset necessary forum_query attributes for reply to function
-				$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
-				$bbp->forum_query->in_the_loop             = true;
-				$bbp->forum_query->post                    = get_post( $forum_id );
+						// Set the edit switches
+						$wp_query->bbp_is_edit       = true;
+						$wp_query->bbp_is_reply_edit = true;
 
-				// Reset necessary topic_query attributes for reply to function
-				$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
-				$bbp->topic_query->in_the_loop             = true;
-				$bbp->topic_query->post                    = get_post( $topic_id );
+						// Setup the global reply ID
+						$bbp->current_reply_id       = get_the_ID();
 
-				// Reset necessary reply_query attributes for reply to function
-				$bbp->reply_query->query_vars['post_type'] = bbp_get_reply_post_type();
-				$bbp->reply_query->in_the_loop             = true;
-				$bbp->reply_query->post                    = $reply;
+						// Move
+						if ( !empty( $_GET['action'] ) && ( 'move' == $_GET['action'] ) ) :
+							bbp_set_query_name( 'bbp_reply_move' );
+							bbp_get_template_part( 'form', 'reply-move' );
 
-				if ( bp_action_variable( $offset + 2 ) == $bbp->edit_id ) :
-					global $wp_query, $post;
-
-					$wp_query->bbp_is_edit       = true;
-					$wp_query->bbp_is_reply_edit = true;
-					$post                        = $reply;
-
-					// Move
-					if ( !empty( $_GET['action'] ) && ( 'move' == $_GET['action'] ) ) :
-						bbp_set_query_name( 'bbp_reply_move' );
-						bbp_get_template_part( 'form', 'reply-move' );
-
-					// Edit
-					else :
-						bbp_set_query_name( 'bbp_reply_form' );
-						bbp_get_template_part( 'form', 'reply' );
-
+						// Edit
+						else :
+							bbp_set_query_name( 'bbp_reply_form' );
+							bbp_get_template_part( 'form', 'reply' );
+						endif;
 					endif;
+					break;
+			endswitch;
 
-				endif;
-
-			endif; ?>
-
+			// Reset the query
+			wp_reset_query(); ?>
+			
 		</div>
 
 		<?php
@@ -1229,7 +1151,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		bp_core_redirect( $redirect_to );
 	}
 
-	/** Activity ***************************************************************/
+	/** Activity **************************************************************/
 
 	/**
 	 * Map a forum post to its corresponding group in the group activity stream.
