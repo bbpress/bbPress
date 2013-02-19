@@ -659,7 +659,7 @@ function bbp_forum_get_subforums( $args = '' ) {
 	// No forum passed
 	$sub_forums = !empty( $r['post_parent'] ) ? $get_posts->query( $r ) : array();
 
-	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $args );
+	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $r );
 }
 
 /**
@@ -1921,7 +1921,7 @@ function bbp_single_forum_description( $args = '' ) {
 		$retstr = $r['before'] . $retstr . $r['after'];
 
 		// Return filtered result
-		return apply_filters( 'bbp_get_single_forum_description', $retstr, $args );
+		return apply_filters( 'bbp_get_single_forum_description', $retstr, $r );
 	}
 
 /** Forms *********************************************************************/

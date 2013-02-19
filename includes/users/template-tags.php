@@ -291,7 +291,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		$retval = !empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
 
 		// Filter and return
-		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $args );
+		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r );
 	}
 
 /**

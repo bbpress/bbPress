@@ -578,7 +578,7 @@ function bbp_get_statistics( $args = '' ) {
 	$statistics['hidden_topic_title'] = isset( $hidden_topic_title ) ? $hidden_topic_title : '';
 	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
 
-	return apply_filters( 'bbp_get_statistics', $statistics, $args );
+	return apply_filters( 'bbp_get_statistics', $statistics, $r );
 }
 
 /** New/edit topic/reply helpers **********************************************/
@@ -632,7 +632,7 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 	$retval = bbp_has_errors() ? false : $r;
 
 	// Finally, return sanitized data or false
-	return apply_filters( 'bbp_filter_anonymous_post_data', $retval, $args );
+	return apply_filters( 'bbp_filter_anonymous_post_data', $retval, $r );
 }
 
 /**

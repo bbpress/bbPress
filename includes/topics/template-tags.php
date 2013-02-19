@@ -2263,7 +2263,7 @@ function bbp_topic_admin_links( $args = '' ) {
 		// Process the admin links
 		$links = implode( $r['sep'], array_filter( $r['links'] ) );
 
-		return apply_filters( 'bbp_get_topic_admin_links', $r['before'] . $links . $r['after'], $args );
+		return apply_filters( 'bbp_get_topic_admin_links', $r['before'] . $links . $r['after'], $r );
 	}
 
 /**

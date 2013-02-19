@@ -1250,7 +1250,7 @@ function bbp_reply_author_role( $args = array() ) {
 		$role        = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
 		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $r['before'], $r['class'], $role, $r['after'] );
 
-		return apply_filters( 'bbp_get_reply_author_role', $author_role, $args );
+		return apply_filters( 'bbp_get_reply_author_role', $author_role, $r );
 	}
 
 /**

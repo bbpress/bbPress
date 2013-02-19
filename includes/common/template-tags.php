@@ -1111,7 +1111,7 @@ function bbp_wp_login_action( $args = '' ) {
 
 	$login_url = site_url( $login_url, $r['context'] );
 
-	echo apply_filters( 'bbp_wp_login_action', $login_url, $args );
+	echo apply_filters( 'bbp_wp_login_action', $login_url, $r );
 }
 
 /**
@@ -1429,7 +1429,7 @@ function bbp_dropdown( $args = '' ) {
 			}
 		}
 
-		return apply_filters( 'bbp_get_dropdown', $retval, $args );
+		return apply_filters( 'bbp_get_dropdown', $retval, $r );
 	}
 
 /**
