@@ -755,7 +755,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 			// Reset the query
 			wp_reset_query(); ?>
-			
+
 		</div>
 
 		<?php
@@ -884,10 +884,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Bail if user is not logged in
 		if ( ! is_user_logged_in() ) {
 			return $retval;
-		}
+
+		// Admins can always pass go
+		} elseif ( is_super_admin() ) {
+			$retval = true;
 
 		// Non-members cannot see forms
-		if ( ! bbp_group_is_member() ) {
+		} elseif ( ! bbp_group_is_member() ) {
 			$retval = false;
 
 		// Banned users cannot see forms
