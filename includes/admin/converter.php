@@ -26,6 +26,10 @@ class BBP_Converter {
 	 */
 	public function __construct() {
 
+		// "I wonder where I'll float next."
+		if ( empty( $_SERVER['REQUEST_METHOD'] ) )
+			return;
+
 		// Bail if request is not correct
 		switch ( strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 
