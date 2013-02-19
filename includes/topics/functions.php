@@ -186,31 +186,42 @@ function bbp_new_topic_handler( $action = '' ) {
 	/** Topic Forum ***********************************************************/
 
 	// Forum id was not passed
-	if ( empty( $_POST['bbp_forum_id'] ) )
+	if ( empty( $_POST['bbp_forum_id'] ) ) {
 		bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 
 	// Forum id was passed
-	elseif ( is_numeric( $_POST['bbp_forum_id'] ) )
+	} elseif ( is_numeric( $_POST['bbp_forum_id'] ) ) {
 		$forum_id = (int) $_POST['bbp_forum_id'];
+	}
 
 	// Forum exists
 	if ( !empty( $forum_id ) ) {
 
 		// Forum is a category
-		if ( bbp_is_forum_category( $forum_id ) )
+		if ( bbp_is_forum_category( $forum_id ) ) {
 			bbp_add_error( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum.', 'bbpress' ) );
 
-		// Forum is closed and user cannot access
-		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
-			bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+		// Forum is not a category
+		} else {
 
-		// Forum is private and user cannot access
-		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
-			bbp_add_error( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum is closed and user cannot access
+			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+			}
 
-		// Forum is hidden and user cannot access
-		if ( bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
-			bbp_add_error( 'bbp_edit_topic_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum is private and user cannot access
+			if ( bbp_is_forum_private( $forum_id ) ) {
+				if ( !current_user_can( 'read_private_forums' ) ) {
+					bbp_add_error( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+				}
+
+			// Forum is hidden and user cannot access
+			} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
+				if ( !current_user_can( 'read_hidden_forums' ) ) {
+					bbp_add_error( 'bbp_edit_topic_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+				}
+			}
+		}
 	}
 
 	/** Topic Flooding ********************************************************/
@@ -224,7 +235,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_topic_duplicate', __( '<strong>ERROR</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 	/** Topic Blacklist *******************************************************/
-	
+
 	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be created at this time.', 'bbpress' ) );
 
@@ -495,20 +506,30 @@ function bbp_edit_topic_handler( $action = '' ) {
 	if ( !empty( $forum_id ) && ( $forum_id !== $current_forum_id ) ) {
 
 		// Forum is a category
-		if ( bbp_is_forum_category( $forum_id ) )
+		if ( bbp_is_forum_category( $forum_id ) ) {
 			bbp_add_error( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in it.', 'bbpress' ) );
 
-		// Forum is closed and user cannot access
-		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
-			bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+		// Forum is not a category
+		} else {
 
-		// Forum is private and user cannot access
-		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
-			bbp_add_error( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum is closed and user cannot access
+			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+			}
 
-		// Forum is hidden and user cannot access
-		if ( bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
-			bbp_add_error( 'bbp_edit_topic_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum is private and user cannot access
+			if ( bbp_is_forum_private( $forum_id ) ) {
+				if ( !current_user_can( 'read_private_forums' ) ) {
+					bbp_add_error( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+				}
+
+			// Forum is hidden and user cannot access
+			} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
+				if ( !current_user_can( 'read_hidden_forums' ) ) {
+					bbp_add_error( 'bbp_edit_topic_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+				}
+			}
+		}
 	}
 
 	/** Topic Title ***********************************************************/
@@ -536,12 +557,12 @@ function bbp_edit_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
 
 	/** Topic Blacklist *******************************************************/
-	
+
 	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
 
 	/** Topic Status **********************************************************/
-	
+
 	// Maybe put into moderation
 	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 
@@ -960,7 +981,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 		// Topic was sticky, so restick in new forum
 		bbp_stick_topic( $topic_id );
 	}
-	
+
 	/** Topic Replies *********************************************************/
 
 	// Get the topics replies
@@ -1614,7 +1635,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	bbp_update_topic_last_reply_id   ( $source_topic->ID );
 	bbp_update_topic_last_active_id  ( $source_topic->ID );
 	bbp_update_topic_last_active_time( $source_topic->ID );
-	
+
 	/** Successful Split ******************************************************/
 
 	// Update counts, etc...
@@ -2755,7 +2776,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 			$topic['tax_input'] = array( bbp_get_topic_tag_tax_id() => '' );
 		}
 	}
-	
+
 	// Set post status to spam
 	$topic['post_status'] = bbp_get_spam_status_id();
 
@@ -2966,7 +2987,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 
 /**
  * Called before deleting a topic.
- * 
+ *
  * This function is supplemental to the actual topic deletion which is
  * handled by WordPress core API functions. It is used to clean up after
  * a topic that is being deleted.
@@ -3022,7 +3043,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * This function is supplemental to the actual topic being trashed which is
  * handled by WordPress core API functions. It is used to clean up after
  * a topic that is being trashed.
- * 
+ *
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
  * @uses do_action() Calls 'bbp_trash_topic' with the topic id
@@ -3353,7 +3374,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 /**
  * Redirect if unathorized user is attempting to edit a topic
- * 
+ *
  * @since bbPress (r3605)
  *
  * @uses bbp_is_topic_edit()
@@ -3377,7 +3398,7 @@ function bbp_check_topic_edit() {
 
 /**
  * Redirect if unathorized user is attempting to edit a topic tag
- * 
+ *
  * @since bbPress (r3605)
  *
  * @uses bbp_is_topic_tag_edit()
