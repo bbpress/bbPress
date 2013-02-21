@@ -94,14 +94,6 @@ add_filter( 'bbp_new_topic_pre_title',    'wp_filter_kses'  );
 add_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'  );
 add_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses'  );
 
-// Strip slashes for WordPress 3.6 and higher
-if ( function_exists( 'wp_slash' ) ) {
-	add_filter( 'bbp_new_reply_pre_title',  'stripslashes' );
-	add_filter( 'bbp_new_topic_pre_title',  'stripslashes' );
-	add_filter( 'bbp_edit_reply_pre_title', 'stripslashes' );
-	add_filter( 'bbp_edit_topic_pre_title', 'stripslashes' );
-}
-
 // Code filters on output (hooked in early for plugin compatibility)
 add_filter( 'bbp_get_reply_content', 'bbp_code_trick', 3 );
 add_filter( 'bbp_get_topic_content', 'bbp_code_trick', 3 );
@@ -125,14 +117,6 @@ add_filter( 'bbp_edit_reply_pre_content', 'balanceTags',    50 );
 add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow'    );
 add_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses'    );
 add_filter( 'bbp_edit_topic_pre_content', 'balanceTags',    50 );
-
-// Strip slashes for WordPress 3.6 and higher
-if ( function_exists( 'wp_slash' ) ) {
-	add_filter( 'bbp_new_reply_pre_content',  'stripslashes' );
-	add_filter( 'bbp_new_topic_pre_content',  'stripslashes' );
-	add_filter( 'bbp_edit_reply_pre_content', 'stripslashes' );
-	add_filter( 'bbp_edit_topic_pre_content', 'stripslashes' );
-}
 
 // No follow and stripslashes on user profile links
 add_filter( 'bbp_get_reply_author_link',      'wp_rel_nofollow' );
