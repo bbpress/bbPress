@@ -566,8 +566,8 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 
 		// August 4, 2012 at 2:37 pm
 		} else {
-			$date   = get_post_time( get_option( 'date_format' ), $gmt, $reply_id );
-			$time   = get_post_time( get_option( 'time_format' ), $gmt, $reply_id );
+			$date   = get_post_time( get_option( 'date_format' ), $gmt, $reply_id, true );
+			$time   = get_post_time( get_option( 'time_format' ), $gmt, $reply_id, true );
 			$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
 		}
 
