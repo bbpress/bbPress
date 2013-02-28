@@ -260,7 +260,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				<p class="description"><?php _e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
 			</div>
 
-			<?php if ( is_super_admin() ) : ?>
+			<?php if ( bbp_is_user_keymaster() ) : ?>
 				<div class="field-group">
 					<label for="bbp_group_forum_id"><?php _e( 'Group Forum:', 'bbpress' ); ?></label>
 					<?php
@@ -306,8 +306,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$forum_id     = 0;
 		$group_id     = bp_get_current_group_id();
 
-		// Super admins have the ability to reconfigure forums
-		if ( is_super_admin() ) {
+		// Keymasters have the ability to reconfigure forums
+		if ( bbp_is_user_keymaster() ) {
 			$forum_ids = ! empty( $_POST['bbp_group_forum_id'] ) ? (array) (int) $_POST['bbp_group_forum_id'] : array();
 
 		// Use the existing forum IDs
@@ -868,9 +868,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param bool $retval Are we allowed to view the reply form?
 	 * @uses bp_is_group() To determine if we're on a group page
-	 * @uses bp_loggedin_user_id() To determine if a user is logged in.
-	 * @uses bp_group_is_member() Is the current user a member of the group?
-	 * @uses bp_group_is_user_banned() Is the current user banned from the group?
+	 * @uses is_user_logged_in() To determine if a user is logged in.
+	 * @uses bbp_is_user_keymaster() Is the current user a keymaster?
+	 * @uses bbp_group_is_member() Is the current user a member of the group?
+	 * @uses bbp_group_is_user_banned() Is the current user banned from the group?
 	 *
 	 * @return bool
 	 */
@@ -885,8 +886,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( ! is_user_logged_in() ) {
 			return $retval;
 
-		// Admins can always pass go
-		} elseif ( is_super_admin() ) {
+		// Keymasters can always pass go
+		} elseif ( bbp_is_user_keymaster() ) {
 			$retval = true;
 
 		// Non-members cannot see forms

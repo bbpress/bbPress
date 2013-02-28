@@ -76,7 +76,7 @@ class BBP_Users_Admin {
 		$dynamic_roles = bbp_get_dynamic_roles();
 
 		// Only keymasters can set other keymasters
-		if ( ! current_user_can( 'keep_gate' ) )
+		if ( ! bbp_is_user_keymaster() )
 			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
@@ -132,7 +132,7 @@ class BBP_Users_Admin {
 		$dynamic_roles = bbp_get_dynamic_roles();
 
 		// Only keymasters can set other keymasters
-		if ( ! current_user_can( 'keep_gate' ) )
+		if ( ! bbp_is_user_keymaster() )
 			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 		<label class="screen-reader-text" for="bbp-new-role"><?php _e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
@@ -189,7 +189,7 @@ class BBP_Users_Admin {
 			$new_role  = sanitize_text_field( $_REQUEST['bbp-new-role'] );
 
 			// Only keymasters can set other keymasters
-			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! current_user_can( 'keep_gate' ) )
+			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! bbp_is_user_keymaster() )
 				continue;
 
 			// Set the new forums role

@@ -623,10 +623,10 @@ function bbp_forum_get_subforums( $args = '' ) {
 	$post_stati[] = bbp_get_public_status_id();
 
 	// Super admin get whitelisted post statuses
-	if ( is_super_admin() ) {
+	if ( bbp_is_user_keymaster() ) {
 		$post_stati = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
 
-	// Not a super admin, so check caps
+	// Not a keymaster, so check caps
 	} else {
 
 		// Check if user can read private forums

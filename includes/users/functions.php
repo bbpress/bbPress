@@ -858,7 +858,6 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @uses is_email() To check if the string is an email id or not
  * @uses wpdb::get_blog_prefix() To get the blog prefix
  * @uses is_network_admin() To check if the user is the network admin
- * @uses is_super_admin() To check if the user is super admin
  * @uses revoke_super_admin() To revoke super admin priviledges
  * @uses grant_super_admin() To grant super admin priviledges
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
@@ -1092,15 +1091,15 @@ function bbp_check_user_edit() {
  * @since bbPress (r2996)
  *
  * @uses is_user_logged_in() To check if user is logged in
- * @uses is_super_admin() To check if user is a super admin
+ * @uses bbp_is_user_keymaster() To check if user is a keymaster
  * @uses current_user_can() To check if the current user can spectate
  * @uses is_bbpress() To check if in a bbPress section of the site
  * @uses bbp_set_404() To set a 404 status
  */
 function bbp_forum_enforce_blocked() {
 
-	// Bail if not logged in or super admin
-	if ( ! is_user_logged_in() || is_super_admin() ) {
+	// Bail if not logged in or keymaster
+	if ( ! is_user_logged_in() || bbp_is_user_keymaster() ) {
 		return;
 	}
 

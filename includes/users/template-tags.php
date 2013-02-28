@@ -45,11 +45,11 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 			$bbp_user_id = $user_id;
 
 		// Currently viewing or editing a user
-		} elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) ) {
+		} elseif ( ( true === $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) ) {
 			$bbp_user_id = $bbp->displayed_user->ID;
 
 		// Maybe fallback on the current_user ID
-		} elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) ) {
+		} elseif ( ( true === $current_user_fallback ) && !empty( $bbp->current_user->ID ) ) {
 			$bbp_user_id = $bbp->current_user->ID;
 
 		// Failsafe
@@ -470,7 +470,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 	 *
 	 * @param int $user_id
 	 * @uses bbp_get_user_id() to verify the user ID
-	 * @uses is_super_admin() to check if user is a super admin
+	 * @uses bbp_is_user_keymaster() to check if user is a keymaster
 	 * @uses bbp_is_user_inactive() to check if user is inactive
 	 * @uses user_can() to check if user has special capabilities
 	 * @uses apply_filters() Calls 'bbp_get_user_display_role' with the
@@ -483,7 +483,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 		$user_id = bbp_get_user_id( $user_id, false, false );
 
 		// Capes earn Vinz Clortho status
-		if ( is_super_admin( $user_id ) ) {
+		if ( bbp_is_user_keymaster( $user_id ) ) {
 			$role = __( 'Key Master', 'bbpress' );
 
 		// Inactive
@@ -1057,7 +1057,7 @@ function bbp_edit_user_forums_role() {
 	$dynamic_roles = bbp_get_dynamic_roles();
 
 	// Only keymasters can set other keymasters
-	if ( ! current_user_can( 'keep_gate' ) )
+	if ( ! bbp_is_user_keymaster() )
 		unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
@@ -1473,7 +1473,7 @@ function bbp_author_link( $args = '' ) {
  * @uses bbp_parse_args()
  * @uses bbp_get_user_id()
  * @uses current_user_can()
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_is_forum_public()
  * @uses bbp_is_forum_private()
  * @uses bbp_is_forum_hidden()
@@ -1496,8 +1496,8 @@ function bbp_user_can_view_forum( $args = '' ) {
 	$forum_id = bbp_get_forum_id( $r['forum_id'] );
 	$retval   = false;
 
-	// User is a super admin
-	if ( is_super_admin() ) {
+	// User is a keymaster
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Forum is public, and user can read forums or is not logged in
@@ -1521,7 +1521,7 @@ function bbp_user_can_view_forum( $args = '' ) {
  *
  * @since bbPress (r3127)
  *
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses is_user_logged_in()
  * @uses bbp_allow_anonymous()
  * @uses bbp_is_user_active()
@@ -1535,8 +1535,8 @@ function bbp_current_user_can_publish_topics() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
@@ -1557,7 +1557,7 @@ function bbp_current_user_can_publish_topics() {
  *
  * @since bbPress (r3549)
  *
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_is_user_active()
  * @uses current_user_can()
  * @uses apply_filters()
@@ -1569,8 +1569,8 @@ function bbp_current_user_can_publish_forums() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// User is logged in
@@ -1587,7 +1587,7 @@ function bbp_current_user_can_publish_forums() {
  *
  * @since bbPress (r3127)
  *
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses is_user_logged_in()
  * @uses bbp_allow_anonymous()
  * @uses bbp_is_user_active()
@@ -1601,8 +1601,8 @@ function bbp_current_user_can_publish_replies() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
@@ -1619,6 +1619,12 @@ function bbp_current_user_can_publish_replies() {
 }
 
 /** Forms *********************************************************************/
+
+/**
+ * The following functions should be turned into mapped meta capabilities in a
+ * future version. They exist only to remove complex logistical capability
+ * checks from within template parts.
+ */
 
 /**
  * Get the forums the current user has the ability to see and post to
@@ -1674,6 +1680,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
  *
  * @since bbPress (r3549)
  *
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_is_forum_edit()
  * @uses current_user_can()
  * @uses bbp_get_forum_id()
@@ -1685,8 +1692,8 @@ function bbp_current_user_can_access_create_forum_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Looking at a single forum & forum is open
@@ -1707,6 +1714,7 @@ function bbp_current_user_can_access_create_forum_form() {
  *
  * @since bbPress (r3127)
  *
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_is_topic_edit()
  * @uses current_user_can()
  * @uses bbp_get_topic_id()
@@ -1720,8 +1728,8 @@ function bbp_current_user_can_access_create_topic_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Looking at a single forum & forum is open
@@ -1742,6 +1750,7 @@ function bbp_current_user_can_access_create_topic_form() {
  *
  * @since bbPress (r3127)
  *
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_is_topic_edit()
  * @uses current_user_can()
  * @uses bbp_get_topic_id()
@@ -1755,8 +1764,8 @@ function bbp_current_user_can_access_create_reply_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
+	// Always allow keymasters
+	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
 	// Looking at a single topic, topic is open, and forum is open

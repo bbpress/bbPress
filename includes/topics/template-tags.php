@@ -2890,11 +2890,11 @@ function bbp_topic_type_select( $args = '' ) {
 	// Used variables
 	$tab             = !empty( $r['tab'] ) ? ' tabindex="' . $r['tab'] . '"' : '';
 	$select_id       = esc_attr( $r['select_id'] );
-	$sticky_statuses = array (
+	$sticky_statuses = array_filter( array(
 		'unstick' => $r['unstick_text'],
 		'stick'   => $r['stick_text'],
 		'super'   => $r['super_text'],
-	); ?>
+	) ); ?>
 
 	<select name="<?php echo $select_id; ?>" id="<?php echo $select_id; ?>"<?php echo $tab; ?>>
 

@@ -363,7 +363,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
  * @uses bbp_get_displayed_user_field()
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses get_blogs_of_user()
  * @uses get_current_blog_id()
  * @uses bbp_get_topic_post_type()
@@ -386,8 +386,8 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Bail if user ID is super admin
-	if ( is_super_admin( $user_id ) )
+	// Bail if user ID is keymaster
+	if ( bbp_is_user_keymaster( $user_id ) )
 		return false;
 
 	// Arm the torpedos
@@ -452,7 +452,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
  * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
  * @uses bbp_get_displayed_user_field()
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses get_blogs_of_user()
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_reply_post_type()
@@ -474,8 +474,8 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Bail if user ID is super admin
-	if ( is_super_admin( $user_id ) )
+	// Bail if user ID is keymaster
+	if ( bbp_is_user_keymaster( $user_id ) )
 		return false;
 
 	// Arm the torpedos
@@ -627,6 +627,23 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 }
 
 /**
+ * Checks if user is a keymaster
+ *
+ * @since bbPress (r4783)
+ *
+ * @param int $user_id 
+ * @return bool True if keymaster, false if not
+ */
+function bbp_is_user_keymaster( $user_id = 0 ) {
+
+	// Default to current user ID if none is passed
+	$_user_id = (int) ! empty( $user_id ) ? $user_id : bbp_get_current_user_id();
+
+	// Filter and return
+	return (bool) apply_filters( 'bbp_is_user_keymaster', user_can( $user_id, 'keep_gate' ), $_user_id, $user_id );
+}
+
+/**
  * Does a user have a profile for the current site
  *
  * @since bbPress (r4362)
@@ -636,7 +653,7 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  *
  * @uses bbp_get_user_id() To verify the user ID
  * @uses get_userdata() To get the user's data
- * @uses is_super_admin() To determine if user can see inactive users
+ * @uses bbp_is_user_keymaster() To determine if user can see inactive users
  * @uses bbp_is_user_inactive() To check if user is spammer or deleted
  * @uses apply_filters() To allow override of this functions result
  *
@@ -657,8 +674,8 @@ function bbp_user_has_profile( $user_id = 0 ) {
 	if ( empty( $user ) ) {
 		$retval = false;
 
-	// User is inactive, and current user is not a super admin
-	} elseif ( ! is_super_admin() && bbp_is_user_inactive( $user->ID ) ) {
+	// User is inactive, and current user is not a keymaster
+	} elseif ( ! bbp_is_user_keymaster() && bbp_is_user_inactive( $user->ID ) ) {
 		$retval = false;
 	}
 

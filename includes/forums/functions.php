@@ -1535,7 +1535,7 @@ function bbp_get_private_forum_ids() {
  *
  * @param string Optional. The type of value to return. (string|array|meta_query)
  *
- * @uses is_super_admin()
+ * @uses bbp_is_user_keymaster()
  * @uses bbp_get_hidden_forum_ids()
  * @uses bbp_get_private_forum_ids()
  * @uses apply_filters()
@@ -1560,8 +1560,8 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 			break;
 	}
 	
-	// Exclude for everyone but super admins
-	if ( !is_super_admin() ) {
+	// Exclude for everyone but keymasters
+	if ( ! bbp_is_user_keymaster() ) {
 
 		// Private forums
 		if ( !current_user_can( 'read_private_forums' ) )
@@ -1794,6 +1794,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
  *
  * @uses current_user_can() To check if the current user can read private forums
  * @uses is_singular() To check if it's a singular page
+ * @uses bbp_is_user_keymaster() To check if user is a keymaster
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() TO get the reply post type
@@ -1805,7 +1806,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 function bbp_forum_enforce_hidden() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || is_super_admin() || current_user_can( 'read_hidden_forums' ) )
+	if ( !is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_hidden_forums' ) )
 		return;
 
 	global $wp_query;
@@ -1846,6 +1847,7 @@ function bbp_forum_enforce_hidden() {
  *
  * @uses current_user_can() To check if the current user can read private forums
  * @uses is_singular() To check if it's a singular page
+ * @uses bbp_is_user_keymaster() To check if user is a keymaster
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() TO get the reply post type
@@ -1857,7 +1859,7 @@ function bbp_forum_enforce_hidden() {
 function bbp_forum_enforce_private() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || is_super_admin() || current_user_can( 'read_private_forums' ) )
+	if ( !is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_private_forums' ) )
 		return;
 
 	global $wp_query;
