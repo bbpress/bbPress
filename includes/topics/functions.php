@@ -296,30 +296,6 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
-		/** Stickies **********************************************************/
-
-		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
-
-			// What's the haps?
-			switch ( $_POST['bbp_stick_topic'] ) {
-
-				// Sticky in this forum
-				case 'stick'   :
-					bbp_stick_topic( $topic_id );
-					break;
-
-				// Super sticky in all forums
-				case 'super'   :
-					bbp_stick_topic( $topic_id, true );
-					break;
-
-				// We can avoid this as it is a new topic
-				case 'unstick' :
-				default        :
-					break;
-			}
-		}
-
 		/** Trash Check *******************************************************/
 
 		// If the forum is trash, or the topic_status is switched to
@@ -346,6 +322,31 @@ function bbp_new_topic_handler( $action = '' ) {
 		/** Update counts, etc... *********************************************/
 
 		do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
+
+		/** Stickies **********************************************************/
+
+		// Sticky check after 'bbp_new_topic' action so forum ID meta is set
+		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
+
+			// What's the haps?
+			switch ( $_POST['bbp_stick_topic'] ) {
+
+				// Sticky in this forum
+				case 'stick'   :
+					bbp_stick_topic( $topic_id );
+					break;
+
+				// Super sticky in all forums
+				case 'super'   :
+					bbp_stick_topic( $topic_id, true );
+					break;
+
+				// We can avoid this as it is a new topic
+				case 'unstick' :
+				default        :
+					break;
+			}
+		}
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -638,50 +639,6 @@ function bbp_edit_topic_handler( $action = '' ) {
 		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
 	}
 
-	/** Stickies **************************************************************/
-
-	if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
-
-		// What's the dilly?
-		switch ( $_POST['bbp_stick_topic'] ) {
-
-			// Sticky in forum
-			case 'stick'   :
-				bbp_stick_topic( $topic_id );
-				break;
-
-			// Sticky in all forums
-			case 'super'   :
-				bbp_stick_topic( $topic_id, true );
-				break;
-
-			// Normal
-			case 'unstick' :
-			default        :
-				bbp_unstick_topic( $topic_id );
-				break;
-		}
-	}
-
-	/** Revisions *************************************************************/
-
-	// Revision Reason
-	if ( !empty( $_POST['bbp_topic_edit_reason'] ) )
-		$topic_edit_reason = esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) );
-
-	// Update revision log
-	if ( !empty( $_POST['bbp_log_topic_edit'] ) && ( 1 == $_POST['bbp_log_topic_edit'] ) )  {
-		$revision_id = wp_save_post_revision( $topic_id );
-		if ( ! empty( $revision_id ) ) {
-			bbp_update_topic_revision_log( array(
-				'topic_id'    => $topic_id,
-				'revision_id' => $revision_id,
-				'author_id'   => bbp_get_current_user_id(),
-				'reason'      => $topic_edit_reason
-			) );
-		}
-	}
-
 	/** No Errors *************************************************************/
 
 	if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
@@ -689,11 +646,59 @@ function bbp_edit_topic_handler( $action = '' ) {
 		// Update counts, etc...
 		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_author , true /* Is edit */ );
 
+		/** Revisions *********************************************************/
+
+		// Revision Reason
+		if ( !empty( $_POST['bbp_topic_edit_reason'] ) ) {
+			$topic_edit_reason = esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) );
+		}
+
+		// Update revision log
+		if ( !empty( $_POST['bbp_log_topic_edit'] ) && ( 1 == $_POST['bbp_log_topic_edit'] ) )  {
+			$revision_id = wp_save_post_revision( $topic_id );
+			if ( ! empty( $revision_id ) ) {
+				bbp_update_topic_revision_log( array(
+					'topic_id'    => $topic_id,
+					'revision_id' => $revision_id,
+					'author_id'   => bbp_get_current_user_id(),
+					'reason'      => $topic_edit_reason
+				) );
+			}
+		}
+
+		/** Move Topic ********************************************************/
+
 		// If the new forum id is not equal to the old forum id, run the
 		// bbp_move_topic action and pass the topic's forum id as the
 		// first arg and topic id as the second to update counts.
-		if ( $forum_id != $topic->post_parent )
+		if ( $forum_id != $topic->post_parent ) {
 			bbp_move_topic_handler( $topic_id, $topic->post_parent, $forum_id );
+		}
+
+		/** Stickies **********************************************************/
+
+		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
+
+			// What's the dilly?
+			switch ( $_POST['bbp_stick_topic'] ) {
+
+				// Sticky in forum
+				case 'stick'   :
+					bbp_stick_topic( $topic_id );
+					break;
+
+				// Sticky in all forums
+				case 'super'   :
+					bbp_stick_topic( $topic_id, true );
+					break;
+
+				// Normal
+				case 'unstick' :
+				default        :
+					bbp_unstick_topic( $topic_id );
+					break;
+			}
+		}
 
 		/** Additional Actions (After Save) ***********************************/
 
