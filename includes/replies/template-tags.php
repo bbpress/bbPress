@@ -515,12 +515,20 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		$length   = (int) $length;
 		$excerpt  = get_post_field( $reply_id, 'post_excerpt' );
 
-		if ( empty( $excerpt ) )
+		if ( empty( $excerpt ) ) {
 			$excerpt = bbp_get_reply_content( $reply_id );
+		}
 
 		$excerpt = trim ( strip_tags( $excerpt ) );
 
-		if ( !empty( $length ) && strlen( $excerpt ) > $length ) {
+		// Multibype support
+		if ( function_exists( 'mb_strlen' ) ) {
+			$excerpt_length = mb_strlen( $excerpt );
+		} else {
+			$excerpt_length = strlen( $excerpt );
+		}
+
+		if ( !empty( $length ) && ( $excerpt_length > $length ) ) {
 			$excerpt  = substr( $excerpt, 0, $length - 1 );
 			$excerpt .= '&hellip;';
 		}
