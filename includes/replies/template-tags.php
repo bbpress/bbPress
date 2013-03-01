@@ -521,7 +521,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 
 		$excerpt = trim ( strip_tags( $excerpt ) );
 
-		// Multibype support
+		// Multibyte support
 		if ( function_exists( 'mb_strlen' ) ) {
 			$excerpt_length = mb_strlen( $excerpt );
 		} else {
