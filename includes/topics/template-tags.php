@@ -2148,10 +2148,11 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
  * @since bbPress (r2667)
  *
  * @param int $topic_id Optional. Topic id
+ * @param array Extra classes you can pass when calling this function
  * @uses bbp_get_topic_class() To get the topic class
  */
-function bbp_topic_class( $topic_id = 0 ) {
-	echo bbp_get_topic_class( $topic_id );
+function bbp_topic_class( $topic_id = 0, $classes = array() ) {
+	echo bbp_get_topic_class( $topic_id, $classes );
 }
 	/**
 	 * Return the row class of a topic
@@ -2159,6 +2160,7 @@ function bbp_topic_class( $topic_id = 0 ) {
 	 * @since bbPress (r2667)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @param array Extra classes you can pass when calling this function
 	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
 	 * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
 	 * @uses bbp_get_topic_forum_id() To get the topic forum id
@@ -2167,11 +2169,11 @@ function bbp_topic_class( $topic_id = 0 ) {
 	 *                        and topic id
 	 * @return string Row class of a topic
 	 */
-	function bbp_get_topic_class( $topic_id = 0 ) {
+	function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
 		$bbp       = bbpress();
 		$topic_id  = bbp_get_topic_id( $topic_id );
 		$count     = isset( $bbp->topic_query->current_post ) ? $bbp->topic_query->current_post : 1;
-		$classes   = array();
+		$classes   = (array) $classes;
 		$classes[] = ( (int) $count % 2 )                    ? 'even'         : 'odd';
 		$classes[] = bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '';
 		$classes[] = bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '';
