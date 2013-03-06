@@ -292,7 +292,7 @@ class BBP_Forums_Admin {
 			return $forum_id;
 
 		// Bail if not a post request
-		if ( bbp_is_post_request() )
+		if ( ! bbp_is_post_request() )
 			return $forum_id;
 
 		// Nonce check
