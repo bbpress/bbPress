@@ -800,7 +800,10 @@ function bbp_forum_last_topic_title( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_topic_title( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		return apply_filters( 'bbp_get_forum_last_topic_title', bbp_get_topic_title( bbp_get_forum_last_topic_id( $forum_id ) ), $forum_id );
+		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
+		$title    = !empty( $topic_id ) ? bbp_get_topic_title( $topic_id ) : '';
+
+		return apply_filters( 'bbp_get_forum_last_topic_title', $title, $forum_id );
 	}
 
 /**
