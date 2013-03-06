@@ -293,7 +293,7 @@ class BBP_Replies_Admin {
 			return $reply_id;
 
 		// Bail if not a post request
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		if ( ! bbp_is_post_request() )
 			return $reply_id;
 
 		// Check action exists
@@ -458,7 +458,7 @@ class BBP_Replies_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a reply toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
 			$success   = false;                      // Flag
@@ -520,7 +520,7 @@ class BBP_Replies_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a reply toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
 			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
 			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?

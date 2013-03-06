@@ -294,7 +294,7 @@ class BBP_Topics_Admin {
 			return $topic_id;
 
 		// Bail if not a post request
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		if ( ! bbp_is_post_request() )
 			return $topic_id;
 
 		// Nonce check
@@ -484,7 +484,7 @@ class BBP_Topics_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a topic toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 			$success   = false;                      // Flag
@@ -565,7 +565,7 @@ class BBP_Topics_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a topic toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?

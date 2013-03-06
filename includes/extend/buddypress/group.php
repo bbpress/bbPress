@@ -293,7 +293,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function edit_screen_save() {
 
 		// Bail if not a POST action
-		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		if ( ! bbp_is_post_request() )
 			return;
 
 		// Nonce check

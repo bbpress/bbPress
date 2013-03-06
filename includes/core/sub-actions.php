@@ -334,10 +334,10 @@ function bbp_after_setup_theme() {
 function bbp_post_request() {
 
 	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+	if ( ! bbp_is_post_request() )
 		return;
 
-	// Bail if action is not bbp-new-reply
+	// Bail if no action
 	if ( empty( $_POST['action'] ) )
 		return;
 
@@ -353,10 +353,10 @@ function bbp_post_request() {
 function bbp_get_request() {
 
 	// Bail if not a POST action
-	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+	if ( ! bbp_is_get_request() )
 		return;
 
-	// Bail if action is not bbp-new-reply
+	// Bail if no action
 	if ( empty( $_GET['action'] ) )
 		return;
 

@@ -2872,7 +2872,7 @@ function bbp_topic_type_select( $args = '' ) {
 		$topic_id = bbp_get_topic_id( $r['topic_id'] );
 
 		// Post value is passed
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[ $r['select_id'] ] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$sticky_current = $_POST[ $r['select_id'] ];
 
 		// Topic is super sticky
@@ -2888,7 +2888,7 @@ function bbp_topic_type_select( $args = '' ) {
 	} else {
 
 		// Post value is passed
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[ $r['select_id'] ] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$sticky_current = $_POST[ $r['select_id'] ];
 
 		// Default to unstick
@@ -3336,7 +3336,7 @@ function bbp_form_topic_title() {
 	function bbp_get_form_topic_title() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_title'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_title'] ) ) {
 			$topic_title = $_POST['bbp_topic_title'];
 
 		// Get edit data
@@ -3373,7 +3373,7 @@ function bbp_form_topic_content() {
 	function bbp_get_form_topic_content() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_content'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_content'] ) ) {
 			$topic_content = $_POST['bbp_topic_content'];
 
 		// Get edit data
@@ -3420,7 +3420,7 @@ function bbp_form_topic_tags() {
 	function bbp_get_form_topic_tags() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_tags'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_tags'] ) ) {
 			$topic_tags = $_POST['bbp_topic_tags'];
 
 		// Get edit data
@@ -3503,7 +3503,7 @@ function bbp_form_topic_forum() {
 	function bbp_get_form_topic_forum() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_id'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_id'] ) ) {
 			$topic_forum = (int) $_POST['bbp_forum_id'];
 
 		// Get edit data
@@ -3543,7 +3543,7 @@ function bbp_form_topic_subscribed() {
 	function bbp_get_form_topic_subscribed() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_subscription'] ) ) {
 			$topic_subscribed = (bool) $_POST['bbp_topic_subscription'];
 
 		// Get edit data
@@ -3598,7 +3598,7 @@ function bbp_form_topic_log_edit() {
 	function bbp_get_form_topic_log_edit() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_topic_edit'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_log_topic_edit'] ) ) {
 			$topic_revision = (int) $_POST['bbp_log_topic_edit'];
 
 		// No data
@@ -3634,7 +3634,7 @@ function bbp_form_topic_edit_reason() {
 	function bbp_get_form_topic_edit_reason() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_edit_reason'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_edit_reason'] ) ) {
 			$topic_edit_reason = $_POST['bbp_topic_edit_reason'];
 
 		// No data

@@ -79,24 +79,25 @@ function bbp_admin_repair() {
  */
 function bbp_admin_repair_handler() {
 
-	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
-		check_admin_referer( 'bbpress-do-counts' );
+	if ( ! bbp_is_post_request() )
+		return;
 
-		// Stores messages
-		$messages = array();
+	check_admin_referer( 'bbpress-do-counts' );
 
-		wp_cache_flush();
+	// Stores messages
+	$messages = array();
 
-		foreach ( (array) bbp_admin_repair_list() as $item ) {
-			if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) ) {
-				$messages[] = call_user_func( $item[2] );
-			}
+	wp_cache_flush();
+
+	foreach ( (array) bbp_admin_repair_list() as $item ) {
+		if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) ) {
+			$messages[] = call_user_func( $item[2] );
 		}
+	}
 
-		if ( count( $messages ) ) {
-			foreach ( $messages as $message ) {
-				bbp_admin_tools_feedback( $message[1] );
-			}
+	if ( count( $messages ) ) {
+		foreach ( $messages as $message ) {
+			bbp_admin_tools_feedback( $message[1] );
 		}
 	}
 }
@@ -1143,87 +1144,94 @@ function bbp_admin_reset() {
  * @uses wp_cache_flush() To flush the cache
  */
 function bbp_admin_reset_handler() {
-	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['bbpress-are-you-sure'] ) ) {
-		check_admin_referer( 'bbpress-reset' );
 
-		global $wpdb;
+	// Bail if not resetting
+	if ( ! bbp_is_post_request() || empty( $_POST['bbpress-are-you-sure'] ) )
+		return;
 
-		// Stores messages
-		$messages = array();
-		$failed   = __( 'Failed',   'bbpress' );
-		$success  = __( 'Success!', 'bbpress' );
+	// Only keymasters can proceed
+	if ( ! bbp_is_user_keymaster() )
+		return;
 
-		// Flush the cache; things are about to get ugly.
-		wp_cache_flush();
+	check_admin_referer( 'bbpress-reset' );
 
-		/** Posts *************************************************************/
+	global $wpdb;
 
-		$statement  = __( 'Deleting Posts&hellip; %s', 'bbpress' );
-		$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')", OBJECT_K );
-		$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')";
-		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
-		$messages[] = sprintf( $statement, $result );
+	// Stores messages
+	$messages = array();
+	$failed   = __( 'Failed',   'bbpress' );
+	$success  = __( 'Success!', 'bbpress' );
+
+	// Flush the cache; things are about to get ugly.
+	wp_cache_flush();
+
+	/** Posts *************************************************************/
+
+	$statement  = __( 'Deleting Posts&hellip; %s', 'bbpress' );
+	$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')", OBJECT_K );
+	$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')";
+	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+	$messages[] = sprintf( $statement, $result );
 
 
-		/** Post Meta *********************************************************/
+	/** Post Meta *********************************************************/
 
-		if ( !empty( $sql_posts ) ) {
-			foreach( $sql_posts as $key => $value ) {
-				$sql_meta[] = $key;
-			}
-			$statement  = __( 'Deleting Post Meta&hellip; %s', 'bbpress' );
-			$sql_meta   = implode( "', '", $sql_meta );
-			$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `post_id` IN ('{$sql_meta}');";
-			$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
-			$messages[] = sprintf( $statement, $result );
+	if ( !empty( $sql_posts ) ) {
+		foreach( $sql_posts as $key => $value ) {
+			$sql_meta[] = $key;
 		}
-
-		/** Topic Tags ********************************************************/
-
-		$statement  = __( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
-		$sql_delete = "DELETE a,b,c FROM `{$wpdb->terms}` AS a LEFT JOIN `{$wpdb->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$wpdb->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag';";
+		$statement  = __( 'Deleting Post Meta&hellip; %s', 'bbpress' );
+		$sql_meta   = implode( "', '", $sql_meta );
+		$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `post_id` IN ('{$sql_meta}');";
 		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
+	}
 
-		/** User Meta *********************************************************/
+	/** Topic Tags ********************************************************/
 
-		$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
-		$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
-		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
-		$messages[] = sprintf( $statement, $result );
+	$statement  = __( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
+	$sql_delete = "DELETE a,b,c FROM `{$wpdb->terms}` AS a LEFT JOIN `{$wpdb->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$wpdb->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag';";
+	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+	$messages[] = sprintf( $statement, $result );
 
-		/** Converter *********************************************************/
+	/** User Meta *********************************************************/
 
-		$statement  = __( 'Deleting Conversion Table&hellip; %s', 'bbpress' );
-		$table_name = $wpdb->prefix . 'bbp_converter_translator';
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
-			$wpdb->query( "DROP TABLE {$table_name}" );
-			$result = $success;
-		} else {
-			$result = $failed;
-		}
-		$messages[] = sprintf( $statement, $result );
+	$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
+	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+	$messages[] = sprintf( $statement, $result );
 
-		/** Options ***********************************************************/
+	/** Converter *********************************************************/
 
-		$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );
-		bbp_delete_options();
-		$messages[] = sprintf( $statement, $success );
+	$statement  = __( 'Deleting Conversion Table&hellip; %s', 'bbpress' );
+	$table_name = $wpdb->prefix . 'bbp_converter_translator';
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
+		$wpdb->query( "DROP TABLE {$table_name}" );
+		$result = $success;
+	} else {
+		$result = $failed;
+	}
+	$messages[] = sprintf( $statement, $result );
 
-		/** Roles *************************************************************/
+	/** Options ***********************************************************/
 
-		$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
-		remove_role( bbp_get_moderator_role() );
-		remove_role( bbp_get_participant_role() );
-		bbp_remove_caps();
-		$messages[] = sprintf( $statement, $success );
+	$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );
+	bbp_delete_options();
+	$messages[] = sprintf( $statement, $success );
 
-		/** Output ************************************************************/
+	/** Roles *************************************************************/
 
-		if ( count( $messages ) ) {
-			foreach ( $messages as $message ) {
-				bbp_admin_tools_feedback( $message );
-			}
+	$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
+	remove_role( bbp_get_moderator_role() );
+	remove_role( bbp_get_participant_role() );
+	bbp_remove_caps();
+	$messages[] = sprintf( $statement, $success );
+
+	/** Output ************************************************************/
+
+	if ( count( $messages ) ) {
+		foreach ( $messages as $message ) {
+			bbp_admin_tools_feedback( $message );
 		}
 	}
 }

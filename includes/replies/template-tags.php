@@ -2089,7 +2089,7 @@ function bbp_form_reply_content() {
 	function bbp_get_form_reply_content() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_content'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_reply_content'] ) ) {
 			$reply_content = $_POST['bbp_reply_content'];
 
 		// Get edit data
@@ -2126,7 +2126,7 @@ function bbp_form_reply_log_edit() {
 	function bbp_get_form_reply_log_edit() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_reply_edit'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_log_reply_edit'] ) ) {
 			$reply_revision = $_POST['bbp_log_reply_edit'];
 
 		// No data
@@ -2159,7 +2159,7 @@ function bbp_form_reply_edit_reason() {
 	function bbp_get_form_reply_edit_reason() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_edit_reason'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_reply_edit_reason'] ) ) {
 			$reply_edit_reason = $_POST['bbp_reply_edit_reason'];
 
 		// No data

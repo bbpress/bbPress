@@ -516,3 +516,26 @@ function bbp_get_view_rewrite_id() {
 function bbp_delete_rewrite_rules() {
 	delete_option( 'rewrite_rules' );
 }
+
+/** Requests ******************************************************************/
+
+/**
+ * Return true|false if this is a POST request
+ *
+ * @since bbPress (r4790)
+ * @return bool
+ */
+function bbp_is_post_request() {
+	return (bool) ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) );
+}
+
+/**
+ * Return true|false if this is a GET request
+ *
+ * @since bbPress (r4790)
+ * @return bool
+ */
+function bbp_is_get_request() {
+	return (bool) ( 'GET' == strtoupper( $_SERVER['REQUEST_METHOD'] ) );
+}
+

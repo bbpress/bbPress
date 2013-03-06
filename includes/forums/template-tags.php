@@ -1953,7 +1953,7 @@ function bbp_form_forum_title() {
 	function bbp_get_form_forum_title() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_title'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_title'] ) ) {
 			$forum_title = $_POST['bbp_forum_title'];
 
 		// Get edit data
@@ -1990,7 +1990,7 @@ function bbp_form_forum_content() {
 	function bbp_get_form_forum_content() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_content'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_content'] ) ) {
 			$forum_content = $_POST['bbp_forum_content'];
 
 		// Get edit data
@@ -2028,7 +2028,7 @@ function bbp_form_forum_parent() {
 	function bbp_get_form_forum_parent() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_id'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_id'] ) ) {
 			$forum_parent = $_POST['bbp_forum_id'];
 
 		// Get edit data
@@ -2066,7 +2066,7 @@ function bbp_form_forum_type() {
 	function bbp_get_form_forum_type() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_type'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_type'] ) ) {
 			$forum_type = $_POST['bbp_forum_type'];
 
 		// Get edit data
@@ -2104,7 +2104,7 @@ function bbp_form_forum_visibility() {
 	function bbp_get_form_forum_visibility() {
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_visibility'] ) ) {
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_visibility'] ) ) {
 			$forum_visibility = $_POST['bbp_forum_visibility'];
 
 		// Get edit data
