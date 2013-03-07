@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: bbPress - Statistics
+ * Statistics Content Part
  *
  * @package bbPress
  * @subpackage Theme
