@@ -482,28 +482,22 @@ function bbp_user_display_role( $user_id = 0 ) {
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id, false, false );
 
-		// Capes earn Vinz Clortho status
-		if ( bbp_is_user_keymaster( $user_id ) ) {
-			$role = __( 'Key Master', 'bbpress' );
-
-		// Inactive
-		} elseif ( bbp_is_user_inactive() ) {
-			$role = __( 'Inactive', 'bbpress' );
-
 		// User is not registered
-		} elseif ( empty( $user_id ) ) {
+		if ( empty( $user_id ) ) {
 			$role = __( 'Guest', 'bbpress' );
 
-		// Moderator
-		} elseif ( user_can( $user_id, 'moderate' ) ) {
-			$role = __( 'Moderator', 'bbpress' );
+		// User is not active
+		} elseif ( bbp_is_user_inactive( $user_id ) ) {
+			$role = __( 'Inactive', 'bbpress' );
 
-		// Participant
-		} elseif ( user_can( $user_id, 'participate' ) ) {
-			$role = __( 'Participant', 'bbpress' );
-
-		// Anyone else
+		// User have a role
 		} else {
+			$role_id = bbp_get_user_role( $user_id );
+			$role    = bbp_get_dynamic_role_name( $role_id );
+		}
+
+		// No role found so default to generic "Member"
+		if ( empty( $role ) ) {
 			$role = __( 'Member', 'bbpress' );
 		}
 

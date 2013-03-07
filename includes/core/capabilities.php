@@ -440,6 +440,21 @@ function bbp_get_dynamic_roles() {
 }
 
 /**
+ * Gets a translated role name from a role ID
+ *
+ * @since bbPress (r4792)
+ *
+ * @param string $role_id
+ * @return string Translated role name
+ */
+function bbp_get_dynamic_role_name( $role_id = '' ) {
+	$roles = bbp_get_dynamic_roles();
+	$role  = isset( $roles[$role_id] ) ? $roles[$role_id]['name'] : '';
+
+	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
+}
+
+/**
  * Removes the bbPress roles from the editable roles array
  *
  * This used to use array_diff_assoc() but it randomly broke before 2.2 release.
