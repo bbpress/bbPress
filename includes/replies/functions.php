@@ -1716,7 +1716,7 @@ function bbp_reply_content_autoembed() {
 /** Filters *******************************************************************/
 
 /**
- * Used by bbp_has_replies() to add the topic to the posts
+ * Used by bbp_has_replies() to add the lead topic post to the posts loop
  *
  * This function filters the 'post_where' of the WP_Query, and changes the query
  * to include both the topic AND its children in the same loop.
@@ -1726,7 +1726,11 @@ function bbp_reply_content_autoembed() {
  * @param string $where
  * @return string
  */
-function _bbp_has_replies_where( $where, $query ) {
+function _bbp_has_replies_where( $where = '', $query = false ) {
+
+	// Bail if the sky is falling
+	if ( empty( $where ) || empty( $query ) )
+		return $where;
 
 	// Bail if no post_parent to replace
 	if ( ! is_numeric( $query->get( 'post_parent' ) ) )
@@ -1736,7 +1740,7 @@ function _bbp_has_replies_where( $where, $query ) {
 	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) )
 		return $where;
 
-	// Bail if meta query
+	// Bail if meta query (cannot FORCE INDEX when join'ing postmeta)
 	if ( $query->get( 'meta_key' ) || $query->get( 'meta_query' ) )
 		return $where;
 
@@ -1749,18 +1753,26 @@ function _bbp_has_replies_where( $where, $query ) {
 	// Table name for posts
 	$table_name = $wpdb->prefix . 'posts';
 
-	// Get the topic ID
-	$topic_id   = bbp_get_topic_id();
+	// Get the topic ID from the post_parent, set in bbp_has_replies()
+	$topic_id   = bbp_get_topic_id( $query->get( 'post_parent' ) );
 
-	// The text we're searching for
-	$search     = "WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}";
+	// The texts to search for
+	$search     = array(
+		"FROM {$table_name} " ,
+		"WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}"
+	);
 
-	// The text to replace it with
-	$replace    = "FORCE INDEX (PRIMARY, post_parent) WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})";
+	// The texts to replace them with
+	$replace     = array(
+		$search[0] . "FORCE INDEX (PRIMARY, post_parent) " ,
+		"WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})"
+	);
 
 	// Try to replace the search text with the replacement
-	if ( $new_where = str_replace( $search, $replace, $where ) )
+	$new_where = str_replace( $search, $replace, $where );
+	if ( ! empty( $new_where ) ) {
 		$where = $new_where;
+	}
 
 	return $where;
 }

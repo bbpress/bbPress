@@ -1624,71 +1624,70 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 
 	// Bail if all forums are explicitly allowed
-	if ( true === apply_filters( 'bbp_include_all_forums', $posts_query ) )
+	if ( true === apply_filters( 'bbp_include_all_forums', false, $posts_query ) ) {
 		return;
+	}
 
 	// Bail if $posts_query is not an object or of incorrect class
-	if ( !is_object( $posts_query ) || !is_a( $posts_query, 'WP_Query' ) )
+	if ( !is_object( $posts_query ) || !is_a( $posts_query, 'WP_Query' ) ) {
 		return;
+	}
 
 	// Bail if filters are suppressed on this query
-	if ( true == $posts_query->get( 'suppress_filters' ) )
+	if ( true == $posts_query->get( 'suppress_filters' ) ) {
 		return;
+	}
 
-	// Only exclude forums on bbPress queries
-	switch ( $posts_query->get( 'post_type' ) ) {
+	// Get query post types array .
+	$post_types = (array) $posts_query->get( 'post_type' );
 
-		// Forums
-		case bbp_get_forum_post_type() :
+	// Forums
+	if ( in_array( bbp_get_forum_post_type() , $post_types ) ) {
 
-			// Prevent accidental wp-admin post_row override
-			if ( is_admin() && isset( $_REQUEST['post_status'] ) )
-				break;
+		// Prevent accidental wp-admin post_row override
+		if ( is_admin() && isset( $_REQUEST['post_status'] ) ) {
+			return;
+		}
 
-			// Define local variable
-			$status = array();
+		// Define local variable
+		$status = array();
 
-			// All users can see published forums
-			$status[] = bbp_get_public_status_id();
+		// All users can see published forums
+		$status[] = bbp_get_public_status_id();
 
-			// Add bbp_get_private_status_id() if user is capable
-			if ( current_user_can( 'read_private_forums' ) ) {
-				$status[] = bbp_get_private_status_id();
-			}
+		// Add bbp_get_private_status_id() if user is capable
+		if ( current_user_can( 'read_private_forums' ) ) {
+			$status[] = bbp_get_private_status_id();
+		}
 
-			// Add bbp_get_hidden_status_id() if user is capable
-			if ( current_user_can( 'read_hidden_forums' ) ) {
-				$status[] = bbp_get_hidden_status_id();
-			}
+		// Add bbp_get_hidden_status_id() if user is capable
+		if ( current_user_can( 'read_hidden_forums' ) ) {
+			$status[] = bbp_get_hidden_status_id();
+		}
 
-			// Implode and add the statuses
-			$posts_query->set( 'post_status', implode( ',', $status ) );
+		// Implode and add the statuses
+		$posts_query->set( 'post_status', implode( ',', $status ) );
+	}
 
-			break;
+	// Topics Or Replies
+	if ( array_intersect( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), $post_types ) ) {
 
-		// Topics
-		case bbp_get_topic_post_type() :
+		// Get forums to exclude
+		$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
 
-		// Replies
-		case bbp_get_reply_post_type() :
+		// Bail if no forums to exclude
+		if ( ! array_filter( $forum_ids ) ) {
+			return;
+		}
 
-			// Get forums to exclude
-			$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
+		// Get any existing meta queries
+		$meta_query   = $posts_query->get( 'meta_query' );
 
-			// Bail if no forums to exclude
-			if ( empty( $forum_ids ) )
-				return;
+		// Add our meta query to existing
+		$meta_query[] = $forum_ids;
 
-			// Get any existing meta queries
-			$meta_query   = $posts_query->get( 'meta_query' );
-
-			// Add our meta query to existing
-			$meta_query[] = $forum_ids;
-
-			// Set the meta_query var
-			$posts_query->set( 'meta_query', $meta_query );
-
-			break;
+		// Set the meta_query var
+		$posts_query->set( 'meta_query', $meta_query );
 	}
 }
 
