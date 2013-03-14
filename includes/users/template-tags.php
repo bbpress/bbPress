@@ -574,7 +574,7 @@ function bbp_author_ip( $args = '' ) {
 
 		// Used as post id
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
-		
+
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'post_id' => $post_id,
@@ -724,7 +724,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 			return false;
 		}
 
-		// Decine which link to show
+		// Decide which link to show
 		$is_fav = bbp_is_user_favorite( $user_id, $topic_id );
 		if ( !empty( $is_fav ) ) {
 			$text       = $r['favorited'];
@@ -882,7 +882,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 			return false;
 		}
 
-		// Decine which link to show
+		// Decide which link to show
 		$is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id );
 		if ( !empty( $is_subscribed ) ) {
 			$text       = $r['unsubscribe'];
