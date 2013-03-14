@@ -734,7 +734,7 @@ final class bbPress {
 				$wp_post_statuses['trash']->protected = true;
 
 			// User cannot view trash so set internal to true
-			} elseif ( !current_user_can( 'view_trash' ) ) {
+			} else {
 				$wp_post_statuses['trash']->internal = true;
 			}
 		}
