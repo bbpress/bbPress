@@ -111,7 +111,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-new-reply' ) ) {
-		bbp_add_error( 'bbp_rew_reply_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
@@ -1229,15 +1229,15 @@ function bbp_move_reply_handler( $action = '' ) {
 			'post_date'     => $destination_post_date,
 			'post_date_gmt' => get_gmt_from_date( $destination_post_date )
 		);
-	
+
 		// Update destination topic
 		wp_update_post( $postarr );
 	}
-	
+
 	// Set the last reply ID and freshness to the move_reply
 	$last_reply_id = $move_reply->ID;
 	$freshness     = $move_reply->post_date;
-	
+
 	// It is a new topic and we need to set some default metas to make
 	// the topic display in bbp_has_topics() list
 	if ( 'topic' == $move_option ) {
@@ -1256,7 +1256,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	bbp_update_topic_last_reply_id   ( $source_topic->ID );
 	bbp_update_topic_last_active_id  ( $source_topic->ID );
 	bbp_update_topic_last_active_time( $source_topic->ID );
-	
+
 	/** Successful Move ******************************************************/
 
 	// Update counts, etc...
