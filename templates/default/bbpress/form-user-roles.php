@@ -1,3 +1,14 @@
+<?php
+
+/**
+ * User Roles Profile Edit Part
+ *
+ * @package bbPress
+ * @subpackage Theme
+ */
+
+?>
+
 <div>
 	<label for="role"><?php _e( 'Blog Role', 'bbpress' ) ?></label>
 
