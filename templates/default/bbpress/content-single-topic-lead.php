@@ -92,11 +92,11 @@
 		<div class="bbp-topic-content">
 
 			<?php _e( 'Topic', 'bbpress' ); ?>
-			
+
 		</div><!-- .bbp-topic-content -->
 
 	</li>
 
-</ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
+</ul><!-- #bbp-topic-<?php bbp_topic_id(); ?>-lead -->
 
 <?php do_action( 'bbp_template_after_lead_topic' ); ?>
