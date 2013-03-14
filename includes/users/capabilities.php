@@ -640,7 +640,7 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
 	$_user_id = (int) ! empty( $user_id ) ? $user_id : bbp_get_current_user_id();
 
 	// Filter and return
-	return (bool) apply_filters( 'bbp_is_user_keymaster', user_can( $user_id, 'keep_gate' ), $_user_id, $user_id );
+	return (bool) apply_filters( 'bbp_is_user_keymaster', user_can( $_user_id, 'keep_gate' ), $_user_id, $user_id );
 }
 
 /**
