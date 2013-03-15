@@ -47,7 +47,6 @@ function bbp_reply_post_type() {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_is_query_name() To check if we are getting replies for a widget
  * @uses get_option() To get the replies per page option
  * @uses bbp_get_paged() To get the current page value
  * @uses current_user_can() To check if the current user is capable of editing

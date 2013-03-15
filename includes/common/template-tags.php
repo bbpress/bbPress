@@ -570,7 +570,6 @@ function bbp_is_subscriptions() {
  *
  * @since bbPress (r2688)
  *
- * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created() {
@@ -592,7 +591,6 @@ function bbp_is_topics_created() {
  *
  * @since bbPress (r4225)
  *
- * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_replies_created() {
