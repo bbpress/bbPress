@@ -3,6 +3,10 @@
 /**
  * bbPress BuddyPress Group Extension Class
  *
+ * This file is responsible for connecting bbPress to BuddyPress's Groups
+ * Component. It's a great example of how to perform both simple and advanced
+ * techniques to manipulate bbPress's default output.
+ *
  * @package bbPress
  * @subpackage BuddyPress
  * @todo maybe move to BuddyPress Forums once bbPress 1.1 can be removed
@@ -627,6 +631,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				case false  :
 				case 'page' :
 
+					// Strip the super stickies from topic query
+					add_filter( 'bbp_get_super_stickies',                 array( $this, 'no_super_stickies'  ), 10, 1 );
+
+					// Unset the super sticky option on topic form
+					add_filter( 'bbp_after_topic_type_select_parse_args', array( $this, 'unset_super_sticky' ), 10, 1 );
+
 					// Query forums and show them if they exist
 					if ( bbp_forums() ) :
 
@@ -652,10 +662,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 				case $this->topic_slug :
 
+					// hide the 'to front' admin links
+					add_filter( 'bbp_get_topic_stick_link', array( $this, 'hide_super_sticky_admin_link' ), 10, 2 );
+
 					// Get the topic
 					bbp_has_topics( array(
 						'name'           => bp_action_variable( $offset + 1 ),
-						'posts_per_page' => 1
+						'posts_per_page' => 1,
+						'show_stickies'  => false
 					) );
 
 					// If no topic, 404
@@ -675,6 +689,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					// Topic edit
 					if ( bp_action_variable( $offset + 2 ) == bbp_get_edit_rewrite_id() ) :
+
+						// Unset the super sticky link on edit topic template
+						add_filter( 'bbp_after_topic_type_select_parse_args', array( $this, 'unset_super_sticky' ), 10, 1 );
 
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
@@ -762,6 +779,51 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Allow actions immediately after group forum output
 		do_action( 'bbp_after_group_forum_display' );
+	}
+
+	/** Super sticky filters ***************************************************/
+
+	/**
+	 * Strip super stickies from the topic query
+	 *
+	 * @since bbPress (r4810)
+	 * @access private
+	 * @param array $super the super sticky post ID's
+	 * @return array (empty)
+	 */
+	public function no_super_stickies( $super = array() ) {
+		$super = array();
+		return $super;
+	}
+
+	/**
+	 * Unset the type super sticky from topic type
+	 *
+	 * @since bbPress (r4810)
+	 * @access private
+	 * @param array $args
+	 * @return array $args without the to-front link
+	 */
+	public function unset_super_sticky( $args = array() ) {
+		unset( $args['super_text'] );
+		return $args;
+	}
+
+	/**
+	 * Ugly preg_replace to hide the to front admin link
+	 *
+	 * @since bbPress (r4810)
+	 * @access private
+	 * @param string $retval
+	 * @param array $args
+	 * @return string $retval without the to-front link
+	 */
+	public function hide_super_sticky_admin_link( $retval = '', $args = array() ) {
+		if ( strpos( $retval, '(' ) ) {
+			$retval = preg_replace( '/(\(.+?)+(\))/i', '', $retval );
+		}
+
+		return $retval;
 	}
 
 	/** Redirect Helpers ******************************************************/
