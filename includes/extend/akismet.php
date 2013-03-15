@@ -84,7 +84,7 @@ class BBP_Akismet {
 	 * @uses bbp_get_reply_url() To get the permalink of the reply
 	 * @uses bbp_current_author_ip() To get the IP address of the current user
 	 * @uses BBP_Akismet::maybe_spam() To check if post is spam
-	 * @uses akismet_get_user_roles() To get the role(s) of the current user
+	 * @uses BBP_Akismet::get_user_roles() To get the role(s) of the current user
 	 * @uses do_action() To call the 'bbp_akismet_spam_caught' hook
 	 * @uses add_filter() To call the 'bbp_new_reply_pre_set_terms' hook
 	 *
@@ -148,7 +148,7 @@ class BBP_Akismet {
 			'user_agent'           => $_SERVER['HTTP_USER_AGENT'],
 			'user_ID'              => $post_data['post_author'],
 			'user_ip'              => bbp_current_author_ip(),
-			'user_role'            => akismet_get_user_roles( $post_data['post_author'] ),
+			'user_role'            => $this->get_user_roles( $post_data['post_author'] ),
 		);
 
 		// Check the post_data
@@ -208,7 +208,7 @@ class BBP_Akismet {
 	 * @uses get_post_meta() To get the post meta
 	 * @uses bbp_get_user_profile_url() To get a user's profile url
 	 * @uses get_permalink() To get the permalink of the post_parent
-	 * @uses akismet_get_user_roles() To get the role(s) of the post_author
+	 * @uses BBP_Akismet::get_user_roles() To get the role(s) of the post_author
 	 * @uses bbp_current_author_ip() To get the IP address of the current user
 	 * @uses BBP_Akismet::maybe_spam() To submit the post as ham or spam
 	 * @uses update_post_meta() To update the post meta with some Akismet data
@@ -271,7 +271,7 @@ class BBP_Akismet {
 			'permalink'            => get_permalink( $post_id ),
 			'user_ID'              => $_post->post_author,
 			'user_ip'              => get_post_meta( $post_id, '_bbp_author_ip', true ),
-			'user_role'            => akismet_get_user_roles( $_post->post_author ),
+			'user_role'            => $this->get_user_roles( $_post->post_author ),
 		);
 
 		// Use the original version stored in post_meta if available
@@ -681,6 +681,38 @@ class BBP_Akismet {
 			// Return the response ('' if error/empty)
 			return $response;
 		}
+	}
+
+	/**
+	 * Return a user's roles on this site (including super_admin)
+	 *
+	 * @since bbPress (r4812)
+	 *
+	 * @param type $user_id
+	 * @return boolean
+	 */
+	private function get_user_roles( $user_id = 0 ) {
+
+		// Default return value
+		$roles = array();
+
+		// Bail if cannot query the user
+		if ( ! class_exists( 'WP_User' ) || empty( $user_id ) ) {
+			return false;
+		}
+
+		// User ID
+		$user = new WP_User( $user_id );
+		if ( isset( $user->roles ) ) {
+			$roles = (array) $user->roles;
+		}
+
+		// Super admin
+		if ( is_multisite() && is_super_admin( $user_id ) ) {
+			$roles[] = 'super_admin';
+		}
+
+		return implode( ',', $roles );
 	}
 }
 endif;
