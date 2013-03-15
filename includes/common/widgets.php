@@ -476,7 +476,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
-			'title' => ''
+			'title' => __( 'Search Forums', 'bbpress' )
 		), 'search_widget_settings' );
 	}
 }
@@ -554,8 +554,9 @@ class BBP_Forums_Widget extends WP_Widget {
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( array(
-			'post_parent'    => $settings['parent_forum'],
 			'post_type'      => bbp_get_forum_post_type(),
+			'post_parent'    => $settings['parent_forum'],
+			'post_status'    => bbp_get_public_status_id(),
 			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
@@ -652,7 +653,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
-			'title'        => '',
+			'title'        => __( 'Forums', 'bbpress' ),
 			'parent_forum' => 0
 		), 'forum_widget_settings' );
 	}
@@ -836,7 +837,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['max_shown'] = (int) $new_instance['max_shown'];
 
 		// Force to any
-		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+		if ( !empty( $instance['parent_forum'] ) || !is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
 		} else {
 			$instance['parent_forum'] = (int) $new_instance['parent_forum'];
@@ -859,7 +860,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		// Get widget settings
 		$settings = $this->parse_settings( $instance ); ?>
 
-		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo esc_attr( $settings['title'] ); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo esc_attr( $settings['title']     ); ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo esc_attr( $settings['max_shown'] ); ?>" /></label></p>
 
 		<p>
@@ -897,7 +898,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
-			'title'        => '',
+			'title'        => __( 'Recent Topics', 'bbpress' ),
 			'max_shown'    => 5,
 			'show_date'    => false,
 			'show_user'    => false,
@@ -1031,7 +1032,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
-			'title' => ''
+			'title' => __( 'Forum Statistics', 'bbpress' )
 		),
 		'stats_widget_settings' );
 	}
@@ -1209,7 +1210,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		// Get widget settings
 		$settings = $this->parse_settings( $instance ); ?>
 
-		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                   'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo esc_attr( $settings['title'] ); ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                   'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo esc_attr( $settings['title']     ); ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo esc_attr( $settings['max_shown'] ); ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',          'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $settings['show_date'] ); ?> /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show reply author:',       'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( 'on', $settings['show_user'] ); ?> /></label></p>
@@ -1226,8 +1227,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance , array(
-			'title'     => '',
+		return bbp_parse_args( $instance, array(
+			'title'     => __( 'Recent Replies', 'bbpress' ),
 			'max_shown' => 5,
 			'show_date' => false,
 			'show_user' => false

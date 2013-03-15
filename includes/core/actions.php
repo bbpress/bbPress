@@ -147,7 +147,7 @@ add_action( 'bbp_head',             'bbp_topic_notices'    );
 add_action( 'bbp_template_notices', 'bbp_template_notices' );
 
 // Always exclude private/hidden forums if needed
-add_action( 'pre_get_posts', 'bbp_pre_get_posts_exclude_forums', 4 );
+add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
 
 // Profile Page Messages
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );

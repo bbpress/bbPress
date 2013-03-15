@@ -1607,9 +1607,13 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 }
 
 /**
- * Adjusts topic and reply queries to exclude items that might be contained
- * inside hidden or private forums that the user does not have the capability
- * to view.
+ * Adjusts forum, topic, and reply queries to exclude items that might be
+ * contained inside hidden or private forums that the user does not have the
+ * capability to view.
+ *
+ * Doing it with an action allows us to trap all WP_Query's rather than needing
+ * to hardcode this logic into each query. It also protects forum content for
+ * plugins that might be doing their own queries.
  *
  * @since bbPress (r3291)
  *
@@ -1621,7 +1625,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
  * @uses bbp_get_reply_post_type()
  * @return WP_Query
  */
-function bbp_pre_get_posts_exclude_forums( $posts_query = null ) {
+function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Bail if all forums are explicitly allowed
 	if ( true === apply_filters( 'bbp_include_all_forums', false, $posts_query ) ) {
@@ -1649,6 +1653,8 @@ function bbp_pre_get_posts_exclude_forums( $posts_query = null ) {
 			return;
 		}
 
+		/** Default ***********************************************************/
+
 		// Get any existing post status
 		$post_stati = $posts_query->get( 'post_status' );
 
@@ -1661,13 +1667,21 @@ function bbp_pre_get_posts_exclude_forums( $posts_query = null ) {
 			$post_stati = explode( ',', $post_stati );
 		}
 
+		/** Private ***********************************************************/
+
 		// Remove bbp_get_private_status_id() if user is not capable
 		if ( ! current_user_can( 'read_private_forums' ) ) {
 			$key = array_search( bbp_get_private_status_id(), $post_stati );
 			if ( !empty( $key ) ) {
 				unset( $post_stati[$key] );
 			}
+
+		// ...or add it if they are
+		} else {
+			$post_stati[] = bbp_get_private_status_id();
 		}
+
+		/** Hidden ************************************************************/
 
 		// Remove bbp_get_hidden_status_id() if user is not capable
 		if ( ! current_user_can( 'read_hidden_forums' ) ) {
@@ -1675,6 +1689,10 @@ function bbp_pre_get_posts_exclude_forums( $posts_query = null ) {
 			if ( !empty( $key ) ) {
 				unset( $post_stati[$key] );
 			}
+
+		// ...or add it if they are
+		} else {
+			$post_stati[] = bbp_get_hidden_status_id();
 		}
 
 		// Add the statuses

@@ -57,22 +57,11 @@ function bbp_forum_post_type() {
  */
 function bbp_has_forums( $args = '' ) {
 
-	// Setup possible post__not_in array
-	$post_stati[] = bbp_get_public_status_id();
-
-	// Check if user can read private forums
-	if ( current_user_can( 'read_private_forums' ) )
-		$post_stati[] = bbp_get_private_status_id();
-
-	// Check if user can read hidden forums
-	if ( current_user_can( 'read_hidden_forums' ) )
-		$post_stati[] = bbp_get_hidden_status_id();
-
 	// Parse arguments with default forum query for most circumstances
 	$bbp_f = bbp_parse_args( $args, array(
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_is_forum_archive() ? 0 : bbp_get_forum_id() ,
-		'post_status'    => implode( ',', $post_stati ),
+		'post_status'    => bbp_get_public_status_id(),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 		'orderby'        => 'menu_order',
 		'order'          => 'ASC'
