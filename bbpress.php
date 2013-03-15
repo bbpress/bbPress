@@ -797,15 +797,28 @@ final class bbPress {
 	 */
 	public static function register_views() {
 
+		// Popular topics
+		bbp_register_view(
+			'popular',
+			__( 'Most popular topics', 'bbpress' ),
+			apply_filters( 'bbp_register_view_popular', array(
+				'meta_key'      => '_bbp_reply_count',
+				'max_num_pages' => 1,
+				'orderby'       => 'meta_value_num',
+				'show_stickies' => false
+			)
+		) );
+
 		// Topics with no replies
 		bbp_register_view(
 			'no-replies',
 			__( 'Topics with no replies', 'bbpress' ),
 			apply_filters( 'bbp_register_view_no_replies', array(
-				'meta_key'     => '_bbp_reply_count',
-				'meta_value'   => 1,
-				'meta_compare' => '<',
-				'orderby'      => ''
+				'meta_key'      => '_bbp_reply_count',
+				'meta_value'    => 1,
+				'meta_compare'  => '<',
+				'orderby'       => '',
+				'show_stickies' => false
 			)
 		) );
 	}
