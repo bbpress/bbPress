@@ -1728,25 +1728,29 @@ function bbp_reply_content_autoembed() {
  */
 function _bbp_has_replies_where( $where = '', $query = false ) {
 
+	/** Bail ******************************************************************/
+
 	// Bail if the sky is falling
-	if ( empty( $where ) || empty( $query ) )
+	if ( empty( $where ) || empty( $query ) ) {
 		return $where;
+	}
 
 	// Bail if no post_parent to replace
-	if ( ! is_numeric( $query->get( 'post_parent' ) ) )
+	if ( ! is_numeric( $query->get( 'post_parent' ) ) ) {
 		return $where;
+	}
 
 	// Bail if not a topic and reply query
-	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) )
+	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) ) {
 		return $where;
-
-	// Bail if meta query (cannot FORCE INDEX when join'ing postmeta)
-	if ( $query->get( 'meta_key' ) || $query->get( 'meta_query' ) )
-		return $where;
+	}
 
 	// Bail if including or excluding specific post ID's
-	if ( $query->get( 'post__not_in' ) || $query->get( 'post__in' ) )
+	if ( $query->get( 'post__not_in' ) || $query->get( 'post__in' ) ) {
 		return $where;
+	}
+
+	/** Proceed ***************************************************************/
 
 	global $wpdb;
 
