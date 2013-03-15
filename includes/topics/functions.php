@@ -2863,6 +2863,11 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	// Get pre spam status
 	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
 
+	// If no previous status, default to publish
+	if ( empty( $topic_status ) ) {
+		$topic_status = bbp_get_public_status_id();
+	}
+
 	// Set post status to pre spam
 	$topic['post_status'] = $topic_status;
 

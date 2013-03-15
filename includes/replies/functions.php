@@ -1533,6 +1533,11 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 	// Get pre spam status
 	$reply['post_status'] = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
 
+	// If no previous status, default to publish
+	if ( empty( $reply['post_status'] ) ) {
+		$reply['post_status'] = bbp_get_public_status_id();
+	}
+
 	// Delete pre spam meta
 	delete_post_meta( $reply_id, '_bbp_spam_meta_status' );
 
