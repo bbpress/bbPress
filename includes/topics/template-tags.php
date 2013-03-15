@@ -1383,18 +1383,21 @@ function bbp_topic_author_link( $args = '' ) {
 		// Topic ID is good
 		if ( !empty( $topic_id ) ) {
 
+			// Get some useful topic information
+			$author_url = bbp_get_topic_author_url( $topic_id );
+			$anonymous  = bbp_is_topic_anonymous( $topic_id );
+
 			// Tweak link title if empty
 			if ( empty( $r['link_title'] ) ) {
-				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
+				$link_title = sprintf( empty( $anonymous ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
 
 			// Use what was passed if not
 			} else {
 				$link_title = $r['link_title'];
 			}
 
+			// Setup title and author_links array
 			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
-			$author_url   = bbp_get_topic_author_url( $topic_id );
-			$anonymous    = bbp_is_topic_anonymous( $topic_id );
 			$author_links = array();
 
 			// Get avatar

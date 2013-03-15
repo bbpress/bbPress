@@ -791,12 +791,17 @@ class BBP_Topics_Widget extends WP_Widget {
 
 				$widget_query->the_post();
 				$topic_id    = bbp_get_topic_id( $widget_query->post->ID );
-				$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) ); ?>
+				$author_link = '';
+
+				// Maybe get the topic author
+				if ( 'on' == $settings['show_user'] ) :
+					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) );
+				endif; ?>
 
 				<li>
 					<a class="bbp-forum-title" href="<?php echo esc_url( bbp_get_topic_permalink( $topic_id ) ); ?>" title="<?php echo esc_attr( bbp_get_topic_title( $topic_id ) ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
 
-					<?php if ( 'on' == $settings['show_user'] ) : ?>
+					<?php if ( ! empty( $author_link ) ) : ?>
 
 						<?php printf( _x( 'by %1$s', 'widgets', 'bbpress' ), '<span class="topic-author">' . $author_link . '</span>' ); ?>
 
@@ -1134,24 +1139,31 @@ class BBP_Replies_Widget extends WP_Widget {
 
 					<?php
 
-					$reply_id    = bbp_get_reply_id( $widget_query->post->ID );
-					$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
-					$reply_link  = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
+					// Verify the reply ID
+					$reply_id   = bbp_get_reply_id( $widget_query->post->ID );
+					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
+
+					// Only query user if showing them
+					if ( 'on' == $settings['show_user'] ) :
+						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
+					else :
+						$author_link = false;
+					endif;
 
 					// Reply author, link, and timestamp
-					if ( ( 'on' == $settings['show_date'] ) && ( 'on' == $settings['show_user'] ) ) :
+					if ( ( 'on' == $settings['show_date'] ) && !empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link, 3: reply timestamp
 						printf( _x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>' );
 
 					// Reply link and timestamp
-					elseif ( $settings['show_date'] == 'on' ) :
+					elseif ( 'on' == $settings['show_date'] ) :
 
 						// translators: 1: reply link, 2: reply timestamp
 						printf( _x( '%1$s %2$s',         'widgets', 'bbpress' ), $reply_link,  '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>'              );
 
 					// Reply author and title
-					elseif ( $settings['show_user'] == 'on' ) :
+					elseif ( !empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link
 						printf( _x( '%1$s on %2$s',      'widgets', 'bbpress' ), $author_link, $reply_link                                                                 );
