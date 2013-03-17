@@ -86,6 +86,15 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Remove group forum cap map when view is done
 		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_group_forum_meta_cap_map' ) );
+
+		// bbPress needs to listen to BuddyPress group deletion.
+		add_action( 'groups_before_delete_group',    array( $this, 'disconnect_forum_from_group'     ) );
+
+		// Adds a bbPress metabox to the new BuddyPress Group Admin UI
+		add_action( 'bp_groups_admin_meta_boxes',    array( $this, 'group_admin_ui_edit_screen'      ) );
+
+		// Saves the bbPress options if they come from the BuddyPress Group Admin UI
+		add_action( 'bp_group_admin_edit_after',     array( $this, 'edit_screen_save'                ) );
 	}
 
 	/**
@@ -239,16 +248,22 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Show forums and new forum form when editing a group
 	 *
 	 * @since bbPress (r3563)
+	 * @param object $group (the group to edit if in Group Admin UI)
+	 * @uses is_admin() To check if we're in the Group Admin UI
 	 * @uses bbp_get_template_part()
 	 */
-	public function edit_screen() {
+	public function edit_screen( $group = false ) {
+		$forum_id  = 0;
+		$group_id  = empty( $group->id ) ? bp_get_new_group_id() : $group->id ;
+		$forum_ids = bbp_get_group_forum_ids( $group_id );
 
-		$forum_ids    = bbp_get_group_forum_ids( bp_get_new_group_id() );
-
-		if ( !empty( $forum_ids ) )
+		// Get the first forum ID
+		if ( !empty( $forum_ids ) ) {
 			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
+		}
 
-		$checked = bp_get_new_group_enable_forum() || bp_group_is_forum_enabled( bp_get_group_id() ); ?>
+		// Should box be checked already?
+		$checked = is_admin() ? bp_group_is_forum_enabled( $group ) : bp_get_new_group_enable_forum() || bp_group_is_forum_enabled( bp_get_group_id() ); ?>
 
 		<h4><?php _e( 'Group Forum Settings', 'bbpress' ); ?></h4>
 
@@ -278,37 +293,49 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				</div>
 			<?php endif; ?>
 
-			<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
+			<?php if ( !is_admin() ) : ?>
+				<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
+			<?php endif; ?>
+
 		</fieldset>
 
 		<?php
 
 		// Verify intent
-		wp_nonce_field( 'groups_edit_save_' . $this->slug );
+		if ( is_admin() ) {
+			wp_nonce_field( 'groups_edit_save_' . $this->slug, 'forum_group_admin_ui' );
+		} else {
+			wp_nonce_field( 'groups_edit_save_' . $this->slug );
+		}
 	}
 
 	/**
 	 * Save the Group Forum data on edit
 	 *
 	 * @since bbPress (r3465)
+	 * @param int $group_id (to handle Group Admin UI hook bp_group_admin_edit_after )
 	 * @uses bbp_new_forum_handler() To check for forum creation
 	 * @uses bbp_edit_forum_handler() To check for forum edit
 	 */
-	public function edit_screen_save() {
+	public function edit_screen_save( $group_id = 0 ) {
 
 		// Bail if not a POST action
 		if ( ! bbp_is_post_request() )
 			return;
 
-		// Nonce check
-		if ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
+		// Admin Nonce check
+		if ( is_admin() ) {
+			check_admin_referer( 'groups_edit_save_' . $this->slug, 'forum_group_admin_ui' );
+
+		// Theme-side Nonce check
+		} elseif ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
 			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
-		}
+ 		}
 
-		$edit_forum   = !empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
-		$forum_id     = 0;
-		$group_id     = bp_get_current_group_id();
+		$edit_forum = !empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
+		$forum_id   = 0;
+		$group_id   = !empty( $group_id ) ? $group_id : bp_get_current_group_id();
 
 		// Keymasters have the ability to reconfigure forums
 		if ( bbp_is_user_keymaster() ) {
@@ -371,12 +398,54 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				'post_status'  => $status
 			) );
 
+			// Setup forum args with forum ID
+			$new_forum_args = array( 'forum_id' => $forum_id );
+
+			// If in admin, also include the group ID
+			if ( is_admin() && !empty( $group_id ) ) {
+				$new_forum_args['group_id'] = $group_id;
+			}
+
 			// Run the BP-specific functions for new groups
-			$this->new_forum( array( 'forum_id' => $forum_id ) );
+			$this->new_forum( $new_forum_args );
 		}
 
-		// Redirect after save
-		bp_core_redirect( trailingslashit( bp_get_group_permalink( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
+		// Redirect after save when not in admin
+		if ( !is_admin() ) {
+			bp_core_redirect( trailingslashit( bp_get_group_permalink( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
+		}
+	}
+
+	/**
+	 * Adds a metabox to BuddyPress Group Admin UI
+	 *
+	 * @since bbPress (r4814)
+	 *
+	 * @uses add_meta_box
+	 * @uses BBP_Forums_Group_Extension::group_admin_ui_display_metabox() To display the edit screen
+	 */
+	public function group_admin_ui_edit_screen() {
+		add_meta_box(
+			'bbpress_group_admin_ui_meta_box',
+			_x( 'Discussion Forum', 'group admin edit screen', 'bbpress' ),
+			array( &$this, 'group_admin_ui_display_metabox' ),
+			get_current_screen()->id,
+			'side',
+			'core'
+		);
+	}
+
+	/**
+	 * Displays the bbPress metabox in BuddyPress Group Admin UI
+	 *
+	 * @since bbPress (r4814)
+	 *
+	 * @param object $item (group object)
+	 * @uses add_meta_box
+	 * @uses BBP_Forums_Group_Extension::edit_screen() To get the html
+	 */
+	public function group_admin_ui_display_metabox( $item ) {
+		$this->edit_screen( $item );
 	}
 
 	/** Create ****************************************************************/
@@ -521,7 +590,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
-		$group_id = bp_get_current_group_id();
+		$group_id = !empty( $forum_args['group_id'] ) ? $forum_args['group_id'] : bp_get_current_group_id();
 
 		bbp_add_forum_id_to_group( $group_id, $forum_id );
 		bbp_add_group_id_to_forum( $forum_id, $group_id );
@@ -546,10 +615,39 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
-		$group_id = bp_get_current_group_id();
+		$group_id = !empty( $forum_args['group_id'] ) ? $forum_args['group_id'] : bp_get_current_group_id();
 
 		bbp_remove_forum_id_from_group( $group_id, $forum_id );
 		bbp_remove_group_id_from_forum( $forum_id, $group_id );
+	}
+
+	/**
+	 * Listening to BuddyPress Group deletion to remove the forum
+	 *
+	 * @param int $group_id The group ID
+	 * @uses bbp_get_group_forum_ids()
+	 * @uses BBP_Forums_Group_Extension::remove_forum()
+	 */
+	public function disconnect_forum_from_group( $group_id = 0 ) {
+
+		// Bail if no group ID available
+		if ( empty( $group_id ) ) {
+			return;
+		}
+
+		// Get the forums for the current group
+		$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+		// Use the first forum ID
+		if ( empty( $forum_ids ) )
+			return;
+
+		// Get the first forum ID
+		$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
+		$this->remove_forum( array(
+			'forum_id' => $forum_id,
+			'group_id' => $group_id
+		) );
 	}
 
 	/**
@@ -576,6 +674,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Save the group
 		$group->save();
+
+		// Maybe disconnect forum from group
+		if ( empty( $enabled ) ) {
+			$this->disconnect_forum_from_group( $group_id );
+		}
 
 		// Return the group
 		return $group;
