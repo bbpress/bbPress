@@ -954,6 +954,9 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	$old_forum_id = bbp_get_forum_id( $old_forum_id );
 	$new_forum_id = bbp_get_forum_id( $new_forum_id );
 
+	// Update topic forum's ID
+	bbp_update_topic_forum_id( $topic_id, $new_forum_id );
+
 	/** Stickies **************************************************************/
 
 	// Get forum stickies
@@ -965,26 +968,28 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 		// Define local variables
 		$updated_stickies = array();
 
-		// Loop through stickies of forum
-		foreach ( $old_stickies as $sticky_topic_id ) {
-
-			// Add non-matches to the updated array
+		// Loop through stickies of forum and add misses to the updated array
+		foreach ( (array) $old_stickies as $sticky_topic_id ) {
 			if ( $topic_id != $sticky_topic_id ) {
 				$updated_stickies[] = $sticky_topic_id;
 			}
 		}
 
-		// No more stickies so delete the beta
-		if ( empty( $updated_stickies ) ) {
-			delete_post_meta ( $old_forum_id, '_bbp_sticky_topics' );
+		// If stickies are different, update or delete them
+		if ( $updated_stickies != $old_stickies ) {
 
-		// Still stickies so update the meta
-		} else {
-			update_post_meta( $old_forum_id, '_bbp_sticky_topics', $updated_stickies );
+			// No more stickies so delete the meta
+			if ( empty( $updated_stickies ) ) {
+				delete_post_meta( $old_forum_id, '_bbp_sticky_topics' );
+
+			// Still stickies so update the meta
+			} else {
+				update_post_meta( $old_forum_id, '_bbp_sticky_topics', $updated_stickies );
+			}
+
+			// Topic was sticky, so restick in new forum
+			bbp_stick_topic( $topic_id );
 		}
-
-		// Topic was sticky, so restick in new forum
-		bbp_stick_topic( $topic_id );
 	}
 
 	/** Topic Replies *********************************************************/
@@ -993,25 +998,19 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	$replies = bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() );
 
 	// Update the forum_id of all replies in the topic
-	foreach ( $replies as $reply_id )
+	foreach ( $replies as $reply_id ) {
 		bbp_update_reply_forum_id( $reply_id, $new_forum_id );
-
-	// Forum topic meta
-	bbp_update_topic_forum_id( $topic_id, $new_forum_id );
+	}
 
 	/** Old forum_id **********************************************************/
 
 	// Get topic ancestors
-	$ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
+	$old_forum_ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
 
-	// Loop through ancestors
-	if ( !empty( $ancestors ) ) {
-		foreach ( $ancestors as $ancestor ) {
-
-			// If ancestor is a forum, update counts
+	// Loop through ancestors and update them
+	if ( !empty( $old_forum_ancestors ) ) {
+		foreach ( $old_forum_ancestors as $ancestor ) {
 			if ( bbp_is_forum( $ancestor ) ) {
-
-				// Update the forum
 				bbp_update_forum( array(
 					'forum_id' => $ancestor,
 				) );
@@ -1022,19 +1021,18 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	/** New forum_id **********************************************************/
 
 	// Make sure we're not walking twice
-	if ( !in_array( $new_forum_id, $ancestors ) ) {
+	if ( !in_array( $new_forum_id, $old_forum_ancestors ) ) {
 
 		// Get topic ancestors
-		$ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), (array) get_post_ancestors( $new_forum_id ) ) ) );
+		$new_forum_ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), (array) get_post_ancestors( $new_forum_id ) ) ) );
 
-		// Loop through ancestors
-		if ( !empty( $ancestors ) ) {
-			foreach ( $ancestors as $ancestor ) {
+		// Make sure we're not walking twice
+		$new_forum_ancestors = array_diff( $new_forum_ancestors, $old_forum_ancestors );
 
-				// If ancestor is a forum, update counts
+		// Loop through ancestors and update them
+		if ( !empty( $new_forum_ancestors ) ) {
+			foreach ( $new_forum_ancestors as $ancestor ) {
 				if ( bbp_is_forum( $ancestor ) ) {
-
-					// Update the forum
 					bbp_update_forum( array(
 						'forum_id' => $ancestor,
 					) );
@@ -1097,10 +1095,11 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** Source Topic **********************************************************/
 
 	// Topic id
-	if ( empty( $_POST['bbp_topic_id'] ) )
+	if ( empty( $_POST['bbp_topic_id'] ) ) {
 		bbp_add_error( 'bbp_merge_topic_source_id', __( '<strong>ERROR</strong>: Topic ID not found.', 'bbpress' ) );
-	else
+	} else {
 		$source_topic_id = (int) $_POST['bbp_topic_id'];
+	}
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-merge-topic_' . $source_topic_id ) ) {
