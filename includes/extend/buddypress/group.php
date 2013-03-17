@@ -908,7 +908,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @return array $args without the to-front link
 	 */
 	public function unset_super_sticky( $args = array() ) {
-		unset( $args['super_text'] );
+		$args['super_text'] = '';
 		return $args;
 	}
 
