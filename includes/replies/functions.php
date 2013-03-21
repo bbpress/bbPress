@@ -1028,7 +1028,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
  * @since bbPress (r4521)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_get_reply() To get the reply
  * @uses bbp_get_topic() To get the topics
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request

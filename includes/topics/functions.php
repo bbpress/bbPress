@@ -80,7 +80,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * Handles the front end topic submission
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_verify_nonce_request() To verify the nonce and check the referer
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
  * @uses current_user_can() To check if the current user can publish topic
@@ -395,7 +395,7 @@ function bbp_new_topic_handler( $action = '' ) {
  * Handles the front end edit topic submission
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_get_topic() To get the topic
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses bbp_is_topic_anonymous() To check if topic is by an anonymous user
@@ -1050,7 +1050,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  * @since bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_get_topic() To get the topics
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the topics
@@ -1333,7 +1333,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @since bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_get_reply() To get the reply
  * @uses bbp_get_topic() To get the topics
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -1703,7 +1703,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  * @param string $action The requested action to compare this function to
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit/delete tags
- * @uses bbPress::errors::add() To log the error messages
+ * @uses bbp_add_error() To add an error message
  * @uses wp_update_term() To update the topic tag
  * @uses get_term_link() To get the topic tag url
  * @uses term_exists() To check if the topic tag already exists

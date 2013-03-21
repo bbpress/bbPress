@@ -2812,7 +2812,7 @@ function bbp_forum_pagination_links() {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses apply_filters() Calls 'bbp_topic_notices' with the notice text, topic
  *                        status and topic id
- * @uses bbPress::errors::add() To add the notices to the error handler
+ * @uses bbp_add_error() To add an error message
  */
 function bbp_topic_notices() {
 

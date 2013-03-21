@@ -78,7 +78,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
  * Handles the front end forum submission
  *
  * @param string $action The requested action to compare this function to
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
  * @uses current_user_can() To check if the current user can publish forum
