@@ -92,7 +92,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	}
 
 	/**
-	 * This action exists only to follow the stardard bbPress coding convention,
+	 * This action exists only to follow the standard bbPress coding convention,
 	 * and should not be used to short-circuit any part of the template locator.
 	 *
 	 * If you want to override a specific template part, please either filter
