@@ -68,8 +68,9 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	foreach ( (array) $template_names as $template_name ) {
 
 		// Continue if template is empty
-		if ( empty( $template_name ) )
+		if ( empty( $template_name ) ) {
 			continue;
+		}
 
 		// Trim off any slashes from the template name
 		$template_name  = ltrim( $template_name, '/' );
@@ -78,8 +79,9 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		foreach ( (array) $template_locations as $template_location ) {
 
 			// Continue if $template_location is empty
-			if ( empty( $template_location ) )
+			if ( empty( $template_location ) ) {
 				continue;
+			}
 
 			// Check child theme first
 			if ( file_exists( trailingslashit( $template_location ) . $template_name ) ) {
@@ -89,9 +91,19 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		}
 	}
 
+	/**
+	 * This action exists only to follow the stardard bbPress coding convention,
+	 * and should not be used to short-circuit any part of the template locator.
+	 *
+	 * If you want to override a specific template part, please either filter
+	 * 'bbp_get_template_part' or add a new location to the template stack.
+	 */
+	do_action( 'bbp_locate_template', $located, $template_name, $template_names, $template_locations, $load, $require_once );
+
 	// Maybe load the template if one was located
-	if ( ( true == $load ) && !empty( $located ) )
+	if ( ( true == $load ) && !empty( $located ) ) {
 		load_template( $located, $require_once );
+	}
 
 	return $located;
 }
