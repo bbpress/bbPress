@@ -1,7 +1,7 @@
 <?php
 
 /**
- * User Profile
+ * Single User
  *
  * @package bbPress
  * @subpackage Theme
