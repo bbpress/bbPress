@@ -383,7 +383,7 @@ class BBP_Converter {
 						}
 					} else {
 						update_option( '_bbp_converter_start', $max + 1 );
-						$this->converter_output( sprintf( __( 'Delete users wordpress default passwords (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+						$this->converter_output( sprintf( __( 'Delete users WordPress default passwords (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
 					}
 				} else {
 					update_option( '_bbp_converter_step',  $step + 1 );
@@ -529,7 +529,7 @@ abstract class BBP_Converter_Base {
 	protected $field_map = array();
 
 	/**
-	 * @var object This is the connection to the wordpress datbase.
+	 * @var object This is the connection to the WordPress datbase.
 	 */
 	protected $wpdb;
 

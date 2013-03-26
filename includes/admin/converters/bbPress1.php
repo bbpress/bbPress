@@ -545,7 +545,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * This method is to save the salt and password together. That
 	 * way when we authenticate it we can get it out of the database
-	 * as one value. Array values are auto sanitized by wordpress.
+	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return false;
