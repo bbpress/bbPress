@@ -1980,7 +1980,7 @@ function bbp_form_forum_content() {
 
 		// Get _POST data
 		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_content'] ) ) {
-			$forum_content = $_POST['bbp_forum_content'];
+			$forum_content = stripslashes( $_POST['bbp_forum_content'] );
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {

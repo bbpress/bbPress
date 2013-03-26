@@ -3389,7 +3389,7 @@ function bbp_form_topic_content() {
 
 		// Get _POST data
 		if ( bbp_is_post_request() && isset( $_POST['bbp_topic_content'] ) ) {
-			$topic_content = $_POST['bbp_topic_content'];
+			$topic_content = stripslashes( $_POST['bbp_topic_content'] );
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() ) {
