@@ -48,7 +48,7 @@ add_action( 'wp_footer',                'bbp_footer',                   10    );
 add_action( 'set_current_user',         'bbp_setup_current_user',       10    );
 add_action( 'setup_theme',              'bbp_setup_theme',              10    );
 add_action( 'after_setup_theme',        'bbp_after_setup_theme',        10    );
-add_action( 'template_redirect',        'bbp_template_redirect',        10    );
+add_action( 'template_redirect',        'bbp_template_redirect',        8     ); // Before BuddyPress's 10 [BB2225]
 add_action( 'login_form_login',         'bbp_login_form_login',         10    );
 add_action( 'profile_update',           'bbp_profile_update',           10, 2 ); // user_id and old_user_data
 add_action( 'user_register',            'bbp_user_register',            10    );
