@@ -373,7 +373,7 @@ function bbp_forum_content( $forum_id = 0 ) {
 	}
 
 /**
- * Allow topic rows to have adminstrative actions
+ * Allow forum rows to have adminstrative actions
  *
  * @since bbPress (r3653)
  * @uses do_action()
