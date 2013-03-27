@@ -26,6 +26,13 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
+= 2.3 =
+* Added forum search functionality
+* Improved BuddyPress Group Forums integration
+* Improved allowed tags in topics and replies
+* Added template stack support to theme compatability
+* Added more forum migration options
+
 = 2.2.4 =
 * Prepare converter queries
 * Improve validation and sanitization of form values
