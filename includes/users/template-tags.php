@@ -54,7 +54,7 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 
 		// Failsafe
 		} else {
-			$bbp_user_id = get_query_var( 'bbp_user_id' );
+			$bbp_user_id = 0;
 		}
 
 		return (int) apply_filters( 'bbp_get_user_id', (int) $bbp_user_id, $displayed_user_fallback, $current_user_fallback );
@@ -480,7 +480,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 	function bbp_get_user_display_role( $user_id = 0 ) {
 
 		// Validate user id
-		$user_id = bbp_get_user_id( $user_id, false, false );
+		$user_id = bbp_get_user_id( $user_id, true, false );
 
 		// User is not registered
 		if ( empty( $user_id ) ) {
