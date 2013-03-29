@@ -2563,7 +2563,6 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
  *  - reason: Reason for editing
  *  - revision_id: Revision id
  * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_get_user_id() To get the user id
  * @uses bbp_format_revision_reason() To format the reason
  * @uses bbp_get_topic_raw_revision_log() To get the raw topic revision log
  * @uses update_post_meta() To update the topic revision log meta

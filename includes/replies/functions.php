@@ -988,7 +988,6 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
  *  - reason: Reason for editing
  *  - revision_id: Revision id
  * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_user_id() To get the user id
  * @uses bbp_format_revision_reason() To format the reason
  * @uses bbp_get_reply_raw_revision_log() To get the raw reply revision log
  * @uses update_post_meta() To update the reply revision log meta
