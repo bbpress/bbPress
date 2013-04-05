@@ -687,8 +687,10 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// Simple duplicate check
 	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	$query  = $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '%s' AND post_status != '%s' AND post_author = '%d' AND post_content = '%s' {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
-	$query .= !empty( $r['post_parent'] ) ? $wpdb->prepare( " AND post_parent = '%d'", $r['post_parent'] ) : '';
+	// Note: Using $wpdb->prepare() here will double escape the post content.
+	// @see: http://bbpress.trac.wordpress.org/ticket/2185/
+	$query  = sprintf( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '%s' AND post_status != '%s' AND post_author = %d AND post_content = '%s' {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= !empty( $r['post_parent'] ) ? sprintf( " AND post_parent = %d", $r['post_parent'] ) : '';
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
