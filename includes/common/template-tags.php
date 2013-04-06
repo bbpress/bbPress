@@ -963,7 +963,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	// Add bbPress class if we are within a bbPress page
 	if ( !empty( $bbp_classes ) ) {
-		$bbp_classes[] = 'bbPress';
+		$bbp_classes[] = 'bbpress';
 	}
 
 	// Merge WP classes with bbPress classes and remove any duplicates
