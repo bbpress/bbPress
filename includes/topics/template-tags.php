@@ -2995,7 +2995,7 @@ function bbp_single_topic_description( $args = '' ) {
 		$voice_count = sprintf( _n( '%s voice', '%s voices', $vc_int, 'bbpress' ), $voice_count );
 
 		// Topic has replies
-		$last_reply = bbp_get_topic_last_active_id( $topic_id );
+		$last_reply = bbp_get_topic_last_reply_id( $topic_id );
 		if ( !empty( $last_reply ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $r['size'] ) );
 			$retstr          = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
