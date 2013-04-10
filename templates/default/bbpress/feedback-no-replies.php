@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Oh bother!
+ * No Replies Feedback Part
  *
  * @package bbPress
  * @subpackage Theme

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * No access
+ * No Access Feedback Part
  *
  * @package bbPress
  * @subpackage Theme

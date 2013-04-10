@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Single User Part
+ * Single User Content Part
  *
  * @package bbPress
  * @subpackage Theme

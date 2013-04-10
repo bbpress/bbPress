@@ -31,49 +31,49 @@ class BBP_BuddyPress_Activity {
 	private $component = '';
 
 	/**
-	 * Forum Create Activty Action
+	 * Forum Create Activity Action
 	 *
 	 * @var string
 	 */
 	private $forum_create = '';
 
 	/**
-	 * Topic Create Activty Action
+	 * Topic Create Activity Action
 	 *
 	 * @var string
 	 */
 	private $topic_create = '';
 
 	/**
-	 * Topic Close Activty Action
+	 * Topic Close Activity Action
 	 *
 	 * @var string
 	 */
 	private $topic_close = '';
 
 	/**
-	 * Topic Edit Activty Action
+	 * Topic Edit Activity Action
 	 *
 	 * @var string
 	 */
 	private $topic_edit = '';
 
 	/**
-	 * Topic Open Activty Action
+	 * Topic Open Activity Action
 	 *
 	 * @var string
 	 */
 	private $topic_open = '';
 
 	/**
-	 * Reply Create Activty Action
+	 * Reply Create Activity Action
 	 *
 	 * @var string
 	 */
 	private $reply_create = '';
 
 	/**
-	 * Reply Edit Activty Action
+	 * Reply Edit Activity Action
 	 *
 	 * @var string
 	 */

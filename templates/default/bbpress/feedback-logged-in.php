@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Already Logged In
+ * Logged In Feedback Part
  *
  * @package bbPress
  * @subpackage Theme

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Single Topic Content Part
+ * Single Forum Content Part
  *
  * @package bbPress
  * @subpackage Theme
