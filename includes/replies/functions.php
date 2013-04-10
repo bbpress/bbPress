@@ -1834,7 +1834,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		$title = ' &#187; ' .  __( 'All Replies', 'bbpress' );
 
 	// Display the feed
-	header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );
+	header( 'Content-Type: ' . feed_content_type( 'rss-http' ) . '; charset=' . get_option( 'blog_charset' ), true );
 	header( 'Status: 200 OK' );
 	echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>'; ?>
 
