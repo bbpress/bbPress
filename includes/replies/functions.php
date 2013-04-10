@@ -223,6 +223,13 @@ function bbp_new_reply_handler( $action = '' ) {
 		$reply_status = bbp_get_public_status_id();
 	}
 
+	/** Topic Closed **********************************************************/
+
+	// If topic is closed, moderators can still reply
+	if ( bbp_is_topic_closed( $topic_id ) && ! current_user_can( 'moderate' ) ) {
+		bbp_add_error( 'bbp_reply_topic_closed', __( '<strong>ERROR</strong>: Topic is closed.', 'bbpress' ) );
+	}
+
 	/** Topic Tags ************************************************************/
 
 	// Either replace terms
