@@ -265,7 +265,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 	function bbp_get_user_nicename( $user_id = 0, $args = array() ) {
 
 		// Bail if no user ID passed
-		$user_id = bbp_get_user_id( $user_id, false, false );
+		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) )
 			return false;
 
@@ -480,7 +480,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 	function bbp_get_user_display_role( $user_id = 0 ) {
 
 		// Validate user id
-		$user_id = bbp_get_user_id( $user_id, true, false );
+		$user_id = bbp_get_user_id( $user_id );
 
 		// User is not registered
 		if ( empty( $user_id ) ) {
