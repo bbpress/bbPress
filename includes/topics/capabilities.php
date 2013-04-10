@@ -120,6 +120,10 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			// Moderators can always edit
 			if ( user_can( $user_id, 'moderate' ) ) {
 				$caps = array( $cap );
+
+			// Otherwise, block
+			} else {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;

@@ -111,8 +111,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		case 'edit_others_forums'  :
 
 			// Moderators can always edit
-			if ( user_can( $user_id, 'moderate' ) ) {
-				$caps = array( 'moderate' );
+			if ( user_can( $user_id, 'keep_gate' ) ) {
+				$caps = array( 'keep_gate' );
+
+			// Otherwise, block
+			} else {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;

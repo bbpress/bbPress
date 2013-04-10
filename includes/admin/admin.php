@@ -51,6 +51,13 @@ class BBP_Admin {
 	 */
 	public $minimum_capability = 'keep_gate';
 
+	/** Separator *************************************************************/
+
+	/**
+	 * @var bool Whether or not to add an extra top level menu separator
+	 */
+	public $show_separator = false;
+
 	/** Functions *************************************************************/
 
 	/**
