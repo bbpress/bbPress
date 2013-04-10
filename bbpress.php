@@ -783,6 +783,7 @@ final class bbPress {
 				'query_var'             => true,
 				'show_tagcloud'         => true,
 				'hierarchical'          => false,
+				'show_in_nav_menus'     => false,
 				'public'                => true,
 				'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' )
 			)
