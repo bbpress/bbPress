@@ -512,7 +512,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$length   = (int) $length;
-		$excerpt  = get_post_field( $reply_id, 'post_excerpt' );
+		$excerpt  = get_post_field( 'post_excerpt', $reply_id );
 
 		if ( empty( $excerpt ) ) {
 			$excerpt = bbp_get_reply_content( $reply_id );
