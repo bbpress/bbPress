@@ -685,12 +685,27 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 		$join    = $where = '';
 	}
 
-	// Simple duplicate check
-	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	// Note: Using $wpdb->prepare() here will double escape the post content.
+	// Unslash strings to pass through $wpdb->prepare()
+	//
 	// @see: http://bbpress.trac.wordpress.org/ticket/2185/
-	$query  = sprintf( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '%s' AND post_status != '%s' AND post_author = %d AND post_content = '%s' {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
-	$query .= !empty( $r['post_parent'] ) ? sprintf( " AND post_parent = %d", $r['post_parent'] ) : '';
+	// @see: http://core.trac.wordpress.org/changeset/23973/
+	if ( function_exists( 'wp_unslash' ) ) { // added in WordPress 3.6
+		$r['post_type']    = wp_unslash( $r['post_type']    );
+		$r['post_status']  = wp_unslash( $r['post_status']  );
+		$r['post_content'] = wp_unslash( $r['post_content'] );
+		$join              = wp_unslash( $join              );
+		$where             = wp_unslash( $where             );
+	} else {
+		$r['post_type']    = stripslashes_deep( $r['post_type']    );
+		$r['post_status']  = stripslashes_deep( $r['post_status']  );
+		$r['post_content'] = stripslashes_deep( $r['post_content'] );
+		$join              = stripslashes_deep( $join              );
+		$where             = stripslashes_deep( $where             );
+	}
+
+	// Prepare duplicate check query
+	$query  = $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= !empty( $r['post_parent'] ) ? $wpdb->prepare( " AND post_parent = %d", $r['post_parent'] ) : '';
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
