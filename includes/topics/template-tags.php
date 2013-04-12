@@ -677,7 +677,7 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	function bbp_get_topic_excerpt( $topic_id = 0, $length = 100 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$length   = (int) $length;
-		$excerpt  = get_post_field( $topic_id, 'post_excerpt' );
+		$excerpt  = get_post_field( 'post_excerpt', $topic_id );
 
 		if ( empty( $excerpt ) ) {
 			$excerpt = bbp_get_topic_content( $topic_id );
