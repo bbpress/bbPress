@@ -1453,13 +1453,18 @@ class BBP_Admin {
 					<a class="web" href="http://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
 					<span class="title"><?php _e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
+				<li class="wp-person" id="wp-person-jmdodd">
+					<a href="http://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
+					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
+					<span class="title"></span>
+				</li>
 			</ul>
 
 			<h4 class="wp-people-group"><?php _e( 'Contributing Developers', 'bbpress' ); ?></h4>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
-				<li class="wp-person" id="wp-person-jmdodd">
-					<a href="http://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
-					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
+				<li class="wp-person" id="wp-person-netweb">
+					<a href="http://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
+					<a class="web" href="http://profiles.wordpress.org/netweb">Stephen Edgar</a>
 					<span class="title"></span>
 				</li>
 				<li class="wp-person" id="wp-person-jaredatch">
@@ -1474,28 +1479,10 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php _e( 'Codex Rockstars', 'bbpress' ); ?></h4>
-			<ul class="wp-people-group " id="wp-people-group-codex-rockstars">
-				<li class="wp-person" id="wp-person-masonjames">
-					<a href="http://profiles.wordpress.org/masonjames"><img src="http://0.gravatar.com/avatar/99dee4d5287d0f9e26ff72e7228d97ac?s=60" class="gravatar" alt="Mason James" /></a>
-					<a class="web" href="http://profiles.wordpress.org/masonjames">Mason James</a>
-					<span class="title"></span>
-				</li>
-				<li class="wp-person" id="wp-person-wordsforwp">
-					<a href="http://profiles.wordpress.org/wordsforwp"><img src="http://0.gravatar.com/avatar/5437119b446adad1af813c44944e6c9c?s=60" class="gravatar" alt="Siobhan McKeown" /></a>
-					<a class="web" href="http://profiles.wordpress.org/wordsforwp">Siobhan McKeown</a>
-					<span class="title"></span>
-				</li>
-				<li class="wp-person" id="wp-person-JarretC">
-					<a href="http://profiles.wordpress.org/JarretC"><img src="http://0.gravatar.com/avatar/e00501bf782b42d5db19ff75fca14f6a?s=60" class="gravatar" alt="Jarret Cade" /></a>
-					<a class="web" href="http://profiles.wordpress.org/JarretC">Jarret Cade</a>
-					<span class="title"></span>
-				</li>
-			</ul>
-
 			<h4 class="wp-people-group"><?php _e( 'Core Contributors to bbPress 2.3', 'bbpress' ); ?></h4>
 			<p class="wp-credits-list">
 				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
+				<a href="http://profiles.wordpress.org/alex-ye">alex-ye</a>,
 				<a href="http://profiles.wordpress.org/anointed">anointed</a>,
 				<a href="http://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
 				<a href="http://profiles.wordpress.org/chexee">chexee</a>,
@@ -1515,7 +1502,6 @@ class BBP_Admin {
 				<a href="http://profiles.wordpress.org/mesayre">mesayre</a>,
 				<a href="http://profiles.wordpress.org/mordauk">mordauk</a>,
 				<a href="http://profiles.wordpress.org/MZAWeb">MZAWeb</a>,
-				<a href="http://profiles.wordpress.org/netweb">netweb</a>,
 				<a href="http://profiles.wordpress.org/nexia">nexia</a>,
 				<a href="http://profiles.wordpress.org/Omicron7">Omicron7</a>,
 				<a href="http://profiles.wordpress.org/otto42">otto42</a>,
