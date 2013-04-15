@@ -266,11 +266,6 @@ final class bbPress {
 		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
-
-		/** Cache *************************************************************/
-
-		// Add bbPress to global cache groups
-		wp_cache_add_global_groups( 'bbpress' );
 	}
 
 	/**

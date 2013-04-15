@@ -1794,7 +1794,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 	global $wpdb;
 
 	$cache_id = 'bbp_get_forum_' . $forum_id . '_reply_id';
-	$reply_id = (int) wp_cache_get( $cache_id, 'bbpress' );
+	$reply_id = (int) wp_cache_get( $cache_id, 'bbpress_posts' );
 
 	if ( empty( $reply_id ) ) {
 
@@ -1804,9 +1804,9 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 
 		if ( !empty( $topic_ids ) ) {
 			$reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
-			wp_cache_set( $cache_id, $reply_id, 'bbpress' ); // May be (int) 0
+			wp_cache_set( $cache_id, $reply_id, 'bbpress_posts' ); // May be (int) 0
 		} else {
-			wp_cache_set( $cache_id, '0', 'bbpress' );
+			wp_cache_set( $cache_id, '0', 'bbpress_posts' );
 		}
 	}
 

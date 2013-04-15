@@ -1255,10 +1255,10 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	$child_id = wp_cache_get( $cache_id, 'bbpress' );
+	$child_id = wp_cache_get( $cache_id, 'bbpress_posts' );
 	if ( empty( $child_id ) ) {
 		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
-		wp_cache_set( $cache_id, $child_id, 'bbpress' );
+		wp_cache_set( $cache_id, $child_id, 'bbpress_posts' );
 	}
 
 	// Filter and return
@@ -1298,10 +1298,10 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	$child_count = wp_cache_get( $cache_id, 'bbpress' );
+	$child_count = wp_cache_get( $cache_id, 'bbpress_posts' );
 	if ( empty( $child_count ) ) {
 		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
-		wp_cache_set( $cache_id, $child_count, 'bbpress' );
+		wp_cache_set( $cache_id, $child_count, 'bbpress_posts' );
 	}
 
 	// Filter and return
@@ -1341,10 +1341,10 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	$child_ids = wp_cache_get( $cache_id, 'bbpress' );
+	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
 	if ( empty( $child_ids ) ) {
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
-		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
+		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
 	// Filter and return
@@ -1402,10 +1402,10 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$post_status = "'" . join( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
-	$child_ids = wp_cache_get( $cache_id, 'bbpress' );
+	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
 	if ( empty( $child_ids ) ) {
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
-		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
+		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
 	// Filter and return
