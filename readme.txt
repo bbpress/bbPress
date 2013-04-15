@@ -2,8 +2,8 @@
 Contributors: matt, johnjamesjacoby, jmdodd
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.5
-Tested up to: 3.5
-Stable tag: 2.2.4
+Tested up to: 3.6
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

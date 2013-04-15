@@ -233,7 +233,7 @@ function bbp_version_updater() {
 
 	// 2.0, 2.0.1, 2.0.2, 2.0.3
 	if ( $raw_db_version < 200 ) {
-		// Do nothing
+		// No changes
 	}
 
 	/** 2.1 Branch ************************************************************/
@@ -262,6 +262,13 @@ function bbp_version_updater() {
 
 		// Remove capabilities
 		bbp_remove_caps();
+	}
+
+	/** 2.3 Branch ************************************************************/
+
+	// 2.3
+	if ( $raw_db_version < 230 ) {
+		// No changes
 	}
 
 	/** All done! *************************************************************/
