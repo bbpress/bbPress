@@ -1492,6 +1492,7 @@ class BBP_Admin {
 				<a href="http://profiles.wordpress.org/dimadin">dimadin</a>,
 				<a href="http://profiles.wordpress.org/DJPaul">DJPaul</a>,
 				<a href="http://profiles.wordpress.org/duck_">duck_</a>,
+				<a href="http://profiles.wordpress.org/ethitter">ethitter</a>,
 				<a href="http://profiles.wordpress.org/gawain">gawain</a>,
 				<a href="http://profiles.wordpress.org/iamzippy">iamzippy</a>,
 				<a href="http://profiles.wordpress.org/isaacchapman">isaacchapman</a>,
