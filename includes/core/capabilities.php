@@ -90,7 +90,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'participate'           => true,
 				'moderate'              => true,
 				'throttle'              => true,
-				'view_trash'            => false,
+				'view_trash'            => true,
 
 				// Forum caps
 				'publish_forums'        => true,
