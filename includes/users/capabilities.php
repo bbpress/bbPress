@@ -353,7 +353,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 		$is_spammer = true;
 	}
 
-	return (bool) apply_filters( 'bp_core_is_user_spammer', $is_spammer );
+	return (bool) apply_filters( 'bbp_core_is_user_spammer', $is_spammer );
 }
 
 /**
@@ -566,7 +566,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 		$is_deleted = true;
 	}
 
-	return (bool) apply_filters( 'bp_core_is_user_deleted', $is_deleted );
+	return (bool) apply_filters( 'bbp_core_is_user_deleted', $is_deleted );
 }
 
 /**
