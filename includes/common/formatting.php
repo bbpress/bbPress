@@ -120,14 +120,14 @@ function bbp_code_trick_reverse( $content = '' ) {
 
 	// Setup variables
 	$openers = array( '<p>', '<br />' );
-	$content    = preg_replace_callback( "!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bbp_decode_callback', $content );
+	$content = preg_replace_callback( "!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bbp_decode_callback', $content );
 
 	// Do the do
-	$content    = str_replace( $openers,       '',       $content );
-	$content    = str_replace( '</p>',         "\n",     $content );
-	$content    = str_replace( '<coded_br />', '<br />', $content );
-	$content    = str_replace( '<coded_p>',    '<p>',    $content );
-	$content    = str_replace( '</coded_p>',   '</p>',   $content );
+	$content = str_replace( $openers,       '',       $content );
+	$content = str_replace( '</p>',         "\n",     $content );
+	$content = str_replace( '<coded_br />', '<br />', $content );
+	$content = str_replace( '<coded_p>',    '<p>',    $content );
+	$content = str_replace( '</coded_p>',   '</p>',   $content );
 
 	return $content;
 }
@@ -157,15 +157,11 @@ function bbp_encode_bad( $content = '' ) {
 		'embed' => true
 	);
 
-	// Add 'p' and 'br' tags to allowed array, so they are not encoded
-	$allowed['p']  = array();
-	$allowed['br'] = array();
-
 	// Loop through allowed tags and compare for empty and normal tags
 	foreach ( $allowed as $tag => $args ) {
 		$preg = $args ? "{$tag}(?:\s.*?)?" : $tag;
 
-		// Which walker to use based on the tag and argments
+		// Which walker to use based on the tag and arguments
 		if ( isset( $empty[$tag] ) ) {
 			array_walk( $content, 'bbp_encode_empty_callback',  $preg );
 		} else {
@@ -188,17 +184,29 @@ function bbp_encode_bad( $content = '' ) {
  * @return string
  */
 function bbp_encode_callback( $matches = array() ) {
-	$content = trim( $matches[2] );
+
+	// Trim inline code, not pre blocks (to prevent removing indentation)
+	if ( "`" == $matches[1] ) {
+		$content = trim( $matches[2] );
+	} else {
+		$content = $matches[2];
+	}
+
+	// Do some replacing
 	$content = htmlspecialchars( $content, ENT_QUOTES );
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
 	$content = preg_replace( "|\n\n\n+|", "\n\n", $content );
 	$content = str_replace( '&amp;amp;', '&amp;', $content );
 	$content = str_replace( '&amp;lt;',  '&lt;',  $content );
 	$content = str_replace( '&amp;gt;',  '&gt;',  $content );
+
+	// Wrap in code tags
 	$content = '<code>' . $content . '</code>';
 
-	if ( "`" != $matches[1] )
+	// Wrap blocks in pre tags
+	if ( "`" != $matches[1] ) {
 		$content = '<pre>' . $content . '</pre>';
+	}
 
 	return $content;
 }
@@ -260,4 +268,30 @@ function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '') {
 	if ( strpos( $content, '`' ) !== 0 ) {
 		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content );
 	}
+}
+
+/** No Follow *****************************************************************/
+
+/**
+ * Catches links so rel=nofollow can be added (on output, not save)
+ *
+ * @since bbPress (r4865)
+ * @param string $text Post text
+ * @return string $text Text with rel=nofollow added to any links
+ */
+function bbp_rel_nofollow( $text = '' ) {
+	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_nofollow_callback', $text );
+}
+
+/**
+ * Adds rel=nofollow to a link
+ *
+ * @since bbPress (r4865)
+ * @param array $matches
+ * @return string $text Link with rel=nofollow added
+ */
+function bbp_rel_nofollow_callback( $matches = array() ) {
+	$text = $matches[1];
+	$text = str_replace( array( ' rel="nofollow"', " rel='nofollow'" ), '', $text );
+	return "<a $text rel=\"nofollow\">";
 }
