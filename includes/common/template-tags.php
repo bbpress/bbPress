@@ -1677,7 +1677,7 @@ function bbp_the_content( $args = array() ) {
 			'tabindex'          => bbp_get_tab_index(),
 			'tabfocus_elements' => 'bbp_topic_title,bbp_topic_tags',
 			'editor_class'      => 'bbp-the-content',
-			'tinymce'           => true,
+			'tinymce'           => false,
 			'teeny'             => true,
 			'quicktags'         => true,
 			'dfw'               => false
@@ -1704,7 +1704,7 @@ function bbp_the_content( $args = array() ) {
 			add_filter( 'quicktags_settings', 'bbp_get_quicktags_settings' );
 
 			// Output the editor
-			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'bbp_' . $r['context'] . '_content', array(
+			wp_editor( $post_content, 'bbp_' . $r['context'] . '_content', array(
 				'wpautop'           => $r['wpautop'],
 				'media_buttons'     => $r['media_buttons'],
 				'textarea_rows'     => $r['textarea_rows'],

@@ -2103,7 +2103,7 @@ function bbp_form_reply_content() {
 			$reply_content = '';
 		}
 
-		return apply_filters( 'bbp_get_form_reply_content', esc_textarea( $reply_content ) );
+		return apply_filters( 'bbp_get_form_reply_content', $reply_content );
 	}
 
 /**

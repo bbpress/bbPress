@@ -3400,7 +3400,7 @@ function bbp_form_topic_content() {
 			$topic_content = '';
 		}
 
-		return apply_filters( 'bbp_get_form_topic_content', esc_textarea( $topic_content ) );
+		return apply_filters( 'bbp_get_form_topic_content', $topic_content );
 	}
 
 /**
