@@ -208,7 +208,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		<script type="text/javascript">
 			/* <![CDATA[ */
 			<?php if ( bbp_is_single_user_edit() ) : ?>
-			if ( window.location.hash == '#password' ) {
+			if ( window.location.hash === '#password' ) {
 				document.getElementById('pass1').focus();
 			}
 			<?php endif; ?>
@@ -216,13 +216,19 @@ class BBP_Default extends BBP_Theme_Compat {
 			<?php if ( bbp_use_wp_editor() ) : ?>
 			jQuery(document).ready( function() {
 
+				/* Use backticks instead of <code> for the Code button in the editor */
+				if ( typeof( edButtons ) !== 'undefined' ) {
+					edButtons[110] = new QTags.TagButton( 'code', 'code', '`', '`', 'c' );
+					QTags._buttonsInit();
+				}
+
 				/* Tab from topic title */
 				jQuery( '#bbp_topic_title' ).bind( 'keydown.editor-focus', function(e) {
-					if ( e.which != 9 )
+					if ( e.which !== 9 )
 						return;
 
 					if ( !e.ctrlKey && !e.altKey && !e.shiftKey ) {
-						if ( typeof( tinymce ) != 'undefined' ) {
+						if ( typeof( tinymce ) !== 'undefined' ) {
 							if ( ! tinymce.activeEditor.isHidden() ) {
 								var editor = tinymce.activeEditor.editorContainer;
 								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
@@ -239,11 +245,11 @@ class BBP_Default extends BBP_Theme_Compat {
 
 				/* Shift + tab from topic tags */
 				jQuery( '#bbp_topic_tags' ).bind( 'keydown.editor-focus', function(e) {
-					if ( e.which != 9 )
+					if ( e.which !== 9 )
 						return;
 
 					if ( e.shiftKey && !e.ctrlKey && !e.altKey ) {
-						if ( typeof( tinymce ) != 'undefined' ) {
+						if ( typeof( tinymce ) !== 'undefined' ) {
 							if ( ! tinymce.activeEditor.isHidden() ) {
 								var editor = tinymce.activeEditor.editorContainer;
 								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
