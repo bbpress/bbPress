@@ -87,7 +87,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @uses bbp_set_current_anonymous_user_data() To set the anonymous user
  *                                                cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses remove_filter() To remove the custom kses filters if needed
+ * @uses remove_filter() To remove kses filters if needed
  * @uses esc_attr() For sanitization
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
@@ -167,10 +167,11 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Unfiltered HTML *******************************************************/
 
-	// Remove the custom kses filters from title and content for capable users and if the nonce is verified
+	// Remove kses filters from title and content for capable users and if the nonce is verified
 	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
-		remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses'  );
-		remove_filter( 'bbp_new_reply_pre_content', 'bbp_filter_kses' );
+		remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses'      );
+		remove_filter( 'bbp_new_reply_pre_content', 'bbp_encode_bad',  10 );
+		remove_filter( 'bbp_new_reply_pre_content', 'bbp_filter_kses', 30 );
 	}
 
 	/** Reply Title ***********************************************************/
@@ -377,7 +378,7 @@ function bbp_new_reply_handler( $action = '' ) {
  * @uses current_user_can() To check if the current user can edit that reply
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses remove_filter() To remove the custom kses filters if needed
+ * @uses remove_filter() To remove kses filters if needed
  * @uses esc_attr() For sanitization
  * @uses apply_filters() Calls 'bbp_edit_reply_pre_title' with the title and
  *                       reply id
@@ -455,10 +456,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 		}
 	}
 
-	// Remove the custom kses filters from title and content for capable users and if the nonce is verified
+	// Remove kses filters from title and content for capable users and if the nonce is verified
 	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
-		remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'  );
-		remove_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses' );
+		remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'      );
+		remove_filter( 'bbp_edit_reply_pre_content', 'bbp_encode_bad',  10 );
+		remove_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses', 30 );
 	}
 
 	/** Reply Topic ***********************************************************/

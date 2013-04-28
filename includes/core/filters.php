@@ -103,6 +103,10 @@ add_filter( 'bbp_new_topic_pre_content',  'bbp_encode_bad',  10 );
 add_filter( 'bbp_new_topic_pre_content',  'bbp_code_trick',  20 );
 add_filter( 'bbp_new_topic_pre_content',  'bbp_filter_kses', 30 );
 add_filter( 'bbp_new_topic_pre_content',  'balanceTags',     40 );
+add_filter( 'bbp_new_forum_pre_content',  'bbp_encode_bad',  10 );
+add_filter( 'bbp_new_forum_pre_content',  'bbp_code_trick',  20 );
+add_filter( 'bbp_new_forum_pre_content',  'bbp_filter_kses', 30 );
+add_filter( 'bbp_new_forum_pre_content',  'balanceTags',     40 );
 add_filter( 'bbp_edit_reply_pre_content', 'bbp_encode_bad',  10 );
 add_filter( 'bbp_edit_reply_pre_content', 'bbp_code_trick',  20 );
 add_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses', 30 );
@@ -111,6 +115,10 @@ add_filter( 'bbp_edit_topic_pre_content', 'bbp_encode_bad',  10 );
 add_filter( 'bbp_edit_topic_pre_content', 'bbp_code_trick',  20 );
 add_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses', 30 );
 add_filter( 'bbp_edit_topic_pre_content', 'balanceTags',     40 );
+add_filter( 'bbp_edit_forum_pre_content', 'bbp_encode_bad',  10 );
+add_filter( 'bbp_edit_forum_pre_content', 'bbp_code_trick',  20 );
+add_filter( 'bbp_edit_forum_pre_content', 'bbp_filter_kses', 30 );
+add_filter( 'bbp_edit_forum_pre_content', 'balanceTags',     40 );
 
 // No follow and stripslashes on user profile links
 add_filter( 'bbp_get_reply_author_link',      'bbp_rel_nofollow' );

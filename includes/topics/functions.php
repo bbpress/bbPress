@@ -95,7 +95,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses remove_filter() To remove the custom kses filters if needed
+ * @uses remove_filter() To remove kses filters if needed
  * @uses apply_filters() Calls 'bbp_new_topic_pre_title' with the content
  * @uses apply_filters() Calls 'bbp_new_topic_pre_content' with the content
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
@@ -153,10 +153,11 @@ function bbp_new_topic_handler( $action = '' ) {
 		$topic_author = bbp_get_current_user_id();
 	}
 
-	// Remove the custom kses filters from title and content for capable users and if the nonce is verified
+	// Remove kses filters from title and content for capable users and if the nonce is verified
 	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_topic'] ) && wp_create_nonce( 'bbp-unfiltered-html-topic_new' ) == $_POST['_bbp_unfiltered_html_topic'] ) {
-		remove_filter( 'bbp_new_topic_pre_title',   'wp_filter_kses'  );
-		remove_filter( 'bbp_new_topic_pre_content', 'bbp_filter_kses' );
+		remove_filter( 'bbp_new_topic_pre_title',   'wp_filter_kses'      );
+		remove_filter( 'bbp_new_topic_pre_content', 'bbp_encode_bad',  10 );
+		remove_filter( 'bbp_new_topic_pre_content', 'bbp_filter_kses', 30 );
 	}
 
 	/** Topic Title ***********************************************************/
@@ -406,7 +407,7 @@ function bbp_new_topic_handler( $action = '' ) {
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
- * @uses remove_filter() To remove the custom kses filters if needed
+ * @uses remove_filter() To remove kses filters if needed
  * @uses apply_filters() Calls 'bbp_edit_topic_pre_title' with the title and
  *                        topic id
  * @uses apply_filters() Calls 'bbp_edit_topic_pre_content' with the content
@@ -483,10 +484,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 		return;
 	}
 
-	// Remove the custom kses filters from title and content for capable users and if the nonce is verified
+	// Remove kses filters from title and content for capable users and if the nonce is verified
 	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_topic'] ) && ( wp_create_nonce( 'bbp-unfiltered-html-topic_' . $topic_id ) == $_POST['_bbp_unfiltered_html_topic'] ) ) {
-		remove_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses'  );
-		remove_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses' );
+		remove_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses'      );
+		remove_filter( 'bbp_edit_topic_pre_content', 'bbp_encode_bad',  10 );
+		remove_filter( 'bbp_edit_topic_pre_content', 'bbp_filter_kses', 30 );
 	}
 
 	/** Topic Forum ***********************************************************/
