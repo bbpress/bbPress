@@ -1687,7 +1687,7 @@ function bbp_the_content( $args = array() ) {
 		), 'get_the_content' );
 
 		// If using tinymce, remove our escaping and trust tinymce
-		if ( true === $r['tinymce'] ) {
+		if ( bbp_use_wp_editor() && ( true === $r['tinymce'] ) ) {
 			remove_filter( 'bbp_get_form_forum_content', 'esc_textarea' );
 			remove_filter( 'bbp_get_form_topic_content', 'esc_textarea' );
 			remove_filter( 'bbp_get_form_reply_content', 'esc_textarea' );
