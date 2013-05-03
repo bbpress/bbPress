@@ -157,12 +157,15 @@ add_filter( 'bbp_get_topic_content', 'wpautop',            40   );
 add_filter( 'bbp_get_topic_content', 'bbp_rel_nofollow',   50   );
 
 // Form textarea output - undo the code-trick done pre-save, and sanitize
-add_filter( 'bbp_get_form_reply_content', 'bbp_code_trick_reverse' );
-add_filter( 'bbp_get_form_reply_content', 'esc_html'               );
-add_filter( 'bbp_get_form_reply_content', 'trim'                   );
+add_filter( 'bbp_get_form_forum_content', 'bbp_code_trick_reverse' );
+add_filter( 'bbp_get_form_forum_content', 'esc_textarea'           );
+add_filter( 'bbp_get_form_forum_content', 'trim'                   );
 add_filter( 'bbp_get_form_topic_content', 'bbp_code_trick_reverse' );
-add_filter( 'bbp_get_form_topic_content', 'esc_html'               );
+add_filter( 'bbp_get_form_topic_content', 'esc_textarea'           );
 add_filter( 'bbp_get_form_topic_content', 'trim'                   );
+add_filter( 'bbp_get_form_reply_content', 'bbp_code_trick_reverse' );
+add_filter( 'bbp_get_form_reply_content', 'esc_textarea'           );
+add_filter( 'bbp_get_form_reply_content', 'trim'                   );
 
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_user_topic_count',     'bbp_number_format', 10 );

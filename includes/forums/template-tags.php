@@ -1991,7 +1991,7 @@ function bbp_form_forum_content() {
 			$forum_content = '';
 		}
 
-		return apply_filters( 'bbp_get_form_forum_content', esc_textarea( $forum_content ) );
+		return apply_filters( 'bbp_get_form_forum_content', $forum_content );
 	}
 
 /**

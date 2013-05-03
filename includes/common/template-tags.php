@@ -1686,6 +1686,13 @@ function bbp_the_content( $args = array() ) {
 			'dfw'               => false
 		), 'get_the_content' );
 
+		// If using tinymce, remove our escaping and trust tinymce
+		if ( true === $r['tinymce'] ) {
+			remove_filter( 'bbp_get_form_forum_content', 'esc_textarea' );
+			remove_filter( 'bbp_get_form_topic_content', 'esc_textarea' );
+			remove_filter( 'bbp_get_form_reply_content', 'esc_textarea' );
+		}
+
 		// Assume we are not editing
 		$post_content = call_user_func( 'bbp_get_form_' . $r['context'] . '_content' );
 
