@@ -87,6 +87,7 @@ class BBP_Topics_Admin {
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
+		add_action( 'load-post.php',     array( $this, 'new_help'  ) );
 		add_action( 'load-post-new.php', array( $this, 'new_help'  ) );
 	}
 
