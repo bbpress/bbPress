@@ -32,6 +32,7 @@
 
 #bbpress-forums div.reply {
 	height: auto;
+	width: 100%;
 }
 
 #bbpress-forums div.bbp-forum-header,
