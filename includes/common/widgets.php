@@ -161,8 +161,8 @@ class BBP_Login_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance             = $old_instance;
 		$instance['title']    = strip_tags( $new_instance['title'] );
-		$instance['register'] = esc_url( $new_instance['register'] );
-		$instance['lostpass'] = esc_url( $new_instance['lostpass'] );
+		$instance['register'] = esc_url_raw( $new_instance['register'] );
+		$instance['lostpass'] = esc_url_raw( $new_instance['lostpass'] );
 
 		return $instance;
 	}
@@ -600,7 +600,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
 		$instance['title']        = strip_tags( $new_instance['title'] );
-		$instance['parent_forum'] = $new_instance['parent_forum'];
+		$instance['parent_forum'] = sanitize_text_field( $new_instance['parent_forum'] );
 
 		// Force to any
 		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
@@ -834,18 +834,17 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @param array $old_instance The old instance options
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
-		$instance              = $old_instance;
-		$instance['title']     = strip_tags( $new_instance['title'] );
-		$instance['order_by']  = strip_tags( $new_instance['order_by'] );
-		$instance['show_date'] = (bool) $new_instance['show_date'];
-		$instance['show_user'] = (bool) $new_instance['show_user'];
-		$instance['max_shown'] = (int) $new_instance['max_shown'];
+		$instance                 = $old_instance;
+		$instance['title']        = strip_tags( $new_instance['title'] );
+		$instance['order_by']     = strip_tags( $new_instance['order_by'] );
+		$instance['parent_forum'] = sanitize_text_field( $new_instance['parent_forum'] );
+		$instance['show_date']    = (bool) $new_instance['show_date'];
+		$instance['show_user']    = (bool) $new_instance['show_user'];
+		$instance['max_shown']    = (int) $new_instance['max_shown'];
 
 		// Force to any
-		if ( !empty( $instance['parent_forum'] ) || !is_numeric( $instance['parent_forum'] ) ) {
+		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
-		} else {
-			$instance['parent_forum'] = (int) $new_instance['parent_forum'];
 		}
 
 		return $instance;
@@ -878,8 +877,8 @@ class BBP_Topics_Widget extends WP_Widget {
 			<small><?php _e( '"0" to show only root - "any" to show all', 'bbpress' ); ?></small>
 		</p>
 
-		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',    'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $settings['show_date'] ); ?> /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show topic author:', 'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( 'on', $settings['show_user'] ); ?> /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',    'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( true, $settings['show_date'] ); ?> value="1" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show topic author:', 'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( true, $settings['show_user'] ); ?> value="1" /></label></p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'order_by' ); ?>"><?php _e( 'Order By:',        'bbpress' ); ?></label>
@@ -1224,8 +1223,8 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                   'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo esc_attr( $settings['title']     ); ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo esc_attr( $settings['max_shown'] ); ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',          'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( 'on', $settings['show_date'] ); ?> /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show reply author:',       'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( 'on', $settings['show_user'] ); ?> /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:',          'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php checked( true, $settings['show_date'] ); ?> value="1" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_user' ); ?>"><?php _e( 'Show reply author:',       'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_user' ); ?>" name="<?php echo $this->get_field_name( 'show_user' ); ?>" <?php checked( true, $settings['show_user'] ); ?> value="1" /></label></p>
 
 		<?php
 	}
