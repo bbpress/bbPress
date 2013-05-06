@@ -30,7 +30,11 @@
 	background-color: #fbfbfb;
 }
 
-#bbpress-forums div.reply {
+body.reply-edit .reply {
+	float: none;
+}
+
+#bbpress-forums .type-reply {
 	height: auto;
 	width: 100%;
 }
