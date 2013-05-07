@@ -506,6 +506,7 @@ function bb_get_title( $args = '' ) {
 			if ( !$q = trim( @$_GET['search'] ) )
 				if ( !$q = trim( @$_GET['q'] ) )
 					break;
+			$q = stripslashes( $q );
 			$title[] = sprintf( __( 'Search for %s' ), esc_html( $q ) );
 			break;
 		case 'front-page':
