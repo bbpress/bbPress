@@ -221,20 +221,20 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  * @return array|bool Results if the topic has any favoriters, otherwise false
  */
 function bbp_get_topic_favoriters( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
 	if ( empty( $topic_id ) )
 		return;
 
 	global $wpdb;
 
-	// Get the users who have favorited the topic
 	$key   = $wpdb->prefix . '_bbp_favorites';
-	$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
-	$users = apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
+	$users = wp_cache_get( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
+	if ( false === $users ) {
+		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
+		wp_cache_set( 'bbp_get_topic_favoriters_' . $topic_id, $users, 'bbpress_users' );
+	}
 
-	if ( !empty( $users ) )
-		return $users;
-
-	return false;
+	return apply_filters( 'bbp_get_topic_favoriters', $users );
 }
 
 /**
@@ -526,23 +526,20 @@ function bbp_favorites_handler( $action = '' ) {
  * @return array|bool Results if the topic has any subscribers, otherwise false
  */
 function bbp_get_topic_subscribers( $topic_id = 0 ) {
-	if ( empty( $topic_id ) ) return;
+	$topic_id = bbp_get_topic_id( $topic_id );
+	if ( empty( $topic_id ) )
+		return;
 
 	global $wpdb;
 
 	$key   = $wpdb->prefix . '_bbp_subscriptions';
 	$users = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
-	if ( empty( $users ) ) {
+	if ( false === $users ) {
 		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 		wp_cache_set( 'bbp_get_topic_subscribers_' . $topic_id, $users, 'bbpress_users' );
 	}
 
-	if ( !empty( $users ) ) {
-		$users = apply_filters( 'bbp_get_topic_subscribers', $users );
-		return $users;
-	}
-
-	return false;
+	return apply_filters( 'bbp_get_topic_subscribers', $users );
 }
 
 /**

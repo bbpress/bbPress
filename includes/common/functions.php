@@ -1244,25 +1244,27 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
-	$post_status = array( bbp_get_public_status_id() );
-
-	// Add closed status if topic post type
-	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = bbp_get_closed_status_id();
-
-	// Join post statuses together
-	$post_status = "'" . implode( "', '", $post_status ) . "'";
+	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
 
 	// Check for cache and set if needed
 	$child_id = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( empty( $child_id ) ) {
+	if ( false === $child_id ) {
+		$post_status = array( bbp_get_public_status_id() );
+
+		// Add closed status if topic post type
+		if ( $post_type == bbp_get_topic_post_type() ) {
+			$post_status[] = bbp_get_closed_status_id();
+		}
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", $post_status ) . "'";
+
 		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_last_id', (int) $child_id, (int) $parent_id, $post_type );
+	return apply_filters( 'bbp_get_public_child_last_id', (int) $child_id, $parent_id, $post_type );
 }
 
 /**
@@ -1288,24 +1290,26 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
-	$post_status = array( bbp_get_public_status_id() );
-
-	// Add closed status if topic post type
-	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = bbp_get_closed_status_id();
-
-	// Join post statuses together
-	$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
 	$child_count = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( empty( $child_count ) ) {
+	if ( false === $child_count ) {
+		$post_status = array( bbp_get_public_status_id() );
+
+		// Add closed status if topic post type
+		if ( $post_type == bbp_get_topic_post_type() ) {
+			$post_status[] = bbp_get_closed_status_id();
+		}
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", $post_status ) . "'";
+
 		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
+	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, $parent_id, $post_type );
 }
 
 /**
@@ -1330,26 +1334,29 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( bbp_get_public_status_id() );
-
-	// Add closed status if topic post type
-	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = bbp_get_closed_status_id();
-
-	// Join post statuses together
-	$post_status = "'" . implode( "', '", $post_status ) . "'";
+	$cache_id  = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( empty( $child_ids ) ) {
+	if ( false === $child_ids ) {
+		$post_status = array( bbp_get_public_status_id() );
+
+		// Add closed status if topic post type
+		if ( $post_type == bbp_get_topic_post_type() ) {
+			$post_status[] = bbp_get_closed_status_id();
+		}
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", $post_status ) . "'";
+
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
+	return apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );
 }
+
 /**
  * Query the DB and get a the child id's of all children
  *
@@ -1372,38 +1379,39 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( bbp_get_public_status_id() );
-
-	// Extra post statuses based on post type
-	switch ( $post_type ) {
-
-		// Forum
-		case bbp_get_forum_post_type() :
-			$post_status[] = bbp_get_private_status_id();
-			$post_status[] = bbp_get_hidden_status_id();
-			break;
-
-		// Topic
-		case bbp_get_topic_post_type() :
-			$post_status[] = bbp_get_closed_status_id();
-			$post_status[] = bbp_get_trash_status_id();
-			$post_status[] = bbp_get_spam_status_id();
-			break;
-
-		// Reply
-		case bbp_get_reply_post_type() :
-			$post_status[] = bbp_get_trash_status_id();
-			$post_status[] = bbp_get_spam_status_id();
-			break;
-	}
-
-	// Join post statuses together
-	$post_status = "'" . implode( "', '", $post_status ) . "'";
+	$cache_id  = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( empty( $child_ids ) ) {
+	if ( false === $child_ids ) {
+		$post_status = array( bbp_get_public_status_id() );
+
+		// Extra post statuses based on post type
+		switch ( $post_type ) {
+
+			// Forum
+			case bbp_get_forum_post_type() :
+				$post_status[] = bbp_get_private_status_id();
+				$post_status[] = bbp_get_hidden_status_id();
+				break;
+
+			// Topic
+			case bbp_get_topic_post_type() :
+				$post_status[] = bbp_get_closed_status_id();
+				$post_status[] = bbp_get_trash_status_id();
+				$post_status[] = bbp_get_spam_status_id();
+				break;
+
+			// Reply
+			case bbp_get_reply_post_type() :
+				$post_status[] = bbp_get_trash_status_id();
+				$post_status[] = bbp_get_spam_status_id();
+				break;
+		}
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", $post_status ) . "'";
+
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
