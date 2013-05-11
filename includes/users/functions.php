@@ -284,9 +284,8 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	$favorites = (string) get_user_option( '_bbp_favorites', $user_id );
-	$favorites = (array) explode( ',', $favorites );
-	$favorites = array_filter( $favorites );
+	$favorites = get_user_option( '_bbp_favorites', $user_id );
+	$favorites = array_filter( wp_parse_id_list( $favorites ) );
 
 	return apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites, $user_id );
 }
@@ -363,8 +362,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 
 	if ( !in_array( $topic_id, $favorites ) ) {
 		$favorites[] = $topic_id;
-		$favorites   = array_filter( $favorites );
-		$favorites   = (string) implode( ',', $favorites );
+		$favorites   = implode( ',', wp_parse_id_list( array_filter( $favorites ) ) );
 		update_user_option( $user_id, '_bbp_favorites', $favorites );
 	}
 
@@ -401,7 +399,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 		$favorites = array_filter( $favorites );
 
 		if ( !empty( $favorites ) ) {
-			$favorites = implode( ',', $favorites );
+			$favorites = implode( ',', wp_parse_id_list( $favorites ) );
 			update_user_option( $user_id, '_bbp_favorites', $favorites );
 		} else {
 			delete_user_option( $user_id, '_bbp_favorites' );
@@ -588,9 +586,8 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	$subscriptions = (string) get_user_option( '_bbp_subscriptions', $user_id );
-	$subscriptions = (array) explode( ',', $subscriptions );
-	$subscriptions = array_filter( $subscriptions );
+	$subscriptions = get_user_option( '_bbp_subscriptions', $user_id );
+	$subscriptions = array_filter( wp_parse_id_list( $subscriptions ) );
 
 	return apply_filters( 'bbp_get_user_subscribed_topic_ids', $subscriptions, $user_id );
 }
@@ -670,8 +667,7 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
 
 	if ( !in_array( $topic_id, $subscriptions ) ) {
 		$subscriptions[] = $topic_id;
-		$subscriptions   = array_filter( $subscriptions );
-		$subscriptions   = (string) implode( ',', $subscriptions );
+		$subscriptions   = implode( ',', wp_parse_id_list( array_filter( $subscriptions ) ) );
 		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 
 		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
@@ -712,7 +708,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 		$subscriptions = array_filter( $subscriptions );
 
 		if ( !empty( $subscriptions ) ) {
-			$subscriptions = implode( ',', $subscriptions );
+			$subscriptions = implode( ',', wp_parse_id_list( $subscriptions ) );
 			update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 		} else {
 			delete_user_option( $user_id, '_bbp_subscriptions' );

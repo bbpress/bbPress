@@ -1209,13 +1209,13 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 
 	// Including specific post_parent's
 	if ( ! empty( $object->query_vars['post_parent__in'] ) ) {
-		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__in'] ) );
-		$where .= " AND $wpdb->posts.post_parent IN ($ids)";
+		$ids    = implode( ',', wp_parse_id_list( $object->query_vars['post_parent__in'] ) );
+		$where .= " AND {$wpdb->posts}.post_parent IN ($ids)";
 
 	// Excluding specific post_parent's
 	} elseif ( ! empty( $object->query_vars['post_parent__not_in'] ) ) {
-		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__not_in'] ) );
-		$where .= " AND $wpdb->posts.post_parent NOT IN ($ids)";
+		$ids    = implode( ',', wp_parse_id_list( $object->query_vars['post_parent__not_in'] ) );
+		$where .= " AND {$wpdb->posts}.post_parent NOT IN ($ids)";
 	}
 
 	// Return possibly modified $where

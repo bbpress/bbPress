@@ -1645,7 +1645,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 		$hidden  = bbp_get_hidden_forum_ids();
 
 	// Merge private and hidden forums together and remove any empties
-	$forum_ids = (array) array_filter( array_merge( $private, $hidden ) );
+	$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
 	// There are forums that need to be ex
 	if ( !empty( $forum_ids ) )

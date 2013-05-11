@@ -1361,8 +1361,10 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 	if ( !empty( $forum_id ) ) {
 
 		// Get topics of forum
-		if ( empty( $topic_count ) )
-			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . implode( '\',\'', array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+		if ( empty( $topic_count ) ) {
+			$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "'";
+			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+		}
 
 		// Update the count
 		update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
@@ -1409,7 +1411,8 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	// Don't count replies if the forum is a category
 	$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 	if ( !empty( $topic_ids ) ) {
-		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . implode( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
+		$topic_ids   = implode( ',', wp_parse_id_list( $topic_ids ) );
+		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( {$topic_ids} ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
 	} else {
 		$reply_count = 0;
 	}
@@ -1574,7 +1577,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 			$hidden  = bbp_get_hidden_forum_ids();
 
 		// Merge private and hidden forums together
-		$forum_ids = (array) array_filter( array_merge( $private, $hidden ) );
+		$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
 		// There are forums that need to be excluded
 		if ( !empty( $forum_ids ) ) {

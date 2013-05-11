@@ -614,7 +614,7 @@ function bbp_admin_repair_user_favorites() {
 		if ( empty( $user->favorites ) || !is_string( $user->favorites ) )
 			continue;
 
-		$favorites = array_intersect( $topics, (array) explode( ',', $user->favorites ) );
+		$favorites = array_intersect( $topics, explode( ',', $user->favorites ) );
 		if ( empty( $favorites ) || !is_array( $favorites ) )
 			continue;
 
@@ -675,7 +675,7 @@ function bbp_admin_repair_user_subscriptions() {
 		if ( empty( $user->subscriptions ) || !is_string( $user->subscriptions ) )
 			continue;
 
-		$subscriptions = array_intersect( $topics, (array) explode( ',', $user->subscriptions ) );
+		$subscriptions = array_intersect( $topics, explode( ',', $user->subscriptions ) );
 		if ( empty( $subscriptions ) || !is_array( $subscriptions ) )
 			continue;
 
