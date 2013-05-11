@@ -677,7 +677,7 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
 		$subscriptions   = (string) implode( ',', $subscriptions );
 		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 
-		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
+		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
 	}
 
 	do_action( 'bbp_add_user_subscription', $user_id, $topic_id );
@@ -721,7 +721,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 			delete_user_option( $user_id, '_bbp_subscriptions' );
 		}
 
-		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress' );
+		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
 	}
 
 	do_action( 'bbp_remove_user_subscription', $user_id, $topic_id );
