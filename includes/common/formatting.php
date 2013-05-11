@@ -170,7 +170,7 @@ function bbp_encode_bad( $content = '' ) {
 	}
 
 	// Return the joined content array
-	return join( '', $content );
+	return implode( '', $content );
 }
 
 /** Code Callbacks ************************************************************/

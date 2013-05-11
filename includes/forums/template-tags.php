@@ -1777,7 +1777,7 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
 
 		// Filter the results
 		$classes   = apply_filters( 'bbp_get_forum_class', $classes, $forum_id );
-		$retval    = 'class="' . join( ' ', $classes ) . '"';
+		$retval    = 'class="' . implode( ' ', $classes ) . '"';
 
 		return $retval;
 	}

@@ -1439,11 +1439,11 @@ function bbp_author_link( $args = '' ) {
 				foreach ( $author_links as $link_text ) {
 					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
 				}
-				$author_link = join( '&nbsp;', $author_link );
+				$author_link = implode( '&nbsp;', $author_link );
 
 			// No links if anonymous
 			} else {
-				$author_link = join( '&nbsp;', $author_links );
+				$author_link = implode( '&nbsp;', $author_links );
 			}
 
 		// No post so link is empty

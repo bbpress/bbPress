@@ -130,7 +130,7 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
 				break;
 
 			default:
-				$message = '<ul>' . "\n\t" . '<li>' . join( '</li>' . "\n\t" . '<li>', $errors ) . '</li>' . "\n" . '</ul>';
+				$message = '<ul>' . "\n\t" . '<li>' . implode( '</li>' . "\n\t" . '<li>', $errors ) . '</li>' . "\n" . '</ul>';
 				break;
 		}
 
@@ -285,7 +285,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . join( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -527,7 +527,7 @@ function bbp_admin_repair_user_topic_count() {
 		return array( 3, sprintf( $statement, $result ) );
 
 	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
-		$chunk = "\n" . join( ",\n", $chunk );
+		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
@@ -572,7 +572,7 @@ function bbp_admin_repair_user_reply_count() {
 		return array( 3, sprintf( $statement, $result ) );
 
 	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
-		$chunk = "\n" . join( ",\n", $chunk );
+		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
@@ -618,7 +618,7 @@ function bbp_admin_repair_user_favorites() {
 		if ( empty( $favorites ) || !is_array( $favorites ) )
 			continue;
 
-		$favorites_joined = join( ',', $favorites );
+		$favorites_joined = implode( ',', $favorites );
 		$values[]         = "('{$user->user_id}', '{$key}, '{$favorites_joined}')";
 
 		// Cleanup
@@ -635,7 +635,7 @@ function bbp_admin_repair_user_favorites() {
 		return array( 4, sprintf( $statement, $result ) );
 
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
-		$chunk = "\n" . join( ",\n", $chunk );
+		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `$wpdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
@@ -679,7 +679,7 @@ function bbp_admin_repair_user_subscriptions() {
 		if ( empty( $subscriptions ) || !is_array( $subscriptions ) )
 			continue;
 
-		$subscriptions_joined = join( ',', $subscriptions );
+		$subscriptions_joined = implode( ',', $subscriptions );
 		$values[]             = "('{$user->user_id}', '{$key}', '{$subscriptions_joined}')";
 
 		// Cleanup
@@ -696,7 +696,7 @@ function bbp_admin_repair_user_subscriptions() {
 		return array( 4, sprintf( $statement, $result ) );
 
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
-		$chunk = "\n" . join( ",\n", $chunk );
+		$chunk = "\n" . implode( ",\n", $chunk );
 		$sql_insert = "INSERT INTO `{$wpdb->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );

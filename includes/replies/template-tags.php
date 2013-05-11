@@ -100,7 +100,7 @@ function bbp_has_replies( $args = '' ) {
 		}
 
 		// Join post statuses together
-		$default['post_status'] = join( ',', $post_statuses );
+		$default['post_status'] = implode( ',', $post_statuses );
 
 	// Lean on the 'perm' query var value of 'readable' to provide statuses
 	} else {
@@ -1111,11 +1111,11 @@ function bbp_reply_author_link( $args = '' ) {
 					$author_link[] = bbp_get_reply_author_role( array( 'reply_id' => $reply_id ) );
 				}
 
-				$author_link = join( $r['sep'], $author_link );
+				$author_link = implode( $r['sep'], $author_link );
 
 			// No links if anonymous
 			} else {
-				$author_link = join( $r['sep'], $author_links );
+				$author_link = implode( $r['sep'], $author_links );
 			}
 
 		// No replies so link is empty
@@ -1971,7 +1971,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 		$classes   = array_filter( $classes );
 		$classes   = get_post_class( $classes, $reply_id );
 		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );
-		$retval    = 'class="' . join( ' ', $classes ) . '"';
+		$retval    = 'class="' . implode( ' ', $classes ) . '"';
 
 		return $retval;
 	}

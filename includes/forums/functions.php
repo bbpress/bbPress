@@ -1362,7 +1362,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 
 		// Get topics of forum
 		if ( empty( $topic_count ) )
-			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . implode( '\',\'', array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
 
 		// Update the count
 		update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
@@ -1409,7 +1409,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	// Don't count replies if the forum is a category
 	$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 	if ( !empty( $topic_ids ) ) {
-		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
+		$reply_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . implode( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
 	} else {
 		$reply_count = 0;
 	}
@@ -1805,7 +1805,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 		}
 
 		if ( !empty( $topic_ids ) ) {
-			$reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
+			$reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . implode( ',', $topic_ids ) . " ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
 			wp_cache_set( $cache_id, $reply_id, 'bbpress_posts' ); // May be (int) 0
 		} else {
 			wp_cache_set( $cache_id, '0', 'bbpress_posts' );
@@ -2021,7 +2021,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		return;
 
 	// Allowed post statuses to pre-trash
-	$post_stati = join( ',', array(
+	$post_stati = implode( ',', array(
 		bbp_get_public_status_id(),
 		bbp_get_closed_status_id(),
 		bbp_get_pending_status_id()

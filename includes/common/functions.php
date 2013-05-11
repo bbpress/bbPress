@@ -1252,7 +1252,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
 	$child_id = wp_cache_get( $cache_id, 'bbpress_posts' );
@@ -1295,7 +1295,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
 	$child_count = wp_cache_get( $cache_id, 'bbpress_posts' );
@@ -1338,7 +1338,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
@@ -1399,7 +1399,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );

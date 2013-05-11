@@ -122,7 +122,7 @@ function bbp_has_topics( $args = '' ) {
 		}
 
 		// Join post statuses together
-		$default['post_status'] = join( ',', $post_statuses );
+		$default['post_status'] = implode( ',', $post_statuses );
 
 	// Lean on the 'perm' query var value of 'readable' to provide statuses
 	} else {
@@ -1438,11 +1438,11 @@ function bbp_topic_author_link( $args = '' ) {
 					$author_link[] = bbp_get_topic_author_role( array( 'topic_id' => $topic_id ) );
 				}
 
-				$author_link = join( $r['sep'], $author_link );
+				$author_link = implode( $r['sep'], $author_link );
 
 			// No links if anonymous
 			} else {
-				$author_link = join( $r['sep'], $author_links );
+				$author_link = implode( $r['sep'], $author_links );
 			}
 
 		} else {
@@ -2197,7 +2197,7 @@ function bbp_topic_class( $topic_id = 0, $classes = array() ) {
 		$classes   = array_filter( $classes );
 		$classes   = get_post_class( $classes, $topic_id );
 		$classes   = apply_filters( 'bbp_get_topic_class', $classes, $topic_id );
-		$retval    = 'class="' . join( ' ', $classes ) . '"';
+		$retval    = 'class="' . implode( ' ', $classes ) . '"';
 
 		return $retval;
 	}

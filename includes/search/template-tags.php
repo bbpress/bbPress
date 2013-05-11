@@ -51,7 +51,7 @@ function bbp_has_search_results( $args = '' ) {
 	}
 
 	$default_post_type   = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$default_post_status = join( ',', $post_statuses );
+	$default_post_status = implode( ',', $post_statuses );
 
 	// Default query args
 	$default = array(
