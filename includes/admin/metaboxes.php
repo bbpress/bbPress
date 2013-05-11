@@ -478,6 +478,20 @@ function bbp_author_metabox() {
 			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_website', true ) ); ?>" />
 		</p>
 
+	<?php else : ?>
+
+		<p>
+			<strong class="label"><?php _e( 'Name:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_author_name"><?php _e( 'Name', 'bbpress' ); ?></label>
+			<input type="text" id="bbp_author_name" name="bbp_author_name" value="<?php echo esc_attr( get_the_author_meta( 'nicename', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
+		</p>
+
+		<p>
+			<strong class="label"><?php _e( 'Email:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_author_email"><?php _e( 'Email', 'bbpress' ); ?></label>
+			<input type="text" id="bbp_author_email" name="bbp_author_email" value="<?php echo esc_attr( get_the_author_meta( 'email', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
+		</p>
+
 	<?php endif; ?>
 
 	<p>
