@@ -209,11 +209,7 @@ class BBP_Topics_Admin {
 
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your topic in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a topic or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a topic to be published in the future or backdate a topic.', 'bbpress' ) . '</p>';
 
-		if ( current_theme_supports( 'topic-formats' ) && topic_type_supports( 'topic', 'topic-formats' ) ) {
-			$publish_box .= '<p>' . __( '<strong>topic Format</strong> - This designates how your theme will display a specific topic. For example, you could have a <em>standard</em> blog topic with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/Post_Formats#Supported_Formats">descriptions of each topic format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
-		}
-
-		if ( current_theme_supports( 'topic-thumbnails' ) && topic_type_supports( 'topic', 'thumbnail' ) ) {
+		if ( current_theme_supports( 'topic-thumbnails' ) && post_type_supports( 'topic', 'thumbnail' ) ) {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
@@ -232,14 +228,6 @@ class BBP_Topics_Admin {
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
-		) );
-
-		get_current_screen()->add_help_tab( array(
-			'id'      => 'discussion-settings',
-			'title'   => __( 'Discussion Settings', 'bbpress' ),
-			'content' =>
-				'<p>' . __( '<strong>Send Trackbacks</strong> - Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. Enter the URL(s) you want to send trackbacks. If you link to other WordPress sites they&#8217;ll be notified automatically using pingbacks, and this field is unnecessary.', 'bbpress' ) . '</p>' .
-				'<p>' . __( '<strong>Discussion</strong> - You can turn comments and pings on or off, and if there are comments on the topic, you can see them here and moderate them.', 'bbpress' ) . '</p>'
 		) );
 
 		get_current_screen()->set_help_sidebar(
