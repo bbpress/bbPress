@@ -63,7 +63,8 @@ add_action( 'bbp_init', 'bbp_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_delete_rewrite_rules'    );
+add_action( 'bbp_activation', 'bbp_delete_rewrite_rules'        );
+add_action( 'bbp_activation', 'bbp_make_current_user_keymaster' );
 
 // Deactivation
 add_action( 'bbp_deactivation', 'bbp_remove_caps'          );
