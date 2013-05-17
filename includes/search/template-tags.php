@@ -210,12 +210,14 @@ function bbp_search_title() {
 
 		// No search terms specified
 		if ( empty( $search_terms ) ) {
-			return __( 'Search', 'bbpress' );
+			$title = __( 'Search', 'bbpress' );
 
 		// Include search terms in title
 		} else {
-			return sprintf( __( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
+			$title = sprintf( __( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 		}
+
+		return apply_filters( 'bbp_get_search_title', $title, $search_terms );
 	}
 
 /**
