@@ -278,19 +278,28 @@ function bbp_search_terms( $search_terms = '' ) {
 	 * If search terms are supplied, those are used. Otherwise check the
 	 * search rewrite id query var.
 	 *
-	 * @param string $search_terms Optional. Search terms
+	 * @param string $passed_terms Optional. Search terms
 	 * @uses sanitize_title() To sanitize the search terms
 	 * @uses get_query_var*( To get the search terms from query var 'bbp_search'
 	 * @return bool|string Search terms on success, false on failure
 	 */
-	function bbp_get_search_terms( $search_terms = '' ) {
+	function bbp_get_search_terms( $passed_terms = '' ) {
 
-		$search_terms = !empty( $search_terms ) ? sanitize_title( $search_terms ) : get_query_var( bbp_get_search_rewrite_id() );
+		// Sanitize terms if they were passed in
+		if ( !empty( $passed_terms ) ) {
+			$search_terms = sanitize_title( $passed_terms );
 
-		if ( !empty( $search_terms ) )
-			return $search_terms;
+		// Use query variable if not
+		} else {
+			$search_terms = get_query_var( bbp_get_search_rewrite_id() );
+		}
 
-		return false;
+		// Set explicitly to false if empty
+		if ( empty( $search_terms ) ) {
+			$search_terms = false;
+		}
+
+		return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
 	}
 
 /**
