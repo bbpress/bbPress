@@ -30,7 +30,7 @@ function bbp_search_query( $new_args = array() ) {
 
 	// Merge arguments
 	if ( !empty( $new_args ) ) {
-		$new_args   = bbp_parse_args( $new_args, '', 'search_query' );
+		$new_args   = bbp_parse_args( $new_args, array(), 'search_query' );
 		$query_args = array_merge( $query_args, $new_args );
 	}
 
