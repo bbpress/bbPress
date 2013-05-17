@@ -1155,27 +1155,31 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  * @param string $filter_key String to key the filters from
  * @return array Merged user defined values with defaults.
  */
-function bbp_parse_args( $args, $defaults = '', $filter_key = '' ) {
+function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
 	// Setup a temporary array from $args
-	if ( is_object( $args ) )
+	if ( is_object( $args ) ) {
 		$r = get_object_vars( $args );
-	elseif ( is_array( $args ) )
+	} elseif ( is_array( $args ) ) {
 		$r =& $args;
-	else
+	} else {
 		wp_parse_str( $args, $r );
+	}
 
 	// Passively filter the args before the parse
-	if ( !empty( $filter_key ) )
+	if ( !empty( $filter_key ) ) {
 		$r = apply_filters( 'bbp_before_' . $filter_key . '_parse_args', $r );
+	}
 
 	// Parse
-	if ( is_array( $defaults ) )
+	if ( is_array( $defaults ) && !empty( $defaults ) ) {
 		$r = array_merge( $defaults, $r );
+	}
 
 	// Aggressively filter the args after the parse
-	if ( !empty( $filter_key ) )
+	if ( !empty( $filter_key ) ) {
 		$r = apply_filters( 'bbp_after_' . $filter_key . '_parse_args', $r );
+	}
 
 	// Return the parsed results
 	return $r;
