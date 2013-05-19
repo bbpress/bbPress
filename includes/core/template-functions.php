@@ -330,29 +330,31 @@ function bbp_parse_query( $posts_query ) {
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
 
-		// Not a user_id so try email and slug
-		if ( get_option( 'permalink_structure' ) || ! is_numeric( $bbp_user ) ) {
+		/** Find User *********************************************************/
+
+		// Setup the default user variable
+		$the_user = false;
+
+		// If using pretty permalinks, use the email or slug
+		if ( get_option( 'permalink_structure' ) ) {
 
 			// Email was passed
 			if ( is_email( $bbp_user ) ) {
-				$bbp_user = get_user_by( 'email', $bbp_user );
+				$the_user = get_user_by( 'email', $bbp_user );
 
 			// Try nicename
 			} else {
-				$bbp_user = get_user_by( 'slug', $bbp_user );
-			}
-
-			// If we were successful, set to ID
-			if ( is_object( $bbp_user ) ) {
-				$bbp_user = $bbp_user->ID;
+				$the_user = get_user_by( 'slug', $bbp_user );
 			}
 		}
 
-		// Cast as int, just in case
-		$bbp_user = (int) $bbp_user;
+		// No user found by slug/email, so try the ID if it's numeric
+		if ( empty( $the_user ) && is_numeric( $bbp_user ) ) {
+			$the_user = get_user_by( 'id', $bbp_user );
+		}
 
 		// 404 and bail if user does not have a profile
-		if ( ! bbp_user_has_profile( $bbp_user ) ) {
+		if ( empty( $the_user->ID ) || ! bbp_user_has_profile( $the_user->ID ) ) {
 			$posts_query->set_404();
 			return;
 		}
@@ -418,22 +420,19 @@ function bbp_parse_query( $posts_query ) {
 		// Correct is_home variable
 		$posts_query->is_home = false;
 
-		// Get the user data
-		$user = get_userdata( $bbp_user );
-
 		// User is looking at their own profile
-		if ( get_current_user_id() == $user->ID ) {
+		if ( get_current_user_id() == $the_user->ID ) {
 			$posts_query->bbp_is_single_user_home = true;
 		}
 
 		// Set bbp_user_id for future reference
-		$posts_query->set( 'bbp_user_id', $user->ID );
+		$posts_query->set( 'bbp_user_id', $the_user->ID );
 
 		// Set author_name as current user's nicename to get correct posts
-		$posts_query->set( 'author_name', $user->user_nicename );
+		$posts_query->set( 'author_name', $the_user->user_nicename );
 
 		// Set the displayed user global to this user
-		bbpress()->displayed_user = $user;
+		bbpress()->displayed_user = $the_user;
 
 	// View Page
 	} elseif ( !empty( $bbp_view ) ) {
