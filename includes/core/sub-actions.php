@@ -425,7 +425,7 @@ function bbp_template_include( $template = '' ) {
  * Generate bbPress-specific rewrite rules
  *
  * @since bbPress (r2688)
- * @deprecated since bbPress (rxxxx)
+ * @deprecated since bbPress (r4918)
  * @param WP_Rewrite $wp_rewrite
  * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
  */
