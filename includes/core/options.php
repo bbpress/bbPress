@@ -61,6 +61,7 @@ function bbp_get_default_options() {
 
 		'_bbp_root_slug'            => 'forums',    // Forum archive slug
 		'_bbp_topic_archive_slug'   => 'topics',    // Topic archive slug
+		'_bbp_reply_archive_slug'   => 'replies',   // Reply archive slug
 
 		/** Single Slugs ******************************************************/
 
@@ -428,6 +429,16 @@ function bbp_get_forum_slug( $default = 'forum' ) {;
  */
 function bbp_get_topic_archive_slug( $default = 'topics' ) {
 	return apply_filters( 'bbp_get_topic_archive_slug', get_option( '_bbp_topic_archive_slug', $default ) );
+}
+
+/**
+ * Return the reply archive slug
+ *
+ * @since bbPress (r4925)
+ * @return string
+ */
+function bbp_get_reply_archive_slug( $default = 'replies' ) {
+	return apply_filters( 'bbp_get_reply_archive_slug', get_option( '_bbp_reply_archive_slug', $default ) );
 }
 
 /**
