@@ -647,6 +647,11 @@ class BBP_Shortcodes {
 		if ( !empty( $content ) )
 			return $content;
 
+		// Trim search attribute if it's set
+		if ( isset( $attr['search'] ) ) {
+			$attr['search'] = trim( $attr['search'] );
+		}
+
 		// Set passed attribute to $search_terms for clarity
 		$search_terms = empty( $attr['search'] ) ? bbp_get_search_terms() : $attr['search'];
 
