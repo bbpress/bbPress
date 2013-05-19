@@ -1651,7 +1651,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	$post_types = (array) $posts_query->get( 'post_type' );
 
 	// Forums
-	if ( in_array( bbp_get_forum_post_type() , $post_types ) ) {
+	if ( bbp_get_forum_post_type() === implode( '', $post_types ) ) {
 
 		// Prevent accidental wp-admin post_row override
 		if ( is_admin() && isset( $_REQUEST['post_status'] ) ) {
