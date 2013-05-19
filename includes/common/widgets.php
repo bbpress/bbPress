@@ -554,12 +554,14 @@ class BBP_Forums_Widget extends WP_Widget {
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( array(
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_parent'    => $settings['parent_forum'],
-			'post_status'    => bbp_get_public_status_id(),
-			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
-			'orderby'        => 'menu_order',
-			'order'          => 'ASC'
+			'post_type'           => bbp_get_forum_post_type(),
+			'post_parent'         => $settings['parent_forum'],
+			'post_status'         => bbp_get_public_status_id(),
+			'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+			'orderby'             => 'menu_order',
+			'order'               => 'ASC'
 		) );
 
 		// Bail if no posts
@@ -731,28 +733,30 @@ class BBP_Topics_Widget extends WP_Widget {
 			// Order by most recent replies
 			case 'freshness' :
 				$topics_query = array(
-					'post_type'      => bbp_get_topic_post_type(),
-					'post_parent'    => $settings['parent_forum'],
-					'posts_per_page' => (int) $settings['max_shown'],
-					'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-					'show_stickies'  => false,
-					'meta_key'       => '_bbp_last_active_time',
-					'orderby'        => 'meta_value',
-					'order'          => 'DESC',
+					'post_type'           => bbp_get_topic_post_type(),
+					'post_parent'         => $settings['parent_forum'],
+					'posts_per_page'      => (int) $settings['max_shown'],
+					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'ignore_sticky_posts' => true,
+					'no_found_rows'       => true,
+					'meta_key'            => '_bbp_last_active_time',
+					'orderby'             => 'meta_value',
+					'order'               => 'DESC',
 				);
 				break;
 
 			// Order by total number of replies
 			case 'popular' :
 				$topics_query = array(
-					'post_type'      => bbp_get_topic_post_type(),
-					'post_parent'    => $settings['parent_forum'],
-					'posts_per_page' => (int) $settings['max_shown'],
-					'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-					'show_stickies'  => false,
-					'meta_key'       => '_bbp_reply_count',
-					'orderby'        => 'meta_value',
-					'order'          => 'DESC'
+					'post_type'           => bbp_get_topic_post_type(),
+					'post_parent'         => $settings['parent_forum'],
+					'posts_per_page'      => (int) $settings['max_shown'],
+					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'ignore_sticky_posts' => true,
+					'no_found_rows'       => true,
+					'meta_key'            => '_bbp_reply_count',
+					'orderby'             => 'meta_value',
+					'order'               => 'DESC'
 				);
 				break;
 
@@ -760,12 +764,13 @@ class BBP_Topics_Widget extends WP_Widget {
 			case 'newness' :
 			default :
 				$topics_query = array(
-					'post_type'      => bbp_get_topic_post_type(),
-					'post_parent'    => $settings['parent_forum'],
-					'posts_per_page' => (int) $settings['max_shown'],
-					'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-					'show_stickies'  => false,
-					'order'          => 'DESC'
+					'post_type'           => bbp_get_topic_post_type(),
+					'post_parent'         => $settings['parent_forum'],
+					'posts_per_page'      => (int) $settings['max_shown'],
+					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'ignore_sticky_posts' => true,
+					'no_found_rows'       => true,
+					'order'               => 'DESC'
 				);
 				break;
 		}
@@ -1114,9 +1119,11 @@ class BBP_Replies_Widget extends WP_Widget {
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_exclude_forums filter and function.
 		$widget_query = new WP_Query( array(
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-			'posts_per_page' => (int) $settings['max_shown']
+			'post_type'           => bbp_get_reply_post_type(),
+			'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+			'posts_per_page'      => (int) $settings['max_shown'],
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
 		) );
 
 		// Bail if no replies
