@@ -969,17 +969,10 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		return false;
 
-	// Query defaults
-	$default_query = array(
-		'author'         => $user_id,
-		'show_stickies'  => false,
-		'order'          => 'DESC',
-	);
-
 	// Try to get the topics
-	$query = bbp_has_topics( $default_query );
-	if ( empty( $query ) )
-		return false;
+	$query = bbp_has_topics( array(
+		'author' => $user_id
+	) );
 
 	return apply_filters( 'bbp_get_user_topics_started', $query, $user_id );
 }
@@ -1003,14 +996,9 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
 
 	// Try to get the topics
 	$query = bbp_has_replies( array(
-		'post_type'      => bbp_get_reply_post_type(),
-		'post_parent'    => 'any',
-		'posts_per_page' => bbp_get_replies_per_page(),
-		'paged'          => bbp_get_paged(),
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-		'author'         => $user_id,
-		'show_stickies'  => false,
+		'post_type' => bbp_get_reply_post_type(),
+		'order'     => 'DESC',
+		'author'    => $user_id
 	) );
 
 	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id );
