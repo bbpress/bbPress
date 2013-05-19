@@ -233,6 +233,26 @@ function bbp_add_rewrite_tags() {
 }
 
 /**
+ * Add the bbPress-specific rewrite rules
+ *
+ * @since bbPress (r4918)
+ * @uses do_action() Calls 'bbp_add_rewrite_rules'
+ */
+function bbp_add_rewrite_rules() {
+	do_action( 'bbp_add_rewrite_rules' );
+}
+
+/**
+ * Add the bbPress-specific permalink structures
+ *
+ * @since bbPress (r4918)
+ * @uses do_action() Calls 'bbp_add_permastructs'
+ */
+function bbp_add_permastructs() {
+	do_action( 'bbp_add_permastructs' );
+}
+
+/**
  * Add the bbPress-specific login forum action
  *
  * @since bbPress (r2753)
@@ -405,6 +425,7 @@ function bbp_template_include( $template = '' ) {
  * Generate bbPress-specific rewrite rules
  *
  * @since bbPress (r2688)
+ * @deprecated since bbPress (rxxxx)
  * @param WP_Rewrite $wp_rewrite
  * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
  */
