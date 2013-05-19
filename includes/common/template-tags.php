@@ -827,7 +827,7 @@ function bbp_is_search_results() {
 	$retval = false;
 
 	// Check query
-	if ( !empty( $wp_query->bbp_is_search_results ) && ( true == $wp_query->bbp_is_search_results ) )
+	if ( !empty( $wp_query->bbp_search_terms ) )
 		$retval = true;
 
 	// Check query name
