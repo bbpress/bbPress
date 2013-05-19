@@ -53,3 +53,31 @@ function bbp_get_search_query_args() {
 
 	return apply_filters( 'bbp_get_search_query_args', $retval );
 }
+
+/**
+ * Redirect to search results page if needed
+ *
+ * @since bbPress (r4928)
+ * @return If a redirect is not needed
+ */
+function bbp_search_template_redirect() {
+
+	// Bail if already on search results page
+	if ( bbp_is_search_results() )
+		return;
+
+	// Bail if search terms are empty
+	if ( false === bbp_get_search_terms() )
+		return;
+
+	// Get the redirect URL
+	$redirect_to = bbp_get_search_results_url();
+
+	// Bail if no redirect URL or may cause infinite loop
+	if ( empty( $redirect_to ) || ( bbp_get_search_url() === $redirect_to ) )
+		return;
+
+	// Redirect and bail
+	wp_safe_redirect( $redirect_to );
+	exit();
+}
