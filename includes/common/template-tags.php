@@ -2308,7 +2308,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Search
 		} elseif ( bbp_is_search() && bbp_get_search_terms() ) {
-			$crumbs[] = '<a href="' . home_url( bbp_get_search_slug() ) . '" class="bbp-breadcrumb-search">' . __( 'Search', 'bbpress' ) . '</a>';
+			$crumbs[] = '<a href="' . bbp_get_search_url() . '" class="bbp-breadcrumb-search">' . __( 'Search', 'bbpress' ) . '</a>';
 		}
 
 		/** Current ***********************************************************/
