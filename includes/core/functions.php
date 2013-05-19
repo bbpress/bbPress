@@ -507,6 +507,30 @@ function bbp_get_view_rewrite_id() {
 	return bbpress()->view_id;
 }
 
+/** Rewrite Extras ************************************************************/
+
+/**
+ * Get the id used for paginated requests
+ *
+ * @since bbPress (r4926)
+ * @return string
+ */
+function bbp_get_paged_rewrite_id() {
+	return bbpress()->paged_id;
+}
+
+/**
+ * Get the slug used for paginated requests
+ *
+ * @since bbPress (r4926)
+ * @global object $wp_rewrite The WP_Rewrite object
+ * @return string
+ */
+function bbp_get_paged_slug() {
+	global $wp_rewrite;
+	return $wp_rewrite->pagination_base;
+}
+
 /**
  * Delete a blogs rewrite rules, so that they are automatically rebuilt on
  * the subsequent page load.
