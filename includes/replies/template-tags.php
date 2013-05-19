@@ -74,13 +74,14 @@ function bbp_has_replies( $args = '' ) {
 
 	// Default query args
 	$default = array(
-		'post_type'      => $default_post_type,         // Only replies
-		'post_parent'    => $default_post_parent,       // Of this topic
-		'posts_per_page' => bbp_get_replies_per_page(), // This many
-		'paged'          => bbp_get_paged(),            // On this page
-		'orderby'        => 'date',                     // Sorted by date
-		'order'          => 'ASC',                      // Oldest to newest
-		's'              => $default_reply_search,      // Maybe search
+		'post_type'           => $default_post_type,         // Only replies
+		'post_parent'         => $default_post_parent,       // Of this topic
+		'posts_per_page'      => bbp_get_replies_per_page(), // This many
+		'paged'               => bbp_get_paged(),            // On this page
+		'orderby'             => 'date',                     // Sorted by date
+		'order'               => 'ASC',                      // Oldest to newest
+		'ignore_sticky_posts' => true,                       // Stickies not supported
+		's'                   => $default_reply_search,      // Maybe search
 	);
 
 	// What are the default allowed statuses (based on user caps)

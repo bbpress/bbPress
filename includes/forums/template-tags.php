@@ -59,12 +59,13 @@ function bbp_has_forums( $args = '' ) {
 
 	// Parse arguments with default forum query for most circumstances
 	$bbp_f = bbp_parse_args( $args, array(
-		'post_type'      => bbp_get_forum_post_type(),
-		'post_parent'    => bbp_is_forum_archive() ? 0 : bbp_get_forum_id() ,
-		'post_status'    => bbp_get_public_status_id(),
-		'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
-		'orderby'        => 'menu_order',
-		'order'          => 'ASC'
+		'post_type'           => bbp_get_forum_post_type(),
+		'post_parent'         => bbp_is_forum_archive() ? 0 : bbp_get_forum_id(),
+		'post_status'         => bbp_get_public_status_id(),
+		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
+		'ignore_sticky_posts' => true,
+		'orderby'             => 'menu_order',
+		'order'               => 'ASC'
 	), 'has_forums' );
 
 	// Run the query
