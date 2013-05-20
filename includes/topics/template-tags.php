@@ -308,6 +308,10 @@ function bbp_has_topics( $args = '' ) {
 			} elseif ( is_page() || is_single() ) {
 				$base = get_permalink();
 
+			// Forum archive
+			} elseif ( bbp_is_forum_archive() ) {
+				$base = bbp_get_forums_url();
+
 			// Topic archive
 			} elseif ( bbp_is_topic_archive() ) {
 				$base = bbp_get_topics_url();

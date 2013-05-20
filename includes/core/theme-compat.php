@@ -750,6 +750,10 @@ function bbp_replace_the_content( $content = '' ) {
 			// Add 'bbp_replace_the_content' filter back (@see $this::start())
 			add_filter( 'the_content', 'bbp_replace_the_content' );
 
+		// Use the topics archive
+		} elseif ( 'topics' === bbp_show_on_root() ) {
+			$new_content = $bbp->shortcodes->display_topics_index();
+
 		// No page so show the archive
 		} else {
 			$new_content = $bbp->shortcodes->display_forum_index();

@@ -509,5 +509,9 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->set( 'bbp_topic_tag',  get_query_var( 'term' )   );
 		$posts_query->set( 'post_type',      bbp_get_topic_post_type() );
 		$posts_query->set( 'posts_per_page', bbp_get_topics_per_page() );
+
+	// Do topics on forums root
+	} elseif ( is_post_type_archive( bbp_get_topic_post_type() ) && ( 'topics' === bbp_show_on_root() ) ) {
+		$posts_query->bbp_show_topics_on_root = true;
 	}
 }

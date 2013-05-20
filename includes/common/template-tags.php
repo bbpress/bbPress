@@ -145,12 +145,13 @@ function bbp_is_forum( $post_id = 0 ) {
  * @return bool
  */
 function bbp_is_forum_archive() {
+	global $wp_query;
 
 	// Default to false
 	$retval = false;
 
 	// In forum archive
-	if ( is_post_type_archive( bbp_get_forum_post_type() ) || bbp_is_query_name( 'bbp_forum_archive' ) )
+	if ( is_post_type_archive( bbp_get_forum_post_type() ) || bbp_is_query_name( 'bbp_forum_archive' ) || !empty( $wp_query->bbp_show_topics_on_root ) )
 		$retval = true;
 
 	return (bool) apply_filters( 'bbp_is_forum_archive', $retval );
