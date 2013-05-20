@@ -224,7 +224,7 @@ class BBP_Admin {
 		}
 
 		// Are settings enabled?
-		if ( current_user_can( 'bbp_settings_page' ) ) {
+		if ( ! bbp_settings_integration() && current_user_can( 'bbp_settings_page' ) ) {
 			add_options_page(
 				__( 'Forums',  'bbpress' ),
 				__( 'Forums',  'bbpress' ),
@@ -322,6 +322,9 @@ class BBP_Admin {
 		if ( empty( $sections ) )
 			return false;
 
+		// Are we using settings integration?
+		$settings_integration = bbp_settings_integration();
+
 		// Loop through sections
 		foreach ( (array) $sections as $section_id => $section ) {
 
@@ -334,17 +337,24 @@ class BBP_Admin {
 			if ( empty( $fields ) )
 				continue;
 
+			// Toggle the section if core integration is on
+			if ( ( true === $settings_integration ) && !empty( $section['page'] ) ) {
+				$page = $section['page'];
+			} else {
+				$page = 'bbpress';
+			}
+
 			// Add the section
-			add_settings_section( $section_id, $section['title'], $section['callback'], $section['page'] );
+			add_settings_section( $section_id, $section['title'], $section['callback'], $page );
 
 			// Loop through fields for this section
 			foreach ( (array) $fields as $field_id => $field ) {
 
 				// Add the field
-				add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
+				add_settings_field( $field_id, $field['title'], $field['callback'], $page, $section_id, $field['args'] );
 
 				// Register the setting
-				register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
+				register_setting( $page, $field_id, $field['sanitize_callback'] );
 			}
 		}
 	}

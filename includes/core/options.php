@@ -38,8 +38,9 @@ function bbp_get_default_options() {
 		'_bbp_allow_global_access'  => 1,                          // Users from all sites can post
 		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
 		'_bbp_use_autoembed'        => 0,                          // Allow oEmbed in topics and replies
-		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package.
+		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package
 		'_bbp_default_role'         => bbp_get_participant_role(), // Default forums role
+		'_bbp_settings_integration' => 0,                          // Put settings into existing admin pages
 
 		/** Per Page **********************************************************/
 
@@ -57,15 +58,14 @@ function bbp_get_default_options() {
 		'_bbp_page_for_register'    => 0,           // Page for register
 		'_bbp_page_for_lost_pass'   => 0,           // Page for lost-pass
 
-		/** Archive Slugs *****************************************************/
+		/** Forum Root ********************************************************/
 
 		'_bbp_root_slug'            => 'forums',    // Forum archive slug
-		'_bbp_topic_archive_slug'   => 'topics',    // Topic archive slug
-		'_bbp_reply_archive_slug'   => 'replies',   // Reply archive slug
+		'_bbp_show_on_root'         => 'forums',    // What to show on root (forums|topics)
+		'_bbp_include_root'         => 1,           // Include forum-archive before single slugs
 
 		/** Single Slugs ******************************************************/
 
-		'_bbp_include_root'         => 1,           // Include forum-archive before single slugs
 		'_bbp_forum_slug'           => 'forum',     // Forum slug
 		'_bbp_topic_slug'           => 'topic',     // Topic slug
 		'_bbp_reply_slug'           => 'reply',     // Reply slug
@@ -76,6 +76,8 @@ function bbp_get_default_options() {
 		'_bbp_user_slug'            => 'users',         // User profile slug
 		'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
 		'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
+		'_bbp_topic_archive_slug'   => 'topics',        // Topic archive slug
+		'_bbp_reply_archive_slug'   => 'replies',       // Reply archive slug
 
 		/** Other Slugs *******************************************************/
 
@@ -374,6 +376,18 @@ function bbp_is_akismet_active( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_is_akismet_active', (bool) get_option( '_bbp_enable_akismet', $default ) );
 }
 
+/**
+ * Integrate settings into existing WordPress pages
+ *
+ * @since bbPress (r4932)
+ * @param $default bool Optional. Default value false
+ * @uses get_option() To get the admin integration setting
+ * @return bool To deeply integrate settings, or not
+ */
+function bbp_settings_integration( $default = 0 ) {
+	return (bool) apply_filters( 'bbp_settings_integration', (bool) get_option( '_bbp_settings_integration', $default ) );
+}
+
 /** Slugs *********************************************************************/
 
 /**
@@ -394,6 +408,17 @@ function bbp_get_root_slug( $default = 'forums' ) {
  */
 function bbp_include_root_slug( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_include_root_slug', (bool) get_option( '_bbp_include_root', $default ) );
+}
+
+/**
+ * Return the search slug
+ *
+ * @since bbPress (r4932)
+ *
+ * @return string
+ */
+function bbp_show_on_root( $default = 'forums' ) {
+	return apply_filters( 'bbp_show_on_root', get_option( '_bbp_show_on_root', $default ) );
 }
 
 /**
