@@ -436,15 +436,13 @@ final class bbPress {
 	 *
 	 * @since bbPress (r2596)
 	 *
-	 * @uses apply_filters() Calls 'bbpress_locale' with the
-	 *                        {@link get_locale()} value
+	 * @uses apply_filters() Calls 'plugin_locale' with {@link get_locale()} value
 	 * @uses load_textdomain() To load the textdomain
-	 * @return bool True on success, false on failure
 	 */
 	public function load_textdomain() {
 
 		// Traditional WordPress plugin locale filter
-		$locale        = apply_filters( 'plugin_locale',  get_locale(), $this->domain );
+		$locale        = apply_filters( 'plugin_locale', get_locale(), $this->domain );
 		$mofile        = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
 
 		// Setup paths to current locale file
@@ -452,16 +450,10 @@ final class bbPress {
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 
 		// Look in global /wp-content/languages/bbpress folder
-		if ( file_exists( $mofile_global ) ) {
-			return load_textdomain( $this->domain, $mofile_global );
+		load_textdomain( $this->domain, $mofile_global );
 
 		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
-		} elseif ( file_exists( $mofile_local ) ) {
-			return load_textdomain( $this->domain, $mofile_local );
-		}
-
-		// Nothing found
-		return false;
+		load_textdomain( $this->domain, $mofile_local );
 	}
 
 	/**
