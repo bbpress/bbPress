@@ -752,7 +752,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// Use the topics archive
 		} elseif ( 'topics' === bbp_show_on_root() ) {
-			$new_content = $bbp->shortcodes->display_topics_index();
+			$new_content = $bbp->shortcodes->display_topic_index();
 
 		// No page so show the archive
 		} else {
