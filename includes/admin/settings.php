@@ -233,7 +233,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Root slug setting
 			'_bbp_root_slug' => array(
-				'title'             => __( 'Forums base', 'bbpress' ),
+				'title'             => __( 'Forum Root', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_root_slug',
 				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
@@ -262,7 +262,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Forum slug setting
 			'_bbp_forum_slug' => array(
-				'title'             => __( 'Forum slug', 'bbpress' ),
+				'title'             => __( 'Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_forum_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
@@ -270,7 +270,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Topic slug setting
 			'_bbp_topic_slug' => array(
-				'title'             => __( 'Topic slug', 'bbpress' ),
+				'title'             => __( 'Topic', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
@@ -278,39 +278,31 @@ function bbp_admin_get_settings_fields() {
 
 			// Topic tag slug setting
 			'_bbp_topic_tag_slug' => array(
-				'title'             => __( 'Topic tag slug', 'bbpress' ),
+				'title'             => __( 'Topic Tag', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tag_slug',
-				'sanitize_callback' => 'sanitize_title',
-				'args'              => array()
-			),
-
-			// Reply slug setting
-			'_bbp_reply_slug' => array(
-				'title'             => __( 'Reply slug', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_reply_slug',
-				'sanitize_callback' => 'sanitize_title',
-				'args'              => array()
-			),
-
-			// User slug setting
-			'_bbp_user_slug' => array(
-				'title'             => __( 'User slug', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_user_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
 			),
 
 			// View slug setting
 			'_bbp_view_slug' => array(
-				'title'             => __( 'Topic view slug', 'bbpress' ),
+				'title'             => __( 'Topic View', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
+				'sanitize_callback' => 'sanitize_title',
+				'args'              => array()
+			),
+
+			// Reply slug setting
+			'_bbp_reply_slug' => array(
+				'title'             => __( 'Reply', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_reply_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
 			),
 
 			// Search slug setting
 			'_bbp_search_slug' => array(
-				'title'             => __( 'Search slug', 'bbpress' ),
+				'title'             => __( 'Search', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_search_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
@@ -321,9 +313,17 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_user_slugs' => array(
 
+			// User slug setting
+			'_bbp_user_slug' => array(
+				'title'             => __( 'User Base', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_user_slug',
+				'sanitize_callback' => 'sanitize_title',
+				'args'              => array()
+			),
+
 			// Topics slug setting
 			'_bbp_topic_archive_slug' => array(
-				'title'             => __( 'User Topics', 'bbpress' ),
+				'title'             => __( 'Topics Started', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
 				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
@@ -331,7 +331,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Replies slug setting
 			'_bbp_reply_archive_slug' => array(
-				'title'             => __( 'User Replies', 'bbpress' ),
+				'title'             => __( 'Replies Created', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_archive_slug',
 				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
@@ -339,7 +339,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Favorites slug setting
 			'_bbp_user_favs_slug' => array(
-				'title'             => __( 'User Favorite Topics', 'bbpress' ),
+				'title'             => __( 'Favorite Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_favs_slug',
 				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
@@ -347,7 +347,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Subscriptions slug setting
 			'_bbp_user_subs_slug' => array(
-				'title'             => __( 'User Subscribed Topics', 'bbpress' ),
+				'title'             => __( 'Topic Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_subs_slug',
 				'sanitize_callback' => 'esc_sql',
 				'args'              => array()
@@ -760,7 +760,7 @@ function bbp_admin_setting_callback_root_slug_section() {
 	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
 		flush_rewrite_rules(); ?>
 
-	<p><?php _e( 'Custom root slug to prefix your forums section with. This can be partnered with a WordPress page and Shortcode to allow more flexibility.', 'bbpress' ); ?></p>
+	<p><?php _e( 'Customize your Forums root. Partner with a WordPress Page and use Shortcodes for more flexibility.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -843,9 +843,26 @@ function bbp_admin_setting_callback_show_on_root() {
 function bbp_admin_setting_callback_user_slug_section() {
 ?>
 
-	<p><?php _e( 'Custom slugs to customize your forums user profiles.', 'bbpress' ); ?></p>
+	<p><?php _e( 'Customize your user profile slugs.', 'bbpress' ); ?></p>
 
 <?php
+}
+
+/**
+ * User slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses bbp_form_option() To output the option value
+ */
+function bbp_admin_setting_callback_user_slug() {
+?>
+
+	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_slug', 'users', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_user_slug' ); ?> />
+
+<?php
+	// Slug Check
+	bbp_form_slug_conflict_check( '_bbp_user_slug', 'users' );
 }
 
 /**
@@ -926,7 +943,7 @@ function bbp_admin_setting_callback_user_subs_slug() {
 function bbp_admin_setting_callback_single_slug_section() {
 ?>
 
-	<p><?php printf( __( 'Custom slugs for single forums, topics, replies, tags, users, and views here. If you change these, existing permalinks will also change.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( __( 'Custom slugs for single forums, topics, replies, tags, views, and search.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -998,25 +1015,6 @@ function bbp_admin_setting_callback_topic_tag_slug() {
 
 	// Slug Check
 	bbp_form_slug_conflict_check( '_bbp_topic_tag_slug', 'topic-tag' );
-}
-
-/** Other Slugs ***************************************************************/
-
-/**
- * User slug setting field
- *
- * @since bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
- */
-function bbp_admin_setting_callback_user_slug() {
-?>
-
-	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_slug', 'users', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_user_slug' ); ?> />
-
-<?php
-	// Slug Check
-	bbp_form_slug_conflict_check( '_bbp_user_slug', 'users' );
 }
 
 /**
