@@ -793,7 +793,7 @@ function bbp_admin_setting_callback_include_root() {
 ?>
 
 	<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( bbp_include_root_slug() ); bbp_maybe_admin_setting_disabled( '_bbp_include_root' ); ?> />
-	<label for="_bbp_include_root"><?php _e( 'Prefix all forum content with the Forum Base slug (Recommended)', 'bbpress' ); ?></label>
+	<label for="_bbp_include_root"><?php _e( 'Prefix all forum content with the Forum Root slug (Recommended)', 'bbpress' ); ?></label>
 
 <?php
 }
