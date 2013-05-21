@@ -410,6 +410,7 @@ class BBP_Admin {
 			case 'bbp_settings_theme_compat' : // Settings - Theme compat
 			case 'bbp_settings_root_slugs'   : // Settings - Root slugs
 			case 'bbp_settings_single_slugs' : // Settings - Single slugs
+			case 'bbp_settings_user_slugs'   : // Settings - User slugs
 			case 'bbp_settings_per_page'     : // Settings - Per page
 			case 'bbp_settings_per_rss_page' : // Settings - Per RSS page
 				$caps = array( bbpress()->admin->minimum_capability );
