@@ -40,7 +40,7 @@ class BBP_Forums_Component extends BP_Component {
 		parent::start(
 			'forums',
 			__( 'Forums', 'bbpress' ),
-			BP_PLUGIN_DIR
+			bbpress()->includes_dir . 'extend/buddypress/'
 		);
 		$this->includes();
 		$this->setup_globals();
@@ -54,20 +54,22 @@ class BBP_Forums_Component extends BP_Component {
 	public function includes() {
 
 		// Helper BuddyPress functions
-		require( bbpress()->includes_dir . 'extend/buddypress/functions.php' );
+		$includes[] = 'functions.php';
 
 		// Members modifications
-		require( bbpress()->includes_dir . 'extend/buddypress/members.php' );
+		$includes[] = 'members.php';
 
 		// BuddyPress Activity Extension class
 		if ( bp_is_active( 'activity' ) ) {
-			require( bbpress()->includes_dir . 'extend/buddypress/activity.php' );
+			$includes[] = 'activity.php';
 		}
 
 		// BuddyPress Group Extension class
 		if ( bbp_is_group_forums_active() && bp_is_active( 'groups' ) ) {
-			require( bbpress()->includes_dir . 'extend/buddypress/group.php' );
+			$includes[] = 'group.php';
 		}
+
+		parent::includes( $includes );
 	}
 
 	/**
@@ -171,7 +173,7 @@ class BBP_Forums_Component extends BP_Component {
 			'slug'                => $this->slug,
 			'position'            => 80,
 			'screen_function'     => 'bbp_member_forums_screen_topics',
-			'default_subnav_slug' => 'topics',
+			'default_subnav_slug' => bbp_get_topic_archive_slug(),
 			'item_css_id'         => $this->id
 		);
 
@@ -189,7 +191,7 @@ class BBP_Forums_Component extends BP_Component {
 		// Topics started
 		$sub_nav[] = array(
 			'name'            => __( 'Topics Started', 'bbpress' ),
-			'slug'            => 'topics',
+			'slug'            => bbp_get_topic_archive_slug(),
 			'parent_url'      => $forums_link,
 			'parent_slug'     => $this->slug,
 			'screen_function' => 'bbp_member_forums_screen_topics',
@@ -200,7 +202,7 @@ class BBP_Forums_Component extends BP_Component {
 		// Replies to topics
 		$sub_nav[] = array(
 			'name'            => __( 'Replies Created', 'bbpress' ),
-			'slug'            => 'replies',
+			'slug'            => bbp_get_reply_archive_slug(),
 			'parent_url'      => $forums_link,
 			'parent_slug'     => $this->slug,
 			'screen_function' => 'bbp_member_forums_screen_replies',
@@ -211,7 +213,7 @@ class BBP_Forums_Component extends BP_Component {
 		// Favorite topics
 		$sub_nav[] = array(
 			'name'            => __( 'Favorites', 'bbpress' ),
-			'slug'            => 'favorites',
+			'slug'            => bbp_get_user_favorites_slug(),
 			'parent_url'      => $forums_link,
 			'parent_slug'     => $this->slug,
 			'screen_function' => 'bbp_member_forums_screen_favorites',
@@ -223,7 +225,7 @@ class BBP_Forums_Component extends BP_Component {
 		if ( bp_is_my_profile() ) {
 			$sub_nav[] = array(
 				'name'            => __( 'Subscriptions', 'bbpress' ),
-				'slug'            => 'subscriptions',
+				'slug'            => bbp_get_user_subscriptions_slug(),
 				'parent_url'      => $forums_link,
 				'parent_slug'     => $this->slug,
 				'screen_function' => 'bbp_member_forums_screen_subscriptions',
@@ -265,7 +267,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-topics',
 				'title'  => __( 'Topics Started', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . 'topics' )
+				'href'   => trailingslashit( $forums_link . bbp_get_topic_archive_slug() )
 			);
 
 			// Replies
@@ -273,7 +275,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-replies',
 				'title'  => __( 'Replies Created', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . 'replies' )
+				'href'   => trailingslashit( $forums_link . bbp_get_reply_archive_slug() )
 			);
 
 			// Favorites
@@ -281,7 +283,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-favorites',
 				'title'  => __( 'Favorite Topics', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . 'favorites' )
+				'href'   => trailingslashit( $forums_link . bbp_get_user_favorites_slug() )
 			);
 
 			// Subscriptions
@@ -289,7 +291,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-subscriptions',
 				'title'  => __( 'Subscribed Topics', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . 'subscriptions' )
+				'href'   => trailingslashit( $forums_link . bbp_get_user_subscriptions_slug() )
 			);
 		}
 

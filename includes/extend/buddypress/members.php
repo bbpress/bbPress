@@ -87,25 +87,26 @@ class BBP_BuddyPress_Members {
 	public function user_profile_url( $user_id ) {
 
 		// Define local variable(s)
-		$profile_url = '';
+		$profile_url    = '';
+		$component_slug = bbpress()->extend->buddypress->slug;
 
 		// Special handling for forum component
-		if ( bp_is_current_component( 'forums' ) ) {
+		if ( bp_is_current_component( $component_slug ) ) {
 
 			// Empty action or 'topics' action
-			if ( !bp_current_action() || bp_is_current_action( 'topics' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/topics';
+			if ( !bp_current_action() || bp_is_current_action( bbp_get_topic_archive_slug() ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_topic_archive_slug();
 
 			// Empty action or 'topics' action
-			} elseif ( bp_is_current_action( 'replies' ) ) {
-				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/replies';
+			} elseif ( bp_is_current_action( bbp_get_reply_archive_slug() ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_reply_archive_slug();
 
 			// 'favorites' action
-			} elseif ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
+			} elseif ( bbp_is_favorites_active() && bp_is_current_action( bbp_get_user_favorites_slug() ) ) {
 				$profile_url = $this->get_favorites_permalink( '', $user_id );
 
 			// 'subscriptions' action
-			} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
+			} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( bbp_get_user_subscriptions_slug() ) ) {
 				$profile_url = $this->get_subscriptions_permalink( '', $user_id );
 			}
 
@@ -126,7 +127,8 @@ class BBP_BuddyPress_Members {
 	 * @return string
 	 */
 	public function get_favorites_permalink( $url, $user_id ) {
-		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/favorites' );
+		$component_slug = bbpress()->extend->buddypress->slug;
+		$url            = trailingslashit( bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_user_favorites_slug() );
 		return $url;
 	}
 
@@ -139,7 +141,8 @@ class BBP_BuddyPress_Members {
 	 * @return string
 	 */
 	public function get_subscriptions_permalink( $url, $user_id ) {
-		$url = trailingslashit( bp_core_get_user_domain( $user_id ) . 'forums/subscriptions' );
+		$component_slug = bbpress()->extend->buddypress->slug;
+		$url            = trailingslashit( bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_user_subscriptions_slug() );
 		return $url;
 	}
 
@@ -161,11 +164,11 @@ class BBP_BuddyPress_Members {
 		global $wp_query;
 
 		// 'favorites' action
-		if ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
+		if ( bbp_is_favorites_active() && bp_is_current_action( bbp_get_user_favorites_slug() ) ) {
 			$wp_query->bbp_is_single_user_favs = true;
 
 		// 'subscriptions' action
-		} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
+		} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( bbp_get_user_subscriptions_slug() ) ) {
 			$wp_query->bbp_is_single_user_subs = true;
 		}
 	}
