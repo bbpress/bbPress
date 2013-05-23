@@ -220,6 +220,7 @@ class BBP_Replies_Admin {
 				'<ul>' .
 					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the reply belongs to. Select the forum, or leave the default (Use Forum of Topic) to post the reply in forum of the topic.', 'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Topic</strong> determines the parent topic that the reply belongs to.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Reply To</strong> determines the threading of the reply.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -300,6 +301,7 @@ class BBP_Replies_Admin {
 		// Get the reply meta post values
 		$topic_id = !empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id']    : 0;
 		$forum_id = !empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
+		$reply_to = !empty( $_POST['bbp_reply_to'] ) ? (int) $_POST['bbp_reply_to'] : 0;
 
 		// Get reply author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
@@ -307,10 +309,10 @@ class BBP_Replies_Admin {
 		$is_edit        = (bool) isset( $_POST['save'] );
 
 		// Formally update the reply
-		bbp_update_reply( $reply_id, $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
+		bbp_update_reply( $reply_id, $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit, $reply_to );
 
 		// Allow other fun things to happen
-		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id );
+		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id, $reply_to );
 		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data      );
 
 		return $reply_id;

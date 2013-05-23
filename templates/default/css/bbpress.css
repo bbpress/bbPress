@@ -65,6 +65,10 @@ body.reply-edit .reply {
 	padding: 0;
 }
 
+#bbpress-forums ul.bbp-threaded-replies {
+	margin-left: 50px;
+} 
+
 #bbpress-forums li {
 	margin: 0;
 	list-style: none;
@@ -348,6 +352,19 @@ span.bbp-author-ip {
 	margin: 0;
 	background-color: transparent;
 	overflow-wrap: normal;
+}
+
+/* =Reply to
+-------------------------------------------------------------- */
+
+#bbpress-forums div.bbp-reply-to {
+	margin-left: 130px;
+	padding: 12px 12px 12px 0;
+	text-align: right;
+}
+
+#bbpress-forums div#bbp-cancel-reply-to {
+	text-align: right;
 }
 
 /* =Breadcrumb and Tags

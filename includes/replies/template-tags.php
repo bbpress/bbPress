@@ -68,9 +68,10 @@ function bbp_has_replies( $args = '' ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_reply_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
-	$default_post_parent  = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
-	$default_post_type    = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$default_reply_search   = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs']    : false;
+	$default_post_parent    = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
+	$default_post_type      = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$default_thread_replies = (bool) ( bbp_is_single_topic() && bbp_thread_replies() );
 
 	// Default query args
 	$default = array(
@@ -80,6 +81,7 @@ function bbp_has_replies( $args = '' ) {
 		'paged'               => bbp_get_paged(),            // On this page
 		'orderby'             => 'date',                     // Sorted by date
 		'order'               => 'ASC',                      // Oldest to newest
+		'hierarchical'        => $default_thread_replies,    // Hierarchical replies
 		'ignore_sticky_posts' => true,                       // Stickies not supported
 		's'                   => $default_reply_search,      // Maybe search
 	);
@@ -113,6 +115,12 @@ function bbp_has_replies( $args = '' ) {
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, $default, 'has_replies' );
 
+	// Set posts_per_page value if replies are threaded
+	$replies_per_page = $r['posts_per_page'];
+	if ( true === $r['hierarchical'] ) {
+		$r['posts_per_page'] = -1;
+	}
+
 	// Get bbPress
 	$bbp = bbpress();
 
@@ -120,7 +128,7 @@ function bbp_has_replies( $args = '' ) {
 	$bbp->reply_query = new WP_Query( $r );
 
 	// Add pagination values to query object
-	$bbp->reply_query->posts_per_page = $r['posts_per_page'];
+	$bbp->reply_query->posts_per_page = $replies_per_page;
 	$bbp->reply_query->paged          = $r['paged'];
 
 	// Never home, regardless of what parse_query says
@@ -129,6 +137,27 @@ function bbp_has_replies( $args = '' ) {
 	// Reset is_single if single topic
 	if ( bbp_is_single_topic() ) {
 		$bbp->reply_query->is_single = true;
+	}
+
+	// Only add reply to if query returned results
+	if ( (int) $bbp->reply_query->found_posts ) {
+
+		// Get reply to for each reply
+		foreach ( $bbp->reply_query->posts as &$post ) {
+
+			// Check for reply post type
+			if ( bbp_get_reply_post_type() === $post->post_type ) {
+				$reply_to = bbp_get_reply_to( $post->ID );
+
+				// Make sure it's a reply to a reply
+				if ( empty( $reply_to ) || ( bbp_get_reply_topic_id( $post->ID ) == $reply_to ) ) {
+					$reply_to = 0;
+				}
+
+				// Add reply_to to the post object so we can walk it later
+				$post->reply_to = $reply_to;
+			}
+		}
 	}
 
 	// Only add pagination if query returned results
@@ -161,25 +190,31 @@ function bbp_has_replies( $args = '' ) {
 			$base = add_query_arg( 'paged', '%#%' );
 		}
 
-		// Add pagination to query object
-		$bbp->reply_query->pagination_links = paginate_links(
-			apply_filters( 'bbp_replies_pagination', array(
+		// Figure out total pages
+		if ( true === $r['hierarchical'] ) {
+			$walker      = new BBP_Walker_Reply;
+			$total_pages = ceil( (int) $walker->get_number_of_root_elements( $bbp->reply_query->posts ) / (int) $replies_per_page );
+		} else {
+			$total_pages = ceil( (int) $bbp->reply_query->found_posts / (int) $replies_per_page );
+
+			// Add pagination to query object
+			$bbp->reply_query->pagination_links = paginate_links( apply_filters( 'bbp_replies_pagination', array(
 				'base'      => $base,
 				'format'    => '',
-				'total'     => ceil( (int) $bbp->reply_query->found_posts / (int) $r['posts_per_page'] ),
+				'total'     => $total_pages,
 				'current'   => (int) $bbp->reply_query->paged,
 				'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
 				'next_text' => is_rtl() ? '&larr;' : '&rarr;',
 				'mid_size'  => 1,
 				'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
-			) )
-		);
+			) ) );
 
-		// Remove first page from pagination
-		if ( $wp_rewrite->using_permalinks() ) {
-			$bbp->reply_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $bbp->reply_query->pagination_links );
-		} else {
-			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );
+			// Remove first page from pagination
+			if ( $wp_rewrite->using_permalinks() ) {
+				$bbp->reply_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $bbp->reply_query->pagination_links );
+			} else {
+				$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );
+			}
 		}
 	}
 
@@ -386,7 +421,16 @@ function bbp_reply_url( $reply_id = 0 ) {
 		// Set needed variables
 		$reply_id   = bbp_get_reply_id      ( $reply_id );
 		$topic_id   = bbp_get_reply_topic_id( $reply_id );
-		$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id ) / (int) bbp_get_replies_per_page() );
+
+		// Hierarchical reply page
+		if ( bbp_thread_replies() ) {
+			$reply_page = 1;
+
+		// Standard reply page
+		} else {
+			$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id ) / (int) bbp_get_replies_per_page() );
+		}
+
 		$reply_hash = '#post-' . $reply_id;
 		$topic_link = bbp_get_topic_permalink( $topic_id, $redirect_to );
 		$topic_url  = remove_query_arg( 'view', $topic_link );
@@ -1377,6 +1421,179 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	}
 
 /**
+ * Output the reply's ancestor reply id
+ *
+ * @since bbPress (r4944)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_ancestor_id() To get the reply's ancestor id
+ */
+function bbp_reply_ancestor_id( $reply_id = 0 ) {
+	echo bbp_get_reply_ancestor_id( $reply_id );
+}
+	/**
+	 * Return the reply's ancestor reply id
+	 *
+	 * @since bbPress (r4944)
+	 *
+	 * @param in $reply_id Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 */
+	function bbp_get_reply_ancestor_id( $reply_id = 0 ) {
+
+		// Validation
+		$reply_id = bbp_get_reply_id( $reply_id );
+		if ( empty( $reply_id ) )
+			return false;
+
+		// Find highest reply ancestor
+		$ancestor_id = $reply_id;
+		while ( $parent_id = bbp_get_reply_to( $ancestor_id ) ) {
+			if ( empty( $parent_id ) || ( $parent_id === $ancestor_id ) || ( bbp_get_reply_topic_id( $reply_id ) === $parent_id ) || ( $parent_id == $reply_id ) ) {
+				break;
+			}
+			$ancestor_id = $parent_id;
+		}
+
+		return (int) $ancestor_id;
+	}
+
+/**
+ * Output the reply to id of a reply
+ *
+ * @since bbPress (r4944)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_to() To get the reply to id
+ */
+function bbp_reply_to( $reply_id = 0 ) {
+	echo bbp_get_reply_to( $reply_id );
+}
+	/**
+	 * Return the reply to id of a reply
+	 *
+ 	 * @since bbPress (r4944)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_meta() To get the reply to id
+	 * @uses apply_filters() Calls 'bbp_get_reply_to' with the reply to id and
+	 *                        reply id
+	 * @return int Reply's reply to id
+	 */
+	function bbp_get_reply_to( $reply_id = 0 ) {
+
+		// Assume there is no reply_to set
+		$reply_to = 0;
+
+		// Check that reply_id is valid
+		if ( $reply_id = bbp_get_reply_id( $reply_id ) )
+
+			// Get reply_to value
+			$reply_to = (int) get_post_meta( $reply_id, '_bbp_reply_to', true );
+
+		return (int) apply_filters( 'bbp_get_reply_to', $reply_to, $reply_id );
+	}
+
+/**
+ * Output the link for the reply to
+ *
+ * @since bbPress (r4944)
+ *
+ * @param array $args
+ * @uses bbp_get_reply_to_link() To get the reply to link
+ */
+function bbp_reply_to_link( $args = array() ) {
+	echo bbp_get_reply_to_link( $args );
+}
+
+	/**
+	 * Return the link for a reply to a reply
+	 *
+	 * @since bbPress (r4944)
+	 *
+	 * @param array $args Arguments
+	 * @uses bbp_current_user_can_access_create_reply_form() To check permissions
+	 * @uses bbp_get_reply_id() To validate the reply id
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses apply_filters() Calls 'bbp_get_reply_to_link' with the formatted link,
+	 *                        the arguments array, and the reply
+	 * @return string Link for a reply to a reply 
+	 */
+	function bbp_get_reply_to_link( $args = array() ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'reply_text'   => __( 'Reply', 'bbpress' ),
+			'depth'        => 0,
+			'add_below'    => 'post',
+			'respond_id'   => 'new-reply-' . bbp_get_topic_id(),
+		), 'get_reply_to_link' );
+
+		$reply = bbp_get_reply( bbp_get_reply_id( (int) $r['id'] ) );
+
+		// Bail if no reply or user cannot reply
+		if ( empty( $reply ) || ! bbp_current_user_can_access_create_reply_form() )
+			return;
+
+		// Build the URI and return value
+		$uri      = remove_query_arg( array( 'bbp_reply_to' ) );
+		$uri      = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
+		$uri      = esc_url( wp_nonce_url( $uri, 'respond_id_' . $reply->ID ) );
+		$uri      = $uri . '#new-post';
+		$onclick  = 'return addReply.moveForm("' . $r['add_below'] . '-' . $reply->ID . '","' . $reply->ID . '","' . $r['respond_id'] . '","' . $reply->post_parent . '")';
+		$r['uri'] = $uri;
+		$retval   = $r['link_before'] . '<a href="' . $r['uri'] . '" class="bbp-reply-to-link" onclick=' . "'{$onclick}' >" . $r['reply_text'] . '</a>' . $r['link_after'];
+
+		return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
+	}
+
+/**
+ * Output the reply to a reply cancellation link
+ *
+ * @since bbPress (r4944)
+ *
+ * @uses bbp_get_cancel_reply_to_link() To get the reply cancellation link
+ */
+function bbp_cancel_reply_to_link( $text = '' ) {
+	echo bbp_get_cancel_reply_to_link( $text );
+}
+	/**
+	 * Return the cancellation link for a reply to a reply
+	 *
+	 * @since bbPress (r4944)
+	 *
+	 * @param string $text The cancel text
+	 * @uses apply_filters() Calls 'bbp_get_cancel_reply_to_link' with the cancellation
+	 *                        link and the cancel text
+	 * @return string The cancellation link
+	 */
+	function bbp_get_cancel_reply_to_link( $text = '' ) {
+
+		// Bail if not hierarchical or editing a reply
+		if ( ! bbp_thread_replies() || bbp_is_reply_edit() ) {
+			return;
+		}
+
+		// Set default text
+		if ( empty( $text ) ) {
+			$text = __( 'Cancel', 'bbpress' );
+		}
+
+		$reply_to = isset( $_GET['bbp_reply_to'] ) ? (int) $_GET['bbp_reply_to'] : 0;
+
+		// Set visibility
+		$style  = !empty( $reply_to ) ? '' : ' style="display:none;"';
+		$link   = esc_url( remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) ) . '#post-' . $reply_to;
+		$retval = '<a rel="nofollow" id="bbp-cancel-reply-to-link" href="' . $link . '"' . $style . '>' . $text . '</a>';
+
+		return apply_filters( 'bbp_get_cancel_reply_to_link', $retval, $link, $text );
+	}
+
+/**
  * Output the numeric position of a reply within a topic
  *
  * @since bbPress (r2984)
@@ -1516,6 +1733,7 @@ function bbp_reply_admin_links( $args = '' ) {
 				'split' => bbp_get_topic_split_link( $r ),
 				'trash' => bbp_get_reply_trash_link( $r ),
 				'spam'  => bbp_get_reply_spam_link ( $r ),
+				'reply' => bbp_get_reply_to_link   ( $r )
 			), $r['id'] );
 		}
 
@@ -2011,8 +2229,17 @@ function bbp_topic_pagination_count() {
 		$total_int = (int) $bbp->reply_query->found_posts;
 		$total     = bbp_number_format( $total_int );
 
+		// We are threading replies
+		if ( bbp_thread_replies() ) {
+			$walker  = new BBP_Walker_Reply;
+			$threads = (int) $walker->get_number_of_root_elements( $bbp->reply_query->posts );
+
+			// Adjust for topic
+			$threads--;
+			$retstr  = sprintf( _n( 'Viewing %1$s reply thread', 'Viewing %1$s reply threads', $threads, 'bbbpress' ), bbp_number_format( $threads ) );
+
 		// We are not including the lead topic
-		if ( bbp_show_lead_topic() ) {
+		} elseif ( bbp_show_lead_topic() ) {
 
 			// Several replies in a topic with a single page
 			if ( empty( $to_num ) ) {
@@ -2105,6 +2332,47 @@ function bbp_form_reply_content() {
 		}
 
 		return apply_filters( 'bbp_get_form_reply_content', $reply_content );
+	}
+
+/**
+ * Output the value of the reply to field
+ *
+ * @since bbPress (r4944)
+ *
+ * @uses bbp_get_form_reply_to() To get value of the reply to field
+ */
+function bbp_form_reply_to() {
+	echo bbp_get_form_reply_to();
+}
+
+	/**
+	 * Return the value of reply to field
+	 *
+	 * @since bbPress (r4944)
+	 *
+	 * @uses bbp_get_reply_id() To validate the reply to
+	 * @uses apply_filters() Calls 'bbp_get_form_reply_to' with the reply to
+	 * @return string Value of reply to field
+	 */
+	function bbp_get_form_reply_to() {
+
+		// Set initial value
+		$reply_to = 0;
+
+		// Get $_REQUEST data
+		if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+			$reply_to = (int) $_REQUEST['bbp_reply_to'];
+		}
+
+		// If empty, get from meta
+		if ( empty( $reply_to ) ) {
+			$reply_to = bbp_get_reply_to();
+		}
+
+		// Validate
+		$reply_to = bbp_get_reply_id( $reply_to );
+
+		return (int) apply_filters( 'bbp_get_form_reply_to', $reply_to );
 	}
 
 /**

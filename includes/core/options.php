@@ -34,6 +34,7 @@ function bbp_get_default_options() {
 		'_bbp_enable_favorites'     => 1,                          // Favorites
 		'_bbp_enable_subscriptions' => 1,                          // Subscriptions
 		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
+		'_bbp_thread_replies_depth' => 0,                          // Thread replies depth
 		'_bbp_allow_anonymous'      => 0,                          // Allow anonymous posting
 		'_bbp_allow_global_access'  => 1,                          // Users from all sites can post
 		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
@@ -224,6 +225,39 @@ function bbp_is_subscriptions_active( $default = 1 ) {
  */
 function bbp_allow_topic_tags( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
+}
+
+/**
+ * Are replies threaded
+ *
+ * @since bbPress (r4944)
+ *
+ * @param bool $default Optional. Default value true
+ * @uses apply_filters() Calls 'bbp_thread_replies' with the calculated value and
+ *                        the thread replies depth
+ * @uses get_option() To get thread replies option
+ * @return bool Are replies threaded?
+ */
+function bbp_thread_replies() {
+	$depth  = bbp_thread_replies_depth();
+	$retval = (bool) ( $depth > 1 );
+
+	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth );
+}
+
+/**
+ * Maximum reply thread depth
+ *
+ * @since bbPress (r4944)
+ *
+ * @param int $default Thread replies depth
+ * @uses apply_filters() Calls 'bbp_thread_replies_depth' with the option value and
+ *                       the default depth
+ * @uses get_option() To get the thread replies depth
+ * @return int Thread replies depth
+ */
+function bbp_thread_replies_depth( $default = 1 ) {
+	return (int) apply_filters( 'bbp_thread_replies_depth', (int) get_option( '_bbp_thread_replies_depth', $default ) );
 }
 
 /**

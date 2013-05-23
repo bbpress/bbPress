@@ -1582,6 +1582,7 @@ function bbp_reply_form_fields() {
 
 		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php bbp_reply_title(); ?>" />
 		<input type="hidden" name="bbp_reply_id"    id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
+		<input type="hidden" name="bbp_reply_to"    id="bbp_reply_to"    value="<?php bbp_form_reply_to(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-edit-reply" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )
@@ -1593,6 +1594,7 @@ function bbp_reply_form_fields() {
 
 		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
 		<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
+		<input type="hidden" name="bbp_reply_to"    id="bbp_reply_to"    value="<?php bbp_form_reply_to(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )

@@ -1259,6 +1259,12 @@ function bbp_merge_topic_handler( $action = '' ) {
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 			bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
 
+			// Adjust reply to values
+			$reply_to = bbp_get_reply_to( $reply->ID );
+			if ( empty( $reply_to ) ) {
+				bbp_update_reply_to( $reply->ID, $source_topic->ID );
+			}
+
 			// Do additional actions per merged reply
 			do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
 		}
@@ -1592,6 +1598,9 @@ function bbp_split_topic_handler( $action = '' ) {
 				break;
 		}
 
+		// Save reply ids
+		$reply_ids = array();
+
 		// Change the post_parent of each reply to the destination topic id
 		foreach ( $replies as $reply ) {
 
@@ -1611,12 +1620,33 @@ function bbp_split_topic_handler( $action = '' ) {
 			// Update the reply
 			wp_update_post( $postarr );
 
+			// Gather reply ids
+			$reply_ids[] = $reply->ID;
+
 			// Adjust reply meta values
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 			bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
 
+			// Adjust reply to values
+			$reply_to = bbp_get_reply_to( $reply->ID );
+
+			// Not a reply to a reply that moved over
+			if ( !in_array( $reply_to, $reply_ids ) ) {
+				bbp_update_reply_to( $reply->ID, 0 );
+			}
+
+			// New topic from reply can't be a reply to
+			if ( ( $from_reply->ID == $destination_topic->ID && $from_reply->ID == $reply_to ) ) {
+				bbp_update_reply_to( $reply->ID, 0 );
+			}
+
 			// Do additional actions per split reply
 			do_action( 'bbp_split_topic_reply', $reply->ID, $destination_topic->ID );
+		}
+
+		// Remove reply to from new topic
+		if ( $from_reply->ID == $destination_topic->ID ) {
+			delete_post_meta( $from_reply->ID, '_bbp_reply_to' );
 		}
 
 		// Set the last reply ID and freshness

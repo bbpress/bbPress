@@ -97,7 +97,8 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @uses wp_set_post_terms() To set the topic tags
  * @uses wp_insert_post() To insert the reply
  * @uses do_action() Calls 'bbp_new_reply' with the reply id, topic id, forum
- *                    id, anonymous data and reply author
+ *                    id, anonymous data, reply author, edit (false), and
+ *                    the reply to id
  * @uses bbp_get_reply_url() To get the paginated url to the reply
  * @uses wp_safe_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
@@ -116,7 +117,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	}
 
 	// Define local variable(s)
-	$topic_id = $forum_id = $reply_author = $anonymous_data = 0;
+	$topic_id = $forum_id = $reply_author = $anonymous_data = $reply_to = 0;
 	$reply_title = $reply_content = $terms = '';
 
 	/** Reply Author **********************************************************/
@@ -194,6 +195,15 @@ function bbp_new_reply_handler( $action = '' ) {
 			}
 		}
 	}
+
+	/** Reply To **************************************************************/
+
+	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
+	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+		$reply_to = (int) $_REQUEST['bbp_reply_to'];
+	}
+
+	$reply_to = bbp_get_reply_id( $reply_to );
 
 	/** Unfiltered HTML *******************************************************/
 
@@ -364,7 +374,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
-		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
+		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, false, $reply_to );
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -421,8 +431,10 @@ function bbp_new_reply_handler( $action = '' ) {
  * @uses wp_update_post() To update the reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_reply_to() To get the reply to id
  * @uses do_action() Calls 'bbp_edit_reply' with the reply id, topic id, forum
- *                    id, anonymous data, reply author and bool true (for edit)
+ *                    id, anonymous data, reply author, bool true (for edit),
+ *                    and the reply to id
  * @uses bbp_get_reply_url() To get the paginated url to the reply
  * @uses wp_safe_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
@@ -500,6 +512,10 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Topic Forum ***********************************************************/
 
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+	/** Reply To **************************************************************/
+
+	$reply_to = bbp_get_reply_to( $reply_id );
 
 	// Forum exists
 	if ( !empty( $forum_id ) && ( $forum_id !== bbp_get_reply_forum_id( $reply_id ) ) ) {
@@ -660,7 +676,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true /* Is edit */ );
+		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true, $reply_to );
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -702,6 +718,7 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @param bool|array $anonymous_data Optional logged-out user data.
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
+ * @param int $reply_to Optional. Reply to id
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
@@ -718,14 +735,16 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @uses bbp_add_user_subscription() To add the user's subscription
  * @uses bbp_update_reply_forum_id() To update the reply forum id
  * @uses bbp_update_reply_topic_id() To update the reply topic id
+ * @uses bbp_update_reply_to() To update the reply to id
  * @uses bbp_update_reply_walker() To update the reply's ancestors' counts
  */
-function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
+function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
 	// Validate the ID's passed from 'bbp_new_reply' action
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$reply_to = bbp_get_reply_id( $reply_to );
 
 	// Bail if there is no reply
 	if ( empty( $reply_id ) )
@@ -789,6 +808,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	// Reply meta relating to reply position in tree
 	bbp_update_reply_forum_id( $reply_id, $forum_id );
 	bbp_update_reply_topic_id( $reply_id, $topic_id );
+	bbp_update_reply_to      ( $reply_id, $reply_to );
 
 	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {
@@ -1024,6 +1044,39 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	bbp_update_topic_id( $reply_id, $topic_id );
 
 	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
+}
+
+/*
+ * Update the reply's meta data with its reply to id
+ *
+ * @since bbPress (r4944)
+ *
+ * @param int $reply_id Reply id to update
+ * @param int $reply_to Optional. Reply to id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses update_post_meta() To update the reply to meta
+ * @uses apply_filters() Calls 'bbp_update_reply_to' with the reply id and
+ *                        and reply to id
+ * @return bool Reply's parent reply id
+ */
+function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
+
+	// Validation
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$reply_to = bbp_get_reply_id( $reply_to );
+
+	// Return if no reply
+	if ( empty( $reply_id ) )
+		return;
+
+	// Return if no reply to 
+	if ( empty( $reply_to ) )
+		return;
+
+	// Set the reply to
+	update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
+
+	return (int) apply_filters( 'bbp_update_reply_to', (int) $reply_to, $reply_id );
 }
 
 /**
@@ -1285,6 +1338,21 @@ function bbp_move_reply_handler( $action = '' ) {
 	// Set the last reply ID and freshness to the move_reply
 	$last_reply_id = $move_reply->ID;
 	$freshness     = $move_reply->post_date;
+
+	// Get the reply to
+	$parent = bbp_get_reply_to( $move_reply->ID );
+
+	// Fix orphaned children
+	$children = get_posts( array(
+		'post_type'  => bbp_get_reply_post_type(),
+		'meta_key'   => '_bbp_reply_to',
+		'meta_value' => $move_reply->ID,
+	) );
+	foreach ( $children as $child )
+		bbp_update_reply_to( $child->ID, $parent );
+
+	// Remove reply_to from moved reply
+	delete_post_meta( $move_reply->ID, '_bbp_reply_to' ); 
 
 	// It is a new topic and we need to set some default metas to make
 	// the topic display in bbp_has_topics() list
@@ -2071,4 +2139,37 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 	}
 
 	return (int) $reply_position;
+}
+
+/** Hierarchical Replies ******************************************************/
+
+/**
+ * List replies
+ *
+ * @since bbPress (r4944)
+ */
+function bbp_list_replies( $args = array() ) {
+
+	// Reset the reply depth
+	bbpress()->reply_query->reply_depth = 0;
+
+	// In reply loop
+	bbpress()->reply_query->in_the_loop = true;
+
+	$r = bbp_parse_args( $args, array(
+		'walker'       => null,
+		'max_depth'    => bbp_thread_replies_depth(),
+		'style'        => 'ul',
+		'callback'     => null,
+		'end_callback' => null,
+		'page'         => 1,
+		'per_page'     => -1
+	), 'list_replies' );
+
+	// Get replies to loop through in $_replies
+	$walker = new BBP_Walker_Reply;
+	$walker->paged_walk( bbpress()->reply_query->posts, $r['max_depth'], $r['page'], $r['per_page'], $r );
+
+	bbpress()->max_num_pages            = $walker->max_pages;
+	bbpress()->reply_query->in_the_loop = false;
 }

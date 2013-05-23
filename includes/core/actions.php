@@ -181,8 +181,8 @@ add_action( 'bbp_edit_forum_post_extras',        'bbp_save_forum_extras', 2 );
 add_action( 'bbp_forum_attributes_metabox_save', 'bbp_save_forum_extras', 2 );
 
 // New/Edit Reply
-add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 6 );
-add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 6 );
+add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 7 );
+add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 7 );
 
 // Before Delete/Trash/Untrash Reply
 add_action( 'wp_trash_post', 'bbp_trash_reply'   );

@@ -400,6 +400,7 @@ function bbp_reply_metabox() {
 	// Get some meta
 	$reply_topic_id = bbp_get_reply_topic_id( $post_id );
 	$reply_forum_id = bbp_get_reply_forum_id( $post_id );
+	$reply_to       = bbp_get_reply_to(       $post_id );
 
 	// Allow individual manipulation of reply forum
 	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
@@ -433,6 +434,12 @@ function bbp_reply_metabox() {
 		<strong class="label"><?php _e( 'Topic:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
 		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" />
+	</p>
+
+	<p>
+		<strong class="label"><?php _e( 'Reply To:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_reply_to"><?php _e( 'Reply To', 'bbpress' ); ?></label>
+		<input name="bbp_reply_to" id="bbp_reply_to" type="text" value="<?php echo esc_attr( $reply_to ); ?>" />
 	</p>
 
 	<?php

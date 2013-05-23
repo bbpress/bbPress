@@ -169,6 +169,14 @@ function bbp_admin_get_settings_fields() {
 				'callback'          => 'bbp_admin_setting_callback_use_autoembed',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
+			),
+
+			// Set reply threading level
+			'_bbp_thread_replies_depth' => array(
+				'title'             => __( 'Thread replies to topics', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_thread_replies_depth',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
 			)
 		),
 
@@ -176,7 +184,7 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_theme_compat' => array(
 
-			// Replies per page setting
+			// Theme package setting 
 			'_bbp_theme_package_id' => array(
 				'title'             => __( 'Current Package', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_subtheme_id',
@@ -491,7 +499,7 @@ function bbp_admin_setting_callback_subscriptions() {
 /**
  * Allow topic tags setting field
  *
- * @since bbPress (r####)
+ * @since bbPress (r4944)
  *
  * @uses checked() To display the checked attribute
  */
@@ -500,6 +508,36 @@ function bbp_admin_setting_callback_topic_tags() {
 
 	<input id="_bbp_allow_topic_tags" name="_bbp_allow_topic_tags" type="checkbox" id="_bbp_allow_topic_tags" value="1" <?php checked( bbp_allow_topic_tags( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_topic_tags' ); ?> />
 	<label for="_bbp_allow_topic_tags"><?php _e( 'Allow topics to have tags', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Hierarchical reply maximum depth level setting field
+ *
+ * Replies will be threaded if depth is 2 or greater
+ *
+ * @since bbPress (r4944)
+ *
+ * @uses apply_filters() Calls 'bbp_thread_replies_depth_max' to set a
+ *                        maximum displayed level
+ * @uses selected() To display the selected attribute
+ */
+function bbp_admin_setting_callback_thread_replies_depth() {
+
+	// Set maximum depth for dropdown
+	$max_depth     = (int) apply_filters( 'bbp_thread_replies_depth_max', 10 );
+	$current_depth = bbp_thread_replies_depth(); ?>
+
+	<select id="_bbp_thread_replies_depth" name="_bbp_thread_replies_depth">
+	<?php for ( $i = 0; $i <= $max_depth; $i++ ) : ?>
+
+		<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $current_depth ); ?>><?php echo esc_html( $i ); ?></option>
+
+	<?php endfor; ?>
+	</select>
+
+	<label for="_bbp_thread_replies_depth"><?php _e( 'levels deep', 'bbpress' ); ?></label>
 
 <?php
 }

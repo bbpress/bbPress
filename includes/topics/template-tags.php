@@ -788,6 +788,11 @@ function bbp_topic_pagination( $args = '' ) {
 	function bbp_get_topic_pagination( $args = '' ) {
 		global $wp_rewrite;
 
+		// Bail if threading replies
+		if ( bbp_thread_replies() ) {
+			return;
+		}
+
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'topic_id' => bbp_get_topic_id(),

@@ -179,9 +179,16 @@ class BBP_Default extends BBP_Theme_Compat {
 			wp_enqueue_script( 'jquery' );
 		}
 
-		// Topic favorite/subscribe
+		// Topic-specific scripts
 		if ( bbp_is_single_topic() ) {
+
+			// Topic favorite/unsubscribe
 			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'jquery' ), $this->version );
+
+			// Hierarchical replies
+			if ( bbp_thread_replies() ) {
+				wp_enqueue_script( 'bbpress-reply', $this->url . 'js/reply.js', array(), $this->version );
+			}
 		}
 
 		// User Profile edit
