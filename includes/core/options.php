@@ -33,10 +33,11 @@ function bbp_get_default_options() {
 		'_bbp_throttle_time'        => 10,                         // Throttle post time to 10 seconds
 		'_bbp_enable_favorites'     => 1,                          // Favorites
 		'_bbp_enable_subscriptions' => 1,                          // Subscriptions
-		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
-		'_bbp_thread_replies_depth' => 0,                          // Thread replies depth
 		'_bbp_allow_anonymous'      => 0,                          // Allow anonymous posting
 		'_bbp_allow_global_access'  => 1,                          // Users from all sites can post
+		'_bbp_allow_revisions'      => 1,                          // Allow revisions
+		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
+		'_bbp_thread_replies_depth' => 0,                          // Thread replies depth
 		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
 		'_bbp_use_autoembed'        => 0,                          // Allow oEmbed in topics and replies
 		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package
