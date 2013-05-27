@@ -15,7 +15,7 @@
 
 		<span class="bbp-reply-post-date"><?php bbp_reply_post_date(); ?></span>
 
-		<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
+		<a href="<?php bbp_reply_url(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
 
 		<?php do_action( 'bbp_theme_before_reply_admin_links' ); ?>
 
@@ -28,7 +28,7 @@
 	<div class="bbp-reply-title">
 
 		<h3><?php _e( 'In reply to: ', 'bbpress' ); ?>
-		<a class="bbp-topic-permalink" href="<?php bbp_topic_permalink( bbp_get_reply_topic_id() ); ?>" title="<?php bbp_topic_title( bbp_get_reply_topic_id() ); ?>"><?php bbp_topic_title( bbp_get_reply_topic_id() ); ?></a></h3>
+		<a class="bbp-topic-permalink" href="<?php bbp_topic_permalink( bbp_get_reply_topic_id() ); ?>"><?php bbp_topic_title( bbp_get_reply_topic_id() ); ?></a></h3>
 
 	</div><!-- .bbp-reply-title -->
 

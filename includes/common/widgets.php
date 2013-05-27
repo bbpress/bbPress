@@ -295,7 +295,7 @@ class BBP_Views_Widget extends WP_Widget {
 
 			<?php foreach ( array_keys( bbp_get_views() ) as $view ) : ?>
 
-				<li><a class="bbp-view-title" href="<?php bbp_view_url( $view ); ?>" title="<?php bbp_view_title( $view ); ?>"><?php bbp_view_title( $view ); ?></a></li>
+				<li><a class="bbp-view-title" href="<?php bbp_view_url( $view ); ?>"><?php bbp_view_title( $view ); ?></a></li>
 
 			<?php endforeach; ?>
 
@@ -579,7 +579,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
 
-				<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>" title="<?php bbp_forum_title( $widget_query->post->ID ); ?>"><?php bbp_forum_title( $widget_query->post->ID ); ?></a></li>
+				<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>"><?php bbp_forum_title( $widget_query->post->ID ); ?></a></li>
 
 			<?php endwhile; ?>
 
@@ -804,7 +804,7 @@ class BBP_Topics_Widget extends WP_Widget {
 				endif; ?>
 
 				<li>
-					<a class="bbp-forum-title" href="<?php echo esc_url( bbp_get_topic_permalink( $topic_id ) ); ?>" title="<?php echo esc_attr( bbp_get_topic_title( $topic_id ) ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+					<a class="bbp-forum-title" href="<?php echo esc_url( bbp_get_topic_permalink( $topic_id ) ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
 
 					<?php if ( ! empty( $author_link ) ) : ?>
 
