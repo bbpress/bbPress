@@ -192,8 +192,8 @@ class BBP_BuddyPress_Activity {
 	public function register_activity_actions() {
 
 		// Sitewide activity stream items
-		bp_activity_set_action( $this->component, $this->topic_create, __( 'New forum topic', 'bbpress' ) );
-		bp_activity_set_action( $this->component, $this->reply_create, __( 'New forum reply', 'bbpress' ) );
+		bp_activity_set_action( $this->component, $this->topic_create, esc_html__( 'New forum topic', 'bbpress' ) );
+		bp_activity_set_action( $this->component, $this->reply_create, esc_html__( 'New forum reply', 'bbpress' ) );
 	}
 
 	/**
@@ -351,8 +351,8 @@ class BBP_BuddyPress_Activity {
 	function activity_filter_options() {
 	?>
 
-		<option value="<?php echo $this->topic_create; ?>"><?php _e( 'Topics',  'bbpress' ); ?></option>
-		<option value="<?php echo $this->reply_create; ?>"><?php _e( 'Replies', 'bbpress' ); ?></option>
+		<option value="<?php echo $this->topic_create; ?>"><?php esc_html_e( 'Topics',  'bbpress' ); ?></option>
+		<option value="<?php echo $this->reply_create; ?>"><?php esc_html_e( 'Replies', 'bbpress' ); ?></option>
 
 	<?php
 	}
@@ -417,7 +417,7 @@ class BBP_BuddyPress_Activity {
 		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
 
 		// Activity action & text
-		$activity_text    = sprintf( __( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
+		$activity_text    = sprintf( esc_html__( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
 		$activity_action  = apply_filters( 'bbp_activity_topic_create',         $activity_text, $user_id,   $topic_id,   $forum_id );
 		$activity_content = apply_filters( 'bbp_activity_topic_create_excerpt', $topic_content                                     );
 
@@ -562,7 +562,7 @@ class BBP_BuddyPress_Activity {
 		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
 
 		// Activity action & text
-		$activity_text    = sprintf( __( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
+		$activity_text    = sprintf( esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
 		$activity_action  = apply_filters( 'bbp_activity_reply_create',         $activity_text, $user_id, $reply_id,  $topic_id );
 		$activity_content = apply_filters( 'bbp_activity_reply_create_excerpt', $reply_content                                  );
 
