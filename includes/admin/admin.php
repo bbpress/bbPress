@@ -1317,7 +1317,7 @@ class BBP_Admin {
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
-				echo sprintf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
+				printf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
 			}
 		}
 		die();
