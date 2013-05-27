@@ -22,17 +22,17 @@
 
 		<div>
 			<label for="first_name"><?php _e( 'First Name', 'bbpress' ) ?></label>
-			<input type="text" name="first_name" id="first_name" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'first_name' ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="first_name" id="first_name" value="<?php bbp_displayed_user_field( 'first_name' ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 		</div>
 
 		<div>
 			<label for="last_name"><?php _e( 'Last Name', 'bbpress' ) ?></label>
-			<input type="text" name="last_name" id="last_name" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'last_name' ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="last_name" id="last_name" value="<?php bbp_displayed_user_field( 'last_name' ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 		</div>
 
 		<div>
 			<label for="nickname"><?php _e( 'Nickname', 'bbpress' ); ?></label>
-			<input type="text" name="nickname" id="nickname" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'nickname' ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="nickname" id="nickname" value="<?php bbp_displayed_user_field( 'nickname' ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 		</div>
 
 		<div>
@@ -55,14 +55,14 @@
 
 		<div>
 			<label for="url"><?php _e( 'Website', 'bbpress' ) ?></label>
-			<input type="text" name="url" id="url" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'user_url' ) ); ?>" class="regular-text code" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="url" id="url" value="<?php bbp_displayed_user_field( 'user_url' ); ?>" class="regular-text code" tabindex="<?php bbp_tab_index(); ?>" />
 		</div>
 
 		<?php foreach ( bbp_edit_user_contact_methods() as $name => $desc ) : ?>
 
 			<div>
-				<label for="<?php echo $name; ?>"><?php echo apply_filters( 'user_'.$name.'_label', $desc ); ?></label>
-				<input type="text" name="<?php echo $name; ?>" id="<?php echo $name; ?>" value="<?php echo esc_attr( bbp_get_displayed_user_field( $name ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+				<label for="<?php echo esc_attr( $name ); ?>"><?php echo apply_filters( 'user_' . $name . '_label', $desc ); ?></label>
+				<input type="text" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php bbp_displayed_user_field( $name ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 			</div>
 
 		<?php endforeach; ?>
@@ -96,13 +96,13 @@
 
 		<div>
 			<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?></label>
-			<input type="text" name="user_login" id="user_login" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'user_login' ) ); ?>" disabled="disabled" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="user_login" id="user_login" value="<?php bbp_displayed_user_field( 'user_login' ); ?>" disabled="disabled" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 		</div>
 
 		<div>
 			<label for="email"><?php _e( 'Email', 'bbpress' ); ?></label>
 
-			<input type="text" name="email" id="email" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'user_email' ) ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
+			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email' ); ?>" class="regular-text" tabindex="<?php bbp_tab_index(); ?>" />
 
 			<?php
 

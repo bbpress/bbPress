@@ -366,7 +366,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 
  * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
- * @uses bbp_get_displayed_user_field()
+ * @uses bbp_get_displayed_user_id()
  * @uses bbp_is_user_keymaster()
  * @uses get_blogs_of_user()
  * @uses get_current_blog_id()
@@ -454,7 +454,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
  *
  * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
- * @uses bbp_get_displayed_user_field()
+ * @uses bbp_get_displayed_user_id()
  * @uses bbp_is_user_keymaster()
  * @uses get_blogs_of_user()
  * @uses bbp_get_topic_post_type()
