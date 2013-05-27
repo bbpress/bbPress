@@ -471,7 +471,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 
 	// Use displayed user if it's not yourself
 	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() )
-		$user_id = bbp_get_displayed_user_field();
+		$user_id = bbp_get_displayed_user_id();
 
 	// Bail if no user ID
 	if ( empty( $user_id ) )
