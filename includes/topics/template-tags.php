@@ -908,7 +908,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 		if ( empty( $revisions ) )
 			return false;
 
-		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . $topic_id . '" class="bbp-topic-revision-log">' . "\n\n";
+		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '" class="bbp-topic-revision-log">' . "\n\n";
 
 		// Loop through revisions
 		foreach ( (array) $revisions as $revision ) {
@@ -924,11 +924,11 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_topic_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
-			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
+			$r .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
 			if ( !empty( $reason ) ) {
-				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
-				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s.', 'bbpress' ), esc_html( $since ), $author ) . "\n";
 			}
 			$r .= "\t" . '</li>' . "\n";
 
@@ -1418,7 +1418,7 @@ function bbp_topic_author_link( $args = '' ) {
 			}
 
 			// Setup title and author_links array
-			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$link_title   = !empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
 			$author_links = array();
 
 			// Get avatar
@@ -1432,15 +1432,15 @@ function bbp_topic_author_link( $args = '' ) {
 			}
 
 			// Link class
-			$link_class = ' class="bbp-author-' . $r['type'] . '"';
+			$link_class = ' class="bbp-author-' . esc_attr( $r['type'] ) . '"';
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
-					$link_class = ' class="bbp-author-' . $link . '"';
-					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
+					$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
+					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, $link_class, $link_text );
 				}
 
 				if ( true === $r['show_role'] ) {
@@ -2135,7 +2135,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'before' => '<div class="bbp-topic-tags"><p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
+			'before' => '<div class="bbp-topic-tags"><p>' . esc_html__( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
 			'after'  => '</p></div>'
 		), 'get_topic_tag_list' );
@@ -2781,7 +2781,7 @@ function bbp_forum_pagination_count() {
 		}
 
 		// Filter and return
-		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
+		return apply_filters( 'bbp_get_topic_pagination_count', esc_html( $retstr ) );
 	}
 
 /**
@@ -3007,15 +3007,15 @@ function bbp_single_topic_description( $args = '' ) {
 		$last_reply = bbp_get_topic_last_reply_id( $topic_id );
 		if ( !empty( $last_reply ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $r['size'] ) );
-			$retstr          = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
+			$retstr          = sprintf( esc_html__( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
 
 		// Topic has no replies
 		} elseif ( ! empty( $voice_count ) && ! empty( $reply_count ) ) {
-			$retstr = sprintf( __( 'This topic contains %1$s and has %2$s.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( esc_html__( 'This topic contains %1$s and has %2$s.', 'bbpress' ), $voice_count, $reply_count );
 
 		// Topic has no replies and no voices
 		} elseif ( empty( $voice_count ) && empty( $reply_count ) ) {
-			$retstr = sprintf( __( 'This topic has no replies.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( esc_html__( 'This topic has no replies.', 'bbpress' ), $voice_count, $reply_count );
 		}
 
 		// Add the 'view all' filter back

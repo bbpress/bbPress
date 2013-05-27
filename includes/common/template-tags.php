@@ -2189,7 +2189,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// If capable, include a link to edit the tag
 			if ( current_user_can( 'manage_topic_tags' ) ) {
-				$tag_data[] = '<a href="' . bbp_get_topic_tag_edit_link() . '" class="bbp-edit-topic-tag-link">' . __( '(Edit)', 'bbpress' ) . '</a>';
+				$tag_data[] = '<a href="' . bbp_get_topic_tag_edit_link() . '" class="bbp-edit-topic-tag-link">' . esc_attr__( '(Edit)', 'bbpress' ) . '</a>';
 			}
 
 			// Implode the results of the tag data
@@ -2311,7 +2311,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Search
 		} elseif ( bbp_is_search() && bbp_get_search_terms() ) {
-			$crumbs[] = '<a href="' . bbp_get_search_url() . '" class="bbp-breadcrumb-search">' . __( 'Search', 'bbpress' ) . '</a>';
+			$crumbs[] = '<a href="' . bbp_get_search_url() . '" class="bbp-breadcrumb-search">' . esc_attr__( 'Search', 'bbpress' ) . '</a>';
 		}
 
 		/** Current ***********************************************************/
@@ -2482,7 +2482,7 @@ function bbp_logout_link( $redirect_to = '' ) {
 	 * @return string The logout link
 	 */
 	function bbp_get_logout_link( $redirect_to = '' ) {
-		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
+		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . esc_html__( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
 	}
 
 /** Title *********************************************************************/

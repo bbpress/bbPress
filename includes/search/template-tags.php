@@ -228,11 +228,11 @@ function bbp_search_title() {
 
 		// No search terms specified
 		if ( empty( $search_terms ) ) {
-			$title = __( 'Search', 'bbpress' );
+			$title = esc_html__( 'Search', 'bbpress' );
 
 		// Include search terms in title
 		} else {
-			$title = sprintf( __( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
+			$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 		}
 
 		return apply_filters( 'bbp_get_search_title', $title, $search_terms );
@@ -413,7 +413,7 @@ function bbp_search_pagination_count() {
 		}
 
 		// Filter and return
-		return apply_filters( 'bbp_get_search_pagination_count', $retstr );
+		return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 	}
 
 /**

@@ -700,7 +700,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		if ( empty( $revisions ) )
 			return false;
 
-		$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . $reply_id . '" class="bbp-reply-revision-log">' . "\n\n";
+		$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '" class="bbp-reply-revision-log">' . "\n\n";
 
 		// Loop through revisions
 		foreach ( (array) $revisions as $revision ) {
@@ -716,11 +716,11 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
-			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
+			$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
 			if ( !empty( $reason ) ) {
-				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+				$r .= "\t\t" . sprintf( esc_html__( 'This reply was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
-				$r .= "\t\t" . sprintf( __( 'This reply was modified %1$s by %2$s.', 'bbpress' ), $since, $author ) . "\n";
+				$r .= "\t\t" . sprintf( esc_html__( 'This reply was modified %1$s by %2$s.', 'bbpress' ), esc_html( $since ), $author ) . "\n";
 			}
 			$r .= "\t" . '</li>' . "\n";
 
@@ -1127,7 +1127,7 @@ function bbp_reply_author_link( $args = '' ) {
 			}
 
 			// Setup title and author_links array
-			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$link_title   = !empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
 			$author_links = array();
 
 			// Get avatar
@@ -1141,7 +1141,7 @@ function bbp_reply_author_link( $args = '' ) {
 			}
 
 			// Link class
-			$link_class = ' class="bbp-author-' . $r['type'] . '"';
+			$link_class = ' class="bbp-author-' . esc_attr( $r['type'] ) . '"';
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
@@ -1149,7 +1149,7 @@ function bbp_reply_author_link( $args = '' ) {
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
-					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
+					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, $link_class, $link_text );
 				}
 
 				if ( true === $r['show_role'] ) {
@@ -1303,7 +1303,7 @@ function bbp_reply_author_role( $args = array() ) {
 
 		$reply_id    = bbp_get_reply_id( $r['reply_id'] );
 		$role        = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
-		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $r['before'], $r['class'], $role, $r['after'] );
+		$author_role = sprintf( '%1$s<div class="%2$s">%3$s</div>%4$s', $r['before'], esc_attr( $r['class'] ), esc_html( $role ), $r['after'] );
 
 		return apply_filters( 'bbp_get_reply_author_role', $author_role, $r );
 	}
@@ -1542,11 +1542,11 @@ function bbp_reply_to_link( $args = array() ) {
 		// Build the URI and return value
 		$uri      = remove_query_arg( array( 'bbp_reply_to' ) );
 		$uri      = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'respond_id_' . $reply->ID ) );
+		$uri      = wp_nonce_url( $uri, 'respond_id_' . $reply->ID );
 		$uri      = $uri . '#new-post';
 		$onclick  = 'return addReply.moveForm("' . $r['add_below'] . '-' . $reply->ID . '","' . $reply->ID . '","' . $r['respond_id'] . '","' . $reply->post_parent . '")';
 		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a href="' . $r['uri'] . '" class="bbp-reply-to-link" onclick=' . "'{$onclick}' >" . $r['reply_text'] . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link" onclick=' . "'{$onclick}' >" . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
 	}
@@ -1587,8 +1587,8 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 
 		// Set visibility
 		$style  = !empty( $reply_to ) ? '' : ' style="display:none;"';
-		$link   = esc_url( remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) ) . '#post-' . $reply_to;
-		$retval = '<a rel="nofollow" id="bbp-cancel-reply-to-link" href="' . $link . '"' . $style . '>' . $text . '</a>';
+		$link   = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . '#post-' . $reply_to;
+		$retval = '<a rel="nofollow" id="bbp-cancel-reply-to-link" href="' . esc_url( $link ) . '"' . $style . '>' . esc_html( $text ) . '</a>';
 
 		return apply_filters( 'bbp_get_cancel_reply_to_link', $retval, $link, $text );
 	}
@@ -1821,7 +1821,7 @@ function bbp_reply_edit_link( $args = '' ) {
 		if ( empty( $uri ) )
 			return;
 
-		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . esc_html( $r['edit_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_edit_link', $retval, $r );
 	}
@@ -2006,8 +2006,8 @@ function bbp_reply_spam_link( $args = '' ) {
 
 		$display  = bbp_is_reply_spam( $reply->ID ) ? $r['unspam_text'] : $r['spam_text'];
 		$uri      = add_query_arg( array( 'action' => 'bbp_toggle_reply_spam', 'reply_id' => $reply->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'spam-reply_' . $reply->ID ) );
-		$retval   = $r['link_before'] . '<a href="' . $uri . '">' . $display . '</a>' . $r['link_after'];
+		$uri      = wp_nonce_url( $uri, 'spam-reply_' . $reply->ID );
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . esc_html( $display ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_spam_link', $retval, $r );
 	}
@@ -2069,12 +2069,12 @@ function bbp_reply_move_link( $args = '' ) {
 		if ( empty( $reply_id ) || !current_user_can( 'moderate', $topic_id ) )
 			return;
 
-		$uri = esc_url( add_query_arg( array(
+		$uri = add_query_arg( array(
 			'action'   => 'move',
 			'reply_id' => $reply_id
-		), bbp_get_reply_edit_url( $reply_id ) ) );
+		), bbp_get_reply_edit_url( $reply_id ) );
 
-		$retval = $r['link_before'] . '<a href="' . $uri . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_move_link', $retval, $r );
 	}
@@ -2136,16 +2136,12 @@ function bbp_topic_split_link( $args = '' ) {
 		if ( empty( $reply_id ) || !current_user_can( 'moderate', $topic_id ) )
 			return;
 
-		$uri = esc_url(
-			add_query_arg(
-				array(
-					'action'   => 'split',
-					'reply_id' => $reply_id
-				),
-			bbp_get_topic_edit_url( $topic_id )
-		) );
+		$uri =  add_query_arg( array(
+			'action'   => 'split',
+			'reply_id' => $reply_id
+		), bbp_get_topic_edit_url( $topic_id ) );
 
-		$retval = $r['link_before'] . '<a href="' . $uri . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_split_link', $retval, $r );
 	}
@@ -2264,7 +2260,7 @@ function bbp_topic_pagination_count() {
 		}
 
 		// Filter and return
-		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
+		return apply_filters( 'bbp_get_topic_pagination_count', esc_html( $retstr ) );
 	}
 
 /**

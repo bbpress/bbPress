@@ -3386,7 +3386,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 					<description>
 						<![CDATA[
-						<p><?php printf( __( 'Replies: %s', 'bbpress' ), bbp_get_topic_reply_count() ); ?></p>
+						<p><?php printf( esc_html__( 'Replies: %s', 'bbpress' ), bbp_get_topic_reply_count() ); ?></p>
 						<?php bbp_topic_content(); ?>
 						]]>
 					</description>
