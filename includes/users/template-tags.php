@@ -930,7 +930,7 @@ function bbp_notice_edit_user_success() {
 	if ( isset( $_GET['updated'] ) && ( bbp_is_single_user() || bbp_is_single_user_edit() ) ) : ?>
 
 	<div class="bbp-template-notice updated">
-		<p><?php _e( 'User updated.', 'bbpress' ); ?></p>
+		<p><?php esc_html_e( 'User updated.', 'bbpress' ); ?></p>
 	</div>
 
 	<?php endif;
@@ -955,7 +955,7 @@ function bbp_notice_edit_user_is_super_admin() {
 	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
 	<div class="bbp-template-notice important">
-		<p><?php bbp_is_user_home() || bbp_is_user_home_edit() ? _e( 'You have super admin privileges.', 'bbpress' ) : _e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
+		<p><?php bbp_is_user_home() || bbp_is_user_home_edit() ? esc_html_e( 'You have super admin privileges.', 'bbpress' ) : esc_html_e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
 	</div>
 
 <?php endif;
@@ -1020,7 +1020,7 @@ function bbp_edit_user_blog_role() {
 	$user_role = isset( $user->roles ) ? array_shift( $user->roles ) : ''; ?>
 
 	<select name="role" id="role">
-		<option value=""><?php _e( '&mdash; No role for this site &mdash;', 'bbpress' ); ?></option>
+		<option value=""><?php esc_html_e( '&mdash; No role for this site &mdash;', 'bbpress' ); ?></option>
 
 		<?php foreach ( get_editable_roles() as $role => $details ) : ?>
 
@@ -1055,7 +1055,7 @@ function bbp_edit_user_forums_role() {
 		unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
-		<option value=""><?php _e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
+		<option value=""><?php esc_html_e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
 
 		<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 
