@@ -448,7 +448,7 @@ class BBP_Forums_Admin {
 				break;
 
 			case 'bbp_forum_created':
-				printf( __( '%1$s <br /> %2$s', 'bbpress' ),
+				printf( '%1$s <br /> %2$s',
 					get_the_date(),
 					esc_attr( get_the_time() )
 				);
@@ -458,9 +458,9 @@ class BBP_Forums_Admin {
 			case 'bbp_forum_freshness' :
 				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
 				if ( !empty( $last_active ) )
-					echo $last_active;
+					echo esc_html( $last_active );
 				else
-					_e( 'No Topics', 'bbpress' );
+					esc_html_e( 'No Topics', 'bbpress' );
 
 				break;
 

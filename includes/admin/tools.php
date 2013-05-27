@@ -33,17 +33,17 @@ function bbp_admin_repair() {
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Repair Forums', 'bbpress' ) ); ?></h2>
 
-		<p><?php _e( 'bbPress keeps track of relationships between forums, topics, replies, and topic tags, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'bbpress' ); ?></p>
-		<p class="description"><?php _e( 'Some of these tools create substantial database overhead. Avoid running more than 1 repair job at a time.', 'bbpress' ); ?></p>
+		<p><?php esc_html_e( 'bbPress keeps track of relationships between forums, topics, replies, and topic tags, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'bbpress' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Some of these tools create substantial database overhead. Avoid running more than 1 repair job at a time.', 'bbpress' ); ?></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Relationships to Repair:', 'bbpress' ) ?></th>
+						<th scope="row"><?php esc_html_e( 'Relationships to Repair:', 'bbpress' ) ?></th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text"><span><?php _e( 'Repair', 'bbpress' ) ?></span></legend>
+								<legend class="screen-reader-text"><span><?php esc_html_e( 'Repair', 'bbpress' ) ?></span></legend>
 
 								<?php foreach ( bbp_admin_repair_list() as $item ) : ?>
 
@@ -1094,31 +1094,31 @@ function bbp_admin_reset() {
 		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Reset Forums', 'bbpress' ) ); ?></h2>
-		<p><?php _e( 'This will revert your forums back to a brand new installation. This process cannot be undone. <strong>Backup your database before proceeding</strong>.', 'bbpress' ); ?></p>
+		<p><?php esc_html_e( 'This will revert your forums back to a brand new installation. This process cannot be undone. <strong>Backup your database before proceeding</strong>.', 'bbpress' ); ?></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'The following data will be removed:', 'bbpress' ) ?></th>
+						<th scope="row"><?php esc_html_e( 'The following data will be removed:', 'bbpress' ) ?></th>
 						<td>
-							<?php _e( 'All Forums',           'bbpress' ); ?><br />
-							<?php _e( 'All Topics',           'bbpress' ); ?><br />
-							<?php _e( 'All Replies',          'bbpress' ); ?><br />
-							<?php _e( 'All Topic Tags',       'bbpress' ); ?><br />
-							<?php _e( 'Related Meta Data',    'bbpress' ); ?><br />
-							<?php _e( 'Forum Settings',       'bbpress' ); ?><br />
-							<?php _e( 'Forum Activity',       'bbpress' ); ?><br />
-							<?php _e( 'Forum User Roles',     'bbpress' ); ?><br />
-							<?php _e( 'Importer Helper Data', 'bbpress' ); ?><br />
+							<?php esc_html_e( 'All Forums',           'bbpress' ); ?><br />
+							<?php esc_html_e( 'All Topics',           'bbpress' ); ?><br />
+							<?php esc_html_e( 'All Replies',          'bbpress' ); ?><br />
+							<?php esc_html_e( 'All Topic Tags',       'bbpress' ); ?><br />
+							<?php esc_html_e( 'Related Meta Data',    'bbpress' ); ?><br />
+							<?php esc_html_e( 'Forum Settings',       'bbpress' ); ?><br />
+							<?php esc_html_e( 'Forum Activity',       'bbpress' ); ?><br />
+							<?php esc_html_e( 'Forum User Roles',     'bbpress' ); ?><br />
+							<?php esc_html_e( 'Importer Helper Data', 'bbpress' ); ?><br />
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e( 'Are you sure you want to do this?', 'bbpress' ) ?></th>
+						<th scope="row"><?php esc_html_e( 'Are you sure you want to do this?', 'bbpress' ) ?></th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text"><span><?php _e( "Say it ain't so!", 'bbpress' ) ?></span></legend>
-								<label><input type="checkbox" class="checkbox" name="bbpress-are-you-sure" id="bbpress-are-you-sure" value="1" /> <?php _e( 'This process cannot be undone.', 'bbpress' ); ?></label>
+								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ) ?></span></legend>
+								<label><input type="checkbox" class="checkbox" name="bbpress-are-you-sure" id="bbpress-are-you-sure" value="1" /> <?php esc_html_e( 'This process cannot be undone.', 'bbpress' ); ?></label>
 							</fieldset>
 						</td>
 					</tr>

@@ -39,7 +39,7 @@ function bbp_dashboard_widget_right_now() {
 
 	<div class="table table_content">
 
-		<p class="sub"><?php _e( 'Discussion', 'bbpress' ); ?></p>
+		<p class="sub"><?php esc_html_e( 'Discussion', 'bbpress' ); ?></p>
 
 		<table>
 
@@ -124,7 +124,7 @@ function bbp_dashboard_widget_right_now() {
 
 	<div class="table table_discussion">
 
-		<p class="sub"><?php _e( 'Users &amp; Moderation', 'bbpress' ); ?></p>
+		<p class="sub"><?php esc_html_e( 'Users &amp; Moderation', 'bbpress' ); ?></p>
 
 		<table>
 
@@ -258,8 +258,8 @@ function bbp_forum_metabox() {
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_type_select"><?php _e( 'Type:', 'bbpress' ) ?></label>
+		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ) ?></label>
 		<?php bbp_form_forum_type_dropdown( $post_id ); ?>
 	</p>
 
@@ -270,8 +270,8 @@ function bbp_forum_metabox() {
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Status:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_status_select"><?php _e( 'Status:', 'bbpress' ) ?></label>
+		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ) ?></label>
 		<?php bbp_form_forum_status_dropdown( $post_id ); ?>
 	</p>
 
@@ -282,8 +282,8 @@ function bbp_forum_metabox() {
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Visibility:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php _e( 'Visibility:', 'bbpress' ) ?></label>
+		<strong class="label"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ) ?></label>
 		<?php bbp_form_forum_visibility_dropdown( $post_id ); ?>
 	</p>
 
@@ -296,8 +296,8 @@ function bbp_forum_metabox() {
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Parent:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum Parent', 'bbpress' ); ?></label>
 		<?php bbp_dropdown( array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => $post_parent,
@@ -319,8 +319,8 @@ function bbp_forum_metabox() {
 	</p>
 
 	<p>
-		<strong class="label"><?php _e( 'Order:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Order:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="menu_order"><?php esc_html_e( 'Forum Order', 'bbpress' ); ?></label>
 		<input name="menu_order" type="number" step="1" size="4" id="menu_order" value="<?php echo esc_attr( $menu_order ); ?>" />
 	</p>
 
@@ -347,14 +347,14 @@ function bbp_topic_metabox() {
 	$post_id = get_the_ID(); ?>
 
 	<p>
-		<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_stick_topic"><?php _e( 'Topic Type', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_stick_topic"><?php esc_html_e( 'Topic Type', 'bbpress' ); ?></label>
 		<?php bbp_topic_type_select( array( 'topic_id' => $post_id ) ); ?>
 	</p>
 
 	<p>
-		<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
 		<?php bbp_dropdown( array(
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => bbp_get_topic_forum_id( $post_id ),
@@ -406,8 +406,8 @@ function bbp_reply_metabox() {
 	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
 
 		<p>
-			<strong class="label"><?php _e( 'Forum:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_forum_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
 			<?php bbp_dropdown( array(
 				'post_type'          => bbp_get_forum_post_type(),
 				'selected'           => $reply_forum_id,
@@ -431,14 +431,14 @@ function bbp_reply_metabox() {
 	<?php endif; ?>
 
 	<p>
-		<strong class="label"><?php _e( 'Topic:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Topic:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Topic', 'bbpress' ); ?></label>
 		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" />
 	</p>
 
 	<p>
-		<strong class="label"><?php _e( 'Reply To:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_reply_to"><?php _e( 'Reply To', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_reply_to"><?php esc_html_e( 'Reply To', 'bbpress' ); ?></label>
 		<input name="bbp_reply_to" id="bbp_reply_to" type="text" value="<?php echo esc_attr( $reply_to ); ?>" />
 	</p>
 
@@ -468,42 +468,42 @@ function bbp_author_metabox() {
 	if ( bbp_is_reply_anonymous( $post_id ) || bbp_is_topic_anonymous( $post_id ) ) : ?>
 
 		<p>
-			<strong class="label"><?php _e( 'Name:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Name:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_anonymous_name"><?php esc_html_e( 'Name', 'bbpress' ); ?></label>
 			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_name', true ) ); ?>" />
 		</p>
 
 		<p>
-			<strong class="label"><?php _e( 'Email:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Email:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_anonymous_email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
 			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_email', true ) ); ?>" />
 		</p>
 
 		<p>
-			<strong class="label"><?php _e( 'Website:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Website:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_anonymous_website"><?php esc_html_e( 'Website', 'bbpress' ); ?></label>
 			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_website', true ) ); ?>" />
 		</p>
 
 	<?php else : ?>
 
 		<p>
-			<strong class="label"><?php _e( 'Name:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_author_name"><?php _e( 'Name', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Name:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_author_name"><?php esc_html_e( 'Name', 'bbpress' ); ?></label>
 			<input type="text" id="bbp_author_name" name="bbp_author_name" value="<?php echo esc_attr( get_the_author_meta( 'nicename', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
 		</p>
 
 		<p>
-			<strong class="label"><?php _e( 'Email:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_author_email"><?php _e( 'Email', 'bbpress' ); ?></label>
+			<strong class="label"><?php esc_html_e( 'Email:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_author_email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
 			<input type="text" id="bbp_author_email" name="bbp_author_email" value="<?php echo esc_attr( get_the_author_meta( 'email', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
 		</p>
 
 	<?php endif; ?>
 
 	<p>
-		<strong class="label"><?php _e( 'IP:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_author_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
+		<strong class="label"><?php esc_html_e( 'IP:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_author_ip_address"><?php esc_html_e( 'IP Address', 'bbpress' ); ?></label>
 		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_author_ip', true ) ); ?>" disabled="disabled" />
 	</p>
 

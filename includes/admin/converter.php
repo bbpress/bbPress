@@ -220,7 +220,7 @@ class BBP_Converter {
 					jQuery('#bbp-converter-start').hide();
 					jQuery('#bbp-converter-stop').show();
 					jQuery('#bbp-converter-progress').show();
-					bbconverter_log( '<p class="loading"><?php _e( 'Starting Conversion', 'bbpress' ); ?></p>' );
+					bbconverter_log( '<p class="loading"><?php esc_html_e( 'Starting Conversion', 'bbpress' ); ?></p>' );
 					bbconverter_run();
 				}
 			}
@@ -245,7 +245,7 @@ class BBP_Converter {
 			function bbconverter_success(response) {
 				bbconverter_log(response);
 
-				if ( response == '<p class="loading"><?php _e( 'Conversion Complete', 'bbpress' ); ?></p>' || response.indexOf('error') > -1 ) {
+				if ( response == '<p class="loading"><?php esc_html_e( 'Conversion Complete', 'bbpress' ); ?></p>' || response.indexOf('error') > -1 ) {
 					bbconverter_log('<p>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></p>');
 					bbconverter_stop();
 				} else if( bbconverter_is_running ) { // keep going
