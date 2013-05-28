@@ -80,22 +80,11 @@
 
 					<?php do_action( 'bbp_theme_before_topic_form_content' ); ?>
 
-					<?php if ( !function_exists( 'wp_editor' ) ) : ?>
-
-						<p>
-							<label for="bbp_topic_content"><?php _e( 'Topic:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="60" rows="6"><?php bbp_form_topic_content(); ?></textarea>
-						</p>
-
-					<?php else : ?>
-
-						<?php bbp_the_content( array( 'context' => 'topic' ) ); ?>
-
-					<?php endif; ?>
+					<?php bbp_the_content( array( 'context' => 'topic' ) ); ?>
 
 					<?php do_action( 'bbp_theme_after_topic_form_content' ); ?>
 
-					<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
+					<?php if ( ! ( bbp_use_wp_editor() || current_user_can( 'unfiltered_html' ) ) ) : ?>
 
 						<p class="form-allowed-tags">
 							<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />

@@ -72,22 +72,11 @@
 
 					<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
 
-					<?php if ( !function_exists( 'wp_editor' ) ) : ?>
-
-						<p>
-							<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
-						</p>
-
-					<?php else : ?>
-
-						<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
-
-					<?php endif; ?>
+					<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
 
 					<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
 
-					<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
+					<?php if ( ! ( bbp_use_wp_editor() || current_user_can( 'unfiltered_html' ) ) ) : ?>
 
 						<p class="form-allowed-tags">
 							<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
