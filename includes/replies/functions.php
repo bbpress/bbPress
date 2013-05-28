@@ -1069,12 +1069,14 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 	if ( empty( $reply_id ) )
 		return;
 
-	// Return if no reply to 
-	if ( empty( $reply_to ) )
-		return;
-
 	// Set the reply to
-	update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
+	if ( !empty( $reply_to ) ) {
+		update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
+
+	// Delete the reply to
+	} else {
+		delete_post_meta( $reply_id, '_bbp_reply_to' );
+	}
 
 	return (int) apply_filters( 'bbp_update_reply_to', (int) $reply_to, $reply_id );
 }
