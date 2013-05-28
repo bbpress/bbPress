@@ -20,9 +20,14 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_admin_get_settings_sections() {
 	return (array) apply_filters( 'bbp_admin_get_settings_sections', array(
-		'bbp_settings_main' => array(
-			'title'    => __( 'Main Forum Settings', 'bbpress' ),
-			'callback' => 'bbp_admin_setting_callback_main_section',
+		'bbp_settings_user' => array(
+			'title'    => __( 'Forum User Settings', 'bbpress' ),
+			'callback' => 'bbp_admin_setting_callback_user_section',
+			'page'     => 'discussion'
+		),
+		'bbp_settings_features' => array(
+			'title'    => __( 'Forum Features', 'bbpress' ),
+			'callback' => 'bbp_admin_setting_callback_features_section',
 			'page'     => 'discussion'
 		),
 		'bbp_settings_theme_compat' => array(
@@ -77,9 +82,9 @@ function bbp_admin_get_settings_sections() {
 function bbp_admin_get_settings_fields() {
 	return (array) apply_filters( 'bbp_admin_get_settings_fields', array(
 
-		/** Main Section ******************************************************/
+		/** User Section ******************************************************/
 
-		'bbp_settings_main' => array(
+		'bbp_settings_user' => array(
 
 			// Edit lock setting
 			'_bbp_edit_lock' => array(
@@ -96,6 +101,33 @@ function bbp_admin_get_settings_fields() {
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
+
+			// Allow anonymous posting setting
+			'_bbp_allow_anonymous' => array(
+				'title'             => __( 'Anonymous posting', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_anonymous',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow global access (on multisite)
+			'_bbp_allow_global_access' => array(
+				'title'             => __( 'Auto role', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_global_access',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow global access (on multisite)
+			'_bbp_default_role' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			)
+		),
+
+		/** Features Section **************************************************/
+
+		'bbp_settings_features' => array(
 
 			// Allow topic and reply revisions
 			'_bbp_allow_revisions' => array(
@@ -129,31 +161,9 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
-			// Allow anonymous posting setting
-			'_bbp_allow_anonymous' => array(
-				'title'             => __( 'Anonymous posting', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_anonymous',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Allow global access (on multisite)
-			'_bbp_default_role' => array(
-				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
-			),
-
-			// Allow global access (on multisite)
-			'_bbp_allow_global_access' => array(
-				'title'             => __( 'Auto role', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_global_access',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
 			// Allow fancy editor setting
 			'_bbp_use_wp_editor' => array(
-				'title'             => __( 'Fancy editor', 'bbpress' ),
+				'title'             => __( 'Post Formatting', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_use_wp_editor',
 				'args'              => array(),
 				'sanitize_callback' => 'intval'
@@ -419,20 +429,21 @@ function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 	return (array) apply_filters( 'bbp_admin_get_settings_fields_for_section', $retval, $section_id );
 }
 
-/** Main Section **************************************************************/
+/** User Section **************************************************************/
 
 /**
- * Main settings section description for the settings page
+ * User settings section description for the settings page
  *
  * @since bbPress (r2786)
  */
-function bbp_admin_setting_callback_main_section() {
+function bbp_admin_setting_callback_user_section() {
 ?>
 
-	<p><?php esc_html_e( 'Main forum settings for enabling features and setting time limits', 'bbpress' ); ?></p>
+	<p><?php esc_html_e( 'Setting time limits and other user posting capabilities', 'bbpress' ); ?></p>
 
 <?php
 }
+
 
 /**
  * Edit lock setting field
@@ -462,6 +473,72 @@ function bbp_admin_setting_callback_throttle() {
 
 	<input name="_bbp_throttle_time" type="number" min="0" step="1" id="_bbp_throttle_time" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_throttle_time' ); ?> />
 	<label for="_bbp_throttle_time"><?php esc_html_e( 'seconds', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow anonymous posting setting field
+ *
+ * @since bbPress (r2737)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_anonymous() {
+?>
+
+	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( bbp_allow_anonymous( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_anonymous' ); ?> />
+	<label for="_bbp_allow_anonymous"><?php esc_html_e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow global access setting field
+ *
+ * @since bbPress (r3378)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_global_access() {
+
+	// Get the default role once rather than loop repeatedly below
+	$default_role = bbp_get_default_role();
+
+	// Start the output buffer for the select dropdown
+	ob_start(); ?>
+
+	<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
+
+		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
+
+			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+
+		<?php endforeach; ?>
+
+	</select>
+
+	<?php $select = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_global_access">
+		<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
+		<?php printf( esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ), $select ); ?>
+	</label>
+
+<?php
+}
+
+/** Features Section **********************************************************/
+
+/**
+ * Features settings section description for the settings page
+ *
+ * @since bbPress (r2786)
+ */
+function bbp_admin_setting_callback_features_section() {
+?>
+
+	<p><?php esc_html_e( 'Forum features that can be toggled on and off', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -569,57 +646,6 @@ function bbp_admin_setting_callback_revisions() {
 }
 
 /**
- * Allow anonymous posting setting field
- *
- * @since bbPress (r2737)
- *
- * @uses checked() To display the checked attribute
- */
-function bbp_admin_setting_callback_anonymous() {
-?>
-
-	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( bbp_allow_anonymous( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_anonymous' ); ?> />
-	<label for="_bbp_allow_anonymous"><?php esc_html_e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label>
-
-<?php
-}
-
-/**
- * Allow global access setting field
- *
- * @since bbPress (r3378)
- *
- * @uses checked() To display the checked attribute
- */
-function bbp_admin_setting_callback_global_access() {
-
-	// Get the default role once rather than loop repeatedly below
-	$default_role = bbp_get_default_role();
-
-	// Start the output buffer for the select dropdown
-	ob_start(); ?>
-
-	<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
-
-		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
-
-			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
-
-		<?php endforeach; ?>
-
-	</select>
-
-	<?php $select = ob_get_clean(); ?>
-
-	<label for="_bbp_allow_global_access">
-		<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
-		<?php printf( esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ), $select ); ?>
-	</label>
-
-<?php
-}
-
-/**
  * Use the WordPress editor setting field
  *
  * @since bbPress (r3586)
@@ -630,7 +656,7 @@ function bbp_admin_setting_callback_use_wp_editor() {
 ?>
 
 	<input id="_bbp_use_wp_editor" name="_bbp_use_wp_editor" type="checkbox" id="_bbp_use_wp_editor" value="1" <?php checked( bbp_use_wp_editor( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_use_wp_editor' ); ?> />
-	<label for="_bbp_use_wp_editor"><?php esc_html_e( 'Use the fancy WordPress editor to create and edit topics and replies', 'bbpress' ); ?></label>
+	<label for="_bbp_use_wp_editor"><?php esc_html_e( 'Add toolbar & buttons to textareas to help with HTML formatting', 'bbpress' ); ?></label>
 
 <?php
 }

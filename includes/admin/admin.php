@@ -408,7 +408,8 @@ class BBP_Admin {
 			case 'bbp_tools_import_page'     : // Tools - Import Page
 			case 'bbp_tools_reset_page'      : // Tools - Reset Page
 			case 'bbp_settings_page'         : // Settings Page
-			case 'bbp_settings_main'         : // Settings - General
+			case 'bbp_settings_user'         : // Settings - Users
+			case 'bbp_settings_features'     : // Settings - Features
 			case 'bbp_settings_theme_compat' : // Settings - Theme compat
 			case 'bbp_settings_root_slugs'   : // Settings - Root slugs
 			case 'bbp_settings_single_slugs' : // Settings - Single slugs
