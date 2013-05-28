@@ -20,7 +20,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_admin_get_settings_sections() {
 	return (array) apply_filters( 'bbp_admin_get_settings_sections', array(
-		'bbp_settings_user' => array(
+		'bbp_settings_users' => array(
 			'title'    => __( 'Forum User Settings', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_user_section',
 			'page'     => 'discussion'
