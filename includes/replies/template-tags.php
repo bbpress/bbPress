@@ -1533,6 +1533,7 @@ function bbp_reply_to_link( $args = array() ) {
 			'respond_id'   => 'new-reply-' . bbp_get_topic_id(),
 		), 'get_reply_to_link' );
 
+		// Get the reply to use it's ID and post_parent
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $r['id'] ) );
 
 		// Bail if no reply or user cannot reply
@@ -1540,13 +1541,33 @@ function bbp_reply_to_link( $args = array() ) {
 			return;
 
 		// Build the URI and return value
-		$uri      = remove_query_arg( array( 'bbp_reply_to' ) );
-		$uri      = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
-		$uri      = wp_nonce_url( $uri, 'respond_id_' . $reply->ID );
-		$uri      = $uri . '#new-post';
-		$onclick  = 'return addReply.moveForm("' . $r['add_below'] . '-' . $reply->ID . '","' . $reply->ID . '","' . $r['respond_id'] . '","' . $reply->post_parent . '")';
+		$uri = remove_query_arg( array( 'bbp_reply_to' ) );
+		$uri = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
+		$uri = wp_nonce_url( $uri, 'respond_id_' . $reply->ID );
+		$uri = $uri . '#new-post';
+
+		// Only add onclick if replies are threaded
+		if ( bbp_thread_replies() ) {
+
+			// Array of classes to pass to moveForm
+			$move_form = array(
+				$r['add_below'] . '-' . $reply->ID,
+				$reply->ID,
+				$r['respond_id'],
+				$reply->post_parent
+			);
+
+			// Build the onclick
+			$onclick  = ' onclick="return addReply.moveForm(\'' . implode( "','", $move_form ) . '\');"';
+
+		// No onclick if replies are not threaded
+		} else {
+			$onclick  = '';
+		}
+
+		// Add $uri to the array, to be passed through the filter
 		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link" onclick=' . "'{$onclick}' >" . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
 	}
