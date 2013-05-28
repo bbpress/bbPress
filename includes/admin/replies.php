@@ -313,7 +313,7 @@ class BBP_Replies_Admin {
 
 		// Allow other fun things to happen
 		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id, $reply_to );
-		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data      );
+		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data                 );
 
 		return $reply_id;
 	}
