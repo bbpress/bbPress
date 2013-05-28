@@ -139,8 +139,6 @@ function bbp_admin_get_settings_fields() {
 
 			// Allow global access (on multisite)
 			'_bbp_default_role' => array(
-				'title'             => __( 'Default user role', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_default_role',
 				'sanitize_callback' => 'sanitize_text_field',
 				'args'              => array()
 			),
@@ -547,7 +545,7 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 	<?php $select = ob_get_clean(); ?>
 
 	<label for="_bbp_allow_threaded_replies">
-		<input name="_bbp_allow_threaded_replies" type="checkbox" id="_bbp_allow_threaded_replies" value="1" <?php checked( '1', bbp_allow_threaded_replies() ); ?> />
+		<input name="_bbp_allow_threaded_replies" type="checkbox" id="_bbp_allow_threaded_replies" value="1" <?php checked( '1', bbp_allow_threaded_replies( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_threaded_replies' ); ?> />
 		<?php printf( esc_html__( 'Enable threaded (nested) replies %s levels deep', 'bbpress' ), $select ); ?>
 	</label>
 
@@ -594,22 +592,12 @@ function bbp_admin_setting_callback_anonymous() {
  * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_global_access() {
-?>
 
-	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
-	<label for="_bbp_allow_global_access"><?php esc_html_e( 'Automatically assign default role to new, registered users upon visiting the site.', 'bbpress' ); ?></label>
+	// Get the default role once rather than loop repeatedly below
+	$default_role = bbp_get_default_role();
 
-<?php
-}
-
-/**
- * Output forum role selector (for user edit)
- *
- * @since bbPress (r4284)
- */
-function bbp_admin_setting_callback_default_role() {
-
-	$default_role = bbp_get_default_role(); ?>
+	// Start the output buffer for the select dropdown
+	ob_start(); ?>
 
 	<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
 
@@ -621,7 +609,14 @@ function bbp_admin_setting_callback_default_role() {
 
 	</select>
 
-	<?php
+	<?php $select = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_global_access">
+		<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
+		<?php printf( esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ), $select ); ?>
+	</label>
+
+<?php
 }
 
 /**
