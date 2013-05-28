@@ -2271,6 +2271,7 @@ function bbp_topic_admin_links( $args = '' ) {
 				'merge' => bbp_get_topic_merge_link( $r ),
 				'trash' => bbp_get_topic_trash_link( $r ),
 				'spam'  => bbp_get_topic_spam_link ( $r ),
+				'reply' => bbp_get_topic_reply_link( $r )
 			), $r['id'] );
 		}
 
@@ -2734,6 +2735,57 @@ function bbp_topic_spam_link( $args = '' ) {
 		$retval  = $r['link_before'] . '<a href="' . $uri . '">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_spam_link', $retval, $r );
+	}
+
+/**
+ * Output the link to go directly to the reply form
+ *
+ * @since bbPress (r4966)
+ *
+ * @param array $args
+ * @uses bbp_get_reply_to_link() To get the reply to link
+ */
+function bbp_topic_reply_link( $args = array() ) {
+	echo bbp_get_topic_reply_link( $args );
+}
+
+	/**
+	 * Return the link to go directly to the reply form
+	 *
+	 * @since bbPress (r4966)
+	 *
+	 * @param array $args Arguments
+	 * @uses bbp_current_user_can_access_create_reply_form() To check permissions
+	 * @uses bbp_get_topic_id() To validate the topic id
+	 * @uses bbp_get_topic() To get the topic
+	 * @uses apply_filters() Calls 'bbp_get_topic_reply_link' with the formatted link,
+	 *                        the arguments array, and the topic
+	 * @return string Link for a reply to a topic
+	 */
+	function bbp_get_topic_reply_link( $args = array() ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'reply_text'   => __( 'Reply', 'bbpress' ),
+		), 'get_topic_reply_link' );
+
+		// Get the reply to use it's ID and post_parent
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+
+		// Bail if no reply or user cannot reply
+		if ( empty( $topic ) || ! bbp_current_user_can_access_create_reply_form() )
+			return;
+
+		$uri = '#new-post';
+
+		// Add $uri to the array, to be passed through the filter
+		$r['uri'] = $uri;
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link">' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
+
+		return apply_filters( 'bbp_get_topic_reply_link', $retval, $r, $args );
 	}
 
 /** Topic Pagination **********************************************************/
