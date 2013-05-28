@@ -169,9 +169,15 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Allow threadde replies
+			'_bbp_allow_threaded_replies' => array(
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Set reply threading level
 			'_bbp_thread_replies_depth' => array(
-				'title'             => __( 'Thread replies to topics', 'bbpress' ),
+				'title'             => __( 'Reply Threading', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_thread_replies_depth',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -525,17 +531,25 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 
 	// Set maximum depth for dropdown
 	$max_depth     = (int) apply_filters( 'bbp_thread_replies_depth_max', 10 );
-	$current_depth = bbp_thread_replies_depth(); ?>
+	$current_depth = bbp_thread_replies_depth();
+
+	// Start an output buffer for the select dropdown
+	ob_start(); ?>
 
 	<select id="_bbp_thread_replies_depth" name="_bbp_thread_replies_depth">
-	<?php for ( $i = 0; $i <= $max_depth; $i++ ) : ?>
+	<?php for ( $i = 2; $i <= $max_depth; $i++ ) : ?>
 
 		<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $current_depth ); ?>><?php echo esc_html( $i ); ?></option>
 
 	<?php endfor; ?>
 	</select>
 
-	<label for="_bbp_thread_replies_depth"><?php esc_html_e( 'levels deep', 'bbpress' ); ?></label>
+	<?php $select = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_threaded_replies">
+		<input name="_bbp_allow_threaded_replies" type="checkbox" id="_bbp_allow_threaded_replies" value="1" <?php checked( '1', bbp_allow_threaded_replies() ); ?> />
+		<?php printf( esc_html__( 'Enable threaded (nested) replies %s levels deep', 'bbpress' ), $select ); ?>
+	</label>
 
 <?php
 }

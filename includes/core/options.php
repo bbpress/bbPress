@@ -29,20 +29,21 @@ function bbp_get_default_options() {
 
 		/** Settings **********************************************************/
 
-		'_bbp_edit_lock'            => 5,                          // Lock post editing after 5 minutes
-		'_bbp_throttle_time'        => 10,                         // Throttle post time to 10 seconds
-		'_bbp_enable_favorites'     => 1,                          // Favorites
-		'_bbp_enable_subscriptions' => 1,                          // Subscriptions
-		'_bbp_allow_anonymous'      => 0,                          // Allow anonymous posting
-		'_bbp_allow_global_access'  => 1,                          // Users from all sites can post
-		'_bbp_allow_revisions'      => 1,                          // Allow revisions
-		'_bbp_allow_topic_tags'     => 1,                          // Topic Tags
-		'_bbp_thread_replies_depth' => 0,                          // Thread replies depth
-		'_bbp_use_wp_editor'        => 1,                          // Use the WordPress editor if available
-		'_bbp_use_autoembed'        => 0,                          // Allow oEmbed in topics and replies
-		'_bbp_theme_package_id'     => 'default',                  // The ID for the current theme package
-		'_bbp_default_role'         => bbp_get_participant_role(), // Default forums role
-		'_bbp_settings_integration' => 0,                          // Put settings into existing admin pages
+		'_bbp_edit_lock'              => 5,                          // Lock post editing after 5 minutes
+		'_bbp_throttle_time'          => 10,                         // Throttle post time to 10 seconds
+		'_bbp_enable_favorites'       => 1,                          // Favorites
+		'_bbp_enable_subscriptions'   => 1,                          // Subscriptions
+		'_bbp_allow_anonymous'        => 0,                          // Allow anonymous posting
+		'_bbp_allow_global_access'    => 1,                          // Users from all sites can post
+		'_bbp_allow_revisions'        => 1,                          // Allow revisions
+		'_bbp_allow_topic_tags'       => 1,                          // Topic Tags
+		'_bbp_allow_threaded_replies' => 0,                          // Allow threaded replies
+		'_bbp_thread_replies_depth'   => 2,                          // Thread replies depth
+		'_bbp_use_wp_editor'          => 1,                          // Use the WordPress editor if available
+		'_bbp_use_autoembed'          => 0,                          // Allow oEmbed in topics and replies
+		'_bbp_theme_package_id'       => 'default',                  // The ID for the current theme package
+		'_bbp_default_role'           => bbp_get_participant_role(), // Default forums role
+		'_bbp_settings_integration'   => 0,                          // Put settings into existing admin pages
 
 		/** Per Page **********************************************************/
 
@@ -241,9 +242,22 @@ function bbp_allow_topic_tags( $default = 1 ) {
  */
 function bbp_thread_replies() {
 	$depth  = bbp_thread_replies_depth();
-	$retval = (bool) ( $depth > 1 );
+	$allow  = bbp_allow_threaded_replies();
+	$retval = (bool) ( ( $depth >= 2 ) && ( true === $allow ) );
 
-	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth );
+	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth, $allow );
+}
+
+/**
+ * Are threaded replies allowed
+ *
+ * @since bbPress (r4964)
+ * @param $default bool Optional. Default value false
+ * @uses get_option() To get the threaded replies setting
+ * @return bool Are threaded replies allowed?
+ */
+function bbp_allow_threaded_replies( $default = 0 ) {
+	return (bool) apply_filters( '_bbp_allow_threaded_replies', (bool) get_option( '_bbp_allow_threaded_replies', $default ) );
 }
 
 /**
@@ -257,7 +271,7 @@ function bbp_thread_replies() {
  * @uses get_option() To get the thread replies depth
  * @return int Thread replies depth
  */
-function bbp_thread_replies_depth( $default = 1 ) {
+function bbp_thread_replies_depth( $default = 2 ) {
 	return (int) apply_filters( 'bbp_thread_replies_depth', (int) get_option( '_bbp_thread_replies_depth', $default ) );
 }
 
