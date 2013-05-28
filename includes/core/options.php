@@ -36,8 +36,9 @@ function bbp_get_default_options() {
 		'_bbp_allow_anonymous'        => 0,                          // Allow anonymous posting
 		'_bbp_allow_global_access'    => 1,                          // Users from all sites can post
 		'_bbp_allow_revisions'        => 1,                          // Allow revisions
-		'_bbp_allow_topic_tags'       => 1,                          // Topic Tags
+		'_bbp_allow_topic_tags'       => 1,                          // Allow topic tagging
 		'_bbp_allow_threaded_replies' => 0,                          // Allow threaded replies
+		'_bbp_allow_search'           => 1,                          // Allow forum-wide search
 		'_bbp_thread_replies_depth'   => 2,                          // Thread replies depth
 		'_bbp_use_wp_editor'          => 1,                          // Use the WordPress editor if available
 		'_bbp_use_autoembed'          => 0,                          // Allow oEmbed in topics and replies
@@ -227,6 +228,18 @@ function bbp_is_subscriptions_active( $default = 1 ) {
  */
 function bbp_allow_topic_tags( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
+}
+
+/**
+ * Is forum-wide searching allowed
+ *
+ * @since bbPress (r4970)
+ * @param $default bool Optional. Default value true
+ * @uses get_option() To get the forum-wide search setting
+ * @return bool Is forum-wide searching allowed?
+ */
+function bbp_allow_search( $default = 1 ) {
+	return (bool) apply_filters( 'bbp_allow_search', (bool) get_option( '_bbp_allow_search', $default ) );
 }
 
 /**

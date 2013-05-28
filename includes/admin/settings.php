@@ -84,7 +84,7 @@ function bbp_admin_get_settings_fields() {
 
 		/** User Section ******************************************************/
 
-		'bbp_settings_user' => array(
+		'bbp_settings_users' => array(
 
 			// Edit lock setting
 			'_bbp_edit_lock' => array(
@@ -161,6 +161,14 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Allow topic tags
+			'_bbp_allow_search' => array(
+				'title'             => __( 'Search', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_search',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Allow fancy editor setting
 			'_bbp_use_wp_editor' => array(
 				'title'             => __( 'Post Formatting', 'bbpress' ),
@@ -177,16 +185,16 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
-			// Allow threadde replies
-			'_bbp_allow_threaded_replies' => array(
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
 			// Set reply threading level
 			'_bbp_thread_replies_depth' => array(
 				'title'             => __( 'Reply Threading', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_thread_replies_depth',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow threadde replies
+			'_bbp_allow_threaded_replies' => array(
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			)
@@ -587,6 +595,22 @@ function bbp_admin_setting_callback_topic_tags() {
 
 	<input id="_bbp_allow_topic_tags" name="_bbp_allow_topic_tags" type="checkbox" id="_bbp_allow_topic_tags" value="1" <?php checked( bbp_allow_topic_tags( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_topic_tags' ); ?> />
 	<label for="_bbp_allow_topic_tags"><?php esc_html_e( 'Allow topics to have tags', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow forum wide search
+ *
+ * @since bbPress (r4970)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_search() {
+?>
+
+	<input id="_bbp_allow_search" name="_bbp_allow_search" type="checkbox" id="_bbp_allow_search" value="1" <?php checked( bbp_allow_search( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_search' ); ?> />
+	<label for="_bbp_allow_search"><?php esc_html_e( 'Allow forum wide search', 'bbpress' ); ?></label>
 
 <?php
 }

@@ -620,6 +620,11 @@ class BBP_Shortcodes {
 	 */
 	public function display_search_form() {
 
+		// Bail if search is disabled
+		if ( ! bbp_allow_search() ) {
+			return;
+		}
+
 		// Start output buffer
 		$this->start( 'bbp_search_form' );
 
@@ -644,8 +649,14 @@ class BBP_Shortcodes {
 	public function display_search( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) )
+		if ( !empty( $content ) ) {
 			return $content;
+		}
+
+		// Bail if search is disabled
+		if ( ! bbp_allow_search() ) {
+			return;
+		}
 
 		// Trim search attribute if it's set
 		if ( isset( $attr['search'] ) ) {

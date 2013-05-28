@@ -794,6 +794,10 @@ function bbp_is_single_view() {
 function bbp_is_search() {
 	global $wp_query;
 
+	// Bail if search is disabled
+	if ( ! bbp_allow_search() )
+		return false;
+
 	// Assume false
 	$retval = false;
 
@@ -823,6 +827,10 @@ function bbp_is_search() {
  */
 function bbp_is_search_results() {
 	global $wp_query;
+
+	// Bail if search is disabled
+	if ( ! bbp_allow_search() )
+		return false;
 
 	// Assume false
 	$retval = false;

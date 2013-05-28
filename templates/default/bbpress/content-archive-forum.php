@@ -11,11 +11,15 @@
 
 <div id="bbpress-forums">
 
-	<div class="bbp-search-form">
+	<?php if ( bbp_allow_search() ) : ?>
 
-		<?php bbp_get_template_part( 'form', 'search' ); ?>
+		<div class="bbp-search-form">
 
-	</div>
+			<?php bbp_get_template_part( 'form', 'search' ); ?>
+
+		</div>
+
+	<?php endif; ?>
 
 	<?php bbp_breadcrumb(); ?>
 
