@@ -2248,9 +2248,6 @@ function bbp_topic_admin_links( $args = '' ) {
 	 */
 	function bbp_get_topic_admin_links( $args = '' ) {
 
-		if ( !bbp_is_single_topic() )
-			return;
-
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array (
 			'id'     => bbp_get_topic_id(),

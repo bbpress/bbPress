@@ -17,12 +17,6 @@
 
 		<a href="<?php bbp_topic_permalink(); ?>" class="bbp-topic-permalink">#<?php bbp_topic_id(); ?></a>
 
-		<?php do_action( 'bbp_theme_before_topic_admin_links' ); ?>
-
-		<?php bbp_topic_admin_links( bbp_get_topic_id() ); ?>
-
-		<?php do_action( 'bbp_theme_after_topic_admin_links' ); ?>
-
 	</div><!-- .bbp-meta -->
 
 	<div class="bbp-topic-title">
