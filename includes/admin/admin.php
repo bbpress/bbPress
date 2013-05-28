@@ -351,7 +351,9 @@ class BBP_Admin {
 			foreach ( (array) $fields as $field_id => $field ) {
 
 				// Add the field
-				add_settings_field( $field_id, $field['title'], $field['callback'], $page, $section_id, $field['args'] );
+				if ( ! empty( $field['callback'] ) && !empty( $field['title'] ) ) {
+					add_settings_field( $field_id, $field['title'], $field['callback'], $page, $section_id, $field['args'] );
+				}
 
 				// Register the setting
 				register_setting( $page, $field_id, $field['sanitize_callback'] );
