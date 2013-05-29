@@ -2247,7 +2247,8 @@ function bbp_topic_pagination_count() {
 		$total     = bbp_number_format( $total_int );
 
 		// We are threading replies
-		if ( bbp_thread_replies() ) {
+		if ( bbp_thread_replies() && bbp_is_single_topic() ) {
+			return;
 			$walker  = new BBP_Walker_Reply;
 			$threads = (int) $walker->get_number_of_root_elements( $bbp->reply_query->posts );
 
