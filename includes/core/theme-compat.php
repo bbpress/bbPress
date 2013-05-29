@@ -667,11 +667,13 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 */
 	if ( bbp_is_theme_compat_active() ) {
 
-		// Remove all filters from the_content
-		bbp_remove_all_filters( 'the_content' );
+		// Hook to the beginning of the main post loop to remove all filters
+		// from the_content as late as possible.
+		add_action( 'loop_start', 'bbp_theme_compat_main_loop_start',  9999 );
 
-		// Add a filter on the_content late, which we will later remove
-		add_filter( 'the_content', 'bbp_replace_the_content' );
+		// Hook to the end of the main post loop to restore all filters to
+		// the_content as early as possible.
+		add_action( 'loop_end',   'bbp_theme_compat_main_loop_end',   -9999 );
 
 		// Find the appropriate template file
 		$template = bbp_get_theme_compat_templates();
@@ -687,7 +689,9 @@ function bbp_template_include_theme_compat( $template = '' ) {
  *
  * Note that we do *not* currently use is_main_query() here. This is because so
  * many existing themes either use query_posts() or fail to use wp_reset_query()
- * when running queries before the main loop, causing theme compat to fail.
+ * when running queries before the main loop, causing theme compat to fail. We
+ * do use in_the_loop() though, so we can narrow the scope down to the actual
+ * main page content area.
  *
  * @since bbPress (r3034)
  * @param string $content
@@ -895,6 +899,48 @@ function bbp_replace_the_content( $content = '' ) {
 
 	// Return possibly hi-jacked content
 	return $content;
+}
+
+
+/**
+ * Helper function to conditionally toggle the_content filters in the main
+ * query loop. Aids with theme compatibility.
+ *
+ * @since bbPress (r4972)
+ * @internal Used only by theme compatibilty
+ * @see bp_template_include_theme_compat()
+ * @see bp_theme_compat_main_loop_end()
+ */
+function bbp_theme_compat_main_loop_start() {
+
+	// Bail if not the main query
+	if ( ! in_the_loop() )
+		return;
+
+	// Remove all of the filters from the_content
+	bbp_remove_all_filters( 'the_content' );
+
+	// Make sure we replace the content
+	add_filter( 'the_content', 'bbp_replace_the_content' );
+}
+
+/**
+ * Helper function to conditionally toggle the_content filters in the main
+ * query loop. Aids with theme compatibility.
+ *
+ * @since bbPress (r4972)
+ * @internal Used only by theme compatibilty
+ * @see bbp_template_include_theme_compat()
+ * @see bbp_theme_compat_main_loop_start()
+ */
+function bbp_theme_compat_main_loop_end() {
+
+	// Bail if not the main query
+	if ( ! in_the_loop() )
+		return;
+
+	// Put all the filters back
+	bbp_restore_all_filters( 'the_content' );
 }
 
 /** Helpers *******************************************************************/
