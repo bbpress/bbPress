@@ -480,7 +480,7 @@ class BBP_Forums_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $forum Forum object
-	 * @uses the_content() To output forum description
+	 * @uses bbp_forum_content() To output forum description
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $forum ) {
