@@ -45,7 +45,7 @@ class BBP_Theme_Compat {
 	 *     'dir'     => Path to theme
 	 *     'url'     => URL to theme
 	 * );
-	 * @var array 
+	 * @var array
 	 */
 	private $_data = array();
 
@@ -297,42 +297,9 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 function bbp_theme_compat_reset_post( $args = array() ) {
 	global $wp_query, $post;
 
-	// Default arguments
-	$defaults = array(
-		'ID'                    => -9999,
-		'post_status'           => bbp_get_public_status_id(),
-		'post_author'           => 0,
-		'post_parent'           => 0,
-		'post_type'             => 'page',
-		'post_date'             => 0,
-		'post_date_gmt'         => 0,
-		'post_modified'         => 0,
-		'post_modified_gmt'     => 0,
-		'post_content'          => '',
-		'post_title'            => '',
-		'post_excerpt'          => '',
-		'post_content_filtered' => '',
-		'post_mime_type'        => '',
-		'post_password'         => '',
-		'post_name'             => '',
-		'guid'                  => '',
-		'menu_order'            => 0,
-		'pinged'                => '',
-		'to_ping'               => '',
-		'ping_status'           => '',
-		'comment_status'        => 'closed',
-		'comment_count'         => 0,
-
-		'is_404'          => false,
-		'is_page'         => false,
-		'is_single'       => false,
-		'is_archive'      => false,
-		'is_tax'          => false,
-	);
-
 	// Switch defaults if post is set
-	if ( isset( $wp_query->post ) ) {		  
-		$defaults = array(
+	if ( isset( $wp_query->post ) ) {
+		$dummy = bbp_parse_args( $args, array(
 			'ID'                    => $wp_query->post->ID,
 			'post_status'           => $wp_query->post->post_status,
 			'post_author'           => $wp_query->post->post_author,
@@ -356,52 +323,60 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'ping_status'           => $wp_query->post->ping_status,
 			'comment_status'        => $wp_query->post->comment_status,
 			'comment_count'         => $wp_query->post->comment_count,
+			'filter'                => $wp_query->post->filter,
 
-			'is_404'          => false,
-			'is_page'         => false,
-			'is_single'       => false,
-			'is_archive'      => false,
-			'is_tax'          => false,
-		);
+			'is_404'                => false,
+			'is_page'               => false,
+			'is_single'             => false,
+			'is_archive'            => false,
+			'is_tax'                => false,
+		), 'theme_compat_reset_post' );
+	} else {
+		$dummy = bbp_parse_args( $args, array(
+			'ID'                    => -9999,
+			'post_status'           => bbp_get_public_status_id(),
+			'post_author'           => 0,
+			'post_parent'           => 0,
+			'post_type'             => 'page',
+			'post_date'             => 0,
+			'post_date_gmt'         => 0,
+			'post_modified'         => 0,
+			'post_modified_gmt'     => 0,
+			'post_content'          => '',
+			'post_title'            => '',
+			'post_excerpt'          => '',
+			'post_content_filtered' => '',
+			'post_mime_type'        => '',
+			'post_password'         => '',
+			'post_name'             => '',
+			'guid'                  => '',
+			'menu_order'            => 0,
+			'pinged'                => '',
+			'to_ping'               => '',
+			'ping_status'           => '',
+			'comment_status'        => 'closed',
+			'comment_count'         => 0,
+			'filter'                => 'raw',
+
+			'is_404'                => false,
+			'is_page'               => false,
+			'is_single'             => false,
+			'is_archive'            => false,
+			'is_tax'                => false,
+		), 'theme_compat_reset_post' );
 	}
-	$dummy = bbp_parse_args( $args, $defaults, 'theme_compat_reset_post' );
 
-	// Clear out the post related globals
-	unset( $wp_query->posts );
-	unset( $wp_query->post  );
-	unset( $post            );
-
-	// Setup the dummy post object
-	$wp_query->post                        = new stdClass; 
-	$wp_query->post->ID                    = $dummy['ID'];
-	$wp_query->post->post_status           = $dummy['post_status'];
-	$wp_query->post->post_author           = $dummy['post_author'];
-	$wp_query->post->post_parent           = $dummy['post_parent'];
-	$wp_query->post->post_type             = $dummy['post_type'];
-	$wp_query->post->post_date             = $dummy['post_date'];
-	$wp_query->post->post_date_gmt         = $dummy['post_date_gmt'];
-	$wp_query->post->post_modified         = $dummy['post_modified'];
-	$wp_query->post->post_modified_gmt     = $dummy['post_modified_gmt'];
-	$wp_query->post->post_content          = $dummy['post_content'];
-	$wp_query->post->post_title            = $dummy['post_title'];
-	$wp_query->post->post_excerpt          = $dummy['post_excerpt'];
-	$wp_query->post->post_content_filtered = $dummy['post_content_filtered'];
-	$wp_query->post->post_mime_type        = $dummy['post_mime_type'];
-	$wp_query->post->post_password         = $dummy['post_password'];
-	$wp_query->post->post_name             = $dummy['post_name'];
-	$wp_query->post->guid                  = $dummy['guid'];
-	$wp_query->post->menu_order            = $dummy['menu_order'];
-	$wp_query->post->pinged                = $dummy['pinged'];
-	$wp_query->post->to_ping               = $dummy['to_ping'];
-	$wp_query->post->ping_status           = $dummy['ping_status'];
-	$wp_query->post->comment_status        = $dummy['comment_status'];
-	$wp_query->post->comment_count         = $dummy['comment_count'];
+	// Bail if dummy post is empty
+	if ( empty( $dummy ) ) {
+		return;
+	}
 
 	// Set the $post global
-	$post = $wp_query->post;
+	$post = new WP_Post( (object) $dummy );
 
-	// Setup the dummy post loop
-	$wp_query->posts[0] = $wp_query->post;
+	// Copy the new post global into the main $wp_query
+	$wp_query->post       = $post;
+	$wp_query->posts      = array( $post );
 
 	// Prevent comments form from appearing
 	$wp_query->post_count = 1;
@@ -411,16 +386,20 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
 
+	// Clean up the dummy post
+	unset( $dummy );
+
 	/**
 	 * Force the header back to 200 status if not a deliberate 404
 	 *
 	 * @see http://bbpress.trac.wordpress.org/ticket/1973
 	 */
-	if ( ! $wp_query->is_404() )
+	if ( ! $wp_query->is_404() ) {
 		status_header( 200 );
+	}
 
 	// If we are resetting a post, we are in theme compat
-	bbp_set_theme_compat_active();
+	bbp_set_theme_compat_active( true );
 }
 
 /**
@@ -641,11 +620,11 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * template files for users, topics, forums, etc...
 	 *
 	 * We do this after the above checks to prevent incorrect 404 body classes
-	 * and header statuses.
+	 * and header statuses, as well as to set the post global as needed.
 	 *
 	 * @see http://bbpress.trac.wordpress.org/ticket/1478/
 	 */
-	if ( !empty( bbpress()->theme_compat->bbpress_template ) )
+	if ( bbp_is_template_included() ) {
 		return $template;
 
 	/**
@@ -661,22 +640,17 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * Uses bbp_get_theme_compat_templates() to provide fall-backs that
 	 * should be coded without superfluous mark-up and logic (prev/next
 	 * navigation, comments, date/time, etc...)
-	 * 
+	 *
 	 * Hook into the 'bbp_get_bbpress_template' to override the array of
 	 * possible templates, or 'bbp_bbpress_template' to override the result.
 	 */
-	if ( bbp_is_theme_compat_active() ) {
-
-		// Hook to the beginning of the main post loop to remove all filters
-		// from the_content as late as possible.
-		add_action( 'loop_start', 'bbp_theme_compat_main_loop_start',  9999 );
-
-		// Hook to the end of the main post loop to restore all filters to
-		// the_content as early as possible.
-		add_action( 'loop_end',   'bbp_theme_compat_main_loop_end',   -9999 );
-
-		// Find the appropriate template file
+	} elseif ( bbp_is_theme_compat_active() ) {
 		$template = bbp_get_theme_compat_templates();
+
+		// Hook onto the start and end of the loop, and prepare to replace the
+		// main section of the_content() output.
+		add_action( 'loop_start', 'bbp_theme_compat_main_loop_start',  9999 );
+		add_action( 'loop_end',   'bbp_theme_compat_main_loop_end',   -9999 );
 	}
 
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
@@ -699,18 +673,21 @@ function bbp_template_include_theme_compat( $template = '' ) {
  */
 function bbp_replace_the_content( $content = '' ) {
 
-	// Bail if not inside the query loop
-	if ( ! in_the_loop() )
+	// Bail if not the main loop where theme compat is happening
+	if ( ! bbp_do_theme_compat() )
 		return $content;
-
-	$bbp = bbpress();
 
 	// Define local variable(s)
-	$new_content = '';
+	$new_content    = '';
+	$bbp_shortcodes = bbpress()->shortcodes;
 
 	// Bail if shortcodes are unset somehow
-	if ( !is_a( $bbp->shortcodes, 'BBP_Shortcodes' ) )
+	if ( !is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) )
 		return $content;
+
+	// Set theme compat to false early, to avoid recursion from nested calls to
+	// the_content() that execute before theme compat has unhooked itself.
+	bbp_set_theme_compat_active( false );
 
 	// Use shortcode API to display forums/topics/replies because they are
 	// already output buffered and ready to fit inside the_content
@@ -723,9 +700,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 		bbp_get_template_part( 'content', 'single-user' );
 
-		$new_content = ob_get_contents();
-
-		ob_end_clean();
+		$new_content = ob_get_clean();
 
 	/** Forums ************************************************************/
 
@@ -756,20 +731,20 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// Use the topics archive
 		} elseif ( 'topics' === bbp_show_on_root() ) {
-			$new_content = $bbp->shortcodes->display_topic_index();
+			$new_content = $bbp_shortcodes->display_topic_index();
 
 		// No page so show the archive
 		} else {
-			$new_content = $bbp->shortcodes->display_forum_index();
+			$new_content = $bbp_shortcodes->display_forum_index();
 		}
 
 	// Forum Edit
 	} elseif ( bbp_is_forum_edit() ) {
-		$new_content = $bbp->shortcodes->display_forum_form();
+		$new_content = $bbp_shortcodes->display_forum_form();
 
 	// Single Forum
 	} elseif ( bbp_is_single_forum() ) {
-		$new_content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
+		$new_content = $bbp_shortcodes->display_forum( array( 'id' => get_the_ID() ) );
 
 	/** Topics ************************************************************/
 
@@ -800,7 +775,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// No page so show the archive
 		} else {
-			$new_content = $bbp->shortcodes->display_topic_index();
+			$new_content = $bbp_shortcodes->display_topic_index();
 		}
 
 	// Topic Edit
@@ -812,9 +787,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 			bbp_get_template_part( 'form', 'topic-split' );
 
-			$new_content = ob_get_contents();
-
-			ob_end_clean();
+			$new_content = ob_get_clean();
 
 		// Merge
 		} elseif ( bbp_is_topic_merge() ) {
@@ -822,70 +795,66 @@ function bbp_replace_the_content( $content = '' ) {
 
 			bbp_get_template_part( 'form', 'topic-merge' );
 
-			$new_content = ob_get_contents();
-
-			ob_end_clean();
+			$new_content = ob_get_clean();
 
 		// Edit
 		} else {
-			$new_content = $bbp->shortcodes->display_topic_form();
+			$new_content = $bbp_shortcodes->display_topic_form();
 		}
 
 	// Single Topic
 	} elseif ( bbp_is_single_topic() ) {
-		$new_content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
+		$new_content = $bbp_shortcodes->display_topic( array( 'id' => get_the_ID() ) );
 
 	/** Replies ***********************************************************/
 
 	// Reply archive
 	} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
-		//$new_content = $bbp->shortcodes->display_reply_index();
+		//$new_content = $bbp_shortcodes->display_reply_index();
 
 	// Reply Edit
 	} elseif ( bbp_is_reply_edit() ) {
-	
+
 		// Move
 		if ( bbp_is_reply_move() ) {
 			ob_start();
 
 			bbp_get_template_part( 'form', 'reply-move' );
 
-			$new_content = ob_get_contents();
+			$new_content = ob_get_clean();
 
-			ob_end_clean();
-	
 		// Edit
 		} else {
-			$new_content = $bbp->shortcodes->display_reply_form();
+			$new_content = $bbp_shortcodes->display_reply_form();
 		}
 
 	// Single Reply
 	} elseif ( bbp_is_single_reply() ) {
-		$new_content = $bbp->shortcodes->display_reply( array( 'id' => get_the_ID() ) );
+		$new_content = $bbp_shortcodes->display_reply( array( 'id' => get_the_ID() ) );
 
 	/** Views *************************************************************/
 
 	} elseif ( bbp_is_single_view() ) {
-		$new_content = $bbp->shortcodes->display_view( array( 'id' => get_query_var( 'bbp_view' ) ) );
+		$new_content = $bbp_shortcodes->display_view( array( 'id' => get_query_var( 'bbp_view' ) ) );
 
 	/** Search ************************************************************/
 
 	} elseif ( bbp_is_search() ) {
-		$new_content = $bbp->shortcodes->display_search( array( 'search' => get_query_var( 'bbp_search' ) ) );
+		$new_content = $bbp_shortcodes->display_search( array( 'search' => get_query_var( 'bbp_search' ) ) );
 
 	/** Topic Tags ********************************************************/
 
 	// Show topics of tag
 	} elseif ( bbp_is_topic_tag() ) {
-		$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
+		$new_content = $bbp_shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
 	// Edit topic tag
 	} elseif ( bbp_is_topic_tag_edit() ) {
-		$new_content = $bbp->shortcodes->display_topic_tag_form();
+		$new_content = $bbp_shortcodes->display_topic_tag_form();
 	}
 
 	// Juggle the content around and try to prevent unsightly comments
-	if ( !empty( $new_content ) && ( $new_content != $content ) ) {
+	if ( !empty( $new_content ) && ( $new_content !== $content ) ) {
 
 		// Set the content to be the new content
 		$content = apply_filters( 'bbp_replace_the_content', $new_content, $content );
@@ -913,8 +882,8 @@ function bbp_replace_the_content( $content = '' ) {
  */
 function bbp_theme_compat_main_loop_start() {
 
-	// Bail if not the main query
-	if ( ! in_the_loop() )
+	// Bail if not the main loop where theme compat is happening
+	if ( ! bbp_do_theme_compat() )
 		return;
 
 	// Remove all of the filters from the_content
@@ -935,8 +904,8 @@ function bbp_theme_compat_main_loop_start() {
  */
 function bbp_theme_compat_main_loop_end() {
 
-	// Bail if not the main query
-	if ( ! in_the_loop() )
+	// Bail if not the main loop where theme compat is happening
+	if ( ! bbp_do_theme_compat() )
 		return;
 
 	// Put all the filters back
@@ -944,6 +913,16 @@ function bbp_theme_compat_main_loop_end() {
 }
 
 /** Helpers *******************************************************************/
+
+/**
+ * Are we replacing the_content
+ *
+ * @since bbPres (r4975)
+ * @return bool
+ */
+function bbp_do_theme_compat() {
+	return (bool) ( ! bbp_is_template_included() && in_the_loop() && bbp_is_theme_compat_active() );
+}
 
 /**
  * Remove the canonical redirect to allow pretty pagination

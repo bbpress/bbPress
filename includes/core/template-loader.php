@@ -108,17 +108,36 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	elseif ( bbp_is_topic_tag()        && ( $new_template = bbp_get_topic_tag_template()        ) ) :
 	endif;
 
-	// bbPress template file exists
+	// A bbPress template file was located, so override the WordPress template
+	// and use it to switch off bbPress's theme compatibility.
 	if ( !empty( $new_template ) ) {
-
-		// Override the WordPress template with a bbPress one
-		$template = $new_template;
-
-		// @see: bbp_template_include_theme_compat()
-		bbpress()->theme_compat->bbpress_template = true;
+		$template = bbp_set_template_included( $new_template );
 	}
 
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
+}
+
+/**
+ * Set the included template
+ *
+ * @since bbPress (r4975)
+ * @param mixed $template Default false
+ * @return mixed False if empty. Template name if template included
+ */
+function bbp_set_template_included( $template = false ) {
+	bbpress()->theme_compat->bbpress_template = $template;
+
+	return bbpress()->theme_compat->bbpress_template;
+}
+
+/**
+ * Is a bbPress template being included?
+ *
+ * @since bbPress (r4975)
+ * @return bool True if yes, false if no
+ */
+function bbp_is_template_included() {
+	return ! empty( bbpress()->theme_compat->bbpress_template );
 }
 
 /** Custom Functions **********************************************************/
