@@ -134,7 +134,7 @@ function bbp_displayed_user_field( $field = '' ) {
 
 		// Return field if exists
 		if ( isset( $bbp->displayed_user->$field ) )
-			$value = esc_attr( sanitize_text_field( $bbp->displayed_user->$field ) );
+			$value = sanitize_text_field( $bbp->displayed_user->$field );
 
 		// Return empty
 		return apply_filters( 'bbp_get_displayed_user_field', $value, $field );
