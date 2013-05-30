@@ -647,10 +647,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	} elseif ( bbp_is_theme_compat_active() ) {
 		$template = bbp_get_theme_compat_templates();
 
-		// Hook onto the start and end of the loop, and prepare to replace the
-		// main section of the_content() output.
-		add_action( 'loop_start', 'bbp_theme_compat_main_loop_start',  9999 );
-		add_action( 'loop_end',   'bbp_theme_compat_main_loop_end',   -9999 );
+		add_filter( 'the_content', 'bbp_replace_the_content' );
 	}
 
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
@@ -710,24 +707,7 @@ function bbp_replace_the_content( $content = '' ) {
 		// Page exists where this archive should be
 		$page = bbp_get_page_by_path( bbp_get_root_slug() );
 		if ( !empty( $page ) ) {
-
-			// Restore previously unset filters
-			bbp_restore_all_filters( 'the_content' );
-
-			// Remove 'bbp_replace_the_content' filter to prevent infinite loops
-			remove_filter( 'the_content', 'bbp_replace_the_content' );
-
-			// Start output buffer
-			ob_start();
-
-			// Grab the content of this page
 			$new_content = apply_filters( 'the_content', $page->post_content );
-
-			// Clean up the buffer
-			ob_end_clean();
-
-			// Add 'bbp_replace_the_content' filter back (@see $this::start())
-			add_filter( 'the_content', 'bbp_replace_the_content' );
 
 		// Use the topics archive
 		} elseif ( 'topics' === bbp_show_on_root() ) {
@@ -754,24 +734,7 @@ function bbp_replace_the_content( $content = '' ) {
 		// Page exists where this archive should be
 		$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
 		if ( !empty( $page ) ) {
-
-			// Restore previously unset filters
-			bbp_restore_all_filters( 'the_content' );
-
-			// Remove 'bbp_replace_the_content' filter to prevent infinite loops
-			remove_filter( 'the_content', 'bbp_replace_the_content' );
-
-			// Start output buffer
-			ob_start();
-
-			// Grab the content of this page
 			$new_content = apply_filters( 'the_content', $page->post_content );
-
-			// Clean up the buffer
-			ob_end_clean();
-
-			// Add 'bbp_replace_the_content' filter back (@see $this::start())
-			add_filter( 'the_content', 'bbp_replace_the_content' );
 
 		// No page so show the archive
 		} else {
@@ -868,48 +831,6 @@ function bbp_replace_the_content( $content = '' ) {
 
 	// Return possibly hi-jacked content
 	return $content;
-}
-
-
-/**
- * Helper function to conditionally toggle the_content filters in the main
- * query loop. Aids with theme compatibility.
- *
- * @since bbPress (r4972)
- * @internal Used only by theme compatibilty
- * @see bp_template_include_theme_compat()
- * @see bp_theme_compat_main_loop_end()
- */
-function bbp_theme_compat_main_loop_start() {
-
-	// Bail if not the main loop where theme compat is happening
-	if ( ! bbp_do_theme_compat() )
-		return;
-
-	// Remove all of the filters from the_content
-	bbp_remove_all_filters( 'the_content' );
-
-	// Make sure we replace the content
-	add_filter( 'the_content', 'bbp_replace_the_content' );
-}
-
-/**
- * Helper function to conditionally toggle the_content filters in the main
- * query loop. Aids with theme compatibility.
- *
- * @since bbPress (r4972)
- * @internal Used only by theme compatibilty
- * @see bbp_template_include_theme_compat()
- * @see bbp_theme_compat_main_loop_start()
- */
-function bbp_theme_compat_main_loop_end() {
-
-	// Bail if not the main loop where theme compat is happening
-	if ( ! bbp_do_theme_compat() )
-		return;
-
-	// Put all the filters back
-	bbp_restore_all_filters( 'the_content' );
 }
 
 /** Helpers *******************************************************************/
