@@ -139,22 +139,21 @@ function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
 	 * @return string|bool Value of the field if it exists, else false
 	 */
 	function bbp_get_displayed_user_field( $field = '', $filter = 'display' ) {
-		$bbp = bbpress();
 
-		// Juggle the user filter property because it's byref, and we don't want
-		// to muck up how other code might interact with this object.
-		$old_filter                  = $bbp->displayed_user->filter;
-		$bbp->displayed_user->filter = $filter;
+		// Get the displayed user
+		$user         = bbpress()->displayed_user;
+
+		// Juggle the user filter property because we don't want to muck up how
+		// other code might interact with this object.
+		$old_filter   = $user->filter;
+		$user->filter = $filter;
 
 		// Get the field value from the WP_User object. We don't need to perform
 		// an isset() because the WP_User::__get() does it for us.
-		$value = $bbp->displayed_user->$field;
+		$value        = $user->$field;
 
 		// Put back the user filter property that was previously juggled above.
-		$bbp->displayed_user->filter = $old_filter;
-
-		// Clean up the temporary variable
-		unset( $old_filter );
+		$user->filter = $old_filter;
 
 		// Return empty
 		return apply_filters( 'bbp_get_displayed_user_field', $value, $field );
