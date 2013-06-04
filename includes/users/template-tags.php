@@ -109,32 +109,52 @@ function bbp_displayed_user_id() {
 /**
  * Output a sanitized user field value
  *
+ * This function relies on the $filter parameter to decide how to sanitize
+ * the field value that it finds. Since it uses the WP_User object's magic
+ * __get() method, it can also be used to get user_meta values.
+ *
  * @since bbPress (r2688)
  *
  * @param string $field Field to get
+ * @param string $filter How to filter the field value (null|raw|db|display|edit)
  * @uses bbp_get_displayed_user_field() To get the field
  */
-function bbp_displayed_user_field( $field = '' ) {
-	echo bbp_get_displayed_user_field( $field );
+function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
+	echo bbp_get_displayed_user_field( $field, $filter );
 }
 	/**
 	 * Return a sanitized user field value
 	 *
+	 * This function relies on the $filter parameter to decide how to sanitize
+	 * the field value that it finds. Since it uses the WP_User object's magic
+	 * __get() method, it can also be used to get user_meta values.
+	 *
 	 * @since bbPress (r2688)
 	 *
 	 * @param string $field Field to get
-	 * @uses sanitize_text_field() To sanitize the field
-	 * @uses esc_attr() To sanitize the field
+	 * @param string $filter How to filter the field value (null|raw|db|display|edit)
+	 * @see WP_User::__get() for more on how the value is retrieved
+	 * @see sanitize_user_field() for more on how the value is sanitized
 	 * @uses apply_filters() Calls 'bbp_get_displayed_user_field' with the value
 	 * @return string|bool Value of the field if it exists, else false
 	 */
-	function bbp_get_displayed_user_field( $field = '' ) {
-		$bbp   = bbpress();
-		$value = false;
+	function bbp_get_displayed_user_field( $field = '', $filter = 'display' ) {
+		$bbp = bbpress();
 
-		// Return field if exists
-		if ( isset( $bbp->displayed_user->$field ) )
-			$value = sanitize_text_field( $bbp->displayed_user->$field );
+		// Juggle the user filter property because it's byref, and we don't want
+		// to muck up how other code might interact with this object.
+		$old_filter                  = $bbp->displayed_user->filter;
+		$bbp->displayed_user->filter = $filter;
+
+		// Get the field value from the WP_User object. We don't need to perform
+		// an isset() because the WP_User::__get() does it for us.
+		$value = $bbp->displayed_user->$field;
+
+		// Put back the user filter property that was previously juggled above.
+		$bbp->displayed_user->filter = $old_filter;
+
+		// Clean up the temporary variable
+		unset( $old_filter );
 
 		// Return empty
 		return apply_filters( 'bbp_get_displayed_user_field', $value, $field );
