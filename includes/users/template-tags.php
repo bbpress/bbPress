@@ -408,7 +408,7 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 		$user      = get_userdata( $user_id );
 		$name      = $user->display_name;
 		$edit_link = '<a href="' . bbp_get_user_profile_url( $user_id ) . '">' . $name . '</a>';
-		return apply_filters( 'bbp_get_user_profile_link', $edit_link, $user_id );
+		return apply_filters( 'bbp_get_user_profile_edit_link', $edit_link, $user_id );
 	}
 
 /**
