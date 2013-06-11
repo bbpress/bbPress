@@ -1684,10 +1684,10 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
  *
  * @since bbPress (r2667)
  *
- * @param mixed $args See {@link bbp_get_reply_admin_links()}
+ * @param array $args See {@link bbp_get_reply_admin_links()}
  * @uses bbp_get_reply_admin_links() To get the reply admin links
  */
-function bbp_reply_admin_links( $args = '' ) {
+function bbp_reply_admin_links( $args = array() ) {
 	echo bbp_get_reply_admin_links( $args );
 }
 	/**
@@ -1695,7 +1695,7 @@ function bbp_reply_admin_links( $args = '' ) {
 	 *
 	 * @since bbPress (r2667)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Optional. Reply id
 	 *  - before: HTML before the links. Defaults to
 	 *             '<span class="bbp-admin-links">'
@@ -1717,7 +1717,7 @@ function bbp_reply_admin_links( $args = '' ) {
 	 *                        reply admin links and args
 	 * @return string Reply admin links
 	 */
-	function bbp_get_reply_admin_links( $args = '' ) {
+	function bbp_get_reply_admin_links( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -1731,20 +1731,19 @@ function bbp_reply_admin_links( $args = '' ) {
 		$r['id'] = bbp_get_reply_id( (int) $r['id'] );
 
 		// If post is a topic, return the topic admin links instead
-		if ( bbp_is_topic( $r['id'] ) )
+		if ( bbp_is_topic( $r['id'] ) ) {
 			return bbp_get_topic_admin_links( $args );
+		}
 
 		// If post is not a reply, return
-		if ( !bbp_is_reply( $r['id'] ) )
+		if ( !bbp_is_reply( $r['id'] ) ) {
 			return;
-
-		// Make sure user can edit this reply
-		if ( !current_user_can( 'edit_reply', $r['id'] ) )
-			return;
+		}
 
 		// If topic is trashed, do not show admin links
-		if ( bbp_is_topic_trash( bbp_get_reply_topic_id( $r['id'] ) ) )
+		if ( bbp_is_topic_trash( bbp_get_reply_topic_id( $r['id'] ) ) ) {
 			return;
+		}
 
 		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
@@ -1758,20 +1757,16 @@ function bbp_reply_admin_links( $args = '' ) {
 			), $r['id'] );
 		}
 
-		// Check caps for trashing the topic
-		if ( !current_user_can( 'delete_reply', $r['id'] ) && !empty( $r['links']['trash'] ) )
-			unset( $r['links']['trash'] );
-
 		// See if links need to be unset
 		$reply_status = bbp_get_reply_status( $r['id'] );
 		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
 
 			// Spam link shouldn't be visible on trashed topics
-			if ( bbp_get_trash_status_id() == $reply_status ) {
+			if ( bbp_get_trash_status_id() === $reply_status ) {
 				unset( $r['links']['spam'] );
 
 			// Trash link shouldn't be visible on spam topics
-			} elseif ( isset( $r['links']['trash'] ) && ( bbp_get_spam_status_id() == $reply_status ) ) {
+			} elseif ( bbp_get_spam_status_id() === $reply_status ) {
 				unset( $r['links']['trash'] );
 			}
 		}
@@ -1780,7 +1775,7 @@ function bbp_reply_admin_links( $args = '' ) {
 		$links  = implode( $r['sep'], array_filter( $r['links'] ) );
 		$retval = $r['before'] . $links . $r['after'];
 
-		return apply_filters( 'bbp_get_reply_admin_links', $retval, $r );
+		return apply_filters( 'bbp_get_reply_admin_links', $retval, $r, $args );
 	}
 
 /**

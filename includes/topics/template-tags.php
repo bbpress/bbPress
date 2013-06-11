@@ -2216,10 +2216,10 @@ function bbp_topic_class( $topic_id = 0, $classes = array() ) {
 /**
  * Output admin links for topic
  *
- * @param mixed $args See {@link bbp_get_topic_admin_links()}
+ * @param array $args See {@link bbp_get_topic_admin_links()}
  * @uses bbp_get_topic_admin_links() To get the topic admin links
  */
-function bbp_topic_admin_links( $args = '' ) {
+function bbp_topic_admin_links( $args = array() ) {
 	echo bbp_get_topic_admin_links( $args );
 }
 	/**
@@ -2227,7 +2227,7 @@ function bbp_topic_admin_links( $args = '' ) {
 	 *
 	 * Move topic functionality is handled by the edit topic page.
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Optional. Topic id
 	 *  - before: Before the links
 	 *  - after: After the links
@@ -2246,7 +2246,7 @@ function bbp_topic_admin_links( $args = '' ) {
 	 *                        topic admin links and args
 	 * @return string Topic admin links
 	 */
-	function bbp_get_topic_admin_links( $args = '' ) {
+	function bbp_get_topic_admin_links( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array (
@@ -2256,9 +2256,6 @@ function bbp_topic_admin_links( $args = '' ) {
 			'sep'    => ' | ',
 			'links'  => array()
 		), 'get_topic_admin_links' );
-
-		if ( !current_user_can( 'edit_topic', $r['id'] ) )
-			return;
 
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = apply_filters( 'bbp_topic_admin_links', array(
@@ -2272,10 +2269,6 @@ function bbp_topic_admin_links( $args = '' ) {
 			), $r['id'] );
 		}
 
-		// Check caps for trashing the topic
-		if ( !current_user_can( 'delete_topic', $r['id'] ) && !empty( $r['links']['trash'] ) )
-			unset( $r['links']['trash'] );
-
 		// See if links need to be unset
 		$topic_status = bbp_get_topic_status( $r['id'] );
 		if ( in_array( $topic_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
@@ -2284,18 +2277,20 @@ function bbp_topic_admin_links( $args = '' ) {
 			unset( $r['links']['close'] );
 
 			// Spam link shouldn't be visible on trashed topics
-			if ( $topic_status == bbp_get_trash_status_id() )
+			if ( bbp_get_trash_status_id() === $topic_status ) {
 				unset( $r['links']['spam'] );
 
 			// Trash link shouldn't be visible on spam topics
-			elseif ( $topic_status == bbp_get_spam_status_id() )
+			} elseif ( bbp_get_spam_status_id() === $topic_status ) {
 				unset( $r['links']['trash'] );
+			}
 		}
 
 		// Process the admin links
-		$links = implode( $r['sep'], array_filter( $r['links'] ) );
+		$links  = implode( $r['sep'], array_filter( $r['links'] ) );
+		$retval = $r['before'] . $links . $r['after'];
 
-		return apply_filters( 'bbp_get_topic_admin_links', $r['before'] . $links . $r['after'], $r );
+		return apply_filters( 'bbp_get_topic_admin_links', $retval, $r, $args );
 	}
 
 /**
