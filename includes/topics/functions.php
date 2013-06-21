@@ -62,13 +62,15 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	), 'insert_topic_meta' );
 
 	// Insert topic meta
-	foreach ( $topic_meta as $meta_key => $meta_value )
+	foreach ( $topic_meta as $meta_key => $meta_value ) {
 		update_post_meta( $topic_id, '_bbp_' . $meta_key, $meta_value );
+	}
 
 	// Update the forum
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
-	if ( !empty( $forum_id ) )
+	if ( !empty( $forum_id ) ) {
 		bbp_update_forum( array( 'forum_id' => $forum_id ) );
+	}
 
 	// Return new topic ID
 	return $topic_id;

@@ -29,7 +29,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Forum
-	$default_forum = array(
+	$forum_data = bbp_parse_args( $forum_data, array(
 		'post_parent'    => 0, // forum ID
 		'post_status'    => bbp_get_public_status_id(),
 		'post_type'      => bbp_get_forum_post_type(),
@@ -39,18 +39,18 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 		'post_title'     => '',
 		'menu_order'     => 0,
 		'comment_status' => 'closed'
-	);
-	$forum_data = bbp_parse_args( $forum_data, $default_forum, 'insert_forum' );
+	), 'insert_forum' );
 
 	// Insert forum
 	$forum_id   = wp_insert_post( $forum_data );
 
 	// Bail if no forum was added
-	if ( empty( $forum_id ) )
+	if ( empty( $forum_id ) ) {
 		return false;
+	}
 
 	// Forum meta
-	$default_meta = array(
+	$forum_meta = bbp_parse_args( $forum_meta, array(
 		'reply_count'          => 0,
 		'topic_count'          => 0,
 		'topic_count_hidden'   => 0,
@@ -61,12 +61,12 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 		'last_active_id'       => 0,
 		'last_active_time'     => 0,
 		'forum_subforum_count' => 0,
-	);
-	$forum_meta = bbp_parse_args( $forum_meta, $default_meta, 'insert_forum_meta' );
+	), 'insert_forum_meta' );
 
 	// Insert forum meta
-	foreach ( $forum_meta as $meta_key => $meta_value )
+	foreach ( $forum_meta as $meta_key => $meta_value ) {
 		update_post_meta( $forum_id, '_bbp_' . $meta_key, $meta_value );
+	}
 
 	// Return new forum ID
 	return $forum_id;
@@ -278,7 +278,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
-		$forum_args = array(
+		do_action( 'bbp_new_forum', array(
 			'forum_id'           => $forum_id,
 			'post_parent'        => $forum_parent_id,
 			'forum_author'       => $forum_author,
@@ -287,8 +287,7 @@ function bbp_new_forum_handler( $action = '' ) {
 			'last_active_id'     => 0,
 			'last_active_time'   => 0,
 			'last_active_status' => bbp_get_public_status_id()
-		);
-		do_action( 'bbp_new_forum', $forum_args );
+		) );
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -524,7 +523,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	if ( !empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
-		$forum_args = array(
+		do_action( 'bbp_edit_forum', array(
 			'forum_id'           => $forum_id,
 			'post_parent'        => $forum_parent_id,
 			'forum_author'       => $forum->post_author,
@@ -533,8 +532,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 			'last_active_id'     => 0,
 			'last_active_time'   => 0,
 			'last_active_status' => bbp_get_public_status_id()
-		);
-		do_action( 'bbp_edit_forum', $forum_args );
+		) );
 
 		// If the new forum parent id is not equal to the old forum parent
 		// id, run the bbp_move_forum action and pass the forum's parent id

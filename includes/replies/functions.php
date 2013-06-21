@@ -29,7 +29,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
 	// Forum
-	$default_reply = array(
+	$reply_data = bbp_parse_args( $reply_data, array(
 		'post_parent'    => 0, // topic ID
 		'post_status'    => bbp_get_public_status_id(),
 		'post_type'      => bbp_get_reply_post_type(),
@@ -39,32 +39,33 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'post_title'     => '',
 		'menu_order'     => 0,
 		'comment_status' => 'closed'
-	);
-	$reply_data = bbp_parse_args( $reply_data, $default_reply, 'insert_reply' );
+	), 'insert_reply' );
 
 	// Insert reply
 	$reply_id   = wp_insert_post( $reply_data );
 
 	// Bail if no reply was added
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) ) {
 		return false;
+	}
 
 	// Forum meta
-	$default_meta = array(
+	$reply_meta = bbp_parse_args( $reply_meta, array(
 		'author_ip' => bbp_current_author_ip(),
 		'forum_id'  => 0,
 		'topic_id'  => 0,
-	);
-	$reply_meta = bbp_parse_args( $reply_meta, $default_meta, 'insert_reply_meta' );
+	), 'insert_reply_meta' );
 
 	// Insert reply meta
-	foreach ( $reply_meta as $meta_key => $meta_value )
+	foreach ( $reply_meta as $meta_key => $meta_value ) {
 		update_post_meta( $reply_id, '_bbp_' . $meta_key, $meta_value );
+	}
 
 	// Update the topic
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
-	if ( !empty( $topic_id ) )
+	if ( !empty( $topic_id ) ) {
 		bbp_update_topic( $topic_id );
+	}
 
 	// Return new reply ID
 	return $reply_id;
