@@ -64,11 +64,11 @@ class BBP_Topics_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Topic column headers.
-		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'topics_column_headers' ) );
+		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'column_headers' ) );
 
 		// Topic columns (in post row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                     array( $this, 'topics_row_actions' ), 10, 2 );
+		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
 		// Topic metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
@@ -623,7 +623,7 @@ class BBP_Topics_Admin {
 	 *                        the columns
 	 * @return array $columns bbPress topic columns
 	 */
-	public function topics_column_headers( $columns ) {
+	public function column_headers( $columns ) {
 
 		if ( $this->bail() ) return $columns;
 
@@ -666,7 +666,7 @@ class BBP_Topics_Admin {
 	 * @uses do_action() Calls 'bbp_admin_topics_column_data' with the
 	 *                    column and topic id
 	 */
-	function topics_column_data( $column, $topic_id ) {
+	public function column_data( $column, $topic_id ) {
 
 		if ( $this->bail() ) return;
 
@@ -766,7 +766,7 @@ class BBP_Topics_Admin {
 	 * @uses get_delete_post_link() To get the delete post link of the topic
 	 * @return array $actions Actions
 	 */
-	public function topics_row_actions( $actions, $topic ) {
+	public function row_actions( $actions, $topic ) {
 
 		if ( $this->bail() ) return $actions;
 

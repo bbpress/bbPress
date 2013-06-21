@@ -64,15 +64,15 @@ class BBP_Replies_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Reply column headers.
-		add_filter( 'manage_' . $this->post_type . '_posts_columns',  array( $this, 'replies_column_headers' ) );
+		add_filter( 'manage_' . $this->post_type . '_posts_columns',  array( $this, 'column_headers' ) );
 
 		// Reply columns (in post row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                     array( $this, 'replies_row_actions' ), 10, 2 );
+		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
 		// Reply metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'reply_attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'reply_attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_reply'        ) );
@@ -246,7 +246,7 @@ class BBP_Replies_Admin {
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
-	public function reply_attributes_metabox() {
+	public function attributes_metabox() {
 
 		if ( $this->bail() ) return;
 
@@ -274,7 +274,7 @@ class BBP_Replies_Admin {
 	 *                    reply id and parent id
 	 * @return int Parent id
 	 */
-	public function reply_attributes_metabox_save( $reply_id ) {
+	public function attributes_metabox_save( $reply_id ) {
 
 		if ( $this->bail() ) return $reply_id;
 
@@ -560,7 +560,7 @@ class BBP_Replies_Admin {
 	 *                        the columns
 	 * @return array $columns bbPress reply columns
 	 */
-	public function replies_column_headers( $columns ) {
+	public function column_headers( $columns ) {
 
 		if ( $this->bail() ) return $columns;
 
@@ -604,7 +604,7 @@ class BBP_Replies_Admin {
 	 * @uses do_action() Calls 'bbp_admin_replies_column_data' with the
 	 *                    column and reply id
 	 */
-	public function replies_column_data( $column, $reply_id ) {
+	public function column_data( $column, $reply_id ) {
 
 		if ( $this->bail() ) return;
 
@@ -716,7 +716,7 @@ class BBP_Replies_Admin {
 	 * @uses get_delete_post_link() To get the delete post link of the reply
 	 * @return array $actions Actions
 	 */
-	public function replies_row_actions( $actions, $reply ) {
+	public function row_actions( $actions, $reply ) {
 
 		if ( $this->bail() ) return $actions;
 
