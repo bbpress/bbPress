@@ -2090,8 +2090,10 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
 	}
 
 	// Update the replies' 'menp_order' with the reply position
-	global $wpdb;
-	$wpdb->update( $wpdb->posts, array( 'menu_order' => $reply_position ), array( 'ID' => $reply_id ) );
+	wp_update_post( array(
+		'ID'         => $reply_id,
+		'menu_order' => $reply_position
+	) );
 
 	return (int) $reply_position;
 }
