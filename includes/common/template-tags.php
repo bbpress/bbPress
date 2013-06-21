@@ -1417,12 +1417,8 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Setup variables ***************************************************/
 
-		$name      = esc_attr( $r['select_id'] );
-		$select_id = $name;
-		$tab       = (int) $r['tab'];
-		$retval    = '';
-		$disabled  = disabled( isset( bbpress()->options[$r['disabled']] ), true, false );
-		$post_arr  = array(
+		$retval = '';
+		$posts  = get_posts( array(
 			'post_type'          => $r['post_type'],
 			'post_status'        => $r['post_status'],
 			'sort_column'        => $r['sort_column'],
@@ -1433,22 +1429,31 @@ function bbp_dropdown( $args = '' ) {
 			'order'              => $r['order'],
 			'walker'             => $r['walker'],
 			'disable_categories' => $r['disable_categories']
-		);
-
-		$posts = get_posts( $post_arr );
+		) );
 
 		/** Drop Down *********************************************************/
 
 		// Items found
 		if ( !empty( $posts ) ) {
+
+			// Build the opening tag for the select element
 			if ( empty( $r['options_only'] ) ) {
-				$tab     = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
-				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $disabled . '>' . "\n";
+
+				// Should this select appear disabled?
+				$disabled  = disabled( isset( bbpress()->options[ $r['disabled'] ] ), true, false );
+
+				// Setup the tab index attribute
+				$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
+
+				// Build the opening tag
+				$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
 			}
 
+			// Get the options
 			$retval .= !empty( $r['show_none'] ) ? "\t<option value=\"\" class=\"level-0\">" . $r['show_none'] . '</option>' : '';
 			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
 
+			// Build the closing tag for the select element
 			if ( empty( $r['options_only'] ) ) {
 				$retval .= '</select>';
 			}
