@@ -1153,14 +1153,12 @@ function bbp_merge_topic_handler( $action = '' ) {
 		// Set destination topic post_date to 1 second before source topic
 		$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $source_topic->post_date ) - 1 );
 
-		$postarr = array(
+		// Update destination topic
+		wp_update_post( array(
 			'ID'            => $destination_topic_id,
 			'post_date'     => $destination_post_date,
 			'post_date_gmt' => get_gmt_from_date( $destination_post_date )
-		);
-
-		// Update destination topic
-		wp_update_post( $postarr );
+		) );
 	}
 
 	/** Subscriptions *********************************************************/
@@ -1244,16 +1242,16 @@ function bbp_merge_topic_handler( $action = '' ) {
 
 		// Change the post_parent of each reply to the destination topic id
 		foreach ( $replies as $reply ) {
-			$postarr = array(
+
+			// Update the reply
+			wp_update_post( array(
 				'ID'          => $reply->ID,
 				'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
 				'post_name'   => false,
 				'post_type'   => bbp_get_reply_post_type(),
 				'post_parent' => $destination_topic->ID,
 				'guid'        => ''
-			);
-
-			wp_update_post( $postarr );
+			) );
 
 			// Adjust reply meta values
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
@@ -1470,19 +1468,16 @@ function bbp_split_topic_handler( $action = '' ) {
 						$destination_topic_title = $source_topic->post_title;
 					}
 
-					// Setup the updated topic parameters
-					$postarr = array(
+					// Update the topic
+					$destination_topic_id = wp_update_post( array(
 						'ID'          => $from_reply->ID,
 						'post_title'  => $destination_topic_title,
 						'post_name'   => false,
 						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
 						'guid'        => ''
-					);
-
-					// Update the topic
-					$destination_topic_id = wp_update_post( $postarr );
-					$destination_topic    = bbp_get_topic( $destination_topic_id );
+					) );
+					$destination_topic = bbp_get_topic( $destination_topic_id );
 
 					// Make sure the new topic knows its a topic
 					bbp_update_topic_topic_id( $from_reply->ID );
@@ -1518,14 +1513,12 @@ function bbp_split_topic_handler( $action = '' ) {
 		// Set destination topic post_date to 1 second before from reply
 		$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $from_reply->post_date ) - 1 );
 
-		$postarr = array(
+		// Update destination topic
+		wp_update_post( array(
 			'ID'            => $destination_topic_id,
 			'post_date'     => $destination_post_date,
 			'post_date_gmt' => get_gmt_from_date( $destination_post_date )
-		);
-
-		// Update destination topic
-		wp_update_post( $postarr );
+		) );
 	}
 
 	/** Subscriptions *********************************************************/
@@ -1607,18 +1600,15 @@ function bbp_split_topic_handler( $action = '' ) {
 			// Bump the reply position each iteration through the loop
 			$reply_position++;
 
-			// New reply data
-			$postarr = array(
+			// Update the reply
+			wp_update_post( array(
 				'ID'            => $reply->ID,
 				'post_title'    => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
 				'post_name'     => false, // will be automatically generated
 				'post_parent'   => $destination_topic->ID,
 				'post_position' => $reply_position,
 				'guid'          => ''
-			);
-
-			// Update the reply
-			wp_update_post( $postarr );
+			) );
 
 			// Gather reply ids
 			$reply_ids[] = $reply->ID;
