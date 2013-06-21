@@ -232,6 +232,12 @@ function bbp_has_topics( $args = '' ) {
 				// Cleanup
 				unset( $stickies );
 
+				// Conditionally exclude private/hidden forum ID's
+				$exclude_forum_ids = bbp_exclude_forum_ids( 'array' );
+				if ( ! empty( $exclude_forum_ids ) ) {
+					$sticky_query['post_parent__not_in'] = $exclude_forum_ids;
+				}
+
 				// What are the default allowed statuses (based on user caps)
 				if ( bbp_get_view_all() ) {
 					$sticky_query['post_status'] = $r['post_status'];
