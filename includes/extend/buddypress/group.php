@@ -791,7 +791,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					<?php
 
 					// Topic edit
-					if ( bp_action_variable( $offset + 2 ) == bbp_get_edit_rewrite_id() ) :
+					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
 
 						// Unset the super sticky link on edit topic template
 						add_filter( 'bbp_after_topic_type_select_parse_args', array( $this, 'unset_super_sticky' ), 10, 1 );
@@ -804,12 +804,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						$bbp->current_topic_id       = get_the_ID();
 
 						// Merge
-						if ( !empty( $_GET['action'] ) && 'merge' == $_GET['action'] ) :
+						if ( !empty( $_GET['action'] ) && 'merge' === $_GET['action'] ) :
 							bbp_set_query_name( 'bbp_topic_merge' );
 							bbp_get_template_part( 'form', 'topic-merge' );
 
 						// Split
-						elseif ( !empty( $_GET['action'] ) && 'split' == $_GET['action'] ) :
+						elseif ( !empty( $_GET['action'] ) && 'split' === $_GET['action'] ) :
 							bbp_set_query_name( 'bbp_topic_split' );
 							bbp_get_template_part( 'form', 'topic-split' );
 
@@ -850,7 +850,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					<h3><?php bbp_reply_title(); ?></h3>
 
-					<?php if ( bp_action_variable( $offset + 2 ) == bbp_get_edit_rewrite_id() ) :
+					<?php if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
 
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
@@ -860,7 +860,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						$bbp->current_reply_id       = get_the_ID();
 
 						// Move
-						if ( !empty( $_GET['action'] ) && ( 'move' == $_GET['action'] ) ) :
+						if ( !empty( $_GET['action'] ) && ( 'move' === $_GET['action'] ) ) :
 							bbp_set_query_name( 'bbp_reply_move' );
 							bbp_get_template_part( 'form', 'reply-move' );
 

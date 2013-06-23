@@ -90,7 +90,7 @@ function bbp_admin_repair_handler() {
 	wp_cache_flush();
 
 	foreach ( (array) bbp_admin_repair_list() as $item ) {
-		if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) ) {
+		if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 === $_POST[$item[0]] && is_callable( $item[2] ) ) {
 			$messages[] = call_user_func( $item[2] );
 		}
 	}
@@ -401,7 +401,7 @@ function bbp_admin_repair_group_forum_relationship() {
 	if ( ! empty( $posts ) ) {
 
 		// Rename 'Default Forum'  since it's now visible in sitewide forums
-		if ( 'Default Forum' == $posts[0]->post_title ) {
+		if ( 'Default Forum' === $posts[0]->post_title ) {
 			wp_update_post( array(
 				'ID'         => $posts[0]->ID,
 				'post_title' => __( 'Group Forums', 'bbpress' ),
@@ -909,7 +909,7 @@ function bbp_admin_repair_sticky() {
 
 			// If the topic is not a super sticky, and the forum ID does not
 			// match the topic's forum ID, unset the forum's sticky meta.
-			if ( ! bbp_is_topic_super_sticky( $topic_id ) && $forum_id != bbp_get_topic_forum_id( $topic_id ) ) {
+			if ( ! bbp_is_topic_super_sticky( $topic_id ) && $forum_id !== bbp_get_topic_forum_id( $topic_id ) ) {
 				unset( $forum_stickies[$forum_id][$id] );
 			}
 		}
@@ -1205,7 +1205,7 @@ function bbp_admin_reset_handler() {
 
 	$statement  = __( 'Deleting Conversion Table&hellip; %s', 'bbpress' );
 	$table_name = $wpdb->prefix . 'bbp_converter_translator';
-	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
 		$wpdb->query( "DROP TABLE {$table_name}" );
 		$result = $success;
 	} else {

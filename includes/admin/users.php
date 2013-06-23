@@ -181,7 +181,7 @@ class BBP_Users_Admin {
 			$user_id = (int) $user_id;
 
 			// Don't let a user change their own role
-			if ( $user_id == $current_user_id ) 
+			if ( $user_id === $current_user_id )
 				continue;
 
 			// Set up user and role data
@@ -193,7 +193,7 @@ class BBP_Users_Admin {
 				continue;
 
 			// Set the new forums role
-			if ( $new_role != $user_role ) {
+			if ( $new_role !== $user_role ) {
 				bbp_set_user_role( $user_id, $new_role );
 			}
 		}
@@ -229,7 +229,7 @@ class BBP_Users_Admin {
 	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
 		// Only looking for bbPress's user role column
-		if ( 'bbp_user_role' == $column_name ) {
+		if ( 'bbp_user_role' === $column_name ) {
 
 			// Get the users role
 			$user_role = bbp_get_user_role( $user_id );

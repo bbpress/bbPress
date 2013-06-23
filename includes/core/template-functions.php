@@ -101,7 +101,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 	do_action( 'bbp_locate_template', $located, $template_name, $template_names, $template_locations, $load, $require_once );
 
 	// Maybe load the template if one was located
-	if ( ( true == $load ) && !empty( $located ) ) {
+	if ( ( true === $load ) && !empty( $located ) ) {
 		load_template( $located, $require_once );
 	}
 
@@ -315,7 +315,7 @@ function bbp_parse_query( $posts_query ) {
 		return;
 
 	// Bail if filters are suppressed on this query
-	if ( true == $posts_query->get( 'suppress_filters' ) )
+	if ( true === $posts_query->get( 'suppress_filters' ) )
 		return;
 
 	// Bail if in admin
@@ -421,7 +421,7 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->is_home = false;
 
 		// User is looking at their own profile
-		if ( get_current_user_id() == $the_user->ID ) {
+		if ( get_current_user_id() === $the_user->ID ) {
 			$posts_query->bbp_is_single_user_home = true;
 		}
 

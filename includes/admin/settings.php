@@ -1748,7 +1748,7 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 		$slug_check = bbp_get_form_option( $key, $value['default'], true );
 
 		// Compare
-		if ( ( $slug != $key ) && ( $slug_check == $this_slug ) ) : ?>
+		if ( ( $slug !== $key ) && ( $slug_check === $this_slug ) ) : ?>
 
 			<span class="attention"><?php printf( esc_html__( 'Possible %1$s conflict: %2$s', 'bbpress' ), $value['context'], '<strong>' . $value['name'] . '</strong>' ); ?></span>
 

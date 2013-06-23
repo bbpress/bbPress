@@ -186,7 +186,7 @@ function bbp_encode_bad( $content = '' ) {
 function bbp_encode_callback( $matches = array() ) {
 
 	// Trim inline code, not pre blocks (to prevent removing indentation)
-	if ( "`" == $matches[1] ) {
+	if ( "`" === $matches[1] ) {
 		$content = trim( $matches[2] );
 	} else {
 		$content = $matches[2];
@@ -204,7 +204,7 @@ function bbp_encode_callback( $matches = array() ) {
 	$content = '<code>' . $content . '</code>';
 
 	// Wrap blocks in pre tags
-	if ( "`" != $matches[1] ) {
+	if ( "`" !== $matches[1] ) {
 		$content = '<pre>' . $content . '</pre>';
 	}
 
@@ -332,7 +332,7 @@ function bbp_make_clickable( $text ) {
 				break;
 		}
 
-		if ( $in_code || empty( $piece ) || ( $piece[0] == '<' && ! preg_match('|^<\s*[\w]{1,20}+://|', $piece) ) ) {
+		if ( $in_code || empty( $piece ) || ( $piece[0] === '<' && ! preg_match('|^<\s*[\w]{1,20}+://|', $piece) ) ) {
 			$r .= $piece;
 			continue;
 		}

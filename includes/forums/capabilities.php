@@ -77,11 +77,11 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$post_type = get_post_type_object( $_post->post_type );
 
 					// Post is public
-					if ( bbp_get_public_status_id() == $_post->post_status ) {
+					if ( bbp_get_public_status_id() === $_post->post_status ) {
 						$caps = array( 'spectate' );
 
 					// User is author so allow read
-					} elseif ( (int) $user_id == (int) $_post->post_author ) {
+					} elseif ( (int) $user_id === (int) $_post->post_author ) {
 						$caps = array( 'spectate' );
 
 					// Unknown so map to private posts
@@ -137,7 +137,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow edit
-				} elseif ( (int) $user_id == (int) $_post->post_author ) {
+				} elseif ( (int) $user_id === (int) $_post->post_author ) {
 					$caps[] = $post_type->cap->edit_posts;
 
 				// Unknown, so map to edit_others_posts
@@ -166,7 +166,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow to delete
-				} elseif ( (int) $user_id == (int) $_post->post_author ) {
+				} elseif ( (int) $user_id === (int) $_post->post_author ) {
 					$caps[] = $post_type->cap->delete_posts;
 
 				// Unknown so map to delete_others_posts

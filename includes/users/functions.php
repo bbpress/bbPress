@@ -31,7 +31,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 		$url = $raw_url;
 
 	// $url was manually set in wp-login.php to redirect to admin
-	elseif ( admin_url() == $url )
+	elseif ( admin_url() === $url )
 		$url = home_url();
 
 	// $url is empty
@@ -472,16 +472,16 @@ function bbp_favorites_handler( $action = '' ) {
 	$is_favorite = bbp_is_user_favorite( $user_id, $topic_id );
 	$success     = false;
 
-	if ( true == $is_favorite && 'bbp_favorite_remove' == $action )
+	if ( true === $is_favorite && 'bbp_favorite_remove' === $action )
 		$success = bbp_remove_user_favorite( $user_id, $topic_id );
-	elseif ( false == $is_favorite && 'bbp_favorite_add' == $action )
+	elseif ( false === $is_favorite && 'bbp_favorite_add' === $action )
 		$success = bbp_add_user_favorite( $user_id, $topic_id );
 
 	// Do additional favorites actions
 	do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
 
 	// Success!
-	if ( true == $success ) {
+	if ( true === $success ) {
 
 		// Redirect back from whence we came
 		if ( bbp_is_favorites() ) {
@@ -502,9 +502,9 @@ function bbp_favorites_handler( $action = '' ) {
 		exit();
 
 	// Fail! Handle errors
-	} elseif ( true == $is_favorite && 'bbp_favorite_remove' == $action ) {
+	} elseif ( true === $is_favorite && 'bbp_favorite_remove' === $action ) {
 		bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
-	} elseif ( false == $is_favorite && 'bbp_favorite_add' == $action ) {
+	} elseif ( false === $is_favorite && 'bbp_favorite_add' === $action ) {
 		bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
 	}
 }
@@ -785,16 +785,16 @@ function bbp_subscriptions_handler( $action = '' ) {
 	$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
 	$success         = false;
 
-	if ( true == $is_subscription && 'bbp_unsubscribe' == $action )
+	if ( true === $is_subscription && 'bbp_unsubscribe' === $action )
 		$success = bbp_remove_user_subscription( $user_id, $topic_id );
-	elseif ( false == $is_subscription && 'bbp_subscribe' == $action )
+	elseif ( false === $is_subscription && 'bbp_subscribe' === $action )
 		$success = bbp_add_user_subscription( $user_id, $topic_id );
 
 	// Do additional subscriptions actions
 	do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
 
 	// Success!
-	if ( true == $success ) {
+	if ( true === $success ) {
 
 		// Redirect back from whence we came
 		if ( bbp_is_subscriptions() ) {
@@ -815,9 +815,9 @@ function bbp_subscriptions_handler( $action = '' ) {
 		exit();
 
 	// Fail! Handle errors
-	} elseif ( true == $is_subscription && 'bbp_unsubscribe' == $action ) {
+	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
 		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
-	} elseif ( false == $is_subscription && 'bbp_subscribe' == $action ) {
+	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
 		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
 	}
 }
@@ -867,7 +867,7 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		$new_email = get_option( $user_id . '_new_email' );
 
-		if ( $new_email['hash'] == $_GET['newuseremail'] ) {
+		if ( $new_email['hash'] === $_GET['newuseremail'] ) {
 			$user             = new stdClass();
 			$user->ID         = $user_id;
 			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
@@ -886,7 +886,7 @@ function bbp_edit_user_handler( $action = '' ) {
 		}
 
 	// Delete new email address from user options
-	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
+	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' === $_GET['dismiss'] ) ) {
 		delete_option( $user_id . '_new_email' );
 		wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		exit();

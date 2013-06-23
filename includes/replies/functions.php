@@ -209,7 +209,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Unfiltered HTML *******************************************************/
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
-	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) === $_POST['_bbp_unfiltered_html_reply'] ) {
 		remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses'      );
 		remove_filter( 'bbp_new_reply_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_new_reply_pre_content', 'bbp_filter_kses', 30 );
@@ -335,7 +335,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// If this reply starts as trash, add it to pre_trashed_replies
 		// for the topic, so it is properly restored.
-		if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] == bbp_get_trash_status_id() ) ) {
+		if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] === bbp_get_trash_status_id() ) ) {
 
 			// Trash the reply
 			wp_trash_post( $reply_id );
@@ -356,7 +356,7 @@ function bbp_new_reply_handler( $action = '' ) {
 		/** Spam Check ********************************************************/
 
 		// If reply or topic are spam, officially spam this reply
-		} elseif ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == bbp_get_spam_status_id() ) ) {
+		} elseif ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] === bbp_get_spam_status_id() ) ) {
 			add_post_meta( $reply_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 			// Only add to pre-spammed array if topic is spam
@@ -500,7 +500,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	}
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
-	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) === $_POST['_bbp_unfiltered_html_reply'] ) {
 		remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses'      );
 		remove_filter( 'bbp_edit_reply_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_edit_reply_pre_content', 'bbp_filter_kses', 30 );
@@ -579,7 +579,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 
 		// Set post status to pending if public
-		if ( bbp_get_public_status_id() == $reply->post_status ) {
+		if ( bbp_get_public_status_id() === $reply->post_status ) {
 			$reply_status = bbp_get_pending_status_id();
 		}
 
@@ -660,7 +660,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
 
 	// Update revision log
-	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) ) {
+	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 === $_POST['bbp_log_reply_edit'] ) ) {
 		$revision_id = wp_save_post_revision( $reply_id );
 		if ( !empty( $revision_id ) ) {
 			bbp_update_reply_revision_log( array(
@@ -794,14 +794,14 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	// Handle Subscription Checkbox
 	if ( bbp_is_subscriptions_active() && !empty( $author_id ) && !empty( $topic_id ) ) {
 		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
-		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ) ? true : false;
+		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' === $_POST['bbp_topic_subscription'] ) ) ? true : false;
 
 		// Subscribed and unsubscribing
-		if ( true == $subscribed && false == $subscheck ) {
+		if ( true === $subscribed && false === $subscheck ) {
 			bbp_remove_user_subscription( $author_id, $topic_id );
 
 		// Subscribing
-		} elseif ( false == $subscribed && true == $subscheck ) {
+		} elseif ( false === $subscribed && true === $subscheck ) {
 			bbp_add_user_subscription( $author_id, $topic_id );
 		}
 	}
@@ -885,7 +885,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 	$ancestors = array_values( array_unique( array_merge( array( $topic_id, $forum_id ), (array) get_post_ancestors( $topic_id ) ) ) );
 
 	// If we want a full refresh, unset any of the possibly passed variables
-	if ( true == $refresh )
+	if ( true === $refresh )
 		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
 
 	// Walk up ancestors
@@ -982,7 +982,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 			foreach ( $ancestors as $ancestor ) {
 
 				// Get first parent that is a forum
-				if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
+				if ( get_post_field( 'post_type', $ancestor ) === bbp_get_forum_post_type() ) {
 					$forum_id = $ancestor;
 
 					// Found a forum, so exit the loop and continue
@@ -1031,7 +1031,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 			foreach ( $ancestors as $ancestor ) {
 
 				// Get first parent that is a forum
-				if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
+				if ( get_post_field( 'post_type', $ancestor ) === bbp_get_topic_post_type() ) {
 					$topic_id = $ancestor;
 
 					// Found a forum, so exit the loop and continue
@@ -1291,7 +1291,7 @@ function bbp_move_reply_handler( $action = '' ) {
 					bbp_update_topic_topic_id( $move_reply->ID );
 
 					// Shouldn't happen
-					if ( false == $destination_topic_id || is_wp_error( $destination_topic_id ) || empty( $destination_topic ) ) {
+					if ( false === $destination_topic_id || is_wp_error( $destination_topic_id ) || empty( $destination_topic ) ) {
 						bbp_add_error( 'bbp_move_reply_destination_reply', __( '<strong>ERROR</strong>: There was a problem converting the reply into the topic. Please try again.', 'bbpress' ) );
 					}
 
@@ -1351,7 +1351,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 	// It is a new topic and we need to set some default metas to make
 	// the topic display in bbp_has_topics() list
-	if ( 'topic' == $move_option ) {
+	if ( 'topic' === $move_option ) {
 		bbp_update_topic_last_reply_id   ( $destination_topic->ID, $last_reply_id );
 		bbp_update_topic_last_active_id  ( $destination_topic->ID, $last_reply_id );
 		bbp_update_topic_last_active_time( $destination_topic->ID, $freshness     );
@@ -1478,7 +1478,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		return;
 
 	// What is the user doing here?
-	if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' == $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
+	if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' === $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
 		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
 		return;
 	}
@@ -1539,7 +1539,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
 
 	// No errors
-	if ( ( false != $success ) && !is_wp_error( $success ) ) {
+	if ( ( false !== $success ) && !is_wp_error( $success ) ) {
 
 		/** Redirect **********************************************************/
 
@@ -1588,7 +1588,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
 		return $reply;
 
 	// Bail if already spam
-	if ( bbp_get_spam_status_id() == $reply['post_status'] )
+	if ( bbp_get_spam_status_id() === $reply['post_status'] )
 		return false;
 
 	// Execute pre spam code
@@ -1635,7 +1635,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 		return $reply;
 
 	// Bail if already not spam
-	if ( bbp_get_spam_status_id() != $reply['post_status'] )
+	if ( bbp_get_spam_status_id() !== $reply['post_status'] )
 		return false;
 
 	// Execute pre unspam code
@@ -1857,7 +1857,7 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 	}
 
 	// Bail if not a topic and reply query
-	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) != $query->get( 'post_type' ) ) {
+	if ( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) !== $query->get( 'post_type' ) ) {
 		return $where;
 	}
 
@@ -2115,7 +2115,7 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 	$reply_position = 0;
 
 	// If reply is actually the first post in a topic, return 0
-	if ( $reply_id != $topic_id ) {
+	if ( $reply_id !== $topic_id ) {
 
 		// Make sure the topic has replies before running another query
 		$reply_count = bbp_get_topic_reply_count( $topic_id, false );

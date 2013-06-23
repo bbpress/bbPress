@@ -1236,11 +1236,11 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 function bbp_login_notices() {
 
 	// loggedout was passed
-	if ( !empty( $_GET['loggedout'] ) && ( true == $_GET['loggedout'] ) ) {
+	if ( !empty( $_GET['loggedout'] ) && ( true === $_GET['loggedout'] ) ) {
 		bbp_add_error( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
 
 	// registration is disabled
-	} elseif ( !empty( $_GET['registration'] ) && ( 'disabled' == $_GET['registration'] ) ) {
+	} elseif ( !empty( $_GET['registration'] ) && ( 'disabled' === $_GET['registration'] ) ) {
 		bbp_add_error( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
 
 	// Prompt user to check their email
@@ -1444,12 +1444,12 @@ function bbp_author_link( $args = '' ) {
 			$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
 
 			// Get avatar
-			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {
+			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links[] = get_avatar( $user_id, $r['size'] );
 			}
 
 			// Get display name
-			if ( 'name' == $r['type'] || 'both' == $r['type'] ) {
+			if ( 'name' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links[] = get_the_author_meta( 'display_name', $user_id );
 			}
 

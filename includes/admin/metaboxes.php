@@ -153,7 +153,7 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['topic_count_hidden'];
 						$text = _n( 'Hidden Topic', 'Hidden Topics', $r['topic_count_hidden'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
-						if ( '0' != $num ) {
+						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
                         $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
@@ -175,7 +175,7 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['reply_count_hidden'];
 						$text = _n( 'Hidden Reply', 'Hidden Replies', $r['reply_count_hidden'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
-						if ( '0' != $num ) {
+						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
                         $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';

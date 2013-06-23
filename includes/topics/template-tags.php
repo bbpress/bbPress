@@ -147,7 +147,7 @@ function bbp_has_topics( $args = '' ) {
 	$bbp->topic_query = new WP_Query( $r );
 
 	// Set post_parent back to 0 if originally set to 'any'
-	if ( 'any' == $r['post_parent'] )
+	if ( 'any' === $r['post_parent'] )
 		$r['post_parent'] = 0;
 
 	// Limited the number of pages shown
@@ -269,7 +269,7 @@ function bbp_has_topics( $args = '' ) {
 	}
 
 	// If no limit to posts per page, set it to the current post_count
-	if ( -1 == $r['posts_per_page'] )
+	if ( -1 === $r['posts_per_page'] )
 		$r['posts_per_page'] = $bbp->topic_query->post_count;
 
 	// Add pagination values to query object
@@ -339,7 +339,7 @@ function bbp_has_topics( $args = '' ) {
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
 			'base'      => $base,
 			'format'    => '',
-			'total'     => $r['posts_per_page'] == $bbp->topic_query->found_posts ? 1 : ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] ),
+			'total'     => $r['posts_per_page'] === $bbp->topic_query->found_posts ? 1 : ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] ),
 			'current'   => (int) $bbp->topic_query->paged,
 			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
 			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
@@ -485,14 +485,14 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 		return null;
 
 	// Tweak the data type to return
-	if ( $output == OBJECT ) {
+	if ( $output === OBJECT ) {
 		return $topic;
 
-	} elseif ( $output == ARRAY_A ) {
+	} elseif ( $output === ARRAY_A ) {
 		$_topic = get_object_vars( $topic );
 		return $_topic;
 
-	} elseif ( $output == ARRAY_N ) {
+	} elseif ( $output === ARRAY_N ) {
 		$_topic = array_values( get_object_vars( $topic ) );
 		return $_topic;
 
@@ -1058,7 +1058,7 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 	 * @return bool True if closed, false if not.
 	 */
 	function bbp_is_topic_closed( $topic_id = 0 ) {
-		$closed = bbp_get_topic_status( $topic_id ) == bbp_get_closed_status_id();
+		$closed = bbp_get_topic_status( $topic_id ) === bbp_get_closed_status_id();
 		return (bool) apply_filters( 'bbp_is_topic_closed', (bool) $closed, $topic_id );
 	}
 
@@ -1117,7 +1117,7 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_topic_published( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_public_status_id();
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_public_status_id();
 	return (bool) apply_filters( 'bbp_is_topic_published', (bool) $topic_status, $topic_id );
 }
 
@@ -1133,7 +1133,7 @@ function bbp_is_topic_published( $topic_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_topic_spam( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_spam_status_id();
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_spam_status_id();
 	return (bool) apply_filters( 'bbp_is_topic_spam', (bool) $topic_status, $topic_id );
 }
 
@@ -1149,7 +1149,7 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
  * @return bool True if trashed, false if not.
  */
 function bbp_is_topic_trash( $topic_id = 0 ) {
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) == bbp_get_trash_status_id();
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_trash_status_id();
 	return (bool) apply_filters( 'bbp_is_topic_trash', (bool) $topic_status, $topic_id );
 }
 
@@ -1428,12 +1428,12 @@ function bbp_topic_author_link( $args = '' ) {
 			$author_links = array();
 
 			// Get avatar
-			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {
+			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links['avatar'] = bbp_get_topic_author_avatar( $topic_id, $r['size'] );
 			}
 
 			// Get display name
-			if ( 'name' == $r['type'] || 'both' == $r['type'] ) {
+			if ( 'name' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links['name'] = bbp_get_topic_author_display_name( $topic_id );
 			}
 
@@ -1863,7 +1863,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 
-		if ( !empty( $reply_id ) && ( $reply_id != $topic_id ) ) {
+		if ( !empty( $reply_id ) && ( $reply_id !== $topic_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
 		} else {
 			$reply_url = bbp_get_topic_permalink( $topic_id );
@@ -2606,7 +2606,7 @@ function bbp_topic_stick_link( $args = '' ) {
 		$stick_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID ) );
 		$stick_uri = esc_url( wp_nonce_url( $stick_uri, 'stick-topic_' . $topic->ID ) );
 
-		$stick_display = true == $is_sticky ? $r['unstick_text'] : $r['stick_text'];
+		$stick_display = true === $is_sticky ? $r['unstick_text'] : $r['stick_text'];
 		$stick_display = '<a href="' . $stick_uri . '">' . $stick_display . '</a>';
 
 		if ( empty( $is_sticky ) ) {
@@ -3627,7 +3627,7 @@ function bbp_form_topic_subscribed() {
 			$post_author = bbp_get_global_post_field( 'post_author', 'raw' );
 
 			// Post author is not the current user
-			if ( bbp_get_current_user_id() != $post_author ) {
+			if ( bbp_get_current_user_id() !== $post_author ) {
 				$topic_subscribed = bbp_is_user_subscribed( $post_author );
 
 			// Post author is the current user

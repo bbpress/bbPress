@@ -150,7 +150,7 @@ function bbp_has_replies( $args = '' ) {
 				$reply_to = bbp_get_reply_to( $post->ID );
 
 				// Make sure it's a reply to a reply
-				if ( empty( $reply_to ) || ( bbp_get_reply_topic_id( $post->ID ) == $reply_to ) ) {
+				if ( empty( $reply_to ) || ( bbp_get_reply_topic_id( $post->ID ) === $reply_to ) ) {
 					$reply_to = 0;
 				}
 
@@ -341,14 +341,14 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 	if ( $reply->post_type !== bbp_get_reply_post_type() )
 		return null;
 
-	if ( $output == OBJECT ) {
+	if ( $output === OBJECT ) {
 		return $reply;
 
-	} elseif ( $output == ARRAY_A ) {
+	} elseif ( $output === ARRAY_A ) {
 		$_reply = get_object_vars( $reply );
 		return $_reply;
 
-	} elseif ( $output == ARRAY_N ) {
+	} elseif ( $output === ARRAY_N ) {
 		$_reply = array_values( get_object_vars( $reply ) );
 		return $_reply;
 
@@ -826,7 +826,7 @@ function bbp_reply_status( $reply_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_reply_published( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_public_status_id();
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_public_status_id();
 	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $reply_status, $reply_id );
 }
 
@@ -841,7 +841,7 @@ function bbp_is_reply_published( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_spam( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_spam_status_id();
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_spam_status_id();
 	return (bool) apply_filters( 'bbp_is_reply_spam', (bool) $reply_status, $reply_id );
 }
 
@@ -856,7 +856,7 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_trash( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) == bbp_get_trash_status_id();
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_trash_status_id();
 	return (bool) apply_filters( 'bbp_is_reply_trash', (bool) $reply_status, $reply_id );
 }
 
@@ -1131,12 +1131,12 @@ function bbp_reply_author_link( $args = '' ) {
 			$author_links = array();
 
 			// Get avatar
-			if ( 'avatar' == $r['type'] || 'both' == $r['type'] ) {
+			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links['avatar'] = bbp_get_reply_author_avatar( $reply_id, $r['size'] );
 			}
 
 			// Get display name
-			if ( 'name' == $r['type']   || 'both' == $r['type'] ) {
+			if ( 'name' === $r['type']   || 'both' === $r['type'] ) {
 				$author_links['name'] = bbp_get_reply_author_display_name( $reply_id );
 			}
 
@@ -1449,7 +1449,7 @@ function bbp_reply_ancestor_id( $reply_id = 0 ) {
 		// Find highest reply ancestor
 		$ancestor_id = $reply_id;
 		while ( $parent_id = bbp_get_reply_to( $ancestor_id ) ) {
-			if ( empty( $parent_id ) || ( $parent_id === $ancestor_id ) || ( bbp_get_reply_topic_id( $reply_id ) === $parent_id ) || ( $parent_id == $reply_id ) ) {
+			if ( empty( $parent_id ) || ( $parent_id === $ancestor_id ) || ( bbp_get_reply_topic_id( $reply_id ) === $parent_id ) || ( $parent_id === $reply_id ) ) {
 				break;
 			}
 			$ancestor_id = $parent_id;
@@ -1655,7 +1655,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 			$topic_id = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
 
 			// Post is not the topic
-			if ( $reply_id != $topic_id ) {
+			if ( $reply_id !== $topic_id ) {
 				$reply_position = bbp_get_reply_position_raw( $reply_id, $topic_id );
 
 				// Update the reply position in the posts table so we'll never have
@@ -2198,7 +2198,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 		$classes[] = 'bbp-parent-topic-'   . bbp_get_reply_topic_id( $reply_id );
 		$classes[] = 'bbp-reply-position-' . bbp_get_reply_position( $reply_id );
 		$classes[] = 'user-id-' . bbp_get_reply_author_id( $reply_id );
-		$classes[] = ( bbp_get_reply_author_id( $reply_id ) == bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
+		$classes[] = ( bbp_get_reply_author_id( $reply_id ) === bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
 		$classes   = array_filter( $classes );
 		$classes   = get_post_class( $classes, $reply_id );
 		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );

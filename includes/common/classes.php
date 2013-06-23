@@ -241,8 +241,8 @@ class BBP_Walker_Dropdown extends Walker {
 		// - the post type is a forum
 		// - the forum is a category
 		// - forum is closed
-		if (	( true == $args['disable_categories'] )
-				&& ( bbp_get_forum_post_type() == $_post->post_type )
+		if (	( true === $args['disable_categories'] )
+				&& ( bbp_get_forum_post_type() === $_post->post_type )
 				&& ( bbp_is_forum_category( $_post->ID )
 					|| ( !current_user_can( 'edit_forum', $_post->ID ) && bbp_is_forum_closed( $_post->ID )
 				)

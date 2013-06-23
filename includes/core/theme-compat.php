@@ -258,7 +258,7 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
 	if ( empty( $bbp->theme_compat->original_template ) )
 		return false;
 
-	return (bool) ( $bbp->theme_compat->original_template == $template );
+	return (bool) ( $bbp->theme_compat->original_template === $template );
 }
 
 /**

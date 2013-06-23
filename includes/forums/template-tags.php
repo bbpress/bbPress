@@ -205,14 +205,14 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 		return null;
 
 	// Tweak the data type to return
-	if ( $output == OBJECT ) {
+	if ( $output === OBJECT ) {
 		return $forum;
 
-	} elseif ( $output == ARRAY_A ) {
+	} elseif ( $output === ARRAY_A ) {
 		$_forum = get_object_vars( $forum );
 		return $_forum;
 
-	} elseif ( $output == ARRAY_N ) {
+	} elseif ( $output === ARRAY_N ) {
 		$_forum = array_values( get_object_vars( $forum ) );
 		return $_forum;
 
@@ -1432,7 +1432,7 @@ function bbp_forum_type( $forum_id = 0 ) {
 function bbp_is_forum_category( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$type     = bbp_get_forum_type( $forum_id );
-	$retval   = ( !empty( $type ) && 'category' == $type );
+	$retval   = ( !empty( $type ) && 'category' === $type );
 
 	return (bool) apply_filters( 'bbp_is_forum_category', (bool) $retval, $forum_id );
 }
@@ -1468,7 +1468,7 @@ function bbp_is_forum_open( $forum_id = 0 ) {
 	function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
 
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$retval    = ( bbp_get_closed_status_id() == bbp_get_forum_status( $forum_id ) );
+		$retval    = ( bbp_get_closed_status_id() === bbp_get_forum_status( $forum_id ) );
 
 		if ( !empty( $check_ancestors ) ) {
 			$ancestors = bbp_get_forum_ancestors( $forum_id );
@@ -1503,7 +1503,7 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is public, return true
-	$retval = ( bbp_get_public_status_id() == $visibility );
+	$retval = ( bbp_get_public_status_id() === $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1539,7 +1539,7 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( bbp_get_private_status_id() == $visibility );
+	$retval = ( bbp_get_private_status_id() === $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1575,7 +1575,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( bbp_get_hidden_status_id() == $visibility );
+	$retval = ( bbp_get_hidden_status_id() === $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {

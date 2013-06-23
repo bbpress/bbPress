@@ -68,7 +68,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 		$role = bbp_get_user_role( $user_id );
 
 		// User already has this role so no new role is set
-		if ( $new_role == $role ) {
+		if ( $new_role === $role ) {
 			$new_role = false;
 
 		// Users role is different than the new role
@@ -192,7 +192,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	$forums_role = bbp_get_user_role( $user_id );
 
 	// Bail if no role change
-	if ( $new_role == $forums_role )
+	if ( $new_role === $forums_role )
 		return;
 
 	// Bail if trying to set their own role
@@ -280,7 +280,7 @@ function bbp_set_current_user_default_role() {
 	/** Add or Map ************************************************************/
 
 	// Add the user to the site
-	if ( true == $add_to_site ) {
+	if ( true === $add_to_site ) {
 
 		// Make sure bbPress roles are added
 		bbp_add_forums_roles();

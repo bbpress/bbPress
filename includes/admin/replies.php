@@ -98,7 +98,7 @@ class BBP_Replies_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
+		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type !== get_current_screen()->post_type ) )
 			return true;
 
 		return false;
@@ -338,7 +338,7 @@ class BBP_Replies_Admin {
 		if ( $this->bail() ) return;
 
 		// Bail if post_type is not a reply
-		if ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) )
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) )
 			return;
 
 		// Add the metabox
@@ -477,7 +477,7 @@ class BBP_Replies_Admin {
 			$success = wp_update_post( $post_data );
 			$message = array( 'bbp_reply_toggle_notice' => $message, 'reply_id' => $reply->ID );
 
-			if ( false == $success || is_wp_error( $success ) )
+			if ( false === $success || is_wp_error( $success ) )
 				$message['failed'] = '1';
 
 			// Do additional reply toggle actions (admin side)
@@ -529,11 +529,11 @@ class BBP_Replies_Admin {
 
 			switch ( $notice ) {
 				case 'spammed' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully marked as spam.', 'bbpress' ), $reply_title );
+					$message = $is_failure === true ? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully marked as spam.', 'bbpress' ), $reply_title );
 					break;
 
 				case 'unspammed' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully unmarked as spam.', 'bbpress' ), $reply_title );
+					$message = $is_failure === true ? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully unmarked as spam.', 'bbpress' ), $reply_title );
 					break;
 			}
 
@@ -542,7 +542,7 @@ class BBP_Replies_Admin {
 
 			?>
 
-			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
+			<div id="message" class="<?php echo $is_failure === true ? 'error' : 'updated'; ?> fade">
 				<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
 			</div>
 
@@ -653,7 +653,7 @@ class BBP_Replies_Admin {
 					}
 
 					// Alert capable users of reply forum mismatch
-					if ( $reply_forum_id != $topic_forum_id ) {
+					if ( $reply_forum_id !== $topic_forum_id ) {
 						if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) {
 							$forum_title .= '<div class="attention">' . esc_html__( '(Mismatch)', 'bbpress' ) . '</div>';
 						}
@@ -726,7 +726,7 @@ class BBP_Replies_Admin {
 		$actions['view'] = '<a href="' . bbp_get_reply_url( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 
 		// User cannot view replies in trash
-		if ( ( bbp_get_trash_status_id() == $reply->post_status ) && !current_user_can( 'view_trash' ) )
+		if ( ( bbp_get_trash_status_id() === $reply->post_status ) && !current_user_can( 'view_trash' ) )
 			unset( $actions['view'] );
 
 		// Only show the actions if the user is capable of viewing them
@@ -743,16 +743,16 @@ class BBP_Replies_Admin {
 
 		// Trash
 		if ( current_user_can( 'delete_reply', $reply->ID ) ) {
-			if ( bbp_get_trash_status_id() == $reply->post_status ) {
+			if ( bbp_get_trash_status_id() === $reply->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_reply_post_type() );
 				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
 			} elseif ( EMPTY_TRASH_DAYS ) {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
 			}
 
-			if ( bbp_get_trash_status_id() == $reply->post_status || !EMPTY_TRASH_DAYS ) {
+			if ( bbp_get_trash_status_id() === $reply->post_status || !EMPTY_TRASH_DAYS ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
-			} elseif ( bbp_get_spam_status_id() == $reply->post_status ) {
+			} elseif ( bbp_get_spam_status_id() === $reply->post_status ) {
 				unset( $actions['trash'] );
 			}
 		}
@@ -775,7 +775,7 @@ class BBP_Replies_Admin {
 		if ( $this->bail() ) return;
 
 		// Add Empty Spam button
-		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
 			$title = esc_attr__( 'Empty Spam', 'bbpress' );
 			submit_button( $title, 'button-secondary apply', 'delete_all', false );

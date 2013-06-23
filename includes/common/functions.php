@@ -152,7 +152,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 
 				// Finding the biggest chunk (if the chunk fits, break)
 				$count = floor( $since / $seconds );
-				if ( 0 != $count ) {
+				if ( 0 !== $count ) {
 					break;
 				}
 			}
@@ -164,7 +164,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 			} else {
 
 				// Set output var
-				$output = ( 1 == $count ) ? '1 '. $chunks[$i][1] : $count . ' ' . $chunks[$i][2];
+				$output = ( 1 === $count ) ? '1 '. $chunks[$i][1] : $count . ' ' . $chunks[$i][2];
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
@@ -173,8 +173,8 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
-					if ( 0 != $count2 ) {
-						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
+					if ( 0 !== $count2 ) {
+						$output .= ( 1 === $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
 					}
 				}
 
@@ -186,7 +186,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 		}
 
 		// Append 'ago' to the end of time-since if not 'right now'
-		if ( $output != $right_now_text ) {
+		if ( $output !== $right_now_text ) {
 			$output = sprintf( $ago_text, $output );
 		}
 
@@ -217,7 +217,7 @@ function bbp_format_revision_reason( $reason = '' ) {
 	$reason = trim( $reason );
 
 	// We add our own full stop.
-	while ( substr( $reason, -1 ) == '.' )
+	while ( substr( $reason, -1 ) === '.' )
 		$reason = substr( $reason, 0, -1 );
 
 	// Trim again
@@ -290,7 +290,7 @@ function bbp_remove_view_all( $original_link = '' ) {
  * @return bool Whether current user can and is viewing all
  */
 function bbp_get_view_all( $cap = 'moderate' ) {
-	$retval = ( ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
+	$retval = ( ( !empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && current_user_can( $cap ) ) );
 	return apply_filters( 'bbp_get_view_all', (bool) $retval );
 }
 
@@ -350,8 +350,8 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 		return $data;
 
 	// Is the post by an anonymous user?
-	if ( ( bbp_get_topic_post_type() == $data['post_type'] && !bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
-	     ( bbp_get_reply_post_type() == $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) )
+	if ( ( bbp_get_topic_post_type() === $data['post_type'] && !bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
+	     ( bbp_get_reply_post_type() === $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) )
 		return $data;
 
 	// The post is being updated. It is a topic or a reply and is written by an anonymous user.
@@ -1061,7 +1061,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	foreach ( (array) $user_ids as $user_id ) {
 
 		// Don't send notifications to the person who made the post
-		if ( !empty( $reply_author ) && (int) $user_id == (int) $reply_author )
+		if ( !empty( $reply_author ) && (int) $user_id === (int) $reply_author )
 			continue;
 
 		// For plugins to filter messages per reply/topic/user
@@ -1123,7 +1123,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 	if ( empty( $redirect_to ) && !strstr( $url, 'redirect_to' ) ) {
 
 		// Rejig the $redirect_to
-		if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( $redirect_to != home_url( $_SERVER['REDIRECT_URL'] ) ) ) {
+		if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( $redirect_to !== home_url( $_SERVER['REDIRECT_URL'] ) ) ) {
 			$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
 		}
 
@@ -1256,7 +1256,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = array( bbp_get_public_status_id() );
 
 		// Add closed status if topic post type
-		if ( $post_type == bbp_get_topic_post_type() ) {
+		if ( $post_type === bbp_get_topic_post_type() ) {
 			$post_status[] = bbp_get_closed_status_id();
 		}
 
@@ -1301,7 +1301,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = array( bbp_get_public_status_id() );
 
 		// Add closed status if topic post type
-		if ( $post_type == bbp_get_topic_post_type() ) {
+		if ( $post_type === bbp_get_topic_post_type() ) {
 			$post_status[] = bbp_get_closed_status_id();
 		}
 
@@ -1346,7 +1346,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = array( bbp_get_public_status_id() );
 
 		// Add closed status if topic post type
-		if ( $post_type == bbp_get_topic_post_type() ) {
+		if ( $post_type === bbp_get_topic_post_type() ) {
 			$post_status[] = bbp_get_closed_status_id();
 		}
 
@@ -1552,7 +1552,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 					}
 
 					// Only forum replies
-					if ( !empty( $_GET['type'] ) && ( bbp_get_reply_post_type() == $_GET['type'] ) ) {
+					if ( !empty( $_GET['type'] ) && ( bbp_get_reply_post_type() === $_GET['type'] ) ) {
 
 						// The query
 						$the_query = array(
@@ -1570,7 +1570,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						bbp_display_replies_feed_rss2( $the_query );
 
 					// Only forum topics
-					} elseif ( !empty( $_GET['type'] ) && ( bbp_get_topic_post_type() == $_GET['type'] ) ) {
+					} elseif ( !empty( $_GET['type'] ) && ( bbp_get_topic_post_type() === $_GET['type'] ) ) {
 
 						// The query
 						$the_query = array(

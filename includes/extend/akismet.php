@@ -97,7 +97,7 @@ class BBP_Akismet {
 		$post_permalink = '';
 
 		// Post is not published
-		if ( bbp_get_public_status_id() != $post_data['post_status'] )
+		if ( bbp_get_public_status_id() !== $post_data['post_status'] )
 			return $post_data;
 
 		// Cast the post_author to 0 if it's empty
@@ -165,7 +165,7 @@ class BBP_Akismet {
 		do_action_ref_array( 'bbp_akismet_check_post', $post_data );
 
 		// Spam
-		if ( 'true' == $post_data['bbp_akismet_result'] ) {
+		if ( 'true' === $post_data['bbp_akismet_result'] ) {
 
 			// Let plugins do their thing
 			do_action( 'bbp_akismet_spam_caught' );
@@ -254,7 +254,7 @@ class BBP_Akismet {
 			return;
 
 		// Bail if we're spamming, but the post_status isn't spam
-		if ( ( 'spam' == $request_type ) && ( bbp_get_spam_status_id() != $_post->post_status ) )
+		if ( ( 'spam' === $request_type ) && ( bbp_get_spam_status_id() !== $_post->post_status ) )
 			return;
 
 		// Set some default post_data
@@ -384,9 +384,9 @@ class BBP_Akismet {
 			$query_string .= $key . '=' . urlencode( stripslashes( $data ) ) . '&';
 
 		// Aim...
-		if ( 'check' == $check ) {
+		if ( 'check' === $check ) {
 			$path = '/1.1/comment-check';
-		} elseif ( 'submit' == $check ) {
+		} elseif ( 'submit' === $check ) {
 			$path = '/1.1/submit-' . $spam;
 		}
 
@@ -445,32 +445,32 @@ class BBP_Akismet {
 			$anonymous_data = bbp_filter_anonymous_post_data();
 
 			// More checks
-			if (	intval( $as_submitted['comment_post_ID'] )    == intval( $_post->post_parent )
-					&&      $as_submitted['comment_author']       == ( $anonymous_data ? $anonymous_data['bbp_anonymous_name']  : $userdata->display_name )
-					&&      $as_submitted['comment_author_email'] == ( $anonymous_data ? $anonymous_data['bbp_anonymous_email'] : $userdata->user_email   )
+			if (	intval( $as_submitted['comment_post_ID'] )    === intval( $_post->post_parent )
+					&&      $as_submitted['comment_author']       === ( $anonymous_data ? $anonymous_data['bbp_anonymous_name']  : $userdata->display_name )
+					&&      $as_submitted['comment_author_email'] === ( $anonymous_data ? $anonymous_data['bbp_anonymous_email'] : $userdata->user_email   )
 				) {
 
 				// Normal result: true
-				if ( $this->last_post['bbp_akismet_result'] == 'true' ) {
+				if ( $this->last_post['bbp_akismet_result'] === 'true' ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'true' );
 					$this->update_post_history( $post_id, esc_html__( 'Akismet caught this post as spam', 'bbpress' ), 'check-spam' );
 
 					// If post_status isn't the spam status, as expected, leave a note
-					if ( $_post->post_status != bbp_get_spam_status_id() ) {
+					if ( bbp_get_spam_status_id() !== $_post->post_status ) {
 						$this->update_post_history( $post_id, sprintf( esc_html__( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
 					}
 
 				// Normal result: false
-				} elseif ( $this->last_post['bbp_akismet_result'] == 'false' ) {
+				} elseif ( $this->last_post['bbp_akismet_result'] === 'false' ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'false' );
 					$this->update_post_history( $post_id, esc_html__( 'Akismet cleared this post', 'bbpress' ), 'check-ham' );
 
 					// If post_status is the spam status, which isn't expected, leave a note
-					if ( $_post->post_status == bbp_get_spam_status_id() ) {
+					if ( bbp_get_spam_status_id() === $_post->post_status ) {
 
 						// @todo Use wp_blacklist_check()
 
@@ -660,7 +660,7 @@ class BBP_Akismet {
 			$http_request .= $request;
 
 			// Open a socket connection
-			if ( false != ( $fs = @fsockopen( $http_host, $port, $errno, $errstr, 10 ) ) ) {
+			if ( false !== ( $fs = @fsockopen( $http_host, $port, $errno, $errstr, 10 ) ) ) {
 
 				// Write our request to the pointer
 				fwrite( $fs, $http_request );

@@ -631,7 +631,7 @@ class BBP_BuddyPress_Activity {
 			return;
 
 		// Action based on new status
-		if ( $post->post_status == bbp_get_public_status_id() ) {
+		if ( bbp_get_public_status_id() === $post->post_status ) {
 
 			// Validate reply data
 			$topic_id        = bbp_get_reply_topic_id( $reply_id );

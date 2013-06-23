@@ -108,7 +108,7 @@
 
 			// Handle address change requests
 			$new_email = get_option( bbp_get_displayed_user_id() . '_new_email' );
-			if ( $new_email && $new_email != bbp_get_displayed_user_field( 'user_email', 'edit' ) ) : ?>
+			if ( !empty( $new_email ) && $new_email !== bbp_get_displayed_user_field( 'user_email', 'edit' ) ) : ?>
 
 				<span class="updated inline">
 

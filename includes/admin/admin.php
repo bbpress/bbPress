@@ -484,7 +484,7 @@ class BBP_Admin {
 	public static function modify_plugin_action_links( $links, $file ) {
 
 		// Return normal links if not bbPress
-		if ( plugin_basename( bbpress()->file ) != $file )
+		if ( plugin_basename( bbpress()->file ) !== $file )
 			return $links;
 
 		// Add a few links to the existing links array
@@ -557,7 +557,7 @@ class BBP_Admin {
 		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
 		$reply_class = sanitize_html_class( bbp_get_reply_post_type() );
 
-		if ( ( 'post' == get_current_screen()->base ) && ( bbp_get_reply_post_type() == get_current_screen()->post_type ) ) : ?>
+		if ( ( 'post' === get_current_screen()->base ) && ( bbp_get_reply_post_type() === get_current_screen()->post_type ) ) : ?>
 
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
@@ -827,7 +827,7 @@ class BBP_Admin {
 				}
 			}
 
-			<?php if ( 'bbpress' == get_user_option( 'admin_color' ) ) : ?>
+			<?php if ( 'bbpress' === get_user_option( 'admin_color' ) ) : ?>
 
 				/* Green Scheme Images */
 

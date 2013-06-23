@@ -38,11 +38,11 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 		$bbp_user_id = $user_id;
 
 	// Currently viewing or editing a user
-	elseif ( ( true == $displayed_user_fallback ) && !empty( $did ) )
+	elseif ( ( true === $displayed_user_fallback ) && !empty( $did ) )
 		$bbp_user_id = $did;
 
 	// Maybe fallback on the current_user ID
-	elseif ( ( true == $current_user_fallback ) && !empty( $lid ) )
+	elseif ( ( true === $current_user_fallback ) && !empty( $lid ) )
 		$bbp_user_id = $lid;
 
 	return $bbp_user_id;
