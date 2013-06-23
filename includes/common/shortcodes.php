@@ -119,10 +119,10 @@ class BBP_Shortcodes {
 		$bbp = bbpress();
 
 		// Unset global queries
-		$bbp->forum_query  = new stdClass;
-		$bbp->topic_query  = new stdClass;
-		$bbp->reply_query  = new stdClass;
-		$bbp->search_query = new stdClass;
+		$bbp->forum_query  = new WP_Query();
+		$bbp->topic_query  = new WP_Query();
+		$bbp->reply_query  = new WP_Query();
+		$bbp->search_query = new WP_Query();
 
 		// Unset global ID's
 		$bbp->current_forum_id     = 0;

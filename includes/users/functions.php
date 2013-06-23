@@ -868,7 +868,7 @@ function bbp_edit_user_handler( $action = '' ) {
 		$new_email = get_option( $user_id . '_new_email' );
 
 		if ( $new_email['hash'] === $_GET['newuseremail'] ) {
-			$user             = new stdClass();
+			$user             = new WP_User();
 			$user->ID         = $user_id;
 			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
 
