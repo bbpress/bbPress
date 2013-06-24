@@ -284,6 +284,19 @@ function bbp_has_errors() {
 /** Mentions ******************************************************************/
 
 /**
+ * Set the pattern used for matching usernames for mentions.
+ *
+ * Moved into its own function to allow filtering of the regex pattern
+ * anywhere mentions might be used.
+ *
+ * @since bbPress (r4997)
+ * @return string Pattern to match usernames with
+ */
+function bbp_find_mentions_pattern() {
+	return apply_filters( 'bbp_find_mentions_pattern', '/[@]+([A-Za-z0-9-_\.@]+)\b/' );
+}
+
+/**
  * Searches through the content to locate usernames, designated by an @ sign.
  *
  * @since bbPress (r4323)
@@ -292,15 +305,16 @@ function bbp_has_errors() {
  * @return bool|array $usernames Existing usernames. False if no matches.
  */
 function bbp_find_mentions( $content = '' ) {
-	$pattern   = '/[@]+([A-Za-z0-9-_\.@]+)\b/';
+	$pattern   = bbp_find_mentions_pattern();
 	preg_match_all( $pattern, $content, $usernames );
 	$usernames = array_unique( array_filter( $usernames[1] ) );
 
 	// Bail if no usernames
-	if ( empty( $usernames ) )
-		return false;
+	if ( empty( $usernames ) ) {
+		$usernames = false;
+	}
 
-	return $usernames;
+	return apply_filters( 'bbp_find_mentions', $usernames, $pattern, $content );
 }
 
 /**
