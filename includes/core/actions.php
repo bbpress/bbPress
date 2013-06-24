@@ -283,18 +283,19 @@ add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',      10 );
 add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',  10 );
 
 // Theme-side POST requests
-add_action( 'bbp_post_request', 'bbp_do_ajax',                1  );
-add_action( 'bbp_post_request', 'bbp_edit_topic_tag_handler', 1  );
-add_action( 'bbp_post_request', 'bbp_edit_user_handler',      1  );
-add_action( 'bbp_post_request', 'bbp_edit_forum_handler',     1  );
-add_action( 'bbp_post_request', 'bbp_edit_reply_handler',     1  );
-add_action( 'bbp_post_request', 'bbp_edit_topic_handler',     1  );
-add_action( 'bbp_post_request', 'bbp_merge_topic_handler',    1  );
-add_action( 'bbp_post_request', 'bbp_split_topic_handler',    1  );
-add_action( 'bbp_post_request', 'bbp_move_reply_handler',     1  );
-add_action( 'bbp_post_request', 'bbp_new_forum_handler',      10 );
-add_action( 'bbp_post_request', 'bbp_new_reply_handler',      10 );
-add_action( 'bbp_post_request', 'bbp_new_topic_handler',      10 );
+add_action( 'bbp_post_request', 'bbp_do_ajax',                 1  );
+add_action( 'bbp_post_request', 'bbp_edit_topic_tag_handler',  1  );
+add_action( 'bbp_post_request', 'bbp_edit_user_handler',       1  );
+add_action( 'bbp_post_request', 'bbp_edit_forum_handler',      1  );
+add_action( 'bbp_post_request', 'bbp_edit_reply_handler',      1  );
+add_action( 'bbp_post_request', 'bbp_edit_topic_handler',      1  );
+add_action( 'bbp_post_request', 'bbp_merge_topic_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_split_topic_handler',     1  );
+add_action( 'bbp_post_request', 'bbp_move_reply_handler',      1  );
+add_action( 'bbp_post_request', 'bbp_new_forum_handler',       10 );
+add_action( 'bbp_post_request', 'bbp_new_reply_handler',       10 );
+add_action( 'bbp_post_request', 'bbp_new_topic_handler',       10 );
+add_action( 'bbp_post_request', 'bbp_search_results_redirect', 10 );
 
 // Theme-side GET requests
 add_action( 'bbp_get_request', 'bbp_toggle_topic_handler',   1  );
