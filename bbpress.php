@@ -375,7 +375,7 @@ final class bbPress {
 		);
 
 		// Add the actions
-		foreach( $actions as $class_action )
+		foreach ( $actions as $class_action )
 			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 5 );
 
 		// All bbPress actions are setup (includes bbp-core-hooks.php)

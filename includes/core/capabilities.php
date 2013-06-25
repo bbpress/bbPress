@@ -274,7 +274,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 function bbp_add_caps() {
 
 	// Loop through available roles and add caps
-	foreach( bbp_get_wp_roles()->role_objects as $role ) {
+	foreach ( bbp_get_wp_roles()->role_objects as $role ) {
 		foreach ( bbp_get_caps_for_role( $role->name ) as $cap => $value ) {
 			$role->add_cap( $cap, $value );
 		}
@@ -291,7 +291,7 @@ function bbp_add_caps() {
 function bbp_remove_caps() {
 
 	// Loop through available roles and remove caps
-	foreach( bbp_get_wp_roles()->role_objects as $role ) {
+	foreach ( bbp_get_wp_roles()->role_objects as $role ) {
 		foreach ( array_keys( bbp_get_caps_for_role( $role->name ) ) as $cap ) {
 			$role->remove_cap( $cap );
 		}
@@ -331,7 +331,7 @@ function bbp_get_wp_roles() {
 function bbp_add_forums_roles() {
 	$wp_roles = bbp_get_wp_roles();
 
-	foreach( bbp_get_dynamic_roles() as $role_id => $details ) {
+	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
 		$wp_roles->roles[$role_id]        = $details;
 		$wp_roles->role_objects[$role_id] = new WP_Role( $role_id, $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
@@ -381,7 +381,7 @@ function bbp_filter_user_roles_option() {
  * @return array Combined array of database roles and dynamic bbPress roles
  */
 function _bbp_reinit_dynamic_roles( $roles = array() ) {
-	foreach( bbp_get_dynamic_roles() as $role_id => $details ) {
+	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
 		$roles[$role_id] = $details;
 	}
 	return $roles;

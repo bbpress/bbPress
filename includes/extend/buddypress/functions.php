@@ -431,7 +431,7 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 	// Loop through forums and remove this group from each one
-	foreach( (array) $forum_ids as $forum_id ) {
+	foreach ( (array) $forum_ids as $forum_id ) {
 		bbp_remove_group_id_from_forum( $group_id, $forum_id );
 	}
 }
@@ -449,7 +449,7 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Loop through groups and remove this forum from each one
-	foreach( (array) $group_ids as $group_id ) {
+	foreach ( (array) $group_ids as $group_id ) {
 		bbp_remove_forum_id_from_group( $forum_id, $group_id );
 	}
 }

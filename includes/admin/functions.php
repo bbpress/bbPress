@@ -93,7 +93,7 @@ function bbp_admin_menu_order( $menu_order ) {
 		if ( $second_sep == $item ) {
 
 			// Add our custom menus
-			foreach( $custom_menus as $custom_menu ) {
+			foreach ( $custom_menus as $custom_menu ) {
 				if ( array_search( $custom_menu, $menu_order ) ) {
 					$bbp_menu_order[] = $custom_menu;
 				}
@@ -246,7 +246,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		) );
 
 		// Loop through tabs and build navigation
-		foreach( array_values( $tabs ) as $tab_data ) {
+		foreach ( array_values( $tabs ) as $tab_data ) {
 			$is_current = (bool) ( $tab_data['name'] == $active_tab );
 			$tab_class  = $is_current ? $active_class : $idle_class;
 			$tabs_html .= '<a href="' . esc_url( $tab_data['href'] ) . '" class="' . esc_attr( $tab_class ) . '">' . esc_html( $tab_data['name'] ) . '</a>';

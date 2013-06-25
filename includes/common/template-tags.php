@@ -2284,7 +2284,7 @@ function bbp_breadcrumb( $args = array() ) {
 		if ( !empty( $ancestors ) ) {
 
 			// Loop through parents
-			foreach( (array) $ancestors as $parent_id ) {
+			foreach ( (array) $ancestors as $parent_id ) {
 
 				// Parents
 				$parent = get_post( $parent_id );

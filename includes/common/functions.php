@@ -861,7 +861,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		$pattern = "#$word#i";
 
 		// Loop through post data
-		foreach( $_post as $post_data ) {
+		foreach ( $_post as $post_data ) {
 
 			// Check each user data for current word
 			if ( preg_match( $pattern, $post_data ) ) {
@@ -962,7 +962,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 		$pattern = "#$word#i";
 
 		// Loop through post data
-		foreach( $_post as $post_data ) {
+		foreach ( $_post as $post_data ) {
 
 			// Check each user data for current word
 			if ( preg_match( $pattern, $post_data ) ) {

@@ -2141,7 +2141,7 @@ function bbp_form_forum_type_dropdown( $forum_id = 0 ) {
 		) );
 		$type_output = '<select name="bbp_forum_type" id="bbp_forum_type_select">' . "\n";
 
-		foreach( $forum_attr as $value => $label )
+		foreach ( $forum_attr as $value => $label )
 			$type_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_type( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 
 		$type_output .= '</select>';
@@ -2179,7 +2179,7 @@ function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
 		) );
 		$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
 
-		foreach( $forum_attr as $value => $label )
+		foreach ( $forum_attr as $value => $label )
 			$status_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_status( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 
 		$status_output .= '</select>';
@@ -2218,7 +2218,7 @@ function bbp_form_forum_visibility_dropdown( $forum_id = 0 ) {
 		) );
 		$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
 
-		foreach( $forum_attr as $value => $label )
+		foreach ( $forum_attr as $value => $label )
 			$visibility_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_visibility( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 
 		$visibility_output .= '</select>';

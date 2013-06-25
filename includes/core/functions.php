@@ -333,7 +333,7 @@ function bbp_mention_filter( $content = '' ) {
 		return $content;
 
 	// Loop through usernames and link to profiles
-	foreach( (array) $usernames as $username ) {
+	foreach ( (array) $usernames as $username ) {
 
 		// Skip if username does not exist or user is not active
 		$user = get_user_by( 'slug', $username );

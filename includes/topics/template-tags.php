@@ -3533,7 +3533,7 @@ function bbp_form_topic_tags() {
 					$terms = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
 
 					// Loop through them
-					foreach( $terms as $term ) {
+					foreach ( $terms as $term ) {
 						$new_terms[] = $term->name;
 					}
 				}

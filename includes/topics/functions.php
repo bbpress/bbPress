@@ -803,7 +803,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 		), 'update_topic' );
 
 		// Update all anonymous metas
-		foreach( $r as $anon_key => $anon_value ) {
+		foreach ( $r as $anon_key => $anon_value ) {
 			update_post_meta( $topic_id, '_' . $anon_key, (string) $anon_value, false );
 		}
 
@@ -2790,7 +2790,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	if ( !empty( $terms ) ) {
 
 		// Loop through and collect term names
-		foreach( $terms as $term ) {
+		foreach ( $terms as $term ) {
 			$term_names[] = $term->name;
 		}
 
@@ -3276,7 +3276,7 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 	$topic_id   = bbp_get_topic_id( $topic_id );
 	$topic_tags = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
 	$terms      = array();
-	foreach( $topic_tags as $term ) {
+	foreach ( $topic_tags as $term ) {
 		$terms[] = $term->name;
 	}
 	$terms = !empty( $terms ) ? implode( $sep, $terms ) : '';

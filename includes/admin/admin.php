@@ -209,7 +209,7 @@ class BBP_Admin {
 			}
 
 			// Fudge the highlighted subnav item when on a bbPress admin page
-			foreach( $hooks as $hook ) {
+			foreach ( $hooks as $hook ) {
 				add_action( "admin_head-$hook", 'bbp_tools_modify_menu_highlight' );
 			}
 

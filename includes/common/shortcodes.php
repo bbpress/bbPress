@@ -105,7 +105,7 @@ class BBP_Shortcodes {
 	 * @uses do_action()
 	 */
 	private function add_shortcodes() {
-		foreach( (array) $this->codes as $code => $function ) {
+		foreach ( (array) $this->codes as $code => $function ) {
 			add_shortcode( $code, $function );
 		}
 	}

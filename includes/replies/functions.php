@@ -776,7 +776,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		), 'update_reply' );
 
 		// Update all anonymous metas
-		foreach( $r as $anon_key => $anon_value ) {
+		foreach ( $r as $anon_key => $anon_value ) {
 			update_post_meta( $reply_id, '_' . $anon_key, (string) $anon_value, false );
 		}
 

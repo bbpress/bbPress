@@ -64,7 +64,7 @@ class BBP_Akismet {
 
 		// Add the checks
 		foreach ( $checks as $type => $functions )
-			foreach( $functions as $function => $priority )
+			foreach ( $functions as $function => $priority )
 				add_filter( $function, array( $this, $type . '_post'  ), $priority );
 
 		// Update post meta

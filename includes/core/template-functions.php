@@ -185,7 +185,7 @@ function bbp_get_template_stack() {
 
 	// Loop through 'bbp_template_stack' filters, and call callback functions
 	do {
-		foreach( (array) current( $wp_filter[$tag] ) as $the_ ) {
+		foreach ( (array) current( $wp_filter[$tag] ) as $the_ ) {
 			if ( ! is_null( $the_['function'] ) ) {
 				$args[1] = $stack;
 				$stack[] = call_user_func_array( $the_['function'], array_slice( $args, 1, (int) $the_['accepted_args'] ) );

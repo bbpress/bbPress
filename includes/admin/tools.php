@@ -449,7 +449,7 @@ function bbp_admin_repair_forum_topic_count() {
 
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
 	if ( !empty( $forums ) ) {
-		foreach( $forums as $forum ) {
+		foreach ( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
 		}
 	} else {
@@ -483,7 +483,7 @@ function bbp_admin_repair_forum_reply_count() {
 
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
 	if ( !empty( $forums ) ) {
-		foreach( $forums as $forum ) {
+		foreach ( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
 		}
 	} else {
@@ -1177,7 +1177,7 @@ function bbp_admin_reset_handler() {
 	/** Post Meta *********************************************************/
 
 	if ( !empty( $sql_posts ) ) {
-		foreach( $sql_posts as $key => $value ) {
+		foreach ( $sql_posts as $key => $value ) {
 			$sql_meta[] = $key;
 		}
 		$statement  = __( 'Deleting Post Meta&hellip; %s', 'bbpress' );

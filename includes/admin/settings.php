@@ -1742,7 +1742,7 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 	}
 
 	// Loop through slugs to check
-	foreach( $the_core_slugs as $key => $value ) {
+	foreach ( $the_core_slugs as $key => $value ) {
 
 		// Get the slug
 		$slug_check = bbp_get_form_option( $key, $value['default'], true );
