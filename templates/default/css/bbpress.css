@@ -334,6 +334,8 @@ span.bbp-author-ip {
 	padding: 0 5px;
 	overflow: scroll;
 	max-width: 95%;
+	vertical-align: middle;
+	margin-top: -3px;
 }
 
 #bbpress-forums div.bbp-topic-content pre,
