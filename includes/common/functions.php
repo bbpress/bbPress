@@ -152,7 +152,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 
 				// Finding the biggest chunk (if the chunk fits, break)
 				$count = floor( $since / $seconds );
-				if ( 0 !== $count ) {
+				if ( 0 != $count ) {
 					break;
 				}
 			}
@@ -164,7 +164,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 			} else {
 
 				// Set output var
-				$output = ( 1 === $count ) ? '1 '. $chunks[$i][1] : $count . ' ' . $chunks[$i][2];
+				$output = ( 1 == $count ) ? '1 '. $chunks[$i][1] : $count . ' ' . $chunks[$i][2];
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
@@ -173,8 +173,8 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
-					if ( 0 !== $count2 ) {
-						$output .= ( 1 === $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
+					if ( 0 != $count2 ) {
+						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
 					}
 				}
 
@@ -186,7 +186,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 		}
 
 		// Append 'ago' to the end of time-since if not 'right now'
-		if ( $output !== $right_now_text ) {
+		if ( $output != $right_now_text ) {
 			$output = sprintf( $ago_text, $output );
 		}
 
