@@ -1640,11 +1640,6 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
-	// Bail if filters are suppressed on this query
-	if ( true === $posts_query->get( 'suppress_filters' ) ) {
-		return;
-	}
-
 	// Get query post types array .
 	$post_types = (array) $posts_query->get( 'post_type' );
 
