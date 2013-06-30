@@ -2330,7 +2330,7 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Current ***********************************************************/
 
 		// Add current page to breadcrumb
-		if ( !empty( $r['include_current'] ) || empty( $r['pre_current_text'] ) ) {
+		if ( !empty( $r['include_current'] ) || empty( $r['current_text'] ) ) {
 			$crumbs[] = $r['current_before'] . $r['current_text'] . $r['current_after'];
 		}
 
