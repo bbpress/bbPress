@@ -2831,7 +2831,7 @@ function bbp_forum_pagination_count() {
 		}
 
 		// Filter and return
-		return apply_filters( 'bbp_get_topic_pagination_count', esc_html( $retstr ) );
+		return apply_filters( 'bbp_get_forum_pagination_count', esc_html( $retstr ) );
 	}
 
 /**
