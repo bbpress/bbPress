@@ -60,6 +60,7 @@ body.reply-edit .reply {
 }
 
 #bbpress-forums ul {
+	background:  none;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -70,6 +71,7 @@ body.reply-edit .reply {
 }
 
 #bbpress-forums li {
+	background: none;
 	margin: 0;
 	list-style: none;
 }
@@ -164,8 +166,13 @@ li.bbp-header div.bbp-reply-content span#favorite-toggle {
 #bbpress-forums div.bbp-forum-title h3,
 #bbpress-forums div.bbp-topic-title h3,
 #bbpress-forums div.bbp-reply-title h3 {
-	line-height: 1em;
-	margin: 8px 0;
+	background: none;
+	border: none;
+	font-size: 16px;
+ 	line-height: 1em;
+ 	margin: 8px 0;
+	padding: 0;
+	text-transform: none;
 } 
 
 #bbpress-forums div.bbp-forum-author, 
@@ -402,6 +409,20 @@ div.bbp-topic-tags {
 #bbpress-forums #bbp-search-form {
 	clear: right;
 }
+
+	#bbpress-forums #bbp-search-form .hidden {
+		height: 0;
+		width: 0;
+		overflow: hidden;
+		position: absolute;
+		background: none;
+		left: -999em;
+	}
+
+	#bbpress-forums #bbp-search-form #bbp_search {
+		display: inline-block;
+		width: auto;
+	}
 
 #bbpress-forums div.bbp-search-form {
 	float: left;
