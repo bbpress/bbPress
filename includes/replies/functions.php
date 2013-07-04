@@ -149,22 +149,74 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Topic ID **************************************************************/
 
-	// Handle Topic ID to append reply to
-	if ( isset( $_POST['bbp_topic_id'] ) ) {
-		$topic_id = (int) $_POST['bbp_topic_id'];
-	} else {
+	// Topic id was not passed
+	if ( empty( $_POST['bbp_topic_id'] ) ) {
 		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
+
+	// Topic id is not a number
+	} elseif ( ! is_numeric( $_POST['bbp_topic_id'] ) ) {
+		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID must be a number.', 'bbpress' ) );
+
+	// Topic id might be valid
+	} else {
+
+		// Get the topic id
+		$posted_topic_id = intval( $_POST['bbp_topic_id'] );
+
+		// Topic id is a negative number
+		if ( 0 > $posted_topic_id ) {
+			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID cannot be a negative number.', 'bbpress' ) );
+
+		// Topic does not exist
+		} elseif ( ! get_post( $posted_topic_id ) ) {
+			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic does not exist.', 'bbpress' ) );
+
+		// Use the POST'ed topic id
+		} else {
+			$topic_id = $posted_topic_id;
+		}
 	}
 
 	/** Forum ID **************************************************************/
 
-	// Handle Forum ID to adjust counts of
-	if ( isset( $_POST['bbp_forum_id'] ) ) {
-		$forum_id = (int) $_POST['bbp_forum_id'];
-	} elseif ( !empty( $topic_id ) ) {
+	// Try to use the forum id of the topic
+	if ( !isset( $_POST['bbp_forum_id'] ) && !empty( $topic_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-	} else {
-		bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+	// Error check the POST'ed forum id
+	} elseif ( isset( $_POST['bbp_forum_id'] ) ) {
+
+		// Empty Forum id was passed
+		if ( empty( $_POST['bbp_forum_id'] ) ) {
+			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+		// Forum id is not a number
+		} elseif ( ! is_numeric( $_POST['bbp_forum_id'] ) ) {
+			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID must be a number.', 'bbpress' ) );
+
+		// Forum id might be valid
+		} else {
+
+			// Get the forum id
+			$posted_forum_id = intval( $_POST['bbp_forum_id'] );
+
+			// Forum id is empty
+			if ( 0 === $posted_forum_id ) {
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+			// Forum id is a negative number
+			} elseif ( 0 > $posted_forum_id ) {
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
+
+			// Forum does not exist
+			} elseif ( ! get_post( $posted_forum_id ) ) {
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum does not exist.', 'bbpress' ) );
+
+			// Use the POST'ed forum id
+			} else {
+				$forum_id = $posted_forum_id;
+			}
+		}
 	}
 
 	// Forum exists
