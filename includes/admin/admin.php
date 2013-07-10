@@ -574,10 +574,7 @@ class BBP_Admin {
 									bbp_author_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
 								}
 							} );
-						});
-
-					<?php if ( bbp_get_reply_post_type() == get_current_screen()->post_type ) : ?>
-						jQuery(document).ready(function() {
+						<?php if ( bbp_get_reply_post_type() === get_current_screen()->post_type ) : ?>
 							var bbp_topic_id = jQuery( '#bbp_topic_id' );
 							bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
 								onSelect: function() {
@@ -585,8 +582,9 @@ class BBP_Admin {
 									bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
 								}
 							} );
+						<?php endif; ?>
 						});
-					<?php endif; ?>
+
 					</script><?php
 
 					break;
