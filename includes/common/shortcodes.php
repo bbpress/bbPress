@@ -377,17 +377,53 @@ class BBP_Shortcodes {
 	 * Display the topic form in an output buffer and return to ensure
 	 * post/page contents are displayed first.
 	 *
+	 * Supports 'forum_id' attribute to display the topic form for a particular
+	 * forum. This currently has styling issues from not being wrapped in
+	 * <div id="bbpress-forums"></div> which will need to be sorted out later.
+	 *
 	 * @since bbPress (r3031)
 	 *
+	 * @param array $attr
+	 * @param string $content
 	 * @uses get_template_part()
+	 * @return string
 	 */
-	public function display_topic_form() {
+	public function display_topic_form( $attr, $content = '' ) {
 
-		// Start output buffer
-		$this->start( 'bbp_topic_form' );
+		// Sanity check supplied info
+		if ( !empty( $content ) || ( !empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || !bbp_is_forum( $attr['forum_id'] ) ) ) )
+			return $content;
 
-		// Output templates
-		bbp_get_template_part( 'form', 'topic' );
+		// Unset globals
+		$this->unset_globals();
+
+		// If forum id is set, use the 'bbp_single_forum' query name
+		if ( !empty( $attr['forum_id'] ) ) {
+
+			// Set the global current_forum_id for future requests
+			bbpress()->current_forum_id = $forum_id = bbp_get_forum_id( $attr['forum_id'] );
+
+			// Start output buffer
+			$this->start( 'bbp_single_forum' );
+
+		// No forum id was passed
+		} else {
+
+			// Set the $forum_id variable to satisfy checks below
+			$forum_id = 0;
+
+			// Start output buffer
+			$this->start( 'bbp_topic_form' );
+		}
+
+		// If the forum id is set, check forum caps else display normal topic form
+		if ( empty( $forum_id ) || bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
+			bbp_get_template_part( 'form', 'topic' );
+
+		// Forum is private and user does not have caps
+		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
+			bbp_get_template_part( 'feedback', 'no-access' );
+		}
 
 		// Return contents of output buffer
 		return $this->end();
@@ -754,7 +790,7 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'form',     'user-lost-pass' );
 		else
 			bbp_get_template_part( 'feedback', 'logged-in'      );
-	
+
 		// Return contents of output buffer
 		return $this->end();
 	}
