@@ -358,23 +358,27 @@ function bbp_new_topic_handler( $action = '' ) {
 		// Sticky check after 'bbp_new_topic' action so forum ID meta is set
 		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
 
-			// What's the haps?
-			switch ( $_POST['bbp_stick_topic'] ) {
+			// What's the caps?
+			if ( current_user_can( 'moderate' ) ) {
 
-				// Sticky in this forum
-				case 'stick'   :
-					bbp_stick_topic( $topic_id );
-					break;
+				// What's the haps?
+				switch ( $_POST['bbp_stick_topic'] ) {
 
-				// Super sticky in all forums
-				case 'super'   :
-					bbp_stick_topic( $topic_id, true );
-					break;
+					// Sticky in this forum
+					case 'stick'   :
+						bbp_stick_topic( $topic_id );
+						break;
 
-				// We can avoid this as it is a new topic
-				case 'unstick' :
-				default        :
-					break;
+					// Super sticky in all forums
+					case 'super'   :
+						bbp_stick_topic( $topic_id, true );
+						break;
+
+					// We can avoid this as it is a new topic
+					case 'unstick' :
+					default        :
+						break;
+				}
 			}
 		}
 
@@ -710,24 +714,28 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
 
-			// What's the dilly?
-			switch ( $_POST['bbp_stick_topic'] ) {
+			// What's the caps?
+			if ( current_user_can( 'moderate' ) ) {
 
-				// Sticky in forum
-				case 'stick'   :
-					bbp_stick_topic( $topic_id );
-					break;
+				// What's the haps?
+				switch ( $_POST['bbp_stick_topic'] ) {
 
-				// Sticky in all forums
-				case 'super'   :
-					bbp_stick_topic( $topic_id, true );
-					break;
+					// Sticky in forum
+					case 'stick'   :
+						bbp_stick_topic( $topic_id );
+						break;
 
-				// Normal
-				case 'unstick' :
-				default        :
-					bbp_unstick_topic( $topic_id );
-					break;
+					// Sticky in all forums
+					case 'super'   :
+						bbp_stick_topic( $topic_id, true );
+						break;
+
+					// Normal
+					case 'unstick' :
+					default        :
+						bbp_unstick_topic( $topic_id );
+						break;
+				}
 			}
 		}
 
