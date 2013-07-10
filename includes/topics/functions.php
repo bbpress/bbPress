@@ -2056,8 +2056,8 @@ function bbp_toggle_topic_handler( $action = '' ) {
 			check_ajax_referer( 'close-topic_' . $topic_id );
 
 			$is_open = bbp_is_topic_open( $topic_id );
-			$success = $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
-			$failure = $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic.', 'bbpress' );
+			$success = true === $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
+			$failure = true === $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic.', 'bbpress' );
 
 			break;
 
@@ -2066,9 +2066,9 @@ function bbp_toggle_topic_handler( $action = '' ) {
 			check_ajax_referer( 'stick-topic_' . $topic_id );
 
 			$is_sticky = bbp_is_topic_sticky( $topic_id );
-			$is_super  = ( empty( $is_sticky ) && !empty( $_GET['super'] ) && "1" === $_GET['super'] ) ? true : false;
-			$success   = $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
-			$failure   = $is_sticky ? __( '<strong>ERROR</strong>: There was a problem unsticking the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem sticking the topic.', 'bbpress' );
+			$is_super  = false === $is_sticky && !empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
+			$success   = true  === $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
+			$failure   = true  === $is_sticky ? __( '<strong>ERROR</strong>: There was a problem unsticking the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem sticking the topic.', 'bbpress' );
 
 			break;
 
@@ -2077,8 +2077,8 @@ function bbp_toggle_topic_handler( $action = '' ) {
 			check_ajax_referer( 'spam-topic_' . $topic_id );
 
 			$is_spam  = bbp_is_topic_spam( $topic_id );
-			$success  = $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
-			$failure  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam.', 'bbpress' );
+			$success  = true === $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
+			$failure  = true === $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam.', 'bbpress' );
 			$view_all = !$is_spam;
 
 			break;
