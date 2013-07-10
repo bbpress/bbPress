@@ -138,6 +138,9 @@ class BBP_Admin {
 		add_action( 'wp_ajax_bbp_suggest_topic',        array( $this, 'suggest_topic' ) );
 		add_action( 'wp_ajax_nopriv_bbp_suggest_topic', array( $this, 'suggest_topic' ) );
 
+		add_action( 'wp_ajax_bbp_suggest_user',         array( $this, 'suggest_user'  ) );
+		add_action( 'wp_ajax_nopriv_bbp_suggest_user',  array( $this, 'suggest_user'  ) );
+
 		/** Filters ***********************************************************/
 
 		// Modify bbPress's admin links
@@ -557,23 +560,38 @@ class BBP_Admin {
 		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
 		$reply_class = sanitize_html_class( bbp_get_reply_post_type() );
 
-		if ( ( 'post' === get_current_screen()->base ) && ( bbp_get_reply_post_type() === get_current_screen()->post_type ) ) : ?>
+		// Post type checker (only topics and replies)
+		if ( 'post' === get_current_screen()->base ) :
+			switch( get_current_screen()->post_type ) :
+				case bbp_get_reply_post_type() :
+				case bbp_get_topic_post_type() : ?>
+					<script type="text/javascript">
+						jQuery(document).ready(function() {
+							var bbp_author_id = jQuery( '#bbp_author_id' );
+							bbp_author_id.suggest( ajaxurl + '?action=bbp_suggest_user', {
+								onSelect: function() {
+									var value = this.value;
+									bbp_author_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+								}
+							} );
+						});
 
-		<script type="text/javascript">
-			jQuery(document).ready(function() {
+					<?php if ( bbp_get_reply_post_type() == get_current_screen()->post_type ) : ?>
+						jQuery(document).ready(function() {
+							var bbp_topic_id = jQuery( '#bbp_topic_id' );
+							bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
+								onSelect: function() {
+									var value = this.value;
+									bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+								}
+							} );
+						});
+					<?php endif; ?>
+					</script><?php
 
-				var bbp_topic_id = jQuery( '#bbp_topic_id' );
-
-				bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
-					onSelect: function() {
-						var value = this.value;
-						bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
-					}
-				} );
-			});
-		</script>
-
-		<?php endif; ?>
+					break;
+			endswitch;
+		endif; ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -1320,7 +1338,31 @@ class BBP_Admin {
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
-				printf( __( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) ) . "\n";
+				printf( esc_html__( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
+			}
+		}
+		die();
+	}
+
+	/**
+	 * Ajax action for facilitating the topic and reply author auto-suggest
+	 *
+	 * @since bbPress (r5014)
+	 */
+	public function suggest_user() {
+
+		// Try to get some users
+		$users_query = new WP_User_Query( array(
+			'search'         => '*' . like_escape( $_REQUEST['q'] ) . '*',
+			'fields'         => array( 'ID', 'user_nicename' ),
+			'search_columns' => array( 'ID', 'user_nicename', 'user_email' ),
+			'orderby'        => 'ID'
+		) );
+
+		// If we found some users, loop through and display them
+		if ( ! empty( $users_query->results ) ) {
+			foreach ( (array) $users_query->results as $user ) {
+				printf( esc_html__( '%s - %s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
 			}
 		}
 		die();

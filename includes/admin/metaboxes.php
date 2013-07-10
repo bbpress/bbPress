@@ -488,15 +488,9 @@ function bbp_author_metabox() {
 	<?php else : ?>
 
 		<p>
-			<strong class="label"><?php esc_html_e( 'Name:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_author_name"><?php esc_html_e( 'Name', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_author_name" name="bbp_author_name" value="<?php echo esc_attr( get_the_author_meta( 'nicename', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
-		</p>
-
-		<p>
-			<strong class="label"><?php esc_html_e( 'Email:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_author_email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_author_email" name="bbp_author_email" value="<?php echo esc_attr( get_the_author_meta( 'email', bbp_get_global_post_field( 'post_author' ) ) ); ?>" disabled="disabled" />
+			<strong class="label"><?php esc_html_e( 'ID:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_author_id"><?php esc_html_e( 'ID', 'bbpress' ); ?></label>
+			<input type="text" id="bbp_author_id" name="post_author_override" value="<?php echo esc_attr( bbp_get_global_post_field( 'post_author' ) ); ?>" />
 		</p>
 
 	<?php endif; ?>
