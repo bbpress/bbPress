@@ -712,7 +712,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
 
 	// Update revision log
-	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 === $_POST['bbp_log_reply_edit'] ) ) {
+	if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( "1" === $_POST['bbp_log_reply_edit'] ) ) {
 		$revision_id = wp_save_post_revision( $reply_id );
 		if ( !empty( $revision_id ) ) {
 			bbp_update_reply_revision_log( array(

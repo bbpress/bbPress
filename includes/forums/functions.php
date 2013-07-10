@@ -508,7 +508,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 		$forum_edit_reason = esc_attr( strip_tags( $_POST['bbp_forum_edit_reason'] ) );
 
 	// Update revision log
-	if ( !empty( $_POST['bbp_log_forum_edit'] ) && ( 1 === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
+	if ( !empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
 		bbp_update_forum_revision_log( array(
 			'forum_id'    => $forum_id,
 			'revision_id' => $revision_id,

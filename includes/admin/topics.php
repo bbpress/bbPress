@@ -501,10 +501,10 @@ class BBP_Topics_Admin {
 					check_admin_referer( 'stick-topic_' . $topic_id );
 
 					$is_sticky = bbp_is_topic_sticky( $topic_id );
-					$is_super  = ( empty( $is_sticky ) && !empty( $_GET['super'] ) && 1 === (int) $_GET['super'] ) ? true : false;
-					$message   = true === $is_sticky ? 'unsticked'     : 'sticked';
-					$message   = true === $is_super  ? 'super_sticked' : $message;
-					$success   = true === $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
+					$is_super  = false === $is_sticky && !empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
+					$message   = true  === $is_sticky ? 'unsticked'     : 'sticked';
+					$message   = true  === $is_super  ? 'super_sticked' : $message;
+					$success   = true  === $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
 
 					break;
 
