@@ -680,6 +680,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			$this->disconnect_forum_from_group( $group_id );
 		}
 
+		// Update bbPress' internal private and forum ID variables
+		bbp_repair_forum_visibility();
+
 		// Return the group
 		return $group;
 	}

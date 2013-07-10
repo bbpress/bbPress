@@ -909,6 +909,54 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 	return $forum_id;
 }
 
+/**
+ * Recaches the private and hidden forums
+ *
+ * @since bbPress (r5017)
+ *
+ * @uses delete_option() to delete private and hidden forum pointers
+ * @uses WP_Query() To query post IDs
+ * @uses is_wp_error() To return if error occurred
+ * @uses update_option() To update the private and hidden post ID pointers
+ * @return array An array of the status code and the message
+ */
+function bbp_repair_forum_visibility() {
+
+	// First, delete everything.
+	delete_option( '_bbp_private_forums' );
+	delete_option( '_bbp_hidden_forums'  );
+
+	// Next, get all the private and hidden forums
+	$private_forums = new WP_Query( array(
+		'suppress_filters' => true,
+		'nopaging'         => true,
+		'post_type'        => bbp_get_forum_post_type(),
+		'post_status'      => bbp_get_private_status_id(),
+		'fields'           => 'ids'
+	) );
+	$hidden_forums = new WP_Query( array(
+		'suppress_filters' => true,
+		'nopaging'         => true,
+		'post_type'        => bbp_get_forum_post_type(),
+		'post_status'      => bbp_get_hidden_status_id(),
+		'fields'           => 'ids'
+	) );
+
+	// Reset the $post global
+	wp_reset_postdata();
+
+	// Bail if queries returned errors
+	if ( is_wp_error( $private_forums ) || is_wp_error( $hidden_forums ) )
+		return false;
+
+	// Update the private/hidden options
+	update_option( '_bbp_private_forums', $private_forums->posts ); // Private forums
+	update_option( '_bbp_hidden_forums',  $hidden_forums->posts  ); // Hidden forums
+
+	// Complete results
+	return true;
+}
+
 /** Count Bumpers *************************************************************/
 
 /**

@@ -556,7 +556,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'bbp_forum_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Note: private and hidden forums will be excluded via the
-		// bbp_pre_get_posts_exclude_forums filter and function.
+		// bbp_pre_get_posts_normalize_forum_visibility action and function.
 		$widget_query = new WP_Query( array(
 			'post_type'           => bbp_get_forum_post_type(),
 			'post_parent'         => $settings['parent_forum'],
@@ -780,7 +780,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		}
 
 		// Note: private and hidden forums will be excluded via the
-		// bbp_pre_get_posts_exclude_forums filter and function.
+		// bbp_pre_get_posts_normalize_forum_visibility action and function.
 		$widget_query = new WP_Query( $topics_query );
 
 		// Bail if no topics are found
@@ -1121,7 +1121,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		$settings['title'] = apply_filters( 'bbp_replies_widget_title', $settings['title'], $instance, $this->id_base );
 
 		// Note: private and hidden forums will be excluded via the
-		// bbp_pre_get_posts_exclude_forums filter and function.
+		// bbp_pre_get_posts_normalize_forum_visibility action and function.
 		$widget_query = new WP_Query( array(
 			'post_type'           => bbp_get_reply_post_type(),
 			'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),

@@ -90,7 +90,7 @@ function bbp_admin_repair_handler() {
 	wp_cache_flush();
 
 	foreach ( (array) bbp_admin_repair_list() as $item ) {
-		if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 === $_POST[$item[0]] && is_callable( $item[2] ) ) {
+		if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 === absint( $_POST[$item[0]] ) && is_callable( $item[2] ) ) {
 			$messages[] = call_user_func( $item[2] );
 		}
 	}
@@ -937,42 +937,16 @@ function bbp_admin_repair_sticky() {
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_visibility() {
-
 	$statement = __( 'Recalculating forum visibility &hellip; %s', 'bbpress' );
-	$result    = __( 'Failed!', 'bbpress' );
-
-	// First, delete everything.
-	delete_option( '_bbp_private_forums' );
-	delete_option( '_bbp_hidden_forums'  );
-
-	// Next, get all the private and hidden forums
-	$private_forums = new WP_Query( array(
-		'suppress_filters' => true,
-		'nopaging'         => true,
-		'post_type'        => bbp_get_forum_post_type(),
-		'post_status'      => bbp_get_private_status_id(),
-		'fields'           => 'ids'
-	) );
-	$hidden_forums = new WP_Query( array(
-		'suppress_filters' => true,
-		'nopaging'         => true,
-		'post_type'        => bbp_get_forum_post_type(),
-		'post_status'      => bbp_get_hidden_status_id(),
-		'fields'           => 'ids'
-	) );
 
 	// Bail if queries returned errors
-	if ( is_wp_error( $private_forums ) || is_wp_error( $hidden_forums ) )
-		return array( 2, sprintf( $statement, $result ) );
-
-	update_option( '_bbp_private_forums', $private_forums->posts ); // Private forums
-	update_option( '_bbp_hidden_forums',  $hidden_forums->posts  ); // Hidden forums
-
-	// Reset the $post global
-	wp_reset_postdata();
+	if ( ! bbp_repair_forum_visibility() ) {
+		return array( 2, sprintf( $statement, __( 'Failed!',   'bbpress' ) ) );
 
 	// Complete results
-	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+	} else {
+		return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+	}
 }
 
 /**
