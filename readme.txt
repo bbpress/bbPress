@@ -1,6 +1,6 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd
-Tags: forums, discussion, support, theme, akismet, multisite
+Tags: forums, discussion, support, akismet, multisite
 Requires at least: 3.5
 Tested up to: 3.6
 Stable tag: 2.3.2
@@ -25,6 +25,21 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.4 =
+* Added hierarchical reply support
+* Added ability to disable forum search
+* Reorganized settings page
+* Improved rewrite rules
+* Improved responsive CSS
+* Improved code posting
+* Improved user capability integration
+* Improved cache getting and setting
+* Audit strict type comparisons
+* Audit GlotPress string escaping
+* Audit title attribute usage
+* Audit WordPress core function usage
+* General code clean-up
 
 = 2.3.2 =
 * Improved posting of preformatted code
