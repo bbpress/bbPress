@@ -1317,7 +1317,7 @@ function bbp_dropdown( $args = '' ) {
 	 *               anything smaller than 0 (due to the nature of select
 	 *               box, the first value would of course be selected -
 	 *               though you can have that as none (pass 'show_none' arg))
-	 *  - sort_column: Sort by? Defaults to 'menu_order, post_title'
+	 *  - orderby: Defaults to 'menu_order title'
 	 *  - post_parent: Post parent. Defaults to 0
 	 *  - post_status: Which all post_statuses to find in? Can be an array
 	 *                  or CSV of publish, category, closed, private, spam,
@@ -1356,12 +1356,12 @@ function bbp_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => 0,
-			'sort_column'        => 'menu_order',
-			'exclude'            => array(),
 			'post_parent'        => null,
+			'post_status'        => null,
+			'selected'           => 0,
+			'exclude'            => array(),
 			'numberposts'        => -1,
-			'orderby'            => 'menu_order',
+			'orderby'            => 'menu_order title',
 			'order'              => 'ASC',
 			'walker'             => '',
 
@@ -1390,38 +1390,12 @@ function bbp_dropdown( $args = '' ) {
 			$r['exclude'] = explode( ',', $r['exclude'] );
 		}
 
-		/** Post Status *******************************************************/
-
-		// Define local variable(s)
-		$post_stati = array();
-
-		// Public
-		$post_stati[] = bbp_get_public_status_id();
-
-		// Forums
-		if ( bbp_get_forum_post_type() === $r['post_type'] ) {
-
-			// Private forums
-			if ( current_user_can( 'read_private_forums' ) ) {
-				$post_stati[] = bbp_get_private_status_id();
-			}
-
-			// Hidden forums
-			if ( current_user_can( 'read_hidden_forums' ) ) {
-				$post_stati[] = bbp_get_hidden_status_id();
-			}
-		}
-
-		// Setup the post statuses
-		$r['post_status'] = implode( ',', $post_stati );
-
 		/** Setup variables ***************************************************/
 
 		$retval = '';
 		$posts  = get_posts( array(
 			'post_type'          => $r['post_type'],
 			'post_status'        => $r['post_status'],
-			'sort_column'        => $r['sort_column'],
 			'exclude'            => $r['exclude'],
 			'post_parent'        => $r['post_parent'],
 			'numberposts'        => $r['numberposts'],

@@ -1694,7 +1694,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		}
 
 		// Add the statuses
-		$posts_query->set( 'post_status', $post_stati );
+		$posts_query->set( 'post_status', array_unique( array_filter( $post_stati ) ) );
 	}
 
 	// Topics Or Replies
