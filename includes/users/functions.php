@@ -908,6 +908,11 @@ function bbp_edit_user_handler( $action = '' ) {
 	$edit_action = bbp_is_user_home_edit() ? 'personal_options_update' : 'edit_user_profile_update';
 	do_action( $edit_action, $user_id );
 
+	// Prevent edit_user() from wiping out the user's Toolbar on front setting
+	if ( !isset( $_POST['admin_bar_front'] ) && _get_admin_bar_pref( 'front', $user_id ) ) {
+		$_POST['admin_bar_front'] = 1;
+	}
+
 	// Handle user edit
 	$edit_user = edit_user( $user_id );
 
