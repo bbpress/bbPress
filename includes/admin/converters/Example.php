@@ -1,311 +1,590 @@
 <?php
 
 /**
- * Implementation of Example converter.
+ * Example converter base impoprter template for bbPress 
+ *
+ * @since bbPress (r4689)
+ * @link Codex Docs http://codex.bbpress.org/import-forums/custom-import
  */
-class Example_Converter extends BBP_Converter_Base
-{
-	function __construct()
-	{
+class Example extends BBP_Converter_Base {
+
+	/**
+	 * Main Constructor
+	 *
+	 * @uses Example_Converter::setup_globals()
+	 */
+	function __construct() {
 		parent::__construct();
 		$this->setup_globals();
 	}
 
-	public function setup_globals()
-	{
-		/** Forum Section ******************************************************/
+	/**
+	 * Sets up the field mappings
+	 */
+	public function setup_globals() {
 
-		// Forum id. Stored in postmeta.
+		/** Forum Section *****************************************************/
+
+		// Setup table joins for the forum section at the base of this section
+
+		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'forumid',
-			'to_type' => 'forum', 'to_fieldname' => '_bbp_forum_id'
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_id',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_forum_id'
 		);
-		
-		// Forum parent id.  If no parent, than 0. Stored in postmeta.
+
+		// Forum parent id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'parentid',
-			'to_type' => 'forum', 'to_fieldname' => '_bbp_parent_id'
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_parent_id',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_forum_parent_id'
 		);
-		
+
+		// Forum topic count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'forums_table',
+			'from_fieldname' => 'the_topic_count',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_topic_count'
+		);
+
+		// Forum reply count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'forums_table',
+			'from_fieldname' => 'the_reply_count',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_reply_count'
+		);
+
+		// Forum total topic count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'forums_table',
+			'from_fieldname' => 'the_total_topic_count',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_total_topic_count'
+		);
+
+		// Forum total reply count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'forums_table',
+			'from_fieldname' => 'the_total_reply_count',
+			'to_type'        => 'forum',
+			'to_fieldname'   => '_bbp_total_reply_count'
+		);
+
 		// Forum title.
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'title',
-			'to_type' => 'forum', 'to_fieldname' => 'post_title'
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_title',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_title'
 		);
-		
-		// Forum slug. Clean name.
+
+		// Forum slug (Clean name to avoid confilcts)
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'title_clean',
-			'to_type' => 'forum', 'to_fieldname' => 'post_name',
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_slug',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
-		
+
 		// Forum description.
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'description',
-			'to_type' => 'forum', 'to_fieldname' => 'post_content',
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_description',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_null'
 		);
-		
-		// Forum display order.  Starts from 1.
+
+		// Forum display order (Starts from 1)
 		$this->field_map[] = array(
-			'from_tablename' => 'forum', 'from_fieldname' => 'displayorder',
-			'to_type' => 'forum', 'to_fieldname' => 'menu_order'
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_order',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'menu_order'
 		);
-		
-		// Forum date update.
+
+		// Forum dates.
 		$this->field_map[] = array(
-			'to_type' => 'forum', 'to_fieldname' => 'post_date',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_date',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'forum', 'to_fieldname' => 'post_date_gmt',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_date_gmt',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'forum', 'to_fieldname' => 'post_modified',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_modified',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'forum', 'to_fieldname' => 'post_modified_gmt',
+			'to_type'         => 'forum',
+			'to_fieldname'    => 'post_modified_gmt',
 			'default' => date('Y-m-d H:i:s')
 		);
 
-		/** Topic Section ******************************************************/
-
-		// Topic id. Stored in postmeta.
+		// Setup the table joins for the forum section
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'threadid',
-			'to_type' => 'topic', 'to_fieldname' => '_bbp_topic_id'
+			'from_tablename'  => 'groups_table',
+			'from_fieldname'  => 'forum_id',
+			'join_tablename'  => 'forums_table',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING groups_table.forum_id = forums_table.forum_id',
+		//	'from_expression' => 'WHERE forums_table.forum_id != 1',
+			'to_type'         => 'forum'
 		);
-		
-		// Forum id. Stored in postmeta.
+
+		/** Topic Section *****************************************************/
+
+		// Setup table joins for the topic section at the base of this section
+
+		// Topic id (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'forumid',
-			'to_type' => 'topic', 'to_fieldname' => '_bbp_forum_id',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_id',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_topic_id'
+		);
+
+		// Topic reply count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_reply_count',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
+		// Topic total reply count (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_total_topic_reply_count',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_total_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
+		// Topic parent forum id (If no parent, then 0. Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_parent_forum_id',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_forum_id',
 			'callback_method' => 'callback_forumid'
 		);
-				
+
 		// Topic author.
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'postuserid',
-			'to_type' => 'topic', 'to_fieldname' => 'post_author',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_author_id',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
 		);
-		
+
+		// Topic author ip (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_author_ip_address',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_author_ip'
+		);
+
+		// Topic content.
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_content',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_content',
+			'callback_method' => 'callback_html'
+		);
+
 		// Topic title.
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'title',
-			'to_type' => 'topic', 'to_fieldname' => 'post_title'
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_title',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_title'
 		);
-		
-		// Topic slug. Clean name.
+
+		// Topic slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'title',
-			'to_type' => 'topic', 'to_fieldname' => 'post_name',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_slug',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
-		
-		// Forum id.  If no parent, than 0.
+
+		// Topic parent forum id (If no parent, then 0)
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'forumid',
-			'to_type' => 'topic', 'to_fieldname' => 'post_parent',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_parent_forum_id',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_parent',
 			'callback_method' => 'callback_forumid'
 		);
 
-		// Topic date update.
+		// Topic dates.
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
-			'to_type' => 'topic', 'to_fieldname' => 'post_date',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_creation_date',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_date',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
-			'to_type' => 'topic', 'to_fieldname' => 'post_date_gmt',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_creation_date',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_date_gmt',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
-			'to_type' => 'topic', 'to_fieldname' => 'post_modified',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_modified_date',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_modified',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'thread', 'from_fieldname' => 'dateline',
-			'to_type' => 'topic', 'to_fieldname' => 'post_modified_gmt',
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_modified_date',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_modified_gmt',
 			'callback_method' => 'callback_datetime'
+		);
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_modified_date',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_last_active_time',
+			'callback_method' => 'callback_datetime'
+		);
+
+		// Setup any table joins needed for the topic section
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_topic_id',
+			'join_tablename'  => 'topics_table',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING replies_table.the_topic_id = topics_table.the_topic_id',
+			'from_expression' => 'WHERE forums_table.the_topic_id = 0',
+			'to_type'         => 'topic'
 		);
 
 		/** Tags Section ******************************************************/
-		
+
+		// Setup table joins for the tag section at the base of this section
+		// Setup any table joins needed for the tags section
+		$this->field_map[] = array(
+			'from_tablename'  => 'tag_table',
+			'from_fieldname'  => 'the_topic_id',
+			'join_tablename'  => 'tagcontent_table',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING tagcontent_table.tag_id = tags_table.tag_id',
+			'from_expression' => 'WHERE tagcontent_table.tag_id = tag_table.tag_id',
+			'to_type'         => 'tags'
+		);
+
 		// Topic id.
 		$this->field_map[] = array(
-			'from_tablename' => 'tagcontent', 'from_fieldname' => 'contentid',
-			'to_type' => 'tags', 'to_fieldname' => 'objectid',
+			'from_tablename'  => 'tagcontent_table',
+			'from_fieldname'  => 'contentid',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'objectid',
 			'callback_method' => 'callback_topicid'
 		);
-		
-		// Tags text.
-		$this->field_map[] = array(
-			'from_tablename' => 'tag', 'from_fieldname' => 'tagtext',
-			'join_tablename' => 'tagcontent', 'join_type' => 'INNER', 'join_expression' => 'USING (tagid)',
-			'to_type' => 'tags', 'to_fieldname' => 'name'
-		);		
 
-		/** Post Section ******************************************************/
-
-		// Post id. Stores in postmeta.
+		// Taxonomy ID.
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'postid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_post_id'
+			'from_tablename'  => 'tagcontent_table',
+			'from_fieldname'  => 'tagid',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'taxonomy'
 		);
-		
-		// Forum id. Stores in postmeta.
+
+		// Term text.
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_forum_id',
+			'from_tablename'  => 'tag_table',
+			'from_fieldname'  => 'tagtext',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'name'
+		);
+
+		/** Reply Section *****************************************************/
+
+		// Setup table joins for the reply section at the base of this section
+
+		// Reply id (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_post_id'
+		);
+
+		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_parent_forum_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_forum_id',
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
-		
-		// Topic id. Stores in postmeta.
+
+		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
-			'to_type' => 'reply', 'to_fieldname' => '_bbp_topic_id',
-			'callback_method' => 'callback_topicid'
-		);
-		
-		// Author ip.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'ipaddress',
-			'to_type' => 'reply', 'to_fieldname' => '__bbp_author_ip'
-		);	
-			
-		// Post author.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'userid',
-			'to_type' => 'reply', 'to_fieldname' => 'post_author',
-			'callback_method' => 'callback_userid'
-		);
-		
-		// Topic title.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'title',
-			'to_type' => 'reply', 'to_fieldname' => 'post_title'
-		);
-		
-		// Topic slug. Clean name.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'title',
-			'to_type' => 'reply', 'to_fieldname' => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-		
-		// Post content.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'pagetext',
-			'to_type' => 'reply', 'to_fieldname' => 'post_content',
-			'callback_method' => 'callback_html'
-		);
-		
-		// Topic id.  If no parent, than 0.
-		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'threadid',
-			'to_type' => 'reply', 'to_fieldname' => 'post_parent',
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_parent_topic_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_topic_id',
 			'callback_method' => 'callback_topicid'
 		);
 
-		// Topic date update.
+		// Reply author ip (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
-			'to_type' => 'reply', 'to_fieldname' => 'post_date',
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_author_ip_address',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_author_ip'
+		);
+	
+		// Reply author.
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_author_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_author',
+			'callback_method' => 'callback_userid'
+		);
+
+		// Reply title.
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_title',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_title'
+		);
+
+		// Reply slug (Clean name to avoid conflicts)
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_slug',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_name',
+			'callback_method' => 'callback_slug'
+		);
+
+		// Reply content.
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_content',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_content',
+			'callback_method' => 'callback_html'
+		);
+
+		// Reply order.
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_order',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'menu_order'
+		);
+
+		// Reply parent topic id (If no parent, then 0)
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_parent_topic_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_parent',
+			'callback_method' => 'callback_topicid'
+		);
+
+		// Reply dates.
+		$this->field_map[] = array(
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_creation_date',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_date',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
-			'to_type' => 'reply', 'to_fieldname' => 'post_date_gmt',
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_creation_date',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_date_gmt',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
-			'to_type' => 'reply', 'to_fieldname' => 'post_modified',
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_modified_date',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_modified',
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'post', 'from_fieldname' => 'dateline',
-			'to_type' => 'reply', 'to_fieldname' => 'post_modified_gmt',
+			'from_tablename'  => 'replies_table',
+			'from_fieldname'  => 'the_reply_modified_date',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_modified_gmt',
 			'callback_method' => 'callback_datetime'
+		);
+
+		// Setup any table joins needed for the reply section
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_id',
+			'join_tablename'  => 'replies_table',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING topics_table.the_topic_id = replies_table.the_topic_id',
+			'from_expression' => 'WHERE topics_table.first_post != 0',
+			'to_type'         => 'reply'
 		);
 
 		/** User Section ******************************************************/
 
-		// Store old User id. Stores in usermeta.
-		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'userid',
-			'to_type' => 'user', 'to_fieldname' => '_bbp_user_id'
-		);
+		// Setup table joins for the user section at the base of this section
 		
-		// Store old User password. Stores in usermeta serialized with salt.
+		// Store old User id (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'password',
-			'to_type' => 'user', 'to_fieldname' => '_bbp_password',
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_id',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_user_id'
+		);
+
+		// Store old User password (Stored in usermeta serialized with salt)
+		$this->field_map[] = array(
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_password',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_password',
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old User Salt. This is only used for the SELECT row info for the above password save
+		// Store old User Salt (This is only used for the SELECT row info for the above password save)
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'salt',
-			'to_type' => 'user', 'to_fieldname' => ''
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_password_salt',
+			'to_type'         => 'user',
+			'to_fieldname'    => ''
 		);
-				
-		// User password verify class. Stores in usermeta for verifying password.
+
+		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
-			'to_type' => 'user', 'to_fieldname' => '_bbp_class',
-			'default' => 'Vbulletin'
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_class',
+			'default' => 'Example'
 		);
-		
+
 		// User name.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'username',
-			'to_type' => 'user', 'to_fieldname' => 'user_login'
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_username',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_login'
 		);
-				
+
+		// User nice name.
+		$this->field_map[] = array(
+			'from_tablename' => 'users_table',
+			'from_fieldname' => 'the_users_nicename',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_nicename'
+		);
+
 		// User email.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'email',
-			'to_type' => 'user', 'to_fieldname' => 'user_email'
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_email_address',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_email'
 		);
-		
+
 		// User homepage.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'homepage',
-			'to_type' => 'user', 'to_fieldname' => 'user_url'
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_homepage_url',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_url'
 		);
-		
+
 		// User registered.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'joindate',
-			'to_type' => 'user', 'to_fieldname' => 'user_registered',
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_registration_date',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_registered',
 			'callback_method' => 'callback_datetime'
 		);
-		
-		// User aim.
+
+		// User status.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'aim',
-			'to_type' => 'user', 'to_fieldname' => 'aim'
+			'from_tablename' => 'users_table',
+			'from_fieldname' => 'the_users_status',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_status'
 		);
-		
-		// User yahoo.
+
+		// User display name.
 		$this->field_map[] = array(
-			'from_tablename' => 'user', 'from_fieldname' => 'yahoo',
-			'to_type' => 'user', 'to_fieldname' => 'yim'
-		);	
+			'from_tablename' => 'users_table',
+			'from_fieldname' => 'the_users_display_name',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'display_name'
+		);
+
+		// User AIM (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_aim',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'aim'
+		);
+
+		// User Yahoo (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'users_table',
+			'from_fieldname'  => 'the_users_yahoo',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'yim'
+		);
+
+		// User Jabber (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'users_table',
+			'from_fieldname' => 'the_users_jabber',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'jabber'
+		);
+
+		// Setup any table joins needed for the user section
+		$this->field_map[] = array(
+			'from_tablename'  => 'users_profile_table',
+			'from_fieldname'  => 'the_users_id',
+			'join_tablename'  => 'users_table',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING users_profile_table.the_user_id = users_table.the_user_id',
+			'from_expression' => 'WHERE users_table.the_user_id != -1',
+			'to_type'         => 'user'
+		);
 	}
-	
+
 	/**
 	 * This method allows us to indicates what is or is not converted for each
 	 * converter.
 	 */
-	public function info()
-	{
+	public function info() {
 		return '';
 	}
 
@@ -314,8 +593,7 @@ class Example_Converter extends BBP_Converter_Base
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
-	public function callback_savepass( $field, $row )
-	{
+	public function callback_savepass( $field, $row ) {
 		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
 		return $pass_array;
 	}
@@ -324,8 +602,7 @@ class Example_Converter extends BBP_Converter_Base
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
 	 */
-	public function authenticate_pass( $password, $serialized_pass )
-	{
+	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
 		return ( $pass_array['hash'] == md5( md5( $password ). $pass_array['salt'] ) );
 	}
