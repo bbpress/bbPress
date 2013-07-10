@@ -63,6 +63,11 @@ function bbp_get_search_query_args() {
 function bbp_search_results_redirect() {
 	global $wp_rewrite;
 	
+	// Bail if not a search request action
+	if ( empty( $_GET['action'] ) || ( 'bbp-search-request' !== $_GET['action'] ) ) {
+		return;
+	}
+
 	// Bail if not using pretty permalinks
 	if ( ! $wp_rewrite->using_permalinks() ) {
 		return;
