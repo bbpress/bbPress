@@ -388,7 +388,7 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	public function display_topic_form( $attr, $content = '' ) {
+	public function display_topic_form( $attr = array(), $content = '' ) {
 
 		// Sanity check supplied info
 		if ( !empty( $content ) || ( !empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || !bbp_is_forum( $attr['forum_id'] ) ) ) )
