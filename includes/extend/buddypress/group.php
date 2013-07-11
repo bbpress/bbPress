@@ -95,6 +95,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Saves the bbPress options if they come from the BuddyPress Group Admin UI
 		add_action( 'bp_group_admin_edit_after',     array( $this, 'edit_screen_save'                ) );
+
+		// Adds a hidden input value to the "Group Settings" page
+		add_action( 'bp_before_group_settings_admin', array( $this, 'group_settings_hidden_field'    ) );
 	}
 
 	/**
@@ -1068,6 +1071,29 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		return $retval;
+	}
+
+	/**
+	 * Add a hidden input field on the group settings page if the group forum is
+	 * enabled.
+	 *
+	 * Due to the way BuddyPress' group admin settings page saves its settings,
+	 * we need to let BP know that bbPress added a forum.
+	 *
+	 * @since bbPress (r5026)
+	 *
+	 * @link http://bbpress.trac.wordpress.org/ticket/2339/
+	 * @see groups_screen_group_admin_settings()
+	 */
+	public function group_settings_hidden_field() {
+
+		// if a forum is not enabled, we don't need to add this field
+		if ( ! bp_group_is_forum_enabled() )
+			return; ?>
+
+		<input type="hidden" name="group-show-forum" id="group-show-forum" value="1" />
+	
+	<?php
 	}
 
 	/** Permalink Mappers *****************************************************/
