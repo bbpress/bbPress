@@ -68,7 +68,7 @@ body.reply-edit .reply {
 
 #bbpress-forums ul.bbp-threaded-replies {
 	margin-left: 50px;
-} 
+}
 
 #bbpress-forums li {
 	background: none;
@@ -273,6 +273,19 @@ span.bbp-author-ip {
 	margin-left: 130px;
 	padding: 12px 12px 12px 0;
 	text-align: left;
+}
+
+/* Clearing hack */
+#bbpress-forums div.bbp-forum-content:after,
+#bbpress-forums div.bbp-topic-content:after,
+#bbpress-forums div.bbp-reply-content:after {
+	clear: both;
+	content: ".";
+	display: block;
+	float: none;
+	height: 0;
+	font-size: 0;
+	visibility: hidden;
 }
 
 #bbpress-forums div.bbp-topic-content a,
@@ -1190,7 +1203,7 @@ body.my-account #bbpress-forums {
 	div.bbp-submit-wrapper {
 		float: left;
 	}
-	#bbpress-forums fieldset.bbp-form { 
+	#bbpress-forums fieldset.bbp-form {
 		padding: 0 10px 10px;
 	}
 	#bbpress-forums #bbp-user-body {
@@ -1285,7 +1298,7 @@ body.my-account #bbpress-forums {
 	#bbpress-forums li.bbp-header li.bbp-topic-reply-count,
 	#bbpress-forums li.bbp-body li.bbp-topic-voice-count,
 	#bbpress-forums li.bbp-body li.bbp-topic-reply-count,
-	#bbpress-forums li.bbp-footer div.bbp-reply-author, 
+	#bbpress-forums li.bbp-footer div.bbp-reply-author,
 	#bbpress-forums li.bbp-footer div.bbp-reply-content {
 		width: 45%;
 	}
@@ -1299,7 +1312,7 @@ body.my-account #bbpress-forums {
 		width: 100%;
 	}
 	#bbpress-forums li.bbp-header li.bbp-forum-freshness,
-	#bbpress-forums li.bbp-header li.bbp-topic-freshness {	
+	#bbpress-forums li.bbp-header li.bbp-topic-freshness {
 		text-align: center;
 	}
 	#bbpress-forums li.bbp-body li.bbp-topic-freshness,

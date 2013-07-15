@@ -275,6 +275,19 @@ span.bbp-author-ip {
 	text-align: right;
 }
 
+/* Clearing hack */
+#bbpress-forums div.bbp-forum-content:after,
+#bbpress-forums div.bbp-topic-content:after,
+#bbpress-forums div.bbp-reply-content:after {
+	clear: both;
+	content: ".";
+	display: block;
+	float: none;
+	height: 0;
+	font-size: 0;
+	visibility: hidden;
+}
+
 #bbpress-forums div.bbp-topic-content a,
 #bbpress-forums div.bbp-reply-content a {
 	background: none;
