@@ -34,7 +34,7 @@
 
 		<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
 
-		<?php bbp_reply_author_link( array( 'sep' => '', 'show_role' => true ) ); ?>
+		<?php bbp_reply_author_link( array( 'sep' => '<br />', 'show_role' => true ) ); ?>
 
 		<?php if ( bbp_is_user_keymaster() ) : ?>
 
