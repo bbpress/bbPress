@@ -95,9 +95,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 				// Forum caps
 				'publish_forums'        => true,
 				'edit_forums'           => true,
-				'edit_others_forums'    => false,
-				'delete_forums'         => false,
-				'delete_others_forums'  => false,
 				'read_private_forums'   => true,
 				'read_hidden_forums'    => true,
 
@@ -132,41 +129,6 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 				// Primary caps
 				'spectate'              => true,
-				'participate'           => false,
-				'moderate'              => false,
-				'throttle'              => false,
-				'view_trash'            => false,
-
-				// Forum caps
-				'publish_forums'        => false,
-				'edit_forums'           => false,
-				'edit_others_forums'    => false,
-				'delete_forums'         => false,
-				'delete_others_forums'  => false,
-				'read_private_forums'   => false,
-				'read_hidden_forums'    => false,
-
-				// Topic caps
-				'publish_topics'        => false,
-				'edit_topics'           => false,
-				'edit_others_topics'    => false,
-				'delete_topics'         => false,
-				'delete_others_topics'  => false,
-				'read_private_topics'   => false,
-
-				// Reply caps
-				'publish_replies'       => false,
-				'edit_replies'          => false,
-				'edit_others_replies'   => false,
-				'delete_replies'        => false,
-				'delete_others_replies' => false,
-				'read_private_replies'  => false,
-
-				// Topic tag caps
-				'manage_topic_tags'     => false,
-				'edit_topic_tags'       => false,
-				'delete_topic_tags'     => false,
-				'assign_topic_tags'     => false,
 			);
 
 			break;
@@ -224,39 +186,19 @@ function bbp_get_caps_for_role( $role = '' ) {
 				// Primary caps
 				'spectate'              => true,
 				'participate'           => true,
-				'moderate'              => false,
-				'throttle'              => false,
-				'view_trash'            => false,
 
 				// Forum caps
-				'publish_forums'        => false,
-				'edit_forums'           => false,
-				'edit_others_forums'    => false,
-				'delete_forums'         => false,
-				'delete_others_forums'  => false,
 				'read_private_forums'   => true,
-				'read_hidden_forums'    => false,
 
 				// Topic caps
 				'publish_topics'        => true,
 				'edit_topics'           => true,
-				'edit_others_topics'    => false,
-				'delete_topics'         => false,
-				'delete_others_topics'  => false,
-				'read_private_topics'   => false,
 
 				// Reply caps
 				'publish_replies'       => true,
 				'edit_replies'          => true,
-				'edit_others_replies'   => false,
-				'delete_replies'        => false,
-				'delete_others_replies' => false,
-				'read_private_replies'  => false,
 
 				// Topic tag caps
-				'manage_topic_tags'     => false,
-				'edit_topic_tags'       => false,
-				'delete_topic_tags'     => false,
 				'assign_topic_tags'     => true,
 			);
 
