@@ -808,7 +808,7 @@ class BBP_Topics_Widget extends WP_Widget {
 				endif; ?>
 
 				<li>
-					<a class="bbp-forum-title" href="<?php echo esc_url( bbp_get_topic_permalink( $topic_id ) ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
+					<a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a>
 
 					<?php if ( ! empty( $author_link ) ) : ?>
 
