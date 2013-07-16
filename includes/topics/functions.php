@@ -1512,6 +1512,7 @@ function bbp_split_topic_handler( $action = '' ) {
 						'post_name'   => false,
 						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
+						'menu_order'  => 0,
 						'guid'        => ''
 					) );
 					$destination_topic = bbp_get_topic( $destination_topic_id );
@@ -1639,12 +1640,12 @@ function bbp_split_topic_handler( $action = '' ) {
 
 			// Update the reply
 			wp_update_post( array(
-				'ID'            => $reply->ID,
-				'post_title'    => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
-				'post_name'     => false, // will be automatically generated
-				'post_parent'   => $destination_topic->ID,
-				'post_position' => $reply_position,
-				'guid'          => ''
+				'ID'          => $reply->ID,
+				'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+				'post_name'   => false, // will be automatically generated
+				'post_parent' => $destination_topic->ID,
+				'menu_order'  => $reply_position,
+				'guid'        => ''
 			) );
 
 			// Gather reply ids

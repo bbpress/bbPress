@@ -1298,12 +1298,12 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// Update the reply
 				wp_update_post( array(
-					'ID'            => $move_reply->ID,
-					'post_title'    => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
-					'post_name'     => false, // will be automatically generated
-					'post_parent'   => $destination_topic->ID,
-					'post_position' => $reply_position,
-					'guid'          => ''
+					'ID'          => $move_reply->ID,
+					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+					'post_name'   => false, // will be automatically generated
+					'post_parent' => $destination_topic->ID,
+					'menu_order'  => $reply_position,
+					'guid'        => ''
 				) );
 
 				// Adjust reply meta values
