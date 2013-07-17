@@ -24,7 +24,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @param string $path Additional path with leading slash
  */
 function bbp_forums_url( $path = '/' ) {
-	echo bbp_get_forums_url( $path );
+	echo esc_url( bbp_get_forums_url( $path ) );
 }
 	/**
 	 * Return the forum URL
@@ -48,7 +48,7 @@ function bbp_forums_url( $path = '/' ) {
  * @param string $path Additional path with leading slash
  */
 function bbp_topics_url( $path = '/' ) {
-	echo bbp_get_topics_url( $path );
+	echo esc_url( bbp_get_topics_url( $path ) );
 }
 	/**
 	 * Return the forum URL
@@ -1944,7 +1944,7 @@ function bbp_view_title( $view = '' ) {
  * @uses bbp_get_view_url() To get the view url
  */
 function bbp_view_url( $view = false ) {
-	echo bbp_get_view_url( $view );
+	echo esc_url( bbp_get_view_url( $view ) );
 }
 	/**
 	 * Return the view url

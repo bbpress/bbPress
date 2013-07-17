@@ -366,7 +366,7 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
  * @uses bbp_get_reply_permalink() To get the reply permalink
  */
 function bbp_reply_permalink( $reply_id = 0 ) {
-	echo bbp_get_reply_permalink( $reply_id );
+	echo esc_url( bbp_get_reply_permalink( $reply_id ) );
 }
 	/**
 	 * Return the link to the reply
@@ -394,7 +394,7 @@ function bbp_reply_permalink( $reply_id = 0 ) {
  * @uses bbp_get_reply_url() To get the reply url
  */
 function bbp_reply_url( $reply_id = 0 ) {
-	echo bbp_get_reply_url( $reply_id );
+	echo esc_url( bbp_get_reply_url( $reply_id ) );
 }
 	/**
 	 * Return the paginated url to the reply in the reply loop
@@ -1180,7 +1180,7 @@ function bbp_reply_author_link( $args = '' ) {
  * @uses bbp_get_reply_author_url() To get the reply author url
  */
 function bbp_reply_author_url( $reply_id = 0 ) {
-	echo bbp_get_reply_author_url( $reply_id );
+	echo esc_url( bbp_get_reply_author_url( $reply_id ) );
 }
 	/**
 	 * Return the author url of the reply
@@ -1851,7 +1851,7 @@ function bbp_reply_edit_link( $args = '' ) {
  * @uses bbp_get_reply_edit_url() To get the reply edit url
  */
 function bbp_reply_edit_url( $reply_id = 0 ) {
-	echo bbp_get_reply_edit_url( $reply_id );
+	echo esc_url( bbp_get_reply_edit_url( $reply_id ) );
 }
 	/**
 	 * Return URL to the reply edit page

@@ -255,8 +255,7 @@ function bbp_user_profile_link( $user_id = 0 ) {
 			return false;
 
 		$user      = get_userdata( $user_id );
-		$name      = esc_attr( $user->display_name );
-		$user_link = '<a href="' . bbp_get_user_profile_url( $user_id ) . '">' . $name . '</a>';
+		$user_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
 
 		return apply_filters( 'bbp_get_user_profile_link', $user_link, $user_id );
 	}
@@ -323,7 +322,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
  * @uses bbp_get_user_profile_url() To get user profile url
  */
 function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
-	echo bbp_get_user_profile_url( $user_id, $user_nicename );
+	echo esc_url( bbp_get_user_profile_url( $user_id, $user_nicename ) );
 }
 	/**
 	 * Return URL to the profile page of a user
@@ -406,8 +405,7 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 			return false;
 
 		$user      = get_userdata( $user_id );
-		$name      = $user->display_name;
-		$edit_link = '<a href="' . bbp_get_user_profile_url( $user_id ) . '">' . $name . '</a>';
+		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
 		return apply_filters( 'bbp_get_user_profile_edit_link', $edit_link, $user_id );
 	}
 
@@ -421,7 +419,7 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
  * @uses bbp_get_user_profile_edit_url() To get user profile edit url
  */
 function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
-	echo bbp_get_user_profile_edit_url( $user_id, $user_nicename );
+	echo esc_url( bbp_get_user_profile_edit_url( $user_id, $user_nicename ) );
 }
 	/**
 	 * Return URL to the profile edit page of a user
@@ -562,7 +560,7 @@ function bbp_admin_link( $args = '' ) {
 			'after'  => ''
 		), 'get_admin_link' );
 
-		$retval = $r['before'] . '<a href="' . admin_url() . '">' . $r['text'] . '</a>' . $r['after'];
+		$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
 
 		return apply_filters( 'bbp_get_admin_link', $retval, $r );
 	}
@@ -625,7 +623,7 @@ function bbp_author_ip( $args = '' ) {
  * @uses bbp_get_favorites_permalink() To get the favorites permalink
  */
 function bbp_favorites_permalink( $user_id = 0 ) {
-	echo bbp_get_favorites_permalink( $user_id );
+	echo esc_url( bbp_get_favorites_permalink( $user_id ) );
 }
 	/**
 	 * Return the link to the user's favorites page (profile page)
@@ -787,7 +785,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
  * @uses bbp_get_subscriptions_permalink() To get the subscriptions link
  */
 function bbp_subscriptions_permalink( $user_id = 0 ) {
-	echo bbp_get_subscriptions_permalink( $user_id );
+	echo esc_url( bbp_get_subscriptions_permalink( $user_id ) );
 }
 	/**
 	 * Return the link to the user's subscriptions page (profile page)
@@ -1115,7 +1113,7 @@ function bbp_edit_user_contact_methods() {
  * @uses bbp_get_favorites_permalink() To get the favorites permalink
  */
 function bbp_user_topics_created_url( $user_id = 0 ) {
-	echo bbp_get_user_topics_created_url( $user_id );
+	echo esc_url( bbp_get_user_topics_created_url( $user_id ) );
 }
 	/**
 	 * Return the link to the user's topics
@@ -1175,7 +1173,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
  * @uses bbp_get_favorites_permalink() To get the favorites permalink
  */
 function bbp_user_replies_created_url( $user_id = 0 ) {
-	echo bbp_get_user_replies_created_url( $user_id );
+	echo esc_url( bbp_get_user_replies_created_url( $user_id ) );
 }
 	/**
 	 * Return the link to the user's replies

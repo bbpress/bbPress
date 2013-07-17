@@ -21,7 +21,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses bbp_get_ajax_url() To get the URL to use for AJAX requests
  */
 function bbp_ajax_url() {
-	echo bbp_get_ajax_url();
+	echo esc_url( bbp_get_ajax_url() );
 }
 	/**
 	 * Return the URL to use for theme-side bbPress AJAX requests

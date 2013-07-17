@@ -246,7 +246,7 @@ function bbp_search_title() {
  * @uses bbp_get_search_url() To get the search url
  */
 function bbp_search_url() {
-	echo bbp_get_search_url();
+	echo esc_url( bbp_get_search_url() );
 }
 	/**
 	 * Return the search url
@@ -284,7 +284,7 @@ function bbp_search_url() {
  * @uses bbp_get_search_url() To get the search url
  */
 function bbp_search_results_url() {
-	echo bbp_get_search_results_url();
+	echo esc_url( bbp_get_search_results_url() );
 }
 	/**
 	 * Return the search url

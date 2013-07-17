@@ -230,7 +230,7 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
  * @uses bbp_get_forum_permalink() To get the permalink
  */
 function bbp_forum_permalink( $forum_id = 0 ) {
-	echo bbp_get_forum_permalink( $forum_id );
+	echo esc_url( bbp_get_forum_permalink( $forum_id ) );
 }
 	/**
 	 * Return the link to the forum
@@ -806,7 +806,7 @@ function bbp_forum_last_topic_title( $forum_id = 0 ) {
  *                                             permanent link
  */
 function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
-	echo bbp_get_forum_last_topic_permalink( $forum_id );
+	echo esc_url( bbp_get_forum_last_topic_permalink( $forum_id ) );
 }
 	/**
 	 * Return the link to the last topic in a forum
@@ -948,7 +948,7 @@ function bbp_forum_last_reply_title( $forum_id = 0 ) {
  * @uses bbp_get_forum_last_reply_permalink() To get the forum last reply link
  */
 function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
-	echo bbp_get_forum_last_reply_permalink( $forum_id );
+	echo esc_url( bbp_get_forum_last_reply_permalink( $forum_id ) );
 }
 	/**
 	 * Return the link to the last reply in a forum
@@ -977,7 +977,7 @@ function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
  * @uses bbp_get_forum_last_reply_url() To get the forum last reply url
  */
 function bbp_forum_last_reply_url( $forum_id = 0 ) {
-	echo bbp_get_forum_last_reply_url( $forum_id );
+	echo esc_url( bbp_get_forum_last_reply_url( $forum_id ) );
 }
 	/**
 	 * Return the url to the last reply in a forum

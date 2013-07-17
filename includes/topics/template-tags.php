@@ -512,7 +512,7 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
  * @uses bbp_get_topic_permalink() To get the topic permalink
  */
 function bbp_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
-	echo bbp_get_topic_permalink( $topic_id, $redirect_to );
+	echo esc_url( bbp_get_topic_permalink( $topic_id, $redirect_to ) );
 }
 	/**
 	 * Return the link to the topic
@@ -1476,7 +1476,7 @@ function bbp_topic_author_link( $args = '' ) {
  * @uses bbp_get_topic_author_url() To get the topic author url
  */
 function bbp_topic_author_url( $topic_id = 0 ) {
-	echo bbp_get_topic_author_url( $topic_id );
+	echo esc_url( bbp_get_topic_author_url( $topic_id ) );
 }
 
 	/**
@@ -1814,7 +1814,7 @@ function bbp_topic_last_reply_title( $topic_id = 0 ) {
  * @uses bbp_get_topic_last_reply_permalink() To get the topic's last reply link
  */
 function bbp_topic_last_reply_permalink( $topic_id = 0 ) {
-	echo bbp_get_topic_last_reply_permalink( $topic_id );
+	echo esc_url( bbp_get_topic_last_reply_permalink( $topic_id ) );
 }
 	/**
 	 * Return the link to the last reply in a topic
@@ -1843,7 +1843,7 @@ function bbp_topic_last_reply_permalink( $topic_id = 0 ) {
  * @uses bbp_get_topic_last_reply_url() To get the topic last reply url
  */
 function bbp_topic_last_reply_url( $topic_id = 0 ) {
-	echo bbp_get_topic_last_reply_url( $topic_id );
+	echo esc_url( bbp_get_topic_last_reply_url( $topic_id ) );
 }
 	/**
 	 * Return the link to the last reply in a topic
@@ -1906,7 +1906,7 @@ function bbp_topic_freshness_link( $topic_id = 0 ) {
 		$time_since = bbp_get_topic_last_active_time( $topic_id );
 
 		if ( !empty( $time_since ) )
-			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
+			$anchor = '<a href="' . esc_url( $link_url ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $time_since ) . '</a>';
 		else
 			$anchor = __( 'No Replies', 'bbpress' );
 
@@ -2358,7 +2358,7 @@ function bbp_topic_edit_link( $args = '' ) {
 		if ( empty( $uri ) )
 			return;
 
-		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_edit_link', $retval, $r );
 	}
@@ -2372,7 +2372,7 @@ function bbp_topic_edit_link( $args = '' ) {
  * @uses bbp_get_topic_edit_url() To get the topic edit url
  */
 function bbp_topic_edit_url( $topic_id = 0 ) {
-	echo bbp_get_topic_edit_url( $topic_id );
+	echo esc_url( bbp_get_topic_edit_url( $topic_id ) );
 }
 	/**
 	 * Return URL to the topic edit page
@@ -3242,7 +3242,7 @@ function bbp_topic_tag_slug( $tag = '' ) {
  * @uses bbp_get_topic_tag_link()
  */
 function bbp_topic_tag_link( $tag = '' ) {
-	echo bbp_get_topic_tag_link( $tag );
+	echo esc_url( bbp_get_topic_tag_link( $tag ) );
 }
 	/**
 	 * Return the link of the current tag
@@ -3286,7 +3286,7 @@ function bbp_topic_tag_link( $tag = '' ) {
  * @uses bbp_get_topic_tag_edit_link()
  */
 function bbp_topic_tag_edit_link( $tag = '' ) {
-	echo bbp_get_topic_tag_edit_link( $tag );
+	echo esc_url( bbp_get_topic_tag_edit_link( $tag ) );
 }
 	/**
 	 * Return the link of the current tag
