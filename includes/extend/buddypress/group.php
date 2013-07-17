@@ -1092,7 +1092,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return; ?>
 
 		<input type="hidden" name="group-show-forum" id="group-show-forum" value="1" />
-	
+
 	<?php
 	}
 
@@ -1378,6 +1378,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Set the item ID to the group ID so the activity item shows up in the group
 		$args['item_id']           = $group->id;
+
+		// Update the group's last activity
+		groups_update_last_activity( $group->id );
 
 		return $args;
 	}
