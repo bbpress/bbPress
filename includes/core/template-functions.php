@@ -203,6 +203,31 @@ function bbp_get_template_stack() {
 }
 
 /**
+ * Get a template part in an output buffer, and return it
+ *
+ * @since bbPress (r5043)
+ *
+ * @param string $slug
+ * @param string $name
+ * @return string
+ */
+function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
+	ob_start();
+
+	bbp_get_template_part( $slug, $name );
+
+	// Get the output buffer contents
+	$output = ob_get_clean();
+
+	// Echo or return the output buffer contents
+	if ( true === $echo ) {
+		echo $output;
+	} else {
+		return $output;
+	}
+}
+
+/**
  * Retrieve path to a template
  *
  * Used to quickly retrieve the path of a template without including the file
