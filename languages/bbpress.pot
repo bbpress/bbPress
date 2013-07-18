@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2013-07-12 02:51:54+00:00\n"
+"POT-Creation-Date: 2013-07-18 08:07:10+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,7 +109,7 @@ msgid "Topic"
 msgstr ""
 
 #: bbpress.php:536 includes/admin/tools.php:1080
-#: includes/topics/functions.php:3391
+#: includes/topics/functions.php:3392
 msgid "All Topics"
 msgstr ""
 
@@ -142,7 +142,7 @@ msgid "No topics found in Trash"
 msgstr ""
 
 #: bbpress.php:547 includes/admin/metaboxes.php:356
-#: includes/admin/metaboxes.php:409 includes/extend/buddypress/group.php:1025
+#: includes/admin/metaboxes.php:409 includes/extend/buddypress/group.php:1028
 #: templates/default/bbpress/form-topic.php:114
 msgid "Forum:"
 msgstr ""
@@ -2560,7 +2560,7 @@ msgstr ""
 msgid "Voices"
 msgstr ""
 
-#: includes/admin/topics.php:695 includes/extend/buddypress/group.php:288
+#: includes/admin/topics.php:695 includes/extend/buddypress/group.php:291
 msgid "(No Forum)"
 msgstr ""
 
@@ -2659,7 +2659,7 @@ msgid "Forum Role"
 msgstr ""
 
 #: includes/admin/users.php:96 includes/admin/users.php:100
-#: includes/users/template-tags.php:1077
+#: includes/users/template-tags.php:1075
 msgid "&mdash; No role for these forums &mdash;"
 msgstr ""
 
@@ -2775,7 +2775,7 @@ msgid ""
 "Login and visit the topic to unsubscribe from these emails."
 msgstr ""
 
-#: includes/common/functions.php:1733
+#: includes/common/functions.php:1756
 msgid ""
 "Conditional query tags do not work before the query is run. Before then, "
 "they always return false."
@@ -2794,7 +2794,7 @@ msgid "None available"
 msgstr ""
 
 #: includes/common/template-tags.php:1582 includes/replies/functions.php:1302
-#: includes/topics/functions.php:1286 includes/topics/functions.php:1643
+#: includes/topics/functions.php:1286 includes/topics/functions.php:1644
 #: templates/default/bbpress/form-reply.php:29
 msgid "Reply To: %s"
 msgstr ""
@@ -3063,27 +3063,27 @@ msgstr ""
 msgid "Recent Replies"
 msgstr ""
 
-#: includes/core/capabilities.php:412
+#: includes/core/capabilities.php:354
 msgid "Keymaster"
 msgstr ""
 
-#: includes/core/capabilities.php:418
+#: includes/core/capabilities.php:360
 msgid "Moderator"
 msgstr ""
 
-#: includes/core/capabilities.php:424
+#: includes/core/capabilities.php:366
 msgid "Participant"
 msgstr ""
 
-#: includes/core/capabilities.php:430
+#: includes/core/capabilities.php:372
 msgid "Spectator"
 msgstr ""
 
-#: includes/core/capabilities.php:436
+#: includes/core/capabilities.php:378
 msgid "Blocked"
 msgstr ""
 
-#: includes/core/capabilities.php:555 includes/core/capabilities.php:565
+#: includes/core/capabilities.php:497 includes/core/capabilities.php:507
 msgid "Editable forum roles no longer exist."
 msgstr ""
 
@@ -3161,63 +3161,63 @@ msgstr ""
 msgid "%1$s replied to the topic %2$s in the forum %3$s"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:268
 #: includes/extend/buddypress/group.php:271
+#: includes/extend/buddypress/group.php:274
 msgid "Group Forum Settings"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:272
-#: includes/extend/buddypress/group.php:468
+#: includes/extend/buddypress/group.php:275
+#: includes/extend/buddypress/group.php:471
 msgid ""
 "Create a discussion forum to allow members of this group to communicate in a "
 "structured, bulletin-board style fashion."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:276
-#: includes/extend/buddypress/group.php:471
+#: includes/extend/buddypress/group.php:279
+#: includes/extend/buddypress/group.php:474
 msgid "Yes. I want this group to have a forum."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:279
+#: includes/extend/buddypress/group.php:282
 msgid "Saying no will not delete existing forum content."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:284
+#: includes/extend/buddypress/group.php:287
 msgid "Group Forum:"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:292
+#: includes/extend/buddypress/group.php:295
 msgid ""
 "Network administrators can reconfigure which forum belongs to this group."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:297
+#: includes/extend/buddypress/group.php:300
 msgid "Save Settings"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:332
-#: includes/extend/buddypress/group.php:489 includes/forums/functions.php:118
+#: includes/extend/buddypress/group.php:335
+#: includes/extend/buddypress/group.php:492 includes/forums/functions.php:118
 #: includes/forums/functions.php:394 includes/replies/functions.php:116
 #: includes/replies/functions.php:522 includes/replies/functions.php:1249
 #: includes/topics/functions.php:122 includes/topics/functions.php:516
 #: includes/topics/functions.php:1145 includes/topics/functions.php:1448
-#: includes/topics/functions.php:1811 includes/topics/functions.php:1850
-#: includes/topics/functions.php:1907 includes/users/functions.php:459
+#: includes/topics/functions.php:1812 includes/topics/functions.php:1851
+#: includes/topics/functions.php:1908 includes/users/functions.php:459
 #: includes/users/functions.php:772 includes/users/functions.php:897
 #: includes/users/functions.php:903
 msgid "<strong>ERROR</strong>: Are you sure you wanted to do that?"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:430
+#: includes/extend/buddypress/group.php:433
 msgctxt "group admin edit screen"
 msgid "Discussion Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:466
+#: includes/extend/buddypress/group.php:469
 msgid "Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:760
+#: includes/extend/buddypress/group.php:763
 msgid "This group does not currently have a forum."
 msgstr ""
 
@@ -3520,13 +3520,13 @@ msgid ""
 "destination topic!"
 msgstr ""
 
-#: includes/replies/functions.php:1347 includes/topics/functions.php:1524
+#: includes/replies/functions.php:1347 includes/topics/functions.php:1525
 msgid ""
 "<strong>ERROR</strong>: There was a problem converting the reply into the "
 "topic. Please try again."
 msgstr ""
 
-#: includes/replies/functions.php:1352 includes/topics/functions.php:1529
+#: includes/replies/functions.php:1352 includes/topics/functions.php:1530
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to create new "
 "topics. The reply could not be converted into a topic."
@@ -3561,7 +3561,7 @@ msgstr ""
 msgid "All Posts"
 msgstr ""
 
-#: includes/replies/functions.php:2038 includes/topics/functions.php:3416
+#: includes/replies/functions.php:2038 includes/topics/functions.php:3417
 msgid "Replies: %s"
 msgstr ""
 
@@ -3586,13 +3586,13 @@ msgstr ""
 
 #: includes/replies/template-tags.php:1122
 #: includes/topics/template-tags.php:1419
-#: includes/users/template-tags.php:1438
+#: includes/users/template-tags.php:1436
 msgid "View %s's profile"
 msgstr ""
 
 #: includes/replies/template-tags.php:1122
 #: includes/topics/template-tags.php:1419
-#: includes/users/template-tags.php:1438
+#: includes/users/template-tags.php:1436
 msgid "Visit %s's website"
 msgstr ""
 
@@ -3784,89 +3784,89 @@ msgstr ""
 msgid "<strong>ERROR</strong>: The topic you want to split to was not found!"
 msgstr ""
 
-#: includes/topics/functions.php:1799
+#: includes/topics/functions.php:1800
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "getting the tag: %s"
 msgstr ""
 
-#: includes/topics/functions.php:1817 includes/topics/functions.php:1856
+#: includes/topics/functions.php:1818 includes/topics/functions.php:1857
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to edit the topic "
 "tags."
 msgstr ""
 
-#: includes/topics/functions.php:1823 includes/topics/functions.php:1862
+#: includes/topics/functions.php:1824 includes/topics/functions.php:1863
 msgid "<strong>ERROR</strong>: You need to enter a tag name."
 msgstr ""
 
-#: includes/topics/functions.php:1833
+#: includes/topics/functions.php:1834
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "updating the tag: %s"
 msgstr ""
 
-#: includes/topics/functions.php:1872 includes/topics/functions.php:1890
+#: includes/topics/functions.php:1873 includes/topics/functions.php:1891
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "merging the tags: %s"
 msgstr ""
 
-#: includes/topics/functions.php:1881
+#: includes/topics/functions.php:1882
 msgid ""
 "<strong>ERROR</strong>: The tags which are being merged can not be the same."
 msgstr ""
 
-#: includes/topics/functions.php:1913
+#: includes/topics/functions.php:1914
 msgid ""
 "<strong>ERROR</strong>: You do not have the permissions to delete the topic "
 "tags."
 msgstr ""
 
-#: includes/topics/functions.php:1922
+#: includes/topics/functions.php:1923
 msgid ""
 "<strong>ERROR</strong>: The following problem(s) have been found while "
 "deleting the tag: %s"
 msgstr ""
 
-#: includes/topics/functions.php:2047
+#: includes/topics/functions.php:2048
 msgid "<strong>ERROR:</strong> You do not have the permission to do that."
 msgstr ""
 
-#: includes/topics/functions.php:2060
+#: includes/topics/functions.php:2061
 msgid "<strong>ERROR</strong>: There was a problem closing the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2060
+#: includes/topics/functions.php:2061
 msgid "<strong>ERROR</strong>: There was a problem opening the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2071
+#: includes/topics/functions.php:2072
 msgid "<strong>ERROR</strong>: There was a problem unsticking the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2071
+#: includes/topics/functions.php:2072
 msgid "<strong>ERROR</strong>: There was a problem sticking the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2081
+#: includes/topics/functions.php:2082
 msgid ""
 "<strong>ERROR</strong>: There was a problem unmarking the topic as spam."
 msgstr ""
 
-#: includes/topics/functions.php:2081
+#: includes/topics/functions.php:2082
 msgid "<strong>ERROR</strong>: There was a problem marking the topic as spam."
 msgstr ""
 
-#: includes/topics/functions.php:2100
+#: includes/topics/functions.php:2101
 msgid "<strong>ERROR</strong>: There was a problem trashing the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2108
+#: includes/topics/functions.php:2109
 msgid "<strong>ERROR</strong>: There was a problem untrashing the topic."
 msgstr ""
 
-#: includes/topics/functions.php:2116
+#: includes/topics/functions.php:2117
 msgid "<strong>ERROR</strong>: There was a problem deleting the topic."
 msgstr ""
 
@@ -3985,71 +3985,71 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
 msgstr ""
 
-#: includes/users/template-tags.php:506
+#: includes/users/template-tags.php:504
 msgid "Guest"
 msgstr ""
 
-#: includes/users/template-tags.php:510
+#: includes/users/template-tags.php:508
 msgid "Inactive"
 msgstr ""
 
-#: includes/users/template-tags.php:520
+#: includes/users/template-tags.php:518
 msgid "Member"
 msgstr ""
 
-#: includes/users/template-tags.php:560
+#: includes/users/template-tags.php:558
 msgid "Admin"
 msgstr ""
 
-#: includes/users/template-tags.php:726
+#: includes/users/template-tags.php:724
 msgid "Favorite"
 msgstr ""
 
-#: includes/users/template-tags.php:727
+#: includes/users/template-tags.php:725
 msgid "Favorited"
 msgstr ""
 
-#: includes/users/template-tags.php:884
+#: includes/users/template-tags.php:882
 msgid "Subscribe"
 msgstr ""
 
-#: includes/users/template-tags.php:885
+#: includes/users/template-tags.php:883
 msgid "Unsubscribe"
 msgstr ""
 
-#: includes/users/template-tags.php:952
+#: includes/users/template-tags.php:950
 msgid "User updated."
 msgstr ""
 
-#: includes/users/template-tags.php:977
+#: includes/users/template-tags.php:975
 msgid "You have super admin privileges."
 msgstr ""
 
-#: includes/users/template-tags.php:977
+#: includes/users/template-tags.php:975
 msgid "This user has super admin privileges."
 msgstr ""
 
-#: includes/users/template-tags.php:1042
+#: includes/users/template-tags.php:1040
 msgid "&mdash; No role for this site &mdash;"
 msgstr ""
 
-#: includes/users/template-tags.php:1240
+#: includes/users/template-tags.php:1238
 msgid "You are now logged out."
 msgstr ""
 
-#: includes/users/template-tags.php:1244
+#: includes/users/template-tags.php:1242
 msgid "New user registration is currently not allowed."
 msgstr ""
 
-#: includes/users/template-tags.php:1253
+#: includes/users/template-tags.php:1251
 msgid "Check your e-mail for the confirmation link."
 msgstr ""
 
-#: includes/users/template-tags.php:1258
+#: includes/users/template-tags.php:1256
 msgid "Check your e-mail for your new password."
 msgstr ""
 
-#: includes/users/template-tags.php:1263
+#: includes/users/template-tags.php:1261
 msgid "Registration complete. Please check your e-mail."
 msgstr ""
 
