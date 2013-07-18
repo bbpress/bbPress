@@ -1,6 +1,6 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd
-Tags: forums, discussion, support, akismet, multisite
+Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.5
 Tested up to: 3.6
 Stable tag: 2.3.2
@@ -17,12 +17,28 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Installation ==
 
-1. Place the 'bbpress' folder in your '/wp-content/plugins/' directory.
-2. Activate bbPress.
-3. Visit 'Settings > Forums' and adjust your configuration.
-4. Create some forums.
-5. View your site.
-6. Adjust the CSS of your theme as needed, to make everything pretty.
+= From your WordPress dashboard =
+
+1. Visit 'Plugins > Add New'
+2. Search for 'bbPress'
+3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
+4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
+5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
+5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+
+= From WordPress.org =
+
+1. Download bbPress.
+2. Upload the 'bbpress' directory to your '/wp-content/plugins/' directory, using your favorite method (ftp, sftp, scp, etc...)
+3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
+4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
+5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
+5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+
+= Extra =
+
+1. Visit 'Settings > Forums' and adjust your configuration.
+2. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
 
