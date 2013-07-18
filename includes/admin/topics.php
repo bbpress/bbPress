@@ -774,7 +774,7 @@ class BBP_Topics_Admin {
 
 		// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 		if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() === $topic->post_status ) && current_user_can( 'view_trash' ) )
-			$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+			$actions['view'] = '<a href="' . esc_url( bbp_get_topic_permalink( $topic->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 
 		// Only show the actions if the user is capable of viewing them :)
 		if ( current_user_can( 'moderate', $topic->ID ) ) {
@@ -797,8 +797,8 @@ class BBP_Topics_Admin {
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . esc_html__( 'Unstick', 'bbpress' ) . '</a>';
 				} else {
-					$super_uri        = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
-					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a> (<a href="' . $super_uri . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( 'to front', 'bbpress' ) . '</a>)';
+					$super_uri        = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a> (<a href="' . esc_url( $super_uri ) . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( 'to front', 'bbpress' ) . '</a>)';
 				}
 			}
 

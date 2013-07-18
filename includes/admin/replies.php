@@ -723,7 +723,7 @@ class BBP_Replies_Admin {
 		unset( $actions['inline hide-if-no-js'] );
 
 		// Reply view links to topic
-		$actions['view'] = '<a href="' . bbp_get_reply_url( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+		$actions['view'] = '<a href="' . esc_url( bbp_get_reply_url( $reply->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 
 		// User cannot view replies in trash
 		if ( ( bbp_get_trash_status_id() === $reply->post_status ) && !current_user_can( 'view_trash' ) )

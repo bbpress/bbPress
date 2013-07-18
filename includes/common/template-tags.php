@@ -2176,7 +2176,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// If capable, include a link to edit the tag
 			if ( current_user_can( 'manage_topic_tags' ) ) {
-				$tag_data[] = '<a href="' . bbp_get_topic_tag_edit_link() . '" class="bbp-edit-topic-tag-link">' . esc_html__( '(Edit)', 'bbpress' ) . '</a>';
+				$tag_data[] = '<a href="' . esc_url( bbp_get_topic_tag_edit_link() ) . '" class="bbp-edit-topic-tag-link">' . esc_html__( '(Edit)', 'bbpress' ) . '</a>';
 			}
 
 			// Implode the results of the tag data
@@ -2251,7 +2251,7 @@ function bbp_breadcrumb( $args = array() ) {
 			}
 
 			// Add the breadcrumb
-			$crumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $r['root_text'] . '</a>';
+			$crumbs[] = '<a href="' . esc_url( $root_url ) . '" class="bbp-breadcrumb-root">' . $r['root_text'] . '</a>';
 		}
 
 		// Ancestors exist
@@ -2272,33 +2272,33 @@ function bbp_breadcrumb( $args = array() ) {
 
 					// Forum
 					case bbp_get_forum_post_type() :
-						$crumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '" class="bbp-breadcrumb-forum">' . bbp_get_forum_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . esc_url( bbp_get_forum_permalink( $parent->ID ) ) . '" class="bbp-breadcrumb-forum">' . bbp_get_forum_title( $parent->ID ) . '</a>';
 						break;
 
 					// Topic
 					case bbp_get_topic_post_type() :
-						$crumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '" class="bbp-breadcrumb-topic">' . bbp_get_topic_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . esc_url( bbp_get_topic_permalink( $parent->ID ) ) . '" class="bbp-breadcrumb-topic">' . bbp_get_topic_title( $parent->ID ) . '</a>';
 						break;
 
 					// Reply (Note: not in most themes)
 					case bbp_get_reply_post_type() :
-						$crumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '" class="bbp-breadcrumb-reply">' . bbp_get_reply_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . esc_url( bbp_get_reply_permalink( $parent->ID ) ) . '" class="bbp-breadcrumb-reply">' . bbp_get_reply_title( $parent->ID ) . '</a>';
 						break;
 
 					// WordPress Post/Page/Other
 					default :
-						$crumbs[] = '<a href="' . get_permalink( $parent->ID ) . '" class="bbp-breadcrumb-item">' . get_the_title( $parent->ID ) . '</a>';
+						$crumbs[] = '<a href="' . esc_url( get_permalink( $parent->ID ) ) . '" class="bbp-breadcrumb-item">' . get_the_title( $parent->ID ) . '</a>';
 						break;
 				}
 			}
 
 		// Edit topic tag
 		} elseif ( bbp_is_topic_tag_edit() ) {
-			$crumbs[] = '<a href="' . get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
+			$crumbs[] = '<a href="' . esc_url( get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
 
 		// Search
 		} elseif ( bbp_is_search() && bbp_get_search_terms() ) {
-			$crumbs[] = '<a href="' . bbp_get_search_url() . '" class="bbp-breadcrumb-search">' . esc_html__( 'Search', 'bbpress' ) . '</a>';
+			$crumbs[] = '<a href="' . esc_url( bbp_get_search_url() ) . '" class="bbp-breadcrumb-search">' . esc_html__( 'Search', 'bbpress' ) . '</a>';
 		}
 
 		/** Current ***********************************************************/
