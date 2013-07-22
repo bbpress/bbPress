@@ -66,7 +66,7 @@ class BBP_Forums_Component extends BP_Component {
 
 		// BuddyPress Group Extension class
 		if ( bbp_is_group_forums_active() && bp_is_active( 'groups' ) ) {
-			$includes[] = 'group.php';
+			$includes[] = 'groups.php';
 		}
 
 		parent::includes( $includes );
