@@ -1714,7 +1714,7 @@ function bbp_the_content( $args = array() ) {
 		), 'get_the_content' );
 
 		// If using tinymce, remove our escaping and trust tinymce
-		if ( bbp_use_wp_editor() && ( true === $r['tinymce'] ) ) {
+		if ( bbp_use_wp_editor() && ( false !== $r['tinymce'] ) ) {
 			remove_filter( 'bbp_get_form_forum_content', 'esc_textarea' );
 			remove_filter( 'bbp_get_form_topic_content', 'esc_textarea' );
 			remove_filter( 'bbp_get_form_reply_content', 'esc_textarea' );
@@ -1778,10 +1778,7 @@ function bbp_the_content( $args = array() ) {
 		}
 
 		// Put the output into a usable variable
-		$output = ob_get_contents();
-
-		// Flush the output buffer
-		ob_end_clean();
+		$output = ob_get_clean();
 
 		return apply_filters( 'bbp_get_the_content', $output, $args, $post_content );
 	}
