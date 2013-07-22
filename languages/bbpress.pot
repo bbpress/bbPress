@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2013-07-18 08:07:10+00:00\n"
+"POT-Creation-Date: 2013-07-22 04:17:54+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -35,9 +35,8 @@ msgstr ""
 #: includes/admin/metaboxes.php:50 includes/admin/metaboxes.php:357
 #: includes/admin/metaboxes.php:410 includes/admin/replies.php:570
 #: includes/admin/settings.php:293 includes/admin/topics.php:633
-#: includes/extend/buddypress/group.php:52
-#: includes/extend/buddypress/group.php:53
-#: includes/forums/template-tags.php:2139
+#: includes/extend/buddypress/groups.php:52
+#: includes/extend/buddypress/groups.php:53 includes/forums/template.php:2139
 #: templates/default/bbpress/loop-forums.php:19
 msgid "Forum"
 msgstr ""
@@ -55,9 +54,8 @@ msgid "Create New Forum"
 msgstr ""
 
 #: bbpress.php:482 bbpress.php:539 bbpress.php:596
-#: includes/common/template-tags.php:2187
-#: includes/replies/template-tags.php:1819
-#: includes/topics/template-tags.php:2340
+#: includes/common/template.php:2184 includes/replies/template.php:1819
+#: includes/topics/template.php:2340
 #: templates/default/bbpress/user-details.php:65
 msgid "Edit"
 msgstr ""
@@ -93,7 +91,7 @@ msgstr ""
 #: bbpress.php:533 bbpress.php:534 includes/admin/forums.php:410
 #: includes/admin/settings.php:222 includes/admin/settings.php:243
 #: includes/admin/topics.php:632 includes/extend/buddypress/activity.php:354
-#: includes/forums/template-tags.php:2287
+#: includes/forums/template.php:2287
 #: templates/default/bbpress/content-statistics.php:27
 #: templates/default/bbpress/loop-forums.php:20
 msgid "Topics"
@@ -142,7 +140,7 @@ msgid "No topics found in Trash"
 msgstr ""
 
 #: bbpress.php:547 includes/admin/metaboxes.php:356
-#: includes/admin/metaboxes.php:409 includes/extend/buddypress/group.php:1028
+#: includes/admin/metaboxes.php:409 includes/extend/buddypress/groups.php:1028
 #: templates/default/bbpress/form-topic.php:114
 msgid "Forum:"
 msgstr ""
@@ -153,9 +151,9 @@ msgstr ""
 
 #: bbpress.php:590 bbpress.php:591 includes/admin/forums.php:411
 #: includes/admin/settings.php:230 includes/admin/settings.php:251
-#: includes/admin/topics.php:634 includes/core/theme-compat.php:539
+#: includes/admin/topics.php:634 includes/core/theme-compat.php:605
 #: includes/extend/buddypress/activity.php:355
-#: includes/forums/template-tags.php:2351
+#: includes/forums/template.php:2351
 #: templates/default/bbpress/content-statistics.php:32
 #: templates/default/bbpress/loop-forums.php:21
 #: templates/default/bbpress/loop-replies.php:32
@@ -165,8 +163,8 @@ msgid "Replies"
 msgstr ""
 
 #: bbpress.php:592 includes/admin/metaboxes.php:84
-#: includes/admin/settings.php:325 includes/replies/template-tags.php:1530
-#: includes/topics/template-tags.php:2770
+#: includes/admin/settings.php:325 includes/replies/template.php:1530
+#: includes/topics/template.php:2770
 msgid "Reply"
 msgstr ""
 
@@ -963,7 +961,7 @@ msgstr ""
 msgid "Freshness"
 msgstr ""
 
-#: includes/admin/forums.php:463 includes/forums/template-tags.php:531
+#: includes/admin/forums.php:463 includes/forums/template.php:531
 msgid "No Topics"
 msgstr ""
 
@@ -1379,38 +1377,32 @@ msgid "Mark this reply as spam"
 msgstr ""
 
 #: includes/admin/replies.php:739 includes/admin/topics.php:810
-#: includes/replies/template-tags.php:2014
-#: includes/topics/template-tags.php:2721
+#: includes/replies/template.php:2014 includes/topics/template.php:2721
 msgid "Spam"
 msgstr ""
 
 #: includes/admin/replies.php:748 includes/admin/topics.php:818
-#: includes/replies/template-tags.php:1956
-#: includes/topics/template-tags.php:2477
+#: includes/replies/template.php:1956 includes/topics/template.php:2477
 msgid "Restore this item from the Trash"
 msgstr ""
 
 #: includes/admin/replies.php:748 includes/admin/topics.php:818
-#: includes/replies/template-tags.php:1944
-#: includes/topics/template-tags.php:2465
+#: includes/replies/template.php:1944 includes/topics/template.php:2465
 msgid "Restore"
 msgstr ""
 
 #: includes/admin/replies.php:750 includes/admin/topics.php:820
-#: includes/replies/template-tags.php:1958
-#: includes/topics/template-tags.php:2479
+#: includes/replies/template.php:1958 includes/topics/template.php:2479
 msgid "Move this item to the Trash"
 msgstr ""
 
 #: includes/admin/replies.php:750 includes/admin/topics.php:820
-#: includes/replies/template-tags.php:1943
-#: includes/topics/template-tags.php:2464
+#: includes/replies/template.php:1943 includes/topics/template.php:2464
 msgid "Trash"
 msgstr ""
 
 #: includes/admin/replies.php:754 includes/admin/topics.php:824
-#: includes/replies/template-tags.php:1962
-#: includes/topics/template-tags.php:2483
+#: includes/replies/template.php:1962 includes/topics/template.php:2483
 msgid "Delete this item permanently"
 msgstr ""
 
@@ -1536,8 +1528,7 @@ msgid "Topic tags"
 msgstr ""
 
 #: includes/admin/settings.php:166 includes/admin/settings.php:333
-#: includes/common/template-tags.php:2301
-#: includes/search/template-tags.php:231
+#: includes/common/template.php:2298 includes/search/template.php:231
 #: templates/default/bbpress/form-search.php:17
 msgid "Search"
 msgstr ""
@@ -2560,11 +2551,11 @@ msgstr ""
 msgid "Voices"
 msgstr ""
 
-#: includes/admin/topics.php:695 includes/extend/buddypress/group.php:291
+#: includes/admin/topics.php:695 includes/extend/buddypress/groups.php:291
 msgid "(No Forum)"
 msgstr ""
 
-#: includes/admin/topics.php:730 includes/topics/template-tags.php:1911
+#: includes/admin/topics.php:730 includes/topics/template.php:1911
 msgid "No Replies"
 msgstr ""
 
@@ -2590,7 +2581,7 @@ msgstr ""
 msgid "Unstick this topic"
 msgstr ""
 
-#: includes/admin/topics.php:798 includes/topics/template-tags.php:2595
+#: includes/admin/topics.php:798 includes/topics/template.php:2595
 msgid "Unstick"
 msgstr ""
 
@@ -2598,7 +2589,7 @@ msgstr ""
 msgid "Stick this topic to its forum"
 msgstr ""
 
-#: includes/admin/topics.php:801 includes/topics/template-tags.php:2594
+#: includes/admin/topics.php:801 includes/topics/template.php:2594
 msgid "Stick"
 msgstr ""
 
@@ -2606,7 +2597,7 @@ msgstr ""
 msgid "Stick this topic to front"
 msgstr ""
 
-#: includes/admin/topics.php:801 includes/topics/template-tags.php:2596
+#: includes/admin/topics.php:801 includes/topics/template.php:2596
 msgid "to front"
 msgstr ""
 
@@ -2659,7 +2650,7 @@ msgid "Forum Role"
 msgstr ""
 
 #: includes/admin/users.php:96 includes/admin/users.php:100
-#: includes/users/template-tags.php:1075
+#: includes/users/template.php:1075
 msgid "&mdash; No role for these forums &mdash;"
 msgstr ""
 
@@ -2781,95 +2772,94 @@ msgid ""
 "they always return false."
 msgstr ""
 
-#: includes/common/template-tags.php:1443
+#: includes/common/template.php:1443
 msgid "No topics available"
 msgstr ""
 
-#: includes/common/template-tags.php:1448
+#: includes/common/template.php:1448
 msgid "No forums available"
 msgstr ""
 
-#: includes/common/template-tags.php:1453
+#: includes/common/template.php:1453
 msgid "None available"
 msgstr ""
 
-#: includes/common/template-tags.php:1582 includes/replies/functions.php:1302
+#: includes/common/template.php:1582 includes/replies/functions.php:1302
 #: includes/topics/functions.php:1286 includes/topics/functions.php:1644
 #: templates/default/bbpress/form-reply.php:29
 msgid "Reply To: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2109
+#: includes/common/template.php:2106
 msgid "Home"
 msgstr ""
 
-#: includes/common/template-tags.php:2179
+#: includes/common/template.php:2176
 msgid "(Edit)"
 msgstr ""
 
-#: includes/common/template-tags.php:2183
-#: includes/common/template-tags.php:2297
-#: includes/common/template-tags.php:2565 includes/core/theme-compat.php:610
+#: includes/common/template.php:2180 includes/common/template.php:2294
+#: includes/common/template.php:2562 includes/core/theme-compat.php:698
 #: templates/default/extras/taxonomy-topic-tag-edit.php:17
 #: templates/default/extras/taxonomy-topic-tag.php:17
 msgid "Topic Tag: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2204
+#: includes/common/template.php:2201
 msgid "&lsaquo;"
 msgstr ""
 
-#: includes/common/template-tags.php:2204
+#: includes/common/template.php:2201
 msgid "&rsaquo;"
 msgstr ""
 
-#: includes/common/template-tags.php:2472
+#: includes/common/template.php:2469
 msgid "Log Out"
 msgstr ""
 
-#: includes/common/template-tags.php:2529
+#: includes/common/template.php:2526
 msgid "Forum Edit: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2534
+#: includes/common/template.php:2531
 msgid "Topic Edit: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2539
+#: includes/common/template.php:2536
 msgid "Reply Edit: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2544
+#: includes/common/template.php:2541
 msgid "Topic Tag Edit: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2551
+#: includes/common/template.php:2548
 msgid "Forum: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2556
+#: includes/common/template.php:2553
 msgid "Topic: %s"
 msgstr ""
 
-#: includes/common/template-tags.php:2574
+#: includes/common/template.php:2571
 msgid "Your Profile"
 msgstr ""
 
-#: includes/common/template-tags.php:2579
+#: includes/common/template.php:2576
 #: templates/default/bbpress/user-details.php:29
 msgid "%s's Profile"
 msgstr ""
 
-#: includes/common/template-tags.php:2587
+#: includes/common/template.php:2584
 msgid "Edit Your Profile"
 msgstr ""
 
-#: includes/common/template-tags.php:2592
+#: includes/common/template.php:2589
 #: templates/default/bbpress/user-details.php:65
 msgid "Edit %s's Profile"
 msgstr ""
 
-#: includes/common/template-tags.php:2600
+#: includes/common/template.php:2597
 msgid "View: %s"
 msgstr ""
 
@@ -3161,42 +3151,42 @@ msgstr ""
 msgid "%1$s replied to the topic %2$s in the forum %3$s"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:271
-#: includes/extend/buddypress/group.php:274
+#: includes/extend/buddypress/groups.php:271
+#: includes/extend/buddypress/groups.php:274
 msgid "Group Forum Settings"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:275
-#: includes/extend/buddypress/group.php:471
+#: includes/extend/buddypress/groups.php:275
+#: includes/extend/buddypress/groups.php:471
 msgid ""
 "Create a discussion forum to allow members of this group to communicate in a "
 "structured, bulletin-board style fashion."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:279
-#: includes/extend/buddypress/group.php:474
+#: includes/extend/buddypress/groups.php:279
+#: includes/extend/buddypress/groups.php:474
 msgid "Yes. I want this group to have a forum."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:282
+#: includes/extend/buddypress/groups.php:282
 msgid "Saying no will not delete existing forum content."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:287
+#: includes/extend/buddypress/groups.php:287
 msgid "Group Forum:"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:295
+#: includes/extend/buddypress/groups.php:295
 msgid ""
 "Network administrators can reconfigure which forum belongs to this group."
 msgstr ""
 
-#: includes/extend/buddypress/group.php:300
+#: includes/extend/buddypress/groups.php:300
 msgid "Save Settings"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:335
-#: includes/extend/buddypress/group.php:492 includes/forums/functions.php:118
+#: includes/extend/buddypress/groups.php:335
+#: includes/extend/buddypress/groups.php:492 includes/forums/functions.php:118
 #: includes/forums/functions.php:394 includes/replies/functions.php:116
 #: includes/replies/functions.php:522 includes/replies/functions.php:1249
 #: includes/topics/functions.php:122 includes/topics/functions.php:516
@@ -3208,16 +3198,16 @@ msgstr ""
 msgid "<strong>ERROR</strong>: Are you sure you wanted to do that?"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:433
+#: includes/extend/buddypress/groups.php:433
 msgctxt "group admin edit screen"
 msgid "Discussion Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:469
+#: includes/extend/buddypress/groups.php:469
 msgid "Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/group.php:763
+#: includes/extend/buddypress/groups.php:763
 msgid "This group does not currently have a forum."
 msgstr ""
 
@@ -3297,86 +3287,83 @@ msgstr ""
 msgid "<strong>ERROR</strong>: Your forum cannot be edited at this time."
 msgstr ""
 
-#: includes/forums/template-tags.php:1121
-#: includes/forums/template-tags.php:1859
+#: includes/forums/template.php:1121 includes/forums/template.php:1859
 msgid "%s topic"
 msgid_plural "%s topics"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/forums/template-tags.php:1137
-#: includes/topics/template-tags.php:1967
+#: includes/forums/template.php:1137 includes/topics/template.php:1967
 msgid " (+ %d hidden)"
 msgstr ""
 
-#: includes/forums/template-tags.php:1848
-#: includes/topics/template-tags.php:1951
+#: includes/forums/template.php:1848 includes/topics/template.php:1951
 msgid "%s reply"
 msgid_plural "%s replies"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/forums/template-tags.php:1868
+#: includes/forums/template.php:1868
 msgid ""
 "This category contains %1$s and %2$s, and was last updated by %3$s %4$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1870
+#: includes/forums/template.php:1870
 msgid "This forum contains %1$s and %2$s, and was last updated by %3$s %4$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1876
+#: includes/forums/template.php:1876
 msgid "This category contains %1$s, and was last updated by %2$s %3$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1878
+#: includes/forums/template.php:1878
 msgid "This forum contains %1$s, and was last updated by %2$s %3$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1888
+#: includes/forums/template.php:1888
 msgid "This category contains %1$s and %2$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1890
+#: includes/forums/template.php:1890
 msgid "This forum contains %1$s and %2$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1898
+#: includes/forums/template.php:1898
 msgid "This category contains %1$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1900
+#: includes/forums/template.php:1900
 msgid "This forum contains %1$s."
 msgstr ""
 
-#: includes/forums/template-tags.php:1904
+#: includes/forums/template.php:1904
 msgid "This forum is empty."
 msgstr ""
 
-#: includes/forums/template-tags.php:2140
+#: includes/forums/template.php:2140
 msgid "Category"
 msgstr ""
 
-#: includes/forums/template-tags.php:2177
+#: includes/forums/template.php:2177
 msgctxt "Forum Status"
 msgid "Open"
 msgstr ""
 
-#: includes/forums/template-tags.php:2178
+#: includes/forums/template.php:2178
 msgctxt "Forum Status"
 msgid "Closed"
 msgstr ""
 
-#: includes/forums/template-tags.php:2215
+#: includes/forums/template.php:2215
 msgid "Public"
 msgstr ""
 
-#: includes/forums/template-tags.php:2216
+#: includes/forums/template.php:2216
 #: templates/default/bbpress/feedback-no-access.php:13
 msgid "Private"
 msgstr ""
 
-#: includes/forums/template-tags.php:2217
+#: includes/forums/template.php:2217
 msgid "Hidden"
 msgstr ""
 
@@ -3565,115 +3552,109 @@ msgstr ""
 msgid "Replies: %s"
 msgstr ""
 
-#: includes/replies/template-tags.php:623
-#: includes/topics/template-tags.php:753
+#: includes/replies/template.php:623 includes/topics/template.php:753
 msgctxt "date at time"
 msgid "%1$s at %2$s"
 msgstr ""
 
-#: includes/replies/template-tags.php:721
+#: includes/replies/template.php:721
 msgid "This reply was modified %1$s by %2$s. Reason: %3$s"
 msgstr ""
 
-#: includes/replies/template-tags.php:723
+#: includes/replies/template.php:723
 msgid "This reply was modified %1$s by %2$s."
 msgstr ""
 
-#: includes/replies/template-tags.php:1009
-#: includes/topics/template-tags.php:1306 includes/users/template-tags.php:184
+#: includes/replies/template.php:1009 includes/topics/template.php:1306
+#: includes/users/template.php:184
 msgid "Anonymous"
 msgstr ""
 
-#: includes/replies/template-tags.php:1122
-#: includes/topics/template-tags.php:1419
-#: includes/users/template-tags.php:1436
+#: includes/replies/template.php:1122 includes/topics/template.php:1419
+#: includes/users/template.php:1436
 msgid "View %s's profile"
 msgstr ""
 
-#: includes/replies/template-tags.php:1122
-#: includes/topics/template-tags.php:1419
-#: includes/users/template-tags.php:1436
+#: includes/replies/template.php:1122 includes/topics/template.php:1419
+#: includes/users/template.php:1436
 msgid "Visit %s's website"
 msgstr ""
 
-#: includes/replies/template-tags.php:1604
+#: includes/replies/template.php:1604
 msgid "Cancel"
 msgstr ""
 
-#: includes/replies/template-tags.php:1945
-#: includes/topics/template-tags.php:2466
+#: includes/replies/template.php:1945 includes/topics/template.php:2466
 #: templates/default/bbpress/form-topic-tag.php:88
 #: templates/default/bbpress/form-topic-tag.php:101
 msgid "Delete"
 msgstr ""
 
-#: includes/replies/template-tags.php:1962
-#: includes/topics/template-tags.php:2483
+#: includes/replies/template.php:1962 includes/topics/template.php:2483
 msgid "Are you sure you want to delete that permanently?"
 msgstr ""
 
-#: includes/replies/template-tags.php:2015
-#: includes/topics/template-tags.php:2722
+#: includes/replies/template.php:2015 includes/topics/template.php:2722
 msgid "Unspam"
 msgstr ""
 
-#: includes/replies/template-tags.php:2078
+#: includes/replies/template.php:2078
 msgid "Move"
 msgstr ""
 
-#: includes/replies/template-tags.php:2079
+#: includes/replies/template.php:2079
 msgid "Move this reply"
 msgstr ""
 
-#: includes/replies/template-tags.php:2145
+#: includes/replies/template.php:2145
 msgid "Split"
 msgstr ""
 
-#: includes/replies/template-tags.php:2146
+#: includes/replies/template.php:2146
 msgid "Split the topic from this reply"
 msgstr ""
 
-#: includes/replies/template-tags.php:2252
+#: includes/replies/template.php:2252
 msgid "Viewing %1$s reply thread"
 msgid_plural "Viewing %1$s reply threads"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/replies/template-tags.php:2259
+#: includes/replies/template.php:2259
 msgid "Viewing %1$s reply"
 msgid_plural "Viewing %1$s replies"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/replies/template-tags.php:2263
+#: includes/replies/template.php:2263
 msgid "Viewing %2$s replies (of %4$s total)"
 msgid_plural "Viewing %1$s replies - %2$s through %3$s (of %4$s total)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/replies/template-tags.php:2271
+#: includes/replies/template.php:2271
 msgid "Viewing %1$s post"
 msgid_plural "Viewing %1$s posts"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/replies/template-tags.php:2275
+#: includes/replies/template.php:2275
 msgid "Viewing %2$s post (of %4$s total)"
 msgid_plural "Viewing %1$s posts - %2$s through %3$s (of %4$s total)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/search/template-tags.php:235
+#: includes/search/template.php:235
 msgid "Search Results for '%s'"
 msgstr ""
 
-#: includes/search/template-tags.php:407
+#: includes/search/template.php:407
 msgid "Viewing %1$s result"
 msgid_plural "Viewing %1$s results"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/search/template-tags.php:411
+#: includes/search/template.php:411
 msgid "Viewing %2$s results (of %4$s total)"
 msgid_plural "Viewing %1$s results - %2$s through %3$s (of %4$s total)"
 msgstr[0] ""
@@ -3870,81 +3851,81 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem deleting the topic."
 msgstr ""
 
-#: includes/topics/template-tags.php:935
+#: includes/topics/template.php:935
 msgid "This topic was modified %1$s by %2$s. Reason: %3$s"
 msgstr ""
 
-#: includes/topics/template-tags.php:937
+#: includes/topics/template.php:937
 msgid "This topic was modified %1$s by %2$s."
 msgstr ""
 
-#: includes/topics/template-tags.php:2144
+#: includes/topics/template.php:2144
 msgid "Tagged:"
 msgstr ""
 
-#: includes/topics/template-tags.php:2534
+#: includes/topics/template.php:2534
 msgctxt "Topic Status"
 msgid "Close"
 msgstr ""
 
-#: includes/topics/template-tags.php:2535
+#: includes/topics/template.php:2535
 msgctxt "Topic Status"
 msgid "Open"
 msgstr ""
 
-#: includes/topics/template-tags.php:2665
+#: includes/topics/template.php:2665
 #: templates/default/bbpress/form-topic-tag.php:59
 #: templates/default/bbpress/form-topic-tag.php:73
 msgid "Merge"
 msgstr ""
 
-#: includes/topics/template-tags.php:2826
+#: includes/topics/template.php:2826
 msgid "Viewing %1$s topic"
 msgid_plural "Viewing %1$s topics"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/topics/template-tags.php:2830
+#: includes/topics/template.php:2830
 msgid "Viewing topic %2$s (of %4$s total)"
 msgid_plural "Viewing %1$s topics - %2$s through %3$s (of %4$s total)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/topics/template-tags.php:2890
+#: includes/topics/template.php:2890
 msgid "This topic is marked as spam."
 msgstr ""
 
-#: includes/topics/template-tags.php:2895
+#: includes/topics/template.php:2895
 msgid "This topic is in the trash."
 msgstr ""
 
-#: includes/topics/template-tags.php:2934
+#: includes/topics/template.php:2934
 msgid "Normal"
 msgstr ""
 
-#: includes/topics/template-tags.php:2935
+#: includes/topics/template.php:2935
 msgid "Sticky"
 msgstr ""
 
-#: includes/topics/template-tags.php:2936
+#: includes/topics/template.php:2936
 msgid "Super Sticky"
 msgstr ""
 
-#: includes/topics/template-tags.php:3054
+#: includes/topics/template.php:3054
 msgid "%s voice"
 msgid_plural "%s voices"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/topics/template-tags.php:3060
+#: includes/topics/template.php:3060
 msgid "This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s."
 msgstr ""
 
-#: includes/topics/template-tags.php:3064
+#: includes/topics/template.php:3064
 msgid "This topic contains %1$s and has %2$s."
 msgstr ""
 
-#: includes/topics/template-tags.php:3068
+#: includes/topics/template.php:3068
 msgid "This topic has no replies."
 msgstr ""
 
@@ -3985,71 +3966,71 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
 msgstr ""
 
-#: includes/users/template-tags.php:504
+#: includes/users/template.php:504
 msgid "Guest"
 msgstr ""
 
-#: includes/users/template-tags.php:508
+#: includes/users/template.php:508
 msgid "Inactive"
 msgstr ""
 
-#: includes/users/template-tags.php:518
+#: includes/users/template.php:518
 msgid "Member"
 msgstr ""
 
-#: includes/users/template-tags.php:558
+#: includes/users/template.php:558
 msgid "Admin"
 msgstr ""
 
-#: includes/users/template-tags.php:724
+#: includes/users/template.php:724
 msgid "Favorite"
 msgstr ""
 
-#: includes/users/template-tags.php:725
+#: includes/users/template.php:725
 msgid "Favorited"
 msgstr ""
 
-#: includes/users/template-tags.php:882
+#: includes/users/template.php:882
 msgid "Subscribe"
 msgstr ""
 
-#: includes/users/template-tags.php:883
+#: includes/users/template.php:883
 msgid "Unsubscribe"
 msgstr ""
 
-#: includes/users/template-tags.php:950
+#: includes/users/template.php:950
 msgid "User updated."
 msgstr ""
 
-#: includes/users/template-tags.php:975
+#: includes/users/template.php:975
 msgid "You have super admin privileges."
 msgstr ""
 
-#: includes/users/template-tags.php:975
+#: includes/users/template.php:975
 msgid "This user has super admin privileges."
 msgstr ""
 
-#: includes/users/template-tags.php:1040
+#: includes/users/template.php:1040
 msgid "&mdash; No role for this site &mdash;"
 msgstr ""
 
-#: includes/users/template-tags.php:1238
+#: includes/users/template.php:1238
 msgid "You are now logged out."
 msgstr ""
 
-#: includes/users/template-tags.php:1242
+#: includes/users/template.php:1242
 msgid "New user registration is currently not allowed."
 msgstr ""
 
-#: includes/users/template-tags.php:1251
+#: includes/users/template.php:1251
 msgid "Check your e-mail for the confirmation link."
 msgstr ""
 
-#: includes/users/template-tags.php:1256
+#: includes/users/template.php:1256
 msgid "Check your e-mail for your new password."
 msgstr ""
 
-#: includes/users/template-tags.php:1261
+#: includes/users/template.php:1261
 msgid "Registration complete. Please check your e-mail."
 msgstr ""
 
