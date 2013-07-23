@@ -80,11 +80,6 @@ final class bbPress {
 	/** Singleton *************************************************************/
 
 	/**
-	 * @var bbPress The one true bbPress
-	 */
-	private static $instance;
-
-	/**
 	 * Main bbPress Instance
 	 *
 	 * bbPress is fun
@@ -95,7 +90,7 @@ final class bbPress {
 	 * time. Also prevents needing to define globals all over the place.
 	 *
 	 * @since bbPress (r3757)
-	 * @staticvar array $instance
+	 * @staticvar object $instance
 	 * @uses bbPress::setup_globals() Setup the globals needed
 	 * @uses bbPress::includes() Include the required files
 	 * @uses bbPress::setup_actions() Setup the hooks and actions
@@ -103,13 +98,20 @@ final class bbPress {
 	 * @return The one true bbPress
 	 */
 	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new bbPress;
-			self::$instance->setup_globals();
-			self::$instance->includes();
-			self::$instance->setup_actions();
+
+		// Store the instance locally to avoid private static replication
+		static $instance = null;
+
+		// Only run these methods if they haven't been ran previously
+		if ( null === $instance ) {
+			$instance = new bbPress;
+			$instance->setup_globals();
+			$instance->includes();
+			$instance->setup_actions();
 		}
-		return self::$instance;
+
+		// Always return the instance
+		return $instance;
 	}
 
 	/** Magic Methods *********************************************************/
