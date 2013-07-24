@@ -85,10 +85,11 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string $older_date Unix timestamp from which the difference begins.
  * @param string $newer_date Optional. Unix timestamp from which the
  *                            difference ends. False for current time.
+ * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
  * @uses bbp_get_time_since() To get the formatted time
  */
-function bbp_time_since( $older_date, $newer_date = false ) {
-	echo bbp_get_time_since( $older_date, $newer_date );
+function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
+	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
 }
 	/**
 	 * Return formatted time to display human readable time difference.
@@ -98,13 +99,14 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 	 * @param string $older_date Unix timestamp from which the difference begins.
 	 * @param string $newer_date Optional. Unix timestamp from which the
 	 *                            difference ends. False for current time.
+	 * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
 	 * @uses current_time() To get the current time in mysql format
 	 * @uses human_time_diff() To get the time differene in since format
 	 * @uses apply_filters() Calls 'bbp_get_time_since' with the time
 	 *                        difference and time
 	 * @return string Formatted time
 	 */
-	function bbp_get_time_since( $older_date, $newer_date = false ) {
+	function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 		// Setup the strings
 		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   __( 'sometime',  'bbpress' ) );
@@ -131,7 +133,7 @@ function bbp_time_since( $older_date, $newer_date = false ) {
 		// $newer_date will equal false if we want to know the time elapsed
 		// between a date and the current time. $newer_date will have a value if
 		// we want to work out time elapsed between two known dates.
-		$newer_date = ( !$newer_date ) ? strtotime( current_time( 'mysql' ) ) : $newer_date;
+		$newer_date = ( !$newer_date ) ? strtotime( current_time( 'mysql', $gmt ) ) : $newer_date;
 
 		// Difference in seconds
 		$since = $newer_date - $older_date;

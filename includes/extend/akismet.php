@@ -755,10 +755,9 @@ class BBP_Akismet {
 	 *
 	 * @since bbPress (r5049)
 	 *
-	 * @uses bbp_is_reply_anonymous() To check if reply is anonymous
-	 * @uses bbp_is_topic_anonymous() To check if topic is anonymous
-	 * @uses get_the_ID() To get the global post ID
-	 * @uses get_post_meta() To get the author user information
+	 * @uses get_post_history() To get the Akismet history for the post
+	 * @uses get_the_ID() To get the post ID
+	 * @uses bbp_time_since() To get the human readable time
 	 */
 	public function history_metabox() {
 
@@ -777,7 +776,7 @@ class BBP_Akismet {
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
 									<span title="<?php echo esc_attr( date( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); ?>">
-										<?php printf( esc_html__( '%s ago' ), human_time_diff( $row['time'] ) ); ?>
+										<?php bbp_time_since( $row['time'], false, true ); ?>
 									</span>
 								</td>
 								<td style="padding-left: 5px;">
