@@ -51,7 +51,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Include BuddyPress classes and functions
 	 */
-	public function includes() {
+	public function includes( $includes = array() ) {
 
 		// Helper BuddyPress functions
 		$includes[] = 'functions.php';
@@ -80,7 +80,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @since bbPress (r3552)
 	 */
-	public function setup_globals() {
+	public function setup_globals( $args = array() ) {
 		$bp = buddypress();
 
 		// Define the parent forum ID
@@ -91,17 +91,16 @@ class BBP_Forums_Component extends BP_Component {
 		if ( !defined( 'BP_FORUMS_SLUG' ) )
 			define( 'BP_FORUMS_SLUG', $this->id );
 
-		// All globals for messaging component.
-		$globals = array(
-			'path'                  => BP_PLUGIN_DIR,
-			'slug'                  => BP_FORUMS_SLUG,
-			'root_slug'             => isset( $bp->pages->forums->slug ) ? $bp->pages->forums->slug : BP_FORUMS_SLUG,
-			'has_directory'         => false,
-			'notification_callback' => 'messages_format_notifications',
-			'search_string'         => __( 'Search Forums...', 'bbpress' ),
+		// All arguments for forums component
+		$args = array(
+			'path'          => BP_PLUGIN_DIR,
+			'slug'          => BP_FORUMS_SLUG,
+			'root_slug'     => isset( $bp->pages->forums->slug ) ? $bp->pages->forums->slug : BP_FORUMS_SLUG,
+			'has_directory' => false,
+			'search_string' => __( 'Search Forums...', 'bbpress' ),
 		);
 
-		parent::setup_globals( $globals );
+		parent::setup_globals( $args );
 	}
 
 	/**
@@ -157,14 +156,13 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @since bbPress (r3552)
 	 */
-	public function setup_nav() {
+	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
 		// Stop if there is no user displayed or logged in
 		if ( !is_user_logged_in() && !bp_displayed_user_id() )
 			return;
 
 		// Define local variable(s)
-		$sub_nav     = array();
 		$user_domain = '';
 
 		// Add 'Forums' to the main navigation
@@ -242,10 +240,7 @@ class BBP_Forums_Component extends BP_Component {
 	 *
 	 * @since bbPress (r3552)
 	 */
-	public function setup_admin_bar() {
-
-		// Prevent debug notices
-		$wp_admin_nav = array();
+	public function setup_admin_bar( $wp_admin_nav = array() ) {
 
 		// Menus for logged in user
 		if ( is_user_logged_in() ) {

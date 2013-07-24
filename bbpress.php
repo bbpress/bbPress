@@ -838,7 +838,7 @@ final class bbPress {
 	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
-		$this->current_user = &wp_get_current_user();
+		$this->current_user = wp_get_current_user();
 	}
 
 	/** Custom Rewrite Rules **************************************************/

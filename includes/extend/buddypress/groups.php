@@ -458,13 +458,18 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	public function create_screen() {
+	public function create_screen( $group_id = 0 ) {
 
 		// Bail if not looking at this screen
 		if ( !bp_is_group_creation_step( $this->slug ) )
 			return false;
 
-		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' ); ?>
+		// Check for possibly empty group_id
+		if ( empty( $group_id ) ) {
+			$group_id = bp_get_new_group_id();
+		}
+
+		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( $group_id, 'forum_id' ); ?>
 
 		<h4><?php esc_html_e( 'Group Forum', 'bbpress' ); ?></h4>
 
@@ -475,9 +480,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		</div>
 
 		<?php
-
-		// Verify intent
-		wp_nonce_field( 'groups_create_save_' . $this->slug );
 	}
 
 	/**
@@ -485,7 +487,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 */
-	public function create_screen_save() {
+	public function create_screen_save( $group_id = 0 ) {
 
 		// Nonce check
 		if ( ! bbp_verify_nonce_request( 'groups_create_save_' . $this->slug ) ) {
@@ -493,9 +495,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return;
 		}
 
+		// Check for possibly empty group_id
+		if ( empty( $group_id ) ) {
+			$group_id = bp_get_new_group_id();
+		}
+
 		$create_forum = !empty( $_POST['bbp-create-group-forum'] ) ? true : false;
 		$forum_id     = 0;
-		$forum_ids    = bbp_get_group_forum_ids( bp_get_new_group_id() );
+		$forum_ids    = bbp_get_group_forum_ids( $group_id );
 
 		if ( !empty( $forum_ids ) )
 			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;

@@ -225,6 +225,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *                    for padding.
 	 * @param array $args Uses 'selected' argument for selected post to set
 	 *                     selected HTML attribute for option element.
+	 * @param int $current_object_id
 	 * @uses bbp_is_forum_category() To check if the forum is a category
 	 * @uses current_user_can() To check if the current user can post in
 	 *                           closed forums
@@ -232,9 +233,9 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
 	 *                        title, output, post, depth and args
 	 */
-	public function start_el( &$output, $_post, $depth, $args ) {
-		$pad     = str_repeat( '&nbsp;', $depth * 3 );
-		$output .= '<option class="level-' . $depth . '"';
+	public function start_el( &$output, $_post, $depth = 0, $args = array(), $current_object_id = 0 ) {
+		$pad     = str_repeat( '&nbsp;', (int) $depth * 3 );
+		$output .= '<option class="level-' . (int) $depth . '"';
 
 		// Disable the <option> if:
 		// - we're told to do so
@@ -249,7 +250,7 @@ class BBP_Walker_Dropdown extends Walker {
 			) ) {
 			$output .= ' disabled="disabled" value=""';
 		} else {
-			$output .= ' value="' . $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
+			$output .= ' value="' . (int) $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
 		}
 
 		$output .= '>';
@@ -261,7 +262,7 @@ class BBP_Walker_Dropdown extends Walker {
 
 /**
  * Create hierarchical list of bbPress replies.
- * 
+ *
  * @package bbPress
  * @subpackage Classes
  *
