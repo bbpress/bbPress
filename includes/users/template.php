@@ -1353,7 +1353,7 @@ function bbp_user_register_fields() {
  * @since bbPress (r2815)
  *
  * @uses apply_filters() To allow custom redirection
- * @uses wp_referer_field() Set referer
+ * @uses bbp_redirect_to_field() Set referer
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
 function bbp_user_lost_pass_fields() {

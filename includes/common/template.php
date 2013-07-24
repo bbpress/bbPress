@@ -1603,8 +1603,7 @@ function bbp_reply_form_fields() {
  * @since bbPress (r2690)
  *
  * @uses bbp_displayed_user_id() To output the displayed user id
- * @uses wp_nonce_field() To generate a hidden nonce field
- * @uses wp_referer_field() To generate a hidden referer field
+ * @uses wp_nonce_field() To generate a hidden referer field
  */
 function bbp_edit_user_form_fields() {
 ?>
