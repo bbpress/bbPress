@@ -115,13 +115,20 @@ function bbp_get_user_role( $user_id = 0 ) {
 	$user    = get_userdata( $user_id );
 	$role    = false;
 
-	// User has roles so lets
+	// User has roles so look for a bbPress one
 	if ( ! empty( $user->roles ) ) {
-		$roles = array_intersect( array_values( $user->roles ), array_keys( bbp_get_dynamic_roles() ) );
 
-		// If there's a role in the array, use the first one
+		// Look for a bbPress role
+		$roles = array_intersect(
+			array_values( $user->roles ),
+			array_keys( bbp_get_dynamic_roles() )
+		);
+
+		// If there's a role in the array, use the first one. This isn't very
+		// smart, but since roles aren't hierarchical, and bbPress doesn't
+		// enable a user to have multiple forum roles, it's fine for now.
 		if ( !empty( $roles ) ) {
-			$role = array_shift( array_values( $roles ) );
+			$role = array_shift( $roles );
 		}
 	}
 
