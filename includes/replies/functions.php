@@ -168,7 +168,7 @@ function bbp_new_reply_handler( $action = '' ) {
 			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID cannot be a negative number.', 'bbpress' ) );
 
 		// Topic does not exist
-		} elseif ( ! get_post( $posted_topic_id ) ) {
+		} elseif ( ! bbp_get_topic( $posted_topic_id ) ) {
 			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic does not exist.', 'bbpress' ) );
 
 		// Use the POST'ed topic id
@@ -209,7 +209,7 @@ function bbp_new_reply_handler( $action = '' ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
 
 			// Forum does not exist
-			} elseif ( ! get_post( $posted_forum_id ) ) {
+			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum does not exist.', 'bbpress' ) );
 
 			// Use the POST'ed forum id
@@ -1625,38 +1625,38 @@ function bbp_toggle_reply_handler( $action = '' ) {
  * @since bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses get_post() To get the reply
+ * @uses bbp_get_reply() To get the reply
  * @uses do_action() Calls 'bbp_spam_reply' with the reply ID
  * @uses add_post_meta() To add the previous status to a meta
- * @uses wp_insert_post() To insert the updated post
+ * @uses wp_update_post() To insert the updated post
  * @uses do_action() Calls 'bbp_spammed_reply' with the reply ID
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_spam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	$reply = get_post( $reply_id, ARRAY_A );
+	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) )
 		return $reply;
 
 	// Bail if already spam
-	if ( bbp_get_spam_status_id() === $reply['post_status'] )
+	if ( bbp_get_spam_status_id() === $reply->post_status )
 		return false;
 
 	// Execute pre spam code
 	do_action( 'bbp_spam_reply', $reply_id );
 
 	// Add the original post status as post meta for future restoration
-	add_post_meta( $reply_id, '_bbp_spam_meta_status', $reply['post_status'] );
+	add_post_meta( $reply_id, '_bbp_spam_meta_status', $reply->post_status );
 
 	// Set post status to spam
-	$reply['post_status'] = bbp_get_spam_status_id();
+	$reply->post_status = bbp_get_spam_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update the reply
-	$reply_id = wp_insert_post( $reply );
+	$reply_id = wp_update_post( $reply );
 
 	// Execute post spam code
 	do_action( 'bbp_spammed_reply', $reply_id );
@@ -1671,34 +1671,34 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses get_post() To get the reply
+ * @uses bbp_get_reply() To get the reply
  * @uses do_action() Calls 'bbp_unspam_reply' with the reply ID
  * @uses get_post_meta() To get the previous status meta
  * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_insert_post() To insert the updated post
+ * @uses wp_update_post() To insert the updated post
  * @uses do_action() Calls 'bbp_unspammed_reply' with the reply ID
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Get reply
-	$reply = get_post( $reply_id, ARRAY_A );
+	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) )
 		return $reply;
 
 	// Bail if already not spam
-	if ( bbp_get_spam_status_id() !== $reply['post_status'] )
+	if ( bbp_get_spam_status_id() !== $reply->post_status )
 		return false;
 
 	// Execute pre unspam code
 	do_action( 'bbp_unspam_reply', $reply_id );
 
 	// Get pre spam status
-	$reply['post_status'] = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
+	$reply->post_status = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
 
 	// If no previous status, default to publish
-	if ( empty( $reply['post_status'] ) ) {
-		$reply['post_status'] = bbp_get_public_status_id();
+	if ( empty( $reply->post_status ) ) {
+		$reply->post_status = bbp_get_public_status_id();
 	}
 
 	// Delete pre spam meta
@@ -1708,7 +1708,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update the reply
-	$reply_id = wp_insert_post( $reply );
+	$reply_id = wp_update_post( $reply );
 
 	// Execute post unspam code
 	do_action( 'bbp_unspammed_reply', $reply_id );

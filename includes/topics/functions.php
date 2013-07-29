@@ -214,7 +214,7 @@ function bbp_new_topic_handler( $action = '' ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
 
 			// Forum does not exist
-			} elseif ( ! get_post( $posted_forum_id ) ) {
+			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum does not exist.', 'bbpress' ) );
 
 			// Use the POST'ed forum id
@@ -2661,37 +2661,38 @@ function bbp_update_topic_revision_log( $args = '' ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses do_action() Calls 'bbp_close_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
- * @uses wp_insert_post() To update the topic with the new status
+ * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_opened_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_close_topic( $topic_id = 0 ) {
 
 	// Get topic
-	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) )
 		return $topic;
 
 	// Bail if already closed
-	if ( bbp_get_closed_status_id() === $topic['post_status'] )
+	if ( bbp_get_closed_status_id() === $topic->post_status )
 		return false;
 
 	// Execute pre close code
 	do_action( 'bbp_close_topic', $topic_id );
 
 	// Add pre close status
-	add_post_meta( $topic_id, '_bbp_status', $topic['post_status'] );
+	add_post_meta( $topic_id, '_bbp_status', $topic->post_status );
 
 	// Set closed status
-	$topic['post_status'] = bbp_get_closed_status_id();
+	$topic->post_status = bbp_get_closed_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update topic
-	$topic_id = wp_insert_post( $topic );
+	$topic_id = wp_update_post( $topic );
 
 	// Execute post close code
 	do_action( 'bbp_closed_topic', $topic_id );
@@ -2706,32 +2707,33 @@ function bbp_close_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses do_action() Calls 'bbp_open_topic' with the topic id
  * @uses get_post_meta() To get the previous status
  * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_insert_post() To update the topic with the new status
+ * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_opened_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_open_topic( $topic_id = 0 ) {
 
 	// Get topic
-	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) )
 		return $topic;
 
 	// Bail if already open
-	if ( bbp_get_closed_status_id() !== $topic['post_status'])
+	if ( bbp_get_closed_status_id() !== $topic->post_status )
 		return false;
 
 	// Execute pre open code
 	do_action( 'bbp_open_topic', $topic_id );
 
 	// Get previous status
-	$topic_status         = get_post_meta( $topic_id, '_bbp_status', true );
+	$topic_status       = get_post_meta( $topic_id, '_bbp_status', true );
 
 	// Set previous status
-	$topic['post_status'] = $topic_status;
+	$topic->post_status = $topic_status;
 
 	// Remove old status meta
 	delete_post_meta( $topic_id, '_bbp_status' );
@@ -2740,7 +2742,7 @@ function bbp_open_topic( $topic_id = 0 ) {
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update topic
-	$topic_id = wp_insert_post( $topic );
+	$topic_id = wp_update_post( $topic );
 
 	// Execute post open code
 	do_action( 'bbp_opened_topic', $topic_id );
@@ -2755,21 +2757,22 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses do_action() Calls 'bbp_spam_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
- * @uses wp_insert_post() To update the topic with the new status
+ * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_spammed_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_spam_topic( $topic_id = 0 ) {
 
 	// Get the topic
-	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) )
 		return $topic;
 
 	// Bail if topic is spam
-	if ( bbp_get_spam_status_id() === $topic['post_status'] )
+	if ( bbp_get_spam_status_id() === $topic->post_status )
 		return false;
 
 	// Execute pre spam code
@@ -2814,7 +2817,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	/** Topic Tags ************************************************************/
 
 	// Add the original post status as post meta for future restoration
-	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic['post_status'] );
+	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic->post_status );
 
 	// Get topic tags
 	$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
@@ -2837,18 +2840,18 @@ function bbp_spam_topic( $topic_id = 0 ) {
 			add_post_meta( $topic_id, '_bbp_spam_topic_tags', $term_names );
 
 			// Empty the topic of its tags
-			$topic['tax_input'] = array( bbp_get_topic_tag_tax_id() => '' );
+			$topic->tax_input = array( bbp_get_topic_tag_tax_id() => '' );
 		}
 	}
 
 	// Set post status to spam
-	$topic['post_status'] = bbp_get_spam_status_id();
+	$topic->post_status = bbp_get_spam_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update the topic
-	$topic_id = wp_insert_post( $topic );
+	$topic_id = wp_update_post( $topic );
 
 	// Execute post spam code
 	do_action( 'bbp_spammed_topic', $topic_id );
@@ -2863,22 +2866,23 @@ function bbp_spam_topic( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Topic id
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses do_action() Calls 'bbp_unspam_topic' with the topic id
  * @uses get_post_meta() To get the previous status
  * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_insert_post() To update the topic with the new status
+ * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_unspammed_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Get the topic
-	if ( !$topic = get_post( $topic_id, ARRAY_A ) )
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) )
 		return $topic;
 
 	// Bail if already not spam
-	if ( bbp_get_spam_status_id() !== $topic['post_status'] )
+	if ( bbp_get_spam_status_id() !== $topic->post_status )
 		return false;
 
 	// Execute pre unspam code
@@ -2911,7 +2915,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	if ( !empty( $terms ) ) {
 
 		// Set the tax_input of the topic
-		$topic['tax_input'] = array( bbp_get_topic_tag_tax_id() => $terms );
+		$topic->tax_input = array( bbp_get_topic_tag_tax_id() => $terms );
 
 		// Delete pre-spam topic tag meta
 		delete_post_meta( $topic_id, '_bbp_spam_topic_tags' );
@@ -2928,7 +2932,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	}
 
 	// Set post status to pre spam
-	$topic['post_status'] = $topic_status;
+	$topic->post_status = $topic_status;
 
 	// Delete pre spam meta
 	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
@@ -2937,7 +2941,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
 	// Update the topic
-	$topic_id = wp_insert_post( $topic );
+	$topic_id = wp_update_post( $topic );
 
 	// Execute post unspam code
 	do_action( 'bbp_unspammed_topic', $topic_id );
