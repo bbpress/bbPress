@@ -431,7 +431,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_meta_box(
 			'bbpress_group_admin_ui_meta_box',
 			_x( 'Discussion Forum', 'group admin edit screen', 'bbpress' ),
-			array( &$this, 'group_admin_ui_display_metabox' ),
+			array( $this, 'group_admin_ui_display_metabox' ),
 			get_current_screen()->id,
 			'side',
 			'core'
