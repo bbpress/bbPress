@@ -64,7 +64,7 @@ function bbp_has_forums( $args = '' ) {
 		'post_status'         => bbp_get_public_status_id(),
 		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
 		'ignore_sticky_posts' => true,
-		'orderby'             => 'menu_order',
+		'orderby'             => 'menu_order title',
 		'order'               => 'ASC'
 	), 'has_forums' );
 
