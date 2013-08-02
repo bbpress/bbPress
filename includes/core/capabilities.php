@@ -504,5 +504,13 @@ function bbp_add_roles() {
  * @deprecated since version 2.2
  */
 function bbp_remove_roles() {
-	_doing_it_wrong( 'bbp_remove_roles', __( 'Editable forum roles no longer exist.', 'bbpress' ), '2.2' );
+
+	// Remove the bbPress roles
+	foreach ( array_keys( bbp_get_dynamic_roles() ) as $bbp_role ) {
+		remove_role( $bbp_role );
+	}
+
+	// Some early adopters may have a deprecated visitor role. It was later
+	// replaced by the Spectator role.
+	remove_role( 'bbp_visitor' );
 }
