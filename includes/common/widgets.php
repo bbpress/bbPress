@@ -564,7 +564,7 @@ class BBP_Forums_Widget extends WP_Widget {
 			'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
 			'ignore_sticky_posts' => true,
 			'no_found_rows'       => true,
-			'orderby'             => 'menu_order',
+			'orderby'             => 'menu_order title',
 			'order'               => 'ASC'
 		) );
 
