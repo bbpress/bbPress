@@ -2912,86 +2912,187 @@ function bbp_topic_notices() {
 /**
  * Displays topic type select box (normal/sticky/super sticky)
  *
- * @since bbPress (r2784)
+ * @since bbPress (r5059)
+ * @deprecated since bbPress (r5059)
  *
  * @param $args This function supports these arguments:
- *  - stick_text: Sticky text
- *  - super_text: Super Sticky text
- *  - unstick_text: Unstick (normal) text
  *  - select_id: Select id. Defaults to bbp_stick_topic
  *  - tab: Tabindex
  *  - topic_id: Topic id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_is_single_topic() To check if we're viewing a single topic
- * @uses bbp_is_topic_edit() To check if it is the topic edit page
- * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
- * @uses bbp_is_topic_sticky() To check if the topic is a sticky
+ *  - selected: Override the selected option
  */
 function bbp_topic_type_select( $args = '' ) {
+	echo bbp_get_form_topic_type_dropdown( $args );
+}
 
-	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'unstick_text' => __( 'Normal',       'bbpress' ),
-		'stick_text'   => __( 'Sticky',       'bbpress' ),
-		'super_text'   => __( 'Super Sticky', 'bbpress' ),
-		'select_id'    => 'bbp_stick_topic',
-		'tab'          => bbp_get_tab_index(),
-		'topic_id'     => 0
-	), 'topic_type_select' );
+/**
+ * Displays topic type select box (normal/sticky/super sticky)
+ *
+ * @since bbPress (r5059)
+ *
+ * @param $args This function supports these arguments:
+ *  - select_id: Select id. Defaults to bbp_stick_topic
+ *  - tab: Tabindex
+ *  - topic_id: Topic id
+ *  - selected: Override the selected option
+ */
+function bbp_form_topic_type_dropdown( $args = '' ) {
+	echo bbp_get_form_topic_type_dropdown( $args );
+}
+	/**
+	 * Returns topic type select box (normal/sticky/super sticky)
+	 *
+	 * @since bbPress (r5059)
+	 *
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_stick_topic
+	 *  - tab: Tabindex
+	 *  - topic_id: Topic id
+	 *  - selected: Override the selected option
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_is_single_topic() To check if we're viewing a single topic
+	 * @uses bbp_is_topic_edit() To check if it is the topic edit page
+	 * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
+	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
+	 */
+	function bbp_get_form_topic_type_dropdown( $args = '' ) {
 
-	// Edit topic
-	if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id'    => 'bbp_stick_topic',
+			'tab'          => bbp_get_tab_index(),
+			'topic_id'     => 0,
+			'selected'     => false
+		), 'topic_type_select' );
 
-		// Get current topic id
-		$topic_id = bbp_get_topic_id( $r['topic_id'] );
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
 
-		// Post value is passed
-		if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-			$sticky_current = $_POST[ $r['select_id'] ];
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
 
-		// Topic is super sticky
-		} elseif ( bbp_is_topic_super_sticky( $topic_id ) ) {
-			$sticky_current = 'super';
+			// No Post value passed
+			} else {
 
-		// Topic is sticky or normal
-		} else {
-			$sticky_current = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
+				// Edit topic
+				if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
+
+					// Get current topic id
+					$topic_id = bbp_get_topic_id( $r['topic_id'] );
+
+					// Topic is super sticky
+					if ( bbp_is_topic_super_sticky( $topic_id ) ) {
+						$r['selected'] = 'super';
+
+					// Topic is sticky or normal
+					} else {
+						$r['selected'] = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
+					}
+				}
+			}
 		}
 
-	// New topic
-	} else {
+		// Used variables
+		$tab = !empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
 
-		// Post value is passed
-		if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-			$sticky_current = $_POST[ $r['select_id'] ];
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
 
-		// Default to unstick
-		} else {
-			$sticky_current = 'unstick';
-		}
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_topic_types() as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_topic_type_dropdown', ob_get_clean(), $r );
 	}
 
-	// Used variables
-	$tab             = !empty( $r['tab'] ) ? ' tabindex="' . $r['tab'] . '"' : '';
-	$select_id       = esc_attr( $r['select_id'] );
-	$sticky_statuses = array_filter( array(
-		'unstick' => $r['unstick_text'],
-		'stick'   => $r['stick_text'],
-		'super'   => $r['super_text'],
-	) ); ?>
-
-	<select name="<?php echo $select_id; ?>" id="<?php echo $select_id; ?>"<?php echo $tab; ?>>
-
-		<?php foreach ( $sticky_statuses as $sticky_status => $label ) : ?>
-
-			<option value="<?php echo esc_attr( $sticky_status ); ?>"<?php selected( $sticky_current, $sticky_status ); ?>><?php echo esc_html( $label ); ?></option>
-
-		<?php endforeach; ?>
-
-	</select>
-
-	<?php
+/**
+ * Output value topic status dropdown
+ *
+ * @since bbPress (r5059)
+ *
+ * @param int $topic_id The topic id to use
+ */
+function bbp_form_topic_status_dropdown( $args = '' ) {
+	echo bbp_get_form_topic_status_dropdown( $args );
 }
+	/**
+	 * Returns topic status downdown
+	 *
+	 * This dropdown is only intended to be seen by users with the 'moderate'
+	 * capability. Because of this, no additional capablitiy checks are performed
+	 * within this function to check available topic statuses.
+	 *
+	 * @since bbPress (r5059)
+	 *
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_open_close_topic
+	 *  - tab: Tabindex
+	 *  - topic_id: Topic id
+	 *  - selected: Override the selected option
+	 */
+	function bbp_get_form_topic_status_dropdown( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id' => 'bbp_topic_status',
+			'tab'       => bbp_get_tab_index(),
+			'topic_id'  => 0,
+			'selected'  => false
+		), 'topic_open_close_select' );
+
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
+
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
+
+			// No Post value was passed
+			} else {
+
+				// Edit topic
+				if ( bbp_is_topic_edit() ) {
+					$r['topic_id'] = bbp_get_topic_id( $r['topic_id'] );
+					$r['selected'] = bbp_get_topic_status( $r['topic_id'] );
+
+				// New topic
+				} else {
+					$r['selected'] = bbp_get_public_status_id();
+				}
+			}
+		}
+
+		// Used variables
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
+
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_topic_statuses( $r['topic_id'] ) as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_topic_status_dropdown', ob_get_clean(), $r );
+	}
 
 /** Single Topic **************************************************************/
 

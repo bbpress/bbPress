@@ -748,10 +748,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				case 'page' :
 
 					// Strip the super stickies from topic query
-					add_filter( 'bbp_get_super_stickies',                 array( $this, 'no_super_stickies'  ), 10, 1 );
+					add_filter( 'bbp_get_super_stickies', array( $this, 'no_super_stickies'  ), 10, 1 );
 
 					// Unset the super sticky option on topic form
-					add_filter( 'bbp_after_topic_type_select_parse_args', array( $this, 'unset_super_sticky' ), 10, 1 );
+					add_filter( 'bbp_get_topic_types',    array( $this, 'unset_super_sticky' ), 10, 1 );
 
 					// Query forums and show them if they exist
 					if ( bbp_forums() ) :
@@ -807,7 +807,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
 
 						// Unset the super sticky link on edit topic template
-						add_filter( 'bbp_after_topic_type_select_parse_args', array( $this, 'unset_super_sticky' ), 10, 1 );
+						add_filter( 'bbp_get_topic_types', array( $this, 'unset_super_sticky' ), 10, 1 );
 
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
@@ -921,7 +921,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @return array $args without the to-front link
 	 */
 	public function unset_super_sticky( $args = array() ) {
-		$args['super_text'] = '';
+		if ( isset( $args['super'] ) ) {
+			unset( $args['super'] );
+		}
 		return $args;
 	}
 

@@ -64,7 +64,7 @@ function bbp_has_forums( $args = '' ) {
 		'post_status'         => bbp_get_public_status_id(),
 		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
 		'ignore_sticky_posts' => true,
-		'orderby'             => 'menu_order title',
+		'orderby'             => 'menu_order',
 		'order'               => 'ASC'
 	), 'has_forums' );
 
@@ -2109,7 +2109,7 @@ function bbp_form_forum_visibility() {
 		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
 	}
 
-/** Form Dropdows *************************************************************/
+/** Form Dropdowns ************************************************************/
 
 /**
  * Output value forum type dropdown
@@ -2119,8 +2119,8 @@ function bbp_form_forum_visibility() {
  * @param int $forum_id The forum id to use
  * @uses bbp_get_form_forum_type() To get the topic's forum id
  */
-function bbp_form_forum_type_dropdown( $forum_id = 0 ) {
-	echo bbp_get_form_forum_type_dropdown( $forum_id );
+function bbp_form_forum_type_dropdown( $args = '' ) {
+	echo bbp_get_form_forum_type_dropdown( $args );
 }
 	/**
 	 * Return the forum type dropdown
@@ -2133,20 +2133,66 @@ function bbp_form_forum_type_dropdown( $forum_id = 0 ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum type
 	 */
-	function bbp_get_form_forum_type_dropdown( $forum_id = 0 ) {
-		$forum_id   = bbp_get_forum_id( $forum_id );
-		$forum_attr = apply_filters( 'bbp_forum_types', array(
-			'forum'    => __( 'Forum',    'bbpress' ),
-			'category' => __( 'Category', 'bbpress' )
-		) );
-		$type_output = '<select name="bbp_forum_type" id="bbp_forum_type_select">' . "\n";
+	function bbp_get_form_forum_type_dropdown( $args = '' ) {
 
-		foreach ( $forum_attr as $value => $label )
-			$type_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_type( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		// Backpat for handling passing of a forum ID as integer
+		if ( is_int( $args ) ) {
+			$forum_id = (int) $args;
+			$args     = array();
+		} else {
+			$forum_id = 0;
+		}
 
-		$type_output .= '</select>';
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id'    => 'bbp_forum_type',
+			'tab'          => bbp_get_tab_index(),
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		), 'forum_type_select' );
 
-		return apply_filters( 'bbp_get_form_forum_type_dropdown', $type_output, $forum_id, $forum_attr );
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
+
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
+
+			// No Post value was passed
+			} else {
+
+				// Edit topic
+				if ( bbp_is_forum_edit() ) {
+					$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+					$r['selected'] = bbp_get_forum_type( $r['forum_id'] );
+
+				// New topic
+				} else {
+					$r['selected'] = bbp_get_public_status_id();
+				}
+			}
+		}
+
+		// Used variables
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
+
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_forum_types() as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r );
 	}
 
 /**
@@ -2157,8 +2203,8 @@ function bbp_form_forum_type_dropdown( $forum_id = 0 ) {
  * @param int $forum_id The forum id to use
  * @uses bbp_get_form_forum_status() To get the topic's forum id
  */
-function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
-	echo bbp_get_form_forum_status_dropdown( $forum_id );
+function bbp_form_forum_status_dropdown( $args = '' ) {
+	echo bbp_get_form_forum_status_dropdown( $args );
 }
 	/**
 	 * Return the forum status dropdown
@@ -2171,20 +2217,66 @@ function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum status
 	 */
-	function bbp_get_form_forum_status_dropdown( $forum_id = 0 ) {
-		$forum_id   = bbp_get_forum_id( $forum_id );
-		$forum_attr = apply_filters( 'bbp_forum_statuses', array(
-			'open'   => _x( 'Open',   'Forum Status', 'bbpress' ),
-			'closed' => _x( 'Closed', 'Forum Status', 'bbpress' )
-		) );
-		$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
+	function bbp_get_form_forum_status_dropdown( $args = '' ) {
 
-		foreach ( $forum_attr as $value => $label )
-			$status_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_status( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		// Backpat for handling passing of a forum ID
+		if ( is_int( $args ) ) {
+			$forum_id = (int) $args;
+			$args     = array();
+		} else {
+			$forum_id = 0;
+		}
 
-		$status_output .= '</select>';
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id'    => 'bbp_forum_status',
+			'tab'          => bbp_get_tab_index(),
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		), 'forum_status_select' );
 
-		return apply_filters( 'bbp_get_form_forum_status_dropdown', $status_output, $forum_id, $forum_attr );
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
+
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
+
+			// No Post value was passed
+			} else {
+
+				// Edit topic
+				if ( bbp_is_forum_edit() ) {
+					$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+					$r['selected'] = bbp_get_forum_status( $r['forum_id'] );
+
+				// New topic
+				} else {
+					$r['selected'] = bbp_get_public_status_id();
+				}
+			}
+		}
+
+		// Used variables
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
+
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_forum_statuses() as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_forum_status_dropdown', ob_get_clean(), $r );
 	}
 
 /**
@@ -2195,8 +2287,8 @@ function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
  * @param int $forum_id The forum id to use
  * @uses bbp_get_form_forum_visibility() To get the topic's forum id
  */
-function bbp_form_forum_visibility_dropdown( $forum_id = 0 ) {
-	echo bbp_get_form_forum_visibility_dropdown( $forum_id );
+function bbp_form_forum_visibility_dropdown( $args = '' ) {
+	echo bbp_get_form_forum_visibility_dropdown( $args );
 }
 	/**
 	 * Return the forum visibility dropdown
@@ -2209,21 +2301,66 @@ function bbp_form_forum_visibility_dropdown( $forum_id = 0 ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum visibility
 	 */
-	function bbp_get_form_forum_visibility_dropdown( $forum_id = 0 ) {
-		$forum_id   = bbp_get_forum_id( $forum_id );
-		$forum_attr = apply_filters( 'bbp_forum_visibilities', array(
-			bbp_get_public_status_id()  => __( 'Public',  'bbpress' ),
-			bbp_get_private_status_id() => __( 'Private', 'bbpress' ),
-			bbp_get_hidden_status_id()  => __( 'Hidden',  'bbpress' )
-		) );
-		$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
+	function bbp_get_form_forum_visibility_dropdown( $args = '' ) {
 
-		foreach ( $forum_attr as $value => $label )
-			$visibility_output .= "\t" . '<option value="' . esc_attr( $value ) . '"' . selected( bbp_get_forum_visibility( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		// Backpat for handling passing of a forum ID
+		if ( is_int( $args ) ) {
+			$forum_id = (int) $args;
+			$args     = array();
+		} else {
+			$forum_id = 0;
+		}
 
-		$visibility_output .= '</select>';
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id'    => 'bbp_forum_visibility',
+			'tab'          => bbp_get_tab_index(),
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		), 'forum_type_select' );
 
-		return apply_filters( 'bbp_get_form_forum_visibility_dropdown', $visibility_output, $forum_id, $forum_attr );
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
+
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
+
+			// No Post value was passed
+			} else {
+
+				// Edit topic
+				if ( bbp_is_forum_edit() ) {
+					$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+					$r['selected'] = bbp_get_forum_visibility( $r['forum_id'] );
+
+				// New topic
+				} else {
+					$r['selected'] = bbp_get_public_status_id();
+				}
+			}
+		}
+
+		// Used variables
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
+
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_forum_visibilities() as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r );
 	}
 
 /** Feeds *********************************************************************/

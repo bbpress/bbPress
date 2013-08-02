@@ -127,11 +127,23 @@
 
 							<label for="bbp_stick_topic"><?php _e( 'Topic Type:', 'bbpress' ); ?></label><br />
 
-							<?php bbp_topic_type_select(); ?>
+							<?php bbp_form_topic_type_dropdown(); ?>
 
 						</p>
 
 						<?php do_action( 'bbp_theme_after_topic_form_type' ); ?>
+
+						<?php do_action( 'bbp_theme_before_topic_form_status' ); ?>
+
+						<p>
+
+							<label for="bbp_topic_status"><?php _e( 'Topic Status:', 'bbpress' ); ?></label><br />
+
+							<?php bbp_form_topic_status_dropdown(); ?>
+
+						</p>
+
+						<?php do_action( 'bbp_theme_after_topic_form_status' ); ?>
 
 					<?php endif; ?>
 
@@ -162,11 +174,10 @@
 						<?php do_action( 'bbp_theme_before_topic_form_revisions' ); ?>
 
 						<fieldset class="bbp-form">
-							<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
-							<div>
+							<legend>
 								<input name="bbp_log_topic_edit" id="bbp_log_topic_edit" type="checkbox" value="1" <?php bbp_form_topic_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
 								<label for="bbp_log_topic_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
-							</div>
+							</legend>
 
 							<div>
 								<label for="bbp_topic_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />

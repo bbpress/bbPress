@@ -574,7 +574,10 @@ class BBP_Admin {
 									bbp_author_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
 								}
 							} );
-						<?php if ( bbp_get_reply_post_type() === get_current_screen()->post_type ) : ?>
+						<?php if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) : ?>
+							jQuery( '#misc-publishing-actions' ).find( '.misc-pub-section' ).first().remove();
+							jQuery( '#save-action' ).remove();
+						<?php elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) : ?>
 							var bbp_topic_id = jQuery( '#bbp_topic_id' );
 							bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
 								onSelect: function() {

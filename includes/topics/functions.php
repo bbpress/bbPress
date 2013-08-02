@@ -275,7 +275,11 @@ function bbp_new_topic_handler( $action = '' ) {
 	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		$topic_status = bbp_get_pending_status_id();
 
-	// Default to published
+	// Check a whitelist of possible topic status ID's
+	} elseif ( in_array( $_POST['bbp_topic_status'], array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id(), bbp_get_trash_status_id(), bbp_get_orphan_status_id() ) ) ) {
+		$topic_status = $_POST['bbp_topic_status'];
+
+	// Default to published if nothing else
 	} else {
 		$topic_status = bbp_get_public_status_id();
 	}
@@ -606,6 +610,10 @@ function bbp_edit_topic_handler( $action = '' ) {
 		if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
 			$topic_status = bbp_get_pending_status_id();
 		}
+
+	// Check a whitelist of possible topic status ID's
+	} elseif ( in_array( $_POST['bbp_topic_status'], array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id(), bbp_get_trash_status_id(), bbp_get_orphan_status_id() ) ) ) {
+		$topic_status = $_POST['bbp_topic_status'];
 
 	// Use existing post_status
 	} else {
@@ -1941,6 +1949,40 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 	// For good measure
 	exit();
+}
+
+/** Helpers *******************************************************************/
+
+/**
+ * Return an associative array of available topic statuses
+ *
+ * @since bbPress (r5059)
+ *
+ * @return array
+ */
+function bbp_get_topic_statuses() {
+	return apply_filters( 'bbp_get_topic_statuses', array(
+		bbp_get_public_status_id()  => _x( 'Open',    'Open the topic',        'bbpress' ),
+		bbp_get_closed_status_id()  => _x( 'Closed',  'Close the topic',       'bbpress' ),
+		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the topic',        'bbpress' ),
+		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the topic',       'bbpress' ),
+		bbp_get_pending_status_id() => _x( 'Pending', 'Mark topic as pending', 'bbpress' ),
+	) );
+}
+
+/**
+ * Return an associative array of topic sticky types
+ *
+ * @since bbPress (r5059)
+ *
+ * @return array
+ */
+function bbp_get_topic_types() {
+	return apply_filters( 'bbp_get_topic_types', array(
+		'unstick' => _x( 'Normal',       'Unstick a topic',         'bbpress' ),
+		'stick'   => _x( 'Sticky',       'Make topic sticky',       'bbpress' ),
+		'super'   => _x( 'Super Sticky', 'Make topic super sticky', 'bbpress' )
+	) );
 }
 
 /** Stickies ******************************************************************/

@@ -260,7 +260,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_type_dropdown( $post_id ); ?>
+		<?php bbp_form_forum_type_dropdown( array( 'forum_id' => $post_id ) ); ?>
 	</p>
 
 	<?php
@@ -272,7 +272,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_status_dropdown( $post_id ); ?>
+		<?php bbp_form_forum_status_dropdown( array( 'forum_id' => $post_id ) ); ?>
 	</p>
 
 	<?php
@@ -284,7 +284,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_visibility_dropdown( $post_id ); ?>
+		<?php bbp_form_forum_visibility_dropdown( array( 'forum_id' => $post_id ) ); ?>
 	</p>
 
 	<hr />
@@ -344,13 +344,35 @@ function bbp_forum_metabox() {
 function bbp_topic_metabox() {
 
 	// Post ID
-	$post_id = get_the_ID(); ?>
+	$post_id = get_the_ID();
+
+	/** Type ******************************************************************/
+
+	?>
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_stick_topic"><?php esc_html_e( 'Topic Type', 'bbpress' ); ?></label>
-		<?php bbp_topic_type_select( array( 'topic_id' => $post_id ) ); ?>
+		<?php bbp_form_topic_type_dropdown( array( 'topic_id' => $post_id ) ); ?>
 	</p>
+
+	<?php
+
+	/** Status ****************************************************************/
+
+	?>
+
+	<p>
+		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_open_close_topic"><?php esc_html_e( 'Select whether to open or close the topic.', 'bbpress' ); ?></label>
+		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post_id ) ); ?>
+	</p>
+
+	<?php
+
+	/** Parent *****************************************************************/
+
+	?>
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
