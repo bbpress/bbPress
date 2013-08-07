@@ -730,7 +730,7 @@ function bbp_admin_repair_user_roles() {
 		return array( 1, sprintf( $statement, __( 'Failed!', 'bbpress' ) ) );
 
 	// Iterate through each role...
-	foreach ( array_keys( get_editable_roles() ) as $role ) {
+	foreach ( array_keys( bbp_get_blog_roles() ) as $role ) {
 
 		// Reset the offset
 		$offset = 0;

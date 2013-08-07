@@ -125,8 +125,8 @@ function bbp_get_user_role( $user_id = 0 ) {
 		);
 
 		// If there's a role in the array, use the first one. This isn't very
-		// smart, but since roles aren't hierarchical, and bbPress doesn't
-		// enable a user to have multiple forum roles, it's fine for now.
+		// smart, but since roles aren't exactly hierarchical, and bbPress
+		// does not yet have a UI for multiple user roles, it's fine for now.
 		if ( !empty( $roles ) ) {
 			$role = array_shift( $roles );
 		}
@@ -159,15 +159,17 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 	// User has roles so lets
 	if ( ! empty( $user->roles ) ) {
 
-		// Apply the WordPress 'editable_roles' filter to let plugins ride along
-		$all_roles = apply_filters( 'editable_roles', $wp_roles->roles );
+		// Look for a non bbPress role
+		$roles     = array_intersect(
+			array_values( $user->roles ),
+			array_keys( bbp_get_blog_roles() )
+		);
 
-		// Look for an intersection of user roles to available blog roles
-		$roles     = array_intersect( array_values( $user->roles ), array_keys( $all_roles ) );
-
-		// If there's a role in the array, use the first one
+		// If there's a role in the array, use the first one. This isn't very
+		// smart, but since roles aren't exactly hierarchical, and WordPress
+		// does not yet have a UI for multiple user roles, it's fine for now.
 		if ( !empty( $roles ) ) {
-			$role = array_shift( array_values( $roles ) );
+			$role = array_shift( $roles );
 		}
 	}
 
