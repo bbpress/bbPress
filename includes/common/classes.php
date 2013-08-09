@@ -233,7 +233,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
 	 *                        title, output, post, depth and args
 	 */
-	public function start_el( &$output, $_post, $depth = 0, $args = array(), $current_object_id = 0 ) {
+	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		$pad     = str_repeat( '&nbsp;', (int) $depth * 3 );
 		$output .= '<option class="level-' . (int) $depth . '"';
 
@@ -243,18 +243,18 @@ class BBP_Walker_Dropdown extends Walker {
 		// - the forum is a category
 		// - forum is closed
 		if (	( true === $args['disable_categories'] )
-				&& ( bbp_get_forum_post_type() === $_post->post_type )
-				&& ( bbp_is_forum_category( $_post->ID )
-					|| ( !current_user_can( 'edit_forum', $_post->ID ) && bbp_is_forum_closed( $_post->ID )
+				&& ( bbp_get_forum_post_type() === $object->post_type )
+				&& ( bbp_is_forum_category( $object->ID )
+					|| ( !current_user_can( 'edit_forum', $object->ID ) && bbp_is_forum_closed( $object->ID )
 				)
 			) ) {
 			$output .= ' disabled="disabled" value=""';
 		} else {
-			$output .= ' value="' . (int) $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
+			$output .= ' value="' . (int) $object->ID .'"' . selected( $args['selected'], $object->ID, false );
 		}
 
 		$output .= '>';
-		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
+		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $object->post_title, $output, $object, $depth, $args );
 		$output .= $pad . esc_html( $title );
 		$output .= "</option>\n";
 	}
@@ -371,17 +371,17 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @since bbPress (r4944)
 	 */
-	public function start_el( &$output = '', $reply = false, $depth = 0, $args = array(), $id = 0 ) {
+	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
 		// Set up reply
 		$depth++;
 		bbpress()->reply_query->reply_depth = $depth;
-		bbpress()->reply_query->post        = $reply;
-		bbpress()->current_reply_id         = $reply->ID;
+		bbpress()->reply_query->post        = $object;
+		bbpress()->current_reply_id         = $object->ID;
 
 		// Check for a callback and use it if specified
 		if ( !empty( $args['callback'] ) ) {
-			call_user_func( $args['callback'], $reply, $args, $depth );
+			call_user_func( $args['callback'], $object, $args, $depth );
 			return;
 		}
 
@@ -404,11 +404,11 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * @since bbPress (r4944)
 	 */
-	public function end_el( &$output = '', $reply = false, $depth = 0, $args = array() ) {
+	public function end_el( &$output = '', $object = false, $depth = 0, $args = array() ) {
 
 		// Check for a callback and use it if specified
 		if ( !empty( $args['end-callback'] ) ) {
-			call_user_func( $args['end-callback'], $reply, $args, $depth );
+			call_user_func( $args['end-callback'], $object, $args, $depth );
 			return;
 		}
 
