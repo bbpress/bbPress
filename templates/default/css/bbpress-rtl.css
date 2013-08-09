@@ -705,7 +705,7 @@ div.bbp-submit-wrapper {
 }
 
 p.form-allowed-tags {
-	width: 462px;
+	max-width: 100%;
 }
 
 /* =TinyMCE in themes
