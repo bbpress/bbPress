@@ -2337,7 +2337,7 @@ function bbp_topic_edit_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'edit_text'    => __( 'Edit', 'bbpress' )
+			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
 		), 'get_topic_edit_link' );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
@@ -2358,7 +2358,7 @@ function bbp_topic_edit_link( $args = '' ) {
 		if ( empty( $uri ) )
 			return;
 
-		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_edit_link', $retval, $r );
 	}
@@ -2474,13 +2474,13 @@ function bbp_topic_trash_link( $args = '' ) {
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) ) {
-			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . $r['restore_text'] . '</a>';
+			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" class="bbp-topic-restore-link">' . $r['restore_text'] . '</a>';
 		} elseif ( EMPTY_TRASH_DAYS ) {
-			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . $r['trash_text'] . '</a>';
+			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash',   'topic_id' => $topic->ID ) ), 'trash-'   . $topic->post_type . '_' . $topic->ID ) ) . '" class="bbp-topic-trash-link">'   . $r['trash_text']   . '</a>';
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS ) {
-			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . $r['delete_text'] . '</a>';
+			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete',  'topic_id' => $topic->ID ) ), 'delete-'  . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-topic-delete-link">' . $r['delete_text'] . '</a>';
 		}
 
 		// Process the admin links
@@ -2543,7 +2543,7 @@ function bbp_topic_close_link( $args = '' ) {
 		$display = bbp_is_topic_open( $topic->ID ) ? $r['close_text'] : $r['open_text'];
 		$uri     = add_query_arg( array( 'action' => 'bbp_toggle_topic_close', 'topic_id' => $topic->ID ) );
 		$uri     = wp_nonce_url( $uri, 'close-topic_' . $topic->ID );
-		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $display . '</a>' . $r['link_after'];
+		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-close-link">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_close_link', $retval, $r );
 	}
@@ -2607,13 +2607,13 @@ function bbp_topic_stick_link( $args = '' ) {
 		$stick_uri = wp_nonce_url( $stick_uri, 'stick-topic_' . $topic->ID );
 
 		$stick_display = ( true === $is_sticky ) ? $r['unstick_text'] : $r['stick_text'];
-		$stick_display = '<a href="' . esc_url( $stick_uri ) . '">' . $stick_display . '</a>';
+		$stick_display = '<a href="' . esc_url( $stick_uri ) . '" class="bbp-topic-sticky-link">' . $stick_display . '</a>';
 
 		if ( empty( $is_sticky ) ) {
 			$super_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID, 'super' => 1 ) );
 			$super_uri = wp_nonce_url( $super_uri, 'stick-topic_' . $topic->ID );
 
-			$super_display = ' <a href="' . esc_url( $super_uri ) . '">' . $r['super_text'] . '</a>';
+			$super_display = ' <a href="' . esc_url( $super_uri ) . '" class="bbp-topic-super-sticky-link">' . $r['super_text'] . '</a>';
 		} else {
 			$super_display = '';
 		}
@@ -2671,7 +2671,7 @@ function bbp_topic_merge_link( $args = '' ) {
 			return;
 
 		$uri    = add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->ID ) );
-		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $r['merge_text'] . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-merge-link">' . $r['merge_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_merge_link', $retval, $args );
 	}
@@ -2730,7 +2730,7 @@ function bbp_topic_spam_link( $args = '' ) {
 		$display = bbp_is_topic_spam( $topic->ID ) ? $r['unspam_text'] : $r['spam_text'];
 		$uri     = add_query_arg( array( 'action' => 'bbp_toggle_topic_spam', 'topic_id' => $topic->ID ) );
 		$uri     = wp_nonce_url( $uri, 'spam-topic_' . $topic->ID );
-		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $display . '</a>' . $r['link_after'];
+		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-spam-link">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_spam_link', $retval, $r );
 	}
