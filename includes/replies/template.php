@@ -1816,7 +1816,7 @@ function bbp_reply_edit_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'edit_text'    => est_html__( 'Edit', 'bbpress' )
+			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
 		), 'get_reply_edit_link' );
 
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $r['id'] ) );
