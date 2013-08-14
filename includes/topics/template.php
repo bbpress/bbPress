@@ -2461,9 +2461,9 @@ function bbp_topic_trash_link( $args = '' ) {
 			'link_before'  => '',
 			'link_after'   => '',
 			'sep'          => ' | ',
-			'trash_text'   => __( 'Trash',   'bbpress' ),
-			'restore_text' => __( 'Restore', 'bbpress' ),
-			'delete_text'  => __( 'Delete',  'bbpress' )
+			'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
+			'restore_text' => esc_html__( 'Restore', 'bbpress' ),
+			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_topic_trash_link' );
 
 		$actions = array();
@@ -2474,13 +2474,13 @@ function bbp_topic_trash_link( $args = '' ) {
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) ) {
-			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . esc_html( $r['restore_text'] ) . '</a>';
+			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . $r['restore_text'] . '</a>';
 		} elseif ( EMPTY_TRASH_DAYS ) {
-			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . esc_html( $r['trash_text'] ) . '</a>';
+			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . $r['trash_text'] . '</a>';
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS ) {
-			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . esc_html( $r['delete_text'] ) . '</a>';
+			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . $r['delete_text'] . '</a>';
 		}
 
 		// Process the admin links
@@ -2591,9 +2591,9 @@ function bbp_topic_stick_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'stick_text'   => __( 'Stick',    'bbpress' ),
-			'unstick_text' => __( 'Unstick',  'bbpress' ),
-			'super_text'   => __( 'to front', 'bbpress' ),
+			'stick_text'   => esc_html__( 'Stick',      'bbpress' ),
+			'unstick_text' => esc_html__( 'Unstick',    'bbpress' ),
+			'super_text'   => esc_html__( '(to front)', 'bbpress' ),
 		), 'get_topic_stick_link' );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
@@ -2606,14 +2606,14 @@ function bbp_topic_stick_link( $args = '' ) {
 		$stick_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID ) );
 		$stick_uri = wp_nonce_url( $stick_uri, 'stick-topic_' . $topic->ID );
 
-		$stick_display = true === $is_sticky ? $r['unstick_text'] : $r['stick_text'];
+		$stick_display = ( true === $is_sticky ) ? $r['unstick_text'] : $r['stick_text'];
 		$stick_display = '<a href="' . esc_url( $stick_uri ) . '">' . $stick_display . '</a>';
 
 		if ( empty( $is_sticky ) ) {
 			$super_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID, 'super' => 1 ) );
 			$super_uri = wp_nonce_url( $super_uri, 'stick-topic_' . $topic->ID );
 
-			$super_display = ' (<a href="' . esc_url( $super_uri ) . '">' . $r['super_text'] . '</a>)';
+			$super_display = ' <a href="' . esc_url( $super_uri ) . '">' . $r['super_text'] . '</a>';
 		} else {
 			$super_display = '';
 		}
@@ -2662,7 +2662,7 @@ function bbp_topic_merge_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'merge_text'   => __( 'Merge', 'bbpress' ),
+			'merge_text'   => esc_html__( 'Merge', 'bbpress' ),
 		), 'get_topic_merge_link' );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
@@ -2718,8 +2718,8 @@ function bbp_topic_spam_link( $args = '' ) {
 			'link_before'  => '',
 			'link_after'   => '',
 			'sep'          => ' | ',
-			'spam_text'    => __( 'Spam',   'bbpress' ),
-			'unspam_text'  => __( 'Unspam', 'bbpress' )
+			'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
+			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_topic_spam_link' );
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
@@ -2767,7 +2767,7 @@ function bbp_topic_reply_link( $args = array() ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'reply_text'   => __( 'Reply', 'bbpress' ),
+			'reply_text'   => esc_html__( 'Reply', 'bbpress' ),
 		), 'get_topic_reply_link' );
 
 		// Get the reply to use it's ID and post_parent
@@ -2781,7 +2781,7 @@ function bbp_topic_reply_link( $args = array() ) {
 
 		// Add $uri to the array, to be passed through the filter
 		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link">' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link">' . $r['reply_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_reply_link', $retval, $r, $args );
 	}

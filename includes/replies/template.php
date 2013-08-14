@@ -1940,9 +1940,9 @@ function bbp_reply_trash_link( $args = '' ) {
 			'link_before'  => '',
 			'link_after'   => '',
 			'sep'          => ' | ',
-			'trash_text'   => __( 'Trash',   'bbpress' ),
-			'restore_text' => __( 'Restore', 'bbpress' ),
-			'delete_text'  => __( 'Delete',  'bbpress' )
+			'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
+			'restore_text' => esc_html__( 'Restore', 'bbpress' ),
+			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_reply_trash_link' );
 
 		$actions = array();
@@ -1953,13 +1953,13 @@ function bbp_reply_trash_link( $args = '' ) {
 		}
 
 		if ( bbp_is_reply_trash( $reply->ID ) ) {
-			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '">' . esc_html( $r['restore_text'] ) . '</a>';
+			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '">' . $r['restore_text'] . '</a>';
 		} elseif ( EMPTY_TRASH_DAYS ) {
-			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash', 'reply_id' => $reply->ID ) ), 'trash-' . $reply->post_type . '_' . $reply->ID ) ) . '">' . esc_html( $r['trash_text'] ) . '</a>';
+			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash',   'reply_id' => $reply->ID ) ), 'trash-'   . $reply->post_type . '_' . $reply->ID ) ) . '">' . $r['trash_text']   . '</a>';
 		}
 
 		if ( bbp_is_reply_trash( $reply->ID ) || !EMPTY_TRASH_DAYS ) {
-			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete', 'reply_id' => $reply->ID ) ), 'delete-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . esc_html( $r['delete_text'] ) . '</a>';
+			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete',  'reply_id' => $reply->ID ) ), 'delete-'  . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . $r['delete_text'] . '</a>';
 		}
 
 		// Process the admin links
@@ -2011,8 +2011,8 @@ function bbp_reply_spam_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'spam_text'    => __( 'Spam',   'bbpress' ),
-			'unspam_text'  => __( 'Unspam', 'bbpress' )
+			'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
+			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_reply_spam_link' );
 
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $r['id'] ) );
@@ -2023,7 +2023,7 @@ function bbp_reply_spam_link( $args = '' ) {
 		$display  = bbp_is_reply_spam( $reply->ID ) ? $r['unspam_text'] : $r['spam_text'];
 		$uri      = add_query_arg( array( 'action' => 'bbp_toggle_reply_spam', 'reply_id' => $reply->ID ) );
 		$uri      = wp_nonce_url( $uri, 'spam-reply_' . $reply->ID );
-		$retval   = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . esc_html( $display ) . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a href="' . esc_url( $uri ) . '">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_spam_link', $retval, $r );
 	}
@@ -2075,8 +2075,8 @@ function bbp_reply_move_link( $args = '' ) {
 			'id'          => 0,
 			'link_before' => '',
 			'link_after'  => '',
-			'split_text'  => __( 'Move',            'bbpress' ),
-			'split_title' => __( 'Move this reply', 'bbpress' )
+			'split_text'  => esc_html__( 'Move',            'bbpress' ),
+			'split_title' => esc_attr__( 'Move this reply', 'bbpress' )
 		), 'get_reply_move_link' );
 
 		$reply_id = bbp_get_reply_id( $r['id'] );
@@ -2090,7 +2090,7 @@ function bbp_reply_move_link( $args = '' ) {
 			'reply_id' => $reply_id
 		), bbp_get_reply_edit_url( $reply_id ) );
 
-		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . esc_attr( $r['split_title'] ) . '">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '">' . $r['split_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_move_link', $retval, $r );
 	}
@@ -2142,8 +2142,8 @@ function bbp_topic_split_link( $args = '' ) {
 			'id'          => 0,
 			'link_before' => '',
 			'link_after'  => '',
-			'split_text'  => __( 'Split',                           'bbpress' ),
-			'split_title' => __( 'Split the topic from this reply', 'bbpress' )
+			'split_text'  => esc_html__( 'Split',                           'bbpress' ),
+			'split_title' => esc_attr__( 'Split the topic from this reply', 'bbpress' )
 		), 'get_topic_split_link' );
 
 		$reply_id = bbp_get_reply_id( $r['id'] );
