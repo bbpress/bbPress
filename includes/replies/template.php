@@ -2090,7 +2090,7 @@ function bbp_reply_move_link( $args = '' ) {
 			'reply_id' => $reply_id
 		), bbp_get_reply_edit_url( $reply_id ) );
 
-		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-reply-spam-link">' . $r['split_text'] . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-reply-move-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_move_link', $retval, $r );
 	}
@@ -2157,7 +2157,7 @@ function bbp_topic_split_link( $args = '' ) {
 			'reply_id' => $reply_id
 		), bbp_get_topic_edit_url( $topic_id ) );
 
-		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . esc_attr( $r['split_title'] ) . '" class="bbp-reply-split-link">' . esc_html( $r['split_text'] ) . '</a>' . $r['link_after'];
+		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-topic-split-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_split_link', $retval, $r );
 	}
