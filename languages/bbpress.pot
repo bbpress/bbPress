@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2013-08-14 18:54:35+00:00\n"
+"POT-Creation-Date: 2013-08-15 00:10:26+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2603,7 +2603,7 @@ msgid "Stick this topic to front"
 msgstr ""
 
 #: includes/admin/topics.php:801 includes/topics/template.php:2596
-msgid "to front"
+msgid "(to front)"
 msgstr ""
 
 #: includes/admin/topics.php:808
@@ -4797,9 +4797,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.4-beta1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.4-rc1)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.4-beta1)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.4-rc1)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
