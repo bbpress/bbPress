@@ -50,8 +50,15 @@ function bbp_is_update() {
  * @return bool True if activating bbPress, false if not
  */
 function bbp_is_activation( $basename = '' ) {
+	global $pagenow;
+
 	$bbp    = bbpress();
 	$action = false;
+
+	// Bail if not in admin/plugins
+	if ( ! ( is_admin() && ( 'plugins.php' === $pagenow ) ) ) {
+		return false;
+	}
 
 	if ( ! empty( $_REQUEST['action'] ) && ( '-1' !== $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
@@ -92,9 +99,16 @@ function bbp_is_activation( $basename = '' ) {
  * @return bool True if deactivating bbPress, false if not
  */
 function bbp_is_deactivation( $basename = '' ) {
+	global $pagenow;
+
 	$bbp    = bbpress();
 	$action = false;
-	
+
+	// Bail if not in admin/plugins
+	if ( ! ( is_admin() && ( 'plugins.php' === $pagenow ) ) ) {
+		return false;
+	}
+
 	if ( ! empty( $_REQUEST['action'] ) && ( '-1' !== $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
 	} elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' !== $_REQUEST['action2'] ) ) {
