@@ -37,7 +37,7 @@
 
 		<?php do_action( 'bbp_theme_before_forum_content' ); ?>
 
-		<?php bbp_the_content(); ?>
+		<?php bbp_forum_content(); ?>
 
 		<?php do_action( 'bbp_theme_after_forum_content' ); ?>
 
