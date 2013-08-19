@@ -276,7 +276,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		$topic_status = bbp_get_pending_status_id();
 
 	// Check a whitelist of possible topic status ID's
-	} elseif ( in_array( $_POST['bbp_topic_status'], array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id(), bbp_get_trash_status_id(), bbp_get_orphan_status_id() ) ) ) {
+	} elseif ( isset( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( bbp_get_topic_statuses() ) ) ) {
 		$topic_status = $_POST['bbp_topic_status'];
 
 	// Default to published if nothing else
@@ -612,7 +612,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		}
 
 	// Check a whitelist of possible topic status ID's
-	} elseif ( in_array( $_POST['bbp_topic_status'], array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id(), bbp_get_trash_status_id(), bbp_get_orphan_status_id() ) ) ) {
+	} elseif ( isset( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( bbp_get_topic_statuses() ) ) ) {
 		$topic_status = $_POST['bbp_topic_status'];
 
 	// Use existing post_status
