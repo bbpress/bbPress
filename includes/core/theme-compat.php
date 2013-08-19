@@ -474,24 +474,44 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Page exists where this archive should be
 		$page = bbp_get_page_by_path( bbp_get_root_slug() );
-		if ( !empty( $page ) ) {
-			$new_content = apply_filters( 'the_content', $page->post_content );
-			$new_title   = apply_filters( 'the_title',   $page->post_title   );
 
-		// Use the topics archive
-		} elseif ( 'topics' === bbp_show_on_root() ) {
-			$new_content = $bbp_shortcodes->display_topic_index();
-			$new_title   = bbp_get_topic_archive_title();
+		// Should we replace the content...
+		if ( empty( $page->post_content ) ) {
 
-		// No page so show the archive
+			// Use the topics archive
+			if ( 'topics' === bbp_show_on_root() ) {
+				$new_content = $bbp_shortcodes->display_topic_index();
+
+			// No page so show the archive
+			} else {
+				$new_content = $bbp_shortcodes->display_forum_index();
+			}
+
+		// ...or use the existing page content?
 		} else {
-			$new_content = $bbp_shortcodes->display_forum_index();
-			$new_title   = bbp_get_forum_archive_title();
+			$new_content = apply_filters( 'the_content', $page->post_content );
+		}
+
+		// Should we replace the title...
+		if ( empty( $page->post_title ) ) {
+
+			// Use the topics archive
+			if ( 'topics' === bbp_show_on_root() ) {
+				$new_title = bbp_get_topic_archive_title();
+
+			// No page so show the archive
+			} else {
+				$new_title = bbp_get_forum_archive_title();
+			}
+
+		// ...or use the existing page title?
+		} else {
+			$new_title = apply_filters( 'the_title',   $page->post_title   );
 		}
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
+			'ID'             => !empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => $new_title,
 			'post_author'    => 0,
 			'post_date'      => 0,
@@ -540,17 +560,28 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Page exists where this archive should be
 		$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
-		if ( !empty( $page ) ) {
-			$new_content = apply_filters( 'the_content', $page->post_content );
 
-		// No page so show the archive
-		} else {
+		// Should we replace the content...
+		if ( empty( $page->post_content ) ) {
 			$new_content = $bbp_shortcodes->display_topic_index();
+
+		// ...or use the existing page content?
+		} else {
+			$new_content = apply_filters( 'the_content', $page->post_content );
+		}
+
+		// Should we replace the title...
+		if ( empty( $page->post_title ) ) {
+			$new_title = bbp_get_topic_archive_title();
+
+		// ...or use the existing page title?
+		} else {
+			$new_title = apply_filters( 'the_title',   $page->post_title   );
 		}
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
+			'ID'             => !empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => bbp_get_topic_archive_title(),
 			'post_author'    => 0,
 			'post_date'      => 0,
