@@ -1424,7 +1424,7 @@ function bbp_dropdown( $args = '' ) {
 			}
 
 			// Get the options
-			$retval .= !empty( $r['show_none'] ) ? "\t<option value=\"\" class=\"level-0\">" . $r['show_none'] . '</option>' : '';
+			$retval .= !empty( $r['show_none'] ) ? "\t<option value=\"\" class=\"level-0\">" . esc_html( $r['show_none'] ) . '</option>' : '';
 			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
 
 			// Build the closing tag for the select element
