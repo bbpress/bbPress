@@ -358,7 +358,6 @@ span.bbp-author-ip {
 	background-color: #f9f9f9;
 	border: 1px solid #ddd;
 	padding: 0 5px;
-	overflow: scroll;
 	max-width: 95%;
 	vertical-align: middle;
 	margin-top: -3px;
@@ -382,6 +381,8 @@ span.bbp-author-ip {
 	margin: 0;
 	background-color: transparent;
 	overflow-wrap: normal;
+	overflow: auto;
+	max-width: 100%;
 }
 
 /* =Reply to
