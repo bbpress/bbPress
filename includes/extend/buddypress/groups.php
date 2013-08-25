@@ -724,7 +724,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Forum data
 		$forum_action = bp_action_variable( $offset );
-		$forum_id     = array_shift( bbp_get_group_forum_ids( bp_get_current_group_id() ) );
+		$forum_ids    = bbp_get_group_forum_ids( bp_get_current_group_id() );
+		$forum_id     = array_shift( $forum_ids );
 
 		// Always load up the group forum
 		bbp_has_forums( array(
