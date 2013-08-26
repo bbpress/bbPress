@@ -1382,7 +1382,7 @@ class BBP_Admin {
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating to the latest version! bbPress %s goes great with pizza and popcorn, and will nicely complement your community too!', 'bbpress' ), $display_version ); ?></div>
+			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is waxed, polished, and ready for you to take it for a lap or two around the block!', 'bbpress' ), $display_version ); ?></div>
 			<div class="bbp-badge"><?php printf( esc_html__( 'Version %s', 'bbpress' ), $display_version ); ?></div>
 
 			<h2 class="nav-tab-wrapper">
@@ -1394,41 +1394,18 @@ class BBP_Admin {
 			</h2>
 
 			<div class="changelog">
-				<h3><?php esc_html_e( 'Forum Search', 'bbpress' ); ?></h3>
+				<h3><?php esc_html_e( 'Hierarchical Replies', 'bbpress' ); ?></h3>
 
-				<div class="feature-section">
-					<h4><?php esc_html_e( 'Only Forum Content', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Allow your forums to be searched without mixing in your posts or pages.', 'bbpress' ); ?></p>
+				<div class="feature-section col two-col">
+					<div class="last-feature">
+						<h4><?php esc_html_e( 'Reply to replies', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Now your users can reply to specific replies, providing context to each inidividual post.', 'bbpress' ); ?></p>
+					</div>
 
-					<h4><?php esc_html_e( 'Choose Your Own Slug', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Setup your forum search to live anywhere relative to the forum index.', 'bbpress' ); ?></p>
-				</div>
-			</div>
-
-			<div class="changelog">
-				<h3><?php esc_html_e( 'New & Improved Forum Importers', 'bbpress' ); ?></h3>
-
-				<div class="feature-section">
-					<h4><?php esc_html_e( 'BBCodes & Smilies', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Happy faces all-around now that the importers properly convert BBCodes & smilies. :)', 'bbpress' ); ?></p>
-
-					<h4><?php esc_html_e( 'Vanilla', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Tired of plain old Vanilla? Now you can easily switch to <del>Mint Chocolate Chip</del> bbPress!', 'bbpress' ); ?></p>
-
-					<h4><?php esc_html_e( 'SimplePress', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Converting an existing SimplePress powered forum to bbPress has never been "simpler!"', 'bbpress' ); ?></p>
-
-					<h4><?php esc_html_e( 'Mingle', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'No time to... chit-chat; convert your Mingle forums to bbPress today!', 'bbpress' ); ?></p>
-				</div>
-			</div>
-
-			<div class="changelog">
-				<h3><?php esc_html_e( 'Even Better BuddyPress Integration', 'bbpress' ); ?></h3>
-
-				<div class="feature-section">
-					<h4><?php esc_html_e( 'bbPress powered BuddyPress Group Forums', 'bbpress' ); ?></h4>
-					<p><?php esc_html_e( 'Use bbPress to manage your BuddyPress Group Forums, allowing for seamless integration and improved plugin performance.', 'bbpress' ); ?></p>
+					<div>
+						<h4><?php esc_html_e( 'Choose your own discussion style', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Stay flat or go threaded, and seamlessly switch between the two.', 'bbpress' ); ?></p>
+					</div>
 				</div>
 			</div>
 
@@ -1437,27 +1414,35 @@ class BBP_Admin {
 
 				<div class="feature-section col three-col">
 					<div>
-						<h4><?php esc_html_e( 'Smarter Fancy Editor', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'We simplified the Fancy Editor, and the allowed HTML tags that work with it.', 'bbpress' ); ?></p>
-
-						<h4><?php esc_html_e( 'Better Code Posting', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Your users can now post code snippets without too much hassle.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'Preformatted text', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Forum users can post code snippets with confidence.', 'bbpress' ); ?></p>
 					</div>
 
 					<div>
-						<h4><?php esc_html_e( 'Template Stacking', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Now you can replace specific template parts on the fly without modifying the existing theme.', 'bbpress' ); ?></p>
-
-						<h4><?php esc_html_e( 'TwentyThirteen Tested', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'bbPress 2.3 already works with the in-development TwentyThirteen theme, coming in a future version of WordPress.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'Polyglot support', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'bbPress is ready for future translation API improvements.', 'bbpress' ); ?></p>
 					</div>
 
 					<div class="last-feature">
-						<h4><?php esc_html_e( 'Statistics Shortcode', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'The old statistics easter-egg page was turned into an easy to use shortcode.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'User capabilities', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Roles and capabilities have been swept through, cleaned up, and simplified.', 'bbpress' ); ?></p>
+					</div>
+				</div>
 
-						<h4><?php esc_html_e( 'Green Theme Updated', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'The green admin theme easter-egg was updated to work with WordPress 3.5 changes.', 'bbpress' ); ?></p>
+				<div class="feature-section col three-col">
+					<div>
+						<h4><?php esc_html_e( 'Search', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Search results use pretty permalinks, and have a dedicated output page.', 'bbpress' ); ?></p>
+					</div>
+
+					<div>
+						<h4><?php esc_html_e( 'Settings', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Fields and sections have been reordered and reorganized.', 'bbpress' ); ?></p>
+					</div>
+
+					<div class="last-feature">
+						<h4><?php esc_html_e( 'BuddyPress', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Forums are now fully and seamlessly integrated into BuddyPress Groups.', 'bbpress' ); ?></p>
 					</div>
 				</div>
 			</div>
