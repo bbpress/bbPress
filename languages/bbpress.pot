@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2013-08-15 00:10:26+00:00\n"
+"POT-Creation-Date: 2013-09-02 17:40:01+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -140,7 +140,7 @@ msgid "No topics found in Trash"
 msgstr ""
 
 #: bbpress.php:549 includes/admin/metaboxes.php:378
-#: includes/admin/metaboxes.php:431 includes/extend/buddypress/groups.php:1037
+#: includes/admin/metaboxes.php:431 includes/extend/buddypress/groups.php:1038
 #: templates/default/bbpress/form-topic.php:114
 msgid "Forum:"
 msgstr ""
@@ -151,7 +151,7 @@ msgstr ""
 
 #: bbpress.php:592 bbpress.php:593 includes/admin/forums.php:411
 #: includes/admin/settings.php:230 includes/admin/settings.php:251
-#: includes/admin/topics.php:634 includes/core/theme-compat.php:605
+#: includes/admin/topics.php:634 includes/core/theme-compat.php:636
 #: includes/extend/buddypress/activity.php:355
 #: includes/forums/template.php:2488
 #: templates/default/bbpress/content-statistics.php:32
@@ -340,11 +340,11 @@ msgstr ""
 
 #: includes/admin/admin.php:268 includes/admin/admin.php:269
 #: includes/admin/admin.php:290 includes/admin/admin.php:291
-#: includes/admin/admin.php:1654 includes/admin/admin.php:1743
+#: includes/admin/admin.php:1629 includes/admin/admin.php:1718
 msgid "Update Forums"
 msgstr ""
 
-#: includes/admin/admin.php:495
+#: includes/admin/admin.php:495 includes/admin/admin.php:1439
 msgid "Settings"
 msgstr ""
 
@@ -365,226 +365,176 @@ msgstr ""
 msgid "%s - %s"
 msgstr ""
 
-#: includes/admin/admin.php:1384 includes/admin/admin.php:1487
+#: includes/admin/admin.php:1384 includes/admin/admin.php:1472
 msgid "Welcome to bbPress %s"
 msgstr ""
 
-#: includes/admin/admin.php:1385 includes/admin/admin.php:1488
+#: includes/admin/admin.php:1385 includes/admin/admin.php:1473
 msgid ""
-"Thank you for updating to the latest version! bbPress %s goes great with "
-"pizza and popcorn, and will nicely complement your community too!"
+"Thank you for updating! bbPress %s is waxed, polished, and ready for you to "
+"take it for a lap or two around the block!"
 msgstr ""
 
-#: includes/admin/admin.php:1386 includes/admin/admin.php:1489
+#: includes/admin/admin.php:1386 includes/admin/admin.php:1474
 msgid "Version %s"
 msgstr ""
 
-#: includes/admin/admin.php:1390 includes/admin/admin.php:1493
+#: includes/admin/admin.php:1390 includes/admin/admin.php:1478
 msgid "What&#8217;s New"
 msgstr ""
 
-#: includes/admin/admin.php:1392 includes/admin/admin.php:1495
+#: includes/admin/admin.php:1392 includes/admin/admin.php:1480
 msgid "Credits"
 msgstr ""
 
 #: includes/admin/admin.php:1397
-msgid "Forum Search"
-msgstr ""
-
-#: includes/admin/admin.php:1400
-msgid "Only Forum Content"
+msgid "Hierarchical Replies"
 msgstr ""
 
 #: includes/admin/admin.php:1401
-msgid "Allow your forums to be searched without mixing in your posts or pages."
+msgid "Reply to replies"
 msgstr ""
 
-#: includes/admin/admin.php:1403
-msgid "Choose Your Own Slug"
+#: includes/admin/admin.php:1402
+msgid ""
+"Now your users can reply to specific replies, providing context to each "
+"inidividual post."
 msgstr ""
 
-#: includes/admin/admin.php:1404
-msgid "Setup your forum search to live anywhere relative to the forum index."
+#: includes/admin/admin.php:1406
+msgid "Choose your own discussion style"
 msgstr ""
 
-#: includes/admin/admin.php:1409
-msgid "New & Improved Forum Importers"
-msgstr ""
-
-#: includes/admin/admin.php:1412
-msgid "BBCodes & Smilies"
+#: includes/admin/admin.php:1407
+msgid "Stay flat or go threaded, and seamlessly switch between the two."
 msgstr ""
 
 #: includes/admin/admin.php:1413
-msgid ""
-"Happy faces all-around now that the importers properly convert BBCodes & "
-"smilies. :)"
-msgstr ""
-
-#: includes/admin/admin.php:1415
-msgid "Vanilla"
-msgstr ""
-
-#: includes/admin/admin.php:1416
-msgid ""
-"Tired of plain old Vanilla? Now you can easily switch to <del>Mint Chocolate "
-"Chip</del> bbPress!"
-msgstr ""
-
-#: includes/admin/admin.php:1418
-msgid "SimplePress"
-msgstr ""
-
-#: includes/admin/admin.php:1419
-msgid ""
-"Converting an existing SimplePress powered forum to bbPress has never been "
-"\"simpler!\""
-msgstr ""
-
-#: includes/admin/admin.php:1421
-msgid "Mingle"
-msgstr ""
-
-#: includes/admin/admin.php:1422
-msgid "No time to... chit-chat; convert your Mingle forums to bbPress today!"
-msgstr ""
-
-#: includes/admin/admin.php:1427
-msgid "Even Better BuddyPress Integration"
-msgstr ""
-
-#: includes/admin/admin.php:1430
-msgid "bbPress powered BuddyPress Group Forums"
-msgstr ""
-
-#: includes/admin/admin.php:1431
-msgid ""
-"Use bbPress to manage your BuddyPress Group Forums, allowing for seamless "
-"integration and improved plugin performance."
-msgstr ""
-
-#: includes/admin/admin.php:1436
 msgid "Under the Hood"
 msgstr ""
 
-#: includes/admin/admin.php:1440
-msgid "Smarter Fancy Editor"
+#: includes/admin/admin.php:1417
+msgid "Preformatted text"
 msgstr ""
 
-#: includes/admin/admin.php:1441
+#: includes/admin/admin.php:1418
+msgid "Forum users can post code snippets with confidence."
+msgstr ""
+
+#: includes/admin/admin.php:1422
+msgid "Polyglot support"
+msgstr ""
+
+#: includes/admin/admin.php:1423
+msgid "bbPress is ready for future translation API improvements."
+msgstr ""
+
+#: includes/admin/admin.php:1427
+msgid "User capabilities"
+msgstr ""
+
+#: includes/admin/admin.php:1428
 msgid ""
-"We simplified the Fancy Editor, and the allowed HTML tags that work with it."
+"Roles and capabilities have been swept through, cleaned up, and simplified."
 msgstr ""
 
-#: includes/admin/admin.php:1443
-msgid "Better Code Posting"
+#: includes/admin/admin.php:1434 includes/admin/settings.php:166
+#: includes/admin/settings.php:333 includes/common/template.php:2297
+#: includes/search/template.php:231
+#: templates/default/bbpress/form-search.php:17
+msgid "Search"
+msgstr ""
+
+#: includes/admin/admin.php:1435
+msgid "Search results use pretty permalinks, and have a dedicated output page."
+msgstr ""
+
+#: includes/admin/admin.php:1440
+msgid "Fields and sections have been reordered and reorganized."
 msgstr ""
 
 #: includes/admin/admin.php:1444
-msgid "Your users can now post code snippets without too much hassle."
+msgid "BuddyPress"
 msgstr ""
 
-#: includes/admin/admin.php:1448
-msgid "Template Stacking"
+#: includes/admin/admin.php:1445
+msgid "Forums are now fully and seamlessly integrated into BuddyPress Groups."
 msgstr ""
 
-#: includes/admin/admin.php:1449
-msgid ""
-"Now you can replace specific template parts on the fly without modifying the "
-"existing theme."
-msgstr ""
-
-#: includes/admin/admin.php:1451
-msgid "TwentyThirteen Tested"
-msgstr ""
-
-#: includes/admin/admin.php:1452
-msgid ""
-"bbPress 2.3 already works with the in-development TwentyThirteen theme, "
-"coming in a future version of WordPress."
-msgstr ""
-
-#: includes/admin/admin.php:1456
-msgid "Statistics Shortcode"
-msgstr ""
-
-#: includes/admin/admin.php:1457
-msgid ""
-"The old statistics easter-egg page was turned into an easy to use shortcode."
-msgstr ""
-
-#: includes/admin/admin.php:1459
-msgid "Green Theme Updated"
-msgstr ""
-
-#: includes/admin/admin.php:1460
-msgid ""
-"The green admin theme easter-egg was updated to work with WordPress 3.5 "
-"changes."
-msgstr ""
-
-#: includes/admin/admin.php:1466 includes/admin/admin.php:1580
+#: includes/admin/admin.php:1451 includes/admin/admin.php:1555
 msgid "Go to Forum Settings"
 msgstr ""
 
-#: includes/admin/admin.php:1499
+#: includes/admin/admin.php:1484
 msgid "bbPress is created by a worldwide swarm of busy, busy bees."
 msgstr ""
 
-#: includes/admin/admin.php:1501
+#: includes/admin/admin.php:1486
 msgid "Project Leaders"
 msgstr ""
 
-#: includes/admin/admin.php:1506
+#: includes/admin/admin.php:1491
 msgid "Founding Developer"
 msgstr ""
 
-#: includes/admin/admin.php:1511
+#: includes/admin/admin.php:1496
 msgid "Lead Developer"
 msgstr ""
 
-#: includes/admin/admin.php:1520
+#: includes/admin/admin.php:1501 includes/admin/admin.php:1520
+msgid "Feature Developer"
+msgstr ""
+
+#: includes/admin/admin.php:1505
 msgid "Contributing Developers"
 msgstr ""
 
-#: includes/admin/admin.php:1539
-msgid "Core Contributors to bbPress 2.3"
+#: includes/admin/admin.php:1510
+msgid "Converter Specialist"
 msgstr ""
 
-#: includes/admin/admin.php:1606 includes/admin/admin.php:1628
+#: includes/admin/admin.php:1515
+msgid "Bug Testing"
+msgstr ""
+
+#: includes/admin/admin.php:1524
+msgid "Core Contributors to bbPress 2.4"
+msgstr ""
+
+#: includes/admin/admin.php:1581 includes/admin/admin.php:1603
 msgid "Update Forum"
 msgstr ""
 
-#: includes/admin/admin.php:1617 includes/admin/admin.php:1671
+#: includes/admin/admin.php:1592 includes/admin/admin.php:1646
 msgid "All done!"
 msgstr ""
 
-#: includes/admin/admin.php:1618 includes/admin/admin.php:1672
+#: includes/admin/admin.php:1593 includes/admin/admin.php:1647
 msgid "Go Back"
 msgstr ""
 
-#: includes/admin/admin.php:1627
+#: includes/admin/admin.php:1602
 msgid ""
 "You can update your forum through this page. Hit the link below to update."
 msgstr ""
 
-#: includes/admin/admin.php:1699
+#: includes/admin/admin.php:1674
 msgid ""
 "Warning! Problem updating %1$s. Your server may not be able to connect to "
 "sites running on it. Error message: <em>%2$s</em>"
 msgstr ""
 
-#: includes/admin/admin.php:1723
+#: includes/admin/admin.php:1698
 msgid ""
 "If your browser doesn&#8217;t start loading the next page automatically, "
 "click this link:"
 msgstr ""
 
-#: includes/admin/admin.php:1724
+#: includes/admin/admin.php:1699
 msgid "Next Forums"
 msgstr ""
 
-#: includes/admin/admin.php:1742
+#: includes/admin/admin.php:1717
 msgid ""
 "You can update all the forums on your network through this page. It works by "
 "calling the update script of each site automatically. Hit the link below to "
@@ -651,7 +601,7 @@ msgstr ""
 msgid "Starting Conversion"
 msgstr ""
 
-#: includes/admin/converter.php:248 includes/admin/converter.php:475
+#: includes/admin/converter.php:248 includes/admin/converter.php:490
 msgid "Conversion Complete"
 msgstr ""
 
@@ -717,6 +667,14 @@ msgstr ""
 
 #: includes/admin/converter.php:465
 msgid "Converting replies (%1$s - %2$s)"
+msgstr ""
+
+#: includes/admin/converter.php:476
+msgid "No reply_to parents to convert"
+msgstr ""
+
+#: includes/admin/converter.php:480
+msgid "Calculating reply_to parents (%1$s - %2$s)"
 msgstr ""
 
 #: includes/admin/converters/Invision.php:502
@@ -1530,12 +1488,6 @@ msgstr ""
 
 #: includes/admin/settings.php:158
 msgid "Topic tags"
-msgstr ""
-
-#: includes/admin/settings.php:166 includes/admin/settings.php:333
-#: includes/common/template.php:2297 includes/search/template.php:231
-#: templates/default/bbpress/form-search.php:17
-msgid "Search"
 msgstr ""
 
 #: includes/admin/settings.php:174
@@ -2557,6 +2509,7 @@ msgid "Voices"
 msgstr ""
 
 #: includes/admin/topics.php:695 includes/extend/buddypress/groups.php:291
+#: templates/default/bbpress/form-topic.php:117
 msgid "(No Forum)"
 msgstr ""
 
@@ -2655,7 +2608,7 @@ msgid "Forum Role"
 msgstr ""
 
 #: includes/admin/users.php:96 includes/admin/users.php:100
-#: includes/users/template.php:1077
+#: includes/users/template.php:1076
 msgid "&mdash; No role for these forums &mdash;"
 msgstr ""
 
@@ -2804,7 +2757,7 @@ msgid "(Edit)"
 msgstr ""
 
 #: includes/common/template.php:2179 includes/common/template.php:2293
-#: includes/common/template.php:2561 includes/core/theme-compat.php:698
+#: includes/common/template.php:2561 includes/core/theme-compat.php:729
 #: templates/default/extras/taxonomy-topic-tag-edit.php:17
 #: templates/default/extras/taxonomy-topic-tag.php:17
 msgid "Topic Tag: %s"
@@ -3086,27 +3039,27 @@ msgstr ""
 msgid "The current user is being initialized without using $wp->init()."
 msgstr ""
 
-#: includes/core/update.php:172
+#: includes/core/update.php:186
 msgid "General"
 msgstr ""
 
-#: includes/core/update.php:173
+#: includes/core/update.php:187
 msgid "General chit-chat"
 msgstr ""
 
-#: includes/core/update.php:174
+#: includes/core/update.php:188
 msgid "Hello World!"
 msgstr ""
 
-#: includes/core/update.php:175
+#: includes/core/update.php:189
 msgid "I am the first topic in your new forums."
 msgstr ""
 
-#: includes/core/update.php:176
+#: includes/core/update.php:190
 msgid "Re: Hello World!"
 msgstr ""
 
-#: includes/core/update.php:177
+#: includes/core/update.php:191
 msgid "Oh, and this is what a reply looks like."
 msgstr ""
 
@@ -3220,7 +3173,7 @@ msgstr ""
 msgid "Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:770
+#: includes/extend/buddypress/groups.php:771
 msgid "This group does not currently have a forum."
 msgstr ""
 
@@ -3592,12 +3545,12 @@ msgid "Anonymous"
 msgstr ""
 
 #: includes/replies/template.php:1122 includes/topics/template.php:1419
-#: includes/users/template.php:1438
+#: includes/users/template.php:1437
 msgid "View %s's profile"
 msgstr ""
 
 #: includes/replies/template.php:1122 includes/topics/template.php:1419
-#: includes/users/template.php:1438
+#: includes/users/template.php:1437
 msgid "Visit %s's website"
 msgstr ""
 
@@ -4015,71 +3968,71 @@ msgstr ""
 msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
 msgstr ""
 
-#: includes/users/template.php:504
+#: includes/users/template.php:503
 msgid "Guest"
 msgstr ""
 
-#: includes/users/template.php:508
+#: includes/users/template.php:507
 msgid "Inactive"
 msgstr ""
 
-#: includes/users/template.php:518
+#: includes/users/template.php:517
 msgid "Member"
 msgstr ""
 
-#: includes/users/template.php:558
+#: includes/users/template.php:557
 msgid "Admin"
 msgstr ""
 
-#: includes/users/template.php:724
+#: includes/users/template.php:723
 msgid "Favorite"
 msgstr ""
 
-#: includes/users/template.php:725
+#: includes/users/template.php:724
 msgid "Favorited"
 msgstr ""
 
-#: includes/users/template.php:882
+#: includes/users/template.php:881
 msgid "Subscribe"
 msgstr ""
 
-#: includes/users/template.php:883
+#: includes/users/template.php:882
 msgid "Unsubscribe"
 msgstr ""
 
-#: includes/users/template.php:950
+#: includes/users/template.php:949
 msgid "User updated."
 msgstr ""
 
-#: includes/users/template.php:975
+#: includes/users/template.php:974
 msgid "You have super admin privileges."
 msgstr ""
 
-#: includes/users/template.php:975
+#: includes/users/template.php:974
 msgid "This user has super admin privileges."
 msgstr ""
 
-#: includes/users/template.php:1042
+#: includes/users/template.php:1041
 msgid "&mdash; No role for this site &mdash;"
 msgstr ""
 
-#: includes/users/template.php:1240
+#: includes/users/template.php:1239
 msgid "You are now logged out."
 msgstr ""
 
-#: includes/users/template.php:1244
+#: includes/users/template.php:1243
 msgid "New user registration is currently not allowed."
 msgstr ""
 
-#: includes/users/template.php:1253
+#: includes/users/template.php:1252
 msgid "Check your e-mail for the confirmation link."
 msgstr ""
 
-#: includes/users/template.php:1258
+#: includes/users/template.php:1257
 msgid "Check your e-mail for your new password."
 msgstr ""
 
-#: includes/users/template.php:1263
+#: includes/users/template.php:1262
 msgid "Registration complete. Please check your e-mail."
 msgstr ""
 
@@ -4185,7 +4138,7 @@ msgstr ""
 #: templates/default/bbpress/form-reply.php:135
 #: templates/default/bbpress/form-topic-merge.php:94
 #: templates/default/bbpress/form-topic-split.php:98
-#: templates/default/bbpress/form-topic.php:198
+#: templates/default/bbpress/form-topic.php:203
 msgid "Submit"
 msgstr ""
 
@@ -4269,22 +4222,22 @@ msgid "Tags:"
 msgstr ""
 
 #: templates/default/bbpress/form-reply.php:93
-#: templates/default/bbpress/form-topic.php:159
+#: templates/default/bbpress/form-topic.php:164
 msgid "Notify the author of follow-up replies via email"
 msgstr ""
 
 #: templates/default/bbpress/form-reply.php:97
-#: templates/default/bbpress/form-topic.php:163
+#: templates/default/bbpress/form-topic.php:168
 msgid "Notify me of follow-up replies via email"
 msgstr ""
 
 #: templates/default/bbpress/form-reply.php:114
-#: templates/default/bbpress/form-topic.php:179
+#: templates/default/bbpress/form-topic.php:184
 msgid "Keep a log of this edit:"
 msgstr ""
 
 #: templates/default/bbpress/form-reply.php:118
-#: templates/default/bbpress/form-topic.php:183
+#: templates/default/bbpress/form-topic.php:188
 msgid "Optional reason for editing:"
 msgstr ""
 
@@ -4293,7 +4246,7 @@ msgid "The topic &#8216;%s&#8217; is closed to new replies."
 msgstr ""
 
 #: templates/default/bbpress/form-reply.php:166
-#: templates/default/bbpress/form-topic.php:221
+#: templates/default/bbpress/form-topic.php:226
 msgid "The forum &#8216;%s&#8217; is closed to new topics and replies."
 msgstr ""
 
@@ -4489,19 +4442,19 @@ msgstr ""
 msgid "Topic Tags:"
 msgstr ""
 
-#: templates/default/bbpress/form-topic.php:128
+#: templates/default/bbpress/form-topic.php:133
 msgid "Topic Type:"
 msgstr ""
 
-#: templates/default/bbpress/form-topic.php:140
+#: templates/default/bbpress/form-topic.php:145
 msgid "Topic Status:"
 msgstr ""
 
-#: templates/default/bbpress/form-topic.php:229
+#: templates/default/bbpress/form-topic.php:234
 msgid "You cannot create new topics."
 msgstr ""
 
-#: templates/default/bbpress/form-topic.php:229
+#: templates/default/bbpress/form-topic.php:234
 msgid "You must be logged in to create new topics."
 msgstr ""
 
