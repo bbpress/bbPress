@@ -1498,7 +1498,7 @@ class BBP_Admin {
 				<li class="wp-person" id="wp-person-jmdodd">
 					<a href="http://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
 					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
-					<span class="title"></span>
+					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
@@ -1507,58 +1507,48 @@ class BBP_Admin {
 				<li class="wp-person" id="wp-person-netweb">
 					<a href="http://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
 					<a class="web" href="http://profiles.wordpress.org/netweb">Stephen Edgar</a>
-					<span class="title"></span>
+					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-jaredatch">
 					<a href="http://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
 					<a class="web" href="http://profiles.wordpress.org/jaredatch">Jared Atchison</a>
-					<span class="title"></span>
+					<span class="title"><?php esc_html_e( 'Bug Testing', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-gautamgupta">
 					<a href="http://profiles.wordpress.org/gautamgupta"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
 					<a class="web" href="http://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
-					<span class="title"></span>
+					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.3', 'bbpress' ); ?></h4>
+			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.4', 'bbpress' ); ?></h4>
 			<p class="wp-credits-list">
-				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
 				<a href="http://profiles.wordpress.org/alex-ye">alex-ye</a>,
-				<a href="http://profiles.wordpress.org/anointed">anointed</a>,
+				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
+				<a href="http://profiles.wordpress.org/aliso">aliso</a>,
 				<a href="http://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
-				<a href="http://profiles.wordpress.org/chexee">chexee</a>,
-				<a href="http://profiles.wordpress.org/cnorris23">cnorris23</a>,
-				<a href="http://profiles.wordpress.org/DanielJuhl">DanielJuhl</a>,
 				<a href="http://profiles.wordpress.org/daveshine">daveshine</a>,
-				<a href="http://profiles.wordpress.org/dimadin">dimadin</a>,
 				<a href="http://profiles.wordpress.org/DJPaul">DJPaul</a>,
-				<a href="http://profiles.wordpress.org/duck_">duck_</a>,
-				<a href="http://profiles.wordpress.org/gawain">gawain</a>,
-				<a href="http://profiles.wordpress.org/iamzippy">iamzippy</a>,
-				<a href="http://profiles.wordpress.org/isaacchapman">isaacchapman</a>,
-				<a href="http://profiles.wordpress.org/jane">jane</a>,
+				<a href="http://profiles.wordpress.org/ethitter">ethitter</a>,
+				<a href="http://profiles.wordpress.org/fanquake">fanquake</a>,
+				<a href="http://profiles.wordpress.org/GargajCNS">GargajCNS</a>,
+				<a href="http://profiles.wordpress.org/GautamGupta">GautamGupta</a>,
+				<a href="http://profiles.wordpress.org/imath">imath</a>,
 				<a href="http://profiles.wordpress.org/jkudish">jkudish</a>,
+				<a href="http://profiles.wordpress.org/kobenland">kobenland</a>,
+				<a href="http://profiles.wordpress.org/lakrisgubben">lakrisgubben</a>,
+				<a href="http://profiles.wordpress.org/loki_racer">loki_racer</a>,
 				<a href="http://profiles.wordpress.org/mamaduka">mamaduka</a>,
+				<a href="http://profiles.wordpress.org/Maty">Maty</a>,
 				<a href="http://profiles.wordpress.org/mercime">mercime</a>,
-				<a href="http://profiles.wordpress.org/mesayre">mesayre</a>,
 				<a href="http://profiles.wordpress.org/mordauk">mordauk</a>,
+				<a href="http://profiles.wordpress.org/mrcl">mrcl</a>,
 				<a href="http://profiles.wordpress.org/MZAWeb">MZAWeb</a>,
-				<a href="http://profiles.wordpress.org/nexia">nexia</a>,
-				<a href="http://profiles.wordpress.org/Omicron7">Omicron7</a>,
-				<a href="http://profiles.wordpress.org/otto42">otto42</a>,
-				<a href="http://profiles.wordpress.org/pavelevap">pavelevap</a>,
-				<a href="http://profiles.wordpress.org/plescheff">plescheff</a>,
-				<a href="http://profiles.wordpress.org/scribu">scribu</a>,
-				<a href="http://profiles.wordpress.org/sorich87">sorich87</a>,
-				<a href="http://profiles.wordpress.org/SteveAtty">SteveAtty</a>,
-				<a href="http://profiles.wordpress.org/tmoorewp">tmoorewp</a>,
-				<a href="http://profiles.wordpress.org/tott">tott</a>,
-				<a href="http://profiles.wordpress.org/tungdo">tungdo</a>,
-				<a href="http://profiles.wordpress.org/vibol">vibol</a>,
-				<a href="http://profiles.wordpress.org/wonderboymusic">wonderboymusic</a>,
-				<a href="http://profiles.wordpress.org/westi">westi</a>,
-				<a href="http://profiles.wordpress.org/xiosen">xiosen</a>,
+				<a href="http://profiles.wordpress.org/r-a-y">r-a-y</a>,
+				<a href="http://profiles.wordpress.org/strangerstudios">strangerstudios</a>,
+				<a href="http://profiles.wordpress.org/thebrandonallen">thebrandonallen</a>,
+				<a href="http://profiles.wordpress.org/tlovett1">tlovett1</a>,
+				<a href="http://profiles.wordpress.org/wpdennis">wpdennis</a>,
 			</p>
 
 			<div class="return-to-dashboard">
