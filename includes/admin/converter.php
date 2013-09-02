@@ -467,6 +467,21 @@ class BBP_Converter {
 
 				break;
 
+			// STEP 9. Convert reply_to parents.
+			case 9 :
+				if ( $converter->convert_reply_to_parents( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No reply_to parents to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Calculating reply_to parents (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
 			default :
 				delete_option( '_bbp_converter_step'  );
 				delete_option( '_bbp_converter_start' );
@@ -557,6 +572,11 @@ abstract class BBP_Converter_Base {
 	 * @var array() Map of from old topic ids to new topic ids.  It is for optimization.
 	 */
 	private $map_topicid = array();
+
+	/**
+	 * @var array() Map of from old reply_to ids to new reply_to ids.  It is for optimization.
+	 */
+	private $map_reply_to = array();
 
 	/**
 	 * @var array() Map of from old user ids to new user ids.  It is for optimization.
@@ -963,6 +983,11 @@ abstract class BBP_Converter_Base {
 										} elseif ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
+
+										// Replies need to save their old reply_to ID for hierarchical replies association
+										if ( ( 'reply' == $to_type ) && ( '_bbp_reply_to' == $key ) ) {
+											add_post_meta( $post_id, '_bbp_old_reply_to', $value );
+										}
 									}
 								}
 								break;
@@ -976,6 +1001,9 @@ abstract class BBP_Converter_Base {
 		return ! $has_insert;
 	}
 
+	/**
+	 * This method conerts old forum heirarchy to new bbPress heirarchy.
+	 */
 	public function convert_forum_parents( $start ) {
 
 		$has_update = false;
@@ -993,6 +1021,32 @@ abstract class BBP_Converter_Base {
 		foreach ( (array) $forum_array as $row ) {
 			$parent_id = $this->callback_forumid( $row->meta_value );
 			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_parent = "' . $parent_id . '" WHERE ID = "' . $row->value_id . '" LIMIT 1' );
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method conerts old reply_to post id to new bbPress reply_to post id.
+	 */
+	public function convert_reply_to_parents( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_reply_to" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_reply_to" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$reply_to_array = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $reply_to_array as $row ) {
+			$reply_to = $this->callback_reply_to( $row->meta_value );
+			$this->wpdb->query( 'UPDATE ' . $this->wpdb->postmeta . ' SET meta_value = "' . $reply_to . '" WHERE meta_key = "_bbp_reply_to" AND post_id = "' . $row->value_id . '" LIMIT 1' );
 			$has_update = true;
 		}
 
@@ -1183,6 +1237,29 @@ abstract class BBP_Converter_Base {
 			}
 		}
 		return $this->map_topicid[$field];
+	}
+
+	/**
+	 * A mini cache system to reduce database calls to reply_to post id.
+	 *
+	 * @param string $field
+	 * @return string
+	 */
+	private function callback_reply_to( $field ) {
+		if ( !isset( $this->map_reply_to[$field] ) ) {
+			if ( !empty( $this->sync_table ) ) {
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_reply_to" AND meta_value = "%s" LIMIT 1', $field ) );
+			} else {
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_reply_to" AND meta_value = "%s" LIMIT 1', $field ) );
+			}
+
+			if ( !is_null( $row ) ) {
+				$this->map_reply_to[$field] = $row->value_id;
+			} else {
+				$this->map_reply_to[$field] = 0;
+			}
+		}
+		return $this->map_reply_to[$field];
 	}
 
 	/**
