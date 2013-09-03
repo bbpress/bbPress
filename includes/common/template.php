@@ -2501,64 +2501,61 @@ function bbp_logout_link( $redirect_to = '' ) {
  */
 function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
-	// Store original title to compare
-	$_title = $title;
-
 	// Title array
-	$title = array();
+	$new_title = array();
 
 	/** Archives **************************************************************/
 
 	// Forum Archive
 	if ( bbp_is_forum_archive() ) {
-		$title['text'] = bbp_get_forum_archive_title();
+		$new_title['text'] = bbp_get_forum_archive_title();
 
 	// Topic Archive
 	} elseif ( bbp_is_topic_archive() ) {
-		$title['text'] = bbp_get_topic_archive_title();
+		$new_title['text'] = bbp_get_topic_archive_title();
 
 	/** Edit ******************************************************************/
 
 	// Forum edit page
 	} elseif ( bbp_is_forum_edit() ) {
-		$title['text']   = bbp_get_forum_title();
-		$title['format'] = esc_attr__( 'Forum Edit: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_forum_title();
+		$new_title['format'] = esc_attr__( 'Forum Edit: %s', 'bbpress' );
 
 	// Topic edit page
 	} elseif ( bbp_is_topic_edit() ) {
-		$title['text']   = bbp_get_topic_title();
-		$title['format'] = esc_attr__( 'Topic Edit: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_topic_title();
+		$new_title['format'] = esc_attr__( 'Topic Edit: %s', 'bbpress' );
 
 	// Reply edit page
 	} elseif ( bbp_is_reply_edit() ) {
-		$title['text']   = bbp_get_reply_title();
-		$title['format'] = esc_attr__( 'Reply Edit: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_reply_title();
+		$new_title['format'] = esc_attr__( 'Reply Edit: %s', 'bbpress' );
 
 	// Topic tag edit page
 	} elseif ( bbp_is_topic_tag_edit() ) {
-		$title['text']   = bbp_get_topic_tag_name();
-		$title['format'] = esc_attr__( 'Topic Tag Edit: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_topic_tag_name();
+		$new_title['format'] = esc_attr__( 'Topic Tag Edit: %s', 'bbpress' );
 
 	/** Singles ***************************************************************/
 
 	// Forum page
 	} elseif ( bbp_is_single_forum() ) {
-		$title['text']   = bbp_get_forum_title();
-		$title['format'] = esc_attr__( 'Forum: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_forum_title();
+		$new_title['format'] = esc_attr__( 'Forum: %s', 'bbpress' );
 
 	// Topic page
 	} elseif ( bbp_is_single_topic() ) {
-		$title['text']   = bbp_get_topic_title();
-		$title['format'] = esc_attr__( 'Topic: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_topic_title();
+		$new_title['format'] = esc_attr__( 'Topic: %s', 'bbpress' );
 
 	// Replies
 	} elseif ( bbp_is_single_reply() ) {
-		$title['text']   = bbp_get_reply_title();
+		$new_title['text']   = bbp_get_reply_title();
 
 	// Topic tag page
 	} elseif ( bbp_is_topic_tag() || get_query_var( 'bbp_topic_tag' ) ) {
-		$title['text']   = bbp_get_topic_tag_name();
-		$title['format'] = esc_attr__( 'Topic Tag: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_topic_tag_name();
+		$new_title['format'] = esc_attr__( 'Topic Tag: %s', 'bbpress' );
 
 	/** Users *****************************************************************/
 
@@ -2567,12 +2564,12 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 		// Current users profile
 		if ( bbp_is_user_home() ) {
-			$title['text'] = esc_attr__( 'Your Profile', 'bbpress' );
+			$new_title['text'] = esc_attr__( 'Your Profile', 'bbpress' );
 
 		// Other users profile
 		} else {
-			$title['text']   = get_userdata( bbp_get_user_id() )->display_name;
-			$title['format'] = esc_attr__( "%s's Profile", 'bbpress' );
+			$new_title['text']   = get_userdata( bbp_get_user_id() )->display_name;
+			$new_title['format'] = esc_attr__( "%s's Profile", 'bbpress' );
 		}
 
 	// Profile edit page
@@ -2580,65 +2577,65 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 		// Current users profile
 		if ( bbp_is_user_home_edit() ) {
-			$title['text']   = esc_attr__( 'Edit Your Profile', 'bbpress' );
+			$new_title['text']   = esc_attr__( 'Edit Your Profile', 'bbpress' );
 
 		// Other users profile
 		} else {
-			$title['text']   = get_userdata( bbp_get_user_id() )->display_name;
-			$title['format'] = esc_attr__( "Edit %s's Profile", 'bbpress' );
+			$new_title['text']   = get_userdata( bbp_get_user_id() )->display_name;
+			$new_title['format'] = esc_attr__( "Edit %s's Profile", 'bbpress' );
 		}
 
 	/** Views *****************************************************************/
 
 	// Views
 	} elseif ( bbp_is_single_view() ) {
-		$title['text']   = bbp_get_view_title();
-		$title['format'] = esc_attr__( 'View: %s', 'bbpress' );
+		$new_title['text']   = bbp_get_view_title();
+		$new_title['format'] = esc_attr__( 'View: %s', 'bbpress' );
 
 	/** Search ****************************************************************/
 
 	// Search
 	} elseif ( bbp_is_search() ) {
-		$title['text'] = bbp_get_search_title();
+		$new_title['text'] = bbp_get_search_title();
 	}
 
 	// This filter is deprecated. Use 'bbp_before_title_parse_args' instead.
-	$title = apply_filters( 'bbp_raw_title_array', $title );
+	$new_title = apply_filters( 'bbp_raw_title_array', $new_title );
 
 	// Set title array defaults
-	$title = bbp_parse_args( $title, array(
-		'text'   => '',
+	$new_title = bbp_parse_args( $new_title, array(
+		'text'   => $title,
 		'format' => '%s'
 	), 'title' );
 
 	// Get the formatted raw title
-	$title = sprintf( $title['format'], $title['text'] );
+	$new_title = sprintf( $new_title['format'], $new_title['text'] );
 
 	// Filter the raw title
-	$title = apply_filters( 'bbp_raw_title', $title, $sep, $seplocation );
+	$new_title = apply_filters( 'bbp_raw_title', $new_title, $sep, $seplocation );
 
 	// Compare new title with original title
-	if ( $title === $_title )
+	if ( $new_title === $title )
 		return $title;
 
 	// Temporary separator, for accurate flipping, if necessary
 	$t_sep  = '%WP_TITILE_SEP%';
 	$prefix = '';
 
-	if ( !empty( $title ) )
+	if ( !empty( $new_title ) )
 		$prefix = " $sep ";
 
 	// sep on right, so reverse the order
 	if ( 'right' === $seplocation ) {
-		$title_array = array_reverse( explode( $t_sep, $title ) );
-		$title       = implode( " $sep ", $title_array ) . $prefix;
+		$new_title_array = array_reverse( explode( $t_sep, $new_title ) );
+		$new_title       = implode( " $sep ", $new_title_array ) . $prefix;
 
 	// sep on left, do not reverse
 	} else {
-		$title_array = explode( $t_sep, $title );
-		$title       = $prefix . implode( " $sep ", $title_array );
+		$new_title_array = explode( $t_sep, $new_title );
+		$new_title       = $prefix . implode( " $sep ", $new_title_array );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_title', $title, $sep, $seplocation );
+	return apply_filters( 'bbp_title', $new_title, $sep, $seplocation );
 }
