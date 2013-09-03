@@ -1002,7 +1002,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * This method conerts old forum heirarchy to new bbPress heirarchy.
+	 * This method converts old forum heirarchy to new bbPress heirarchy.
 	 */
 	public function convert_forum_parents( $start ) {
 
@@ -1028,7 +1028,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * This method conerts old reply_to post id to new bbPress reply_to post id.
+	 * This method converts old reply_to post id to new bbPress reply_to post id.
 	 */
 	public function convert_reply_to_parents( $start ) {
 
