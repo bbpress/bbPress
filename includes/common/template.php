@@ -2562,24 +2562,44 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Profile page
 	} elseif ( bbp_is_single_user() ) {
 
-		// Current users profile
+		// User is viewing their own profile
 		if ( bbp_is_user_home() ) {
-			$new_title['text'] = esc_attr__( 'Your Profile', 'bbpress' );
+			$new_title['text'] = esc_attr_x( 'Your', 'User viewing his/her own profile', 'bbpress' );
 
-		// Other users profile
+		// User is viewing someone else's profile (so use their display name)
 		} else {
-			$new_title['text']   = get_userdata( bbp_get_user_id() )->display_name;
-			$new_title['format'] = esc_attr__( "%s's Profile", 'bbpress' );
+			$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+		}
+
+		// User topics created
+		if ( bbp_is_single_user_topics() ) {
+			$new_title['format'] = esc_attr__( "%s's Topics",        'bbpress' );
+
+		// User rueplies created
+		} elseif ( bbp_is_single_user_replies() ) {
+			$new_title['format'] = esc_attr__( "%s's Replies",       'bbpress' );
+
+		// User favorites
+		} elseif ( bbp_is_favorites() ) {
+			$new_title['format'] = esc_attr__( "%s's Favorites",     'bbpress' );
+
+		// User subscriptions
+		} elseif ( bbp_is_subscriptions() ) {
+			$new_title['format'] = esc_attr__( "%s's Subscriptions", 'bbpress' );
+
+		// User "home"
+		} else {
+			$new_title['format'] = esc_attr__( "%s's Profile",       'bbpress' );
 		}
 
 	// Profile edit page
 	} elseif ( bbp_is_single_user_edit() ) {
 
-		// Current users profile
+		// Current user
 		if ( bbp_is_user_home_edit() ) {
 			$new_title['text']   = esc_attr__( 'Edit Your Profile', 'bbpress' );
 
-		// Other users profile
+		// Other user
 		} else {
 			$new_title['text']   = get_userdata( bbp_get_user_id() )->display_name;
 			$new_title['format'] = esc_attr__( "Edit %s's Profile", 'bbpress' );
