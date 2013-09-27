@@ -431,6 +431,16 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @uses bbp_set_theme_compat_template() To set the global theme compat template
  */
 function bbp_template_include_theme_compat( $template = '' ) {
+	
+	/**
+	 * Bail if a root template was already found. This prevents unintended
+	 * recursive filtering of 'the_content'.
+	 *
+	 * @link http://bbpress.trac.wordpress.org/ticket/2429
+	 */
+	if ( bbp_is_template_included() ) {
+		return $template;
+	}
 
 	/**
 	 * If BuddyPress is activated at a network level, the action order is
