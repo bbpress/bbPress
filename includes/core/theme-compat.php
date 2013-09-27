@@ -433,6 +433,16 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 function bbp_template_include_theme_compat( $template = '' ) {
 
 	/**
+	 * Bail if a root template was already found. This prevents unintended
+	 * recursive filtering of 'the_content'.
+	 *
+	 * @link http://bbpress.trac.wordpress.org/ticket/2429
+	 */
+	if ( bbp_is_template_included() ) {
+		return $template;
+	}
+
+	/**
 	 * If BuddyPress is activated at a network level, the action order is
 	 * reversed, which causes the template integration to fail. If we're looking
 	 * at a BuddyPress page here, bail to prevent the extra processing.
