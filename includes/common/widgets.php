@@ -803,7 +803,7 @@ class BBP_Topics_Widget extends WP_Widget {
 				$author_link = '';
 
 				// Maybe get the topic author
-				if ( 'on' === $settings['show_user'] ) :
+				if ( ! empty( $settings['show_user'] ) ) :
 					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) );
 				endif; ?>
 
@@ -816,7 +816,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php endif; ?>
 
-					<?php if ( 'on' === $settings['show_date'] ) : ?>
+					<?php if ( ! empty( $settings['show_date'] ) ) : ?>
 
 						<div><?php bbp_topic_last_active_time( $topic_id ); ?></div>
 
@@ -1154,20 +1154,20 @@ class BBP_Replies_Widget extends WP_Widget {
 					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
 
 					// Only query user if showing them
-					if ( 'on' === $settings['show_user'] ) :
+					if ( ! empty( $settings['show_user'] ) ) :
 						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
 					else :
 						$author_link = false;
 					endif;
 
 					// Reply author, link, and timestamp
-					if ( ( 'on' === $settings['show_date'] ) && !empty( $author_link ) ) :
+					if ( ! empty( $settings['show_date'] ) && !empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link, 3: reply timestamp
 						printf( _x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>' );
 
 					// Reply link and timestamp
-					elseif ( 'on' === $settings['show_date'] ) :
+					elseif ( ! empty( $settings['show_date'] ) ) :
 
 						// translators: 1: reply link, 2: reply timestamp
 						printf( _x( '%1$s %2$s',         'widgets', 'bbpress' ), $reply_link,  '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>'              );
