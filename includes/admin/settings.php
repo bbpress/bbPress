@@ -193,7 +193,7 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
-			// Allow threadde replies
+			// Allow threaded replies
 			'_bbp_allow_threaded_replies' => array(
 				'sanitize_callback' => 'intval',
 				'args'              => array()
