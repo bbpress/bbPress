@@ -169,8 +169,9 @@ function bbp_new_forum_handler( $action = '' ) {
 	/** Forum Parent **********************************************************/
 
 	// Forum parent was passed (the norm)
-	if ( !empty( $_POST['bbp_forum_parent_id'] ) )
-		$forum_parent_id = (int) $_POST['bbp_forum_parent_id'];
+	if ( !empty( $_POST['bbp_forum_parent_id'] ) ) {
+		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
+	}
 
 	// Filter and sanitize
 	$forum_parent_id = apply_filters( 'bbp_new_forum_pre_parent_id', $forum_parent_id );
@@ -415,8 +416,8 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/** Forum Parent ***********************************************************/
 
 	// Forum parent id was passed
-	if ( is_numeric( $_POST['bbp_forum_parent_id'] ) ) {
-		$forum_parent_id = (int) $_POST['bbp_forum_parent_id'];
+	if ( !empty( $_POST['bbp_forum_parent_id'] ) ) {
+		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
 	}
 
 	// Current forum this forum is in

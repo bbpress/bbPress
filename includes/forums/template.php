@@ -157,11 +157,11 @@ function bbp_forum_id( $forum_id = 0 ) {
 			$bbp_forum_id = $bbp->search_query->post->ID;
 
 		// Currently viewing a forum
-		} elseif ( bbp_is_single_forum() && !empty( $bbp->current_forum_id ) ) {
+		} elseif ( ( bbp_is_single_forum() || bbp_is_forum_edit() ) && !empty( $bbp->current_forum_id ) ) {
 			$bbp_forum_id = $bbp->current_forum_id;
 
 		// Currently viewing a forum
-		} elseif ( bbp_is_single_forum() && isset( $wp_query->post->ID ) ) {
+		} elseif ( ( bbp_is_single_forum() || bbp_is_forum_edit() ) && isset( $wp_query->post->ID ) ) {
 			$bbp_forum_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
