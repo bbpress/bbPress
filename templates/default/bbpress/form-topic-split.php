@@ -54,8 +54,7 @@
 											'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
 											'selected'    => -1,
 											'exclude'     => bbp_get_topic_id(),
-											'select_id'   => 'bbp_destination_topic',
-											'none_found'  => __( 'No other topics found!', 'bbpress' )
+											'select_id'   => 'bbp_destination_topic'
 										) );
 									?>
 

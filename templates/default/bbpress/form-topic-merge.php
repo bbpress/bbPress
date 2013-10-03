@@ -47,8 +47,7 @@
 											'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
 											'selected'    => -1,
 											'exclude'     => bbp_get_topic_id(),
-											'select_id'   => 'bbp_destination_topic',
-											'none_found'  => __( 'No topics were found to which the topic could be merged to!', 'bbpress' )
+											'select_id'   => 'bbp_destination_topic'
 										) );
 									?>
 
