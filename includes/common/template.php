@@ -1330,10 +1330,7 @@ function bbp_dropdown( $args = '' ) {
 	 *  - select_id: ID of the select box. Defaults to 'bbp_forum_id'
 	 *  - tab: Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
-	 *  - show_none: False or something like __( '(No Forum)', 'bbpress' ),
-	 *                will have value=""
-	 *  - none_found: False or something like
-	 *                 __( 'No forums to post to!', 'bbpress' )
+	 *  - show_none: Boolean or String __( '(No Forum)', 'bbpress' )
 	 *  - disable_categories: Disable forum categories and closed forums?
 	 *                         Defaults to true. Only for forums and when
 	 *                         the category option is displayed.
@@ -1370,7 +1367,6 @@ function bbp_dropdown( $args = '' ) {
 			'tab'                => bbp_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => false,
-			'none_found'         => false,
 			'disable_categories' => true,
 			'disabled'           => ''
 		), 'get_dropdown' );
@@ -1407,52 +1403,68 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Drop Down *********************************************************/
 
-		// Items found
+		// Build the opening tag for the select element
+		if ( empty( $r['options_only'] ) ) {
+
+			// Should this select appear disabled?
+			$disabled  = disabled( isset( bbpress()->options[ $r['disabled'] ] ), true, false );
+
+			// Setup the tab index attribute
+			$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
+
+			// Open the select tag
+			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
+		}
+
+		// Display a leading 'no-value' option, with or without custom text
+		if ( !empty( $r['show_none'] ) || !empty( $r['none_found'] ) ) {
+
+			// Open the 'no-value' option tag
+			$retval .= "\t<option value=\"\" class=\"level-0\">";
+
+			// Use deprecated 'none_found' first for backpat
+			if ( ! empty( $r['none_found'] ) && is_string( $r['none_found'] ) ) {
+				$retval .= esc_html( $r['none_found'] );
+
+			// Use 'show_none' second
+			} elseif ( ! empty( $r['show_none'] ) && is_string( $r['show_none'] ) ) {
+				$retval .= esc_html( $r['show_none'] );
+
+			// Otherwise, make some educated guesses
+			} else {
+
+				// Switch the response based on post type
+				switch ( $r['post_type'] ) {
+
+					// Topics
+					case bbp_get_topic_post_type() :
+						$retval .= esc_html__( 'No topics available', 'bbpress' );
+						break;
+
+					// Forums
+					case bbp_get_forum_post_type() :
+						$retval .= esc_html__( 'No forums available', 'bbpress' );
+						break;
+
+					// Any other
+					default :
+						$retval .= esc_html__( 'None available', 'bbpress' );
+						break;
+				}
+			}
+
+			// Close the 'no-value' option tag
+			$retval .= '</option>';
+		}
+
+		// Items found so walk the tree
 		if ( !empty( $posts ) ) {
-
-			// Build the opening tag for the select element
-			if ( empty( $r['options_only'] ) ) {
-
-				// Should this select appear disabled?
-				$disabled  = disabled( isset( bbpress()->options[ $r['disabled'] ] ), true, false );
-
-				// Setup the tab index attribute
-				$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
-
-				// Build the opening tag
-				$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
-			}
-
-			// Get the options
-			$retval .= !empty( $r['show_none'] ) ? "\t<option value=\"\" class=\"level-0\">" . esc_html( $r['show_none'] ) . '</option>' : '';
 			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
+		}
 
-			// Build the closing tag for the select element
-			if ( empty( $r['options_only'] ) ) {
-				$retval .= '</select>';
-			}
-
-		// No items found - Display feedback if no custom message was passed
-		} elseif ( empty( $r['none_found'] ) ) {
-
-			// Switch the response based on post type
-			switch ( $r['post_type'] ) {
-
-				// Topics
-				case bbp_get_topic_post_type() :
-					$retval = __( 'No topics available', 'bbpress' );
-					break;
-
-				// Forums
-				case bbp_get_forum_post_type() :
-					$retval = __( 'No forums available', 'bbpress' );
-					break;
-
-				// Any other
-				default :
-					$retval = __( 'None available', 'bbpress' );
-					break;
-			}
+		// Close the selecet tag
+		if ( empty( $r['options_only'] ) ) {
+			$retval .= '</select>';
 		}
 
 		return apply_filters( 'bbp_get_dropdown', $retval, $r );
