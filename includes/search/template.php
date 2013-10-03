@@ -312,7 +312,7 @@ function bbp_search_results_url() {
 
 			// Append search terms
 			if ( !empty( $search_terms ) ) {
-				$url = user_trailingslashit( $url ) . user_trailingslashit( urlencode( $search_terms ) );
+				$url = trailingslashit( $url ) . user_trailingslashit( urlencode( $search_terms ) );
 			}
 
 			// Run through home_url()
