@@ -1101,7 +1101,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_reply_widget_title' with the title
 	 * @uses bbp_get_reply_author_link() To get the reply author link
-	 * @uses bbp_get_reply_author() To get the reply author name
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_url() To get the reply url
 	 * @uses bbp_get_reply_excerpt() To get the reply excerpt

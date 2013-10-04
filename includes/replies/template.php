@@ -888,9 +888,12 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
 }
 
 /**
+ * Deprecated. Use bbp_reply_author_display_name() instead.
+ *
  * Output the author of the reply
  *
  * @since bbPress (r2667)
+ * @deprecated bbPress (r5119)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author() To get the reply author
@@ -899,9 +902,12 @@ function bbp_reply_author( $reply_id = 0 ) {
 	echo bbp_get_reply_author( $reply_id );
 }
 	/**
+	 * Deprecated. Use bbp_get_reply_author_display_name() instead.
+	 *
 	 * Return the author of the reply
 	 *
 	 * @since bbPress (r2667)
+	 * @deprecated bbPress (r5119)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1080,7 +1086,6 @@ function bbp_reply_author_link( $args = '' ) {
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
-	 * @uses bbp_get_reply_author() To get the reply author name
 	 * @uses bbp_get_reply_author_url() To get the reply author url
 	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
 	 * @uses bbp_get_reply_author_display_name() To get the reply author display

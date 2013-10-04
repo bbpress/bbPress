@@ -1183,9 +1183,12 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
 }
 
 /**
- * Output the author of the topic
+ * Deprecated. Use bbp_topic_author_display_name() instead.
+ *
+ * Output the author of the topic.
  *
  * @since bbPress (r2590)
+ * @deprecated bbPress (r5119)
  *
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_author() To get the topic author
@@ -1194,9 +1197,12 @@ function bbp_topic_author( $topic_id = 0 ) {
 	echo bbp_get_topic_author( $topic_id );
 }
 	/**
+	 * Deprecated. Use bbp_get_topic_author_display_name() instead.
+	 *
 	 * Return the author of the topic
 	 *
 	 * @since bbPress (r2590)
+	 * @deprecated bbPress (r5119)
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
