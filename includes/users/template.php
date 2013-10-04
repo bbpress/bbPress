@@ -611,6 +611,176 @@ function bbp_author_ip( $args = '' ) {
 		return apply_filters( 'bbp_get_author_ip', $author_ip, $r );
 	}
 
+/** Anonymous Fields **********************************************************/
+	
+/**
+ * Output the author disylay-name of a topic or reply.
+ *
+ * Convenience function to ensure proper template functions are called
+ * and correct filters are executed. Used primarily to display topic
+ * and reply author information in the anonymous form template-part.
+ *
+ * @since bbPress (r5119)
+ *
+ * @param int $post_id
+ * @uses bbp_get_author_display_name() to get the author name
+ */
+function bbp_author_display_name( $post_id = 0 ) {
+	echo bbp_get_author_display_name( $post_id );
+}
+
+	/**
+	 * Return the author name of a topic or reply.
+	 *
+	 * Convenience function to ensure proper template functions are called
+	 * and correct filters are executed. Used primarily to display topic
+	 * and reply author information in the anonymous form template-part.
+	 *
+	 * @since bbPress (r5119)
+	 *
+	 * @param int $post_id
+	 *
+	 * @uses bbp_is_topic_edit()
+	 * @uses bbp_get_topic_author_display_name()
+	 * @uses bbp_is_reply_edit()
+	 * @uses bbp_get_reply_author_display_name()
+	 * @uses bbp_current_anonymous_user_data()
+	 *
+	 * @return string The name of the author
+	 */
+	function bbp_get_author_display_name( $post_id = 0 ) {
+
+		// Define local variable(s)
+		$retval = '';
+
+		// Topic edit
+		if ( bbp_is_topic_edit() ) {
+			$retval = bbp_get_topic_author_display_name( $post_id );
+
+		// Reply edit
+		} elseif ( bbp_is_reply_edit() ) {
+			$retval = bbp_get_reply_author_display_name( $post_id );
+
+		// Not an edit, so rely on current user cookie data
+		} else {
+			$retval = bbp_current_anonymous_user_data( 'name' );
+		}
+
+		return apply_filters( 'bbp_get_author_display_name', $retval, $post_id );
+	}
+
+/**
+ * Output the author email of a topic or reply.
+ *
+ * Convenience function to ensure proper template functions are called
+ * and correct filters are executed. Used primarily to display topic
+ * and reply author information in the anonymous user form template-part.
+ *
+ * @since bbPress (r5119)
+ *
+ * @param int $post_id
+ * @uses bbp_get_author_email() to get the author email
+ */
+function bbp_author_email( $post_id = 0 ) {
+	echo bbp_get_author_email( $post_id );
+}
+
+	/**
+	 * Return the author email of a topic or reply.
+	 *
+	 * Convenience function to ensure proper template functions are called
+	 * and correct filters are executed. Used primarily to display topic
+	 * and reply author information in the anonymous user form template-part.
+	 *
+	 * @since bbPress (r5119)
+	 *
+	 * @param int $post_id
+	 *
+	 * @uses bbp_is_topic_edit()
+	 * @uses bbp_get_topic_author_email()
+	 * @uses bbp_is_reply_edit()
+	 * @uses bbp_get_reply_author_email()
+	 * @uses bbp_current_anonymous_user_data()
+	 *
+	 * @return string The email of the author
+	 */
+	function bbp_get_author_email( $post_id = 0 ) {
+
+		// Define local variable(s)
+		$retval = '';
+
+		// Topic edit
+		if ( bbp_is_topic_edit() ) {
+			$retval = bbp_get_topic_author_email( $post_id );
+
+		// Reply edit
+		} elseif ( bbp_is_reply_edit() ) {
+			$retval = bbp_get_reply_author_email( $post_id );
+
+		// Not an edit, so rely on current user cookie data
+		} else {
+			$retval = bbp_current_anonymous_user_data( 'email' );
+		}
+
+		return apply_filters( 'bbp_get_author_email', $retval, $post_id );
+	}
+
+/**
+ * Output the author url of a topic or reply.
+ *
+ * Convenience function to ensure proper template functions are called
+ * and correct filters are executed. Used primarily to display topic
+ * and reply author information in the anonymous user form template-part.
+ *
+ * @since bbPress (r5119)
+ *
+ * @param int $post_id
+ * @uses bbp_get_author_url() to get the author url
+ */
+function bbp_author_url( $post_id = 0 ) {
+	echo bbp_get_author_url( $post_id );
+}
+
+	/**
+	 * Return the author url of a topic or reply.
+	 *
+	 * Convenience function to ensure proper template functions are called
+	 * and correct filters are executed. Used primarily to display topic
+	 * and reply author information in the anonymous user form template-part.
+	 *
+	 * @since bbPress (r5119)
+	 *
+	 * @param int $post_id
+	 *
+	 * @uses bbp_is_topic_edit()
+	 * @uses bbp_get_topic_author_url()
+	 * @uses bbp_is_reply_edit()
+	 * @uses bbp_get_reply_author_url()
+	 * @uses bbp_current_anonymous_user_data()
+	 *
+	 * @return string The url of the author
+	 */
+	function bbp_get_author_url( $post_id = 0 ) {
+
+		// Define local variable(s)
+		$retval = '';
+
+		// Topic edit
+		if ( bbp_is_topic_edit() ) {
+			$retval = bbp_get_topic_author_url( $post_id );
+
+		// Reply edit
+		} elseif ( bbp_is_reply_edit() ) {
+			$retval = bbp_get_reply_author_url( $post_id );
+
+		// Not an edit, so rely on current user cookie data
+		} else {
+			$retval = bbp_current_anonymous_user_data( 'url' );
+		}
+
+		return apply_filters( 'bbp_get_author_url', $retval, $post_id );
+	}
+
 /** Favorites *****************************************************************/
 
 /**
@@ -1163,7 +1333,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 	}
 
-/** Topics Created ************************************************************/
+/** Replies Created ***********************************************************/
 
 /**
  * Output the link to the user's replies
@@ -1791,4 +1961,40 @@ function bbp_current_user_can_access_create_reply_form() {
 
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
+}
+
+/**
+ * Performs a series of checks to ensure the current user should see the
+ * anonymous user form fields.
+ *
+ * @since bbPress (r5119)
+ *
+ * @uses bbp_is_anonymous()
+ * @uses bbp_is_topic_edit()
+ * @uses bbp_is_topic_anonymous()
+ * @uses bbp_is_reply_edit()
+ * @uses bbp_is_reply_anonymous()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_access_anonymous_user_form() {
+
+	// Users need to earn access
+	$retval = false;
+
+	// User is not logged in, and anonymous posting is allowed
+	if ( bbp_is_anonymous() ) {
+		$retval = true;
+
+	// User is editing a topic, and topic is authored by anonymous user
+	} elseif ( bbp_is_topic_edit() && bbp_is_topic_anonymous() ) {
+		$retval = true;
+
+	// User is editing a reply, and reply is authored by anonymous user
+	} elseif ( bbp_is_reply_edit() && bbp_is_reply_anonymous() ) {
+		$retval = true;
+	}
+
+	// Allow access to be filtered
+	return (bool) apply_filters( 'bbp_current_user_can_access_anonymous_user_form', (bool) $retval );
 }
