@@ -1531,160 +1531,185 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 
 		// Forum/Topic/Reply Feed
 		if ( isset( $query_vars['post_type'] ) ) {
-                    
-			// Supported select query vars
-			$select_query_vars = array(
-				'p'                      => false,
-				'name'                   => false,
-				$query_vars['post_type'] => false
+
+			// Matched post type
+			$post_type = false;
+
+			// Post types to check
+			$post_types = array(
+				bbp_get_forum_post_type(),
+				bbp_get_topic_post_type(),
+				bbp_get_reply_post_type()
 			);
 
-			// Setup matched variables to select
-			foreach ( $query_vars as $key => $value ) {
-				if ( isset( $select_query_vars[$key] ) ) {
-					$select_query_vars[$key] = $value;
-				}
+			// Cast query vars as array outside of foreach loop
+			$qv_array = (array) $query_vars['post_type'];
+
+			// Check if this query is for a bbPress post type
+			foreach ( $post_types as $bbp_pt ) {
+			    if ( in_array( $bbp_pt, $qv_array, true ) ) {
+				    $post_type = $bbp_pt;
+				    break;
+			    }
 			}
 
-			// Remove any empties
-			$select_query_vars = array_filter( $select_query_vars );
+			// Looking at a bbPress post type
+			if ( ! empty( $post_type ) ) {
 
-			// What bbPress post type are we looking for feeds on?
-			switch ( $query_vars['post_type'] ) {
+				// Supported select query vars
+				$select_query_vars = array(
+					'p'        => false,
+					'name'     => false,
+					$post_type => false,
+				);
 
-				// Forum
-				case bbp_get_forum_post_type() :
-
-					// Define local variable(s)
-					$meta_query = array();
-
-					// Single forum
-					if ( !empty( $select_query_vars ) ) {
-
-						// Load up our own query
-						query_posts( array_merge( array(
-							'post_type' => bbp_get_forum_post_type(),
-							'feed'      => true
-						), $select_query_vars ) );
-
-						// Restrict to specific forum ID
-						$meta_query = array( array(
-							'key'     => '_bbp_forum_id',
-							'value'   => bbp_get_forum_id(),
-							'type'    => 'numeric',
-							'compare' => '='
-						) );
+				// Setup matched variables to select
+				foreach ( $query_vars as $key => $value ) {
+					if ( isset( $select_query_vars[$key] ) ) {
+						$select_query_vars[$key] = $value;
 					}
+				}
 
-					// Only forum replies
-					if ( !empty( $_GET['type'] ) && ( bbp_get_reply_post_type() === $_GET['type'] ) ) {
+				// Remove any empties
+				$select_query_vars = array_filter( $select_query_vars );
+
+				// What bbPress post type are we looking for feeds on?
+				switch ( $post_type ) {
+
+					// Forum
+					case bbp_get_forum_post_type() :
+
+						// Define local variable(s)
+						$meta_query = array();
+
+						// Single forum
+						if ( !empty( $select_query_vars ) ) {
+
+							// Load up our own query
+							query_posts( array_merge( array(
+								'post_type' => bbp_get_forum_post_type(),
+								'feed'      => true
+							), $select_query_vars ) );
+
+							// Restrict to specific forum ID
+							$meta_query = array( array(
+								'key'     => '_bbp_forum_id',
+								'value'   => bbp_get_forum_id(),
+								'type'    => 'numeric',
+								'compare' => '='
+							) );
+						}
+
+						// Only forum replies
+						if ( !empty( $_GET['type'] ) && ( bbp_get_reply_post_type() === $_GET['type'] ) ) {
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'feed'           => true,
+								'post_type'      => bbp_get_reply_post_type(),
+								'post_parent'    => 'any',
+								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'posts_per_page' => bbp_get_replies_per_rss_page(),
+								'order'          => 'DESC',
+								'meta_query'     => $meta_query
+							);
+
+							// Output the feed
+							bbp_display_replies_feed_rss2( $the_query );
+
+						// Only forum topics
+						} elseif ( !empty( $_GET['type'] ) && ( bbp_get_topic_post_type() === $_GET['type'] ) ) {
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'feed'           => true,
+								'post_type'      => bbp_get_topic_post_type(),
+								'post_parent'    => bbp_get_forum_id(),
+								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'posts_per_page' => bbp_get_topics_per_rss_page(),
+								'order'          => 'DESC'
+							);
+
+							// Output the feed
+							bbp_display_topics_feed_rss2( $the_query );
+
+						// All forum topics and replies
+						} else {
+
+							// Exclude private/hidden forums if not looking at single
+							if ( empty( $select_query_vars ) )
+								$meta_query = array( bbp_exclude_forum_ids( 'meta_query' ) );
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'feed'           => true,
+								'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
+								'post_parent'    => 'any',
+								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'posts_per_page' => bbp_get_replies_per_rss_page(),
+								'order'          => 'DESC',
+								'meta_query'     => $meta_query
+							);
+
+							// Output the feed
+							bbp_display_replies_feed_rss2( $the_query );
+						}
+
+						break;
+
+					// Topic feed - Show replies
+					case bbp_get_topic_post_type() :
+
+						// Single topic
+						if ( !empty( $select_query_vars ) ) {
+
+							// Load up our own query
+							query_posts( array_merge( array(
+								'post_type' => bbp_get_topic_post_type(),
+								'feed'      => true
+							), $select_query_vars ) );
+
+							// Output the feed
+							bbp_display_replies_feed_rss2( array( 'feed' => true ) );
+
+						// All topics
+						} else {
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'feed'           => true,
+								'post_parent'    => 'any',
+								'posts_per_page' => bbp_get_topics_per_rss_page(),
+								'show_stickies'  => false
+							);
+
+							// Output the feed
+							bbp_display_topics_feed_rss2( $the_query );
+						}
+
+						break;
+
+					// Replies
+					case bbp_get_reply_post_type() :
 
 						// The query
 						$the_query = array(
-							'author'         => 0,
-							'feed'           => true,
-							'post_type'      => bbp_get_reply_post_type(),
-							'post_parent'    => 'any',
-							'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
 							'posts_per_page' => bbp_get_replies_per_rss_page(),
-							'order'          => 'DESC',
-							'meta_query'     => $meta_query
+							'meta_query'     => array( array( ) ),
+							'feed'           => true
 						);
 
-						// Output the feed
-						bbp_display_replies_feed_rss2( $the_query );
+						// All replies
+						if ( empty( $select_query_vars ) ) {
+							bbp_display_replies_feed_rss2( $the_query );
+						}
 
-					// Only forum topics
-					} elseif ( !empty( $_GET['type'] ) && ( bbp_get_topic_post_type() === $_GET['type'] ) ) {
-
-						// The query
-						$the_query = array(
-							'author'         => 0,
-							'feed'           => true,
-							'post_type'      => bbp_get_topic_post_type(),
-							'post_parent'    => bbp_get_forum_id(),
-							'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-							'posts_per_page' => bbp_get_topics_per_rss_page(),
-							'order'          => 'DESC'
-						);
-
-						// Output the feed
-						bbp_display_topics_feed_rss2( $the_query );
-
-					// All forum topics and replies
-					} else {
-
-						// Exclude private/hidden forums if not looking at single
-						if ( empty( $select_query_vars ) )
-							$meta_query = array( bbp_exclude_forum_ids( 'meta_query' ) );
-
-						// The query
-						$the_query = array(
-							'author'         => 0,
-							'feed'           => true,
-							'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
-							'post_parent'    => 'any',
-							'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
-							'posts_per_page' => bbp_get_replies_per_rss_page(),
-							'order'          => 'DESC',
-							'meta_query'     => $meta_query
-						);
-
-						// Output the feed
-						bbp_display_replies_feed_rss2( $the_query );
-					}
-
-					break;
-
-				// Topic feed - Show replies
-				case bbp_get_topic_post_type() :
-
-					// Single topic
-					if ( !empty( $select_query_vars ) ) {
-
-						// Load up our own query
-						query_posts( array_merge( array(
-							'post_type' => bbp_get_topic_post_type(),
-							'feed'      => true
-						), $select_query_vars ) );
-
-						// Output the feed
-						bbp_display_replies_feed_rss2( array( 'feed' => true ) );
-
-					// All topics
-					} else {
-
-						// The query
-						$the_query = array(
-							'author'         => 0,
-							'feed'           => true,
-							'post_parent'    => 'any',
-							'posts_per_page' => bbp_get_topics_per_rss_page(),
-							'show_stickies'  => false
-						);
-
-						// Output the feed
-						bbp_display_topics_feed_rss2( $the_query );
-					}
-
-					break;
-
-				// Replies
-				case bbp_get_reply_post_type() :
-
-					// The query
-					$the_query = array(
-						'posts_per_page' => bbp_get_replies_per_rss_page(),
-						'meta_query'     => array( array( ) ),
-						'feed'           => true
-					);
-
-					// All replies
-					if ( empty( $select_query_vars ) ) {
-						bbp_display_replies_feed_rss2( $the_query );
-					}
-
-					break;
+						break;
+				}
 			}
 
 		// Single Topic Vview
