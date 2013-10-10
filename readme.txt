@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, jmdodd
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.6
 Tested up to: 3.6
-Stable tag: 2.4
+Stable tag: 2.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,14 @@ We're keeping things as small and light as possible while still allowing for gre
 2. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.4.1 =
+* Fix forum status saving
+* Fix widget settings saving
+* Fix custom wp_title compatibility
+* Fix search results custom permalink compatibility
+* Fix custom user topics & replies pages
+* Fix hierarchical reply handling in converter
 
 = 2.4 =
 * Added hierarchical reply support
