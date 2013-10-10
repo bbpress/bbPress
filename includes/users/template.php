@@ -1312,7 +1312,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/topics';
+			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/' . bbp_get_topic_archive_slug();
 			$user = get_userdata( $user_id );
 			if ( ! empty( $user->user_nicename ) ) {
 				$user_nicename = $user->user_nicename;
@@ -1333,7 +1333,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 	}
 
-/** Replies Created ***********************************************************/
+/** Topics Created ************************************************************/
 
 /**
  * Output the link to the user's replies
@@ -1372,7 +1372,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/replies';
+			$url  = $wp_rewrite->root . bbp_get_user_slug() . '/%' . bbp_get_user_rewrite_id() . '%/' . bbp_get_reply_archive_slug();
 			$user = get_userdata( $user_id );
 			if ( ! empty( $user->user_nicename ) ) {
 				$user_nicename = $user->user_nicename;
