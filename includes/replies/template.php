@@ -35,6 +35,62 @@ function bbp_reply_post_type() {
 		return apply_filters( 'bbp_get_reply_post_type', bbpress()->reply_post_type );
 	}
 
+/**
+ * Return array of labels used by the reply post type
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_reply_post_type_labels() {
+	return apply_filters( 'bbp_get_reply_post_type_labels', array(
+		'name'               => __( 'Replies',                   'bbpress' ),
+		'menu_name'          => __( 'Replies',                   'bbpress' ),
+		'singular_name'      => __( 'Reply',                     'bbpress' ),
+		'all_items'          => __( 'All Replies',               'bbpress' ),
+		'add_new'            => __( 'New Reply',                 'bbpress' ),
+		'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
+		'edit'               => __( 'Edit',                      'bbpress' ),
+		'edit_item'          => __( 'Edit Reply',                'bbpress' ),
+		'new_item'           => __( 'New Reply',                 'bbpress' ),
+		'view'               => __( 'View Reply',                'bbpress' ),
+		'view_item'          => __( 'View Reply',                'bbpress' ),
+		'search_items'       => __( 'Search Replies',            'bbpress' ),
+		'not_found'          => __( 'No replies found',          'bbpress' ),
+		'not_found_in_trash' => __( 'No replies found in Trash', 'bbpress' ),
+		'parent_item_colon'  => __( 'Topic:',                    'bbpress' )
+	) );
+}
+
+/**
+ * Return array of reply post type rewrite settings
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_reply_post_type_rewrite() {
+	return apply_filters( 'bbp_get_reply_post_type_rewrite', array(
+		'slug'       => bbp_get_reply_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the reply post type supports
+ *
+ * @since bbPress (rx5129)
+ *
+ * @return array
+ */
+function bbp_get_reply_post_type_supports() {
+	return apply_filters( 'bbp_get_reply_post_type_supports', array(
+		'title',
+		'editor',
+		'revisions'
+	) );
+}
+
 /** Reply Loop Functions ******************************************************/
 
 /**

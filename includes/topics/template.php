@@ -36,6 +36,62 @@ function bbp_topic_post_type() {
 	}
 
 /**
+ * Return array of labels used by the topic post type
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_topic_post_type_labels() {
+	return apply_filters( 'bbp_get_topic_post_type_labels', array(
+		'name'               => __( 'Topics',                   'bbpress' ),
+		'menu_name'          => __( 'Topics',                   'bbpress' ),
+		'singular_name'      => __( 'Topic',                    'bbpress' ),
+		'all_items'          => __( 'All Topics',               'bbpress' ),
+		'add_new'            => __( 'New Topic',                'bbpress' ),
+		'add_new_item'       => __( 'Create New Topic',         'bbpress' ),
+		'edit'               => __( 'Edit',                     'bbpress' ),
+		'edit_item'          => __( 'Edit Topic',               'bbpress' ),
+		'new_item'           => __( 'New Topic',                'bbpress' ),
+		'view'               => __( 'View Topic',               'bbpress' ),
+		'view_item'          => __( 'View Topic',               'bbpress' ),
+		'search_items'       => __( 'Search Topics',            'bbpress' ),
+		'not_found'          => __( 'No topics found',          'bbpress' ),
+		'not_found_in_trash' => __( 'No topics found in Trash', 'bbpress' ),
+		'parent_item_colon'  => __( 'Forum:',                   'bbpress' )
+	) );
+}
+
+/**
+ * Return array of topic post type rewrite settings
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_topic_post_type_rewrite() {
+	return apply_filters( 'bbp_get_topic_post_type_rewrite', array(
+		'slug'       => bbp_get_topic_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the topic post type supports
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_topic_post_type_supports() {
+	return apply_filters( 'bbp_get_topic_post_type_supports', array(
+		'title',
+		'editor',
+		'revisions'
+	) );
+}
+
+/**
  * The plugin version of bbPress comes with two topic display options:
  * - Traditional: Topics are included in the reply loop (default)
  * - New Style: Topics appear as "lead" posts, ahead of replies
@@ -3208,6 +3264,42 @@ function bbp_topic_tag_tax_id() {
 	function bbp_get_topic_tag_tax_id() {
 		return apply_filters( 'bbp_get_topic_tag_tax_id', bbpress()->topic_tag_tax_id );
 	}
+
+/**
+ * Return array of labels used by the topic-tag taxonomy
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_topic_tag_tax_labels() {
+	return apply_filters( 'bbp_get_topic_tag_tax_labels', array(
+		'name'          => __( 'Topic Tags',     'bbpress' ),
+		'singular_name' => __( 'Topic Tag',      'bbpress' ),
+		'search_items'  => __( 'Search Tags',    'bbpress' ),
+		'popular_items' => __( 'Popular Tags',   'bbpress' ),
+		'all_items'     => __( 'All Tags',       'bbpress' ),
+		'edit_item'     => __( 'Edit Tag',       'bbpress' ),
+		'update_item'   => __( 'Update Tag',     'bbpress' ),
+		'add_new_item'  => __( 'Add New Tag',    'bbpress' ),
+		'new_item_name' => __( 'New Tag Name',   'bbpress' ),
+		'view_item'     => __( 'View Topic Tag', 'bbpress' )
+	) );
+}
+
+/**
+ * Return an array of topic-tag taxonomy rewrite settings
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_topic_tag_tax_rewrite() {
+	return apply_filters( 'bbp_get_topic_tag_tax_rewrite', array(
+		'slug'       => bbp_get_topic_tag_tax_slug(),
+		'with_front' => false
+	) );
+}
 
 /**
  * Output the id of the current tag

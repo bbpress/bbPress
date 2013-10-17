@@ -34,6 +34,63 @@ function bbp_forum_post_type() {
 		return apply_filters( 'bbp_get_forum_post_type', bbpress()->forum_post_type );
 	}
 
+
+/**
+ * Return array of labels used by the forum post type
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_forum_post_type_labels() {
+	return apply_filters( 'bbp_get_forum_post_type_labels', array(
+		'name'               => __( 'Forums',                   'bbpress' ),
+		'menu_name'          => __( 'Forums',                   'bbpress' ),
+		'singular_name'      => __( 'Forum',                    'bbpress' ),
+		'all_items'          => __( 'All Forums',               'bbpress' ),
+		'add_new'            => __( 'New Forum',                'bbpress' ),
+		'add_new_item'       => __( 'Create New Forum',         'bbpress' ),
+		'edit'               => __( 'Edit',                     'bbpress' ),
+		'edit_item'          => __( 'Edit Forum',               'bbpress' ),
+		'new_item'           => __( 'New Forum',                'bbpress' ),
+		'view'               => __( 'View Forum',               'bbpress' ),
+		'view_item'          => __( 'View Forum',               'bbpress' ),
+		'search_items'       => __( 'Search Forums',            'bbpress' ),
+		'not_found'          => __( 'No forums found',          'bbpress' ),
+		'not_found_in_trash' => __( 'No forums found in Trash', 'bbpress' ),
+		'parent_item_colon'  => __( 'Parent Forum:',            'bbpress' )
+	) );
+}
+
+/**
+ * Return array of forum post type rewrite settings
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_forum_post_type_rewrite() {
+	return apply_filters( 'bbp_get_forum_post_type_rewrite', array(
+		'slug'       => bbp_get_forum_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the forum post type supports
+ *
+ * @since bbPress (r5129)
+ *
+ * @return array
+ */
+function bbp_get_forum_post_type_supports() {
+	return apply_filters( 'bbp_get_forum_post_type_supports', array(
+		'title',
+		'editor',
+		'revisions'
+	) );
+}
+
 /** Forum Loop ****************************************************************/
 
 /**
