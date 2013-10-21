@@ -173,15 +173,22 @@ function bbp_do_uninstall( $site_id = 0 ) {
 function bbp_do_activation_redirect() {
 
 	// Bail if no activation redirect
-    if ( ! get_transient( '_bbp_activation_redirect' ) )
+    if ( ! get_transient( '_bbp_activation_redirect' ) ) {
 		return;
+	}
 
 	// Delete the redirect transient
 	delete_transient( '_bbp_activation_redirect' );
 
 	// Bail if activating from network, or bulk
-	if ( is_network_admin() || isset( $_GET['activate-multi'] ) )
+	if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
 		return;
+	}
+
+	// Bail if the current user cannot see the about page
+	if ( ! current_user_can( 'bbp_about_page' ) ) {
+		return;
+	}
 
 	// Redirect to bbPress about page
 	wp_safe_redirect( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) );

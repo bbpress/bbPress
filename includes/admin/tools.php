@@ -1068,7 +1068,8 @@ function bbp_admin_reset() {
 		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Reset Forums', 'bbpress' ) ); ?></h2>
-		<p><?php esc_html_e( 'This will revert your forums back to a brand new installation. This process cannot be undone. <strong>Backup your database before proceeding</strong>.', 'bbpress' ); ?></p>
+		<p><?php esc_html_e( 'Revert your forums back to a brand new installation. This process cannot be undone.', 'bbpress' ); ?></p>
+		<p><strong><?php esc_html_e( 'Backup your database before proceeding.', 'bbpress' ); ?></strong></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">

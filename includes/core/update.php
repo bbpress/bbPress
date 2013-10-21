@@ -337,21 +337,28 @@ function bbp_add_activation_redirect() {
 function bbp_make_current_user_keymaster() {
 
 	// Bail if the current user can't activate plugins since previous pageload
-	if ( ! current_user_can( 'activate_plugins' ) )
+	if ( ! current_user_can( 'activate_plugins' ) ) {
 		return;
+	}
 
 	// Get the current user ID
 	$user_id = get_current_user_id();
 	$blog_id = get_current_blog_id();
 
 	// Bail if user is not actually a member of this site
-	if ( ! is_user_member_of_blog( $user_id, $blog_id ) )
+	if ( ! is_user_member_of_blog( $user_id, $blog_id ) ) {
 		return;
+	}
 
-	// Bail if the current user is already a keymaster
-	if ( bbp_is_user_keymaster( $user_id ) )
+	// Bail if the current user already has a forum role to prevent
+	// unexpected role and capability escalation.
+	if ( bbp_get_user_role( $user_id ) ) {
 		return;
+	}
 
 	// Make the current user a keymaster
 	bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+
+	// Reload the current user so caps apply immediately
+	wp_get_current_user();
 }

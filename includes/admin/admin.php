@@ -487,14 +487,25 @@ class BBP_Admin {
 	public static function modify_plugin_action_links( $links, $file ) {
 
 		// Return normal links if not bbPress
-		if ( plugin_basename( bbpress()->file ) !== $file )
+		if ( plugin_basename( bbpress()->file ) !== $file ) {
 			return $links;
+		}
+
+		// New links to merge into existing links
+		$new_links = array();
+
+		// Settings page link
+		if ( current_user_can( 'bbp_settings_page' ) ) {
+			$new_links['settings'] = '<a href="' . add_query_arg( array( 'page' => 'bbpress'   ), admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings', 'bbpress' ) . '</a>';
+		}
+
+		// About page link
+		if ( current_user_can( 'bbp_about_page' ) ) {
+			$new_links['about']    = '<a href="' . add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php'           ) ) . '">' . esc_html__( 'About',    'bbpress' ) . '</a>';
+		}
 
 		// Add a few links to the existing links array
-		return array_merge( $links, array(
-			'settings' => '<a href="' . add_query_arg( array( 'page' => 'bbpress'   ), admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings', 'bbpress' ) . '</a>',
-			'about'    => '<a href="' . add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php'           ) ) . '">' . esc_html__( 'About',    'bbpress' ) . '</a>'
-		) );
+		return array_merge( $links, $new_links );
 	}
 
 	/**
@@ -1330,7 +1341,7 @@ class BBP_Admin {
 	 */
 	public function suggest_topic() {
 
-		// TRy to get some topics
+		// Try to get some topics
 		$topics = get_posts( array(
 			's'         => like_escape( $_REQUEST['q'] ),
 			'post_type' => bbp_get_topic_post_type()
@@ -1645,8 +1656,6 @@ class BBP_Admin {
 
 					<p><?php esc_html_e( 'All done!', 'bbpress' ); ?></p>
 					<a class="button" href="update-core.php?page=bbpress-update"><?php esc_html_e( 'Go Back', 'bbpress' ); ?></a>
-
-					<?php break; ?>
 
 				<?php
 
