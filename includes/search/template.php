@@ -270,7 +270,7 @@ function bbp_search_url() {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( 'bbp_search' => '' ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_search_rewrite_id() => '' ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_search_url', $url );
@@ -320,7 +320,7 @@ function bbp_search_results_url() {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( 'bbp_search' => urlencode( $search_terms ) ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_search_rewrite_id() => urlencode( $search_terms ) ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_search_results_url', $url );
@@ -348,7 +348,7 @@ function bbp_search_terms( $search_terms = '' ) {
 	 *
 	 * @param string $passed_terms Optional. Search terms
 	 * @uses sanitize_title() To sanitize the search terms
-	 * @uses get_query_var*( To get the search terms from query var 'bbp_search'
+	 * @uses get_query_var() To get the search terms from query variable
 	 * @return bool|string Search terms on success, false on failure
 	 */
 	function bbp_get_search_terms( $passed_terms = '' ) {

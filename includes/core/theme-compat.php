@@ -690,7 +690,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_title'     => bbp_get_view_title(),
 			'post_author'    => 0,
 			'post_date'      => 0,
-			'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( 'bbp_view' ) ) ),
+			'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( bbp_get_view_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
 			'comment_status' => 'closed'
@@ -706,7 +706,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_title'     => bbp_get_search_title(),
 			'post_author'    => 0,
 			'post_date'      => 0,
-			'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( 'bbp_search' ) ) ),
+			'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( bbp_get_search_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
 			'comment_status' => 'closed'

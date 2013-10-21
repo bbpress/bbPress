@@ -780,7 +780,7 @@ final class bbPress {
 
 		// Unique rewrite ID's
 		$feed_id            = 'feed';
-		$edit_id            = 'edit';
+		$edit_id            = bbp_get_edit_rewrite_id();
 		$view_id            = bbp_get_view_rewrite_id();
 		$paged_id           = bbp_get_paged_rewrite_id();
 		$search_id          = bbp_get_search_rewrite_id();

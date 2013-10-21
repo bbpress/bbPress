@@ -698,7 +698,7 @@ class BBP_Shortcodes {
 		set_query_var( bbp_get_search_rewrite_id(), $search_terms );
 
 		// Start output buffer
-		$this->start( 'bbp_search' );
+		$this->start( bbp_get_search_rewrite_id() );
 
 		// Output template
 		bbp_get_template_part( 'content', 'search' );

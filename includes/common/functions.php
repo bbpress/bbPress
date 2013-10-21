@@ -1713,10 +1713,10 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 			}
 
 		// Single Topic Vview
-		} elseif ( isset( $query_vars['bbp_view'] ) ) {
+		} elseif ( isset( $query_vars[ bbp_get_view_rewrite_id() ] ) ) {
 
 			// Get the view
-			$view = $query_vars['bbp_view'];
+			$view = $query_vars[ bbp_get_view_rewrite_id() ];
 
 			// We have a view to display a feed
 			if ( !empty( $view ) ) {
