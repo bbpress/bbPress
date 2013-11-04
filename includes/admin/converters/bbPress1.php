@@ -107,6 +107,18 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'   => 'menu_order'
 		);
 
+		// Forum type (bbPress v1.x Forum > 0 or Category = 0, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'meta',
+			'from_fieldname'  => 'meta_value',
+			'join_tablename'  => 'forums',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'ON meta.object_id = forums.forum_id AND meta.meta_key = "forum_is_category"',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_forum_type',
+			'callback_method' => 'callback_forum_type'
+		);
+
 		// Forum dates.
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
@@ -148,6 +160,15 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topic_reply_count'
 		);
 
+		// Topic total reply count (Includes unpublished replies, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_posts',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_total_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
 		// Topic parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
@@ -177,14 +198,14 @@ class bbPress1 extends BBP_Converter_Base {
 		// Topic slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'topic_title',
+			'from_fieldname'  => 'topic_slug',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
 
 		// Topic content.
-		// Note: We join the posts table because topics do not have content.
+		// Note: We join the 'posts' table because 'topics' table does not include content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_text',
@@ -196,7 +217,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
-		// Topic status (Spam, Trash or Publish)
+		// Topic status (Spam, Trash or Publish, bbPress v1.x publish = 0, trash = 1 & spam = 2)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_status',
@@ -209,6 +230,7 @@ class bbPress1 extends BBP_Converter_Base {
 		);
 
 		// Topic author ip (Stored in postmeta)
+		// Note: We join the 'posts' table because 'topics' table does not include author ip.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'poster_ip',
@@ -322,7 +344,7 @@ class bbPress1 extends BBP_Converter_Base {
 		);
 
 		// Reply title.
-		// Note: We join the topics table because post table does not include topic title.
+		// Note: We join the 'topics' table because 'posts' table does not include topic title.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_title',
@@ -332,6 +354,19 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_title',
 			'callback_method' => 'callback_reply_title'
+		);
+
+		// Reply slug (Clean name to avoid conflicts)
+		// Note: We join the 'topics' table because 'posts' table does not include topic title.
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_slug',
+			'join_tablename'  => 'posts',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (topic_id) WHERE posts.post_position NOT IN (0,1)',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_name',
+			'callback_method' => 'callback_slug'
 		);
 
 		// Reply author ip (Stored in postmeta)
@@ -351,7 +386,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply status (Spam, Trash or Publish)
+		// Reply status (Spam, Trash or Publish, bbPress v1.x publish = 0, trash = 1 & spam = 2)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_status',
@@ -499,7 +534,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Translate the post status from bbPress 1's numeric's to WordPress's
 	 * strings.
 	 *
-	 * @param int $status bbPress 1.x numeric status
+	 * @param int $status bbPress 1.x numeric post status
 	 * @return string WordPress safe
 	 */
 	public function callback_status( $status = 0 ) {
@@ -516,6 +551,21 @@ class bbPress1 extends BBP_Converter_Base {
 			default :
 				$status = 'publish'; // bbp_get_public_status_id()
 				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the forum type from bbPress 1.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status bbPress 1.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_forum_type( $status = 0 ) {
+		if ( $status == 1 ) {
+			$status = 'category';
+		} else {
+			$status = 'forum';
 		}
 		return $status;
 	}
