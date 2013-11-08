@@ -23,7 +23,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	 */
 	public function setup_globals() {
 
-		/** Forum Section ******************************************************/
+		/** Forum Section *****************************************************/
 
 		// Forum id (Stored in postmeta)
 		$this->field_map[] = array(
@@ -129,7 +129,7 @@ class SimplePress5 extends BBP_Converter_Base {
 			'default'      => date('Y-m-d H:i:s')
 		);
 
-		/** Topic Section ******************************************************/
+		/** Topic Section *****************************************************/
 
 		// Topic id (Stored in postmeta)
 		$this->field_map[] = array(
@@ -308,6 +308,19 @@ class SimplePress5 extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_title',
 			'callback_method' => 'callback_reply_title'
+		);
+
+		// Reply slug (Clean name to avoid conflicts)
+		// Note: We join the sftopics table because sfposts table does not include topic title.
+		$this->field_map[] = array(
+			'from_tablename'  => 'sftopics',
+			'from_fieldname'  => 'topic_name',
+			'join_tablename'  => 'sfposts',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'USING (topic_id) WHERE sfposts.post_index != 1',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_name',
+			'callback_method' => 'callback_slug'
 		);
 
 		// Reply content.
@@ -523,6 +536,9 @@ class SimplePress5 extends BBP_Converter_Base {
 
 		// Replace '<strong>username said </strong>' with '@username said:'
 		$simplepress_markup = preg_replace ( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );
+
+		// Replace '<p>&nbsp;</p>' with '<p>&nbsp;</p>'
+		$simplepress_markup = preg_replace ( '/\n(&nbsp;|[\s\p{Z}\xA0\x{00A0}]+)\r/', '<br>', $simplepress_markup );
 
 		// Now that SimplePress' custom HTML codes have been stripped put the cleaned HTML back in $field
 		$field = $simplepress_markup;
