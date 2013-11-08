@@ -21,7 +21,6 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-
 	public function setup_globals() {
 
 		/** Forum Section *****************************************************/
@@ -152,6 +151,15 @@ class Vanilla extends BBP_Converter_Base {
 			'from_fieldname'  => 'CountComments',
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
+		// Topic total reply count (Includes unpublished replies, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'Discussion',
+			'from_fieldname'  => 'CountComments',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_total_reply_count',
 			'callback_method' => 'callback_topic_reply_count'
 		);
 
@@ -329,6 +337,19 @@ class Vanilla extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_title',
 			'callback_method' => 'callback_reply_title'
+		);
+
+		// Reply slug (Clean name to avoid conflicts)
+		// Note: We join the Discussion table because Comment table does not include topic title.
+		$this->field_map[] = array(
+			'from_tablename'  => 'Discussion',
+			'from_fieldname'  => 'Name',
+			'join_tablename'  => 'Comment',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (DiscussionID)',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_name',
+			'callback_method' => 'callback_slug'
 		);
 
 		// Reply author ip (Stored in postmeta)
