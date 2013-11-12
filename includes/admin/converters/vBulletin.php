@@ -57,6 +57,22 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_reply_count'
 		);
 
+		// Forum total topic count (Includes unpublished topics, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum',
+			'from_fieldname'  => 'threadcount',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_total_topic_count'
+		);
+
+		// Forum total reply count (Includes unpublished replies, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum',
+			'from_fieldname'  => 'replycount',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_total_reply_count'
+		);
+
 		// Forum title.
 		$this->field_map[] = array(
 			'from_tablename' => 'forum',
@@ -89,6 +105,15 @@ class vBulletin extends BBP_Converter_Base {
 			'from_fieldname' => 'displayorder',
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'menu_order'
+		);
+
+		// Forum type (Category = -1 or Forum > 0, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum',
+			'from_fieldname'  => 'parentid',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_forum_type',
+			'callback_method' => 'callback_forum_type'
 		);
 
 		// Forum dates.
@@ -141,6 +166,15 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_topic_reply_count'
 		);
 
+		// Topic total reply count (Includes unpublished replies, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread',
+			'from_fieldname'  => 'replycount',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_total_reply_count',
+			'callback_method' => 'callback_topic_reply_count'
+		);
+
 		// Topic author.
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
@@ -148,6 +182,18 @@ class vBulletin extends BBP_Converter_Base {
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
+		);
+
+		// Topic Author ip (Stored in postmeta)
+		// Note: We join the 'post' table because 'thread' table does not include topic content.
+		$this->field_map[] = array(
+			'from_tablename'  => 'post',
+			'from_fieldname'  => 'ipaddress',
+			'join_tablename'  => 'thread',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (threadid) WHERE post.parentid = 0',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_author_ip'
 		);
 
 		// Topic title.
@@ -177,7 +223,7 @@ class vBulletin extends BBP_Converter_Base {
 		);
 
 		// Topic content.
-		// Note: We join the posts table because topics do not have content.
+		// Note: We join the 'post' table because 'thread' table does not include topic content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'pagetext',
@@ -276,6 +322,7 @@ class vBulletin extends BBP_Converter_Base {
 		);
 
 		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
+		// Note: We join the 'thread' table because 'post' table does not include forum id.
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
 			'from_fieldname'  => 'forumid',
@@ -287,7 +334,7 @@ class vBulletin extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
+		// Reply parent topic id (If no parent, then 0, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'threadid',
@@ -314,7 +361,7 @@ class vBulletin extends BBP_Converter_Base {
 		);
 
 		// Reply title.
-		// Note: We join the thread table because post table does not include topic title.
+		// Note: We join the 'thread' table because 'post' table does not include reply title.
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
 			'from_fieldname'  => 'title',
@@ -325,6 +372,19 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_title',
 			'callback_method' => 'callback_reply_title'
 		);
+
+        // Reply slug (Clean name to avoid conflicts)
+        // Note: We join the 'thread' table because 'post' table does not include reply slug.
+        $this->field_map[] = array(
+        	'from_tablename'  => 'thread',
+        	'from_fieldname'  => 'title',
+        	'join_tablename'  => 'post',
+        	'join_type'       => 'INNER',
+        	'join_expression' => 'USING (threadid) WHERE post.parentid != 0',
+        	'to_type'         => 'reply',
+        	'to_fieldname'    => 'post_name',
+        	'callback_method' => 'callback_slug'
+        );
 
 		// Reply content.
 		$this->field_map[] = array(
@@ -398,7 +458,7 @@ class vBulletin extends BBP_Converter_Base {
 			'from_tablename' => 'user',
 			'from_fieldname' => 'salt',
 			'to_type'        => 'user',
-			'to_fieldname'   => ''
+			'to_fieldname'   => '_bbp_salt'
 		);
 
 		// User password verify class (Stored in usermeta for verifying password)
@@ -497,7 +557,7 @@ class vBulletin extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array( 'hash'	 => $field, 'salt'	 => $row['salt'] );
+		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
 		return $pass_array;
 	}
 
@@ -505,14 +565,25 @@ class vBulletin extends BBP_Converter_Base {
 	 * This method is to take the pass out of the database and compare
 	 * to a pass the user has typed in.
 	 *
-	 * vBulletin passwords do not work. Maybe use the below plugin's approach?
-	 *
-	 * @link http://wordpress.org/extend/plugins/vb-user-copy/
-	 * @link http://plugins.trac.wordpress.org/browser/vb-user-copy/trunk/vb_user_copy.php
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
 		return ( $pass_array['hash'] == md5( md5( $password ) . $pass_array['salt'] ) );
+	}
+
+	/**
+	 * Translate the forum type from vBulletin v4.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status vBulletin v4.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_forum_type( $status = 0 ) {
+		if ( $status == -1 ) {
+			$status = 'category';
+		} else {
+			$status = 'forum';
+		}
+		return $status;
 	}
 
 	/**
