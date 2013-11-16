@@ -59,6 +59,11 @@ class BBP_Forums_Component extends BP_Component {
 		// Members modifications
 		$includes[] = 'members.php';
 
+		// BuddyPress Notfications Extension functions
+		if ( bp_is_active( 'notifications' ) ) {
+			$includes[] = 'notifications.php';
+		}
+
 		// BuddyPress Activity Extension class
 		if ( bp_is_active( 'activity' ) ) {
 			$includes[] = 'activity.php';
