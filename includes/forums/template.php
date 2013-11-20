@@ -789,6 +789,51 @@ function bbp_list_forums( $args = '' ) {
 	}
 }
 
+/** Forum Subscriptions *******************************************************/
+
+/**
+ * Output the forum subscription link
+ *
+ * @since bbPress (rxxxx)
+ *
+ * @uses bbp_get_forum_subscription_link()
+ */
+function bbp_forum_subscription_link( $args = array() ) {
+	echo bbp_get_forum_subscription_link( $args );
+}
+
+	/**
+	 * Get the forum subscription link
+	 *
+	 * A custom wrapper for bbp_get_user_subscribe_link()
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @uses bbp_parse_args()
+	 * @uses bbp_get_user_subscribe_link()
+	 * @uses apply_filters() Calls 'bbp_get_forum_subscribe_link'
+	 */
+	function bbp_get_forum_subscription_link( $args = array() ) {
+
+		// No link
+		$retval = false;
+
+		// Parse the arguments
+		$r = bbp_parse_args( $args, array(
+			'forum_id'    => 0,
+			'user_id'     => 0,
+			'before'      => '',
+			'after'       => '',
+			'subscribe'   => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => __( 'Unsubscribe', 'bbpress' )
+		), 'get_forum_subscribe_link' );
+
+		// Get the link
+		$retval = bbp_get_user_subscribe_link( $r );
+
+		return apply_filters( 'bbp_get_forum_subscribe_link', $retval, $r );
+	}
+
 /** Forum Last Topic **********************************************************/
 
 /**
@@ -2164,6 +2209,66 @@ function bbp_form_forum_visibility() {
 		}
 
 		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
+	}
+	
+/**
+ * Output checked value of forum subscription
+ *
+ * @since bbPress (rxxxx)
+ *
+ * @uses bbp_get_form_forum_subscribed() To get the subscribed checkbox value
+ */
+function bbp_form_forum_subscribed() {
+	echo bbp_get_form_forum_subscribed();
+}
+	/**
+	 * Return checked value of forum subscription
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
+	 * @uses bbp_get_global_post_field() To get current post author
+	 * @uses bbp_get_current_user_id() To get the current user id
+	 * @uses bbp_is_user_subscribed() To check if the user is subscribed to
+	 *                the forum
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_subscribed' with the
+	 *                option
+	 * @return string Checked value of forum subscription
+	 */
+	function bbp_get_form_forum_subscribed() {
+
+		// Get _POST data
+		if ( bbp_is_post_request() && isset( $_POST['bbp_forum_subscription'] ) ) {
+			$forum_subscribed = (bool) $_POST['bbp_forum_subscription'];
+
+		// Get edit data
+		} elseif ( bbp_is_forum_edit() || bbp_is_reply_edit() ) {
+
+			// Get current posts author
+			$post_author = bbp_get_global_post_field( 'post_author', 'raw' );
+
+			// Post author is not the current user
+			if ( bbp_get_current_user_id() !== $post_author ) {
+				$forum_subscribed = bbp_is_user_subscribed( $post_author );
+
+			// Post author is the current user
+			} else {
+				$forum_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+			}
+
+		// Get current status
+		} elseif ( bbp_is_single_forum() ) {
+			$forum_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+
+		// No data
+		} else {
+			$forum_subscribed = false;
+		}
+
+		// Get checked output
+		$checked = checked( $forum_subscribed, true, false );
+
+		return apply_filters( 'bbp_get_form_forum_subscribed', $checked, $forum_subscribed );
 	}
 
 /** Form Dropdowns ************************************************************/

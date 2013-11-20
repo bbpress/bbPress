@@ -1807,6 +1807,96 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 		return apply_filters( 'bbp_get_topic_last_active', $last_active, $topic_id );
 	}
 
+/** Topic Subscriptions *******************************************************/
+
+/**
+ * Output the topic subscription link
+ *
+ * @since bbPress (rxxxx)
+ *
+ * @uses bbp_get_topic_subscription_link()
+ */
+function bbp_topic_subscription_link( $args = array() ) {
+	echo bbp_get_topic_subscription_link( $args );
+}
+
+	/**
+	 * Get the forum subscription link
+	 *
+	 * A custom wrapper for bbp_get_user_subscribe_link()
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @uses bbp_parse_args()
+	 * @uses bbp_get_user_subscribe_link()
+	 * @uses apply_filters() Calls 'bbp_get_topic_subscribe_link'
+	 */
+	function bbp_get_topic_subscription_link( $args = array() ) {
+
+		// No link
+		$retval = false;
+
+		// Parse the arguments
+		$r = bbp_parse_args( $args, array(
+			'user_id'     => 0,
+			'topic_id'    => 0,
+			'before'      => '&nbsp;|&nbsp;',
+			'after'       => '',
+			'subscribe'   => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => __( 'Unsubscribe', 'bbpress' )
+		), 'get_forum_subscribe_link' );
+
+		// Get the link
+		$retval = bbp_get_user_subscribe_link( $r );
+
+		return apply_filters( 'bbp_get_topic_subscribe_link', $retval, $r );
+	}
+
+/** Topic Favorites ***********************************************************/
+
+/**
+ * Output the topic favorite link
+ *
+ * @since bbPress (rxxxx)
+ *
+ * @uses bbp_get_topic_favorite_link()
+ */
+function bbp_topic_favorite_link( $args = array() ) {
+	echo bbp_get_topic_favorite_link( $args );
+}
+
+	/**
+	 * Get the forum favorite link
+	 *
+	 * A custom wrapper for bbp_get_user_favorite_link()
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @uses bbp_parse_args()
+	 * @uses bbp_get_user_favorites_link()
+	 * @uses apply_filters() Calls 'bbp_get_topic_favorite_link'
+	 */
+	function bbp_get_topic_favorite_link( $args = array() ) {
+
+		// No link
+		$retval = false;
+
+		// Parse the arguments
+		$r = bbp_parse_args( $args, array(
+			'user_id'   => 0,
+			'topic_id'  => 0,
+			'before'    => '',
+			'after'     => '',
+			'favorite'  => __( 'Favorite',   'bbpress' ),
+			'favorited' => __( 'Unfavorite', 'bbpress' )
+		), 'get_forum_favorite_link' );
+
+		// Get the link
+		$retval = bbp_get_user_favorites_link( $r );
+
+		return apply_filters( 'bbp_get_topic_favorite_link', $retval, $r );
+	}
+
 /** Topic Last Reply **********************************************************/
 
 /**

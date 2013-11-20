@@ -961,6 +961,48 @@ function bbp_repair_forum_visibility() {
 	return true;
 }
 
+/** Subscriptions *************************************************************/
+
+/**
+ * Remove a deleted forum from all users' subscriptions
+ *
+ * @since bbPress (rxxxx)
+ *
+ * @param int $forum_id Get the forum ID to remove
+ * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
+ * @uses bbp_get_forum_id To get the forum id
+ * @uses bbp_get_forum_subscribers() To get the forum subscribers
+ * @uses bbp_remove_user_subscription() To remove the user subscription
+ */
+function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
+
+	// Subscriptions are not active
+	if ( ! bbp_is_subscriptions_active() ) {
+		return;
+	}
+
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Bail if no forum
+	if ( empty( $forum_id ) ) {
+		return;
+	}
+
+	// Get users
+	$users = (array) bbp_get_forum_subscribers( $forum_id );
+
+	// Users exist
+	if ( !empty( $users ) ) {
+
+		// Loop through users
+		foreach ( $users as $user ) {
+
+			// Remove each user
+			bbp_remove_user_subscription( $user, $forum_id );
+		}
+	}
+}
+
 /** Count Bumpers *************************************************************/
 
 /**

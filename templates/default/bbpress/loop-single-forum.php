@@ -13,6 +13,20 @@
 
 	<li class="bbp-forum-info">
 
+		<?php if ( bbp_is_user_home() && bbp_is_subscriptions() ) : ?>
+
+			<span class="bbp-row-actions">
+
+				<?php do_action( 'bbp_theme_before_forum_subscription_action' ); ?>
+
+				<?php bbp_forum_subscription_link( array( 'before' => '', 'subscribe' => '+', 'unsubscribe' => '&times;' ) ); ?>
+
+				<?php do_action( 'bbp_theme_after_forum_subscription_action' ); ?>
+
+			</span>
+
+		<?php endif; ?>
+
 		<?php do_action( 'bbp_theme_before_forum_title' ); ?>
 
 		<a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>"><?php bbp_forum_title(); ?></a>

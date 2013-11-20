@@ -612,7 +612,7 @@ function bbp_author_ip( $args = '' ) {
 	}
 
 /** Anonymous Fields **********************************************************/
-	
+
 /**
  * Output the author disylay-name of a topic or reply.
  *
@@ -885,8 +885,9 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 * @return string User favorites link
 	 */
 	function bbp_get_user_favorites_link( $args = '', $user_id = 0, $wrap = true ) {
-		if ( !bbp_is_favorites_active() )
+		if ( ! bbp_is_favorites_active() ) {
 			return false;
+		}
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -906,13 +907,13 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		}
 
 		// No link if you can't edit yourself
-		if ( !current_user_can( 'edit_user', (int) $user_id ) ) {
+		if ( ! current_user_can( 'edit_user', (int) $user_id ) ) {
 			return false;
 		}
 
 		// Decide which link to show
 		$is_fav = bbp_is_user_favorite( $user_id, $topic_id );
-		if ( !empty( $is_fav ) ) {
+		if ( ! empty( $is_fav ) ) {
 			$text       = $r['favorited'];
 			$query_args = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
 		} else {
@@ -935,7 +936,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
 
 		// Initial output is wrapped in a span, ajax output is hooked to this
-		if ( !empty( $wrap ) ) {
+		if ( ! empty( $wrap ) ) {
 			$html = '<span id="favorite-toggle">' . $html . '</span>';
 		}
 
@@ -1018,7 +1019,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_subscribe_link( $args, $user_id, $wrap );
 }
 	/**
-	 * Return the link to subscribe/unsubscribe from a topic
+	 * Return the link to subscribe/unsubscribe from a forum or topic
 	 *
 	 * @since bbPress (r2668)
 	 *
@@ -1027,14 +1028,19 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 	 *  - unsubscribe: Unsubscribe text
 	 *  - user_id: User id
 	 *  - topic_id: Topic id
+	 *  - forum_id: Forum id
 	 *  - before: Before the link
 	 *  - after: After the link
 	 * @param int $user_id Optional. User id
 	 * @param bool $wrap Optional. If you want to wrap the link in <span id="subscription-toggle">.
+	 * @uses bbp_is_subscriptions_active() to check if subscriptions are active
 	 * @uses bbp_get_user_id() To get the user id
-	 * @uses current_user_can() To check if the current user can edit user
+	 * @uses bbp_get_user_id() To get the user id
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_is_user_subscribed() To check if the user is subscribed
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses current_user_can() To check if the current user can edit user
+	 * @uses bbp_is_user_subscribed_to_forum() To check if the user is subscribed to the forum
+	 * @uses bbp_is_user_subscribed_to_topic() To check if the user is subscribed to the topic
 	 * @uses bbp_is_subscriptions() To check if it's the subscriptions page
 	 * @uses bbp_get_subscriptions_permalink() To get subscriptions link
 	 * @uses bbp_get_topic_permalink() To get topic link
@@ -1043,8 +1049,9 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
-		if ( !bbp_is_subscriptions_active() )
+		if ( ! bbp_is_subscriptions_active() ) {
 			return;
+		}
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -1052,49 +1059,86 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
 			'user_id'     => 0,
 			'topic_id'    => 0,
+			'forum_id'    => 0,
 			'before'      => '&nbsp;|&nbsp;',
 			'after'       => ''
 		), 'get_user_subscribe_link' );
 
-		// Validate user and topic ID's
+		// Validate user and object ID's
 		$user_id  = bbp_get_user_id( $r['user_id'], true, true );
 		$topic_id = bbp_get_topic_id( $r['topic_id'] );
-		if ( empty( $user_id ) || empty( $topic_id ) ) {
+		$forum_id = bbp_get_forum_id( $r['forum_id'] );
+		if ( empty( $user_id ) || ( empty( $topic_id ) && empty( $forum_id ) ) ) {
 			return false;
 		}
 
 		// No link if you can't edit yourself
-		if ( !current_user_can( 'edit_user', (int) $user_id ) ) {
+		if ( ! current_user_can( 'edit_user', (int) $user_id ) ) {
 			return false;
 		}
 
-		// Decide which link to show
-		$is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id );
-		if ( !empty( $is_subscribed ) ) {
-			$text       = $r['unsubscribe'];
-			$query_args = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
+		// Check if viewing a single forum
+		if ( empty( $topic_id ) && ! empty( $forum_id ) ) {
+
+			// Decide which link to show
+			$is_subscribed = bbp_is_user_subscribed_to_forum( $user_id, $forum_id );
+			if ( ! empty( $is_subscribed ) ) {
+				$text       = $r['unsubscribe'];
+				$query_args = array( 'action' => 'bbp_unsubscribe', 'forum_id' => $forum_id );
+			} else {
+				$text       = $r['subscribe'];
+				$query_args = array( 'action' => 'bbp_subscribe',   'forum_id' => $forum_id );
+			}
+
+			// Create the link based where the user is and if the user is
+			// subscribed already
+			if ( bbp_is_subscriptions() ) {
+				$permalink = bbp_get_subscriptions_permalink( $user_id );
+			} elseif ( bbp_is_single_forum() || bbp_is_single_reply() ) {
+				$permalink = bbp_get_forum_permalink( $forum_id );
+			} else {
+				$permalink = get_permalink();
+			}
+
+			$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $forum_id ) );
+			$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
+			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-forum="%d">%s</a></span>%s', $r['before'], $forum_id, $sub, $url, $forum_id, $text, $r['after'] );
+
+			// Initial output is wrapped in a span, ajax output is hooked to this
+			if ( !empty( $wrap ) ) {
+				$html = '<span id="subscription-toggle">' . $html . '</span>';
+			}
+
 		} else {
-			$text       = $r['subscribe'];
-			$query_args = array( 'action' => 'bbp_subscribe', 'topic_id' => $topic_id );
-		}
 
-		// Create the link based where the user is and if the user is
-		// subscribed already
-		if ( bbp_is_subscriptions() ) {
-			$permalink = bbp_get_subscriptions_permalink( $user_id );
-		} elseif ( bbp_is_single_topic() || bbp_is_single_reply() ) {
-			$permalink = bbp_get_topic_permalink( $topic_id );
-		} else {
-			$permalink = get_permalink();
-		}
+			// Decide which link to show
+			$is_subscribed = bbp_is_user_subscribed_to_topic( $user_id, $topic_id );
+			if ( ! empty( $is_subscribed ) ) {
+				$text       = $r['unsubscribe'];
+				$query_args = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
+			} else {
+				$text       = $r['subscribe'];
+				$query_args = array( 'action' => 'bbp_subscribe',   'topic_id' => $topic_id );
+			}
 
-		$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
-		$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
-		$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
+			// Create the link based where the user is and if the user is
+			// subscribed already
+			if ( bbp_is_subscriptions() ) {
+				$permalink = bbp_get_subscriptions_permalink( $user_id );
+			} elseif ( bbp_is_single_topic() || bbp_is_single_reply() ) {
+				$permalink = bbp_get_topic_permalink( $topic_id );
+			} else {
+				$permalink = get_permalink();
+			}
 
-		// Initial output is wrapped in a span, ajax output is hooked to this
-		if ( !empty( $wrap ) ) {
-			$html = '<span id="subscription-toggle">' . $html . '</span>';
+			$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
+			$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
+			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
+
+			// Initial output is wrapped in a span, ajax output is hooked to this
+			if ( !empty( $wrap ) ) {
+				$html = '<span id="subscription-toggle">' . $html . '</span>';
+			}
 		}
 
 		// Return the link

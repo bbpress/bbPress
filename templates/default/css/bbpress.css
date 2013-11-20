@@ -484,7 +484,7 @@ td.bbp-topic-counts {
 /* =Toggles
 -------------------------------------------------------------- */
 
-.bbp-topic-action #favorite-toggle a {
+.bbp-row-actions #favorite-toggle a {
 	text-decoration: none;
 	padding: 0 3px 1px;
 	color: #7c7;
@@ -493,23 +493,23 @@ td.bbp-topic-counts {
 	font-weight: bold;
 	font-size: 13px;
 	}
-	.bbp-topic-action #favorite-toggle a:hover {
+	.bbp-row-actions #favorite-toggle a:hover {
 		color: #5a5;
 		border-color: #7c7;
 		background-color: #beb;
 	}
-	.bbp-topic-action #favorite-toggle span.is-favorite a {
+	.bbp-row-actions #favorite-toggle span.is-favorite a {
 		color: #faa;
 		border: 1px solid #faa;
 		background-color: #fee;
 		}
-		.bbp-topic-action #favorite-toggle span.is-favorite a:hover {
+		.bbp-row-actions #favorite-toggle span.is-favorite a:hover {
 			color: #c88;
 			border-color: #c88;
 			background-color: #fdd;
 		}
 
-.bbp-topic-action #subscription-toggle a {
+.bbp-row-actions #subscription-toggle a {
 	text-decoration: none;
 	padding: 0 3px 1px;
 	color: #7c7;
@@ -518,17 +518,17 @@ td.bbp-topic-counts {
 	font-weight: bold;
 	font-size: 13px;
 	}
-	.bbp-topic-action #subscription-toggle a:hover {
+	.bbp-row-actions #subscription-toggle a:hover {
 		color: #5a5;
 		border-color: #7c7;
 		background-color: #beb;
 	}
-	.bbp-topic-action #subscription-toggle span.is-subscribed a {
+	.bbp-row-actions #subscription-toggle span.is-subscribed a {
 		color: #faa;
 		border: 1px solid #faa;
 		background-color: #fee;
 		}
-		.bbp-topic-action #subscription-toggle span.is-subscribed a:hover {
+		.bbp-row-actions #subscription-toggle span.is-subscribed a:hover {
 			color: #c88;
 			border-color: #c88;
 			background-color: #fdd;
