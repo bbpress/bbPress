@@ -1118,7 +1118,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  * Gets new post's ID and check if there are subscribed users to that topic, and
  * if there are, send notifications
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $topic_id ID of the newly made reply
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active

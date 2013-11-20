@@ -966,7 +966,7 @@ function bbp_repair_forum_visibility() {
 /**
  * Remove a deleted forum from all users' subscriptions
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $forum_id Get the forum ID to remove
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active

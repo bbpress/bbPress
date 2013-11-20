@@ -794,7 +794,7 @@ function bbp_list_forums( $args = '' ) {
 /**
  * Output the forum subscription link
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @uses bbp_get_forum_subscription_link()
  */
@@ -807,7 +807,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 	 *
 	 * A custom wrapper for bbp_get_user_subscribe_link()
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r5156)
 	 *
 	 * @uses bbp_parse_args()
 	 * @uses bbp_get_user_subscribe_link()
@@ -2214,7 +2214,7 @@ function bbp_form_forum_visibility() {
 /**
  * Output checked value of forum subscription
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @uses bbp_get_form_forum_subscribed() To get the subscribed checkbox value
  */
@@ -2224,7 +2224,7 @@ function bbp_form_forum_subscribed() {
 	/**
 	 * Return checked value of forum subscription
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r5156)
 	 *
 	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
 	 * @uses bbp_get_global_post_field() To get current post author

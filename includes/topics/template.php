@@ -1812,7 +1812,7 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 /**
  * Output the topic subscription link
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @uses bbp_get_topic_subscription_link()
  */
@@ -1825,7 +1825,7 @@ function bbp_topic_subscription_link( $args = array() ) {
 	 *
 	 * A custom wrapper for bbp_get_user_subscribe_link()
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r5156)
 	 *
 	 * @uses bbp_parse_args()
 	 * @uses bbp_get_user_subscribe_link()
@@ -1857,7 +1857,7 @@ function bbp_topic_subscription_link( $args = array() ) {
 /**
  * Output the topic favorite link
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @uses bbp_get_topic_favorite_link()
  */
@@ -1870,7 +1870,7 @@ function bbp_topic_favorite_link( $args = array() ) {
 	 *
 	 * A custom wrapper for bbp_get_user_favorite_link()
 	 *
-	 * @since bbPress (rxxxx)
+	 * @since bbPress (r5156)
 	 *
 	 * @uses bbp_parse_args()
 	 * @uses bbp_get_user_favorites_link()

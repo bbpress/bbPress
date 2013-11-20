@@ -514,7 +514,7 @@ function bbp_favorites_handler( $action = '' ) {
 /**
  * Get the users who have subscribed to the forum
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $forum_id Optional. forum id
  * @uses wpdb::get_col() To execute our query and get the column back
@@ -570,7 +570,7 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
  *
  * @since bbPress (r2668)
  *
- * @deprecated since bbPress (rxxxx)
+ * @deprecated since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_topic_subscriptions() To get the user's subscriptions
@@ -616,7 +616,7 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 /**
  * Get a user's subscribed forums
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
@@ -647,7 +647,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
 /**
  * Get a user's subscribed forum ids
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
@@ -693,7 +693,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 /**
  * Check if a topic or forum is in user's subscription list or not
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. Topic id
@@ -747,7 +747,7 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
 /**
  * Check if a forum is in user's subscription list or not
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. Topic id
@@ -804,7 +804,7 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
 /**
  * Check if a topic is in user's subscription list or not
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -861,7 +861,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 /**
  * Add a topic to user's subscriptions
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -907,7 +907,7 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0 ) {
 /**
  * Add a forum to user's subscriptions
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
@@ -1027,7 +1027,7 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0 ) {
 /**
  * Remove a forum from user's subscriptions
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
@@ -1074,7 +1074,7 @@ function bbp_remove_user_forum_subscription( $user_id, $forum_id ) {
 /**
  * Remove a topic from user's subscriptions
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -1121,7 +1121,7 @@ function bbp_remove_user_topic_subscription( $user_id, $topic_id ) {
 /**
  * Handles the front end subscribing and unsubscribing forums
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active

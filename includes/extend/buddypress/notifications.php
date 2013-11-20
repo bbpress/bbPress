@@ -56,7 +56,7 @@ add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypres
  * Hooked into the new reply function, this notification action is responsible
  * for notifying topic and hierarchical reply authors of topic replies.
  *
- * @since bbPress (rxxxx)
+ * @since bbPress (r5156)
  *
  * @param int $reply_id
  * @param int $topic_id
