@@ -1751,6 +1751,10 @@ function bbp_current_user_can_access_create_topic_form() {
 	// User can edit this topic
 	} elseif ( bbp_is_topic_edit() ) {
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
+
+	// Other bbPress locations that need special consideration
+	} elseif ( bbp_is_forum_archive() || bbp_is_topic_archive() || bbp_is_single_view() ) {
+		$retval = bbp_current_user_can_publish_topics();
 	}
 
 	// Allow access to be filtered
