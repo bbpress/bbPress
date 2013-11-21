@@ -131,7 +131,7 @@ class Mingle extends BBP_Converter_Base {
 			'from_fieldname'  => 'text',
 			'join_tablename'  => 'forum_threads',
 			'join_type'       => 'INNER',
-			'join_expression' => 'USING (subject)',
+			'join_expression' => 'ON forum_posts.parent_id = forum_threads.id GROUP BY forum_threads.id',
 			'to_type'         => 'topic',
 			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_html'
@@ -244,7 +244,7 @@ class Mingle extends BBP_Converter_Base {
 		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
-			'from_fieldname'  => 'id',
+			'from_fieldname'  => 'parent_id',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_topic_id',
 			'callback_method' => 'callback_topicid'
@@ -421,7 +421,7 @@ class Mingle extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Mingle numeric's to WordPress's strings.
+	 * Translate the topic status from Mingle numeric's to WordPress's strings.
 	 *
 	 * @param int $status Mingle v1.x numeric topic status
 	 * @return string WordPress safe
