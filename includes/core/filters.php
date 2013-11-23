@@ -60,6 +60,9 @@ add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 // Remove forums roles from list of all roles
 add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 
+// Reply title fallback
+add_filter( 'the_title', 'bbp_get_reply_title_fallback', 1, 2 );
+
 /**
  * Feeds
  *
@@ -93,9 +96,6 @@ add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses'  );
 add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses'  );
 add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses'  );
 add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses'  );
-
-// Reply title fallback
-add_filter( 'the_title', 'bbp_get_reply_title_fallback', 1, 2 );
 
 // Prevent posting malicious or malformed content on new/edit topic/reply
 add_filter( 'bbp_new_reply_pre_content',  'bbp_encode_bad',  10 );
