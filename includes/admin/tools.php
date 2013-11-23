@@ -1151,10 +1151,19 @@ function bbp_admin_reset() {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php esc_html_e( 'Are you sure you want to do this?', 'bbpress' ) ?></th>
+						<th scope="row"><?php esc_html_e( 'Delete imported users?', 'bbpress' ); ?></th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ) ?></span></legend>
+								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
+								<label><input type="checkbox" class="checkbox" name="bbpress-delete-imported-users" id="bbpress-delete-imported-users" value="1" /> <?php esc_html_e( 'This option will delete all previously imported users, and cannot be undone.', 'bbpress' ); ?></label>
+							</fieldset>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php esc_html_e( 'Are you sure you want to do this?', 'bbpress' ); ?></th>
+						<td>
+							<fieldset>
+								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
 								<label><input type="checkbox" class="checkbox" name="bbpress-are-you-sure" id="bbpress-are-you-sure" value="1" /> <?php esc_html_e( 'This process cannot be undone.', 'bbpress' ); ?></label>
 							</fieldset>
 						</td>
@@ -1202,7 +1211,7 @@ function bbp_admin_reset_handler() {
 	// Flush the cache; things are about to get ugly.
 	wp_cache_flush();
 
-	/** Posts *************************************************************/
+	/** Posts *****************************************************************/
 
 	$statement  = __( 'Deleting Posts&hellip; %s', 'bbpress' );
 	$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')", OBJECT_K );
@@ -1210,10 +1219,10 @@ function bbp_admin_reset_handler() {
 	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
-
-	/** Post Meta *********************************************************/
+	/** Post Meta *************************************************************/
 
 	if ( !empty( $sql_posts ) ) {
+		$sql_meta = array();
 		foreach ( $sql_posts as $key => $value ) {
 			$sql_meta[] = $key;
 		}
@@ -1224,21 +1233,35 @@ function bbp_admin_reset_handler() {
 		$messages[] = sprintf( $statement, $result );
 	}
 
-	/** Topic Tags ********************************************************/
+	/** Topic Tags ************************************************************/
 
 	$statement  = __( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
 	$sql_delete = "DELETE a,b,c FROM `{$wpdb->terms}` AS a LEFT JOIN `{$wpdb->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$wpdb->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag';";
 	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
-	/** User Meta *********************************************************/
+	/** User ******************************************************************/
 
-	$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
-	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
-	$messages[] = sprintf( $statement, $result );
+	if ( !empty( $_POST['bbpress-delete-imported-users'] ) ) {
+		$sql_users  = $wpdb->get_results( "SELECT `user_id` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_user_id'", OBJECT_K );
+		if ( !empty( $sql_users ) ) {
+			$sql_meta = array();
+			foreach ( $sql_users as $key => $value ) {
+				$sql_meta[] = $key;
+			}
+			$statement  = __( 'Deleting User&hellip; %s', 'bbpress' );
+			$sql_meta   = implode( "', '", $sql_meta );
+			$sql_delete = "DELETE FROM `{$wpdb->users}` WHERE `ID` IN ('{$sql_meta}');";
+			$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+			$messages[] = sprintf( $statement, $result );
+			$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
+			$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `user_id` IN ('{$sql_meta}');";
+			$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+			$messages[] = sprintf( $statement, $result );
+		}
+	}
 
-	/** Converter *********************************************************/
+	/** Converter *************************************************************/
 
 	$statement  = __( 'Deleting Conversion Table&hellip; %s', 'bbpress' );
 	$table_name = $wpdb->prefix . 'bbp_converter_translator';
@@ -1250,13 +1273,13 @@ function bbp_admin_reset_handler() {
 	}
 	$messages[] = sprintf( $statement, $result );
 
-	/** Options ***********************************************************/
+	/** Options ***************************************************************/
 
 	$statement  = __( 'Deleting Settings&hellip; %s', 'bbpress' );
 	bbp_delete_options();
 	$messages[] = sprintf( $statement, $success );
 
-	/** Roles *************************************************************/
+	/** Roles *****************************************************************/
 
 	$statement  = __( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
 	remove_role( bbp_get_moderator_role() );
@@ -1264,7 +1287,7 @@ function bbp_admin_reset_handler() {
 	bbp_remove_caps();
 	$messages[] = sprintf( $statement, $success );
 
-	/** Output ************************************************************/
+	/** Output ****************************************************************/
 
 	if ( count( $messages ) ) {
 		foreach ( $messages as $message ) {
