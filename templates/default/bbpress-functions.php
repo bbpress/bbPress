@@ -141,27 +141,29 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function enqueue_styles() {
 
-		// LTR or RTL
-		$file = is_rtl() ? 'css/bbpress-rtl.css' : 'css/bbpress.css';
+		$styles = array( 'bbp-default' => 'css/bbpress.css' );
 
-		// Check child theme
-		if ( file_exists( trailingslashit( get_stylesheet_directory() ) . $file ) ) {
-			$location = trailingslashit( get_stylesheet_directory_uri() );
-			$handle   = 'bbp-child-bbpress';
+		if ( is_rtl() )
+			$styles['bbp-default-rtl'] = 'css/bbpress-rtl.css';
 
-		// Check parent theme
-		} elseif ( file_exists( trailingslashit( get_template_directory() ) . $file ) ) {
-			$location = trailingslashit( get_template_directory_uri() );
-			$handle   = 'bbp-parent-bbpress';
+		foreach ( $styles as $handle => $file ) {
 
-		// bbPress Theme Compatibility
-		} else {
-			$location = trailingslashit( $this->url );
-			$handle   = 'bbp-default-bbpress';
+			// Check child theme
+			if ( file_exists( trailingslashit( get_stylesheet_directory() ) . $file ) ) {
+				$location = trailingslashit( get_stylesheet_directory_uri() );
+
+			// Check parent theme
+			} elseif ( file_exists( trailingslashit( get_template_directory() ) . $file ) ) {
+				$location = trailingslashit( get_template_directory_uri() );
+
+			// bbPress Theme Compatibility
+			} else {
+				$location = trailingslashit( $this->url );
+			}
+
+			// Enqueue the bbPress styling
+			wp_enqueue_style( $handle, $location . $file, array(), $this->version, 'screen' );
 		}
-
-		// Enqueue the bbPress styling
-		wp_enqueue_style( $handle, $location . $file, array(), $this->version, 'screen' );
 	}
 
 	/**
