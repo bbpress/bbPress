@@ -818,21 +818,19 @@ function bbp_forum_subscription_link( $args = array() ) {
 		// No link
 		$retval = false;
 
+		// Parse the arguments
+		$r = bbp_parse_args( $args, array(
+			'forum_id'    => 0,
+			'user_id'     => 0,
+			'before'      => '',
+			'after'       => '',
+			'subscribe'   => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => __( 'Unsubscribe', 'bbpress' )
+		), 'get_forum_subscribe_link' );
+
 		// No link for categories until we support subscription hierarchy
 		// @see http://bbpress.trac.wordpress.org/ticket/2475
 		if ( ! bbp_is_forum_category() ) {
-
-			// Parse the arguments
-			$r = bbp_parse_args( $args, array(
-				'forum_id'    => 0,
-				'user_id'     => 0,
-				'before'      => '',
-				'after'       => '',
-				'subscribe'   => __( 'Subscribe',   'bbpress' ),
-				'unsubscribe' => __( 'Unsubscribe', 'bbpress' )
-			), 'get_forum_subscribe_link' );
-
-			// Get the link
 			$retval = bbp_get_user_subscribe_link( $r );
 		}
 
