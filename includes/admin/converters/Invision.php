@@ -214,6 +214,15 @@ class Invision extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'pinned',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
@@ -471,6 +480,26 @@ class Invision extends BBP_Converter_Base {
 			$status = 'category';
 		} else {
 			$status = 'forum';
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from Invision numeric's to WordPress's strings.
+	 *
+	 * @param int $status Invision numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // Invision Pinned Topic 'pinned = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // Invision Normal Topic 'pinned = 0'
+				break;
 		}
 		return $status;
 	}

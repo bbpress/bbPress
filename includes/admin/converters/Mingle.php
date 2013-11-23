@@ -162,6 +162,15 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_threads',
+			'from_fieldname'  => 'status',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_threads',
@@ -435,6 +444,26 @@ class Mingle extends BBP_Converter_Base {
 			case 0  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from Mingle numeric's to WordPress's strings.
+	 *
+	 * @param int $status Mingle numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 'sticky' :
+				$status = 'sticky';       // Mingle Sticky 'status = sticky'
+				break;
+
+			case 'open'  :
+			default :
+				$status = 'normal';       // Mingle Normal Topic 'status = open'
 				break;
 		}
 		return $status;

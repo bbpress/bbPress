@@ -222,6 +222,23 @@ class PunBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Topic status (Open or Closed, PunBB v1.4.2 0=open & 1=closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'closed',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'sticky',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
@@ -257,15 +274,6 @@ class PunBB extends BBP_Converter_Base {
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_last_active_time',
 			'callback_method' => 'callback_datetime'
-		);
-
-		// Topic status (Open or Closed, PunBB v1.4.2 0=open & 1=closed)
-		$this->field_map[] = array(
-			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'closed',
-			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
-			'callback_method' => 'callback_topic_status'
 		);
 
 		/** Tags Section ******************************************************/
@@ -623,6 +631,26 @@ class PunBB extends BBP_Converter_Base {
 			case 0  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from PunBB v1.4.2 numeric's to WordPress's strings.
+	 *
+	 * @param int $status PunBB v1.4.2 numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // PunBB Sticky 'topic_sticky = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // PunBB Normal Topic 'topic_sticky = 0'
 				break;
 		}
 		return $status;

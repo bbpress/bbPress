@@ -233,6 +233,24 @@ class PHPFox3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Topic status (Open or Closed, PHPFox v3.5.x 0=open & 1=closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_thread',
+			'from_fieldname'  => 'is_closed',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_thread',
+			'from_fieldname'  => 'order_id',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_thread',
@@ -268,15 +286,6 @@ class PHPFox3 extends BBP_Converter_Base {
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_last_active_time',
 			'callback_method' => 'callback_datetime'
-		);
-
-		// Topic status (Open or Closed, PHPFox v3.5.x 0=open & 1=closed)
-		$this->field_map[] = array(
-			'from_tablename'  => 'forum_thread',
-			'from_fieldname'  => 'is_closed',
-			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
-			'callback_method' => 'callback_topic_status'
 		);
 
 		/** Tags Section ******************************************************/
@@ -585,6 +594,26 @@ class PHPFox3 extends BBP_Converter_Base {
 			case 0  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from PHPFox v3.5.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status PHPFox v3.5.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // PHPFox Sticky 'topic_sticky = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // PHPFox Normal Topic 'topic_sticky = 0'
 				break;
 		}
 		return $status;

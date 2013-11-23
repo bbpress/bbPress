@@ -239,6 +239,15 @@ class AEF extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 't_sticky',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		// Note: We join the 'posts' table because 'topics' table does not include topic dates.
 		$this->field_map[] = array(
@@ -633,6 +642,26 @@ class AEF extends BBP_Converter_Base {
 			case 1  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from AEF 1.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status AEF 1.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // AEF Sticky 't_sticky = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // AEF normal topic 't_sticky = 0'
 				break;
 		}
 		return $status;

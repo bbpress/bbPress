@@ -250,6 +250,15 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_sticky',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename' => 'topics',
@@ -357,7 +366,7 @@ class bbPress1 extends BBP_Converter_Base {
 		);
 
 		// Reply slug (Clean name to avoid conflicts)
-		// Note: We join the 'topics' table because 'posts' table does not include topic title.
+		// Note: We join the 'topics' table because 'posts' table does not include topic slug.
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_slug',
@@ -566,6 +575,30 @@ class bbPress1 extends BBP_Converter_Base {
 			$status = 'category';
 		} else {
 			$status = 'forum';
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from bbPress 1.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status bbPress 1.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 2 :
+				$status = 'super-sticky'; // bbPress Super Sticky 'topic_sticky = 2'
+				break;
+
+			case 1 :
+				$status = 'sticky';       // bbPress Sticky 'topic_sticky = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // bbPress Normal Topic 'topic_sticky = 0'
+				break;
 		}
 		return $status;
 	}

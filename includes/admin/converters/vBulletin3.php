@@ -235,6 +235,24 @@ class vBulletin3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
+		// Topic status (Open or Closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread',
+			'from_fieldname'  => 'open',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread',
+			'from_fieldname'  => 'sticky',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
@@ -270,15 +288,6 @@ class vBulletin3 extends BBP_Converter_Base {
 			'to_type'        => 'topic',
 			'to_fieldname'   => '_bbp_last_active_time',
 			'callback_method' => 'callback_datetime'
-		);
-
-		// Topic status (Open or Closed)
-		$this->field_map[] = array(
-			'from_tablename'  => 'thread',
-			'from_fieldname'  => 'open',
-			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
-			'callback_method' => 'callback_topic_status'
 		);
 
 		/** Tags Section ******************************************************/
@@ -586,6 +595,26 @@ class vBulletin3 extends BBP_Converter_Base {
 			$status = 'category';
 		} else {
 			$status = 'forum';
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from vBulletin v3.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status vBulletin v3.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // vBulletin Sticky 'topic_sticky = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // vBulletin Normal Topic 'topic_sticky = 0'
+				break;
 		}
 		return $status;
 	}

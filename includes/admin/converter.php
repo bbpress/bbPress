@@ -437,8 +437,38 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 7. Convert tags.
+			// STEP 7. Stick topics.
 			case 7 :
+				if ( $converter->convert_topic_stickies( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No stickies to stick', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Calculating topic stickies (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 8. Stick to front topics (Super Sicky).
+			case 8 :
+				if ( $converter->convert_topic_super_stickies( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No super stickies to stick', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Calculating topic super stickies (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 9. Convert tags.
+			case 9 :
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -452,8 +482,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 8. Convert replies.
-			case 8 :
+			// STEP 10. Convert replies.
+			case 10 :
 				if ( $converter->convert_replies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -467,8 +497,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 9. Convert reply_to parents.
-			case 9 :
+			// STEP 11. Convert reply_to parents.
+			case 11 :
 				if ( $converter->convert_reply_to_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -1021,6 +1051,69 @@ abstract class BBP_Converter_Base {
 		foreach ( (array) $forum_array as $row ) {
 			$parent_id = $this->callback_forumid( $row->meta_value );
 			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_parent = "' . $parent_id . '" WHERE ID = "' . $row->value_id . '" LIMIT 1' );
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method converts old topic stickies to new bbPress stickies.
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @uses WPDB $wpdb
+	 * @uses bbp_stick_topic() to set the imported topic as sticky
+	 *
+	 */
+	public function convert_topic_stickies( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_sticky_status" AND meta_value = "sticky" LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_sticky_status" AND meta_value = "sticky" LIMIT ' . $start . ', ' . $this->max_rows;
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$sticky_array = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $sticky_array as $row ) {
+			bbp_stick_topic( $row->value_id );
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method converts old topic super stickies to new bbPress super stickies.
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @uses WPDB $wpdb
+	 * @uses bbp_stick_topic() to set the imported topic as super sticky
+	 *
+	 */
+	public function convert_topic_super_stickies( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_sticky_status" AND meta_value = "super-sticky" LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_sticky_status" AND meta_value = "super-sticky" LIMIT ' . $start . ', ' . $this->max_rows;
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$sticky_array = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $sticky_array as $row ) {
+			$super = true;
+			bbp_stick_topic( $row->value_id, $super );
 			$has_update = true;
 		}
 

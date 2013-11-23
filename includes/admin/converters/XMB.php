@@ -239,6 +239,24 @@ class XMB extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Topic status (Open or Closed, XMB v1.9.11.13 ''=open & 'yes'=closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'threads',
+			'from_fieldname'  => 'closed',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
+		// Sticky status (Stored in postmeta))
+		$this->field_map[] = array(
+			'from_tablename'  => 'threads',
+			'from_fieldname'  => 'topped',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		// Note: We join the 'posts' table because 'threads' table does not include dates.
 		$this->field_map[] = array(
@@ -290,15 +308,6 @@ class XMB extends BBP_Converter_Base {
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_last_active_time',
 			'callback_method' => 'callback_datetime'
-		);
-
-		// Topic status (Open or Closed, XMB v1.9.11.13 ''=open & 'yes'=closed)
-		$this->field_map[] = array(
-			'from_tablename'  => 'threads',
-			'from_fieldname'  => 'closed',
-			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
-			'callback_method' => 'callback_topic_status'
 		);
 
 		/** Tags Section ******************************************************/
@@ -650,6 +659,26 @@ class XMB extends BBP_Converter_Base {
 			case ''  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from XMB v1.9.11.13 numeric's to WordPress's strings.
+	 *
+	 * @param int $status XMB v1.9.11.13 numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // XMB Sticky 'topped = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // XMB Normal Topic 'topped = 0'
 				break;
 		}
 		return $status;
