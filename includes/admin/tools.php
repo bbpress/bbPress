@@ -1166,6 +1166,7 @@ function bbp_admin_reset() {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
 								<label><input type="checkbox" class="checkbox" name="bbpress-are-you-sure" id="bbpress-are-you-sure" value="1" /> <?php esc_html_e( 'This process cannot be undone.', 'bbpress' ); ?></label>
+								<p class="description"><?php esc_html_e( 'Human sacrifice, dogs and cats living together... mass hysteria!', 'bbpress' ); ?></p>
 							</fieldset>
 						</td>
 					</tr>
