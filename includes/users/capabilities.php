@@ -149,12 +149,12 @@ function bbp_get_user_role( $user_id = 0 ) {
 function bbp_get_user_blog_role( $user_id = 0 ) {
 
 	// Add bbPress roles (returns $wp_roles global)
-	$wp_roles  = bbp_add_forums_roles();
+	bbp_add_forums_roles();
 
 	// Validate user id
-	$user_id   = bbp_get_user_id( $user_id );
-	$user      = get_userdata( $user_id );
-	$role      = false;
+	$user_id = bbp_get_user_id( $user_id );
+	$user    = get_userdata( $user_id );
+	$role    = false;
 
 	// User has roles so lets
 	if ( ! empty( $user->roles ) ) {
