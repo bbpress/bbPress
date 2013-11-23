@@ -275,10 +275,6 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Filter and sanitize
 	$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
 
-	// No reply title
-	if ( empty( $reply_title ) )
-		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your reply needs a title.', 'bbpress' ) );
-
 	/** Reply Content *********************************************************/
 
 	if ( !empty( $_POST['bbp_reply_content'] ) )

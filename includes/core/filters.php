@@ -94,6 +94,9 @@ add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses'  );
 add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses'  );
 add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses'  );
 
+// Reply title fallback
+add_filter( 'the_title', 'bbp_get_reply_title_fallback', 1, 2 );
+
 // Prevent posting malicious or malformed content on new/edit topic/reply
 add_filter( 'bbp_new_reply_pre_content',  'bbp_encode_bad',  10 );
 add_filter( 'bbp_new_reply_pre_content',  'bbp_code_trick',  20 );

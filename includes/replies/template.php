@@ -546,6 +546,33 @@ function bbp_reply_title( $reply_id = 0 ) {
 		return apply_filters( 'bbp_get_reply_title', get_the_title( $reply_id ), $reply_id );
 	}
 
+	/**
+	 * Get empty reply title fallback.
+	 *
+	 * @since bbPress (r5177)
+	 *
+	 * @param string $reply_title Required. Reply Title
+	 * @param int $reply_id Required. Reply ID
+	 * @uses bbp_get_reply_topic_title() To get the reply topic title
+	 * @uses apply_filters() Calls 'bbp_get_reply_title_fallback' with the title and reply ID
+	 * @return string Title of reply
+	 */
+	function bbp_get_reply_title_fallback( $post_title = '', $post_id = 0 ) {
+
+		// Bail if title not empty, or post is not a reply
+		if ( ! empty( $post_title ) || ! bbp_is_reply( $post_id ) ) {
+			return $post_title;
+		}
+
+		// Get reply topic title.
+		$topic_title = bbp_get_reply_topic_title( $post_id );
+
+		// Get empty reply title fallback.
+		$reply_title = sprintf( __( 'Reply To: %s', 'bbpress' ), $topic_title );
+
+		return apply_filters( 'bbp_get_reply_title_fallback', $reply_title, $post_id, $topic_title );
+	}
+
 /**
  * Output the content of the reply
  *
@@ -1579,7 +1606,7 @@ function bbp_reply_to_link( $args = array() ) {
 	 * @uses bbp_get_reply() To get the reply
 	 * @uses apply_filters() Calls 'bbp_get_reply_to_link' with the formatted link,
 	 *                        the arguments array, and the reply
-	 * @return string Link for a reply to a reply 
+	 * @return string Link for a reply to a reply
 	 */
 	function bbp_get_reply_to_link( $args = array() ) {
 
