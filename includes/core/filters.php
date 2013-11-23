@@ -61,7 +61,7 @@ add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 
 // Reply title fallback
-add_filter( 'the_title', 'bbp_get_reply_title_fallback', 1, 2 );
+add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 
 /**
  * Feeds
