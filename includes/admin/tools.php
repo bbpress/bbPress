@@ -1156,6 +1156,7 @@ function bbp_admin_reset() {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
 								<label><input type="checkbox" class="checkbox" name="bbpress-delete-imported-users" id="bbpress-delete-imported-users" value="1" /> <?php esc_html_e( 'This option will delete all previously imported users, and cannot be undone.', 'bbpress' ); ?></label>
+								<p class="description"><?php esc_html_e( 'Note: Resetting without this checked will delete the meta-data necessary to delete these users.', 'bbpress' ); ?></p>
 							</fieldset>
 						</td>
 					</tr>
@@ -1242,6 +1243,7 @@ function bbp_admin_reset_handler() {
 
 	/** User ******************************************************************/
 
+	// Delete users
 	if ( !empty( $_POST['bbpress-delete-imported-users'] ) ) {
 		$sql_users  = $wpdb->get_results( "SELECT `user_id` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_user_id'", OBJECT_K );
 		if ( !empty( $sql_users ) ) {
@@ -1259,6 +1261,13 @@ function bbp_admin_reset_handler() {
 			$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
 		}
+
+	// Delete imported user metadata
+	} else {
+		$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
+		$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
+		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+		$messages[] = sprintf( $statement, $result );
 	}
 
 	/** Converter *************************************************************/
