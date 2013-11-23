@@ -1901,10 +1901,17 @@ function bbp_view_id( $view = '' ) {
 	function bbp_get_view_id( $view = '' ) {
 		$bbp = bbpress();
 
-		$view = !empty( $view ) ? sanitize_title( $view ) : get_query_var( bbp_get_view_rewrite_id() );
+		if ( !empty( $view ) ) {
+			$view = sanitize_title( $view );
+		} elseif ( ! empty( $bbp->current_view_id ) ) {
+			$view = $bbp->current_view_id;
+		} else {
+			$view = get_query_var( bbp_get_view_rewrite_id() );
+		}
 
-		if ( array_key_exists( $view, $bbp->views ) )
+		if ( array_key_exists( $view, $bbp->views ) ) {
 			return $view;
+		}
 
 		return false;
 	}

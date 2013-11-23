@@ -243,6 +243,7 @@ final class bbPress {
 
 		/** Queries ***********************************************************/
 
+		$this->current_view_id      = 0; // Current view id
 		$this->current_forum_id     = 0; // Current forum id
 		$this->current_topic_id     = 0; // Current topic id
 		$this->current_reply_id     = 0; // Current reply id

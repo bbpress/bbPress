@@ -125,6 +125,7 @@ class BBP_Shortcodes {
 		$bbp->search_query = new WP_Query();
 
 		// Unset global ID's
+		$bbp->current_view_id      = 0;
 		$bbp->current_forum_id     = 0;
 		$bbp->current_topic_id     = 0;
 		$bbp->current_reply_id     = 0;
@@ -622,6 +623,9 @@ class BBP_Shortcodes {
 
 		// Unset globals
 		$this->unset_globals();
+
+		// Set the current view ID
+		bbpress()->current_view_id = $view_id;
 
 		// Load the view
 		bbp_view_query( $view_id );
