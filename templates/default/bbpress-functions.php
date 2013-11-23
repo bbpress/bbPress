@@ -87,7 +87,6 @@ class BBP_Default extends BBP_Theme_Compat {
 		add_action( 'bbp_enqueue_scripts',         array( $this, 'enqueue_styles'          ) ); // Enqueue theme CSS
 		add_action( 'bbp_enqueue_scripts',         array( $this, 'enqueue_scripts'         ) ); // Enqueue theme JS
 		add_filter( 'bbp_enqueue_scripts',         array( $this, 'localize_topic_script'   ) ); // Enqueue theme script localization
-		add_action( 'bbp_head',                    array( $this, 'head_scripts'            ) ); // Output some extra JS in the <head>
 		add_action( 'bbp_ajax_favorite',           array( $this, 'ajax_favorite'           ) ); // Handles the topic ajax favorite/unfavorite
 		add_action( 'bbp_ajax_subscription',       array( $this, 'ajax_subscription'       ) ); // Handles the topic ajax subscribe/unsubscribe
 		add_action( 'bbp_ajax_forum_subscription', array( $this, 'ajax_forum_subscription' ) ); // Handles the forum ajax subscribe/unsubscribe
@@ -182,6 +181,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Always pull in jQuery for TinyMCE shortcode usage
 		if ( bbp_use_wp_editor() ) {
 			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'bbpress-editor', $this->url . 'js/editor.js', array( 'jquery' ), $this->version );
 		}
 
 		// Forum-specific scripts
@@ -206,88 +206,8 @@ class BBP_Default extends BBP_Theme_Compat {
 		// User Profile edit
 		if ( bbp_is_single_user_edit() ) {
 			wp_enqueue_script( 'user-profile' );
+			wp_enqueue_script( 'bbpress-user', $this->url . 'js/user.js', array(), $this->version );
 		}
-	}
-
-	/**
-	 * Put some scripts in the header, like AJAX url for wp-lists
-	 *
-	 * @since bbPress (r3732)
-	 *
-	 * @uses bbp_is_single_topic() To check if it's the topic page
-	 * @uses admin_url() To get the admin url
-	 * @uses bbp_is_single_user_edit() To check if it's the profile edit page
-	 */
-	public function head_scripts() {
-
-		// Bail if no extra JS is needed
-		if ( ! bbp_is_single_user_edit() && ! bbp_use_wp_editor() )
-			return; ?>
-
-		<script type="text/javascript">
-			/* <![CDATA[ */
-			<?php if ( bbp_is_single_user_edit() ) : ?>
-			if ( window.location.hash === '#password' ) {
-				document.getElementById('pass1').focus();
-			}
-			<?php endif; ?>
-
-			<?php if ( bbp_use_wp_editor() ) : ?>
-			jQuery(document).ready( function() {
-
-				/* Use backticks instead of <code> for the Code button in the editor */
-				if ( typeof( edButtons ) !== 'undefined' ) {
-					edButtons[110] = new QTags.TagButton( 'code', 'code', '`', '`', 'c' );
-					QTags._buttonsInit();
-				}
-
-				/* Tab from topic title */
-				jQuery( '#bbp_topic_title' ).bind( 'keydown.editor-focus', function(e) {
-					if ( e.which !== 9 )
-						return;
-
-					if ( !e.ctrlKey && !e.altKey && !e.shiftKey ) {
-						if ( typeof( tinymce ) !== 'undefined' ) {
-							if ( ! tinymce.activeEditor.isHidden() ) {
-								var editor = tinymce.activeEditor.editorContainer;
-								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
-							} else {
-								jQuery( 'textarea.bbp-the-content' ).focus();
-							}
-						} else {
-							jQuery( 'textarea.bbp-the-content' ).focus();
-						}
-
-						e.preventDefault();
-					}
-				});
-
-				/* Shift + tab from topic tags */
-				jQuery( '#bbp_topic_tags' ).bind( 'keydown.editor-focus', function(e) {
-					if ( e.which !== 9 )
-						return;
-
-					if ( e.shiftKey && !e.ctrlKey && !e.altKey ) {
-						if ( typeof( tinymce ) !== 'undefined' ) {
-							if ( ! tinymce.activeEditor.isHidden() ) {
-								var editor = tinymce.activeEditor.editorContainer;
-								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
-							} else {
-								jQuery( 'textarea.bbp-the-content' ).focus();
-							}
-						} else {
-							jQuery( 'textarea.bbp-the-content' ).focus();
-						}
-
-						e.preventDefault();
-					}
-				});
-			});
-			<?php endif; ?>
-			/* ]]> */
-		</script>
-
-	<?php
 	}
 
 	/**
