@@ -329,6 +329,23 @@ class Example extends BBP_Converter_Base {
 			'to_fieldname'    => 'name'
 		);
 
+		// Term slug.
+		$this->field_map[] = array(
+			'from_tablename'  => 'tag_table',
+			'from_fieldname'  => 'tagslug',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'slug',
+			'callback_method' => 'callback_slug'
+		);
+
+		// Term description.
+		$this->field_map[] = array(
+			'from_tablename'  => 'tag_table',
+			'from_fieldname'  => 'tagdescription',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'description'
+		);
+
 		/** Reply Section *****************************************************/
 
 		// Setup table joins for the reply section at the base of this section

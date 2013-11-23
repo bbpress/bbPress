@@ -979,7 +979,14 @@ abstract class BBP_Converter_Base {
 
 							case 'tags':
 								$post_id = wp_set_object_terms( $insert_postmeta['objectid'], $insert_postmeta['name'], 'topic-tag', true );
-								break;
+								$term = get_term_by( 'name', $insert_postmeta['name'], 'topic-tag');
+								if ( false !== $term ) {
+									wp_update_term( $term->term_id, 'topic-tag', array(
+										'description' => $insert_postmeta['description'],
+										'slug'        => $insert_postmeta['slug']
+									) );
+								}
+ 								break;
 
 							/** Forum, Topic, Reply ***************************/
 

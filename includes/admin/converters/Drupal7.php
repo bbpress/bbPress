@@ -278,18 +278,16 @@ class Drupal7 extends BBP_Converter_Base {
 			'to_fieldname'    => 'name'
 		);
 
-		/* Pending: 'Topic-Tag' Descriptions & Slugs with bbPress Importer
-		/* Pending: http://bbpress.trac.wordpress.org/ticket/2399
-
 		// Term slug.
 		$this->field_map[] = array(
 			'from_tablename'  => 'taxonomy_term_data',
-			'from_fieldname'  => 'description',
+			'from_fieldname'  => 'name',
 			'join_tablename'  => 'field_data_field_tags',
 			'join_type'       => 'INNER',
 			'join_expression' => 'ON field_tags_tid = taxonomy_term_data.tid',
 			'to_type'         => 'tags',
-			'to_fieldname'    => 'slug'
+			'to_fieldname'    => 'slug',
+			'callback_method' => 'callback_slug'
 		);
 
 		// Term description.
@@ -302,7 +300,6 @@ class Drupal7 extends BBP_Converter_Base {
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'description'
 		);
-		*/
 
 		/** Reply Section *****************************************************/
 

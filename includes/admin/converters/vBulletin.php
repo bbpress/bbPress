@@ -320,6 +320,18 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'    => 'name'
 		);
 
+		// Term slug.
+		$this->field_map[] = array(
+			'from_tablename'  => 'tag',
+			'from_fieldname'  => 'tagtext',
+			'join_tablename'  => 'tagcontent',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (tagid)',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'slug',
+			'callback_method' => 'callback_slug'
+		);
+
 		/** Reply Section *****************************************************/
 
 		// Reply id (Stored in postmeta)

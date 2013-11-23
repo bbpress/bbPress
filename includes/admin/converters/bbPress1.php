@@ -324,6 +324,18 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'    => 'name'
 		);
 
+		// Term slug.
+		$this->field_map[] = array(
+			'from_tablename'  => 'terms',
+			'from_fieldname'  => 'slug',
+			'join_tablename'  => 'term_taxonomy',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (term_id)',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'slug',
+			'callback_method' => 'callback_slug'
+		);
+
 		/** Reply Section *****************************************************/
 
 		// Reply id (Stored in postmeta)

@@ -315,6 +315,15 @@ class PHPFox3 extends BBP_Converter_Base {
 			'to_fieldname'    => 'name'
 		);
 
+		// Term slug.
+		$this->field_map[] = array(
+			'from_tablename'  => 'tag',
+			'from_fieldname'  => 'tag_url',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'slug',
+			'callback_method' => 'callback_slug'
+		);
+
 		/** Reply Section *****************************************************/
 
 		// Reply id (Stored in postmeta)
