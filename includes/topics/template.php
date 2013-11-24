@@ -1550,6 +1550,7 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_is_topic_anonymous() To check if the topic is by an anonymous
 	 *                                 user or not
+	 * @uses bbp_user_has_profile() To check if the user has a profile
 	 * @uses bbp_get_topic_author_id() To get topic author id
 	 * @uses bbp_get_user_profile_url() To get profile url
 	 * @uses get_post_meta() To get anonmous user's website
@@ -1560,8 +1561,8 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 	function bbp_get_topic_author_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		// Check for anonymous user
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		// Check for anonymous user or non-existant user
+		if ( !bbp_is_topic_anonymous( $topic_id ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
 		} else {
 			$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true );

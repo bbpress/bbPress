@@ -1231,7 +1231,7 @@ function bbp_reply_author_link( $args = '' ) {
 			// Link class
 			$link_class = ' class="bbp-author-' . esc_attr( $r['type'] ) . '"';
 
-			// Add links if not anonymous
+			// Add links if not anonymous and existing user
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
 
 				// Assemble the links
@@ -1279,6 +1279,7 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an anonymous
 	 *                                 user
+	 * @uses bbp_user_has_profile() To check if the user has a profile
 	 * @uses bbp_get_reply_author_id() To get the reply author id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
 	 * @uses get_post_meta() To get the anonymous poster's website url
@@ -1289,8 +1290,8 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 	function bbp_get_reply_author_url( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		// Check for anonymous user
-		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+		// Check for anonymous user or non-existant user
+		if ( !bbp_is_reply_anonymous( $reply_id ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_reply_author_id( $reply_id ) );
 		} else {
 			$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true );
