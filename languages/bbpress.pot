@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.5\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
-"POT-Creation-Date: 2013-11-25 02:23:11+00:00\n"
+"POT-Creation-Date: 2013-11-25 06:51:36+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -134,11 +134,11 @@ msgstr ""
 
 #: includes/admin/admin.php:269 includes/admin/admin.php:270
 #: includes/admin/admin.php:291 includes/admin/admin.php:292
-#: includes/admin/admin.php:1661 includes/admin/admin.php:1748
+#: includes/admin/admin.php:1650 includes/admin/admin.php:1737
 msgid "Update Forums"
 msgstr ""
 
-#: includes/admin/admin.php:500 includes/admin/admin.php:1471
+#: includes/admin/admin.php:500
 msgid "Settings"
 msgstr ""
 
@@ -163,176 +163,167 @@ msgstr ""
 msgid "%s - %s"
 msgstr ""
 
-#: includes/admin/admin.php:1416 includes/admin/admin.php:1504
+#: includes/admin/admin.php:1416 includes/admin/admin.php:1493
 msgid "Welcome to bbPress %s"
 msgstr ""
 
-#: includes/admin/admin.php:1417 includes/admin/admin.php:1505
+#: includes/admin/admin.php:1417
+msgid ""
+"Thank you for updating! bbPress %s is bundled up and ready to weather the "
+"storm of users in your community!"
+msgstr ""
+
+#: includes/admin/admin.php:1418 includes/admin/admin.php:1495
+msgid "Version %s"
+msgstr ""
+
+#: includes/admin/admin.php:1422 includes/admin/admin.php:1499
+msgid "What&#8217;s New"
+msgstr ""
+
+#: includes/admin/admin.php:1424 includes/admin/admin.php:1501
+msgid "Credits"
+msgstr ""
+
+#: includes/admin/admin.php:1429
+msgid "Forum Subscriptions"
+msgstr ""
+
+#: includes/admin/admin.php:1433
+msgid "Subscribe to Forums"
+msgstr ""
+
+#: includes/admin/admin.php:1434
+msgid "Now your users can subscribe to new topics in specific forums."
+msgstr ""
+
+#: includes/admin/admin.php:1438
+msgid "Manage Subscriptions"
+msgstr ""
+
+#: includes/admin/admin.php:1439
+msgid ""
+"Your users can manage all of their subscriptions in one convenient location."
+msgstr ""
+
+#: includes/admin/admin.php:1445
+msgid "Converters"
+msgstr ""
+
+#: includes/admin/admin.php:1449
+msgid ""
+"We&#8217;re all abuzz about the hive of new importers, AEF, Drupal, FluxBB, "
+"Kunena Forums for Joomla, MyBB, Phorum, PHPFox, PHPWind, PunBB, SMF, Xenforo "
+"and XMB. Existing importers are now sweeter than honey with improved "
+"importing stickies, topic tags, forum categories and the sting is now gone "
+"if you need to remove imported users."
+msgstr ""
+
+#: includes/admin/admin.php:1455
+msgid "Theme Compatibility"
+msgstr ""
+
+#: includes/admin/admin.php:1456
+msgid "Better handling of styles and scripts in the template stack."
+msgstr ""
+
+#: includes/admin/admin.php:1460
+msgid "Polyglot support"
+msgstr ""
+
+#: includes/admin/admin.php:1461
+msgid "bbPress fully supports automatic translation updates."
+msgstr ""
+
+#: includes/admin/admin.php:1465
+msgid "User capabilities"
+msgstr ""
+
+#: includes/admin/admin.php:1466
+msgid ""
+"Roles and capabilities have been swept through, cleaned up, and simplified."
+msgstr ""
+
+#: includes/admin/admin.php:1472 includes/admin/admin.php:1576
+msgid "Go to Forum Settings"
+msgstr ""
+
+#: includes/admin/admin.php:1494
 msgid ""
 "Thank you for updating! bbPress %s is waxed, polished, and ready for you to "
 "take it for a lap or two around the block!"
 msgstr ""
 
-#: includes/admin/admin.php:1418 includes/admin/admin.php:1506
-msgid "Version %s"
-msgstr ""
-
-#: includes/admin/admin.php:1422 includes/admin/admin.php:1510
-msgid "What&#8217;s New"
-msgstr ""
-
-#: includes/admin/admin.php:1424 includes/admin/admin.php:1512
-msgid "Credits"
-msgstr ""
-
-#: includes/admin/admin.php:1429
-msgid "Hierarchical Replies"
-msgstr ""
-
-#: includes/admin/admin.php:1433
-msgid "Reply to replies"
-msgstr ""
-
-#: includes/admin/admin.php:1434
-msgid ""
-"Now your users can reply to specific replies, providing context to each "
-"inidividual post."
-msgstr ""
-
-#: includes/admin/admin.php:1438
-msgid "Choose your own discussion style"
-msgstr ""
-
-#: includes/admin/admin.php:1439
-msgid "Stay flat or go threaded, and seamlessly switch between the two."
-msgstr ""
-
-#: includes/admin/admin.php:1445
-msgid "Under the Hood"
-msgstr ""
-
-#: includes/admin/admin.php:1449
-msgid "Preformatted text"
-msgstr ""
-
-#: includes/admin/admin.php:1450
-msgid "Forum users can post code snippets with confidence."
-msgstr ""
-
-#: includes/admin/admin.php:1454
-msgid "Polyglot support"
-msgstr ""
-
-#: includes/admin/admin.php:1455
-msgid "bbPress is ready for future translation API improvements."
-msgstr ""
-
-#: includes/admin/admin.php:1459
-msgid "User capabilities"
-msgstr ""
-
-#: includes/admin/admin.php:1460
-msgid ""
-"Roles and capabilities have been swept through, cleaned up, and simplified."
-msgstr ""
-
-#: includes/admin/admin.php:1466 includes/admin/settings.php:166
-#: includes/admin/settings.php:333 includes/common/template.php:2314
-#: includes/search/template.php:225
-#: templates/default/bbpress/form-search.php:17
-msgid "Search"
-msgstr ""
-
-#: includes/admin/admin.php:1467
-msgid "Search results use pretty permalinks, and have a dedicated output page."
-msgstr ""
-
-#: includes/admin/admin.php:1472
-msgid "Fields and sections have been reordered and reorganized."
-msgstr ""
-
-#: includes/admin/admin.php:1476
-msgid "BuddyPress"
-msgstr ""
-
-#: includes/admin/admin.php:1477
-msgid "Forums are now fully and seamlessly integrated into BuddyPress Groups."
-msgstr ""
-
-#: includes/admin/admin.php:1483 includes/admin/admin.php:1587
-msgid "Go to Forum Settings"
-msgstr ""
-
-#: includes/admin/admin.php:1516
+#: includes/admin/admin.php:1505
 msgid "bbPress is created by a worldwide swarm of busy, busy bees."
 msgstr ""
 
-#: includes/admin/admin.php:1518
+#: includes/admin/admin.php:1507
 msgid "Project Leaders"
 msgstr ""
 
-#: includes/admin/admin.php:1523
+#: includes/admin/admin.php:1512
 msgid "Founding Developer"
 msgstr ""
 
-#: includes/admin/admin.php:1528
+#: includes/admin/admin.php:1517
 msgid "Lead Developer"
 msgstr ""
 
-#: includes/admin/admin.php:1533 includes/admin/admin.php:1552
+#: includes/admin/admin.php:1522 includes/admin/admin.php:1541
 msgid "Feature Developer"
 msgstr ""
 
-#: includes/admin/admin.php:1537
-msgid "Contributing Developers"
-msgstr ""
-
-#: includes/admin/admin.php:1542
+#: includes/admin/admin.php:1527
 msgid "Converter Specialist"
 msgstr ""
 
-#: includes/admin/admin.php:1547
+#: includes/admin/admin.php:1531
+msgid "Contributing Developers"
+msgstr ""
+
+#: includes/admin/admin.php:1536
 msgid "Bug Testing"
 msgstr ""
 
-#: includes/admin/admin.php:1556
-msgid "Core Contributors to bbPress 2.4"
+#: includes/admin/admin.php:1545
+msgid "Core Contributors to bbPress 2.5"
 msgstr ""
 
-#: includes/admin/admin.php:1613 includes/admin/admin.php:1635
+#: includes/admin/admin.php:1602 includes/admin/admin.php:1624
 msgid "Update Forum"
 msgstr ""
 
-#: includes/admin/admin.php:1624 includes/admin/admin.php:1678
+#: includes/admin/admin.php:1613 includes/admin/admin.php:1667
 msgid "All done!"
 msgstr ""
 
-#: includes/admin/admin.php:1625 includes/admin/admin.php:1679
+#: includes/admin/admin.php:1614 includes/admin/admin.php:1668
 msgid "Go Back"
 msgstr ""
 
-#: includes/admin/admin.php:1634
+#: includes/admin/admin.php:1623
 msgid ""
 "You can update your forum through this page. Hit the link below to update."
 msgstr ""
 
-#: includes/admin/admin.php:1704
+#: includes/admin/admin.php:1693
 msgid ""
 "Warning! Problem updating %1$s. Your server may not be able to connect to "
 "sites running on it. Error message: <em>%2$s</em>"
 msgstr ""
 
-#: includes/admin/admin.php:1728
+#: includes/admin/admin.php:1717
 msgid ""
 "If your browser doesn&#8217;t start loading the next page automatically, "
 "click this link:"
 msgstr ""
 
-#: includes/admin/admin.php:1729
+#: includes/admin/admin.php:1718
 msgid "Next Forums"
 msgstr ""
 
-#: includes/admin/admin.php:1747
+#: includes/admin/admin.php:1736
 msgid ""
 "You can update all the forums on your network through this page. It works by "
 "calling the update script of each site automatically. Hit the link below to "
@@ -499,6 +490,7 @@ msgstr ""
 #: includes/admin/converters/Kunena3.php:812
 #: includes/admin/converters/PHPFox3.php:649
 #: includes/admin/converters/PunBB.php:677
+#: includes/admin/converters/SMF.php:656
 #: includes/admin/converters/SimplePress5.php:537
 #: includes/admin/converters/Vanilla.php:535
 #: includes/admin/converters/XMB.php:705
@@ -1382,6 +1374,12 @@ msgstr ""
 
 #: includes/admin/settings.php:158
 msgid "Topic tags"
+msgstr ""
+
+#: includes/admin/settings.php:166 includes/admin/settings.php:333
+#: includes/common/template.php:2314 includes/search/template.php:225
+#: templates/default/bbpress/form-search.php:17
+msgid "Search"
 msgstr ""
 
 #: includes/admin/settings.php:174
@@ -3137,15 +3135,17 @@ msgid "Save Settings"
 msgstr ""
 
 #: includes/extend/buddypress/groups.php:335
-#: includes/extend/buddypress/groups.php:494 includes/forums/functions.php:118
-#: includes/forums/functions.php:395 includes/replies/functions.php:116
-#: includes/replies/functions.php:518 includes/replies/functions.php:1245
-#: includes/topics/functions.php:122 includes/topics/functions.php:520
-#: includes/topics/functions.php:1153 includes/topics/functions.php:1456
-#: includes/topics/functions.php:1820 includes/topics/functions.php:1859
-#: includes/topics/functions.php:1916 includes/users/functions.php:459
-#: includes/users/functions.php:1174 includes/users/functions.php:1280
-#: includes/users/functions.php:1407 includes/users/functions.php:1413
+#: includes/extend/buddypress/groups.php:494
+#: includes/extend/buddypress/notifications.php:129
+#: includes/forums/functions.php:118 includes/forums/functions.php:395
+#: includes/replies/functions.php:116 includes/replies/functions.php:518
+#: includes/replies/functions.php:1245 includes/topics/functions.php:122
+#: includes/topics/functions.php:520 includes/topics/functions.php:1153
+#: includes/topics/functions.php:1456 includes/topics/functions.php:1820
+#: includes/topics/functions.php:1859 includes/topics/functions.php:1916
+#: includes/users/functions.php:459 includes/users/functions.php:1174
+#: includes/users/functions.php:1280 includes/users/functions.php:1407
+#: includes/users/functions.php:1413
 msgid "<strong>ERROR</strong>: Are you sure you wanted to do that?"
 msgstr ""
 
@@ -3171,20 +3171,26 @@ msgstr ""
 msgid "Subscribed Topics"
 msgstr ""
 
-#: includes/extend/buddypress/notifications.php:22
+#: includes/extend/buddypress/notifications.php:23
 msgid "Topic Replies"
 msgstr ""
 
-#: includes/extend/buddypress/notifications.php:25
+#: includes/extend/buddypress/notifications.php:26
 msgid "You have %d new replies"
 msgstr ""
 
-#: includes/extend/buddypress/notifications.php:29
-msgid "You have %d new reply to %s from %s"
+#: includes/extend/buddypress/notifications.php:30
+msgid "You have %d new reply to %2$s from %3$s"
 msgstr ""
 
-#: includes/extend/buddypress/notifications.php:31
+#: includes/extend/buddypress/notifications.php:32
 msgid "You have %d new reply to %s"
+msgstr ""
+
+#: includes/extend/buddypress/notifications.php:133
+msgid ""
+"<strong>ERROR</strong>: You do not have permission to mark notifications for "
+"that user."
 msgstr ""
 
 #: includes/forums/functions.php:131
@@ -4902,9 +4908,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.5-alpha)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.5-alpha)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
