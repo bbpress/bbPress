@@ -17,8 +17,9 @@ function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item
 
 	// New reply notifications
 	if ( 'bbp_new_reply' === $action ) {
-		$topic_link  = add_query_arg( array( 'bbp_mark_read' => 1 ), bbp_get_reply_url( $item_id ) );
-		$topic_title = bbp_get_topic_title( bbp_get_reply_topic_id( $item_id ) );
+		$topic_id    = bbp_get_reply_topic_id( $item_id );
+		$topic_title = bbp_get_topic_title( $topic_id );
+		$topic_link  = wp_nonce_url( add_query_arg( array( 'action' => 'bbp_mark_read', 'topic_id' => $topic_id ), bbp_get_reply_url( $item_id ) ), 'bbp_mark_topic_' . $topic_id );
 		$title_attr  = __( 'Topic Replies', 'bbpress' );
 
 		if ( (int) $total_items > 1 ) {
@@ -26,9 +27,9 @@ function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item
 			$filter = 'bbp_multiple_new_subscription_notification';
 		} else {
 			if ( !empty( $secondary_item_id ) ) {
-				$text = sprintf( __( 'You have %d new reply to %s from %s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
+				$text = sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
 			} else {
-				$text = sprintf( __( 'You have %d new reply to %s',         'bbpress' ), (int) $total_items, $topic_title );
+				$text = sprintf( __( 'You have %d new reply to %s',             'bbpress' ), (int) $total_items, $topic_title );
 			}
 			$filter = 'bbp_single_new_subscription_notification';
 		}
@@ -107,19 +108,48 @@ add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
  *
  * @return If not trying to mark a notification as read
  */
-function bbp_buddypress_mark_notifications() {
+function bbp_buddypress_mark_notifications( $action = '' ) {
 
-	// Bail if not marking a notification as read
-	if ( empty( $_GET['bbp_mark_read'] ) ) {
+	// Bail if no topic ID is passed
+	if ( empty( $_GET['topic_id'] ) ) {
 		return;
 	}
 
-	// Bail if not a single topic
-	if ( ! bbp_is_single_topic() ) {
+	// Bail if action is not for this function
+	if ( 'bbp_mark_read' !== $action ) {
 		return;
 	}
 
-	// Attempt to clear notifications for the current user from this topic
-	bp_core_mark_notifications_by_item_id( bp_loggedin_user_id(), bbp_get_topic_id(), 'forums', 'bbp_new_reply' );
+	// Get required data
+	$user_id  = bp_loggedin_user_id();
+	$topic_id = intval( $_GET['topic_id'] );
+
+	// Check nonce
+	if ( ! bbp_verify_nonce_request( 'bbp_mark_topic_' . $topic_id ) ) {
+		bbp_add_error( 'bbp_notification_topic_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+
+	// Check current user's ability to edit the user
+	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+		bbp_add_error( 'bbp_notification_permissions', __( '<strong>ERROR</strong>: You do not have permission to mark notifications for that user.', 'bbpress' ) );
+	}
+
+	// Bail if we have errors
+	if ( ! bbp_has_errors() ) {
+
+		// Attempt to clear notifications for the current user from this topic
+		$success = bp_core_mark_notifications_by_item_id( $user_id, $topic_id, 'forums', 'bbp_new_reply' );
+
+		// Do additional subscriptions actions
+		do_action( 'bbp_notifications_handler', $success, $user_id, $topic_id, $action );
+	}
+
+	// Redirect to the topic
+	$redirect = bbp_get_reply_url( $topic_id );
+
+	// Redirect
+	wp_safe_redirect( $redirect );
+
+	// For good measure
+	exit();
 }
-add_action( 'bbp_template_redirect', 'bbp_buddypress_mark_notifications' );
+add_action( 'bbp_get_request', 'bbp_buddypress_mark_notifications', 1 );
