@@ -1414,7 +1414,7 @@ class BBP_Admin {
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is waxed, polished, and ready for you to take it for a lap or two around the block!', 'bbpress' ), $display_version ); ?></div>
+			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is bundled up and ready to weather the storm of users in your community!', 'bbpress' ), $display_version ); ?></div>
 			<div class="bbp-badge"><?php printf( esc_html__( 'Version %s', 'bbpress' ), $display_version ); ?></div>
 
 			<h2 class="nav-tab-wrapper">
@@ -1426,28 +1426,28 @@ class BBP_Admin {
 			</h2>
 
 			<div class="changelog">
-				<h3><?php esc_html_e( 'Hierarchical Replies', 'bbpress' ); ?></h3>
+				<h3><?php esc_html_e( 'Forum Subscriptions', 'bbpress' ); ?></h3>
 
 				<div class="feature-section col two-col">
 					<div class="last-feature">
-						<h4><?php esc_html_e( 'Reply to replies', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Now your users can reply to specific replies, providing context to each inidividual post.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'Subscribe to Forums', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Now your users can subscribe to new topics in specific forums.', 'bbpress' ); ?></p>
 					</div>
 
 					<div>
-						<h4><?php esc_html_e( 'Choose your own discussion style', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Stay flat or go threaded, and seamlessly switch between the two.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'Manage Subscriptions', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Your users can manage all of their subscriptions in one convenient location.', 'bbpress' ); ?></p>
 					</div>
 				</div>
 			</div>
 
 			<div class="changelog">
-				<h3><?php esc_html_e( 'Under the Hood', 'bbpress' ); ?></h3>
+				<h3><?php esc_html_e( 'More Converters', 'bbpress' ); ?></h3>
 
 				<div class="feature-section col three-col">
 					<div>
-						<h4><?php esc_html_e( 'Preformatted text', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Forum users can post code snippets with confidence.', 'bbpress' ); ?></p>
+						<h4><?php esc_html_e( 'Theme Compatibility', 'bbpress' ); ?></h4>
+						<p><?php esc_html_e( 'Better handling of styles and scripts in the template stack.', 'bbpress' ); ?></p>
 					</div>
 
 					<div>
@@ -1532,15 +1532,15 @@ class BBP_Admin {
 					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
-			</ul>
-
-			<h4 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h4>
-			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-netweb">
 					<a href="http://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
 					<a class="web" href="http://profiles.wordpress.org/netweb">Stephen Edgar</a>
 					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
 				</li>
+			</ul>
+
+			<h4 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h4>
+			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-jaredatch">
 					<a href="http://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
 					<a class="web" href="http://profiles.wordpress.org/jaredatch">Jared Atchison</a>
@@ -1553,7 +1553,7 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.4', 'bbpress' ); ?></h4>
+			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.5', 'bbpress' ); ?></h4>
 			<p class="wp-credits-list">
 				<a href="http://profiles.wordpress.org/alex-ye">alex-ye</a>,
 				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
