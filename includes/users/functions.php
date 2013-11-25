@@ -87,9 +87,9 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 	 */
 	function bbp_get_current_anonymous_user_data( $key = '' ) {
 		$cookie_names = array(
-			'name'    => 'comment_author',
-			'email'   => 'comment_author_email',
-			'website' => 'comment_author_url',
+			'name'  => 'comment_author',
+			'email' => 'comment_author_email',
+			'url'   => 'comment_author_url',
 
 			// Here just for the sake of them, use the above ones
 			'comment_author'       => 'comment_author',
