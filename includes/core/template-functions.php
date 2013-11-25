@@ -129,6 +129,9 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  */
 function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $version = false, $media = 'all' ) {
 
+	// No file found yet
+	$located = false;
+
 	// Trim off any slashes from the template name
 	$file = ltrim( $file, '/' );
 
@@ -152,11 +155,15 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 		}
 	}
 
-	// Make path to file relative to site URL
-	$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+	// Enqueue if located
+	if ( !empty( $located ) ) {
 
-	// Enqueue the style
-	wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
+		// Make path to file relative to site URL
+		$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+
+		// Enqueue the style
+		wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
+	}
 
 	return $located;
 }
@@ -181,6 +188,9 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
  */
 function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), $version = false, $in_footer = 'all' ) {
 
+	// No file found yet
+	$located = false;
+
 	// Trim off any slashes from the template name
 	$file = ltrim( $file, '/' );
 
@@ -204,11 +214,15 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 		}
 	}
 
-	// Make path to file relative to site URL
-	$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+	// Enqueue if located
+	if ( !empty( $located ) ) {
 
-	// Enqueue the style
-	wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
+		// Make path to file relative to site URL
+		$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+
+		// Enqueue the style
+		wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
+	}
 
 	return $located;
 }
