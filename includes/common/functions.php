@@ -780,7 +780,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		return true;
 
 	// Bail if keymaster is author
-	if ( bbp_is_user_keymaster( $author_id ) )
+	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) )
 		return true;
 
 	// Define local variable(s)
@@ -899,7 +899,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 		return true;
 
 	// Bail if keymaster is author
-	if ( bbp_is_user_keymaster( $author_id ) )
+	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) )
 		return true;
 
 	// Define local variable
