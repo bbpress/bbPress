@@ -1281,7 +1281,7 @@ function bbp_admin_settings() {
 function bbp_converter_setting_callback_main_section() {
 ?>
 
-	<p><?php esc_html_e( 'Information about your previous forums database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
+	<p><?php _e( 'Information about your previous forums database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
 
 <?php
 }
