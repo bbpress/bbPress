@@ -44,31 +44,17 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @uses BBP_Default::setup_globals()
 	 * @uses BBP_Default::setup_actions()
 	 */
-	public function __construct() {
-		$this->setup_globals();
-		$this->setup_actions();
-	}
+	public function __construct( $properties = array() ) {
 
-	/**
-	 * Component global variables
-	 *
-	 * Note that this function is currently commented out in the constructor.
-	 * It will only be used if you copy this file into your current theme and
-	 * uncomment the line above.
-	 *
-	 * You'll want to customize the values in here, so they match whatever your
-	 * needs are.
-	 *
-	 * @since bbPress (r3732)
-	 * @access private
-	 */
-	private function setup_globals() {
-		$bbp           = bbpress();
-		$this->id      = 'default';
-		$this->name    = __( 'bbPress Default', 'bbpress' );
-		$this->version = bbp_get_version();
-		$this->dir     = trailingslashit( $bbp->themes_dir . 'default' );
-		$this->url     = trailingslashit( $bbp->themes_url . 'default' );
+		parent::__construct( bbp_parse_args( $properties, array(
+			'id'      => 'default',
+			'name'    => __( 'bbPress Default', 'bbpress' ),
+			'version' => bbp_get_version(),
+			'dir'     => trailingslashit( bbpress()->themes_dir . 'default' ),
+			'url'     => trailingslashit( bbpress()->themes_url . 'default' ),
+		), 'default_theme' ) );
+
+		$this->setup_actions();
 	}
 
 	/**
@@ -140,28 +126,29 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function enqueue_styles() {
 
-		$styles = array( 'bbp-default' => 'css/bbpress.css' );
+		// Setup styles array
+		$styles = array();
 
-		if ( is_rtl() )
-			$styles['bbp-default-rtl'] = 'css/bbpress-rtl.css';
+		// LTR
+		$styles['bbp-default'] = array(
+			'file'         => 'css/bbpress.css',
+			'dependencies' => array()
+		);
 
-		foreach ( $styles as $handle => $file ) {
+		// RTL helpers
+		if ( is_rtl() ) {
+			$styles['bbp-default-rtl'] = array(
+				'file'         => 'css/bbpress-rtl.css',
+				'dependencies' => array( 'bbp-default' )
+			);
+		}
 
-			// Check child theme
-			if ( file_exists( trailingslashit( get_stylesheet_directory() ) . $file ) ) {
-				$location = trailingslashit( get_stylesheet_directory_uri() );
+		// Filter the scripts
+		$styles = apply_filters( 'bbp_default_styles', $styles );
 
-			// Check parent theme
-			} elseif ( file_exists( trailingslashit( get_template_directory() ) . $file ) ) {
-				$location = trailingslashit( get_template_directory_uri() );
-
-			// bbPress Theme Compatibility
-			} else {
-				$location = trailingslashit( $this->url );
-			}
-
-			// Enqueue the bbPress styling
-			wp_enqueue_style( $handle, $location . $file, array(), $this->version, 'screen' );
+		// Enqueue the styles
+		foreach ( $styles as $handle => $attributes ) {
+			bbp_enqueue_style( $handle, $attributes['file'], $attributes['dependencies'], $this->version, 'screen' );
 		}
 	}
 
@@ -178,35 +165,57 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function enqueue_scripts() {
 
+		// Setup scripts array
+		$scripts = array();
+
 		// Always pull in jQuery for TinyMCE shortcode usage
 		if ( bbp_use_wp_editor() ) {
-			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script( 'bbpress-editor', $this->url . 'js/editor.js', array( 'jquery' ), $this->version );
+			$scripts['bbpress-editor'] = array(
+				'file'         => 'js/editor.js',
+				'dependencies' => array( 'jquery' )
+			);
 		}
 
 		// Forum-specific scripts
 		if ( bbp_is_single_forum() ) {
-
-			// Forum subscribe/unsubscribe
-			wp_enqueue_script( 'bbpress-forum', $this->url . 'js/forum.js', array( 'jquery' ), $this->version );
+			$scripts['bbpress-forum'] = array(
+				'file'         => 'js/forum.js',
+				'dependencies' => array( 'jquery' )
+			);
 		}
 
 		// Topic-specific scripts
 		if ( bbp_is_single_topic() ) {
 
 			// Topic favorite/unsubscribe
-			wp_enqueue_script( 'bbpress-topic', $this->url . 'js/topic.js', array( 'jquery' ), $this->version );
+			$scripts['bbpress-topic'] = array(
+				'file'         => 'js/topic.js',
+				'dependencies' => array( 'jquery' )
+			);
 
 			// Hierarchical replies
 			if ( bbp_thread_replies() ) {
-				wp_enqueue_script( 'bbpress-reply', $this->url . 'js/reply.js', array(), $this->version );
+				$scripts['bbpress-reply'] = array(
+					'file'         => 'js/reply.js',
+					'dependencies' => array( 'jquery' )
+				);
 			}
 		}
 
 		// User Profile edit
 		if ( bbp_is_single_user_edit() ) {
-			wp_enqueue_script( 'user-profile' );
-			wp_enqueue_script( 'bbpress-user', $this->url . 'js/user.js', array(), $this->version );
+			$scripts['bbpress-user'] = array(
+				'file'         => 'js/user.js',
+				'dependencies' => array( 'user-query' )
+			);
+		}
+
+		// Filter the scripts
+		$scripts = apply_filters( 'bbp_default_scripts', $scripts );
+
+		// Enqueue the scripts
+		foreach ( $scripts as $handle => $attributes ) {
+			bbp_enqueue_script( $handle, $attributes['file'], $attributes['dependencies'], $this->version, 'screen' );
 		}
 	}
 
@@ -240,7 +249,7 @@ class BBP_Default extends BBP_Theme_Compat {
 				'is_user_logged_in'  => is_user_logged_in(),
 				'subs_nonce'         => wp_create_nonce( 'toggle-subscription_' . get_the_ID() )
 			) );
-			
+
 		// Single topic
 		} elseif ( bbp_is_single_topic() ) {
 			wp_localize_script( 'bbpress-topic', 'bbpTopicJS', array(
