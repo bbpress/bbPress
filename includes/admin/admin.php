@@ -1442,7 +1442,13 @@ class BBP_Admin {
 			</div>
 
 			<div class="changelog">
-				<h3><?php esc_html_e( 'More Converters', 'bbpress' ); ?></h3>
+				<h3><?php esc_html_e( 'Converters', 'bbpress' ); ?></h3>
+
+				<div class="feature-section col one-col">
+					<div class="last-feature">
+						<p><?php esc_html_e( 'We&#8217;re all abuzz about the hive of new importers, AEF, Drupal, FluxBB, Kunena Forums for Joomla, MyBB, Phorum, PHPFox, PHPWind, PunBB, SMF, Xenforo and XMB. Existing importers are now sweeter than honey with improved importing stickies, topic tags, forum categories and the sting is now gone if you need to remove imported users.', 'bbpress' ); ?></p>
+					</div>
+				</div>
 
 				<div class="feature-section col three-col">
 					<div>
@@ -1452,29 +1458,12 @@ class BBP_Admin {
 
 					<div>
 						<h4><?php esc_html_e( 'Polyglot support', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'bbPress is ready for future translation API improvements.', 'bbpress' ); ?></p>
+						<p><?php esc_html_e( 'bbPress fully supports automatic translation updates.', 'bbpress' ); ?></p>
 					</div>
 
 					<div class="last-feature">
 						<h4><?php esc_html_e( 'User capabilities', 'bbpress' ); ?></h4>
 						<p><?php esc_html_e( 'Roles and capabilities have been swept through, cleaned up, and simplified.', 'bbpress' ); ?></p>
-					</div>
-				</div>
-
-				<div class="feature-section col three-col">
-					<div>
-						<h4><?php esc_html_e( 'Search', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Search results use pretty permalinks, and have a dedicated output page.', 'bbpress' ); ?></p>
-					</div>
-
-					<div>
-						<h4><?php esc_html_e( 'Settings', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Fields and sections have been reordered and reorganized.', 'bbpress' ); ?></p>
-					</div>
-
-					<div class="last-feature">
-						<h4><?php esc_html_e( 'BuddyPress', 'bbpress' ); ?></h4>
-						<p><?php esc_html_e( 'Forums are now fully and seamlessly integrated into BuddyPress Groups.', 'bbpress' ); ?></p>
 					</div>
 				</div>
 			</div>
