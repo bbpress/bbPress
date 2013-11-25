@@ -50,7 +50,7 @@ function bbp_get_template_part( $slug, $name = null ) {
  * inherit from a parent theme can just overload one file. If the template is
  * not found in either of those, it looks in the theme-compat folder last.
  *
- * @since bbPres (r3618)
+ * @since bbPress (r3618)
  *
  * @param string|array $template_names Template file(s) to search for, in order.
  * @param bool $load If true the template file will be loaded if it is found.
@@ -109,6 +109,111 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 }
 
 /**
+ * Enqueue a script from the highest priority location in the template stack.
+ *
+ * Registers the style if file provided (does NOT overwrite) and enqueues.
+ *
+ * @since bbPress (r5180)
+ *
+ * @param string      $handle Name of the stylesheet.
+ * @param string|bool $file   Relative path to stylesheet. Example: '/css/mystyle.css'.
+ * @param array       $deps   An array of registered style handles this stylesheet depends on. Default empty array.
+ * @param string|bool $ver    String specifying the stylesheet version number, if it has one. This parameter is used
+ *                            to ensure that the correct version is sent to the client regardless of caching, and so
+ *                            should be included if a version number is available and makes sense for the stylesheet.
+ * @param string      $media  Optional. The media for which this stylesheet has been defined.
+ *                            Default 'all'. Accepts 'all', 'aural', 'braille', 'handheld', 'projection', 'print',
+ *                            'screen', 'tty', or 'tv'.
+ *
+ * @return string The style filename if one is located.
+ */
+function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $version = false, $media = 'all' ) {
+
+	// Trim off any slashes from the template name
+	$file = ltrim( $file, '/' );
+
+	// Make sure there is always a version
+	if ( empty( $version ) ) {
+		$version = bbp_get_version();
+	}
+
+	// Loop through template stack
+	foreach ( (array) bbp_get_template_stack() as $template_location ) {
+
+		// Continue if $template_location is empty
+		if ( empty( $template_location ) ) {
+			continue;
+		}
+
+		// Check child theme first
+		if ( file_exists( trailingslashit( $template_location ) . $file ) ) {
+			$located = trailingslashit( $template_location ) . $file;
+			break;
+		}
+	}
+
+	// Make path to file relative to site URL
+	$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+
+	// Enqueue the style
+	wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
+
+	return $located;
+}
+
+/**
+ * Enqueue a script from the highest priority location in the template stack.
+ *
+ * Registers the style if file provided (does NOT overwrite) and enqueues.
+ *
+ * @since bbPress (r5180)
+ *
+ * @param string      $handle    Name of the script.
+ * @param string|bool $file      Relative path to the script. Example: '/js/myscript.js'.
+ * @param array       $deps      An array of registered handles this script depends on. Default empty array.
+ * @param string|bool $ver       Optional. String specifying the script version number, if it has one. This parameter
+ *                               is used to ensure that the correct version is sent to the client regardless of caching,
+ *                               and so should be included if a version number is available and makes sense for the script.
+ * @param bool        $in_footer Optional. Whether to enqueue the script before </head> or before </body>.
+ *                               Default 'false'. Accepts 'false' or 'true'.
+ *
+ * @return string The script filename if one is located.
+ */
+function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), $version = false, $in_footer = 'all' ) {
+
+	// Trim off any slashes from the template name
+	$file = ltrim( $file, '/' );
+
+	// Make sure there is always a version
+	if ( empty( $version ) ) {
+		$version = bbp_get_version();
+	}
+
+	// Loop through template stack
+	foreach ( (array) bbp_get_template_stack() as $template_location ) {
+
+		// Continue if $template_location is empty
+		if ( empty( $template_location ) ) {
+			continue;
+		}
+
+		// Check child theme first
+		if ( file_exists( trailingslashit( $template_location ) . $file ) ) {
+			$located = trailingslashit( $template_location ) . $file;
+			break;
+		}
+	}
+
+	// Make path to file relative to site URL
+	$located = trailingslashit( site_url() ) . str_replace( ABSPATH, '', $located );
+
+	// Enqueue the style
+	wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
+
+	return $located;
+}
+
+/**
  * This is really cool. This function registers a new template stack location,
  * using WordPress's built in filters API.
  *
@@ -118,7 +223,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * @since bbPress (r4323)
  *
- * @param string $location Callback function that returns the 
+ * @param string $location Callback function that returns the
  * @param int $priority
  */
 function bbp_register_template_stack( $location_callback = '', $priority = 10 ) {
@@ -282,7 +387,7 @@ function bbp_get_template_locations( $templates = array() ) {
  * @since bbPress (r3738)
  *
  * @param array $templates
- * @return array() 
+ * @return array()
  */
 function bbp_add_template_stack_locations( $stacks = array() ) {
 	$retval = array();
@@ -496,7 +601,7 @@ function bbp_parse_query( $posts_query ) {
 
 		// Get the post type from the main query loop
 		$post_type = $posts_query->get( 'post_type' );
-		
+
 		// Check which post_type we are editing, if any
 		if ( !empty( $post_type ) ) {
 			switch( $post_type ) {
