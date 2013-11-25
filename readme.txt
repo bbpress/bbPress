@@ -42,6 +42,17 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
+= 2.5 =
+* Added forum subscriptions
+* Added importers for AEF, Drupal, FluxBB, Kunena Forums (Joomla), MyBB, Phorum, PHPFox, PHPWind, PunBB, SMF, Xenforo and XMB
+* Added BuddyPress Notifications integration
+* Added ability to enqueue scripts and styles in the template stack
+* Fix various existing importer scripts
+* Fix forum visibility meta saving
+* Fix Akismet anonymous user meta checking
+* Fix inconsistent bbp_dropdown() results
+* Fix topic and reply ping-status inconsistencies
+
 = 2.4.1 =
 * Fix forum status saving
 * Fix widget settings saving
