@@ -118,8 +118,8 @@ class BBP_Akismet {
 		// Author is anonymous
 		if ( !empty( $anonymous_data ) ) {
 			$user_data['name']    = $anonymous_data['bbp_anonymous_name'];
-			$user_data['email']   = $anonymous_data['bbp_anonymous_name'];
-			$user_data['website'] = $anonymous_data['bbp_anonymous_name'];
+			$user_data['email']   = $anonymous_data['bbp_anonymous_email'];
+			$user_data['website'] = $anonymous_data['bbp_anonymous_website'];
 
 		// Author is logged in
 		} elseif ( !empty( $userdata ) ) {
