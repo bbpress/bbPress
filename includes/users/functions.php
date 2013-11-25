@@ -44,7 +44,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 /**
  * Is an anonymous topic/reply being made?
  *
- * @since bbPres (r2688)
+ * @since bbPress (r2688)
  *
  * @uses is_user_logged_in() Is the user logged in?
  * @uses bbp_allow_anonymous() Is anonymous posting allowed?
