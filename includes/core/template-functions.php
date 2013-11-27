@@ -158,8 +158,17 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 	// Enqueue if located
 	if ( !empty( $located ) ) {
 
-		// Make path to file relative to site URL
-		$located = trailingslashit( WP_CONTENT_URL ) . ltrim( str_replace( WP_CONTENT_DIR, '', $located ), '/' );
+		$content_dir = constant( 'WP_CONTENT_DIR' );
+
+		// IIS (Windows) here
+		// Replace back slashes with forward slash
+		if ( strpos( $located, '\\' ) !== false ) {
+			$located     = str_replace( '\\', '/', $located     );
+			$content_dir = str_replace( '\\', '/', $content_dir );
+		}
+
+ 		// Make path to file relative to site URL
+		$located = str_replace( $content_dir, WP_CONTENT_URL, $located );
 
 		// Enqueue the style
 		wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
@@ -217,8 +226,17 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 	// Enqueue if located
 	if ( !empty( $located ) ) {
 
-		// Make path to file relative to site URL
-		$located = trailingslashit( WP_CONTENT_URL ) . ltrim( str_replace( WP_CONTENT_DIR, '', $located ), '/' );
+		$content_dir = constant( 'WP_CONTENT_DIR' );
+
+		// IIS (Windows) here
+		// Replace back slashes with forward slash
+		if ( strpos( $located, '\\' ) !== false ) {
+			$located     = str_replace( '\\', '/', $located     );
+			$content_dir = str_replace( '\\', '/', $content_dir );
+		}
+
+ 		// Make path to file relative to site URL
+		$located = str_replace( $content_dir, WP_CONTENT_URL, $located );
 
 		// Enqueue the style
 		wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
