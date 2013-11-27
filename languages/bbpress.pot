@@ -1479,7 +1479,7 @@ msgid "Allow users to mark topics as favorites"
 msgstr ""
 
 #: includes/admin/settings.php:581
-msgid "Allow users to subscribe to topics"
+msgid "Allow users to subscribe to forums and topics"
 msgstr ""
 
 #: includes/admin/settings.php:597
