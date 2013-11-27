@@ -578,7 +578,7 @@ function bbp_admin_setting_callback_subscriptions() {
 ?>
 
 	<input name="_bbp_enable_subscriptions" id="_bbp_enable_subscriptions" type="checkbox" value="1" <?php checked( bbp_is_subscriptions_active( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_enable_subscriptions' ); ?> />
-	<label for="_bbp_enable_subscriptions"><?php esc_html_e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label>
+	<label for="_bbp_enable_subscriptions"><?php esc_html_e( 'Allow users to subscribe to forums and topics', 'bbpress' ); ?></label>
 
 <?php
 }
