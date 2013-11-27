@@ -28,7 +28,8 @@ function bbp_kses_allowed_tags() {
 		'a' => array(
 			'href'     => array(),
 			'title'    => array(),
-			'rel'      => array()
+			'rel'      => array(),
+			'target'   => array()
 		),
 
 		// Quotes
