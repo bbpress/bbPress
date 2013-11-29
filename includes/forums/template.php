@@ -114,10 +114,23 @@ function bbp_get_forum_post_type_supports() {
  */
 function bbp_has_forums( $args = '' ) {
 
+	// Forum archive only shows root
+	if ( bbp_is_forum_archive() ) {
+		$default_post_parent = 0;
+
+	// User subscriptions shows any
+	} elseif ( bbp_is_subscriptions() ) {
+		$default_post_parent = 'any';
+
+	// Could be anything, so look for possible parent ID
+	} else {
+		$default_post_parent = bbp_get_forum_id();
+	}
+
 	// Parse arguments with default forum query for most circumstances
 	$bbp_f = bbp_parse_args( $args, array(
 		'post_type'           => bbp_get_forum_post_type(),
-		'post_parent'         => bbp_is_forum_archive() ? 0 : bbp_get_forum_id(),
+		'post_parent'         => $default_post_parent,
 		'post_status'         => bbp_get_public_status_id(),
 		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
 		'ignore_sticky_posts' => true,
