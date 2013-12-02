@@ -375,7 +375,6 @@ class BBP_Admin {
 	 * @param int $user_id User id
 	 * @param mixed $args Arguments
 	 * @uses get_post() To get the post
-	 * @uses get_post_type_object() To get the post type object
 	 * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
 	 *                        args
 	 * @return array Actual capabilities for meta capability
