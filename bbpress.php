@@ -909,7 +909,7 @@ final class bbPress {
  * @return The one true bbPress Instance
  */
 function bbpress() {
-	return bbpress::instance();
+	return bbPress::instance();
 }
 
 /**
