@@ -26,15 +26,15 @@ function bbp_kses_allowed_tags() {
 
 		// Links
 		'a' => array(
-			'href'     => array(),
-			'title'    => array(),
-			'rel'      => array(),
-			'target'   => array()
+			'href'     => true,
+			'title'    => true,
+			'rel'      => true,
+			'target'   => true
 		),
 
 		// Quotes
 		'blockquote'   => array(
-			'cite'     => array()
+			'cite'     => true
 		),
 
 		// Code
