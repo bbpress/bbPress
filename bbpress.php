@@ -190,7 +190,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-alpha-5214';
+		$this->version    = '2.6-alpha-5215';
 		$this->db_version = '250';
 
 		/** Paths *************************************************************/
@@ -358,8 +358,9 @@ final class bbPress {
 		add_action( 'deactivate_' . $this->basename, 'bbp_deactivation' );
 
 		// If bbPress is being deactivated, do not add any actions
-		if ( bbp_is_deactivation( $this->basename ) )
+		if ( bbp_is_deactivation( $this->basename ) ) {
 			return;
+		}
 
 		// Array of bbPress core actions
 		$actions = array(
@@ -378,8 +379,9 @@ final class bbPress {
 		);
 
 		// Add the actions
-		foreach ( $actions as $class_action )
+		foreach ( $actions as $class_action ) {
 			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 5 );
+		}
 
 		// All bbPress actions are setup (includes bbp-core-hooks.php)
 		do_action_ref_array( 'bbp_after_setup_actions', array( &$this ) );
