@@ -866,7 +866,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		update_post_meta( $reply_id, '_bbp_author_ip', bbp_current_author_ip(), false );
 
 		// Last active time
-		$last_active_time = current_time( 'mysql' );
+		$last_active_time = get_post_field( 'post_date', $reply_id );
 
 		// Walk up ancestors and do the dirty work
 		bbp_update_reply_walker( $reply_id, $last_active_time, $forum_id, $topic_id, false );
