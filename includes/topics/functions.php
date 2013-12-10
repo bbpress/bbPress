@@ -965,7 +965,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 					'last_topic_id'      => $topic_id,
 					'last_reply_id'      => $reply_id,
 					'last_active_id'     => $active_id,
-					'last_active_time'   => 0,
+					'last_active_time'   => $last_active_time,
 					'last_active_status' => $topic_status
 				) );
 			}
