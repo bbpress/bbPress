@@ -1041,7 +1041,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	/** User ******************************************************************/
 
 	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+	$user_ids = bbp_get_topic_subscribers( $topic_id );
 	if ( empty( $user_ids ) )
 		return false;
 
@@ -1160,7 +1160,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	/** User ******************************************************************/
 
 	// Get forum subscribers and bail if empty
-	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+	$user_ids = bbp_get_forum_subscribers( $forum_id );
 	if ( empty( $user_ids ) )
 		return false;
 
