@@ -624,16 +624,27 @@ class BBP_Admin {
 	 */
 	public function register_admin_style () {
 
-		// Updated admin color scheme CSS
-		if ( function_exists( 'wp_enqueue_media' ) ) {
-			$green_scheme = $this->styles_url . 'green.css';
+		// RTL and/or minified
+		$suffix = is_rtl() ? '-rtl' : '';
+		//$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		} else {
-			$green_scheme = $this->styles_url . 'green-34.css';
-		}
+		// Mint
+		wp_admin_css_color(
+			'bbp-mint',
+			esc_html_x( 'Mint',      'admin color scheme', 'bbpress' ),
+			$this->styles_url . 'mint' . $suffix . '.css',
+			array( '#4f6d59', '#33834e', '#5FB37C', '#81c498' ),
+			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+		);
 
-		// Register the green scheme
-		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $green_scheme, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		// Evergreen
+		wp_admin_css_color(
+			'bbp-evergreen',
+			esc_html_x( 'Evergreen', 'admin color scheme', 'bbpress' ),
+			$this->styles_url . 'evergreen' . $suffix . '.css',
+			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
+			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+		);
 	}
 
 	/**
