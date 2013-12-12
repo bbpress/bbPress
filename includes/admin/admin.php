@@ -645,6 +645,15 @@ class BBP_Admin {
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
 			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
 		);
+
+		// Bail if already using the fresh color scheme
+		if ( 'fresh' === get_user_option( 'admin_color' ) ) {
+			return;
+		}
+
+		// Force 'colors-fresh' dependency
+		global $wp_styles;
+		$wp_styles->registered[ 'colors' ]->deps[] = 'colors-fresh';
 	}
 
 	/**
