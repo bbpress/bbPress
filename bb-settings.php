@@ -49,7 +49,7 @@ if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 }
 
 // Modify error reporting levels
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING);
 
 if ( !defined( 'BB_IS_ADMIN' ) )
 	define( 'BB_IS_ADMIN', false );
