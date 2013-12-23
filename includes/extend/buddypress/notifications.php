@@ -1,6 +1,31 @@
 <?php
 
 /**
+ * Filter registered notifications components, and add 'forums' to the queried
+ * 'component_name' array.
+ *
+ * @since bbPress (r5232)
+ *
+ * @see BP_Notifications_Notification::get()
+ * @param array $component_names
+ * @return array
+ */
+function bbp_filter_notifications_get_registered_components( $component_names = array() ) {
+
+	// Force $component_names to be an array
+	if ( ! is_array( $component_names ) ) {
+		$component_names = array();
+	}
+
+	// Add 'forums' component to registered components array
+	array_push( $component_names, bbp_get_component_name() );
+
+	// Return component's with 'forums' appended
+	return $component_names;
+}
+add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notifications_get_registered_components', 10 );
+
+/**
  * Format the BuddyBar/Toolbar notifications
  *
  * @since bbPress (r5155)
@@ -84,20 +109,27 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 	}
 
 	// Get some reply information
-	$date_notified    = get_post( $reply_id )->post_date;
-	$item_id          = $topic_id;
-	$component_name   = 'forums';
-	$component_action = 'bbp_new_reply';
+	$args = array(
+		'user_id'          => $topic_author_id,
+		'item_id'          => $topic_id,
+		'component_name'   => bbp_get_component_name(),
+		'component_action' => 'bbp_new_reply',
+		'date_notified'    => get_post( $reply_id )->post_date,
+	);
 
-	// Notify the topic author if not the current reply author
-	if ( $author_id !== $topic_author_id ) {
-		bp_core_add_notification( $item_id, $topic_author_id, $component_name, $component_action, $secondary_item_id, $date_notified );
-	}
+ 	// Notify the topic author if not the current reply author
+ 	if ( $author_id !== $topic_author_id ) {
+		$args['secondary_item_id'] = $secondary_item_id ;
 
-	// Notify the immediate reply author if not the current reply author
-	if ( !empty( $reply_to ) && ( $author_id !== $reply_to_item_id ) ) {
-		bp_core_add_notification( $item_id, $topic_author_id, $component_name, $component_action, $reply_to_item_id, $date_notified );
-	}
+		bp_notifications_add_notification( $args );
+ 	}
+ 
+ 	// Notify the immediate reply author if not the current reply author
+ 	if ( !empty( $reply_to ) && ( $author_id !== $reply_to_item_id ) ) {
+		$args['secondary_item_id'] = $reply_to_item_id ;
+
+		bp_notifications_add_notification( $args );
+ 	}
 }
 add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
 
@@ -137,7 +169,7 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 	if ( ! bbp_has_errors() ) {
 
 		// Attempt to clear notifications for the current user from this topic
-		$success = bp_core_mark_notifications_by_item_id( $user_id, $topic_id, 'forums', 'bbp_new_reply' );
+		$success = bp_notifications_mark_notifications_by_item_id( $user_id, $topic_id, bbp_get_component_name(), 'bbp_new_reply' );
 
 		// Do additional subscriptions actions
 		do_action( 'bbp_notifications_handler', $success, $user_id, $topic_id, $action );
