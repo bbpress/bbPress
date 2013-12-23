@@ -14,6 +14,28 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /** BuddyPress Helpers ********************************************************/
 
 /**
+ * Return bbPress's component name/ID ('forums' by default)
+ *
+ * This is used primarily for Notifications integration.
+ *
+ * @since bbPress (r5232)
+ * @return string
+ */
+function bbp_get_component_name() {
+
+	// Use existing ID
+	if ( !empty( bbpress()->extend->buddypress->id ) ) {
+		$retval = bbpress()->extend->buddypress->id;
+
+	// Use default
+	} else {
+		$retval = 'forums';
+	}
+
+	return apply_filters( 'bbp_get_component_name', $retval );
+}
+
+/**
  * Filter the current bbPress user ID with the current BuddyPress user ID
  *
  * @since bbPress (r3552)
