@@ -3898,8 +3898,8 @@ function bbp_form_topic_subscribed() {
 	 * @since bbPress (r2976)
 	 *
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
-	 * @uses bbp_is_user_subscribed() To check if the user is subscribed to
-	 *                                 the topic
+	 * @uses bbp_is_user_subscribed_to_topic() To check if the user is
+	 *                                          subscribed to the topic
 	 * @uses apply_filters() Calls 'bbp_get_form_topic_subscribed' with the
 	 *                        option
 	 * @return string Checked value of topic subscription
@@ -3918,16 +3918,16 @@ function bbp_form_topic_subscribed() {
 
 			// Post author is not the current user
 			if ( bbp_get_current_user_id() !== $post_author ) {
-				$topic_subscribed = bbp_is_user_subscribed( $post_author );
+				$topic_subscribed = bbp_is_user_subscribed_to_topic( $post_author );
 
 			// Post author is the current user
 			} else {
-				$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+				$topic_subscribed = bbp_is_user_subscribed_to_topic( bbp_get_current_user_id() );
 			}
 
 		// Get current status
 		} elseif ( bbp_is_single_topic() ) {
-			$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+			$topic_subscribed = bbp_is_user_subscribed_to_topic( bbp_get_current_user_id() );
 
 		// No data
 		} else {
