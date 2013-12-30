@@ -2245,8 +2245,8 @@ function bbp_form_forum_subscribed() {
 	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
 	 * @uses bbp_get_global_post_field() To get current post author
 	 * @uses bbp_get_current_user_id() To get the current user id
-	 * @uses bbp_is_user_subscribed() To check if the user is subscribed to
-	 *                the forum
+	 * @uses bbp_is_user_subscribed_to_forum() To check if the user is
+	 *                                          subscribed to the forum
 	 * @uses apply_filters() Calls 'bbp_get_form_forum_subscribed' with the
 	 *                option
 	 * @return string Checked value of forum subscription
@@ -2265,16 +2265,16 @@ function bbp_form_forum_subscribed() {
 
 			// Post author is not the current user
 			if ( bbp_get_current_user_id() !== $post_author ) {
-				$forum_subscribed = bbp_is_user_subscribed( $post_author );
+				$forum_subscribed = bbp_is_user_subscribed_to_forum( $post_author );
 
 			// Post author is the current user
 			} else {
-				$forum_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+				$forum_subscribed = bbp_is_user_subscribed_to_forum( bbp_get_current_user_id() );
 			}
 
 		// Get current status
 		} elseif ( bbp_is_single_forum() ) {
-			$forum_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+			$forum_subscribed = bbp_is_user_subscribed_to_forum( bbp_get_current_user_id() );
 
 		// No data
 		} else {
