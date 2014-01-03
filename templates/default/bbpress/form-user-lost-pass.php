@@ -20,9 +20,9 @@
 			</p>
 		</div>
 
-		<div class="bbp-submit-wrapper">
+		<?php do_action( 'login_form', 'resetpass' ); ?>
 
-			<?php do_action( 'login_form', 'resetpass' ); ?>
+		<div class="bbp-submit-wrapper">
 
 			<button type="submit" tabindex="<?php bbp_tab_index(); ?>" name="user-submit" class="button submit user-submit"><?php _e( 'Reset My Password', 'bbpress' ); ?></button>
 
