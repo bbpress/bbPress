@@ -28,9 +28,9 @@
 			<label for="rememberme"><?php _e( 'Keep me signed in', 'bbpress' ); ?></label>
 		</div>
 
-		<div class="bbp-submit-wrapper">
+		<?php do_action( 'login_form' ); ?>
 
-			<?php do_action( 'login_form' ); ?>
+		<div class="bbp-submit-wrapper">
 
 			<button type="submit" tabindex="<?php bbp_tab_index(); ?>" name="user-submit" class="button submit user-submit"><?php _e( 'Log In', 'bbpress' ); ?></button>
 
