@@ -1206,7 +1206,7 @@ function bbp_reply_author_link( $args = '' ) {
 			$anonymous  = bbp_is_reply_anonymous( $reply_id );
 
 			// Tweak link title if empty
-			if ( empty( $$r['link_title'] ) ) {
+			if ( empty( $r['link_title'] ) ) {
 				$link_title = sprintf( empty( $anonymous ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author_display_name( $reply_id ) );
 
 			// Use what was passed if not
