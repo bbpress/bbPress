@@ -44,6 +44,16 @@ class BBP_Admin {
 	 */
 	public $styles_url = '';
 
+	/**
+	 * @var string URL to the bbPress admin css directory
+	 */
+	public $css_url = '';
+
+	/**
+	 * @var string URL to the bbPress admin js directory
+	 */
+	public $js_url = '';
+
 	/** Capability ************************************************************/
 
 	/**
@@ -87,6 +97,8 @@ class BBP_Admin {
 		$this->admin_url  = trailingslashit( $bbp->includes_url . 'admin'  ); // Admin url
 		$this->images_url = trailingslashit( $this->admin_url   . 'images' ); // Admin images URL
 		$this->styles_url = trailingslashit( $this->admin_url   . 'styles' ); // Admin styles URL
+		$this->css_url    = trailingslashit( $this->admin_url   . 'css'    ); // Admin css URL
+		$this->js_url     = trailingslashit( $this->admin_url   . 'js'     ); // Admin js URL
 	}
 
 	/**
@@ -130,7 +142,8 @@ class BBP_Admin {
 		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'       )     ); // Add green admin style
 		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings'    )     ); // Add settings
 		add_action( 'bbp_activation',              array( $this, 'new_install'                )     ); // Add menu item to settings menu
-		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            )     ); // Add enqueued JS and CSS
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_styles'             )     ); // Add enqueued CSS
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            )     ); // Add enqueued JS
 		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' )     ); // Forums 'Right now' Dashboard widget
 		add_action( 'admin_bar_menu',              array( $this, 'admin_bar_about_link'       ), 15 ); // Add a link to bbPress about page to the admin bar
 
@@ -375,7 +388,6 @@ class BBP_Admin {
 	 * @param int $user_id User id
 	 * @param mixed $args Arguments
 	 * @uses get_post() To get the post
-	 * @uses get_post_type_object() To get the post type object
 	 * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
 	 *                        args
 	 * @return array Actual capabilities for meta capability
@@ -542,757 +554,61 @@ class BBP_Admin {
 
 	/**
 	 * Enqueue any admin scripts we might need
+	 *
 	 * @since bbPress (r4260)
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'suggest' );
+
+		// Get the version to use for JS
+		$version = bbp_get_version();
+
+		// Post type checker (only topics and replies)
+		if ( 'post' === get_current_screen()->base ) {
+			switch( get_current_screen()->post_type ) {
+				case bbp_get_reply_post_type() :
+				case bbp_get_topic_post_type() :
+
+					// Enqueue the common JS
+					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common.js', array( 'jquery' ), $version );
+
+					// Topics admin
+					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
+						wp_enqueue_script( 'bbp-admin-topics-js', $this->js_url . 'topics.js', array( 'jquery' ), $version );
+
+					// Replies admin
+					} elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) {
+						wp_enqueue_script( 'bbp-admin-replies-js', $this->js_url . 'replies.js', array( 'jquery' ), $version );
+					}
+
+					break;
+			}
+		}
 	}
 
 	/**
-	 * Add some general styling to the admin area
+	 * Enqueue any admin scripts we might need
+	 *
+	 * @since bbPress (r5224)
+	 */
+	public function enqueue_styles() {
+		wp_enqueue_style( 'bbp-admin-css', $this->css_url . 'admin.css', array( 'dashicons' ), bbp_get_version() );
+	}
+
+	/**
+	 * Remove the individual recount and converter menus.
+	 * They are grouped together by h2 tabs
 	 *
 	 * @since bbPress (r2464)
 	 *
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses sanitize_html_class() To sanitize the classes
+	 * @uses remove_submenu_page() To remove menu items with alternat navigation
 	 */
 	public function admin_head() {
-
-		// Remove the individual recount and converter menus.
-		// They are grouped together by h2 tabs
 		remove_submenu_page( 'tools.php', 'bbp-repair'    );
 		remove_submenu_page( 'tools.php', 'bbp-converter' );
 		remove_submenu_page( 'tools.php', 'bbp-reset'     );
 		remove_submenu_page( 'index.php', 'bbp-about'     );
 		remove_submenu_page( 'index.php', 'bbp-credits'   );
-
-		// The /wp-admin/images/ folder
-		$wp_admin_url     = admin_url( 'images/' );
-
-		// Icons for top level admin menus
-		$version          = bbp_get_version();
-		$menu_icon_url    = $this->images_url . 'menu.png?ver='       . $version;
-		$icon32_url       = $this->images_url . 'icons32.png?ver='    . $version;
-		$menu_icon_url_2x = $this->images_url . 'menu-2x.png?ver='    . $version;
-		$icon32_url_2x    = $this->images_url . 'icons32-2x.png?ver=' . $version;
-		$badge_url        = $this->images_url . 'badge.png?ver='      . $version;
-		$badge_url_2x     = $this->images_url . 'badge-2x.png?ver='   . $version;
-
-		// The image size changed in WordPress 3.5
-		if ( function_exists( 'wp_enqueue_media' ) ) {
-			$icon32_size = '756px 45px';
-		} else {
-			$icon32_size = '708px 45px';
-		}
-
-		// Top level menu classes
-		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
-		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
-		$reply_class = sanitize_html_class( bbp_get_reply_post_type() );
-
-		// Post type checker (only topics and replies)
-		if ( 'post' === get_current_screen()->base ) :
-			switch( get_current_screen()->post_type ) :
-				case bbp_get_reply_post_type() :
-				case bbp_get_topic_post_type() : ?>
-					<script type="text/javascript">
-						jQuery(document).ready(function() {
-							var bbp_author_id = jQuery( '#bbp_author_id' );
-							bbp_author_id.suggest( ajaxurl + '?action=bbp_suggest_user', {
-								onSelect: function() {
-									var value = this.value;
-									bbp_author_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
-								}
-							} );
-						<?php if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) : ?>
-							jQuery( '#misc-publishing-actions' ).find( '.misc-pub-section' ).first().remove();
-							jQuery( '#save-action' ).remove();
-						<?php elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) : ?>
-							var bbp_topic_id = jQuery( '#bbp_topic_id' );
-							bbp_topic_id.suggest( ajaxurl + '?action=bbp_suggest_topic', {
-								onSelect: function() {
-									var value = this.value;
-									bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
-								}
-							} );
-						<?php endif; ?>
-						});
-
-					</script><?php
-
-					break;
-			endswitch;
-		endif; ?>
-
-		<style type="text/css" media="screen">
-		/*<![CDATA[*/
-
-			/* Kludge for too-wide forums dropdown */
-			#poststuff #bbp_forum_attributes select#parent_id,
-			#poststuff #bbp_topic_attributes select#parent_id,
-			#poststuff #bbp_reply_attributes select#bbp_forum_id {
-				max-width: 170px;
-			}
-
-			/* Version Badge */
-
-			.bbp-badge {
-				padding-top: 142px;
-				height: 50px;
-				width: 173px;
-				color: #fafafa;
-				font-weight: bold;
-				font-size: 14px;
-				text-align: center;
-				margin: 0 -5px;
-				background: url('<?php echo $badge_url; ?>') no-repeat;
-			}
-
-			.about-wrap .bbp-badge {
-				position: absolute;
-				top: 0;
-				right: 0;
-			}
-				body.rtl .about-wrap .bbp-badge {
-					right: auto;
-					left: 0;
-				}
-
-			#bbp-dashboard-right-now p.sub,
-			#bbp-dashboard-right-now .table,
-			#bbp-dashboard-right-now .versions {
-				margin: -12px;
-			}
-
-			#bbp-dashboard-right-now .inside {
-				font-size: 12px;
-				padding-top: 20px;
-				margin-bottom: 0;
-			}
-
-			#bbp-dashboard-right-now p.sub {
-				padding: 5px 0 15px;
-				color: #8f8f8f;
-				font-size: 14px;
-				position: absolute;
-				top: -17px;
-				left: 15px;
-			}
-				body.rtl #bbp-dashboard-right-now p.sub {
-					right: 15px;
-					left: 0;
-				}
-
-			#bbp-dashboard-right-now .table {
-				margin: 0;
-				padding: 0;
-				position: relative;
-			}
-
-			#bbp-dashboard-right-now .table_content {
-				float: left;
-				border-top: #ececec 1px solid;
-				width: 45%;
-			}
-				body.rtl #bbp-dashboard-right-now .table_content {
-					float: right;
-				}
-
-			#bbp-dashboard-right-now .table_discussion {
-				float: right;
-				border-top: #ececec 1px solid;
-				width: 45%;
-			}
-				body.rtl #bbp-dashboard-right-now .table_discussion {
-					float: left;
-				}
-
-			#bbp-dashboard-right-now table td {
-				padding: 3px 0;
-				white-space: nowrap;
-			}
-
-			#bbp-dashboard-right-now table tr.first td {
-				border-top: none;
-			}
-
-			#bbp-dashboard-right-now td.b {
-				padding-right: 6px;
-				text-align: right;
-				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-				font-size: 14px;
-				width: 1%;
-			}
-				body.rtl #bbp-dashboard-right-now td.b {
-					padding-left: 6px;
-					padding-right: 0;
-				}
-
-			#bbp-dashboard-right-now td.b a {
-				font-size: 18px;
-			}
-
-			#bbp-dashboard-right-now td.b a:hover {
-				color: #d54e21;
-			}
-
-			#bbp-dashboard-right-now .t {
-				font-size: 12px;
-				padding-right: 12px;
-				padding-top: 6px;
-				color: #777;
-			}
-				body.rtl #bbp-dashboard-right-now .t {
-					padding-left: 12px;
-					padding-right: 0;
-				}
-
-			#bbp-dashboard-right-now .t a {
-				white-space: nowrap;
-			}
-
-			#bbp-dashboard-right-now .spam {
-				color: red;
-			}
-
-			#bbp-dashboard-right-now .waiting {
-				color: #e66f00;
-			}
-
-			#bbp-dashboard-right-now .approved {
-				color: green;
-			}
-
-			#bbp-dashboard-right-now .versions {
-				padding: 6px 10px 12px;
-				clear: both;
-			}
-
-			#bbp-dashboard-right-now .versions .b {
-				font-weight: bold;
-			}
-
-			#bbp-dashboard-right-now a.button {
-				float: right;
-				clear: right;
-				position: relative;
-				top: -5px;
-			}
-				body.rtl #bbp-dashboard-right-now a.button {
-					float: left;
-					clear: left;
-				}
-
-			/* Icon 32 */
-			#icon-edit.icon32-posts-<?php echo $forum_class; ?>,
-			#icon-edit.icon32-posts-<?php echo $topic_class; ?>,
-			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-				background: url('<?php echo $icon32_url; ?>');
-				background-repeat: no-repeat;
-			}
-
-			/* Icon Positions */
-			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
-				background-position: -4px 0px;
-			}
-
-			#icon-edit.icon32-posts-<?php echo $topic_class; ?> {
-				background-position: -4px -90px;
-			}
-
-			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-				background-position: -4px -180px;
-			}
-
-			/* Icon 32 2x */
-			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-				#icon-edit.icon32-posts-<?php echo $forum_class; ?>,
-				#icon-edit.icon32-posts-<?php echo $topic_class; ?>,
-				#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
-					background-image: url('<?php echo $icon32_url_2x; ?>');
-					background-size: 45px 255px;
-				}
-			}
-
-			/* Menu */
-			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image,
-			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image,
-			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image,
-
-			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
-
-			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,
-			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
-			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url('<?php echo $menu_icon_url; ?>');
-				background-repeat: no-repeat;
-			}
-
-			/* Menu Positions */
-			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
-				background-position: 0px -32px;
-			}
-			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: 0px 0px;
-			}
-			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
-				background-position: -70px -32px;
-			}
-			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: -70px 0px;
-			}
-			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image {
-				background-position: -35px -32px;
-			}
-			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position:  -35px 0px;
-			}
-
-			/* Menu 2x */
-			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-				#menu-posts-<?php echo $forum_class; ?> .wp-menu-image,
-				#menu-posts-<?php echo $topic_class; ?> .wp-menu-image,
-				#menu-posts-<?php echo $reply_class; ?> .wp-menu-image,
-
-				#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
-				#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
-				#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
-
-				#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image,
-				#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image,
-				#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-					background-image: url('<?php echo $menu_icon_url_2x; ?>');
-					background-size: 100px 64px;
-				}
-
-				.bbp-badge {
-					background-image: url('<?php echo $badge_url_2x; ?>');
-					background-size: 173px 194px;
-				}
-			}
-
-			<?php if ( 'bbpress' === get_user_option( 'admin_color' ) ) : ?>
-
-				/* Green Scheme Images */
-
-				.post-com-count {
-					background-image: url('<?php echo $wp_admin_url; ?>bubble_bg.gif');
-				}
-
-				.button,
-				.submit input,
-				.button-secondary {
-					background-image: url('<?php echo $wp_admin_url; ?>white-grad.png');
-				}
-
-				.button:active,
-				.submit input:active,
-				.button-secondary:active {
-					background-image: url('<?php echo $wp_admin_url; ?>white-grad-active.png');
-				}
-
-				.curtime #timestamp {
-					background-image: url('<?php echo $wp_admin_url; ?>date-button.gif');
-				}
-
-				.tagchecklist span a,
-				#bulk-titles div a {
-					background-image: url('<?php echo $wp_admin_url; ?>xit.gif');
-				}
-
-				.tagchecklist span a:hover,
-				#bulk-titles div a:hover {
-					background-image: url('<?php echo $wp_admin_url; ?>xit.gif');
-				}
-				#screen-meta-links a.show-settings {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				#screen-meta-links a.show-settings.screen-meta-active {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				#adminmenushadow,
-				#adminmenuback {
-					background-image: url('<?php echo $wp_admin_url; ?>menu-shadow.png');
-				}
-
-				#adminmenu li.wp-has-current-submenu.wp-menu-open .wp-menu-toggle,
-				#adminmenu li.wp-has-current-submenu:hover .wp-menu-toggle {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
-				}
-
-				#adminmenu .wp-has-submenu:hover .wp-menu-toggle,
-				#adminmenu .wp-menu-open .wp-menu-toggle {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				#collapse-button div {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				/* menu and screen icons */
-				.icon16.icon-dashboard,
-				#adminmenu .menu-icon-dashboard div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-dashboard:hover div.wp-menu-image,
-				#adminmenu .menu-icon-dashboard.wp-has-current-submenu div.wp-menu-image,
-				#adminmenu .menu-icon-dashboard.current div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-post,
-				#adminmenu .menu-icon-post div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-post:hover div.wp-menu-image,
-				#adminmenu .menu-icon-post.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-media,
-				#adminmenu .menu-icon-media div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-media:hover div.wp-menu-image,
-				#adminmenu .menu-icon-media.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-links,
-				#adminmenu .menu-icon-links div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-links:hover div.wp-menu-image,
-				#adminmenu .menu-icon-links.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-page,
-				#adminmenu .menu-icon-page div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-page:hover div.wp-menu-image,
-				#adminmenu .menu-icon-page.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-comments,
-				#adminmenu .menu-icon-comments div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-comments:hover div.wp-menu-image,
-				#adminmenu .menu-icon-comments.wp-has-current-submenu div.wp-menu-image,
-				#adminmenu .menu-icon-comments.current div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-appearance,
-				#adminmenu .menu-icon-appearance div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-appearance:hover div.wp-menu-image,
-				#adminmenu .menu-icon-appearance.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-plugins,
-				#adminmenu .menu-icon-plugins div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-plugins:hover div.wp-menu-image,
-				#adminmenu .menu-icon-plugins.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-users,
-				#adminmenu .menu-icon-users div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-users:hover div.wp-menu-image,
-				#adminmenu .menu-icon-users.wp-has-current-submenu div.wp-menu-image,
-				#adminmenu .menu-icon-users.current div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-tools,
-				#adminmenu .menu-icon-tools div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-tools:hover div.wp-menu-image,
-				#adminmenu .menu-icon-tools.wp-has-current-submenu div.wp-menu-image,
-				#adminmenu .menu-icon-tools.current div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-settings,
-				#adminmenu .menu-icon-settings div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-settings:hover div.wp-menu-image,
-				#adminmenu .menu-icon-settings.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				.icon16.icon-site,
-				#adminmenu .menu-icon-site div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-
-				#adminmenu .menu-icon-site:hover div.wp-menu-image,
-				#adminmenu .menu-icon-site.wp-has-current-submenu div.wp-menu-image {
-					background-image: url('<?php echo $wp_admin_url; ?>menu.png?ver=20100531');
-				}
-				/* end menu and screen icons */
-
-				/* Screen Icons */
-				.icon32.icon-post,
-				#icon-edit,
-				#icon-post {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-dashboard,
-				#icon-index {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-media,
-				#icon-upload {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-links,
-				#icon-link-manager,
-				#icon-link,
-				#icon-link-category {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-page,
-				#icon-edit-pages,
-				#icon-page {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-comments,
-				#icon-edit-comments {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-appearance,
-				#icon-themes {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-plugins,
-				#icon-plugins {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-users,
-				#icon-users,
-				#icon-profile,
-				#icon-user-edit {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-tools,
-				#icon-tools,
-				#icon-admin {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-settings,
-				#icon-options-general {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-
-				.icon32.icon-site,
-				#icon-ms-admin {
-					background-image: url('<?php echo $wp_admin_url; ?>icons32.png?ver=20100531');
-				}
-				/* end screen icons */
-
-				.meta-box-sortables .postbox:hover .handlediv {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.tablenav .tablenav-pages a {
-					background-image: url('<?php echo $wp_admin_url; ?>menu-bits.gif?ver=20100610');
-				}
-
-				.view-switch #view-switch-list {
-					background-image: url('<?php echo $wp_admin_url; ?>list.png');
-				}
-
-				.view-switch .current #view-switch-list {
-					background-image: url('<?php echo $wp_admin_url; ?>list.png');
-				}
-
-				.view-switch #view-switch-excerpt {
-					background-image: url('<?php echo $wp_admin_url; ?>list.png');
-				}
-
-				.view-switch .current #view-switch-excerpt {
-					background-image: url('<?php echo $wp_admin_url; ?>list.png');
-				}
-
-				#header-logo {
-					background-image: url('<?php echo $wp_admin_url; ?>wp-logo.png?ver=20110504');
-				}
-
-				.sidebar-name-arrow {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.sidebar-name:hover .sidebar-name-arrow {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
-				}
-
-				.item-edit {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.item-edit:hover {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
-				}
-
-				.wp-badge {
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png');
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), -ms-linear-gradient(top, #378aac, #165d84); /* IE10 */
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), -moz-linear-gradient(top, #378aac, #165d84); /* Firefox */
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), -o-linear-gradient(top, #378aac, #165d84); /* Opera */
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), -webkit-gradient(linear, left top, left bottom, from(#378aac), to(#165d84)); /* old Webkit */
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), -webkit-linear-gradient(top, #378aac, #165d84); /* new Webkit */
-					background-image: url('<?php echo $wp_admin_url; ?>wp-badge.png'), linear-gradient(top, #378aac, #165d84); /* proposed W3C Markup */
-				}
-
-				.rtl .post-com-count {
-					background-image: url('<?php echo $wp_admin_url; ?>bubble_bg-rtl.gif');
-				}
-
-				/* Menu */
-				.rtl #adminmenushadow,
-				.rtl #adminmenuback {
-					background-image: url('<?php echo $wp_admin_url; ?>menu-shadow-rtl.png');
-				}
-
-				.rtl #adminmenu li.wp-has-current-submenu.wp-menu-open .wp-menu-toggle,
-				.rtl #adminmenu li.wp-has-current-submenu:hover .wp-menu-toggle {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
-				}
-
-				.rtl #adminmenu .wp-has-submenu:hover .wp-menu-toggle,
-				.rtl #adminmenu .wp-menu-open .wp-menu-toggle {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.rtl .meta-box-sortables .postbox:hover .handlediv {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.rtl .tablenav .tablenav-pages a {
-					background-image: url('<?php echo $wp_admin_url; ?>menu-bits-rtl.gif?ver=20100610');
-				}
-
-				.rtl .sidebar-name-arrow {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows.png');
-				}
-
-				.rtl .sidebar-name:hover .sidebar-name-arrow {
-					background-image: url('<?php echo $wp_admin_url; ?>arrows-dark.png');
-				}
-
-				@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-					.icon32.icon-post,
-					#icon-edit,
-					#icon-post,
-					.icon32.icon-dashboard,
-					#icon-index,
-					.icon32.icon-media,
-					#icon-upload,
-					.icon32.icon-links,
-					#icon-link-manager,
-					#icon-link,
-					#icon-link-category,
-					.icon32.icon-page,
-					#icon-edit-pages,
-					#icon-page,
-					.icon32.icon-comments,
-					#icon-edit-comments,
-					.icon32.icon-appearance,
-					#icon-themes,
-					.icon32.icon-plugins,
-					#icon-plugins,
-					.icon32.icon-users,
-					#icon-users,
-					#icon-profile,
-					#icon-user-edit,
-					.icon32.icon-tools,
-					#icon-tools,
-					#icon-admin,
-					.icon32.icon-settings,
-					#icon-options-general,
-					.icon32.icon-site,
-					#icon-ms-admin {
-						background-image: url('<?php echo $wp_admin_url; ?>icons32-2x.png?ver=20120412') !important;
-						background-size: <?php echo $icon32_size; ?>
-					}
-
-					.icon16.icon-dashboard,
-					.menu-icon-dashboard div.wp-menu-image,
-					.icon16.icon-post,
-					.menu-icon-post div.wp-menu-image,
-					.icon16.icon-media,
-					.menu-icon-media div.wp-menu-image,
-					.icon16.icon-links,
-					.menu-icon-links div.wp-menu-image,
-					.icon16.icon-page,
-					.menu-icon-page div.wp-menu-image,
-					.icon16.icon-comments,
-					.menu-icon-comments div.wp-menu-image,
-					.icon16.icon-appearance,
-					.menu-icon-appearance div.wp-menu-image,
-					.icon16.icon-plugins,
-					.menu-icon-plugins div.wp-menu-image,
-					.icon16.icon-users,
-					.menu-icon-users div.wp-menu-image,
-					.icon16.icon-tools,
-					.menu-icon-tools div.wp-menu-image,
-					.icon16.icon-settings,
-					.menu-icon-settings div.wp-menu-image,
-					.icon16.icon-site,
-					.menu-icon-site div.wp-menu-image {
-						background-image: url('<?php echo $wp_admin_url; ?>menu-2x.png?ver=20120412') !important;
-						background-size: 390px 64px;
-					}
-				}
-			<?php endif; ?>
-
-		/*]]>*/
-		</style>
-
-		<?php
 	}
 
 	/**
@@ -1308,16 +624,36 @@ class BBP_Admin {
 	 */
 	public function register_admin_style () {
 
-		// Updated admin color scheme CSS
-		if ( function_exists( 'wp_enqueue_media' ) ) {
-			$green_scheme = $this->styles_url . 'green.css';
+		// RTL and/or minified
+		$suffix = is_rtl() ? '-rtl' : '';
+		//$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		} else {
-			$green_scheme = $this->styles_url . 'green-34.css';
+		// Mint
+		wp_admin_css_color(
+			'bbp-mint',
+			esc_html_x( 'Mint',      'admin color scheme', 'bbpress' ),
+			$this->styles_url . 'mint' . $suffix . '.css',
+			array( '#4f6d59', '#33834e', '#5FB37C', '#81c498' ),
+			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+		);
+
+		// Evergreen
+		wp_admin_css_color(
+			'bbp-evergreen',
+			esc_html_x( 'Evergreen', 'admin color scheme', 'bbpress' ),
+			$this->styles_url . 'evergreen' . $suffix . '.css',
+			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
+			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+		);
+
+		// Bail if already using the fresh color scheme
+		if ( 'fresh' === get_user_option( 'admin_color' ) ) {
+			return;
 		}
 
-		// Register the green scheme
-		wp_admin_css_color( 'bbpress', esc_html_x( 'Green', 'admin color scheme', 'bbpress' ), $green_scheme, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		// Force 'colors-fresh' dependency
+		global $wp_styles;
+		$wp_styles->registered[ 'colors' ]->deps[] = 'colors-fresh';
 	}
 
 	/**
