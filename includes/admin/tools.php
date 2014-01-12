@@ -186,9 +186,12 @@ function bbp_admin_repair_list() {
  *
  * @since bbPress (r2613)
  *
- * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_closed_status_id() To get the closed status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_reply_count() {
@@ -229,9 +232,12 @@ function bbp_admin_repair_topic_reply_count() {
  *
  * @since bbPress (r2613)
  *
- * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_closed_status_id() To get the closed status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_voice_count() {
@@ -274,6 +280,9 @@ function bbp_admin_repair_topic_voice_count() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_trash_status_id() To get the trash status id
+ * @uses bbp_get_spam_status_id() To get the spam status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_hidden_reply_count() {
@@ -286,7 +295,12 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') GROUP BY `post_parent`);";
+	// Post types and status
+	$rpt = bbp_get_reply_post_type();
+	$tps = bbp_get_trash_status_id();
+	$sps = bbp_get_spam_status_id();
+
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}' ) GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -299,6 +313,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
  * @since bbPress (r4395)
  *
  * @global WPDB $wpdb
+ * @uses bbp_get_forum_post_type() To get the forum post type
  * @return If a wp_error() occurs and no converted forums are found
  */
 function bbp_admin_repair_group_forum_relationship() {
@@ -320,7 +335,7 @@ function bbp_admin_repair_group_forum_relationship() {
 									LEFT JOIN `{$wpdb->postmeta}` AS `forummeta`
 										ON `forum`.`ID` = `forummeta`.`post_id`
 										AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
-								WHERE `forum`.`post_type` = 'forum'
+								WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
 								GROUP BY `forum`.`ID`;" );
 
 	// Bail if forum IDs returned an error
@@ -499,7 +514,8 @@ function bbp_admin_repair_forum_reply_count() {
  *
  * @since bbPress (r3889)
  *
- * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -545,6 +561,7 @@ function bbp_admin_repair_user_topic_count() {
  * @since bbPress (r2613)
  *
  * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -589,9 +606,10 @@ function bbp_admin_repair_user_reply_count() {
  *
  * @since bbPress (r2613)
  *
- * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_favorites() {
@@ -651,9 +669,10 @@ function bbp_admin_repair_user_favorites() {
  *
  * @since bbPress (r2668)
  *
- * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_topic_subscriptions() {
@@ -712,9 +731,10 @@ function bbp_admin_repair_user_topic_subscriptions() {
  *
  * @since bbPress (r5155)
  *
- * @uses bbp_get_forum_post_type() To get the topic post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_forum_subscriptions() {
@@ -776,7 +796,8 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * @since bbPress (r4340)
  *
  * @uses bbp_get_user_role_map() To get the map of user roles
- * @uses get_editable_roles() To get the current WordPress roles
+ * @uses bbp_get_default_role() To get the default bbPress user role
+ * @uses bbp_get_blog_roles() To get the current WordPress roles
  * @uses get_users() To get the users of each role (limited to ID field)
  * @uses bbp_set_user_role() To set each user's forums role
  */
@@ -831,6 +852,12 @@ function bbp_admin_repair_user_roles() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_is_forum_category() To check if the forum is a ategory
+ * @uses bbp_update_forum() To update the forums forum id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_freshness() {
@@ -843,11 +870,17 @@ function bbp_admin_repair_freshness() {
 	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );" ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
+	// Post types and status
+	$fpt = bbp_get_forum_post_type();
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+	$pps = bbp_get_public_status_id();
+
 	// Next, give all the topics with replies the ID their last reply.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -856,14 +889,14 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_reply_id', 0
 			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
 	// Now we give all the forums with topics the ID their last topic.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
 			FROM `$wpdb->posts` AS `forum` INNER JOIN `$wpdb->posts` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
-			WHERE `topic`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
+			WHERE `topic`.`post_status` = '{$pps}' AND `forum`.`post_type` = '{$fpt}' AND `topic`.`post_type` = '{$tpt}'
 			GROUP BY `forum`.`ID` );" ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
@@ -872,14 +905,14 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_topic_id', 0
 			FROM `$wpdb->posts` AS `forum` LEFT JOIN `$wpdb->postmeta` AS `topic`
 			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
-			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = 'forum' );" ) ) )
+			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' );" ) ) )
 		return array( 5, sprintf( $statement, $result ) );
 
 	// After that, we give all the topics with replies the ID their last reply (again, this time for a different reason).
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 6, sprintf( $statement, $result ) );
 
@@ -888,14 +921,14 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_active_id', `ID`
 			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) )
 		return array( 7, sprintf( $statement, $result ) );
 
 	// Give topics with replies their last update time.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 8, sprintf( $statement, $result ) );
 
@@ -904,11 +937,11 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_active_time', `post_date`
 			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) )
 		return array( 9, sprintf( $statement, $result ) );
 
 	// Forums need to know what their last active item is as well. Now it gets a bit more complex to do in the database.
-	$forums = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'forum' and `post_status` != 'auto-draft';" );
+	$forums = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '{$fpt}' and `post_status` != 'auto-draft';" );
 	if ( is_wp_error( $forums ) )
 		return array( 10, sprintf( $statement, $result ) );
 
@@ -937,6 +970,11 @@ function bbp_admin_repair_freshness() {
  *
  * @uses wpdb::get_col() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses get_post_meta() To get the sticky topics
+ * @uses bbp_is_topic_super_sticky() To check if the topic is super sticky
+ * @uses bbp_get_topic_forum_id() To get the topics forum id
+ * @uses update_post_meta To update the topics sticky post meta
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_sticky() {
@@ -944,7 +982,7 @@ function bbp_admin_repair_sticky() {
 
 	$statement = __( 'Repairing the sticky topic to the parent forum relationships&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
-	$forums    = $wpdb->get_col( "SELECT ID FROM `{$wpdb->posts}` WHERE `post_type` = 'forum';" );
+	$forums    = $wpdb->get_col( "SELECT ID FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "';" );
 
 	// Bail if no forums found
 	if ( empty( $forums ) || is_wp_error( $forums ) )
@@ -992,10 +1030,7 @@ function bbp_admin_repair_sticky() {
  *
  * @since bbPress (r4104)
  *
- * @uses delete_option() to delete private and hidden forum pointers
- * @uses WP_Query() To query post IDs
- * @uses is_wp_error() To return if error occurred
- * @uses update_option() To update the private and hidden post ID pointers
+ * @uses bbp_repair_forum_visibility() To update private and hidden forum ids
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_visibility() {
@@ -1018,6 +1053,9 @@ function bbp_admin_repair_forum_visibility() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_meta() {
@@ -1030,12 +1068,17 @@ function bbp_admin_repair_forum_meta() {
 	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` = '_bbp_forum_id';" ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
+	// Post types and status
+	$fpt = bbp_get_forum_post_type();
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+
 	// Next, give all the topics with replies the ID their last reply.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
 			FROM `$wpdb->posts`
 				AS `forum`
-			WHERE `forum`.`post_type` = 'forum'
+			WHERE `forum`.`post_type` = '{$fpt}'
 			GROUP BY `forum`.`ID` );" ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -1044,7 +1087,7 @@ function bbp_admin_repair_forum_meta() {
 			( SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
 			FROM `$wpdb->posts`
 				AS `topic`
-			WHERE `topic`.`post_type` = 'topic'
+			WHERE `topic`.`post_type` = '{$tpt}'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
@@ -1056,8 +1099,8 @@ function bbp_admin_repair_forum_meta() {
 			INNER JOIN `$wpdb->posts`
 				AS `topic`
 				ON `reply`.`post_parent` = `topic`.`ID`
-			WHERE `topic`.`post_type` = 'topic'
-				AND `reply`.`post_type` = 'reply'
+			WHERE `topic`.`post_type` = '{$tpt}'
+				AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `reply`.`ID` );" ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
@@ -1072,6 +1115,8 @@ function bbp_admin_repair_forum_meta() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_meta() {
@@ -1084,12 +1129,16 @@ function bbp_admin_repair_topic_meta() {
 	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` = '_bbp_topic_id';" ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
+	// Post types and status
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+
 	// Next, give all the topics with replies the ID their last reply.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_topic_id', `topic`.`ID`
 			FROM `$wpdb->posts`
 				AS `topic`
-			WHERE `topic`.`post_type` = 'topic'
+			WHERE `topic`.`post_type` = '{$tpt}'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
@@ -1101,8 +1150,8 @@ function bbp_admin_repair_topic_meta() {
 			INNER JOIN `$wpdb->posts`
 				AS `topic`
 				ON `reply`.`post_parent` = `topic`.`ID`
-			WHERE `topic`.`post_type` = 'topic'
-				AND `reply`.`post_type` = 'reply'
+			WHERE `topic`.`post_type` = '{$tpt}'
+				AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `reply`.`ID` );" ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
@@ -1190,6 +1239,9 @@ function bbp_admin_reset() {
  *
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses wp_cache_flush() To flush the cache
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  */
 function bbp_admin_reset_handler() {
 
@@ -1215,9 +1267,14 @@ function bbp_admin_reset_handler() {
 
 	/** Posts *****************************************************************/
 
+	// Post types and status
+	$fpt = bbp_get_forum_post_type();
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+
 	$statement  = __( 'Deleting Posts&hellip; %s', 'bbpress' );
-	$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')", OBJECT_K );
-	$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('forum', 'topic', 'reply')";
+	$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')", OBJECT_K );
+	$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')";
 	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
