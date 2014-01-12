@@ -9,15 +9,13 @@
 /* Version Badge */
 
 .bbp-badge {
-	padding-top: 142px;
-	height: 50px;
-	width: 173px;
-	color: #fafafa;
-	font-weight: bold;
-	font-size: 14px;
-	text-align: center;
-	margin: 0 -5px;
-	background: url('../images/badge.png') no-repeat;
+	font: normal 150px/1 'dashicons' !important;
+	color: #000;
+	display: inline-block;
+}
+
+.bbp-badge:before {
+	content: "\f451";
 }
 
 .about-wrap .bbp-badge {
