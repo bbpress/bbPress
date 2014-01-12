@@ -67,12 +67,16 @@ class BBP_Forums_Admin {
 		add_action( 'add_meta_boxes',        array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',             array( $this, 'attributes_metabox_save' ) );
 
-		// Column headers.
+		// Forum Column headers.
 		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'column_headers' )        );
 
-		// Columns (in page row)
+		// Forum Columns (in page row)
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data'    ), 10, 2 );
 		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
+
+		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
+		add_action( 'load-edit.php',  array( $this, 'toggle_forum'        ) );
+		add_action( 'admin_notices',  array( $this, 'toggle_forum_notice' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
@@ -391,6 +395,150 @@ class BBP_Forums_Admin {
 	}
 
 	/**
+	 * Toggle forum
+	 *
+	 * Handles the admin-side opening/closing of forums
+	 *
+	 * @since bbPress (rXXXX)
+	 *
+	 * @uses bbp_get_forum() To get the forum
+	 * @uses current_user_can() To check if the user is capable of editing
+	 *                           the forum
+	 * @uses wp_die() To die if the user isn't capable or the post wasn't
+	 *                 found
+	 * @uses check_admin_referer() To verify the nonce and check referer
+	 * @uses bbp_is_forum_open() To check if the forum is open
+	 * @uses bbp_close_forum() To close the forum
+	 * @uses bbp_open_forum() To open the forum
+	 * @uses do_action() Calls 'bbp_toggle_forum_admin' with success, post
+	 *                    data, action and message
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_safe_redirect() Redirect the page to custom url
+	 */
+	public function toggle_forum() {
+
+		if ( $this->bail() ) {
+			return;
+		}
+
+		// Only proceed if GET is a forum toggle action
+		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) && !empty( $_GET['forum_id'] ) ) {
+			$action    = $_GET['action'];            // What action is taking place?
+			$forum_id  = (int) $_GET['forum_id'];    // What's the forum id?
+			$success   = false;                      // Flag
+			$post_data = array( 'ID' => $forum_id ); // Prelim array
+			$forum     = bbp_get_forum( $forum_id );
+
+			// Bail if forum is missing
+			if ( empty( $forum ) ) {
+				wp_die( __( 'The forum was not found!', 'bbpress' ) );
+			}
+
+			// What is the user doing here?
+			if ( !current_user_can( 'keep_gate', $forum->ID ) ) {
+				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
+			}
+
+			switch ( $action ) {
+				case 'bbp_toggle_forum_close' :
+					check_admin_referer( 'close-forum_' . $forum_id );
+
+					$is_open = bbp_is_forum_open( $forum_id );
+					$message = true === $is_open ? 'closed' : 'opened';
+					$success = true === $is_open ? bbp_close_forum( $forum_id ) : bbp_open_forum( $forum_id );
+
+					break;
+			}
+
+			$message = array( 'bbp_forum_toggle_notice' => $message, 'forum_id' => $forum->ID );
+
+			if ( false === $success || is_wp_error( $success ) ) {
+				$message['failed'] = '1';
+			}
+
+			// Do additional forum toggle actions (admin side)
+			do_action( 'bbp_toggle_forum_admin', $success, $post_data, $action, $message );
+
+			// Redirect back to the forum
+			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'forum_id' ) ) );
+			wp_safe_redirect( $redirect );
+
+			// For good measure
+			exit();
+		}
+	}
+
+	/**
+	 * Toggle forum notices
+	 *
+	 * Display the success/error notices from
+	 * {@link BBP_Admin::toggle_forum()}
+	 *
+	 * @since bbPress (rXXXX)
+	 *
+	 * @uses bbp_get_forum() To get the forum
+	 * @uses bbp_get_forum_title() To get the forum title of the forum
+	 * @uses esc_html() To sanitize the forum title
+	 * @uses apply_filters() Calls 'bbp_toggle_forum_notice_admin' with
+	 *                        message, forum id, notice and is it a failure
+	 */
+	public function toggle_forum_notice() {
+
+		if ( $this->bail() ) {
+			return;
+		}
+
+		// Only proceed if GET is a forum toggle action
+		if ( bbp_is_get_request() && !empty( $_GET['bbp_forum_toggle_notice'] ) && in_array( $_GET['bbp_forum_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_GET['forum_id'] ) ) {
+			$notice     = $_GET['bbp_forum_toggle_notice'];         // Which notice?
+			$forum_id   = (int) $_GET['forum_id'];                  // What's the forum id?
+			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+
+			// Bail if no forum_id or notice
+			if ( empty( $notice ) || empty( $forum_id ) ) {
+				return;
+			}
+
+			// Bail if forum is missing
+			$forum = bbp_get_forum( $forum_id );
+			if ( empty( $forum ) ) {
+				return;
+			}
+
+			$forum_title = bbp_get_forum_title( $forum->ID );
+
+			switch ( $notice ) {
+				case 'opened' :
+					if ( $message = $is_failure ) {
+						$message = sprintf( __( 'There was a problem opening the forum "%1$s".', 'bbpress' ), $forum_title );
+					} else {
+						$message = sprintf( __( 'Forum "%1$s" successfully opened.', 'bbpress' ), $forum_title );
+					}
+					break;
+
+				case 'closed' :
+					if ( $message = $is_failure ) {
+						$message = sprintf( __( 'There was a problem closing the forum "%1$s".', 'bbpress' ), $forum_title );
+					} else {
+						$message = sprintf( __( 'Forum "%1$s" successfully closed.', 'bbpress' ), $forum_title );
+					}
+					break;
+			}
+
+			// Do additional forum toggle notice filters (admin side)
+			$message = apply_filters( 'bbp_toggle_forum_notice_admin', $message, $forum->ID, $notice, $is_failure );
+
+			?>
+
+			<div id="message" class="<?php echo $is_failure === true ? 'error' : 'updated'; ?> fade">
+				<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
+			</div>
+
+			<?php
+		}
+	}
+
+	/**
 	 * Manage the column headers for the forums page
 	 *
 	 * @since bbPress (r2485)
@@ -474,20 +622,42 @@ class BBP_Forums_Admin {
 	 * Forum Row actions
 	 *
 	 * Remove the quick-edit action link and display the description under
-	 * the forum title
+	 * the forum title and add the open/close links
 	 *
 	 * @since bbPress (r2577)
 	 *
 	 * @param array $actions Actions
 	 * @param array $forum Forum object
+	 * @uses bbp_get_public_status_id() To get the published forum id's
+	 * @uses bbp_get_private_status_id() To get the private forum id's
+	 * @uses bbp_get_hidden_status_id() To get the hidden forum id's
+	 * @uses bbp_get_closed_status_id() To get the closed forum id's
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses bbp_is_forum_open() To check if a forum is open
 	 * @uses bbp_forum_content() To output forum description
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $forum ) {
 
-		if ( $this->bail() ) return $actions;
+		if ( $this->bail() ) {
+			return $actions;
+		}
 
 		unset( $actions['inline hide-if-no-js'] );
+
+		// Only show the actions if the user is capable of viewing them :)
+		if ( current_user_can( 'keep_gate', $forum->ID ) ) {
+
+			// Show the 'close' and 'open' link on published, private, hidden and closed posts only
+			if ( in_array( $forum->post_status, array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id(), bbp_get_closed_status_id() ) ) ) {
+				$close_uri = wp_nonce_url( add_query_arg( array( 'forum_id' => $forum->ID, 'action' => 'bbp_toggle_forum_close' ), remove_query_arg( array( 'bbp_forum_toggle_notice', 'forum_id', 'failed', 'super' ) ) ), 'close-forum_' . $forum->ID );
+				if ( bbp_is_forum_open( $forum->ID ) ) {
+					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Close this forum', 'bbpress' ) . '">' . _x( 'Close', 'Close a Forum', 'bbpress' ) . '</a>';
+				} else {
+					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Open this forum',  'bbpress' ) . '">' . _x( 'Open',  'Open a Forum',  'bbpress' ) . '</a>';
+				}
+			}
+		}
 
 		// simple hack to show the forum description under the title
 		bbp_forum_content( $forum->ID );
