@@ -431,9 +431,9 @@ final class bbPress {
 	}
 
 	/**
-	 * Load the translation file for current language. Checks the languages
-	 * folder inside the bbPress plugin first, and then the default WordPress
-	 * languages folder.
+	 * Load the translation file for current language. Checks the deprecated
+	 * languages folder inside the bbPress plugin first, and then the default
+	 * WordPress languages folder.
 	 *
 	 * Note that custom translation files inside the bbPress plugin folder
 	 * will be removed on bbPress updates. If you're creating custom
