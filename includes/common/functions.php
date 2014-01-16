@@ -987,6 +987,12 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * Gets new post's ID and check if there are subscribed users to that topic, and
  * if there are, send notifications
  *
+ * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
+ * with everyone BCC'd. This may have negative repercussions for email services
+ * that limit the number of addresses in a BCC field (often to around 500.) In
+ * those cases, we recommend unhooking this function and creating your own
+ * custom emailer script.
+ *
  * @since bbPress (r2668)
  *
  * @param int $reply_id ID of the newly made reply
@@ -1017,8 +1023,9 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
 
 	// Bail if subscriptions are turned off
-	if ( !bbp_is_subscriptions_active() )
+	if ( !bbp_is_subscriptions_active() ) {
 		return false;
+	}
 
 	/** Validation ************************************************************/
 
@@ -1026,52 +1033,39 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	/** Reply *****************************************************************/
-
-	// Bail if reply is not published
-	if ( !bbp_is_reply_published( $reply_id ) )
-		return false;
-
 	/** Topic *****************************************************************/
 
 	// Bail if topic is not published
-	if ( !bbp_is_topic_published( $topic_id ) )
+	if ( !bbp_is_topic_published( $topic_id ) ) {
 		return false;
+	}
 
-	/** User ******************************************************************/
+	/** Reply *****************************************************************/
 
-	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_topic_subscribers( $topic_id );
-	if ( empty( $user_ids ) )
+	// Bail if reply is not published
+	if ( !bbp_is_reply_published( $reply_id ) ) {
 		return false;
+	}
 
 	// Poster name
 	$reply_author_name = bbp_get_reply_author_display_name( $reply_id );
 
 	/** Mail ******************************************************************/
 
-	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
-
 	// Remove filters from reply content and topic title to prevent content
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
 	remove_all_filters( 'bbp_get_reply_content' );
 	remove_all_filters( 'bbp_get_topic_title'   );
 
-	// Strip tags from text
+	// Strip tags from text and setup mail data
 	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
 	$reply_content = strip_tags( bbp_get_reply_content( $reply_id ) );
 	$reply_url     = bbp_get_reply_url( $reply_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$do_not_reply  = '<noreply@' . ltrim( get_home_url(), '^(http|https)://' ) . '>';
 
-	// Loop through users
-	foreach ( (array) $user_ids as $user_id ) {
-
-		// Don't send notifications to the person who made the post
-		if ( !empty( $reply_author ) && (int) $user_id === (int) $reply_author )
-			continue;
-
-		// For plugins to filter messages per reply/topic/user
-		$message = sprintf( __( '%1$s wrote:
+	// For plugins to filter messages per reply/topic/user
+	$message = sprintf( __( '%1$s wrote:
 
 %2$s
 
@@ -1083,29 +1077,57 @@ You are receiving this email because you subscribed to a forum topic.
 
 Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
-			$reply_author_name,
-			$reply_content,
-			$reply_url
-		);
+		$reply_author_name,
+		$reply_content,
+		$reply_url
+	);
 
-		$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id, $user_id );
-		if ( empty( $message ) )
-			continue;
-
-		// For plugins to filter titles per reply/topic/user
-		$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $reply_id, $topic_id, $user_id );
-		if ( empty( $subject ) )
-			continue;
-
-		// Custom headers
-		$headers = apply_filters( 'bbp_subscription_mail_headers', array() );
-
-		// Get user data of this user
-		$user = get_userdata( $user_id );
-
-		// Send notification email
-		wp_mail( $user->user_email, $subject, $message, $headers );
+	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
+	if ( empty( $message ) ) {
+		return;
 	}
+
+	// For plugins to filter titles per reply/topic/user
+	$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $reply_id, $topic_id );
+	if ( empty( $subject ) ) {
+		return;
+	}
+
+	/** Users *****************************************************************/
+
+	// Array to hold BCC's
+	$headers = array();
+
+	// Setup the From header
+	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' ' . $do_not_reply;
+
+	// Get topic subscribers and bail if empty
+	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
+	// Loop through users
+	foreach ( (array) $user_ids as $user_id ) {
+
+		// Don't send notifications to the person who made the post
+		if ( !empty( $reply_author ) && (int) $user_id === (int) $reply_author ) {
+			continue;
+		}
+
+		// Get email address of subscribed user
+		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
+	}
+
+	/** Send it ***************************************************************/
+
+	// Custom headers
+	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+
+	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
+
+	// Send notification email
+	wp_mail( $do_not_reply, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
@@ -1115,8 +1137,14 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 /**
  * Sends notification emails for new topics to subscribed forums
  *
- * Gets new post's ID and check if there are subscribed users to that topic, and
+ * Gets new post's ID and check if there are subscribed users to that forum, and
  * if there are, send notifications
+ *
+ * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
+ * with everyone BCC'd. This may have negative repercussions for email services
+ * that limit the number of addresses in a BCC field (often to around 500.) In
+ * those cases, we recommend unhooking this function and creating your own
+ * custom emailer script.
  *
  * @since bbPress (r5156)
  *
@@ -1143,8 +1171,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $topic_author = 0 ) {
 
 	// Bail if subscriptions are turned off
-	if ( !bbp_is_subscriptions_active() )
+	if ( !bbp_is_subscriptions_active() ) {
 		return false;
+	}
 
 	/** Validation ************************************************************/
 
@@ -1154,43 +1183,29 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	/** Topic *****************************************************************/
 
 	// Bail if topic is not published
-	if ( ! bbp_is_topic_published( $topic_id ) )
+	if ( ! bbp_is_topic_published( $topic_id ) ) {
 		return false;
-
-	/** User ******************************************************************/
-
-	// Get forum subscribers and bail if empty
-	$user_ids = bbp_get_forum_subscribers( $forum_id );
-	if ( empty( $user_ids ) )
-		return false;
+	}
 
 	// Poster name
 	$topic_author_name = bbp_get_topic_author_display_name( $topic_id );
 
 	/** Mail ******************************************************************/
 
-	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
-
 	// Remove filters from reply content and topic title to prevent content
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
 	remove_all_filters( 'bbp_get_topic_content' );
 	remove_all_filters( 'bbp_get_topic_title'   );
 
-	// Strip tags from text
+	// Strip tags from text and setup mail data
 	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
 	$topic_content = strip_tags( bbp_get_topic_content( $topic_id ) );
 	$topic_url     = get_permalink( $topic_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$do_not_reply  = '<noreply@' . ltrim( get_home_url(), '^(http|https)://' ) . '>';
 
-	// Loop through users
-	foreach ( (array) $user_ids as $user_id ) {
-
-		// Don't send notifications to the person who made the post
-		if ( !empty( $topic_author ) && (int) $user_id === (int) $topic_author )
-			continue;
-
-		// For plugins to filter messages per reply/topic/user
-		$message = sprintf( __( '%1$s wrote:
+	// For plugins to filter messages per reply/topic/user
+	$message = sprintf( __( '%1$s wrote:
 
 %2$s
 
@@ -1202,28 +1217,57 @@ You are receiving this email because you subscribed to a forum.
 
 Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
-			$topic_author_name,
-			$topic_content,
-			$topic_url
-		);
-		$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
-		if ( empty( $message ) )
-			continue;
+		$topic_author_name,
+		$topic_content,
+		$topic_url
+	);
 
-		// For plugins to filter titles per reply/topic/user
-		$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
-		if ( empty( $subject ) )
-			continue;
-
-		// Custom headers
-		$headers = apply_filters( 'bbp_forum_subscription_mail_headers', array() );
-
-		// Get user data of this user
-		$user = get_userdata( $user_id );
-
-		// Send notification email
-		wp_mail( $user->user_email, $subject, $message, $headers );
+	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
+	if ( empty( $message ) ) {
+		return;
 	}
+
+	// For plugins to filter titles per reply/topic/user
+	$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
+	if ( empty( $subject ) ) {
+		return;
+	}
+
+	/** User ******************************************************************/
+
+	// Array to hold BCC's
+	$headers = array();
+
+	// Setup the From header
+	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' ' . $do_not_reply;
+
+	// Get topic subscribers and bail if empty
+	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
+	// Loop through users
+	foreach ( (array) $user_ids as $user_id ) {
+
+		// Don't send notifications to the person who made the post
+		if ( !empty( $topic_author ) && (int) $user_id === (int) $topic_author ) {
+			continue;
+		}
+
+		// Get email address of subscribed user
+		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
+	}
+
+	/** Send it ***************************************************************/
+
+	// Custom headers
+	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+
+	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
+
+	// Send notification email
+	wp_mail( $do_not_reply, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
