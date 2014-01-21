@@ -168,7 +168,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 		}
 
  		// Make path to file relative to site URL
-		$located = str_replace( $content_dir, WP_CONTENT_URL, $located );
+		$located = str_replace( $content_dir, content_url(), $located );
 
 		// Enqueue the style
 		wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
@@ -236,7 +236,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 		}
 
  		// Make path to file relative to site URL
-		$located = str_replace( $content_dir, WP_CONTENT_URL, $located );
+		$located = str_replace( $content_dir, content_url(), $located );
 
 		// Enqueue the style
 		wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
