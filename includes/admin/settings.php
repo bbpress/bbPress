@@ -1244,7 +1244,6 @@ function bbp_admin_setting_callback_akismet() {
  *
  * @since bbPress (r2643)
  *
- * @uses screen_icon() To display the screen icon
  * @uses settings_fields() To output the hidden fields for the form
  * @uses do_settings_sections() To output the settings sections
  */
@@ -1252,8 +1251,6 @@ function bbp_admin_settings() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon(); ?>
 
 		<h2><?php esc_html_e( 'Forums Settings', 'bbpress' ) ?></h2>
 
@@ -1495,7 +1492,6 @@ function bbp_converter_setting_callback_convert_users() {
 /**
  * The main settings page
  *
- * @uses screen_icon() To display the screen icon
  * @uses settings_fields() To output the hidden fields for the form
  * @uses do_settings_sections() To output the settings sections
  */
@@ -1503,8 +1499,6 @@ function bbp_converter_settings() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Import Forums', 'bbpress' ) ); ?></h2>
 

@@ -21,15 +21,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses wp_cache_flush() To flush the cache
  * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses screen_icon() To display the screen icon
  * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_repair() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Repair Forums', 'bbpress' ) ); ?></h2>
 
@@ -1168,15 +1165,12 @@ function bbp_admin_repair_topic_meta() {
  *
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses screen_icon() To display the screen icon
  * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_reset() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Reset Forums', 'bbpress' ) ); ?></h2>
 		<p><?php esc_html_e( 'Revert your forums back to a brand new installation. This process cannot be undone.', 'bbpress' ); ?></p>
