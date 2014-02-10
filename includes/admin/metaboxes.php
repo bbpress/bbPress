@@ -17,7 +17,7 @@
  * @param array $elements
  * @return array
  */
-function bbp_dashboard_at_a_glance( $elements = array() ) {
+function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Get the statistics
 	$r = bbp_get_statistics();
