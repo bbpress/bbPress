@@ -28,6 +28,29 @@
 		left: 0;
 	}
 
+/* Dashicons */
+
+#dashboard_right_now a.bbp-glance-forums:before,
+#adminmenu #menu-posts-forum .wp-menu-image:before {
+	content: "\f449";
+}
+
+#dashboard_right_now a.bbp-glance-topics:before,
+#adminmenu #menu-posts-topic .wp-menu-image:before {
+	content: "\f450";
+}
+
+#dashboard_right_now a.bbp-glance-replies:before,
+#adminmenu #menu-posts-reply .wp-menu-image:before {
+	content: "\f451";
+}
+
+#dashboard_right_now a.bbp-glance-topic-tags:before {
+	content: '\f323';
+}
+
+/* Deprecated Dashboard Metabox */
+
 #bbp-dashboard-right-now p.sub,
 #bbp-dashboard-right-now .table,
 #bbp-dashboard-right-now .versions {
@@ -152,24 +175,3 @@
 		float: left;
 		clear: left;
 	}
-
-/* Dashicons */
-#adminmenu #menu-posts-forum .wp-menu-image:before {
-	content: "\f449";
-}
-
-#adminmenu #menu-posts-topic .wp-menu-image:before {
-	content: "\f450";
-}
-
-#adminmenu #menu-posts-reply .wp-menu-image:before {
-	content: "\f451";
-}
-
-/* Ratio 2x */
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-	.bbp-badge {
-		background-image: url('../images/badge-2x.png');
-		background-size: 173px 194px;
-	}
-}

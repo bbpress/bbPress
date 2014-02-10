@@ -10,11 +10,57 @@
 /** Dashboard *****************************************************************/
 
 /**
+ * Filter the Dashboard "at a glance" items and append bbPress elements to it.
+ *
+ * @since bbPress (r5268)
+ *
+ * @param array $elements
+ * @return array
+ */
+function bbp_dashboard_at_a_glance( $elements = array() ) {
+
+	// Get the statistics
+	$r = bbp_get_statistics();
+
+	// Forums
+	if ( current_user_can( 'publish_forums' ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
+		$text       = sprintf( _n( '%d Forum', '%d Forums', $r['forum_count'], 'bbpress' ), $r['forum_count'] );
+		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>';
+	}
+	
+	// Topics
+	if ( current_user_can( 'publish_topics' ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
+		$text       = sprintf( _n( '%d Topic', '%d Topics', $r['topic_count'], 'bbpress' ), $r['topic_count'] );
+		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>';
+	}
+
+	// Replies
+	if ( current_user_can( 'publish_replies' ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );;
+		$text       = sprintf( _n( '%d Reply', '%d Replies', $r['reply_count'], 'bbpress' ), $r['reply_count'] );
+		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>';
+	}
+
+	// Topic Tags
+	if ( bbp_allow_topic_tags() && current_user_can( 'manage_topic_tags' ) ) {
+		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+		$text       = sprintf( _n( '%d Topic Tags', '%d Topic Tags', $r['topic_tag_count'], 'bbpress' ), $r['topic_tag_count'] );
+		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>';
+	}
+
+	// Filter and return
+	return apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
+}
+
+/**
  * bbPress Dashboard Right Now Widget
  *
  * Adds a dashboard widget with forum statistics
  *
  * @since bbPress (r2770)
+ * @deprecated bbPress (r5268)
  *
  * @uses bbp_get_version() To get the current bbPress version
  * @uses bbp_get_statistics() To get the forum statistics
