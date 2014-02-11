@@ -11,8 +11,6 @@ pids
 logs
 results
 
-tests/phpunit/data/.trac-ticket-cache*
-
 node_modules
 npm-debug.log
 
