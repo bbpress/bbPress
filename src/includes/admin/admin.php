@@ -546,8 +546,13 @@ class BBP_Admin {
 	 * @since bbPress (r4260)
 	 */
 	public function enqueue_scripts() {
+
+		// Enqueue suggest for forum/topic/reply autocmopletes
 		wp_enqueue_script( 'suggest' );
-		
+
+		// Minified
+		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
 		// Get the version to use for JS
 		$version = bbp_get_version();
 
@@ -558,15 +563,15 @@ class BBP_Admin {
 				case bbp_get_topic_post_type() :
 
 					// Enqueue the common JS
-					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common.js', array( 'jquery' ), $version );
+					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common' . $suffix . '.js', array( 'jquery' ), $version );
 
 					// Topics admin
 					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'topics.js', array( 'jquery' ), $version );
+						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'topics' . $suffix . '.js', array( 'jquery' ), $version );
 
 					// Replies admin
 					} elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'replies.js', array( 'jquery' ), $version );
+						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'replies' . $suffix . '.js', array( 'jquery' ), $version );
 					}
 
 					break;
@@ -613,14 +618,14 @@ class BBP_Admin {
 	public function register_admin_style () {
 
 		// RTL and/or minified
-		$suffix = is_rtl() ? '-rtl' : '';
-		//$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix  = is_rtl() ? '-rtl' : '';
+		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		// Mint
 		wp_admin_css_color(
 			'bbp-mint',
-			esc_html_x( 'Mint',      'admin color scheme', 'bbpress' ),
-			$this->styles_url . 'mint' . $suffix . '.css',
+			esc_html_x( 'Mint', 'admin color scheme', 'bbpress' ),
+			$this->styles_url . 'mint/colors' . $suffix . '.css',
 			array( '#4f6d59', '#33834e', '#5FB37C', '#81c498' ),
 			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
 		);
@@ -629,7 +634,7 @@ class BBP_Admin {
 		wp_admin_css_color(
 			'bbp-evergreen',
 			esc_html_x( 'Evergreen', 'admin color scheme', 'bbpress' ),
-			$this->styles_url . 'evergreen' . $suffix . '.css',
+			$this->styles_url . 'evergreen/colors' . $suffix . '.css',
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
 			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
 		);

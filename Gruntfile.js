@@ -5,17 +5,19 @@ module.exports = function( grunt ) {
 	BUILD_DIR = 'build/',
 
 	BBP_RTL_CSS = [
-		'admin/css/*-rtl.css',
+		'includes/admin/css/*-rtl.css',
+		'includes/admin/styles/*-rtl.css',
 		'templates/default/css/*-rtl.css'
 	],
 
 	BBP_LTR_CSS = [
-		'admin/css/*.css',
+		'includes/admin/css/*.css',
+		'includes/admin/styles/*.css',
 		'templates/default/css/*.css'
 	],
 
 	BBP_JS = [
-		'admin/js/*.js',
+		'includes/admin/js/*.js',
 		'templates/default/js/*.js'
 	],
 
@@ -82,6 +84,18 @@ module.exports = function( grunt ) {
 				src: []
 			}
 		},
+		sass: {
+			colors: {
+				expand: true,
+				cwd: SOURCE_DIR,
+				dest: BUILD_DIR,
+				ext: '.css',
+				src: ['includes/admin/styles/*/colors.scss'],
+				options: {
+					outputStyle: 'expanded'
+				}
+			}
+		},
 		cssmin: {
 			ltr: {
 				cwd: SOURCE_DIR,
@@ -98,6 +112,15 @@ module.exports = function( grunt ) {
 				ext: '.min.css',
 				src: BBP_RTL_CSS,
 				options: { banner: '/*! https://wordpress.org/plugins/bbpress/ */' }
+			},
+			colors: {
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				expand: true,
+				ext: '.min.css',
+				src: [
+					'includes/admin/styles/*/*.css'
+				]
 			}
 		},
 		cssjanus: {
@@ -108,6 +131,20 @@ module.exports = function( grunt ) {
 				ext: '-rtl.css',
 				src: BBP_LTR_CSS,
 				options: { generateExactDuplicates: true }
+			},
+			colors: {
+				options: {
+					processContent: function( src ) {
+						return src.replace( /([^/]+)\.css/gi, '$1-rtl.css' );
+					}
+				},
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				ext: '-rtl.css',
+				src: [
+					'includes/admin/styles/*/colors.css'
+				]
 			},
 			dynamic: {
 				expand: true,
@@ -202,6 +239,10 @@ module.exports = function( grunt ) {
 					spawn: false
 				}
 			},
+			colors: {
+				files: [SOURCE_DIR + 'includes/admin/styles/**'],
+				tasks: ['sass:colors']
+			},
 			rtl: {
 				files: BBP_LTR_CSS.map( function( path ) {
 					return SOURCE_DIR + path;
@@ -215,10 +256,14 @@ module.exports = function( grunt ) {
 		}
 	});
 
+	// Register tasks.
+
+	// Color schemes task.
+	grunt.registerTask('colors', ['sass:colors']);
 
 	// Build tasks.
-	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'phpunit:all' ] );
+	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'phpunit:all' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
@@ -233,7 +278,6 @@ module.exports = function( grunt ) {
 
 	// Default task.
 	grunt.registerTask( 'default', [ 'build' ] );
-
 
 	// Add a listener to the watch task.
 	//
