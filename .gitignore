@@ -1,0 +1,20 @@
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+
+tests/phpunit/data/.trac-ticket-cache*
+
+node_modules
+npm-debug.log
+
+# The WordPress output directory.
+build
