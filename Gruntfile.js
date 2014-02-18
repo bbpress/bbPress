@@ -263,7 +263,7 @@ module.exports = function( grunt ) {
 
 	// Build tasks.
 	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'phpunit:all' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'phpunit' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
