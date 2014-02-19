@@ -126,25 +126,17 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function enqueue_styles() {
 
-		// Setup styles array
-		$styles = array();
+		// RTL and/or minified
+		$suffix  = is_rtl() ? '-rtl' : '';
+		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		// LTR
-		$styles['bbp-default'] = array(
-			'file'         => 'css/bbpress.css',
-			'dependencies' => array()
-		);
-
-		// RTL helpers
-		if ( is_rtl() ) {
-			$styles['bbp-default-rtl'] = array(
-				'file'         => 'css/bbpress-rtl.css',
-				'dependencies' => array( 'bbp-default' )
-			);
-		}
-
-		// Filter the scripts
-		$styles = apply_filters( 'bbp_default_styles', $styles );
+		// Get and filter the bbp-default style
+		$styles = apply_filters( 'bbp_default_styles', array(
+			'bbp-default' => array(
+				'file'         => 'css/bbpress' . $suffix . '.css',
+				'dependencies' => array()
+			)
+		) );
 
 		// Enqueue the styles
 		foreach ( $styles as $handle => $attributes ) {

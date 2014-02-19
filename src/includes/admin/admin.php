@@ -585,7 +585,13 @@ class BBP_Admin {
 	 * @since bbPress (r5224)
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( 'bbp-admin-css', $this->css_url . 'admin.css', array( 'dashicons' ), bbp_get_version() );
+
+		// RTL and/or minified
+		$suffix  = is_rtl() ? '-rtl' : '';
+		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		// Enqueue admin CSS with dashicons dependency
+		wp_enqueue_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), bbp_get_version() );
 	}
 
 	/**
