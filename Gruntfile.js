@@ -213,6 +213,32 @@ module.exports = function( grunt ) {
 				args: ['-c', 'tests/phpunit/multisite.xml']
 			}
 		},
+		pot:{
+			options: {
+				text_domain: 'bbpress',
+				package_name: 'bbpress',
+				dest: BUILD_DIR,
+				keywords: [
+					'__',
+					'_e',
+					'_x',
+					'_n',
+					'_ex',
+					'_nx',
+					'esc_attr__',
+					'esc_attr_e',
+					'esc_attr_x',
+					'esc_html__',
+					'esc_html_e',
+					'esc_html_x',
+					'_nx_noop'
+				]
+			},
+			files: {
+				src:  SOURCE_DIR + '**/*.php' ,
+				expand: true
+			}
+		},
 		jsvalidate:{
 			options:{
 				globals: {},
@@ -262,8 +288,8 @@ module.exports = function( grunt ) {
 	grunt.registerTask('colors', ['sass:colors']);
 
 	// Build tasks.
-	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'phpunit' ] );
+	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'pot' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'pot', 'phpunit' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
