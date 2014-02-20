@@ -231,11 +231,38 @@ module.exports = function( grunt ) {
 					'esc_html__',
 					'esc_html_e',
 					'esc_html_x',
+					'_n_noop',
 					'_nx_noop'
 				]
 			},
 			files: {
-				src:  SOURCE_DIR + '**/*.php' ,
+				src: SOURCE_DIR + '**/*.php',
+				expand: true
+			}
+		},
+		checktextdomain: {
+			options: {
+				text_domain: 'bbpress',
+				correct_domain: false,
+				keywords: [
+				'__:1,2d',
+				'_e:1,2d',
+				'_x:1,2c,3d',
+				'_n:1,2,4d',
+				'_ex:1,2c,3d',
+				'_nx:1,2,4c,5d',
+				'esc_attr__:1,2d',
+				'esc_attr_e:1,2d',
+				'esc_attr_x:1,2c,3d',
+				'esc_html__:1,2d',
+				'esc_html_e:1,2d',
+				'esc_html_x:1,2c,3d',
+				'_n_noop:1,2,3d',
+				'_nx_noop:1,2,3c,4d'
+				]
+			},
+			files: {
+				src: SOURCE_DIR + '**/*.php',
 				expand: true
 			}
 		},
@@ -289,7 +316,7 @@ module.exports = function( grunt ) {
 
 	// Build tasks.
 	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'pot' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'pot', 'phpunit' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'checktextdomain', 'pot', 'phpunit' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
@@ -300,7 +327,7 @@ module.exports = function( grunt ) {
 		}, this.async() );
 	});
 
-	grunt.registerTask( 'test', 'Runs all unit tasks.', [ 'phpunit' ] );
+	grunt.registerTask( 'jstest', 'Runs all javascript tasks.', [ 'jsvalidate', 'jshint' ] );
 
 	// Default task.
 	grunt.registerTask( 'default', [ 'build' ] );
