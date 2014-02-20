@@ -2338,7 +2338,7 @@ function bbp_topic_pagination_count() {
 
 			// Adjust for topic
 			$threads--;
-			$retstr  = sprintf( _n( 'Viewing %1$s reply thread', 'Viewing %1$s reply threads', $threads, 'bbbpress' ), bbp_number_format( $threads ) );
+			$retstr  = sprintf( _n( 'Viewing %1$s reply thread', 'Viewing %1$s reply threads', $threads, 'bbpress' ), bbp_number_format( $threads ) );
 
 		// We are not including the lead topic
 		} elseif ( bbp_show_lead_topic() ) {
