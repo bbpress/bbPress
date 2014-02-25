@@ -5,15 +5,15 @@ module.exports = function( grunt ) {
 	BUILD_DIR = 'build/',
 
 	BBP_RTL_CSS = [
-		'includes/admin/css/*-rtl.css',
-		'includes/admin/styles/*-rtl.css',
-		'templates/default/css/*-rtl.css'
+		'includes/admin/css/admin-rtl.css',
+		'includes/admin/styles/*/colors-rtl.css',
+		'templates/default/css/bbpress-rtl.css'
 	],
 
 	BBP_LTR_CSS = [
-		'includes/admin/css/*.css',
-		'includes/admin/styles/*.css',
-		'templates/default/css/*.css'
+		'includes/admin/css/admin.css',
+		'includes/admin/styles/*/colors.css',
+		'templates/default/css/bbpress.css'
 	],
 
 	BBP_JS = [
@@ -98,7 +98,7 @@ module.exports = function( grunt ) {
 		},
 		cssmin: {
 			ltr: {
-				cwd: SOURCE_DIR,
+				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
 				expand: true,
 				ext: '.min.css',
@@ -112,43 +112,20 @@ module.exports = function( grunt ) {
 				ext: '.min.css',
 				src: BBP_RTL_CSS,
 				options: { banner: '/*! https://wordpress.org/plugins/bbpress/ */' }
-			},
-			colors: {
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				expand: true,
-				ext: '.min.css',
-				src: [
-					'includes/admin/styles/*/*.css'
-				]
 			}
 		},
 		cssjanus: {
 			core: {
 				expand: true,
-				cwd: SOURCE_DIR,
+				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
 				ext: '-rtl.css',
 				src: BBP_LTR_CSS,
 				options: { generateExactDuplicates: true }
 			},
-			colors: {
-				options: {
-					processContent: function( src ) {
-						return src.replace( /([^/]+)\.css/gi, '$1-rtl.css' );
-					}
-				},
-				expand: true,
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				ext: '-rtl.css',
-				src: [
-					'includes/admin/styles/*/colors.css'
-				]
-			},
 			dynamic: {
 				expand: true,
-				cwd: SOURCE_DIR,
+				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
 				ext: '-rtl.css',
 				src: []
@@ -293,14 +270,14 @@ module.exports = function( grunt ) {
 				}
 			},
 			colors: {
-				files: [SOURCE_DIR + 'includes/admin/styles/**'],
-				tasks: ['sass:colors']
+				files: [SOURCE_DIR + 'includes/admin/styles/*/colors.scss'],
+				tasks: ['sass:colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl']
 			},
 			rtl: {
 				files: BBP_LTR_CSS.map( function( path ) {
 					return SOURCE_DIR + path;
 				} ),
-				tasks: [ 'cssjanus:dynamic' ],
+				tasks: [ 'cssjanus:dynamic', 'cssmin:ltr', 'cssmin:rtl' ],
 				options: {
 					interval: 2000,
 					spawn: false
@@ -315,8 +292,8 @@ module.exports = function( grunt ) {
 	grunt.registerTask('colors', ['sass:colors']);
 
 	// Build tasks.
-	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'pot' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'colors', 'cssjanus:colors', 'cssmin:colors','uglify:core', 'jsvalidate:build', 'checktextdomain', 'pot', 'phpunit' ] );
+	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'pot' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'checktextdomain', 'pot', 'phpunit' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
