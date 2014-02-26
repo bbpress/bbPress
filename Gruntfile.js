@@ -190,31 +190,15 @@ module.exports = function( grunt ) {
 				args: ['-c', 'tests/phpunit/multisite.xml']
 			}
 		},
-		pot:{
-			options: {
-				text_domain: 'bbpress',
-				package_name: 'bbpress',
-				dest: BUILD_DIR,
-				keywords: [
-					'__',
-					'_e',
-					'_x',
-					'_n',
-					'_ex',
-					'_nx',
-					'esc_attr__',
-					'esc_attr_e',
-					'esc_attr_x',
-					'esc_html__',
-					'esc_html_e',
-					'esc_html_x',
-					'_n_noop',
-					'_nx_noop'
-				]
-			},
-			files: {
-				src: SOURCE_DIR + '**/*.php',
-				expand: true
+		makepot: {
+			target: {
+				options: {
+					cwd: BUILD_DIR,
+					domainPath: '.',
+					mainFile: 'bbpress.php',
+					potFilename: 'bbpress.pot',
+					type: 'wp-plugin'
+				}
 			}
 		},
 		checktextdomain: {
@@ -292,8 +276,8 @@ module.exports = function( grunt ) {
 	grunt.registerTask('colors', ['sass:colors']);
 
 	// Build tasks.
-	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'pot' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'checktextdomain', 'pot', 'phpunit' ] );
+	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'checktextdomain', 'makepot', 'phpunit' ] );
 
 	// Testing tasks.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
