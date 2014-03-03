@@ -744,6 +744,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
 					'meta_key'            => '_bbp_last_active_time',
+					'meta_type'           => 'DATETIME',
 					'orderby'             => 'meta_value',
 					'order'               => 'DESC',
 				);
@@ -759,7 +760,8 @@ class BBP_Topics_Widget extends WP_Widget {
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
 					'meta_key'            => '_bbp_reply_count',
-					'orderby'             => 'meta_value',
+					'meta_type'           => 'NUMERIC',
+					'orderby'             => 'meta_value_num',
 					'order'               => 'DESC'
 				);
 				break;
