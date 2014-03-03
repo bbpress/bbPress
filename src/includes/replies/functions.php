@@ -1389,6 +1389,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	$children = get_posts( array(
 		'post_type'  => bbp_get_reply_post_type(),
 		'meta_key'   => '_bbp_reply_to',
+		'meta_type'  => 'NUMERIC',
 		'meta_value' => $move_reply->ID,
 	) );
 	foreach ( $children as $child )
