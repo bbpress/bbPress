@@ -406,6 +406,7 @@ function bbp_admin_repair_group_forum_relationship() {
 	$posts = get_posts( array(
 		'post_type'   => bbp_get_forum_post_type(),
 		'meta_key'    => '_bbp_old_forum_id',
+		'meta_type'   => 'NUMERIC',
 		'meta_value'  => $old_default_forum_id,
 		'numberposts' => 1
 	) );
