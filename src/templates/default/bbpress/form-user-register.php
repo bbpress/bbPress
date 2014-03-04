@@ -13,10 +13,11 @@
 	<fieldset class="bbp-form">
 		<legend><?php _e( 'Create an Account', 'bbpress' ); ?></legend>
 
+		<?php do_action( 'bbp_template_before_register_fields' ); ?>
+
 		<div class="bbp-template-notice">
 			<p><?php _e( 'Your username must be unique, and cannot be changed later.', 'bbpress' ) ?></p>
 			<p><?php _e( 'We use your email address to email you a secure password and verify your account.', 'bbpress' ) ?></p>
-
 		</div>
 
 		<div class="bbp-username">
@@ -38,5 +39,8 @@
 			<?php bbp_user_register_fields(); ?>
 
 		</div>
+
+		<?php do_action( 'bbp_template_after_register_fields' ); ?>
+
 	</fieldset>
 </form>
