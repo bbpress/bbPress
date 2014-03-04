@@ -27,7 +27,7 @@ get_header(); ?>
 
 					<?php bbp_set_query_name( 'bbp_no_replies' ); ?>
 
-					<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'meta_value' => '1', 'meta_compare' => '<', 'orderby' => 'date', 'show_stickies' => false ) ) ) : ?>
+					<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'meta_value' => '1', 'meta_type' => 'NUMERIC', 'meta_compare' => '<', 'orderby' => 'date', 'show_stickies' => false ) ) ) : ?>
 
 						<?php bbp_get_template_part( 'pagination', 'topics'    ); ?>
 
