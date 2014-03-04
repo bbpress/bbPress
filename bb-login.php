@@ -65,8 +65,12 @@ if ( bb_is_user_logged_in() ) {
 	if ( isset( $_GET['action'] ) && 'logout' === $_GET['action'] )
 		bb_logout();
 
-	bb_safe_redirect( $re );
-	exit;
+	// If POST, assume we're trying to log in. We may be logged in
+	// simply due to the 1-hour grace period afforded to POST requests.
+	if ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+		bb_safe_redirect( $re );
+		exit;
+	}
 }
 
 /** Handle login **************************************************************/
