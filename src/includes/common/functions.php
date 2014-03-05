@@ -1761,7 +1761,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 							$meta_query = array( array(
 								'key'     => '_bbp_forum_id',
 								'value'   => bbp_get_forum_id(),
-								'type'    => 'numeric',
+								'type'    => 'NUMERIC',
 								'compare' => '='
 							) );
 						}
@@ -1805,8 +1805,9 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						} else {
 
 							// Exclude private/hidden forums if not looking at single
-							if ( empty( $select_query_vars ) )
+							if ( empty( $select_query_vars ) ) {
 								$meta_query = array( bbp_exclude_forum_ids( 'meta_query' ) );
+							}
 
 							// The query
 							$the_query = array(

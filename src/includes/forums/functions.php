@@ -1749,7 +1749,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 					$retval = array(
 						'key'     => '_bbp_forum_id',
 						'value'   => implode( ',', $forum_ids ),
-						'type'    => 'numeric',
+						'type'    => 'NUMERIC',
 						'compare' => ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!='
 					);
 					break;
