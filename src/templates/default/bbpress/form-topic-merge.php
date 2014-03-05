@@ -45,6 +45,7 @@
 										bbp_dropdown( array(
 											'post_type'   => bbp_get_topic_post_type(),
 											'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
+											'post_status' => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
 											'selected'    => -1,
 											'exclude'     => bbp_get_topic_id(),
 											'select_id'   => 'bbp_destination_topic'
