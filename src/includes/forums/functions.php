@@ -1847,10 +1847,9 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 		// Add the statuses
 		$posts_query->set( 'post_status', array_unique( array_filter( $post_stati ) ) );
-	}
 
-	// Topics Or Replies
-	if ( array_intersect( array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), $post_types ) ) {
+	// Some other post type besides bbPress's Forums, Topics, or Replies
+	} elseif ( ! array_diff( $post_types, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) ) {
 
 		// Get forums to exclude
 		$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
