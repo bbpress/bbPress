@@ -157,56 +157,6 @@ function bbp_current_author_ua() {
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
 
-/** Post Counts ***************************************************************/
-
-/**
- * Return the raw database count of topics by a user
- *
- * @since bbPress (r3633)
- * @global WPDB $wpdb
- * @uses bbp_get_user_id()
- * @uses get_posts_by_author_sql()
- * @uses bbp_get_topic_post_type()
- * @uses apply_filters()
- * @return int Raw DB count of topics
- */
-function bbp_get_user_topic_count_raw( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) )
-		return false;
-
-	global $wpdb;
-
-	$where = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
-	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
-
-	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
-}
-
-/**
- * Return the raw database count of replies by a user
- *
- * @since bbPress (r3633)
- * @global WPDB $wpdb
- * @uses bbp_get_user_id()
- * @uses get_posts_by_author_sql()
- * @uses bbp_get_reply_post_type()
- * @uses apply_filters()
- * @return int Raw DB count of replies
- */
-function bbp_get_user_reply_count_raw( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) )
-		return false;
-
-	global $wpdb;
-
-	$where = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
-	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
-
-	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
-}
-
 /** Favorites *****************************************************************/
 
 /**
@@ -1532,7 +1482,180 @@ function bbp_get_total_users() {
 	return apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
 }
 
-/** Premissions ***************************************************************/
+/** Post Counts ***************************************************************/
+
+/**
+ * Return the raw database count of topics by a user
+ *
+ * @since bbPress (r3633)
+ * @global WPDB $wpdb
+ * @uses bbp_get_user_id()
+ * @uses get_posts_by_author_sql()
+ * @uses bbp_get_topic_post_type()
+ * @uses apply_filters()
+ * @return int Raw DB count of topics
+ */
+function bbp_get_user_topic_count_raw( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	global $wpdb;
+
+	$where = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
+	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+
+	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
+}
+
+/**
+ * Return the raw database count of replies by a user
+ *
+ * @since bbPress (r3633)
+ * @global WPDB $wpdb
+ * @uses bbp_get_user_id()
+ * @uses get_posts_by_author_sql()
+ * @uses bbp_get_reply_post_type()
+ * @uses apply_filters()
+ * @return int Raw DB count of replies
+ */
+function bbp_get_user_reply_count_raw( $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	global $wpdb;
+
+	$where = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
+	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+
+	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
+}
+
+/**
+ * Bump the topic count for a user by a certain amount.
+ *
+ * @since bbPress (r5309)
+ *
+ * @param int $user_id
+ * @param int $difference
+ * @uses bbp_get_user_topic_count() To get the users current topic count
+ * @uses bbp_set_user_topic_count() To set the users new topic count
+ */
+function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
+
+	// Validate user ID
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	// Check meta for count, or query directly if not found
+	$count = bbp_get_user_topic_count( $user_id, true );
+	if ( empty( $count ) ) {
+		$count = bbp_get_user_topic_count_raw( $user_id );
+	}
+
+	// Add them up and filter them
+	$new_count = apply_filters( 'bbp_bump_user_topic_count', ( (int) $count + (int) $difference ), $user_id, $difference, $count );
+
+	return bbp_update_user_topic_count( $user_id, $new_count );
+}
+
+/**
+ * Bump the reply count for a user by a certain amount.
+ *
+ * @since bbPress (r5309)
+ *
+ * @param int $user_id
+ * @param int $difference
+ * @uses bbp_get_user_reply_count() To get the users current reply count
+ * @uses bbp_set_user_reply_count() To set the users new reply count
+ */
+function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
+
+	// Validate user ID
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	// Check meta for count, or query directly if not found
+	$count = bbp_get_user_reply_count( $user_id, true );
+	if ( empty( $count ) ) {
+		$count = bbp_get_user_reply_count_raw( $user_id );
+	}
+
+	// Add them up and filter them
+	$new_count = apply_filters( 'bbp_bump_user_reply_count', ( (int) $count + (int) $difference ), $user_id, $difference, $count );
+
+	return bbp_update_user_reply_count( $user_id, $new_count );
+}
+
+/**
+ * Helper function used to increase (by one) the count of topics for a user when
+ * a topic is published.
+ *
+ * @since bbPress (r5309)
+ *
+ * @access
+ * @param $topic_id
+ * @param $forum_id
+ * @param $anonymous_data
+ * @param $topic_author
+ */
+function bbp_increase_user_topic_count( $topic_id = 0 ) {
+	$user_id = bbp_get_topic_author_id( $topic_id );
+	return bbp_bump_user_topic_count( $user_id, 1 );
+}
+
+/**
+ * Helper function used to increase (by one) the count of replies for a user when
+ * a reply is published.
+ *
+ * This is a helper function, hooked to `bbp_new_reply`
+ *
+ * @since bbPress (r5309)
+ *
+ * @param $topic_id
+ * @param $forum_id
+ * @param $anonymous_data
+ * @param $topic_author
+ */
+function bbp_increase_user_reply_count( $reply_id = 0 ) {
+	$user_id = bbp_get_reply_author_id( $reply_id );
+	return bbp_bump_user_reply_count( $user_id, 1 );
+}
+
+/**
+ * Helper function used to decrease (by one) the count of topics for a user when
+ * a topic is unpublished.
+ *
+ * @since bbPress (r5309)
+ *
+ * @param $topic_id
+ */
+function bbp_decrease_user_topic_count( $topic_id = 0 ) {
+	$user_id = bbp_get_topic_author_id( $topic_id );
+	return bbp_bump_user_topic_count( $user_id, -1 );
+}
+
+/**
+ * Helper function used to increase (by one) the count of replies for a user when
+ * a topic is unpublished.
+ *
+ * @since bbPress (r5309)
+ *
+ * @param $reply_id
+ */
+function bbp_decrease_user_reply_count( $reply_id = 0 ) {
+	$user_id = bbp_get_reply_author_id( $reply_id );
+	return bbp_bump_user_reply_count( $user_id, -1 );
+}
+
+/** Permissions ***************************************************************/
 
 /**
  * Redirect if unathorized user is attempting to edit another user

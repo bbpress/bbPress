@@ -247,6 +247,18 @@ add_action( 'bbp_deleted_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 
+// Users topic & reply counts
+add_action( 'bbp_new_topic',     'bbp_increase_user_topic_count' );
+add_action( 'bbp_new_reply',     'bbp_increase_user_reply_count' );
+add_action( 'bbp_untrash_topic', 'bbp_increase_user_topic_count' );
+add_action( 'bbp_untrash_reply', 'bbp_increase_user_reply_count' );
+add_action( 'bbp_unspam_topic',  'bbp_increase_user_topic_count' );
+add_action( 'bbp_unspam_reply',  'bbp_increase_user_reply_count' );
+add_action( 'bbp_trash_topic',   'bbp_decrease_user_topic_count' );
+add_action( 'bbp_trash_reply',   'bbp_decrease_user_reply_count' );
+add_action( 'bbp_spam_topic',    'bbp_decrease_user_topic_count' );
+add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
+
 // User status
 // @todo make these sub-actions
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );

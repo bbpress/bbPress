@@ -42,12 +42,14 @@ function bbp_add_user_options( $user_id = 0 ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return;
+	}
 
 	// Add default options
-	foreach ( bbp_get_default_user_options() as $key => $value )
+	foreach ( bbp_get_default_user_options() as $key => $value ) {
 		update_user_option( $user_id, $key, $value );
+	}
 
 	// Allow previously activated plugins to append their own user options.
 	do_action( 'bbp_add_user_options', $user_id );
@@ -68,12 +70,14 @@ function bbp_delete_user_options( $user_id = 0 ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return;
+	}
 
 	// Add default options
-	foreach ( array_keys( bbp_get_default_user_options() ) as $key )
+	foreach ( array_keys( bbp_get_default_user_options() ) as $key ) {
 		delete_user_option( $user_id, $key );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_delete_user_options', $user_id );
@@ -91,8 +95,9 @@ function bbp_delete_user_options( $user_id = 0 ) {
 function bbp_setup_user_option_filters() {
 
 	// Add filters to each bbPress option
-	foreach ( array_keys( bbp_get_default_user_options() ) as $key )
+	foreach ( array_keys( bbp_get_default_user_options() ) as $key ) {
 		add_filter( 'get_user_option_' . $key, 'bbp_filter_get_user_option', 10, 3 );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_setup_user_option_filters' );
@@ -110,14 +115,73 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
 	$bbp = bbpress();
 
 	// Check the options global for preset value
-	if ( isset( $user->ID ) && isset( $bbp->user_options[$user->ID] ) && !empty( $bbp->user_options[$user->ID][$option] ) )
+	if ( isset( $user->ID ) && isset( $bbp->user_options[$user->ID] ) && !empty( $bbp->user_options[$user->ID][$option] ) ) {
 		$value = $bbp->user_options[$user->ID][$option];
+	}
 
 	// Always return a value, even if false
 	return $value;
 }
 
 /** Post Counts ***************************************************************/
+
+/**
+ * Update the topic count for a user
+ *
+ * @since bbPress (r5309)
+ *
+ * @param int $user_id
+ * @param mixed $count
+ * @return boolean
+ */
+function bbp_update_user_topic_count( $user_id = 0, $count = false ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	// Just in time filtering of the user's topic count
+	$count = apply_filters( 'bbp_update_user_topic_count', $count, $user_id );
+
+	// Bail if no count was passed
+	if ( false === $count ) {
+		return false;
+	}
+
+	// Return the updated user option
+	return update_user_option( $user_id, '_bbp_topic_count', $count );
+}
+
+/**
+ * Update the reply count for a user
+ *
+ * @since bbPress (r5309)
+ *
+ * @param int $user_id
+ * @param mixed $count
+ * @return boolean
+ */
+function bbp_update_user_reply_count( $user_id = 0, $count = false ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	// Just in time filtering of the user's reply count
+	$count = apply_filters( 'bbp_update_user_reply_count', $count, $user_id );
+
+	// Bail if no count was passed
+	if ( false === $count ) {
+		return false;
+	}
+
+	// Return the updated user option
+	return update_user_option( $user_id, '_bbp_reply_count', $count );
+}
 
 /**
  * Output a users topic count
@@ -145,11 +209,12 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 	 * @return string
 	 */
 	function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
-
+ 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$count  = (int) get_user_option( '_bbp_topic_count', $user_id );
 		$filter = ( false === $integer ) ? 'bbp_get_user_topic_count_int' : 'bbp_get_user_topic_count';
@@ -186,11 +251,12 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$count  = (int) get_user_option( '_bbp_reply_count', $user_id );
-		$filter = ( true === $integer ) ? 'bbp_get_user_topic_count_int' : 'bbp_get_user_topic_count';
+		$filter = ( true === $integer ) ? 'bbp_get_user_reply_count_int' : 'bbp_get_user_reply_count';
 
 		return apply_filters( $filter, $count, $user_id );
 	}
@@ -224,8 +290,9 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$topics  = bbp_get_user_topic_count( $user_id, true );
 		$replies = bbp_get_user_reply_count( $user_id, true );
@@ -249,12 +316,14 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Set time to now if nothing is passed
-	if ( empty( $time ) )
+	if ( empty( $time ) ) {
 		$time = time();
+	}
 
 	return update_user_option( $user_id, '_bbp_last_posted', $time );
 }
@@ -281,8 +350,9 @@ function bbp_user_last_posted( $user_id = 0 ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$time = get_user_option( '_bbp_last_posted', $user_id );
 
