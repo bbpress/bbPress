@@ -41,6 +41,11 @@
 						<input type="text" id="tag-slug" name="tag-slug" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( apply_filters( 'editable_slug', bbp_get_topic_tag_slug() ) ); ?>" />
 					</div>
 
+					<div>
+						<label for="tag-description"><?php _e( 'Description:', 'bbpress' ); ?></label>
+						<input type="text" id="tag-description" name="tag-description" size="20" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( bbp_get_topic_tag_description( array( 'before' => '', 'after' => '' ) ) ); ?>" />
+					</div>
+
 					<div class="bbp-submit-wrapper">
 						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit"><?php esc_attr_e( 'Update', 'bbpress' ); ?></button>
 

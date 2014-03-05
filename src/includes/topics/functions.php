@@ -1834,8 +1834,9 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Attempt to update the tag
-			$slug = !empty( $_POST['tag-slug'] ) ? $_POST['tag-slug'] : '';
-			$tag  = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'name' => $name, 'slug' => $slug ) );
+			$slug        = !empty( $_POST['tag-slug']        ) ? $_POST['tag-slug']        : '';
+			$description = !empty( $_POST['tag-description'] ) ? $_POST['tag-description'] : '';
+			$tag         = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'name' => $name, 'slug' => $slug, 'description' => $description ) );
 
 			// Cannot update tag
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1847,7 +1848,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			$redirect = get_term_link( $tag_id, bbp_get_topic_tag_tax_id() );
 
 			// Update counts, etc...
-			do_action( 'bbp_update_topic_tag', $tag_id, $tag, $name, $slug );
+			do_action( 'bbp_update_topic_tag', $tag_id, $tag, $name, $slug, $description );
 
 			break;
 
