@@ -30,6 +30,7 @@ module.exports = function( grunt ) {
 		'!.jshintrc',
 		'!.travis.yml',
 		'node_modules/**',
+		'!**/*.scss',
 
 		// And these from .gitignore
 		'!**/.{svn,git}/**',
@@ -72,7 +73,7 @@ module.exports = function( grunt ) {
 						dest: BUILD_DIR,
 						dot: true,
 						expand: true,
-						src: [ '!**/.{svn,git}/**', '**' ]
+						src: [ '!**/.{svn,git}/**', '**', [ BBP_EXCLUDED_FILES ] ]
 					}
 				]
 			},
