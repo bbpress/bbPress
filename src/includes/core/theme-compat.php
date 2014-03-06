@@ -738,7 +738,8 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_type'      => '',
 			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
 			'post_status'    => bbp_get_public_status_id(),
-			'comment_status' => 'closed'
+			'comment_status' => 'closed',
+			'is_tax'         => true
 		) );
 	}
 
