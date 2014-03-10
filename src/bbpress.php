@@ -197,7 +197,7 @@ final class bbPress {
 
 		// Setup some base path and URL information
 		$this->file       = __FILE__;
-		$this->basename   = apply_filters( 'bbp_plugin_basenname', plugin_basename( $this->file ) );
+		$this->basename   = apply_filters( 'bbp_plugin_basename',  plugin_basename( $this->file ) );
 		$this->plugin_dir = apply_filters( 'bbp_plugin_dir_path',  plugin_dir_path( $this->file ) );
 		$this->plugin_url = apply_filters( 'bbp_plugin_dir_url',   plugin_dir_url ( $this->file ) );
 
