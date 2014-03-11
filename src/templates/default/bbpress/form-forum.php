@@ -103,7 +103,7 @@
 
 					<?php do_action( 'bbp_theme_after_forum_form_status' ); ?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+					<?php do_action( 'bbp_theme_before_forum_visibility_status' ); ?>
 
 					<p>
 						<label for="bbp_forum_visibility"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
