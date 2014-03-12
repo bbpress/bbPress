@@ -517,12 +517,17 @@ class BBP_Akismet {
 		$current_user = wp_get_current_user();
 
 		// Get the user's login name if possible
-		if ( is_object( $current_user ) && isset( $current_user->user_login ) )
+		if ( is_object( $current_user ) && isset( $current_user->user_login ) ) {
 			$user = $current_user->user_login;
+		}
+
+		// This used to be akismet_microtime() but it was removed in 3.0
+		$mtime        = explode( ' ', microtime() );
+		$message_time = $mtime[1] + $mtime[0];
 
 		// Setup the event to be saved
 		$event = array(
-			'time'    => akismet_microtime(),
+			'time'    => $message_time,
 			'message' => $message,
 			'event'   => $event,
 			'user'    => $user,
