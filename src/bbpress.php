@@ -681,6 +681,7 @@ final class bbPress {
 			__( 'Most popular topics', 'bbpress' ),
 			apply_filters( 'bbp_register_view_popular', array(
 				'meta_key'      => '_bbp_reply_count',
+				'meta_type'     => 'NUMERIC',
 				'max_num_pages' => 1,
 				'orderby'       => 'meta_value_num',
 				'show_stickies' => false
@@ -693,6 +694,7 @@ final class bbPress {
 			__( 'Topics with no replies', 'bbpress' ),
 			apply_filters( 'bbp_register_view_no_replies', array(
 				'meta_key'      => '_bbp_reply_count',
+				'meta_type'     => 'NUMERIC',
 				'meta_value'    => 1,
 				'meta_compare'  => '<',
 				'orderby'       => '',
