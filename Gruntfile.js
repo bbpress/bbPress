@@ -198,6 +198,12 @@ module.exports = function( grunt ) {
 					domainPath: '.',
 					mainFile: 'bbpress.php',
 					potFilename: 'bbpress.pot',
+					processPot: function( pot ) {
+						pot.headers['report-msgid-bugs-to'] = 'https://bbpress.trac.wordpress.org';
+						pot.headers['last-translator'] = 'JOHN JAMES JACOBY <jjj@bbpress.org>';
+						pot.headers['language-team'] = 'ENGLISH <jjj@bbpress.org>';
+					return pot;
+					},
 					type: 'wp-plugin'
 				}
 			}
