@@ -499,7 +499,7 @@ class BBP_Admin {
 	public static function modify_plugin_action_links( $links, $file ) {
 
 		// Return normal links if not bbPress
-		if ( plugin_basename( bbpress()->file ) !== $file ) {
+		if ( plugin_basename( bbpress()->basename ) !== $file ) {
 			return $links;
 		}
 
