@@ -202,6 +202,11 @@ module.exports = function( grunt ) {
 				}
 			}
 		},
+		patch: {
+			options: {
+				tracUrl: 'bbpress.trac.wordpress.org'
+			}
+		},
 		checktextdomain: {
 			options: {
 				text_domain: 'bbpress',
@@ -290,6 +295,9 @@ module.exports = function( grunt ) {
 	});
 
 	grunt.registerTask( 'jstest', 'Runs all javascript tasks.', [ 'jsvalidate', 'jshint' ] );
+
+	// Patch task.
+	grunt.renameTask('patch_wordpress', 'patch');
 
 	// Default task.
 	grunt.registerTask( 'default', [ 'build' ] );
