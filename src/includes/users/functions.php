@@ -646,7 +646,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
  * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @param int $forum_id Optional. Topic id
+ * @param int $object_id Optional. Topic id
  * @uses get_post() To get the post object
  * @uses bbp_get_user_subscribed_forum_ids() To get the user's forum subscriptions
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's topic subscriptions
@@ -814,7 +814,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
  * @since bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @param int $topic_id Optional. Topic id
+ * @param int $object_id Optional. Topic id
  * @uses get_post() To get the post object
  * @uses bbp_get_user_subscribed_forum_ids() To get the user's forum subscriptions
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's topic subscriptions
@@ -934,7 +934,7 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
  * @since bbPress (r2668)
  *
  * @param int $user_id Optional. User id
- * @param int $topic_id Optional. Topic id
+ * @param int $object_id Optional. Topic id
  * @uses get_post() To get the post object
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
@@ -1488,6 +1488,7 @@ function bbp_get_total_users() {
  * Return the raw database count of topics by a user
  *
  * @since bbPress (r3633)
+ * @param int $user_id User ID to get count for
  * @global WPDB $wpdb
  * @uses bbp_get_user_id()
  * @uses get_posts_by_author_sql()
@@ -1513,6 +1514,7 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
  * Return the raw database count of replies by a user
  *
  * @since bbPress (r3633)
+ * @param int $user_id User ID to get count for
  * @global WPDB $wpdb
  * @uses bbp_get_user_id()
  * @uses get_posts_by_author_sql()
