@@ -56,6 +56,7 @@ module.exports = function( grunt ) {
 
 	// Project configuration.
 	grunt.initConfig({
+		pkg: grunt.file.readJSON('package.json'),
 		clean: {
 			all: [ BUILD_DIR ],
 			dynamic: {
@@ -104,7 +105,11 @@ module.exports = function( grunt ) {
 				expand: true,
 				ext: '.min.css',
 				src: BBP_LTR_CSS,
-				options: { banner: '/*! https://wordpress.org/plugins/bbpress/ */' }
+				options: {
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+					'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
+					'https://wordpress.org/plugins/bbpress/ */'
+				}
 			},
 			rtl: {
 				cwd: BUILD_DIR,
@@ -112,7 +117,11 @@ module.exports = function( grunt ) {
 				expand: true,
 				ext: '.min.css',
 				src: BBP_RTL_CSS,
-				options: { banner: '/*! https://wordpress.org/plugins/bbpress/ */' }
+				options: {
+					banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+					'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
+					'https://wordpress.org/plugins/bbpress/ */'
+				}
 			}
 		},
 		cssjanus: {
@@ -178,7 +187,9 @@ module.exports = function( grunt ) {
 				src: BBP_JS
 			},
 			options: {
-				banner: '/*! https://wordpress.org/plugins/bbpress/ */\n'
+				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+				'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
+				'https://wordpress.org/plugins/bbpress/ */\n'
 			}
 		},
 		phpunit: {
