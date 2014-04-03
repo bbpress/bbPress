@@ -54,8 +54,8 @@ body.reply-edit .reply {
 	background-color: #fdd;
 }
 
-#bbpress-forums .status-closed,
-#bbpress-forums .status-closed a {
+#bbpress-forums ul.status-closed,
+#bbpress-forums ul.status-closed a {
 	color: #ccc;
 }
 
