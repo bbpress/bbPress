@@ -14,7 +14,7 @@ jQuery( document ).ready( function ( $ ) {
 				if ( !response.content ) {
 					response.content = bbpForumJS.generic_ajax_error;
 				}
-				alert( response.content );
+				window.alert( response.content );
 			}
 		} );
 	}
