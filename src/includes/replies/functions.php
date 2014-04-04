@@ -1290,7 +1290,7 @@ function bbp_move_reply_handler( $action = '' ) {
 				}
 
 				// Bump the reply position
-				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID ) + 1;
+				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID, true ) + 1;
 
 				// Update the reply
 				wp_update_post( array(

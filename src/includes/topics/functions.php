@@ -1628,7 +1628,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 			// Get topic reply count for existing topic
 			case 'existing' :
-				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID );
+				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID, true );
 				break;
 
 			// Account for new lead topic

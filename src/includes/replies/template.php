@@ -2285,7 +2285,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
 		$classes[] = 'bbp-parent-forum-'   . bbp_get_reply_forum_id( $reply_id );
 		$classes[] = 'bbp-parent-topic-'   . bbp_get_reply_topic_id( $reply_id );
-		$classes[] = 'bbp-reply-position-' . bbp_get_reply_position( $reply_id );
+		$classes[] = 'bbp-reply-position-' . bbp_get_reply_position( $reply_id, true );
 		$classes[] = 'user-id-' . bbp_get_reply_author_id( $reply_id );
 		$classes[] = ( bbp_get_reply_author_id( $reply_id ) === bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
 		$classes   = array_filter( $classes );
