@@ -195,7 +195,7 @@ module.exports = function( grunt ) {
 		phpunit: {
 			'default': {
 				cmd: 'phpunit',
-				args: ['-c', 'phpunit.xml']
+				args: ['-c', 'phpunit.xml.dist']
 			},
 			multisite: {
 				cmd: 'phpunit',
