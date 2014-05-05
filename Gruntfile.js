@@ -153,6 +153,7 @@ module.exports = function( grunt ) {
 
 				/**
 				 * Limit JSHint's run to a single specified file: grunt jshint:core --file=filename.js
+				 * Optionally, include the file path: grunt jshint:core --file=path/to/filename.js
 				 *
 				 * @param {String} filepath
 				 * @returns {Bool}
@@ -185,6 +186,13 @@ module.exports = function( grunt ) {
 				expand: true,
 				ext: '.min.js',
 				src: BBP_JS
+			},
+			dynamic: {
+				cwd: SOURCE_DIR,
+				dest: BUILD_DIR,
+				expand: true,
+				ext: '.min.js',
+				src: []
 			},
 			options: {
 				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
@@ -289,6 +297,16 @@ module.exports = function( grunt ) {
 					interval: 2000,
 					spawn: false
 				}
+			},
+			js: {
+				files: BBP_JS.map( function( path ) {
+					return SOURCE_DIR + path;
+				} ),
+				tasks: [ 'uglify:dynamic' ],
+				options: {
+					interval: 2000,
+					spawn: false
+				}
 			}
 		}
 	});
@@ -335,5 +353,6 @@ module.exports = function( grunt ) {
 		grunt.config( [ 'clean', 'dynamic', 'src' ], cleanSrc );
 		grunt.config( [ 'copy', 'dynamic', 'src' ], copySrc );
 		grunt.config( [ 'cssjanus', 'dynamic', 'src' ], copySrc );
+		grunt.config( [ 'uglify', 'dynamic', 'src' ], copySrc );
 	});
 };
