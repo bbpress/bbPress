@@ -20,6 +20,7 @@
  * Version:     2.6-alpha
  * Text Domain: bbpress
  * Domain Path: /languages/
+ * License:     GPLv2 or later (license.txt)
  */
 
 // Exit if accessed directly
