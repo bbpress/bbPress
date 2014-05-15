@@ -381,32 +381,6 @@ class vBulletin3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		// Note: We join the 'thread' table because 'post' table does not include reply title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'thread',
-			'from_fieldname'  => 'title',
-			'join_tablename'  => 'post',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (threadid) WHERE post.parentid != 0',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title',
-			'callback_method' => 'callback_reply_title'
-		);
-
-        // Reply slug (Clean name to avoid conflicts)
-        // Note: We join the 'thread' table because 'post' table does not include reply slug.
-        $this->field_map[] = array(
-			'from_tablename'  => 'thread',
-			'from_fieldname'  => 'title',
-			'join_tablename'  => 'post',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (threadid) WHERE post.parentid != 0',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
@@ -640,17 +614,6 @@ class vBulletin3 extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
-	}
-
-	/**
-	 * Set the reply title
-	 *
-	 * @param string $title vBulletin v3.x topic title of this reply
-	 * @return string Prefixed topic title, or empty string
-	 */
-	public function callback_reply_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'bbpress' ) . html_entity_decode( $title ) : '';
-		return $title;
 	}
 
 	/**

@@ -268,23 +268,6 @@ class Mingle extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		$this->field_map[] = array(
-			'from_tablename' => 'forum_posts',
-			'from_fieldname' => 'subject',
-			'to_type'        => 'reply',
-			'to_fieldname'   => 'post_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		$this->field_map[] = array(
-			'from_tablename'  => 'forum_posts',
-			'from_fieldname'  => 'subject',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_posts',
@@ -479,5 +462,4 @@ class Mingle extends BBP_Converter_Base {
 		$bbcode->smiley_regex   = false;
 		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
-
 }

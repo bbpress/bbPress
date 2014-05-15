@@ -364,30 +364,6 @@ class PHPFox3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'forum_thread',
-			'from_fieldname'  => 'title',
-			'join_tablename'  => 'forum_post',
-			'join_type'       => 'LEFT',
-			'join_expression' => 'USING (thread_id)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title',
-			'callback_method' => 'callback_reply_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		$this->field_map[] = array(
-			'from_tablename'  => 'forum_thread',
-			'from_fieldname'  => 'title_url',
-			'join_tablename'  => 'forum_post',
-			'join_type'       => 'LEFT',
-			'join_expression' => 'USING (thread_id)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		// Note: We join the 'forum_post_text' table because 'forum_post' table does not include content.
 		// Note: We can use 'text' for original text OR 'text_parsed' for pre-parsed text output
@@ -637,16 +613,5 @@ class PHPFox3 extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
-	}
-
-	/**
-	 * Set the reply title
-	 *
-	 * @param string $title PHPFox v3.5.x topic title of this reply
-	 * @return string Prefixed topic title, or empty string
-	 */
-	public function callback_reply_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'bbpress' ) . html_entity_decode( $title ) : '';
-		return $title;
 	}
 }

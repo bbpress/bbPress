@@ -361,32 +361,6 @@ class AEF extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		// Note: We join the 'topics' table because 'posts' table does not include reply title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'topic',
-			'join_tablename'  => 'posts',
-			'join_type'       => 'INNER',
-			'join_expression' => 'ON topics.tid = posts.post_tid WHERE topics.first_post_id != posts.pid',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title',
-			'callback_method' => 'callback_reply_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		// Note: We join the 'topics' table because 'posts' table does not include reply slug.
-		$this->field_map[] = array(
-			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'topic',
-			'join_tablename'  => 'posts',
-			'join_type'       => 'INNER',
-			'join_expression' => 'ON topics.tid = posts.post_tid WHERE topics.first_post_id != posts.pid',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
@@ -676,16 +650,5 @@ class AEF extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
-	}
-
-	/**
-	 * Set the reply title
-	 *
-	 * @param string $title AEF v1.0.9 topic title of this reply
-	 * @return string Prefixed topic title, or empty string
-	 */
-	public function callback_reply_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'bbpress' ) . html_entity_decode( $title ) : '';
-		return $title;
 	}
 }

@@ -316,23 +316,6 @@ class MyBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		$this->field_map[] = array(
-			'from_tablename' => 'posts',
-			'from_fieldname' => 'subject',
-			'to_type'        => 'reply',
-			'to_fieldname'   => 'post_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		$this->field_map[] = array(
-			'from_tablename'  => 'posts',
-			'from_fieldname'  => 'subject',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
@@ -587,5 +570,4 @@ class MyBB extends BBP_Converter_Base {
 		$count = absint( (int) $count - 1 );
 		return $count;
 	}
-
 }

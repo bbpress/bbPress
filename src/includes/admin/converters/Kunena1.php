@@ -319,24 +319,6 @@ class Kunena1 extends BBP_Converter_Base {
         	'callback_method' => 'callback_userid'
 		);
 
-        // Reply title.
-        $this->field_map[] = array(
-        	'from_tablename' => 'kunena_messages',
-        	'from_fieldname' => 'subject',
-        	'to_type'        => 'reply',
-        	'to_fieldname'   => 'post_title',
-        	'callback_method' => 'callback_reply_title'
-		);
-
-        // Reply slug (Clean name to avoid conflicts)
-        $this->field_map[] = array(
-        	'from_tablename'  => 'kunena_messages',
-        	'from_fieldname'  => 'subject',
-        	'to_type'         => 'reply',
-        	'to_fieldname'    => 'post_name',
-        	'callback_method' => 'callback_slug'
-		);
-
         // Reply content.
         // Note: We join the 'kunena_messages_text' table because 'kunena_messages' table does not include reply content.
         $this->field_map[] = array(
@@ -531,16 +513,5 @@ class Kunena1 extends BBP_Converter_Base {
 				break;
 		}
 		return $status;
-	}
-
-	/**
-	 * Set the reply title
-	 *
-	 * @param string $title Kunena v1.x topic title of this reply
-	 * @return string Prefixed topic title, or empty string
-	 */
-	public function callback_reply_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'bbpress' ) . html_entity_decode( $title ) : '';
-		return $title;
 	}
 }

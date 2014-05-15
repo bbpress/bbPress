@@ -326,32 +326,6 @@ class Vanilla extends BBP_Converter_Base {
 			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
-		// Reply title.
-		// Note: We join the Discussion table because Comment table does not include topic title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'Discussion',
-			'from_fieldname'  => 'Name',
-			'join_tablename'  => 'Comment',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (DiscussionID)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title',
-			'callback_method' => 'callback_reply_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		// Note: We join the Discussion table because Comment table does not include topic title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'Discussion',
-			'from_fieldname'  => 'Name',
-			'join_tablename'  => 'Comment',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (DiscussionID)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply author ip (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'Comment',
@@ -523,17 +497,6 @@ class Vanilla extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
-	}
-
-	/**
-	 * Set the reply title
-	 *
-	 * @param string $title Vanilla v2.x topic title of this reply
-	 * @return string Prefixed topic title, or empty string
-	 */
-	public function callback_reply_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'bbpress' ) . html_entity_decode( $title ) : '';
-		return $title;
 	}
 
 	/**

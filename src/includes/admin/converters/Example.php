@@ -224,6 +224,15 @@ class Example extends BBP_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 
+		// Topic status (Open or Closed)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_table',
+			'from_fieldname'  => 'the_topic_status',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_topic_status'
+		);
+
 		// Topic parent forum id (If no parent, then 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics_table',
@@ -393,22 +402,9 @@ class Example extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'replies_table',
-			'from_fieldname'  => 'the_reply_title',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		$this->field_map[] = array(
-			'from_tablename'  => 'replies_table',
-			'from_fieldname'  => 'the_reply_slug',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
+		// Reply title and reply slugs
+		// Note: We don't actually want either a reply title or a reply slug as
+		//       we want single replies to use their ID as the permalink.
 
 		// Reply content.
 		$this->field_map[] = array(

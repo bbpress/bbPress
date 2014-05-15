@@ -358,23 +358,6 @@ class Drupal7 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		$this->field_map[] = array(
-			'from_tablename' => 'comment',
-			'from_fieldname' => 'subject',
-			'to_type'        => 'reply',
-			'to_fieldname'   => 'post_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		$this->field_map[] = array(
-			'from_tablename'  => 'comment',
-			'from_fieldname'  => 'subject',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		// Note: We join the 'field_data_comment_body' table because 'comment' table does not include reply content.
 		$this->field_map[] = array(

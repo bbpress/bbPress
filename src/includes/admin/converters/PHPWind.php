@@ -344,31 +344,6 @@ class PHPWind extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
-		// Reply title.
-		// Note: We join the 'bbs_threads' table because 'bbs_posts' table does not include reply title.
-		$this->field_map[] = array(
-			'from_tablename'  => 'bbs_threads',
-			'from_fieldname'  => 'subject',
-			'join_tablename'  => 'bbs_posts',
-			'join_type'       => 'LEFT',
-			'join_expression' => 'USING (tid)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_title'
-		);
-
-		// Reply slug (Clean name to avoid conflicts)
-		// Note: We join the 'bbs_threads' table because 'bbs_posts' table does not include reply slug.
-		$this->field_map[] = array(
-			'from_tablename'  => 'bbs_threads',
-			'from_fieldname'  => 'subject',
-			'join_tablename'  => 'bbs_posts',
-			'join_type'       => 'LEFT',
-			'join_expression' => 'USING (tid)',
-			'to_type'         => 'reply',
-			'to_fieldname'    => 'post_name',
-			'callback_method' => 'callback_slug'
-		);
-
 		// Reply content.
 		$this->field_map[] = array(
 			'from_tablename'  => 'bbs_posts',
