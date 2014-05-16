@@ -648,7 +648,7 @@ class vBulletin extends BBP_Converter_Base {
 		// Replace '[QUOTE]' with '<blockquote>'
 		$vbulletin_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $vbulletin_markup );
 		// Replace '[QUOTE=User Name($1);PostID($2)]' with '<em>@$1 $2 wrote:</em><blockquote>"
-		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/' , '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
+		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/', '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
 		// Replace '[/QUOTE]' with '</blockquote>'
 		$vbulletin_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $vbulletin_markup );
 		// Replace '[MENTION=###($1)]User Name($2)[/MENTION]' with '@$2"
@@ -656,6 +656,8 @@ class vBulletin extends BBP_Converter_Base {
 
 		// Replace '[video=youtube;$1]$2[/video]' with '$2"
 		$vbulletin_markup = preg_replace( '/\[video\=youtube;(.*?)\](.*?)\[\/video\]/', '$2', $vbulletin_markup );
+		// Replace '[video=youtube_share;$1]$2[/video]' with '$2"
+		$vbulletin_markup = preg_replace( '/\[video\=youtube_share;(.*?)\](.*?)\[\/video\]/', '$2', $vbulletin_markup );
 
 		// Now that vBulletin custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $vbulletin_markup;
