@@ -399,7 +399,7 @@ class BBP_Forums_Admin {
 	 *
 	 * Handles the admin-side opening/closing of forums
 	 *
-	 * @since bbPress (rXXXX)
+	 * @since bbPress (r5254)
 	 *
 	 * @uses bbp_get_forum() To get the forum
 	 * @uses current_user_can() To check if the user is capable of editing
@@ -474,7 +474,7 @@ class BBP_Forums_Admin {
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_forum()}
 	 *
-	 * @since bbPress (rXXXX)
+	 * @since bbPress (r5254)
 	 *
 	 * @uses bbp_get_forum() To get the forum
 	 * @uses bbp_get_forum_title() To get the forum title of the forum
