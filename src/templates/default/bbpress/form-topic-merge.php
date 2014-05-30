@@ -31,7 +31,7 @@
 						</div>
 
 						<div class="bbp-template-notice">
-							<p><?php _e( 'All replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted. If the destination topic was created after this one, it\'s post date will be updated to second earlier than this one.', 'bbpress' ); ?></p>
+							<p><?php _e( 'All replies within both the topics will be merged chronologically. The order of the merged replies is based on the time they were posted. If the destination topic was created after this one, its post date will be updated to a second earlier than this one.', 'bbpress' ); ?></p>
 						</div>
 
 						<fieldset class="bbp-form">
