@@ -260,16 +260,9 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
  */
 function bbp_register_template_stack( $location_callback = '', $priority = 10 ) {
 
-	// Bail if no location, or function does not exist
-	if ( empty( $location_callback ) ) {
+	// Bail if no location, or function/method is not callable
+	if ( empty( $location_callback ) || ! is_callable( $location_callback ) ) {
 		return false;
-	}
-
-	// Bail if callback function does not exist
-	if ( ! is_array( $location_callback ) ) {
-		if ( ! function_exists( $location_callback ) ) {
-			return false;
-		}
 	}
 
 	// Add location callback to template stack
@@ -287,16 +280,9 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
  */
 function bbp_deregister_template_stack( $location_callback = '', $priority = 10 ) {
 
-	// Bail if no location, or function does not exist
-	if ( empty( $location_callback ) ) {
+	// Bail if no location, or function/method is not callable
+	if ( empty( $location_callback ) || ! is_callable( $location_callback ) ) {
 		return false;
-	}
-
-	// Bail if callback function does not exist
-	if ( ! is_array( $location_callback ) ) {
-		if ( ! function_exists( $location_callback ) ) {
-			return false;
-		}
 	}
 
 	// Remove location callback to template stack
