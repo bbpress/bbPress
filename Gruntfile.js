@@ -223,7 +223,7 @@ module.exports = function( grunt ) {
 						pot.headers['report-msgid-bugs-to'] = 'https://bbpress.trac.wordpress.org';
 						pot.headers['last-translator'] = 'JOHN JAMES JACOBY <jjj@bbpress.org>';
 						pot.headers['language-team'] = 'ENGLISH <jjj@bbpress.org>';
-					return pot;
+						return pot;
 					},
 					type: 'wp-plugin'
 				}
@@ -239,20 +239,20 @@ module.exports = function( grunt ) {
 				text_domain: 'bbpress',
 				correct_domain: false,
 				keywords: [
-				'__:1,2d',
-				'_e:1,2d',
-				'_x:1,2c,3d',
-				'_n:1,2,4d',
-				'_ex:1,2c,3d',
-				'_nx:1,2,4c,5d',
-				'esc_attr__:1,2d',
-				'esc_attr_e:1,2d',
-				'esc_attr_x:1,2c,3d',
-				'esc_html__:1,2d',
-				'esc_html_e:1,2d',
-				'esc_html_x:1,2c,3d',
-				'_n_noop:1,2,3d',
-				'_nx_noop:1,2,3c,4d'
+					'__:1,2d',
+					'_e:1,2d',
+					'_x:1,2c,3d',
+					'_n:1,2,4d',
+					'_ex:1,2c,3d',
+					'_nx:1,2,4c,5d',
+					'esc_attr__:1,2d',
+					'esc_attr_e:1,2d',
+					'esc_attr_x:1,2c,3d',
+					'esc_html__:1,2d',
+					'esc_html_e:1,2d',
+					'esc_html_x:1,2c,3d',
+					'_n_noop:1,2,3d',
+					'_nx_noop:1,2,3c,4d'
 				]
 			},
 			files: {
@@ -329,7 +329,7 @@ module.exports = function( grunt ) {
 			args: this.data.args,
 			opts: { stdio: 'inherit' }
 		}, this.async() );
-	});
+	} );
 
 	grunt.registerTask( 'jstest', 'Runs all javascript tasks.', [ 'jsvalidate', 'jshint' ] );
 
