@@ -30,7 +30,7 @@
     "replies",
     "profiles",
     "support"
-	],
+  ],
   "homepage": "https://bbpress.org",
   "license": "GPL-2.0+",
   "name": "bbpress",
