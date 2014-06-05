@@ -263,7 +263,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_root_slug' => array(
 				'title'             => __( 'Forum Root', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_root_slug',
-				'sanitize_callback' => 'esc_sql',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -292,7 +292,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_forum_slug' => array(
 				'title'             => __( 'Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_forum_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -300,7 +300,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_topic_slug' => array(
 				'title'             => __( 'Topic', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -308,7 +308,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_topic_tag_slug' => array(
 				'title'             => __( 'Topic Tag', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tag_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -316,7 +316,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_view_slug' => array(
 				'title'             => __( 'Topic View', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -324,7 +324,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_reply_slug' => array(
 				'title'             => __( 'Reply', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -332,7 +332,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_search_slug' => array(
 				'title'             => __( 'Search', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_search_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			)
 		),
@@ -345,7 +345,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_user_slug' => array(
 				'title'             => __( 'User Base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_slug',
-				'sanitize_callback' => 'sanitize_title',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -353,7 +353,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_topic_archive_slug' => array(
 				'title'             => __( 'Topics Started', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
-				'sanitize_callback' => 'esc_sql',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -361,7 +361,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_reply_archive_slug' => array(
 				'title'             => __( 'Replies Created', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_archive_slug',
-				'sanitize_callback' => 'esc_sql',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -369,7 +369,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_user_favs_slug' => array(
 				'title'             => __( 'Favorite Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_favs_slug',
-				'sanitize_callback' => 'esc_sql',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			),
 
@@ -377,7 +377,7 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_user_subs_slug' => array(
 				'title'             => __( 'Topic Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_subs_slug',
-				'sanitize_callback' => 'esc_sql',
+				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
 			)
 		),
