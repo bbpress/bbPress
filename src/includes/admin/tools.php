@@ -283,23 +283,24 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
  */
 function bbp_admin_repair_list() {
 	$repair_list = array(
-		0  => array( 'bbp-sync-topic-meta',          __( 'Recalculate the parent topic for each post',        'bbpress' ), 'bbp_admin_repair_topic_meta'               ),
-		5  => array( 'bbp-sync-forum-meta',          __( 'Recalculate the parent forum for each post',        'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
+		0  => array( 'bbp-sync-topic-meta',          __( 'Recalculate parent topic for each reply',           'bbpress' ), 'bbp_admin_repair_topic_meta'               ),
+		5  => array( 'bbp-sync-forum-meta',          __( 'Recalculate parent forum for each reply',           'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
 		10 => array( 'bbp-sync-forum-visibility',    __( 'Recalculate private and hidden forums',             'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
 		15 => array( 'bbp-sync-all-topics-forums',   __( 'Recalculate last activity in each topic and forum', 'bbpress' ), 'bbp_admin_repair_freshness'                ),
-		20 => array( 'bbp-sync-all-topics-sticky',   __( 'Recalculate the sticky relationship of each topic', 'bbpress' ), 'bbp_admin_repair_sticky'                   ),
-		25 => array( 'bbp-group-forums',             __( 'Repair BuddyPress Group Forum relationships',       'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
-		30 => array( 'bbp-forum-topics',             __( 'Count topics in each forum',                        'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
-		35 => array( 'bbp-forum-replies',            __( 'Count replies in each forum',                       'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
-		40 => array( 'bbp-topic-replies',            __( 'Count replies in each topic',                       'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
-		45 => array( 'bbp-topic-voices',             __( 'Count voices in each topic',                        'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
-		50 => array( 'bbp-topic-hidden-replies',     __( 'Count spammed & trashed replies in each topic',     'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
-		55 => array( 'bbp-user-topics',              __( 'Count topics for each user',                        'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
-		60 => array( 'bbp-user-replies',             __( 'Count replies for each user',                       'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
-		65 => array( 'bbp-user-favorites',           __( 'Remove trashed topics from user favorites',         'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
-		70 => array( 'bbp-user-topic-subscriptions', __( 'Remove trashed topics from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_topic_subscriptions' ),
-		75 => array( 'bbp-user-forum-subscriptions', __( 'Remove trashed forums from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_forum_subscriptions' ),
-		80 => array( 'bbp-user-role-map',            __( 'Remap existing users to default forum roles',       'bbpress' ), 'bbp_admin_repair_user_roles'               )
+		20 => array( 'bbp-sync-all-topics-sticky',   __( 'Recalculate sticky relationship of each topic',     'bbpress' ), 'bbp_admin_repair_sticky'                   ),
+		25 => array( 'bbp-sync-all-reply-positions', __( 'Recalculate reply position hierarchy',              'bbpress' ), 'bbp_admin_repair_reply_menu_order'         ),
+		30 => array( 'bbp-group-forums',             __( 'Repair BuddyPress Group Forum relationships',       'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
+		35 => array( 'bbp-forum-topics',             __( 'Count topics in each forum',                        'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
+		40 => array( 'bbp-forum-replies',            __( 'Count replies in each forum',                       'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
+		45 => array( 'bbp-topic-replies',            __( 'Count replies in each topic',                       'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
+		50 => array( 'bbp-topic-voices',             __( 'Count voices in each topic',                        'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
+		55 => array( 'bbp-topic-hidden-replies',     __( 'Count spammed & trashed replies in each topic',     'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
+		60 => array( 'bbp-user-topics',              __( 'Count topics for each user',                        'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
+		65 => array( 'bbp-user-replies',             __( 'Count replies for each user',                       'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
+		70 => array( 'bbp-user-favorites',           __( 'Remove trashed topics from user favorites',         'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
+		75 => array( 'bbp-user-topic-subscriptions', __( 'Remove trashed topics from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_topic_subscriptions' ),
+		80 => array( 'bbp-user-forum-subscriptions', __( 'Remove trashed forums from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_forum_subscriptions' ),
+		85 => array( 'bbp-user-role-map',            __( 'Remap existing users to default forum roles',       'bbpress' ), 'bbp_admin_repair_user_roles'               )
 	);
 	ksort( $repair_list );
 
@@ -325,16 +326,23 @@ function bbp_admin_repair_topic_reply_count() {
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_reply_count';";
-	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
-		return array( 1, sprintf( $statement, $result ) );
-
 	// Post types and status
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
 	$pps = bbp_get_public_status_id();
 	$cps = bbp_get_closed_status_id();
 
+	// Delete the meta key _bbp_reply_count for each topic
+	$sql_delete = "DELETE `postmeta` FROM `{$wpdb->postmeta}` AS `postmeta`
+						LEFT JOIN `{$wpdb->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+						WHERE `posts`.`post_type` = '{$tpt}'
+						AND `postmeta`.`meta_key` = '_bbp_reply_count'";
+
+	if ( is_wp_error( $wpdb->query( $sql_delete ) ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Recalculate the meta key _bbp_reply_count for each topic
 	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
 			SELECT `topics`.`ID` AS `post_id`, '_bbp_reply_count' AS `meta_key`, COUNT(`replies`.`ID`) As `meta_value`
 				FROM `{$wpdb->posts}` AS `topics`
@@ -346,8 +354,9 @@ function bbp_admin_repair_topic_reply_count() {
 					AND `topics`.`post_status` IN ( '{$pps}', '{$cps}' )
 				GROUP BY `topics`.`ID`);";
 
-	if ( is_wp_error( $wpdb->query( $sql ) ) )
+	if ( is_wp_error( $wpdb->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
+	}
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
@@ -619,10 +628,21 @@ function bbp_admin_repair_forum_reply_count() {
 	$statement = __( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` IN ( '_bbp_reply_count', '_bbp_total_reply_count' );";
-	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
-		return array( 1, sprintf( $statement, $result ) );
+	// Post type
+	$fpt = bbp_get_forum_post_type();
 
+	// Delete the meta keys _bbp_reply_count and _bbp_total_reply_count for each forum
+	$sql_delete = "DELETE `postmeta` FROM `{$wpdb->postmeta}` AS `postmeta`
+						LEFT JOIN `{$wpdb->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+						WHERE `posts`.`post_type` = '{$fpt}'
+						AND `postmeta`.`meta_key` = '_bbp_reply_count'
+						OR `postmeta`.`meta_key` = '_bbp_total_reply_count'";
+
+	if ( is_wp_error( $wpdb->query( $sql_delete ) ) ) {
+ 		return array( 1, sprintf( $statement, $result ) );
+	}
+ 
+	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
 	if ( !empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
@@ -1282,6 +1302,57 @@ function bbp_admin_repair_topic_meta() {
 		return array( 4, sprintf( $statement, $result ) );
 
 	// Complete results
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Recalculate reply menu order
+ *
+ * @since bbPress (r5367)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_update_reply_position() To update the reply position
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_reply_menu_order() {
+	global $wpdb;
+
+	$statement = __( 'Recalculating reply menu order &hellip; %s', 'bbpress' );
+	$result    = __( 'No reply hierachy to recalculate!',          'bbpress' );
+
+	// Post type
+	$rpt = bbp_get_reply_post_type();
+
+	// Get an array of reply id's to update the menu oder for each reply
+	$replies = $wpdb->get_results( "SELECT `a`.`ID` FROM `{$wpdb->posts}` AS `a`
+										INNER JOIN (
+											SELECT `menu_order`, `post_parent`
+											FROM `{$wpdb->posts}`
+											GROUP BY `menu_order`, `post_parent`
+											HAVING COUNT( * ) >1
+										)`b`
+										ON `a`.`menu_order` = `b`.`menu_order`
+										AND `a`.`post_parent` = `b`.`post_parent`
+										WHERE `post_type` = '{$rpt}';", OBJECT_K );
+
+	// Bail if no replies returned
+	if ( empty( $replies ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Recalculate the menu order position for each reply
+	foreach ( $replies as $reply ) {
+		bbp_update_reply_position( $reply->ID );
+	}
+
+	// Cleanup
+	unset( $replies, $reply );
+
+	// Flush the cache; things are about to get ugly.
+	wp_cache_flush();
+
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
 
