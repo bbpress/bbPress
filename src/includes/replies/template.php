@@ -1576,10 +1576,12 @@ function bbp_reply_to( $reply_id = 0 ) {
 		$reply_to = 0;
 
 		// Check that reply_id is valid
-		if ( $reply_id = bbp_get_reply_id( $reply_id ) )
+		$reply_id = bbp_get_reply_id( $reply_id );
 
-			// Get reply_to value
+		// Get reply_to value
+		if ( ! empty( $reply_id ) ) {
 			$reply_to = (int) get_post_meta( $reply_id, '_bbp_reply_to', true );
+		}
 
 		return (int) apply_filters( 'bbp_get_reply_to', $reply_to, $reply_id );
 	}
