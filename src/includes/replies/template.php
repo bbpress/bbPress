@@ -2473,9 +2473,6 @@ function bbp_form_reply_to() {
 			$reply_to = bbp_get_reply_to();
 		}
 
-		// Validate
-		$reply_to = bbp_get_reply_id( $reply_to );
-
 		return (int) apply_filters( 'bbp_get_form_reply_to', $reply_to );
 	}
 
