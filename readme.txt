@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.6
 Tested up to: 3.9
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,12 @@ We're keeping things as small and light as possible while still allowing for gre
 2. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.5.4 =
+* Fix reply editing causing polluted hierarchy
+* Add tool for repairing reply positions within topics
+* Improved custom slug and displayed user field sanitization
+* Improved SSL support when relying on theme compatibility
 
 = 2.5.3 =
 * WordPress 3.8 support (dashicons, new color schemes)
