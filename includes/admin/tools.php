@@ -163,7 +163,7 @@ function bbp_admin_repair_list() {
 		10 => array( 'bbp-sync-forum-visibility',    __( 'Recalculate private and hidden forums',             'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
 		15 => array( 'bbp-sync-all-topics-forums',   __( 'Recalculate last activity in each topic and forum', 'bbpress' ), 'bbp_admin_repair_freshness'                ),
 		20 => array( 'bbp-sync-all-topics-sticky',   __( 'Recalculate the sticky relationship of each topic', 'bbpress' ), 'bbp_admin_repair_sticky'                   ),
-		25 => array( 'bbp-sync-all-reply-positions', __( 'Recalculate the reply position hierarchy',          'bbpress' ), 'bbp_admin_repair_reply_menu_order'         ),
+		25 => array( 'bbp-sync-all-reply-positions', __( 'Recalculate the position of each reply',            'bbpress' ), 'bbp_admin_repair_reply_menu_order'         ),
 		30 => array( 'bbp-group-forums',             __( 'Repair BuddyPress Group Forum relationships',       'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
 		35 => array( 'bbp-forum-topics',             __( 'Count topics in each forum',                        'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
 		40 => array( 'bbp-forum-replies',            __( 'Count replies in each forum',                       'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
@@ -1145,7 +1145,12 @@ function bbp_admin_repair_reply_menu_order() {
 	global $wpdb;
 
 	$statement = __( 'Recalculating reply menu order &hellip; %s', 'bbpress' );
-	$result    = __( 'No reply hierachy to recalculate!',          'bbpress' );
+	$result    = __( 'No reply positions to recalculate!',         'bbpress' );
+
+	// Delete cases where `_bbp_reply_to` was accidentally set to itself
+	if ( is_wp_error( $wpdb->query( "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`;" ) ) ) {
+		return array( 1, sprintf( $statement, $result ) ); 
+	}
 
 	// Post type
 	$rpt = bbp_get_reply_post_type();
