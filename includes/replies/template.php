@@ -2465,7 +2465,7 @@ function bbp_form_reply_to() {
 
 		// Get $_REQUEST data
 		if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
-			$reply_to = (int) $_REQUEST['bbp_reply_to'];
+			$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 		}
 
 		// If empty, get from meta

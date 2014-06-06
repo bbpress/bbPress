@@ -249,15 +249,6 @@ function bbp_new_reply_handler( $action = '' ) {
 		}
 	}
 
-	/** Reply To **************************************************************/
-
-	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
-	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
-		$reply_to = (int) $_REQUEST['bbp_reply_to'];
-	}
-
-	$reply_to = bbp_get_reply_id( $reply_to );
-
 	/** Unfiltered HTML *******************************************************/
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
@@ -311,6 +302,13 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Default
 	} else {
 		$reply_status = bbp_get_public_status_id();
+	}
+
+	/** Reply To **************************************************************/
+
+	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
+	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 	}
 
 	/** Topic Closed **********************************************************/
@@ -562,10 +560,6 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-	/** Reply To **************************************************************/
-
-	$reply_to = bbp_get_reply_to( $reply_id );
-
 	// Forum exists
 	if ( !empty( $forum_id ) && ( $forum_id !== bbp_get_reply_forum_id( $reply_id ) ) ) {
 
@@ -634,6 +628,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 	// Use existing post_status
 	} else {
 		$reply_status = $reply->post_status;
+	}
+
+	/** Reply To **************************************************************/
+
+	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
+	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 	}
 
 	/** Topic Tags ************************************************************/
@@ -793,7 +794,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$reply_to = bbp_get_reply_id( $reply_to );
+	$reply_to = bbp_validate_reply_to( $reply_to );
 
 	// Bail if there is no reply
 	if ( empty( $reply_id ) )
@@ -1112,19 +1113,19 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 
 	// Validation
 	$reply_id = bbp_get_reply_id( $reply_id );
-	$reply_to = bbp_get_reply_id( $reply_to );
+	$reply_to = bbp_validate_reply_to( $reply_to );
 
-	// Return if no reply
-	if ( empty( $reply_id ) )
-		return;
+	// Update or delete the `reply_to` postmeta
+	if ( ! empty( $reply_id ) ) {
 
-	// Set the reply to
-	if ( !empty( $reply_to ) ) {
-		update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
+		// Update the reply to
+		if ( !empty( $reply_to ) ) {
+			update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
 
-	// Delete the reply to
-	} else {
-		delete_post_meta( $reply_id, '_bbp_reply_to' );
+		// Delete the reply to
+		} else {
+			delete_post_meta( $reply_id, '_bbp_reply_to' );
+		}
 	}
 
 	return (int) apply_filters( 'bbp_update_reply_to', (int) $reply_to, $reply_id );
@@ -2217,4 +2218,33 @@ function bbp_list_replies( $args = array() ) {
 
 	bbpress()->max_num_pages            = $walker->max_pages;
 	bbpress()->reply_query->in_the_loop = false;
+}
+
+/**
+ * Validate a `reply_to` field for hierarchical replies
+ * 
+ * Checks for 2 scenarios:
+ * -- The reply to ID is actually a reply
+ * -- The reply to ID does not match the current reply
+ *
+ * @since bbPress (r5377)
+ *
+ * @param int $reply_to
+ * @param int $reply_id
+ *
+ * @return int $reply_to
+ */
+function bbp_validate_reply_to( $reply_to = 0, $reply_id = 0 ) {
+
+	// The parent reply must actually be a reply
+	if ( ! bbp_is_reply( $reply_to ) ) {
+		$reply_to = 0;
+	}
+
+	// The parent reply cannot be itself
+	if ( $reply_id === $reply_to ) {
+		$reply_to = 0;
+	}
+
+	return (int) $reply_to;
 }

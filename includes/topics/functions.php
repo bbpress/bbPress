@@ -1672,7 +1672,7 @@ function bbp_split_topic_handler( $action = '' ) {
 			}
 
 			// New topic from reply can't be a reply to
-			if ( ( $from_reply->ID === $destination_topic->ID && $from_reply->ID === $reply_to ) ) {
+			if ( ( $from_reply->ID === $destination_topic->ID ) && ( $from_reply->ID === $reply_to ) ) {
 				bbp_update_reply_to( $reply->ID, 0 );
 			}
 
