@@ -182,6 +182,9 @@ add_filter( 'bbp_get_topic_voice_count',    'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_reply_count',    'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_post_count',     'bbp_number_format', 10 );
 
+// Sanitize displayed user data
+add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field', 10, 3 );
+
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {
 	add_filter( 'bbp_get_reply_content', 'bbp_kses_data' );

@@ -156,7 +156,7 @@ function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
 		$user->filter = $old_filter;
 
 		// Return empty
-		return apply_filters( 'bbp_get_displayed_user_field', $value, $field );
+		return apply_filters( 'bbp_get_displayed_user_field', $value, $field, $filter );
 	}
 
 /**

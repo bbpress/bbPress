@@ -1603,6 +1603,75 @@ function bbp_forum_enforce_blocked() {
 	}
 }
 
+/** Sanitization **************************************************************/
+
+/**
+ * Sanitize displayed user data, when viewing and editing any user.
+ *
+ * This somewhat monolithic function handles the escaping and sanitization of
+ * user data for a bbPress profile. There are two reasons this all happers here:
+ *
+ * 1. bbPress took a similar approach to WordPress, and funnels all user profile
+ *    data through a central helper. This eventually calls sanitize_user_field()
+ *    which applies a few context based filters, which some third party plugins
+ *    might be relying on bbPress to play nicely with.
+ *
+ * 2. Early versions of bbPress 2.x templates did not escape this data meaning
+ *    a backwards compatible approach like this one was necessary to protect
+ *    existing installations that may have custom template parts.
+ *
+ * @since bbPress (r5368)
+ *
+ * @param string $value
+ * @param string $field
+ * @param string $context
+ * @return string
+ */
+function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context = 'display' ) {
+
+	// Bail if not editing or displaying (maybe we'll do more here later)
+	if ( ! in_array( $context, array( 'edit', 'display' ) ) ) {
+		return $value;
+	}
+
+	// By default, no filter set (consider making this an array later)
+	$filter = false;
+
+	// Big switch statement to decide which user field we're sanitizing and how
+	switch ( $field ) {
+
+		// Description is a paragraph
+		case 'description' :
+			$filter = ( 'edit' === $context ) ? '' : 'wp_kses_data';
+			break;
+
+		// Email addresses are sanitized with a specific function
+		case 'user_email'  :
+			$filter = 'sanitize_email';
+			break;
+
+		// Name & login fields
+		case 'user_login'   :
+		case 'display_name' :
+		case 'first_name'   :
+		case 'last_name'    :
+		case 'nick_name'    :
+			$filter = ( 'edit' === $context ) ? 'esc_attr' : 'esc_html';
+			break;
+
+		// wp-includes/default-filters.php escapes this for us via esc_url()
+		case 'user_url' :
+			break;
+	}
+
+	// Run any applicable filters on the value
+	if ( ! empty( $filter ) ) {
+		$value = call_user_func( $filter, $value );
+	}
+
+	return $value;
+}
+
 /** Converter *****************************************************************/
 
 /**
