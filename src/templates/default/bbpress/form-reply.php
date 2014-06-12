@@ -104,23 +104,40 @@
 
 					<?php endif; ?>
 
-					<?php if ( bbp_allow_revisions() && bbp_is_reply_edit() ) : ?>
+					<?php if ( bbp_is_reply_edit() ) : ?>
 
-						<?php do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
+						<?php if ( current_user_can( 'moderate' ) ) : ?>
 
-						<fieldset class="bbp-form">
-							<legend>
-								<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
-								<label for="bbp_log_reply_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
-							</legend>
+							<?php do_action( 'bbp_theme_before_reply_form_reply_to' ); ?>
 
-							<div>
-								<label for="bbp_reply_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
-								<input type="text" value="<?php bbp_form_reply_edit_reason(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
-							</div>
-						</fieldset>
+							<p class="form-reply-to">
+								<label for="bbp_reply_to"><?php _e( 'Reply To:', 'bbpress' ); ?></label><br />
+								<?php bbp_reply_to_dropdown(); ?>
+							</p>
 
-						<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
+							<?php do_action( 'bbp_theme_after_reply_form_reply_to' ); ?>
+
+						<?php endif; ?>
+
+						<?php if ( bbp_allow_revisions() ) : ?>
+
+							<?php do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
+
+							<fieldset class="bbp-form">
+								<legend>
+									<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
+									<label for="bbp_log_reply_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
+								</legend>
+
+								<div>
+									<label for="bbp_reply_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
+									<input type="text" value="<?php bbp_form_reply_edit_reason(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
+								</div>
+							</fieldset>
+
+							<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
+
+						<?php endif; ?>
 
 					<?php endif; ?>
 
