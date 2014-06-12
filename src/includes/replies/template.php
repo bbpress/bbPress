@@ -2477,6 +2477,105 @@ function bbp_form_reply_to() {
 	}
 
 /**
+ * Output a select box allowing to pick which reply an existing hierarchical
+ * reply belongs to.
+ *
+ * @since bbPress (r5387)
+ *
+ * @param int $reply_id
+ */
+function bbp_reply_to_dropdown( $reply_id = 0 ) {
+	echo bbp_get_reply_to_dropdown( $reply_id );
+}
+	/**
+	 * Return a select box allowing to pick which forum/topic a new
+	 * topic/reply belongs in.
+	 *
+	 * @since bbPress (r5387)
+	 *
+	 * @param int $reply_id
+	 *
+	 * @uses BBP_Reply_Walker_Dropdown() As the default walker to generate the
+	 *                                   dropdown
+	 * @uses current_user_can()          To check if the current user can read
+	 *                                   private forums
+	 * @uses bbp_get_forum_post_type()   To get the forum post type
+	 * @uses bbp_get_topic_post_type()   To get the topic post type
+	 *
+	 * @uses apply_filters() Calls 'bbp_get_dropdown' with the dropdown
+	 *                        and args
+	 * @return string The dropdown
+	 */
+	function bbp_get_reply_to_dropdown( $reply_id = 0 ) {
+
+		// Validate the reply data
+		$reply_id = bbp_get_reply_id( $reply_id );
+		$reply_to = bbp_get_reply_to( $reply_id );
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// Setup default dropdown arguments
+		$r = bbp_parse_args( array(
+			'show_none'   => sprintf( esc_attr__( '%1$s - %2$s', 'bbpress' ), $topic_id, bbp_get_topic_title( $topic_id ) ),
+			'select_id'   => 'bbp_reply_to',
+			'exclude'     => array(),
+			'selected'    => $reply_to,
+			'post_parent' => $topic_id,
+			'post_type'   => bbp_get_reply_post_type(),
+			'post_status' => bbp_get_public_status_id(),
+			'max_depth'   => bbp_thread_replies_depth(),
+			'page'        => 1,
+			'per_page'    => -1,
+			'orderby'     => 'menu_order',
+			'order'       => 'ASC',
+			'walker'      => new BBP_Walker_Reply_Dropdown()
+		), 'reply_to_drodown' );
+
+		// Get the replies
+		$posts = get_posts( array(
+			'post_type'   => $r['post_type'],
+			'post_status' => $r['post_status'],
+			'post_parent' => $r['post_parent'],
+			'exclude'     => $r['exclude'],
+			'numberposts' => $r['per_page'],
+			'orderby'     => $r['orderby'],
+			'order'       => $r['order'],
+		) );
+
+		// Append `reply_to` for each reply so it can be walked
+		foreach ( $posts as &$post ) {
+
+			// Check for reply post type
+			$_reply_to = bbp_get_reply_to( $post->ID );
+
+			// Make sure it's a reply to a reply
+			if ( empty( $_reply_to ) || ( $topic_id === $_reply_to ) ) {
+				$_reply_to = 0;
+			}
+
+			// Add reply_to to the post object so we can walk it later
+			$post->reply_to = $_reply_to;
+		}
+
+		// Get the dropdown and return it
+		$retval = bbp_get_dropdown( array(
+			'show_none'    => $r['show_none'],
+			'select_id'    => $r['select_id'],
+			'exclude'      => $r['exclude'],
+			'selected'     => $r['selected'],
+			'post_parent'  => $r['post_parent'],
+			'post_type'    => $r['post_type'],
+			'max_depth'    => $r['max_depth'],
+			'page'         => $r['page'],
+			'per_page'     => $r['per_page'],
+			'walker'       => $r['walker'],
+			'posts'        => $posts
+		) );
+
+		// Filter and return
+		return apply_filters( 'bbp_get_reply_to_dropdown', $retval, $r, $reply_id, $reply_to, $topic_id );
+	}
+
+/**
  * Output checked value of reply log edit field
  *
  * @since bbPress (r31301)
