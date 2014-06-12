@@ -191,7 +191,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @var string
 	 */
-	var $tree_type;
+	public $tree_type = 'forum';
 
 	/**
 	 * @see Walker::$db_fields
@@ -200,7 +200,10 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @var array
 	 */
-	var $db_fields = array( 'parent' => 'post_parent', 'id' => 'ID' );
+	public $db_fields = array(
+		'parent' => 'post_parent',
+		'id'     => 'ID'
+	);
 
 	/** Methods ***************************************************************/
 
@@ -219,13 +222,14 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @since bbPress (r2746)
 	 *
 	 * @param string $output Passed by reference. Used to append additional
-	 *                        content.
-	 * @param object $_post Post data object.
-	 * @param int $depth Depth of post in reference to parent posts. Used
-	 *                    for padding.
-	 * @param array $args Uses 'selected' argument for selected post to set
-	 *                     selected HTML attribute for option element.
-	 * @param int $current_object_id
+	 *                       content.
+	 * @param object $object Post data object.
+	 * @param int    $depth  Depth of post in reference to parent posts. Used
+	 *                       for padding.
+	 * @param array  $args   Uses 'selected' argument for selected post to set
+	 *                       selected HTML attribute for option element.
+	 * @param int    $current_object_id
+	 *
 	 * @uses bbp_is_forum_category() To check if the forum is a category
 	 * @uses current_user_can() To check if the current user can post in
 	 *                           closed forums
@@ -277,7 +281,7 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @var string
 	 */
-	var $tree_type = 'reply';
+	public $tree_type = 'reply';
 
 	/**
 	 * @see Walker::$db_fields
@@ -286,10 +290,19 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @var array
 	 */
-	var $db_fields = array(
+	public $db_fields = array(
 		'parent' => 'reply_to',
 		'id'     => 'ID'
 	);
+
+	/**
+	 * Confirm the tree_type
+	 *
+	 * @since bbPress (r5389)
+	 */
+	public function __construct() {
+		$this->tree_type = bbp_get_reply_post_type();
+	}
 
 	/**
 	 * @see Walker::start_lvl()
@@ -301,7 +314,7 @@ class BBP_Walker_Reply extends Walker {
 	 * @param array $args Uses 'style' argument for type of HTML list
 	 */
 	public function start_lvl( &$output = '', $depth = 0, $args = array() ) {
-		bbpress()->reply_query->reply_depth = $depth + 1;
+		bbpress()->reply_query->reply_depth = (int) $depth + 1;
 
 		switch ( $args['style'] ) {
 			case 'div':
@@ -375,7 +388,7 @@ class BBP_Walker_Reply extends Walker {
 
 		// Set up reply
 		$depth++;
-		bbpress()->reply_query->reply_depth = $depth;
+		bbpress()->reply_query->reply_depth = (int) $depth;
 		bbpress()->reply_query->post        = $object;
 		bbpress()->current_reply_id         = $object->ID;
 
@@ -412,6 +425,114 @@ class BBP_Walker_Reply extends Walker {
 		} else {
 			echo "</li>\n";
 		}
+	}
+}
+
+/**
+ * Create HTML dropdown list of bbPress replies.
+ *
+ * @package bbPress
+ * @subpackage Classes
+ *
+ * @since bbPress (r5389)
+ * @uses Walker
+ */
+class BBP_Walker_Reply_Dropdown extends Walker {
+
+	/**
+	 * @see Walker::$tree_type
+	 *
+	 * @since bbPress (r5389)
+	 *
+	 * @var string
+	 */
+	public $tree_type = 'reply';
+
+	/**
+	 * @see Walker::$db_fields
+	 *
+	 * @since bbPress (r5389)
+	 *
+	 * @var array
+	 */
+	public $db_fields = array(
+		'parent' => 'reply_to',
+		'id'     => 'ID'
+	);
+
+	/** Methods ***************************************************************/
+
+	/**
+	 * Confirm the tree_type
+	 *
+	 * @since bbPress (r5389)
+	 */
+	public function __construct() {
+		$this->tree_type = bbp_get_reply_post_type();
+	}
+
+	/**
+	 * @see Walker::start_el()
+	 *
+	 * @since bbPress (r5389)
+	 *
+	 * @param string $output Passed by reference. Used to append additional
+	 *                       content.
+	 *
+	 * @param object $object Post data object.
+	 *
+	 * @param int    $depth  Depth of post in reference to parent posts. Used
+	 *                       for padding.
+	 *
+	 * @param array  $args   Uses 'selected' argument for selected post to set
+	 *                       selected HTML attribute for option element.
+	 *
+	 * @param int    $current_object_id Not Used
+	 *
+	 * @uses bbp_is_forum_category() To check if the forum is a category
+	 * @uses current_user_can() To check if the current user can post in
+	 *                           closed forums
+	 * @uses bbp_is_forum_closed() To check if the forum is closed
+	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
+	 *                        title, output, post, depth and args
+	 */
+	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
+
+		// Set up reply
+		$depth++;
+		bbpress()->reply_query->reply_depth = (int) $depth;
+		bbpress()->reply_query->post        = $object;
+		bbpress()->current_reply_id         = $object->ID;
+
+		// Get reply ancestors
+		$to_check = bbp_get_reply_ancestors( $object->ID );
+
+		// Array of ancestors to check for disabling
+		if ( $args['selected'] !== $object->ID ) {
+			array_unshift( $to_check, $object->ID );
+		}
+
+		// Determine the indentation
+		$pad = str_repeat( '&nbsp;', (int) $depth * 3 );
+
+		// Determine reply title (either post_title, or excerpt of post_content)
+		$title = ! empty( $object->post_title ) ? $object->post_title : wp_html_excerpt( $object->post_content, 10 );
+		$title   = sprintf( esc_html__( '%1$s - %2$s', 'bbpress' ), (int) $object->ID, $title );
+		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $title, $output, $object, $depth, $args );
+
+		// Attributes
+		$class = 'level-' . (int) $depth;
+		$value = (int) $object->ID;
+
+		// Start an output buffer to make late escaping easier
+		ob_start(); ?>
+
+		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $args['selected'], $to_check ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
+		
+		<?php
+
+		// Append the output buffer to the $output variable
+		$output .= ob_get_clean();
 	}
 }
 endif; // class_exists check
