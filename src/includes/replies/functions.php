@@ -1158,7 +1158,8 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 		if ( ! empty( $reply_to ) ) {
 
 			// Setup the current ID and current post as an ancestor
-			$id = $ancestors[] = $reply_to;
+			$id        = $reply_to;
+			$ancestors = array( $reply_to );
 
 			// Get parent reply
 			while ( $ancestor = bbp_get_reply( $id ) ) {
