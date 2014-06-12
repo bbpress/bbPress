@@ -495,7 +495,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Define local variable(s)
 	$revisions_removed = false;
-	$reply = $reply_id = $reply_author = $topic_id = $forum_id = $anonymous_data = 0;
+	$reply = $reply_id = $reply_to = $reply_author = $topic_id = $forum_id = $anonymous_data = 0;
 	$reply_title = $reply_content = $reply_edit_reason = $terms = '';
 
 	/** Reply *****************************************************************/
@@ -634,7 +634,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
 	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
-		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
+		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'], $reply_id );
 	}
 
 	/** Topic Tags ************************************************************/
@@ -794,7 +794,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$reply_to = bbp_validate_reply_to( $reply_to );
+	$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
 
 	// Bail if there is no reply
 	if ( empty( $reply_id ) )

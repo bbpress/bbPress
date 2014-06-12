@@ -500,9 +500,6 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 
 		// Set up reply
 		$depth++;
-		bbpress()->reply_query->reply_depth = (int) $depth;
-		bbpress()->reply_query->post        = $object;
-		bbpress()->current_reply_id         = $object->ID;
 
 		// Get reply ancestors
 		$to_check = bbp_get_reply_ancestors( $object->ID );
