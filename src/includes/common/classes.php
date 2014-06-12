@@ -501,13 +501,9 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Set up reply
 		$depth++;
 
-		// Get reply ancestors
-		$to_check = bbp_get_reply_ancestors( $object->ID );
-
-		// Array of ancestors to check for disabling
-		if ( $args['selected'] !== $object->ID ) {
-			array_unshift( $to_check, $object->ID );
-		}
+		// Get ancestors to determine which items to disable
+		$ancestors = bbp_get_reply_ancestors( $object->ID );
+		array_push( $ancestors, $object->ID );
 
 		// Determine the indentation
 		$pad = str_repeat( '&nbsp;', (int) $depth * 3 );
@@ -524,7 +520,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Start an output buffer to make late escaping easier
 		ob_start(); ?>
 
-		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $args['selected'], $to_check ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
+		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( bbp_get_reply_id(), $ancestors ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
 		
 		<?php
 
