@@ -1280,7 +1280,7 @@ function bbp_tab_index( $auto_increment = true ) {
 }
 
 	/**
-	 * Output the current tab index of a given form
+	 * Return the current tab index of a given form
 	 *
 	 * Use this function to handle the tab indexing of user facing forms
 	 * within a template file. Calling this function will automatically
@@ -1316,7 +1316,7 @@ function bbp_dropdown( $args = '' ) {
 	echo bbp_get_dropdown( $args );
 }
 	/**
-	 * Output a select box allowing to pick which forum/topic a new
+	 * Return a select box allowing to pick which forum/topic a new
 	 * topic/reply belongs in.
 	 *
 	 * @since bbPress (r2746)
@@ -1358,6 +1358,9 @@ function bbp_dropdown( $args = '' ) {
 	 */
 	function bbp_get_dropdown( $args = '' ) {
 
+		// Setup return value
+		$retval = '';
+
 		/** Arguments *********************************************************/
 
 		// Parse arguments against default values
@@ -1370,6 +1373,7 @@ function bbp_dropdown( $args = '' ) {
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order title',
 			'order'              => 'ASC',
+			'posts'              => array(),
 			'walker'             => '',
 
 			// Output-related
@@ -1396,20 +1400,24 @@ function bbp_dropdown( $args = '' ) {
 			$r['exclude'] = explode( ',', $r['exclude'] );
 		}
 
-		/** Setup variables ***************************************************/
+		/** Setup Posts *******************************************************/
 
-		$retval = '';
-		$posts  = get_posts( array(
-			'post_type'          => $r['post_type'],
-			'post_status'        => $r['post_status'],
-			'exclude'            => $r['exclude'],
-			'post_parent'        => $r['post_parent'],
-			'numberposts'        => $r['numberposts'],
-			'orderby'            => $r['orderby'],
-			'order'              => $r['order'],
-			'walker'             => $r['walker'],
-			'disable_categories' => $r['disable_categories']
-		) );
+		/**
+		 * Allow passing of custom posts data
+		 *
+		 * @see bbp_get_reply_to_dropdown() as an example
+		 */
+		if ( empty( $r['posts'] ) ) {
+			$r['posts'] = get_posts( array(
+				'post_type'   => $r['post_type'],
+				'post_status' => $r['post_status'],
+				'post_parent' => $r['post_parent'],
+				'exclude'     => $r['exclude'],
+				'numberposts' => $r['numberposts'],
+				'orderby'     => $r['orderby'],
+				'order'       => $r['order'],
+			) );			
+		}
 
 		/** Drop Down *********************************************************/
 
@@ -1468,8 +1476,8 @@ function bbp_dropdown( $args = '' ) {
 		}
 
 		// Items found so walk the tree
-		if ( !empty( $posts ) ) {
-			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
+		if ( !empty( $r['posts'] ) ) {
+			$retval .= walk_page_dropdown_tree( $r['posts'], 0, $r );
 		}
 
 		// Close the selecet tag
@@ -1590,7 +1598,6 @@ function bbp_reply_form_fields() {
 	if ( bbp_is_reply_edit() ) : ?>
 
 		<input type="hidden" name="bbp_reply_id"    id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
-		<input type="hidden" name="bbp_reply_to"    id="bbp_reply_to"    value="<?php bbp_form_reply_to(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-edit-reply" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )
