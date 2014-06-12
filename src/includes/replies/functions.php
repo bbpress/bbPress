@@ -1113,7 +1113,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 
 	// Validation
 	$reply_id = bbp_get_reply_id( $reply_id );
-	$reply_to = bbp_validate_reply_to( $reply_to );
+	$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
 
 	// Update or delete the `reply_to` postmeta
 	if ( ! empty( $reply_id ) ) {
@@ -1129,6 +1129,54 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 	}
 
 	return (int) apply_filters( 'bbp_update_reply_to', (int) $reply_to, $reply_id );
+}
+
+/**
+ * Get all ancestors to a reply
+ *
+ * Because settings can be changed, this function does not care if hierarchical
+ * replies are active or to what depth.
+ *
+ * @since bbPress (r5390)
+ *
+ * @param int $reply_id
+ * @return array
+ */
+function bbp_get_reply_ancestors( $reply_id = 0 ) {
+	
+	// Validation
+	$reply_id  = bbp_get_reply_id( $reply_id );
+	$ancestors = array();
+
+	// Reply id is valid
+	if ( ! empty( $reply_id ) ) {
+
+		// Try to get reply parent
+		$reply_to = bbp_get_reply_to( $reply_id );
+
+		// Reply has a hierarchical parent
+		if ( ! empty( $reply_to ) ) {
+
+			// Setup the current ID and current post as an ancestor
+			$id = $ancestors[] = $reply_to;
+
+			// Get parent reply
+			while ( $ancestor = bbp_get_reply( $id ) ) {
+
+				// Does parent have a parent?
+				$grampy_id = bbp_get_reply_to( $ancestor->ID );
+
+				// Loop detection: If the ancestor has been seen before, break.
+				if ( empty( $ancestor->post_parent ) || ( $grampy_id === $reply_id ) || in_array( $grampy_id, $ancestors ) ) {
+					break;
+				}
+
+				$id = $ancestors[] = $grampy_id;
+			}
+		}
+	}
+
+	return apply_filters( 'bbp_get_reply_ancestors', $ancestors, $reply_id );
 }
 
 /**
