@@ -2624,7 +2624,7 @@ function bbp_form_reply_edit_reason() {
 	}
 
 /**
- * Output value topic status dropdown
+ * Output value reply status dropdown
  *
  * @since bbPress (r5399)
  *
@@ -2642,7 +2642,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 	 *
 	 * This dropdown is only intended to be seen by users with the 'moderate'
 	 * capability. Because of this, no additional capablitiy checks are performed
-	 * within this function to check available topic statuses.
+	 * within this function to check available reply statuses.
 	 *
 	 * @since bbPress (r5399)
 	 *
