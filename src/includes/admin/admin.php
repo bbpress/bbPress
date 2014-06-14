@@ -567,11 +567,11 @@ class BBP_Admin {
 
 					// Topics admin
 					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'topics' . $suffix . '.js', array( 'jquery' ), $version );
+						wp_enqueue_script( 'bbp-admin-topics-js', $this->js_url . 'topics' . $suffix . '.js', array( 'jquery' ), $version );
 
 					// Replies admin
 					} elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'replies' . $suffix . '.js', array( 'jquery' ), $version );
+						wp_enqueue_script( 'bbp-admin-replies-js', $this->js_url . 'replies' . $suffix . '.js', array( 'jquery' ), $version );
 					}
 
 					break;

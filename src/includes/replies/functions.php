@@ -1664,6 +1664,24 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	}
 }
 
+/** Helpers *******************************************************************/
+
+/**
+ * Return an associative array of available reply statuses
+ *
+ * @since bbPress (r5399)
+ *
+ * @return array
+ */
+function bbp_get_reply_statuses() {
+	return apply_filters( 'bbp_get_reply_statuses', array(
+		bbp_get_public_status_id()  => _x( 'Publish', 'Publish the reply',     'bbpress' ),
+		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the reply',        'bbpress' ),
+		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the reply',       'bbpress' ),
+		bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' ),
+	) );
+}
+
 /** Reply Actions *************************************************************/
 
 /**

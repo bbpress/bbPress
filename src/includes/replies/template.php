@@ -2622,3 +2622,86 @@ function bbp_form_reply_edit_reason() {
 
 		return apply_filters( 'bbp_get_form_reply_edit_reason', esc_attr( $reply_edit_reason ) );
 	}
+
+/**
+ * Output value topic status dropdown
+ *
+ * @since bbPress (r5399)
+ *
+ * @param $args This function supports these arguments:
+ *  - select_id: Select id. Defaults to bbp_reply_status
+ *  - tab: Tabindex
+ *  - reply_id: Reply id
+ *  - selected: Override the selected option
+ */
+function bbp_form_reply_status_dropdown( $args = '' ) {
+	echo bbp_get_form_reply_status_dropdown( $args );
+}
+	/**
+	 * Returns topic status downdown
+	 *
+	 * This dropdown is only intended to be seen by users with the 'moderate'
+	 * capability. Because of this, no additional capablitiy checks are performed
+	 * within this function to check available topic statuses.
+	 *
+	 * @since bbPress (r5399)
+	 *
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_reply_status
+	 *  - tab: Tabindex
+	 *  - topic_id: Reply id
+	 *  - selected: Override the selected option
+	 */
+	function bbp_get_form_reply_status_dropdown( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'select_id' => 'bbp_reply_status',
+			'tab'       => bbp_get_tab_index(),
+			'reply_id'  => 0,
+			'selected'  => false
+		), 'reply_status_dropdown' );
+
+		// No specific selected value passed
+		if ( empty( $r['selected'] ) ) {
+
+			// Post value is passed
+			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+				$r['selected'] = $_POST[ $r['select_id'] ];
+
+			// No Post value was passed
+			} else {
+
+				// Edit topic
+				if ( bbp_is_reply_edit() ) {
+					$r['reply_id'] = bbp_get_reply_id( $r['reply_id'] );
+					$r['selected'] = bbp_get_reply_status( $r['reply_id'] );
+
+				// New topic
+				} else {
+					$r['selected'] = bbp_get_public_status_id();
+				}
+			}
+		}
+
+		// Used variables
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+
+		// Start an output buffer, we'll finish it after the select loop
+		ob_start(); ?>
+
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+
+			<?php foreach ( bbp_get_reply_statuses( $r['topic_id'] ) as $key => $label ) : ?>
+
+				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
+
+			<?php endforeach; ?>
+
+		</select>
+
+		<?php
+
+		// Return the results
+		return apply_filters( 'bbp_get_form_reply_status_dropdown', ob_get_clean(), $r );
+	}
