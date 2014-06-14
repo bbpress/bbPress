@@ -511,8 +511,6 @@ function bbp_get_blocked_role() {
 	return apply_filters( 'bbp_get_blocked_role', 'bbp_blocked' );
 }
 
-/** Deprecated ****************************************************************/
-
 /**
  * Adds bbPress-specific user roles.
  *
@@ -524,10 +522,15 @@ function bbp_add_roles() {
 }
 
 /**
- * Removes bbPress-specific user roles.
+ * Removes bbPress-specific user roles from the `wp_user_roles` array.
+ *
+ * This is currently only used when updating, uninstalling, or resetting bbPress. 
+ *
+ * @see	bbp_admin_reset_handler()
+ * @see bbp_do_uninstall()
+ * @see bbp_version_updater()
  *
  * @since bbPress (r2741)
- * @deprecated since version 2.2
  */
 function bbp_remove_roles() {
 
