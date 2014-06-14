@@ -501,6 +501,13 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Set up reply
 		$depth++;
 
+		// Get the reply ID
+		if ( isset( $args['exclude'][0] ) ) {
+			$reply_id = (int) $args['exclude'][0];
+		} else {
+			$reply_id = bbp_get_reply_id();
+		}
+
 		// Get ancestors to determine which items to disable
 		$ancestors = bbp_get_reply_ancestors( $object->ID );
 		array_push( $ancestors, $object->ID );
@@ -520,7 +527,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Start an output buffer to make late escaping easier
 		ob_start(); ?>
 
-		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( bbp_get_reply_id(), $ancestors ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
+		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
 		
 		<?php
 

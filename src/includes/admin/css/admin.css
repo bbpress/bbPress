@@ -2,7 +2,8 @@
 /* Kludge for too-wide forums dropdown */
 #poststuff #bbp_forum_attributes select#parent_id,
 #poststuff #bbp_topic_attributes select#parent_id,
-#poststuff #bbp_reply_attributes select#bbp_forum_id {
+#poststuff #bbp_reply_attributes select#bbp_forum_id,
+#poststuff #bbp_reply_attributes select#bbp_reply_to {
 	max-width: 170px;
 }
 

@@ -470,7 +470,6 @@ function bbp_reply_metabox() {
 	// Get some meta
 	$reply_topic_id = bbp_get_reply_topic_id( $post_id );
 	$reply_forum_id = bbp_get_reply_forum_id( $post_id );
-	$reply_to       = bbp_get_reply_to(       $post_id );
 
 	// Allow individual manipulation of reply forum
 	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
@@ -508,7 +507,7 @@ function bbp_reply_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_reply_to"><?php esc_html_e( 'Reply To', 'bbpress' ); ?></label>
-		<input name="bbp_reply_to" id="bbp_reply_to" type="text" value="<?php echo esc_attr( $reply_to ); ?>" />
+		<?php bbp_reply_to_dropdown( $post_id ); ?>
 	</p>
 
 	<input name="ping_status" type="hidden" id="ping_status" value="open" />
