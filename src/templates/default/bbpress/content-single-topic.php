@@ -13,6 +13,10 @@
 
 	<?php bbp_breadcrumb(); ?>
 
+	<?php bbp_topic_subscription_link(); ?>
+
+	<?php bbp_topic_favorite_link(); ?>
+
 	<?php do_action( 'bbp_template_before_single_topic' ); ?>
 
 	<?php if ( post_password_required() ) : ?>

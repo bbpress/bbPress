@@ -23,10 +23,6 @@
 
 				<?php _e( 'Posts', 'bbpress' ); ?>
 
-				<?php bbp_topic_subscription_link(); ?>
-
-				<?php bbp_user_favorites_link(); ?>
-
 			<?php else : ?>
 
 				<?php _e( 'Replies', 'bbpress' ); ?>

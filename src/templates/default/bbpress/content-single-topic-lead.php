@@ -21,10 +21,6 @@
 
 			<?php _e( 'Topic', 'bbpress' ); ?>
 
-			<?php bbp_topic_subscription_link(); ?>
-
-			<?php bbp_topic_favorite_link(); ?>
-
 		</div><!-- .bbp-topic-content -->
 
 	</li><!-- .bbp-header -->
