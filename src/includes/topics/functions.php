@@ -1193,7 +1193,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** Date Check ************************************************************/
 
 	// Check if the destination topic is older than the source topic
-	if ( strtotime( $source_topic->post_date ) < strtotime( $destination_topic->post_date ) ) {
+	if ( strtotime( $destination_topic->post_date ) < strtotime( $source_topic->post_date ) ) {
 
 		// Set destination topic post_date to 1 second before source topic
 		$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $source_topic->post_date ) - 1 );
@@ -1295,6 +1295,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 				'post_name'   => false,
 				'post_type'   => bbp_get_reply_post_type(),
 				'post_parent' => $destination_topic->ID,
+				'menu_order'  => bbp_get_reply_position_raw( $reply->ID, $destination_topic->ID ),
 				'guid'        => ''
 			) );
 
