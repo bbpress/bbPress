@@ -218,10 +218,12 @@ add_action( 'untrashed_post', 'bbp_untrashed_topic' );
 add_action( 'deleted_post',   'bbp_deleted_topic'   );
 
 // Favorites
+add_action( 'bbp_spam_topic',   'bbp_remove_topic_from_all_favorites' );
 add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_favorites' );
 add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_favorites' );
 
 // Subscriptions
+add_action( 'bbp_spam_topic',   'bbp_remove_topic_from_all_subscriptions'       );
 add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_subscriptions'       );
 add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_subscriptions'       );
 add_action( 'bbp_trash_forum',  'bbp_remove_forum_from_all_subscriptions'       );
@@ -230,6 +232,7 @@ add_action( 'bbp_new_reply',    'bbp_notify_subscribers',                 11, 5 
 add_action( 'bbp_new_topic',    'bbp_notify_forum_subscribers',           11, 4 );
 
 // Sticky
+add_action( 'bbp_spam_topic',   'bbp_unstick_topic' );
 add_action( 'bbp_trash_topic',  'bbp_unstick_topic' );
 add_action( 'bbp_delete_topic', 'bbp_unstick_topic' );
 
