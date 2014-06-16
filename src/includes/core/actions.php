@@ -262,6 +262,13 @@ add_action( 'bbp_trash_reply',   'bbp_decrease_user_reply_count' );
 add_action( 'bbp_spam_topic',    'bbp_decrease_user_topic_count' );
 add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
 
+// Topic status transition helpers for replies
+add_action( 'bbp_trash_topic',   'bbp_trash_topic_replies'   );
+add_action( 'bbp_untrash_topic', 'bbp_untrash_topic_replies' );
+add_action( 'bbp_delete_topic',  'bbp_delete_topic_replies'  );
+add_action( 'bbp_spam_topic',    'bbp_spam_topic_replies'    );
+add_action( 'bbp_unspam_topic', ' bbp_unspam_topic_replies'  );
+
 // User status
 // @todo make these sub-actions
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );

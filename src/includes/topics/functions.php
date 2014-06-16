@@ -2771,7 +2771,7 @@ function bbp_open_topic( $topic_id = 0 ) {
 		return $topic;
 	}
 
-	// Bail if already open
+	// Bail if not closed
 	if ( bbp_get_closed_status_id() !== $topic->post_status ) {
 		return false;
 	}
@@ -2780,7 +2780,12 @@ function bbp_open_topic( $topic_id = 0 ) {
 	do_action( 'bbp_open_topic', $topic_id );
 
 	// Get previous status
-	$topic_status       = get_post_meta( $topic_id, '_bbp_status', true );
+	$topic_status = get_post_meta( $topic_id, '_bbp_status', true );
+
+	// If no previous status, default to publish
+	if ( empty( $topic_status ) ) {
+		$topic_status = bbp_get_public_status_id();
+	}
 
 	// Set previous status
 	$topic->post_status = $topic_status;
@@ -2833,14 +2838,11 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	// Execute pre spam code
 	do_action( 'bbp_spam_topic', $topic_id );
 
-	// Trash replies to the topic
-	bbp_spam_topic_replies();
-
 	// Set post status to spam
 	$topic->post_status = bbp_get_spam_status_id();
 
 	// Empty the topic of its tags
-	$topic->tax_input = bbp_spam_topic_tags();
+	$topic->tax_input = bbp_spam_topic_tags( $topic_id );
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -2971,9 +2973,6 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	// Execute pre unspam code
 	do_action( 'bbp_unspam_topic', $topic_id );
 
-	// Untrash the replies to a previously spammed topic
-	bbp_unspam_topic_replies();
-
 	// Get pre spam status
 	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
 
@@ -3078,11 +3077,14 @@ function bbp_unspam_topic_tags( $topic_id = 0 ) {
  * @return bool True on success, false on failure
  */
 function bbp_stick_topic( $topic_id = 0, $super = false ) {
+
+	// Validation
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Bail if a topic is not a topic (prevents revisions as stickies)
-	if ( ! bbp_is_topic( $topic_id ) )
+	if ( ! bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	// We may have a super sticky to which we want to convert into a normal
 	// sticky and vice versa; unstick the topic first to avoid any possible error.
@@ -3113,7 +3115,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 	$stickies = array_values( $stickies );
 	$success  = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
 
-	do_action( 'bbp_sticked_topic', $topic_id, $super, $success );
+	do_action( 'bbp_stuck_topic', $topic_id, $super, $success );
 
 	return (bool) $success;
 }
@@ -3133,7 +3135,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
  * @uses update_option() To update the super stickies option
  * @uses delete_post_meta() To delete the forum stickies meta
  * @uses update_post_meta() To update the forum stickies meta
- * @uses do_action() Calls 'bbp_unsticked_topic' with the topic id and success
+ * @uses do_action() Calls 'bbp_unstuck_topic' with the topic id and success
  * @return bool Always true.
  */
 function bbp_unstick_topic( $topic_id = 0 ) {
@@ -3160,7 +3162,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 		}
 	}
 
-	do_action( 'bbp_unsticked_topic', $topic_id, $success );
+	do_action( 'bbp_unstuck_topic', $topic_id, $success );
 
 	return (bool) $success;
 }
@@ -3188,13 +3190,11 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) ) {
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
 	}
 
 	do_action( 'bbp_delete_topic', $topic_id );
-
-	bbp_delete_topic_replies( $topic_id );
 }
 
 /**
@@ -3252,13 +3252,11 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) ) {
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
 	}
 
 	do_action( 'bbp_trash_topic', $topic_id );
-
-	bbp_trash_topic_replies( $topic_id );
 }
 
 /**
@@ -3325,8 +3323,6 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 	}
 
 	do_action( 'bbp_untrash_topic', $topic_id );
-
-	bbp_untrash_topic_replies( $topic_id );
 }
 
 /**
@@ -3372,8 +3368,9 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 function bbp_deleted_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_deleted_topic', $topic_id );
 }
@@ -3388,8 +3385,9 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 function bbp_trashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_trashed_topic', $topic_id );
 }
@@ -3404,8 +3402,9 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 function bbp_untrashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_untrashed_topic', $topic_id );
 }
@@ -3616,8 +3615,9 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 function bbp_check_topic_edit() {
 
 	// Bail if not editing a topic
-	if ( !bbp_is_topic_edit() )
+	if ( ! bbp_is_topic_edit() ) {
 		return;
+	}
 
 	// User cannot edit topic, so redirect back to topic
 	if ( !current_user_can( 'edit_topic', bbp_get_topic_id() ) ) {
@@ -3640,8 +3640,9 @@ function bbp_check_topic_edit() {
 function bbp_check_topic_tag_edit() {
 
 	// Bail if not editing a topic tag
-	if ( !bbp_is_topic_tag_edit() )
+	if ( ! bbp_is_topic_tag_edit() ) {
 		return;
+	}
 
 	// Bail if current user cannot edit topic tags
 	if ( !current_user_can( 'edit_topic_tags', bbp_get_topic_tag_id() ) ) {
