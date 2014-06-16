@@ -3261,6 +3261,15 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	bbp_trash_topic_replies( $topic_id );
 }
 
+/**
+ * Trash replies to a topic when it's trashed.
+ *
+ * Usually you'll want to do this before the topic itself is marked as spam.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
 function bbp_trash_topic_replies( $topic_id = 0 ) {
 
 	// Validate topic ID
