@@ -1343,7 +1343,7 @@ function bbp_merge_topic_handler( $action = '' ) {
  *
  * @param int $destination_topic_id Destination topic id
  * @param int $source_topic_id Source topic id
- * @param int $source_topic_forum Source topic's forum id
+ * @param int $source_topic_forum_id Source topic's forum id
  * @uses bbp_update_forum_topic_count() To update the forum topic counts
  * @uses bbp_update_forum_reply_count() To update the forum reply counts
  * @uses bbp_update_topic_reply_count() To update the topic reply counts
@@ -2718,12 +2718,14 @@ function bbp_close_topic( $topic_id = 0 ) {
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
+	if ( empty( $topic ) ) {
 		return $topic;
+	}
 
 	// Bail if already closed
-	if ( bbp_get_closed_status_id() === $topic->post_status )
+	if ( bbp_get_closed_status_id() === $topic->post_status ) {
 		return false;
+	}
 
 	// Execute pre close code
 	do_action( 'bbp_close_topic', $topic_id );
@@ -2765,12 +2767,14 @@ function bbp_open_topic( $topic_id = 0 ) {
 
 	// Get topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
+	if ( empty( $topic ) ) {
 		return $topic;
+	}
 
 	// Bail if already open
-	if ( bbp_get_closed_status_id() !== $topic->post_status )
+	if ( bbp_get_closed_status_id() !== $topic->post_status ) {
 		return false;
+	}
 
 	// Execute pre open code
 	do_action( 'bbp_open_topic', $topic_id );
@@ -2814,17 +2818,56 @@ function bbp_spam_topic( $topic_id = 0 ) {
 
 	// Get the topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
+	if ( empty( $topic ) ) {
 		return $topic;
+	}
 
 	// Bail if topic is spam
-	if ( bbp_get_spam_status_id() === $topic->post_status )
+	if ( bbp_get_spam_status_id() === $topic->post_status ) {
 		return false;
+	}
+
+	// Add the original post status as post meta for future restoration
+	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic->post_status );
 
 	// Execute pre spam code
 	do_action( 'bbp_spam_topic', $topic_id );
 
-	/** Trash Replies *********************************************************/
+	// Trash replies to the topic
+	bbp_spam_topic_replies();
+
+	// Set post status to spam
+	$topic->post_status = bbp_get_spam_status_id();
+
+	// Empty the topic of its tags
+	$topic->tax_input = bbp_spam_topic_tags();
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update the topic
+	$topic_id = wp_update_post( $topic );
+
+	// Execute post spam code
+	do_action( 'bbp_spammed_topic', $topic_id );
+
+	// Return topic_id
+	return $topic_id;
+}
+
+/**
+ * Trash replies to a topic when it's marked as spam
+ *
+ * Usually you'll want to do this before the topic itself is marked as spam.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_spam_topic_replies( $topic_id = 0 ) {
+
+	// Validation
+	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Topic is being spammed, so its replies are trashed
 	$replies = new WP_Query( array(
@@ -2853,17 +2896,25 @@ function bbp_spam_topic( $topic_id = 0 ) {
 		// that were purposefully trashed before.
 		update_post_meta( $topic_id, '_bbp_pre_spammed_replies', $pre_spammed_replies );
 
-		// Reset the $post global
+		// Reset the global post data after looping through the above WP_Query
 		wp_reset_postdata();
 	}
+}
 
-	// Cleanup
-	unset( $replies );
+/**
+ * Store the tags to a topic in post meta before it's marked as spam so they
+ * can be retreived and unspammed later.
+ *
+ * Usually you'll want to do this before the topic itself is marked as spam.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_spam_topic_tags( $topic_id = 0 ) {
 
-	/** Topic Tags ************************************************************/
-
-	// Add the original post status as post meta for future restoration
-	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic->post_status );
+	// Validation
+	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Get topic tags
 	$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
@@ -2884,26 +2935,10 @@ function bbp_spam_topic( $topic_id = 0 ) {
 
 			// Add the original post status as post meta for future restoration
 			add_post_meta( $topic_id, '_bbp_spam_topic_tags', $term_names );
-
-			// Empty the topic of its tags
-			$topic->tax_input = array( bbp_get_topic_tag_tax_id() => '' );
 		}
 	}
 
-	// Set post status to spam
-	$topic->post_status = bbp_get_spam_status_id();
-
-	// No revisions
-	remove_action( 'pre_post_update', 'wp_save_post_revision' );
-
-	// Update the topic
-	$topic_id = wp_update_post( $topic );
-
-	// Execute post spam code
-	do_action( 'bbp_spammed_topic', $topic_id );
-
-	// Return topic_id
-	return $topic_id;
+	return array( bbp_get_topic_tag_tax_id() => '' );
 }
 
 /**
@@ -2924,50 +2959,20 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Get the topic
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
+	if ( empty( $topic ) ) {
 		return $topic;
+	}
 
 	// Bail if already not spam
-	if ( bbp_get_spam_status_id() !== $topic->post_status )
+	if ( bbp_get_spam_status_id() !== $topic->post_status ) {
 		return false;
+	}
 
 	// Execute pre unspam code
 	do_action( 'bbp_unspam_topic', $topic_id );
 
-	/** Untrash Replies *******************************************************/
-
-	// Get the replies that were not previously trashed
-	$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
-
-	// There are replies to untrash
-	if ( !empty( $pre_spammed_replies ) ) {
-
-		// Maybe reverse the trashed replies array
-		if ( is_array( $pre_spammed_replies ) )
-			$pre_spammed_replies = array_reverse( $pre_spammed_replies );
-
-		// Loop through replies
-		foreach ( (array) $pre_spammed_replies as $reply ) {
-			wp_untrash_post( $reply );
-		}
-	}
-
-	/** Topic Tags ************************************************************/
-
-	// Get pre-spam topic tags
-	$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
-
-	// Topic had tags before it was spammed
-	if ( !empty( $terms ) ) {
-
-		// Set the tax_input of the topic
-		$topic->tax_input = array( bbp_get_topic_tag_tax_id() => $terms );
-
-		// Delete pre-spam topic tag meta
-		delete_post_meta( $topic_id, '_bbp_spam_topic_tags' );
-	}
-
-	/** Topic Status **********************************************************/
+	// Untrash the replies to a previously spammed topic
+	bbp_unspam_topic_replies();
 
 	// Get pre spam status
 	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
@@ -2979,6 +2984,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Set post status to pre spam
 	$topic->post_status = $topic_status;
+	$topic->tax_input   = bbp_unspam_topic_tags( $topic_id );
 
 	// Delete pre spam meta
 	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
@@ -2994,6 +3000,63 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Return topic_id
 	return $topic_id;
+}
+
+/**
+ * Untrash replies to a topic previously marked as spam.
+ *
+ * Usually you'll want to do this after the topic is unspammed.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_unspam_topic_replies( $topic_id = 0 ) {
+
+	// Validation
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Get the replies that were not previously trashed
+	$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
+
+	// There are replies to untrash
+	if ( !empty( $pre_spammed_replies ) ) {
+
+		// Maybe reverse the trashed replies array
+		if ( is_array( $pre_spammed_replies ) ) {
+			$pre_spammed_replies = array_reverse( $pre_spammed_replies );
+		}
+
+		// Loop through replies
+		foreach ( (array) $pre_spammed_replies as $reply ) {
+			wp_untrash_post( $reply );
+		}
+	}
+}
+
+/**
+ * Retreive tags to a topic from post meta before it's unmarked as spam so they.
+ *
+ * Usually you'll want to do this before the topic itself is unmarked as spam.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_unspam_topic_tags( $topic_id = 0 ) {
+
+	// Validation
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Get pre-spam topic tags
+	$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
+
+	// Delete pre-spam topic tag meta
+	if ( !empty( $terms ) ) {
+		delete_post_meta( $topic_id, '_bbp_spam_topic_tags' );
+	}
+
+	return array( bbp_get_topic_tag_tax_id() => $terms );
 }
 
 /**
@@ -3125,10 +3188,28 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_delete_topic', $topic_id );
+
+	bbp_delete_topic_replies( $topic_id );
+}
+
+/**
+ * Delete replies to a topic when it's deleted
+ *
+ * Usually you'll want to do this before the topic itself is deleted.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_delete_topic_replies( $topic_id = 0 ) {
+
+	// Validate topic ID
+	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Topic is being permanently deleted, so its replies gotta go too
 	// Note that we get all post statuses here
@@ -3151,9 +3232,6 @@ function bbp_delete_topic( $topic_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
-
-	// Cleanup
-	unset( $replies );
 }
 
 /**
@@ -3174,10 +3252,19 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_trash_topic', $topic_id );
+
+	bbp_trash_topic_replies( $topic_id );
+}
+
+function bbp_trash_topic_replies( $topic_id = 0 ) {
+
+	// Validate topic ID
+	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
 	$replies = new WP_Query( array(
@@ -3209,9 +3296,6 @@ function bbp_trash_topic( $topic_id = 0 ) {
 		// Reset the $post global
 		wp_reset_postdata();
 	}
-
-	// Cleanup
-	unset( $replies );
 }
 
 /**
@@ -3227,10 +3311,28 @@ function bbp_trash_topic( $topic_id = 0 ) {
 function bbp_untrash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
+	if ( empty( $topic_id ) || ! bbp_is_topic( $topic_id ) ) {
 		return false;
+	}
 
 	do_action( 'bbp_untrash_topic', $topic_id );
+
+	bbp_untrash_topic_replies( $topic_id );
+}
+
+/**
+ * Untrash replies to a topic previously trashed.
+ *
+ * Usually you'll want to do this after the topic is unspammed.
+ *
+ * @since bbPress (r5405)
+ *
+ * @param int $topic_id
+ */
+function bbp_untrash_topic_replies( $topic_id = 0 ) {
+
+	// Validation
+	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Get the replies that were not previously trashed
 	$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
