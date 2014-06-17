@@ -3031,6 +3031,9 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
 			wp_untrash_post( $reply );
 		}
 	}
+
+	// Clear the trasheed reply meta for the topic
+	delete_post_meta( $topic_id, '_bbp_pre_spammed_replies' );
 }
 
 /**
@@ -3354,6 +3357,9 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 			wp_untrash_post( $reply );
 		}
 	}
+
+	// Clear the trashed reply meta for the topic
+	delete_post_meta( $topic_id, '_bbp_pre_trashed_replies' );
 }
 
 /** After Delete/Trash/Untrash ************************************************/
