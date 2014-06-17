@@ -3072,7 +3072,7 @@ function bbp_unspam_topic_tags( $topic_id = 0 ) {
  * @uses do_action() 'bbp_stick_topic' with topic id and bool super
  * @uses update_option() To update the super stickies option
  * @uses update_post_meta() To update the forum stickies meta
- * @uses do_action() Calls 'bbp_sticked_topic' with the topic id, bool super
+ * @uses do_action() Calls 'bbp_stuck_topic' with the topic id, bool super
  *                    and success
  * @return bool True on success, false on failure
  */
