@@ -3349,8 +3349,9 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 	if ( !empty( $pre_trashed_replies ) ) {
 
 		// Maybe reverse the trashed replies array
-		if ( is_array( $pre_trashed_replies ) )
+		if ( is_array( $pre_trashed_replies ) ) {
 			$pre_trashed_replies = array_reverse( $pre_trashed_replies );
+		}
 
 		// Loop through replies
 		foreach ( (array) $pre_trashed_replies as $reply ) {
