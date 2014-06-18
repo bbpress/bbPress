@@ -1009,9 +1009,14 @@ function bbp_get_do_not_reply_address() {
  * those cases, we recommend unhooking this function and creating your own
  * custom emailer script.
  *
- * @since bbPress (r2668)
+ * @since bbPress (r5413)
  *
  * @param int $reply_id ID of the newly made reply
+ * @param int $topic_id ID of the topic of the reply
+ * @param int $forum_id ID of the forum of the reply
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $reply_author ID of the topic author ID
+ *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_reply_id() To validate the reply ID
  * @uses bbp_get_topic_id() To validate the topic ID
@@ -1036,7 +1041,7 @@ function bbp_get_do_not_reply_address() {
  *                    topic id and user id
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
 
 	// Bail if subscriptions are turned off
 	if ( !bbp_is_subscriptions_active() ) {
@@ -1168,6 +1173,10 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  * @since bbPress (r5156)
  *
  * @param int $topic_id ID of the newly made reply
+ * @param int $forum_id ID of the forum for the topic
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $topic_author ID of the topic author ID
+ *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_topic_id() To validate the topic ID
  * @uses bbp_get_forum_id() To validate the forum ID
@@ -1294,6 +1303,26 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	return true;
+}
+
+/**
+ * Sends notification emails for new replies to subscribed topics
+ *
+ * This function is deprecated. Please use: bbp_notify_topic_subscribers()
+ *
+ * @since bbPress (r2668)
+ * @deprecated bbPress (r5412)
+ *
+ * @param int $reply_id ID of the newly made reply
+ * @param int $topic_id ID of the topic of the reply
+ * @param int $forum_id ID of the forum of the reply
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $reply_author ID of the topic author ID
+ *
+ * @return bool True on success, false on failure
+ */
+function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 }
 
 /** Login *********************************************************************/
