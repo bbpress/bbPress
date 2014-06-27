@@ -60,8 +60,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
  *
  * @since bbPress (r2455)
  *
- * @param int|object $post Optional. Default is global post object. A post_id or
- *                          post object
+ * @param string $time Time to convert
  * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
  *                             format
  * @param bool $translate Optional. Default is false. Whether to translate the
@@ -72,9 +71,9 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
  * @return string Returns timestamp
  */
 function bbp_convert_date( $time, $d = 'U', $translate = false ) {
-	$time = mysql2date( $d, $time, $translate );
+	$new_time = mysql2date( $d, $time, $translate );
 
-	return apply_filters( 'bbp_convert_date', $time, $d, $translate );
+	return apply_filters( 'bbp_convert_date', $new_time, $d, $translate, $time );
 }
 
 /**
@@ -205,22 +204,24 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
  *
  * @since bbPress (r2782)
  *
- * @param int $topic_id Optional. Topic id
+ * @param string $reason Optional. User submitted reason for editing.
  * @return string Status of topic
  */
 function bbp_format_revision_reason( $reason = '' ) {
 	$reason = (string) $reason;
 
 	// Format reason for proper display
-	if ( empty( $reason ) )
+	if ( empty( $reason ) ) {
 		return $reason;
+	}
 
 	// Trimming
 	$reason = trim( $reason );
 
 	// We add our own full stop.
-	while ( substr( $reason, -1 ) === '.' )
+	while ( substr( $reason, -1 ) === '.' ) {
 		$reason = substr( $reason, 0, -1 );
+	}
 
 	// Trim again
 	$reason = trim( $reason );
