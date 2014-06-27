@@ -109,6 +109,24 @@ class Example extends BBP_Converter_Base {
 			'to_fieldname'    => 'menu_order'
 		);
 
+		// Forum type (Category = 0 or Forum = 1, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_type',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_forum_type',
+			'callback_method' => 'callback_forum_type'
+		);
+
+		// Forum status (Unlocked = 0 or Locked = 1, Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forums_table',
+			'from_fieldname'  => 'the_forum_status',
+			'to_type'         => 'forum',
+			'to_fieldname'    => '_bbp_status',
+			'callback_method' => 'callback_forum_status'
+		);
+
 		// Forum dates.
 		$this->field_map[] = array(
 			'to_type'         => 'forum',
