@@ -2488,8 +2488,7 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 	echo bbp_get_reply_to_dropdown( $reply_id );
 }
 	/**
-	 * Return a select box allowing to pick which forum/topic a new
-	 * topic/reply belongs in.
+	 * Return a select box allowing to pick which topic/reply a reply belongs.
 	 *
 	 * @since bbPress (r5387)
 	 *
@@ -2499,8 +2498,12 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 	 *                                   dropdown
 	 * @uses current_user_can()          To check if the current user can read
 	 *                                   private forums
-	 * @uses bbp_get_forum_post_type()   To get the forum post type
-	 * @uses bbp_get_topic_post_type()   To get the topic post type
+	 * @uses bbp_get_reply_id()          To get the reply ID
+	 * @uses bbp_get_reply_to()          To get the reply to ID
+	 * @uses bbp_get_reply_topic_id()    To get the replies topic ID
+	 * @uses bbp_get_reply_post_type()   To get the reply post type
+	 * @uses bbp_get_public_status_id()  To get the reply status
+	 * @uses bbp_thread_replies_depth()  To get the threaded replies depth
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_dropdown' with the dropdown
 	 *                        and args
