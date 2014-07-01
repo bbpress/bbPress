@@ -2638,7 +2638,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 	echo bbp_get_form_reply_status_dropdown( $args );
 }
 	/**
-	 * Returns topic status downdown
+	 * Returns reply status downdown
 	 *
 	 * This dropdown is only intended to be seen by users with the 'moderate'
 	 * capability. Because of this, no additional capablitiy checks are performed
@@ -2649,7 +2649,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_reply_status
 	 *  - tab: Tabindex
-	 *  - topic_id: Reply id
+	 *  - reply_id: Reply id
 	 *  - selected: Override the selected option
 	 */
 	function bbp_get_form_reply_status_dropdown( $args = '' ) {
@@ -2672,12 +2672,12 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 			// No Post value was passed
 			} else {
 
-				// Edit topic
+				// Edit reply
 				if ( bbp_is_reply_edit() ) {
 					$r['reply_id'] = bbp_get_reply_id( $r['reply_id'] );
 					$r['selected'] = bbp_get_reply_status( $r['reply_id'] );
 
-				// New topic
+				// New reply
 				} else {
 					$r['selected'] = bbp_get_public_status_id();
 				}
@@ -2692,7 +2692,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 
 		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
 
-			<?php foreach ( bbp_get_reply_statuses( $r['topic_id'] ) as $key => $label ) : ?>
+			<?php foreach ( bbp_get_reply_statuses( $r['reply_id'] ) as $key => $label ) : ?>
 
 				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
