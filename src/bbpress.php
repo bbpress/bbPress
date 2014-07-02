@@ -59,7 +59,7 @@ final class bbPress {
 	public $current_user = false;
 
 	/**
-	 * @var obj Add-ons append to this (Akismet, BuddyPress, etc...)
+	 * @var stdClass Add-ons append to this (Akismet, BuddyPress, etc...)
 	 */
 	public $extend;
 
@@ -96,7 +96,7 @@ final class bbPress {
 	 * @uses bbPress::includes() Include the required files
 	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 * @see bbpress()
-	 * @return The one true bbPress
+	 * @return bbPress The one true bbPress
 	 */
 	public static function instance() {
 
@@ -913,7 +913,7 @@ final class bbPress {
  *
  * Example: <?php $bbp = bbpress(); ?>
  *
- * @return The one true bbPress Instance
+ * @return bbPress The one true bbPress Instance
  */
 function bbpress() {
 	return bbPress::instance();
