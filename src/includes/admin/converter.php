@@ -1067,7 +1067,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old topic stickies to new bbPress stickies.
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r5170)
 	 *
 	 * @uses WPDB $wpdb
 	 * @uses bbp_stick_topic() to set the imported topic as sticky
@@ -1098,7 +1098,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old topic super stickies to new bbPress super stickies.
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r5170)
 	 *
 	 * @uses WPDB $wpdb
 	 * @uses bbp_stick_topic() to set the imported topic as super sticky
@@ -1129,6 +1129,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * This method converts old reply_to post id to new bbPress reply_to post id.
+	 *
+	 * @since  bbPress (r5093)
 	 */
 	public function convert_reply_to_parents( $start ) {
 
@@ -1341,6 +1343,8 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * A mini cache system to reduce database calls to reply_to post id.
+	 *
+	 * @since  bbPress (r5093)
 	 *
 	 * @param string $field
 	 * @return string
