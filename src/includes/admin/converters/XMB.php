@@ -244,7 +244,7 @@ class XMB extends BBP_Converter_Base {
 			'from_tablename'  => 'threads',
 			'from_fieldname'  => 'closed',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
+			'to_fieldname'    => '_bbp_old_closed_status_id',
 			'callback_method' => 'callback_topic_status'
 		);
 

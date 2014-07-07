@@ -244,7 +244,7 @@ class Drupal7 extends BBP_Converter_Base {
 			'join_type'       => 'INNER',
 			'join_expression' => 'ON node.nid = forum_index.nid',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
+			'to_fieldname'    => '_bbp_old_closed_status_id',
 			'callback_method' => 'callback_topic_status'
 		);
 

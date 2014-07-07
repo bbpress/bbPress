@@ -247,7 +247,7 @@ class Example extends BBP_Converter_Base {
 			'from_tablename'  => 'topics_table',
 			'from_fieldname'  => 'the_topic_status',
 			'to_type'         => 'topic',
-			'to_fieldname'    => 'post_status',
+			'to_fieldname'    => '_bbp_old_closed_status_id',
 			'callback_method' => 'callback_topic_status'
 		);
 
