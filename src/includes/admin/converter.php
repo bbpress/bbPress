@@ -467,8 +467,23 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 9. Convert tags.
+			// STEP 9. Closed Topics.
 			case 9 :
+				if ( $converter->convert_topic_closed_topics( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No closed topics to close', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Calculating closed topics (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 10. Convert tags.
+			case 10 :
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -482,8 +497,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 10. Convert replies.
-			case 10 :
+			// STEP 11. Convert replies.
+			case 11 :
 				if ( $converter->convert_replies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -497,8 +512,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 11. Convert reply_to parents.
-			case 11 :
+			// STEP 12. Convert reply_to parents.
+			case 12 :
 				if ( $converter->convert_reply_to_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -1121,6 +1136,36 @@ abstract class BBP_Converter_Base {
 		foreach ( (array) $sticky_array as $row ) {
 			$super = true;
 			bbp_stick_topic( $row->value_id, $super );
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method converts old closed topics to bbPress closed topics.
+	 *
+	 * @since bbPress (r5425)
+	 *
+	 * @uses bbp_close_topic() to close topics properly
+	 *
+	 */
+	public function convert_topic_closed_topics( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name           . ' WHERE meta_key = "_bbp_old_closed_status_id" AND meta_value = "closed" LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_closed_status_id" AND meta_value = "closed" LIMIT ' . $start . ', ' . $this->max_rows;
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$closed_topic = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $closed_topic as $row ) {
+			bbp_close_topic( $row->value_id );
 			$has_update = true;
 		}
 
