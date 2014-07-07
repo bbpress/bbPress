@@ -235,7 +235,7 @@ class e107v1 extends BBP_Converter_Base {
 			'from_tablename'  => 'forum_t',
 			'from_fieldname'  => 'thread_s',
 			'to_type'         => 'topic',
-			'to_fieldname'    => '_bbp_old_sticky_status',
+			'to_fieldname'    => '_bbp_old_sticky_status_id',
 			'callback_method' => 'callback_sticky_status'
 		);
 

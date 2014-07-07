@@ -214,12 +214,12 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_status'
 		);
 
-		// Sticky status (Stored in postmeta))
+		// Sticky status (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'sftopics',
 			'from_fieldname'  => 'topic_pinned',
 			'to_type'         => 'topic',
-			'to_fieldname'    => '_bbp_old_sticky_status',
+			'to_fieldname'    => '_bbp_old_sticky_status_id',
 			'callback_method' => 'callback_sticky_status'
 		);
 
