@@ -1061,9 +1061,9 @@ abstract class BBP_Converter_Base {
 		$has_update = false;
 
 		if ( !empty( $this->sync_table ) ) {
-			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT value_id, meta_value FROM '            . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		} else {
-			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta  . ' WHERE meta_key = "_bbp_old_forum_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		}
 
 		update_option( '_bbp_converter_query', $query );

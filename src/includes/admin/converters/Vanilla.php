@@ -39,7 +39,7 @@ class Vanilla extends BBP_Converter_Base {
 			'from_tablename'  => 'Category',
 			'from_fieldname'  => 'ParentCategoryID',
 			'to_type'         => 'forum',
-			'to_fieldname'    => '_bbp_forum_parent_id',
+			'to_fieldname'    => '_bbp_old_forum_parent_id',
 			'callback_method' => 'callback_forum_parent'
 		);
 

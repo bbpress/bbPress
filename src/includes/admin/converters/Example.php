@@ -40,7 +40,7 @@ class Example extends BBP_Converter_Base {
 			'from_tablename'  => 'forums_table',
 			'from_fieldname'  => 'the_parent_id',
 			'to_type'         => 'forum',
-			'to_fieldname'    => '_bbp_forum_parent_id'
+			'to_fieldname'    => '_bbp_old_forum_parent_id'
 		);
 
 		// Forum topic count (Stored in postmeta)
