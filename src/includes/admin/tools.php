@@ -641,7 +641,7 @@ function bbp_admin_repair_forum_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) ) {
  		return array( 1, sprintf( $statement, $result ) );
 	}
- 
+
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
 	if ( !empty( $forums ) ) {
@@ -1324,7 +1324,7 @@ function bbp_admin_repair_reply_menu_order() {
 
 	// Delete cases where `_bbp_reply_to` was accidentally set to itself
 	if ( is_wp_error( $wpdb->query( "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`;" ) ) ) {
-		return array( 1, sprintf( $statement, $result ) ); 
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Post type
@@ -1500,7 +1500,7 @@ function bbp_admin_reset_handler() {
 
 	/** User ******************************************************************/
 
-	// Delete users
+	// First, if we're deleting previously imported users, delete them now
 	if ( !empty( $_POST['bbpress-delete-imported-users'] ) ) {
 		$sql_users  = $wpdb->get_results( "SELECT `user_id` FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_user_id'", OBJECT_K );
 		if ( !empty( $sql_users ) ) {
@@ -1518,14 +1518,13 @@ function bbp_admin_reset_handler() {
 			$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
 		}
-
-	// Delete imported user metadata
-	} else {
-		$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
-		$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
-		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
-		$messages[] = sprintf( $statement, $result );
 	}
+
+	// Next, if we still have users that were not imported delete that meta data
+	$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
+	$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
+	$messages[] = sprintf( $statement, $result );
 
 	/** Converter *************************************************************/
 
