@@ -3208,7 +3208,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
  * @since bbPress (r5059)
  *
  * @param $args This function supports these arguments:
- *  - select_id: Select id. Defaults to bbp_open_close_topic
+ *  - select_id: Select id. Defaults to bbp_topic_status
  *  - tab: Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option
@@ -3226,7 +3226,7 @@ function bbp_form_topic_status_dropdown( $args = '' ) {
 	 * @since bbPress (r5059)
 	 *
 	 * @param $args This function supports these arguments:
-	 *  - select_id: Select id. Defaults to bbp_open_close_topic
+	 *  - select_id: Select id. Defaults to bbp_topic_status
 	 *  - tab: Tabindex
 	 *  - topic_id: Topic id
 	 *  - selected: Override the selected option
