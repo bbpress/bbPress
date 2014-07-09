@@ -71,8 +71,9 @@ class BBP_Component {
 	 * @uses BBP_Component::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct( $args = '' ) {
-		if ( empty( $args ) )
+		if ( empty( $args ) ) {
 			return;
+		}
 
 		$this->setup_globals( $args );
 		$this->includes();
@@ -359,8 +360,9 @@ class BBP_Walker_Reply extends Walker {
 	 */
 	public function display_element( $element = false, &$children_elements = array(), $max_depth = 0, $depth = 0, $args = array(), &$output = '' ) {
 
-		if ( empty( $element ) )
+		if ( empty( $element ) ) {
 			return;
+		}
 
 		// Get element's id
 		$id_field = $this->db_fields['id'];

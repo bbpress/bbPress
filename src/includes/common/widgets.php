@@ -409,8 +409,9 @@ class BBP_Search_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 
 		// Bail if search is disabled
-		if ( ! bbp_allow_search() )
+		if ( ! bbp_allow_search() ) {
 			return;
+		}
 
 		// Get widget settings
 		$settings = $this->parse_settings( $instance );

@@ -62,8 +62,9 @@ function bbp_is_ajax() {
 function bbp_do_ajax() {
 
 	// Bail if not an ajax request
-	if ( ! bbp_is_ajax() )
+	if ( ! bbp_is_ajax() ) {
 		return;
+	}
 
 	// Set WordPress core ajax constant
 	define( 'DOING_AJAX', true );
@@ -93,8 +94,9 @@ function bbp_do_ajax() {
 function bbp_ajax_response( $success = false, $content = '', $status = -1, $extras = array() ) {
 
 	// Set status to 200 if setting response as successful
-	if ( ( true === $success ) && ( -1 === $status ) )
+	if ( ( true === $success ) && ( -1 === $status ) ) {
 		$status = 200;
+	}
 
 	// Setup the response array
 	$response = array(

@@ -223,15 +223,17 @@ class BBP_Shortcodes {
 	public function display_forum( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
+		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
+		}
 
 		// Set passed attribute to $forum_id for clarity
 		$forum_id = bbpress()->current_forum_id = $attr['id'];
 
 		// Bail if ID passed is not a forum
-		if ( !bbp_is_forum( $forum_id ) )
+		if ( !bbp_is_forum( $forum_id ) ) {
 			return $content;
+		}
 
 		// Start output buffer
 		$this->start( 'bbp_single_forum' );
@@ -317,8 +319,9 @@ class BBP_Shortcodes {
 	public function display_topic( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
+		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
+		}
 
 		// Unset globals
 		$this->unset_globals();
@@ -328,8 +331,9 @@ class BBP_Shortcodes {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a topic
-		if ( !bbp_is_topic( $topic_id ) )
+		if ( !bbp_is_topic( $topic_id ) ) {
 			return $content;
+		}
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
@@ -381,8 +385,9 @@ class BBP_Shortcodes {
 	public function display_topic_form( $attr = array(), $content = '' ) {
 
 		// Sanity check supplied info
-		if ( !empty( $content ) || ( !empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || !bbp_is_forum( $attr['forum_id'] ) ) ) )
+		if ( !empty( $content ) || ( !empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || !bbp_is_forum( $attr['forum_id'] ) ) ) ) {
 			return $content;
+		}
 
 		// Unset globals
 		$this->unset_globals();
@@ -435,8 +440,9 @@ class BBP_Shortcodes {
 	public function display_reply( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
+		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
+		}
 
 		// Unset globals
 		$this->unset_globals();
@@ -446,8 +452,9 @@ class BBP_Shortcodes {
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a reply
-		if ( !bbp_is_reply( $reply_id ) )
+		if ( !bbp_is_reply( $reply_id ) ) {
 			return $content;
+		}
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
@@ -545,8 +552,9 @@ class BBP_Shortcodes {
 	public function display_topics_of_tag( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
+		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
+		}
 
 		// Unset globals
 		$this->unset_globals();
@@ -612,8 +620,9 @@ class BBP_Shortcodes {
 	public function display_view( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( empty( $attr['id'] ) )
+		if ( empty( $attr['id'] ) ) {
 			return $content;
+		}
 
 		// Set passed attribute to $view_id for clarity
 		$view_id = $attr['id'];
@@ -729,10 +738,11 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_login' );
 
 		// Output templates
-		if ( !is_user_logged_in() )
+		if ( !is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-login' );
-		else
+		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'  );
+		}
 
 		// Return contents of output buffer
 		return $this->end();
@@ -754,10 +764,11 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_register' );
 
 		// Output templates
-		if ( !is_user_logged_in() )
+		if ( !is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-register' );
-		else
+		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'     );
+		}
 
 		// Return contents of output buffer
 		return $this->end();
@@ -779,10 +790,11 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_lost_pass' );
 
 		// Output templates
-		if ( !is_user_logged_in() )
+		if ( !is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-lost-pass' );
-		else
+		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'      );
+		}
 
 		// Return contents of output buffer
 		return $this->end();

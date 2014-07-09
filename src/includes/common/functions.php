@@ -29,8 +29,9 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
 
 	// If empty, set $number to (int) 0
-	if ( ! is_numeric( $number ) )
+	if ( ! is_numeric( $number ) ) {
 		$number = 0;
+	}
 
 	return apply_filters( 'bbp_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
 }
@@ -49,8 +50,9 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 
 	// If empty, set $number to (int) 0
-	if ( ! is_numeric( $number ) )
+	if ( ! is_numeric( $number ) ) {
 		$number = 0;
+	}
 
 	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
 }
@@ -318,8 +320,9 @@ function bbp_get_paged() {
 	}
 
 	// Paged found
-	if ( !empty( $paged ) )
+	if ( !empty( $paged ) ) {
 		return (int) $paged;
+	}
 
 	// Default to first page
 	return 1;
@@ -345,17 +348,20 @@ function bbp_get_paged() {
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 
 	// Post is not being updated or the post_author is already 0, return
-	if ( empty( $postarr['ID'] ) || empty( $data['post_author'] ) )
+	if ( empty( $postarr['ID'] ) || empty( $data['post_author'] ) ) {
 		return $data;
+	}
 
 	// Post is not a topic or reply, return
-	if ( !in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
+	if ( !in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) ) {
 		return $data;
+	}
 
 	// Is the post by an anonymous user?
 	if ( ( bbp_get_topic_post_type() === $data['post_type'] && !bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
-	     ( bbp_get_reply_post_type() === $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) )
+	     ( bbp_get_reply_post_type() === $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) ) {
 		return $data;
+	}
 
 	// The post is being updated. It is a topic or a reply and is written by an anonymous user.
 	// Set the post_author back to 0
@@ -621,12 +627,14 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 
 	// Filter variables and add errors if necessary
 	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name',  $r['bbp_anonymous_name']  );
-	if ( empty( $r['bbp_anonymous_name'] ) )
+	if ( empty( $r['bbp_anonymous_name'] ) ) {
 		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',   'bbpress' ) );
+	}
 
 	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
-	if ( empty( $r['bbp_anonymous_email'] ) )
+	if ( empty( $r['bbp_anonymous_email'] ) ) {
 		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
+	}
 
 	// Website is optional
 	$r['bbp_anonymous_website'] = apply_filters( 'bbp_pre_anonymous_post_author_website', $r['bbp_anonymous_website'] );
@@ -659,8 +667,9 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// No duplicate checks for those who can throttle
-	if ( current_user_can( 'throttle' ) )
+	if ( current_user_can( 'throttle' ) ) {
 		return true;
+	}
 
 	// Define global to use get_meta_sql() and get_var() methods
 	global $wpdb;
@@ -734,8 +743,9 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 
 	// Option disabled. No flood checks.
 	$throttle_time = get_option( '_bbp_throttle_time' );
-	if ( empty( $throttle_time ) )
+	if ( empty( $throttle_time ) ) {
 		return true;
+	}
 
 	// User is anonymous, so check a transient based on the IP
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
@@ -777,12 +787,14 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
 
 	// Allow for moderation check to be skipped
-	if ( apply_filters( 'bbp_bypass_check_for_moderation', false, $anonymous_data, $author_id, $title, $content ) )
+	if ( apply_filters( 'bbp_bypass_check_for_moderation', false, $anonymous_data, $author_id, $title, $content ) ) {
 		return true;
+	}
 
 	// Bail if keymaster is author
-	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) )
+	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
 		return true;
+	}
 
 	// Define local variable(s)
 	$_post     = array();
@@ -794,8 +806,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	$blacklist = trim( get_option( 'moderation_keys' ) );
 
 	// Bail if blacklist is empty
-	if ( empty( $blacklist ) )
+	if ( empty( $blacklist ) ) {
 		return true;
+	}
 
 	/** User Data *************************************************************/
 
@@ -896,12 +909,14 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
 
 	// Allow for blacklist check to be skipped
-	if ( apply_filters( 'bbp_bypass_check_for_blacklist', false, $anonymous_data, $author_id, $title, $content ) )
+	if ( apply_filters( 'bbp_bypass_check_for_blacklist', false, $anonymous_data, $author_id, $title, $content ) ) {
 		return true;
+	}
 
 	// Bail if keymaster is author
-	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) )
+	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
 		return true;
+	}
 
 	// Define local variable
 	$_post = array();
@@ -912,8 +927,9 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 	$blacklist = trim( get_option( 'blacklist_keys' ) );
 
 	// Bail if blacklist is empty
-	if ( empty( $blacklist ) )
+	if ( empty( $blacklist ) ) {
 		return true;
+	}
 
 	/** User Data *************************************************************/
 
@@ -1427,16 +1443,19 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 	global $wpdb, $wp;
 
 	// Noop if WP core supports this already
-	if ( in_array( 'post_parent__in', $wp->private_query_vars ) )
+	if ( in_array( 'post_parent__in', $wp->private_query_vars ) ) {
 		return $where;
+	}
 
 	// Bail if no object passed
-	if ( empty( $object ) )
+	if ( empty( $object ) ) {
 		return $where;
+	}
 
 	// Only 1 post_parent so return $where
-	if ( is_numeric( $object->query_vars['post_parent'] ) )
+	if ( is_numeric( $object->query_vars['post_parent'] ) ) {
 		return $where;
+	}
 
 	// Including specific post_parent's
 	if ( ! empty( $object->query_vars['post_parent__in'] ) ) {
@@ -1471,8 +1490,9 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) )
+	if ( empty( $parent_id ) ) {
 		return false;
+	}
 
 	// The ID of the cached query
 	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
@@ -1516,8 +1536,9 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) )
+	if ( empty( $parent_id ) ) {
 		return false;
+	}
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
@@ -1561,8 +1582,9 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) )
+	if ( empty( $parent_id ) ) {
 		return false;
+	}
 
 	// The ID of the cached query
 	$cache_id  = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
@@ -1606,8 +1628,9 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) )
+	if ( empty( $parent_id ) ) {
 		return false;
+	}
 
 	// The ID of the cached query
 	$cache_id  = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
