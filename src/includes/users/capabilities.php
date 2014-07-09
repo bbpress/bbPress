@@ -189,28 +189,33 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 function bbp_profile_update_role( $user_id = 0 ) {
 
 	// Bail if no user ID was passed
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return;
+	}
 
 	// Bail if no role
-	if ( ! isset( $_POST['bbp-forums-role'] ) )
+	if ( ! isset( $_POST['bbp-forums-role'] ) ) {
 		return;
+	}
 
 	// Fromus role we want the user to have
 	$new_role    = sanitize_text_field( $_POST['bbp-forums-role'] );
 	$forums_role = bbp_get_user_role( $user_id );
 
 	// Bail if no role change
-	if ( $new_role === $forums_role )
+	if ( $new_role === $forums_role ) {
 		return;
+	}
 
 	// Bail if trying to set their own role
-	if ( bbp_is_user_home_edit() )
+	if ( bbp_is_user_home_edit() ) {
 		return;
+	}
 	
 	// Bail if current user cannot promote the passing user
-	if ( ! current_user_can( 'promote_user', $user_id ) )
+	if ( ! current_user_can( 'promote_user', $user_id ) ) {
 		return;
+	}
 
 	// Set the new forums role
 	bbp_set_user_role( $user_id, $new_role );
@@ -239,27 +244,32 @@ function bbp_set_current_user_default_role() {
 	/** Sanity ****************************************************************/
 
 	// Bail if deactivating bbPress
-	if ( bbp_is_deactivation() )
+	if ( bbp_is_deactivation() ) {
 		return;
+	}
 
 	// Catch all, to prevent premature user initialization
-	if ( ! did_action( 'set_current_user' ) )
+	if ( ! did_action( 'set_current_user' ) ) {
 		return;
+	}
 
 	// Bail if not logged in or already a member of this site
-	if ( ! is_user_logged_in() )
+	if ( ! is_user_logged_in() ) {
 		return;
+	}
 
 	// Get the current user ID
 	$user_id = bbp_get_current_user_id();
 
 	// Bail if user already has a forums role
-	if ( bbp_get_user_role( $user_id ) )
+	if ( bbp_get_user_role( $user_id ) ) {
 		return;
+	}
 
 	// Bail if user is marked as spam or is deleted
-	if ( bbp_is_user_inactive( $user_id ) )
+	if ( bbp_is_user_inactive( $user_id ) ) {
 		return;
+	}
 
 	/** Ready *****************************************************************/
 
@@ -340,12 +350,14 @@ function bbp_get_user_role_map() {
 function bbp_is_user_spammer( $user_id = 0 ) {
 
 	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() )
+	if ( empty( $user_id ) && is_user_logged_in() ) {
 		$user_id = bbp_get_current_user_id();
+	}
 
 	// No user to check
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Assume user is not spam
 	$is_spammer = false;
@@ -392,16 +404,19 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 function bbp_make_spam_user( $user_id = 0 ) {
 
 	// Use displayed user if it's not yourself
-	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() )
+	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() ) {
 		$user_id = bbp_get_displayed_user_id();
+	}
 
 	// Bail if no user ID
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Bail if user ID is keymaster
-	if ( bbp_is_user_keymaster( $user_id ) )
+	if ( bbp_is_user_keymaster( $user_id ) ) {
 		return false;
+	}
 
 	// Arm the torpedos
 	global $wpdb;
@@ -410,8 +425,9 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	$blogs = get_blogs_of_user( $user_id, true );
 
 	// If user has no blogs, they are a guest on this site
-	if ( empty( $blogs ) )
-		$blogs[$wpdb->blogid] = array();
+	if ( empty( $blogs ) ) {
+		$blogs[ $wpdb->blogid ] = array();
+	}
 
 	// Make array of post types to mark as spam
 	$post_types  = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
@@ -479,16 +495,19 @@ function bbp_make_spam_user( $user_id = 0 ) {
 function bbp_make_ham_user( $user_id = 0 ) {
 
 	// Use displayed user if it's not yourself
-	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() )
+	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() ) {
 		$user_id = bbp_get_displayed_user_id();
+	}
 
 	// Bail if no user ID
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Bail if user ID is keymaster
-	if ( bbp_is_user_keymaster( $user_id ) )
+	if ( bbp_is_user_keymaster( $user_id ) ) {
 		return false;
+	}
 
 	// Arm the torpedos
 	global $wpdb;
@@ -497,8 +516,9 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	$blogs = get_blogs_of_user( $user_id, true );
 
 	// If user has no blogs, they are a guest on this site
-	if ( empty( $blogs ) )
-		$blogs[$wpdb->blogid] = array();
+	if ( empty( $blogs ) ) {
+		$blogs[ $wpdb->blogid ] = array();
+	}
 
 	// Make array of post types to mark as spam
 	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
@@ -551,12 +571,14 @@ function bbp_make_ham_user( $user_id = 0 ) {
 function bbp_is_user_deleted( $user_id = 0 ) {
 
 	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() )
+	if ( empty( $user_id ) && is_user_logged_in() ) {
 		$user_id = bbp_get_current_user_id();
+	}
 
 	// No user to check
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Assume user is not deleted
 	$is_deleted = false;
@@ -592,20 +614,24 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 function bbp_is_user_active( $user_id = 0 ) {
 
 	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() )
+	if ( empty( $user_id ) && is_user_logged_in() ) {
 		$user_id = bbp_get_current_user_id();
+	}
 
 	// No user to check
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Check spam
-	if ( bbp_is_user_spammer( $user_id ) )
+	if ( bbp_is_user_spammer( $user_id ) ) {
 		return false;
+	}
 
 	// Check deleted
-	if ( bbp_is_user_deleted( $user_id ) )
+	if ( bbp_is_user_deleted( $user_id ) ) {
 		return false;
+	}
 
 	// Assume true if not spam or deleted
 	return true;
@@ -626,12 +652,14 @@ function bbp_is_user_active( $user_id = 0 ) {
 function bbp_is_user_inactive( $user_id = 0 ) {
 
 	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() )
+	if ( empty( $user_id ) && is_user_logged_in() ) {
 		$user_id = bbp_get_current_user_id();
+	}
 
 	// No user to check
-	if ( empty( $user_id ) )
+	if ( empty( $user_id ) ) {
 		return false;
+	}
 
 	// Return the inverse of active
 	return !bbp_is_user_active( $user_id );

@@ -215,8 +215,9 @@ function bbp_current_user_avatar( $size = 40 ) {
 	function bbp_get_current_user_avatar( $size = 40 ) {
 
 		$user = bbp_get_current_user_id();
-		if ( empty( $user ) )
+		if ( empty( $user ) ) {
 			$user = bbp_get_current_anonymous_user_data( 'email' );
+		}
 
 		$avatar = get_avatar( $user, $size );
 
@@ -251,8 +252,9 @@ function bbp_user_profile_link( $user_id = 0 ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$user      = get_userdata( $user_id );
 		$user_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
@@ -284,8 +286,9 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 
 		// Bail if no user ID passed
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Parse default arguments
 		$r = bbp_parse_args( $args, array(
@@ -345,13 +348,15 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Allow early overriding of the profile URL to cut down on processing
 		$early_profile_url = apply_filters( 'bbp_pre_get_user_profile_url', (int) $user_id );
-		if ( is_string( $early_profile_url ) )
+		if ( is_string( $early_profile_url ) ) {
 			return $early_profile_url;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -401,8 +406,9 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		$user      = get_userdata( $user_id );
 		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
@@ -442,8 +448,9 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 		$bbp     = bbpress();
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -546,11 +553,13 @@ function bbp_admin_link( $args = '' ) {
 	 * @return The link
 	 */
 	function bbp_get_admin_link( $args = '' ) {
-		if ( !current_user_can( 'moderate' ) )
+		if ( !current_user_can( 'moderate' ) ) {
 			return;
+		}
 
-		if ( !empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) )
+		if ( !empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) ) {
 			$args = array( 'text' => $args );
+		}
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -810,13 +819,15 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Allow early overriding of the profile URL to cut down on processing
 		$early_profile_url = apply_filters( 'bbp_pre_get_favorites_permalink', (int) $user_id );
-		if ( is_string( $early_profile_url ) )
+		if ( is_string( $early_profile_url ) ) {
 			return $early_profile_url;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -973,13 +984,15 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Allow early overriding of the profile URL to cut down on processing
 		$early_profile_url = apply_filters( 'bbp_pre_get_subscriptions_permalink', (int) $user_id );
-		if ( is_string( $early_profile_url ) )
+		if ( is_string( $early_profile_url ) ) {
 			return $early_profile_url;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -1201,22 +1214,27 @@ function bbp_edit_user_display_name() {
 	$public_display = array();
 	$public_display['display_username'] = $bbp->displayed_user->user_login;
 
-	if ( !empty( $bbp->displayed_user->nickname ) )
+	if ( !empty( $bbp->displayed_user->nickname ) ) {
 		$public_display['display_nickname']  = $bbp->displayed_user->nickname;
+	}
 
-	if ( !empty( $bbp->displayed_user->first_name ) )
+	if ( !empty( $bbp->displayed_user->first_name ) ) {
 		$public_display['display_firstname'] = $bbp->displayed_user->first_name;
+	}
 
-	if ( !empty( $bbp->displayed_user->last_name ) )
+	if ( !empty( $bbp->displayed_user->last_name ) ) {
 		$public_display['display_lastname']  = $bbp->displayed_user->last_name;
+	}
 
 	if ( !empty( $bbp->displayed_user->first_name ) && !empty( $bbp->displayed_user->last_name ) ) {
 		$public_display['display_firstlast'] = $bbp->displayed_user->first_name . ' ' . $bbp->displayed_user->last_name;
 		$public_display['display_lastfirst'] = $bbp->displayed_user->last_name  . ' ' . $bbp->displayed_user->first_name;
 	}
 
-	if ( !in_array( $bbp->displayed_user->display_name, $public_display ) ) // Only add this if it isn't duplicated elsewhere
+	// Only add this if it isn't duplicated elsewhere
+	if ( !in_array( $bbp->displayed_user->display_name, $public_display ) ) {
 		$public_display = array( 'display_displayname' => $bbp->displayed_user->display_name ) + $public_display;
+	}
 
 	$public_display = array_map( 'trim', $public_display );
 	$public_display = array_unique( $public_display ); ?>
@@ -1242,8 +1260,9 @@ function bbp_edit_user_display_name() {
 function bbp_edit_user_blog_role() {
 
 	// Return if no user is being edited
-	if ( ! bbp_is_single_user_edit() )
+	if ( ! bbp_is_single_user_edit() ) {
 		return;
+	}
 
 	// Get users current blog role
 	$user_role  = bbp_get_user_blog_role( bbp_get_displayed_user_id() );
@@ -1273,8 +1292,9 @@ function bbp_edit_user_blog_role() {
 function bbp_edit_user_forums_role() {
 
 	// Return if no user is being edited
-	if ( ! bbp_is_single_user_edit() )
+	if ( ! bbp_is_single_user_edit() ) {
 		return;
+	}
 
 	// Get the user's current forum role
 	$user_role     = bbp_get_user_role( bbp_get_displayed_user_id() );
@@ -1283,8 +1303,9 @@ function bbp_edit_user_forums_role() {
 	$dynamic_roles = bbp_get_dynamic_roles();
 
 	// Only keymasters can set other keymasters
-	if ( ! bbp_is_user_keymaster() )
-		unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
+	if ( ! bbp_is_user_keymaster() ) {
+		unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
+	} ?>
 
 	<select name="bbp-forums-role" id="bbp-forums-role">
 		<option value=""><?php esc_html_e( '&mdash; No role for these forums &mdash;', 'bbpress' ); ?></option>
@@ -1346,13 +1367,15 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Allow early overriding of the profile URL to cut down on processing
 		$early_url = apply_filters( 'bbp_pre_get_user_topics_created_url', (int) $user_id );
-		if ( is_string( $early_url ) )
+		if ( is_string( $early_url ) ) {
 			return $early_url;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -1406,13 +1429,15 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			return false;
+		}
 
 		// Allow early overriding of the profile URL to cut down on processing
 		$early_url = apply_filters( 'bbp_pre_get_user_replies_created_url', (int) $user_id );
-		if ( is_string( $early_url ) )
+		if ( is_string( $early_url ) ) {
 			return $early_url;
+		}
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -1496,8 +1521,9 @@ function bbp_login_notices() {
 function bbp_logged_in_redirect( $url = '' ) {
 
 	// Bail if user is not logged in
-	if ( !is_user_logged_in() )
+	if ( !is_user_logged_in() ) {
 		return;
+	}
 
 	// Setup the profile page to redirect to
 	$redirect_to = !empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
@@ -1519,16 +1545,16 @@ function bbp_logged_in_redirect( $url = '' ) {
 function bbp_user_login_fields() {
 ?>
 
-		<input type="hidden" name="user-cookie" value="1" />
+	<input type="hidden" name="user-cookie" value="1" />
 
-		<?php
+	<?php
 
-		// Allow custom login redirection
-		$redirect_to = apply_filters( 'bbp_user_login_redirect_to', '' );
-		bbp_redirect_to_field( $redirect_to );
+	// Allow custom login redirection
+	$redirect_to = apply_filters( 'bbp_user_login_redirect_to', '' );
+	bbp_redirect_to_field( $redirect_to );
 
-		// Prevent intention hi-jacking of log-in form
-		wp_nonce_field( 'bbp-user-login' );
+	// Prevent intention hi-jacking of log-in form
+	wp_nonce_field( 'bbp-user-login' );
 }
 
 /** Register ******************************************************************/
@@ -1547,17 +1573,17 @@ function bbp_user_login_fields() {
 function bbp_user_register_fields() {
 ?>
 
-		<input type="hidden" name="action"      value="register" />
-		<input type="hidden" name="user-cookie" value="1" />
+	<input type="hidden" name="action"      value="register" />
+	<input type="hidden" name="user-cookie" value="1" />
 
-		<?php
+	<?php
 
-		// Allow custom registration redirection
-		$redirect_to = apply_filters( 'bbp_user_register_redirect_to', '' );
-		bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), $redirect_to ) );
+	// Allow custom registration redirection
+	$redirect_to = apply_filters( 'bbp_user_register_redirect_to', '' );
+	bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), $redirect_to ) );
 
-		// Prevent intention hi-jacking of sign-up form
-		wp_nonce_field( 'bbp-user-register' );
+	// Prevent intention hi-jacking of sign-up form
+	wp_nonce_field( 'bbp-user-register' );
 }
 
 /** Lost Password *************************************************************/
@@ -1574,16 +1600,16 @@ function bbp_user_register_fields() {
 function bbp_user_lost_pass_fields() {
 ?>
 
-		<input type="hidden" name="user-cookie" value="1" />
+	<input type="hidden" name="user-cookie" value="1" />
 
-		<?php
+	<?php
 
-		// Allow custom lost pass redirection
-		$redirect_to = apply_filters( 'bbp_user_lost_pass_redirect_to', get_permalink() );
-		bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), $redirect_to ) );
+	// Allow custom lost pass redirection
+	$redirect_to = apply_filters( 'bbp_user_lost_pass_redirect_to', get_permalink() );
+	bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), $redirect_to ) );
 
-		// Prevent intention hi-jacking of lost pass form
-		wp_nonce_field( 'bbp-user-lost-pass' );
+	// Prevent intention hi-jacking of lost pass form
+	wp_nonce_field( 'bbp-user-lost-pass' );
 }
 
 /** Author Avatar *************************************************************/
@@ -1869,19 +1895,22 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	$private = $hidden = $post__not_in = array();
 
 	// Private forums
-	if ( !current_user_can( 'read_private_forums' ) )
+	if ( !current_user_can( 'read_private_forums' ) ) {
 		$private = bbp_get_private_forum_ids();
+	}
 
 	// Hidden forums
-	if ( !current_user_can( 'read_hidden_forums' ) )
+	if ( !current_user_can( 'read_hidden_forums' ) ) {
 		$hidden  = bbp_get_hidden_forum_ids();
+	}
 
 	// Merge private and hidden forums together and remove any empties
 	$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
 	// There are forums that need to be ex
-	if ( !empty( $forum_ids ) )
+	if ( !empty( $forum_ids ) ) {
 		$post__not_in = implode( ',', $forum_ids );
+	}
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
@@ -1895,8 +1924,9 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	$forums = get_posts( $r );
 
 	// No availabe forums
-	if ( empty( $forums ) )
+	if ( empty( $forums ) ) {
 		$forums = false;
+	}
 
 	return apply_filters( 'bbp_get_forums_for_current_user', $forums );
 }
