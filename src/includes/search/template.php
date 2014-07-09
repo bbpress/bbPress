@@ -172,8 +172,9 @@ function bbp_search_results() {
 	$have_posts = bbpress()->search_query->have_posts();
 
 	// Reset the post data when finished
-	if ( empty( $have_posts ) )
+	if ( empty( $have_posts ) ) {
 		wp_reset_postdata();
+	}
 
 	return $have_posts;
 }
@@ -433,8 +434,9 @@ function bbp_search_pagination_links() {
 	function bbp_get_search_pagination_links() {
 		$bbp = bbpress();
 
-		if ( !isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) )
+		if ( !isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) ) {
 			return false;
+		}
 
 		return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
 	}
