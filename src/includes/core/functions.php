@@ -94,7 +94,7 @@ function bbp_update_forum_id( $post_id, $forum_id ) {
  * @since bbPress (r3181)
  *
  * @param int $post_id The post to update
- * @param int $forum_id The forum
+ * @param int $topic_id The forum
  */
 function bbp_update_topic_id( $post_id, $topic_id ) {
 
@@ -111,7 +111,7 @@ function bbp_update_topic_id( $post_id, $topic_id ) {
  * @since bbPress (r3181)
  *
  * @param int $post_id The post to update
- * @param int $forum_id The forum
+ * @param int $reply_id The forum
  */
 function bbp_update_reply_id( $post_id, $reply_id ) {
 
@@ -156,8 +156,9 @@ function bbp_get_views() {
 function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
 
 	// Bail if user does not have capability
-	if ( ! empty( $capability ) && ! current_user_can( $capability ) )
+	if ( ! empty( $capability ) && ! current_user_can( $capability ) ) {
 		return false;
+	}
 
 	$bbp   = bbpress();
 	$view  = sanitize_title( $view );
@@ -169,8 +170,9 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
 	$query_args = bbp_parse_args( $query_args, '', 'register_view' );
 
 	// Set show_stickies to false if it wasn't supplied
-	if ( !isset( $query_args['show_stickies'] ) )
+	if ( !isset( $query_args['show_stickies'] ) ) {
 		$query_args['show_stickies'] = false;
+	}
 
 	$bbp->views[$view] = array(
 		'title'  => $title,
@@ -194,10 +196,11 @@ function bbp_deregister_view( $view ) {
 	$bbp  = bbpress();
 	$view = sanitize_title( $view );
 
-	if ( !isset( $bbp->views[$view] ) )
+	if ( !isset( $bbp->views[ $view ] ) ) {
 		return false;
+	}
 
-	unset( $bbp->views[$view] );
+	unset( $bbp->views[ $view ] );
 
 	return true;
 }
@@ -218,8 +221,9 @@ function bbp_deregister_view( $view ) {
 function bbp_view_query( $view = '', $new_args = '' ) {
 
 	$view = bbp_get_view_id( $view );
-	if ( empty( $view ) )
+	if ( empty( $view ) ) {
 		return false;
+	}
 
 	$query_args = bbp_get_view_query_args( $view );
 
@@ -329,16 +333,18 @@ function bbp_mention_filter( $content = '' ) {
 
 	// Get Usernames and bail if none exist
 	$usernames = bbp_find_mentions( $content );
-	if ( empty( $usernames ) )
+	if ( empty( $usernames ) ) {
 		return $content;
+	}
 
 	// Loop through usernames and link to profiles
 	foreach ( (array) $usernames as $username ) {
 
 		// Skip if username does not exist or user is not active
 		$user = get_user_by( 'slug', $username );
-		if ( empty( $user->ID ) || bbp_is_user_inactive( $user->ID ) )
+		if ( empty( $user->ID ) || bbp_is_user_inactive( $user->ID ) ) {
 			continue;
+		}
 
 		// Replace name in content
 		$content = preg_replace( '/(@' . $username . '\b)/', sprintf( '<a href="%1$s" rel="nofollow">@%2$s</a>', bbp_get_user_profile_url( $user->ID ), $username ), $content );

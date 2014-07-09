@@ -68,8 +68,9 @@ class BBP_Skip_Children {
 	public function pre_post_update( $post_id = 0 ) {
 
 		// Bail if post ID is not a bbPress post type
-		if ( empty( $post_id ) || ! bbp_is_custom_post_type( $post_id ) )
+		if ( empty( $post_id ) || ! bbp_is_custom_post_type( $post_id ) ) {
 			return;
+		}
 
 		// Store the $post_id
 		$this->updating_post = $post_id;
@@ -91,8 +92,9 @@ class BBP_Skip_Children {
 	public function skip_related_posts( $post_id = 0 ) {
 
 		// Bail if this post is not the current bbPress post
-		if ( empty( $post_id ) || ( $this->updating_post !== $post_id ) )
+		if ( empty( $post_id ) || ( $this->updating_post !== $post_id ) ) {
 			return;
+		}
 
 		// Stash the current cache invalidation value in a variable, so we can
 		// restore back to it nicely in the future.
@@ -135,8 +137,9 @@ function bbp_clean_post_cache( $_post = '' ) {
 
 	// Bail if no post
 	$_post = get_post( $_post );
-	if ( empty( $_post ) )
+	if ( empty( $_post ) ) {
 		return;
+	}
 
 	wp_cache_delete( $_post->ID, 'posts'     );
 	wp_cache_delete( $_post->ID, 'post_meta' );

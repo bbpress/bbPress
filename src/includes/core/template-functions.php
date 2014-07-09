@@ -32,8 +32,9 @@ function bbp_get_template_part( $slug, $name = null ) {
 
 	// Setup possible parts
 	$templates = array();
-	if ( isset( $name ) )
+	if ( isset( $name ) ) {
 		$templates[] = $slug . '-' . $name . '.php';
+	}
 	$templates[] = $slug . '.php';
 
 	// Allow template parst to be filtered
@@ -127,7 +128,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *
  * @return string The style filename if one is located.
  */
-function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $version = false, $media = 'all' ) {
+function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = false, $media = 'all' ) {
 
 	// No file found yet
 	$located = false;
@@ -136,8 +137,8 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 	$file = ltrim( $file, '/' );
 
 	// Make sure there is always a version
-	if ( empty( $version ) ) {
-		$version = bbp_get_version();
+	if ( empty( $ver ) ) {
+		$ver = bbp_get_version();
 	}
 
 	// Loop through template stack
@@ -171,7 +172,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 		$located = str_replace( $content_dir, content_url(), $located );
 
 		// Enqueue the style
-		wp_enqueue_style( $handle, $located, $dependencies, $version, $media );
+		wp_enqueue_style( $handle, $located, $deps, $ver, $media );
 	}
 
 	return $located;
@@ -195,7 +196,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
  *
  * @return string The script filename if one is located.
  */
-function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), $version = false, $in_footer = 'all' ) {
+function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = 'all' ) {
 
 	// No file found yet
 	$located = false;
@@ -204,8 +205,8 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 	$file = ltrim( $file, '/' );
 
 	// Make sure there is always a version
-	if ( empty( $version ) ) {
-		$version = bbp_get_version();
+	if ( empty( $ver ) ) {
+		$ver = bbp_get_version();
 	}
 
 	// Loop through template stack
@@ -239,7 +240,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 		$located = str_replace( $content_dir, content_url(), $located );
 
 		// Enqueue the style
-		wp_enqueue_script( $handle, $located, $dependencies, $version, $in_footer );
+		wp_enqueue_script( $handle, $located, $deps, $ver, $in_footer );
 	}
 
 	return $located;
@@ -386,8 +387,9 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
 function bbp_get_query_template( $type, $templates = array() ) {
 	$type = preg_replace( '|[^a-z0-9-]+|', '', $type );
 
-	if ( empty( $templates ) )
+	if ( empty( $templates ) ) {
 		$templates = array( "{$type}.php" );
+	}
 
 	// Filter possible templates, try to match one, and set any bbPress theme
 	// compat properties so they can be cross-checked later.
@@ -420,7 +422,7 @@ function bbp_get_template_locations( $templates = array() ) {
  *
  * @since bbPress (r3738)
  *
- * @param array $templates
+ * @param array $stacks
  * @return array()
  */
 function bbp_add_template_stack_locations( $stacks = array() ) {
@@ -430,9 +432,11 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 	$locations = bbp_get_template_locations();
 
 	// Loop through locations and stacks and combine
-	foreach ( (array) $stacks as $stack )
-		foreach ( (array) $locations as $custom_location )
+	foreach ( (array) $stacks as $stack ) {
+		foreach ( (array) $locations as $custom_location ) {
 			$retval[] = untrailingslashit( trailingslashit( $stack ) . $custom_location );
+		}
+	}
 
 	return apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
 }
@@ -475,16 +479,19 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 function bbp_parse_query( $posts_query ) {
 
 	// Bail if $posts_query is not the main loop
-	if ( ! $posts_query->is_main_query() )
+	if ( ! $posts_query->is_main_query() ) {
 		return;
+	}
 
 	// Bail if filters are suppressed on this query
-	if ( true === $posts_query->get( 'suppress_filters' ) )
+	if ( true === $posts_query->get( 'suppress_filters' ) ) {
 		return;
+	}
 
 	// Bail if in admin
-	if ( is_admin() )
+	if ( is_admin() ) {
 		return;
+	}
 
 	// Get query variables
 	$bbp_view = $posts_query->get( bbp_get_view_rewrite_id() );
@@ -621,8 +628,9 @@ function bbp_parse_query( $posts_query ) {
 
 		// Check if there are search query args set
 		$search_terms = bbp_get_search_terms();
-		if ( !empty( $search_terms ) )
+		if ( !empty( $search_terms ) ) {
 			$posts_query->bbp_search_terms = $search_terms;
+		}
 
 		// Correct is_home variable
 		$posts_query->is_home = false;

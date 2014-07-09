@@ -124,8 +124,9 @@ function bbp_get_default_options() {
 function bbp_add_options() {
 
 	// Add default options
-	foreach ( bbp_get_default_options() as $key => $value )
+	foreach ( bbp_get_default_options() as $key => $value ) {
 		add_option( $key, $value );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_add_options' );
@@ -145,8 +146,9 @@ function bbp_add_options() {
 function bbp_delete_options() {
 
 	// Add default options
-	foreach ( array_keys( bbp_get_default_options() ) as $key )
+	foreach ( array_keys( bbp_get_default_options() ) as $key ) {
 		delete_option( $key );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_delete_options' );
@@ -164,8 +166,9 @@ function bbp_delete_options() {
 function bbp_setup_option_filters() {
 
 	// Add filters to each bbPress option
-	foreach ( array_keys( bbp_get_default_options() ) as $key )
+	foreach ( array_keys( bbp_get_default_options() ) as $key ) {
 		add_filter( 'pre_option_' . $key, 'bbp_pre_get_option' );
+	}
 
 	// Allow previously activated plugins to append their own options.
 	do_action( 'bbp_setup_option_filters' );
@@ -185,8 +188,9 @@ function bbp_pre_get_option( $value = '' ) {
 	$option = str_replace( 'pre_option_', '', current_filter() );
 
 	// Check the options global for preset value
-	if ( isset( bbpress()->options[$option] ) )
-		$value = bbpress()->options[$option];
+	if ( isset( bbpress()->options[ $option ] ) ) {
+		$value = bbpress()->options[ $option ];
+	}
 
 	// Always return a value, even if false
 	return $value;
@@ -492,8 +496,9 @@ function bbp_show_on_root( $default = 'forums' ) {
 function bbp_maybe_get_root_slug() {
 	$retval = '';
 
-	if ( bbp_get_root_slug() && bbp_include_root_slug() )
+	if ( bbp_get_root_slug() && bbp_include_root_slug() ) {
 		$retval = trailingslashit( bbp_get_root_slug() );
+	}
 
 	return apply_filters( 'bbp_maybe_get_root_slug', $retval );
 }

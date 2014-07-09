@@ -354,12 +354,14 @@ function bbp_after_setup_theme() {
 function bbp_post_request() {
 
 	// Bail if not a POST action
-	if ( ! bbp_is_post_request() )
+	if ( ! bbp_is_post_request() ) {
 		return;
+	}
 
 	// Bail if no action
-	if ( empty( $_POST['action'] ) )
+	if ( empty( $_POST['action'] ) ) {
 		return;
+	}
 
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
@@ -378,12 +380,14 @@ function bbp_post_request() {
 function bbp_get_request() {
 
 	// Bail if not a POST action
-	if ( ! bbp_is_get_request() )
+	if ( ! bbp_is_get_request() ) {
 		return;
+	}
 
 	// Bail if no action
-	if ( empty( $_GET['action'] ) )
+	if ( empty( $_GET['action'] ) ) {
 		return;
+	}
 
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.

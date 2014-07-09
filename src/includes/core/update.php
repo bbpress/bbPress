@@ -164,8 +164,9 @@ function bbp_version_bump() {
 function bbp_setup_updater() {
 
 	// Bail if no update needed
-	if ( ! bbp_is_update() )
+	if ( ! bbp_is_update() ) {
 		return;
+	}
 
 	// Call the automated updater
 	bbp_version_updater();
@@ -306,8 +307,9 @@ function bbp_version_updater() {
 function bbp_add_activation_redirect() {
 
 	// Bail if activating from network, or bulk
-	if ( is_network_admin() || isset( $_GET['activate-multi'] ) )
+	if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
 		return;
+	}
 
 	// Add the transient to redirect
     set_transient( '_bbp_activation_redirect', true, 30 );

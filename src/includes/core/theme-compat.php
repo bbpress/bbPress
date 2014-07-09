@@ -183,8 +183,9 @@ function bbp_get_theme_compat_url() {
 function bbp_is_theme_compat_active() {
 	$bbp = bbpress();
 
-	if ( empty( $bbp->theme_compat->active ) )
+	if ( empty( $bbp->theme_compat->active ) ) {
 		return false;
+	}
 
 	return $bbp->theme_compat->active;
 }
@@ -255,8 +256,9 @@ function bbp_set_theme_compat_original_template( $template = '' ) {
 function bbp_is_theme_compat_original_template( $template = '' ) {
 	$bbp = bbpress();
 
-	if ( empty( $bbp->theme_compat->original_template ) )
+	if ( empty( $bbp->theme_compat->original_template ) ) {
 		return false;
+	}
 
 	return (bool) ( $bbp->theme_compat->original_template === $template );
 }
@@ -270,12 +272,14 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
 function bbp_register_theme_package( $theme = array(), $override = true ) {
 
 	// Create new BBP_Theme_Compat object from the $theme array
-	if ( is_array( $theme ) )
+	if ( is_array( $theme ) ) {
 		$theme = new BBP_Theme_Compat( $theme );
+	}
 
 	// Bail if $theme isn't a proper object
-	if ( ! is_a( $theme, 'BBP_Theme_Compat' ) )
+	if ( ! is_a( $theme, 'BBP_Theme_Compat' ) ) {
 		return;
+	}
 
 	// Load up bbPress
 	$bbp = bbpress();
@@ -450,15 +454,17 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * This is a bit more brute-force than is probably necessary, but gets the
 	 * job done while we work towards something more elegant.
 	 */
-	if ( function_exists( 'is_buddypress' ) && is_buddypress() )
+	if ( function_exists( 'is_buddypress' ) && is_buddypress() ) {
 		return $template;
+	}
 
 	// Define local variable(s)
 	$bbp_shortcodes = bbpress()->shortcodes;
 
 	// Bail if shortcodes are unset somehow
-	if ( !is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) )
+	if ( !is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) ) {
 		return $template;
+	}
 
 	/** Users *************************************************************/
 
