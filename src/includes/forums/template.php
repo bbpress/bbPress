@@ -160,8 +160,9 @@ function bbp_forums() {
 	$have_posts = bbpress()->forum_query->have_posts();
 
 	// Reset the post data when finished
-	if ( empty( $have_posts ) )
+	if ( empty( $have_posts ) ) {
 		wp_reset_postdata();
+	}
 
 	return $have_posts;
 }
@@ -262,17 +263,20 @@ function bbp_forum_id( $forum_id = 0 ) {
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 
 	// Use forum ID
-	if ( empty( $forum ) || is_numeric( $forum ) )
+	if ( empty( $forum ) || is_numeric( $forum ) ) {
 		$forum = bbp_get_forum_id( $forum );
+	}
 
 	// Attempt to load the forum
 	$forum = get_post( $forum, OBJECT, $filter );
-	if ( empty( $forum ) )
+	if ( empty( $forum ) ) {
 		return $forum;
+	}
 
 	// Bail if post_type is not a forum
-	if ( $forum->post_type !== bbp_get_forum_post_type() )
+	if ( $forum->post_type !== bbp_get_forum_post_type() ) {
 		return null;
+	}
 
 	// Tweak the data type to return
 	if ( $output === OBJECT ) {
@@ -297,10 +301,12 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
  * @since bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
+ * @param string $redirect_to Optional. Pass a redirect value for use with
+ *                              shortcodes and other fun things.
  * @uses bbp_get_forum_permalink() To get the permalink
  */
-function bbp_forum_permalink( $forum_id = 0 ) {
-	echo esc_url( bbp_get_forum_permalink( $forum_id ) );
+function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
+	echo esc_url( bbp_get_forum_permalink( $forum_id, $redirect_to ) );
 }
 	/**
 	 * Return the link to the forum
@@ -308,7 +314,7 @@ function bbp_forum_permalink( $forum_id = 0 ) {
 	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
-	 * @param $string $redirect_to Optional. Pass a redirect value for use with
+	 * @param string $redirect_to Optional. Pass a redirect value for use with
 	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_permalink() Get the permalink of the forum
@@ -435,8 +441,9 @@ function bbp_forum_content( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Check if password is required
-		if ( post_password_required( $forum_id ) )
+		if ( post_password_required( $forum_id ) ) {
 			return get_the_password_form();
+		}
 
 		$content = get_post_field( 'post_content', $forum_id );
 
@@ -579,11 +586,13 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 		$active_id = bbp_get_forum_last_active_id( $forum_id );
 		$link_url  = $title = '';
 
-		if ( empty( $active_id ) )
+		if ( empty( $active_id ) ) {
 			$active_id = bbp_get_forum_last_reply_id( $forum_id );
+		}
 
-		if ( empty( $active_id ) )
+		if ( empty( $active_id ) ) {
 			$active_id = bbp_get_forum_last_topic_id( $forum_id );
+		}
 
 		if ( bbp_is_topic( $active_id ) ) {
 			$link_url = bbp_get_forum_last_topic_permalink( $forum_id );
@@ -595,10 +604,11 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 
 		$time_since = bbp_get_forum_last_active_time( $forum_id );
 
-		if ( !empty( $time_since ) && !empty( $link_url ) )
+		if ( !empty( $time_since ) && !empty( $link_url ) ) {
 			$anchor = '<a href="' . esc_url( $link_url ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $time_since ) . '</a>';
-		else
+		} else {
 			$anchor = esc_html__( 'No Topics', 'bbpress' );
+		}
 
 		return apply_filters( 'bbp_get_forum_freshness_link', $anchor, $forum_id, $time_since, $link_url, $title, $active_id );
 	}
@@ -676,8 +686,9 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 function bbp_forum_get_subforums( $args = '' ) {
 
 	// Use passed integer as post_parent
-	if ( is_numeric( $args ) )
+	if ( is_numeric( $args ) ) {
 		$args = array( 'post_parent' => $args );
+	}
 
 	// Setup possible post__not_in array
 	$post_stati[] = bbp_get_public_status_id();
@@ -1026,8 +1037,9 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 
-		if ( empty( $reply_id ) )
+		if ( empty( $reply_id ) ) {
 			$reply_id = bbp_get_forum_last_topic_id( $forum_id );
+		}
 
 		return (int) apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
 	}
@@ -1240,10 +1252,11 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		$retval   = '';
 
 		// First link never has view=all
-		if ( bbp_get_view_all( 'edit_others_topics' ) )
+		if ( bbp_get_view_all( 'edit_others_topics' ) ) {
 			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_forum_permalink( $forum_id ) ) ) . "'>" . esc_html( $topics ) . "</a>";
-		else
+		} else {
 			$retval .= esc_html( $topics );
+		}
 
 		// Get deleted topics
 		$deleted = bbp_get_forum_topic_count_hidden( $forum_id );
@@ -1474,8 +1487,9 @@ function bbp_forum_status( $forum_id = 0 ) {
 	function bbp_get_forum_status( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$status   = get_post_meta( $forum_id, '_bbp_status', true );
-		if ( empty( $status ) )
+		if ( empty( $status ) ) {
 			$status = 'open';
+		}
 
 		return apply_filters( 'bbp_get_forum_status', $status, $forum_id );
 	}
@@ -1532,8 +1546,9 @@ function bbp_forum_type( $forum_id = 0 ) {
 	function bbp_get_forum_type( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$retval   = get_post_meta( $forum_id, '_bbp_forum_type', true );
-		if ( empty( $retval ) )
+		if ( empty( $retval ) ) {
 			$retval = 'forum';
+		}
 
 		return apply_filters( 'bbp_get_forum_type', $retval, $forum_id );
 	}
@@ -1784,8 +1799,9 @@ function bbp_forum_author_id( $forum_id = 0 ) {
  * @return string
  */
 function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
-	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) )
+	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
 		$retval = '-';
+	}
 
 	return apply_filters( 'bbp_suppress_private_forum_meta', $retval );
 }
@@ -1795,8 +1811,8 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
  *
  * @since bbPress (r3162)
  *
- * @param string $retval
- * @param int $forum_id
+ * @param string $author_link
+ * @param array $args
  *
  * @uses bbp_is_forum_private()
  * @uses get_post_field()
@@ -1808,7 +1824,7 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
  *
  * @return string
  */
-function bbp_suppress_private_author_link( $author_link, $args ) {
+function bbp_suppress_private_author_link( $author_link = '', $args = array() ) {
 
 	// Assume the author link is the return value
 	$retval = $author_link;
@@ -1823,22 +1839,25 @@ function bbp_suppress_private_author_link( $author_link, $args ) {
 
 			// Topic
 			case bbp_get_topic_post_type() :
-				if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) )
+				if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) ) {
 					$retval = '';
+				}
 
 				break;
 
 			// Reply
 			case bbp_get_reply_post_type() :
-				if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) )
+				if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) ) {
 					$retval = '';
+				}
 
 				break;
 
 			// Post
 			default :
-				if ( bbp_is_forum_private( $args['post_id'] ) )
+				if ( bbp_is_forum_private( $args['post_id'] ) ) {
 					$retval = '';
+				}
 
 				break;
 		}
@@ -2294,7 +2313,11 @@ function bbp_form_forum_subscribed() {
  *
  * @since bbPress (r3563)
  *
- * @param int $forum_id The forum id to use
+ * @param $args This function supports these arguments:
+ *  - select_id: Select id. Defaults to bbp_forum_type
+ *  - tab: Tabindex
+ *  - forum_id: Forum id
+ *  - selected: Override the selected option
  * @uses bbp_get_form_forum_type() To get the topic's forum id
  */
 function bbp_form_forum_type_dropdown( $args = '' ) {
@@ -2305,7 +2328,11 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
 	 *
 	 * @since bbPress (r3563)
 	 *
-	 * @param int $forum_id The forum id to use
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_forum_type
+	 *  - tab: Tabindex
+	 *  - forum_id: Forum id
+	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_type() To get the forum type
 	 * @uses apply_filters()
@@ -2378,7 +2405,11 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
  *
  * @since bbPress (r3563)
  *
- * @param int $forum_id The forum id to use
+ * @param $args This function supports these arguments:
+ *  - select_id: Select id. Defaults to bbp_forum_status
+ *  - tab: Tabindex
+ *  - forum_id: Forum id
+ *  - selected: Override the selected option
  * @uses bbp_get_form_forum_status() To get the topic's forum id
  */
 function bbp_form_forum_status_dropdown( $args = '' ) {
@@ -2389,7 +2420,11 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
 	 *
 	 * @since bbPress (r3563)
 	 *
-	 * @param int $forum_id The forum id to use
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_forum_status
+	 *  - tab: Tabindex
+	 *  - forum_id: Forum id
+	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_status() To get the forum status
 	 * @uses apply_filters()
@@ -2462,7 +2497,11 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
  *
  * @since bbPress (r3563)
  *
- * @param int $forum_id The forum id to use
+ * @param $args This function supports these arguments:
+ *  - select_id: Select id. Defaults to bbp_forum_visibility
+ *  - tab: Tabindex
+ *  - forum_id: Forum id
+ *  - selected: Override the selected option
  * @uses bbp_get_form_forum_visibility() To get the topic's forum id
  */
 function bbp_form_forum_visibility_dropdown( $args = '' ) {
@@ -2473,7 +2512,11 @@ function bbp_form_forum_visibility_dropdown( $args = '' ) {
 	 *
 	 * @since bbPress (r3563)
 	 *
-	 * @param int $forum_id The forum id to use
+	 * @param $args This function supports these arguments:
+	 *  - select_id: Select id. Defaults to bbp_forum_visibility
+	 *  - tab: Tabindex
+	 *  - forum_id: Forum id
+	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_visibility() To get the forum visibility
 	 * @uses apply_filters()
