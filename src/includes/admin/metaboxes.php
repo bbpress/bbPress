@@ -38,7 +38,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Replies
 	if ( current_user_can( 'publish_replies' ) ) {
-		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );;
+		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 		$text       = sprintf( _n( '%d Reply', '%d Replies', $r['reply_count'], 'bbpress' ), $r['reply_count'] );
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>';
 	}
