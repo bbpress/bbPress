@@ -91,8 +91,9 @@ class BBP_Forums_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
+		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) ) {
 			return true;
+		}
 
 		return false;
 	}
@@ -117,7 +118,9 @@ class BBP_Forums_Admin {
 	 */
 	public function edit_help() {
 
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) {
+			return;
+		}
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
@@ -178,7 +181,9 @@ class BBP_Forums_Admin {
 	 */
 	public function new_help() {
 
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) {
+			return;
+		}
 
 		$customize_display = '<p>' . __( 'The title field and the big forum editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
@@ -240,7 +245,9 @@ class BBP_Forums_Admin {
 	 */
 	public function attributes_metabox() {
 
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) {
+			return;
+		}
 
 		add_meta_box (
 			'bbp_forum_attributes',
@@ -278,27 +285,34 @@ class BBP_Forums_Admin {
 	 */
 	public function attributes_metabox_save( $forum_id ) {
 
-		if ( $this->bail() ) return $forum_id;
+		if ( $this->bail() ) {
+			return $forum_id;
+		}
 
 		// Bail if doing an autosave
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $forum_id;
+		}
 
 		// Bail if not a post request
-		if ( ! bbp_is_post_request() )
+		if ( ! bbp_is_post_request() ) {
 			return $forum_id;
+		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_forum_metabox'] ) || !wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) )
+		if ( empty( $_POST['bbp_forum_metabox'] ) || !wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) ) {
 			return $forum_id;
+		}
 
 		// Only save for forum post-types
-		if ( ! bbp_is_forum( $forum_id ) )
+		if ( ! bbp_is_forum( $forum_id ) ) {
 			return $forum_id;
+		}
 
 		// Bail if current user cannot edit this forum
-		if ( !current_user_can( 'edit_forum', $forum_id ) )
+		if ( !current_user_can( 'edit_forum', $forum_id ) ) {
 			return $forum_id;
+		}
 
 		// Parent ID
 		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
@@ -327,9 +341,9 @@ class BBP_Forums_Admin {
 	 */
 	public function admin_head() {
 
-		if ( $this->bail() ) return;
-
-		?>
+		if ( $this->bail() ) {
+			return;
+		} ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -444,8 +458,12 @@ class BBP_Forums_Admin {
 					check_admin_referer( 'close-forum_' . $forum_id );
 
 					$is_open = bbp_is_forum_open( $forum_id );
-					$message = true === $is_open ? 'closed' : 'opened';
-					$success = true === $is_open ? bbp_close_forum( $forum_id ) : bbp_open_forum( $forum_id );
+					$message = ( true === $is_open )
+						? 'closed'
+						: 'opened';
+					$success = ( true === $is_open )
+						? bbp_close_forum( $forum_id )
+						: bbp_open_forum( $forum_id );
 
 					break;
 			}
@@ -509,19 +527,15 @@ class BBP_Forums_Admin {
 
 			switch ( $notice ) {
 				case 'opened' :
-					if ( $message = $is_failure ) {
-						$message = sprintf( __( 'There was a problem opening the forum "%1$s".', 'bbpress' ), $forum_title );
-					} else {
-						$message = sprintf( __( 'Forum "%1$s" successfully opened.', 'bbpress' ), $forum_title );
-					}
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem opening the forum "%1$s".', 'bbpress' ), $forum_title )
+						: sprintf( __( 'Forum "%1$s" successfully opened.',             'bbpress' ), $forum_title );
 					break;
 
 				case 'closed' :
-					if ( $message = $is_failure ) {
-						$message = sprintf( __( 'There was a problem closing the forum "%1$s".', 'bbpress' ), $forum_title );
-					} else {
-						$message = sprintf( __( 'Forum "%1$s" successfully closed.', 'bbpress' ), $forum_title );
-					}
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem closing the forum "%1$s".', 'bbpress' ), $forum_title )
+						: sprintf( __( 'Forum "%1$s" successfully closed.',             'bbpress' ), $forum_title );
 					break;
 			}
 
@@ -550,7 +564,9 @@ class BBP_Forums_Admin {
 	 */
 	public function column_headers( $columns ) {
 
-		if ( $this->bail() ) return $columns;
+		if ( $this->bail() ) {
+			return $columns;
+		}
 
 		$columns = array (
 			'cb'                    => '<input type="checkbox" />',
@@ -584,7 +600,9 @@ class BBP_Forums_Admin {
 	 */
 	public function column_data( $column, $forum_id ) {
 
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) {
+			return;
+		}
 
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
@@ -605,10 +623,11 @@ class BBP_Forums_Admin {
 
 			case 'bbp_forum_freshness' :
 				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
-				if ( !empty( $last_active ) )
+				if ( !empty( $last_active ) ) {
 					echo esc_html( $last_active );
-				else
+				} else {
 					esc_html_e( 'No Topics', 'bbpress' );
+				}
 
 				break;
 
@@ -683,7 +702,9 @@ class BBP_Forums_Admin {
 	public function updated_messages( $messages ) {
 		global $post_ID;
 
-		if ( $this->bail() ) return $messages;
+		if ( $this->bail() ) {
+			return $messages;
+		}
 
 		// URL for the current forum
 		$forum_url = bbp_get_forum_permalink( $post_ID );

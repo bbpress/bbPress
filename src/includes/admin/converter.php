@@ -27,23 +27,26 @@ class BBP_Converter {
 	public function __construct() {
 
 		// "I wonder where I'll float next."
-		if ( empty( $_SERVER['REQUEST_METHOD'] ) )
+		if ( empty( $_SERVER['REQUEST_METHOD'] ) ) {
 			return;
+		}
 
 		// Bail if request is not correct
 		switch ( strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 
 			// Converter is converting
 			case 'POST' :
-				if ( ( empty( $_POST['action'] ) || ( 'bbconverter_process' !=  $_POST['action'] ) ) )
+				if ( ( empty( $_POST['action'] ) || ( 'bbconverter_process' !=  $_POST['action'] ) ) ) {
 					return;
+				}
 
 				break;
 
 			// Some other admin page
 			case 'GET'  :
-				if ( ( empty( $_GET['page'] ) || ( 'bbp-converter' !=  $_GET['page'] ) ) )
+				if ( ( empty( $_GET['page'] ) || ( 'bbp-converter' !=  $_GET['page'] ) ) ) {
 					return;
+				}
 
 				break;
 		}
@@ -215,7 +218,7 @@ class BBP_Converter {
 			}
 
 			function bbconverter_start() {
-				if( false == bbconverter_is_running ) {
+				if( false === bbconverter_is_running ) {
 					bbconverter_is_running = true;
 					jQuery('#bbp-converter-start').hide();
 					jQuery('#bbp-converter-stop').show();
@@ -245,7 +248,7 @@ class BBP_Converter {
 			function bbconverter_success(response) {
 				bbconverter_log(response);
 
-				if ( response == '<p class="loading"><?php esc_html_e( 'Conversion Complete', 'bbpress' ); ?></p>' || response.indexOf('error') > -1 ) {
+				if ( response === '<p class="loading"><?php esc_html_e( 'Conversion Complete', 'bbpress' ); ?></p>' || response.indexOf('error') > -1 ) {
 					bbconverter_log('<p>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></p>');
 					bbconverter_stop();
 				} else if( bbconverter_is_running ) { // keep going
@@ -258,7 +261,7 @@ class BBP_Converter {
 			}
 
 			function bbconverter_log(text) {
-				if ( jQuery('#bbp-converter-message').css('display') == 'none' ) {
+				if ( jQuery('#bbp-converter-message').css('display') === 'none' ) {
 					jQuery('#bbp-converter-message').show();
 				}
 				if ( text ) {
@@ -286,8 +289,9 @@ class BBP_Converter {
 		$after  = '</p>';
 		$query  = get_option( '_bbp_converter_query' );
 
-		if ( ! empty( $query ) )
+		if ( ! empty( $query ) ) {
 			$before = '<p class="loading" title="' . esc_attr( $query ) . '">';
+		}
 
 		echo $before . $output . $after;
 	}
@@ -323,8 +327,9 @@ class BBP_Converter {
 
 		// Bail if platform did not get saved
 		$platform = !empty( $_POST['_bbp_converter_platform' ] ) ? $_POST['_bbp_converter_platform' ] : get_option( '_bbp_converter_platform' );
-		if ( empty( $platform ) )
+		if ( empty( $platform ) ) {
 			return;
+		}
 
 		// Include the appropriate converter.
 		$converter = bbp_new_converter( $platform );
@@ -547,8 +552,9 @@ class BBP_Converter {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'bbp_converter_translator';
-		if ( ! empty( $drop ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name )
+		if ( ! empty( $drop ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
 			$wpdb->query( "DROP TABLE {$table_name}" );
+		}
 
 		require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 

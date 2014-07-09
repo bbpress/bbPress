@@ -428,8 +428,9 @@ function bbp_admin_get_settings_fields() {
 function bbp_admin_get_settings_fields_for_section( $section_id = '' ) {
 
 	// Bail if section is empty
-	if ( empty( $section_id ) )
+	if ( empty( $section_id ) ) {
 		return false;
+	}
 
 	$fields = bbp_admin_get_settings_fields();
 	$retval = isset( $fields[$section_id] ) ? $fields[$section_id] : false;
@@ -854,8 +855,9 @@ function bbp_admin_setting_callback_replies_per_rss_page() {
 function bbp_admin_setting_callback_root_slug_section() {
 
 	// Flush rewrite rules when this section is saved
-	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
-		flush_rewrite_rules(); ?>
+	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) ) {
+		flush_rewrite_rules();
+	} ?>
 
 	<p><?php esc_html_e( 'Customize your Forums root. Partner with a WordPress Page and use Shortcodes for more flexibility.', 'bbpress' ); ?></p>
 
@@ -872,7 +874,7 @@ function bbp_admin_setting_callback_root_slug_section() {
 function bbp_admin_setting_callback_root_slug() {
 ?>
 
-        <input name="_bbp_root_slug" id="_bbp_root_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_root_slug', 'forums', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_root_slug' ); ?> />
+	<input name="_bbp_root_slug" id="_bbp_root_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_root_slug', 'forums', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_root_slug' ); ?> />
 
 <?php
 	// Slug Check
@@ -1296,8 +1298,9 @@ function bbp_converter_setting_callback_platform() {
 	$curdir           = opendir( bbpress()->admin->admin_dir . 'converters/' );
 
 	// Bail if no directory was found (how did this happen?)
-	if ( empty( $curdir ) )
+	if ( empty( $curdir ) ) {
 		return;
+	}
 
 	// Loop through files in the converters folder and assemble some options
 	while ( $file = readdir( $curdir ) ) {
@@ -1534,8 +1537,9 @@ function bbp_admin_settings_help() {
 	$current_screen = get_current_screen();
 
 	// Bail if current screen could not be found
-	if ( empty( $current_screen ) )
+	if ( empty( $current_screen ) ) {
 		return;
+	}
 
 	// Overview
 	$current_screen->add_help_tab( array(
@@ -1646,8 +1650,9 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 		}
 
 		// Fallback to default
-		if ( empty( $value ) )
+		if ( empty( $value ) ) {
 			$value = $default;
+		}
 
 		// Allow plugins to further filter the output
 		return apply_filters( 'bbp_get_form_option', $value, $option );

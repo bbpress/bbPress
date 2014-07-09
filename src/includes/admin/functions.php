@@ -53,8 +53,9 @@ function bbp_admin_separator() {
  * @return mixed True if separator, false if not
  */
 function bbp_admin_custom_menu_order( $menu_order = false ) {
-	if ( false === bbpress()->admin->show_separator )
+	if ( false === bbpress()->admin->show_separator ) {
 		return $menu_order;
+	}
 
 	return true;
 }
@@ -71,8 +72,9 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
 function bbp_admin_menu_order( $menu_order ) {
 
 	// Bail if user cannot see any top level bbPress menus
-	if ( empty( $menu_order ) || ( false === bbpress()->admin->show_separator ) )
+	if ( empty( $menu_order ) || ( false === bbpress()->admin->show_separator ) ) {
 		return $menu_order;
+	}
 
 	// Initialize our custom order array
 	$bbp_menu_order = array();
@@ -130,8 +132,9 @@ function bbp_admin_menu_order( $menu_order ) {
 function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
-	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() )
+	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() ) {
 		return urldecode( $post_link );
+	}
 
 	// Return post link
 	return $post_link;
@@ -174,8 +177,9 @@ function bbp_sanitize_slug( $slug = '' ) {
  * @param type $site_id
  */
 function bbp_do_uninstall( $site_id = 0 ) {
-	if ( empty( $site_id ) )
+	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
+	}
 
 	switch_to_blog( $site_id );
 	bbp_delete_options();
@@ -240,8 +244,9 @@ function bbp_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;
 
 	// This tweaks the Tools subnav menu to only show one bbPress menu item
-	if ( ! in_array( $plugin_page, array( 'bbp-settings' ) ) )
+	if ( ! in_array( $plugin_page, array( 'bbp-settings' ) ) ) {
 		$submenu_file = 'bbp-repair';
+	}
 }
 
 /**

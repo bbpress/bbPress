@@ -105,8 +105,9 @@ add_filter( 'dashboard_glance_items', 'bbp_filter_dashboard_glance_items', -99 )
 function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 
 	// Bail if plugin is not network activated
-	if ( ! is_plugin_active_for_network( bbpress()->basename ) )
+	if ( ! is_plugin_active_for_network( bbpress()->basename ) ) {
 		return;
+	}
 
 	// Switch to the new blog
 	switch_to_blog( $blog_id );

@@ -43,8 +43,9 @@ class BBP_Users_Admin {
 	function setup_actions() {
 
 		// Bail if in network admin
-		if ( is_network_admin() )
+		if ( is_network_admin() ) {
 			return;
+		}
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
@@ -69,15 +70,17 @@ class BBP_Users_Admin {
 	public static function secondary_role_display( $profileuser ) {
 
 		// Bail if current user cannot edit users
-		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
+		if ( ! current_user_can( 'edit_user', $profileuser->ID ) ) {
 			return;
+		}
 
 		// Get the roles
 		$dynamic_roles = bbp_get_dynamic_roles();
 
 		// Only keymasters can set other keymasters
-		if ( ! bbp_is_user_keymaster() )
-			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
+		if ( ! bbp_is_user_keymaster() ) {
+			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
+		} ?>
 
 		<h3><?php esc_html_e( 'Forums', 'bbpress' ); ?></h3>
 
@@ -125,15 +128,17 @@ class BBP_Users_Admin {
 	public static function user_role_bulk_dropdown() {
 
 		// Bail if current user cannot promote users 
-		if ( !current_user_can( 'promote_users' ) )
+		if ( !current_user_can( 'promote_users' ) ) {
 			return;
+		}
 
 		// Get the roles
 		$dynamic_roles = bbp_get_dynamic_roles();
 
 		// Only keymasters can set other keymasters
-		if ( ! bbp_is_user_keymaster() )
-			unset( $dynamic_roles[ bbp_get_keymaster_role() ] ); ?>
+		if ( ! bbp_is_user_keymaster() ) {
+			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
+		} ?>
 
 		<label class="screen-reader-text" for="bbp-new-role"><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
 		<select name="bbp-new-role" id="bbp-new-role" style="display:inline-block; float:none;">
@@ -157,21 +162,25 @@ class BBP_Users_Admin {
 	public function user_role_bulk_change() {
 
 		// Bail if current user cannot promote users 
-		if ( !current_user_can( 'promote_users' ) )
+		if ( !current_user_can( 'promote_users' ) ) {
 			return;
+		}
 
 		// Bail if no users specified
-		if ( empty( $_REQUEST['users'] ) )
+		if ( empty( $_REQUEST['users'] ) ) {
 			return;
+		}
 
 		// Bail if this isn't a bbPress action
-		if ( empty( $_REQUEST['bbp-new-role'] ) || empty( $_REQUEST['bbp-change-role'] ) )
+		if ( empty( $_REQUEST['bbp-new-role'] ) || empty( $_REQUEST['bbp-change-role'] ) ) {
 			return;
+		}
 
 		// Check that the new role exists
 		$dynamic_roles = bbp_get_dynamic_roles();
-		if ( empty( $dynamic_roles[ $_REQUEST['bbp-new-role'] ] ) )
+		if ( empty( $dynamic_roles[ $_REQUEST['bbp-new-role'] ] ) ) {
 			return;
+		}
 
 		// Get the current user ID
 		$current_user_id = (int) bbp_get_current_user_id();
@@ -181,16 +190,18 @@ class BBP_Users_Admin {
 			$user_id = (int) $user_id;
 
 			// Don't let a user change their own role
-			if ( $user_id === $current_user_id )
+			if ( $user_id === $current_user_id ) {
 				continue;
+			}
 
 			// Set up user and role data
 			$user_role = bbp_get_user_role( $user_id );			
 			$new_role  = sanitize_text_field( $_REQUEST['bbp-new-role'] );
 
 			// Only keymasters can set other keymasters
-			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! bbp_is_user_keymaster() )
+			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! bbp_is_user_keymaster() ) {
 				continue;
+			}
 
 			// Set the new forums role
 			if ( $new_role !== $user_role ) {
