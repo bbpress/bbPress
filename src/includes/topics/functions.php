@@ -45,8 +45,9 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	$topic_id   = wp_insert_post( $topic_data );
 
 	// Bail if no topic was added
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) ) {
 		return false;
+	}
 
 	// Parse arguments against default values
 	$topic_meta = bbp_parse_args( $topic_meta, array(
@@ -114,8 +115,9 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 function bbp_new_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-new-topic
-	if ( 'bbp-new-topic' !== $action )
+	if ( 'bbp-new-topic' !== $action ) {
 		return;
+	}
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-new-topic' ) ) {
@@ -164,27 +166,31 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	/** Topic Title ***********************************************************/
 
-	if ( !empty( $_POST['bbp_topic_title'] ) )
+	if ( !empty( $_POST['bbp_topic_title'] ) ) {
 		$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
+	}
 
 	// Filter and sanitize
 	$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
 
 	// No topic title
-	if ( empty( $topic_title ) )
+	if ( empty( $topic_title ) ) {
 		bbp_add_error( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
+	}
 
 	/** Topic Content *********************************************************/
 
-	if ( !empty( $_POST['bbp_topic_content'] ) )
+	if ( !empty( $_POST['bbp_topic_content'] ) ) {
 		$topic_content = $_POST['bbp_topic_content'];
+	}
 
 	// Filter and sanitize
 	$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
 
 	// No topic content
-	if ( empty( $topic_content ) )
+	if ( empty( $topic_content ) ) {
 		bbp_add_error( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
+	}
 
 	/** Topic Forum ***********************************************************/
 
@@ -256,18 +262,21 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	/** Topic Flooding ********************************************************/
 
-	if ( !bbp_check_for_flood( $anonymous_data, $topic_author ) )
+	if ( !bbp_check_for_flood( $anonymous_data, $topic_author ) ) {
 		bbp_add_error( 'bbp_topic_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
+	}
 
 	/** Topic Duplicate *******************************************************/
 
-	if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) )
+	if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) ) {
 		bbp_add_error( 'bbp_topic_duplicate', __( '<strong>ERROR</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
+	}
 
 	/** Topic Blacklist *******************************************************/
 
-	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
+	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be created at this time.', 'bbpress' ) );
+	}
 
 	/** Topic Status **********************************************************/
 
@@ -305,8 +314,9 @@ function bbp_new_topic_handler( $action = '' ) {
 	do_action( 'bbp_new_topic_pre_extras', $forum_id );
 
 	// Bail if errors
-	if ( bbp_has_errors() )
+	if ( bbp_has_errors() ) {
 		return;
+	}
 
 	/** No Errors *************************************************************/
 
@@ -467,8 +477,9 @@ function bbp_new_topic_handler( $action = '' ) {
 function bbp_edit_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-edit-topic
-	if ( 'bbp-edit-topic' !== $action )
+	if ( 'bbp-edit-topic' !== $action ) {
 		return;
+	}
 
 	// Define local variable(s)
 	$revisions_removed = false;
@@ -574,32 +585,37 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	/** Topic Title ***********************************************************/
 
-	if ( !empty( $_POST['bbp_topic_title'] ) )
+	if ( !empty( $_POST['bbp_topic_title'] ) ) {
 		$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
+	}
 
 	// Filter and sanitize
 	$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
 
 	// No topic title
-	if ( empty( $topic_title ) )
+	if ( empty( $topic_title ) ) {
 		bbp_add_error( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
+	}
 
 	/** Topic Content *********************************************************/
 
-	if ( !empty( $_POST['bbp_topic_content'] ) )
+	if ( !empty( $_POST['bbp_topic_content'] ) ) {
 		$topic_content = $_POST['bbp_topic_content'];
+	}
 
 	// Filter and sanitize
 	$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
 
 	// No topic content
-	if ( empty( $topic_content ) )
+	if ( empty( $topic_content ) ) {
 		bbp_add_error( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
+	}
 
 	/** Topic Blacklist *******************************************************/
 
-	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
+	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
+	}
 
 	/** Topic Status **********************************************************/
 
@@ -629,8 +645,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 		// Explode by comma
-		if ( strstr( $terms, ',' ) )
+		if ( strstr( $terms, ',' ) ) {
 			$terms = explode( ',', $terms );
+		}
 
 		// Add topic tag ID as main key
 		$terms = array( bbp_get_topic_tag_tax_id() => $terms );
@@ -649,8 +666,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 	do_action( 'bbp_edit_topic_pre_extras', $topic_id );
 
 	// Bail if errors
-	if ( bbp_has_errors() )
+	if ( bbp_has_errors() ) {
 		return;
+	}
 
 	/** No Errors *************************************************************/
 
@@ -763,8 +781,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 		$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 		// Add view all?
-		if ( !empty( $view_all ) )
+		if ( !empty( $view_all ) ) {
 			$topic_url = bbp_add_view_all( $topic_url );
+		}
 
 		// Allow to be filtered
 		$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $view_all, $redirect_to );
@@ -822,16 +841,19 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Bail if there is no topic
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) ) {
 		return;
+	}
 
 	// Check author_id
-	if ( empty( $author_id ) )
+	if ( empty( $author_id ) ) {
 		$author_id = bbp_get_current_user_id();
+	}
 
 	// Check forum_id
-	if ( empty( $forum_id ) )
+	if ( empty( $forum_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
+	}
 
 	// If anonymous post, store name, email, website and ip in post_meta.
 	// It expects anonymous_data to be sanitized.
@@ -1131,8 +1153,9 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 function bbp_merge_topic_handler( $action = '' ) {
 
 	// Bail if action is not bbp-merge-topic
-	if ( 'bbp-merge-topic' !== $action )
+	if ( 'bbp-merge-topic' !== $action ) {
 		return;
+	}
 
 	// Define local variable(s)
 	$source_topic_id = $destination_topic_id = 0;
@@ -1168,22 +1191,26 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** Destination Topic *****************************************************/
 
 	// Topic id
-	if ( empty( $_POST['bbp_destination_topic'] ) )
+	if ( empty( $_POST['bbp_destination_topic'] ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found.', 'bbpress' ) );
-	else
+	} else {
 		$destination_topic_id = (int) $_POST['bbp_destination_topic'];
+	}
 
 	// Destination topic not found
-	if ( !$destination_topic = bbp_get_topic( $destination_topic_id ) )
+	if ( !$destination_topic = bbp_get_topic( $destination_topic_id ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to merge to was not found.', 'bbpress' ) );
+	}
 
 	// Cannot edit destination topic
-	if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
+	if ( !current_user_can( 'edit_topic', $destination_topic->ID ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic.', 'bbpress' ) );
+	}
 
 	// Bail if errors
-	if ( bbp_has_errors() )
+	if ( bbp_has_errors() ) {
 		return;
+	}
 
 	/** No Errors *************************************************************/
 
@@ -1218,8 +1245,9 @@ function bbp_merge_topic_handler( $action = '' ) {
 		foreach ( (array) $subscribers as $subscriber ) {
 
 			// Shift the subscriber if told to
-			if ( !empty( $_POST['bbp_topic_subscribers'] ) && ( "1" === $_POST['bbp_topic_subscribers'] ) && bbp_is_subscriptions_active() )
+			if ( !empty( $_POST['bbp_topic_subscribers'] ) && ( "1" === $_POST['bbp_topic_subscribers'] ) && bbp_is_subscriptions_active() ) {
 				bbp_add_user_subscription( $subscriber, $destination_topic->ID );
+			}
 
 			// Remove old subscription
 			bbp_remove_user_subscription( $subscriber, $source_topic->ID );
@@ -1238,8 +1266,9 @@ function bbp_merge_topic_handler( $action = '' ) {
 		foreach ( (array) $favoriters as $favoriter ) {
 
 			// Shift the favoriter if told to
-			if ( !empty( $_POST['bbp_topic_favoriters'] ) && "1" === $_POST['bbp_topic_favoriters'] )
+			if ( !empty( $_POST['bbp_topic_favoriters'] ) && "1" === $_POST['bbp_topic_favoriters'] ) {
 				bbp_add_user_favorite( $favoriter, $destination_topic->ID );
+			}
 
 			// Remove old favorite
 			bbp_remove_user_favorite( $favoriter, $source_topic->ID );
@@ -1255,8 +1284,9 @@ function bbp_merge_topic_handler( $action = '' ) {
 	if ( !empty( $source_topic_tags ) && !is_wp_error( $source_topic_tags ) ) {
 
 		// Shift the tags if told to
-		if ( !empty( $_POST['bbp_topic_tags'] ) && ( "1" === $_POST['bbp_topic_tags'] ) )
+		if ( !empty( $_POST['bbp_topic_tags'] ) && ( "1" === $_POST['bbp_topic_tags'] ) ) {
 			wp_set_post_terms( $destination_topic->ID, $source_topic_tags, bbp_get_topic_tag_tax_id(), true );
+		}
 
 		// Delete the tags from the source topic
 		wp_delete_object_term_relationships( $source_topic->ID, bbp_get_topic_tag_tax_id() );
@@ -1419,8 +1449,9 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 function bbp_split_topic_handler( $action = '' ) {
 
 	// Bail if action is not 'bbp-split-topic'
-	if ( 'bbp-split-topic' !== $action )
+	if ( 'bbp-split-topic' !== $action ) {
 		return;
+	}
 
 	global $wpdb;
 
@@ -1432,16 +1463,18 @@ function bbp_split_topic_handler( $action = '' ) {
 
 	/** Split Reply ***********************************************************/
 
-	if ( empty( $_POST['bbp_reply_id'] ) )
+	if ( empty( $_POST['bbp_reply_id'] ) ) {
 		bbp_add_error( 'bbp_split_topic_reply_id', __( '<strong>ERROR</strong>: Reply ID to split the topic from not found!', 'bbpress' ) );
-	else
+	} else {
 		$from_reply_id = (int) $_POST['bbp_reply_id'];
+	}
 
 	$from_reply = bbp_get_reply( $from_reply_id );
 
 	// Reply exists
-	if ( empty( $from_reply ) )
+	if ( empty( $from_reply ) ) {
 		bbp_add_error( 'bbp_split_topic_r_not_found', __( '<strong>ERROR</strong>: The reply you want to split from was not found.', 'bbpress' ) );
+	}
 
 	/** Topic to Split ********************************************************/
 
@@ -1449,8 +1482,9 @@ function bbp_split_topic_handler( $action = '' ) {
 	$source_topic = bbp_get_topic( $from_reply->post_parent );
 
 	// No topic
-	if ( empty( $source_topic ) )
+	if ( empty( $source_topic ) ) {
 		bbp_add_error( 'bbp_split_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to split was not found.', 'bbpress' ) );
+	}
 
 	// Nonce check failed
 	if ( ! bbp_verify_nonce_request( 'bbp-split-topic_' . $source_topic->ID ) ) {
@@ -1459,12 +1493,14 @@ function bbp_split_topic_handler( $action = '' ) {
 	}
 
 	// Use cannot edit topic
-	if ( !current_user_can( 'edit_topic', $source_topic->ID ) )
+	if ( !current_user_can( 'edit_topic', $source_topic->ID ) ) {
 		bbp_add_error( 'bbp_split_topic_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic.', 'bbpress' ) );
+	}
 
 	// How to Split
-	if ( !empty( $_POST['bbp_topic_split_option'] ) )
+	if ( !empty( $_POST['bbp_topic_split_option'] ) ) {
 		$split_option = (string) trim( $_POST['bbp_topic_split_option'] );
+	}
 
 	// Invalid split option
 	if ( empty( $split_option ) || !in_array( $split_option, array( 'existing', 'reply' ) ) ) {
@@ -1480,21 +1516,24 @@ function bbp_split_topic_handler( $action = '' ) {
 			case 'existing' :
 
 				// Get destination topic id
-				if ( empty( $_POST['bbp_destination_topic'] ) )
+				if ( empty( $_POST['bbp_destination_topic'] ) ) {
 					bbp_add_error( 'bbp_split_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
-				else
+				} else {
 					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
+				}
 
 				// Get the destination topic
 				$destination_topic = bbp_get_topic( $destination_topic_id );
 
 				// No destination topic
-				if ( empty( $destination_topic ) )
+				if ( empty( $destination_topic ) ) {
 					bbp_add_error( 'bbp_split_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to split to was not found!', 'bbpress' ) );
+				}
 
 				// User cannot edit the destination topic
-				if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
+				if ( !current_user_can( 'edit_topic', $destination_topic->ID ) ) {
 					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic!', 'bbpress' ) );
+				}
 
 				break;
 
@@ -1544,8 +1583,9 @@ function bbp_split_topic_handler( $action = '' ) {
 	}
 
 	// Bail if there are errors
-	if ( bbp_has_errors() )
+	if ( bbp_has_errors() ) {
 		return;
+	}
 
 	/** No Errors - Do the Spit ***********************************************/
 
@@ -1786,8 +1826,9 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 function bbp_edit_topic_tag_handler( $action = '' ) {
 
 	// Bail if required POST actions aren't passed
-	if ( empty( $_POST['tag-id'] ) )
+	if ( empty( $_POST['tag-id'] ) ) {
 		return;
+	}
 
 	// Setup possible get actions
 	$possible_actions = array(
@@ -1797,8 +1838,9 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $action, $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) ) {
 		return;
+	}
 
 	// Setup vars
 	$tag_id = (int) $_POST['tag-id'];
@@ -1875,8 +1917,9 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// If term does not exist, create it
-			if ( !$tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) )
+			if ( !$tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) ) {
 				$tag = wp_insert_term( $name, bbp_get_topic_tag_tax_id() );
+			}
 
 			// Problem inserting the new term
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -2060,8 +2103,9 @@ function bbp_get_super_stickies() {
 function bbp_toggle_topic_handler( $action = '' ) {
 
 	// Bail if required GET actions aren't passed
-	if ( empty( $_GET['topic_id'] ) )
+	if ( empty( $_GET['topic_id'] ) ) {
 		return;
+	}
 
 	// Setup possible get actions
 	$possible_actions = array(
@@ -2072,8 +2116,9 @@ function bbp_toggle_topic_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $action, $possible_actions ) )
+	if ( !in_array( $action, $possible_actions ) ) {
 		return;
+	}
 
 	$failure   = '';                         // Empty failure string
 	$view_all  = false;                      // Assume not viewing all
@@ -2084,8 +2129,9 @@ function bbp_toggle_topic_handler( $action = '' ) {
 
 	// Make sure topic exists
 	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
+	if ( empty( $topic ) ) {
 		return;
+	}
 
 	// What is the user doing here?
 	if ( !current_user_can( 'edit_topic', $topic->ID ) || ( 'bbp_toggle_topic_trash' === $action && !current_user_can( 'delete_topic', $topic->ID ) ) ) {
@@ -2133,8 +2179,9 @@ function bbp_toggle_topic_handler( $action = '' ) {
 
 			$sub_action = !empty( $_GET['sub_action'] ) && in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
 
-			if ( empty( $sub_action ) )
+			if ( empty( $sub_action ) ) {
 				break;
+			}
 
 			switch ( $sub_action ) {
 				case 'trash':
@@ -2211,8 +2258,9 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Bail if no topic
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) ) {
 		return;
+	}
 
 	// Get users
 	$users = (array) bbp_get_topic_favoriters( $topic_id );
@@ -2243,14 +2291,16 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 
 	// Subscriptions are not active
-	if ( !bbp_is_subscriptions_active() )
+	if ( !bbp_is_subscriptions_active() ) {
 		return;
+	}
 
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Bail if no topic
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) ) {
 		return;
+	}
 
 	// Get users
 	$users = (array) bbp_get_topic_subscribers( $topic_id );
@@ -3434,8 +3484,9 @@ function bbp_get_topics_per_page( $default = 15 ) {
 	$retval = get_option( '_bbp_topics_per_page', $default );
 
 	// If return val is empty, set it to default
-	if ( empty( $retval ) )
+	if ( empty( $retval ) ) {
 		$retval = $default;
+	}
 
 	// Filter and return
 	return (int) apply_filters( 'bbp_get_topics_per_page', $retval, $default );
@@ -3457,8 +3508,9 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 	$retval = get_option( '_bbp_topics_per_rss_page', $default );
 
 	// If return val is empty, set it to default
-	if ( empty( $retval ) )
+	if ( empty( $retval ) ) {
 		$retval = $default;
+	}
 
 	// Filter and return
 	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $default );
@@ -3537,8 +3589,9 @@ function bbp_topic_content_autoembed() {
 function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 	// User cannot access this forum
-	if ( bbp_is_single_forum() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_forum_id() ) ) )
+	if ( bbp_is_single_forum() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_forum_id() ) ) ) {
 		return;
+	}
 
 	// Display the feed
 	header( 'Content-Type: ' . feed_content_type( 'rss-http' ) . '; charset=' . get_option( 'blog_charset' ), true );
