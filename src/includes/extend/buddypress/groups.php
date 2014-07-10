@@ -178,8 +178,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function maybe_unset_forum_menu() {
 
 		// Bail if not viewing a single group
-		if ( ! bp_is_group() )
+		if ( ! bp_is_group() ) {
 			return;
+		}
 
 		// Are forums enabled for this group?
 		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( bp_get_new_group_id(), 'forum_id' );
@@ -327,8 +328,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function edit_screen_save( $group_id = 0 ) {
 
 		// Bail if not a POST action
-		if ( ! bbp_is_post_request() )
+		if ( ! bbp_is_post_request() ) {
 			return;
+		}
 
 		// Admin Nonce check
 		if ( is_admin() ) {
@@ -465,8 +467,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function create_screen( $group_id = 0 ) {
 
 		// Bail if not looking at this screen
-		if ( !bp_is_group_creation_step( $this->slug ) )
+		if ( !bp_is_group_creation_step( $this->slug ) ) {
 			return false;
+		}
 
 		// Check for possibly empty group_id
 		if ( empty( $group_id ) ) {
@@ -508,16 +511,18 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$forum_id     = 0;
 		$forum_ids    = bbp_get_group_forum_ids( $group_id );
 
-		if ( !empty( $forum_ids ) )
+		if ( !empty( $forum_ids ) ) {
 			$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
+		}
 
 		// Create a forum, or not
 		switch ( $create_forum ) {
 			case true  :
 
 				// Bail if initial content was already created
-				if ( !empty( $forum_id ) )
+				if ( !empty( $forum_id ) ) {
 					return;
+				}
 
 				// Set the default forum status
 				switch ( bp_get_new_group_status() ) {
@@ -604,8 +609,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function new_forum( $forum_args = array() ) {
 
 		// Bail if no forum_id was passed
-		if ( empty( $forum_args['forum_id'] ) )
+		if ( empty( $forum_args['forum_id'] ) ) {
 			return;
+		}
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
@@ -630,8 +636,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function remove_forum( $forum_args = array() ) {
 
 		// Bail if no forum_id was passed
-		if ( empty( $forum_args['forum_id'] ) )
+		if ( empty( $forum_args['forum_id'] ) ) {
 			return;
+		}
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
@@ -661,8 +668,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 		// Use the first forum ID
-		if ( empty( $forum_ids ) )
+		if ( empty( $forum_ids ) ) {
 			return;
+		}
 
 		// Get the first forum ID
 		$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
@@ -688,8 +696,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$group = groups_get_group( array( 'group_id' => $group_id ) );
 
 		// Bail if group cannot be found
-		if ( empty( $group ) )
+		if ( empty( $group ) ) {
 			return false;
+		}
 
 		// Set forum enabled status
 		$group->enable_forum = (int) $enabled;
@@ -1032,8 +1041,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$group = groups_get_current_group();
 
 		// If this is a group of any kind, empty out the redirect URL
-		if ( bp_is_group_admin_screen( $this->slug ) )
+		if ( bp_is_group_admin_screen( $this->slug ) ) {
 			$redirect_url = trailingslashit( bp_get_root_domain() . '/' . bp_get_groups_root_slug() . '/' . $group->slug . '/admin/' . $this->slug );
+		}
 
 		return $redirect_url;
 	}
@@ -1131,8 +1141,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function group_settings_hidden_field() {
 
 		// if a forum is not enabled, we don't need to add this field
-		if ( ! bp_group_is_forum_enabled() )
-			return; ?>
+		if ( ! bp_group_is_forum_enabled() ) {
+			return;
+		} ?>
 
 		<input type="hidden" name="group-show-forum" id="group-show-forum" value="1" />
 
@@ -1196,8 +1207,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 		// Bail if the post isn't associated with a group
-		if ( empty( $group_ids ) )
+		if ( empty( $group_ids ) ) {
 			return $url;
+		}
 
 		// @todo Multiple group forums/forum groups
 		$group_id = $group_ids[0];
@@ -1267,8 +1279,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function map_reply_edit_url_to_group( $url, $reply_id ) {
 		$new = $this->maybe_map_permalink_to_group( $reply_id );
 
-		if ( empty( $new ) )
+		if ( empty( $new ) ) {
 			return $url;
+		}
 
 		return trailingslashit( $new ) . bbpress()->edit_id  . '/';
 	}
@@ -1333,8 +1346,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function topic_pagination( $args ) {
 		$new = $this->maybe_map_permalink_to_group( bbp_get_forum_id() );
 
-		if ( empty( $new ) )
+		if ( empty( $new ) ) {
 			return $args;
+		}
 
 		global $wp_rewrite;
 
@@ -1356,8 +1370,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function replies_pagination( $args ) {
 		$new = $this->maybe_map_permalink_to_group( bbp_get_topic_id() );
-		if ( empty( $new ) )
+		if ( empty( $new ) ) {
 			return $args;
+		}
 
 		global $wp_rewrite;
 
@@ -1392,8 +1407,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Bail if not a group forum
-		if ( empty( $group_ids ) )
+		if ( empty( $group_ids ) ) {
 			return;
+		}
 
 		// Use the first group ID
 		$group_id 	 = $group_ids[0];
@@ -1427,8 +1443,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$group = groups_get_current_group();
 
 		// Not posting from a BuddyPress group? stop now!
-		if ( empty( $group ) )
+		if ( empty( $group ) ) {
 			return $args;
+		}
 
 		// Set the component to 'groups' so the activity item shows up in the group
 		$args['component']         = buddypress()->groups->id;

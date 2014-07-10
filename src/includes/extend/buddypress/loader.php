@@ -89,12 +89,14 @@ class BBP_Forums_Component extends BP_Component {
 		$bp = buddypress();
 
 		// Define the parent forum ID
-		if ( !defined( 'BP_FORUMS_PARENT_FORUM_ID' ) )
+		if ( !defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
 			define( 'BP_FORUMS_PARENT_FORUM_ID', 1 );
+		}
 
 		// Define a slug, if necessary
-		if ( !defined( 'BP_FORUMS_SLUG' ) )
+		if ( !defined( 'BP_FORUMS_SLUG' ) ) {
 			define( 'BP_FORUMS_SLUG', $this->id );
+		}
 
 		// All arguments for forums component
 		$args = array(
@@ -164,8 +166,9 @@ class BBP_Forums_Component extends BP_Component {
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
 		// Stop if there is no user displayed or logged in
-		if ( !is_user_logged_in() && !bp_displayed_user_id() )
+		if ( !is_user_logged_in() && !bp_displayed_user_id() ) {
 			return;
+		}
 
 		// Define local variable(s)
 		$user_domain = '';
@@ -181,12 +184,13 @@ class BBP_Forums_Component extends BP_Component {
 		);
 
 		// Determine user to use
-		if ( bp_displayed_user_id() )
+		if ( bp_displayed_user_id() ) {
 			$user_domain = bp_displayed_user_domain();
-		elseif ( bp_loggedin_user_domain() )
+		} elseif ( bp_loggedin_user_domain() ) {
 			$user_domain = bp_loggedin_user_domain();
-		else
+		} else {
 			return;
+		}
 
 		// User link
 		$forums_link = trailingslashit( $user_domain . $this->slug );

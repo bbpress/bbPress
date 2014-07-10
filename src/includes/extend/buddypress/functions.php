@@ -56,16 +56,19 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 	$lid = bp_loggedin_user_id();
 
 	// Easy empty checking
-	if ( !empty( $user_id ) && is_numeric( $user_id ) )
+	if ( !empty( $user_id ) && is_numeric( $user_id ) ) {
 		$bbp_user_id = $user_id;
+	}
 
 	// Currently viewing or editing a user
-	elseif ( ( true === $displayed_user_fallback ) && !empty( $did ) )
+	elseif ( ( true === $displayed_user_fallback ) && !empty( $did ) ) {
 		$bbp_user_id = $did;
+	}
 
 	// Maybe fallback on the current_user ID
-	elseif ( ( true === $current_user_fallback ) && !empty( $lid ) )
+	elseif ( ( true === $current_user_fallback ) && !empty( $lid ) ) {
 		$bbp_user_id = $lid;
+	}
 
 	return $bbp_user_id;
 }
@@ -80,8 +83,9 @@ add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
  * @return bool True if viewing single user, false if not
  */
 function bbp_filter_is_single_user( $is = false ) {
-	if ( !empty( $is ) )
+	if ( !empty( $is ) ) {
 		return $is;
+	}
 
 	return bp_is_user();
 }
@@ -96,8 +100,9 @@ add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
  * @return bool True if viewing single user, false if not
  */
 function bbp_filter_is_user_home( $is = false ) {
-	if ( !empty( $is ) )
+	if ( !empty( $is ) ) {
 		return $is;
+	}
 
 	return bp_is_my_profile();
 }
@@ -292,16 +297,19 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 	$forum_ids = array();
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get the forums
-	if ( !empty( $group_id ) )
+	if ( !empty( $group_id ) ) {
 		$forum_ids = groups_get_groupmeta( $group_id, 'forum_id' );
+	}
 
 	// Make sure result is an array
-	if ( !is_array( $forum_ids ) )
+	if ( !is_array( $forum_ids ) ) {
 		$forum_ids = (array) $forum_ids;
+	}
 
 	// Trim out any empty array items
 	$forum_ids = array_filter( $forum_ids );
@@ -321,16 +329,19 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 	$group_ids = array();
 
 	// Use current group if none is set
-	if ( empty( $forum_id ) )
+	if ( empty( $forum_id ) ) {
 		$forum_id = bbp_get_forum_id();
+	}
 
 	// Get the forums
-	if ( !empty( $forum_id ) )
+	if ( !empty( $forum_id ) ) {
 		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids', true );
+	}
 
 	// Make sure result is an array
-	if ( !is_array( $group_ids ) )
+	if ( !is_array( $group_ids ) ) {
 		$group_ids = (array) $group_ids;
+	}
 
 	// Trim out any empty array items
 	$group_ids = array_filter( $group_ids );
@@ -347,8 +358,9 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Trim out any empties
 	$forum_ids = array_filter( $forum_ids );
@@ -385,8 +397,9 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get current group IDs
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
@@ -410,8 +423,9 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get current group IDs
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
@@ -435,8 +449,9 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get current group IDs
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
@@ -460,8 +475,9 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get current group IDs
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
@@ -482,8 +498,9 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 
 	// Use current group if none is set
-	if ( empty( $group_id ) )
+	if ( empty( $group_id ) ) {
 		$group_id = bp_get_current_group_id();
+	}
 
 	// Get current group IDs
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
@@ -555,14 +572,16 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 function bbp_group_is_admin() {
 
 	// Bail if user is not logged in or not looking at a group
-	if ( ! is_user_logged_in() || ! bp_is_group() )
+	if ( ! is_user_logged_in() || ! bp_is_group() ) {
 		return false;
+	}
 
 	$bbp = bbpress();
 
 	// Set the global if not set
-	if ( ! isset( $bbp->current_user->is_group_admin ) )
+	if ( ! isset( $bbp->current_user->is_group_admin ) ) {
 		$bbp->current_user->is_group_admin = groups_is_user_admin( get_current_user_id(), bp_get_current_group_id() );
+	}
 
 	// Return the value
 	return (bool) $bbp->current_user->is_group_admin;
@@ -584,14 +603,16 @@ function bbp_group_is_admin() {
 function bbp_group_is_mod() {
 
 	// Bail if user is not logged in or not looking at a group
-	if ( ! is_user_logged_in() || ! bp_is_group() )
+	if ( ! is_user_logged_in() || ! bp_is_group() ) {
 		return false;
+	}
 
 	$bbp = bbpress();
 
 	// Set the global if not set
-	if ( ! isset( $bbp->current_user->is_group_mod ) )
+	if ( ! isset( $bbp->current_user->is_group_mod ) ) {
 		$bbp->current_user->is_group_mod = groups_is_user_mod( get_current_user_id(), bp_get_current_group_id() );
+	}
 
 	// Return the value
 	return (bool) $bbp->current_user->is_group_mod;
@@ -613,14 +634,16 @@ function bbp_group_is_mod() {
 function bbp_group_is_member() {
 
 	// Bail if user is not logged in or not looking at a group
-	if ( ! is_user_logged_in() || ! bp_is_group() )
+	if ( ! is_user_logged_in() || ! bp_is_group() ) {
 		return false;
+	}
 
 	$bbp = bbpress();
 
 	// Set the global if not set
-	if ( ! isset( $bbp->current_user->is_group_member ) )
+	if ( ! isset( $bbp->current_user->is_group_member ) ) {
 		$bbp->current_user->is_group_member = groups_is_user_member( get_current_user_id(), bp_get_current_group_id() );
+	}
 
 	// Return the value
 	return (bool) $bbp->current_user->is_group_member;
@@ -642,14 +665,16 @@ function bbp_group_is_member() {
 function bbp_group_is_banned() {
 
 	// Bail if user is not logged in or not looking at a group
-	if ( ! is_user_logged_in() || ! bp_is_group() )
+	if ( ! is_user_logged_in() || ! bp_is_group() ) {
 		return false;
+	}
 
 	$bbp = bbpress();
 
 	// Set the global if not set
-	if ( ! isset( $bbp->current_user->is_group_banned ) )
+	if ( ! isset( $bbp->current_user->is_group_banned ) ) {
 		$bbp->current_user->is_group_banned = groups_is_user_banned( get_current_user_id(), bp_get_current_group_id() );
+	}
 
 	// Return the value
 	return (bool) $bbp->current_user->is_group_banned;
@@ -671,14 +696,16 @@ function bbp_group_is_banned() {
 function bbp_group_is_creator() {
 
 	// Bail if user is not logged in or not looking at a group
-	if ( ! is_user_logged_in() || ! bp_is_group() )
+	if ( ! is_user_logged_in() || ! bp_is_group() ) {
 		return false;
+	}
 
 	$bbp = bbpress();
 
 	// Set the global if not set
-	if ( ! isset( $bbp->current_user->is_group_creator ) )
+	if ( ! isset( $bbp->current_user->is_group_creator ) ) {
 		$bbp->current_user->is_group_creator = groups_is_user_creator( get_current_user_id(), bp_get_current_group_id() );
+	}
 
 	// Return the value
 	return (bool) $bbp->current_user->is_group_creator;

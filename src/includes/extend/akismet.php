@@ -63,9 +63,11 @@ class BBP_Akismet {
 		);
 
 		// Add the checks
-		foreach ( $checks as $type => $functions )
-			foreach ( $functions as $function => $priority )
+		foreach ( $checks as $type => $functions ) {
+			foreach ( $functions as $function => $priority ) {
 				add_filter( $function, array( $this, $type . '_post'  ), $priority );
+			}
+		}
 
 		// Update post meta
 		add_action( 'wp_insert_post', array( $this, 'update_post_meta' ), 10, 2 );
@@ -102,12 +104,14 @@ class BBP_Akismet {
 		$post_permalink = '';
 
 		// Post is not published
-		if ( bbp_get_public_status_id() !== $post_data['post_status'] )
+		if ( bbp_get_public_status_id() !== $post_data['post_status'] ) {
 			return $post_data;
+		}
 
 		// Cast the post_author to 0 if it's empty
-		if ( empty( $post_data['post_author'] ) )
+		if ( empty( $post_data['post_author'] ) ) {
 			$post_data['post_author'] = 0;
+		}
 
 		/** Author ************************************************************/
 
@@ -137,8 +141,9 @@ class BBP_Akismet {
 		/** Post **************************************************************/
 
 		// Use post parent for permalink
-		if ( !empty( $post_data['post_parent'] ) )
+		if ( !empty( $post_data['post_parent'] ) ) {
 			$post_permalink = get_permalink( $post_data['post_parent'] );
+		}
 
 		// Put post_data back into usable array
 		$_post = array(
@@ -255,12 +260,14 @@ class BBP_Akismet {
 		$_post = get_post( $post_id );
 
 		// Bail if get_post() fails
-		if ( empty( $_post ) )
+		if ( empty( $_post ) ) {
 			return;
+		}
 
 		// Bail if we're spamming, but the post_status isn't spam
-		if ( ( 'spam' === $request_type ) && ( bbp_get_spam_status_id() !== $_post->post_status ) )
+		if ( ( 'spam' === $request_type ) && ( bbp_get_spam_status_id() !== $_post->post_status ) ) {
 			return;
+		}
 
 		// Set some default post_data
 		$post_data = array(
@@ -281,19 +288,22 @@ class BBP_Akismet {
 
 		// Use the original version stored in post_meta if available
 		$as_submitted = get_post_meta( $post_id, '_bbp_akismet_as_submitted', true );
-		if ( $as_submitted && is_array( $as_submitted ) && isset( $as_submitted['comment_content'] ) )
+		if ( $as_submitted && is_array( $as_submitted ) && isset( $as_submitted['comment_content'] ) ) {
 			$post_data = array_merge( $post_data, $as_submitted );
+		}
 
 		// Add the reporter IP address
 		$post_data['reporter_ip']  = bbp_current_author_ip();
 
 		// Add some reporter info
-		if ( is_object( $current_user ) )
+		if ( is_object( $current_user ) ) {
 		    $post_data['reporter'] = $current_user->user_login;
+		}
 
 		// Add the current site domain
-		if ( is_object( $current_site ) )
+		if ( is_object( $current_site ) ) {
 			$post_data['site_domain'] = $current_site->domain;
+		}
 
 		// Place your slide beneath the microscope
 		$post_data = $this->maybe_spam( $post_data, 'submit', $request_type );
@@ -433,12 +443,14 @@ class BBP_Akismet {
 		$post_id = (int) $post_id;
 
 		// Ensure we have a post object
-		if ( empty( $_post ) )
+		if ( empty( $_post ) ) {
 			$_post = get_post( $post_id );
+		}
 
 		// Set up Akismet last post data
-		if ( !empty( $this->last_post ) )
+		if ( !empty( $this->last_post ) ) {
 			$as_submitted = $this->last_post['bbp_post_as_submitted'];
+		}
 
 		// wp_insert_post() might be called in other contexts. Ensure this is
 		// the same topic/reply as was checked by BBP_Akismet::check_post()
@@ -586,8 +598,9 @@ class BBP_Akismet {
 		$existing_terms = wp_get_object_terms( $topic_id, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
 
 		// Save the terms for later in case the reply gets hammed
-		if ( !empty( $terms ) )
+		if ( !empty( $terms ) ) {
 			update_post_meta( $reply_id, '_bbp_akismet_spam_terms', $terms );
+		}
 
 		// Keep the topic tags the same for now
 		return $existing_terms;
@@ -625,8 +638,9 @@ class BBP_Akismet {
 		$akismet_ua    .= 'Akismet/' . constant( 'AKISMET_VERSION' );
 
 		// Use specific IP (if provided)
-		if ( !empty( $ip ) && long2ip( ip2long( $ip ) ) )
+		if ( !empty( $ip ) && long2ip( ip2long( $ip ) ) ) {
 			$http_host = $ip;
+		}
 
 		// WP HTTP class is available
 		if ( function_exists( 'wp_remote_post' ) ) {
@@ -650,8 +664,9 @@ class BBP_Akismet {
 			$response    = wp_remote_post( $akismet_url, $http_args );
 
 			// Bail if the response is an error
-			if ( is_wp_error( $response ) )
+			if ( is_wp_error( $response ) ) {
 				return '';
+			}
 
 			// No errors so return response
 			return array( $response['headers'], $response['body'] );

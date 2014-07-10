@@ -531,7 +531,9 @@ class BBP_Replies_Admin {
 	 */
 	public function toggle_reply_notice() {
 
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) {
+			return;
+		}
 
 		// Only proceed if GET is a reply toggle action
 		if ( bbp_is_get_request() && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {

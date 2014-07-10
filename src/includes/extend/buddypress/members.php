@@ -158,8 +158,9 @@ class BBP_BuddyPress_Members {
 	public function set_member_forum_query_vars() {
 
 		// Special handling for forum component
-		if ( ! bp_is_my_profile() )
+		if ( ! bp_is_my_profile() ) {
 			return;
+		}
 
 		global $wp_query;
 

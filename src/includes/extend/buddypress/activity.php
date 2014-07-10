@@ -270,13 +270,15 @@ class BBP_BuddyPress_Activity {
 		$activity_id = (int) get_post_meta( $post_id, '_bbp_activity_id', true );
 
 		// Bail if no activity ID is in post meta
-		if ( empty( $activity_id ) )
+		if ( empty( $activity_id ) ) {
 			return null;
+		}
 
 		// Get the activity stream item, bail if it doesn't exist
 		$existing = bp_activity_get_specific( array( 'activity_ids' => $activity_id, 'show_hidden' => true, 'spam' => 'all', ) );
-		if ( empty( $existing['total'] ) || ( 1 !== (int) $existing['total'] ) )
+		if ( empty( $existing['total'] ) || ( 1 !== (int) $existing['total'] ) ) {
 			return null;
+		}
 
 		// Return the activity ID since we've verified the connection
 		return $activity_id;
@@ -295,8 +297,9 @@ class BBP_BuddyPress_Activity {
 		global $activities_template;
 
 		// Already forced off, so comply
-		if ( false === $can_comment )
+		if ( false === $can_comment ) {
 			return $can_comment;
+		}
 
 		// Check if blog & forum activity stream commenting is off
 		if ( ( false === $activities_template->disable_blogforum_replies ) || (int) $activities_template->disable_blogforum_replies ) {
@@ -382,12 +385,14 @@ class BBP_BuddyPress_Activity {
 	public function topic_create( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author_id = 0 ) {
 
 		// Bail early if topic is by anonymous user
-		if ( !empty( $anonymous_data ) )
+		if ( !empty( $anonymous_data ) ) {
 			return;
+		}
 
 		// Bail if site is private
-		if ( !bbp_is_site_public() )
+		if ( !bbp_is_site_public() ) {
 			return;
+		}
 
 		// Validate activity data
 		$user_id  = (int) $topic_author_id;
@@ -395,12 +400,14 @@ class BBP_BuddyPress_Activity {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Bail if user is not active
-		if ( bbp_is_user_inactive( $user_id ) )
+		if ( bbp_is_user_inactive( $user_id ) ) {
 			return;
+		}
 
 		// Bail if topic is not published
-		if ( !bbp_is_topic_published( $topic_id ) )
+		if ( !bbp_is_topic_published( $topic_id ) ) {
 			return;
+		}
 
 		// User link for topic author
 		$user_link = bbp_get_user_profile_link( $user_id  );
@@ -450,8 +457,10 @@ class BBP_BuddyPress_Activity {
 	public function topic_delete( $topic_id = 0 ) {
 
 		// Get activity ID, bail if it doesn't exist
-		if ( $activity_id = $this->get_activity_id( $topic_id ) )
+		$activity_id = $this->get_activity_id( $topic_id );
+		if ( !empty( $activity_id ) ) {
 			return bp_activity_delete( array( 'id' => $activity_id ) );
+		}
 
 		return false;
 	}
@@ -459,7 +468,7 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Update the activity stream entry when a topic status changes
 	 *
-	 * @param int $post_id
+	 * @param int $topic_id
 	 * @param obj $post
 	 * @uses get_post_type()
 	 * @uses bbp_get_topic_post_type()
@@ -474,14 +483,16 @@ class BBP_BuddyPress_Activity {
 	public function topic_update( $topic_id = 0, $post = null ) {
 
 		// Bail early if not a topic
-		if ( get_post_type( $post ) !== bbp_get_topic_post_type() )
+		if ( get_post_type( $post ) !== bbp_get_topic_post_type() ) {
 			return;
+		}
 
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Bail early if topic is by anonymous user
-		if ( bbp_is_topic_anonymous( $topic_id ) )
+		if ( bbp_is_topic_anonymous( $topic_id ) ) {
 			return;
+		}
 
 		// Action based on new status
 		if ( in_array( $post->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
@@ -523,12 +534,14 @@ class BBP_BuddyPress_Activity {
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
 
 		// Do not log activity of anonymous users
-		if ( !empty( $anonymous_data ) )
+		if ( !empty( $anonymous_data ) ) {
 			return;
+		}
 
 		// Bail if site is private
-		if ( !bbp_is_site_public() )
+		if ( !bbp_is_site_public() ) {
 			return;
+		}
 
 		// Validate activity data
 		$user_id  = (int) $reply_author_id;
@@ -537,12 +550,14 @@ class BBP_BuddyPress_Activity {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Bail if user is not active
-		if ( bbp_is_user_inactive( $user_id ) )
+		if ( bbp_is_user_inactive( $user_id ) ) {
 			return;
+		}
 
 		// Bail if reply is not published
-		if ( !bbp_is_reply_published( $reply_id ) )
+		if ( !bbp_is_reply_published( $reply_id ) ) {
 			return;
+		}
 
 		// Setup links for activity stream
 		$user_link = bbp_get_user_profile_link( $user_id  );
@@ -596,8 +611,10 @@ class BBP_BuddyPress_Activity {
 	public function reply_delete( $reply_id ) {
 
 		// Get activity ID, bail if it doesn't exist
-		if ( $activity_id = $this->get_activity_id( $reply_id ) )
+		$activity_id = $this->get_activity_id( $reply_id );
+		if ( !empty( $activity_id ) ) {
 			return bp_activity_delete( array( 'id' => $activity_id ) );
+		}
 
 		return false;
 	}
@@ -605,7 +622,7 @@ class BBP_BuddyPress_Activity {
 	/**
 	 * Update the activity stream entry when a reply status changes
 	 *
-	 * @param int $post_id
+	 * @param int $reply_id
 	 * @param obj $post
 	 * @uses get_post_type()
 	 * @uses bbp_get_reply_post_type()
@@ -621,14 +638,16 @@ class BBP_BuddyPress_Activity {
 	public function reply_update( $reply_id, $post ) {
 
 		// Bail early if not a reply
-		if ( get_post_type( $post ) !== bbp_get_reply_post_type() )
+		if ( get_post_type( $post ) !== bbp_get_reply_post_type() ) {
 			return;
+		}
 
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// Bail early if reply is by anonymous user
-		if ( bbp_is_reply_anonymous( $reply_id ) )
+		if ( bbp_is_reply_anonymous( $reply_id ) ) {
 			return;
+		}
 
 		// Action based on new status
 		if ( bbp_get_public_status_id() === $post->post_status ) {
