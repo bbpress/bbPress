@@ -29,7 +29,7 @@ function bbp_search_query( $new_args = array() ) {
 	$query_args = bbp_get_search_query_args();
 
 	// Merge arguments
-	if ( !empty( $new_args ) ) {
+	if ( ! empty( $new_args ) ) {
 		$new_args   = bbp_parse_args( $new_args, array(), 'search_query' );
 		$query_args = array_merge( $query_args, $new_args );
 	}
@@ -49,7 +49,7 @@ function bbp_get_search_query_args() {
 
 	// Get search terms
 	$search_terms = bbp_get_search_terms();
-	$retval       = !empty( $search_terms ) ? array( 's' => $search_terms ) : array();
+	$retval       = ! empty( $search_terms ) ? array( 's' => $search_terms ) : array();
 
 	return apply_filters( 'bbp_get_search_query_args', $retval );
 }

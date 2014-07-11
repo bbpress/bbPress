@@ -306,7 +306,7 @@ function bbp_search_results_url() {
 			$url = $wp_rewrite->root . bbp_get_search_slug();
 
 			// Append search terms
-			if ( !empty( $search_terms ) ) {
+			if ( ! empty( $search_terms ) ) {
 				$url = trailingslashit( $url ) . user_trailingslashit( urlencode( $search_terms ) );
 			}
 
@@ -349,7 +349,7 @@ function bbp_search_terms( $search_terms = '' ) {
 	function bbp_get_search_terms( $passed_terms = '' ) {
 
 		// Sanitize terms if they were passed in
-		if ( !empty( $passed_terms ) ) {
+		if ( ! empty( $passed_terms ) ) {
 			$search_terms = sanitize_title( $passed_terms );
 
 		// Use query variable if not
@@ -358,7 +358,7 @@ function bbp_search_terms( $search_terms = '' ) {
 		}
 
 		// Trim whitespace and decode, or set explicitly to false if empty
-		$search_terms = !empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
+		$search_terms = ! empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
 
 		return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
 	}
@@ -434,7 +434,7 @@ function bbp_search_pagination_links() {
 	function bbp_get_search_pagination_links() {
 		$bbp = bbpress();
 
-		if ( !isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) ) {
+		if ( ! isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) ) {
 			return false;
 		}
 
