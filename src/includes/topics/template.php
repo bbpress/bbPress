@@ -144,7 +144,7 @@ function bbp_has_topics( $args = '' ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_topic_search  = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
+	$default_topic_search  = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
 	$default_show_stickies = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
 	$default_post_parent   = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
 
@@ -210,20 +210,20 @@ function bbp_has_topics( $args = '' ) {
 	}
 
 	// Limited the number of pages shown
-	if ( !empty( $r['max_num_pages'] ) ) {
+	if ( ! empty( $r['max_num_pages'] ) ) {
 		$bbp->topic_query->max_num_pages = $r['max_num_pages'];
 	}
 
 	/** Stickies **************************************************************/
 
 	// Put sticky posts at the top of the posts array
-	if ( !empty( $r['show_stickies'] ) && $r['paged'] <= 1 ) {
+	if ( ! empty( $r['show_stickies'] ) && $r['paged'] <= 1 ) {
 
 		// Get super stickies and stickies in this forum
 		$stickies = bbp_get_super_stickies();
 
 		// Get stickies for current forum
-		if ( !empty( $r['post_parent'] ) ) {
+		if ( ! empty( $r['post_parent'] ) ) {
 			$stickies = array_merge( $stickies, bbp_get_stickies( $r['post_parent'] ) );
 		}
 
@@ -231,7 +231,7 @@ function bbp_has_topics( $args = '' ) {
 		$stickies = array_unique( $stickies );
 
 		// We have stickies
-		if ( is_array( $stickies ) && !empty( $stickies ) ) {
+		if ( is_array( $stickies ) && ! empty( $stickies ) ) {
 
 			// Start the offset at -1 so first sticky is at correct 0 offset
 			$sticky_offset = -1;
@@ -272,12 +272,12 @@ function bbp_has_topics( $args = '' ) {
 			unset( $sticky_offset );
 
 			// If any posts have been excluded specifically, Ignore those that are sticky.
-			if ( !empty( $stickies ) && !empty( $r['post__not_in'] ) ) {
+			if ( ! empty( $stickies ) && ! empty( $r['post__not_in'] ) ) {
 				$stickies = array_diff( $stickies, $r['post__not_in'] );
 			}
 
 			// Fetch sticky posts that weren't in the query results
-			if ( !empty( $stickies ) ) {
+			if ( ! empty( $stickies ) ) {
 
 				// Query to use in get_posts to get sticky posts
 				$sticky_query = array(
@@ -310,7 +310,7 @@ function bbp_has_topics( $args = '' ) {
 
 				// Get all stickies
 				$sticky_posts = get_posts( $sticky_query );
-				if ( !empty( $sticky_posts ) ) {
+				if ( ! empty( $sticky_posts ) ) {
 
 					// Get a count of the visible stickies
 					$sticky_count = count( $sticky_posts );
@@ -342,7 +342,7 @@ function bbp_has_topics( $args = '' ) {
 	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
 		// Limit the number of topics shown based on maximum allowed pages
-		if ( ( !empty( $r['max_num_pages'] ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count ) {
+		if ( ( ! empty( $r['max_num_pages'] ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count ) {
 			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
 		}
 
@@ -489,19 +489,19 @@ function bbp_topic_id( $topic_id = 0) {
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $topic_id ) && is_numeric( $topic_id ) ) {
+		if ( ! empty( $topic_id ) && is_numeric( $topic_id ) ) {
 			$bbp_topic_id = $topic_id;
 
 		// Currently inside a topic loop
-		} elseif ( !empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->topic_query->in_the_loop ) && isset( $bbp->topic_query->post->ID ) ) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
 		// Currently inside a search loop
-		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_topic( $bbp->search_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_topic( $bbp->search_query->post->ID ) ) {
 			$bbp_topic_id = $bbp->search_query->post->ID;
 
 		// Currently viewing/editing a topic, likely alone
-		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && !empty( $bbp->current_topic_id ) ) {
+		} elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && ! empty( $bbp->current_topic_id ) ) {
 			$bbp_topic_id = $bbp->current_topic_id;
 
 		// Currently viewing/editing a topic, likely in a loop
@@ -599,7 +599,7 @@ function bbp_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Use the redirect address
-		if ( !empty( $redirect_to ) ) {
+		if ( ! empty( $redirect_to ) ) {
 			$topic_permalink = esc_url_raw( $redirect_to );
 
 		// Use the topic permalink
@@ -673,7 +673,7 @@ function bbp_topic_archive_title( $title = '' ) {
 
 			// Set root text to page title
 			$page = bbp_get_page_by_path( bbp_get_topic_archive_slug() );
-			if ( !empty( $page ) ) {
+			if ( ! empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to topic post type name label
@@ -769,7 +769,7 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 			$excerpt_length = strlen( $excerpt );
 		}
 
-		if ( !empty( $length ) && ( $excerpt_length > $length ) ) {
+		if ( ! empty( $length ) && ( $excerpt_length > $length ) ) {
 			$excerpt  = substr( $excerpt, 0, $length - 1 );
 			$excerpt .= '&hellip;';
 		}
@@ -807,8 +807,8 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// 4 days, 4 hours ago
-		if ( !empty( $humanize ) ) {
-			$gmt_s  = !empty( $gmt ) ? 'U' : 'G';
+		if ( ! empty( $humanize ) ) {
+			$gmt_s  = ! empty( $gmt ) ? 'U' : 'G';
 			$date   = get_post_time( $gmt_s, $gmt, $topic_id );
 			$time   = false; // For filter below
 			$result = bbp_get_time_since( $date );
@@ -884,7 +884,7 @@ function bbp_topic_pagination( $args = '' ) {
 		$total = bbp_get_topic_reply_count( $r['topic_id'], true );
 
 		// Bump if topic is in loop
-		if ( !bbp_show_lead_topic() ) {
+		if ( ! bbp_show_lead_topic() ) {
 			$total++;
 		}
 
@@ -902,7 +902,7 @@ function bbp_topic_pagination( $args = '' ) {
 
 		// Add pagination to query object
 		$pagination_links = paginate_links( $pagination );
-		if ( !empty( $pagination_links ) ) {
+		if ( ! empty( $pagination_links ) ) {
 
 			// Remove first page from pagination
 			if ( $wp_rewrite->using_permalinks() ) {
@@ -976,7 +976,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 		$topic_id     = bbp_get_topic_id( $topic_id );
 		$revision_log = bbp_get_topic_raw_revision_log( $topic_id );
 
-		if ( empty( $topic_id ) || empty( $revision_log ) || !is_array( $revision_log ) ) {
+		if ( empty( $topic_id ) || empty( $revision_log ) || ! is_array( $revision_log ) ) {
 			return false;
 		}
 
@@ -1002,7 +1002,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
-			if ( !empty( $reason ) ) {
+			if ( ! empty( $reason ) ) {
 				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
 				$r .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s.', 'bbpress' ), esc_html( $since ), $author ) . "\n";
@@ -1114,7 +1114,7 @@ function bbp_topic_status( $topic_id = 0 ) {
  * @return bool True if open, false if closed.
  */
 function bbp_is_topic_open( $topic_id = 0 ) {
-	return !bbp_is_topic_closed( $topic_id );
+	return ! bbp_is_topic_closed( $topic_id );
 }
 
 	/**
@@ -1153,7 +1153,7 @@ function bbp_is_topic_sticky( $topic_id = 0, $check_super = true ) {
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 	$stickies = bbp_get_stickies( $forum_id );
 
-	if ( in_array( $topic_id, $stickies ) || ( !empty( $check_super ) && bbp_is_topic_super_sticky( $topic_id ) ) ) {
+	if ( in_array( $topic_id, $stickies ) || ( ! empty( $check_super ) && bbp_is_topic_super_sticky( $topic_id ) ) ) {
 		return true;
 	}
 
@@ -1241,7 +1241,7 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$retval   = false;
 
-	if ( !bbp_get_topic_author_id( $topic_id ) ) {
+	if ( ! bbp_get_topic_author_id( $topic_id ) ) {
 		$retval = true;
 
 	} elseif ( get_post_meta( $topic_id, '_bbp_anonymous_name',  true ) ) {
@@ -1291,7 +1291,7 @@ function bbp_topic_author( $topic_id = 0 ) {
 	function bbp_get_topic_author( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
 			$author = get_the_author_meta( 'display_name', bbp_get_topic_author_id( $topic_id ) );
 		} else {
 			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
@@ -1362,7 +1362,7 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Check for anonymous user
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
 
 			// Get the author ID
 			$author_id = bbp_get_topic_author_id( $topic_id );
@@ -1426,8 +1426,8 @@ function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 		$author_avatar = '';
 
 		$topic_id = bbp_get_topic_id( $topic_id );
-		if ( !empty( $topic_id ) ) {
-			if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		if ( ! empty( $topic_id ) ) {
+			if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
 				$author_avatar = get_avatar( bbp_get_topic_author_id( $topic_id ), $size );
 			} else {
 				$author_avatar = get_avatar( get_post_meta( $topic_id, '_bbp_anonymous_email', true ), $size );
@@ -1489,7 +1489,7 @@ function bbp_topic_author_link( $args = '' ) {
 		}
 
 		// Topic ID is good
-		if ( !empty( $topic_id ) ) {
+		if ( ! empty( $topic_id ) ) {
 
 			// Get some useful topic information
 			$author_url = bbp_get_topic_author_url( $topic_id );
@@ -1505,7 +1505,7 @@ function bbp_topic_author_link( $args = '' ) {
 			}
 
 			// Setup title and author_links array
-			$link_title   = !empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
+			$link_title   = ! empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
 			$author_links = array();
 
 			// Get avatar
@@ -1581,7 +1581,7 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Check for anonymous user or non-existant user
-		if ( !bbp_is_topic_anonymous( $topic_id ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
+		if ( ! bbp_is_topic_anonymous( $topic_id ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
 		} else {
 			$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true );
@@ -1626,12 +1626,12 @@ function bbp_topic_author_email( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Not anonymous user
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
 
 			// Use topic author email address
 			$user_id      = bbp_get_topic_author_id( $topic_id );
 			$user         = get_userdata( $user_id );
-			$author_email = !empty( $user->user_email ) ? $user->user_email : '';
+			$author_email = ! empty( $user->user_email ) ? $user->user_email : '';
 
 		// Anonymous
 		} else {
@@ -1814,14 +1814,14 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 		$last_active = get_post_meta( $topic_id, '_bbp_last_active_time', true );
 		if ( empty( $last_active ) ) {
 			$reply_id = bbp_get_topic_last_reply_id( $topic_id );
-			if ( !empty( $reply_id ) ) {
+			if ( ! empty( $reply_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
 				$last_active = get_post_field( 'post_date', $topic_id );
 			}
 		}
 
-		$last_active = !empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
+		$last_active = ! empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
 
 		// Return the time since
 		return apply_filters( 'bbp_get_topic_last_active', $last_active, $topic_id );
@@ -2036,7 +2036,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 
-		if ( !empty( $reply_id ) && ( $reply_id !== $topic_id ) ) {
+		if ( ! empty( $reply_id ) && ( $reply_id !== $topic_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
 		} else {
 			$reply_url = bbp_get_topic_permalink( $topic_id );
@@ -2078,7 +2078,7 @@ function bbp_topic_freshness_link( $topic_id = 0 ) {
 		$title      = bbp_get_topic_last_reply_title( $topic_id );
 		$time_since = bbp_get_topic_last_active_time( $topic_id );
 
-		if ( !empty( $time_since ) ) {
+		if ( ! empty( $time_since ) ) {
 			$anchor = '<a href="' . esc_url( $link_url ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $time_since ) . '</a>';
 		} else {
 			$anchor = __( 'No Replies', 'bbpress' );
@@ -2136,7 +2136,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 		$deleted = bbp_get_topic_reply_count_hidden( $topic_id );
 
 		// This forum has hidden topics
-		if ( !empty( $deleted ) && current_user_can( 'edit_others_replies' ) ) {
+		if ( ! empty( $deleted ) && current_user_can( 'edit_others_replies' ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -2331,7 +2331,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 			$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
 
 			// If terms exist, explode them and compile the return value
-			if ( !empty( $terms ) ) {
+			if ( ! empty( $terms ) ) {
 				$terms  = implode( $r['sep'], $terms );
 				$retval = $r['before'] . $terms . $r['after'];
 
@@ -2519,10 +2519,10 @@ function bbp_topic_edit_link( $args = '' ) {
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
 		// Bypass check if user has caps
-		if ( !current_user_can( 'edit_others_topics' ) ) {
+		if ( ! current_user_can( 'edit_others_topics' ) ) {
 
 			// User cannot edit or it is past the lock time
-			if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
+			if ( empty( $topic ) || ! current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) ) {
 				return;
 			}
 		}
@@ -2647,7 +2647,7 @@ function bbp_topic_trash_link( $args = '' ) {
 		$actions = array();
 		$topic   = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'delete_topic', $topic->ID ) ) {
 			return;
 		}
 
@@ -2657,7 +2657,7 @@ function bbp_topic_trash_link( $args = '' ) {
 			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash',   'topic_id' => $topic->ID ) ), 'trash-'   . $topic->post_type . '_' . $topic->ID ) ) . '" class="bbp-topic-trash-link">'   . $r['trash_text']   . '</a>';
 		}
 
-		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS ) {
+		if ( bbp_is_topic_trash( $topic->ID ) || ! empty_TRASH_DAYS ) {
 			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete',  'topic_id' => $topic->ID ) ), 'delete-'  . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-topic-delete-link">' . $r['delete_text'] . '</a>';
 		}
 
@@ -2715,7 +2715,7 @@ function bbp_topic_close_link( $args = '' ) {
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
 		}
 
@@ -2777,7 +2777,7 @@ function bbp_topic_stick_link( $args = '' ) {
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
 		}
 
@@ -2847,7 +2847,7 @@ function bbp_topic_merge_link( $args = '' ) {
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
 		}
 
@@ -2905,7 +2905,7 @@ function bbp_topic_spam_link( $args = '' ) {
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
 		}
 
@@ -3002,7 +3002,7 @@ function bbp_forum_pagination_count() {
 		$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $start_num + ( $bbp->topic_query->posts_per_page - 1 ) );
-		$total_int = (int) !empty( $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $bbp->topic_query->post_count;
+		$total_int = (int) ! empty( $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $bbp->topic_query->post_count;
 		$total     = bbp_number_format( $total_int );
 
 		// Several topics in a forum with a single page
@@ -3061,7 +3061,7 @@ function bbp_forum_pagination_links() {
 function bbp_topic_notices() {
 
 	// Bail if not viewing a topic
-	if ( !bbp_is_single_topic() ) {
+	if ( ! bbp_is_single_topic() ) {
 		return;
 	}
 
@@ -3181,7 +3181,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
 		}
 
 		// Used variables
-		$tab = !empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
+		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
 
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
@@ -3347,7 +3347,7 @@ function bbp_single_topic_description( $args = '' ) {
 
 		// Topic has replies
 		$last_reply = bbp_get_topic_last_reply_id( $topic_id );
-		if ( !empty( $last_reply ) ) {
+		if ( ! empty( $last_reply ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $r['size'] ) );
 			$retstr          = sprintf( esc_html__( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
 
@@ -3464,7 +3464,7 @@ function bbp_topic_tag_id( $tag = '' ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->term_id ) ) {
+		if ( ! empty( $term->term_id ) ) {
 			$retval = $term->term_id;
 
 		// No id
@@ -3508,7 +3508,7 @@ function bbp_topic_tag_name( $tag = '' ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->name ) ) {
+		if ( ! empty( $term->name ) ) {
 			$retval = $term->name;
 
 		// No name
@@ -3552,7 +3552,7 @@ function bbp_topic_tag_slug( $tag = '' ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->slug ) ) {
+		if ( ! empty( $term->slug ) ) {
 			$retval = $term->slug;
 
 		// No slug
@@ -3596,7 +3596,7 @@ function bbp_topic_tag_link( $tag = '' ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->term_id ) ) {
+		if ( ! empty( $term->term_id ) ) {
 			$retval = get_term_link( $term, bbp_get_topic_tag_tax_id() );
 
 		// No link
@@ -3641,7 +3641,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->term_id ) ) {
+		if ( ! empty( $term->term_id ) ) {
 
 			$bbp = bbpress();
 
@@ -3704,7 +3704,7 @@ function bbp_topic_tag_description( $args = array() ) {
 		}
 
 		// Add before and after if description exists
-		if ( !empty( $term->description ) ) {
+		if ( ! empty( $term->description ) ) {
 			$retval = $r['before'] . $term->description . $r['after'];
 
 		// No description, no HTML
@@ -3844,7 +3844,7 @@ function bbp_form_topic_tags() {
 			}
 
 			// Topic exists
-			if ( !empty( $topic_id ) ) {
+			if ( ! empty( $topic_id ) ) {
 
 				// Topic is spammed so display pre-spam terms
 				if ( bbp_is_topic_spam( $topic_id ) ) {
@@ -3873,7 +3873,7 @@ function bbp_form_topic_tags() {
 			}
 
 			// Set the return value
-			$topic_tags = ( !empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
+			$topic_tags = ( ! empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
 
 		// No data
 		} else {

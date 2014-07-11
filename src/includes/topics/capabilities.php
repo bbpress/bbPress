@@ -78,7 +78,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get the post
 				$_post = get_post( $args[0] );
-				if ( !empty( $_post ) ) {
+				if ( ! empty( $_post ) ) {
 
 					// Get caps for post type object
 					$post_type = get_post_type_object( $_post->post_type );
@@ -133,7 +133,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Get the post
 			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
+			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
@@ -144,7 +144,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow edit if not in admin
-				} elseif ( !is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
+				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 					$caps[] = $post_type->cap->edit_posts;
 
 				// Unknown, so map to edit_others_posts
@@ -161,7 +161,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Get the post
 			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
+			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
