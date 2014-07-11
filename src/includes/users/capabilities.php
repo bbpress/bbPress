@@ -62,7 +62,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	$user    = get_userdata( $user_id );
 
 	// User exists
-	if ( !empty( $user ) ) {
+	if ( ! empty( $user ) ) {
 
 		// Get users forum role
 		$role = bbp_get_user_role( $user_id );
@@ -80,7 +80,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 			}
 
 			// Add the new role
-			if ( !empty( $new_role ) ) {
+			if ( ! empty( $new_role ) ) {
 
 				// Make sure bbPress roles are added
 				bbp_add_forums_roles();
@@ -127,7 +127,7 @@ function bbp_get_user_role( $user_id = 0 ) {
 		// If there's a role in the array, use the first one. This isn't very
 		// smart, but since roles aren't exactly hierarchical, and bbPress
 		// does not yet have a UI for multiple user roles, it's fine for now.
-		if ( !empty( $roles ) ) {
+		if ( ! empty( $roles ) ) {
 			$role = array_shift( $roles );
 		}
 	}
@@ -160,7 +160,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 	if ( ! empty( $user->roles ) ) {
 
 		// Look for a non bbPress role
-		$roles     = array_intersect(
+		$roles = array_intersect(
 			array_values( $user->roles ),
 			array_keys( bbp_get_blog_roles() )
 		);
@@ -168,7 +168,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 		// If there's a role in the array, use the first one. This isn't very
 		// smart, but since roles aren't exactly hierarchical, and WordPress
 		// does not yet have a UI for multiple user roles, it's fine for now.
-		if ( !empty( $roles ) ) {
+		if ( ! empty( $roles ) ) {
 			$role = array_shift( $roles );
 		}
 	}
@@ -370,7 +370,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 		$is_spammer = false;
 
 	// Check if spam
-	} elseif ( !empty( $user->spam ) ) {
+	} elseif ( ! empty( $user->spam ) ) {
 		$is_spammer = true;
 	}
 
@@ -404,7 +404,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 function bbp_make_spam_user( $user_id = 0 ) {
 
 	// Use displayed user if it's not yourself
-	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() ) {
+	if ( empty( $user_id ) && bbp_is_single_user() && ! bbp_is_user_home() ) {
 		$user_id = bbp_get_displayed_user_id();
 	}
 
@@ -443,7 +443,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_author = %d AND post_status = '%s' AND post_type IN ( {$post_types} )", $user_id, bbp_get_public_status_id() ) );
 
 		// Loop through posts and spam them
-		if ( !empty( $posts ) ) {
+		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
 
 				// The routines for topics ang replies are different, so use the
@@ -495,7 +495,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 function bbp_make_ham_user( $user_id = 0 ) {
 
 	// Use displayed user if it's not yourself
-	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() ) {
+	if ( empty( $user_id ) && bbp_is_single_user() && ! bbp_is_user_home() ) {
 		$user_id = bbp_get_displayed_user_id();
 	}
 
@@ -534,7 +534,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_author = %d AND post_status = '%s' AND post_type IN ( {$post_types} )", $user_id, bbp_get_spam_status_id() ) );
 
 		// Loop through posts and spam them
-		if ( !empty( $posts ) ) {
+		if ( ! empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
 
 				// The routines for topics ang replies are different, so use the
@@ -591,7 +591,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 		$is_deleted = true;
 
 	// Check if deleted
-	} elseif ( !empty( $user->deleted ) ) {
+	} elseif ( ! empty( $user->deleted ) ) {
 		$is_deleted = true;
 	}
 
@@ -662,7 +662,7 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 	}
 
 	// Return the inverse of active
-	return !bbp_is_user_active( $user_id );
+	return ! bbp_is_user_active( $user_id );
 }
 
 /**

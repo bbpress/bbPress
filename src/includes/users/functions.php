@@ -27,7 +27,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 
 	// Raw redirect_to was passed, so use it
-	if ( !empty( $raw_url ) ) {
+	if ( ! empty( $raw_url ) ) {
 		$url = $raw_url;
 
 	// $url was manually set in wp-login.php to redirect to admin
@@ -103,7 +103,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 
 		$bbp_current_poster = wp_get_current_commenter();
 
-		if ( !empty( $key ) && in_array( $key, array_keys( $cookie_names ) ) ) {
+		if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ) ) ) {
 			return $bbp_current_poster[$cookie_names[$key]];
 		}
 
@@ -124,7 +124,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
  *                        Defaults to 30000000.
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
-	if ( empty( $anonymous_data ) || !is_array( $anonymous_data ) ) {
+	if ( empty( $anonymous_data ) || ! is_array( $anonymous_data ) ) {
 		return;
 	}
 
@@ -156,7 +156,7 @@ function bbp_current_author_ip() {
  * @return string
  */
 function bbp_current_author_ua() {
-	$retval = !empty( $_SERVER['HTTP_USER_AGENT'] ) ? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 ) : '';
+	$retval = ! empty( $_SERVER['HTTP_USER_AGENT'] ) ? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 ) : '';
 
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
@@ -212,7 +212,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 
 	// If user has favorites, load them
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
-	if ( !empty( $favorites ) ) {
+	if ( ! empty( $favorites ) ) {
 		$query = bbp_has_topics( array( 'post__in' => $favorites ) );
 	} else {
 		$query = false;
@@ -270,24 +270,24 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	$retval    = false;
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
 
-	if ( !empty( $favorites ) ) {
+	if ( ! empty( $favorites ) ) {
 
 		// Checking a specific topic id
-		if ( !empty( $topic_id ) ) {
+		if ( ! empty( $topic_id ) ) {
 			$topic    = bbp_get_topic( $topic_id );
-			$topic_id = !empty( $topic ) ? $topic->ID : 0;
+			$topic_id = ! empty( $topic ) ? $topic->ID : 0;
 
 		// Using the global topic id
 		} elseif ( bbp_get_topic_id() ) {
 			$topic_id = bbp_get_topic_id();
 
 		// Use the current post id
-		} elseif ( !bbp_get_topic_id() ) {
+		} elseif ( ! bbp_get_topic_id() ) {
 			$topic_id = get_the_ID();
 		}
 
 		// Is topic_id in the user's favorites
-		if ( !empty( $topic_id ) ) {
+		if ( ! empty( $topic_id ) ) {
 			$retval = in_array( $topic_id, $favorites );
 		}
 	}
@@ -318,7 +318,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	}
 
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
-	if ( !in_array( $topic_id, $favorites ) ) {
+	if ( ! in_array( $topic_id, $favorites ) ) {
 		$favorites[] = $topic_id;
 		$favorites   = implode( ',', wp_parse_id_list( array_filter( $favorites ) ) );
 		update_user_option( $user_id, '_bbp_favorites', $favorites );
@@ -358,7 +358,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 		array_splice( $favorites, $pos, 1 );
 		$favorites = array_filter( $favorites );
 
-		if ( !empty( $favorites ) ) {
+		if ( ! empty( $favorites ) ) {
 			$favorites = implode( ',', wp_parse_id_list( $favorites ) );
 			update_user_option( $user_id, '_bbp_favorites', $favorites );
 		} else {
@@ -391,7 +391,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  */
 function bbp_favorites_handler( $action = '' ) {
 
-	if ( !bbp_is_favorites_active() ) {
+	if ( ! bbp_is_favorites_active() ) {
 		return false;
 	}
 
@@ -407,7 +407,7 @@ function bbp_favorites_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions ) ) {
 		return;
 	}
 
@@ -424,7 +424,7 @@ function bbp_favorites_handler( $action = '' ) {
 		bbp_add_error( 'bbp_favorite_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
-	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
 		bbp_add_error( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 	}
 
@@ -573,7 +573,7 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 
 	// If user has subscriptions, load them
 	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
-	if ( !empty( $subscriptions ) ) {
+	if ( ! empty( $subscriptions ) ) {
 		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
 	} else {
 		$query = false;
@@ -604,7 +604,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
 
 	// If user has subscriptions, load them
 	$subscriptions = bbp_get_user_subscribed_forum_ids( $user_id );
-	if ( !empty( $subscriptions ) ) {
+	if ( ! empty( $subscriptions ) ) {
 		$query = bbp_has_forums( array( 'post__in' => $subscriptions ) );
 	} else {
 		$query = false;
@@ -795,7 +795,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 
 	// Validate user
 	$user_id = bbp_get_user_id( $user_id, true, true );
-	if ( !empty( $user_id ) ) {
+	if ( ! empty( $user_id ) ) {
 
 		// Get subscription ID's if none passed
 		if ( empty( $subscribed_ids ) ) {
@@ -815,7 +815,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 				$topic_id = bbp_get_topic_id();
 
 			// Use the current post id
-			} elseif ( !bbp_get_topic_id() ) {
+			} elseif ( ! bbp_get_topic_id() ) {
 				$topic_id = get_the_ID();
 			}
 
@@ -899,7 +899,7 @@ function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
 	}
 
 	$subscriptions = (array) bbp_get_user_subscribed_forum_ids( $user_id );
-	if ( !in_array( $forum_id, $subscriptions ) ) {
+	if ( ! in_array( $forum_id, $subscriptions ) ) {
 		$subscriptions[] = $forum_id;
 		$subscriptions   = implode( ',', wp_parse_id_list( array_filter( $subscriptions ) ) );
 		update_user_option( $user_id, '_bbp_forum_subscriptions', $subscriptions );
@@ -936,7 +936,7 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
 	}
 
 	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
-	if ( !in_array( $topic_id, $subscriptions ) ) {
+	if ( ! in_array( $topic_id, $subscriptions ) ) {
 		$subscriptions[] = $topic_id;
 		$subscriptions   = implode( ',', wp_parse_id_list( array_filter( $subscriptions ) ) );
 		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
@@ -1028,7 +1028,7 @@ function bbp_remove_user_forum_subscription( $user_id, $forum_id ) {
 	array_splice( $subscriptions, $pos, 1 );
 	$subscriptions = array_filter( $subscriptions );
 
-	if ( !empty( $subscriptions ) ) {
+	if ( ! empty( $subscriptions ) ) {
 		$subscriptions = implode( ',', wp_parse_id_list( $subscriptions ) );
 		update_user_option( $user_id, '_bbp_forum_subscriptions', $subscriptions );
 	} else {
@@ -1075,7 +1075,7 @@ function bbp_remove_user_topic_subscription( $user_id, $topic_id ) {
 	array_splice( $subscriptions, $pos, 1 );
 	$subscriptions = array_filter( $subscriptions );
 
-	if ( !empty( $subscriptions ) ) {
+	if ( ! empty( $subscriptions ) ) {
 		$subscriptions = implode( ',', wp_parse_id_list( $subscriptions ) );
 		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
 	} else {
@@ -1145,7 +1145,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 		bbp_add_error( 'bbp_subscription_forum_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
-	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
 		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 	}
 
@@ -1218,7 +1218,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
  */
 function bbp_subscriptions_handler( $action = '' ) {
 
-	if ( !bbp_is_subscriptions_active() ) {
+	if ( ! bbp_is_subscriptions_active() ) {
 		return false;
 	}
 
@@ -1234,7 +1234,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( !in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions ) ) {
 		return;
 	}
 
@@ -1251,7 +1251,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
-	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
 		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 	}
 
@@ -1368,7 +1368,7 @@ function bbp_edit_user_handler( $action = '' ) {
 		}
 
 	// Delete new email address from user options
-	} elseif ( is_multisite() && bbp_is_user_home_edit() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' === $_GET['dismiss'] ) ) {
+	} elseif ( is_multisite() && bbp_is_user_home_edit() && ! empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' === $_GET['dismiss'] ) ) {
 		delete_option( $user_id . '_new_email' );
 		wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		exit();
@@ -1391,7 +1391,7 @@ function bbp_edit_user_handler( $action = '' ) {
 	do_action( $edit_action, $user_id );
 
 	// Prevent edit_user() from wiping out the user's Toolbar on front setting
-	if ( !isset( $_POST['admin_bar_front'] ) && _get_admin_bar_pref( 'front', $user_id ) ) {
+	if ( ! isset( $_POST['admin_bar_front'] ) && _get_admin_bar_pref( 'front', $user_id ) ) {
 		$_POST['admin_bar_front'] = 1;
 	}
 
@@ -1833,7 +1833,7 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
 function bbp_user_maybe_convert_pass() {
 
 	// Bail if no username
-	$username = !empty( $_POST['log'] ) ? $_POST['log'] : '';
+	$username = ! empty( $_POST['log'] ) ? $_POST['log'] : '';
 	if ( empty( $username ) ) {
 		return;
 	}

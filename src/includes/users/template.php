@@ -41,15 +41,15 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $user_id ) && is_numeric( $user_id ) ) {
+		if ( ! empty( $user_id ) && is_numeric( $user_id ) ) {
 			$bbp_user_id = $user_id;
 
 		// Currently viewing or editing a user
-		} elseif ( ( true === $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) ) {
+		} elseif ( ( true === $displayed_user_fallback ) && ! empty( $bbp->displayed_user->ID ) ) {
 			$bbp_user_id = $bbp->displayed_user->ID;
 
 		// Maybe fallback on the current_user ID
-		} elseif ( ( true === $current_user_fallback ) && !empty( $bbp->current_user->ID ) ) {
+		} elseif ( ( true === $current_user_fallback ) && ! empty( $bbp->current_user->ID ) ) {
 			$bbp_user_id = $bbp->current_user->ID;
 
 		// Failsafe
@@ -309,7 +309,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		}
 
 		// Maybe wrap the nicename
-		$retval = !empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
+		$retval = ! empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
 
 		// Filter and return
 		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r );
@@ -459,7 +459,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
 				$user = get_userdata( $user_id );
-				if ( !empty( $user->user_nicename ) ) {
+				if ( ! empty( $user->user_nicename ) ) {
 					$user_nicename = $user->user_nicename;
 				}
 			}
@@ -553,11 +553,11 @@ function bbp_admin_link( $args = '' ) {
 	 * @return The link
 	 */
 	function bbp_get_admin_link( $args = '' ) {
-		if ( !current_user_can( 'moderate' ) ) {
+		if ( ! current_user_can( 'moderate' ) ) {
 			return;
 		}
 
-		if ( !empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) ) {
+		if ( ! empty( $args ) && is_string( $args ) && ( false === strpos( $args, '=' ) ) ) {
 			$args = array( 'text' => $args );
 		}
 
@@ -609,7 +609,7 @@ function bbp_author_ip( $args = '' ) {
 
 		// Get the author IP meta value
 		$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
-		if ( !empty( $author_ip ) ) {
+		if ( ! empty( $author_ip ) ) {
 			$author_ip = $r['before'] . $author_ip . $r['after'];
 
 		// No IP address
@@ -1118,7 +1118,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-forum="%d">%s</a></span>%s', $r['before'], $forum_id, $sub, $url, $forum_id, $text, $r['after'] );
 
 			// Initial output is wrapped in a span, ajax output is hooked to this
-			if ( !empty( $wrap ) ) {
+			if ( ! empty( $wrap ) ) {
 				$html = '<span id="subscription-toggle">' . $html . '</span>';
 			}
 
@@ -1149,7 +1149,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
 
 			// Initial output is wrapped in a span, ajax output is hooked to this
-			if ( !empty( $wrap ) ) {
+			if ( ! empty( $wrap ) ) {
 				$html = '<span id="subscription-toggle">' . $html . '</span>';
 			}
 		}
@@ -1214,25 +1214,25 @@ function bbp_edit_user_display_name() {
 	$public_display = array();
 	$public_display['display_username'] = $bbp->displayed_user->user_login;
 
-	if ( !empty( $bbp->displayed_user->nickname ) ) {
+	if ( ! empty( $bbp->displayed_user->nickname ) ) {
 		$public_display['display_nickname']  = $bbp->displayed_user->nickname;
 	}
 
-	if ( !empty( $bbp->displayed_user->first_name ) ) {
+	if ( ! empty( $bbp->displayed_user->first_name ) ) {
 		$public_display['display_firstname'] = $bbp->displayed_user->first_name;
 	}
 
-	if ( !empty( $bbp->displayed_user->last_name ) ) {
+	if ( ! empty( $bbp->displayed_user->last_name ) ) {
 		$public_display['display_lastname']  = $bbp->displayed_user->last_name;
 	}
 
-	if ( !empty( $bbp->displayed_user->first_name ) && !empty( $bbp->displayed_user->last_name ) ) {
+	if ( ! empty( $bbp->displayed_user->first_name ) && ! empty( $bbp->displayed_user->last_name ) ) {
 		$public_display['display_firstlast'] = $bbp->displayed_user->first_name . ' ' . $bbp->displayed_user->last_name;
 		$public_display['display_lastfirst'] = $bbp->displayed_user->last_name  . ' ' . $bbp->displayed_user->first_name;
 	}
 
 	// Only add this if it isn't duplicated elsewhere
-	if ( !in_array( $bbp->displayed_user->display_name, $public_display ) ) {
+	if ( ! in_array( $bbp->displayed_user->display_name, $public_display ) ) {
 		$public_display = array( 'display_displayname' => $bbp->displayed_user->display_name ) + $public_display;
 	}
 
@@ -1474,15 +1474,15 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 function bbp_login_notices() {
 
 	// loggedout was passed
-	if ( !empty( $_GET['loggedout'] ) && ( true === $_GET['loggedout'] ) ) {
+	if ( ! empty( $_GET['loggedout'] ) && ( true === $_GET['loggedout'] ) ) {
 		bbp_add_error( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
 
 	// registration is disabled
-	} elseif ( !empty( $_GET['registration'] ) && ( 'disabled' === $_GET['registration'] ) ) {
+	} elseif ( ! empty( $_GET['registration'] ) && ( 'disabled' === $_GET['registration'] ) ) {
 		bbp_add_error( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
 
 	// Prompt user to check their email
-	} elseif ( !empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ) ) ) {
+	} elseif ( ! empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ) ) ) {
 
 		switch ( $_GET['checkemail'] ) {
 
@@ -1521,12 +1521,12 @@ function bbp_login_notices() {
 function bbp_logged_in_redirect( $url = '' ) {
 
 	// Bail if user is not logged in
-	if ( !is_user_logged_in() ) {
+	if ( ! is_user_logged_in() ) {
 		return;
 	}
 
 	// Setup the profile page to redirect to
-	$redirect_to = !empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
+	$redirect_to = ! empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
 
 	// Do a safe redirect and exit
 	wp_safe_redirect( $redirect_to );
@@ -1670,15 +1670,15 @@ function bbp_author_link( $args = '' ) {
 		$user_id = get_post_field( 'post_author', $r['post_id'] );
 
 		// Neither a reply nor a topic, so could be a revision
-		if ( !empty( $r['post_id'] ) ) {
+		if ( ! empty( $r['post_id'] ) ) {
 
 			// Generate title with the display name of the author
 			if ( empty( $r['link_title'] ) ) {
-				$r['link_title'] = sprintf( !bbp_is_reply_anonymous( $r['post_id'] ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
+				$r['link_title'] = sprintf( ! bbp_is_reply_anonymous( $r['post_id'] ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
 			}
 
 			// Assemble some link bits
-			$link_title = !empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
+			$link_title = ! empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
 			$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
 
 			// Get avatar
@@ -1749,7 +1749,7 @@ function bbp_user_can_view_forum( $args = '' ) {
 	$retval   = false;
 
 	// User is a keymaster
-	if ( !empty( $user_id ) && bbp_is_user_keymaster( $user_id ) ) {
+	if ( ! empty( $user_id ) && bbp_is_user_keymaster( $user_id ) ) {
 		$retval = true;
 
 	// Forum is public, and user can read forums or is not logged in
@@ -1792,7 +1792,7 @@ function bbp_current_user_can_publish_topics() {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
-	} elseif ( !is_user_logged_in() && bbp_allow_anonymous() ) {
+	} elseif ( ! is_user_logged_in() && bbp_allow_anonymous() ) {
 		$retval = true;
 
 	// User is logged in
@@ -1858,7 +1858,7 @@ function bbp_current_user_can_publish_replies() {
 		$retval = true;
 
 	// Do not allow anonymous if not enabled
-	} elseif ( !is_user_logged_in() && bbp_allow_anonymous() ) {
+	} elseif ( ! is_user_logged_in() && bbp_allow_anonymous() ) {
 		$retval = true;
 
 	// User is logged in
@@ -1895,12 +1895,12 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	$private = $hidden = $post__not_in = array();
 
 	// Private forums
-	if ( !current_user_can( 'read_private_forums' ) ) {
+	if ( ! current_user_can( 'read_private_forums' ) ) {
 		$private = bbp_get_private_forum_ids();
 	}
 
 	// Hidden forums
-	if ( !current_user_can( 'read_hidden_forums' ) ) {
+	if ( ! current_user_can( 'read_hidden_forums' ) ) {
 		$hidden  = bbp_get_hidden_forum_ids();
 	}
 
@@ -1908,7 +1908,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
 	// There are forums that need to be ex
-	if ( !empty( $forum_ids ) ) {
+	if ( ! empty( $forum_ids ) ) {
 		$post__not_in = implode( ',', $forum_ids );
 	}
 
