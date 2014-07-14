@@ -164,8 +164,9 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
 	$view  = sanitize_title( $view );
 	$title = esc_html( $title );
 
-	if ( empty( $view ) || empty( $title ) )
+	if ( empty( $view ) || empty( $title ) ) {
 		return false;
+	}
 
 	$query_args = bbp_parse_args( $query_args, '', 'register_view' );
 
