@@ -7,7 +7,7 @@ Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-bbPress is forum software, made the WordPress way
+bbPress is forum software, made the WordPress way.
 
 == Description ==
 
