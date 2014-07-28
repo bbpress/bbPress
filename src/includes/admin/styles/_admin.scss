@@ -416,6 +416,15 @@ ul#adminmenu > li.current > a.current:after {
 	box-shadow: 0 0 0 1px #fff, 0 0 0 2px $highlight-color;
 }
 
+.media-modal-close:hover,
+.edit-attachment-frame .edit-media-header .right:hover,
+.edit-attachment-frame .edit-media-header .left:hover,
+.media-modal-close:focus,
+.edit-attachment-frame .edit-media-header .right:focus,
+.edit-attachment-frame .edit-media-header .left:focus {
+	background: $menu-highlight-background;
+	color: $menu-highlight-text;
+}
 
 /* Themes */
 
@@ -439,17 +448,23 @@ ul#adminmenu > li.current > a.current:after {
 	border-bottom-color: $menu-background;
 }
 
-body.more-filters-opened .more-filters,
-body.more-filters-opened .more-filters:before {
+body.more-filters-opened .more-filters {
 	color: $menu-text;
 	background-color: $menu-background;
 }
 
+body.more-filters-opened .more-filters:before {
+	color: $menu-text;
+}
+
 body.more-filters-opened .more-filters:hover,
-body.more-filters-opened .more-filters:focus,
+body.more-filters-opened .more-filters:focus {
+	background-color: $menu-highlight-background;
+	color: $menu-highlight-text;
+}
+
 body.more-filters-opened .more-filters:hover:before,
 body.more-filters-opened .more-filters:focus:before {
-	background-color: $menu-highlight-background;
 	color: $menu-highlight-text;
 }
 
