@@ -158,7 +158,7 @@ function bbp_admin_tools_reset_help() {
 	$current_screen->add_help_tab( array(
 		'id'      => 'reset_forums',
 		'title'   => __( 'Reset Forums', 'bbpress' ),
-		'content' => '<p>' . __( 'Also see <a href="http://codex.bbpress.org/reset-forums//">bbPress: Reset Forums</a>.', 'bbpress' ) . '</p>'
+		'content' => '<p>' . __( 'Also see <a href="http://codex.bbpress.org/reset-forums/">bbPress: Reset Forums</a>.', 'bbpress' ) . '</p>'
 	) );
 
 	// Help Sidebar
