@@ -59,6 +59,32 @@ module.exports = function( grunt ) {
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		checktextdomain: {
+			options: {
+				text_domain: 'bbpress',
+				correct_domain: false,
+				keywords: [
+					'__:1,2d',
+					'_e:1,2d',
+					'_x:1,2c,3d',
+					'_n:1,2,4d',
+					'_ex:1,2c,3d',
+					'_nx:1,2,4c,5d',
+					'esc_attr__:1,2d',
+					'esc_attr_e:1,2d',
+					'esc_attr_x:1,2c,3d',
+					'esc_html__:1,2d',
+					'esc_html_e:1,2d',
+					'esc_html_x:1,2c,3d',
+					'_n_noop:1,2,3d',
+					'_nx_noop:1,2,3c,4d'
+				]
+			},
+			files: {
+				src: SOURCE_DIR + '**/*.php',
+				expand: true
+			}
+		},
 		clean: {
 			all: [ BUILD_DIR ],
 			dynamic: {
@@ -88,16 +114,21 @@ module.exports = function( grunt ) {
 				src: []
 			}
 		},
-		sass: {
-			colors: {
+		cssjanus: {
+			core: {
 				expand: true,
-				cwd: SOURCE_DIR,
+				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
-				ext: '.css',
-				src: ['includes/admin/styles/*/colors.scss'],
-				options: {
-					outputStyle: 'expanded'
-				}
+				ext: '-rtl.css',
+				src: BBP_LTR_CSS,
+				options: { generateExactDuplicates: true }
+			},
+			dynamic: {
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				ext: '-rtl.css',
+				src: []
 			}
 		},
 		cssmin: {
@@ -124,23 +155,6 @@ module.exports = function( grunt ) {
 					'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
 					'https://wordpress.org/plugins/bbpress/ */'
 				}
-			}
-		},
-		cssjanus: {
-			core: {
-				expand: true,
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				ext: '-rtl.css',
-				src: BBP_LTR_CSS,
-				options: { generateExactDuplicates: true }
-			},
-			dynamic: {
-				expand: true,
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				ext: '-rtl.css',
-				src: []
 			}
 		},
 		jshint: {
@@ -181,35 +195,16 @@ module.exports = function( grunt ) {
 				}
 			}
 		},
-		uglify: {
-			core: {
-				cwd: SOURCE_DIR,
-				dest: BUILD_DIR,
-				expand: true,
-				ext: '.min.js',
-				src: BBP_JS
+		jsvalidate:{
+			options:{
+				globals: {},
+				esprimaOptions:{},
+				verbose: false
 			},
-			dynamic: {
-				cwd: SOURCE_DIR,
-				dest: BUILD_DIR,
-				expand: true,
-				ext: '.min.js',
-				src: []
-			},
-			options: {
-				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-				'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
-				'https://wordpress.org/plugins/bbpress/ */\n'
-			}
-		},
-		phpunit: {
-			'default': {
-				cmd: 'phpunit',
-				args: ['-c', 'phpunit.xml.dist']
-			},
-			multisite: {
-				cmd: 'phpunit',
-				args: ['-c', 'tests/phpunit/multisite.xml']
+			build: {
+				files: {
+					src: BUILD_DIR + '/**/*.js'
+				}
 			}
 		},
 		makepot: {
@@ -234,42 +229,47 @@ module.exports = function( grunt ) {
 				tracUrl: 'bbpress.trac.wordpress.org'
 			}
 		},
-		checktextdomain: {
-			options: {
-				text_domain: 'bbpress',
-				correct_domain: false,
-				keywords: [
-					'__:1,2d',
-					'_e:1,2d',
-					'_x:1,2c,3d',
-					'_n:1,2,4d',
-					'_ex:1,2c,3d',
-					'_nx:1,2,4c,5d',
-					'esc_attr__:1,2d',
-					'esc_attr_e:1,2d',
-					'esc_attr_x:1,2c,3d',
-					'esc_html__:1,2d',
-					'esc_html_e:1,2d',
-					'esc_html_x:1,2c,3d',
-					'_n_noop:1,2,3d',
-					'_nx_noop:1,2,3c,4d'
-				]
+		phpunit: {
+			'default': {
+				cmd: 'phpunit',
+				args: ['-c', 'phpunit.xml.dist']
 			},
-			files: {
-				src: SOURCE_DIR + '**/*.php',
-				expand: true
+			multisite: {
+				cmd: 'phpunit',
+				args: ['-c', 'tests/phpunit/multisite.xml']
 			}
 		},
-		jsvalidate:{
-			options:{
-				globals: {},
-				esprimaOptions:{},
-				verbose: false
-			},
-			build: {
-				files: {
-					src: BUILD_DIR + '/**/*.js'
+		sass: {
+			colors: {
+				expand: true,
+				cwd: SOURCE_DIR,
+				dest: BUILD_DIR,
+				ext: '.css',
+				src: ['includes/admin/styles/*/colors.scss'],
+				options: {
+					outputStyle: 'expanded'
 				}
+			}
+		},
+		uglify: {
+			core: {
+				cwd: SOURCE_DIR,
+				dest: BUILD_DIR,
+				expand: true,
+				ext: '.min.js',
+				src: BBP_JS
+			},
+			dynamic: {
+				cwd: SOURCE_DIR,
+				dest: BUILD_DIR,
+				expand: true,
+				ext: '.min.js',
+				src: []
+			},
+			options: {
+				banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+				'<%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %> - ' +
+				'https://wordpress.org/plugins/bbpress/ */\n'
 			}
 		},
 		watch: {
@@ -290,21 +290,24 @@ module.exports = function( grunt ) {
 				files: [SOURCE_DIR + 'includes/admin/styles/*/colors.scss'],
 				tasks: ['sass:colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl']
 			},
-			rtl: {
-				files: BBP_LTR_CSS.map( function( path ) {
-					return SOURCE_DIR + path;
-				} ),
-				tasks: [ 'cssjanus:dynamic', 'cssmin:ltr', 'cssmin:rtl' ],
-				options: {
-					interval: 2000,
-					spawn: false
-				}
+			config: {
+				files: 'Gruntfile.js'
 			},
 			js: {
 				files: BBP_JS.map( function( path ) {
 					return SOURCE_DIR + path;
 				} ),
 				tasks: [ 'uglify:dynamic' ],
+				options: {
+					interval: 2000,
+					spawn: false
+				}
+			},
+			rtl: {
+				files: BBP_LTR_CSS.map( function( path ) {
+					return SOURCE_DIR + path;
+				} ),
+				tasks: [ 'cssjanus:dynamic', 'cssmin:ltr', 'cssmin:rtl' ],
 				options: {
 					interval: 2000,
 					spawn: false
@@ -322,7 +325,7 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'checktextdomain', 'makepot', 'phpunit' ] );
 
-	// Testing tasks.
+	// PHPUnit test task.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
 		grunt.util.spawn( {
 			cmd:  this.data.cmd,
@@ -331,9 +334,10 @@ module.exports = function( grunt ) {
 		}, this.async() );
 	} );
 
+	// JavaScript test task.
 	grunt.registerTask( 'jstest', 'Runs all javascript tasks.', [ 'jsvalidate', 'jshint' ] );
 
-	// Travis CI Task
+	// Travis CI task.
 	grunt.registerTask( 'travis', ['jshint', 'phpunit'] );
 
 	// Patch task.
