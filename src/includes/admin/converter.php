@@ -487,13 +487,13 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 10. Convert tags.
+			// STEP 10. Convert topic tags.
 			case 10 :
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
 					if ( empty( $start ) ) {
-						$this->converter_output( __( 'No tags to convert', 'bbpress' ) );
+						$this->converter_output( __( 'No topic tags to convert', 'bbpress' ) );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
@@ -804,7 +804,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Convert Tags
+	 * Convert Topic Tags
 	 */
 	public function convert_tags( $start = 1 ) {
 		return $this->convert_table( 'tags', $start );
