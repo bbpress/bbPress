@@ -517,17 +517,17 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 12. Convert reply_to parents.
+			// STEP 12. Convert threaded replies parents.
 			case 12 :
 				if ( $converter->convert_reply_to_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
 					if ( empty( $start ) ) {
-						$this->converter_output( __( 'No reply_to parents to convert', 'bbpress' ) );
+						$this->converter_output( __( 'No threaded replies to convert', 'bbpress' ) );
 					}
 				} else {
 					update_option( '_bbp_converter_start', $max + 1 );
-					$this->converter_output( sprintf( __( 'Calculating reply_to parents (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+					$this->converter_output( sprintf( __( 'Calculating threaded replies parents (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
 				}
 
 				break;
