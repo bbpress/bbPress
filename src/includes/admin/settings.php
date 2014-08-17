@@ -1546,7 +1546,7 @@ function bbp_admin_settings_help() {
 		'id'      => 'overview',
 		'title'   => __( 'Overview', 'bbpress' ),
 		'content' => '<p>' . __( 'This screen provides access to all of the Forums settings.',                          'bbpress' ) . '</p>' .
-					 '<p>' . __( 'Please see the additional help tabs for more information on each indiviual section.', 'bbpress' ) . '</p>'
+					 '<p>' . __( 'Please see the additional help tabs for more information on each individual section.', 'bbpress' ) . '</p>'
 	) );
 
 	// Main Settings
