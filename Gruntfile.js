@@ -23,32 +23,24 @@ module.exports = function( grunt ) {
 
 	BBP_EXCLUDED_FILES = [
 		// Ignore these
-		'!tests/**',  // unit tests
-		'!Gruntfile.js',
-		'!package.json',
+		'!**/.{svn,git}/**',
+		'!.editorconfig',
 		'!.gitignore',
 		'!.jshintrc',
 		'!.travis.yml',
-		'node_modules/**',
-		'!**/*.scss',
-
-		// And these from .gitignore
-		'!**/.{svn,git}/**',
-		'!lib-cov/**',
-		'!*.seed',
-		'!*.log',
-		'!*.csv',
-		'!*.dat',
-		'!*.out',
-		'!*.pid',
-		'!*.gz',
-		'!pids/**',
-		'!logs/**',
-		'!results/**',
-		'!.DS_Store',
+		'!build/**',
+		'!Gruntfile.js',
 		'!node_modules/**',
 		'!npm-debug.log',
-		'!build/**'
+		'!package.json',
+
+		// bbPress SCSS CSS source files
+		'!**/*.scss',
+
+		// bbPress PHPUnit tests
+		'!tests/**',
+		'!phpunit.xml',
+		'!phpunit.xml.dist'
 	];
 
 	// Load tasks.
