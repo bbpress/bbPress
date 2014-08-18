@@ -1,18 +1,10 @@
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
+# gitignore file for bbPress
 
-pids
-logs
-results
-
-node_modules
-npm-debug.log
+# Files and folders related to build/test tools 
+phpunit.xml 
+/tests/phpunit/build 
+/node_modules
+/npm-debug.log
 
 # bbPress's output directory.
-build
+/build
