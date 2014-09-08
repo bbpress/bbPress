@@ -140,15 +140,14 @@ function bbp_get_views() {
 /**
  * Register a bbPress view
  *
- * @todo Implement feeds - See {@link http://trac.bbpress.org/ticket/1422}
- *
  * @since bbPress (r2789)
  *
  * @param string $view View name
  * @param string $title View title
  * @param mixed $query_args {@link bbp_has_topics()} arguments.
- * @param bool $feed Have a feed for the view? Defaults to true. NOT IMPLEMENTED
+ * @param bool $feed Have a feed for the view? Defaults to true.
  * @param string $capability Capability that the current user must have
+ *
  * @uses sanitize_title() To sanitize the view name
  * @uses esc_html() To sanitize the view title
  * @return array The just registered (but processed) view
