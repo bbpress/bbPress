@@ -1333,7 +1333,7 @@ function bbp_edit_user_forums_role() {
 function bbp_edit_user_contact_methods() {
 
 	// Get the core WordPress contact methods
-	$contact_methods = _wp_get_user_contactmethods( bbpress()->displayed_user );
+	$contact_methods = wp_get_user_contact_methods( bbpress()->displayed_user );
 
 	return apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }
