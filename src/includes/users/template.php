@@ -1892,7 +1892,7 @@ function bbp_current_user_can_publish_replies() {
 function bbp_get_forums_for_current_user( $args = array() ) {
 
 	// Setup arrays
-	$private = $hidden = $post__not_in = array();
+	$private = $hidden = $exclude = array();
 
 	// Private forums
 	if ( ! current_user_can( 'read_private_forums' ) ) {
@@ -1907,9 +1907,9 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 	// Merge private and hidden forums together and remove any empties
 	$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
-	// There are forums that need to be ex
+	// There are forums that need to be excluded
 	if ( ! empty( $forum_ids ) ) {
-		$post__not_in = implode( ',', $forum_ids );
+		$exclude = implode( ',', $forum_ids );
 	}
 
 	// Parse arguments against default values
@@ -1917,7 +1917,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 		'post_type'   => bbp_get_forum_post_type(),
 		'post_status' => bbp_get_public_status_id(),
 		'numberposts' => -1,
-		'exclude'     => $post__not_in
+		'exclude'     => $exclude
 	), 'get_forums_for_current_user' );
 
 	// Get the forums
