@@ -11,7 +11,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Output the URL to use for theme-side bbPress AJAX requests
