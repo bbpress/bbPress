@@ -145,28 +145,32 @@ final class bbPress {
 	 *
 	 * @since bbPress (r3951)
 	 */
-	public function __isset( $key ) { return isset( $this->data[$key] ); }
+	public function __isset( $key ) { return isset( $this->data[ $key ] ); }
 
 	/**
 	 * Magic method for getting bbPress variables
 	 *
 	 * @since bbPress (r3951)
 	 */
-	public function __get( $key ) { return isset( $this->data[$key] ) ? $this->data[$key] : null; }
+	public function __get( $key ) { return isset( $this->data[ $key ] ) ? $this->data[ $key ] : null; }
 
 	/**
 	 * Magic method for setting bbPress variables
 	 *
 	 * @since bbPress (r3951)
 	 */
-	public function __set( $key, $value ) { $this->data[$key] = $value; }
+	public function __set( $key , $value ) { $this->data[ $key ] = $value; }
 
 	/**
 	 * Magic method for unsetting bbPress variables
 	 *
 	 * @since bbPress (r4628)
 	 */
-	public function __unset( $key ) { if ( isset( $this->data[$key] ) ) unset( $this->data[$key] ); }
+	public function __unset( $key ) {
+		if ( isset( $this->data[ $key ] ) ) {
+			unset( $this->data[ $key ] );
+		}
+	}
 
 	/**
 	 * Magic method to prevent notices and errors from invalid method calls
@@ -426,8 +430,9 @@ final class bbPress {
 	public function setup_theme() {
 
 		// Bail if something already has this under control
-		if ( ! empty( $this->theme_compat->theme ) )
+		if ( ! empty( $this->theme_compat->theme ) ) {
 			return;
+		}
 
 		// Setup the theme package to use for compatibility
 		bbp_setup_theme_compat( bbp_get_theme_package_id() );
