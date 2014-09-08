@@ -2018,8 +2018,8 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 		return $where;
 	}
 
-	// Bail if including or excluding specific post ID's
-	if ( $query->get( 'post__not_in' ) || $query->get( 'post__in' ) ) {
+	// Bail if including specific post ID's
+	if ( $query->get( 'post__in' ) ) {
 		return $where;
 	}
 
@@ -2036,13 +2036,15 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 	// The texts to search for
 	$search     = array(
 		"FROM {$table_name} " ,
-		"WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}"
+		"WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}",
+		") AND {$table_name}.post_parent = {$topic_id}"
 	);
 
 	// The texts to replace them with
 	$replace     = array(
 		$search[0] . "FORCE INDEX (PRIMARY, post_parent) " ,
-		"WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})"
+		"WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})",
+		") AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})"
 	);
 
 	// Try to replace the search text with the replacement
