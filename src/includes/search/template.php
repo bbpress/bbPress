@@ -43,7 +43,8 @@ function bbp_has_search_results( $args = '' ) {
 
 	/** Defaults **************************************************************/
 
-	$default_post_type = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$default_search_terms = bbp_get_search_terms();
+	$default_post_type    = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 
 	// Default query args
 	$default = array(
@@ -52,9 +53,14 @@ function bbp_has_search_results( $args = '' ) {
 		'paged'               => bbp_get_paged(),            // On this page
 		'orderby'             => 'date',                     // Sorted by date
 		'order'               => 'DESC',                     // Most recent first
-		'ignore_sticky_posts' => true,                       // Stickies not supported
-		's'                   => bbp_get_search_terms(),     // This is a search
+		'ignore_sticky_posts' => true                        // Stickies not supported
 	);
+
+	// Only set 's' if search terms exist
+	// https://bbpress.trac.wordpress.org/ticket/2607
+	if ( false !== $default_search_terms ) {
+		$default['s'] = $default_search_terms;
+	}
 
 	// What are the default allowed statuses (based on user caps)
 	if ( bbp_get_view_all() ) {
@@ -88,7 +94,7 @@ function bbp_has_search_results( $args = '' ) {
 	// Get bbPress
 	$bbp = bbpress();
 
-	// Call the query
+	// Only call the search query if 's' is not empty
 	if ( ! empty( $r['s'] ) ) {
 		$bbp->search_query = new WP_Query( $r );
 	}
