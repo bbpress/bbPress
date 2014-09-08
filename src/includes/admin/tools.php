@@ -600,7 +600,7 @@ function bbp_admin_repair_forum_topic_count() {
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ( '_bbp_topic_count', '_bbp_total_topic_count' );";
+	$sql_delete = "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden' );";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
@@ -609,6 +609,7 @@ function bbp_admin_repair_forum_topic_count() {
 	if ( !empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
+			bbp_update_forum_topic_count_hidden( $forum->ID );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
