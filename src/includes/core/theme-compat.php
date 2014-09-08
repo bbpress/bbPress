@@ -390,6 +390,10 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
 
+	// Reset is_singular based on page/single args
+	// https://bbpress.trac.wordpress.org/ticket/2545
+	$wp_query->is_singular = $wp_query->is_single;
+
 	// Clean up the dummy post
 	unset( $dummy );
 
@@ -479,6 +483,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_type'      => '',
 			'post_title'     => bbp_get_displayed_user_field( 'display_name' ),
 			'post_status'    => bbp_get_public_status_id(),
+			'is_single'      => true,
 			'is_archive'     => false,
 			'comment_status' => 'closed'
 		) );
