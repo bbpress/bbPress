@@ -690,7 +690,7 @@ function bbp_forum_get_subforums( $args = '' ) {
 		$args = array( 'post_parent' => $args );
 	}
 
-	// Setup possible post__not_in array
+	// Setup post status array
 	$post_stati[] = bbp_get_public_status_id();
 
 	// Super admin get whitelisted post statuses
