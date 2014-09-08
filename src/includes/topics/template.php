@@ -144,7 +144,6 @@ function bbp_has_topics( $args = '' ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_topic_search  = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
 	$default_show_stickies = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
 	$default_post_parent   = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
 
@@ -158,10 +157,15 @@ function bbp_has_topics( $args = '' ) {
 		'order'          => 'DESC',                    // 'ASC', 'DESC'
 		'posts_per_page' => bbp_get_topics_per_page(), // Topics per page
 		'paged'          => bbp_get_paged(),           // Page Number
-		's'              => $default_topic_search,     // Topic Search
 		'show_stickies'  => $default_show_stickies,    // Ignore sticky topics?
 		'max_num_pages'  => false,                     // Maximum number of pages to show
 	);
+
+	// Only add 's' arg if searching for topics
+	// See https://bbpress.trac.wordpress.org/ticket/2607
+	if ( ! empty( $_REQUEST['ts'] ) ) {
+		$default['s'] = $_REQUEST['ts'];
+	}
 
 	// What are the default allowed statuses (based on user caps)
 	if ( bbp_get_view_all() ) {

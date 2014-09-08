@@ -124,7 +124,6 @@ function bbp_has_replies( $args = '' ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_reply_search   = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs']    : false;
 	$default_post_parent    = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
 	$default_post_type      = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$default_thread_replies = (bool) ( bbp_is_single_topic() && bbp_thread_replies() );
@@ -139,8 +138,13 @@ function bbp_has_replies( $args = '' ) {
 		'order'               => 'ASC',                      // Oldest to newest
 		'hierarchical'        => $default_thread_replies,    // Hierarchical replies
 		'ignore_sticky_posts' => true,                       // Stickies not supported
-		's'                   => $default_reply_search,      // Maybe search
 	);
+
+	// Only add 's' arg if searching for replies
+	// See https://bbpress.trac.wordpress.org/ticket/2607
+	if ( ! empty( $_REQUEST['rs'] ) ) {
+		$default['s'] = $_REQUEST['rs'];
+	}
 
 	// What are the default allowed statuses (based on user caps)
 	if ( bbp_get_view_all() ) {
