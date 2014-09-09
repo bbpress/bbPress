@@ -178,8 +178,9 @@ function bbp_is_single_forum() {
 	$retval = false;
 
 	// Edit is not a single forum
-	if ( bbp_is_forum_edit() )
+	if ( bbp_is_forum_edit() ) {
 		return false;
+	}
 
 	// Single and a match
 	if ( is_singular( bbp_get_forum_post_type() ) || bbp_is_query_name( 'bbp_single_forum' ) ) {
