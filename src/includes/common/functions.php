@@ -1143,6 +1143,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
@@ -1297,6 +1300,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
