@@ -1668,28 +1668,11 @@ function bbp_split_topic_handler( $action = '' ) {
 	// Make sure there are replies to loop through
 	if ( ! empty( $replies ) && ! is_wp_error( $replies ) ) {
 
-		// Calculate starting point for reply positions
-		switch ( $split_option ) {
-
-			// Get topic reply count for existing topic
-			case 'existing' :
-				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID, true );
-				break;
-
-			// Account for new lead topic
-			case 'reply'    :
-				$reply_position = 1;
-				break;
-		}
-
 		// Save reply ids
 		$reply_ids = array();
 
 		// Change the post_parent of each reply to the destination topic id
 		foreach ( $replies as $reply ) {
-
-			// Bump the reply position each iteration through the loop
-			$reply_position++;
 
 			// Update the reply
 			wp_update_post( array(
@@ -1697,7 +1680,6 @@ function bbp_split_topic_handler( $action = '' ) {
 				'post_title'  => '',
 				'post_name'   => false, // will be automatically generated
 				'post_parent' => $destination_topic->ID,
-				'menu_order'  => $reply_position,
 				'guid'        => ''
 			) );
 
@@ -1707,6 +1689,9 @@ function bbp_split_topic_handler( $action = '' ) {
 			// Adjust reply meta values
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 			bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
+
+			// Adjust reply position 
+			bbp_update_reply_position( $reply->ID ); 
 
 			// Adjust reply to values
 			$reply_to = bbp_get_reply_to( $reply->ID );
