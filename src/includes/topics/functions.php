@@ -1329,7 +1329,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 			// Update the reply
 			wp_update_post( array(
 				'ID'          => $reply->ID,
-				'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+				'post_title'  => '',
 				'post_name'   => false,
 				'post_type'   => bbp_get_reply_post_type(),
 				'post_parent' => $destination_topic->ID,
