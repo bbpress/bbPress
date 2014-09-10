@@ -791,8 +791,8 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		return true;
 	}
 
-	// Bail if keymaster is author
-	if ( !empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
+	// Bail if author is keymaster
+	if ( ! empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
 		return true;
 	}
 
@@ -800,26 +800,16 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	$_post     = array();
 	$match_out = '';
 
-	/** Blacklist *************************************************************/
-
-	// Get the moderation keys
-	$blacklist = trim( get_option( 'moderation_keys' ) );
-
-	// Bail if blacklist is empty
-	if ( empty( $blacklist ) ) {
-		return true;
-	}
-
 	/** User Data *************************************************************/
 
 	// Map anonymous user data
-	if ( !empty( $anonymous_data ) ) {
+	if ( ! empty( $anonymous_data ) ) {
 		$_post['author'] = $anonymous_data['bbp_anonymous_name'];
 		$_post['email']  = $anonymous_data['bbp_anonymous_email'];
 		$_post['url']    = $anonymous_data['bbp_anonymous_website'];
 
 	// Map current user data
-	} elseif ( !empty( $author_id ) ) {
+	} elseif ( ! empty( $author_id ) ) {
 
 		// Get author data
 		$user = get_userdata( $author_id );
@@ -843,10 +833,10 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	/** Max Links *************************************************************/
 
 	$max_links = get_option( 'comment_max_links' );
-	if ( !empty( $max_links ) ) {
+	if ( ! empty( $max_links ) ) {
 
 		// How many links?
-		$num_links = preg_match_all( '/<a [^>]*href/i', $content, $match_out );
+		$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
 
 		// Allow for bumping the max to include the user's URL
 		$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
@@ -857,33 +847,42 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		}
 	}
 
-	/** Words *****************************************************************/
+	/** Blacklist *************************************************************/
 
-	// Get words separated by new lines
-	$words = explode( "\n", $blacklist );
+	// Get the moderation keys
+	$blacklist = trim( get_option( 'moderation_keys' ) );
 
-	// Loop through words
-	foreach ( (array) $words as $word ) {
+	// Bail if blacklist is empty
+	if ( ! empty( $blacklist ) ) {
 
-		// Trim the whitespace from the word
-		$word = trim( $word );
+		// Get words separated by new lines
+		$words = explode( "\n", $blacklist );
 
-		// Skip empty lines
-		if ( empty( $word ) ) { continue; }
+		// Loop through words
+		foreach ( (array) $words as $word ) {
 
-		// Do some escaping magic so that '#' chars in the
-		// spam words don't break things:
-		$word    = preg_quote( $word, '#' );
-		$pattern = "#$word#i";
+			// Trim the whitespace from the word
+			$word = trim( $word );
 
-		// Loop through post data
-		foreach ( $_post as $post_data ) {
+			// Skip empty lines
+			if ( empty( $word ) ) {
+				continue;
+			}
 
-			// Check each user data for current word
-			if ( preg_match( $pattern, $post_data ) ) {
+			// Do some escaping magic so that '#' chars in the
+			// spam words don't break things:
+			$word    = preg_quote( $word, '#' );
+			$pattern = "#$word#i";
 
-				// Post does not pass
-				return false;
+			// Loop through post data
+			foreach ( $_post as $post_data ) {
+
+				// Check each user data for current word
+				if ( preg_match( $pattern, $post_data ) ) {
+
+					// Post does not pass
+					return false;
+				}
 			}
 		}
 	}
