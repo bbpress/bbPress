@@ -1220,7 +1220,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** Date Check ************************************************************/
 
 	// Check if the destination topic is older than the source topic
-	if ( strtotime( $destination_topic->post_date ) < strtotime( $source_topic->post_date ) ) {
+	if ( strtotime( $source_topic->post_date ) < strtotime( $destination_topic->post_date ) ) {
 
 		// Set destination topic post_date to 1 second before source topic
 		$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $source_topic->post_date ) - 1 );
@@ -1300,6 +1300,14 @@ function bbp_merge_topic_handler( $action = '' ) {
 	// Sticky
 	bbp_unstick_topic( $source_topic->ID );
 
+	// Delete source topic's last & count meta data
+	delete_post_meta( $source_topic->ID, '_bbp_last_reply_id'      );
+	delete_post_meta( $source_topic->ID, '_bbp_last_active_id'     );
+	delete_post_meta( $source_topic->ID, '_bbp_last_active_time'   );
+	delete_post_meta( $source_topic->ID, '_bbp_voice_count'        );
+	delete_post_meta( $source_topic->ID, '_bbp_reply_count'        );
+	delete_post_meta( $source_topic->ID, '_bbp_reply_count_hidden' );
+
 	// Get the replies of the source topic
 	$replies = (array) get_posts( array(
 		'post_parent'    => $source_topic->ID,
@@ -1325,7 +1333,6 @@ function bbp_merge_topic_handler( $action = '' ) {
 				'post_name'   => false,
 				'post_type'   => bbp_get_reply_post_type(),
 				'post_parent' => $destination_topic->ID,
-				'menu_order'  => bbp_get_reply_position_raw( $reply->ID, $destination_topic->ID ),
 				'guid'        => ''
 			) );
 
@@ -1333,11 +1340,8 @@ function bbp_merge_topic_handler( $action = '' ) {
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 			bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
 
-			// Adjust reply to values
-			$reply_to = bbp_get_reply_to( $reply->ID );
-			if ( empty( $reply_to ) ) {
-				bbp_update_reply_to( $reply->ID, $source_topic->ID );
-			}
+			// Update the reply position
+			bbp_update_reply_position( $reply->ID );
 
 			// Do additional actions per merged reply
 			do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
