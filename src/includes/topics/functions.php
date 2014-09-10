@@ -1694,7 +1694,7 @@ function bbp_split_topic_handler( $action = '' ) {
 			// Update the reply
 			wp_update_post( array(
 				'ID'          => $reply->ID,
-				'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+				'post_title'  => '',
 				'post_name'   => false, // will be automatically generated
 				'post_parent' => $destination_topic->ID,
 				'menu_order'  => $reply_position,
