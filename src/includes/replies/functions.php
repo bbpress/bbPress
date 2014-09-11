@@ -1163,7 +1163,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
  * @return array
  */
 function bbp_get_reply_ancestors( $reply_id = 0 ) {
-	
+
 	// Validation
 	$reply_id  = bbp_get_reply_id( $reply_id );
 	$ancestors = array();
@@ -1469,7 +1469,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	}
 
 	// Remove reply_to from moved reply
-	delete_post_meta( $move_reply->ID, '_bbp_reply_to' ); 
+	delete_post_meta( $move_reply->ID, '_bbp_reply_to' );
 
 	// It is a new topic and we need to set some default metas to make
 	// the topic display in bbp_has_topics() list
@@ -1582,7 +1582,8 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	// Setup possible get actions
 	$possible_actions = array(
 		'bbp_toggle_reply_spam',
-		'bbp_toggle_reply_trash'
+		'bbp_toggle_reply_trash',
+		'bbp_toggle_reply_approve'
 	);
 
 	// Bail if actions aren't meant for this function
@@ -1610,6 +1611,17 @@ function bbp_toggle_reply_handler( $action = '' ) {
 
 	// What action are we trying to perform?
 	switch ( $action ) {
+
+		// Toggle approve
+		case 'bbp_toggle_reply_approve' :
+			check_ajax_referer( 'approve-reply_' . $reply_id );
+
+			$is_approve = bbp_is_reply_pending( $reply_id );
+			$success    = $is_approve ? bbp_approve_reply( $reply_id ) : bbp_unapprove_reply( $reply_id );
+			$failure    = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving thereply!', 'bbpress' );
+			$view_all   = !$is_approve;
+
+			break;
 
 		// Toggle spam
 		case 'bbp_toggle_reply_spam' :
@@ -1809,6 +1821,98 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 
 	// Execute post unspam code
 	do_action( 'bbp_unspammed_reply', $reply_id );
+
+	// Return reply_id
+	return $reply_id;
+}
+
+/**
+ * Approves a reply
+ *
+ * @since bbPress (r5506)
+ *
+ * @param int $reply_id Reply id
+ * @uses bbp_get_reply() To get the reply
+ * @uses do_action() Calls 'bbp_approve_reply' with the reply id
+ /* @uses add_post_meta() To add the previous status to a meta
+ /* @uses delete_post_meta() To delete the previous status meta
+ * @uses wp_update_post() To update the reply with the new status
+ * @uses do_action() Calls 'bbp_approved_reply' with the reply id
+ * @return mixed False or {@link WP_Error} on failure, reply id on success
+ */
+function bbp_approve_reply( $reply_id = 0 ) {
+
+	// Get reply
+	$reply = bbp_get_reply( $reply_id );
+	if ( empty( $reply ) ) {
+		return $reply;
+	}
+
+	// Bail if already approved
+	if ( bbp_get_pending_status_id() !== $reply->post_status ) {
+		return false;
+	}
+
+	// Execute pre pending code
+	do_action( 'bbp_approve_reply', $reply_id );
+
+	// Set publish status
+	$reply->post_status = bbp_get_public_status_id();
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update reply
+	$reply_id = wp_update_post( $reply );
+
+	// Execute post pending code
+	do_action( 'bbp_approved_reply', $reply_id );
+
+	// Return reply_id
+	return $reply_id;
+}
+
+/**
+ * Unapproves a reply
+ *
+ * @since bbPress (r5506)
+ *
+ * @param int $reply_id Reply id
+ * @uses bbp_get_reply() To get the reply
+ * @uses do_action() Calls 'bbp_unapprove_reply' with the reply id
+ /* @uses get_post_meta() To get the previous status
+ /* @uses delete_post_meta() To delete the previous status meta
+ * @uses wp_update_post() To update the reply with the new status
+ * @uses do_action() Calls 'bbp_unapproved_reply' with the reply id
+ * @return mixed False or {@link WP_Error} on failure, reply id on success
+ */
+function bbp_unapprove_reply( $reply_id = 0 ) {
+
+	// Get reply
+	$reply = bbp_get_reply( $reply_id );
+	if ( empty( $reply ) ) {
+		return $reply;
+	}
+
+	// Bail if already pending
+	if ( bbp_get_pending_status_id() === $reply->post_status ) {
+		return false;
+	}
+
+	// Execute pre open code
+	do_action( 'bbp_unapprove_reply', $reply_id );
+
+	// Set pending status
+	$reply->post_status = bbp_get_pending_status_id();
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update reply
+	$reply_id = wp_update_post( $reply );
+
+	// Execute post open code
+	do_action( 'bbp_unapproved_reply', $reply_id );
 
 	// Return reply_id
 	return $reply_id;
@@ -2336,7 +2440,7 @@ function bbp_list_replies( $args = array() ) {
 
 /**
  * Validate a `reply_to` field for hierarchical replies
- * 
+ *
  * Checks for 2 scenarios:
  * -- The reply to ID is actually a reply
  * -- The reply to ID does not match the current reply
