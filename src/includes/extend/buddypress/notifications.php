@@ -40,41 +40,44 @@ add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notificati
  */
 function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item_id, $total_items, $format = 'string' ) {
 
-	// New reply notifications
-	if ( 'bbp_new_reply' === $action ) {
-		$topic_id    = bbp_get_reply_topic_id( $item_id );
-		$topic_title = bbp_get_topic_title( $topic_id );
-		$topic_link  = wp_nonce_url( add_query_arg( array( 'action' => 'bbp_mark_read', 'topic_id' => $topic_id ), bbp_get_reply_url( $item_id ) ), 'bbp_mark_topic_' . $topic_id );
-		$title_attr  = __( 'Topic Replies', 'bbpress' );
-
-		if ( (int) $total_items > 1 ) {
-			$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), (int) $total_items );
-			$filter = 'bbp_multiple_new_subscription_notification';
-		} else {
-			if ( !empty( $secondary_item_id ) ) {
-				$text = sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
-			} else {
-				$text = sprintf( __( 'You have %d new reply to %s',             'bbpress' ), (int) $total_items, $topic_title );
-			}
-			$filter = 'bbp_single_new_subscription_notification';
-		}
-
-		// WordPress Toolbar
-		if ( 'string' === $format ) {
-			$return = apply_filters( $filter, '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr( $title_attr ) . '">' . esc_html( $text ) . '</a>', (int) $total_items, $text, $topic_link );
-
-		// Deprecated BuddyBar
-		} else {
-			$return = apply_filters( $filter, array(
-				'text' => $text,
-				'link' => $topic_link
-			), $topic_link, (int) $total_items, $text, $topic_title );
-		}
-
-		do_action( 'bbp_format_buddypress_notifications', $action, $item_id, $secondary_item_id, $total_items );
-
-		return $return;
+	// Bail if not the notification action we are looking for
+	if ( 'bbp_new_reply' !== $action ) {
+		return $action;
 	}
+
+	// New reply notifications
+	$topic_id    = bbp_get_reply_topic_id( $item_id );
+	$topic_title = bbp_get_topic_title( $topic_id );
+	$topic_link  = wp_nonce_url( add_query_arg( array( 'action' => 'bbp_mark_read', 'topic_id' => $topic_id ), bbp_get_reply_url( $item_id ) ), 'bbp_mark_topic_' . $topic_id );
+	$title_attr  = __( 'Topic Replies', 'bbpress' );
+
+	if ( (int) $total_items > 1 ) {
+		$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), (int) $total_items );
+		$filter = 'bbp_multiple_new_subscription_notification';
+	} else {
+		if ( !empty( $secondary_item_id ) ) {
+			$text = sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
+		} else {
+			$text = sprintf( __( 'You have %d new reply to %s',             'bbpress' ), (int) $total_items, $topic_title );
+		}
+		$filter = 'bbp_single_new_subscription_notification';
+	}
+
+	// WordPress Toolbar
+	if ( 'string' === $format ) {
+		$return = apply_filters( $filter, '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr( $title_attr ) . '">' . esc_html( $text ) . '</a>', (int) $total_items, $text, $topic_link );
+
+	// Deprecated BuddyBar
+	} else {
+		$return = apply_filters( $filter, array(
+			'text' => $text,
+			'link' => $topic_link
+		), $topic_link, (int) $total_items, $text, $topic_title );
+	}
+
+	do_action( 'bbp_format_buddypress_notifications', $action, $item_id, $secondary_item_id, $total_items );
+
+	return $return;
 }
 add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypress_notifications', 10, 5 );
 
