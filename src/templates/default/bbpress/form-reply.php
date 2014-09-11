@@ -117,6 +117,15 @@
 
 							<?php do_action( 'bbp_theme_after_reply_form_reply_to' ); ?>
 
+							<?php do_action( 'bbp_theme_before_reply_form_status' ); ?>
+
+							<p>
+								<label for="bbp_reply_status"><?php _e( 'Reply Status:', 'bbpress' ); ?></label><br />
+								<?php bbp_form_reply_status_dropdown(); ?>
+							</p>
+
+							<?php do_action( 'bbp_theme_after_reply_form_status' ); ?>
+
 						<?php endif; ?>
 
 						<?php if ( bbp_allow_revisions() ) : ?>
