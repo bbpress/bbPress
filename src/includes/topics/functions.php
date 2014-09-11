@@ -2101,7 +2101,8 @@ function bbp_toggle_topic_handler( $action = '' ) {
 		'bbp_toggle_topic_close',
 		'bbp_toggle_topic_stick',
 		'bbp_toggle_topic_spam',
-		'bbp_toggle_topic_trash'
+		'bbp_toggle_topic_trash',
+		'bbp_toggle_topic_approve'
 	);
 
 	// Bail if actions aren't meant for this function
@@ -2130,6 +2131,16 @@ function bbp_toggle_topic_handler( $action = '' ) {
 
 	// What action are we trying to perform?
 	switch ( $action ) {
+
+		// Toggle approve/unapprove
+		case 'bbp_toggle_topic_approve' :
+			check_ajax_referer( 'approve-topic_' . $topic_id );
+
+			$is_pending = bbp_is_topic_pending( $topic_id );
+			$success    = true === $is_pending ? bbp_approve_topic( $topic_id ) : bbp_unapprove_topic( $topic_id );
+			$failure    = true === $is_pending ? __( '<strong>ERROR</strong>: There was a problem approving the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the topic.', 'bbpress' );
+
+			break;
 
 		// Toggle open/close
 		case 'bbp_toggle_topic_close' :
@@ -2343,6 +2354,7 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
  * @param int $topic_id Optional. Forum id.
  * @param int $difference Optional. Default 1
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_reply_count_hidden To get the topic's hidden reply count
  * @uses update_post_meta() To update the topic's reply count meta
  * @uses apply_filters() Calls 'bbp_bump_topic_reply_count_hidden' with the
  *                        reply count, topic id, and difference
@@ -2454,7 +2466,8 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 }
 
 /**
- * Adjust the total hidden reply count of a topic (hidden includes trashed and spammed replies)
+ * Adjust the total hidden reply count of a topic (hidden includes trashed,
+ * spammed and pending replies)
  *
  * @since bbPress (r2740)
  *
@@ -2463,6 +2476,9 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_trash_status_id() To get the trash status id
+ * @uses bbp_get_spam_status_id() To get the spam status id
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_var() To execute our query and get the var back
@@ -2483,7 +2499,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	// Get replies of topic
 	if ( empty( $reply_count ) ) {
-		$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "'";
+		$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ) ) . "'";
 		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
 	}
 
@@ -3160,6 +3176,98 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 	do_action( 'bbp_stuck_topic', $topic_id, $super, $success );
 
 	return (bool) $success;
+}
+
+/**
+ * Approves a pending topic
+ *
+ * @since bbPress (r5503)
+ *
+ * @param int $topic_id Topic id
+ * @uses bbp_get_topic() To get the topic
+ * @uses do_action() Calls 'bbp_approve_topic' with the topic id
+ /* @uses add_post_meta() To add the previous status to a meta
+ /* @uses delete_post_meta() To delete the previous status meta
+ * @uses wp_update_post() To update the topic with the new status
+ * @uses do_action() Calls 'bbp_approved_topic' with the topic id
+ * @return mixed False or {@link WP_Error} on failure, topic id on success
+ */
+function bbp_approve_topic( $topic_id = 0 ) {
+
+	// Get topic
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) ) {
+		return $topic;
+	}
+
+	// Bail if already approved
+	if ( bbp_get_pending_status_id() !== $topic->post_status ) {
+		return false;
+	}
+
+	// Execute pre pending code
+	do_action( 'bbp_approve_topic', $topic_id );
+
+	// Set publish status
+	$topic->post_status = bbp_get_public_status_id();
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update topic
+	$topic_id = wp_update_post( $topic );
+
+	// Execute post pending code
+	do_action( 'bbp_approved_topic', $topic_id );
+
+	// Return topic_id
+	return $topic_id;
+}
+
+/**
+ * Unapproves a topic
+ *
+ * @since bbPress (r5503)
+ *
+ * @param int $topic_id Topic id
+ * @uses bbp_get_topic() To get the topic
+ * @uses do_action() Calls 'bbp_unapprove_topic' with the topic id
+ /* @uses get_post_meta() To get the previous status
+ /* @uses delete_post_meta() To delete the previous status meta
+ * @uses wp_update_post() To update the topic with the new status
+ * @uses do_action() Calls 'bbp_unapproved_topic' with the topic id
+ * @return mixed False or {@link WP_Error} on failure, topic id on success
+ */
+function bbp_unapprove_topic( $topic_id = 0 ) {
+
+	// Get topic
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) ) {
+		return $topic;
+	}
+
+	// Bail if already pending
+	if ( bbp_get_pending_status_id() === $topic->post_status ) {
+		return false;
+	}
+
+	// Execute pre open code
+	do_action( 'bbp_unapprove_topic', $topic_id );
+
+	// Set pending status
+	$topic->post_status = bbp_get_pending_status_id();
+
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update topic
+	$topic_id = wp_update_post( $topic );
+
+	// Execute post open code
+	do_action( 'bbp_unapproved_topic', $topic_id );
+
+	// Return topic_id
+	return $topic_id;
 }
 
 /**
