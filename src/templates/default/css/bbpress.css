@@ -54,6 +54,12 @@ body.reply-edit .reply {
 	background-color: #fdd;
 }
 
+#bbpress-forums .status-pending.even,
+#bbpress-forums .status-pending.odd,
+#bbpress-forums ul.status-pending a {
+	background-color: #fef7f1;
+}
+
 #bbpress-forums ul.status-closed,
 #bbpress-forums ul.status-closed a {
 	color: #ccc;
