@@ -176,7 +176,8 @@ function bbp_has_topics( $args = '' ) {
 			bbp_get_public_status_id(),
 			bbp_get_closed_status_id(),
 			bbp_get_spam_status_id(),
-			bbp_get_trash_status_id()
+			bbp_get_trash_status_id(),
+			bbp_get_pending_status_id()
 		);
 
 		// Add support for private status
@@ -1228,6 +1229,38 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
 function bbp_is_topic_trash( $topic_id = 0 ) {
 	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_trash_status_id();
 	return (bool) apply_filters( 'bbp_is_topic_trash', (bool) $topic_status, $topic_id );
+}
+
+/**
+ * Is the topic pending?
+ *
+ * @since bbPress (r5504)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_pending' with the topic id
+ * @return bool True if pending, false if not.
+ */
+function bbp_is_topic_pending( $topic_id = 0 ) {
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_pending_status_id();
+	return (bool) apply_filters( 'bbp_is_topic_pending', (bool) $topic_status, $topic_id );
+}
+
+/**
+ * Is the topic private?
+ *
+ * @since bbPress (r5504)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_private' with the topic id
+ * @return bool True if private, false if not.
+ */
+function bbp_is_topic_private( $topic_id = 0 ) {
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) ) === bbp_get_private_status_id();
+	return (bool) apply_filters( 'bbp_is_topic_private', (bool) $topic_status, $topic_id );
 }
 
 /**
@@ -2446,21 +2479,22 @@ function bbp_topic_admin_links( $args = array() ) {
 
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = apply_filters( 'bbp_topic_admin_links', array(
-				'edit'  => bbp_get_topic_edit_link ( $r ),
-				'close' => bbp_get_topic_close_link( $r ),
-				'stick' => bbp_get_topic_stick_link( $r ),
-				'merge' => bbp_get_topic_merge_link( $r ),
-				'trash' => bbp_get_topic_trash_link( $r ),
-				'spam'  => bbp_get_topic_spam_link ( $r ),
-				'reply' => bbp_get_topic_reply_link( $r )
+				'edit'    => bbp_get_topic_edit_link   ( $r ),
+				'close'   => bbp_get_topic_close_link  ( $r ),
+				'stick'   => bbp_get_topic_stick_link  ( $r ),
+				'merge'   => bbp_get_topic_merge_link  ( $r ),
+				'trash'   => bbp_get_topic_trash_link  ( $r ),
+				'spam'    => bbp_get_topic_spam_link   ( $r ),
+				'approve' => bbp_get_topic_approve_link( $r ),
+				'reply'   => bbp_get_topic_reply_link  ( $r )
 			), $r['id'] );
 		}
 
 		// See if links need to be unset
 		$topic_status = bbp_get_topic_status( $r['id'] );
-		if ( in_array( $topic_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
+		if ( in_array( $topic_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id() ) ) ) {
 
-			// Close link shouldn't be visible on trashed/spammed topics
+			// Close link shouldn't be visible on trashed/spammed/pending topics
 			unset( $r['links']['close'] );
 
 			// Spam link shouldn't be visible on trashed topics
@@ -2730,6 +2764,67 @@ function bbp_topic_close_link( $args = '' ) {
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-close-link">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_close_link', $retval, $r );
+	}
+
+/**
+ * Output the approve link of the topic
+ *
+ * @since bbPress (r5504)
+ *
+ * @param mixed $args See {@link bbp_get_topic_approve_link()}
+ * @uses bbp_get_topic_approve_link() To get the topic approve link
+ */
+function bbp_topic_approve_link( $args = '' ) {
+	echo bbp_get_topic_approve_link( $args );
+}
+
+	/**
+	 * Return the approve link of the topic
+	 *
+	 * @since bbPress (r5504)
+	 *
+	 * @param mixed $args This function supports these args:
+	 *  - id: Optional. Topic id
+	 *  - link_before: Before the link
+	 *  - link_after: After the link
+	 *  - sep: Separator between links
+	 *  - approve_text: Approve text
+	 *  - unapprove_text: Unapprove text
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_get_topic() To get the topic
+	 * @uses current_user_can() To check if the current user can approve the topic
+	 * @uses bbp_is_topic_pending() To check if the topic is pending
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_topic_approve_link' with the link
+	 *                        and args
+	 * @return string Topic approve link
+	 */
+	function bbp_get_topic_approve_link( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'id'             => 0,
+			'link_before'    => '',
+			'link_after'     => '',
+			'sep'            => ' | ',
+			'approve_text'   => _x( 'Approve',   'Pending Status', 'bbpress' ),
+			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
+		), 'get_topic_approve_link' );
+
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+
+		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+			return;
+		}
+
+		$display = bbp_is_topic_pending( $topic->ID ) ? $r['approve_text'] : $r['unapprove_text'];
+		$uri     = add_query_arg( array( 'action' => 'bbp_toggle_topic_approve', 'topic_id' => $topic->ID ) );
+		$uri     = wp_nonce_url( $uri, 'approve-topic_' . $topic->ID );
+		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-approve-link">' . $display . '</a>' . $r['link_after'];
+
+		return apply_filters( 'bbp_get_topic_approve_link', $retval, $r );
 	}
 
 /**
