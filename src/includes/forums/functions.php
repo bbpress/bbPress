@@ -949,10 +949,10 @@ function bbp_repair_forum_visibility() {
 	// First, delete everything.
 	delete_option( '_bbp_private_forums' );
 	delete_option( '_bbp_hidden_forums'  );
-	
+
 	/**
 	 * Don't search for both private/hidden statuses. Since 'pre_get_posts' is an
-	 * action, it's not removed by suppress_filters. We need to make sure that 
+	 * action, it's not removed by suppress_filters. We need to make sure that
 	 * we're only searching for the supplied post_status.
 	 *
 	 * @see https://bbpress.trac.wordpress.org/ticket/2512
@@ -974,7 +974,7 @@ function bbp_repair_forum_visibility() {
 		'post_status'      => bbp_get_hidden_status_id(),
 		'fields'           => 'ids'
 	) );
-	
+
 	// Enable forum visibilty normalization
 	add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
 
@@ -1096,6 +1096,7 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_forum_topic_count_hidden To get the forum's hidden topic count
  * @uses update_post_meta() To update the forum's topic count meta
  * @uses apply_filters() Calls 'bbp_bump_forum_topic_count_hidden' with the
  *                        topic count, forum id, and difference
@@ -1462,7 +1463,8 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 }
 
 /**
- * Adjust the total hidden topic count of a forum (hidden includes trashed and spammed topics)
+ * Adjust the total hidden topic count of a forum (hidden includes trashed,
+ * spammed and pending topics)
  *
  * @since bbPress (r2888)
  *
@@ -1472,8 +1474,11 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_trash_status_id() To get the trash status id
+ * @uses bbp_get_spam_status_id() To get the spam status id
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses wpdb::get_var() To execute our query and get the var back
  * @uses update_post_meta() To update the forum hidden topic count meta
  * @uses apply_filters() Calls 'bbp_update_forum_topic_count_hidden' with the
  *                        hidden topic count and forum id
@@ -1493,11 +1498,11 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 	}
 
 	// Can't update what isn't there
-	if ( !empty( $forum_id ) ) {
+	if ( ! empty( $forum_id ) ) {
 
 		// Get topics of forum
 		if ( empty( $topic_count ) ) {
-			$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "'";
+			$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ) ) . "'";
 			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
 		}
 
