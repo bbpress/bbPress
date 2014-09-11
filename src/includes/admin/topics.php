@@ -530,10 +530,10 @@ class BBP_Topics_Admin {
 						? true
 						: false;
 					$message   = ( true  === $is_sticky )
-						? 'unsticked'
-						: 'sticked';
+						? 'unstuck'
+						: 'stuck';
 					$message   = ( true  === $is_super )
-						? 'super_sticked'
+						? 'super_sticky'
 						: $message;
 					$success   = ( true  === $is_sticky )
 						? bbp_unstick_topic( $topic_id )
@@ -594,7 +594,7 @@ class BBP_Topics_Admin {
 		}
 
 		// Only proceed if GET is a topic toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticky', 'stuck', 'unstuck', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
@@ -625,22 +625,22 @@ class BBP_Topics_Admin {
 						: sprintf( __( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
 					break;
 
-				case 'super_sticked' :
+				case 'super_sticky' :
 					$message = ( $is_failure === true )
 						? sprintf( __( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully sticked to front.',             'bbpress' ), $topic_title );
+						: sprintf( __( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
 					break;
 
-				case 'sticked'   :
+				case 'stuck'   :
 					$message = ( $is_failure === true )
 						? sprintf( __( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully sticked.',             'bbpress' ), $topic_title );
+						: sprintf( __( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
 					break;
 
-				case 'unsticked' :
+				case 'unstuck' :
 					$message = ( $is_failure === true )
 						? sprintf( __( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully unsticked.',             'bbpress' ), $topic_title );
+						: sprintf( __( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
 					break;
 
 				case 'spammed'   :
