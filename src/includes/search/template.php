@@ -70,7 +70,8 @@ function bbp_has_search_results( $args = '' ) {
 			bbp_get_public_status_id(),
 			bbp_get_closed_status_id(),
 			bbp_get_spam_status_id(),
-			bbp_get_trash_status_id()
+			bbp_get_trash_status_id(),
+			bbp_get_pending_status_id()
 		);
 
 		// Add support for private status
@@ -147,7 +148,7 @@ function bbp_has_search_results( $args = '' ) {
 				'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
 				'next_text' => is_rtl() ? '&larr;' : '&rarr;',
 				'mid_size'  => 1,
-				'add_args'  => $add_args, 
+				'add_args'  => $add_args,
 			) )
 		);
 
