@@ -154,7 +154,8 @@ function bbp_has_replies( $args = '' ) {
 			bbp_get_public_status_id(),
 			bbp_get_closed_status_id(),
 			bbp_get_spam_status_id(),
-			bbp_get_trash_status_id()
+			bbp_get_trash_status_id(),
+			bbp_get_pending_status_id()
 		);
 
 		// Add support for private status
@@ -953,6 +954,38 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 function bbp_is_reply_trash( $reply_id = 0 ) {
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_trash_status_id();
 	return (bool) apply_filters( 'bbp_is_reply_trash', (bool) $reply_status, $reply_id );
+}
+
+/**
+ * Is the reply pending?
+ *
+ * @since bbPress (r5507)
+ *
+ * @param int $reply_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_status() To get the reply status
+ * @uses apply_filters() Calls 'bbp_is_reply_pending' with the reply id
+ * @return bool True if pending, false if not.
+ */
+function bbp_is_reply_pending( $reply_id = 0 ) {
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_pending_status_id();
+	return (bool) apply_filters( 'bbp_is_reply_pending', (bool) $reply_status, $reply_id );
+}
+
+/**
+ * Is the reply private?
+ *
+ * @since bbPress (r5507)
+ *
+ * @param int $reply_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_status() To get the reply status
+ * @uses apply_filters() Calls 'bbp_is_reply_private' with the reply id
+ * @return bool True if private, false if not.
+ */
+function bbp_is_reply_private( $reply_id = 0 ) {
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_private_status_id();
+	return (bool) apply_filters( 'bbp_is_reply_private', (bool) $reply_status, $reply_id );
 }
 
 /**
@@ -1857,18 +1890,19 @@ function bbp_reply_admin_links( $args = array() ) {
 		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = apply_filters( 'bbp_reply_admin_links', array(
-				'edit'  => bbp_get_reply_edit_link ( $r ),
-				'move'  => bbp_get_reply_move_link ( $r ),
-				'split' => bbp_get_topic_split_link( $r ),
-				'trash' => bbp_get_reply_trash_link( $r ),
-				'spam'  => bbp_get_reply_spam_link ( $r ),
-				'reply' => bbp_get_reply_to_link   ( $r )
+				'edit'    => bbp_get_reply_edit_link   ( $r ),
+				'move'    => bbp_get_reply_move_link   ( $r ),
+				'split'   => bbp_get_topic_split_link  ( $r ),
+				'trash'   => bbp_get_reply_trash_link  ( $r ),
+				'spam'    => bbp_get_reply_spam_link   ( $r ),
+				'approve' => bbp_get_reply_approve_link( $r ),
+				'reply'   => bbp_get_reply_to_link     ( $r )
 			), $r['id'] );
 		}
 
 		// See if links need to be unset
 		$reply_status = bbp_get_reply_status( $r['id'] );
-		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
+		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id() ) ) ) {
 
 			// Spam link shouldn't be visible on trashed topics
 			if ( bbp_get_trash_status_id() === $reply_status ) {
@@ -2274,6 +2308,67 @@ function bbp_topic_split_link( $args = '' ) {
 		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-topic-split-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_split_link', $retval, $r );
+	}
+
+/**
+ * Output the approve link of the reply
+ *
+ * @since bbPress (r5507)
+ *
+ * @param mixed $args See {@link bbp_get_reply_approve_link()}
+ * @uses bbp_get_reply_approve_link() To get the reply approve link
+ */
+function bbp_reply_approve_link( $args = '' ) {
+	echo bbp_get_reply_approve_link( $args );
+}
+
+	/**
+	 * Return the approve link of the reply
+	 *
+	 * @since bbPress (r5507)
+	 *
+	 * @param mixed $args This function supports these args:
+	 *  - id: Optional. Reply id
+	 *  - link_before: Before the link
+	 *  - link_after: After the link
+	 *  - sep: Separator between links
+	 *  - approve_text: Approve text
+	 *  - unapprove_text: Unapprove text
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses current_user_can() To check if the current user can approve the reply
+	 * @uses bbp_is_reply_pending() To check if the reply is pending
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_reply_approve_link' with the link
+	 *                        and args
+	 * @return string Reply approve link
+	 */
+	function bbp_get_reply_approve_link( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'id'             => 0,
+			'link_before'    => '',
+			'link_after'     => '',
+			'sep'            => ' | ',
+			'approve_text'   => _x( 'Approve',   'Pending Status', 'bbpress' ),
+			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
+		), 'get_reply_approve_link' );
+
+		$reply = bbp_get_reply( bbp_get_reply_id( (int) $r['id'] ) );
+
+		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->ID ) ) {
+			return;
+		}
+
+		$display = bbp_is_reply_pending( $reply->ID ) ? $r['approve_text'] : $r['unapprove_text'];
+		$uri     = add_query_arg( array( 'action' => 'bbp_toggle_reply_approve', 'reply_id' => $reply->ID ) );
+		$uri     = wp_nonce_url( $uri, 'approve-reply_' . $reply->ID );
+		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-approve-link">' . $display . '</a>' . $r['link_after'];
+
+		return apply_filters( 'bbp_get_reply_approve_link', $retval, $r );
 	}
 
 /**
