@@ -256,9 +256,9 @@ div.bbp-reply-header {
 }
 
 span.bbp-author-ip {
-	font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
 	font-size: 11px;
 	font-weight: bold;
+	word-wrap: break-word;
 	color: #aaa;
 }
 
