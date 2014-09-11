@@ -472,7 +472,7 @@ function bbp_reply_metabox() {
 	// Get some meta
 	$reply_topic_id = bbp_get_reply_topic_id( $post_id );
 	$reply_forum_id = bbp_get_reply_forum_id( $post_id );
-
+	$topic_forum_id = bbp_get_topic_forum_id( $reply_topic_id );
 
 	/** Status ****************************************************************/
 
@@ -490,8 +490,8 @@ function bbp_reply_metabox() {
 
 	/** Forum *****************************************************************/
 
-	// Allow individual manipulation of reply forum
-	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) : ?>
+	// Only allow individual manipulation of reply forum if there is a mismatch
+	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) ) : ?>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
