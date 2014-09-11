@@ -1429,8 +1429,8 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 	}
 
 /**
- * Output total hidden topic count of a forum (hidden includes trashed and
- * spammed topics)
+ * Output total hidden topic count of a forum (hidden includes trashed, spammed,
+ * and pending topics)
  *
  * @since bbPress (r2883)
  *
@@ -1442,8 +1442,8 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 	echo bbp_get_forum_topic_count_hidden( $forum_id, $integer );
 }
 	/**
-	 * Return total hidden topic count of a forum (hidden includes trashed
-	 * and spammed topics)
+	 * Return total hidden topic count of a forum (hidden includes trashed,
+	 * spammed and pending topics)
 	 *
 	 * @since bbPress (r2883)
 	 *
