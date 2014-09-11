@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * Output the unique id of the custom post type for forums
  *
  * @since bbPress (r2857)
+ *
  * @uses bbp_get_forum_post_type() To get the forum post type
  */
 function bbp_forum_post_type() {
@@ -454,6 +455,7 @@ function bbp_forum_content( $forum_id = 0 ) {
  * Allow forum rows to have adminstrative actions
  *
  * @since bbPress (r3653)
+ *
  * @uses do_action()
  * @todo Links and filter
  */
@@ -1574,47 +1576,113 @@ function bbp_is_forum_category( $forum_id = 0 ) {
  * Is the forum open?
  *
  * @since bbPress (r2746)
- * @param int $forum_id Optional. Forum id
  *
  * @param int $forum_id Optional. Forum id
- * @uses bbp_is_forum_closed() To check if the forum is closed or not
+ * @param bool $check_ancestors Check if the ancestors are open (only
+ *                               if they're a category)
+ * @uses bbp_is_forum_closed() To check if the forum is closed
  * @return bool Whether the forum is open or not
  */
-function bbp_is_forum_open( $forum_id = 0 ) {
-	return !bbp_is_forum_closed( $forum_id );
+function bbp_is_forum_open( $forum_id = 0, $check_ancestors = true ) {
+	return !bbp_is_forum_closed( $forum_id, $check_ancestors );
 }
 
-	/**
-	 * Is the forum closed?
-	 *
-	 * @since bbPress (r2746)
-	 *
-	 * @param int $forum_id Optional. Forum id
-	 * @param bool $check_ancestors Check if the ancestors are closed (only
-	 *                               if they're a category)
-	 * @uses bbp_get_forum_status() To get the forum status
-	 * @uses bbp_get_forum_ancestors() To get the forum ancestors
-	 * @uses bbp_is_forum_category() To check if the forum is a category
-	 * @uses bbp_is_forum_closed() To check if the forum is closed
-	 * @return bool True if closed, false if not
-	 */
-	function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
+/**
+* Is the forum closed?
+ *
+ * @since bbPress (r2746)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @param bool $check_ancestors Check if the ancestors are closed (only
+ *                               if they're a category)
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_is_forum_status() To check the forum status
+ * @return bool True if closed, false if not
+ */
+function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
 
-		$forum_id = bbp_get_forum_id( $forum_id );
-		$retval    = ( bbp_get_closed_status_id() === bbp_get_forum_status( $forum_id ) );
+	// Get the forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-		if ( !empty( $check_ancestors ) ) {
-			$ancestors = bbp_get_forum_ancestors( $forum_id );
+	// Check if the forum or one of it's ancestors is closed
+	$retval   = bbp_is_forum_status( $forum_id, bbp_get_closed_status_id(), $check_ancestors, 'OR' );
 
-			foreach ( (array) $ancestors as $ancestor ) {
-				if ( bbp_is_forum_category( $ancestor, false ) && bbp_is_forum_closed( $ancestor, false ) ) {
-					$retval = true;
+	return (bool) apply_filters( 'bbp_is_forum_closed', (bool) $retval, $forum_id, $check_ancestors );
+}
+
+/**
+ * Check if the forum status is a specific one, also maybe checking ancestors
+ *
+ * @since bbPress (r5499)
+ *
+ * @param bool $status_name The forum status name to check
+ * @param bool $check_ancestors Check the forum ancestors
+ * @param string $operator The logical operation to perform.
+ *      'OR' means only one forum from the tree needs to match;
+ *      'AND' means all forums must match. The default is 'AND'.
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_get_forum_status() To get the forum status
+ * @uses bbp_get_forum_ancestors() To get the forum ancestors
+ * @uses bbp_is_forum_category() To check the forum type
+ * @return bool True if match, false if not
+ */
+function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, $operator = 'AND' ) {
+
+	// Setup some default variables
+	$count        = 0;
+	$retval       = false;
+	$operator     = strtoupper( $operator );
+	$forum_id     = bbp_get_forum_id( $forum_id );
+	$forum_status = bbp_get_forum_status( $forum_id );
+
+	// Quickly compare statuses of first forum ID
+	if ( $status_name === $forum_status ) {
+		$retval = true;
+		$count++;
+	}
+
+	// Let's check the forum's ancestors too
+	if ( ! empty( $check_ancestors ) ) {
+
+		// Adjust the ancestor check based on the count
+		switch( $operator ) {
+			default:
+			case 'AND':
+				$check_ancestors = ( $count > 0 );
+				break;
+
+			case 'OR':
+				$check_ancestors = ( $count < 1 );
+				break;
+		}
+
+		// Ancestor check passed, so continue looping through them
+		if ( ! empty( $check_ancestors ) ) {
+
+			// Loop through the forum ancestors
+			foreach ( (array) bbp_get_forum_ancestors( $forum_id ) as $ancestor ) {
+
+				// Check if the forum is a category
+				if ( bbp_is_forum_category( $ancestor ) ) {
+
+					// Check the ancestor forum status
+					$retval = bbp_is_forum_status( $ancestor, $status_name, false );
+					if ( true === $retval ) {
+						$count++;
+					}
+				}
+
+				// Break when it reach the max count
+				if ( ( $operator === 'OR' ) && ( $count >= 1 ) ) {
+					break;
 				}
 			}
 		}
-
-		return (bool) apply_filters( 'bbp_is_forum_closed', (bool) $retval, $forum_id, $check_ancestors );
 	}
+
+	// Filter and return
+	return (bool) apply_filters( 'bbp_is_forum_status', $retval, $count, $forum_id, $status_name, $check_ancestors, $operator );
+}
 
 /**
  * Is the forum public?
@@ -1622,32 +1690,18 @@ function bbp_is_forum_open( $forum_id = 0 ) {
  * @since bbPress (r2997)
  *
  * @param int $forum_id Optional. Forum id
- * @param bool $check_ancestors Check if the ancestors are public (only if
- *                               they're a category)
- * @uses get_post_meta() To get the forum public meta
- * @uses bbp_get_forum_ancestors() To get the forum ancestors
- * @uses bbp_is_forum_category() To check if the forum is a category
- * @uses bbp_is_forum_closed() To check if the forum is closed
+ * @param bool $check_ancestors Check if the ancestors are public
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_is_forum_visibility() To check the forum visibility ID
  * @return bool True if closed, false if not
  */
 function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 
-	$forum_id   = bbp_get_forum_id( $forum_id );
-	$visibility = bbp_get_forum_visibility( $forum_id );
+	// Get the forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// If post status is public, return true
-	$retval = ( bbp_get_public_status_id() === $visibility );
-
-	// Check ancestors and inherit their privacy setting for display
-	if ( !empty( $check_ancestors ) ) {
-		$ancestors = bbp_get_forum_ancestors( $forum_id );
-
-		foreach ( (array) $ancestors as $ancestor ) {
-			if ( bbp_is_forum( $ancestor ) && bbp_is_forum_public( $ancestor, false ) ) {
-				$retval = true;
-			}
-		}
-	}
+	// Check if the forum and all of it's ancestors are public
+	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_public_status_id(), $check_ancestors );
 
 	return (bool) apply_filters( 'bbp_is_forum_public', (bool) $retval, $forum_id, $check_ancestors );
 }
@@ -1658,32 +1712,18 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
  * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
- * @param bool $check_ancestors Check if the ancestors are private (only if
- *                               they're a category)
- * @uses get_post_meta() To get the forum private meta
- * @uses bbp_get_forum_ancestors() To get the forum ancestors
- * @uses bbp_is_forum_category() To check if the forum is a category
- * @uses bbp_is_forum_closed() To check if the forum is closed
- * @return bool True if closed, false if not
+ * @param bool $check_ancestors Check if the ancestors are private
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_is_forum_visibility() To check the forum visibility ID
+ * @return bool True if private, false if not
  */
 function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 
-	$forum_id   = bbp_get_forum_id( $forum_id );
-	$visibility = bbp_get_forum_visibility( $forum_id );
+	// Get the forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// If post status is private, return true
-	$retval = ( bbp_get_private_status_id() === $visibility );
-
-	// Check ancestors and inherit their privacy setting for display
-	if ( !empty( $check_ancestors ) ) {
-		$ancestors = bbp_get_forum_ancestors( $forum_id );
-
-		foreach ( (array) $ancestors as $ancestor ) {
-			if ( bbp_is_forum( $ancestor ) && bbp_is_forum_private( $ancestor, false ) ) {
-				$retval = true;
-			}
-		}
-	}
+	// Check if the forum or one of it's ancestors is private
+	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_private_status_id(), $check_ancestors, 'OR' );
 
 	return (bool) apply_filters( 'bbp_is_forum_private', (bool) $retval, $forum_id, $check_ancestors );
 }
@@ -1696,32 +1736,96 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are private (only if
  *                               they're a category)
- * @uses get_post_meta() To get the forum private meta
- * @uses bbp_get_forum_ancestors() To get the forum ancestors
- * @uses bbp_is_forum_category() To check if the forum is a category
- * @uses bbp_is_forum_closed() To check if the forum is closed
- * @return bool True if closed, false if not
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_is_forum_visibility() To check the forum visibility ID
+ * @return bool True if hidden, false if not
  */
 function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 
+	// Get the forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Check if the forum or one of it's ancestors is hidden
+	$retval   = bbp_is_forum_visibility( $forum_id, bbp_get_hidden_status_id(), $check_ancestors, 'OR' );
+
+	return (bool) apply_filters( 'bbp_is_forum_hidden', (bool) $retval, $forum_id, $check_ancestors );
+}
+
+/**
+ * Check the forum visibility ID
+ *
+ * @since bbPress (rX)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @param bool $status_name The post status name to check
+ * @param bool $check_ancestors Check the forum ancestors
+ * @param string $operator The logical operation to perform.
+ *      'OR' means only one forum from the tree needs to match;
+ *      'AND' means all forums must match. The default is 'AND'.
+ * @uses bbp_get_forum_id() To get the forum ID
+ * @uses bbp_get_forum_visibility() To get the forum visibility
+ * @uses bbp_get_forum_ancestors() To get the forum ancestors
+ * @uses bbp_is_forum() To check the post type
+ * @return bool True if match, false if not
+ */
+function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = true, $operator = 'AND' ) {
+
+	// Setup some default variables
+	$count      = 0;
+	$retval     = false;
+	$operator   = strtoupper( $operator );
 	$forum_id   = bbp_get_forum_id( $forum_id );
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
-	// If post status is private, return true
-	$retval = ( bbp_get_hidden_status_id() === $visibility );
+	// Quickly compare visibility of first forum ID
+	if ( $status_name === $visibility ){
+		$retval = true;
+		$count++;
+	}
 
-	// Check ancestors and inherit their privacy setting for display
-	if ( !empty( $check_ancestors ) ) {
-		$ancestors = bbp_get_forum_ancestors( $forum_id );
+	// Let's check the forum's ancestors too
+	if ( ! empty( $check_ancestors ) ) {
 
-		foreach ( (array) $ancestors as $ancestor ) {
-			if ( bbp_is_forum( $ancestor ) && bbp_is_forum_hidden( $ancestor, false ) ) {
-				$retval = true;
+		// Adjust the ancestor check based on the count
+		switch( $operator ) {
+
+			// Adjust the ancestor check based on the count
+			default:
+			case 'AND':
+				$check_ancestors = ( $count > 0 );
+				break;
+
+			case 'OR':
+				$check_ancestors = ( $count < 1 );
+				break;
+		}
+
+		// Ancestor check passed, so continue looping through them
+		if ( ! empty( $check_ancestors ) ) {
+
+			// Loop through the forum ancestors
+			foreach ( (array) bbp_get_forum_ancestors( $forum_id ) as $ancestor ) {
+
+				// Check if the forum is not a category
+				if ( bbp_is_forum( $ancestor ) ) {
+
+					// Check the forum visibility
+					$retval = bbp_is_forum_visibility( $ancestor, $status_name, false );
+					if ( true === $retval ) {
+						$count++;
+					}
+				}
+
+				// Break when it reach the max count
+				if ( ( $operator === 'OR' ) && ( $count >= 1 ) ) {
+					break;
+				}
 			}
 		}
 	}
 
-	return (bool) apply_filters( 'bbp_is_forum_hidden', (bool) $retval, $forum_id, $check_ancestors );
+	// Filter and return
+	return (bool) apply_filters( 'bbp_is_forum_visibility', $retval, $count, $forum_id, $status_name, $check_ancestors, $operator );
 }
 
 /**
@@ -2245,7 +2349,7 @@ function bbp_form_forum_visibility() {
 
 		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
 	}
-	
+
 /**
  * Output checked value of forum subscription
  *
