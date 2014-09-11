@@ -690,7 +690,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_topics_widget_options', array(
 			'classname'   => 'widget_display_topics',
-			'description' => __( 'A list of recent topics, sorted by popularity or freshness.', 'bbpress' )
+			'description' => __( 'A list of recent topics, sorted by: newness, popularity, or recent replies.', 'bbpress' )
 		) );
 
 		parent::__construct( false, __( '(bbPress) Recent Topics', 'bbpress' ), $widget_ops );
