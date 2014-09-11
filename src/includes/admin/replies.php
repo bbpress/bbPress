@@ -158,11 +158,12 @@ class BBP_Replies_Admin {
 			'content'	=>
 				'<p>' . __( 'Hovering over a row in the replies list will display action links that allow you to manage your reply. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that reply. You can also reach that screen by clicking on the reply title.',                                                                                 'bbpress' ) . '</li>' .
-					//'<li>' . __( '<strong>Quick Edit</strong> provides inline access to the metadata of your reply, allowing you to update reply details without leaving this screen.',                                                                  'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your reply from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Spam</strong> removes your reply from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Preview</strong> will show you what your draft reply will look like if you publish it. View will take you to your live site to view the reply. Which link is available depends on your reply&#8217;s status.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that reply. You can also reach that screen by clicking on the reply title.',                  'bbpress' ) . '</li>' .
+					//'<li>' . __( '<strong>Quick Edit</strong> provides inline access to the metadata of your reply, allowing you to update reply details without leaving this screen.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your reply from this list and places it in the trash, from which you can permanently delete it.',                        'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Spam</strong> removes your reply from this list and places it in the spam queue, from which you can permanently delete it.',                    'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>View</strong> will take you to your live site to view the reply.',                                                                              'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                              'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -434,6 +435,10 @@ class BBP_Replies_Admin {
 				background-color: #faeaea;
 			}
 
+			.status-pending {
+				background-color: #fef7f1;
+			}
+
 		/*]]>*/
 		</style>
 
@@ -468,7 +473,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Only proceed if GET is a reply toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam', 'bbp_toggle_reply_approve' ) ) && ! empty( $_GET['reply_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
 			$success   = false;                      // Flag
@@ -486,6 +491,15 @@ class BBP_Replies_Admin {
 			}
 
 			switch ( $action ) {
+				case 'bbp_toggle_reply_approve' :
+					check_admin_referer( 'approve-reply_' . $reply_id );
+
+					$is_approve = bbp_is_reply_pending( $reply_id );
+					$message    = $is_approve ? 'approved' : 'unapproved';
+					$success    = $is_approve ? bbp_approve_reply( $reply_id ) : bbp_unapprove_reply( $reply_id );
+
+					break;
+
 				case 'bbp_toggle_reply_spam' :
 					check_admin_referer( 'spam-reply_' . $reply_id );
 
@@ -496,7 +510,6 @@ class BBP_Replies_Admin {
 					break;
 			}
 
-			$success = wp_update_post( $post_data );
 			$message = array( 'bbp_reply_toggle_notice' => $message, 'reply_id' => $reply->ID );
 
 			if ( false === $success || is_wp_error( $success ) ) {
@@ -536,7 +549,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Only proceed if GET is a reply toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed', 'approved', 'unapproved' ) ) && ! empty( $_GET['reply_id'] ) ) {
 			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
 			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
@@ -565,6 +578,18 @@ class BBP_Replies_Admin {
 					$message = ( $is_failure === true )
 						? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
 						: sprintf( __( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
+					break;
+
+				case 'approved' :
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
+						: sprintf( __( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
+					break;
+
+				case 'unapproved' :
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
+						: sprintf( __( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
 					break;
 			}
 
@@ -769,6 +794,15 @@ class BBP_Replies_Admin {
 
 		// Only show the actions if the user is capable of viewing them
 		if ( current_user_can( 'moderate', $reply->ID ) ) {
+
+			// Show the 'approve' link on pending posts only and 'unapprove' on published posts only
+			$approve_uri = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_approve' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'approve-reply_' . $reply->ID );
+			if ( bbp_is_reply_published( $reply->ID ) ) {
+				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this reply', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove reply', 'bbpress' ) . '</a>';
+			} elseif ( ! bbp_is_reply_private( $reply->ID ) ) {
+				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this reply',   'bbpress' ) . '">' . _x( 'Approve',   'Approve reply',   'bbpress' ) . '</a>';
+			}
+
 			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_spam_status_id() ) ) ) {
 				$spam_uri  = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
 				if ( bbp_is_reply_spam( $reply->ID ) ) {
