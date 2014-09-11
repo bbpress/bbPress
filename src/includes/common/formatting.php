@@ -39,7 +39,9 @@ function bbp_kses_allowed_tags() {
 
 		// Code
 		'code'         => array(),
-		'pre'          => array(),
+		'pre'          => array(
+			'class'    => true
+		),
 
 		// Formatting
 		'em'           => array(),
