@@ -816,7 +816,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
 						<h3><?php bbp_forum_title(); ?></h3>
 						<?php bbp_get_template_part( 'feedback', 'no-topics' );
-						return;
+						break;
 					}
 
 					// Setup the topic
@@ -878,7 +878,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
 						<h3><?php bbp_forum_title(); ?></h3>
 						<?php bbp_get_template_part( 'feedback', 'no-replies' );
-						return;
+						break;
 					}
 
 					// Setup the reply
@@ -912,7 +912,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			// Reset the query
 			wp_reset_query(); ?>
 
-		</div>
+		</div><!-- #bbpress-forums -->
 
 		<?php
 
