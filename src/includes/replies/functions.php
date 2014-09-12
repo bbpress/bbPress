@@ -1833,9 +1833,10 @@ function bbp_unspam_reply( $reply_id = 0 ) {
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses do_action() Calls 'bbp_approve_reply' with the reply id
- /* @uses add_post_meta() To add the previous status to a meta
- /* @uses delete_post_meta() To delete the previous status meta
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses remove_action() To remove the auto save post revision action
  * @uses wp_update_post() To update the reply with the new status
  * @uses do_action() Calls 'bbp_approved_reply' with the reply id
  * @return mixed False or {@link WP_Error} on failure, reply id on success
@@ -1879,9 +1880,9 @@ function bbp_approve_reply( $reply_id = 0 ) {
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses do_action() Calls 'bbp_unapprove_reply' with the reply id
- /* @uses get_post_meta() To get the previous status
- /* @uses delete_post_meta() To delete the previous status meta
+ * @uses remove_action() To remove the auto save post revision action
  * @uses wp_update_post() To update the reply with the new status
  * @uses do_action() Calls 'bbp_unapproved_reply' with the reply id
  * @return mixed False or {@link WP_Error} on failure, reply id on success

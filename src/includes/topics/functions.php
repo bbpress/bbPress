@@ -1690,8 +1690,8 @@ function bbp_split_topic_handler( $action = '' ) {
 			bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 			bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
 
-			// Adjust reply position 
-			bbp_update_reply_position( $reply->ID ); 
+			// Adjust reply position
+			bbp_update_reply_position( $reply->ID );
 
 			// Adjust reply to values
 			$reply_to = bbp_get_reply_to( $reply->ID );
@@ -3185,9 +3185,10 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses do_action() Calls 'bbp_approve_topic' with the topic id
- /* @uses add_post_meta() To add the previous status to a meta
- /* @uses delete_post_meta() To delete the previous status meta
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses remove_action() To remove the auto save post revision action
  * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_approved_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
@@ -3231,9 +3232,9 @@ function bbp_approve_topic( $topic_id = 0 ) {
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses do_action() Calls 'bbp_unapprove_topic' with the topic id
- /* @uses get_post_meta() To get the previous status
- /* @uses delete_post_meta() To delete the previous status meta
+ * @uses remove_action() To remove the auto save post revision action
  * @uses wp_update_post() To update the topic with the new status
  * @uses do_action() Calls 'bbp_unapproved_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
