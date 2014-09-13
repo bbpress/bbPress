@@ -132,6 +132,12 @@ class PHPWind extends BBP_Converter_Base {
 			'callback_method' => 'callback_forum_type'
 		);
 
+		// Forum status (Set a default value 'open', Stored in postmeta)
+		$this->field_map[] = array(
+			'to_type'      => 'forum',
+			'to_fieldname' => '_bbp_status',
+			'default'      => 'open'
+		);
 		// Forum dates.
 		$this->field_map[] = array(
 			'to_type'      => 'bbs_forum',
