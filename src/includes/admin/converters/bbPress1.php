@@ -236,6 +236,15 @@ class bbPress1 extends BBP_Converter_Base {
 			'callback_method' => 'callback_status'
 		);
 
+		// Topic status (Publish or Closed to new replies)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_open',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_closed_status_id',
+			'callback_method' => 'callback_topic_status'
+		);
+
 		// Topic author ip (Stored in postmeta)
 		// Note: We join the 'posts' table because 'topics' table does not include author ip.
 		$this->field_map[] = array(
@@ -570,6 +579,27 @@ class bbPress1 extends BBP_Converter_Base {
 			$status = 'forum';
 		}
 		return $status;
+	}
+
+	/**
+	 * Translate the topic status from bbPress 1's numeric's to WordPress's
+	 * strings.
+	 *
+	 * @param int $topic_status bbPress 1.x numeric status
+	 * @return string WordPress safe
+	 */
+	public function callback_topic_status( $topic_status = 1 ) {
+		switch ( $topic_status ) {
+			case 0 :
+				$topic_status = 'closed';  // bbp_get_closed_status_id()
+				break;
+
+			case 1 :
+				default :
+				$topic_status = 'publish'; // bbp_get_public_status_id()
+				break;
+		}
+		return $topic_status;
 	}
 
 	/**
