@@ -1618,7 +1618,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 
 			$is_approve = bbp_is_reply_pending( $reply_id );
 			$success    = $is_approve ? bbp_approve_reply( $reply_id ) : bbp_unapprove_reply( $reply_id );
-			$failure    = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving thereply!', 'bbpress' );
+			$failure    = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply!', 'bbpress' );
 			$view_all   = !$is_approve;
 
 			break;
