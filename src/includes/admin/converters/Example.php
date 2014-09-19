@@ -391,7 +391,7 @@ class Example extends BBP_Converter_Base {
 			'from_fieldname'  => 'the_reply_parent_forum_id',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_topicid_to_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
