@@ -27,12 +27,12 @@ class Example extends BBP_Converter_Base {
 
 		// Setup table joins for the forum section at the base of this section
 
-		// Forum id (Stored in postmeta)
+		// Old forum id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forums_table',
 			'from_fieldname'  => 'the_forum_id',
 			'to_type'         => 'forum',
-			'to_fieldname'    => '_bbp_forum_id'
+			'to_fieldname'    => '_bbp_old_forum_id'
 		);
 
 		// Forum parent id (If no parent, then 0. Stored in postmeta)
@@ -164,12 +164,12 @@ class Example extends BBP_Converter_Base {
 
 		// Setup table joins for the topic section at the base of this section
 
-		// Topic id (Stored in postmeta)
+		// Old topic id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics_table',
 			'from_fieldname'  => 'the_topic_id',
 			'to_type'         => 'topic',
-			'to_fieldname'    => '_bbp_topic_id'
+			'to_fieldname'    => '_bbp_old_topic_id'
 		);
 
 		// Topic reply count (Stored in postmeta)
@@ -377,12 +377,12 @@ class Example extends BBP_Converter_Base {
 
 		// Setup table joins for the reply section at the base of this section
 
-		// Reply id (Stored in postmeta)
+		// Old reply id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'replies_table',
 			'from_fieldname'  => 'the_reply_id',
 			'to_type'         => 'reply',
-			'to_fieldname'    => '_bbp_post_id'
+			'to_fieldname'    => '_bbp_old_reply_id'
 		);
 
 		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
