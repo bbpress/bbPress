@@ -326,13 +326,9 @@ class Drupal7 extends BBP_Converter_Base {
 		);
 
 		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
-		// Note: We join the 'forum' table because 'comment' table does not include parent forum id.
 		$this->field_map[] = array(
-			'from_tablename'  => 'forum',
-			'from_fieldname'  => 'tid',
-			'join_tablename'  => 'comment',
-			'join_type'       => 'INNER',
-			'join_expression' => 'ON forum.nid = comment.nid',
+			'from_tablename'  => 'comment',
+			'from_fieldname'  => 'nid',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
 			'callback_method' => 'callback_topicid_to_forumid'
