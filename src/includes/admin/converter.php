@@ -1020,25 +1020,23 @@ abstract class BBP_Converter_Base {
 
 										add_post_meta( $post_id, $key, $value, true );
 
-										// Forums need to save their old ID for group forum association
-										if ( ( 'forum' == $to_type ) && ( '_bbp_forum_id' == $key ) )
-											add_post_meta( $post_id, '_bbp_old_forum_id', $value );
-
-										// Topics need an extra bit of metadata
-										// to be keyed to the new post_id
-										if ( ( 'topic' == $to_type ) && ( '_bbp_topic_id' == $key ) ) {
-
-											// Update the live topic ID
-											update_post_meta( $post_id, $key, $post_id );
-
-											// Save the old topic ID
-											add_post_meta( $post_id, '_bbp_old_topic_id', $value );
-											if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
-												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_bbp_topic_id',     'meta_value' => $post_id ) );
-												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_bbp_old_topic_id', 'meta_value' => $value   ) );
-											}
-
-										} elseif ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
+										/**
+										 * If we are using the sync_table add
+										 * the meta '_id' keys to the table
+										 *
+										 * Forums:  _bbp_old_forum_id         // The old forum ID
+										 *          _bbp_old_forum_parent_id  // The old forum parent ID
+										 *
+										 * Topics:  _bbp_forum_id             // The new forum ID
+										 *          _bbp_old_topic_id         // The old topic ID
+										 *          _bbp_old_closed_status_id // The old topic open/closed status
+										 *          _bbp_old_sticky_status_id // The old topic sticky status
+										 *
+										 * Replies: _bbp_forum_id             // The new forum ID
+										 *          _bbp_topic_id             // The new topic ID
+										 *          _bbp_old_reply_id         // The old reply ID
+										 */
+										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
 
@@ -1355,9 +1353,9 @@ abstract class BBP_Converter_Base {
 	private function callback_forumid( $field ) {
 		if ( !isset( $this->map_forumid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM '  . $this->wpdb->postmeta  . ' WHERE meta_key = "_bbp_old_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1380,7 +1378,7 @@ abstract class BBP_Converter_Base {
 			if ( !empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM '  . $this->wpdb->postmeta  . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1403,9 +1401,9 @@ abstract class BBP_Converter_Base {
 	private function callback_reply_to( $field ) {
 		if ( !isset( $this->map_reply_to[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_post_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_reply_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_post_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT post_id AS value_id FROM '  . $this->wpdb->postmeta  . ' WHERE meta_key = "_bbp_old_reply_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {
