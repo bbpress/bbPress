@@ -291,10 +291,10 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_datetime'
 		);
 		$this->field_map[] = array(
-			'from_tablename' => 'topics',
-			'from_fieldname' => 'topic_last_post_time',
-			'to_type'        => 'topic',
-			'to_fieldname'   => '_bbp_last_active_time',
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_last_post_time',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_last_active_time',
 			'callback_method' => 'callback_datetime'
 		);
 
@@ -330,7 +330,7 @@ class phpBB extends BBP_Converter_Base {
 			'from_fieldname'  => 'forum_id',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_topicid_to_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
