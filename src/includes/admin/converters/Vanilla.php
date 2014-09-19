@@ -247,6 +247,15 @@ class Vanilla extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Sticky status (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'Discussion',
+			'from_fieldname'  => 'Announce',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_sticky_status_id',
+			'callback_method' => 'callback_sticky_status'
+		);
+
 		// Topic dates.
 		$this->field_map[] = array(
 			'from_tablename' => 'Discussion',
@@ -337,7 +346,7 @@ class Vanilla extends BBP_Converter_Base {
 			'join_expression' => 'USING (DiscussionID)',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_topicid_to_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Reply author ip (Stored in postmeta)
@@ -483,6 +492,26 @@ class Vanilla extends BBP_Converter_Base {
 			case 0  :
 			default :
 				$status = 'publish';
+				break;
+		}
+		return $status;
+	}
+
+	/**
+	 * Translate the topic sticky status type from Vanilla v2.x numeric's to WordPress's strings.
+	 *
+	 * @param int $status Vanilla v2.x numeric forum type
+	 * @return string WordPress safe
+	 */
+	public function callback_sticky_status( $status = 0 ) {
+		switch ( $status ) {
+			case 1 :
+				$status = 'sticky';       // Vanilla Sticky 'Announce = 1'
+				break;
+
+			case 0  :
+			default :
+				$status = 'normal';       // Vanilla normal topic 'Announce = 0'
 				break;
 		}
 		return $status;
