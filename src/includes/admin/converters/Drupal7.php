@@ -348,7 +348,7 @@ class Drupal7 extends BBP_Converter_Base {
 			'from_tablename'  => 'comment',
 			'from_fieldname'  => 'pid',
 			'to_type'         => 'reply',
-			'to_fieldname'    => '_bbp_reply_to'
+			'to_fieldname'    => '_bbp_old_reply_to_id'
 		);
 
 		// Reply author ip (Stored in postmeta)

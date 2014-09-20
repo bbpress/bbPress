@@ -1035,14 +1035,20 @@ abstract class BBP_Converter_Base {
 										 * Replies: _bbp_forum_id             // The new forum ID
 										 *          _bbp_topic_id             // The new topic ID
 										 *          _bbp_old_reply_id         // The old reply ID
+										 *          _bbp_old_reply_to_id      // The old reply to ID
 										 */
 										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
 
-										// Replies need to save their old reply_to ID for hierarchical replies association
-										if ( ( 'reply' == $to_type ) && ( '_bbp_reply_to' == $key ) ) {
-											add_post_meta( $post_id, '_bbp_old_reply_to', $value );
+										/**
+										 * Replies need to save their old reply_to ID for
+										 * hierarchical replies association. Later we update
+										 * the _bbp_reply_to value with the new bbPress
+										 * value using convert_reply_to_parents()
+										 */
+										if ( ( 'reply' == $to_type ) && ( '_bbp_old_reply_to_id' == $key ) ) {
+											add_post_meta( $post_id, '_bbp_reply_to', $value );
 										}
 									}
 								}
@@ -1186,9 +1192,9 @@ abstract class BBP_Converter_Base {
 		$has_update = false;
 
 		if ( !empty( $this->sync_table ) ) {
-			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_reply_to" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_reply_to_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		} else {
-			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_reply_to" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_bbp_old_reply_to_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		}
 
 		update_option( '_bbp_converter_query', $query );
