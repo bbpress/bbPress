@@ -410,11 +410,13 @@ class phpBB extends BBP_Converter_Base {
 		/** User Section ******************************************************/
 
 		// Store old User id (Stored in usermeta)
+		// Don't import users with id 2, these are phpBB bot/crawler accounts
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_id',
-			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_user_id'
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'user_id',
+			'from_expression' => 'WHERE user_type !=2',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_user_id'
 		);
 
 		// Store old User password (Stored in usermeta serialized with salt)
