@@ -1240,9 +1240,9 @@ abstract class BBP_Converter_Base {
 		/** Delete bbconverter users ******************************************/
 
 		if ( true === $this->sync_table ) {
-			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->users . ' ON(value_id = ID) WHERE meta_key = "_bbp_user_id" AND value_type = "user" LIMIT ' . $this->max_rows;
+			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->users . ' ON(value_id = ID) WHERE meta_key = "_bbp_old_user_id" AND value_type = "user" LIMIT ' . $this->max_rows;
 		} else {
-			$query = 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_user_id" LIMIT ' . $this->max_rows;
+			$query = 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_old_user_id" LIMIT ' . $this->max_rows;
 		}
 
 		update_option( '_bbp_converter_query', $query );
@@ -1430,9 +1430,9 @@ abstract class BBP_Converter_Base {
 	private function callback_userid( $field ) {
 		if ( !isset( $this->map_userid[$field] ) ) {
 			if ( !empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {

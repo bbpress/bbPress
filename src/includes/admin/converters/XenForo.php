@@ -401,12 +401,12 @@ class XenForo extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id (Stored in usermeta)
+		// Store old user id (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'user',
 			'from_fieldname' => 'user_id',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_user_id'
+			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
 /*		// User password.

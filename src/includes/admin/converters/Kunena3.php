@@ -393,15 +393,15 @@ class Kunena3 extends BBP_Converter_Base {
 
 		//Note: We are importing the Joomla User details and the Kunena v3.x user profile details.
 
-		// Store old User id (Stored in usermeta)
+		// Store old user id (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users',
 			'from_fieldname' => 'id',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_user_id'
+			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
-		// Store old User password (Stored in usermeta serialized with salt)
+		// Store old user password (Stored in usermeta serialized with salt)
 		$this->field_map[] = array(
 			'from_tablename'  => 'users',
 			'from_fieldname'  => 'password',
@@ -410,7 +410,7 @@ class Kunena3 extends BBP_Converter_Base {
 			'callback_method' => 'callback_savepass'
 		);
 
-		// Store old User Salt (This is only used for the SELECT row info for the above password save)
+		// Store old user salt (This is only used for the SELECT row info for the above password save)
 //		$this->field_map[] = array(
 //			'from_tablename' => 'users',
 //			'from_fieldname' => 'salt',

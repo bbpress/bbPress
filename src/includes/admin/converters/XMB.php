@@ -422,12 +422,12 @@ class XMB extends BBP_Converter_Base {
 
 		/** User Section ******************************************************/
 
-		// Store old User id (Stored in usermeta)
+		// Store old user id (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'members',
 			'from_fieldname' => 'uid',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_user_id'
+			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
 		// Store old User password (Stored in usermeta serialized with salt)
