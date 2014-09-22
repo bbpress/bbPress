@@ -363,9 +363,13 @@ class bbPress1 extends BBP_Converter_Base {
 		);
 
 		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
+		// Note: We join the 'topics' table to limit the replies section to only import replies
 		$this->field_map[] = array(
-			'from_tablename'  => 'posts',
+			'from_tablename'  => 'topics',
 			'from_fieldname'  => 'topic_id',
+			'join_tablename'  => 'posts',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (topic_id) WHERE posts.post_position NOT IN (0,1)',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_topic_id',
 			'callback_method' => 'callback_topicid'
