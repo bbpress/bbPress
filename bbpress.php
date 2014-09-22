@@ -24,7 +24,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+defined( 'ABSPATH' ) || exit;
 
 // Assume you want to load from build
 $bbp_loader = __DIR__ . '/build/bbpress.php';
