@@ -1,7 +1,7 @@
 # gitignore file for bbPress
 
 # Files and folders related to build/test tools
-phpunit.xml
+/phpunit.xml
 /tests/phpunit/build
 /node_modules
 /npm-debug.log
