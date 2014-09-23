@@ -413,9 +413,11 @@ class Vanilla extends BBP_Converter_Base {
 		/** User Section ******************************************************/
 
 		// Store old user id (Stored in usermeta)
+		// Don't import user Vanilla's deleted users
 		$this->field_map[] = array(
 			'from_tablename'  => 'User',
 			'from_fieldname'  => 'UserID',
+			'from_expression' => 'WHERE Deleted !=1',
 			'to_type'         => 'user',
 			'to_fieldname'    => '_bbp_old_user_id'
 		);
