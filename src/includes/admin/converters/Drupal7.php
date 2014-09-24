@@ -423,11 +423,13 @@ class Drupal7 extends BBP_Converter_Base {
 		/** User Section ******************************************************/
 
 		// Store old user id (Stored in usermeta)
+		// Don't import user uid = 0, this is Drupal 7's guest user
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'uid',
-			'to_type'        => 'user',
-			'to_fieldname'   => '_bbp_old_user_id'
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'uid',
+			'from_expression' => 'WHERE uid != 0',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_old_user_id'
 		);
 
 		// Store old user password (Stored in usermeta serialized with salt)
