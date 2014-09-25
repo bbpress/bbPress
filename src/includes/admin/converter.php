@@ -442,8 +442,23 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 7. Stick topics.
+			// STEP 7. Convert anonymous topic authors.
 			case 7 :
+				if ( $converter->convert_anonymous_topic_authors( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No anonymous topic authors to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Converting anonymous topic authors (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 8. Stick topics.
+			case 8 :
 				if ( $converter->convert_topic_stickies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -457,8 +472,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 8. Stick to front topics (Super Sicky).
-			case 8 :
+			// STEP 9. Stick to front topics (Super Sicky).
+			case 9 :
 				if ( $converter->convert_topic_super_stickies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -472,8 +487,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 9. Closed Topics.
-			case 9 :
+			// STEP 10. Closed Topics.
+			case 10 :
 				if ( $converter->convert_topic_closed_topics( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -487,8 +502,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 10. Convert topic tags.
-			case 10 :
+			// STEP 11. Convert topic tags.
+			case 11 :
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -502,8 +517,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 11. Convert replies.
-			case 11 :
+			// STEP 12. Convert replies.
+			case 12 :
 				if ( $converter->convert_replies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -517,8 +532,23 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 12. Convert threaded replies parents.
-			case 12 :
+			// STEP 13. Convert anonymous reply authors.
+			case 13 :
+				if ( $converter->convert_anonymous_reply_authors( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No anonymous reply authors to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Converting anonymous reply authors (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 14. Convert threaded replies parents.
+			case 14 :
 				if ( $converter->convert_reply_to_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -1204,6 +1234,98 @@ abstract class BBP_Converter_Base {
 		foreach ( (array) $reply_to_array as $row ) {
 			$reply_to = $this->callback_reply_to( $row->meta_value );
 			$this->wpdb->query( 'UPDATE ' . $this->wpdb->postmeta . ' SET meta_value = "' . $reply_to . '" WHERE meta_key = "_bbp_reply_to" AND post_id = "' . $row->value_id . '" LIMIT 1' );
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method converts anonymous topics.
+	 *
+	 * @since  bbPress (r5538)
+	 *
+	 * @uses add_post_meta() To add _bbp_anonymous_name topic meta key
+	 */
+	public function convert_anonymous_topic_authors( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT sync_table1.value_id AS topic_id, sync_table1.meta_value AS topic_is_anonymous, sync_table2.meta_value AS topic_author
+							FROM       ' . $this->sync_table_name . ' AS sync_table1
+							INNER JOIN ' . $this->sync_table_name . ' AS sync_table2
+							ON ( sync_table1.value_id = sync_table2.value_id )
+							WHERE sync_table1.meta_value =  "true"
+							AND sync_table2.meta_key =  "_bbp_old_topic_author_name_id"
+							LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT wp_postmeta1.post_id AS topic_id, wp_postmeta1.meta_value AS topic_is_anonymous, wp_postmeta2.meta_value AS topic_author
+							FROM       ' . $this->wpdb->postmeta . ' AS wp_postmeta1
+							INNER JOIN ' . $this->wpdb->postmeta . ' AS wp_postmeta2
+							ON ( wp_postmeta1.post_id = wp_postmeta2.post_id )
+							WHERE wp_postmeta1.meta_value =  "true"
+							AND wp_postmeta2.meta_key =  "_bbp_old_topic_author_name_id"
+							LIMIT ' . $start . ', ' . $this->max_rows;
+
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$anonymous_topics = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $anonymous_topics as $row ) {
+			$anonymous_topic_author_id = 0;
+			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_author = "' . $anonymous_topic_author_id . '" WHERE ID = "' . $row->topic_id . '" LIMIT 1' );
+
+			add_post_meta( $row->topic_id, '_bbp_anonymous_name', $row->topic_author );
+
+			$has_update = true;
+		}
+
+		return ! $has_update;
+	}
+
+	/**
+	 * This method converts anonymous replies.
+	 *
+	 * @since  bbPress (r5538)
+	 *
+	 * @uses add_post_meta() To add _bbp_anonymous_name reply meta key
+	 */
+	public function convert_anonymous_reply_authors( $start ) {
+
+		$has_update = false;
+
+		if ( !empty( $this->sync_table ) ) {
+			$query = 'SELECT sync_table1.value_id AS reply_id, sync_table1.meta_value AS reply_is_anonymous, sync_table2.meta_value AS reply_author
+							FROM       ' . $this->sync_table_name . ' AS sync_table1
+							INNER JOIN ' . $this->sync_table_name . ' AS sync_table2
+							ON ( sync_table1.value_id = sync_table2.value_id )
+							WHERE sync_table1.meta_value =  "true"
+							AND sync_table2.meta_key =  "_bbp_old_reply_author_name_id"
+							LIMIT ' . $start . ', ' . $this->max_rows;
+		} else {
+			$query = 'SELECT wp_postmeta1.post_id AS reply_id, wp_postmeta1.meta_value AS reply_is_anonymous, wp_postmeta2.meta_value AS reply_author
+							FROM       ' . $this->wpdb->postmeta . ' AS wp_postmeta1
+							INNER JOIN ' . $this->wpdb->postmeta . ' AS wp_postmeta2
+							ON ( wp_postmeta1.post_id = wp_postmeta2.post_id )
+							WHERE wp_postmeta1.meta_value =  "true"
+							AND wp_postmeta2.meta_key =  "_bbp_old_reply_author_name_id"
+							LIMIT ' . $start . ', ' . $this->max_rows;
+
+		}
+
+		update_option( '_bbp_converter_query', $query );
+
+		$anonymous_replies = $this->wpdb->get_results( $query );
+
+		foreach ( (array) $anonymous_replies as $row ) {
+			$anonymous_reply_author_id = 0;
+			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_author = "' . $anonymous_reply_author_id . '" WHERE ID = "' . $row->reply_id . '" LIMIT 1' );
+
+			add_post_meta( $row->reply_id, '_bbp_anonymous_name', $row->reply_author );
+
 			$has_update = true;
 		}
 
