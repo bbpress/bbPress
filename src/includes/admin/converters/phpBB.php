@@ -193,6 +193,23 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Topic author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_first_poster_name',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_topic_author_name_id'
+		);
+
+		// Is the topic anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics',
+			'from_fieldname'  => 'topic_poster',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_is_topic_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
+		);
+
 		// Topic Author ip (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
@@ -357,6 +374,23 @@ class phpBB extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
+		);
+
+		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'post_username',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_reply_author_name_id'
+		);
+
+		// Is the reply anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'poster_id',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_is_reply_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
 		);
 
 		// Reply content.
@@ -788,6 +822,23 @@ class phpBB extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
+	}
+
+	/**
+	 * Check the anonymous topic or reply status
+	 *
+	 * @since  (r5539)
+	 *
+	 * @param int $status phpBB v3.x anonymous topic/reply status
+	 * @return string WordPress safe
+	 */
+	public function callback_check_anonymous( $status = 0 ) {
+		if ( $status == 1 ) {
+			$status = 'true';
+		} else {
+			$status = 'false';
+		}
+		return $status;
 	}
 
 	/**
