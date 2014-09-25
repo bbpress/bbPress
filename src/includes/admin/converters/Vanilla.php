@@ -152,11 +152,13 @@ class Vanilla extends BBP_Converter_Base {
 		/** Topic Section *****************************************************/
 
 		// Old topic id (Stored in postmeta)
+		// Don't import Vanilla 2's deleted topics
 		$this->field_map[] = array(
-			'from_tablename' => 'Discussion',
-			'from_fieldname' => 'DiscussionID',
-			'to_type'        => 'topic',
-			'to_fieldname'   => '_bbp_old_topic_id'
+			'from_tablename'  => 'Discussion',
+			'from_fieldname'  => 'DiscussionID',
+			'from_expression' => 'WHERE Format != "Deleted"',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_topic_id'
 		);
 
 		// Topic reply count (Stored in postmeta)
@@ -321,9 +323,11 @@ class Vanilla extends BBP_Converter_Base {
 		/** Reply Section *****************************************************/
 
 		// Old reply id (Stored in postmeta)
+		// Don't import Vanilla 2's deleted replies
 		$this->field_map[] = array(
 			'from_tablename'  => 'Comment',
 			'from_fieldname'  => 'CommentID',
+			'from_expression' => 'WHERE Format != "Deleted"',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_old_reply_id'
 		);
@@ -339,14 +343,11 @@ class Vanilla extends BBP_Converter_Base {
 
 		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename'  => 'Discussion',
-			'from_fieldname'  => 'CategoryID',
-			'join_tablename'  => 'Comment',
-			'join_type'       => 'INNER',
-			'join_expression' => 'USING (DiscussionID)',
+			'from_tablename'  => 'Comment',
+			'from_fieldname'  => 'DiscussionID',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_forumid'
+			'callback_method' => 'callback_topicid_to_forumid'
 		);
 
 		// Reply author ip (Stored in postmeta)
