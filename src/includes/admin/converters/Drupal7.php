@@ -204,6 +204,18 @@ class Drupal7 extends BBP_Converter_Base {
 			'callback_method' => 'callback_forumid'
 		);
 
+		// Topic status (Publish or Unpublished, Drupal v7.x publish = 1, pending = 0)
+		$this->field_map[] = array(
+			'from_tablename'  => 'node',
+			'from_fieldname'  => 'status',
+			'join_tablename'  => 'forum_index',
+			'join_type'       => 'INNER',
+			'join_expression' => 'ON node.nid = forum_index.nid',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_status'
+		);
+
 		// Sticky status (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum_index',
@@ -368,6 +380,15 @@ class Drupal7 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Reply status (Publish or Unpublished, Drupal v7.x publish = 1, pending = 0)
+		$this->field_map[] = array(
+			'from_tablename'  => 'comment',
+			'from_fieldname'  => 'status',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_status'
+		);
+
 		// Reply content.
 		// Note: We join the 'field_data_comment_body' table because 'comment' table does not include reply content.
 		$this->field_map[] = array(
@@ -527,6 +548,27 @@ class Drupal7 extends BBP_Converter_Base {
 	{
 		$pass_array = unserialize( $serialized_pass );
 		return ( $pass_array['hash'] == md5( md5( $password ). $pass_array['salt'] ) );
+	}
+
+	/**
+	 * Translate the post status from Drupal v7.x numeric's to WordPress's
+	 * strings.
+	 *
+	 * @param int $status Drupal v7.x numeric post status
+	 * @return string WordPress safe
+	 */
+	public function callback_status( $status = 1 ) {
+		switch ( $status ) {
+			case 0 :
+				$status = 'pending'; // bbp_get_pending_status_id()
+				break;
+
+			case 1  :
+			default :
+				$status = 'publish'; // bbp_get_public_status_id()
+				break;
+		}
+		return $status;
 	}
 
 	/**
