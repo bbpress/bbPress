@@ -165,6 +165,25 @@ class Drupal7 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Topic author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'to_type'      => 'topic',
+			'to_fieldname' => '_bbp_old_topic_author_name_id',
+			'default'      => 'Anonymous'
+		);
+
+		// Is the topic anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'node',
+			'from_fieldname'  => 'uid',
+			'join_tablename'  => 'forum_index',
+			'join_type'       => 'INNER',
+			'join_expression' => 'ON node.nid = forum_index.nid',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_is_topic_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
+		);
+
 		// Topic content.
 		// Note: We join the 'field_data_body' table because 'node' or 'forum_index' table does not include topic content.
 		$this->field_map[] = array(
@@ -387,6 +406,22 @@ class Drupal7 extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_status',
 			'callback_method' => 'callback_status'
+		);
+
+		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'to_type'      => 'reply',
+			'to_fieldname' => '_bbp_old_reply_author_name_id',
+			'default'      => 'Anonymous'
+		);
+
+		// Is the reply anonymous  (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'comment',
+			'from_fieldname'  => 'uid',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_is_reply_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
 		);
 
 		// Reply content.
@@ -620,5 +655,22 @@ class Drupal7 extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
+	}
+
+	/**
+	 * Check the anonymous topic or reply status
+	 *
+	 * @since  (r5539)
+	 *
+	 * @param int $status Drupal v7.x anonymous topic/reply status
+	 * @return string WordPress safe
+	 */
+	public function callback_check_anonymous( $status = 0 ) {
+		if ( $status == 0 ) {
+			$status = 'true';
+		} else {
+			$status = 'false';
+		}
+		return $status;
 	}
 }
