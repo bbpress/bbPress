@@ -197,6 +197,22 @@ class Vanilla extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Topic author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'to_type'      => 'topic',
+			'to_fieldname' => '_bbp_old_topic_author_name_id',
+			'default'      => 'Anonymous'
+		);
+
+		// Is the topic anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'Discussion',
+			'from_fieldname'  => 'InsertUserID',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_is_topic_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
+		);
+
 		// Topic title.
 		$this->field_map[] = array(
 			'from_tablename' => 'Discussion',
@@ -365,6 +381,22 @@ class Vanilla extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
+		);
+
+		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'to_type'      => 'reply',
+			'to_fieldname' => '_bbp_old_reply_author_name_id',
+			'default'      => 'Anonymous'
+		);
+
+		// Is the reply anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'Comment',
+			'from_fieldname'  => 'InsertUserID',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_is_reply_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
 		);
 
 		// Reply content.
@@ -543,6 +575,36 @@ class Vanilla extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
+	}
+
+	/**
+	 * Check the anonymous topic or reply status.
+	 *
+	 * This method checks each imported topic or reply if the author user ID
+	 * was imported to determine if the topic or reply author is anonymous as
+	 * Vanilla v2.x does not store a topic or reply status for deleted users.
+	 *
+	 * @since  (r5541)
+	 *
+	 * @param string $is_user_anonymous Vanilla v2.x numeric topic status
+	 * @return string WordPress safe
+	 */
+	public function callback_check_anonymous( $is_user_anonymous = 0 ) {
+		if ( !empty( $this->sync_table ) ) {
+			$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%d" LIMIT 1', $is_user_anonymous ) );
+		} else {
+			$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT meta_value FROM ' . $this->wpdb->usermeta .  ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%d" LIMIT 1', $is_user_anonymous ) );
+		}
+
+		// An imported user ID exists therefore the topic/reply is not anonymous
+		if ( !is_null( $row ) ) {
+			$is_user_anonymous = 'false';
+		// No imported user ID there the topic/reply is anonymous
+		} else {
+			$is_user_anonymous = 'true';
+		}
+
+		return $is_user_anonymous;
 	}
 
 	/**
