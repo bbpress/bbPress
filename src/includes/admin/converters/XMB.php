@@ -366,7 +366,7 @@ class XMB extends BBP_Converter_Base {
 			'from_fieldname'  => 'uid',
 			'join_tablename'  => 'posts',
 			'join_type'       => 'LEFT',
-			'join_expression' => 'ON posts.author = members.username',
+			'join_expression' => 'ON posts.author = members.username WHERE posts.subject = ""',
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
