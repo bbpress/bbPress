@@ -180,6 +180,17 @@ class SimplePress5 extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Topic author ip (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'sfposts',
+			'from_fieldname'  => 'poster_ip',
+			'join_tablename'  => 'sftopics',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (topic_id) WHERE sfposts.post_index = 1',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_author_ip'
+		);
+
 		// Topic content.
 		// Note: We join the sfposts table because sftopics do not have content.
 		$this->field_map[] = array(
@@ -289,9 +300,10 @@ class SimplePress5 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'from_tablename'  => 'sfposts',
 			'from_fieldname'  => 'forum_id',
+			'from_expression' => 'WHERE post_index != 1',
 			'to_type'         => 'reply',
 			'to_fieldname'    => '_bbp_forum_id',
-			'callback_method' => 'callback_topicid_to_forumid'
+			'callback_method' => 'callback_forumid'
 		);
 
 		// Reply parent topic id (If no parent, then 0. Stored in postmeta)
