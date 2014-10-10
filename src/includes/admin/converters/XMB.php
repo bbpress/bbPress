@@ -195,6 +195,26 @@ class XMB extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Topic author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'from_tablename'  => 'threads',
+			'from_fieldname'  => 'author',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_topic_author_name_id'
+		);
+
+		// Is the topic anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'members',
+			'from_fieldname'  => 'uid',
+			'join_tablename'  => 'threads',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'ON threads.author = members.username  WHERE posts.subject = ""',
+			'to_type'         => 'topic',
+			'to_fieldname'    => '_bbp_old_is_topic_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
+		);
+
 		// Topic Author ip (Stored in postmeta)
 		// Note: We join the 'posts' table because 'threads' table does not have author ip.
 		$this->field_map[] = array(
@@ -370,6 +390,26 @@ class XMB extends BBP_Converter_Base {
 			'to_type'         => 'reply',
 			'to_fieldname'    => 'post_author',
 			'callback_method' => 'callback_userid'
+		);
+
+		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
+		$this->field_map[] = array(
+			'from_tablename'  => 'posts',
+			'from_fieldname'  => 'author',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_reply_author_name_id'
+		);
+
+		// Is the reply anonymous (Stored in postmeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'members',
+			'from_fieldname'  => 'uid',
+			'join_tablename'  => 'posts',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'ON posts.author = members.username WHERE posts.subject = ""',
+			'to_type'         => 'reply',
+			'to_fieldname'    => '_bbp_old_is_reply_anonymous_id',
+			'callback_method' => 'callback_check_anonymous'
 		);
 
 		// Reply content.
