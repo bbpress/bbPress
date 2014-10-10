@@ -603,7 +603,7 @@ class BBP_Converter {
 					value_type varchar(25) null,
 					value_id bigint(20) unsigned not null default '0',
 					meta_key varchar(255) null,
-					meta_value varchar(25) null,
+					meta_value varchar(255) null,
 				PRIMARY KEY  (meta_id),
 					KEY value_id (value_id),
 					KEY meta_join (meta_key, meta_value) ) {$charset_collate};";
