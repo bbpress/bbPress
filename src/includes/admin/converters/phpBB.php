@@ -825,23 +825,6 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Check the anonymous topic or reply status
-	 *
-	 * @since  (r5539)
-	 *
-	 * @param int $status phpBB v3.x anonymous topic/reply status
-	 * @return string WordPress safe
-	 */
-	public function callback_check_anonymous( $status = 0 ) {
-		if ( $status == 1 ) {
-			$status = 'true';
-		} else {
-			$status = 'false';
-		}
-		return $status;
-	}
-
-	/**
 	 * This callback processes any custom parser.php attributes and custom code with preg_replace
 	 */
 	protected function callback_html( $field ) {

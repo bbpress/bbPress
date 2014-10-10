@@ -578,36 +578,6 @@ class Vanilla extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Check the anonymous topic or reply status.
-	 *
-	 * This method checks each imported topic or reply if the author user ID
-	 * was imported to determine if the topic or reply author is anonymous as
-	 * Vanilla v2.x does not store a topic or reply status for deleted users.
-	 *
-	 * @since  (r5541)
-	 *
-	 * @param string $is_user_anonymous Vanilla v2.x numeric topic status
-	 * @return string WordPress safe
-	 */
-	public function callback_check_anonymous( $is_user_anonymous = 0 ) {
-		if ( !empty( $this->sync_table ) ) {
-			$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%d" LIMIT 1', $is_user_anonymous ) );
-		} else {
-			$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT meta_value FROM ' . $this->wpdb->usermeta .  ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%d" LIMIT 1', $is_user_anonymous ) );
-		}
-
-		// An imported user ID exists therefore the topic/reply is not anonymous
-		if ( !is_null( $row ) ) {
-			$is_user_anonymous = 'false';
-		// No imported user ID there the topic/reply is anonymous
-		} else {
-			$is_user_anonymous = 'true';
-		}
-
-		return $is_user_anonymous;
-	}
-
-	/**
 	 * This method is to save the salt and password together. That
 	 * way when we authenticate it we can get it out of the database
 	 * as one value. Array values are auto sanitized by WordPress.

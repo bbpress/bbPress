@@ -1571,6 +1571,25 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
+	 * Check if the topic or reply author is anonymous
+	 *
+	 * @since  (r5544)
+	 *
+	 * @param  string $field
+	 * @return string
+	 */
+	private function callback_check_anonymous( $field ) {
+
+		if ( $this->callback_userid( $field ) == 0 ) {
+			$field = 'true';
+		} else {
+			$field = 'false';
+		}
+
+		return $field;
+	}
+
+	/**
 	 * A mini cache system to reduce database calls map topics ID's to forum ID's
 	 *
 	 * @param string $field

@@ -656,21 +656,4 @@ class Drupal7 extends BBP_Converter_Base {
 		$count = absint( (int) $count - 1 );
 		return $count;
 	}
-
-	/**
-	 * Check the anonymous topic or reply status
-	 *
-	 * @since  (r5539)
-	 *
-	 * @param int $status Drupal v7.x anonymous topic/reply status
-	 * @return string WordPress safe
-	 */
-	public function callback_check_anonymous( $status = 0 ) {
-		if ( $status == 0 ) {
-			$status = 'true';
-		} else {
-			$status = 'false';
-		}
-		return $status;
-	}
 }
