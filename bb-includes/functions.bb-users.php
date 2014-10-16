@@ -358,7 +358,6 @@ function bb_reset_password( $key )
 		return new WP_Error( 'sending_mail_failed', __( 'The email containing the new password could not be sent.' ) );
 	}
 
-	bb_update_usermeta( $user->ID, 'newpwdkey', '' );
 	return true;
 }
 
@@ -380,6 +379,7 @@ function bb_update_user_password( $user_id, $password ) {
 	$user_id = (int) $user_id;
 
 	$wp_users_object->set_password( $password, $user_id );
+	bb_delete_usermeta( $user_id, 'newpwdkey' );
 
 	do_action('bb_update_user_password', $user_id);
 	return $user_id;
