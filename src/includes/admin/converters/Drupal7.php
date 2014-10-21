@@ -410,9 +410,10 @@ class Drupal7 extends BBP_Converter_Base {
 
 		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
 		$this->field_map[] = array(
-			'to_type'      => 'reply',
-			'to_fieldname' => '_bbp_old_reply_author_name_id',
-			'default'      => 'Anonymous'
+			'from_tablename' => 'comment',
+			'from_fieldname' => 'name',
+			'to_type'        => 'reply',
+			'to_fieldname'   => '_bbp_old_reply_author_name_id'
 		);
 
 		// Is the reply anonymous  (Stored in postmeta)
