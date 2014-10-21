@@ -48,6 +48,11 @@ function bbp_kses_allowed_tags() {
 		'strong'       => array(),
 		'del'          => array(
 			'datetime' => true,
+			'cite'     => true
+		),
+		'ins' => array(
+			'datetime' => true,
+			'cite'     => true
 		),
 
 		// Lists
