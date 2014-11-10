@@ -2639,7 +2639,7 @@ function bbp_form_forum_visibility_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id'    => 'bbp_forum_visibility',
-			'tab'          => bbp_get_tab_index(),
+			'tab'          => false,
 			'forum_id'     => $forum_id,
 			'selected'     => false
 		), 'forum_type_select' );
