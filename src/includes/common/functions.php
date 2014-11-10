@@ -701,7 +701,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	//
 	// @see: http://bbpress.trac.wordpress.org/ticket/2185/
 	// @see: http://core.trac.wordpress.org/changeset/23973/
-	$r = function_exists( 'wp_unslash' ) ? wp_unslash( $r ) : stripslashes_deep( $r );
+	$r = wp_unslash( $r );
 
 	// Prepare duplicate check query
 	$query  = $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );

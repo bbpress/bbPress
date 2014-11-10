@@ -82,7 +82,7 @@ function bbp_kses_allowed_tags() {
  * @return string Filtered content
  */
 function bbp_filter_kses( $data = '' ) {
-	return addslashes( wp_kses( stripslashes( $data ), bbp_kses_allowed_tags() ) );
+	return wp_slash( wp_kses( wp_unslash( $data ), bbp_kses_allowed_tags() ) );
 }
 
 /**

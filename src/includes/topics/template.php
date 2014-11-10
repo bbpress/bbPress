@@ -3849,7 +3849,7 @@ function bbp_form_topic_title() {
 
 		// Get _POST data
 		if ( bbp_is_topic_form_post_request() && isset( $_POST['bbp_topic_title'] ) ) {
-			$topic_title = stripslashes( $_POST['bbp_topic_title'] );
+			$topic_title = wp_unslash( $_POST['bbp_topic_title'] );
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() ) {
@@ -3860,7 +3860,7 @@ function bbp_form_topic_title() {
 			$topic_title = '';
 		}
 
-		return apply_filters( 'bbp_get_form_topic_title', esc_attr( $topic_title ) );
+		return apply_filters( 'bbp_get_form_topic_title', $topic_title );
 	}
 
 /**
@@ -3886,7 +3886,7 @@ function bbp_form_topic_content() {
 
 		// Get _POST data
 		if ( bbp_is_topic_form_post_request() && isset( $_POST['bbp_topic_content'] ) ) {
-			$topic_content = stripslashes( $_POST['bbp_topic_content'] );
+			$topic_content = wp_unslash( $_POST['bbp_topic_content'] );
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() ) {
@@ -3933,7 +3933,7 @@ function bbp_form_topic_tags() {
 
 		// Get _POST data
 		if ( ( bbp_is_topic_form_post_request() || bbp_is_reply_form_post_request() ) && isset( $_POST['bbp_topic_tags'] ) ) {
-			$topic_tags = stripslashes( $_POST['bbp_topic_tags'] );
+			$topic_tags = wp_unslash( $_POST['bbp_topic_tags'] );
 
 		// Get edit data
 		} elseif ( bbp_is_single_topic() || bbp_is_single_reply() || bbp_is_topic_edit() || bbp_is_reply_edit() ) {
@@ -3989,7 +3989,7 @@ function bbp_form_topic_tags() {
 			$topic_tags = '';
 		}
 
-		return apply_filters( 'bbp_get_form_topic_tags', esc_attr( $topic_tags ) );
+		return apply_filters( 'bbp_get_form_topic_tags', $topic_tags );
 	}
 
 /**
@@ -4147,7 +4147,7 @@ function bbp_form_topic_edit_reason() {
 
 		// Get _POST data
 		if ( bbp_is_topic_form_post_request() && isset( $_POST['bbp_topic_edit_reason'] ) ) {
-			$topic_edit_reason = stripslashes( $_POST['bbp_topic_edit_reason'] );
+			$topic_edit_reason = wp_unslash( $_POST['bbp_topic_edit_reason'] );
 
 		// No data
 		} else {

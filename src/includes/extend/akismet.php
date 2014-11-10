@@ -394,7 +394,7 @@ class BBP_Akismet {
 
 		// Ready...
 		foreach ( $post_data as $key => $data ) {
-			$query_string .= $key . '=' . urlencode( stripslashes( $data ) ) . '&';
+			$query_string .= $key . '=' . urlencode( wp_unslash( $data ) ) . '&';
 		}
 
 		// Aim...
@@ -625,13 +625,10 @@ class BBP_Akismet {
 	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
 
 		// Preload required variables
-		$bbp_version    = bbp_get_version();
-		$content_length = strlen( $request );
-		$http_host      = $host;
-		$blog_charset   = get_option( 'blog_charset' );
-		$response       = '';
-		$errno          = null;
-		$errstr         = null;
+		$bbp_version  = bbp_get_version();
+		$http_host    = $host;
+		$blog_charset = get_option( 'blog_charset' );
+		$response     = '';
 
 		// Untque User Agent
 		$akismet_ua     = "bbPress/{$bbp_version} | ";
@@ -642,69 +639,31 @@ class BBP_Akismet {
 			$http_host = $ip;
 		}
 
-		// WP HTTP class is available
-		if ( function_exists( 'wp_remote_post' ) ) {
+		// Setup the arguments
+		$http_args = array(
+			'body'             => $request,
+			'headers'          => array(
+				'Content-Type' => 'application/x-www-form-urlencoded; charset=' . $blog_charset,
+				'Host'         => $host,
+				'User-Agent'   => $akismet_ua
+			),
+			'httpversion'      => '1.0',
+			'timeout'          => 15
+		);
 
-			// Setup the arguments
-			$http_args = array(
-				'body'             => $request,
-				'headers'          => array(
-					'Content-Type' => 'application/x-www-form-urlencoded; charset=' . $blog_charset,
-					'Host'         => $host,
-					'User-Agent'   => $akismet_ua
-				),
-				'httpversion'      => '1.0',
-				'timeout'          => 15
-			);
+		// Where we are sending our request
+		$akismet_url = 'http://' . $http_host . $path;
 
-			// Where we are sending our request
-			$akismet_url = 'http://' . $http_host . $path;
+		// Send the request
+		$response    = wp_remote_post( $akismet_url, $http_args );
 
-			// Send the request
-			$response    = wp_remote_post( $akismet_url, $http_args );
-
-			// Bail if the response is an error
-			if ( is_wp_error( $response ) ) {
-				return '';
-			}
-
-			// No errors so return response
-			return array( $response['headers'], $response['body'] );
-
-		// WP HTTP class is not available (Why not?)
-		} else {
-
-			// Header info to use with our socket
-			$http_request  = "POST {$path} HTTP/1.0\r\n";
-			$http_request .= "Host: {$host}\r\n";
-			$http_request .= "Content-Type: application/x-www-form-urlencoded; charset={$blog_charset}\r\n";
-			$http_request .= "Content-Length: {$content_length}\r\n";
-			$http_request .= "User-Agent: {$akismet_ua}\r\n";
-			$http_request .= "\r\n";
-			$http_request .= $request;
-
-			// Open a socket connection
-			if ( false !== ( $fs = @fsockopen( $http_host, $port, $errno, $errstr, 10 ) ) ) {
-
-				// Write our request to the pointer
-				fwrite( $fs, $http_request );
-
-				// Loop through pointer and compile a response
-				while ( !feof( $fs ) ) {
-					// One TCP-IP packet at a time
-					$response .= fgets( $fs, 1160 );
-				}
-
-				// Close our socket
-				fclose( $fs );
-
-				// Explode the response into usable data
-				$response = explode( "\r\n\r\n", $response, 2 );
-			}
-
-			// Return the response ('' if error/empty)
-			return $response;
+		// Bail if the response is an error
+		if ( is_wp_error( $response ) ) {
+			return '';
 		}
+
+		// No errors so return response
+		return array( $response['headers'], $response['body'] );
 	}
 
 	/**

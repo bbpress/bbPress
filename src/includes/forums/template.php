@@ -2222,7 +2222,7 @@ function bbp_form_forum_content() {
 
 		// Get _POST data
 		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_content'] ) ) {
-			$forum_content = stripslashes( $_POST['bbp_forum_content'] );
+			$forum_content = wp_unslash( $_POST['bbp_forum_content'] );
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {

@@ -2552,7 +2552,7 @@ function bbp_form_reply_content() {
 
 		// Get _POST data
 		if ( bbp_is_reply_form_post_request() && isset( $_POST['bbp_reply_content'] ) ) {
-			$reply_content = stripslashes( $_POST['bbp_reply_content'] );
+			$reply_content = wp_unslash( $_POST['bbp_reply_content'] );
 
 		// Get edit data
 		} elseif ( bbp_is_reply_edit() ) {
@@ -2747,7 +2747,7 @@ function bbp_form_reply_edit_reason() {
 
 		// Get _POST data
 		if ( bbp_is_reply_form_post_request() && isset( $_POST['bbp_reply_edit_reason'] ) ) {
-			$reply_edit_reason = stripslashes( $_POST['bbp_reply_edit_reason'] );
+			$reply_edit_reason = wp_unslash( $_POST['bbp_reply_edit_reason'] );
 
 		// No data
 		} else {

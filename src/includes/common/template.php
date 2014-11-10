@@ -1297,7 +1297,7 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 		switch ( $input_type ) {
 			case 'text'     :
 			case 'textarea' :
-				$retval = esc_attr( stripslashes( $pre_ret_val ) );
+				$retval = esc_attr( wp_unslash( $pre_ret_val ) );
 				break;
 
 			case 'password' :

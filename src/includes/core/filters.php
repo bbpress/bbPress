@@ -123,19 +123,19 @@ add_filter( 'bbp_edit_forum_pre_content', 'bbp_code_trick',  20 );
 add_filter( 'bbp_edit_forum_pre_content', 'bbp_filter_kses', 30 );
 add_filter( 'bbp_edit_forum_pre_content', 'balanceTags',     40 );
 
-// No follow and stripslashes on user profile links
+// No follow and wp_unslash on user profile links
 add_filter( 'bbp_get_reply_author_link',      'bbp_rel_nofollow' );
-add_filter( 'bbp_get_reply_author_link',      'stripslashes'     );
+add_filter( 'bbp_get_reply_author_link',      'wp_unslash'       );
 add_filter( 'bbp_get_topic_author_link',      'bbp_rel_nofollow' );
-add_filter( 'bbp_get_topic_author_link',      'stripslashes'     );
+add_filter( 'bbp_get_topic_author_link',      'wp_unslash'       );
 add_filter( 'bbp_get_user_favorites_link',    'bbp_rel_nofollow' );
-add_filter( 'bbp_get_user_favorites_link',    'stripslashes'     );
+add_filter( 'bbp_get_user_favorites_link',    'wp_unslash'       );
 add_filter( 'bbp_get_user_subscribe_link',    'bbp_rel_nofollow' );
-add_filter( 'bbp_get_user_subscribe_link',    'stripslashes'     );
+add_filter( 'bbp_get_user_subscribe_link',    'wp_unslash'       );
 add_filter( 'bbp_get_user_profile_link',      'bbp_rel_nofollow' );
-add_filter( 'bbp_get_user_profile_link',      'stripslashes'     );
+add_filter( 'bbp_get_user_profile_link',      'wp_unslash'       );
 add_filter( 'bbp_get_user_profile_edit_link', 'bbp_rel_nofollow' );
-add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'     );
+add_filter( 'bbp_get_user_profile_edit_link', 'wp_unslash'       );
 
 // Run filters on reply content
 add_filter( 'bbp_get_reply_content', 'bbp_make_clickable', 4    );
@@ -175,6 +175,10 @@ add_filter( 'bbp_get_form_reply_edit_reason', 'esc_attr' );
 add_filter( 'bbp_get_form_reply_edit_reason', 'trim'     );
 add_filter( 'bbp_get_form_topic_edit_reason', 'esc_attr' );
 add_filter( 'bbp_get_form_topic_edit_reason', 'trim'     );
+add_filter( 'bbp_get_form_topic_title',       'esc_attr' );
+add_filter( 'bbp_get_form_topic_title',       'trim'     );
+add_filter( 'bbp_get_form_topic_tags',        'esc_attr' );
+add_filter( 'bbp_get_form_topic_tags',        'trim'     );
 
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_user_topic_count',     'bbp_number_format', 10 );
