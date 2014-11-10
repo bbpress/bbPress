@@ -355,7 +355,6 @@ function bbp_forum_metabox() {
 
 			// Output-related
 			'select_id'          => 'parent_id',
-			'tab'                => bbp_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
 			'disable_categories' => false,
@@ -437,7 +436,6 @@ function bbp_topic_metabox() {
 
 			// Output-related
 			'select_id'          => 'parent_id',
-			'tab'                => bbp_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
 			'disable_categories' => current_user_can( 'edit_forums' ),
@@ -507,7 +505,6 @@ function bbp_reply_metabox() {
 
 				// Output-related
 				'select_id'          => 'bbp_forum_id',
-				'tab'                => bbp_get_tab_index(),
 				'options_only'       => false,
 				'show_none'          => __( '&mdash; No parent &mdash;', 'bbpress' ),
 				'disable_categories' => current_user_can( 'edit_forums' ),

@@ -2764,7 +2764,7 @@ function bbp_form_reply_edit_reason() {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_reply_status
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - reply_id: Reply id
  *  - selected: Override the selected option
  */
@@ -2782,7 +2782,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_reply_status
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - reply_id: Reply id
 	 *  - selected: Override the selected option
 	 */
@@ -2791,7 +2791,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id' => 'bbp_reply_status',
-			'tab'       => bbp_get_tab_index(),
+			'tab'       => false,
 			'reply_id'  => 0,
 			'selected'  => false
 		), 'reply_status_dropdown' );

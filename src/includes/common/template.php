@@ -1320,7 +1320,8 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
  * tab index by default.
  *
  * @since bbPress (r2810)
- *
+ * @deprecated since version 2.6
+ * @link https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
  * @param int $auto_increment Optional. Default true. Set to false to prevent
  *                             increment
  */
@@ -1336,7 +1337,8 @@ function bbp_tab_index( $auto_increment = true ) {
 	 * increment the global tab index by default.
 	 *
 	 * @since bbPress (r2810)
-	 *
+	 * @deprecated bbPress (r5560)
+	 * @link https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
 	 * @uses apply_filters Allows return value to be filtered
 	 * @param int $auto_increment Optional. Default true. Set to false to
 	 *                             prevent the increment
@@ -1388,7 +1390,7 @@ function bbp_dropdown( $args = '' ) {
 	 *  - walker: Which walker to use? Defaults to
 	 *             {@link BBP_Walker_Dropdown}
 	 *  - select_id: ID of the select box. Defaults to 'bbp_forum_id'
-	 *  - tab: Tabindex value. False or integer
+	 *  - tab: Deprecated. Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
 	 *  - show_none: Boolean or String __( '(No Forum)', 'bbpress' )
 	 *  - disable_categories: Disable forum categories and closed forums?
@@ -1428,7 +1430,7 @@ function bbp_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'bbp_forum_id',
-			'tab'                => bbp_get_tab_index(),
+			'tab'                => false,
 			'options_only'       => false,
 			'show_none'          => false,
 			'disable_categories' => true,
@@ -1773,7 +1775,7 @@ function bbp_the_content( $args = array() ) {
 			'wpautop'           => true,
 			'media_buttons'     => false,
 			'textarea_rows'     => '12',
-			'tabindex'          => bbp_get_tab_index(),
+			'tabindex'          => false,
 			'tabfocus_elements' => 'bbp_topic_title,bbp_topic_tags',
 			'editor_class'      => 'bbp-the-content',
 			'tinymce'           => false,
@@ -1835,9 +1837,12 @@ function bbp_the_content( $args = array() ) {
 		 * Note that we do not use esc_textarea() here to prevent double
 		 * escaping the editable output, mucking up existing content.
 		 */
-		else : ?>
+		else :
 
-			<textarea id="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" tabindex="<?php echo esc_attr( $r['tabindex'] ); ?>"><?php echo $post_content; ?></textarea>
+			// Setup the tab index attribute
+			$tab = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : ''; ?>
+
+			<textarea id="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" <?php echo $tab; ?>><?php echo $post_content; ?></textarea>
 
 		<?php endif;
 

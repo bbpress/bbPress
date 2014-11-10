@@ -3213,7 +3213,7 @@ function bbp_topic_notices() {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_stick_topic
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
@@ -3228,7 +3228,7 @@ function bbp_topic_type_select( $args = '' ) {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_stick_topic
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
@@ -3242,7 +3242,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_stick_topic
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - topic_id: Topic id
 	 *  - selected: Override the selected option
 	 * @uses bbp_get_topic_id() To get the topic id
@@ -3256,7 +3256,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id'    => 'bbp_stick_topic',
-			'tab'          => bbp_get_tab_index(),
+			'tab'          => false,
 			'topic_id'     => 0,
 			'selected'     => false
 		), 'topic_type_select' );
@@ -3318,7 +3318,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_topic_status
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
@@ -3336,7 +3336,7 @@ function bbp_form_topic_status_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_topic_status
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - topic_id: Topic id
 	 *  - selected: Override the selected option
 	 */
@@ -3345,7 +3345,7 @@ function bbp_form_topic_status_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id' => 'bbp_topic_status',
-			'tab'       => bbp_get_tab_index(),
+			'tab'       => false,
 			'topic_id'  => 0,
 			'selected'  => false
 		), 'topic_open_close_select' );

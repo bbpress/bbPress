@@ -2419,7 +2419,7 @@ function bbp_form_forum_subscribed() {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_type
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_type() To get the topic's forum id
@@ -2434,7 +2434,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_type
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - forum_id: Forum id
 	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
@@ -2455,7 +2455,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id'    => 'bbp_forum_type',
-			'tab'          => bbp_get_tab_index(),
+			'tab'          => false,
 			'forum_id'     => $forum_id,
 			'selected'     => false
 		), 'forum_type_select' );
@@ -2511,7 +2511,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_status
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_status() To get the topic's forum id
@@ -2526,7 +2526,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_status
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - forum_id: Forum id
 	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
@@ -2547,7 +2547,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id'    => 'bbp_forum_status',
-			'tab'          => bbp_get_tab_index(),
+			'tab'          => false,
 			'forum_id'     => $forum_id,
 			'selected'     => false
 		), 'forum_status_select' );
@@ -2603,7 +2603,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_visibility
- *  - tab: Tabindex
+ *  - tab: Deprecated. Tabindex
  *  - forum_id: Forum id
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_visibility() To get the topic's forum id
@@ -2618,7 +2618,7 @@ function bbp_form_forum_visibility_dropdown( $args = '' ) {
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_visibility
-	 *  - tab: Tabindex
+	 *  - tab: Deprecated. Tabindex
 	 *  - forum_id: Forum id
 	 *  - selected: Override the selected option
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
