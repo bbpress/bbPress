@@ -170,6 +170,12 @@ add_filter( 'bbp_get_form_reply_content', 'bbp_code_trick_reverse' );
 add_filter( 'bbp_get_form_reply_content', 'esc_textarea'           );
 add_filter( 'bbp_get_form_reply_content', 'trim'                   );
 
+// Form input output - sanitize
+add_filter( 'bbp_get_form_reply_edit_reason', 'esc_attr' );
+add_filter( 'bbp_get_form_reply_edit_reason', 'trim'     );
+add_filter( 'bbp_get_form_topic_edit_reason', 'esc_attr' );
+add_filter( 'bbp_get_form_topic_edit_reason', 'trim'     );
+
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_user_topic_count',     'bbp_number_format', 10 );
 add_filter( 'bbp_get_user_reply_count',     'bbp_number_format', 10 );

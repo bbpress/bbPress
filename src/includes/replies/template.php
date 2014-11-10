@@ -2551,7 +2551,7 @@ function bbp_form_reply_content() {
 	function bbp_get_form_reply_content() {
 
 		// Get _POST data
-		if ( bbp_is_post_request() && isset( $_POST['bbp_reply_content'] ) ) {
+		if ( bbp_is_reply_form_post_request() && isset( $_POST['bbp_reply_content'] ) ) {
 			$reply_content = stripslashes( $_POST['bbp_reply_content'] );
 
 		// Get edit data
@@ -2592,7 +2592,7 @@ function bbp_form_reply_to() {
 		$reply_to = 0;
 
 		// Get $_REQUEST data
-		if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+		if ( bbp_is_reply_form_post_request() && isset( $_REQUEST['bbp_reply_to'] ) ) {
 			$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 		}
 
@@ -2710,15 +2710,18 @@ function bbp_form_reply_log_edit() {
 	function bbp_get_form_reply_log_edit() {
 
 		// Get _POST data
-		if ( bbp_is_post_request() && isset( $_POST['bbp_log_reply_edit'] ) ) {
-			$reply_revision = $_POST['bbp_log_reply_edit'];
+		if ( bbp_is_reply_form_post_request() && isset( $_POST['bbp_log_reply_edit'] ) ) {
+			$reply_revision = (bool) $_POST['bbp_log_reply_edit'];
 
 		// No data
 		} else {
-			$reply_revision = 1;
+			$reply_revision = true;
 		}
 
-		return apply_filters( 'bbp_get_form_reply_log_edit', checked( $reply_revision, true, false ) );
+		// Get checked output
+		$checked = checked( $reply_revision, true, false );
+
+		return apply_filters( 'bbp_get_form_reply_log_edit', $checked, $reply_revision );
 	}
 
 /**
@@ -2743,15 +2746,15 @@ function bbp_form_reply_edit_reason() {
 	function bbp_get_form_reply_edit_reason() {
 
 		// Get _POST data
-		if ( bbp_is_post_request() && isset( $_POST['bbp_reply_edit_reason'] ) ) {
-			$reply_edit_reason = $_POST['bbp_reply_edit_reason'];
+		if ( bbp_is_reply_form_post_request() && isset( $_POST['bbp_reply_edit_reason'] ) ) {
+			$reply_edit_reason = stripslashes( $_POST['bbp_reply_edit_reason'] );
 
 		// No data
 		} else {
 			$reply_edit_reason = '';
 		}
 
-		return apply_filters( 'bbp_get_form_reply_edit_reason', esc_attr( $reply_edit_reason ) );
+		return apply_filters( 'bbp_get_form_reply_edit_reason', $reply_edit_reason );
 	}
 
 /**
@@ -2797,7 +2800,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 		if ( empty( $r['selected'] ) ) {
 
 			// Post value is passed
-			if ( bbp_is_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
+			if ( bbp_is_reply_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 				$r['selected'] = $_POST[ $r['select_id'] ];
 
 			// No Post value was passed
@@ -2836,3 +2839,34 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 		// Return the results
 		return apply_filters( 'bbp_get_form_reply_status_dropdown', ob_get_clean(), $r );
 	}
+
+/**
+ * Verify if a POST request came from a failed reply attempt.
+ *
+ * Used to avoid cross-site request forgeries when checking posted reply form
+ * content.
+ *
+ * @see bbp_reply_form_fields()
+ *
+ * @since bbPress (r5558)
+ * @return boolean True if is a post request with valid nonce
+ */
+function bbp_is_reply_form_post_request() {
+
+	// Bail if not a post request
+	if ( ! bbp_is_post_request() ) {
+		return false;
+	}
+
+	// Creating a new reply
+	if ( bbp_verify_nonce_request( 'bbp-new-reply' ) ) {
+		return true;
+	}
+
+	// Editing an existing reply
+	if ( bbp_verify_nonce_request( 'bbp-edit-reply' ) ) {
+		return true;
+	}
+
+	return false;
+}
