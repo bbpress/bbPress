@@ -53,7 +53,9 @@
 				<?php if ( !bbp_is_topic_edit() && bbp_is_forum_closed() ) : ?>
 
 					<div class="bbp-template-notice">
-						<p><?php _e( 'This forum is marked as closed to new topics, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'This forum is marked as closed to new topics, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 
 				<?php endif; ?>
@@ -61,7 +63,9 @@
 				<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
 
 					<div class="bbp-template-notice">
-						<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 
 				<?php endif; ?>
@@ -226,7 +230,9 @@
 
 	<div id="forum-closed-<?php bbp_forum_id(); ?>" class="bbp-forum-closed">
 		<div class="bbp-template-notice">
-			<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title() ); ?></p>
+			<ul>
+				<li><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title() ); ?></li>
+			</ul>
 		</div>
 	</div>
 
@@ -234,7 +240,9 @@
 
 	<div id="no-topic-<?php bbp_forum_id(); ?>" class="bbp-no-topic">
 		<div class="bbp-template-notice">
-			<p><?php is_user_logged_in() ? _e( 'You cannot create new topics.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></p>
+			<ul>
+				<li><?php is_user_logged_in() ? _e( 'You cannot create new topics.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></li>
+			</ul>
 		</div>
 	</div>
 
@@ -244,4 +252,4 @@
 
 </div>
 
-<?php endif; ?>
+<?php endif;

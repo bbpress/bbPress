@@ -3434,8 +3434,8 @@ function bbp_single_topic_description( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'topic_id'  => 0,
-			'before'    => '<div class="bbp-template-notice info"><p class="bbp-topic-description">',
-			'after'     => '</p></div>',
+			'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-topic-description">',
+			'after'     => '</li></ul></div>',
 			'size'      => 14
 		), 'get_single_topic_description' );
 

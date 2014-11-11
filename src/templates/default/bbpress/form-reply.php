@@ -33,7 +33,9 @@
 				<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
 
 					<div class="bbp-template-notice">
-						<p><?php _e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 
 				<?php endif; ?>
@@ -41,7 +43,9 @@
 				<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
 
 					<div class="bbp-template-notice">
-						<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 
 				<?php endif; ?>
@@ -181,7 +185,9 @@
 
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<div class="bbp-template-notice">
-			<p><?php printf( __( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ), bbp_get_topic_title() ); ?></p>
+			<ul>
+				<li><?php printf( __( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ), bbp_get_topic_title() ); ?></li>
+			</ul>
 		</div>
 	</div>
 
@@ -189,7 +195,9 @@
 
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<div class="bbp-template-notice">
-			<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?></p>
+			<ul>
+				<li><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?></li>
+			</ul>
 		</div>
 	</div>
 
@@ -197,7 +205,9 @@
 
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<div class="bbp-template-notice">
-			<p><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></p>
+			<ul>
+				<li><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></li>
+			</ul>
 		</div>
 	</div>
 
@@ -207,4 +217,4 @@
 
 </div>
 
-<?php endif; ?>
+<?php endif;

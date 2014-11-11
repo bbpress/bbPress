@@ -889,7 +889,8 @@ div.bbp-template-notice a {
 	div.bbp-template-notice.warning a {
 		color: #c00;
 	}
-	div.bbp-template-notice p {
+	div.bbp-template-notice p,
+	div.bbp-template-notice li {
 		margin: 0.5em 0 6px 0 !important;
 		padding: 2px;
 		font-size: 12px;

@@ -22,11 +22,15 @@
 				<legend><?php _e( 'Rename', 'bbpress' ); ?></legend>
 
 				<div class="bbp-template-notice info">
-					<p><?php _e( 'Leave the slug empty to have one automatically generated.', 'bbpress' ); ?></p>
+					<ul>
+						<li><?php _e( 'Leave the slug empty to have one automatically generated.', 'bbpress' ); ?></li>
+					</ul>
 				</div>
 
 				<div class="bbp-template-notice">
-					<p><?php _e( 'Changing the slug affects its permalink. Any links to the old slug will stop working.', 'bbpress' ); ?></p>
+					<ul>
+						<li><?php _e( 'Changing the slug affects its permalink. Any links to the old slug will stop working.', 'bbpress' ); ?></li>
+					</ul>
 				</div>
 
 				<form id="rename_tag" name="rename_tag" method="post" action="<?php the_permalink(); ?>">
@@ -64,7 +68,9 @@
 				<legend><?php _e( 'Merge', 'bbpress' ); ?></legend>
 
 				<div class="bbp-template-notice">
-					<p><?php _e( 'Merging tags together cannot be undone.', 'bbpress' ); ?></p>
+					<ul>
+						<li><?php _e( 'Merging tags together cannot be undone.', 'bbpress' ); ?></li>
+					</ul>
 				</div>
 
 				<form id="merge_tag" name="merge_tag" method="post" action="<?php the_permalink(); ?>">
@@ -93,11 +99,15 @@
 					<legend><?php _e( 'Delete', 'bbpress' ); ?></legend>
 
 					<div class="bbp-template-notice info">
-						<p><?php _e( 'This does not delete your topics. Only the tag itself is deleted.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'This does not delete your topics. Only the tag itself is deleted.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 					<div class="bbp-template-notice">
-						<p><?php _e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></p>
-						<p><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></p>
+						<ul>
+							<li><?php _e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></li>
+							<li><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></li>
+						</ul>
 					</div>
 
 					<form id="delete_tag" name="delete_tag" method="post" action="<?php the_permalink(); ?>">
@@ -119,4 +129,4 @@
 		</fieldset>
 	</div>
 
-<?php endif; ?>
+<?php endif;

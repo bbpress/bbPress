@@ -10,5 +10,7 @@
 ?>
 
 <div class="bbp-template-notice">
-	<p><?php _e( 'Oh bother! No replies were found here!', 'bbpress' ); ?></p>
+	<ul>
+		<li><?php _e( 'Oh bother! No replies were found here!', 'bbpress' ); ?></li>
+	</ul>
 </div>

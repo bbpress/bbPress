@@ -27,7 +27,7 @@
 
 	<?php if ( bbp_is_topic_tag() ) : ?>
 
-		<?php bbp_topic_tag_description( array( 'before' => '<div class="bbp-template-notice info"><p>', 'after' => '</p></div>' ) ); ?>
+		<?php bbp_topic_tag_description( array( 'before' => '<div class="bbp-template-notice info"><ul><li>', 'after' => '</li></ul></div>' ) ); ?>
 
 	<?php endif; ?>
 

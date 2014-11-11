@@ -16,8 +16,10 @@
 		<?php do_action( 'bbp_template_before_register_fields' ); ?>
 
 		<div class="bbp-template-notice">
-			<p><?php _e( 'Your username must be unique, and cannot be changed later.', 'bbpress' ) ?></p>
-			<p><?php _e( 'We use your email address to email you a secure password and verify your account.', 'bbpress' ) ?></p>
+			<ul>
+				<li><?php _e( 'Your username must be unique, and cannot be changed later.',                        'bbpress' ); ?></li>
+				<li><?php _e( 'We use your email address to email you a secure password and verify your account.', 'bbpress' ); ?></li>
+			</ul>
 		</div>
 
 		<div class="bbp-username">

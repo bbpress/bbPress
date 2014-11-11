@@ -26,12 +26,16 @@
 					<div>
 
 						<div class="bbp-template-notice info">
-							<p><?php _e( 'Select the topic to merge this one into. The destination topic will remain the lead topic, and this one will change into a reply.', 'bbpress' ); ?></p>
-							<p><?php _e( 'To keep this topic as the lead, go to the other topic and use the merge tool from there instead.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'Select the topic to merge this one into. The destination topic will remain the lead topic, and this one will change into a reply.', 'bbpress' ); ?></li>
+								<li><?php _e( 'To keep this topic as the lead, go to the other topic and use the merge tool from there instead.',                                  'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-template-notice">
-							<p><?php _e( 'Replies to both topics are merged chronologically, ordered by the time and date they were published. Topics may be updated to a 1 second difference to maintain chronological order based on the merge direction.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'Replies to both topics are merged chronologically, ordered by the time and date they were published. Topics may be updated to a 1 second difference to maintain chronological order based on the merge direction.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<fieldset class="bbp-form">
@@ -87,7 +91,9 @@
 						</fieldset>
 
 						<div class="bbp-template-notice error">
-							<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-submit-wrapper">

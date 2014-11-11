@@ -1468,7 +1468,7 @@ function bbp_dropdown( $args = '' ) {
 				'numberposts' => $r['numberposts'],
 				'orderby'     => $r['orderby'],
 				'order'       => $r['order'],
-			) );			
+			) );
 		}
 
 		/** Drop Down *********************************************************/
@@ -2507,10 +2507,10 @@ function bbp_template_notices() {
 	// Display errors first...
 	if ( !empty( $errors ) ) : ?>
 
-		<div class="bbp-template-notice error">
-			<p>
-				<?php echo implode( "</p>\n<p>", $errors ); ?>
-			</p>
+		<div class="bbp-template-notice error" role="alert" tabindex="-1">
+			<ul>
+				<li><?php echo implode( "</li>\n<li>", $errors ); ?></li>
+			</ul>
 		</div>
 
 	<?php endif;
@@ -2519,9 +2519,9 @@ function bbp_template_notices() {
 	if ( !empty( $messages ) ) : ?>
 
 		<div class="bbp-template-notice">
-			<p>
-				<?php echo implode( "</p>\n<p>", $messages ); ?>
-			</p>
+			<ul>
+				<li><?php echo implode( "</li>\n<li>", $messages ); ?></li>
+			</ul>
 		</div>
 
 	<?php endif;

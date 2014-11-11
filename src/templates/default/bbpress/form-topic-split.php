@@ -26,11 +26,15 @@
 					<div>
 
 						<div class="bbp-template-notice info">
-							<p><?php _e( 'When you split a topic, you are slicing it in half starting with the reply you just selected. Choose to use that reply as a new topic with a new title, or merge those replies into an existing topic.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'When you split a topic, you are slicing it in half starting with the reply you just selected. Choose to use that reply as a new topic with a new title, or merge those replies into an existing topic.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-template-notice">
-							<p><?php _e( 'If you use the existing topic option, replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'If you use the existing topic option, replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<fieldset class="bbp-form">
@@ -90,8 +94,10 @@
 							</div>
 						</fieldset>
 
-						<div class="bbp-template-notice error">
-							<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
+						<div class="bbp-template-notice error" role="alert" tabindex="-1">
+							<ul>
+								<li><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-submit-wrapper">

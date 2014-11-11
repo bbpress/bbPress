@@ -13,7 +13,9 @@
 	<h1 class="entry-title"><?php _e( 'Private', 'bbpress' ); ?></h1>
 	<div class="entry-content">
 		<div class="bbp-template-notice info">
-			<p><?php _e( 'You do not have permission to view this forum.', 'bbpress' ); ?></p>
+			<ul>
+				<li><?php _e( 'You do not have permission to view this forum.', 'bbpress' ); ?></li>
+			</ul>
 		</div>
 	</div>
 </div><!-- #forum-private -->

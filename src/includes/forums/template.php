@@ -2065,8 +2065,8 @@ function bbp_single_forum_description( $args = '' ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'forum_id'  => 0,
-			'before'    => '<div class="bbp-template-notice info"><p class="bbp-forum-description">',
-			'after'     => '</p></div>',
+			'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-forum-description">',
+			'after'     => '</li></ul></div>',
 			'size'      => 14,
 			'feed'      => true
 		), 'get_single_forum_description' );

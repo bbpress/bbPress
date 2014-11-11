@@ -26,11 +26,15 @@
 					<div>
 
 						<div class="bbp-template-notice info">
-							<p><?php _e( 'You can either make this reply a new topic with a new title, or merge it into an existing topic.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'You can either make this reply a new topic with a new title, or merge it into an existing topic.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-template-notice">
-							<p><?php _e( 'If you choose an existing topic, replies will be ordered by the time and date they were created.', 'bbpress' ); ?></p>
+							<ul>
+								<li><?php _e( 'If you choose an existing topic, replies will be ordered by the time and date they were created.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<fieldset class="bbp-form">
@@ -64,8 +68,10 @@
 
 						</fieldset>
 
-						<div class="bbp-template-notice error">
-							<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
+						<div class="bbp-template-notice error" role="alert" tabindex="-1">
+							<ul>
+								<li><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></li>
+							</ul>
 						</div>
 
 						<div class="bbp-submit-wrapper">

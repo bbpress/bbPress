@@ -1173,7 +1173,9 @@ function bbp_notice_edit_user_success() {
 	if ( isset( $_GET['updated'] ) && ( bbp_is_single_user() || bbp_is_single_user_edit() ) ) : ?>
 
 	<div class="bbp-template-notice updated">
-		<p><?php esc_html_e( 'User updated.', 'bbpress' ); ?></p>
+		<ul>
+			<li><?php esc_html_e( 'User updated.', 'bbpress' ); ?></li>
+		</ul>
 	</div>
 
 	<?php endif;
@@ -1198,7 +1200,9 @@ function bbp_notice_edit_user_is_super_admin() {
 	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
 	<div class="bbp-template-notice important">
-		<p><?php bbp_is_user_home() || bbp_is_user_home_edit() ? esc_html_e( 'You have super admin privileges.', 'bbpress' ) : esc_html_e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
+		<ul>
+			<li><?php bbp_is_user_home() || bbp_is_user_home_edit() ? esc_html_e( 'You have super admin privileges.', 'bbpress' ) : esc_html_e( 'This user has super admin privileges.', 'bbpress' ); ?></li>
+		</ul>
 	</div>
 
 <?php endif;
