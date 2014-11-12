@@ -696,10 +696,19 @@ class BBP_Admin {
 	 * @uses bbp_get_topic_title()
 	 */
 	public function suggest_topic() {
+		global $wpdb;
+
+		// Bail early if no request
+		if ( empty( $_REQUEST['q'] ) ) {
+			wp_die( '0' );
+		}
+
+		// Check the ajax nonce
+		check_ajax_referer( 'bbp_suggest_topic_nonce' );
 
 		// Try to get some topics
 		$topics = get_posts( array(
-			's'         => like_escape( $_REQUEST['q'] ),
+			's'         => $wpdb->esc_like( $_REQUEST['q'] ),
 			'post_type' => bbp_get_topic_post_type()
 		) );
 
@@ -718,10 +727,19 @@ class BBP_Admin {
 	 * @since bbPress (r5014)
 	 */
 	public function suggest_user() {
+		global $wpdb;
+
+		// Bail early if no request
+		if ( empty( $_REQUEST['q'] ) ) {
+			wp_die( '0' );
+		}
+
+		// Check the ajax nonce
+		check_ajax_referer( 'bbp_suggest_user_nonce' );
 
 		// Try to get some users
 		$users_query = new WP_User_Query( array(
-			'search'         => '*' . like_escape( $_REQUEST['q'] ) . '*',
+			'search'         => '*' . $wpdb->esc_like( $_REQUEST['q'] ) . '*',
 			'fields'         => array( 'ID', 'user_nicename' ),
 			'search_columns' => array( 'ID', 'user_nicename', 'user_email' ),
 			'orderby'        => 'ID'
