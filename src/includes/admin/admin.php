@@ -571,7 +571,7 @@ class BBP_Admin {
 				case bbp_get_topic_post_type() :
 
 					// Enqueue the common JS
-					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common' . $suffix . '.js', array( 'jquery' ), $version );
+					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common' . $suffix . '.js', array( 'jquery', 'suggest' ), $version );
 
 					// Topics admin
 					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
