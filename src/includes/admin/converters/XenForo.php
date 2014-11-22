@@ -324,6 +324,16 @@ class XenForo extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_old_reply_id'
 		);
 
+		// Join the 'thread' table to exclude topics from being imported as replies
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread',
+			'from_fieldname'  => 'thread_id',
+			'join_tablename'  => 'post',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'USING (thread_id) WHERE thread.first_post_id != post.post_id',
+			'to_type'         => 'reply'
+		);
+
 		// Reply parent forum id (If no parent, then 0. Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'post',
