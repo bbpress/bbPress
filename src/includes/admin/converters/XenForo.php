@@ -168,6 +168,25 @@ class XenForo extends BBP_Converter_Base {
 			'default'      => date('Y-m-d H:i:s')
 		);
 
+		/** Forum Subscriptions Section ***************************************/
+
+		// Subscribed forum ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_watch',
+			'from_fieldname'  => 'node_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => '_bbp_forum_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_watch',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
 		/** Topic Section *****************************************************/
 
 		// Old topic id (Stored in postmeta)
@@ -313,6 +332,25 @@ class XenForo extends BBP_Converter_Base {
 		/**
 		 * XenForo Forums do not support topic tags out of the box
 		 */
+
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread_watch',
+			'from_fieldname'  => 'thread_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread_watch',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
 
 		/** Reply Section *****************************************************/
 
