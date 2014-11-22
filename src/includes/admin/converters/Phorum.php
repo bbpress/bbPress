@@ -288,6 +288,25 @@ class Phorum extends BBP_Converter_Base {
 		 * Phorum v5.2.19 Forums do not support topic tags out of the box
 		 */
 
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribers',
+			'from_fieldname'  => 'thread',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribers',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
 		/** Reply Section *****************************************************/
 
 		// Old reply id (Stored in postmeta)
