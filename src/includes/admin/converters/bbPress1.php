@@ -347,7 +347,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'  => 'name',
 			'join_tablename'  => 'term_taxonomy',
 			'join_type'       => 'INNER',
-			'join_expression' => 'USING (term_id)',
+			'join_expression' => 'USING (term_id) WHERE term_taxonomy.taxonomy = "bb_topic_tag"',
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'name'
 		);
@@ -358,7 +358,7 @@ class bbPress1 extends BBP_Converter_Base {
 			'from_fieldname'  => 'slug',
 			'join_tablename'  => 'term_taxonomy',
 			'join_type'       => 'INNER',
-			'join_expression' => 'USING (term_id)',
+			'join_expression' => 'USING (term_id) WHERE term_taxonomy.taxonomy = "bb_topic_tag"',
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'slug',
 			'callback_method' => 'callback_slug'
