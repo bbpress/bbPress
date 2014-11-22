@@ -36,7 +36,7 @@ class BBP_Converter {
 
 			// Converter is converting
 			case 'POST' :
-				if ( ( empty( $_POST['action'] ) || ( 'bbconverter_process' !=  $_POST['action'] ) ) ) {
+				if ( ( empty( $_POST['action'] ) || ( 'bbconverter_process' != $_POST['action'] ) ) ) {
 					return;
 				}
 
@@ -44,7 +44,7 @@ class BBP_Converter {
 
 			// Some other admin page
 			case 'GET'  :
-				if ( ( empty( $_GET['page'] ) || ( 'bbp-converter' !=  $_GET['page'] ) ) ) {
+				if ( ( empty( $_GET['page'] ) || ( 'bbp-converter' != $_GET['page'] ) ) ) {
 					return;
 				}
 
@@ -427,8 +427,23 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 6. Convert topics.
+			// STEP 6. Convert forum subscriptions.
 			case 6 :
+				if ( $converter->convert_forum_subscriptions( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No forum subscriptions to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Converting forum subscriptions (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 7. Convert topics.
+			case 7 :
 				if ( $converter->convert_topics( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -442,8 +457,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 7. Convert anonymous topic authors.
-			case 7 :
+			// STEP 8. Convert anonymous topic authors.
+			case 8 :
 				if ( $converter->convert_anonymous_topic_authors( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -457,8 +472,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 8. Stick topics.
-			case 8 :
+			// STEP 9. Stick topics.
+			case 9 :
 				if ( $converter->convert_topic_stickies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -472,8 +487,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 9. Stick to front topics (Super Sicky).
-			case 9 :
+			// STEP 10. Stick to front topics (Super Sicky).
+			case 10 :
 				if ( $converter->convert_topic_super_stickies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -487,8 +502,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 10. Closed Topics.
-			case 10 :
+			// STEP 11. Closed topics.
+			case 11 :
 				if ( $converter->convert_topic_closed_topics( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -502,8 +517,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 11. Convert topic tags.
-			case 11 :
+			// STEP 12. Convert topic tags.
+			case 12 :
 				if ( $converter->convert_tags( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -517,8 +532,38 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 12. Convert replies.
-			case 12 :
+			// STEP 13. Convert topic subscriptions.
+			case 13 :
+				if ( $converter->convert_topic_subscriptions( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No topic subscriptions to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Converting topic subscriptions (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 14. Convert topic favorites.
+			case 14 :
+				if ( $converter->convert_favorites( $start ) ) {
+					update_option( '_bbp_converter_step',  $step + 1 );
+					update_option( '_bbp_converter_start', 0         );
+					if ( empty( $start ) ) {
+						$this->converter_output( __( 'No favorites to convert', 'bbpress' ) );
+					}
+				} else {
+					update_option( '_bbp_converter_start', $max + 1 );
+					$this->converter_output( sprintf( __( 'Converting favorites (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
+				}
+
+				break;
+
+			// STEP 15. Convert replies.
+			case 15 :
 				if ( $converter->convert_replies( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -532,8 +577,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 13. Convert anonymous reply authors.
-			case 13 :
+			// STEP 16. Convert anonymous reply authors.
+			case 16 :
 				if ( $converter->convert_anonymous_reply_authors( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -547,8 +592,8 @@ class BBP_Converter {
 
 				break;
 
-			// STEP 14. Convert threaded replies parents.
-			case 14 :
+			// STEP 17. Convert threaded replies parents.
+			case 17 :
 				if ( $converter->convert_reply_to_parents( $start ) ) {
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
@@ -841,6 +886,27 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
+	 * Convert Forum Subscriptions
+	 */
+	public function convert_forum_subscriptions( $start = 1 ) {
+		return $this->convert_table( 'forum_subscriptions', $start );
+	}
+
+	/**
+	 * Convert Topic Subscriptions
+	 */
+	public function convert_topic_subscriptions( $start = 1 ) {
+		return $this->convert_table( 'topic_subscriptions', $start );
+	}
+
+	/**
+	 * Convert Favorites
+	 */
+	public function convert_favorites( $start = 1 ) {
+		return $this->convert_table( 'favorites', $start );
+	}
+
+	/**
 	 * Convert Table
 	 *
 	 * @param string to type
@@ -868,6 +934,18 @@ abstract class BBP_Converter_Base {
 
 			case 'tags' :
 				$tablename = '';
+				break;
+
+			case 'forum_subscriptions' :
+				$tablename = $this->wpdb->usermeta;
+				break;
+
+			case 'topic_subscriptions' :
+				$tablename = $this->wpdb->usermeta;
+				break;
+
+			case 'favorites' :
+				$tablename = $this->wpdb->usermeta;
 				break;
 
 			default :
@@ -944,7 +1022,7 @@ abstract class BBP_Converter_Base {
 					// Loop through field map, again...
 					foreach ( $this->field_map as $row ) {
 
-						// Types matchand to_fieldname is present. This means
+						// Types match and to_fieldname is present. This means
 						// we have some work to do here.
 						if ( ( $row['to_type'] == $to_type ) && ! is_null( $row['to_fieldname'] ) ) {
 
@@ -1037,7 +1115,76 @@ abstract class BBP_Converter_Base {
 										'slug'        => $insert_postmeta['slug']
 									) );
 								}
- 								break;
+								break;
+
+							/** Forum Subscriptions *********************************/
+
+							case 'forum_subscriptions':
+								$user_id = $insert_post['user_id'];
+								if ( is_numeric( $user_id ) ) {
+									foreach ($insert_postmeta as $key => $value) {
+
+										// Only extract values from the key _bbp_forum_subscriptions
+										if ( '_bbp_forum_subscriptions' == $key ) {
+
+											// Get the new forum ID
+											$forum_id = $this->callback_forumid( $value );
+
+											// Add the topic ID to the users subscribed forums
+											bbp_add_user_forum_subscription( $user_id, $forum_id );
+										}
+									}
+								}
+								break;
+
+							/** Subscriptions *********************************/
+
+							case 'topic_subscriptions':
+								$user_id = $insert_post['user_id'];
+								if ( is_numeric( $user_id ) ) {
+									foreach ($insert_postmeta as $key => $value) {
+
+										// Only extract values from the key _bbp_subscriptions
+										if ( '_bbp_subscriptions' == $key ) {
+
+											// Get the new topic ID
+											$topic_id = $this->callback_topicid( $value );
+
+											// Add the topic ID to the users subscribed topics
+											bbp_add_user_topic_subscription( $user_id, $topic_id );
+										}
+									}
+								}
+								break;
+
+							/** Favorites *********************************/
+
+							case 'favorites':
+								$user_id = $insert_post['user_id'];
+								if ( is_numeric( $user_id ) ) {
+
+									// Loop through the array
+									foreach ($insert_postmeta as $key => $value) {
+
+										// Only extract values from the key _bbp_favorites
+										if ( '_bbp_favorites' == $key ) {
+
+											// Our array may contain comma delimited favorites so lets explode these
+											$insert_postmeta = explode(",", $insert_postmeta['_bbp_favorites']);
+
+											// Loop through our updated exploded array
+											foreach ($insert_postmeta as $key => $value) {
+
+												// Get the new topic ID
+												$topic_id = $this->callback_topicid( $value );
+
+												// Add the topic ID to the users favorites
+												bbp_add_user_favorite( $user_id, $topic_id );
+											}
+										}
+									}
+								}
+								break;
 
 							/** Forum, Topic, Reply ***************************/
 
