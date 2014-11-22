@@ -148,6 +148,12 @@ class bbPress1 extends BBP_Converter_Base {
 			'default'      => date('Y-m-d H:i:s')
 		);
 
+		/** Forum Subscriptions Section ***************************************/
+
+		/**
+		 * bbPress 1.x Forums do not support forum subscriptions
+		 */
+
 		/** Topic Section *****************************************************/
 
 		// Old topic id (Stored in postmeta)
@@ -362,6 +368,60 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'slug',
 			'callback_method' => 'callback_slug'
+		);
+
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'term_relationships',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
+		// Join the 'term_taxonomy' table to link 'terms' 'term_relationships' tables
+		$this->field_map[] = array(
+			'from_tablename'  => 'term_taxonomy',
+			'from_fieldname'  => 'term_taxonomy_id',
+			'join_tablename'  => 'term_relationships',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (term_taxonomy_id)',
+			'to_type'         => 'topic_subscriptions'
+		);
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'terms',
+			'from_fieldname'  => 'name',
+			'join_tablename'  => 'term_taxonomy',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (term_id) WHERE term_taxonomy.taxonomy = "bb_subscribe"',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions',
+			'callback_method' => 'callback_topic_subscriptions'
+		);
+
+		/** Favorites Section *************************************************/
+
+		// Favorited topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'usermeta',
+			'from_fieldname'  => 'meta_value',
+			'from_expression' => 'WHERE usermeta.meta_key = "bb_favorites"',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => '_bbp_favorites'
+		);
+
+		// Favorited user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'usermeta',
+			'from_fieldname'  => 'user_id',
+			'from_expression' => 'WHERE usermeta.meta_key = "bb_favorites"',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
 		);
 
 		/** Reply Section *****************************************************/
@@ -668,6 +728,21 @@ class bbPress1 extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
+	}
+
+	/**
+	 * This callback strips `topic-` from topic subscriptions taxonomy
+	 *
+	 * @since (r5572)
+	 *
+	 * @param string $field Topic ID
+	 * @return integer WordPress safe
+	 */
+	protected function callback_topic_subscriptions( $field ) {
+
+		// Replace 'topic-' with '' so that only the original topic ID remains
+		$field = absint( (int) preg_replace( '/(topic-)(\d+)/', '$2', $field ) );
+		return $field;
 	}
 
 	/**
