@@ -329,6 +329,18 @@ class bbPress1 extends BBP_Converter_Base {
 			'to_fieldname'    => 'taxonomy'
 		);
 
+		// Term description.
+		$this->field_map[] = array(
+			'from_tablename'  => 'term_taxonomy',
+			'from_fieldname'  => 'description',
+			'join_tablename'  => 'term_relationships',
+			'join_type'       => 'INNER',
+			'join_expression' => 'USING (term_taxonomy_id)',
+			'to_type'         => 'tags',
+			'to_fieldname'    => 'description',
+			'callback_method' => 'callback_html'
+		);
+
 		// Term text.
 		$this->field_map[] = array(
 			'from_tablename'  => 'terms',
