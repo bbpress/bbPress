@@ -160,6 +160,25 @@ class Example extends BBP_Converter_Base {
 			'to_type'         => 'forum'
 		);
 
+		/** Forum Subscriptions Section ***************************************/
+
+		// Subscribed forum ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_subscriptions_table',
+			'from_fieldname'  => 'the_forum_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => '_bbp_forum_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forum_subscriptions_table',
+			'from_fieldname'  => 'the_user_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
 		/** Topic Section *****************************************************/
 
 		// Setup table joins for the topic section at the base of this section
@@ -371,6 +390,44 @@ class Example extends BBP_Converter_Base {
 			'from_fieldname'  => 'tagdescription',
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'description'
+		);
+
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topic_subscriptions_table',
+			'from_fieldname'  => 'the_topic_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topic_subscriptions_table',
+			'from_fieldname'  => 'the_user_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
+		/** Favorites Section *************************************************/
+
+		// Favorited topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'favorites_table',
+			'from_fieldname'  => 'the_favorite_topic_id',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => '_bbp_favorites'
+		);
+
+		// Favorited user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'favorites_table',
+			'from_fieldname'  => 'the_user_id',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
 		);
 
 		/** Reply Section *****************************************************/
