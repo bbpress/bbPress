@@ -145,6 +145,25 @@ class vBulletin extends BBP_Converter_Base {
 			'default'      => date( 'Y-m-d H:i:s' )
 		);
 
+		/** Forum Subscriptions Section ***************************************/
+
+		// Subscribed forum ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribeforum',
+			'from_fieldname'  => 'forumid',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => '_bbp_forum_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribeforum',
+			'from_fieldname'  => 'userid',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
 		/** Topic Section *****************************************************/
 
 		// Old topic id (Stored in postmeta)
@@ -354,6 +373,25 @@ class vBulletin extends BBP_Converter_Base {
 			'to_type'         => 'tags',
 			'to_fieldname'    => 'slug',
 			'callback_method' => 'callback_slug'
+		);
+
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribethread',
+			'from_fieldname'  => 'threadid',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'subscribethread',
+			'from_fieldname'  => 'userid',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
 		);
 
 		/** Reply Section *****************************************************/
