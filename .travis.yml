@@ -63,6 +63,6 @@ notifications:
     email: false
     irc:
       channels:
-        - "irc.freenode.net#bbpress-dev"
+        - secure: "eRufY5taFDAuASgf9kB8oIC58lK9jLCTGVZ9Dr4M3Xxnwsj6t42Z5U9ZJ5wWAa0+9rf3UwbXj32Nd4QVvKWQL+IYTolX+LHzIidjKjYhOoCNr9HoMgjNOrjozXezKqqXzYKkPdX6drxk7JkK+ftx8qvVtZgRU8BS9sjhYDWh1X4="
       template:
         - "Build %{build_number} (%{branch} - %{commit}): %{message} %{build_url}"
