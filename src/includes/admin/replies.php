@@ -803,7 +803,8 @@ class BBP_Replies_Admin {
 				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this reply',   'bbpress' ) . '">' . _x( 'Approve',   'Approve reply',   'bbpress' ) . '</a>';
 			}
 
-			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_spam_status_id() ) ) ) {
+			// Show the 'spam' link on published and pending replies and 'not spam' on spammed replies
+			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ) ) ) {
 				$spam_uri  = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
 				if ( bbp_is_reply_spam( $reply->ID ) ) {
 					$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not spam', 'bbpress' ) . '</a>';

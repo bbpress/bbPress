@@ -157,13 +157,14 @@ class BBP_Topics_Admin {
 			'content'	=>
 				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                                                                                 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Preview</strong> will show you what your draft topic will look like if you publish it. View will take you to your live site to view the topic. Which link is available depends on your topic&#8217;s status.', 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the option to post new replies to the topic.',                                                                                 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                                                                     'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.',                                                      'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                            'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                  'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                              'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>View</strong> will take you to your live site to view the topic.',                                                                                        'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                                        'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the option to post new replies to the topic.',                            'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -449,6 +450,10 @@ class BBP_Topics_Admin {
 				background-color: #faeaea;
 			}
 
+			.status-pending {
+				background-color: #fef7f1;
+			}
+
 		/*]]>*/
 		</style>
 
@@ -491,12 +496,12 @@ class BBP_Topics_Admin {
 		}
 
 		// Only proceed if GET is a topic toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_approve' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $topic_id ); // Prelim array
-			$topic     = bbp_get_topic( $topic_id );
+			$topic     = bbp_get_topic( $topic_id ); // Verify the topic id
 
 			// Bail if topic is missing
 			if ( empty( $topic ) ) {
@@ -509,6 +514,19 @@ class BBP_Topics_Admin {
 			}
 
 			switch ( $action ) {
+				case 'bbp_toggle_topic_approve' :
+					check_admin_referer( 'approve-topic_' . $topic_id );
+
+					$is_approve = bbp_is_topic_pending( $topic_id );
+					$message    = ( true === $is_approve )
+						? 'approved'
+						: 'unapproved';
+					$success    = ( true === $is_approve )
+						? bbp_approve_topic( $topic_id )
+						: bbp_unapprove_topic( $topic_id );
+
+					break;
+
 				case 'bbp_toggle_topic_close' :
 					check_admin_referer( 'close-topic_' . $topic_id );
 
@@ -594,7 +612,7 @@ class BBP_Topics_Admin {
 		}
 
 		// Only proceed if GET is a topic toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticky', 'stuck', 'unstuck', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticky', 'stuck', 'unstuck', 'spammed', 'unspammed', 'approved', 'unapproved' ) ) && ! empty( $_GET['topic_id'] ) ) {
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
@@ -653,6 +671,18 @@ class BBP_Topics_Admin {
 					$message = ( $is_failure === true )
 						? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
 						: sprintf( __( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
+					break;
+
+				case 'approved'   :
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
+						: sprintf( __( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
+					break;
+
+				case 'unapproved' :
+					$message = ( $is_failure === true )
+						? sprintf( __( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
+						: sprintf( __( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
 					break;
 			}
 
@@ -842,6 +872,16 @@ class BBP_Topics_Admin {
 		// Only show the actions if the user is capable of viewing them :)
 		if ( current_user_can( 'moderate', $topic->ID ) ) {
 
+			// Pending
+			// Show the 'approve' and 'view' link on pending posts only and 'unapprove' on published posts only
+			$approve_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_approve' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
+			if ( bbp_is_topic_published( $topic->ID ) ) {
+				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this topic', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove Topic', 'bbpress' ) . '</a>';
+			} elseif ( ! bbp_is_topic_private( $topic->ID ) ) {
+				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this topic',   'bbpress' ) . '">' . _x( 'Approve',   'Approve Topic',   'bbpress' ) . '</a>';
+				$actions['view']       = '<a href="' . esc_url( bbp_get_topic_permalink( $topic->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+			}
+
 			// Close
 			// Show the 'close' and 'open' link on published and closed posts only
 			if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
@@ -853,11 +893,10 @@ class BBP_Topics_Admin {
 				}
 			}
 
-			// Dont show sticky if topic links is spam or trash
-			if ( !bbp_is_topic_spam( $topic->ID ) && !bbp_is_topic_trash( $topic->ID ) ) {
-
-				// Sticky
-				$stick_uri  = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+			// Sticky
+			// Dont show sticky if topic links is spam, trash or pending
+			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) ) {
+				$stick_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . esc_html__( 'Unstick', 'bbpress' ) . '</a>';
 				} else {
@@ -867,7 +906,7 @@ class BBP_Topics_Admin {
 			}
 
 			// Spam
-			$spam_uri  = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
+			$spam_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
 			if ( bbp_is_topic_spam( $topic->ID ) ) {
 				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . esc_html__( 'Not spam', 'bbpress' ) . '</a>';
 			} else {

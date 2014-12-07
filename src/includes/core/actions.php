@@ -237,18 +237,22 @@ add_action( 'bbp_trash_topic',  'bbp_unstick_topic' );
 add_action( 'bbp_delete_topic', 'bbp_unstick_topic' );
 
 // Update topic branch
-add_action( 'bbp_trashed_topic',   'bbp_update_topic_walker' );
-add_action( 'bbp_untrashed_topic', 'bbp_update_topic_walker' );
-add_action( 'bbp_deleted_topic',   'bbp_update_topic_walker' );
-add_action( 'bbp_spammed_topic',   'bbp_update_topic_walker' );
-add_action( 'bbp_unspammed_topic', 'bbp_update_topic_walker' );
+add_action( 'bbp_trashed_topic',    'bbp_update_topic_walker' );
+add_action( 'bbp_untrashed_topic',  'bbp_update_topic_walker' );
+add_action( 'bbp_deleted_topic',    'bbp_update_topic_walker' );
+add_action( 'bbp_spammed_topic',    'bbp_update_topic_walker' );
+add_action( 'bbp_unspammed_topic',  'bbp_update_topic_walker' );
+add_action( 'bbp_approved_topic',   'bbp_update_topic_walker' );
+add_action( 'bbp_unapproved_topic', 'bbp_update_topic_walker' );
 
 // Update reply branch
-add_action( 'bbp_trashed_reply',   'bbp_update_reply_walker' );
-add_action( 'bbp_untrashed_reply', 'bbp_update_reply_walker' );
-add_action( 'bbp_deleted_reply',   'bbp_update_reply_walker' );
-add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
-add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
+add_action( 'bbp_trashed_reply',    'bbp_update_reply_walker' );
+add_action( 'bbp_untrashed_reply',  'bbp_update_reply_walker' );
+add_action( 'bbp_deleted_reply',    'bbp_update_reply_walker' );
+add_action( 'bbp_spammed_reply',    'bbp_update_reply_walker' );
+add_action( 'bbp_unspammed_reply',  'bbp_update_reply_walker' );
+add_action( 'bbp_approved_reply',   'bbp_update_reply_walker' );
+add_action( 'bbp_unapproved_reply', 'bbp_update_reply_walker' );
 
 // Users topic & reply counts
 add_action( 'bbp_new_topic',     'bbp_increase_user_topic_count' );
