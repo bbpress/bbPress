@@ -286,7 +286,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	// Check a whitelist of possible topic status ID's
 	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( bbp_get_topic_statuses() ) ) ) {
-		$topic_status = $_POST['bbp_topic_status'];
+		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
 
 	// Default to published if nothing else
 	} else {
@@ -629,7 +629,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// Check a whitelist of possible topic status ID's
 	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( bbp_get_topic_statuses() ) ) ) {
-		$topic_status = $_POST['bbp_topic_status'];
+		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
 
 	// Use existing post_status
 	} else {
@@ -1503,7 +1503,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 	// How to Split
 	if ( ! empty( $_POST['bbp_topic_split_option'] ) ) {
-		$split_option = (string) trim( $_POST['bbp_topic_split_option'] );
+		$split_option = sanitize_key( $_POST['bbp_topic_split_option'] );
 	}
 
 	// Invalid split option
