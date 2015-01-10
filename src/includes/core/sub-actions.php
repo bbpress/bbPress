@@ -363,12 +363,15 @@ function bbp_post_request() {
 		return;
 	}
 
+	// Sanitize the POST action
+	$action = sanitize_key( $_POST['action'] );
+
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
-	do_action( 'bbp_post_request_' . $_POST['action'] );
+	do_action( 'bbp_post_request_' . $action );
 
 	// Use this static action if you don't mind checking the 'action' yourself.
-	do_action( 'bbp_post_request',   $_POST['action'] );
+	do_action( 'bbp_post_request',   $action );
 }
 
 /**
@@ -389,12 +392,15 @@ function bbp_get_request() {
 		return;
 	}
 
+	// Sanitize the POST action
+	$action = sanitize_key( $_GET['action'] );
+
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
-	do_action( 'bbp_get_request_' . $_GET['action'] );
+	do_action( 'bbp_get_request_' . $action );
 
 	// Use this static action if you don't mind checking the 'action' yourself.
-	do_action( 'bbp_get_request',   $_GET['action'] );
+	do_action( 'bbp_get_request',   $action );
 }
 
 /** Filters *******************************************************************/
