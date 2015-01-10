@@ -2298,7 +2298,7 @@ function bbp_form_forum_type() {
 
 		// Get _POST data
 		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_type'] ) ) {
-			$forum_type = $_POST['bbp_forum_type'];
+			$forum_type = sanitize_key( $_POST['bbp_forum_type'] );
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {
@@ -2336,7 +2336,7 @@ function bbp_form_forum_visibility() {
 
 		// Get _POST data
 		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_visibility'] ) ) {
-			$forum_visibility = $_POST['bbp_forum_visibility'];
+			$forum_visibility = sanitize_key( $_POST['bbp_forum_visibility'] );
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {
@@ -2465,7 +2465,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
 
 			// Post value is passed
 			if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-				$r['selected'] = $_POST[ $r['select_id'] ];
+				$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
 			// No Post value was passed
 			} else {
@@ -2557,7 +2557,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
 
 			// Post value is passed
 			if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-				$r['selected'] = $_POST[ $r['select_id'] ];
+				$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
 			// No Post value was passed
 			} else {
@@ -2649,7 +2649,7 @@ function bbp_form_forum_visibility_dropdown( $args = '' ) {
 
 			// Post value is passed
 			if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-				$r['selected'] = $_POST[ $r['select_id'] ];
+				$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
 			// No Post value was passed
 			} else {
