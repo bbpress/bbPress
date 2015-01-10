@@ -2260,7 +2260,7 @@ function bbp_form_forum_parent() {
 
 		// Get _POST data
 		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_id'] ) ) {
-			$forum_parent = $_POST['bbp_forum_id'];
+			$forum_parent = (int) $_POST['bbp_forum_id'];
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {
