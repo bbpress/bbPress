@@ -392,7 +392,7 @@ function bbp_get_request() {
 		return;
 	}
 
-	// Sanitize the POST action
+	// Sanitize the GET action
 	$action = sanitize_key( $_GET['action'] );
 
 	// This dynamic action is probably the one you want to use. It narrows down
