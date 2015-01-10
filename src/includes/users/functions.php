@@ -1832,8 +1832,12 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
  */
 function bbp_user_maybe_convert_pass() {
 
+	// Sanitize username
+	$username = ! empty( $_POST['log'] )
+		? sanitize_user( $_POST['log'] )
+		: '';
+
 	// Bail if no username
-	$username = ! empty( $_POST['log'] ) ? $_POST['log'] : '';
 	if ( empty( $username ) ) {
 		return;
 	}
