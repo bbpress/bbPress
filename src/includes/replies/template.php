@@ -2801,7 +2801,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 
 			// Post value is passed
 			if ( bbp_is_reply_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
-				$r['selected'] = $_POST[ $r['select_id'] ];
+				$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
 			// No Post value was passed
 			} else {
