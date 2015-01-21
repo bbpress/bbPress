@@ -839,7 +839,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
 
 		// Allow for bumping the max to include the user's URL
-		$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
+		if ( ! empty( $_post['url'] ) ) {
+			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
+		}
 
 		// Das ist zu viele links!
 		if ( $num_links >= $max_links ) {
