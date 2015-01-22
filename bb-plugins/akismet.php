@@ -456,8 +456,8 @@ function bb_ksd_post_delete_link( $parts, $args )
 		$before = '';
 		$after = '';
 	} else {
-		$before = $args['last_each']['before'];
-		$after = $args['last_each']['after'];
+		$before = isset( $args['last_each']['before'] ) ? $args['last_each']['before'] : '';
+		$after  = isset( $args['last_each']['after'] )  ? $args['last_each']['after']  : '';
 	}
 
 	// Make sure that the last tag in $before gets a class (if it's there)
