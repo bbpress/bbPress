@@ -18,6 +18,7 @@ php:
 # WordPress versions uses Git 'develop' repo branches
 env:
     - WP_VERSION=master # Git equivalent of SVN /trunk
+    - WP_VERSION=4.1    # Includes latest 4.1.x release
     - WP_VERSION=4.0    # Includes latest 4.0.x release
     - WP_VERSION=3.9    # Includes latest 3.9.x release
     - WP_VERSION=3.8    # Includes latest 3.8.x release
