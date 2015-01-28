@@ -309,7 +309,8 @@ function bb_bozo_user_search_form_add_inputs( $r, $user_search_object )
 	$checked = '';
 	if ( isset( $user_search_object->roles ) && is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
 		$checked = ' checked="checked"';
-	}	$r .= "\t" . '<div>' . "\n";
+	}
+	$r .= "\t" . '<div>' . "\n";
 	$r .= "\t\t" . '<label for="userbozo">' . __('Bozos only') . '</label>' . "\n";
 	$r .= "\t\t" . '<div>' . "\n";
 	$r .= "\t\t\t" . '<input class="checkbox-input" type="checkbox" name="userrole[]" id="userbozo" value="bozo"' . $checked . ' />' . "\n";
