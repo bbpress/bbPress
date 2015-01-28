@@ -74,7 +74,7 @@ function bb_bozo_latest_filter() {
 
 function bb_bozo_topic_db_filter() {
 	global $topic, $topic_id;
-	if ( bb_current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
+	if ( isset( $topic->topic_id ) && bb_current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
 		add_filter( 'get_thread_where', 'bb_bozo_posts' );
 		add_filter( 'get_thread_post_ids_where', 'bb_bozo_posts' );
 	}
@@ -82,7 +82,7 @@ function bb_bozo_topic_db_filter() {
 
 function bb_bozo_profile_db_filter() {
 	global $user;
-	if ( bb_get_current_user_info( 'id' ) == $user->ID && @is_array($user->bozo_topics) )
+	if ( isset( $user->ID) && isset( $user->bozo_topics ) && bb_get_current_user_info( 'id' ) == $user->ID && @is_array($user->bozo_topics) )
 		add_filter( 'get_recent_user_replies_where', 'bb_bozo_posts' );
 }
 
@@ -157,7 +157,7 @@ function bb_bozo_recount_users() {
 
 function bb_bozo_post_del_class( $classes, $post_id, $post )
 {
-	if ( 1 < $post->post_status && bb_current_user_can('browse_deleted') ) {
+	if ( isset( $post->post_status ) && 1 < $post->post_status && bb_current_user_can('browse_deleted') ) {
 		if ( $classes ) {
 			return $classes . ' bozo';
 		}
@@ -178,24 +178,24 @@ function bb_bozo_topic_pages_add( $add ) {
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += @array_sum($topic->bozos);
 	endif;
-	if ( bb_current_user_is_bozo( $topic->topic_id ) )
+	if ( isset( $topic->topic_id ) && bb_current_user_is_bozo( $topic->topic_id ) )
 		$add += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $add;
 }
 
 function bb_bozo_get_topic_posts( $topic_posts ) {
 	global $topic;
-	if ( bb_current_user_is_bozo( $topic->topic_id ) )
+	if ( isset( $topic->topic_id ) && bb_current_user_is_bozo( $topic->topic_id ) )
 		$topic_posts += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $topic_posts;
 }
 
 function bb_bozo_new_post( $post_id ) {
 	$bb_post = bb_get_post( $post_id );
-	if ( 1 < $bb_post->post_status )
+	if ( isset( $post->post_status ) && 1 < $bb_post->post_status )
 		bb_bozon( $bb_post->poster_id, $bb_post->topic_id );
 	$topic = get_topic( $bb_post->topic_id, false );
-	if ( 0 == $topic->topic_posts )
+	if ( isset( $topic->topic_posts ) && 0 == $topic->topic_posts )
 		bb_delete_topic( $topic->topic_id, 2 );
 }
 
@@ -239,7 +239,7 @@ function bb_bozon( $user_id, $topic_id = 0 ) {
 		
 		if ( isset($user->{$bozo_topics_key}[$topic_id]) )
 			$user->{$bozo_topics_key}[$topic_id]++;
-		elseif ( is_array($user->bozo_topics) )
+		elseif ( isset( $user->bozo_topics ) && is_array($user->bozo_topics) )
 			$user->{$bozo_topics_key}[$topic_id] = 1;
 		else
 			$user->$bozo_topics_key = array($topic_id => 1);
@@ -297,7 +297,7 @@ function bb_bozo_get_bozo_user_ids()
 
 function bb_bozo_user_search_description( $description, $h2_search, $h2_role, $user_search_object )
 {
-	if ( is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
+	if ( isset( $user_search_object->roles ) && is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
 		return sprintf( '%1$s%2$s that are bozos', $h2_search, $h2_role );
 	}
 	return $description;
@@ -307,10 +307,9 @@ add_filter( 'bb_user_search_description', 'bb_bozo_user_search_description', 10,
 function bb_bozo_user_search_form_add_inputs( $r, $user_search_object )
 {
 	$checked = '';
-	if ( is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
+	if ( isset( $user_search_object->roles ) && is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
 		$checked = ' checked="checked"';
 	}
-	
 	$r .= "\t" . '<div>' . "\n";
 	$r .= "\t\t" . '<label for="userbozo">' . __('Bozos only') . '</label>' . "\n";
 	$r .= "\t\t" . '<div>' . "\n";
