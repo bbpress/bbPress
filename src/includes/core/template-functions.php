@@ -314,6 +314,11 @@ function bbp_get_template_stack() {
 	// Add 'bbp_template_stack' to the current filter array
 	$wp_current_filter[] = $tag;
 
+	// Bail if no stack setup
+	if ( empty( $wp_filter[ $tag ] ) ) {
+		return array();
+	}
+
 	// Sort
 	if ( ! isset( $merged_filters[ $tag ] ) ) {
 		ksort( $wp_filter[$tag] );

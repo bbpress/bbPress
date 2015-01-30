@@ -100,8 +100,11 @@ function bbp_setup_theme_compat( $theme = '' ) {
 		$theme = 'default';
 	}
 
-	// Set the active theme compat theme
-	$bbp->theme_compat->theme = $bbp->theme_compat->packages[$theme];
+	// Try to set the active theme compat theme. If it's not in the registered
+	// packages array, it doesn't exist, so do nothing with it.
+	if ( isset( $bbp->theme_compat->packages[$theme] ) ) {
+		$bbp->theme_compat->theme = $bbp->theme_compat->packages[$theme];
+	}
 }
 
 /**
