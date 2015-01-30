@@ -8,7 +8,14 @@
 class BBP_bbPress_Tests extends WP_UnitTestCase  {
 
 	/**
-	 * Ensure that the plugin has been installed and activated.
+	 * Ensure that bbPress function exists
+	 */
+	function test_bbpress_exists() {
+		$this->assertTrue( function_exists( 'bbpress' ) );
+	}
+
+	/**
+	 * Ensure that bbPress has been installed and activated.
 	 */
 	function test_plugin_activated() {
 		$this->assertTrue( is_plugin_active( 'bbpress/bbpress.php' ) );
