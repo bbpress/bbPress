@@ -43,7 +43,7 @@ function bb_get_user_by_nicename( $nicename ) {
 	$user = $wp_users_object->get_user( $nicename, array( 'by' => 'nicename' ) );
 	if ( is_wp_error($user) )
 		return false;
-	return $user;
+	return bb_get_user( $user->ID );
 }
 
 function bb_delete_user( $user_id, $reassign = 0 ) {
