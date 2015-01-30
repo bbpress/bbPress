@@ -244,43 +244,47 @@ function bbp_version_updater() {
 	// Get the raw database version
 	$raw_db_version = (int) bbp_get_db_version_raw();
 
-	/** 2.0 Branch ************************************************************/
+	// Only run updater if previous installation exists
+	if ( ! empty( $raw_db_version ) ) {
 
-	// 2.0, 2.0.1, 2.0.2, 2.0.3
-	if ( $raw_db_version < 200 ) {
-		// No changes
-	}
+		/** 2.0 Branch ********************************************************/
 
-	/** 2.1 Branch ************************************************************/
+		// 2.0, 2.0.1, 2.0.2, 2.0.3
+		if ( $raw_db_version < 200 ) {
+			// No changes
+		}
 
-	// 2.1, 2.1.1
-	if ( $raw_db_version < 211 ) {
+		/** 2.1 Branch ********************************************************/
 
-		/**
-		 * Repair private and hidden forum data
-		 *
-		 * @link http://bbpress.trac.wordpress.org/ticket/1891
-		 */
-		bbp_admin_repair_forum_visibility();
-	}
+		// 2.1, 2.1.1
+		if ( $raw_db_version < 211 ) {
 
-	/** 2.2 Branch ************************************************************/
+			/**
+			 * Repair private and hidden forum data
+			 *
+			 * @link http://bbpress.trac.wordpress.org/ticket/1891
+			 */
+			bbp_admin_repair_forum_visibility();
+		}
 
-	// 2.2
-	if ( $raw_db_version < 220 ) {
+		/** 2.2 Branch ********************************************************/
 
-		// Remove any old bbPress roles
-		bbp_remove_roles();
+		// 2.2
+		if ( $raw_db_version < 220 ) {
 
-		// Remove capabilities
-		bbp_remove_caps();
-	}
+			// Remove any old bbPress roles
+			bbp_remove_roles();
 
-	/** 2.3 Branch ************************************************************/
+			// Remove capabilities
+			bbp_remove_caps();
+		}
 
-	// 2.3
-	if ( $raw_db_version < 230 ) {
-		// No changes
+		/** 2.3 Branch ********************************************************/
+
+		// 2.3
+		if ( $raw_db_version < 230 ) {
+			// No changes
+		}
 	}
 
 	/** All done! *************************************************************/
