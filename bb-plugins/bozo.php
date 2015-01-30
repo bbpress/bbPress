@@ -231,7 +231,7 @@ function bb_bozon( $user_id, $topic_id = 0 ) {
 
 		if ( isset($topic->bozos[$user_id]) )
 			$topic->bozos[$user_id]++;
-		elseif ( is_array($topic->bozos) )
+		elseif ( isset( $topic->bozos ) && is_array( $topic->bozos ) )
 			$topic->bozos[$user_id] = 1;
 		else
 			$topic->bozos = array($user_id => 1);
