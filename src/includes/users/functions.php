@@ -143,9 +143,16 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
  * @return string
  */
 function bbp_current_author_ip() {
-	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] );
 
-	return apply_filters( 'bbp_current_author_ip', $retval );
+	// Check for remote address
+	$remote_address = ! empty( $_SERVER['REMOTE_ADDR'] )
+		? $_SERVER['REMOTE_ADDR']
+		: '0.0.0.0';
+
+	// Remove any unsavory bits
+	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $remote_address );
+
+	return apply_filters( 'bbp_current_author_ip', $retval, $remote_address );
 }
 
 /**
