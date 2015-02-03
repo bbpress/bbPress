@@ -51,12 +51,10 @@ if ( isset( $_GET['rsd'] ) ) {
 	exit;
 }
 
-
-
 // Load the XML-RPC server/client classes
-require_once( BACKPRESS_PATH . '/class.ixr.php' );
-
-
+if ( ! class_exists( 'IXR_Value' ) ) {
+	require_once( BACKPRESS_PATH . '/class.ixr.php' );
+}
 
 /**
  * XML-RPC server class to allow for remote publishing
