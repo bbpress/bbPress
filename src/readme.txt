@@ -2,7 +2,7 @@
 Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.6
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -11,9 +11,9 @@ bbPress is forum software, made the WordPress way.
 
 == Description ==
 
-Have you ever been frustrated with forum or bulletin board software that was slow, bloated and always got your server hacked? bbPress is focused on ease of integration, ease of use, web standards, and speed.
+Are you looking for a timeless, elegant, and streamlined discussion board? bbPress is focused on ease of integration, ease of use, modern web standards, and performance.
 
-We're keeping things as small and light as possible while still allowing for great add-on features through WordPress's extensive plugin system. What does all that mean? bbPress is lean, mean, and ready to take on any job you throw at it.
+bbPress is spry and nimble and allows for great add-on features through WordPress's extensive plugin system. It is intentionally simple yet infinitely powerful forum software, built by contributors to WordPress.
 
 == Installation ==
 
@@ -21,24 +21,27 @@ We're keeping things as small and light as possible while still allowing for gre
 
 1. Visit 'Plugins > Add New'
 2. Search for 'bbPress'
-3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
-4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
-5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
-5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+3. Activate bbPress from your Plugins page. (You will be greeted with a Welcome page.)
 
 = From WordPress.org =
 
 1. Download bbPress.
 2. Upload the 'bbpress' directory to your '/wp-content/plugins/' directory, using your favorite method (ftp, sftp, scp, etc...)
-3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
-4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
-5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
-5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+3. Activate bbPress from your Plugins page. (You will be greeted with a Welcome page.)
 
-= Extra =
+= Once Activated =
 
-1. Visit 'Settings > Forums' and adjust your configuration.
-2. Adjust the CSS of your theme as needed, to make everything pretty.
+1. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
+2a. If you have pretty permalinks enabled, visit example.com/forums/.
+2b. If you do not have pretty permalinks enabled, visit example.com?post_type=forum
+3. Visit 'Settings > Forums' and take a moment to match bbPress's settings to match your community.
+4. Visit 'Tools > Forums > Import Forums' if you have an existing forum to convert to bbPress.
+
+= Once Configured =
+
+* bbPress comes with a robust theme-compatibility API that does its best to make bbPress look and feel right with just-about any WordPress theme. You may need to adjust some styling on your own to make everything look pristine.
+* You may want to customize the register/activation/sign-in/lost-password flows, to better suit your site. bbPress comes with a bevy of shortcodes to make this possible, listed here: http://codex.bbpress.org/shortcodes/
+* bbPress also comes with built-in support for Akismet and BuddyPress, two very popular and very powerful WordPress plugins. If you're using either, visit your Forum Settings page and ensure that integration appears correct.
 
 == Screenshots ==
 1. Forums - Admin Interface
@@ -149,7 +152,7 @@ We're keeping things as small and light as possible while still allowing for gre
 * Improved user roles and capabilities
 * Improved theme compatibility
 * Improved BuddyPress Group Forums integration
-* Improved forums convertion tool
+* Improved forums conversion tool
 * Improved forums tools and settings
 * Improved multisite support
 * Added What's New and Credits pages
