@@ -1,52 +1,54 @@
 /* jshint node:true */
+/* global module */
 module.exports = function( grunt ) {
 	var path = require( 'path' ),
-	SOURCE_DIR = 'src/',
-	BUILD_DIR = 'build/',
+		SOURCE_DIR = 'src/',
+		BUILD_DIR = 'build/',
 
-	BBP_RTL_CSS = [
-		'includes/admin/css/admin-rtl.css',
-		'includes/admin/styles/*/colors-rtl.css',
-		'templates/default/css/bbpress-rtl.css'
-	],
+		BBP_RTL_CSS = [
+			'includes/admin/css/admin-rtl.css',
+			'includes/admin/styles/*/colors-rtl.css',
+			'templates/default/css/bbpress-rtl.css'
+		],
 
-	BBP_LTR_CSS = [
-		'includes/admin/css/admin.css',
-		'includes/admin/styles/*/colors.css',
-		'templates/default/css/bbpress.css'
-	],
+		BBP_LTR_CSS = [
+			'includes/admin/css/admin.css',
+			'includes/admin/styles/*/colors.css',
+			'templates/default/css/bbpress.css'
+		],
 
-	BBP_JS = [
-		'includes/admin/js/*.js',
-		'templates/default/js/*.js'
-	],
+		BBP_JS = [
+			'includes/admin/js/*.js',
+			'templates/default/js/*.js'
+		],
 
-	BBP_EXCLUDED_FILES = [
-		// Ignore these
-		'!**/.{svn,git}/**',
-		'!.editorconfig',
-		'!.gitignore',
-		'!.jshintrc',
-		'!.travis.yml',
-		'!build/**',
-		'!Gruntfile.js',
-		'!node_modules/**',
-		'!npm-debug.log',
-		'!package.json',
+		BBP_EXCLUDED_FILES = [
+			// Ignore these
+			'!**/.{svn,git}/**',
+			'!.editorconfig',
+			'!.gitignore',
+			'!.jshintrc',
+			'!.travis.yml',
+			'!build/**',
+			'!Gruntfile.js',
+			'!node_modules/**',
+			'!npm-debug.log',
+			'!package.json',
 
-		// bbPress SCSS CSS source files
-		'!**/*.scss',
+			// bbPress SCSS CSS source files
+			'!**/*.scss',
 
-		// bbPress PHPUnit tests
-		'!tests/**',
-		'!phpunit.xml',
-		'!phpunit.xml.dist'
-	];
+			// bbPress PHPUnit tests
+			'!tests/**',
+			'!phpunit.xml',
+			'!phpunit.xml.dist'
+		];
 
 	// Load tasks.
 	require( 'matchdep' ).filterDev([ 'grunt-*', '!grunt-legacy-util' ]).forEach( grunt.loadNpmTasks );
+
 	// Load legacy utils
-	grunt.util = require('grunt-legacy-util');
+	grunt.util = require( 'grunt-legacy-util' );
 
 	// Project configuration.
 	grunt.initConfig({
@@ -316,11 +318,13 @@ module.exports = function( grunt ) {
 	// Register tasks.
 
 	// Color schemes task.
-	grunt.registerTask('colors', ['sass:colors']);
+	grunt.registerTask( 'colors', ['sass:colors'] );
 
 	// Build tasks.
-	grunt.registerTask( 'build',         [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
-	grunt.registerTask( 'build-release', [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'checktextdomain', 'makepot', 'phpunit' ] );
+	grunt.registerTask( 'src',     ['jsvalidate', 'jshint', 'cssjanus'] );
+	grunt.registerTask( 'commit',  ['src', 'checktextdomain'] );
+	grunt.registerTask( 'build',   [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'release', [ 'build', 'checktextdomain' ] );
 
 	// PHPUnit test task.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
@@ -331,17 +335,20 @@ module.exports = function( grunt ) {
 		}, this.async() );
 	} );
 
-	// JavaScript test task.
-	grunt.registerTask( 'jstest', 'Runs all javascript tasks.', [ 'jsvalidate', 'jshint' ] );
+	// PHPUnit test task.
+	grunt.registerTask( 'test', 'Run all PHPUnit test tasks.', ['phpunit'] );
 
-	// Travis CI task.
-	grunt.registerTask( 'travis', ['jshint', 'phpunit'] );
+	// JavaScript test task.
+	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate', 'jshint' ] );
+
+	// Travis CI Task
+	grunt.registerTask( 'travis', ['jsvalidate', 'jshint', 'checktextdomain', 'test'] );
 
 	// Patch task.
-	grunt.renameTask('patch_wordpress', 'patch');
+	grunt.renameTask( 'patch_wordpress', 'patch' );
 
 	// Default task.
-	grunt.registerTask( 'default', [ 'build' ] );
+	grunt.registerTask( 'default', ['src'] );
 
 	// Add a listener to the watch task.
 	//
