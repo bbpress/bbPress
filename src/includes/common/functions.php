@@ -1297,7 +1297,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
-	$headers[] = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
+	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
