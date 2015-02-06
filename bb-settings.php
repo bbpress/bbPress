@@ -296,7 +296,7 @@ if ( function_exists( 'wp_cache_init' ) ) {
 	unset( $wp_object_cache );
 	wp_cache_init();
 	if ( function_exists( 'wp_cache_add_global_groups' ) ) {
-		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'useremail', 'usernicename' ) );
+		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'useremail', 'userslugs' ) );
 	}
 }
 
