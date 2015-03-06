@@ -303,6 +303,11 @@ class BBP_Converter {
 	 */
 	public function process_callback() {
 
+		// Bail if user cannot view import page
+		if ( ! current_user_can( 'bbp_tools_import_page' ) ) {
+			wp_die( '0' );
+		}
+
 		// Verify intent
 		check_ajax_referer( 'bbp_converter_process' );
 

@@ -703,6 +703,11 @@ class BBP_Admin {
 			wp_die( '0' );
 		}
 
+		// Bail if user cannot moderate - only moderators can change hierarchy
+		if ( ! current_user_can( 'moderate' ) ) {
+			wp_die( '0' );
+		}
+
 		// Check the ajax nonce
 		check_ajax_referer( 'bbp_suggest_topic_nonce' );
 
@@ -731,6 +736,11 @@ class BBP_Admin {
 
 		// Bail early if no request
 		if ( empty( $_REQUEST['q'] ) ) {
+			wp_die( '0' );
+		}
+
+		// Bail if user cannot moderate - only moderators can change authorship
+		if ( ! current_user_can( 'moderate' ) ) {
 			wp_die( '0' );
 		}
 
