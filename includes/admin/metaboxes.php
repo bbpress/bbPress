@@ -456,7 +456,7 @@ function bbp_reply_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Topic:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Topic', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" />
+		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" data-ajax-url="<?php echo wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_topic' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_topic_nonce' ); ?>" />
 	</p>
 
 	<p>
@@ -515,7 +515,7 @@ function bbp_author_metabox() {
 		<p>
 			<strong class="label"><?php esc_html_e( 'ID:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_author_id"><?php esc_html_e( 'ID', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_author_id" name="post_author_override" value="<?php echo esc_attr( bbp_get_global_post_field( 'post_author' ) ); ?>" />
+			<input type="text" id="bbp_author_id" name="post_author_override" value="<?php echo esc_attr( bbp_get_global_post_field( 'post_author' ) ); ?>" data-ajax-url="<?php echo wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_user' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_user_nonce' ); ?>" />
 		</p>
 
 	<?php endif; ?>
