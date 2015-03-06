@@ -128,7 +128,7 @@ class BBP_Users_Admin {
 	public static function user_role_bulk_dropdown() {
 
 		// Bail if current user cannot promote users 
-		if ( !current_user_can( 'promote_users' ) ) {
+		if ( ! current_user_can( 'promote_users' ) ) {
 			return;
 		}
 
@@ -147,6 +147,8 @@ class BBP_Users_Admin {
 				<option value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 			<?php endforeach; ?>
 		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
+
+		wp_nonce_field( 'bbp-bulk-users', 'bbp-bulk-users-nonce' );
 	}
 
 	/**
@@ -161,11 +163,6 @@ class BBP_Users_Admin {
 	 */
 	public function user_role_bulk_change() {
 
-		// Bail if current user cannot promote users 
-		if ( !current_user_can( 'promote_users' ) ) {
-			return;
-		}
-
 		// Bail if no users specified
 		if ( empty( $_REQUEST['users'] ) ) {
 			return;
@@ -179,6 +176,14 @@ class BBP_Users_Admin {
 		// Check that the new role exists
 		$dynamic_roles = bbp_get_dynamic_roles();
 		if ( empty( $dynamic_roles[ $_REQUEST['bbp-new-role'] ] ) ) {
+			return;
+		}
+
+		// Bail if nonce check fails
+		check_admin_referer( 'bbp-bulk-users', 'bbp-bulk-users-nonce' );
+
+		// Bail if current user cannot promote users 
+		if ( ! current_user_can( 'promote_users' ) ) {
 			return;
 		}
 
