@@ -6,7 +6,6 @@ jQuery( document ).ready(function() {
 		bbp_topic_id.data( 'ajax-url' ),
 		{
 			onSelect: function() {
-				console.log( 'hi' );
 				var value = this.value;
 				bbp_topic_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
 			}
