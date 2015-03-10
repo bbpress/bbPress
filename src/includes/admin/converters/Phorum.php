@@ -4,7 +4,7 @@
  * Implementation of Phorum Forum converter.
  *
  * @since bbPress (r5141)
- * @link Codex Docs http://codex.bbpress.org/import-forums/phorum
+ * @link Codex Docs https://codex.bbpress.org/import-forums/phorum
  */
 class Phorum extends BBP_Converter_Base {
 

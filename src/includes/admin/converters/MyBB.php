@@ -4,7 +4,7 @@
  * Implementation of MyBB Forum converter.
  *
  * @since bbPress (r5140)
- * @link Codex Docs http://codex.bbpress.org/import-forums/mybb
+ * @link Codex Docs https://codex.bbpress.org/import-forums/mybb
  */
 class MyBB extends BBP_Converter_Base {
 

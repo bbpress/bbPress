@@ -4,7 +4,7 @@
  * Implementation of Vanilla 2.0.18.1 Converter
  *
  * @since bbPress (r4717)
- * @link Codex Docs http://codex.bbpress.org/import-forums/vanilla
+ * @link Codex Docs https://codex.bbpress.org/import-forums/vanilla
  */
 class Vanilla extends BBP_Converter_Base {
 

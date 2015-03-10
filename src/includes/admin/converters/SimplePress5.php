@@ -4,7 +4,7 @@
  * Implementation of SimplePress v5 converter.
  *
  * @since bbPress (r4638)
- * @link Codex Docs http://codex.bbpress.org/import-forums/simplepress/
+ * @link Codex Docs https://codex.bbpress.org/import-forums/simplepress/
  */
 class SimplePress5 extends BBP_Converter_Base {
 

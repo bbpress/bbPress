@@ -4,7 +4,7 @@
  * Implementation of PunBB v1.4.2 Forum converter.
  *
  * @since bbPress (r5153)
- * @link Codex Docs http://codex.bbpress.org/import-forums/punbb
+ * @link Codex Docs https://codex.bbpress.org/import-forums/punbb
  */
 class PunBB extends BBP_Converter_Base {
 

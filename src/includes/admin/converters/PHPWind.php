@@ -4,7 +4,7 @@
  * Implementation of PHPWind Forum converter.
  *
  * @since bbPress (r5142)
- * @link Codex Docs http://codex.bbpress.org/import-forums/phpwind
+ * @link Codex Docs https://codex.bbpress.org/import-forums/phpwind
  */
 class PHPWind extends BBP_Converter_Base {
 

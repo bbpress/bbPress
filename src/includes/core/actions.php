@@ -90,7 +90,7 @@ add_action( 'bbp_init', 'bbp_ready',             999 );
  *
  * If it's hooked in any sooner, role names may not be translated correctly.
  *
- * @link http://bbpress.trac.wordpress.org/ticket/2219
+ * @link https://bbpress.trac.wordpress.org/ticket/2219
  *
  * This is kind of lame, but is all we have for now.
  */

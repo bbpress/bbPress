@@ -855,7 +855,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 		), 'get_forum_subscribe_link' );
 
 		// No link for categories until we support subscription hierarchy
-		// @see http://bbpress.trac.wordpress.org/ticket/2475
+		// @see https://bbpress.trac.wordpress.org/ticket/2475
 		if ( ! bbp_is_forum_category() ) {
 			$retval = bbp_get_user_subscribe_link( $r );
 		}

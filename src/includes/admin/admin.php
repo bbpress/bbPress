@@ -870,23 +870,23 @@ class BBP_Admin {
 			<h4 class="wp-people-group"><?php esc_html_e( 'Project Leaders', 'bbpress' ); ?></h4>
 			<ul class="wp-people-group " id="wp-people-group-project-leaders">
 				<li class="wp-person" id="wp-person-matt">
-					<a href="http://profiles.wordpress.org/matt"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="Matt Mullenweg" /></a>
-					<a class="web" href="http://profiles.wordpress.org/matt">Matt Mullenweg</a>
+					<a href="https://profiles.wordpress.org/matt"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="Matt Mullenweg" /></a>
+					<a class="web" href="https://profiles.wordpress.org/matt">Matt Mullenweg</a>
 					<span class="title"><?php esc_html_e( 'Founding Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-johnjamesjacoby">
-					<a href="http://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/81ec16063d89b162d55efe72165c105f?s=60" class="gravatar" alt="John James Jacoby" /></a>
-					<a class="web" href="http://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
+					<a href="https://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/81ec16063d89b162d55efe72165c105f?s=60" class="gravatar" alt="John James Jacoby" /></a>
+					<a class="web" href="https://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
 					<span class="title"><?php esc_html_e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-jmdodd">
-					<a href="http://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
-					<a class="web" href="http://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
+					<a href="https://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
+					<a class="web" href="https://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-netweb">
-					<a href="http://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
-					<a class="web" href="http://profiles.wordpress.org/netweb">Stephen Edgar</a>
+					<a href="https://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
+					<a class="web" href="https://profiles.wordpress.org/netweb">Stephen Edgar</a>
 					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
 				</li>
 			</ul>
@@ -894,45 +894,45 @@ class BBP_Admin {
 			<h4 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h4>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-jaredatch">
-					<a href="http://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
-					<a class="web" href="http://profiles.wordpress.org/jaredatch">Jared Atchison</a>
+					<a href="https://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
+					<a class="web" href="https://profiles.wordpress.org/jaredatch">Jared Atchison</a>
 					<span class="title"><?php esc_html_e( 'Bug Testing', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-gautamgupta">
-					<a href="http://profiles.wordpress.org/gautamgupta"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
-					<a class="web" href="http://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
+					<a href="https://profiles.wordpress.org/gautamgupta"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
+					<a class="web" href="https://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
 			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.5', 'bbpress' ); ?></h4>
 			<p class="wp-credits-list">
-				<a href="http://profiles.wordpress.org/alex-ye">alex-ye</a>,
-				<a href="http://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
-				<a href="http://profiles.wordpress.org/aliso">aliso</a>,
-				<a href="http://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
-				<a href="http://profiles.wordpress.org/daveshine">daveshine</a>,
-				<a href="http://profiles.wordpress.org/DJPaul">DJPaul</a>,
-				<a href="http://profiles.wordpress.org/ethitter">ethitter</a>,
-				<a href="http://profiles.wordpress.org/fanquake">fanquake</a>,
-				<a href="http://profiles.wordpress.org/GargajCNS">GargajCNS</a>,
-				<a href="http://profiles.wordpress.org/GautamGupta">GautamGupta</a>,
-				<a href="http://profiles.wordpress.org/imath">imath</a>,
-				<a href="http://profiles.wordpress.org/jkudish">jkudish</a>,
-				<a href="http://profiles.wordpress.org/kobenland">kobenland</a>,
-				<a href="http://profiles.wordpress.org/lakrisgubben">lakrisgubben</a>,
-				<a href="http://profiles.wordpress.org/loki_racer">loki_racer</a>,
-				<a href="http://profiles.wordpress.org/mamaduka">mamaduka</a>,
-				<a href="http://profiles.wordpress.org/Maty">Maty</a>,
-				<a href="http://profiles.wordpress.org/mercime">mercime</a>,
-				<a href="http://profiles.wordpress.org/mordauk">mordauk</a>,
-				<a href="http://profiles.wordpress.org/mrcl">mrcl</a>,
-				<a href="http://profiles.wordpress.org/MZAWeb">MZAWeb</a>,
-				<a href="http://profiles.wordpress.org/r-a-y">r-a-y</a>,
-				<a href="http://profiles.wordpress.org/strangerstudios">strangerstudios</a>,
-				<a href="http://profiles.wordpress.org/thebrandonallen">thebrandonallen</a>,
-				<a href="http://profiles.wordpress.org/tlovett1">tlovett1</a>,
-				<a href="http://profiles.wordpress.org/wpdennis">wpdennis</a>,
+				<a href="https://profiles.wordpress.org/alex-ye">alex-ye</a>,
+				<a href="https://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
+				<a href="https://profiles.wordpress.org/aliso">aliso</a>,
+				<a href="https://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
+				<a href="https://profiles.wordpress.org/daveshine">daveshine</a>,
+				<a href="https://profiles.wordpress.org/DJPaul">DJPaul</a>,
+				<a href="https://profiles.wordpress.org/ethitter">ethitter</a>,
+				<a href="https://profiles.wordpress.org/fanquake">fanquake</a>,
+				<a href="https://profiles.wordpress.org/GargajCNS">GargajCNS</a>,
+				<a href="https://profiles.wordpress.org/GautamGupta">GautamGupta</a>,
+				<a href="https://profiles.wordpress.org/imath">imath</a>,
+				<a href="https://profiles.wordpress.org/jkudish">jkudish</a>,
+				<a href="https://profiles.wordpress.org/kobenland">kobenland</a>,
+				<a href="https://profiles.wordpress.org/lakrisgubben">lakrisgubben</a>,
+				<a href="https://profiles.wordpress.org/loki_racer">loki_racer</a>,
+				<a href="https://profiles.wordpress.org/mamaduka">mamaduka</a>,
+				<a href="https://profiles.wordpress.org/Maty">Maty</a>,
+				<a href="https://profiles.wordpress.org/mercime">mercime</a>,
+				<a href="https://profiles.wordpress.org/mordauk">mordauk</a>,
+				<a href="https://profiles.wordpress.org/mrcl">mrcl</a>,
+				<a href="https://profiles.wordpress.org/MZAWeb">MZAWeb</a>,
+				<a href="https://profiles.wordpress.org/r-a-y">r-a-y</a>,
+				<a href="https://profiles.wordpress.org/strangerstudios">strangerstudios</a>,
+				<a href="https://profiles.wordpress.org/thebrandonallen">thebrandonallen</a>,
+				<a href="https://profiles.wordpress.org/tlovett1">tlovett1</a>,
+				<a href="https://profiles.wordpress.org/wpdennis">wpdennis</a>,
 			</p>
 
 			<div class="return-to-dashboard">

@@ -597,7 +597,7 @@ function bbp_get_statistics( $args = '' ) {
  *
  * We use REMOTE_ADDR here directly. If you are behind a proxy, you should
  * ensure that it is properly set, such as in wp-config.php, for your
- * environment. See {@link http://core.trac.wordpress.org/ticket/9235}
+ * environment. See {@link https://core.trac.wordpress.org/ticket/9235}
  *
  * Note that bbp_pre_anonymous_filters() is responsible for sanitizing each
  * of the filtered core anonymous values here.
@@ -699,8 +699,8 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// Unslash $r to pass through $wpdb->prepare()
 	//
-	// @see: http://bbpress.trac.wordpress.org/ticket/2185/
-	// @see: http://core.trac.wordpress.org/changeset/23973/
+	// @see: https://bbpress.trac.wordpress.org/ticket/2185/
+	// @see: https://core.trac.wordpress.org/changeset/23973/
 	$r = wp_unslash( $r );
 
 	// Prepare duplicate check query

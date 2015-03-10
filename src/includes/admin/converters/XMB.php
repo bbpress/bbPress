@@ -4,7 +4,7 @@
  * Implementation of XMB Forum converter.
  *
  * @since bbPress (r5143)
- * @link Codex Docs http://codex.bbpress.org/import-forums/xmb
+ * @link Codex Docs https://codex.bbpress.org/import-forums/xmb
  */
 class XMB extends BBP_Converter_Base {
 

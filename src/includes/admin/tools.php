@@ -123,18 +123,18 @@ function bbp_admin_tools_repair_help() {
 		'content' => '<p>' . __( 'There is more detailed information available on the bbPress and BuddyPress codex for the following:', 'bbpress' ) . '</p>' .
 					 '<p>' .
 						'<ul>' .
-							'<li>' . __( 'BuddyPress Group Forums: <a href="http://codex.buddypress.org/getting-started/installing-group-and-sitewide-forums/">Installing Group and Sitewide Forums</a> and <a href="http://codex.buddypress.org/getting-started/guides/migrating-from-old-forums-to-bbpress-2/">Migrating from old forums to bbPress 2.2+</a>.', 'bbpress' ) . '</li>' .
-							'<li>' . __( 'bbPress roles: <a href="http://codex.bbpress.org/bbpress-user-roles-and-capabilities/" target="_blank">bbPress User Roles and Capabilities</a>',                                                                                                                                                                        'bbpress' ) . '</li>' .
+							'<li>' . __( 'BuddyPress Group Forums: <a href="https://codex.buddypress.org/getting-started/installing-group-and-sitewide-forums/">Installing Group and Sitewide Forums</a> and <a href="https://codex.buddypress.org/getting-started/guides/migrating-from-old-forums-to-bbpress-2/">Migrating from old forums to bbPress 2.2+</a>.', 'bbpress' ) . '</li>' .
+							'<li>' . __( 'bbPress roles: <a href="https://codex.bbpress.org/bbpress-user-roles-and-capabilities/" target="_blank">bbPress User Roles and Capabilities</a>',                                                                                                                                                                        'bbpress' ) . '</li>' .
 						'</ul>' .
 					'</p>' .
-					'<p>' . __( 'Also see <a href="http://codex.bbpress.org/repair-forums/">bbPress: Repair Forums</a>.', 'bbpress' ) . '</p>'
+					'<p>' . __( 'Also see <a href="https://codex.bbpress.org/repair-forums/">bbPress: Repair Forums</a>.', 'bbpress' ) . '</p>'
 	) );
 
 	// Help Sidebar
 	$current_screen->set_help_sidebar(
 		'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
-		'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
-		'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
+		'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
+		'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 	);
 }
 
@@ -158,14 +158,14 @@ function bbp_admin_tools_reset_help() {
 	$current_screen->add_help_tab( array(
 		'id'      => 'reset_forums',
 		'title'   => __( 'Reset Forums', 'bbpress' ),
-		'content' => '<p>' . __( 'Also see <a href="http://codex.bbpress.org/reset-forums/">bbPress: Reset Forums</a>.', 'bbpress' ) . '</p>'
+		'content' => '<p>' . __( 'Also see <a href="https://codex.bbpress.org/reset-forums/">bbPress: Reset Forums</a>.', 'bbpress' ) . '</p>'
 	) );
 
 	// Help Sidebar
 	$current_screen->set_help_sidebar(
 		'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
-		'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
-		'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
+		'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
+		'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 	);
 }
 
@@ -191,7 +191,7 @@ function bbp_admin_tools_converter_help() {
 		'title'   => __( 'Overview', 'bbpress' ),
 		'content' => '<p>' . __( 'This screen provides access to all of the bbPress Import Forums settings and resources.',                                      'bbpress' ) . '</p>' .
 					 '<p>' . __( 'Please see the additional help tabs for more information on each individual section.',                                         'bbpress' ) . '</p>' .
-					 '<p>' . __( 'Also see the main article on the bbPress codex <a href="http://codex.bbpress.org/import-forums/">bbPress: Import Forums</a>.', 'bbpress' ) . '</p>'
+					 '<p>' . __( 'Also see the main article on the bbPress codex <a href="https://codex.bbpress.org/import-forums/">bbPress: Import Forums</a>.', 'bbpress' ) . '</p>'
 	) );
 
 	// Database Settings
@@ -223,8 +223,8 @@ function bbp_admin_tools_converter_help() {
 	// Help Sidebar
 	$current_screen->set_help_sidebar(
 		'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
-		'<p>' . __( '<a href="http://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
-		'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
+		'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
+		'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 	);
 }
 

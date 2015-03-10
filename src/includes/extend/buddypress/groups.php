@@ -1137,7 +1137,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r5026)
 	 *
-	 * @link http://bbpress.trac.wordpress.org/ticket/2339/
+	 * @link https://bbpress.trac.wordpress.org/ticket/2339/
 	 * @see groups_screen_group_admin_settings()
 	 */
 	public function group_settings_hidden_field() {

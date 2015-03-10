@@ -4,7 +4,7 @@
  * Implementation of Kunena v3.x Forums for Joomla Forum converter.
  *
  * @since bbPress (r5144)
- * @link Codex Docs http://codex.bbpress.org/import-forums/kunena/
+ * @link Codex Docs https://codex.bbpress.org/import-forums/kunena/
  */
 class Kunena3 extends BBP_Converter_Base {
 

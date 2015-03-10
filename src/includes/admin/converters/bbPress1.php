@@ -4,7 +4,7 @@
  * bbPress 1.1 Converter
  *
  * @since bbPress (r3816)
- * @link Codex Docs http://codex.bbpress.org/import-forums/bbpress-1-x-buddypress-group-forums
+ * @link Codex Docs https://codex.bbpress.org/import-forums/bbpress-1-x-buddypress-group-forums
  */
 class bbPress1 extends BBP_Converter_Base {
 

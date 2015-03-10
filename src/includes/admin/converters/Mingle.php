@@ -4,7 +4,7 @@
  * Implementation of Mingle Forums converter.
  *
  * @since bbPress (r4691)
- * @link Codex Docs http://codex.bbpress.org/import-forums/mingle
+ * @link Codex Docs https://codex.bbpress.org/import-forums/mingle
  */
 class Mingle extends BBP_Converter_Base {
 

@@ -403,7 +403,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	/**
 	 * Force the header back to 200 status if not a deliberate 404
 	 *
-	 * @see http://bbpress.trac.wordpress.org/ticket/1973
+	 * @see https://bbpress.trac.wordpress.org/ticket/1973
 	 */
 	if ( ! $wp_query->is_404() ) {
 		status_header( 200 );
@@ -447,7 +447,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * Bail if a root template was already found. This prevents unintended
 	 * recursive filtering of 'the_content'.
 	 *
-	 * @link http://bbpress.trac.wordpress.org/ticket/2429
+	 * @link https://bbpress.trac.wordpress.org/ticket/2429
 	 */
 	if ( bbp_is_template_included() ) {
 		return $template;
@@ -766,7 +766,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * We do this after the above checks to prevent incorrect 404 body classes
 	 * and header statuses, as well as to set the post global as needed.
 	 *
-	 * @see http://bbpress.trac.wordpress.org/ticket/1478/
+	 * @see https://bbpress.trac.wordpress.org/ticket/1478/
 	 */
 	if ( bbp_is_template_included() ) {
 		return $template;

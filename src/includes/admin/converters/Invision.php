@@ -4,7 +4,7 @@
  * Implementation of Invision Power Board v3.x converter.
  *
  * @since bbPress (r4713)
- * @link Codex Docs http://codex.bbpress.org/import-forums/invision
+ * @link Codex Docs https://codex.bbpress.org/import-forums/invision
  */
 class Invision extends BBP_Converter_Base {
 

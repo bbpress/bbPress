@@ -4,7 +4,7 @@
  * Implementation of PHPFox v3.x Forum converter.
  *
  * @since bbPress (r5146)
- * @link Codex Docs http://codex.bbpress.org/import-forums/phpfox
+ * @link Codex Docs https://codex.bbpress.org/import-forums/phpfox
  */
 class PHPFox3 extends BBP_Converter_Base {
 

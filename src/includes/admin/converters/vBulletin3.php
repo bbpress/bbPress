@@ -4,7 +4,7 @@
  * Implementation of vBulletin v3.x Converter.
  *
  * @since bbPress (r5151)
- * @link Codex Docs http://codex.bbpress.org/import-forums/vbulletin
+ * @link Codex Docs https://codex.bbpress.org/import-forums/vbulletin
  */
 class vBulletin3 extends BBP_Converter_Base {
 
@@ -638,8 +638,8 @@ class vBulletin3 extends BBP_Converter_Base {
 	 *
 	 * vBulletin passwords do not work. Maybe use the below plugin's approach?
 	 *
-	 * @link http://wordpress.org/extend/plugins/vb-user-copy/
-	 * @link http://plugins.trac.wordpress.org/browser/vb-user-copy/trunk/vb_user_copy.php
+	 * @link https://wordpress.org/extend/plugins/vb-user-copy/
+	 * @link https://plugins.trac.wordpress.org/browser/vb-user-copy/trunk/vb_user_copy.php
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );

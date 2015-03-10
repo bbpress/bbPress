@@ -4,7 +4,7 @@
  * Implementation of FluxBB Forum converter.
  *
  * @since bbPress (r5138)
- * @link Codex Docs http://codex.bbpress.org/import-forums/fluxbb
+ * @link Codex Docs https://codex.bbpress.org/import-forums/fluxbb
  */
 class FluxBB extends BBP_Converter_Base {
 

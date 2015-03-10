@@ -4,7 +4,7 @@
  * Implementation of AEF Forum converter.
  *
  * @since bbPress (r5139)
- * @link Codex Docs http://codex.bbpress.org/import-forums/aef
+ * @link Codex Docs https://codex.bbpress.org/import-forums/aef
  */
 class AEF extends BBP_Converter_Base {
 

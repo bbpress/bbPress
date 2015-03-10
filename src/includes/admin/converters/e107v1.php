@@ -4,7 +4,7 @@
  * Implementation of e107 v1.x Forum converter.
  *
  * @since bbPress (r5352)
- * @link Codex Docs http://codex.bbpress.org/import-forums/e107
+ * @link Codex Docs https://codex.bbpress.org/import-forums/e107
  */
 class e107v1 extends BBP_Converter_Base {
 

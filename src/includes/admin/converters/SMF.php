@@ -4,7 +4,7 @@
  * Implementation of SMF Forum converter.
  *
  * @since bbPress (r5189)
- * @link Codex Docs http://codex.bbpress.org/import-forums/smf
+ * @link Codex Docs https://codex.bbpress.org/import-forums/smf
  */
 class SMF extends BBP_Converter_Base {
 

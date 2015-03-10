@@ -4,7 +4,7 @@
  * Implementation of phpBB v3 Converter.
  *
  * @since bbPress (r4689)
- * @link Codex Docs http://codex.bbpress.org/import-forums/phpbb
+ * @link Codex Docs https://codex.bbpress.org/import-forums/phpbb
  */
 class phpBB extends BBP_Converter_Base {
 
@@ -621,7 +621,7 @@ class phpBB extends BBP_Converter_Base {
 	 * @param string $hash The stored password hash
 	 *
 	 * @link Original source for password functions http://openwall.com/phpass/
-	 * @link phpass is now included in WP Core http://core.trac.wordpress.org/browser/trunk/wp-includes/class-phpass.php
+	 * @link phpass is now included in WP Core https://core.trac.wordpress.org/browser/trunk/wp-includes/class-phpass.php
 	 *
 	 * @return bool Returns true if the password is correct, false if not.
 	 */
