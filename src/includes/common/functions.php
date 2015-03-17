@@ -1011,7 +1011,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * @return string
  */
 function bbp_get_do_not_reply_address() {
-	$email = 'noreply@' . str_replace( 'www.', '', ltrim( get_home_url(), '^(http|https)://' ) );
+	$email = 'noreply@' . preg_replace( '@^https?://(www\.)?@i', '', get_home_url() );
 	return apply_filters( 'bbp_get_do_not_reply_address', $email );
 }
 
