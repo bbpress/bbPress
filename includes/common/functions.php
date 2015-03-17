@@ -982,6 +982,33 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 /** Subscriptions *************************************************************/
 
 /**
+ * Get the "Do Not Reply" email address to use when sending subscription emails.
+ *
+ * We make some educated guesses here based on the home URL. Filters are
+ * available to customize this address further. In the future, we may consider
+ * using `admin_email` instead, though this is not normally publicized.
+ *
+ * We use `$_SERVER['SERVER_NAME']` here to mimic similar functionality in
+ * WordPress core. Previously, we used `get_home_url()` to use already validated
+ * user input, but it was causing issues in some installations.
+ *
+ * @since bbPress (r5409)
+ *
+ * @see  wp_mail
+ * @see  wp_notify_postauthor
+ * @link https://bbpress.trac.wordpress.org/ticket/2618
+ *
+ * @return string
+ */
+function bbp_get_do_not_reply_address() {
+	$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
+		$sitename = substr( $sitename, 4 );
+	}
+	return apply_filters( 'bbp_get_do_not_reply_address', 'noreply@' . $sitename );
+}
+
+/**
  * Sends notification emails for new replies to subscribed topics
  *
  * Gets new post's ID and check if there are subscribed users to that topic, and
@@ -993,9 +1020,14 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * those cases, we recommend unhooking this function and creating your own
  * custom emailer script.
  *
- * @since bbPress (r2668)
+ * @since bbPress (r5413)
  *
  * @param int $reply_id ID of the newly made reply
+ * @param int $topic_id ID of the topic of the reply
+ * @param int $forum_id ID of the forum of the reply
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $reply_author ID of the topic author ID
+ *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_reply_id() To validate the reply ID
  * @uses bbp_get_topic_id() To validate the topic ID
@@ -1020,7 +1052,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  *                    topic id and user id
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
 
 	// Bail if subscriptions are turned off
 	if ( !bbp_is_subscriptions_active() ) {
@@ -1062,7 +1094,6 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	$reply_content = strip_tags( bbp_get_reply_content( $reply_id ) );
 	$reply_url     = bbp_get_reply_url( $reply_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-	$do_not_reply  = '<noreply@' . preg_replace( '@^https?://(www\.)?@i', '', get_home_url() ) . '>';
 
 	// For plugins to filter messages per reply/topic/user
 	$message = sprintf( __( '%1$s wrote:
@@ -1095,14 +1126,20 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	/** Users *****************************************************************/
 
-	// Array to hold BCC's
-	$headers = array();
+	// Get the noreply@ address
+	$no_reply   = bbp_get_do_not_reply_address();
+
+	// Setup "From" email address
+	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
-	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' ' . $do_not_reply;
+	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
@@ -1122,12 +1159,13 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	/** Send it ***************************************************************/
 
 	// Custom headers
-	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
+ 	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
 
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Send notification email
-	wp_mail( $do_not_reply, $subject, $message, $headers );
+	wp_mail( $to_email, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
@@ -1149,6 +1187,10 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  * @since bbPress (r5156)
  *
  * @param int $topic_id ID of the newly made reply
+ * @param int $forum_id ID of the forum for the topic
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $topic_author ID of the topic author ID
+ *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_topic_id() To validate the topic ID
  * @uses bbp_get_forum_id() To validate the forum ID
@@ -1180,6 +1222,13 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	/**
+	 * Necessary for backwards compatibility
+	 *
+	 * @see https://bbpress.trac.wordpress.org/ticket/2620
+	 */
+	$user_id  = 0;
+
 	/** Topic *****************************************************************/
 
 	// Bail if topic is not published
@@ -1202,7 +1251,6 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$topic_content = strip_tags( bbp_get_topic_content( $topic_id ) );
 	$topic_url     = get_permalink( $topic_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-	$do_not_reply  = '<noreply@' . preg_replace( '@^https?://(www\.)?@i', '', get_home_url() ) . '>';
 
 	// For plugins to filter messages per reply/topic/user
 	$message = sprintf( __( '%1$s wrote:
@@ -1235,14 +1283,20 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	/** User ******************************************************************/
 
-	// Array to hold BCC's
-	$headers = array();
+	// Get the noreply@ address
+	$no_reply   = bbp_get_do_not_reply_address();
+
+	// Setup "From" email address
+	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
-	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' ' . $do_not_reply;
+	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
@@ -1262,16 +1316,37 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	/** Send it ***************************************************************/
 
 	// Custom headers
-	$headers = apply_filters( 'bbp_subscription_mail_headers', $headers );
+	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
+	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
 
 	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	// Send notification email
-	wp_mail( $do_not_reply, $subject, $message, $headers );
+	wp_mail( $to_email, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	return true;
+}
+
+/**
+ * Sends notification emails for new replies to subscribed topics
+ *
+ * This function is deprecated. Please use: bbp_notify_topic_subscribers()
+ *
+ * @since bbPress (r2668)
+ * @deprecated bbPress (r5412)
+ *
+ * @param int $reply_id ID of the newly made reply
+ * @param int $topic_id ID of the topic of the reply
+ * @param int $forum_id ID of the forum of the reply
+ * @param mixed $anonymous_data Array of anonymous user data
+ * @param int $reply_author ID of the topic author ID
+ *
+ * @return bool True on success, false on failure
+ */
+function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 }
 
 /** Login *********************************************************************/
