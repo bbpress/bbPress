@@ -2670,7 +2670,7 @@ msgstr ""
 msgid "<strong>ERROR</strong>: Invalid email address submitted!"
 msgstr ""
 
-#: includes/common/functions.php:1068
+#: includes/common/functions.php:1099
 msgid ""
 "%1$s wrote:\n"
 "\n"
@@ -2685,7 +2685,7 @@ msgid ""
 "Login and visit the topic to unsubscribe from these emails."
 msgstr ""
 
-#: includes/common/functions.php:1208
+#: includes/common/functions.php:1256
 msgid ""
 "%1$s wrote:\n"
 "\n"
@@ -2700,7 +2700,7 @@ msgid ""
 "Login and visit the topic to unsubscribe from these emails."
 msgstr ""
 
-#: includes/common/functions.php:1949
+#: includes/common/functions.php:2024
 msgid ""
 "Conditional query tags do not work before the query is run. Before then, "
 "they always return false."
