@@ -5,7 +5,7 @@
  *
  * bbPress is forum software with a twist from the creators of WordPress.
  *
- * $Id: bbpress.php 5256 2014-01-13 01:13:05Z johnjamesjacoby $
+ * $Id$
  *
  * @package bbPress
  * @subpackage Main
