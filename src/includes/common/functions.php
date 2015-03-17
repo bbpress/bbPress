@@ -1006,13 +1006,24 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * available to customize this address further. In the future, we may consider
  * using `admin_email` instead, though this is not normally publicized.
  *
+ * We use `$_SERVER['SERVER_NAME']` here to mimic similar functionality in
+ * WordPress core. Previously, we used `get_home_url()` to use already validated
+ * user input, but it was causing issues in some installations.
+ *
  * @since bbPress (r5409)
+ *
+ * @see  wp_mail
+ * @see  wp_notify_postauthor
+ * @link https://bbpress.trac.wordpress.org/ticket/2618
  *
  * @return string
  */
 function bbp_get_do_not_reply_address() {
-	$email = 'noreply@' . preg_replace( '@^https?://(www\.)?@i', '', get_home_url() );
-	return apply_filters( 'bbp_get_do_not_reply_address', $email );
+	$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
+		$sitename = substr( $sitename, 4 );
+	}
+	return apply_filters( 'bbp_get_do_not_reply_address', 'noreply@' . $sitename );
 }
 
 /**
