@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the bbPress package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress 2.5.5\n"
+"Project-Id-Version: bbPress 2.5.6\n"
 "Report-Msgid-Bugs-To: https://bbpress.trac.wordpress.org\n"
 "POT-Creation-Date: 2015-03-06 17:13:54+00:00\n"
 "MIME-Version: 1.0\n"
@@ -4939,9 +4939,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.5.5)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5.6)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.5.5)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5.6)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "http://bbpress.org"
 msgstr ""
