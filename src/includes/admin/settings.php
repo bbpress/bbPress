@@ -375,7 +375,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Subscriptions slug setting
 			'_bbp_user_subs_slug' => array(
-				'title'             => __( 'Topic Subscriptions', 'bbpress' ),
+				'title'             => __( 'Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_subs_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array()
