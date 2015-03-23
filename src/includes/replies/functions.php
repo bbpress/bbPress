@@ -2357,11 +2357,23 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
 		$reply_position = bbp_get_reply_position_raw( $reply_id, bbp_get_reply_topic_id( $reply_id ) );
 	}
 
-	// Update the replies' 'menp_order' with the reply position
+	// Toggle revisions off as we are not altering content
+	if ( post_type_supports( bbp_get_reply_post_type(), 'revisions' ) ) {
+		$revisions_removed = true;
+		remove_post_type_support( bbp_get_reply_post_type(), 'revisions' );
+	}
+
+	// Update the replies' 'menu_order' with the reply position
 	wp_update_post( array(
 		'ID'         => $reply_id,
 		'menu_order' => $reply_position
 	) );
+
+	// Toggle revisions back on
+	if ( true === $revisions_removed ) {
+		$revisions_removed = false;
+		add_post_type_support( bbp_get_reply_post_type(), 'revisions' );
+	}
 
 	return (int) $reply_position;
 }
