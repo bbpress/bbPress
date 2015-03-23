@@ -23,6 +23,7 @@ module.exports = function( grunt ) {
 		],
 
 		BBP_EXCLUDED_FILES = [
+
 			// Ignore these
 			'!**/.{svn,git}/**',
 			'!.editorconfig',
@@ -52,7 +53,7 @@ module.exports = function( grunt ) {
 
 	// Project configuration.
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
+		pkg: grunt.file.readJSON( 'package.json' ),
 		checktextdomain: {
 			options: {
 				text_domain: 'bbpress',
@@ -204,6 +205,11 @@ module.exports = function( grunt ) {
 				files: {
 					src: BUILD_DIR + '/**/*.js'
 				}
+			},
+			src: {
+				files: {
+					src: SOURCE_DIR + '/**/*.js'
+				}
 			}
 		},
 		makepot: {
@@ -231,11 +237,11 @@ module.exports = function( grunt ) {
 		phpunit: {
 			'default': {
 				cmd: 'phpunit',
-				args: ['-c', 'phpunit.xml.dist']
+				args: [ '-c', 'phpunit.xml.dist' ]
 			},
 			multisite: {
 				cmd: 'phpunit',
-				args: ['-c', 'tests/phpunit/multisite.xml']
+				args: [ '-c', 'tests/phpunit/multisite.xml' ]
 			}
 		},
 		sass: {
@@ -244,7 +250,7 @@ module.exports = function( grunt ) {
 				cwd: SOURCE_DIR,
 				dest: BUILD_DIR,
 				ext: '.css',
-				src: ['includes/admin/styles/*/colors.scss'],
+				src: [ 'includes/admin/styles/*/colors.scss' ],
 				options: {
 					outputStyle: 'expanded'
 				}
@@ -275,6 +281,7 @@ module.exports = function( grunt ) {
 			all: {
 				files: [
 					SOURCE_DIR + '**',
+
 					// Ignore version control directories.
 					'!' + SOURCE_DIR + '**/.{svn,git}/**'
 				],
@@ -286,8 +293,8 @@ module.exports = function( grunt ) {
 				}
 			},
 			colors: {
-				files: [SOURCE_DIR + 'includes/admin/styles/*/colors.scss'],
-				tasks: ['sass:colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl']
+				files: [ SOURCE_DIR + 'includes/admin/styles/*/colors.scss' ],
+				tasks: [ 'sass:colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl' ]
 			},
 			config: {
 				files: 'Gruntfile.js'
@@ -318,13 +325,13 @@ module.exports = function( grunt ) {
 	// Register tasks.
 
 	// Color schemes task.
-	grunt.registerTask( 'colors', ['sass:colors'] );
+	grunt.registerTask( 'colors', [ 'sass:colors' ] );
 
 	// Build tasks.
-	grunt.registerTask( 'src',     ['jsvalidate', 'jshint', 'cssjanus'] );
-	grunt.registerTask( 'commit',  ['src', 'checktextdomain'] );
-	grunt.registerTask( 'build',   [ 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
-	grunt.registerTask( 'release', [ 'build', 'checktextdomain' ] );
+	grunt.registerTask( 'src',     [ 'jsvalidate:src', 'jshint' ] );
+	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
+	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPUnit test task.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
@@ -336,19 +343,19 @@ module.exports = function( grunt ) {
 	} );
 
 	// PHPUnit test task.
-	grunt.registerTask( 'test', 'Run all PHPUnit test tasks.', ['phpunit'] );
+	grunt.registerTask( 'test', 'Run all PHPUnit test tasks.', [ 'phpunit' ] );
 
 	// JavaScript test task.
-	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate', 'jshint' ] );
+	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate:src', 'jshint' ] );
 
 	// Travis CI Task
-	grunt.registerTask( 'travis', ['jsvalidate', 'jshint', 'checktextdomain', 'test'] );
+	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'test' ] );
 
 	// Patch task.
 	grunt.renameTask( 'patch_wordpress', 'patch' );
 
 	// Default task.
-	grunt.registerTask( 'default', ['src'] );
+	grunt.registerTask( 'default', [ 'src' ] );
 
 	// Add a listener to the watch task.
 	//
