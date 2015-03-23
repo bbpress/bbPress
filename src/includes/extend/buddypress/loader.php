@@ -218,18 +218,20 @@ class BBP_Forums_Component extends BP_Component {
 		);
 
 		// Favorite topics
-		$sub_nav[] = array(
-			'name'            => __( 'Favorites', 'bbpress' ),
-			'slug'            => bbp_get_user_favorites_slug(),
-			'parent_url'      => $forums_link,
-			'parent_slug'     => $this->slug,
-			'screen_function' => 'bbp_member_forums_screen_favorites',
-			'position'        => 60,
-			'item_css_id'     => 'favorites'
-		);
+		if ( bbp_is_favorites_active() ){
+			$sub_nav[] = array(
+				'name'            => __( 'Favorites', 'bbpress' ),
+				'slug'            => bbp_get_user_favorites_slug(),
+				'parent_url'      => $forums_link,
+				'parent_slug'     => $this->slug,
+				'screen_function' => 'bbp_member_forums_screen_favorites',
+				'position'        => 60,
+				'item_css_id'     => 'favorites'
+			);
+		}
 
 		// Subscribed topics (my profile only)
-		if ( bp_is_my_profile() ) {
+		if ( bp_is_my_profile() && bbp_is_subscriptions_active() ) {
 			$sub_nav[] = array(
 				'name'            => __( 'Subscriptions', 'bbpress' ),
 				'slug'            => bbp_get_user_subscriptions_slug(),
