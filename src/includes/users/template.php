@@ -1518,7 +1518,7 @@ function bbp_login_notices() {
  *
  * @param string $url The URL to redirect to
  * @uses is_user_logged_in() Check if user is logged in
- * @uses wp_safe_redirect() To safely redirect
+ * @uses bbp_redirect() To safely redirect
  * @uses bbp_get_user_profile_url() To get the profile url of the user
  * @uses bbp_get_current_user_id() To get the current user id
  */
@@ -1532,9 +1532,8 @@ function bbp_logged_in_redirect( $url = '' ) {
 	// Setup the profile page to redirect to
 	$redirect_to = ! empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
 
-	// Do a safe redirect and exit
-	wp_safe_redirect( $redirect_to );
-	exit;
+	// Do a safe redirect
+	bbp_redirect( $redirect_to );
 }
 
 /**

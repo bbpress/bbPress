@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * @uses admin_url() To get the admin url
  * @uses home_url() To get the home url
  * @uses esc_url() To escape the url
- * @uses wp_safe_redirect() To redirect
+ * @uses bbp_redirect() To redirect
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 
@@ -394,7 +394,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * @uses bbp_is_favorites() To check if it's the favorites page
  * @uses bbp_get_favorites_link() To get the favorites page link
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_safe_redirect() To redirect to the url
+ * @uses bbp_redirect() To redirect to the url
  */
 function bbp_favorites_handler( $action = '' ) {
 
@@ -470,10 +470,7 @@ function bbp_favorites_handler( $action = '' ) {
 			$redirect = get_permalink( $topic_id );
 		}
 
-		wp_safe_redirect( $redirect );
-
-		// For good measure
-		exit();
+		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
 	} elseif ( true === $is_favorite && 'bbp_favorite_remove' === $action ) {
@@ -1115,7 +1112,7 @@ function bbp_remove_user_topic_subscription( $user_id, $topic_id ) {
  *                    forum id and action
  * @uses bbp_is_subscription() To check if it's the subscription page
  * @uses bbp_get_forum_permalink() To get the forum permalink
- * @uses wp_safe_redirect() To redirect to the url
+ * @uses bbp_redirect() To redirect to the url
  */
 function bbp_forum_subscriptions_handler( $action = '' ) {
 
@@ -1191,10 +1188,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 			$redirect = get_permalink( $forum_id );
 		}
 
-		wp_safe_redirect( $redirect );
-
-		// For good measure
-		exit();
+		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
 	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
@@ -1221,7 +1215,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
  *                    topic id and action
  * @uses bbp_is_subscription() To check if it's the subscription page
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_safe_redirect() To redirect to the url
+ * @uses bbp_redirect() To redirect to the url
  */
 function bbp_subscriptions_handler( $action = '' ) {
 
@@ -1297,10 +1291,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 			$redirect = get_permalink( $topic_id );
 		}
 
-		wp_safe_redirect( $redirect );
-
-		// For good measure
-		exit();
+		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
 	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
@@ -1326,7 +1317,7 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @uses wp_update_user() To update the user
  * @uses delete_option() To delete the displayed user's email id option
  * @uses bbp_get_user_profile_edit_url() To get the edit profile url
- * @uses wp_safe_redirect() To redirect to the url
+ * @uses bbp_redirect() To redirect to the url
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses current_user_can() To check if the current user can edit the user
  * @uses do_action() Calls 'personal_options_update' or
@@ -1370,15 +1361,13 @@ function bbp_edit_user_handler( $action = '' ) {
 			wp_update_user( get_object_vars( $user ) );
 			delete_option( $user_id . '_new_email' );
 
-			wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-			exit();
+			bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		}
 
 	// Delete new email address from user options
 	} elseif ( is_multisite() && bbp_is_user_home_edit() && ! empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' === $_GET['dismiss'] ) ) {
 		delete_option( $user_id . '_new_email' );
-		wp_safe_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-		exit();
+		bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 	}
 
 	// Nonce check
@@ -1419,8 +1408,7 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $edit_user ) );
 
-		wp_safe_redirect( $redirect );
-		exit;
+		bbp_redirect( $redirect );
 	}
 }
 
@@ -1703,7 +1691,7 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
  * @uses bbp_is_single_user_edit()
  * @uses current_user_can()
  * @uses bbp_get_displayed_user_id()
- * @uses wp_safe_redirect()
+ * @uses bbp_redirect()
  * @uses bbp_get_user_profile_url()
  */
 function bbp_check_user_edit() {
@@ -1743,8 +1731,7 @@ function bbp_check_user_edit() {
 	$redirect_to = apply_filters( 'bbp_check_user_edit_redirect_to', $profile_url, $user_id );
 
 	// Redirect
-	wp_safe_redirect( $redirect_to );
-	exit();
+	bbp_redirect( $redirect_to );
 }
 
 /**

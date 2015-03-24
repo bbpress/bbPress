@@ -101,7 +101,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  *                    id, anonymous data, reply author, edit (false), and
  *                    the reply to id
  * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses wp_safe_redirect() To redirect to the reply url
+ * @uses bbp_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                              message
  */
@@ -449,10 +449,7 @@ function bbp_new_reply_handler( $action = '' ) {
 		/** Successful Save ***************************************************/
 
 		// Redirect back to new reply
-		wp_safe_redirect( $reply_url );
-
-		// For good measure
-		exit();
+		bbp_redirect( $reply_url );
 
 	/** Errors ****************************************************************/
 
@@ -491,7 +488,7 @@ function bbp_new_reply_handler( $action = '' ) {
  *                    id, anonymous data, reply author, bool true (for edit),
  *                    and the reply to id
  * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses wp_safe_redirect() To redirect to the reply url
+ * @uses bbp_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                             message
  */
@@ -761,10 +758,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		/** Successful Edit ***************************************************/
 
 		// Redirect back to new reply
-		wp_safe_redirect( $reply_url );
-
-		// For good measure
-		exit();
+		bbp_redirect( $reply_url );
 
 	/** Errors ****************************************************************/
 
@@ -1273,7 +1267,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
  * @uses do_action() Calls 'bbp_post_split_topic' with the destination and
  *                    source topic ids and source topic's forum id
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_safe_redirect() To redirect to the topic link
+ * @uses bbp_redirect() To redirect to the topic link
  */
 function bbp_move_reply_handler( $action = '' ) {
 
@@ -1496,10 +1490,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	do_action( 'bbp_post_move_reply', $move_reply->ID, $source_topic->ID, $destination_topic->ID );
 
 	// Redirect back to the topic
-	wp_safe_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
-
-	// For good measure
-	exit();
+	bbp_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
 }
 
 /**
@@ -1569,7 +1560,7 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  *                    and action
  * @uses bbp_get_reply_url() To get the reply url
  * @uses add_query_arg() To add custom args to the reply url
- * @uses wp_safe_redirect() To redirect to the reply
+ * @uses bbp_redirect() To redirect to the reply
  * @uses bbPress::errors:add() To log the error messages
  */
 function bbp_toggle_reply_handler( $action = '' ) {
@@ -1693,10 +1684,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		}
 
 		// Redirect back to reply
-		wp_safe_redirect( $reply_url );
-
-		// For good measure
-		exit();
+		bbp_redirect( $reply_url );
 
 	// Handle errors
 	} else {
@@ -2310,20 +2298,19 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
  * @uses bbp_is_reply_edit()
  * @uses current_user_can()
  * @uses bbp_get_topic_id()
- * @uses wp_safe_redirect()
+ * @uses bbp_redirect()
  * @uses bbp_get_topic_permalink()
  */
 function bbp_check_reply_edit() {
 
 	// Bail if not editing a topic
-	if ( !bbp_is_reply_edit() ) {
+	if ( ! bbp_is_reply_edit() ) {
 		return;
 	}
 
 	// User cannot edit topic, so redirect back to reply
-	if ( !current_user_can( 'edit_reply', bbp_get_reply_id() ) ) {
-		wp_safe_redirect( bbp_get_reply_url() );
-		exit();
+	if ( ! current_user_can( 'edit_reply', bbp_get_reply_id() ) ) {
+		bbp_redirect( bbp_get_reply_url() );
 	}
 }
 

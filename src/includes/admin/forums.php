@@ -427,7 +427,7 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_toggle_forum_admin' with success, post
 	 *                    data, action and message
 	 * @uses add_query_arg() To add custom args to the url
-	 * @uses wp_safe_redirect() Redirect the page to custom url
+	 * @uses bbp_redirect() Redirect the page to custom url
 	 */
 	public function toggle_forum() {
 
@@ -479,10 +479,7 @@ class BBP_Forums_Admin {
 
 			// Redirect back to the forum
 			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'forum_id' ) ) );
-			wp_safe_redirect( $redirect );
-
-			// For good measure
-			exit();
+			bbp_redirect( $redirect );
 		}
 	}
 

@@ -199,7 +199,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
  * @uses get_transient() To see if transient to redirect exists
  * @uses delete_transient() To delete the transient if it exists
  * @uses is_network_admin() To bail if being network activated
- * @uses wp_safe_redirect() To redirect
+ * @uses bbp_redirect() To redirect
  * @uses add_query_arg() To help build the URL to redirect to
  * @uses admin_url() To get the admin URL to index.php
  *
@@ -226,7 +226,7 @@ function bbp_do_activation_redirect() {
 	}
 
 	// Redirect to bbPress about page
-	wp_safe_redirect( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) );
+	bbp_redirect( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) );
 }
 
 /**

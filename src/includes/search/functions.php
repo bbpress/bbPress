@@ -80,6 +80,5 @@ function bbp_search_results_redirect() {
 	}
 
 	// Redirect and bail
-	wp_safe_redirect( $redirect_to );
-	exit();
+	bbp_redirect( $redirect_to );
 }
