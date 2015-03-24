@@ -1695,33 +1695,34 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
  *
  * This is hooked to 'bbp_template_redirect' and controls the conditions under
  * which a user can edit another user (or themselves.) If these conditions are
- * met. We assume a user cannot perform this task, and look for ways they can
+ * met, we assume a user cannot perform this task, and look for ways they can
  * earn the ability to access this template.
  *
  * @since bbPress (r3605)
  *
- * @uses bbp_is_topic_edit()
+ * @uses bbp_is_single_user_edit()
  * @uses current_user_can()
- * @uses bbp_get_topic_id()
+ * @uses bbp_get_displayed_user_id()
  * @uses wp_safe_redirect()
- * @uses bbp_get_topic_permalink()
+ * @uses bbp_get_user_profile_url()
  */
 function bbp_check_user_edit() {
 
-	// Bail if not editing a topic
+	// Bail if not editing a user
 	if ( ! bbp_is_single_user_edit() ) {
 		return;
 	}
 
 	// Default to false
 	$redirect = true;
+	$user_id  = bbp_get_displayed_user_id();
 
 	// Allow user to edit their own profile
 	if ( bbp_is_user_home_edit() ) {
 		$redirect = false;
 
 	// Allow if current user can edit the displayed user
-	} elseif ( current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
+	} elseif ( current_user_can( 'edit_user', $user_id ) ) {
 		$redirect = false;
 
 	// Allow if user can manage network users, or edit-any is enabled
@@ -1729,11 +1730,21 @@ function bbp_check_user_edit() {
 		$redirect = false;
 	}
 
-	// Maybe redirect back to profile page
-	if ( true === $redirect ) {
-		wp_safe_redirect( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) );
-		exit();
+	// Allow conclusion to be overridden
+	$redirect = (bool) apply_filters( 'bbp_check_user_edit', $redirect, $user_id );
+
+	// Bail if not redirecting
+	if ( false === $redirect ) {
+		return;
 	}
+
+	// Filter redirect URL
+	$profile_url = bbp_get_user_profile_url( $user_id );
+	$redirect_to = apply_filters( 'bbp_check_user_edit_redirect_to', $profile_url, $user_id );
+
+	// Redirect
+	wp_safe_redirect( $redirect_to );
+	exit();
 }
 
 /**
