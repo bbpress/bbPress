@@ -631,9 +631,11 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Status ******************************************************/
 
-	if ( !empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
-		if ( 'closed' === $_POST['bbp_forum_status'] && !bbp_is_forum_closed( $forum_id, false ) ) {
+	if ( ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
+		if ( 'closed' === $_POST['bbp_forum_status'] && ! bbp_is_forum_closed( $forum_id, false ) ) {
 			bbp_close_forum( $forum_id );
+		} elseif ( 'open' === $_POST['bbp_forum_status'] && bbp_is_forum_open( $forum_id, false ) ) {
+			bbp_open_forum( $forum_id );
 		} elseif ( 'open' === $_POST['bbp_forum_status'] && bbp_is_forum_closed( $forum_id, false ) ) {
 			bbp_open_forum( $forum_id );
 		}
@@ -641,9 +643,11 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Type ********************************************************/
 
-	if ( !empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
-		if ( 'category' === $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) ) {
+	if ( ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
+		if ( 'category' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_categorize_forum( $forum_id );
+		} elseif ( 'forum' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
+			bbp_normalize_forum( $forum_id );
 		} elseif ( 'forum' === $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) ) {
 			bbp_normalize_forum( $forum_id );
 		}
