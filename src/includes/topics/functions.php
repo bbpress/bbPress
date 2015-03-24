@@ -2791,11 +2791,20 @@ function bbp_close_topic( $topic_id = 0 ) {
 	// Set closed status
 	$topic->post_status = bbp_get_closed_status_id();
 
-	// No revisions
-	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+	// Toggle revisions off as we are not altering content
+	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+		$revisions_removed = true;
+		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	// Update topic
 	$topic_id = wp_update_post( $topic );
+
+	// Toggle revisions back on
+	if ( true === $revisions_removed ) {
+		$revisions_removed = false;
+		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	// Execute post close code
 	do_action( 'bbp_closed_topic', $topic_id );
@@ -2848,11 +2857,20 @@ function bbp_open_topic( $topic_id = 0 ) {
 	// Remove old status meta
 	delete_post_meta( $topic_id, '_bbp_status' );
 
-	// No revisions
-	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+	// Toggle revisions off as we are not altering content
+	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+		$revisions_removed = true;
+		remove_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	// Update topic
 	$topic_id = wp_update_post( $topic );
+
+	// Toggle revisions back on
+	if ( true === $revisions_removed ) {
+		$revisions_removed = false;
+		add_post_type_support( bbp_get_topic_post_type(), 'revisions' );
+	}
 
 	// Execute post open code
 	do_action( 'bbp_opened_topic', $topic_id );
