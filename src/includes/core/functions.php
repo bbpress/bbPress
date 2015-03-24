@@ -596,6 +596,8 @@ function bbp_is_get_request() {
  * @since bbPress (r5658)
  *
  * @uses wp_safe_redirect()
+ * @uses bbp_get_forums_url()
+ * @see  bbp_redirect_to_field()
  *
  * @param string $location The URL to redirect the user to.
  * @param int    $status   Optional. The numeric code to give in the redirect
