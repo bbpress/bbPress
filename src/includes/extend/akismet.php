@@ -115,21 +115,26 @@ class BBP_Akismet {
 
 		/** Author ************************************************************/
 
+		$user_data['last_active'] = '';
+		$user_data['registered']  = date( 'Y-m-d H:i:s');
+		$user_data['total_posts'] = (int) bbp_get_user_post_count( $post_data['post_author'] );
+
 		// Get user data
 		$userdata       = get_userdata( $post_data['post_author'] );
 		$anonymous_data = bbp_filter_anonymous_post_data();
 
 		// Author is anonymous
-		if ( !empty( $anonymous_data ) ) {
+		if ( ! empty( $anonymous_data ) ) {
 			$user_data['name']    = $anonymous_data['bbp_anonymous_name'];
 			$user_data['email']   = $anonymous_data['bbp_anonymous_email'];
 			$user_data['website'] = $anonymous_data['bbp_anonymous_website'];
 
 		// Author is logged in
-		} elseif ( !empty( $userdata ) ) {
-			$user_data['name']    = $userdata->display_name;
-			$user_data['email']   = $userdata->user_email;
-			$user_data['website'] = $userdata->user_url;
+		} elseif ( ! empty( $userdata ) ) {
+			$user_data['name']       = $userdata->display_name;
+			$user_data['email']      = $userdata->user_email;
+			$user_data['website']    = $userdata->user_url;
+			$user_data['registered'] = $userdata->user_registered;
 
 		// Missing author data, so set some empty strings
 		} else {
@@ -140,25 +145,33 @@ class BBP_Akismet {
 
 		/** Post **************************************************************/
 
-		// Use post parent for permalink
-		if ( !empty( $post_data['post_parent'] ) ) {
+		if ( ! empty( $post_data['post_parent'] ) ) {
+			// Use post parent for permalink
 			$post_permalink = get_permalink( $post_data['post_parent'] );
+
+			// Use post parent to get datetime of last reply on this topic
+			if ( $reply_id = bbp_get_topic_last_reply_id( $post_data['post_parent'] ) ) {
+				$user_data['last_active'] = get_post_field( 'post_date', $reply_id );
+			}
 		}
 
 		// Put post_data back into usable array
 		$_post = array(
-			'comment_author'       => $user_data['name'],
-			'comment_author_email' => $user_data['email'],
-			'comment_author_url'   => $user_data['website'],
-			'comment_content'      => $post_data['post_content'],
-			'comment_post_ID'      => $post_data['post_parent'],
-			'comment_type'         => $post_data['post_type'],
-			'permalink'            => $post_permalink,
-			'referrer'             => $_SERVER['HTTP_REFERER'],
-			'user_agent'           => $_SERVER['HTTP_USER_AGENT'],
-			'user_ID'              => $post_data['post_author'],
-			'user_ip'              => bbp_current_author_ip(),
-			'user_role'            => $this->get_user_roles( $post_data['post_author'] ),
+			'comment_author'                 => $user_data['name'],
+			'comment_author_email'           => $user_data['email'],
+			'comment_author_url'             => $user_data['website'],
+			'comment_content'                => $post_data['post_content'],
+			'comment_post_ID'                => $post_data['post_parent'],
+			'comment_type'                   => $post_data['post_type'],
+			'comment_total'                  => $user_data['total_posts'],
+			'comment_last_active_gmt'        => $user_data['last_active'],
+			'comment_account_registered_gmt' => $user_data['registered'],
+			'permalink'                      => $post_permalink,
+			'referrer'                       => $_SERVER['HTTP_REFERER'],
+			'user_agent'                     => $_SERVER['HTTP_USER_AGENT'],
+			'user_ID'                        => $post_data['post_author'],
+			'user_ip'                        => bbp_current_author_ip(),
+			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
 		);
 
 		// Check the post_data
