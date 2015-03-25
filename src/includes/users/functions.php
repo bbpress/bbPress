@@ -1304,7 +1304,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 /** Edit **********************************************************************/
 
 /**
- * Handles the front end user editing
+ * Handles the front end user editing from POST requests
  *
  * @param string $action The requested action to compare this function to
  * @uses is_multisite() To check if it's a multisite
@@ -1334,41 +1334,13 @@ function bbp_subscriptions_handler( $action = '' ) {
  */
 function bbp_edit_user_handler( $action = '' ) {
 
-	// Bail if action is not 'bbp-update-user'
+	// Bail if action is not `bbp-update-user`
 	if ( 'bbp-update-user' !== $action ) {
 		return;
 	}
 
 	// Get the displayed user ID
 	$user_id = bbp_get_displayed_user_id();
-
-	// Execute confirmed email change. See send_confirmation_on_profile_email().
-	if ( is_multisite() && bbp_is_user_home_edit() && isset( $_GET['newuseremail'] ) ) {
-
-		$new_email = get_option( $user_id . '_new_email' );
-
-		if ( hash_equals( $new_email['hash'], $_GET['newuseremail'] ) ) {
-			$user             = new WP_User();
-			$user->ID         = $user_id;
-			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
-
-			global $wpdb;
-
-			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
-				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
-			}
-
-			wp_update_user( get_object_vars( $user ) );
-			delete_option( $user_id . '_new_email' );
-
-			bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-		}
-
-	// Delete new email address from user options
-	} elseif ( is_multisite() && bbp_is_user_home_edit() && ! empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' === $_GET['dismiss'] ) ) {
-		delete_option( $user_id . '_new_email' );
-		bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
-	}
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'update-user_' . $user_id ) ) {
@@ -1383,7 +1355,10 @@ function bbp_edit_user_handler( $action = '' ) {
 	}
 
 	// Do action based on who's profile you're editing
-	$edit_action = bbp_is_user_home_edit() ? 'personal_options_update' : 'edit_user_profile_update';
+	$edit_action = bbp_is_user_home_edit()
+		? 'personal_options_update'
+		: 'edit_user_profile_update';
+
 	do_action( $edit_action, $user_id );
 
 	// Prevent edit_user() from wiping out the user's Toolbar on front setting
@@ -1403,18 +1378,102 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		// Maybe update super admin ability
 		if ( is_multisite() && ! bbp_is_user_home_edit() ) {
-			empty( $_POST['super_admin'] ) ? revoke_super_admin( $edit_user ) : grant_super_admin( $edit_user );
+			empty( $_POST['super_admin'] )
+				? revoke_super_admin( $edit_user )
+				: grant_super_admin( $edit_user );
 		}
 
-		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $edit_user ) );
+		// Redirect
+		$args     = array( 'updated' => 'true' );
+		$user_url = bbp_get_user_profile_edit_url( $edit_user );
+		$redirect = add_query_arg( $args, $user_url );
 
 		bbp_redirect( $redirect );
 	}
 }
 
 /**
+ * Handles user email address updating from GET requests
+ *
+ * @since bbPress (r5660)
+ *
+ * @global object $wpdb
+ * @param  string $action
+ */
+function bbp_user_email_handler( $action = '' ) {
+
+	// Bail if action is not `bbp-update-user-email`
+	if ( 'bbp-update-user-email' !== $action ) {
+		return;
+	}
+
+	// Bail if not on users own profile
+	if ( ! bbp_is_user_home_edit() ) {
+		return;
+	}
+
+	// Bail if not attempting to modify user email address
+	if ( empty( $_GET['newuseremail'] ) && empty( $_GET['dismiss'] ) ) {
+		return;
+	}
+
+	// Get the displayed user ID & option key
+	$user_id = bbp_get_displayed_user_id();
+	$key     = $user_id . '_new_email';
+
+	// Execute confirmed email change.
+	if ( ! empty( $_GET['newuseremail'] ) ) {
+
+		// Check for email address change option
+		$new_email = get_option( $key, array() );
+
+		// Redirect if *no* email address change exists
+		if ( empty( $new_email ) ) {
+			bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+		}
+
+		// Cleanup & redirect if *invalid* email address change exists
+		if ( empty( $new_email['hash'] ) || empty( $new_email['newemail'] ) ) {
+			delete_option( $key );
+
+			bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+		}
+
+		// Compare hashes, and update user if hashes match
+		if ( hash_equals( $new_email['hash'], $_GET['newuseremail'] ) ) {
+
+			// Create a new user object, used for updating
+			$user             = new WP_User();
+			$user->ID         = $user_id;
+			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
+
+			global $wpdb;
+
+			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
+			}
+
+			wp_update_user( get_object_vars( $user ) );
+			delete_option( $key );
+
+			bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
+		}
+
+	// Delete new email address from user options
+	} elseif ( ! empty( $_GET['dismiss'] ) && ( $key === $_GET['dismiss'] ) ) {
+		if ( ! bbp_verify_nonce_request( "dismiss-{$key}" ) ) {
+			bbp_add_error( 'bbp_dismiss_new_email_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			return;
+		}
+
+		delete_option( $key );
+		bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+	}
+}
+
+/**
  * Conditionally hook the core WordPress output actions to the end of the
- * default user's edit profile template.
+ * default user's edit profile template
  *
  * This allows clever plugin authors to conditionally unhook the WordPress core
  * output actions if they don't want any unexpected junk to appear there, and
