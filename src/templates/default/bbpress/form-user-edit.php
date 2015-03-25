@@ -101,23 +101,7 @@
 
 		<div>
 			<label for="email"><?php _e( 'Email', 'bbpress' ); ?></label>
-
 			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" class="regular-text" />
-
-			<?php
-
-			// Handle address change requests
-			$new_email = get_option( bbp_get_displayed_user_id() . '_new_email' );
-			if ( !empty( $new_email ) && $new_email !== bbp_get_displayed_user_field( 'user_email', 'edit' ) ) : ?>
-
-				<span class="updated inline">
-
-					<?php printf( __( 'There is a pending email address change to <code>%1$s</code>. <a href="%2$s">Cancel</a>', 'bbpress' ), $new_email['newemail'], esc_url( self_admin_url( 'user.php?dismiss=' . bbp_get_current_user_id()  . '_new_email' ) ) ); ?>
-
-				</span>
-
-			<?php endif; ?>
-
 		</div>
 
 		<div id="password">
