@@ -1360,7 +1360,7 @@ function bbp_edit_user_handler( $action = '' ) {
 
 	// Empty email check
 	if ( empty( $_POST['email'] ) ) {
-		bbp_add_error( 'bbp_user_email_empty', __( '<strong>ERROR</strong>: That is not a valid email address.' ), array( 'form-field' => 'email' ) );
+		bbp_add_error( 'bbp_user_email_empty', __( '<strong>ERROR</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 		return;
 	}
 
@@ -1372,13 +1372,13 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		// Check that new email address is valid
 		if ( ! is_email( $_POST['email'] ) ) {
-			bbp_add_error( 'bbp_user_email_invalid', __( '<strong>ERROR</strong>: That is not a valid email address.' ), array( 'form-field' => 'email' ) );
+			bbp_add_error( 'bbp_user_email_invalid', __( '<strong>ERROR</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 			return;
 		}
 
 		// Check if email address is already in use
 		if ( email_exists( $_POST['email'] ) ) {
-			bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.' ), array( 'form-field' => 'email' ) );
+			bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
 			return;
 		}
 
@@ -1508,7 +1508,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 			if ( email_exists( $new_email['newemail'] ) ) {
 				delete_option( $key );
 
-				bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.' ), array( 'form-field' => 'email' ) );
+				bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
 
 			// Email address is good to change to
 			} else {
@@ -1578,7 +1578,7 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = '' ) {
 
 	// Bail if any relevant parameters are empty
 	if ( empty( $user_id ) || empty( $r['hash'] ) || empty( $r['newemail'] ) ) {
-		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>ERROR</strong>: An error occurred while updating your email address.' ), array( 'form-field' => 'email' ) );
+		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>ERROR</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 		return;
 	}
 
@@ -1603,7 +1603,7 @@ This email was sent to: %3$s
 
 Regards,
 The %4$s Team
-%5$s' );
+%5$s', 'bbpress' );
 
 	/**
 	 * Filter the email text sent when a user changes emails.
@@ -1625,7 +1625,7 @@ The %4$s Team
 	$message = sprintf( $content, $user_login, $confirm_url, $r['newemail'], get_site_option( 'site_name' ), network_home_url() );
 
 	// Build the email subject
-	$subject = sprintf( __( '[%s] New Email Address' ), wp_specialchars_decode( get_option( 'blogname' ) ) );
+	$subject = sprintf( __( '[%s] New Email Address', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ) ) );
 
 	// Send the email
 	wp_mail( $r['newemail'], $subject, $message );
