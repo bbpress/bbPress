@@ -331,7 +331,7 @@ add_action( 'bbp_get_request', 'bbp_toggle_topic_handler',        1  );
 add_action( 'bbp_get_request', 'bbp_toggle_reply_handler',        1  );
 add_action( 'bbp_get_request', 'bbp_favorites_handler',           1  );
 add_action( 'bbp_get_request', 'bbp_subscriptions_handler',       1  );
-add_action( 'bbp_get_request', 'bbp_user_email_handler',          1  );
+add_action( 'bbp_get_request', 'bbp_user_email_change_handler',   1  );
 add_action( 'bbp_get_request', 'bbp_forum_subscriptions_handler', 1  );
 add_action( 'bbp_get_request', 'bbp_search_results_redirect',     10 );
 

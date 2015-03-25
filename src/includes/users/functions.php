@@ -1201,6 +1201,8 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 /**
  * Handles the front end subscribing and unsubscribing topics
  *
+ * @since bbPress (r2790)
+ *
  * @param string $action The requested action to compare this function to
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_user_id() To get the user id
@@ -1306,6 +1308,8 @@ function bbp_subscriptions_handler( $action = '' ) {
 /**
  * Handles the front end user editing from POST requests
  *
+ * @since bbPress (r2790)
+ *
  * @param string $action The requested action to compare this function to
  * @uses is_multisite() To check if it's a multisite
  * @uses bbp_is_user_home() To check if the user is at home (the display page
@@ -1354,6 +1358,48 @@ function bbp_edit_user_handler( $action = '' ) {
 		return;
 	}
 
+	// Empty email check
+	if ( empty( $_POST['email'] ) ) {
+		bbp_add_error( 'bbp_user_email_empty', __( '<strong>ERROR</strong>: That is not a valid email address.' ), array( 'form-field' => 'email' ) );
+		return;
+	}
+
+	// Get the users current email address to use for comparisons
+	$user_email = bbp_get_displayed_user_field( 'user_email', 'raw' );
+
+	// Bail if no email change
+	if ( $user_email !== $_POST['email'] ) {
+
+		// Check that new email address is valid
+		if ( ! is_email( $_POST['email'] ) ) {
+			bbp_add_error( 'bbp_user_email_invalid', __( '<strong>ERROR</strong>: That is not a valid email address.' ), array( 'form-field' => 'email' ) );
+			return;
+		}
+
+		// Check if email address is already in use
+		if ( email_exists( $_POST['email'] ) ) {
+			bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.' ), array( 'form-field' => 'email' ) );
+			return;
+		}
+
+		// Update the option
+		$key    = $user_id . '_new_email';
+		$hash   = md5( $_POST['email'] . time() . mt_rand() );
+		$option = array(
+			'hash'     => $hash,
+			'newemail' => $_POST['email']
+		);
+		update_option( $key, $option );
+
+		// Attempt to notify the user of email address change
+		bbp_edit_user_email_send_notification( $user_id, $option );
+
+		// Set the POST email variable back to the user's email address
+		// so `edit_user()` does not attempt to update it. This is not ideal,
+		// but it's also what send_confirmation_on_profile_email() does.
+		$_POST['email'] = $user_email;
+	}
+
 	// Do action based on who's profile you're editing
 	$edit_action = bbp_is_user_home_edit()
 		? 'personal_options_update'
@@ -1364,6 +1410,11 @@ function bbp_edit_user_handler( $action = '' ) {
 	// Prevent edit_user() from wiping out the user's Toolbar on front setting
 	if ( ! isset( $_POST['admin_bar_front'] ) && _get_admin_bar_pref( 'front', $user_id ) ) {
 		$_POST['admin_bar_front'] = 1;
+	}
+
+	// Bail if errors already exist
+	if ( bbp_has_errors() ) {
+		return;
 	}
 
 	// Handle user edit
@@ -1399,8 +1450,18 @@ function bbp_edit_user_handler( $action = '' ) {
  *
  * @global object $wpdb
  * @param  string $action
+ *
+ * @uses bbp_is_user_home_edit()         To check if on the current users profile edit page
+ * @uses bbp_get_displayed_user_id()     To get the ID of the user being edited
+ * @uses bbp_get_user_profile_edit_url() To get the URL of the user being edited
+ * @uses bbp_redirect()                  To redirect away from the current page
+ * @uses hash_equals()                   To compare email hash to saved option hash
+ * @uses email_exists()                  To check if user has email address already
+ * @uses bbp_add_error()                 To add user feedback
+ * @uses wp_update_user()                To update the user with their new email address
+ * @uses bbp_verify_nonce_request()      To verify the intent of the user
  */
-function bbp_user_email_handler( $action = '' ) {
+function bbp_user_email_change_handler( $action = '' ) {
 
 	// Bail if action is not `bbp-update-user-email`
 	if ( 'bbp-update-user-email' !== $action ) {
@@ -1418,45 +1479,67 @@ function bbp_user_email_handler( $action = '' ) {
 	}
 
 	// Get the displayed user ID & option key
-	$user_id = bbp_get_displayed_user_id();
-	$key     = $user_id . '_new_email';
+	$user_id     = bbp_get_displayed_user_id();
+	$key         = $user_id . '_new_email';
+	$redirect_to = bbp_get_user_profile_edit_url( $user_id );
 
 	// Execute confirmed email change.
 	if ( ! empty( $_GET['newuseremail'] ) ) {
 
 		// Check for email address change option
-		$new_email = get_option( $key, array() );
+		$new_email = get_option( $key );
 
 		// Redirect if *no* email address change exists
-		if ( empty( $new_email ) ) {
-			bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+		if ( false === $new_email ) {
+			bbp_redirect( $redirect_to );
 		}
 
 		// Cleanup & redirect if *invalid* email address change exists
 		if ( empty( $new_email['hash'] ) || empty( $new_email['newemail'] ) ) {
 			delete_option( $key );
 
-			bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+			bbp_redirect( $redirect_to );
 		}
 
 		// Compare hashes, and update user if hashes match
 		if ( hash_equals( $new_email['hash'], $_GET['newuseremail'] ) ) {
 
-			// Create a new user object, used for updating
-			$user             = new WP_User();
-			$user->ID         = $user_id;
-			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
+			// Does another user have this email address already?
+			if ( email_exists( $new_email['newemail'] ) ) {
+				delete_option( $key );
 
-			global $wpdb;
+				bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.' ), array( 'form-field' => 'email' ) );
 
-			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
-				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
+			// Email address is good to change to
+			} else {
+
+				// Create a stdClass (for easy call to wp_update_user())
+				$user             = new stdClass();
+				$user->ID         = $user_id;
+				$user->user_email = esc_html( trim( $new_email['newemail'] ) );
+
+				// Attempt to update user email
+				$update_user = wp_update_user( $user );
+
+				// Error(s) editing the user, so copy them into the global
+				if ( is_wp_error( $update_user ) ) {
+					bbpress()->errors = $update_user;
+
+				// All done, so redirect and show the updated message
+				} else {
+
+					// Update signups table, if signups table & entry exists
+					// For Multisite & BuddyPress compatibility
+					global $wpdb;
+					if ( ! empty( $wpdb->signups ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
+						$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
+					}
+
+					delete_option( $key );
+
+					bbp_redirect( add_query_arg( array( 'updated' => 'true' ), $redirect_to ) );
+				}
 			}
-
-			wp_update_user( get_object_vars( $user ) );
-			delete_option( $key );
-
-			bbp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		}
 
 	// Delete new email address from user options
@@ -1467,8 +1550,89 @@ function bbp_user_email_handler( $action = '' ) {
 		}
 
 		delete_option( $key );
-		bbp_redirect( bbp_get_user_profile_edit_url( $user_id ) );
+		bbp_redirect( $redirect_to );
 	}
+}
+
+/**
+ * Sends an email when an email address change occurs on POST requests
+ *
+ * @since bbPress (r5660)
+ *
+ * @see send_confirmation_on_profile_email()
+ *
+ * @uses bbp_parse_args()                To parse the option arguments
+ * @uses bbp_add_error()                 To provide feedback to user
+ * @uses bbp_get_displayed_user_field()  To get the user_login
+ * @uses bbp_get_user_profile_edit_url() To get the user profile edit link
+ * @uses add_query_arg()                 To add arguments the link
+ * @uses wp_mail()                       To send the notification
+ */
+function bbp_edit_user_email_send_notification( $user_id = 0, $args = '' ) {
+
+	// Parse args
+	$r = bbp_parse_args( $args, array(
+		'hash'     => '',
+		'newemail' => '',
+	) );
+
+	// Bail if any relevant parameters are empty
+	if ( empty( $user_id ) || empty( $r['hash'] ) || empty( $r['newemail'] ) ) {
+		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>ERROR</strong>: An error occurred while updating your email address.' ), array( 'form-field' => 'email' ) );
+		return;
+	}
+
+	// Build the nonced URL to dismiss the pending change
+	$user_login  = bbp_get_displayed_user_field( 'user_login', 'raw' );
+	$user_url    = bbp_get_user_profile_edit_url( $user_id );
+	$confirm_url = add_query_arg( array(
+		'action'       => 'bbp-update-user-email',
+		'newuseremail' => $r['hash']
+	), $user_url );
+
+	$email_text = __( '###USERNAME###,
+
+Someone requested a change to the email address on your account.
+
+Please click the following link to confirm this change:
+###PROFILE_URL###
+
+If you did not request this, you can safely ignore and delete this notification.
+
+This email was sent to: ###EMAIL###
+
+Regards,
+The ###SITENAME### Team
+###SITEURL###' );
+
+	/**
+	 * Filter the email text sent when a user changes emails.
+	 *
+	 * The following strings have a special meaning and will get replaced dynamically:
+	 *
+	 * ###USERNAME###    The current user's username.
+	 * ###PROFILE_URL### The link to click on to confirm the email change.
+	 * ###EMAIL###       The new email.
+	 * ###SITENAME###    The name of the site.
+	 * ###SITEURL###     The URL to the site.
+	 *
+	 * @param string $email_text     Text in the email.
+	 * @param string $new_user_email New user email that the current user has changed to.
+	 */
+	$content = apply_filters( 'bbp_new_user_email_content', $email_text, $r );
+
+	// Replace a few strings
+	$content = str_replace( '###USERNAME###',    $user_login,    $content );
+	$content = str_replace( '###PROFILE_URL###', $confirm_url,   $content );
+	$content = str_replace( '###EMAIL###',       $r['newemail'], $content);
+	$content = str_replace( '###SITENAME###',    get_site_option( 'site_name' ), $content );
+	$content = str_replace( '###SITEURL###',     network_home_url(), $content );
+
+	// Build the email subject
+	$subject = sprintf( __( '[%s] New Email Address' ), wp_specialchars_decode( get_option( 'blogname' ) ) );
+
+	// Send the email
+	wp_mail( $r['newemail'], $subject, $content );
 }
 
 /**
