@@ -153,6 +153,7 @@ add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 )
 
 // Profile Page Messages
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );
+add_action( 'bbp_template_notices', 'bbp_notice_edit_user_pending_email'     );
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2 );
 
 // Before Delete/Trash/Untrash Forum

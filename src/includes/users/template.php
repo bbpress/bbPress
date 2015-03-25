@@ -1162,7 +1162,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 /** Edit User *****************************************************************/
 
 /**
- * Edit profile success message
+ * Display profile edit success notice on user edit page
  *
  * @since bbPress (r2688)
  *
@@ -1170,7 +1170,16 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
  * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  */
 function bbp_notice_edit_user_success() {
-	if ( isset( $_GET['updated'] ) && ( bbp_is_single_user() || bbp_is_single_user_edit() ) ) : ?>
+
+	// Bail if no updated argument
+	if ( empty( $_GET['updated'] ) ) {
+		return;
+	}
+
+	// Bail if not on users own profile
+	if ( ! bbp_is_single_user_edit() ) {
+		return;
+	} ?>
 
 	<div class="bbp-template-notice updated">
 		<ul>
@@ -1178,7 +1187,57 @@ function bbp_notice_edit_user_success() {
 		</ul>
 	</div>
 
-	<?php endif;
+	<?php
+}
+
+/**
+ * Display pending email change notice on user edit page
+ *
+ * @since bbPress (r5660)
+ *
+ * @uses bbp_get_displayed_user_id()     To get the displayed user ID
+ * @uses bbp_is_single_user_edit()       To check if it's the profile edit page
+ * @uses bbp_get_user_profile_edit_url() To get the displayed user profile edit URL
+ * @uses add_query_arg()                 To add dismiss query argument to URL
+ * @uses wp_nonce_url()                  To add nonce to URL
+ */
+function bbp_notice_edit_user_pending_email() {
+
+	// Bail if not on users own profile
+	if ( ! bbp_is_user_home_edit() ) {
+		return;
+	}
+
+	// Check for pending email address change
+	$user_id   = bbp_get_displayed_user_id();
+	$key       = $user_id . '_new_email';
+	$new_email = get_option( $key );
+
+	// Bail if no pending email address change
+	if ( empty( $new_email['newemail'] ) ) {
+		return;
+	}
+
+	// Build the nonced URL to dismiss the pending change
+	$user_url = bbp_get_user_profile_edit_url( $user_id );
+	$nonce    = "dismiss-{$key}";
+	$args     = array(
+		'action'  => 'bbp-update-user-email',
+		'dismiss' => $key
+	);
+
+	// Build the variables to pass into printf()
+	$dismiss_url  = wp_nonce_url( add_query_arg( $args, $user_url ), $nonce );
+	$dismiss_link = '<a href="' . $dismiss_url . '">' . esc_html_x( 'Cancel', 'Dismiss pending user email address change', 'bbpress' ) . '</a>';
+	$coded_email  = '<code>' . esc_html( $new_email['newemail'] ) . '</code>'; ?>
+
+	<div class="bbp-template-notice info">
+		<ul>
+			<li><?php printf( __( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ), $coded_email, $dismiss_link ); ?></li>
+		</ul>
+	</div>
+
+	<?php
 }
 
 /**
