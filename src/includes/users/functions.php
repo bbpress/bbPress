@@ -1590,49 +1590,45 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = '' ) {
 		'newuseremail' => $r['hash']
 	), $user_url );
 
-	$email_text = __( '###USERNAME###,
+	$email_text = __( '%1$s
 
 Someone requested a change to the email address on your account.
 
 Please click the following link to confirm this change:
-###PROFILE_URL###
+%2$s
 
 If you did not request this, you can safely ignore and delete this notification.
 
-This email was sent to: ###EMAIL###
+This email was sent to: %3$s
 
 Regards,
-The ###SITENAME### Team
-###SITEURL###' );
+The %4$s Team
+%5$s' );
 
 	/**
 	 * Filter the email text sent when a user changes emails.
 	 *
 	 * The following strings have a special meaning and will get replaced dynamically:
 	 *
-	 * ###USERNAME###    The current user's username.
-	 * ###PROFILE_URL### The link to click on to confirm the email change.
-	 * ###EMAIL###       The new email.
-	 * ###SITENAME###    The name of the site.
-	 * ###SITEURL###     The URL to the site.
+	 * %1$s - The current user's username
+	 * %2$s - The link to click on to confirm the email change
+	 * %3$s - The new email
+	 * %4$s - The name of the site
+	 * %5$s - The URL to the site
 	 *
-	 * @param string $email_text     Text in the email.
-	 * @param string $new_user_email New user email that the current user has changed to.
+	 * @param string $email_text Text in the email.
+	 * @param string $r          New user email that the current user has changed to.
 	 */
 	$content = apply_filters( 'bbp_new_user_email_content', $email_text, $r );
 
-	// Replace a few strings
-	$content = str_replace( '###USERNAME###',    $user_login,    $content );
-	$content = str_replace( '###PROFILE_URL###', $confirm_url,   $content );
-	$content = str_replace( '###EMAIL###',       $r['newemail'], $content);
-	$content = str_replace( '###SITENAME###',    get_site_option( 'site_name' ), $content );
-	$content = str_replace( '###SITEURL###',     network_home_url(), $content );
+	// Build the email message
+	$message = sprintf( $content, $user_login, $confirm_url, $r['newemail'], get_site_option( 'site_name' ), network_home_url() );
 
 	// Build the email subject
 	$subject = sprintf( __( '[%s] New Email Address' ), wp_specialchars_decode( get_option( 'blogname' ) ) );
 
 	// Send the email
-	wp_mail( $r['newemail'], $subject, $content );
+	wp_mail( $r['newemail'], $subject, $message );
 }
 
 /**
