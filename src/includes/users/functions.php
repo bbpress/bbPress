@@ -1619,7 +1619,7 @@ The %4$s Team
 	 * @param string $email_text Text in the email.
 	 * @param string $r          New user email that the current user has changed to.
 	 */
-	$content = apply_filters( 'bbp_new_user_email_content', $email_text, $r );
+	$content = apply_filters( 'bbp_user_email_update_content', $email_text, $r );
 
 	// Build the email message
 	$message = sprintf( $content, $user_login, $confirm_url, $r['newemail'], get_site_option( 'site_name' ), network_home_url() );
