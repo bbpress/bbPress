@@ -290,17 +290,18 @@ function bbp_admin_repair_list() {
 		20 => array( 'bbp-sync-all-topics-sticky',   __( 'Recalculate sticky relationship of each topic',     'bbpress' ), 'bbp_admin_repair_sticky'                   ),
 		25 => array( 'bbp-sync-all-reply-positions', __( 'Recalculate the position of each reply',            'bbpress' ), 'bbp_admin_repair_reply_menu_order'         ),
 		30 => array( 'bbp-group-forums',             __( 'Repair BuddyPress Group Forum relationships',       'bbpress' ), 'bbp_admin_repair_group_forum_relationship' ),
-		35 => array( 'bbp-forum-topics',             __( 'Count topics in each forum',                        'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
-		40 => array( 'bbp-forum-replies',            __( 'Count replies in each forum',                       'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
-		45 => array( 'bbp-topic-replies',            __( 'Count replies in each topic',                       'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
-		50 => array( 'bbp-topic-voices',             __( 'Count voices in each topic',                        'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
-		55 => array( 'bbp-topic-hidden-replies',     __( 'Count spammed & trashed replies in each topic',     'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
-		60 => array( 'bbp-user-topics',              __( 'Count topics for each user',                        'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
-		65 => array( 'bbp-user-replies',             __( 'Count replies for each user',                       'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
-		70 => array( 'bbp-user-favorites',           __( 'Remove trashed topics from user favorites',         'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
-		75 => array( 'bbp-user-topic-subscriptions', __( 'Remove trashed topics from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_topic_subscriptions' ),
-		80 => array( 'bbp-user-forum-subscriptions', __( 'Remove trashed forums from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_forum_subscriptions' ),
-		85 => array( 'bbp-user-role-map',            __( 'Remap existing users to default forum roles',       'bbpress' ), 'bbp_admin_repair_user_roles'               )
+		35 => array( 'bbp-sync-closed-topics',       __( 'Repair closed topics',                              'bbpress' ), 'bbp_admin_repair_closed_topics'            ),
+		40 => array( 'bbp-forum-topics',             __( 'Count topics in each forum',                        'bbpress' ), 'bbp_admin_repair_forum_topic_count'        ),
+		45 => array( 'bbp-forum-replies',            __( 'Count replies in each forum',                       'bbpress' ), 'bbp_admin_repair_forum_reply_count'        ),
+		50 => array( 'bbp-topic-replies',            __( 'Count replies in each topic',                       'bbpress' ), 'bbp_admin_repair_topic_reply_count'        ),
+		55 => array( 'bbp-topic-voices',             __( 'Count voices in each topic',                        'bbpress' ), 'bbp_admin_repair_topic_voice_count'        ),
+		60 => array( 'bbp-topic-hidden-replies',     __( 'Count spammed & trashed replies in each topic',     'bbpress' ), 'bbp_admin_repair_topic_hidden_reply_count' ),
+		65 => array( 'bbp-user-topics',              __( 'Count topics for each user',                        'bbpress' ), 'bbp_admin_repair_user_topic_count'         ),
+		70 => array( 'bbp-user-replies',             __( 'Count replies for each user',                       'bbpress' ), 'bbp_admin_repair_user_reply_count'         ),
+		75 => array( 'bbp-user-favorites',           __( 'Remove trashed topics from user favorites',         'bbpress' ), 'bbp_admin_repair_user_favorites'           ),
+		80 => array( 'bbp-user-topic-subscriptions', __( 'Remove trashed topics from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_topic_subscriptions' ),
+		85 => array( 'bbp-user-forum-subscriptions', __( 'Remove trashed forums from user subscriptions',     'bbpress' ), 'bbp_admin_repair_user_forum_subscriptions' ),
+		90 => array( 'bbp-user-role-map',            __( 'Remap existing users to default forum roles',       'bbpress' ), 'bbp_admin_repair_user_roles'               )
 	);
 	ksort( $repair_list );
 
@@ -1212,6 +1213,56 @@ function bbp_admin_repair_sticky() {
 
 	// Complete results
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Repair closed topics
+ *
+ * Closed topics that are missing the postmeta "_bbp_status" key value "publish"
+ * result in unexpected behaviour, primarily this would have only occured if you
+ * had imported forums from another forum package previous to bbPress v2.6,
+ * https://bbpress.trac.wordpress.org/ticket/2577
+ *
+ * @since bbPress (r5668)
+ *
+ * @uses wpdb::get_col() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses get_post_meta() To get the closed topic status meta
+ * @uses update_post_meta To update the topics closed status post meta
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_closed_topics() {
+	global $wpdb;
+
+	$statement     = __( 'Repairing closed topics&hellip; %s', 'bbpress' );
+	$changed       = 0;
+	$result        = __( 'No closed topics to repair.', 'bbpress' );
+	$closed_topics = $wpdb->get_col( "SELECT ID FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'closed';" );
+
+	// Bail if no closed topics found
+	if ( empty( $closed_topics ) || is_wp_error( $closed_topics ) )
+		return array( 1, sprintf( $statement, $result ) );
+
+	// Loop through each closed topic
+	foreach ( $closed_topics as $closed_topic ) {
+
+		// Check if the closed topic already has a postmeta _bbp_status value
+		$topic_status = get_post_meta( $closed_topic, '_bbp_status', true );
+
+		// If we don't have a postmeta _bbp_status value
+		if( empty( $topic_status ) ) {
+			update_post_meta( $closed_topic, '_bbp_status', 'publish' );
+			++$changed; // Keep a count to display at the end
+		}
+	}
+
+	// Cleanup
+	unset( $closed_topics, $closed_topic, $topic_status );
+
+	// Complete results
+	$result = sprintf( _n( 'Complete! 1 closed topic repaired.', 'Complete! %s closed topics repaired.', $changed, 'bbpress' ), $changed );
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
