@@ -103,6 +103,13 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses apply_filters() Calls 'bbp_new_topic_pre_content' with the content
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the topic
+ * @uses get_post_field() To get the post status
+ * @uses bbp_get_closed_status_id() To get the closed status id
+ * @uses bbp_close_topic() To close topics
+ * @uses bbp_get_trash_status_id() To get the trash status id
+ * @uses wp_trash_post() To trash topics
+ * @uses bbp_get_spam_status_id() To get the spam status id
+ * @uses add_post_meta() To add spam status meta to spam topics
  * @uses do_action() Calls 'bbp_new_topic' with the topic id, forum id,
  *                    anonymous data and reply author
  * @uses bbp_stick_topic() To stick or super stick the topic
@@ -340,13 +347,22 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	if ( ! empty( $topic_id ) && ! is_wp_error( $topic_id ) ) {
 
+		/** Close Check *******************************************************/
+
+		// If the topic is closed, close it properly
+		if ( ( get_post_field( 'post_status', $topic_id ) === bbp_get_closed_status_id() ) || ( $topic_data['post_status'] === bbp_get_closed_status_id() ) ) {
+
+			// Close the topic
+			bbp_close_topic( $topic_id );
+		}
+
 		/** Trash Check *******************************************************/
 
 		// If the forum is trash, or the topic_status is switched to
-		// trash, trash it properly
+		// trash, trash the topic properly
 		if ( ( get_post_field( 'post_status', $forum_id ) === bbp_get_trash_status_id() ) || ( $topic_data['post_status'] === bbp_get_trash_status_id() ) ) {
 
-			// Trash the reply
+			// Trash the topic
 			wp_trash_post( $topic_id );
 
 			// Force view=all
@@ -355,7 +371,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		/** Spam Check ********************************************************/
 
-		// If reply or topic are spam, officially spam this reply
+		// If the topic is spam, officially spam this topic
 		if ( $topic_data['post_status'] === bbp_get_spam_status_id() ) {
 			add_post_meta( $topic_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
@@ -2745,6 +2761,9 @@ function bbp_update_topic_revision_log( $args = '' ) {
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
+ * @uses get_post_meta() To get the topic status meta
+ * @uses bbp_get_closed_status_id() to get the closed status
+ * @uses bbp_get_public_status_id() to get the public status
  * @uses do_action() Calls 'bbp_close_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
  * @uses post_type_supports() To check if revisions are enabled
@@ -2752,7 +2771,7 @@ function bbp_update_topic_revision_log( $args = '' ) {
  * @uses remove_post_type_support() To temporarily remove topic revisions
  * @uses wp_update_post() To update the topic with the new status
  * @uses add_post_type_support() To restore topic revisions
- * @uses do_action() Calls 'bbp_opened_topic' with the topic id
+ * @uses do_action() Calls 'bbp_closed_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_close_topic( $topic_id = 0 ) {
@@ -2763,16 +2782,22 @@ function bbp_close_topic( $topic_id = 0 ) {
 		return $topic;
 	}
 
-	// Bail if already closed
-	if ( bbp_get_closed_status_id() === $topic->post_status ) {
+	// Get previous topic status meta
+	$topic_status = get_post_meta( $topic_id, '_bbp_status', true );
+
+	// Bail if already closed and topic status meta exists
+	if ( bbp_get_closed_status_id() === $topic->post_status && ! empty( $topic_status ) ) {
 		return false;
 	}
+
+	// Set status meta public
+	$topic_status = bbp_get_public_status_id();
 
 	// Execute pre close code
 	do_action( 'bbp_close_topic', $topic_id );
 
 	// Add pre close status
-	add_post_meta( $topic_id, '_bbp_status', $topic->post_status );
+	add_post_meta( $topic_id, '_bbp_status', $topic_status );
 
 	// Set closed status
 	$topic->post_status = bbp_get_closed_status_id();
