@@ -2747,7 +2747,11 @@ function bbp_update_topic_revision_log( $args = '' ) {
  * @uses bbp_get_topic() To get the topic
  * @uses do_action() Calls 'bbp_close_topic' with the topic id
  * @uses add_post_meta() To add the previous status to a meta
+ * @uses post_type_supports() To check if revisions are enabled
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses remove_post_type_support() To temporarily remove topic revisions
  * @uses wp_update_post() To update the topic with the new status
+ * @uses add_post_type_support() To restore topic revisions
  * @uses do_action() Calls 'bbp_opened_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
@@ -2805,7 +2809,11 @@ function bbp_close_topic( $topic_id = 0 ) {
  * @uses do_action() Calls 'bbp_open_topic' with the topic id
  * @uses get_post_meta() To get the previous status
  * @uses delete_post_meta() To delete the previous status meta
+ * @uses post_type_supports() To check if revisions are enabled
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses remove_post_type_support() To temporarily remove topic revisions
  * @uses wp_update_post() To update the topic with the new status
+ * @uses add_post_type_support() To restore topic revisions
  * @uses do_action() Calls 'bbp_opened_topic' with the topic id
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
