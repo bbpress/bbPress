@@ -1261,7 +1261,7 @@ function bbp_admin_repair_closed_topics() {
 	unset( $closed_topics, $closed_topic, $topic_status );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! 1 closed topic repaired.', 'Complete! %s closed topics repaired.', $changed, 'bbpress' ), $changed );
+	$result = sprintf( _n( 'Complete! %d closed topic repaired.', 'Complete! %d closed topics repaired.', $changed, 'bbpress' ),      $changed );
 	return array( 0, sprintf( $statement, $result ) );
 }
 
