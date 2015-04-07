@@ -52,3 +52,11 @@ if ( file_exists( WP_ROOT_DIR . '/wp-tests-config.php' ) ) {
 } else {
 	die( "wp-tests-config.php could not be found.\n" );
 }
+
+// Determine whether BuddyPress is present.
+if ( ! defined( 'BP_TESTS_DIR' ) ) {
+	$wp_content_dir = dirname( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) );
+	if ( file_exists( $wp_content_dir . '/buddypress/tests/phpunit/bootstrap.php' ) ) {
+		define( 'BP_TESTS_DIR', $wp_content_dir . '/buddypress/tests/phpunit' );
+	}
+}

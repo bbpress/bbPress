@@ -21,6 +21,16 @@ if ( ! file_exists( WP_TESTS_DIR . '/includes/functions.php' ) ) {
  * Load bbPress's PHPUnit test suite loader
  */
 function _load_loader() {
+
+	// Check if we're running the BuddyPress test suite
+	if ( defined( 'BBP_TESTS_BUDDYPRESS' ) ) {
+
+		// If BuddyPress is found, set it up and require it.
+		if ( defined( 'BP_TESTS_DIR' ) ) {
+			require BP_TESTS_DIR . '/includes/loader.php';
+		}
+	}
+
 	require( BBP_TESTS_DIR . '/includes/loader.php' );
 }
 tests_add_filter( 'muplugins_loaded', '_load_loader' );
@@ -30,3 +40,11 @@ require( WP_TESTS_DIR . '/includes/bootstrap.php' );
 
 echo "Loading bbPress testcase...\n";
 require( BBP_TESTS_DIR . '/includes/testcase.php' );
+require( BBP_TESTS_DIR . '/includes/factory.php' );
+
+if ( defined( 'BBP_TESTS_BUDDYPRESS' ) ) {
+	echo "Loading BuddyPress testcase...\n";
+	require BP_TESTS_DIR . '/includes/testcase.php';
+} else {
+	echo "Not running BuddyPress tests. To execute these, use --group buddypress\n";
+}

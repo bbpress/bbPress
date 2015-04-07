@@ -29,6 +29,10 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		}
 
 		$this->factory = new BBP_UnitTest_Factory;
+
+		if ( class_exists( 'BP_UnitTest_Factory' ) ) {
+			$this->bp_factory = new BP_UnitTest_Factory();
+		}
 	}
 
 	function clean_up_global_scope() {
