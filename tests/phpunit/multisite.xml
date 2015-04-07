@@ -14,4 +14,9 @@
 			<directory suffix=".php">./testcases/</directory>
 		</testsuite>
 	</testsuites>
+	<groups>
+		<exclude>
+			<group>buddypress</group>
+		</exclude>
+	</groups>
 </phpunit>

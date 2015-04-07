@@ -239,6 +239,10 @@ module.exports = function( grunt ) {
 				cmd: 'phpunit',
 				args: [ '-c', 'phpunit.xml.dist' ]
 			},
+			buddypress: {
+				cmd: 'phpunit',
+				args: [ '-c', 'tests/phpunit/buddypress.xml' ]
+			},
 			multisite: {
 				cmd: 'phpunit',
 				args: [ '-c', 'tests/phpunit/multisite.xml' ]
@@ -334,7 +338,7 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPUnit test task.
-	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the ajax and multisite tests.', function() {
+	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the BuddyPress and multisite tests.', function() {
 		grunt.util.spawn( {
 			cmd:  this.data.cmd,
 			args: this.data.args,

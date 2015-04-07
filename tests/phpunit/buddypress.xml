@@ -1,19 +1,22 @@
 <phpunit
-	bootstrap="tests/phpunit/bootstrap.php"
+	bootstrap="bootstrap.php"
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
+	<php>
+		<const name="BBP_TESTS_BUDDYPRESS" value="1" />
+	</php>
 	<testsuites>
 		<testsuite>
-			<directory suffix=".php">tests/phpunit/testcases/</directory>
+			<directory suffix=".php">./testcases/</directory>
 		</testsuite>
 	</testsuites>
 	<groups>
-		<exclude>
+		<include>
 			<group>buddypress</group>
-		</exclude>
+		</include>
 	</groups>
 </phpunit>
