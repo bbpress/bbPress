@@ -2564,7 +2564,8 @@ function bbp_topic_edit_link( $args = '' ) {
 			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
 		), 'get_topic_edit_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		// Get the topic
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		// Bypass check if user has caps
 		if ( ! current_user_can( 'edit_others_topics' ) ) {
@@ -2576,7 +2577,7 @@ function bbp_topic_edit_link( $args = '' ) {
 		}
 
 		// Get uri
-		$uri = bbp_get_topic_edit_url( $r['id'] );
+		$uri = bbp_get_topic_edit_url( $topic->ID );
 
 		// Bail if no uri
 		if ( empty( $uri ) ) {
@@ -2585,7 +2586,7 @@ function bbp_topic_edit_link( $args = '' ) {
 
 		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-edit-link">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_edit_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_edit_link', $retval, $r, $args );
 	}
 
 /**
@@ -2615,8 +2616,6 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
 		global $wp_rewrite;
 
-		$bbp = bbpress();
-
 		$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) );
 		if ( empty( $topic ) ) {
 			return;
@@ -2627,12 +2626,12 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = trailingslashit( $topic_link ) . $bbp->edit_id;
+			$url = trailingslashit( $topic_link ) . bbp_get_edit_rewrite_id();
 			$url = trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, $bbp->edit_id => '1' ), $topic_link );
+			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, bbp_get_edit_rewrite_id() => '1' ), $topic_link );
 		}
 
 		// Maybe add view=all
@@ -2692,12 +2691,13 @@ function bbp_topic_trash_link( $args = '' ) {
 			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_topic_trash_link' );
 
-		$actions = array();
-		$topic   = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		if ( empty( $topic ) || ! current_user_can( 'delete_topic', $topic->ID ) ) {
 			return;
 		}
+
+		$actions = array();
 
 		if ( bbp_is_topic_trash( $topic->ID ) ) {
 			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" class="bbp-topic-restore-link">' . $r['restore_text'] . '</a>';
@@ -2712,7 +2712,7 @@ function bbp_topic_trash_link( $args = '' ) {
 		// Process the admin links
 		$retval = $r['link_before'] . implode( $r['sep'], $actions ) . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_trash_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_trash_link', $retval, $r, $args );
 	}
 
 /**
@@ -2761,7 +2761,7 @@ function bbp_topic_close_link( $args = '' ) {
 			'open_text'   => _x( 'Open',  'Topic Status', 'bbpress' )
 		), 'get_topic_close_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2772,7 +2772,7 @@ function bbp_topic_close_link( $args = '' ) {
 		$uri     = wp_nonce_url( $uri, 'close-topic_' . $topic->ID );
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-close-link">' . $display . '</a>' . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_close_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_close_link', $retval, $r, $args );
 	}
 
 /**
@@ -2822,9 +2822,9 @@ function bbp_topic_approve_link( $args = '' ) {
 			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
 		), 'get_topic_approve_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
-		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) ) {
+		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
 		}
 
@@ -2833,7 +2833,7 @@ function bbp_topic_approve_link( $args = '' ) {
 		$uri     = wp_nonce_url( $uri, 'approve-topic_' . $topic->ID );
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-approve-link">' . $display . '</a>' . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_approve_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_approve_link', $retval, $r, $args );
 	}
 
 /**
@@ -2884,7 +2884,7 @@ function bbp_topic_stick_link( $args = '' ) {
 			'super_text'   => esc_html__( '(to front)', 'bbpress' ),
 		), 'get_topic_stick_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2910,7 +2910,7 @@ function bbp_topic_stick_link( $args = '' ) {
 		// Combine the HTML into 1 string
 		$retval = $r['link_before'] . $stick_display . $super_display . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_stick_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_stick_link', $retval, $r, $args );
 	}
 
 /**
@@ -2954,7 +2954,7 @@ function bbp_topic_merge_link( $args = '' ) {
 			'merge_text'   => esc_html__( 'Merge', 'bbpress' ),
 		), 'get_topic_merge_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2963,7 +2963,7 @@ function bbp_topic_merge_link( $args = '' ) {
 		$uri    = add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->ID ) );
 		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-merge-link">' . $r['merge_text'] . '</a>' . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_merge_link', $retval, $args );
+		return apply_filters( 'bbp_get_topic_merge_link', $retval, $r, $args );
 	}
 
 /**
@@ -3012,7 +3012,7 @@ function bbp_topic_spam_link( $args = '' ) {
 			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_topic_spam_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -3023,7 +3023,7 @@ function bbp_topic_spam_link( $args = '' ) {
 		$uri     = wp_nonce_url( $uri, 'spam-topic_' . $topic->ID );
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-spam-link">' . $display . '</a>' . $r['link_after'];
 
-		return apply_filters( 'bbp_get_topic_spam_link', $retval, $r );
+		return apply_filters( 'bbp_get_topic_spam_link', $retval, $r, $args );
 	}
 
 /**
@@ -3062,7 +3062,7 @@ function bbp_topic_reply_link( $args = array() ) {
 		), 'get_topic_reply_link' );
 
 		// Get the reply to use it's ID and post_parent
-		$topic = bbp_get_topic( bbp_get_topic_id( (int) $r['id'] ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
 
 		// Bail if no reply or user cannot reply
 		if ( empty( $topic ) || ! bbp_current_user_can_access_create_reply_form() ) {
@@ -3752,15 +3752,13 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 		// Add before and after if description exists
 		if ( ! empty( $term->term_id ) ) {
 
-			$bbp = bbpress();
-
 			// Pretty
 			if ( $wp_rewrite->using_permalinks() ) {
-				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . $bbp->edit_id );
+				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . bbp_get_edit_rewrite_id() );
 
 			// Ugly
 			} else {
-				$retval = add_query_arg( array( $bbp->edit_id => '1' ), bbp_get_topic_tag_link() );
+				$retval = add_query_arg( array( bbp_get_edit_rewrite_id() => '1' ), bbp_get_topic_tag_link() );
 			}
 
 		// No link
