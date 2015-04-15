@@ -1078,66 +1078,6 @@ function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
 }
 
 /**
- * Output the status of the topic
- *
- * @since bbPress (r2667)
- *
- * @param int $topic_id Optional. Topic id
- * @uses bbp_get_topic_status() To get the topic status
- */
-function bbp_topic_status( $topic_id = 0 ) {
-	echo bbp_get_topic_status( $topic_id );
-}
-	/**
-	 * Return the status of the topic
-	 *
-	 * @since bbPress (r2667)
-	 *
-	 * @param int $topic_id Optional. Topic id
-	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post_status() To get the topic status
-	 * @uses apply_filters() Calls 'bbp_get_topic_status' with the status
-	 *                        and topic id
-	 * @return string Status of topic
-	 */
-	function bbp_get_topic_status( $topic_id = 0 ) {
-		$topic_id = bbp_get_topic_id( $topic_id );
-
-		return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ), $topic_id );
-	}
-
-/**
- * Is the topic open to new replies?
- *
- * @since bbPress (r2727)
- *
- * @uses bbp_get_topic_status()
- *
- * @param int $topic_id Optional. Topic id
- * @uses bbp_is_topic_closed() To check if the topic is closed
- * @return bool True if open, false if closed.
- */
-function bbp_is_topic_open( $topic_id = 0 ) {
-	return ! bbp_is_topic_closed( $topic_id );
-}
-
-	/**
-	 * Is the topic closed to new replies?
-	 *
-	 * @since bbPress (r2746)
-	 *
-	 * @param int $topic_id Optional. Topic id
-	 * @uses bbp_get_topic_status() To get the topic status
-	 * @uses apply_filters() Calls 'bbp_is_topic_closed' with the topic id
-	 *
-	 * @return bool True if closed, false if not.
-	 */
-	function bbp_is_topic_closed( $topic_id = 0 ) {
-		$closed = bbp_get_topic_status( $topic_id ) === bbp_get_closed_status_id();
-		return (bool) apply_filters( 'bbp_is_topic_closed', (bool) $closed, $topic_id );
-	}
-
-/**
  * Is the topic a sticky or super sticky?
  *
  * @since bbPress (r2754)
@@ -1182,6 +1122,69 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
 	$retval   = in_array( $topic_id, $stickies );
 
 	return (bool) apply_filters( 'bbp_is_topic_super_sticky', $retval, $topic_id );
+}
+
+/**
+ * Output the status of the topic
+ *
+ * @since bbPress (r2667)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ */
+function bbp_topic_status( $topic_id = 0 ) {
+	echo bbp_get_topic_status( $topic_id );
+}
+	/**
+	 * Return the status of the topic
+	 *
+	 * @since bbPress (r2667)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post_status() To get the topic status
+	 * @uses apply_filters() Calls 'bbp_get_topic_status' with the status
+	 *                        and topic id
+	 * @return string Status of topic
+	 */
+	function bbp_get_topic_status( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ), $topic_id );
+	}
+
+/**
+ * Is the topic closed to new replies?
+ *
+ * @since bbPress (r2746)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_closed' with the topic id
+ *
+ * @return bool True if closed, false if not.
+ */
+function bbp_is_topic_closed( $topic_id = 0 ) {
+	$topic_id     = bbp_get_topic_id( $topic_id );
+	$status       = bbp_get_closed_status_id();
+	$topic_status = bbp_get_topic_status( $topic_id ) === $status;
+
+	return (bool) apply_filters( 'bbp_is_topic_closed', (bool) $topic_status, $topic_id );
+}
+
+/**
+ * Is the topic open to new replies?
+ *
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_status()
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_is_topic_closed() To check if the topic is closed
+ * @return bool True if open, false if closed.
+ */
+function bbp_is_topic_open( $topic_id = 0 ) {
+	return ! bbp_is_topic_closed( $topic_id );
 }
 
 /**
