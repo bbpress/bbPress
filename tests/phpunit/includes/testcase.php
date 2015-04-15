@@ -45,8 +45,8 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		if ( is_multisite() ) {
 			$blogs = wp_get_sites();
 			foreach ( $blogs as $blog ) {
-				if ( ( int ) $blog[ 'blog_id' ] !== 1 ) {
-					wpmu_delete_blog( $blog[ 'blog_id' ], true );
+				if ( 1 !== (int) $blog['blog_id'] ) {
+					wpmu_delete_blog( $blog['blog_id'], true );
 				}
 			}
 		}
@@ -71,55 +71,55 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		}
 
 		$parts = parse_url( $url );
-		if ( isset( $parts[ 'scheme' ] ) ) {
+		if ( isset( $parts['scheme'] ) ) {
 			// set the HTTP_HOST
-			$GLOBALS[ '_SERVER' ][ 'HTTP_HOST' ] = $parts[ 'host' ];
+			$GLOBALS['_SERVER']['HTTP_HOST'] = $parts['host'];
 
-			$req = $parts[ 'path' ];
-			if ( isset( $parts[ 'query' ] ) ) {
-				$req .= '?' . $parts[ 'query' ];
+			$req = $parts['path'];
+			if ( isset( $parts['query'] ) ) {
+				$req .= '?' . $parts['query'];
 				// parse the url query vars into $_GET
-				parse_str( $parts[ 'query' ], $_GET );
+				parse_str( $parts['query'], $_GET );
 			}
 		} else {
 			$req = $url;
 		}
 
-		if ( !isset( $parts[ 'query' ] ) ) {
-			$parts[ 'query' ] = '';
+		if ( ! isset( $parts['query'] ) ) {
+			$parts['query'] = '';
 		}
 
 		// Scheme
 		if ( 0 === strpos( $req, '/wp-admin' ) && force_ssl_admin() ) {
-			$_SERVER[ 'HTTPS' ] = 'on';
+			$_SERVER['HTTPS'] = 'on';
 		} else {
-			unset( $_SERVER[ 'HTTPS' ] );
+			unset( $_SERVER['HTTPS'] );
 		}
 
 		// Set this for bp_core_set_uri_globals()
-		$GLOBALS[ '_SERVER' ][ 'REQUEST_URI' ] = $req;
-		unset( $_SERVER[ 'PATH_INFO' ] );
+		$GLOBALS['_SERVER']['REQUEST_URI'] = $req;
+		unset( $_SERVER['PATH_INFO'] );
 
 		// setup $current_site and $current_blog globals for multisite based on
 		// REQUEST_URI; mostly copied from /wp-includes/ms-settings.php
 		if ( is_multisite() ) {
 			$current_blog	 = $current_site	 = $blog_id		 = null;
 
-			$domain = addslashes( $_SERVER[ 'HTTP_HOST' ] );
+			$domain = addslashes( $_SERVER['HTTP_HOST'] );
 			if ( false !== strpos( $domain, ':' ) ) {
 				if ( substr( $domain, -3 ) == ':80' ) {
 					$domain	= substr( $domain, 0, -3 );
-					$_SERVER[ 'HTTP_HOST' ] = substr( $_SERVER[ 'HTTP_HOST' ], 0, -3 );
+					$_SERVER['HTTP_HOST'] = substr( $_SERVER['HTTP_HOST'], 0, -3 );
 				} elseif ( substr( $domain, -4 ) == ':443' ) {
 					$domain	= substr( $domain, 0, -4 );
-					$_SERVER[ 'HTTP_HOST' ] = substr( $_SERVER[ 'HTTP_HOST' ], 0, -4 );
+					$_SERVER['HTTP_HOST'] = substr( $_SERVER['HTTP_HOST'], 0, -4 );
 				}
 			}
-			$path = stripslashes( $_SERVER[ 'REQUEST_URI' ] );
+			$path = stripslashes( $_SERVER['REQUEST_URI'] );
 
 			// Get a cleaned-up version of the wp_version string
 			// (strip -src, -alpha, etc which may trip up version_compare())
-			$wp_version = ( float ) $GLOBALS[ 'wp_version' ];
+			$wp_version = (float) $GLOBALS['wp_version'];
 			if ( version_compare( $wp_version, '3.9', '>=' ) ) {
 
 				if ( is_admin() ) {
@@ -167,7 +167,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 				}
 
 				// Figure out the current network's main site.
-				if ( !isset( $current_site->blog_id ) ) {
+				if ( ! isset( $current_site->blog_id ) ) {
 					if ( $current_blog && $current_blog->domain === $current_site->domain && $current_blog->path === $current_site->path ) {
 						$current_site->blog_id = $current_blog->blog_id;
 
@@ -189,26 +189,25 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 				$site_id = $current_blog->site_id;
 				wp_load_core_site_options( $site_id );
 
-
 			// Pre WP 3.9
 			} else {
 
 				$domain        = rtrim( $domain, '.' );
 				$cookie_domain = $domain;
-				if ( substr( $cookie_domain, 0, 4 ) == 'www.' ) {
+				if ( 'www.' == substr( $cookie_domain, 0, 4 ) ) {
 					$cookie_domain	 = substr( $cookie_domain, 4 );
 				}
 
-				$path = preg_replace( '|([a-z0-9-]+.php.*)|', '', $GLOBALS[ '_SERVER' ][ 'REQUEST_URI' ] );
+				$path = preg_replace( '|([a-z0-9-]+.php.*)|', '', $GLOBALS['_SERVER']['REQUEST_URI'] );
 				$path = str_replace( '/wp-admin/', '/', $path );
 				$path = preg_replace( '|(/[a-z0-9-]+?/).*|', '$1', $path );
 
-				$GLOBALS[ 'current_site' ] = wpmu_current_site();
-				if ( !isset( $GLOBALS[ 'current_site' ]->blog_id ) && !empty( $GLOBALS[ 'current_site' ] ) ) {
-					$GLOBALS[ 'current_site' ]->blog_id	 = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s", $GLOBALS[ 'current_site' ]->domain, $GLOBALS[ 'current_site' ]->path ) );
+				$GLOBALS['current_site'] = wpmu_current_site();
+				if ( ! isset( $GLOBALS['current_site']->blog_id ) && ! empty( $GLOBALS['current_site'] ) ) {
+					$GLOBALS['current_site']->blog_id	 = $wpdb->get_var( $wpdb->prepare( "SELECT blog_id FROM $wpdb->blogs WHERE domain = %s AND path = %s", $GLOBALS['current_site']->domain, $GLOBALS['current_site']->path ) );
 				}
 
-				$blogname = htmlspecialchars( substr( $GLOBALS[ '_SERVER' ][ 'REQUEST_URI' ], strlen( $path ) ) );
+				$blogname = htmlspecialchars( substr( $GLOBALS['_SERVER']['REQUEST_URI'], strlen( $path ) ) );
 				if ( false !== strpos( $blogname, '/' ) ) {
 					$blogname			 = substr( $blogname, 0, strpos( $blogname, '/' ) );
 				}
@@ -218,19 +217,19 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 				}
 
 				$reserved_blognames	 = array( 'page', 'comments', 'blog', 'wp-admin', 'wp-includes', 'wp-content', 'files', 'feed' );
-				if ( $blogname != '' && !in_array( $blogname, $reserved_blognames ) && !is_file( $blogname ) ) {
+				if ( $blogname != '' && ! in_array( $blogname, $reserved_blognames ) && ! is_file( $blogname ) ) {
 					$path .= $blogname . '/';
 				}
 
-				$GLOBALS[ 'current_blog' ] = get_blog_details( array( 'domain' => $domain, 'path' => $path ), false );
+				$GLOBALS['current_blog'] = get_blog_details( array( 'domain' => $domain, 'path' => $path ), false );
 
 				unset( $reserved_blognames );
 
-				if ( $GLOBALS[ 'current_site' ] && !$GLOBALS[ 'current_blog' ] ) {
-					$GLOBALS[ 'current_blog' ] = get_blog_details( array( 'domain' => $GLOBALS[ 'current_site' ]->domain, 'path' => $GLOBALS[ 'current_site' ]->path ), false );
+				if ( $GLOBALS['current_site'] && ! $GLOBALS['current_blog'] ) {
+					$GLOBALS['current_blog'] = get_blog_details( array( 'domain' => $GLOBALS['current_site']->domain, 'path' => $GLOBALS['current_site']->path ), false );
 				}
 
-				$GLOBALS[ 'blog_id' ] = $GLOBALS[ 'current_blog' ]->blog_id;
+				$GLOBALS['blog_id'] = $GLOBALS['current_blog']->blog_id;
 			}
 
 			// Emulate a switch_to_blog()
@@ -239,30 +238,30 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 			$_wp_switched_stack = array();
 			$switched = false;
 
-			if ( !isset( $current_site->site_name ) ) {
+			if ( ! isset( $current_site->site_name ) ) {
 				$current_site->site_name = get_site_option( 'site_name' );
-				if ( !$current_site->site_name ) {
+				if ( ! $current_site->site_name ) {
 					$current_site->site_name = ucfirst( $current_site->domain );
 				}
 			}
 		}
 
 		$this->flush_cache();
-		unset( $GLOBALS[ 'wp_query' ], $GLOBALS[ 'wp_the_query' ] );
-		$GLOBALS[ 'wp_the_query' ] = new WP_Query();
-		$GLOBALS[ 'wp_query' ] = $GLOBALS[ 'wp_the_query' ];
-		$GLOBALS[ 'wp' ] = new WP();
+		unset( $GLOBALS['wp_query'], $GLOBALS['wp_the_query'] );
+		$GLOBALS['wp_the_query'] = new WP_Query();
+		$GLOBALS['wp_query'] = $GLOBALS['wp_the_query'];
+		$GLOBALS['wp'] = new WP();
 
 		// clean out globals to stop them polluting wp and wp_query
-		foreach ( $GLOBALS[ 'wp' ]->public_query_vars as $v ) {
+		foreach ( $GLOBALS['wp']->public_query_vars as $v ) {
 			unset( $GLOBALS[ $v ] );
 		}
 
-		foreach ( $GLOBALS[ 'wp' ]->private_query_vars as $v ) {
+		foreach ( $GLOBALS['wp']->private_query_vars as $v ) {
 			unset( $GLOBALS[ $v ] );
 		}
 
-		$GLOBALS[ 'wp' ]->main( $parts[ 'query' ] );
+		$GLOBALS['wp']->main( $parts['query'] );
 
 		$wp_roles->reinit();
 		$current_user = wp_get_current_user();
@@ -288,7 +287,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	 */
 	public function grant_super_admin( $user_id ) {
 		global $super_admins;
-		if ( !is_multisite() ) {
+		if ( ! is_multisite() ) {
 			return;
 		}
 
@@ -302,18 +301,18 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	 * @see grant_super_admin()
 	 */
 	public function restore_admins() {
-		unset( $GLOBALS[ 'super_admins' ] );
+		unset( $GLOBALS['super_admins'] );
 	}
 
 	/**
 	 * Set up globals necessary to avoid errors when using wp_mail()
 	 */
 	public static function setUp_wp_mail( $args ) {
-		if ( isset( $_SERVER[ 'SERVER_NAME' ] ) ) {
-			self::$cached_SERVER_NAME = $_SERVER[ 'SERVER_NAME' ];
+		if ( isset( $_SERVER['SERVER_NAME'] ) ) {
+			self::$cached_SERVER_NAME = $_SERVER['SERVER_NAME'];
 		}
 
-		$_SERVER[ 'SERVER_NAME' ] = 'example.com';
+		$_SERVER['SERVER_NAME'] = 'example.com';
 
 		// passthrough
 		return $args;
@@ -323,11 +322,11 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	 * Tear down globals set up in setUp_wp_mail()
 	 */
 	public static function tearDown_wp_mail( $args ) {
-		if ( !empty( self::$cached_SERVER_NAME ) ) {
-			$_SERVER[ 'SERVER_NAME' ] = self::$cached_SERVER_NAME;
+		if ( ! empty( self::$cached_SERVER_NAME ) ) {
+			$_SERVER['SERVER_NAME'] = self::$cached_SERVER_NAME;
 			unset( $this->cached_SERVER_NAME );
 		} else {
-			unset( $_SERVER[ 'SERVER_NAME' ] );
+			unset( $_SERVER['SERVER_NAME'] );
 		}
 
 		// passthrough
