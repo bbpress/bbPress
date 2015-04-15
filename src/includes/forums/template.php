@@ -217,19 +217,19 @@ function bbp_forum_id( $forum_id = 0 ) {
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $forum_id ) && is_numeric( $forum_id ) ) {
+		if ( ! empty( $forum_id ) && is_numeric( $forum_id ) ) {
 			$bbp_forum_id = $forum_id;
 
 		// Currently inside a forum loop
-		} elseif ( !empty( $bbp->forum_query->in_the_loop ) && isset( $bbp->forum_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->forum_query->in_the_loop ) && isset( $bbp->forum_query->post->ID ) ) {
 			$bbp_forum_id = $bbp->forum_query->post->ID;
 
 		// Currently inside a search loop
-		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_forum( $bbp->search_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_forum( $bbp->search_query->post->ID ) ) {
 			$bbp_forum_id = $bbp->search_query->post->ID;
 
 		// Currently viewing a forum
-		} elseif ( ( bbp_is_single_forum() || bbp_is_forum_edit() ) && !empty( $bbp->current_forum_id ) ) {
+		} elseif ( ( bbp_is_single_forum() || bbp_is_forum_edit() ) && ! empty( $bbp->current_forum_id ) ) {
 			$bbp_forum_id = $bbp->current_forum_id;
 
 		// Currently viewing a forum
@@ -327,7 +327,7 @@ function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Use the redirect address
-		if ( !empty( $redirect_to ) ) {
+		if ( ! empty( $redirect_to ) ) {
 			$forum_permalink = esc_url_raw( $redirect_to );
 
 		// Use the topic permalink
@@ -400,7 +400,7 @@ function bbp_forum_archive_title( $title = '' ) {
 
 			// Set root text to page title
 			$page = bbp_get_page_by_path( bbp_get_root_slug() );
-			if ( !empty( $page ) ) {
+			if ( ! empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to forum post type name label
@@ -531,17 +531,17 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 
 		if ( empty( $last_active ) ) {
 			$reply_id = bbp_get_forum_last_reply_id( $forum_id );
-			if ( !empty( $reply_id ) ) {
+			if ( ! empty( $reply_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
 				$topic_id = bbp_get_forum_last_topic_id( $forum_id );
-				if ( !empty( $topic_id ) ) {
+				if ( ! empty( $topic_id ) ) {
 					$last_active = bbp_get_topic_last_active_time( $topic_id );
 				}
 			}
 		}
 
-		$active_time = !empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
+		$active_time = ! empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
 
 		return apply_filters( 'bbp_get_forum_last_active', $active_time, $forum_id );
 	}
@@ -606,7 +606,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 
 		$time_since = bbp_get_forum_last_active_time( $forum_id );
 
-		if ( !empty( $time_since ) && !empty( $link_url ) ) {
+		if ( ! empty( $time_since ) && ! empty( $link_url ) ) {
 			$anchor = '<a href="' . esc_url( $link_url ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $time_since ) . '</a>';
 		} else {
 			$anchor = esc_html__( 'No Topics', 'bbpress' );
@@ -661,7 +661,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$ancestors = array();
 	$forum     = bbp_get_forum( $forum_id );
 
-	if ( !empty( $forum ) ) {
+	if ( ! empty( $forum ) ) {
 		while ( 0 !== (int) $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
 			$forum       = bbp_get_forum( $forum->post_parent );
@@ -730,9 +730,9 @@ function bbp_forum_get_subforums( $args = array() ) {
 	$get_posts = new WP_Query();
 
 	// No forum passed
-	$sub_forums = !empty( $r['post_parent'] ) ? $get_posts->query( $r ) : array();
+	$sub_forums = ! empty( $r['post_parent'] ) ? $get_posts->query( $r ) : array();
 
-	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $r );
+	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $r, $args );
 }
 
 /**
@@ -778,7 +778,7 @@ function bbp_list_forums( $args = array() ) {
 
 	// Loop through forums and create a list
 	$sub_forums = bbp_forum_get_subforums( $r['forum_id'] );
-	if ( !empty( $sub_forums ) ) {
+	if ( ! empty( $sub_forums ) ) {
 
 		// Total count (for separator)
 		$total_subs = count( $sub_forums );
@@ -792,17 +792,17 @@ function bbp_list_forums( $args = array() ) {
 			$title     = bbp_get_forum_title( $sub_forum->ID );
 
 			// Show topic count
-			if ( !empty( $r['show_topic_count'] ) && !bbp_is_forum_category( $sub_forum->ID ) ) {
+			if ( ! empty( $r['show_topic_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
 				$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
 			}
 
 			// Show reply count
-			if ( !empty( $r['show_reply_count'] ) && !bbp_is_forum_category( $sub_forum->ID ) ) {
+			if ( ! empty( $r['show_reply_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
 				$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
 			}
 
 			// Counts to show
-			if ( !empty( $count ) ) {
+			if ( ! empty( $count ) ) {
 				$counts = $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after'];
 			}
 
@@ -811,7 +811,7 @@ function bbp_list_forums( $args = array() ) {
 		}
 
 		// Output the list
-		echo apply_filters( 'bbp_list_forums', $r['before'] . $output . $r['after'], $r );
+		echo apply_filters( 'bbp_list_forums', $r['before'] . $output . $r['after'], $r, $args );
 	}
 }
 
@@ -850,8 +850,8 @@ function bbp_forum_subscription_link( $args = array() ) {
 			'user_id'     => 0,
 			'before'      => '',
 			'after'       => '',
-			'subscribe'   => __( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => __( 'Unsubscribe', 'bbpress' )
+			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' )
 		), 'get_forum_subscribe_link' );
 
 		// No link for categories until we support subscription hierarchy
@@ -860,7 +860,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 			$retval = bbp_get_user_subscribe_link( $r );
 		}
 
-		return apply_filters( 'bbp_get_forum_subscribe_link', $retval, $r );
+		return apply_filters( 'bbp_get_forum_subscribe_link', $retval, $r, $args );
 	}
 
 /** Forum Last Topic **********************************************************/
@@ -922,7 +922,7 @@ function bbp_forum_last_topic_title( $forum_id = 0 ) {
 	function bbp_get_forum_last_topic_title( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
-		$title    = !empty( $topic_id ) ? bbp_get_topic_title( $topic_id ) : '';
+		$title    = ! empty( $topic_id ) ? bbp_get_topic_title( $topic_id ) : '';
 
 		return apply_filters( 'bbp_get_forum_last_topic_title', $title, $forum_id );
 	}
@@ -954,7 +954,10 @@ function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_topic_permalink( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		return apply_filters( 'bbp_get_forum_last_topic_permalink', bbp_get_topic_permalink( bbp_get_forum_last_topic_id( $forum_id ) ), $forum_id );
+		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
+		$link     = bbp_get_topic_permalink( $topic_id );
+
+		return apply_filters( 'bbp_get_forum_last_topic_permalink', $link, $forum_id, $topic_id );
 	}
 
 /**
@@ -972,8 +975,10 @@ function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
  */
 function bbp_get_forum_last_topic_author_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
-	$author_id = bbp_get_topic_author_id( bbp_get_forum_last_topic_id( $forum_id ) );
-	return (int) apply_filters( 'bbp_get_forum_last_topic_author_id', (int) $author_id, $forum_id );
+	$topic_id  = bbp_get_forum_last_topic_id( $forum_id );
+	$author_id = bbp_get_topic_author_id( $topic_id );
+
+	return (int) apply_filters( 'bbp_get_forum_last_topic_author_id', (int) $author_id, $forum_id, $topic_id );
 }
 
 /**
@@ -1006,6 +1011,7 @@ function bbp_forum_last_topic_author_link( $forum_id = 0 ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
 		$author_id   = bbp_get_forum_last_topic_author_id( $forum_id );
 		$author_link = bbp_get_user_profile_link( $author_id );
+
 		return apply_filters( 'bbp_get_forum_last_topic_author_link', $author_link, $forum_id );
 	}
 
@@ -1068,7 +1074,10 @@ function bbp_forum_last_reply_title( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_reply_title( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		return apply_filters( 'bbp_get_forum_last_reply_title', bbp_get_reply_title( bbp_get_forum_last_reply_id( $forum_id ) ), $forum_id );
+		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
+		$title    = bbp_get_reply_title( $reply_id );
+
+		return apply_filters( 'bbp_get_forum_last_reply_title', $title, $forum_id, $reply_id );
 	}
 
 /**
@@ -1097,7 +1106,10 @@ function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_reply_permalink( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		return apply_filters( 'bbp_get_forum_last_reply_permalink', bbp_get_reply_permalink( bbp_get_forum_last_reply_id( $forum_id ) ), $forum_id );
+		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
+		$link     = bbp_get_reply_permalink( $reply_id );
+
+		return apply_filters( 'bbp_get_forum_last_reply_permalink', $link, $forum_id, $reply_id );
 	}
 
 /**
@@ -1131,7 +1143,7 @@ function bbp_forum_last_reply_url( $forum_id = 0 ) {
 
 		// If forum has replies, get the last reply and use its url
 		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
-		if ( !empty( $reply_id ) ) {
+		if ( ! empty( $reply_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
 
 		// No replies, so look for topics and use last permalink
@@ -1145,7 +1157,7 @@ function bbp_forum_last_reply_url( $forum_id = 0 ) {
 		}
 
 		// Filter and return
-		return apply_filters( 'bbp_get_forum_last_reply_url', $reply_url, $forum_id );
+		return apply_filters( 'bbp_get_forum_last_reply_url', $reply_url, $forum_id, $reply_id );
 	}
 
 /**
@@ -1176,8 +1188,10 @@ function bbp_forum_last_reply_author_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_reply_author_id( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
-		$author_id = bbp_get_reply_author_id( bbp_get_forum_last_reply_id( $forum_id ) );
-		return apply_filters( 'bbp_get_forum_last_reply_author_id', $author_id, $forum_id );
+		$reply_id  = bbp_get_forum_last_reply_id( $forum_id );
+		$author_id = bbp_get_reply_author_id( $reply_id );
+
+		return apply_filters( 'bbp_get_forum_last_reply_author_id', $author_id, $forum_id, $reply_id );
 	}
 
 /**
@@ -1211,7 +1225,8 @@ function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
 		$author_id   = bbp_get_forum_last_reply_author_id( $forum_id );
 		$author_link = bbp_get_user_profile_link( $author_id );
-		return apply_filters( 'bbp_get_forum_last_reply_author_link', $author_link, $forum_id );
+
+		return apply_filters( 'bbp_get_forum_last_reply_author_link', $author_link, $forum_id, $author_id );
 	}
 
 /** Forum Counts **************************************************************/
@@ -1264,7 +1279,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		$deleted = bbp_get_forum_topic_count_hidden( $forum_id );
 
 		// This forum has hidden topics
-		if ( !empty( $deleted ) && current_user_can( 'edit_others_topics' ) ) {
+		if ( ! empty( $deleted ) && current_user_can( 'edit_others_topics' ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -1489,6 +1504,7 @@ function bbp_forum_status( $forum_id = 0 ) {
 	function bbp_get_forum_status( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$status   = get_post_meta( $forum_id, '_bbp_status', true );
+
 		if ( empty( $status ) ) {
 			$status = 'open';
 		}
@@ -1514,15 +1530,16 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses get_post_visibility() To get the forum's visibility
+	 * @uses get_post_status() To get the forum's status
 	 * @uses apply_filters() Calls 'bbp_get_forum_visibility' with the visibility
 	 *                        and forum id
 	 * @return string Status of forum
 	 */
 	function bbp_get_forum_visibility( $forum_id = 0 ) {
-		$forum_id = bbp_get_forum_id( $forum_id );
+		$forum_id   = bbp_get_forum_id( $forum_id );
+		$visibility = get_post_status( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_visibility', get_post_status( $forum_id ), $forum_id );
+		return apply_filters( 'bbp_get_forum_visibility', $visibility, $forum_id );
 	}
 
 /**
@@ -1548,6 +1565,7 @@ function bbp_forum_type( $forum_id = 0 ) {
 	function bbp_get_forum_type( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$retval   = get_post_meta( $forum_id, '_bbp_forum_type', true );
+
 		if ( empty( $retval ) ) {
 			$retval = 'forum';
 		}
@@ -1567,7 +1585,7 @@ function bbp_forum_type( $forum_id = 0 ) {
 function bbp_is_forum_category( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$type     = bbp_get_forum_type( $forum_id );
-	$retval   = ( !empty( $type ) && 'category' === $type );
+	$retval   = ( ! empty( $type ) && 'category' === $type );
 
 	return (bool) apply_filters( 'bbp_is_forum_category', (bool) $retval, $forum_id );
 }
@@ -1584,7 +1602,7 @@ function bbp_is_forum_category( $forum_id = 0 ) {
  * @return bool Whether the forum is open or not
  */
 function bbp_is_forum_open( $forum_id = 0, $check_ancestors = true ) {
-	return !bbp_is_forum_closed( $forum_id, $check_ancestors );
+	return ! bbp_is_forum_closed( $forum_id, $check_ancestors );
 }
 
 /**
@@ -1778,7 +1796,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// Quickly compare visibility of first forum ID
-	if ( $status_name === $visibility ){
+	if ( $status_name === $visibility ) {
 		$retval = true;
 		$count++;
 	}
@@ -1787,7 +1805,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 	if ( ! empty( $check_ancestors ) ) {
 
 		// Adjust the ancestor check based on the count
-		switch( $operator ) {
+		switch ( $operator ) {
 
 			// Adjust the ancestor check based on the count
 			default:
@@ -1829,37 +1847,6 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 }
 
 /**
- * Output the author of the forum
- *
- * @since bbPress (r3675)
- *
- * @param int $forum_id Optional. Forum id
- * @uses bbp_get_forum_author() To get the forum author
- */
-function bbp_forum_author_display_name( $forum_id = 0 ) {
-	echo bbp_get_forum_author_display_name( $forum_id );
-}
-	/**
-	 * Return the author of the forum
-	 *
-	 * @since bbPress (r3675)
-	 *
-	 * @param int $forum_id Optional. Forum id
-	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses bbp_get_forum_author_id() To get the forum author id
-	 * @uses get_the_author_meta() To get the display name of the author
-	 * @uses apply_filters() Calls 'bbp_get_forum_author' with the author
-	 *                        and forum id
-	 * @return string Author of forum
-	 */
-	function bbp_get_forum_author_display_name( $forum_id = 0 ) {
-		$forum_id = bbp_get_forum_id( $forum_id );
-		$author   = get_the_author_meta( 'display_name', bbp_get_forum_author_id( $forum_id ) );
-
-		return apply_filters( 'bbp_get_forum_author_display_name', $author, $forum_id );
-	}
-
-/**
  * Output the author ID of the forum
  *
  * @since bbPress (r3675)
@@ -1890,6 +1877,38 @@ function bbp_forum_author_id( $forum_id = 0 ) {
 	}
 
 /**
+ * Output the author of the forum
+ *
+ * @since bbPress (r3675)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_forum_author() To get the forum author
+ */
+function bbp_forum_author_display_name( $forum_id = 0 ) {
+	echo bbp_get_forum_author_display_name( $forum_id );
+}
+	/**
+	 * Return the author of the forum
+	 *
+	 * @since bbPress (r3675)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses bbp_get_forum_author_id() To get the forum author id
+	 * @uses get_the_author_meta() To get the display name of the author
+	 * @uses apply_filters() Calls 'bbp_get_forum_author' with the author
+	 *                        and forum id
+	 * @return string Author of forum
+	 */
+	function bbp_get_forum_author_display_name( $forum_id = 0 ) {
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$author_id = bbp_get_forum_author_id( $forum_id );
+		$author    = get_the_author_meta( 'display_name', $author_id );
+
+		return apply_filters( 'bbp_get_forum_author_display_name', $author, $forum_id, $author_id );
+	}
+
+/**
  * Replace forum meta details for users that cannot view them.
  *
  * @since bbPress (r3162)
@@ -1903,7 +1922,7 @@ function bbp_forum_author_id( $forum_id = 0 ) {
  * @return string
  */
 function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
-	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
+	if ( bbp_is_forum_private( $forum_id, false ) && ! current_user_can( 'read_private_forums' ) ) {
 		$retval = '-';
 	}
 
@@ -1934,7 +1953,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 	$retval = $author_link;
 
 	// Show the normal author link
-	if ( !empty( $args['post_id'] ) && !current_user_can( 'read_private_forums' ) ) {
+	if ( ! empty( $args['post_id'] ) && ! current_user_can( 'read_private_forums' ) ) {
 
 		// What post type are we looking at?
 		$post_type = get_post_field( 'post_type', $args['post_id'] );
@@ -2085,12 +2104,12 @@ function bbp_single_forum_description( $args = array() ) {
 		$last_active = bbp_get_forum_last_active_id( $forum_id );
 
 		// Has replies
-		if ( !empty( $reply_count ) ) {
+		if ( ! empty( $reply_count ) ) {
 			$reply_text = sprintf( _n( '%s reply', '%s replies', $rc_int, 'bbpress' ), $reply_count );
 		}
 
 		// Forum has active data
-		if ( !empty( $last_active ) ) {
+		if ( ! empty( $last_active ) ) {
 			$topic_text      = bbp_get_forum_topics_link( $forum_id );
 			$time_since      = bbp_get_forum_freshness_link( $forum_id );
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
@@ -2101,9 +2120,9 @@ function bbp_single_forum_description( $args = array() ) {
 		}
 
 		// Forum has active data
-		if ( !empty( $last_active ) ) {
+		if ( ! empty( $last_active ) ) {
 
-			if ( !empty( $reply_count ) ) {
+			if ( ! empty( $reply_count ) ) {
 
 				if ( bbp_is_forum_category( $forum_id ) ) {
 					$retstr = sprintf( esc_html__( 'This category contains %1$s and %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $topic_text, $reply_text, $last_updated_by, $time_since );
@@ -2123,7 +2142,7 @@ function bbp_single_forum_description( $args = array() ) {
 		// Forum has no last active data
 		} else {
 
-			if ( !empty( $reply_count ) ) {
+			if ( ! empty( $reply_count ) ) {
 
 				if ( bbp_is_forum_category( $forum_id ) ) {
 					$retstr = sprintf( esc_html__( 'This category contains %1$s and %2$s.', 'bbpress' ), $topic_text, $reply_text );
@@ -2133,7 +2152,7 @@ function bbp_single_forum_description( $args = array() ) {
 
 			} else {
 
-				if ( !empty( $topic_count ) ) {
+				if ( ! empty( $topic_count ) ) {
 
 					if ( bbp_is_forum_category( $forum_id ) ) {
 						$retstr = sprintf( esc_html__( 'This category contains %1$s.', 'bbpress' ), $topic_text );
@@ -2148,7 +2167,7 @@ function bbp_single_forum_description( $args = array() ) {
 		}
 
 		// Add feeds
-		//$feed_links = ( !empty( $r['feed'] ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
+		//$feed_links = ( ! empty( $r['feed'] ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
 
 		// Add the 'view all' filter back
 		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
@@ -2157,7 +2176,7 @@ function bbp_single_forum_description( $args = array() ) {
 		$retstr = $r['before'] . $retstr . $r['after'];
 
 		// Return filtered result
-		return apply_filters( 'bbp_get_single_forum_description', $retstr, $r );
+		return apply_filters( 'bbp_get_single_forum_description', $retstr, $r, $args );
 	}
 
 /** Forms *********************************************************************/
@@ -2185,7 +2204,7 @@ function bbp_form_forum_title() {
 
 		// Get _POST data
 		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_title'] ) ) {
-			$forum_title = $_POST['bbp_forum_title'];
+			$forum_title = wp_unslash( $_POST['bbp_forum_title'] );
 
 		// Get edit data
 		} elseif ( bbp_is_forum_edit() ) {
@@ -2196,7 +2215,7 @@ function bbp_form_forum_title() {
 			$forum_title = '';
 		}
 
-		return apply_filters( 'bbp_get_form_forum_title', esc_attr( $forum_title ) );
+		return apply_filters( 'bbp_get_form_forum_title', $forum_title );
 	}
 
 /**
@@ -2309,7 +2328,7 @@ function bbp_form_forum_type() {
 			$forum_type = 'forum';
 		}
 
-		return apply_filters( 'bbp_get_form_forum_type', esc_attr( $forum_type ) );
+		return apply_filters( 'bbp_get_form_forum_type', $forum_type );
 	}
 
 /**
@@ -2347,7 +2366,7 @@ function bbp_form_forum_visibility() {
 			$forum_visibility = bbpress()->public_status_id;
 		}
 
-		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
+		return apply_filters( 'bbp_get_form_forum_visibility', $forum_visibility );
 	}
 
 /**
@@ -2501,7 +2520,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
 		<?php
 
 		// Return the results
-		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r );
+		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r, $args );
 	}
 
 /**
@@ -2593,7 +2612,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
 		<?php
 
 		// Return the results
-		return apply_filters( 'bbp_get_form_forum_status_dropdown', ob_get_clean(), $r );
+		return apply_filters( 'bbp_get_form_forum_status_dropdown', ob_get_clean(), $r, $args );
 	}
 
 /**
@@ -2685,7 +2704,7 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
 		<?php
 
 		// Return the results
-		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r );
+		return apply_filters( 'bbp_get_form_forum_type_dropdown', ob_get_clean(), $r, $args );
 	}
 
 /**
@@ -2757,7 +2776,7 @@ function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Forum is valid
-		if ( !empty( $forum_id ) ) {
+		if ( ! empty( $forum_id ) ) {
 
 			// Define local variable(s)
 			$link = '';
@@ -2819,7 +2838,7 @@ function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Forum is valid
-		if ( !empty( $forum_id ) ) {
+		if ( ! empty( $forum_id ) ) {
 
 			// Define local variable(s)
 			$link = '';
