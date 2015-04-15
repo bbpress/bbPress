@@ -89,7 +89,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  *                                                cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses remove_filter() To remove kses filters if needed
- * @uses esc_attr() For sanitization
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
  * @uses apply_filters() Calls 'bbp_new_reply_pre_title' with the title
@@ -262,7 +261,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Reply Title ***********************************************************/
 
 	if ( !empty( $_POST['bbp_reply_title'] ) ) {
-		$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+		$reply_title = sanitize_text_field( $_POST['bbp_reply_title'] );
 	}
 
 	// Filter and sanitize
@@ -329,7 +328,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Either replace terms
 	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
-		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 	// ...or remove them.
 	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
@@ -471,11 +470,8 @@ function bbp_new_reply_handler( $action = '' ) {
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses remove_filter() To remove kses filters if needed
- * @uses esc_attr() For sanitization
- * @uses apply_filters() Calls 'bbp_edit_reply_pre_title' with the title and
- *                       reply id
- * @uses apply_filters() Calls 'bbp_edit_reply_pre_content' with the content
- *                        reply id
+ * @uses apply_filters() Calls 'bbp_edit_reply_pre_title' with the title and id
+ * @uses apply_filters() Calls 'bbp_edit_reply_pre_content' with the content id
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbp_has_errors() To get the {@link WP_Error} errors
  * @uses wp_save_post_revision() To save a reply revision
@@ -599,7 +595,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Reply Title ***********************************************************/
 
 	if ( !empty( $_POST['bbp_reply_title'] ) ) {
-		$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+		$reply_title = sanitize_text_field( $_POST['bbp_reply_title'] );
 	}
 
 	// Filter and sanitize
@@ -651,7 +647,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Either replace terms
 	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
-		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 	// ...or remove them.
 	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
@@ -717,7 +713,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Revision Reason
 	if ( !empty( $_POST['bbp_reply_edit_reason'] ) ) {
-		$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
+		$reply_edit_reason = sanitize_text_field( $_POST['bbp_reply_edit_reason'] );
 	}
 
 	// Update revision log
@@ -1383,7 +1379,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 					// Use the new title that was passed
 					if ( !empty( $_POST['bbp_reply_move_destination_title'] ) ) {
-						$destination_topic_title = esc_attr( strip_tags( $_POST['bbp_reply_move_destination_title'] ) );
+						$destination_topic_title = sanitize_text_field( $_POST['bbp_reply_move_destination_title'] );
 
 					// Use the source topic title
 					} else {

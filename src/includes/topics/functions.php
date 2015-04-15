@@ -91,7 +91,6 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses bbp_set_current_anonymous_user_data() To set the anonymous user cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses esc_attr() For sanitization
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
@@ -174,7 +173,7 @@ function bbp_new_topic_handler( $action = '' ) {
 	/** Topic Title ***********************************************************/
 
 	if ( ! empty( $_POST['bbp_topic_title'] ) ) {
-		$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
+		$topic_title = sanitize_text_field( $_POST['bbp_topic_title'] );
 	}
 
 	// Filter and sanitize
@@ -305,7 +304,7 @@ function bbp_new_topic_handler( $action = '' ) {
 	if ( bbp_allow_topic_tags() && ! empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
-		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 		// Explode by comma
 		if ( strstr( $terms, ',' ) ) {
@@ -463,7 +462,6 @@ function bbp_new_topic_handler( $action = '' ) {
  * @uses current_user_can() To check if the current user can edit the topic
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses esc_attr() For sanitization
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
@@ -599,7 +597,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	/** Topic Title ***********************************************************/
 
 	if ( ! empty( $_POST['bbp_topic_title'] ) ) {
-		$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
+		$topic_title = sanitize_text_field( $_POST['bbp_topic_title'] );
 	}
 
 	// Filter and sanitize
@@ -655,7 +653,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
-		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 		// Explode by comma
 		if ( strstr( $terms, ',' ) ) {
@@ -724,7 +722,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		// Revision Reason
 		if ( ! empty( $_POST['bbp_topic_edit_reason'] ) ) {
-			$topic_edit_reason = esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) );
+			$topic_edit_reason = sanitize_text_field( $_POST['bbp_topic_edit_reason'] );
 		}
 
 		// Update revision log
@@ -1557,7 +1555,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 					// Use the new title that was passed
 					if ( ! empty( $_POST['bbp_topic_split_destination_title'] ) ) {
-						$destination_topic_title = esc_attr( strip_tags( $_POST['bbp_topic_split_destination_title'] ) );
+						$destination_topic_title = sanitize_text_field( $_POST['bbp_topic_split_destination_title'] );
 
 					// Use the source topic title
 					} else {

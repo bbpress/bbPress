@@ -86,7 +86,6 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses bbp_set_current_anonymous_user_data() To set the anonymous user cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses esc_attr() For sanitization
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
@@ -146,7 +145,7 @@ function bbp_new_forum_handler( $action = '' ) {
 	/** Forum Title ***********************************************************/
 
 	if ( !empty( $_POST['bbp_forum_title'] ) ) {
-		$forum_title = esc_attr( strip_tags( $_POST['bbp_forum_title'] ) );
+		$forum_title = sanitize_text_field( $_POST['bbp_forum_title'] );
 	}
 
 	// Filter and sanitize
@@ -351,7 +350,6 @@ function bbp_new_forum_handler( $action = '' ) {
  * @uses current_user_can() To check if the current user can edit the forum
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses esc_attr() For sanitization
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
@@ -453,7 +451,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/** Forum Title ***********************************************************/
 
 	if ( !empty( $_POST['bbp_forum_title'] ) ) {
-		$forum_title = esc_attr( strip_tags( $_POST['bbp_forum_title'] ) );
+		$forum_title = sanitize_text_field( $_POST['bbp_forum_title'] );
 	}
 
 	// Filter and sanitize
@@ -521,7 +519,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	 * @todo omitted for 2.1
 	// Revision Reason
 	if ( !empty( $_POST['bbp_forum_edit_reason'] ) )
-		$forum_edit_reason = esc_attr( strip_tags( $_POST['bbp_forum_edit_reason'] ) );
+		$forum_edit_reason = sanitize_text_field( $_POST['bbp_forum_edit_reason'] );
 
 	// Update revision log
 	if ( !empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {

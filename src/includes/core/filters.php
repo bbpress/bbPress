@@ -91,9 +91,11 @@ add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 add_filter( 'bbp_get_reply_permalink', 'bbp_add_view_all' );
 add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
-// wp_filter_kses on new/edit topic/reply title
+// wp_filter_kses on new/edit forum/topic/reply title
+add_filter( 'bbp_new_forum_pre_title',  'wp_filter_kses'  );
 add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses'  );
 add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses'  );
+add_filter( 'bbp_edit_forum_pre_title', 'wp_filter_kses'  );
 add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses'  );
 add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses'  );
 
