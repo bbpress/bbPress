@@ -47,6 +47,3 @@ $wpdb->select( DB_NAME, $wpdb->dbh );
 // Install bbPress
 echo "Installing bbPress...\n";
 bbp_version_bump();
-
-echo "Creating initial bbPress content...\n";
-bbp_create_initial_content();
