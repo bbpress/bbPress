@@ -1199,7 +1199,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  *
  * @since bbPress (r2782)
  *
- * @param mixed $args Supports these args:
+ * @param array $args Supports these args:
  *  - reply_id: reply id
  *  - author_id: Author id
  *  - reason: Reason for editing
@@ -1210,7 +1210,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  * @uses update_post_meta() To update the reply revision log meta
  * @return mixed False on failure, true on success
  */
-function bbp_update_reply_revision_log( $args = '' ) {
+function bbp_update_reply_revision_log( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(

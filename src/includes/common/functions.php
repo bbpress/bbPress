@@ -417,7 +417,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  *
  * @since bbPress (r2769)
  *
- * @param mixed $args Optional. The function supports these arguments (all
+ * @param array $args Optional. The function supports these arguments (all
  *                     default to true):
  *  - count_users: Count users?
  *  - count_forums: Count forums?
@@ -450,7 +450,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  * @uses apply_filters() Calls 'bbp_get_statistics' with the statistics and args
  * @return object Walked forum tree
  */
-function bbp_get_statistics( $args = '' ) {
+function bbp_get_statistics( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
@@ -606,7 +606,7 @@ function bbp_get_statistics( $args = '' ) {
  *
  * @since bbPress (r2734)
  *
- * @param mixed $args Optional. If no args are there, then $_POST values are
+ * @param array $args Optional. If no args are there, then $_POST values are
  *                     used.
  * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_name' with the
  *                        anonymous user name
@@ -616,7 +616,7 @@ function bbp_get_statistics( $args = '' ) {
  *                        anonymous user website
  * @return bool|array False on errors, values in an array on success
  */
-function bbp_filter_anonymous_post_data( $args = '' ) {
+function bbp_filter_anonymous_post_data( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array (

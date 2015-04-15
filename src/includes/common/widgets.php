@@ -58,7 +58,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r2827)
 	 *
-	 * @param mixed $args Arguments
+	 * @param array $args Arguments
 	 * @param array $instance Instance
 	 * @uses apply_filters() Calls 'bbp_login_widget_title' with the title
 	 * @uses get_template_part() To get the login/logged in form
@@ -262,7 +262,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r3020)
 	 *
-	 * @param mixed $args Arguments
+	 * @param array $args Arguments
 	 * @param array $instance Instance
 	 * @uses apply_filters() Calls 'bbp_view_widget_title' with the title
 	 * @uses bbp_get_views() To get the views
@@ -532,7 +532,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r2653)
 	 *
-	 * @param mixed $args Arguments
+	 * @param array $args Arguments
 	 * @param array $instance Instance
 	 * @uses apply_filters() Calls 'bbp_forum_widget_title' with the title
 	 * @uses get_option() To get the forums per page option
@@ -712,7 +712,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r2653)
 	 *
-	 * @param mixed $args
+	 * @param array $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_topic_widget_title' with the title
 	 * @uses bbp_topic_permalink() To display the topic permalink
@@ -970,7 +970,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r4509)
 	 *
-	 * @param mixed $args     Arguments
+	 * @param array $args     Arguments
 	 * @param array $instance Instance
 	 *
 	 * @uses apply_filters() Calls 'bbp_stats_widget_title' with the title
@@ -1100,7 +1100,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since bbPress (r2653)
 	 *
-	 * @param mixed $args
+	 * @param array $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_reply_widget_title' with the title
 	 * @uses bbp_get_reply_author_link() To get the reply author link

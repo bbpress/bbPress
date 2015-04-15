@@ -241,7 +241,7 @@ class BBP_BuddyPress_Activity {
 	 * @uses bp_activity_add()
 	 * @return type Activity ID if successful, false if not
 	 */
-	public function delete_activity( $args = '' ) {
+	public function delete_activity( $args = array() ) {
 
 		// Default activity args
 		$activity = bbp_parse_args( $args, array(

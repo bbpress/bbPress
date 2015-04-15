@@ -532,10 +532,10 @@ function bbp_user_display_role( $user_id = 0 ) {
  *
  * @since bbPress (r2827)
  *
- * @param mixed $args Optional. See {@link bbp_get_admin_link()}
+ * @param array $args Optional. See {@link bbp_get_admin_link()}
  * @uses bbp_get_admin_link() To get the admin link
  */
-function bbp_admin_link( $args = '' ) {
+function bbp_admin_link( $args = array() ) {
 	echo bbp_get_admin_link( $args );
 }
 	/**
@@ -543,7 +543,7 @@ function bbp_admin_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2827)
 	 *
-	 * @param mixed $args Optional. This function supports these arguments:
+	 * @param array $args Optional. This function supports these arguments:
 	 *  - text: The text
 	 *  - before: Before the lnk
 	 *  - after: After the link
@@ -552,7 +552,7 @@ function bbp_admin_link( $args = '' ) {
 	 * @uses apply_filters() Calls 'bbp_get_admin_link' with the link & args
 	 * @return The link
 	 */
-	function bbp_get_admin_link( $args = '' ) {
+	function bbp_get_admin_link( $args = array() ) {
 		if ( ! current_user_can( 'moderate' ) ) {
 			return;
 		}
@@ -580,10 +580,10 @@ function bbp_admin_link( $args = '' ) {
  *
  * @since bbPress (r3120)
  *
- * @param mixed $args Optional. If it is an integer, it is used as post id.
+ * @param array $args Optional. If it is an integer, it is used as post id.
  * @uses bbp_get_author_ip() To get the post author link
  */
-function bbp_author_ip( $args = '' ) {
+function bbp_author_ip( $args = array() ) {
 	echo bbp_get_author_ip( $args );
 }
 	/**
@@ -591,11 +591,11 @@ function bbp_author_ip( $args = '' ) {
 	 *
 	 * @since bbPress (r3120)
 	 *
-	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @param array $args Optional. If an integer, it is used as reply id.
 	 * @uses get_post_meta() To check if it's a topic page
 	 * @return string Author link of reply
 	 */
-	function bbp_get_author_ip( $args = '' ) {
+	function bbp_get_author_ip( $args = array() ) {
 
 		// Used as post id
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
@@ -858,7 +858,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
  *
  * @since bbPress (r2652)
  *
- * @param mixed $args See {@link bbp_get_user_favorites_link()}
+ * @param array $args See {@link bbp_get_user_favorites_link()}
  * @param int $user_id Optional. User id
  * @param bool $wrap Optional. If you want to wrap the link in <span id="favorite-toggle">.
  * @uses bbp_get_user_favorites_link() To get the user favorites link
@@ -874,7 +874,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 *
 	 * @since bbPress (r2652)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - subscribe: Favorite text
 	 *  - unsubscribe: Unfavorite text
 	 *  - user_id: User id
@@ -895,7 +895,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 *                        html, add args, remove args, user & topic id
 	 * @return string User favorites link
 	 */
-	function bbp_get_user_favorites_link( $args = '', $user_id = 0, $wrap = true ) {
+	function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) {
 		if ( ! bbp_is_favorites_active() ) {
 			return false;
 		}
@@ -1023,12 +1023,12 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
  *
  * @since bbPress (r2668)
  *
- * @param mixed $args See {@link bbp_get_user_subscribe_link()}
+ * @param array $args See {@link bbp_get_user_subscribe_link()}
  * @param int $user_id Optional. User id
  * @param bool $wrap Optional. If you want to wrap the link in <span id="subscription-toggle">.
  * @uses bbp_get_user_subscribe_link() To get the subscribe link
  */
-function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
+function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 	echo bbp_get_user_subscribe_link( $args, $user_id, $wrap );
 }
 	/**
@@ -1036,7 +1036,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 	 *
 	 * @since bbPress (r2668)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - subscribe: Subscribe text
 	 *  - unsubscribe: Unsubscribe text
 	 *  - user_id: User id
@@ -1061,7 +1061,7 @@ function bbp_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
 	 *                        link, args, user id & topic id
 	 * @return string Permanent link to topic
 	 */
-	function bbp_get_user_subscribe_link( $args = '', $user_id = 0, $wrap = true ) {
+	function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
 		if ( ! bbp_is_subscriptions_active() ) {
 			return;
 		}
@@ -1681,10 +1681,10 @@ function bbp_user_lost_pass_fields() {
  *
  * @since bbPress (r2875)
  *
- * @param mixed $args Optional. If it is an integer, it is used as post id.
+ * @param array $args Optional. If it is an integer, it is used as post id.
  * @uses bbp_get_author_link() To get the post author link
  */
-function bbp_author_link( $args = '' ) {
+function bbp_author_link( $args = array() ) {
 	echo bbp_get_author_link( $args );
 }
 	/**
@@ -1692,7 +1692,7 @@ function bbp_author_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2875)
 	 *
-	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @param array $args Optional. If an integer, it is used as reply id.
 	 * @uses bbp_is_topic() To check if it's a topic page
 	 * @uses bbp_get_topic_author_link() To get the topic author link
 	 * @uses bbp_is_reply() To check if it's a reply page
@@ -1707,7 +1707,7 @@ function bbp_author_link( $args = '' ) {
 	 *                        author link and args
 	 * @return string Author link of reply
 	 */
-	function bbp_get_author_link( $args = '' ) {
+	function bbp_get_author_link( $args = array() ) {
 
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
 
@@ -1796,7 +1796,7 @@ function bbp_author_link( $args = '' ) {
  *
  * @return bool
  */
-function bbp_user_can_view_forum( $args = '' ) {
+function bbp_user_can_view_forum( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(

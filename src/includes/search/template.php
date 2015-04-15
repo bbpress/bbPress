@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since bbPress (r4579)
  *
- * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @param array $args All the arguments supported by {@link WP_Query}
  * @uses bbp_get_view_all() Are we showing all results?
  * @uses bbp_get_public_status_id() To get the public status id
  * @uses bbp_get_closed_status_id() To get the closed status id
@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) || exit;
  *                        and bbPress::reply_query
  * @return object Multidimensional array of search information
  */
-function bbp_has_search_results( $args = '' ) {
+function bbp_has_search_results( $args = array() ) {
 	global $wp_rewrite;
 
 	/** Defaults **************************************************************/

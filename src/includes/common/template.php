@@ -1190,14 +1190,14 @@ function is_bbpress() {
  *
  * @since bbPress (r2815)
  *
- * @param mixed $args This function supports these arguments:
+ * @param array $args This function supports these arguments:
  *  - action: The action being taken
  *  - context: The context the action is being taken from
  * @uses add_query_arg() To add a arg to the url
  * @uses site_url() Toget the site url
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
-function bbp_wp_login_action( $args = '' ) {
+function bbp_wp_login_action( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
@@ -1362,9 +1362,9 @@ function bbp_tab_index( $auto_increment = true ) {
  *
  * @since bbPress (r2746)
  *
- * @param mixed $args See {@link bbp_get_dropdown()} for arguments
+ * @param array $args See {@link bbp_get_dropdown()} for arguments
  */
-function bbp_dropdown( $args = '' ) {
+function bbp_dropdown( $args = array() ) {
 	echo bbp_get_dropdown( $args );
 }
 	/**
@@ -1373,7 +1373,7 @@ function bbp_dropdown( $args = '' ) {
 	 *
 	 * @since bbPress (r2746)
 	 *
-	 * @param mixed $args The function supports these args:
+	 * @param array $args The function supports these args:
 	 *  - post_type: Post type, defaults to bbp_get_forum_post_type() (bbp_forum)
 	 *  - selected: Selected ID, to not have any value as selected, pass
 	 *               anything smaller than 0 (due to the nature of select
@@ -1408,7 +1408,7 @@ function bbp_dropdown( $args = '' ) {
 	 *                        and args
 	 * @return string The dropdown
 	 */
-	function bbp_get_dropdown( $args = '' ) {
+	function bbp_get_dropdown( $args = array() ) {
 
 		// Setup return value
 		$retval = '';

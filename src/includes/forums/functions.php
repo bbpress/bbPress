@@ -1574,7 +1574,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  *
  * @since bbPress (r2908)
  *
- * @param mixed $args Supports these arguments:
+ * @param array $args Supports these arguments:
  *  - forum_id: Forum id
  *  - last_topic_id: Last topic id
  *  - last_reply_id: Last reply id
@@ -1590,7 +1590,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  * @uses bbp_update_forum_reply_count() To update the forum reply count
  * @uses bbp_update_forum_topic_count_hidden() To update the hidden topic count
  */
-function bbp_update_forum( $args = '' ) {
+function bbp_update_forum( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(

@@ -17,7 +17,7 @@
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
  * @param int $user_id User id
- * @param mixed $args Arguments
+ * @param array $args Arguments
  * @uses apply_filters() Filter mapped results
  * @return array Actual capabilities for meta capability
  */

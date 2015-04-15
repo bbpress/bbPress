@@ -392,7 +392,7 @@ class BBP_Admin {
 	 * @param array $caps Capabilities for meta capability
 	 * @param string $cap Capability name
 	 * @param int $user_id User id
-	 * @param mixed $args Arguments
+	 * @param array $args Arguments
 	 * @uses get_post() To get the post
 	 * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
 	 *                        args

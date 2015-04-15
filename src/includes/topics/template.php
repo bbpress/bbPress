@@ -117,7 +117,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  *
  * @since bbPress (r2485)
  *
- * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @param array $args All the arguments supported by {@link WP_Query}
  * @uses current_user_can() To check if the current user can edit other's topics
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses WP_Query To make query and get the topics
@@ -138,7 +138,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  *                        and bbPres::topic_query
  * @return object Multidimensional array of topic information
  */
-function bbp_has_topics( $args = '' ) {
+function bbp_has_topics( $args = array() ) {
 	global $wp_rewrite;
 
 	/** Defaults **************************************************************/
@@ -834,10 +834,10 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
  *
  * @since bbPress (r2966)
  *
- * @param mixed $args See {@link bbp_get_topic_pagination()}
+ * @param array $args See {@link bbp_get_topic_pagination()}
  * @uses bbp_get_topic_pagination() To get the topic pagination links
  */
-function bbp_topic_pagination( $args = '' ) {
+function bbp_topic_pagination( $args = array() ) {
 	echo bbp_get_topic_pagination( $args );
 }
 	/**
@@ -845,7 +845,7 @@ function bbp_topic_pagination( $args = '' ) {
 	 *
 	 * @since bbPress (r2966)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - topic_id: Topic id
 	 *  - before: Before the links
 	 *  - after: After the links
@@ -864,7 +864,7 @@ function bbp_topic_pagination( $args = '' ) {
 	 *                        and arguments
 	 * @return string Pagination links
 	 */
-	function bbp_get_topic_pagination( $args = '' ) {
+	function bbp_get_topic_pagination( $args = array() ) {
 		global $wp_rewrite;
 
 		// Bail if threading replies
@@ -1483,7 +1483,7 @@ function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
  * @param mixed|int $args If it is an integer, it is used as topic_id. Optional.
  * @uses bbp_get_topic_author_link() To get the topic author link
  */
-function bbp_topic_author_link( $args = '' ) {
+function bbp_topic_author_link( $args = array() ) {
 	echo bbp_get_topic_author_link( $args );
 }
 	/**
@@ -1507,7 +1507,7 @@ function bbp_topic_author_link( $args = '' ) {
 	 *                        and args
 	 * @return string Author link of topic
 	 */
-	function bbp_get_topic_author_link( $args = '' ) {
+	function bbp_get_topic_author_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2337,7 +2337,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
  * Output a the tags of a topic
  *
  * @param int $topic_id Optional. Topic id
- * @param mixed $args See {@link bbp_get_topic_tag_list()}
+ * @param array $args See {@link bbp_get_topic_tag_list()}
  * @uses bbp_get_topic_tag_list() To get the topic tag list
  */
 function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
@@ -2528,10 +2528,10 @@ function bbp_topic_admin_links( $args = array() ) {
  *
  * @since bbPress (r2727)
  *
- * @param mixed $args See {@link bbp_get_topic_edit_link()}
+ * @param array $args See {@link bbp_get_topic_edit_link()}
  * @uses bbp_get_topic_edit_link() To get the topic edit link
  */
-function bbp_topic_edit_link( $args = '' ) {
+function bbp_topic_edit_link( $args = array() ) {
 	echo bbp_get_topic_edit_link( $args );
 }
 
@@ -2540,7 +2540,7 @@ function bbp_topic_edit_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2727)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2554,7 +2554,7 @@ function bbp_topic_edit_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic edit link
 	 */
-	function bbp_get_topic_edit_link( $args = '' ) {
+	function bbp_get_topic_edit_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2645,10 +2645,10 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
  *
  * @since bbPress (r2727)
  *
- * @param mixed $args See {@link bbp_get_topic_trash_link()}
+ * @param array $args See {@link bbp_get_topic_trash_link()}
  * @uses bbp_get_topic_trash_link() To get the topic trash link
  */
-function bbp_topic_trash_link( $args = '' ) {
+function bbp_topic_trash_link( $args = array() ) {
 	echo bbp_get_topic_trash_link( $args );
 }
 
@@ -2657,7 +2657,7 @@ function bbp_topic_trash_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2727)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2678,7 +2678,7 @@ function bbp_topic_trash_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic trash link
 	 */
-	function bbp_get_topic_trash_link( $args = '' ) {
+	function bbp_get_topic_trash_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2720,10 +2720,10 @@ function bbp_topic_trash_link( $args = '' ) {
  *
  * @since bbPress (r2727)
  *
- * @param mixed $args See {@link bbp_get_topic_close_link()}
+ * @param array $args See {@link bbp_get_topic_close_link()}
  * @uses bbp_get_topic_close_link() To get the topic close link
  */
-function bbp_topic_close_link( $args = '' ) {
+function bbp_topic_close_link( $args = array() ) {
 	echo bbp_get_topic_close_link( $args );
 }
 
@@ -2732,7 +2732,7 @@ function bbp_topic_close_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2727)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2749,7 +2749,7 @@ function bbp_topic_close_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic close link
 	 */
-	function bbp_get_topic_close_link( $args = '' ) {
+	function bbp_get_topic_close_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2780,10 +2780,10 @@ function bbp_topic_close_link( $args = '' ) {
  *
  * @since bbPress (r5504)
  *
- * @param mixed $args See {@link bbp_get_topic_approve_link()}
+ * @param array $args See {@link bbp_get_topic_approve_link()}
  * @uses bbp_get_topic_approve_link() To get the topic approve link
  */
-function bbp_topic_approve_link( $args = '' ) {
+function bbp_topic_approve_link( $args = array() ) {
 	echo bbp_get_topic_approve_link( $args );
 }
 
@@ -2792,7 +2792,7 @@ function bbp_topic_approve_link( $args = '' ) {
 	 *
 	 * @since bbPress (r5504)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2810,7 +2810,7 @@ function bbp_topic_approve_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic approve link
 	 */
-	function bbp_get_topic_approve_link( $args = '' ) {
+	function bbp_get_topic_approve_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2841,10 +2841,10 @@ function bbp_topic_approve_link( $args = '' ) {
  *
  * @since bbPress (r2754)
  *
- * @param mixed $args See {@link bbp_get_topic_stick_link()}
+ * @param array $args See {@link bbp_get_topic_stick_link()}
  * @uses bbp_get_topic_stick_link() To get the topic stick link
  */
-function bbp_topic_stick_link( $args = '' ) {
+function bbp_topic_stick_link( $args = array() ) {
 	echo bbp_get_topic_stick_link( $args );
 }
 
@@ -2853,7 +2853,7 @@ function bbp_topic_stick_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2754)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2872,7 +2872,7 @@ function bbp_topic_stick_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic stick link
 	 */
-	function bbp_get_topic_stick_link( $args = '' ) {
+	function bbp_get_topic_stick_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2918,10 +2918,10 @@ function bbp_topic_stick_link( $args = '' ) {
  *
  * @since bbPress (r2756)
  *
- * @param mixed $args
+ * @param array $args
  * @uses bbp_get_topic_merge_link() To get the topic merge link
  */
-function bbp_topic_merge_link( $args = '' ) {
+function bbp_topic_merge_link( $args = array() ) {
 	echo bbp_get_topic_merge_link( $args );
 }
 
@@ -2930,7 +2930,7 @@ function bbp_topic_merge_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2756)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2944,7 +2944,7 @@ function bbp_topic_merge_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic merge link
 	 */
-	function bbp_get_topic_merge_link( $args = '' ) {
+	function bbp_get_topic_merge_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2971,10 +2971,10 @@ function bbp_topic_merge_link( $args = '' ) {
  *
  * @since bbPress (r2727)
  *
- * @param mixed $args See {@link bbp_get_topic_spam_link()}
+ * @param array $args See {@link bbp_get_topic_spam_link()}
  * @uses bbp_get_topic_spam_link() Topic spam link
  */
-function bbp_topic_spam_link( $args = '' ) {
+function bbp_topic_spam_link( $args = array() ) {
 	echo bbp_get_topic_spam_link( $args );
 }
 
@@ -2983,7 +2983,7 @@ function bbp_topic_spam_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2727)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Topic id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -3000,7 +3000,7 @@ function bbp_topic_spam_link( $args = '' ) {
 	 *                        and args
 	 * @return string Topic spam link
 	 */
-	function bbp_get_topic_spam_link( $args = '' ) {
+	function bbp_get_topic_spam_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -3217,7 +3217,7 @@ function bbp_topic_notices() {
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
-function bbp_topic_type_select( $args = '' ) {
+function bbp_topic_type_select( $args = array() ) {
 	echo bbp_get_form_topic_type_dropdown( $args );
 }
 
@@ -3232,7 +3232,7 @@ function bbp_topic_type_select( $args = '' ) {
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
-function bbp_form_topic_type_dropdown( $args = '' ) {
+function bbp_form_topic_type_dropdown( $args = array() ) {
 	echo bbp_get_form_topic_type_dropdown( $args );
 }
 	/**
@@ -3251,7 +3251,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
 	 * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
 	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
 	 */
-	function bbp_get_form_topic_type_dropdown( $args = '' ) {
+	function bbp_get_form_topic_type_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -3322,7 +3322,7 @@ function bbp_form_topic_type_dropdown( $args = '' ) {
  *  - topic_id: Topic id
  *  - selected: Override the selected option
  */
-function bbp_form_topic_status_dropdown( $args = '' ) {
+function bbp_form_topic_status_dropdown( $args = array() ) {
 	echo bbp_get_form_topic_status_dropdown( $args );
 }
 	/**
@@ -3340,7 +3340,7 @@ function bbp_form_topic_status_dropdown( $args = '' ) {
 	 *  - topic_id: Topic id
 	 *  - selected: Override the selected option
 	 */
-	function bbp_get_form_topic_status_dropdown( $args = '' ) {
+	function bbp_get_form_topic_status_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -3405,7 +3405,7 @@ function bbp_form_topic_status_dropdown( $args = '' ) {
  * @param array $args See {@link bbp_get_single_topic_description()}
  * @uses bbp_get_single_topic_description() Return the eventual output
  */
-function bbp_single_topic_description( $args = '' ) {
+function bbp_single_topic_description( $args = array() ) {
 	echo bbp_get_single_topic_description( $args );
 }
 	/**
@@ -3414,7 +3414,7 @@ function bbp_single_topic_description( $args = '' ) {
 	 *
 	 * @since bbPress (r2860)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - topic_id: Topic id
 	 *  - before: Before the text
 	 *  - after: After the text
@@ -3429,7 +3429,7 @@ function bbp_single_topic_description( $args = '' ) {
 	 *                        the description and args
 	 * @return string Filtered topic description
 	 */
-	function bbp_get_single_topic_description( $args = '' ) {
+	function bbp_get_single_topic_description( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(

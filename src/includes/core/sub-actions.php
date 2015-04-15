@@ -476,7 +476,7 @@ function bbp_allowed_themes( $themes ) {
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
  * @param int $user_id User id
- * @param mixed $args Arguments
+ * @param array $args Arguments
  */
 function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );

@@ -101,7 +101,7 @@ function bbp_get_forum_post_type_supports() {
  *
  * @since bbPress (r2464)
  *
- * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @param array $args All the arguments supported by {@link WP_Query}
  * @uses WP_Query To make query and get the forums
  * @uses bbp_get_forum_post_type() To get the forum post type id
  * @uses bbp_get_forum_id() To get the forum id
@@ -113,7 +113,7 @@ function bbp_get_forum_post_type_supports() {
  *                        and bbPres::forum_query
  * @return object Multidimensional array of forum information
  */
-function bbp_has_forums( $args = '' ) {
+function bbp_has_forums( $args = array() ) {
 
 	// Forum archive only shows root
 	if ( bbp_is_forum_archive() ) {
@@ -676,7 +676,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  *
  * @since bbPress (r2747)
  *
- * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @param array $args All the arguments supported by {@link WP_Query}
  * @uses bbp_get_forum_id() To get the forum id
  * @uses current_user_can() To check if the current user is capable of
  *                           reading private forums
@@ -685,7 +685,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  *                        and the args
  * @return mixed false if none, array of subs if yes
  */
-function bbp_forum_get_subforums( $args = '' ) {
+function bbp_forum_get_subforums( $args = array() ) {
 
 	// Use passed integer as post_parent
 	if ( is_numeric( $args ) ) {
@@ -738,7 +738,7 @@ function bbp_forum_get_subforums( $args = '' ) {
 /**
  * Output a list of forums (can be used to list subforums)
  *
- * @param mixed $args The function supports these args:
+ * @param array $args The function supports these args:
  *  - before: To put before the output. Defaults to '<ul class="bbp-forums">'
  *  - after: To put after the output. Defaults to '</ul>'
  *  - link_before: To put before every link. Defaults to '<li class="bbp-forum">'
@@ -754,7 +754,7 @@ function bbp_forum_get_subforums( $args = '' ) {
  * @uses bbp_get_forum_topic_count() To get forum topic count
  * @uses bbp_get_forum_reply_count() To get forum reply count
  */
-function bbp_list_forums( $args = '' ) {
+function bbp_list_forums( $args = array() ) {
 
 	// Define used variables
 	$output = $sub_forums = $topic_count = $reply_count = $counts = '';
@@ -2035,7 +2035,7 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
  * @param array $args Arguments passed to alter output
  * @uses bbp_get_single_forum_description() Return the eventual output
  */
-function bbp_single_forum_description( $args = '' ) {
+function bbp_single_forum_description( $args = array() ) {
 	echo bbp_get_single_forum_description( $args );
 }
 	/**
@@ -2044,7 +2044,7 @@ function bbp_single_forum_description( $args = '' ) {
 	 *
 	 * @since bbPress (r2860)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - forum_id: Forum id
 	 *  - before: Before the text
 	 *  - after: After the text
@@ -2060,7 +2060,7 @@ function bbp_single_forum_description( $args = '' ) {
 	 *                        the description and args
 	 * @return string Filtered forum description
 	 */
-	function bbp_get_single_forum_description( $args = '' ) {
+	function bbp_get_single_forum_description( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2424,7 +2424,7 @@ function bbp_form_forum_subscribed() {
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_type() To get the topic's forum id
  */
-function bbp_form_forum_type_dropdown( $args = '' ) {
+function bbp_form_forum_type_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_type_dropdown( $args );
 }
 	/**
@@ -2442,7 +2442,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum type
 	 */
-	function bbp_get_form_forum_type_dropdown( $args = '' ) {
+	function bbp_get_form_forum_type_dropdown( $args = array() ) {
 
 		// Backpat for handling passing of a forum ID as integer
 		if ( is_int( $args ) ) {
@@ -2516,7 +2516,7 @@ function bbp_form_forum_type_dropdown( $args = '' ) {
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_status() To get the topic's forum id
  */
-function bbp_form_forum_status_dropdown( $args = '' ) {
+function bbp_form_forum_status_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_status_dropdown( $args );
 }
 	/**
@@ -2534,7 +2534,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum status
 	 */
-	function bbp_get_form_forum_status_dropdown( $args = '' ) {
+	function bbp_get_form_forum_status_dropdown( $args = array() ) {
 
 		// Backpat for handling passing of a forum ID
 		if ( is_int( $args ) ) {
@@ -2608,7 +2608,7 @@ function bbp_form_forum_status_dropdown( $args = '' ) {
  *  - selected: Override the selected option
  * @uses bbp_get_form_forum_visibility() To get the topic's forum id
  */
-function bbp_form_forum_visibility_dropdown( $args = '' ) {
+function bbp_form_forum_visibility_dropdown( $args = array() ) {
 	echo bbp_get_form_forum_visibility_dropdown( $args );
 }
 	/**
@@ -2626,7 +2626,7 @@ function bbp_form_forum_visibility_dropdown( $args = '' ) {
 	 * @uses apply_filters()
 	 * @return string HTML select list for selecting forum visibility
 	 */
-	function bbp_get_form_forum_visibility_dropdown( $args = '' ) {
+	function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 
 		// Backpat for handling passing of a forum ID
 		if ( is_int( $args ) ) {

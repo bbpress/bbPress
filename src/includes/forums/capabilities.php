@@ -37,7 +37,7 @@ function bbp_get_forum_caps() {
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
  * @param int $user_id User id
- * @param mixed $args Arguments
+ * @param array $args Arguments
  * @uses get_post() To get the post
  * @uses get_post_type_object() To get the post type object
  * @uses apply_filters() Filter capability map results

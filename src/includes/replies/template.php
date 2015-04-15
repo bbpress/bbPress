@@ -98,7 +98,7 @@ function bbp_get_reply_post_type_supports() {
  *
  * @since bbPress (r2553)
  *
- * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @param array $args All the arguments supported by {@link WP_Query}
  * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
@@ -118,7 +118,7 @@ function bbp_get_reply_post_type_supports() {
  *                        and bbPres::reply_query
  * @return object Multidimensional array of reply information
  */
-function bbp_has_replies( $args = '' ) {
+function bbp_has_replies( $args = array() ) {
 	global $wp_rewrite;
 
 	/** Defaults **************************************************************/
@@ -1202,10 +1202,10 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
  *
  * @since bbPress (r2717)
  *
- * @param mixed $args Optional. If it is an integer, it is used as reply id.
+ * @param array $args Optional. If it is an integer, it is used as reply id.
  * @uses bbp_get_reply_author_link() To get the reply author link
  */
-function bbp_reply_author_link( $args = '' ) {
+function bbp_reply_author_link( $args = array() ) {
 	echo bbp_get_reply_author_link( $args );
 }
 	/**
@@ -1213,7 +1213,7 @@ function bbp_reply_author_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2717)
 	 *
-	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @param array $args Optional. If an integer, it is used as reply id.
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
@@ -1227,7 +1227,7 @@ function bbp_reply_author_link( $args = '' ) {
 	 *                        author link and args
 	 * @return string Author link of reply
 	 */
-	function bbp_get_reply_author_link( $args = '' ) {
+	function bbp_get_reply_author_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -1935,10 +1935,10 @@ function bbp_reply_admin_links( $args = array() ) {
  *
  * @since bbPress (r2740)
  *
- * @param mixed $args See {@link bbp_get_reply_edit_link()}
+ * @param array $args See {@link bbp_get_reply_edit_link()}
  * @uses bbp_get_reply_edit_link() To get the reply edit link
  */
-function bbp_reply_edit_link( $args = '' ) {
+function bbp_reply_edit_link( $args = array() ) {
 	echo bbp_get_reply_edit_link( $args );
 }
 
@@ -1947,7 +1947,7 @@ function bbp_reply_edit_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
@@ -1961,7 +1961,7 @@ function bbp_reply_edit_link( $args = '' ) {
 	 *                        edit link and args
 	 * @return string Reply edit link
 	 */
-	function bbp_get_reply_edit_link( $args = '' ) {
+	function bbp_get_reply_edit_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2051,10 +2051,10 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
  *
  * @since bbPress (r2740)
  *
- * @param mixed $args See {@link bbp_get_reply_trash_link()}
+ * @param array $args See {@link bbp_get_reply_trash_link()}
  * @uses bbp_get_reply_trash_link() To get the reply trash link
  */
-function bbp_reply_trash_link( $args = '' ) {
+function bbp_reply_trash_link( $args = array() ) {
 	echo bbp_get_reply_trash_link( $args );
 }
 
@@ -2063,7 +2063,7 @@ function bbp_reply_trash_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
@@ -2085,7 +2085,7 @@ function bbp_reply_trash_link( $args = '' ) {
 	 *                        trash link and args
 	 * @return string Reply trash link
 	 */
-	function bbp_get_reply_trash_link( $args = '' ) {
+	function bbp_get_reply_trash_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2127,10 +2127,10 @@ function bbp_reply_trash_link( $args = '' ) {
  *
  * @since bbPress (r2740)
  *
- * @param mixed $args See {@link bbp_get_reply_spam_link()}
+ * @param array $args See {@link bbp_get_reply_spam_link()}
  * @uses bbp_get_reply_spam_link() To get the reply spam link
  */
-function bbp_reply_spam_link( $args = '' ) {
+function bbp_reply_spam_link( $args = array() ) {
 	echo bbp_get_reply_spam_link( $args );
 }
 
@@ -2139,7 +2139,7 @@ function bbp_reply_spam_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
@@ -2158,7 +2158,7 @@ function bbp_reply_spam_link( $args = '' ) {
 	 *                        spam link and args
 	 * @return string Reply spam link
 	 */
-	function bbp_get_reply_spam_link( $args = '' ) {
+	function bbp_get_reply_spam_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2190,10 +2190,10 @@ function bbp_reply_spam_link( $args = '' ) {
  *
  * @since bbPress (r4521)
  *
- * @param mixed $args See {@link bbp_get_reply_move_link()}
+ * @param array $args See {@link bbp_get_reply_move_link()}
  * @uses bbp_get_reply_move_link() To get the reply move link
  */
-function bbp_reply_move_link( $args = '' ) {
+function bbp_reply_move_link( $args = array() ) {
 	echo bbp_get_reply_move_link( $args );
 }
 
@@ -2204,7 +2204,7 @@ function bbp_reply_move_link( $args = '' ) {
 	 *
 	 * @since bbPress (r4521)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
@@ -2223,7 +2223,7 @@ function bbp_reply_move_link( $args = '' ) {
 	 *                        move link and args
 	 * @return string Reply move link
 	 */
-	function bbp_get_reply_move_link( $args = '' ) {
+	function bbp_get_reply_move_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2258,10 +2258,10 @@ function bbp_reply_move_link( $args = '' ) {
  *
  * @since bbPress (r2756)
  *
- * @param mixed $args See {@link bbp_get_topic_split_link()}
+ * @param array $args See {@link bbp_get_topic_split_link()}
  * @uses bbp_get_topic_split_link() To get the topic split link
  */
-function bbp_topic_split_link( $args = '' ) {
+function bbp_topic_split_link( $args = array() ) {
 	echo bbp_get_topic_split_link( $args );
 }
 
@@ -2272,7 +2272,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 *
 	 * @since bbPress (r2756)
 	 *
-	 * @param mixed $args This function supports these arguments:
+	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
@@ -2291,7 +2291,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 *                        split link and args
 	 * @return string Topic split link
 	 */
-	function bbp_get_topic_split_link( $args = '' ) {
+	function bbp_get_topic_split_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2324,10 +2324,10 @@ function bbp_topic_split_link( $args = '' ) {
  *
  * @since bbPress (r5507)
  *
- * @param mixed $args See {@link bbp_get_reply_approve_link()}
+ * @param array $args See {@link bbp_get_reply_approve_link()}
  * @uses bbp_get_reply_approve_link() To get the reply approve link
  */
-function bbp_reply_approve_link( $args = '' ) {
+function bbp_reply_approve_link( $args = array() ) {
 	echo bbp_get_reply_approve_link( $args );
 }
 
@@ -2336,7 +2336,7 @@ function bbp_reply_approve_link( $args = '' ) {
 	 *
 	 * @since bbPress (r5507)
 	 *
-	 * @param mixed $args This function supports these args:
+	 * @param array $args This function supports these args:
 	 *  - id: Optional. Reply id
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
@@ -2354,7 +2354,7 @@ function bbp_reply_approve_link( $args = '' ) {
 	 *                        and args
 	 * @return string Reply approve link
 	 */
-	function bbp_get_reply_approve_link( $args = '' ) {
+	function bbp_get_reply_approve_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
@@ -2768,7 +2768,7 @@ function bbp_form_reply_edit_reason() {
  *  - reply_id: Reply id
  *  - selected: Override the selected option
  */
-function bbp_form_reply_status_dropdown( $args = '' ) {
+function bbp_form_reply_status_dropdown( $args = array() ) {
 	echo bbp_get_form_reply_status_dropdown( $args );
 }
 	/**
@@ -2786,7 +2786,7 @@ function bbp_form_reply_status_dropdown( $args = '' ) {
 	 *  - reply_id: Reply id
 	 *  - selected: Override the selected option
 	 */
-	function bbp_get_form_reply_status_dropdown( $args = '' ) {
+	function bbp_get_form_reply_status_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(

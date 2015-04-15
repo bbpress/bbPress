@@ -60,7 +60,7 @@ class BBP_Component {
 	 *
 	 * @since bbPress (r2700)
 	 *
-	 * @param mixed $args Required. Supports these args:
+	 * @param array $args Required. Supports these args:
 	 *  - name: Unique name (for internal identification)
 	 *  - id: Unique ID (normally for custom post type)
 	 *  - slug: Unique slug (used in query string and permalinks)
@@ -70,7 +70,7 @@ class BBP_Component {
 	 * @uses BBP_Component::includes() Include the required files
 	 * @uses BBP_Component::setup_actions() Setup the hooks and actions
 	 */
-	public function __construct( $args = '' ) {
+	public function __construct( $args = array() ) {
 		if ( empty( $args ) ) {
 			return;
 		}
@@ -89,7 +89,7 @@ class BBP_Component {
 	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_id'
 	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_slug'
 	 */
-	private function setup_globals( $args = '' ) {
+	private function setup_globals( $args = array() ) {
 		$this->name = $args['name'];
 		$this->id   = apply_filters( 'bbp_' . $this->name . '_id',   $args['id']   );
 		$this->slug = apply_filters( 'bbp_' . $this->name . '_slug', $args['slug'] );
