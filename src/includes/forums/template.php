@@ -1772,7 +1772,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Check the forum visibility ID
  *
- * @since bbPress (rX)
+ * @since bbPress (r5499)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $status_name The post status name to check
