@@ -1198,26 +1198,43 @@ function is_bbpress() {
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
 function bbp_wp_login_action( $args = array() ) {
-
-	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'action'  => '',
-		'context' => ''
-	), 'login_action' );
-
-	// Add action as query arg
-	if ( !empty( $r['action'] ) ) {
-		$login_url = add_query_arg( array( 'action' => $r['action'] ), 'wp-login.php' );
-
-	// No query arg
-	} else {
-		$login_url = 'wp-login.php';
-	}
-
-	$login_url = site_url( $login_url, $r['context'] );
-
-	echo apply_filters( 'bbp_wp_login_action', $login_url, $r );
+	echo esc_url( bbp_get_wp_login_action( $args ) );
 }
+
+	/**
+	 * Return the login form action url
+	 *
+	 * @since bbPress (r5684)
+	 *
+	 * @param array $args This function supports these arguments:
+	 *  - action: The action being taken
+	 *  - context: The context the action is being taken from
+	 * @uses add_query_arg() To add a arg to the url
+	 * @uses site_url() Toget the site url
+	 * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
+	 */
+	function bbp_get_wp_login_action( $args = array() ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'action'  => '',
+			'context' => '',
+			'url'     => 'wp-login.php'
+		), 'login_action' );
+
+		// Add action as query arg
+		if ( ! empty( $r['action'] ) ) {
+			$login_url = add_query_arg( array( 'action' => $r['action'] ), $r['url'] );
+
+		// No query arg
+		} else {
+			$login_url = $r['url'];
+		}
+
+		$login_url = site_url( $login_url, $r['context'] );
+
+		return apply_filters( 'bbp_wp_login_action', $login_url, $r, $args );
+	}
 
 /**
  * Output hidden request URI field for user forms.
@@ -2395,6 +2412,8 @@ function bbp_breadcrumb( $args = array() ) {
 		// Wrap the separator in before/after before padding and filter
 		if ( ! empty( $r['sep'] ) ) {
 			$sep = $r['sep_before'] . $r['sep'] . $r['sep_after'];
+		} else {
+			$sep = '';
 		}
 
 		// Pad the separator
