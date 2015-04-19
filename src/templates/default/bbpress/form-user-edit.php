@@ -11,32 +11,32 @@
 
 <form id="bbp-your-profile" action="<?php bbp_user_profile_edit_url( bbp_get_displayed_user_id() ); ?>" method="post" enctype="multipart/form-data">
 
-	<h2 class="entry-title"><?php _e( 'Name', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Name', 'bbpress' ) ?></h2>
 
 	<?php do_action( 'bbp_user_edit_before' ); ?>
 
 	<fieldset class="bbp-form">
-		<legend><?php _e( 'Name', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Name', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_name' ); ?>
 
 		<div>
-			<label for="first_name"><?php _e( 'First Name', 'bbpress' ) ?></label>
+			<label for="first_name"><?php esc_html_e( 'First Name', 'bbpress' ) ?></label>
 			<input type="text" name="first_name" id="first_name" value="<?php bbp_displayed_user_field( 'first_name', 'edit' ); ?>" class="regular-text" />
 		</div>
 
 		<div>
-			<label for="last_name"><?php _e( 'Last Name', 'bbpress' ) ?></label>
+			<label for="last_name"><?php esc_html_e( 'Last Name', 'bbpress' ) ?></label>
 			<input type="text" name="last_name" id="last_name" value="<?php bbp_displayed_user_field( 'last_name', 'edit' ); ?>" class="regular-text" />
 		</div>
 
 		<div>
-			<label for="nickname"><?php _e( 'Nickname', 'bbpress' ); ?></label>
+			<label for="nickname"><?php esc_html_e( 'Nickname', 'bbpress' ); ?></label>
 			<input type="text" name="nickname" id="nickname" value="<?php bbp_displayed_user_field( 'nickname', 'edit' ); ?>" class="regular-text" />
 		</div>
 
 		<div>
-			<label for="display_name"><?php _e( 'Display Name', 'bbpress' ) ?></label>
+			<label for="display_name"><?php esc_html_e( 'Display Name', 'bbpress' ) ?></label>
 
 			<?php bbp_edit_user_display_name(); ?>
 
@@ -46,15 +46,15 @@
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php _e( 'Contact Info', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Contact Info', 'bbpress' ) ?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php _e( 'Contact Info', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Contact Info', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_contact' ); ?>
 
 		<div>
-			<label for="url"><?php _e( 'Website', 'bbpress' ) ?></label>
+			<label for="url"><?php esc_html_e( 'Website', 'bbpress' ) ?></label>
 			<input type="text" name="url" id="url" value="<?php bbp_displayed_user_field( 'user_url', 'edit' ); ?>" class="regular-text code" />
 		</div>
 
@@ -71,15 +71,21 @@
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php bbp_is_user_home_edit() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></h2>
+	<h2 class="entry-title"><?php bbp_is_user_home_edit()
+		? esc_html_e( 'About Yourself', 'bbpress' )
+		: esc_html_e( 'About the user', 'bbpress' );
+	?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php bbp_is_user_home_edit() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></legend>
+		<legend><?php bbp_is_user_home_edit()
+			? esc_html_e( 'About Yourself', 'bbpress' )
+			: esc_html_e( 'About the user', 'bbpress' );
+		?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_about' ); ?>
 
 		<div>
-			<label for="description"><?php _e( 'Biographical Info', 'bbpress' ); ?></label>
+			<label for="description"><?php esc_html_e( 'Biographical Info', 'bbpress' ); ?></label>
 			<textarea name="description" id="description" rows="5" cols="30"><?php bbp_displayed_user_field( 'description', 'edit' ); ?></textarea>
 		</div>
 
@@ -87,34 +93,34 @@
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php _e( 'Account', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Account', 'bbpress' ) ?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php _e( 'Account', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Account', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_account' ); ?>
 
 		<div>
-			<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?></label>
+			<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?></label>
 			<input type="text" name="user_login" id="user_login" value="<?php bbp_displayed_user_field( 'user_login', 'edit' ); ?>" disabled="disabled" class="regular-text" />
 		</div>
 
 		<div>
-			<label for="email"><?php _e( 'Email', 'bbpress' ); ?></label>
+			<label for="email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
 			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" class="regular-text" />
 		</div>
 
 		<div id="password">
-			<label for="pass1"><?php _e( 'New Password', 'bbpress' ); ?></label>
+			<label for="pass1"><?php esc_html_e( 'New Password', 'bbpress' ); ?></label>
 			<fieldset class="bbp-form password">
 				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="off" />
-				<span class="description"><?php _e( 'If you would like to change the password type a new one. Otherwise leave this blank.', 'bbpress' ); ?></span>
+				<span class="description"><?php esc_html_e( 'If you would like to change the password type a new one. Otherwise leave this blank.', 'bbpress' ); ?></span>
 
 				<input type="password" name="pass2" id="pass2" size="16" value="" autocomplete="off" />
-				<span class="description"><?php _e( 'Type your new password again.', 'bbpress' ); ?></span><br />
+				<span class="description"><?php esc_html_e( 'Type your new password again.', 'bbpress' ); ?></span><br />
 
 				<div id="pass-strength-result"></div>
-				<span class="description indicator-hint"><?php _e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>
+				<span class="description indicator-hint"><?php esc_html_e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>
 			</fieldset>
 		</div>
 
@@ -124,20 +130,20 @@
 
 	<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
 
-		<h2 class="entry-title"><?php _e( 'User Role', 'bbpress' ) ?></h2>
+		<h2 class="entry-title"><?php esc_html_e( 'User Role', 'bbpress' ) ?></h2>
 
 		<fieldset class="bbp-form">
-			<legend><?php _e( 'User Role', 'bbpress' ); ?></legend>
+			<legend><?php esc_html_e( 'User Role', 'bbpress' ); ?></legend>
 
 			<?php do_action( 'bbp_user_edit_before_role' ); ?>
 
 			<?php if ( is_multisite() && is_super_admin() && current_user_can( 'manage_network_options' ) ) : ?>
 
 				<div>
-					<label for="super_admin"><?php _e( 'Network Role', 'bbpress' ); ?></label>
+					<label for="super_admin"><?php esc_html_e( 'Network Role', 'bbpress' ); ?></label>
 					<label>
 						<input class="checkbox" type="checkbox" id="super_admin" name="super_admin"<?php checked( is_super_admin( bbp_get_displayed_user_id() ) ); ?> />
-						<?php _e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
+						<?php esc_html_e( 'Grant this user super admin privileges for the Network.', 'bbpress' ); ?>
 					</label>
 				</div>
 
@@ -154,12 +160,15 @@
 	<?php do_action( 'bbp_user_edit_after' ); ?>
 
 	<fieldset class="submit">
-		<legend><?php _e( 'Save Changes', 'bbpress' ); ?></legend>
+		<legend><?php esc_html_e( 'Save Changes', 'bbpress' ); ?></legend>
 		<div>
 
 			<?php bbp_edit_user_form_fields(); ?>
 
-			<button type="submit" id="bbp_user_edit_submit" name="bbp_user_edit_submit" class="button submit user-submit"><?php bbp_is_user_home_edit() ? _e( 'Update Profile', 'bbpress' ) : _e( 'Update User', 'bbpress' ); ?></button>
+			<button type="submit" id="bbp_user_edit_submit" name="bbp_user_edit_submit" class="button submit user-submit"><?php bbp_is_user_home_edit()
+				? esc_html_e( 'Update Profile', 'bbpress' )
+				: esc_html_e( 'Update User',    'bbpress' );
+			?></button>
 		</div>
 	</fieldset>
 

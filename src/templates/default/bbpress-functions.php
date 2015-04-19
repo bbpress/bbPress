@@ -48,7 +48,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		parent::__construct( bbp_parse_args( $properties, array(
 			'id'      => 'default',
-			'name'    => __( 'bbPress Default', 'bbpress' ),
+			'name'    => 'bbPress Default',
 			'version' => bbp_get_version(),
 			'dir'     => trailingslashit( bbpress()->themes_dir . 'default' ),
 			'url'     => trailingslashit( bbpress()->themes_url . 'default' ),
@@ -240,7 +240,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( bbp_is_single_forum() ) {
 			wp_localize_script( 'bbpress-forum', 'bbpForumJS', array(
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
-				'generic_ajax_error' => __( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
+				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
 				'is_user_logged_in'  => is_user_logged_in(),
 				'subs_nonce'         => wp_create_nonce( 'toggle-subscription_' . get_the_ID() )
 			) );
@@ -249,7 +249,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		} elseif ( bbp_is_single_topic() ) {
 			wp_localize_script( 'bbpress-topic', 'bbpTopicJS', array(
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
-				'generic_ajax_error' => __( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
+				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
 				'is_user_logged_in'  => is_user_logged_in(),
 				'fav_nonce'          => wp_create_nonce( 'toggle-favorite_' .     get_the_ID() ),
 				'subs_nonce'         => wp_create_nonce( 'toggle-subscription_' . get_the_ID() )
@@ -277,12 +277,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if subscriptions are not active
 		if ( ! bbp_is_subscriptions_active() ) {
-			bbp_ajax_response( false, __( 'Subscriptions are no longer active.', 'bbpress' ), 300 );
+			bbp_ajax_response( false, esc_html__( 'Subscriptions are no longer active.', 'bbpress' ), 300 );
 		}
 
 		// Bail if user is not logged in
 		if ( ! is_user_logged_in() ) {
-			bbp_ajax_response( false, __( 'Please login to subscribe to this forum.', 'bbpress' ), 301 );
+			bbp_ajax_response( false, esc_html__( 'Please login to subscribe to this forum.', 'bbpress' ), 301 );
 		}
 
 		// Get user and forum data
@@ -291,7 +291,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			bbp_ajax_response( false, __( 'You do not have permission to do this.', 'bbpress' ), 302 );
+			bbp_ajax_response( false, esc_html__( 'You do not have permission to do this.', 'bbpress' ), 302 );
 		}
 
 		// Get the forum
@@ -299,12 +299,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if forum cannot be found
 		if ( empty( $forum ) ) {
-			bbp_ajax_response( false, __( 'The forum could not be found.', 'bbpress' ), 303 );
+			bbp_ajax_response( false, esc_html__( 'The forum could not be found.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $forum->ID ) ) {
-			bbp_ajax_response( false, __( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
+			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
 		// Take action
@@ -312,7 +312,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
-			bbp_ajax_response( false, __( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
+			bbp_ajax_response( false, esc_html__( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
 		}
 
 		// Put subscription attributes in convenient array
@@ -345,12 +345,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if favorites are not active
 		if ( ! bbp_is_favorites_active() ) {
-			bbp_ajax_response( false, __( 'Favorites are no longer active.', 'bbpress' ), 300 );
+			bbp_ajax_response( false, esc_html__( 'Favorites are no longer active.', 'bbpress' ), 300 );
 		}
 
 		// Bail if user is not logged in
 		if ( ! is_user_logged_in() ) {
-			bbp_ajax_response( false, __( 'Please login to make this topic a favorite.', 'bbpress' ), 301 );
+			bbp_ajax_response( false, esc_html__( 'Please login to make this topic a favorite.', 'bbpress' ), 301 );
 		}
 
 		// Get user and topic data
@@ -359,7 +359,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			bbp_ajax_response( false, __( 'You do not have permission to do this.', 'bbpress' ), 302 );
+			bbp_ajax_response( false, esc_html__( 'You do not have permission to do this.', 'bbpress' ), 302 );
 		}
 
 		// Get the topic
@@ -367,12 +367,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if topic cannot be found
 		if ( empty( $topic ) ) {
-			bbp_ajax_response( false, __( 'The topic could not be found.', 'bbpress' ), 303 );
+			bbp_ajax_response( false, esc_html__( 'The topic could not be found.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-favorite_' . $topic->ID ) ) {
-			bbp_ajax_response( false, __( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
+			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
 		// Take action
@@ -380,7 +380,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
-			bbp_ajax_response( false, __( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
+			bbp_ajax_response( false, esc_html__( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
 		}
 
 		// Put subscription attributes in convenient array
@@ -413,12 +413,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if subscriptions are not active
 		if ( ! bbp_is_subscriptions_active() ) {
-			bbp_ajax_response( false, __( 'Subscriptions are no longer active.', 'bbpress' ), 300 );
+			bbp_ajax_response( false, esc_html__( 'Subscriptions are no longer active.', 'bbpress' ), 300 );
 		}
 
 		// Bail if user is not logged in
 		if ( ! is_user_logged_in() ) {
-			bbp_ajax_response( false, __( 'Please login to subscribe to this topic.', 'bbpress' ), 301 );
+			bbp_ajax_response( false, esc_html__( 'Please login to subscribe to this topic.', 'bbpress' ), 301 );
 		}
 
 		// Get user and topic data
@@ -427,7 +427,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			bbp_ajax_response( false, __( 'You do not have permission to do this.', 'bbpress' ), 302 );
+			bbp_ajax_response( false, esc_html__( 'You do not have permission to do this.', 'bbpress' ), 302 );
 		}
 
 		// Get the topic
@@ -435,12 +435,12 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if topic cannot be found
 		if ( empty( $topic ) ) {
-			bbp_ajax_response( false, __( 'The topic could not be found.', 'bbpress' ), 303 );
+			bbp_ajax_response( false, esc_html__( 'The topic could not be found.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'toggle-subscription_' . $topic->ID ) ) {
-			bbp_ajax_response( false, __( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
+			bbp_ajax_response( false, esc_html__( 'Are you sure you meant to do that?', 'bbpress' ), 304 );
 		}
 
 		// Take action
@@ -448,7 +448,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
-			bbp_ajax_response( false, __( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
+			bbp_ajax_response( false, esc_html__( 'The request was unsuccessful. Please try again.', 'bbpress' ), 305 );
 		}
 
 		// Put subscription attributes in convenient array

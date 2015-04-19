@@ -15,11 +15,11 @@
 
 	<li class="bbp-header">
 
-		<div class="bbp-topic-author"><?php  _e( 'Creator',  'bbpress' ); ?></div><!-- .bbp-topic-author -->
+		<div class="bbp-topic-author"><?php esc_html_e( 'Creator',  'bbpress' ); ?></div><!-- .bbp-topic-author -->
 
 		<div class="bbp-topic-content">
 
-			<?php _e( 'Topic', 'bbpress' ); ?>
+			<?php esc_html_e( 'Topic', 'bbpress' ); ?>
 
 		</div><!-- .bbp-topic-content -->
 
@@ -83,11 +83,11 @@
 
 	<li class="bbp-footer">
 
-		<div class="bbp-topic-author"><?php  _e( 'Creator',  'bbpress' ); ?></div>
+		<div class="bbp-topic-author"><?php esc_html_e( 'Creator',  'bbpress' ); ?></div>
 
 		<div class="bbp-topic-content">
 
-			<?php _e( 'Topic', 'bbpress' ); ?>
+			<?php esc_html_e( 'Topic', 'bbpress' ); ?>
 
 		</div><!-- .bbp-topic-content -->
 

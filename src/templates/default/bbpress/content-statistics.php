@@ -14,34 +14,34 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php do_action( 'bbp_before_statistics' ); ?>
 
-	<dt><?php _e( 'Registered Users', 'bbpress' ); ?></dt>
+	<dt><?php esc_html_e( 'Registered Users', 'bbpress' ); ?></dt>
 	<dd>
 		<strong><?php echo esc_html( $stats['user_count'] ); ?></strong>
 	</dd>
 
-	<dt><?php _e( 'Forums', 'bbpress' ); ?></dt>
+	<dt><?php esc_html_e( 'Forums', 'bbpress' ); ?></dt>
 	<dd>
 		<strong><?php echo esc_html( $stats['forum_count'] ); ?></strong>
 	</dd>
 
-	<dt><?php _e( 'Topics', 'bbpress' ); ?></dt>
+	<dt><?php esc_html_e( 'Topics', 'bbpress' ); ?></dt>
 	<dd>
 		<strong><?php echo esc_html( $stats['topic_count'] ); ?></strong>
 	</dd>
 
-	<dt><?php _e( 'Replies', 'bbpress' ); ?></dt>
+	<dt><?php esc_html_e( 'Replies', 'bbpress' ); ?></dt>
 	<dd>
 		<strong><?php echo esc_html( $stats['reply_count'] ); ?></strong>
 	</dd>
 
-	<dt><?php _e( 'Topic Tags', 'bbpress' ); ?></dt>
+	<dt><?php esc_html_e( 'Topic Tags', 'bbpress' ); ?></dt>
 	<dd>
 		<strong><?php echo esc_html( $stats['topic_tag_count'] ); ?></strong>
 	</dd>
 
 	<?php if ( !empty( $stats['empty_topic_tag_count'] ) ) : ?>
 
-		<dt><?php _e( 'Empty Topic Tags', 'bbpress' ); ?></dt>
+		<dt><?php esc_html_e( 'Empty Topic Tags', 'bbpress' ); ?></dt>
 		<dd>
 			<strong><?php echo esc_html( $stats['empty_topic_tag_count'] ); ?></strong>
 		</dd>
@@ -50,7 +50,7 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php if ( !empty( $stats['topic_count_hidden'] ) ) : ?>
 
-		<dt><?php _e( 'Hidden Topics', 'bbpress' ); ?></dt>
+		<dt><?php esc_html_e( 'Hidden Topics', 'bbpress' ); ?></dt>
 		<dd>
 			<strong>
 				<abbr title="<?php echo esc_attr( $stats['hidden_topic_title'] ); ?>"><?php echo esc_html( $stats['topic_count_hidden'] ); ?></abbr>
@@ -61,7 +61,7 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php if ( !empty( $stats['reply_count_hidden'] ) ) : ?>
 
-		<dt><?php _e( 'Hidden Replies', 'bbpress' ); ?></dt>
+		<dt><?php esc_html_e( 'Hidden Replies', 'bbpress' ); ?></dt>
 		<dd>
 			<strong>
 				<abbr title="<?php echo esc_attr( $stats['hidden_reply_title'] ); ?>"><?php echo esc_html( $stats['reply_count_hidden'] ); ?></abbr>

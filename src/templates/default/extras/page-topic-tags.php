@@ -19,7 +19,7 @@ get_header(); ?>
 			<h1 class="entry-title"><?php the_title(); ?></h1>
 			<div class="entry-content">
 
-				<?php get_the_content() ? the_content() : _e( '<p>This is a collection of tags that are currently popular on our forums.</p>', 'bbpress' ); ?>
+				<?php get_the_content() ? the_content() : wpautop( esc_html__( 'This is a collection of tags that are currently popular on our forums.', 'bbpress' ) ); ?>
 
 				<div id="bbpress-forums">
 

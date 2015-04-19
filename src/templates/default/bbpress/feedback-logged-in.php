@@ -11,6 +11,6 @@
 
 <div class="bbp-template-notice info">
 	<ul>
-		<li><?php _e( 'You are already logged in.', 'bbpress' ); ?></li>
+		<li><?php esc_html_e( 'You are already logged in.', 'bbpress' ); ?></li>
 	</ul>
 </div>

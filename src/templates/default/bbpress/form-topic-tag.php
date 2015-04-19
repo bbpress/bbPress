@@ -15,38 +15,38 @@
 
 		<fieldset class="bbp-form" id="bbp-edit-topic-tag">
 
-			<legend><?php printf( __( 'Manage Tag: "%s"', 'bbpress' ), bbp_get_topic_tag_name() ); ?></legend>
+			<legend><?php printf( esc_html__( 'Manage Tag: "%s"', 'bbpress' ), bbp_get_topic_tag_name() ); ?></legend>
 
 			<fieldset class="bbp-form" id="tag-rename">
 
-				<legend><?php _e( 'Rename', 'bbpress' ); ?></legend>
+				<legend><?php esc_html_e( 'Rename', 'bbpress' ); ?></legend>
 
 				<div class="bbp-template-notice info">
 					<ul>
-						<li><?php _e( 'Leave the slug empty to have one automatically generated.', 'bbpress' ); ?></li>
+						<li><?php esc_html_e( 'Leave the slug empty to have one automatically generated.', 'bbpress' ); ?></li>
 					</ul>
 				</div>
 
 				<div class="bbp-template-notice">
 					<ul>
-						<li><?php _e( 'Changing the slug affects its permalink. Any links to the old slug will stop working.', 'bbpress' ); ?></li>
+						<li><?php esc_html_e( 'Changing the slug affects its permalink. Any links to the old slug will stop working.', 'bbpress' ); ?></li>
 					</ul>
 				</div>
 
 				<form id="rename_tag" name="rename_tag" method="post" action="<?php the_permalink(); ?>">
 
 					<div>
-						<label for="tag-name"><?php _e( 'Name:', 'bbpress' ); ?></label>
+						<label for="tag-name"><?php esc_html_e( 'Name:', 'bbpress' ); ?></label>
 						<input type="text" id="tag-name" name="tag-name" size="20" maxlength="40" value="<?php echo esc_attr( bbp_get_topic_tag_name() ); ?>" />
 					</div>
 
 					<div>
-						<label for="tag-slug"><?php _e( 'Slug:', 'bbpress' ); ?></label>
+						<label for="tag-slug"><?php esc_html_e( 'Slug:', 'bbpress' ); ?></label>
 						<input type="text" id="tag-slug" name="tag-slug" size="20" maxlength="40" value="<?php echo esc_attr( apply_filters( 'editable_slug', bbp_get_topic_tag_slug() ) ); ?>" />
 					</div>
 
 					<div>
-						<label for="tag-description"><?php _e( 'Description:', 'bbpress' ); ?></label>
+						<label for="tag-description"><?php esc_html_e( 'Description:', 'bbpress' ); ?></label>
 						<input type="text" id="tag-description" name="tag-description" size="20" value="<?php echo esc_attr( bbp_get_topic_tag_description( array( 'before' => '', 'after' => '' ) ) ); ?>" />
 					</div>
 
@@ -65,23 +65,23 @@
 
 			<fieldset class="bbp-form" id="tag-merge">
 
-				<legend><?php _e( 'Merge', 'bbpress' ); ?></legend>
+				<legend><?php esc_html_e( 'Merge', 'bbpress' ); ?></legend>
 
 				<div class="bbp-template-notice">
 					<ul>
-						<li><?php _e( 'Merging tags together cannot be undone.', 'bbpress' ); ?></li>
+						<li><?php esc_html_e( 'Merging tags together cannot be undone.', 'bbpress' ); ?></li>
 					</ul>
 				</div>
 
 				<form id="merge_tag" name="merge_tag" method="post" action="<?php the_permalink(); ?>">
 
 					<div>
-						<label for="tag-existing-name"><?php _e( 'Existing tag:', 'bbpress' ); ?></label>
+						<label for="tag-existing-name"><?php esc_html_e( 'Existing tag:', 'bbpress' ); ?></label>
 						<input type="text" id="tag-existing-name" name="tag-existing-name" size="22" maxlength="40" />
 					</div>
 
 					<div class="bbp-submit-wrapper">
-						<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Merge', 'bbpress' ); ?></button>
+						<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( esc_html__( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Merge', 'bbpress' ); ?></button>
 
 						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-merge-topic-tag" />
@@ -96,24 +96,24 @@
 
 				<fieldset class="bbp-form" id="delete-tag">
 
-					<legend><?php _e( 'Delete', 'bbpress' ); ?></legend>
+					<legend><?php esc_html_e( 'Delete', 'bbpress' ); ?></legend>
 
 					<div class="bbp-template-notice info">
 						<ul>
-							<li><?php _e( 'This does not delete your topics. Only the tag itself is deleted.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'This does not delete your topics. Only the tag itself is deleted.', 'bbpress' ); ?></li>
 						</ul>
 					</div>
 					<div class="bbp-template-notice">
 						<ul>
-							<li><?php _e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></li>
-							<li><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></li>
 						</ul>
 					</div>
 
 					<form id="delete_tag" name="delete_tag" method="post" action="<?php the_permalink(); ?>">
 
 						<div class="bbp-submit-wrapper">
-							<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Delete', 'bbpress' ); ?></button>
+							<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( esc_html__( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Delete', 'bbpress' ); ?></button>
 
 							<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 							<input type="hidden" name="action" value="bbp-delete-topic-tag" />

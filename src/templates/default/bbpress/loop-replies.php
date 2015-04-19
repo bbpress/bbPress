@@ -15,17 +15,17 @@
 
 	<li class="bbp-header">
 
-		<div class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></div><!-- .bbp-reply-author -->
+		<div class="bbp-reply-author"><?php esc_html_e( 'Author',  'bbpress' ); ?></div><!-- .bbp-reply-author -->
 
 		<div class="bbp-reply-content">
 
-			<?php if ( !bbp_show_lead_topic() ) : ?>
+			<?php if ( ! bbp_show_lead_topic() ) : ?>
 
-				<?php _e( 'Posts', 'bbpress' ); ?>
+				<?php esc_html_e( 'Posts', 'bbpress' ); ?>
 
 			<?php else : ?>
 
-				<?php _e( 'Replies', 'bbpress' ); ?>
+				<?php esc_html_e( 'Replies', 'bbpress' ); ?>
 
 			<?php endif; ?>
 
@@ -53,17 +53,17 @@
 
 	<li class="bbp-footer">
 
-		<div class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></div>
+		<div class="bbp-reply-author"><?php esc_html_e( 'Author',  'bbpress' ); ?></div>
 
 		<div class="bbp-reply-content">
 
-			<?php if ( !bbp_show_lead_topic() ) : ?>
+			<?php if ( ! bbp_show_lead_topic() ) : ?>
 
-				<?php _e( 'Posts', 'bbpress' ); ?>
+				<?php esc_html_e( 'Posts', 'bbpress' ); ?>
 
 			<?php else : ?>
 
-				<?php _e( 'Replies', 'bbpress' ); ?>
+				<?php esc_html_e( 'Replies', 'bbpress' ); ?>
 
 			<?php endif; ?>
 
