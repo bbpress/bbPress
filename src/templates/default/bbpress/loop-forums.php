@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php do_action( 'bbp_template_before_forums_loop' ); ?>
+do_action( 'bbp_template_before_forums_loop' ); ?>
 
 <ul id="forums-list-<?php bbp_forum_id(); ?>" class="bbp-forums">
 
@@ -47,4 +45,4 @@
 
 </ul><!-- .forums-directory -->
 
-<?php do_action( 'bbp_template_after_forums_loop' ); ?>
+<?php do_action( 'bbp_template_after_forums_loop' );

@@ -7,9 +7,7 @@
  * @subpackage Theme
 */
 
-?>
-
-<?php do_action( 'bbp_template_before_search_results_loop' ); ?>
+do_action( 'bbp_template_before_search_results_loop' ); ?>
 
 <ul id="bbp-search-results" class="forums bbp-search-results">
 
@@ -49,4 +47,4 @@
 
 </ul><!-- #bbp-search-results -->
 
-<?php do_action( 'bbp_template_after_search_results_loop' ); ?>
+<?php do_action( 'bbp_template_after_search_results_loop' );

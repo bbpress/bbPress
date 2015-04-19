@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php do_action( 'bbp_template_before_lead_topic' ); ?>
+do_action( 'bbp_template_before_lead_topic' ); ?>
 
 <ul id="bbp-topic-<?php bbp_topic_id(); ?>-lead" class="bbp-lead-topic">
 
@@ -95,4 +93,4 @@
 
 </ul><!-- #bbp-topic-<?php bbp_topic_id(); ?>-lead -->
 
-<?php do_action( 'bbp_template_after_lead_topic' ); ?>
+<?php do_action( 'bbp_template_after_lead_topic' );

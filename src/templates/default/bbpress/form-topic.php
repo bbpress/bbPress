@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php if ( !bbp_is_single_forum() ) : ?>
+if ( ! bbp_is_single_forum() ) : ?>
 
 <div id="bbpress-forums">
 

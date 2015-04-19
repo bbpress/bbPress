@@ -7,9 +7,7 @@
  * @subpackage Theme
  */
 
-?>
-
-<?php if ( bbp_is_reply_edit() ) : ?>
+if ( bbp_is_reply_edit() ) : ?>
 
 <div id="bbpress-forums">
 

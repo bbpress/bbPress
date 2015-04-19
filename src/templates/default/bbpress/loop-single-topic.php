@@ -10,7 +10,6 @@
 ?>
 
 <ul id="bbp-topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
-
 	<li class="bbp-topic-title">
 
 		<?php if ( bbp_is_user_home() ) : ?>
@@ -101,5 +100,4 @@
 
 		</p>
 	</li>
-
 </ul><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
