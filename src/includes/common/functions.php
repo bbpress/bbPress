@@ -254,7 +254,7 @@ function bbp_get_redirect_to() {
  * @param string $original_link Original Link to be modified
  * @param bool $force Override bbp_get_view_all() check
  * @uses current_user_can() To check if the current user can moderate
- * @uses add_query_arg() To add args to the url
+ * @uses add_query_arg() To add 'view' arg to the url
  * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
@@ -277,12 +277,12 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
  *
  * @param string $original_link Original Link to be modified
  * @uses current_user_can() To check if the current user can moderate
- * @uses add_query_arg() To add args to the url
+ * @uses remove_query_arg() To remove 'view' arg from the url
  * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
 function bbp_remove_view_all( $original_link = '' ) {
-	return apply_filters( 'bbp_add_view_all', remove_query_arg( 'view', $original_link ), $original_link );
+	return apply_filters( 'bbp_remove_view_all', remove_query_arg( 'view', $original_link ), $original_link );
 }
 
 /**

@@ -2183,18 +2183,16 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
-	 * @uses remove_query_arg() To remove args from the url
 	 * @uses bbp_get_topic_reply_count_hidden() To get the topic hidden
 	 *                                           reply count
 	 * @uses current_user_can() To check if the current user can edit others
 	 *                           replies
-	 * @uses add_query_arg() To add custom args to the url
 	 * @uses apply_filters() Calls 'bbp_get_topic_replies_link' with the
 	 *                        replies link and topic id
 	 */
 	function bbp_get_topic_replies_link( $topic_id = 0 ) {
 
-		$topic    = bbp_get_topic( bbp_get_topic_id( (int) $topic_id ) );
+		$topic    = bbp_get_topic( $topic_id );
 		$topic_id = $topic->ID;
 		$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id ) );
 		$retval   = '';
@@ -2516,9 +2514,9 @@ function bbp_topic_admin_links( $args = array() ) {
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = apply_filters( 'bbp_topic_admin_links', array(
 				'edit'    => bbp_get_topic_edit_link   ( $r ),
+				'merge'   => bbp_get_topic_merge_link  ( $r ),
 				'close'   => bbp_get_topic_close_link  ( $r ),
 				'stick'   => bbp_get_topic_stick_link  ( $r ),
-				'merge'   => bbp_get_topic_merge_link  ( $r ),
 				'trash'   => bbp_get_topic_trash_link  ( $r ),
 				'spam'    => bbp_get_topic_spam_link   ( $r ),
 				'approve' => bbp_get_topic_approve_link( $r ),
@@ -2592,7 +2590,7 @@ function bbp_topic_edit_link( $args = array() ) {
 		), 'get_topic_edit_link' );
 
 		// Get the topic
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		// Bypass check if user has caps
 		if ( ! current_user_can( 'edit_others_topics' ) ) {
@@ -2643,7 +2641,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
 		global $wp_rewrite;
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) );
+		$topic = bbp_get_topic( $topic_id );
 		if ( empty( $topic ) ) {
 			return;
 		}
@@ -2718,7 +2716,7 @@ function bbp_topic_trash_link( $args = array() ) {
 			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_topic_trash_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'delete_topic', $topic->ID ) ) {
 			return;
@@ -2788,7 +2786,7 @@ function bbp_topic_close_link( $args = array() ) {
 			'open_text'   => esc_html_x( 'Open',  'Topic Status', 'bbpress' )
 		), 'get_topic_close_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2849,7 +2847,7 @@ function bbp_topic_approve_link( $args = array() ) {
 			'unapprove_text' => esc_html_x( 'Unapprove', 'Pending Status', 'bbpress' )
 		), 'get_topic_approve_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2911,7 +2909,7 @@ function bbp_topic_stick_link( $args = array() ) {
 			'super_text'   => esc_html__( '(to front)', 'bbpress' ),
 		), 'get_topic_stick_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -2981,7 +2979,7 @@ function bbp_topic_merge_link( $args = array() ) {
 			'merge_text'   => esc_html__( 'Merge', 'bbpress' ),
 		), 'get_topic_merge_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -3039,7 +3037,7 @@ function bbp_topic_spam_link( $args = array() ) {
 			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_topic_spam_link' );
 
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		if ( empty( $topic ) || ! current_user_can( 'moderate', $topic->ID ) ) {
 			return;
@@ -3089,7 +3087,7 @@ function bbp_topic_reply_link( $args = array() ) {
 		), 'get_topic_reply_link' );
 
 		// Get the reply to use it's ID and post_parent
-		$topic = bbp_get_topic( bbp_get_topic_id( $r['id'] ) );
+		$topic = bbp_get_topic( $r['id'] );
 
 		// Bail if no reply or user cannot reply
 		if ( empty( $topic ) || ! bbp_current_user_can_access_create_reply_form() ) {
@@ -3283,6 +3281,7 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'select_id'    => 'bbp_stick_topic',
+			'select_class' => 'bbp_dropdown',
 			'tab'          => false,
 			'topic_id'     => 0,
 			'selected'     => false
@@ -3322,7 +3321,7 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php echo $tab; ?>>
 
 			<?php foreach ( bbp_get_topic_types() as $key => $label ) : ?>
 
@@ -3371,10 +3370,11 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'select_id' => 'bbp_topic_status',
-			'tab'       => false,
-			'topic_id'  => 0,
-			'selected'  => false
+			'select_id'    => 'bbp_topic_status',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'topic_id'     => 0,
+			'selected'     => false
 		), 'topic_open_close_select' );
 
 		// No specific selected value passed
@@ -3405,7 +3405,7 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php echo $tab; ?>>
 
 			<?php foreach ( bbp_get_topic_statuses( $r['topic_id'] ) as $key => $label ) : ?>
 

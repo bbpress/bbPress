@@ -1683,7 +1683,7 @@ function bbp_reply_to_link( $args = array() ) {
 		), 'get_reply_to_link' );
 
 		// Get the reply to use it's ID and post_parent
-		$reply = bbp_get_reply( bbp_get_reply_id( $r['id'] ) );
+		$reply = bbp_get_reply( $r['id'] );
 
 		// Bail if no reply or user cannot reply
 		if ( empty( $reply ) || ! bbp_current_user_can_access_create_reply_form() ) {
@@ -1971,7 +1971,7 @@ function bbp_reply_edit_link( $args = array() ) {
 			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
 		), 'get_reply_edit_link' );
 
-		$reply = bbp_get_reply( bbp_get_reply_id( $r['id'] ) );
+		$reply = bbp_get_reply( $r['id'] );
 
 		// Bypass check if user has caps
 		if ( ! current_user_can( 'edit_others_replies' ) ) {
@@ -2023,7 +2023,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
 		global $wp_rewrite;
 
-		$reply = bbp_get_reply( bbp_get_reply_id( $reply_id ) );
+		$reply = bbp_get_reply( $reply_id );
 		if ( empty( $reply ) ) {
 			return;
 		}
@@ -2098,7 +2098,7 @@ function bbp_reply_trash_link( $args = array() ) {
 			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_reply_trash_link' );
 
-		$reply = bbp_get_reply( bbp_get_reply_id( $r['id'] ) );
+		$reply = bbp_get_reply( $r['id'] );
 
 		if ( empty( $reply ) || ! current_user_can( 'delete_reply', $reply->ID ) ) {
 			return;
@@ -2169,7 +2169,7 @@ function bbp_reply_spam_link( $args = array() ) {
 			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_reply_spam_link' );
 
-		$reply = bbp_get_reply( bbp_get_reply_id( $r['id'] ) );
+		$reply = bbp_get_reply( $r['id'] );
 
 		if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
 			return;
@@ -2366,7 +2366,7 @@ function bbp_reply_approve_link( $args = array() ) {
 			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
 		), 'get_reply_approve_link' );
 
-		$reply = bbp_get_reply( bbp_get_reply_id( $r['id'] ) );
+		$reply = bbp_get_reply( $r['id'] );
 
 		if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
 			return;
@@ -2673,6 +2673,7 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 		$retval = bbp_get_dropdown( array(
 			'show_none'    => sprintf( esc_attr__( '%1$s - %2$s', 'bbpress' ), $topic_id, bbp_get_topic_title( $topic_id ) ),
 			'select_id'    => 'bbp_reply_to',
+			'select_class' => 'bbp_dropdown',
 			'exclude'      => $reply_id,
 			'selected'     => $reply_to,
 			'post_parent'  => $topic_id,
@@ -2790,10 +2791,11 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'select_id' => 'bbp_reply_status',
-			'tab'       => false,
-			'reply_id'  => 0,
-			'selected'  => false
+			'select_id'    => 'bbp_reply_status',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'reply_id'     => 0,
+			'selected'     => false
 		), 'reply_status_dropdown' );
 
 		// No specific selected value passed
@@ -2824,7 +2826,7 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select"<?php echo $tab; ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php echo $tab; ?>>
 
 			<?php foreach ( bbp_get_reply_statuses( $r['reply_id'] ) as $key => $label ) : ?>
 

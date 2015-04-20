@@ -1447,6 +1447,7 @@ function bbp_dropdown( $args = array() ) {
 
 			// Output-related
 			'select_id'          => 'bbp_forum_id',
+			'select_class'       => 'bbp_dropdown',
 			'tab'                => false,
 			'options_only'       => false,
 			'show_none'          => false,
@@ -1500,7 +1501,7 @@ function bbp_dropdown( $args = array() ) {
 			$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
 
 			// Open the select tag
-			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
+			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '" class="' . esc_attr( $r['select_class'] ) . '"' . $disabled . $tab . '>' . "\n";
 		}
 
 		// Display a leading 'no-value' option, with or without custom text

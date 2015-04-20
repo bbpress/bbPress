@@ -1228,7 +1228,7 @@ function bbp_notice_edit_user_pending_email() {
 
 	// Build the variables to pass into printf()
 	$dismiss_url  = wp_nonce_url( add_query_arg( $args, $user_url ), $nonce );
-	$dismiss_link = '<a href="' . $dismiss_url . '">' . esc_html_x( 'Cancel', 'Dismiss pending user email address change', 'bbpress' ) . '</a>';
+	$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html_x( 'Cancel', 'Dismiss pending user email address change', 'bbpress' ) . '</a>';
 	$coded_email  = '<code>' . esc_html( $new_email['newemail'] ) . '</code>'; ?>
 
 	<div class="bbp-template-notice info">
