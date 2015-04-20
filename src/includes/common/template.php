@@ -1233,7 +1233,7 @@ function bbp_wp_login_action( $args = array() ) {
 
 		$login_url = site_url( $login_url, $r['context'] );
 
-		return apply_filters( 'bbp_wp_login_action', $login_url, $r, $args );
+		return apply_filters( 'bbp_get_wp_login_action', $login_url, $r, $args );
 	}
 
 /**
