@@ -1140,11 +1140,11 @@ function is_bbpress() {
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
 function bbp_wp_login_action( $args = '' ) {
-	echo esc_url( bbp_wp_login_action( $args ) );
+	echo esc_url( bbp_get_wp_login_action( $args ) );
 }
 
 	/**
-	 * return the login form action url
+	 * Return the login form action url
 	 *
 	 * @since bbPress (r5691)
 	 *
@@ -1173,7 +1173,7 @@ function bbp_wp_login_action( $args = '' ) {
 
 		$login_url = site_url( $login_url, $r['context'] );
 
-		return apply_filters( 'bbp_wp_login_action', $login_url, $r, $args );
+		return apply_filters( 'bbp_get_wp_login_action', $login_url, $r, $args );
 	}
 
 /**
