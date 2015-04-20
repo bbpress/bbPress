@@ -50,8 +50,8 @@ function bbp_dashboard_widget_right_now() {
 					$text = _n( 'Forum', 'Forums', $r['forum_count'], 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -67,8 +67,8 @@ function bbp_dashboard_widget_right_now() {
 					$text = _n( 'Topic', 'Topics', $r['topic_count'], 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -84,8 +84,8 @@ function bbp_dashboard_widget_right_now() {
 					$text = _n( 'Reply', 'Replies', $r['reply_count'], 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -103,8 +103,8 @@ function bbp_dashboard_widget_right_now() {
 						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
 							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
-							$num  = '<a href="' . $link . '">' . $num  . '</a>';
-							$text = '<a href="' . $link . '">' . $text . '</a>';
+							$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+							$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 						}
 					?>
 
@@ -135,8 +135,8 @@ function bbp_dashboard_widget_right_now() {
 					$text = _n( 'User', 'Users', $r['user_count'], 'bbpress' );
 					if ( current_user_can( 'edit_users' ) ) {
 						$link = get_admin_url( null, 'users.php' );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -156,8 +156,8 @@ function bbp_dashboard_widget_right_now() {
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
+                        $num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-topics"><?php echo $num; ?></td>
@@ -178,8 +178,8 @@ function bbp_dashboard_widget_right_now() {
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . $link . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
+                        $num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-replies"><?php echo $num; ?></td>
@@ -197,8 +197,8 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['empty_topic_tag_count'];
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count'], 'bbpress' );
 						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . esc_url( $link ) . '">' . $text . '</a>';
 					?>
 
 					<td class="b b-hidden-topic-tags"><?php echo $num; ?></td>
@@ -456,7 +456,7 @@ function bbp_reply_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Topic:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Topic', 'bbpress' ); ?></label>
-		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" data-ajax-url="<?php echo wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_topic' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_topic_nonce' ); ?>" />
+		<input name="parent_id" id="bbp_topic_id" type="text" value="<?php echo esc_attr( $reply_topic_id ); ?>" data-ajax-url="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_topic' ), admin_url( 'admin-ajax.php', 'relative' ) ) ), 'bbp_suggest_topic_nonce' ); ?>" />
 	</p>
 
 	<p>
@@ -515,7 +515,7 @@ function bbp_author_metabox() {
 		<p>
 			<strong class="label"><?php esc_html_e( 'ID:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_author_id"><?php esc_html_e( 'ID', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_author_id" name="post_author_override" value="<?php echo esc_attr( bbp_get_global_post_field( 'post_author' ) ); ?>" data-ajax-url="<?php echo wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_user' ), admin_url( 'admin-ajax.php', 'relative' ) ), 'bbp_suggest_user_nonce' ); ?>" />
+			<input type="text" id="bbp_author_id" name="post_author_override" value="<?php echo esc_attr( bbp_get_global_post_field( 'post_author' ) ); ?>" data-ajax-url="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_suggest_user' ), admin_url( 'admin-ajax.php', 'relative' ) ) ), 'bbp_suggest_user_nonce' ); ?>" />
 		</p>
 
 	<?php endif; ?>

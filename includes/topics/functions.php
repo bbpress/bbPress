@@ -2051,7 +2051,6 @@ function bbp_get_super_stickies() {
  *                    and action
  * @uses bbp_get_forum_permalink() To get the forum link
  * @uses bbp_get_topic_permalink() To get the topic link
- * @uses add_query_arg() To add args to the url
  * @uses wp_safe_redirect() To redirect to the topic
  * @uses bbPress::errors:add() To log the error messages
  */

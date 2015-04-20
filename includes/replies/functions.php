@@ -1495,7 +1495,6 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  * @uses do_action() Calls 'bbp_toggle_reply_handler' with success, post data
  *                    and action
  * @uses bbp_get_reply_url() To get the reply url
- * @uses add_query_arg() To add custom args to the reply url
  * @uses wp_safe_redirect() To redirect to the reply
  * @uses bbPress::errors:add() To log the error messages
  */

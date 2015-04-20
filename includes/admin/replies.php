@@ -592,7 +592,6 @@ class BBP_Replies_Admin {
 	 *                                 the reply
 	 * @uses bbp_get_forum_permalink() To get the forum permalink
 	 * @uses admin_url() To get the admin url of post.php
-	 * @uses add_query_arg() To add custom args to the url
 	 * @uses apply_filters() Calls 'reply_topic_forum_row_actions' with an
 	 *                        array of reply topic forum actions
 	 * @uses bbp_reply_author_display_name() To output the reply author name
@@ -745,13 +744,13 @@ class BBP_Replies_Admin {
 		if ( current_user_can( 'delete_reply', $reply->ID ) ) {
 			if ( bbp_get_trash_status_id() === $reply->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_reply_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
 			} elseif ( EMPTY_TRASH_DAYS ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
 			}
 
 			if ( bbp_get_trash_status_id() === $reply->post_status || !EMPTY_TRASH_DAYS ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
 			} elseif ( bbp_get_spam_status_id() === $reply->post_status ) {
 				unset( $actions['trash'] );
 			}

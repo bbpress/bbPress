@@ -458,7 +458,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @since bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
-	 * @param $string $redirect_to Optional. Pass a redirect value for use with
+	 * @param string $redirect_to Optional. Pass a redirect value for use with
 	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_topic_id() To get the reply topic id

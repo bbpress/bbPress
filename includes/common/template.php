@@ -1134,32 +1134,47 @@ function is_bbpress() {
  *
  * @since bbPress (r2815)
  *
- * @param string $url Pass a URL to redirect to
+ * @param string $args Pass a URL to redirect to
  * @uses add_query_arg() To add a arg to the url
  * @uses site_url() Toget the site url
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
 function bbp_wp_login_action( $args = '' ) {
-
-	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'action'  => '',
-		'context' => ''
-	), 'login_action' );
-
-	// Add action as query arg
-	if ( !empty( $r['action'] ) ) {
-		$login_url = add_query_arg( array( 'action' => $r['action'] ), 'wp-login.php' );
-
-	// No query arg
-	} else {
-		$login_url = 'wp-login.php';
-	}
-
-	$login_url = site_url( $login_url, $r['context'] );
-
-	echo apply_filters( 'bbp_wp_login_action', $login_url, $r );
+	echo esc_url( bbp_wp_login_action( $args ) );
 }
+
+	/**
+	 * return the login form action url
+	 *
+	 * @since bbPress (r5691)
+	 *
+	 * @param string $args Pass a URL to redirect to
+	 * @uses add_query_arg() To add a arg to the url
+	 * @uses site_url() Toget the site url
+	 * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
+	 */
+	function bbp_get_wp_login_action( $args = '' ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'action'  => '',
+			'context' => '',
+			'url'     => 'wp-login.php'
+		), 'login_action' );
+
+		// Add action as query arg
+		if ( !empty( $r['action'] ) ) {
+			$login_url = add_query_arg( array( 'action' => $r['action'] ), $r['url'] );
+
+		// No query arg
+		} else {
+			$login_url = $r['url'];
+		}
+
+		$login_url = site_url( $login_url, $r['context'] );
+
+		return apply_filters( 'bbp_wp_login_action', $login_url, $r, $args );
+	}
 
 /**
  * Output hidden request URI field for user forms.
@@ -1187,8 +1202,8 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
 	}
 
 	// Remove loggedout query arg if it's there
-	$redirect_to    = (string) esc_attr( remove_query_arg( 'loggedout', $redirect_to ) );
-	$redirect_field = '<input type="hidden" id="bbp_redirect_to" name="redirect_to" value="' . $redirect_to . '" />';
+	$redirect_to    = remove_query_arg( 'loggedout', $redirect_to );
+	$redirect_field = '<input type="hidden" id="bbp_redirect_to" name="redirect_to" value="' . esc_url( $redirect_to ) . '" />';
 
 	echo apply_filters( 'bbp_redirect_to_field', $redirect_field, $redirect_to );
 }
