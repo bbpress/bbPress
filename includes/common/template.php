@@ -1187,7 +1187,8 @@ function bbp_wp_login_action( $args = '' ) {
  * @param string $redirect_to Pass a URL to redirect to
  *
  * @uses wp_get_referer() To get the referer
- * @uses esc_attr() To escape the url
+ * @uses remove_query_arg() To remove the `loggedout` argument
+ * @uses esc_url() To escape the url
  * @uses apply_filters() Calls 'bbp_redirect_to_field', passes field and to
  */
 function bbp_redirect_to_field( $redirect_to = '' ) {

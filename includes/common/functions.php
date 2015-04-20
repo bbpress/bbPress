@@ -274,7 +274,7 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
  *
  * @param string $original_link Original Link to be modified
  * @uses current_user_can() To check if the current user can moderate
- * @uses add_query_arg() To add args to the url
+ * @uses remove_query_arg() To add args to the url
  * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
