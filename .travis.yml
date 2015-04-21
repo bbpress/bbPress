@@ -15,57 +15,67 @@ php:
     - 5.5
     - 5.6
 
-# WordPress versions uses Git 'develop' repo branches
+# WordPress comes from the Git mirror, where 'master' mirrors svn 'trunk' and
+# x.y mirrors the latest from the x.y branch
 env:
-    - WP_VERSION=master # Git equivalent of SVN /trunk
-    - WP_VERSION=4.1    # Includes latest 4.1.x release
-    - WP_VERSION=4.0    # Includes latest 4.0.x release
-    - WP_VERSION=3.9    # Includes latest 3.9.x release
-    - WP_VERSION=3.8    # Includes latest 3.8.x release
-    - WP_VERSION=3.7    # Includes latest 3.7.x release
+    - WP_VERSION=master
+    - WP_VERSION=4.1
+    - WP_VERSION=4.0
+    - WP_VERSION=3.9
+    - WP_VERSION=3.8
+    - WP_VERSION=3.7
 
 # Build matrix options
 matrix:
-  exclude:
-    - php: 5.6
-      env: WP_VERSION=3.7
   include:
+    - php: 7.0
+      env: WP_VERSION=master
     - php: hhvm
       env: WP_VERSION=master
-    - php: nightly
+    - php: hhvm-nightly
       env: WP_VERSION=master
   allow_failures:
+    - php: 7.0
     - php: hhvm
-    - php: nightly
+    - php: hhvm-nightly
   fast_finish: true
 
-# Before install, failures in this section will result in build status 'errored'
+# before_install: Failures in this section will result in build status 'errored'
 before_install:
     # setup WP_DEVELOP_DIR (needed for bbPress to bootstrap WP PHPUnit tests)
-    - WP_DEVELOP_DIR=/tmp/wordpress
+    - export WP_DEVELOP_DIR=/tmp/wordpress/
+    - mkdir -p $WP_DEVELOP_DIR
     # clone the WordPress develop repo
     - git clone --depth=1 --branch="$WP_VERSION" git://develop.git.wordpress.org/ $WP_DEVELOP_DIR
-    - mv $TRAVIS_BUILD_DIR /tmp/wordpress/src/wp-content/plugins/bbpress
+    # clone the BuddyPress develop repo
+    - git clone --depth=1 git://buddypress.git.wordpress.org/ $WP_DEVELOP_DIR/src/wp-content/plugins/buddypress
+    - plugin_slug=$(basename $(pwd))
+    - plugin_dir=$WP_DEVELOP_DIR/src/wp-content/plugins/$plugin_slug
+    - cd ..
+    - mv $plugin_slug $plugin_dir
+    # set up tests config
     - cd $WP_DEVELOP_DIR
-    # setub db
-    - mysql -e "CREATE DATABASE wordpress_test;" -uroot
-    # setub wp-config
+    - echo $WP_DEVELOP_DIR
     - cp wp-tests-config-sample.php wp-tests-config.php
     - sed -i "s/youremptytestdbnamehere/wordpress_test/" wp-tests-config.php
     - sed -i "s/yourusernamehere/root/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
-    - if [ "$TRAVIS_PHP_VERSION" == "5.5" ] && [ "$WP_VERSION" == "3.7" ]; then sed -i "s:define( 'WP_DEBUG://define( 'WP_DEBUG:" wp-tests-config.php; fi;
-    # prepare for running bbPress' tests
-    - BBP_DEVELOP_DIR=$WP_DEVELOP_DIR/src/wp-content/plugins/bbpress
-    - cd $BBP_DEVELOP_DIR
+    # disable WP_DEBUG for PHP >= 5.5 due to ext/mysqli E_DEPRECATED errors
+    - if [[ "$TRAVIS_PHP_VERSION" > 5.4* ]] && [[ "$WP_VERSION" == "3.7" ]] ; then sed -i "s:define( 'WP_DEBUG://define( 'WP_DEBUG:" wp-tests-config.php; fi;
+    # set up database
+    - mysql -e 'CREATE DATABASE wordpress_test;' -uroot
+    # prepare for running the tests
+    - cd $plugin_dir
     - npm install -g grunt-cli
 
-# Before script, failures in this section will result in build status 'failed'
+# before_script: Failures in this section will result in build status 'failed'
 before_script:
   - npm install
   - grunt build
 
-script: grunt travis
+# Run tests
+script:
+  - grunt travis
 
 notifications:
     email: false
