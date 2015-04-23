@@ -47,14 +47,11 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$this->expectOutputString( $count );
 		bbp_forum_topic_count( $f );
 
-		$count = bbp_get_forum_topic_count( $f, true, true );
+		$count = bbp_get_forum_topic_count( $f, true, false );
 		$this->assertSame( '0', $count );
 
-		$count = bbp_get_forum_topic_count( $f, $integer = true );
+		$count = bbp_get_forum_topic_count( $f, true, true );
 		$this->assertSame( 0, $count );
-
-		$count = bbp_get_forum_topic_count( $f );
-		$this->assertSame( 'bbp_get_forum_topic_count', $count );
 	}
 
 	/**
@@ -68,14 +65,11 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$this->expectOutputString( $count );
 		bbp_forum_reply_count( $f );
 
-		$count = bbp_get_forum_reply_count( $f, true );
+		$count = bbp_get_forum_reply_count( $f, true, false );
 		$this->assertSame( '0', $count );
 
-		$count = bbp_get_forum_reply_count( $f, $integer = true );
+		$count = bbp_get_forum_reply_count( $f, true, true );
 		$this->assertSame( 0, $count );
-
-		$count = bbp_get_forum_reply_count( $f );
-		$this->assertSame( 'bbp_get_forum_reply_count', $count );
 	}
 
 	/**
@@ -89,14 +83,11 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$this->expectOutputString( $count );
 		bbp_forum_post_count( $f );
 
-		$count = bbp_get_forum_post_count( $f );
+		$count = bbp_get_forum_post_count( $f, true, false );
 		$this->assertSame( '0', $count );
 
-		$count = bbp_get_forum_post_count( $f, $integer = true );
+		$count = bbp_get_forum_post_count( $f, true, true );
 		$this->assertSame( 0, $count );
-
-		$count = bbp_get_forum_post_count( $f );
-		$this->assertSame( 'bbp_get_forum_post_count', $count );
 	}
 
 	/**
@@ -113,7 +104,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count_hidden( $f );
 		$this->assertSame( 0, $count );
 
-		$count = bbp_get_forum_topic_count_hidden( $f, $integer = true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
 		$this->assertSame( 0, $count );
 	}
 }

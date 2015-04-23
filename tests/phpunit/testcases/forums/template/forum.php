@@ -17,7 +17,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$forum_id = bbp_get_forum_id( $f );
-		$this->assertSame( 3, $forum_id );
+		$this->assertSame( $f, $forum_id );
 	}
 
 	/**

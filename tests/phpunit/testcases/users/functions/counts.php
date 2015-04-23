@@ -14,11 +14,12 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	function test_bbp_update_user_topic_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
 
-		bbp_update_user_topic_count( $u, 9 );
+		bbp_update_user_topic_count( $u, $value );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 9, $count );
+		$count = bbp_get_user_topic_count( $u, true );
+		$this->assertSame( $value, $count );
 	}
 
 	/**
@@ -26,12 +27,12 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	function test_bbp_update_user_reply_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
 
-		bbp_update_user_reply_count( $u, 9 );
+		bbp_update_user_reply_count( $u, $value );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( 9, $count );
-
+		$count = bbp_get_user_reply_count( $u, true );
+		$this->assertSame( $value, $count );
 	}
 
 	/**
@@ -40,14 +41,19 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	function test_bbp_get_user_topic_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$formatted_value = bbp_number_format( $value );
 
-		bbp_update_user_topic_count( $u, 9 );
+		bbp_update_user_topic_count( $u, $value );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 9, $count );
-		$this->expectOutputString( '9' );
+		$this->expectOutputString( $formatted_value );
 		bbp_user_topic_count( $u );
 
+		$count = bbp_get_user_topic_count( $u, false );
+		$this->assertSame( $formatted_value, $count );
+
+		$count = bbp_get_user_topic_count( $u, true );
+		$this->assertSame( (int) $value, $count );
 	}
 
 	/**
@@ -56,13 +62,19 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	function test_bbp_get_user_reply_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$formatted_value = bbp_number_format( $value );
 
-		bbp_update_user_reply_count( $u, 9 );
+		bbp_update_user_reply_count( $u, $value );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( 9, $count );
-		$this->expectOutputString( '9' );
+		$this->expectOutputString( $formatted_value );
 		bbp_user_reply_count( $u );
+
+		$count = bbp_get_user_reply_count( $u, false );
+		$this->assertSame( $formatted_value, $count );
+
+		$count = bbp_get_user_reply_count( $u, true );
+		$this->assertSame( (int) $value, $count );
 	}
 
 	/**
@@ -71,20 +83,27 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	function test_bbp_get_user_post_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_update_user_reply_count( $u, 9 );
+		// Add reply count
+		bbp_update_user_reply_count( $u, $value );
 
-		$count = bbp_get_user_post_count( $u, true );
-		$this->assertSame( 9, $count );
-		$this->expectOutputString( '9' );
-		bbp_user_post_count( $u );
+		// Count
+		$count = bbp_get_user_post_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
+		// Add topic count
+		bbp_update_user_topic_count( $u, $value );
+		$double_value = $value * 2;
 
-		bbp_update_user_topic_count( $u, 9 );
+		// Count + Count
+		$double_count = bbp_get_user_post_count( $u, true );
+		$this->assertSame( $double_value, $double_count );
 
-		$count = bbp_get_user_post_count( $u, true );
-		$this->assertSame( 18, $count );
-		$this->expectOutputString( '18' );
+		// Output
+		$double_formatted_value = bbp_number_format( $double_value );
+		$this->expectOutputString( $double_formatted_value );
 		bbp_user_post_count( $u );
 	}
 
@@ -134,7 +153,7 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_total_users
 	 */
 	public function test_bbp_get_total_users() {
-		$u = $this->factory->user->create_many( 15 );
+		$this->factory->user->create_many( 15 );
 
 		$users = (int) bbp_get_total_users();
 
@@ -189,16 +208,18 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_bump_user_topic_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_update_user_topic_count( $u, 9 );
+		bbp_update_user_topic_count( $u, $value );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 9, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
 		bbp_bump_user_topic_count( $u );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 10, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value + 1, $count );
 	}
 
 	/**
@@ -206,16 +227,18 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_bump_user_reply_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_update_user_reply_count( $u, 9 );
+		bbp_update_user_reply_count( $u, $value );
 
-		$count = bbp_get_user_reply_count( $u, 9 );
-		$this->assertSame( 9, $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
 		bbp_bump_user_reply_count( $u );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( 10, $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $value + 1, $count );
 	}
 
 	/**
@@ -223,11 +246,13 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_increase_user_topic_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_update_user_topic_count( $u, 9 );
+		bbp_update_user_topic_count( $u, $value );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 9, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
 		$t = $this->factory->topic->create( array(
 			'post_author' => $u,
@@ -235,8 +260,8 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 
 		bbp_increase_user_topic_count( $t );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 10, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value + 1, $count );
 	}
 
 	/**
@@ -244,22 +269,24 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_increase_user_reply_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_update_user_reply_count( $u, 9 );
+		bbp_update_user_reply_count( $u, $value );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( '9', $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
 		$t = $this->factory->topic->create();
 
-		$r = $this->factory->reply->create_many( 9, array(
+		$r = $this->factory->reply->create_many( $value, array(
 			'post_parent' => $t,
 		) );
 
 		bbp_increase_user_reply_count( $r );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( '10', $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $value, $count );
 	}
 
 	/**
@@ -267,25 +294,29 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_decrease_user_topic_count() {
 		$u = $this->factory->user->create();
+		$value = 9;
+		$integer = true;
 
-		bbp_bump_user_topic_count( $u, 15 );
+		bbp_bump_user_topic_count( $u, $value );
 
-		$count = bbp_get_user_topic_count( $u, true );
-		$this->assertSame( 15, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value, $count );
 
 		$t = $this->factory->topic->create( array(
 			'post_author' => $u,
 		) );
 
+		// Minus 1
 		bbp_decrease_user_topic_count( $t );
 
-		$count = bbp_get_user_topic_count( $u );
-		$this->assertSame( 14, $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value - 1, $count );
 
+		// Minus 2
 		bbp_decrease_user_topic_count( $t );
 
-		$count = bbp_get_user_topic_count( $u, true );
-		$this->assertSame( '13', $count );
+		$count = bbp_get_user_topic_count( $u, $integer );
+		$this->assertSame( $value - 2, $count );
 	}
 
 	/**
