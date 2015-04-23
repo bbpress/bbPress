@@ -183,16 +183,17 @@ add_filter( 'bbp_get_form_topic_tags',        'esc_attr' );
 add_filter( 'bbp_get_form_topic_tags',        'trim'     );
 
 // Add number format filter to functions requiring numeric output
-add_filter( 'bbp_get_user_topic_count',     'bbp_number_format', 10 );
-add_filter( 'bbp_get_user_reply_count',     'bbp_number_format', 10 );
-add_filter( 'bbp_get_user_post_count',      'bbp_number_format', 10 );
-add_filter( 'bbp_get_forum_subforum_count', 'bbp_number_format', 10 );
-add_filter( 'bbp_get_forum_topic_count',    'bbp_number_format', 10 );
-add_filter( 'bbp_get_forum_reply_count',    'bbp_number_format', 10 );
-add_filter( 'bbp_get_forum_post_count',     'bbp_number_format', 10 );
-add_filter( 'bbp_get_topic_voice_count',    'bbp_number_format', 10 );
-add_filter( 'bbp_get_topic_reply_count',    'bbp_number_format', 10 );
-add_filter( 'bbp_get_topic_post_count',     'bbp_number_format', 10 );
+add_filter( 'bbp_get_user_topic_count',         'bbp_number_format', 10 );
+add_filter( 'bbp_get_user_reply_count',         'bbp_number_format', 10 );
+add_filter( 'bbp_get_user_post_count',          'bbp_number_format', 10 );
+add_filter( 'bbp_get_forum_subforum_count',     'bbp_number_format', 10 );
+add_filter( 'bbp_get_forum_topic_count',        'bbp_number_format', 10 );
+add_filter( 'bbp_get_forum_reply_count',        'bbp_number_format', 10 );
+add_filter( 'bbp_get_forum_post_count',         'bbp_number_format', 10 );
+add_filter( 'bbp_get_topic_voice_count',        'bbp_number_format', 10 );
+add_filter( 'bbp_get_topic_reply_count',        'bbp_number_format', 10 );
+add_filter( 'bbp_get_topic_post_count',         'bbp_number_format', 10 );
+add_filter( 'bbp_get_forum_topic_count_hidden', 'bbp_number_format', 10 );
 
 // Sanitize displayed user data
 add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field', 10, 3 );
