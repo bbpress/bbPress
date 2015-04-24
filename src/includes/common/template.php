@@ -1262,8 +1262,8 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
 	}
 
 	// Remove loggedout query arg if it's there
-	$redirect_to    = (string) esc_attr( remove_query_arg( 'loggedout', $redirect_to ) );
-	$redirect_field = '<input type="hidden" id="bbp_redirect_to" name="redirect_to" value="' . $redirect_to . '" />';
+	$redirect_to    = remove_query_arg( 'loggedout', $redirect_to );
+	$redirect_field = '<input type="hidden" id="bbp_redirect_to" name="redirect_to" value="' . esc_url( $redirect_to ) . '" />';
 
 	echo apply_filters( 'bbp_redirect_to_field', $redirect_field, $redirect_to );
 }
