@@ -31,12 +31,12 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$count = bbp_get_forum_topic_count_hidden( $f );
-		$this->assertSame( 0, $count );
+		$this->assertSame( '0', $count );
 
 		bbp_bump_forum_topic_count_hidden( $f );
 
 		$count = bbp_get_forum_topic_count_hidden( $f );
-		$this->assertSame( 1, $count );
+		$this->assertSame( '1', $count );
 	}
 
 	/**
@@ -83,7 +83,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_update_forum_topic_count
 	 */
 	public function test_bbp_update_forum_topic_count() {
-		// 1
+		// Create a top level forum f1
 		$f1 = $this->factory->forum->create();
 
 		bbp_normalize_forum( $f1 );
@@ -91,7 +91,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count( $f1 );
 		$this->assertSame( '0', $count );
 
-		// 4-18
+		// Create 3 topics in f1
 		$t = $this->factory->topic->create_many( 3, array(
 			'post_parent' => $f1,
 		) );
@@ -101,12 +101,12 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count( $f1 );
 		$this->assertSame( '3', $count );
 
-		// 19
+		// Create a new sub forum of f1
 		$f2 = $this->factory->forum->create( array(
 			'post_parent' => $f1,
 		) );
 
-		// 20
+		// Create another sub forum of f1
 		$f3 = $this->factory->forum->create( array(
 			'post_parent' => $f1,
 		) );
@@ -122,7 +122,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count( $f3 );
 		$this->assertSame( '0', $count );
 
-		// 35-39
+		// Create some topics in forum f2
 		$this->factory->topic->create_many( 4, array(
 			'post_parent' => $f2,
 		) );
@@ -138,7 +138,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count( $f3 );
 		$this->assertSame( '0', $count );
 
-		// 35-39
+		// Create some topics in forum f3
 		$this->factory->topic->create_many( 5, array(
 			'post_parent' => $f3,
 		) );
