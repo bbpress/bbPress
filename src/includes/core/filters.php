@@ -194,6 +194,7 @@ add_filter( 'bbp_get_topic_voice_count',        'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_reply_count',        'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_post_count',         'bbp_number_format', 10 );
 add_filter( 'bbp_get_forum_topic_count_hidden', 'bbp_number_format', 10 );
+add_filter( 'bbp_get_topic_reply_count_hidden', 'bbp_number_format', 10 );
 
 // Sanitize displayed user data
 add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field', 10, 3 );
