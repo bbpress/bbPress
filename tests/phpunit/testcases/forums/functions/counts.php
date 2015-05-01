@@ -168,10 +168,24 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f,
 		) );
 
-		bbp_update_forum_topic_count( $f );
+		bbp_update_forum_topic_count_hidden( $f );
 
-		$count = bbp_get_forum_topic_count( $f );
-		$this->assertSame( '15', $count );
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '0', $count );;
+
+		bbp_spam_topic( $t[11] );
+
+		bbp_update_forum_topic_count_hidden( $f );
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '1', $count );;
+
+		bbp_unapprove_topic( $t[7] );
+
+		bbp_update_forum_topic_count_hidden( $f );
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '2', $count );
 	}
 
 	/**
@@ -180,16 +194,25 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_update_forum_reply_count() {
 		$f = $this->factory->forum->create();
 
-		$count = bbp_get_forum_topic_count( $f );
+		$count = bbp_get_forum_reply_count( $f );
 		$this->assertSame( '0', $count );
 
-		$t = $this->factory->topic->create_many( 15, array(
+		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
 		) );
 
-		bbp_update_forum_topic_count( $f );
+		bbp_update_forum_reply_count( $f );
 
-		$count = bbp_get_forum_topic_count( $f );
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '0', $count );
+
+		$r = $this->factory->reply->create_many( 15, array(
+			'post_parent' => $t,
+		) );
+
+		bbp_update_forum_reply_count( $f );
+
+		$count = bbp_get_forum_reply_count( $f );
 		$this->assertSame( '15', $count );
 	}
 }
