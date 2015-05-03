@@ -1539,6 +1539,8 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a count of public children
  *
+ * @since bbPress (r2868)
+ *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
  * @uses bbp_get_topic_post_type() To get the topic post type
@@ -1584,6 +1586,8 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 /**
  * Query the DB and get a the child id's of public children
+ *
+ * @since bbPress (r2868)
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
