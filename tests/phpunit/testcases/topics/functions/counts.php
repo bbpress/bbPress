@@ -66,7 +66,13 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
+		// @todo Investigate caching issues in bbp_get_public_child_count()
+		wp_cache_flush();
+
 		bbp_update_topic_reply_count( $t );
+
+		// @todo Investigate caching issues in bbp_get_public_child_count()
+		wp_cache_flush();
 
 		$count = bbp_get_topic_reply_count( $t );
 		$this->assertSame( '3', $count );

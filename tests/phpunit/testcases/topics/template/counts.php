@@ -33,19 +33,21 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
+		// @todo Investigate caching issues in bbp_get_public_child_count()
+		wp_cache_flush();
+
 		bbp_update_topic_reply_count( $t );
 
 		// Output
-		$count = bbp_get_topic_reply_count( $t, true, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_topic_reply_count( $t );
 
 		// Formatted string
-		$count = bbp_get_topic_reply_count( $t, true, false );
+		$count = bbp_get_topic_reply_count( $t, false );
 		$this->assertSame( $formatted_value, $count );
 
 		// Integer
-		$count = bbp_get_topic_reply_count( $t, true, true );
+		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( $int_value, $count );
 	}
 
@@ -76,19 +78,21 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
+		// @todo Investigate caching issues in bbp_get_public_child_count()
+		wp_cache_flush();
+
 		bbp_update_topic_reply_count( $t );
 
 		// Output
-		$count = bbp_get_topic_post_count( $t, true, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_topic_post_count( $t );
 
 		// Formatted string
-		$count = bbp_get_topic_post_count( $t, true, false );
+		$count = bbp_get_topic_post_count( $t, false );
 		$this->assertSame( $formatted_value, $count );
 
 		// Integer
-		$count = bbp_get_topic_post_count( $t, true, true );
+		$count = bbp_get_topic_post_count( $t, true );
 		$this->assertSame( $int_value, $count );
 	}
 
@@ -123,7 +127,6 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		bbp_spam_reply( $r[7] );
 
 		// Output
-		$count = bbp_get_topic_reply_count_hidden( $t, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_topic_reply_count_hidden( $t );
 
@@ -132,7 +135,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		$this->assertSame( $formatted_value, $count );
 
 		// Integer
-		$count = bbp_get_topic_reply_count_hidden( $t, true, true );
+		$count = bbp_get_topic_reply_count_hidden( $t, true );
 		$this->assertSame( $int_value, $count );
 	}
 
@@ -175,16 +178,15 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		bbp_update_topic_voice_count( $t );
 
 		// Output
-		$count = bbp_get_topic_voice_count( $t, true, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_topic_voice_count( $t );
 
 		// Formatted string
-		$count = bbp_get_topic_voice_count( $t, true, false );
+		$count = bbp_get_topic_voice_count( $t, false );
 		$this->assertSame( $formatted_value, $count );
 
 		// Integer
-		$count = bbp_get_topic_voice_count( $t, true, true );
+		$count = bbp_get_topic_voice_count( $t, true );
 		$this->assertSame( $int_value, $count );
 	}
 }
