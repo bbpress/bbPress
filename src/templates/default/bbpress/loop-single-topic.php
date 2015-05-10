@@ -64,8 +64,7 @@
 
 				<?php do_action( 'bbp_theme_before_topic_started_in' ); ?>
 
-				<span class="bbp-topic-started-in"><?php printf( esc_html__( 'in: %2$s', 'bbpress' ), '<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>' ); ?></span>
-
+				<span class="bbp-topic-started-in"><?php printf( esc_html__( 'in: %1$s', 'bbpress' ), '<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>' ); ?></span>
 				<?php do_action( 'bbp_theme_after_topic_started_in' ); ?>
 
 			<?php endif; ?>
