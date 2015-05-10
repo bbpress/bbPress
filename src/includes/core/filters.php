@@ -125,11 +125,15 @@ add_filter( 'bbp_edit_forum_pre_content', 'bbp_code_trick',  20 );
 add_filter( 'bbp_edit_forum_pre_content', 'bbp_filter_kses', 30 );
 add_filter( 'bbp_edit_forum_pre_content', 'balanceTags',     40 );
 
-// No follow and wp_unslash on user profile links
+// No follow and wp_unslash on links
 add_filter( 'bbp_get_reply_author_link',      'bbp_rel_nofollow' );
 add_filter( 'bbp_get_reply_author_link',      'wp_unslash'       );
+add_filter( 'bbp_get_reply_to_link',          'bbp_rel_nofollow' );
+add_filter( 'bbp_get_reply_to_link',          'wp_unslash'       );
 add_filter( 'bbp_get_topic_author_link',      'bbp_rel_nofollow' );
 add_filter( 'bbp_get_topic_author_link',      'wp_unslash'       );
+add_filter( 'bbp_get_topic_reply_link',       'bbp_rel_nofollow' );
+add_filter( 'bbp_get_topic_reply_link',       'wp_unslash'       );
 add_filter( 'bbp_get_user_favorites_link',    'bbp_rel_nofollow' );
 add_filter( 'bbp_get_user_favorites_link',    'wp_unslash'       );
 add_filter( 'bbp_get_user_subscribe_link',    'bbp_rel_nofollow' );
