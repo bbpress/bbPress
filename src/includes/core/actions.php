@@ -285,13 +285,30 @@ add_action( 'bbp_profile_update', 'bbp_profile_update_role' );
 // Hook WordPress admin actions to bbPress profiles on save
 add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
 
-// Caches
+// New forum/topic/reply caches
+// @todo Investigate why clearing is necessary on both pre & post hooks
 add_action( 'bbp_new_forum_pre_extras',  'bbp_clean_post_cache' );
 add_action( 'bbp_new_forum_post_extras', 'bbp_clean_post_cache' );
 add_action( 'bbp_new_topic_pre_extras',  'bbp_clean_post_cache' );
 add_action( 'bbp_new_topic_post_extras', 'bbp_clean_post_cache' );
 add_action( 'bbp_new_reply_pre_extras',  'bbp_clean_post_cache' );
 add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
+
+// Clean caches on deleted/spammed/unspammed/trashed/untrashed actions
+add_action( 'bbp_approved_reply',   'bbp_clean_post_cache', 999 );
+add_action( 'bbp_approved_topic',   'bbp_clean_post_cache', 999 );
+add_action( 'bbp_deleted_reply',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_deleted_topic',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_spammed_reply',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_spammed_topic',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_trashed_reply',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_trashed_topic',    'bbp_clean_post_cache', 999 );
+add_action( 'bbp_unapproved_reply', 'bbp_clean_post_cache', 999 );
+add_action( 'bbp_unapproved_topic', 'bbp_clean_post_cache', 999 );
+add_action( 'bbp_unspammed_reply',  'bbp_clean_post_cache', 999 );
+add_action( 'bbp_unspammed_topic',  'bbp_clean_post_cache', 999 );
+add_action( 'bbp_untrashed_reply',  'bbp_clean_post_cache', 999 );
+add_action( 'bbp_untrashed_topic',  'bbp_clean_post_cache', 999 );
 
 /**
  * bbPress needs to redirect the user around in a few different circumstances:
