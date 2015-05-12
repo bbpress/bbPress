@@ -1528,12 +1528,12 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
-		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
+		$child_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_last_id', (int) $child_id, $parent_id, $post_type );
+	return (int) apply_filters( 'bbp_get_public_child_last_id', $child_id, $parent_id, $post_type );
 }
 
 /**
@@ -1576,12 +1576,12 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
-		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
+		$child_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, $parent_id, $post_type );
+	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
 }
 
 /**
@@ -1624,12 +1624,12 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );
+	return (array) apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );
 }
 
 /**
@@ -1688,12 +1688,12 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
 	// Filter and return
-	return apply_filters( 'bbp_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
+	return (array) apply_filters( 'bbp_get_all_child_ids', $child_ids, $parent_id, $post_type );
 }
 
 /** Globals *******************************************************************/
