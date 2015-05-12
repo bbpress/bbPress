@@ -1050,14 +1050,20 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
  */
 function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
+	// Bail if no bump
+	if ( empty( $difference ) ) {
+		return false;
+	}
+
 	// Get some counts
 	$forum_id          = bbp_get_forum_id( $forum_id );
 	$topic_count       = bbp_get_forum_topic_count( $forum_id, false, true );
 	$total_topic_count = bbp_get_forum_topic_count( $forum_id, true,  true );
+	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count',       (int) $topic_count       + (int) $difference );
-	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) $total_topic_count + (int) $difference );
+	update_post_meta( $forum_id, '_bbp_topic_count',       (int) ( $topic_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) ( $total_topic_count + $difference ) );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1075,13 +1081,15 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true,  true );
 
 				// Update counts
-				update_post_meta( $parent_forum_id, '_bbp_topic_count',       (int) $parent_topic_count       + (int) $difference );
-				update_post_meta( $parent_forum_id, '_bbp_total_topic_count', (int) $parent_total_topic_count + (int) $difference );
+				update_post_meta( $parent_forum_id, '_bbp_topic_count',       (int) ( $parent_topic_count       + $difference ) );
+				update_post_meta( $parent_forum_id, '_bbp_total_topic_count', (int) ( $parent_total_topic_count + $difference ) );
 			}
 		}
 	}
 
-	return (int) apply_filters( 'bbp_bump_forum_topic_count', (int) $total_topic_count + (int) $difference, $forum_id, (int) $difference, (bool) $update_ancestors );
+	$forum_topic_count = (int) ( $total_topic_count + $difference );
+
+	return (int) apply_filters( 'bbp_bump_forum_topic_count', $forum_topic_count, $forum_id, $difference, $update_ancestors );
 }
 
 /**
@@ -1100,15 +1108,21 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
  */
 function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1 ) {
 
+	// Bail if no bump
+	if ( empty( $difference ) ) {
+		return false;
+	}
+
 	// Get some counts
 	$forum_id    = bbp_get_forum_id( $forum_id );
 	$topic_count = bbp_get_forum_topic_count_hidden( $forum_id, true );
-	$new_count   = (int) $topic_count + (int) $difference;
+	$difference  = (int) $difference;
+	$new_count   = (int) ( $topic_count + $difference );
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $new_count );
+	update_post_meta( $forum_id, '_bbp_topic_count_hidden', $new_count );
 
-	return (int) apply_filters( 'bbp_bump_forum_topic_count_hidden', (int) $new_count, $forum_id, (int) $difference );
+	return (int) apply_filters( 'bbp_bump_forum_topic_count_hidden', $new_count, $forum_id, $difference );
 }
 
 /**
@@ -1127,14 +1141,20 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1 ) {
  */
 function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_ancestors = true ) {
 
+	// Bail if no bump
+	if ( empty( $difference ) ) {
+		return false;
+	}
+
 	// Get some counts
 	$forum_id          = bbp_get_forum_id( $forum_id );
 	$topic_count       = bbp_get_forum_reply_count( $forum_id, false, true );
 	$total_reply_count = bbp_get_forum_reply_count( $forum_id, true,  true );
+	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_reply_count',       (int) $topic_count       + (int) $difference );
-	update_post_meta( $forum_id, '_bbp_total_reply_count', (int) $total_reply_count + (int) $difference );
+	update_post_meta( $forum_id, '_bbp_reply_count',       (int) ( $topic_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_total_reply_count', (int) ( $total_reply_count + $difference ) );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1152,13 +1172,15 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 				$parent_total_reply_count = bbp_get_forum_reply_count( $parent_forum_id, true,  true );
 
 				// Update counts
-				update_post_meta( $parent_forum_id, '_bbp_reply_count',       (int) $parent_topic_count       + (int) $difference );
-				update_post_meta( $parent_forum_id, '_bbp_total_reply_count', (int) $parent_total_reply_count + (int) $difference );
+				update_post_meta( $parent_forum_id, '_bbp_reply_count',       (int) ( $parent_topic_count       + $difference ) );
+				update_post_meta( $parent_forum_id, '_bbp_total_reply_count', (int) ( $parent_total_reply_count + $difference ) );
 			}
 		}
 	}
 
-	return (int) apply_filters( 'bbp_bump_forum_reply_count', (int) $total_reply_count + (int) $difference, $forum_id, (int) $difference, (bool) $update_ancestors );
+	$forum_reply_count = (int) ( $total_reply_count + $difference );
+
+	return (int) apply_filters( 'bbp_bump_forum_reply_count', $forum_reply_count, $forum_id, $difference, $update_ancestors );
 }
 
 /** Forum Updaters ************************************************************/

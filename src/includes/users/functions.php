@@ -1786,6 +1786,11 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  */
 function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 
+	// Bail if no bump
+	if ( empty( $difference ) ) {
+		return false;
+	}
+
 	// Validate user ID
 	$user_id = bbp_get_user_id( $user_id );
 	if ( empty( $user_id ) ) {
@@ -1798,8 +1803,11 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 		$count = bbp_get_user_topic_count_raw( $user_id );
 	}
 
+	$difference       = (int) $difference;
+	$user_topic_count = (int) ( $count + $difference );
+
 	// Add them up and filter them
-	$new_count = apply_filters( 'bbp_bump_user_topic_count', ( (int) $count + (int) $difference ), $user_id, $difference, $count );
+	$new_count = (int) apply_filters( 'bbp_bump_user_topic_count', $user_topic_count, $user_id, $difference, $count );
 
 	return bbp_update_user_topic_count( $user_id, $new_count );
 }
@@ -1816,6 +1824,11 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  */
 function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 
+	// Bail if no bump
+	if ( empty( $difference ) ) {
+		return false;
+	}
+
 	// Validate user ID
 	$user_id = bbp_get_user_id( $user_id );
 	if ( empty( $user_id ) ) {
@@ -1827,6 +1840,9 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 	if ( empty( $count ) ) {
 		$count = bbp_get_user_reply_count_raw( $user_id );
 	}
+
+	$difference       = (int) $difference;
+	$user_reply_count = (int) ( $count + $difference );
 
 	// Add them up and filter them
 	$new_count = apply_filters( 'bbp_bump_user_reply_count', ( (int) $count + (int) $difference ), $user_id, $difference, $count );
