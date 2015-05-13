@@ -16,6 +16,13 @@ class BBP_Tests_Forums_Template_Post_Type extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_post_type() {
 		$f = $this->factory->forum->create();
 
+		$fobj = get_post_type_object( 'forum' );
+		$this->assertInstanceOf( 'stdClass', $fobj );
+		$this->assertEquals( 'forum', $fobj->name );
+
+		// Test some defaults
+		$this->assertTrue( is_post_type_hierarchical( 'forum' ) );
+
 		$forum_type = bbp_forum_post_type( $f );
 		$this->expectOutputString( 'forum', $forum_type );
 

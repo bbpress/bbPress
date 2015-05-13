@@ -14,12 +14,19 @@ class BBP_Tests_Topics_Template_Post_Type extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_topic_post_type
 	 */
 	public function test_bbp_topic_post_type() {
-		$r = $this->factory->topic->create();
+		$t = $this->factory->topic->create();
 
-		$topic_type = bbp_topic_post_type( $r );
+		$tobj = get_post_type_object( 'topic' );
+		$this->assertInstanceOf( 'stdClass', $tobj );
+		$this->assertEquals( 'topic', $tobj->name );
+
+		// Test some defaults
+		$this->assertFalse( is_post_type_hierarchical( 'topic' ) );
+
+		$topic_type = bbp_topic_post_type( $t );
 		$this->expectOutputString( 'topic', $topic_type );
 
-		$topic_type = bbp_get_topic_post_type( $r );
+		$topic_type = bbp_get_topic_post_type( $t );
 		$this->assertSame( 'topic', $topic_type );
 	}
 

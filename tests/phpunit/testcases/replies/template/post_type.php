@@ -16,6 +16,12 @@ class BBP_Tests_Replies_Template_Post_Type extends BBP_UnitTestCase {
 	public function test_bbp_reply_post_type() {
 		$r = $this->factory->reply->create();
 
+		$robj = get_post_type_object( 'reply' );
+		$this->assertInstanceOf( 'stdClass', $robj );
+		$this->assertEquals( 'reply', $robj->name );
+
+		// Test some defaults
+		$this->assertFalse( is_post_type_hierarchical( 'topic' ) );
 		$reply_type = bbp_reply_post_type( $r );
 		$this->expectOutputString( 'reply', $reply_type );
 
