@@ -1034,7 +1034,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	if ( empty( $forum_id ) ) {
 
 		// Get ancestors
-		$ancestors = (array) get_post_ancestors( $reply_id );
+		$ancestors = get_post_ancestors( $reply_id );
 
 		// Loop through ancestors
 		if ( !empty( $ancestors ) ) {
@@ -1052,9 +1052,9 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	}
 
 	// Update the forum ID
-	bbp_update_forum_id( $reply_id, $forum_id );
+	$forum_id = bbp_update_forum_id( $reply_id, $forum_id );
 
-	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
+	return (int) apply_filters( 'bbp_update_reply_forum_id', $forum_id, $reply_id );
 }
 
 /**
@@ -1101,9 +1101,9 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	}
 
 	// Update the topic ID
-	bbp_update_topic_id( $reply_id, $topic_id );
+	$topic_id = bbp_update_topic_id( $reply_id, $topic_id );
 
-	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
+	return apply_filters( 'bbp_update_reply_topic_id', $topic_id, $reply_id );
 }
 
 /*
@@ -1129,8 +1129,8 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 	if ( ! empty( $reply_id ) ) {
 
 		// Update the reply to
-		if ( !empty( $reply_to ) ) {
-			update_post_meta( $reply_id, '_bbp_reply_to', $reply_to );
+		if ( ! empty( $reply_to ) ) {
+			$reply_to = bbp_update_reply_to_id( $reply_id, $reply_to );
 
 		// Delete the reply to
 		} else {
@@ -1138,7 +1138,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 		}
 	}
 
-	return (int) apply_filters( 'bbp_update_reply_to', (int) $reply_to, $reply_id );
+	return (int) apply_filters( 'bbp_update_reply_to', $reply_to, $reply_id );
 }
 
 /**
@@ -1187,7 +1187,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 		}
 	}
 
-	return apply_filters( 'bbp_get_reply_ancestors', $ancestors, $reply_id );
+	return (array) apply_filters( 'bbp_get_reply_ancestors', $ancestors, $reply_id );
 }
 
 /**
