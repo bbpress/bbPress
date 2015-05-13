@@ -4,7 +4,7 @@
  * Tests for the topic tag template functions.
  *
  * @group topics
- * @group topic_tag
+ * @group topic_tags
  * @group template
  * @group topic
  * @group topic_tag
