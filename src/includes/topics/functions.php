@@ -2040,7 +2040,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
 	$stickies = empty( $forum_id ) ? bbp_get_super_stickies() : get_post_meta( $forum_id, '_bbp_sticky_topics', true );
 	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) ) ? array() : $stickies;
 
-	return apply_filters( 'bbp_get_stickies', $stickies, (int) $forum_id );
+	return apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
 }
 
 /**
@@ -2417,9 +2417,11 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 		$forum_id = get_post_field( 'post_parent', $topic_id );
 	}
 
-	update_post_meta( $topic_id, '_bbp_forum_id', (int) $forum_id );
+	$forum_id = (int) $forum_id;
 
-	return apply_filters( 'bbp_update_topic_forum_id', (int) $forum_id, $topic_id );
+	update_post_meta( $topic_id, '_bbp_forum_id', $forum_id );
+
+	return (int) apply_filters( 'bbp_update_topic_forum_id', $forum_id, $topic_id );
 }
 
 /**
@@ -2436,9 +2438,9 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 function bbp_update_topic_topic_id( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	update_post_meta( $topic_id, '_bbp_topic_id', (int) $topic_id );
+	update_post_meta( $topic_id, '_bbp_topic_id', $topic_id );
 
-	return apply_filters( 'bbp_update_topic_topic_id', (int) $topic_id );
+	return apply_filters( 'bbp_update_topic_topic_id', $topic_id );
 }
 
 /**
@@ -2472,9 +2474,11 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 		$reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
 	}
 
-	update_post_meta( $topic_id, '_bbp_reply_count', (int) $reply_count );
+	$reply_count = (int) $reply_count;
 
-	return apply_filters( 'bbp_update_topic_reply_count', (int) $reply_count, $topic_id );
+	update_post_meta( $topic_id, '_bbp_reply_count', $reply_count );
+
+	return (int) apply_filters( 'bbp_update_topic_reply_count', $reply_count, $topic_id );
 }
 
 /**
@@ -2515,9 +2519,11 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
 	}
 
-	update_post_meta( $topic_id, '_bbp_reply_count_hidden', (int) $reply_count );
+	$reply_count = (int) $reply_count;
 
-	return apply_filters( 'bbp_update_topic_reply_count_hidden', (int) $reply_count, $topic_id );
+	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $reply_count );
+
+	return (int) apply_filters( 'bbp_update_topic_reply_count_hidden', $reply_count, $topic_id );
 }
 
 /**
@@ -2556,12 +2562,14 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 		$active_id = $topic_id;
 	}
 
+	$active_id = (int) $active_id;
+
 	// Update only if published
 	if ( bbp_get_public_status_id() === get_post_status( $active_id ) ) {
-		update_post_meta( $topic_id, '_bbp_last_active_id', (int) $active_id );
+		update_post_meta( $topic_id, '_bbp_last_active_id', $active_id );
 	}
 
-	return apply_filters( 'bbp_update_topic_last_active_id', (int) $active_id, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_last_active_id', $active_id, $topic_id );
 }
 
 /**
@@ -2637,12 +2645,14 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 		$reply_id = 0;
 	}
 
+	$reply_id = (int) $reply_id;
+
 	// Update if reply is published
 	if ( bbp_is_reply_published( $reply_id ) ) {
-		update_post_meta( $topic_id, '_bbp_last_reply_id', (int) $reply_id );
+		update_post_meta( $topic_id, '_bbp_last_reply_id', $reply_id );
 	}
 
-	return apply_filters( 'bbp_update_topic_last_reply_id', (int) $reply_id, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_last_reply_id', $reply_id, $topic_id );
 }
 
 /**
@@ -2677,15 +2687,12 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	}
 
 	// Query the DB to get voices in this topic
-	$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
-
-	// If there's an error, make sure we have at least have 1 voice
-	$voices = ( empty( $voices ) || is_wp_error( $voices ) ) ? 1 : $voices[0];
+	$voices = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
 	// Update the voice count for this topic id
-	update_post_meta( $topic_id, '_bbp_voice_count', (int) $voices );
+	update_post_meta( $topic_id, '_bbp_voice_count', $voices );
 
-	return apply_filters( 'bbp_update_topic_voice_count', (int) $voices, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_voice_count', $voices, $topic_id );
 }
 
 /**
@@ -2721,9 +2728,9 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 
 	$anonymous_replies = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( ID ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
-	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', (int) $anonymous_replies );
+	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $anonymous_replies );
 
-	return apply_filters( 'bbp_update_topic_anonymous_reply_count', (int) $anonymous_replies, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $anonymous_replies, $topic_id );
 }
 
 /**
