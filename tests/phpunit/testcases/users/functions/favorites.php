@@ -7,7 +7,7 @@
  * @group functions
  * @group favorites
  */
-class BBP_Tests_Users_Functions_Favoritess extends BBP_UnitTestCase {
+class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
     /**
      * @covers BBP_Users_Functions::bbp_get_topic_favoriters
