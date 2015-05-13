@@ -82,10 +82,12 @@ function bbp_db_version_raw() {
 function bbp_update_forum_id( $post_id, $forum_id ) {
 
 	// Allow the forum ID to be updated 'just in time' before save
-	$forum_id = apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );
+	$forum_id = (int) apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );
 
 	// Update the post meta forum ID
-	update_post_meta( $post_id, '_bbp_forum_id', (int) $forum_id );
+	update_post_meta( $post_id, '_bbp_forum_id', $forum_id );
+
+	return $forum_id;
 }
 
 /**
@@ -99,10 +101,12 @@ function bbp_update_forum_id( $post_id, $forum_id ) {
 function bbp_update_topic_id( $post_id, $topic_id ) {
 
 	// Allow the topic ID to be updated 'just in time' before save
-	$topic_id = apply_filters( 'bbp_update_topic_id', $topic_id, $post_id );
+	$topic_id = (int) apply_filters( 'bbp_update_topic_id', $topic_id, $post_id );
 
 	// Update the post meta topic ID
-	update_post_meta( $post_id, '_bbp_topic_id', (int) $topic_id );
+	update_post_meta( $post_id, '_bbp_topic_id', $topic_id );
+
+	return $topic_id;
 }
 
 /**
@@ -116,10 +120,12 @@ function bbp_update_topic_id( $post_id, $topic_id ) {
 function bbp_update_reply_id( $post_id, $reply_id ) {
 
 	// Allow the reply ID to be updated 'just in time' before save
-	$reply_id = apply_filters( 'bbp_update_reply_id', $reply_id, $post_id );
+	$reply_id = (int) apply_filters( 'bbp_update_reply_id', $reply_id, $post_id );
 
 	// Update the post meta reply ID
-	update_post_meta( $post_id, '_bbp_reply_id',(int) $reply_id );
+	update_post_meta( $post_id, '_bbp_reply_id', $reply_id );
+
+	return $reply_id;
 }
 
 /** Views *********************************************************************/
