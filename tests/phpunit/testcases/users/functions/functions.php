@@ -9,7 +9,7 @@
  class BBP_Tests_Users_Functions extends BBP_UnitTestCase {
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_redirect_login
+	 * @covers ::bbp_redirect_login
 	 * @todo   Implement test_bbp_redirect_login().
 	 */
 	public function test_bbp_redirect_login() {
@@ -20,7 +20,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_is_anonymous
+	 * @covers ::bbp_is_anonymous
 	 * @todo   Implement test_bbp_is_anonymous().
 	 */
 	public function test_bbp_is_anonymous() {
@@ -31,7 +31,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_current_anonymous_user_data
+	 * @covers ::bbp_current_anonymous_user_data
 	 * @todo   Implement test_bbp_current_anonymous_user_data().
 	 */
 	public function test_bbp_current_anonymous_user_data() {
@@ -42,7 +42,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_get_current_anonymous_user_data
+	 * @covers ::bbp_get_current_anonymous_user_data
 	 * @todo   Implement test_bbp_get_current_anonymous_user_data().
 	 */
 	public function test_bbp_get_current_anonymous_user_data() {
@@ -53,7 +53,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_set_current_anonymous_user_data
+	 * @covers ::bbp_set_current_anonymous_user_data
 	 * @todo   Implement test_bbp_set_current_anonymous_user_data().
 	 */
 	public function test_bbp_set_current_anonymous_user_data() {
@@ -64,7 +64,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_current_author_ip
+	 * @covers ::bbp_current_author_ip
 	 * @todo   Implement test_bbp_current_author_ip().
 	 */
 	public function test_bbp_current_author_ip() {
@@ -75,7 +75,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_current_author_ua
+	 * @covers ::bbp_current_author_ua
 	 * @todo   Implement test_bbp_current_author_ua().
 	 */
 	public function test_bbp_current_author_ua() {
@@ -86,7 +86,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_edit_user_handler
+	 * @covers ::bbp_edit_user_handler
 	 * @todo   Implement test_bbp_edit_user_handler().
 	 */
 	public function test_bbp_edit_user_handler() {
@@ -97,7 +97,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_user_email_change_handler
+	 * @covers ::bbp_user_email_change_handler
 	 * @todo   Implement test_bbp_user_email_change_handler().
 	 */
 	public function test_bbp_user_email_change_handler() {
@@ -108,7 +108,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_edit_user_email_send_notification
+	 * @covers ::bbp_edit_user_email_send_notification
 	 * @todo   Implement test_bbp_edit_user_email_send_notification().
 	 */
 	public function test_bbp_edit_user_email_send_notification() {
@@ -119,7 +119,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_user_edit_after
+	 * @covers ::bbp_user_edit_after
 	 * @todo   Implement test_bbp_user_edit_after().
 	 */
 	public function test_bbp_user_edit_after() {
@@ -130,7 +130,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_check_user_edit
+	 * @covers ::bbp_check_user_edit
 	 * @todo   Implement test_bbp_check_user_edit().
 	 */
 	public function test_bbp_check_user_edit() {
@@ -141,7 +141,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_forum_enforce_blocked
+	 * @covers ::bbp_forum_enforce_blocked
 	 * @todo   Implement test_bbp_forum_enforce_blocked().
 	 */
 	public function test_bbp_forum_enforce_blocked() {
@@ -152,7 +152,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_sanitize_displayed_user_field
+	 * @covers ::bbp_sanitize_displayed_user_field
 	 * @todo   Implement test_bbp_sanitize_displayed_user_field().
 	 */
 	public function test_bbp_sanitize_displayed_user_field() {
@@ -163,7 +163,7 @@
 	}
 
 	/**
-	 * @covers BBP_Users_Functions::bbp_user_maybe_convert_pass
+	 * @covers ::bbp_user_maybe_convert_pass
 	 * @todo   Implement test_bbp_user_maybe_convert_pass().
 	 */
 	public function test_bbp_user_maybe_convert_pass() {

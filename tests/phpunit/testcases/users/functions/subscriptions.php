@@ -10,7 +10,7 @@
 class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_forum_subscribers
+     * @covers ::bbp_get_forum_subscribers
      * @todo   Implement test_bbp_get_forum_subscribers().
      */
     public function test_bbp_get_forum_subscribers()
@@ -22,7 +22,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_topic_subscribers
+     * @covers ::bbp_get_topic_subscribers
      * @todo   Implement test_bbp_get_topic_subscribers().
      */
     public function test_bbp_get_topic_subscribers()
@@ -34,7 +34,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_subscriptions
+     * @covers ::bbp_get_user_subscriptions
      * @todo   Implement test_bbp_get_user_subscriptions().
      */
     public function test_bbp_get_user_subscriptions()
@@ -46,7 +46,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_topic_subscriptions
+     * @covers ::bbp_get_user_topic_subscriptions
      * @todo   Implement test_bbp_get_user_topic_subscriptions().
      */
     public function test_bbp_get_user_topic_subscriptions()
@@ -58,7 +58,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_forum_subscriptions
+     * @covers ::bbp_get_user_forum_subscriptions
      * @todo   Implement test_bbp_get_user_forum_subscriptions().
      */
     public function test_bbp_get_user_forum_subscriptions()
@@ -70,7 +70,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_subscribed_forum_ids
+     * @covers ::bbp_get_user_subscribed_forum_ids
      * @todo   Implement test_bbp_get_user_subscribed_forum_ids().
      */
     public function test_bbp_get_user_subscribed_forum_ids()
@@ -82,7 +82,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_subscribed_topic_ids
+     * @covers ::bbp_get_user_subscribed_topic_ids
      * @todo   Implement test_bbp_get_user_subscribed_topic_ids().
      */
     public function test_bbp_get_user_subscribed_topic_ids()
@@ -94,7 +94,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_is_user_subscribed
+     * @covers ::bbp_is_user_subscribed
      * @todo   Implement test_bbp_is_user_subscribed().
      */
     public function test_bbp_is_user_subscribed()
@@ -106,7 +106,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_is_user_subscribed_to_forum
+     * @covers ::bbp_is_user_subscribed_to_forum
      * @todo   Implement test_bbp_is_user_subscribed_to_forum().
      */
     public function test_bbp_is_user_subscribed_to_forum()
@@ -118,7 +118,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_is_user_subscribed_to_topic
+     * @covers ::bbp_is_user_subscribed_to_topic
      * @todo   Implement test_bbp_is_user_subscribed_to_topic().
      */
     public function test_bbp_is_user_subscribed_to_topic()
@@ -130,7 +130,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_add_user_subscription
+     * @covers ::bbp_add_user_subscription
      * @todo   Implement test_bbp_add_user_subscription().
      */
     public function test_bbp_add_user_subscription()
@@ -142,7 +142,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_add_user_forum_subscription
+     * @covers ::bbp_add_user_forum_subscription
      * @todo   Implement test_bbp_add_user_forum_subscription().
      */
     public function test_bbp_add_user_forum_subscription()
@@ -154,7 +154,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_add_user_topic_subscription
+     * @covers ::bbp_add_user_topic_subscription
      * @todo   Implement test_bbp_add_user_topic_subscription().
      */
     public function test_bbp_add_user_topic_subscription()
@@ -166,7 +166,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_remove_user_subscription
+     * @covers ::bbp_remove_user_subscription
      * @todo   Implement test_bbp_remove_user_subscription().
      */
     public function test_bbp_remove_user_subscription()
@@ -178,7 +178,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_remove_user_forum_subscription
+     * @covers ::bbp_remove_user_forum_subscription
      * @todo   Implement test_bbp_remove_user_forum_subscription().
      */
     public function test_bbp_remove_user_forum_subscription()
@@ -190,7 +190,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_remove_user_topic_subscription
+     * @covers ::bbp_remove_user_topic_subscription
      * @todo   Implement test_bbp_remove_user_topic_subscription().
      */
     public function test_bbp_remove_user_topic_subscription()
@@ -202,7 +202,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_forum_subscriptions_handler
+     * @covers ::bbp_forum_subscriptions_handler
      * @todo   Implement test_bbp_forum_subscriptions_handler().
      */
     public function test_bbp_forum_subscriptions_handler()
@@ -214,7 +214,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_subscriptions_handler
+     * @covers ::bbp_subscriptions_handler
      * @todo   Implement test_bbp_subscriptions_handler().
      */
     public function test_bbp_subscriptions_handler()

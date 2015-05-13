@@ -10,7 +10,7 @@
 class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_topic_favoriters
+     * @covers ::bbp_get_topic_favoriters
      * @todo   Implement test_bbp_get_topic_favoriters().
      */
     public function test_bbp_get_topic_favoriters()
@@ -22,7 +22,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_favorites
+     * @covers ::bbp_get_user_favorites
      * @todo   Implement test_bbp_get_user_favorites().
      */
     public function test_bbp_get_user_favorites()
@@ -34,7 +34,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_get_user_favorites_topic_ids
+     * @covers ::bbp_get_user_favorites_topic_ids
      * @todo   Implement test_bbp_get_user_favorites_topic_ids().
      */
     public function test_bbp_get_user_favorites_topic_ids()
@@ -46,7 +46,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_is_user_favorite
+     * @covers ::bbp_is_user_favorite
      * @todo   Implement test_bbp_is_user_favorite().
      */
     public function test_bbp_is_user_favorite()
@@ -58,7 +58,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_add_user_favorite
+     * @covers ::bbp_add_user_favorite
      * @todo   Implement test_bbp_add_user_favorite().
      */
     public function test_bbp_add_user_favorite()
@@ -70,7 +70,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_remove_user_favorite
+     * @covers ::bbp_remove_user_favorite
      * @todo   Implement test_bbp_remove_user_favorite().
      */
     public function test_bbp_remove_user_favorite()
@@ -82,7 +82,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
     }
 
     /**
-     * @covers BBP_Users_Functions::bbp_favorites_handler
+     * @covers ::bbp_favorites_handler
      * @todo   Implement test_bbp_favorites_handler().
      */
     public function test_bbp_favorites_handler()
