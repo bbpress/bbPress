@@ -22,7 +22,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->reply->create_many( $int_value, array(
@@ -33,9 +33,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		// @todo Investigate caching issues in bbp_get_public_child_count()
-		wp_cache_flush();
-
+		bbp_clean_post_cache( $t );
 		bbp_update_topic_reply_count( $t );
 
 		// Output
@@ -59,7 +57,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$int_topics  = 1;
-		$int_replies = 9;
+		$int_replies = 3;
 		$int_value   = $int_topics + $int_replies;
 		$formatted_value = bbp_number_format( $int_value );
 
@@ -78,9 +76,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		// @todo Investigate caching issues in bbp_get_public_child_count()
-		wp_cache_flush();
-
+		bbp_clean_post_cache( $t );
 		bbp_update_topic_reply_count( $t );
 
 		// Output
@@ -103,7 +99,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 	public function test_bbp_get_topic_reply_count_hidden() {
 		$f = $this->factory->forum->create();
 
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$t = $this->factory->topic->create( array(
@@ -124,7 +120,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 
 		bbp_update_topic_reply_count_hidden( $t );
 
-		bbp_spam_reply( $r[7] );
+		bbp_spam_reply( $r[1] );
 
 		// Output
 		$this->expectOutputString( $formatted_value );
