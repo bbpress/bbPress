@@ -72,11 +72,11 @@ function bbp_db_version_raw() {
 /** Post Meta *****************************************************************/
 
 /**
- * Update a posts forum meta ID
+ * Update a posts' forum meta ID
  *
  * @since bbPress (r3181)
  *
- * @param int $post_id The post to update
+ * @param int $post_id  The post to update
  * @param int $forum_id The forum
  */
 function bbp_update_forum_id( $post_id, $forum_id ) {
@@ -91,12 +91,12 @@ function bbp_update_forum_id( $post_id, $forum_id ) {
 }
 
 /**
- * Update a posts topic meta ID
+ * Update a posts' topic meta ID
  *
  * @since bbPress (r3181)
  *
- * @param int $post_id The post to update
- * @param int $topic_id The forum
+ * @param int $post_id  The post to update
+ * @param int $topic_id The topic
  */
 function bbp_update_topic_id( $post_id, $topic_id ) {
 
@@ -110,12 +110,12 @@ function bbp_update_topic_id( $post_id, $topic_id ) {
 }
 
 /**
- * Update a posts reply meta ID
+ * Update a posts' reply meta ID
  *
  * @since bbPress (r3181)
  *
- * @param int $post_id The post to update
- * @param int $reply_id The forum
+ * @param int $post_id  The post to update
+ * @param int $reply_id The reply
  */
 function bbp_update_reply_id( $post_id, $reply_id ) {
 
@@ -124,6 +124,25 @@ function bbp_update_reply_id( $post_id, $reply_id ) {
 
 	// Update the post meta reply ID
 	update_post_meta( $post_id, '_bbp_reply_id', $reply_id );
+
+	return $reply_id;
+}
+
+/**
+ * Update a posts' reply-to meta ID
+ *
+ * @since bbPress (r5735)
+ *
+ * @param int $post_id  The post to update
+ * @param int $reply_id The reply ID
+ */
+function bbp_update_reply_to_id( $post_id, $reply_id ) {
+
+	// Allow the reply ID to be updated 'just in time' before save
+	$reply_id = (int) apply_filters( 'bbp_update_reply_to_id', $reply_id, $post_id );
+
+	// Update the post meta reply ID
+	update_post_meta( $post_id, '_bbp_reply_to', $reply_id );
 
 	return $reply_id;
 }
