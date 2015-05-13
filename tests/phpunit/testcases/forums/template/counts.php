@@ -15,7 +15,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_subforum_count() {
 		$f1 = $this->factory->forum->create();
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->forum->create_many( $int_value, array(
@@ -48,7 +48,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_topic_count() {
 		$f = $this->factory->forum->create();
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->topic->create_many( $int_value, array(
@@ -81,7 +81,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f
 		) );
 
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->reply->create_many( $int_value, array(
@@ -114,10 +114,10 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f
 		) );
 
-		$int_value = 9;
+		$int_value = 3;
 
 		// Topic + Replies
-		$result = 10;
+		$result = 4;
 		$formatted_result = bbp_number_format( $result );
 
 		$this->factory->reply->create_many( $int_value, array(
@@ -147,7 +147,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_topic_count_hidden() {
 		$f = $this->factory->forum->create();
-		$int_value = 9;
+		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->topic->create_many( $int_value, array(
