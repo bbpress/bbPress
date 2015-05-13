@@ -1529,7 +1529,10 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 		$child_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
+
 		wp_cache_set( $cache_id, $child_id, 'bbpress_posts' );
+	} else {
+		$child_id = (int) $child_id;
 	}
 
 	// Filter and return
@@ -1577,7 +1580,10 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 		$child_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
+
 		wp_cache_set( $cache_id, $child_count, 'bbpress_posts' );
+	} else {
+		$child_count = (int) $child_count;
 	}
 
 	// Filter and return
@@ -1625,7 +1631,10 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 		$child_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
+	} else {
+		$child_ids = (array) $child_ids;
 	}
 
 	// Filter and return
@@ -1689,7 +1698,10 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 
 		$child_ids = (array) $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
+	} else {
+		$child_ids = (array) $child_ids;
 	}
 
 	// Filter and return
