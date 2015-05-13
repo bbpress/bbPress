@@ -26,14 +26,19 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	public function test_bbp_forum_query_topic_ids() {
 		$f = $this->factory->forum->create();
 
-		$this->factory->topic->create_many( 9, array(
+		$t1 = $this->factory->topic->create( array(
 			'post_parent' => $f,
 		) );
 
-		bbp_update_forum_topic_count( $f );
+		$t2 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+		) );
 
-		$count = count( bbp_forum_query_topic_ids( $f ) );
-		$this->assertSame( 9, $count );;
+		$t3 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+		) );
+
+		$this->assertEqualSets( array( $t1, $t2, $t3 ), bbp_forum_query_topic_ids( $f ) );
 	}
 
 	/**
@@ -42,12 +47,15 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	public function test_bbp_forum_query_subforum_ids() {
 		$f1 = $this->factory->forum->create();
 
-		$f2 = $this->factory->forum->create_many( 9, array(
+		$f2 = $this->factory->forum->create( array(
 			'post_parent' => $f1,
 		) );
 
-		$count = count( bbp_forum_query_subforum_ids( $f1 ) );
-		$this->assertSame( 9, $count );;
+		$f3 = $this->factory->forum->create( array(
+			'post_parent' => $f1,
+		) );
+
+		$this->assertEqualSets( array( $f2, $f3 ), bbp_forum_query_subforum_ids( $f1 ) );
 	}
 
 	/**
