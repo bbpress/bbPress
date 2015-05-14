@@ -18,10 +18,13 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_topic_reply_count( $t );
 		$this->assertSame( '0', $count );
 
-		bbp_bump_topic_reply_count( $t );
+		$count = bbp_bump_topic_reply_count( $t );
+		$this->assertSame( 1, $count );
+
+		$count = bbp_bump_topic_reply_count( $t, 3 );
 
 		$count = bbp_get_topic_reply_count( $t );
-		$this->assertSame( '1', $count );
+		$this->assertSame( '4', $count );
 	}
 
 	/**
@@ -33,10 +36,13 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_topic_reply_count_hidden( $t );
 		$this->assertSame( '0', $count );
 
-		bbp_bump_topic_reply_count_hidden( $t );
+		$count = bbp_bump_topic_reply_count_hidden( $t );
+		$this->assertSame( 1, $count );
+
+		bbp_bump_topic_reply_count_hidden( $t, 3 );
 
 		$count = bbp_get_topic_reply_count_hidden( $t );
-		$this->assertSame( '1', $count );
+		$this->assertSame( '4', $count );
 	}
 
 	/**
