@@ -1,5 +1,8 @@
 # gitignore file for bbPress
 
+# Configuration files with possibly sensitive information
+.htaccess
+
 # Files and folders related to build/test tools
 /phpunit.xml
 /tests/phpunit/build
@@ -8,3 +11,9 @@
 
 # bbPress's output directory.
 /build
+
+# Operating system specific files
+.DS_Store
+
+# Ignore other .gitignore files to allow for personal customizations
+.gitignore
