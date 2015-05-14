@@ -2324,14 +2324,14 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
  *
  * @since bbPress (r3825)
  *
- * @param int $topic_id Optional. Forum id.
+ * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
- * @param bool $update_ancestors Optional. Default true
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_reply_count() To get the topic reply count
  * @uses update_post_meta() To update the topic's reply count meta
  * @uses apply_filters() Calls 'bbp_bump_topic_reply_count' with the reply
  *                        count, topic id, and difference
- * @return int Forum reply count
+ * @return int Topic reply count
  */
 function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 
@@ -2357,14 +2357,14 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
  *
  * @since bbPress (r3825)
  *
- * @param int $topic_id Optional. Forum id.
+ * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_reply_count_hidden To get the topic's hidden reply count
  * @uses update_post_meta() To update the topic's reply count meta
  * @uses apply_filters() Calls 'bbp_bump_topic_reply_count_hidden' with the
  *                        reply count, topic id, and difference
- * @return int Forum hidden reply count
+ * @return int Topic hidden reply count
  */
 function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 
@@ -2379,7 +2379,7 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 	$difference  = (int) $difference;
 	$new_count   = (int) ( $reply_count + $difference );
 
-	// Update this topic id's hidder reply count
+	// Update this topic id's hidden reply count
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $new_count );
 
 	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', $new_count, $topic_id, $difference );
