@@ -42,7 +42,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	), 'insert_forum' );
 
 	// Insert forum
-	$forum_id   = wp_insert_post( $forum_data );
+	$forum_id = wp_insert_post( $forum_data );
 
 	// Bail if no forum was added
 	if ( empty( $forum_id ) ) {
@@ -67,6 +67,11 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	foreach ( $forum_meta as $meta_key => $meta_value ) {
 		update_post_meta( $forum_id, '_bbp_' . $meta_key, $meta_value );
 	}
+
+	// Update the forum and hierarchy
+	bbp_update_forum( array(
+		'forum_id' => $forum_id,
+	) );
 
 	// Return new forum ID
 	return $forum_id;

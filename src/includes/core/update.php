@@ -206,7 +206,9 @@ function bbp_create_initial_content( $args = array() ) {
 			'post_title'   => $r['topic_title'],
 			'post_content' => $r['topic_content']
 		),
-		array( 'forum_id'  => $forum_id )
+		array(
+			'forum_id'     => $forum_id
+		)
 	);
 
 	// Create the initial reply

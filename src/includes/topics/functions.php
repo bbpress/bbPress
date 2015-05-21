@@ -42,7 +42,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	), 'insert_topic' );
 
 	// Insert topic
-	$topic_id   = wp_insert_post( $topic_data );
+	$topic_id = wp_insert_post( $topic_data );
 
 	// Bail if no topic was added
 	if ( empty( $topic_id ) ) {
@@ -67,11 +67,8 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		update_post_meta( $topic_id, '_bbp_' . $meta_key, $meta_value );
 	}
 
-	// Update the forum
-	$forum_id = bbp_get_topic_forum_id( $topic_id );
-	if ( ! empty( $forum_id ) ) {
-		bbp_update_forum( array( 'forum_id' => $forum_id ) );
-	}
+	// Update the topic and hierarchy
+	bbp_update_topic( $topic_id, $topic_meta['forum_id'], array(), $topic_data['author_id'], false );
 
 	// Return new topic ID
 	return $topic_id;

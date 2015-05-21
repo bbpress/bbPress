@@ -42,7 +42,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	), 'insert_reply' );
 
 	// Insert reply
-	$reply_id   = wp_insert_post( $reply_data );
+	$reply_id = wp_insert_post( $reply_data );
 
 	// Bail if no reply was added
 	if ( empty( $reply_id ) ) {
@@ -54,6 +54,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'author_ip' => bbp_current_author_ip(),
 		'forum_id'  => 0,
 		'topic_id'  => 0,
+		'reply_to'  => 0
 	), 'insert_reply_meta' );
 
 	// Insert reply meta
@@ -61,11 +62,8 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		update_post_meta( $reply_id, '_bbp_' . $meta_key, $meta_value );
 	}
 
-	// Update the topic
-	$topic_id = bbp_get_reply_topic_id( $reply_id );
-	if ( !empty( $topic_id ) ) {
-		bbp_update_topic( $topic_id );
-	}
+	// Update the reply and hierarchy
+	bbp_update_reply( $reply_id, $reply_meta['topic_id'], $reply_meta['forum_id'], array(), $reply_data['post_author'], false, $reply_meta['reply_to'] );
 
 	// Return new reply ID
 	return $reply_id;
