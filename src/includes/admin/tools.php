@@ -284,7 +284,7 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
 function bbp_admin_repair_list() {
 	$repair_list = array(
 		0  => array( 'bbp-sync-topic-meta',          __( 'Recalculate parent topic for each reply',           'bbpress' ), 'bbp_admin_repair_topic_meta'               ),
-		5  => array( 'bbp-sync-forum-meta',          __( 'Recalculate parent forum for each reply',           'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
+		5  => array( 'bbp-sync-forum-meta',          __( 'Recalculate parent forum for each topic and reply', 'bbpress' ), 'bbp_admin_repair_forum_meta'               ),
 		10 => array( 'bbp-sync-forum-visibility',    __( 'Recalculate private and hidden forums',             'bbpress' ), 'bbp_admin_repair_forum_visibility'         ),
 		15 => array( 'bbp-sync-all-topics-forums',   __( 'Recalculate last activity in each topic and forum', 'bbpress' ), 'bbp_admin_repair_freshness'                ),
 		20 => array( 'bbp-sync-all-topics-sticky',   __( 'Recalculate sticky relationship of each topic',     'bbpress' ), 'bbp_admin_repair_sticky'                   ),
@@ -1287,13 +1287,12 @@ function bbp_admin_repair_forum_visibility() {
 }
 
 /**
- * Recaches the forum for each post
+ * Recaches the parent forum meta for each topic and reply
  *
  * @since bbPress (r3876)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @return array An array of the status code and the message
@@ -1310,31 +1309,20 @@ function bbp_admin_repair_forum_meta() {
 	}
 
 	// Post types and status
-	$fpt = bbp_get_forum_post_type();
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
 
-	// Next, give all the topics with replies the ID their last reply.
-	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
-			FROM `$wpdb->posts`
-				AS `forum`
-			WHERE `forum`.`post_type` = '{$fpt}'
-			GROUP BY `forum`.`ID` );" ) ) ) {
-		return array( 2, sprintf( $statement, $result ) );
-	}
-
-	// Next, give all the topics with replies the ID their last reply.
+	// Next, give all the topics their parent forum id.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
 			FROM `$wpdb->posts`
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
 			GROUP BY `topic`.`ID` );" ) ) ) {
-		return array( 3, sprintf( $statement, $result ) );
+		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	// Next, give all the topics with replies the ID their last reply.
+	// Next, give all the replies their parent forum id.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `reply`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
 			FROM `$wpdb->posts`
@@ -1345,7 +1333,7 @@ function bbp_admin_repair_forum_meta() {
 			WHERE `topic`.`post_type` = '{$tpt}'
 				AND `reply`.`post_type` = '{$rpt}'
 			GROUP BY `reply`.`ID` );" ) ) ) {
-		return array( 4, sprintf( $statement, $result ) );
+		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	// Complete results
