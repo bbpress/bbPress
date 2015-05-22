@@ -1009,6 +1009,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * @param int $new_forum_id New forum id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses wp_update_post() To update the topic post parent`
  * @uses bbp_get_stickies() To get the old forums sticky topics
  * @uses delete_post_meta() To delete the forum sticky meta
  * @uses update_post_meta() To update the old forum sticky meta
@@ -1035,6 +1036,12 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 
 	// Update topic forum's ID
 	bbp_update_topic_forum_id( $topic_id, $new_forum_id );
+
+	// Update topic post parent with the new forum ID
+	wp_update_post( array(
+		'ID'          => $topic_id,
+		'post_parent' => $new_forum_id,
+	) );
 
 	/** Stickies **************************************************************/
 

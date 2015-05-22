@@ -66,13 +66,82 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_move_topic_handler
-	 * @todo   Implement test_bbp_move_topic_handler().
 	 */
 	public function test_bbp_move_topic_handler() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_current_user = 0;
+		$this->old_current_user = get_current_user_id();
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		$this->keymaster_id = get_current_user_id();
+		bbp_set_user_role( $this->keymaster_id, bbp_get_keymaster_role() );
+
+		$old_forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $old_forum_id,
+			'topic_meta' => array(
+				'forum_id' => $old_forum_id,
+			),
+		) );
+
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta' => array(
+				'forum_id' => $old_forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		// Topic post parent
+		$topic_parent = wp_get_post_parent_id( $topic_id );
+		$this->assertSame( $old_forum_id, $topic_parent );
+
+		// Forum meta
+		$this->assertSame( 1, bbp_get_forum_topic_count( $old_forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $old_forum_id, true, true ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $old_forum_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $old_forum_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_active_id( $old_forum_id ) );
+
+		// Topic meta
+		$this->assertSame( $old_forum_id, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertSame( 1, bbp_get_topic_voice_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( $reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $reply_id, bbp_get_topic_last_active_id( $topic_id ) );
+
+		// Reply Meta
+		$this->assertSame( $old_forum_id, bbp_get_reply_forum_id( $reply_id ) );
+		$this->assertSame( $topic_id, bbp_get_reply_topic_id( $reply_id ) );
+
+		// Create a new forum
+		$new_forum_id = $this->factory->forum->create();
+
+		// Move the topic into the new forum
+		bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id );
+
+		// Topic post parent
+		$topic_parent = wp_get_post_parent_id( $topic_id );
+		$this->assertSame( $new_forum_id, $topic_parent );
+
+		// Forum meta
+		$this->assertSame( 1, bbp_get_forum_topic_count( $new_forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $new_forum_id, true, true ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $new_forum_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $new_forum_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_active_id( $new_forum_id ) );
+
+		// Topic meta
+		$this->assertSame( $new_forum_id, bbp_get_topic_forum_id( $topic_id ) );
+		$this->assertSame( 1, bbp_get_topic_voice_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( $reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $reply_id, bbp_get_topic_last_active_id( $topic_id ) );
+
+		// Reply Meta
+		$this->assertSame( $new_forum_id, bbp_get_reply_forum_id( $reply_id ) );
+		$this->assertSame( $topic_id, bbp_get_reply_topic_id( $reply_id ) );
+
+		// Retore the user
+		$this->set_current_user( $this->old_current_user );
 	}
 
 	/**
