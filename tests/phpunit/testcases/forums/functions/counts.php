@@ -111,7 +111,9 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f1,
 		) );
 
-		bbp_update_forum_subforum_count( $f1 );
+		bbp_update_forum_topic_count( $f1 );
+		bbp_update_forum_topic_count( $f2 );
+		bbp_update_forum_topic_count( $f3 );
 
 		$count = bbp_get_forum_topic_count( $f1 );
 		$this->assertSame( '3', $count );
@@ -127,10 +129,12 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f2,
 		) );
 
+		bbp_update_forum_topic_count( $f1 );
 		bbp_update_forum_topic_count( $f2 );
+		bbp_update_forum_topic_count( $f3 );
 
 		$count = bbp_get_forum_topic_count( $f1 );
-		$this->assertSame( '3', $count );
+		$this->assertSame( '7', $count );
 
 		$count = bbp_get_forum_topic_count( $f2 );
 		$this->assertSame( '4', $count );
@@ -143,10 +147,12 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			'post_parent' => $f3,
 		) );
 
+		bbp_update_forum_topic_count( $f1 );
+		bbp_update_forum_topic_count( $f2 );
 		bbp_update_forum_topic_count( $f3 );
 
 		$count = bbp_get_forum_topic_count( $f1 );
-		$this->assertSame( '3', $count );
+		$this->assertSame( '12', $count );
 
 		$count = bbp_get_forum_topic_count( $f2 );
 		$this->assertSame( '4', $count );
