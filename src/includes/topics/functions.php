@@ -68,7 +68,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	}
 
 	// Update the topic and hierarchy
-	bbp_update_topic( $topic_id, $topic_meta['forum_id'], array(), $topic_data['author_id'], false );
+	bbp_update_topic( $topic_id, $topic_meta['forum_id'], array(), $topic_data['post_author'], false );
 
 	// Return new topic ID
 	return $topic_id;
