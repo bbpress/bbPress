@@ -10,14 +10,36 @@
 class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
+	 * @group canonical
 	 * @covers ::bbp_insert_reply
-	 * @todo   Implement test_bbp_insert_reply().
 	 */
 	public function test_bbp_insert_reply() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// reply post
+		$this->assertSame( 'Reply To: Topic 1', bbp_get_reply_title( $r ) );
+		$this->assertSame( 'publish', bbp_get_reply_status( $r ) );
+		$this->assertSame( $t, wp_get_post_parent_id( $r ) ); // post parent
+
+		// reply meta
+		$this->assertSame( $f, bbp_get_reply_forum_id( $r ) ); // _bbp_forum_id
+		$this->assertSame( $t, bbp_get_reply_topic_id( $r ) ); // _bbp_forum_id
 	}
 
 	/**

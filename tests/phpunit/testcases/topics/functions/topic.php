@@ -10,14 +10,41 @@
 class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
+	 * @group canonical
 	 * @covers ::bbp_insert_topic
-	 * @todo   Implement test_bbp_insert_topic().
 	 */
 	public function test_bbp_insert_topic() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Topic post
+		$this->assertSame( 'Topic 1', bbp_get_topic_title( $t ) );
+		$this->assertSame( 'publish', bbp_get_topic_status( $t ) );
+		$this->assertSame( $f, wp_get_post_parent_id( $t ) ); // post parent
+
+		// Topic meta
+		$this->assertSame( $f, bbp_get_topic_forum_id( $t ) ); // _bbp_forum_id
+		$this->assertSame( 1, bbp_get_topic_reply_count( $t, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $t, true ) );
+		$this->assertSame( 1, bbp_get_topic_voice_count( $t, true ) );
+		$this->assertSame( $r, bbp_get_topic_last_reply_id( $t ) );
+		$this->assertSame( $r, bbp_get_topic_last_active_id( $t ) );
+		$this->assertSame( 'right now', bbp_get_topic_last_active_time( $t ) );
 	}
 
 	/**

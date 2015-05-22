@@ -10,14 +10,51 @@
 class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 
 	/**
+	 * @group canonical
 	 * @covers ::bbp_insert_forum
-	 * @todo   Implement test_bbp_insert_forum().
 	 */
 	public function test_bbp_insert_forum() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$now = 'right now';
+
+		// Forum post
+		$this->assertSame( 'Forum 1', bbp_get_forum_title( $f ) );
+		$this->assertSame( 'Content of Forum 1', bbp_get_forum_content( $f ) );
+		$this->assertSame( 'open', bbp_get_forum_status( $f ) );
+		$this->assertSame( 'forum', bbp_get_forum_type( $f ) );
+		$this->assertTrue( bbp_is_forum_public( $f ) );
+		$this->assertSame( 0, bbp_get_forum_parent_id( $f ) );
+
+		// Forum meta
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $f, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $f, false, true ) ); // Topic count
+		$this->assertSame( 1, bbp_get_forum_topic_count( $f, true, true ) );  // Total topic count
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $f, true ) ); // Topic count hidden
+		$this->assertSame( 1, bbp_get_forum_reply_count( $f, false, true ) ); // Reply count
+		$this->assertSame( 1, bbp_get_forum_reply_count( $f, true, true ) );  // Total reply count
+		$this->assertSame( 2, bbp_get_forum_post_count( $f, false, true ) );  // Post count
+		$this->assertSame( 2, bbp_get_forum_post_count( $f, true, true ) );   // Total post count
+		$this->assertSame( $t, bbp_get_forum_last_topic_id( $f ) );
+		$this->assertSame( $r, bbp_get_forum_last_reply_id( $f ) );
+		$this->assertSame( $r, bbp_get_forum_last_active_id( $f ) );
+		$this->assertSame( $now, bbp_get_forum_last_active_time( $f ) );
 	}
 
 	/**
