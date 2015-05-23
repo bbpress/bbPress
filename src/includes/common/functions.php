@@ -1644,14 +1644,25 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a the child id's of all children
  *
- * @param int $parent_id Parent id
+ * @since bbPress (r3325)
+ *
+ * @param int $  parent_id  Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wp_cache_get() To check if there is a cache of the children
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_private_status_id() To get the private status id
+ * @uses bbp_get_hidden_status_id() To get the hidden status id
+ * @uses bbp_get_pending_status_id() To get the pending status id
+ * @uses bbp_get_closed_status_id() To get the closed status id
+ * @uses bbp_get_trash_status_id() To get the trash status id
+ * @uses bbp_get_spam_status_id() To get the spam status id
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_col() To get the result of the query in an array
  * @uses wp_cache_set() To set the cache for future use
- * @uses apply_filters() Calls 'bbp_get_public_child_ids' with the child ids,
+ * @uses apply_filters() Calls 'bbp_get_all_child_ids' with the child ids,
  *                        parent id and post type
  * @return array The array of children
  */
@@ -1682,6 +1693,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 			// Topic
 			case bbp_get_topic_post_type() :
+				$post_status[] = bbp_get_pending_status_id();
 				$post_status[] = bbp_get_closed_status_id();
 				$post_status[] = bbp_get_trash_status_id();
 				$post_status[] = bbp_get_spam_status_id();
@@ -1689,6 +1701,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 			// Reply
 			case bbp_get_reply_post_type() :
+				$post_status[] = bbp_get_pending_status_id();
 				$post_status[] = bbp_get_trash_status_id();
 				$post_status[] = bbp_get_spam_status_id();
 				break;
