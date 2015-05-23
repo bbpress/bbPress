@@ -1599,6 +1599,8 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  * @param string $post_type Post type. Defaults to 'post'
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wp_cache_get() To check if there is a cache of the children
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_closed_status_id() To get the closed status id
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_col() To get the result of the query in an array
  * @uses wp_cache_set() To set the cache for future use
