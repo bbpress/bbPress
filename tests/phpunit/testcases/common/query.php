@@ -145,10 +145,5 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 
 		$count = count( bbp_get_all_child_ids( $t1[0], bbp_get_reply_post_type() ) );
 		$this->assertSame( 7, $count );
-
-		/* Total sub forums, topics, and replies ******************************/
-
-		$count = count( bbp_get_all_child_ids( $f ) );
-		$this->assertSame( 0, $count );
 	}
 }
