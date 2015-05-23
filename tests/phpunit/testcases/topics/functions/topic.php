@@ -294,13 +294,28 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_topic_forum_id
-	 * @todo   Implement test_bbp_update_topic_forum_id().
 	 */
 	public function test_bbp_update_topic_forum_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$forum_id = bbp_get_topic_forum_id( $t );
+		$this->assertSame( $f, $forum_id );
+
+		$topic_parent = wp_get_post_parent_id( $t );
+		$this->assertSame( $f, $topic_parent );
+
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_forum_id' ) );
+
+		bbp_update_topic_forum_id( $t, $f );
+
+		$forum_id = bbp_get_topic_forum_id( $t );
+		$this->assertSame( $f, $forum_id );
 	}
 
 	/**
