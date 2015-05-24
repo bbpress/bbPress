@@ -95,7 +95,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 					<div class="bbp-password">
 						<label for="user_pass"><?php _e( 'Password', 'bbpress' ); ?>: </label>
-						<input type="password" name="pwd" value="<?php bbp_sanitize_val( 'user_pass', 'password' ); ?>" size="20" id="user_pass" />
+						<input type="password" name="pwd" value="<?php bbp_sanitize_val( 'user_pass', 'password' ); ?>" size="20" id="user_pass" autocomplete="off" />
 					</div>
 
 					<div class="bbp-remember-me">
