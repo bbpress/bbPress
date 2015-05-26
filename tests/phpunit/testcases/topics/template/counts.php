@@ -33,7 +33,6 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		bbp_clean_post_cache( $t );
 		bbp_update_topic_reply_count( $t );
 
 		// Output
@@ -76,7 +75,6 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		bbp_clean_post_cache( $t );
 		bbp_update_topic_reply_count( $t );
 
 		// Output
