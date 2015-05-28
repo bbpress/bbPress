@@ -44,7 +44,7 @@ class phpBB extends BBP_Converter_Base {
 		// Forum topic count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
-			'from_fieldname' => 'forum_topics',
+			'from_fieldname' => 'forum_topics_approved',
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_topic_count'
 		);
@@ -52,7 +52,7 @@ class phpBB extends BBP_Converter_Base {
 		// Forum reply count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
-			'from_fieldname' => 'forum_posts',
+			'from_fieldname' => 'forum_posts_approved',
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_reply_count'
 		);
@@ -160,7 +160,7 @@ class phpBB extends BBP_Converter_Base {
 		// Topic reply count (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'topic_replies',
+			'from_fieldname'  => 'topic_posts_approved',
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_reply_count',
 			'callback_method' => 'callback_topic_reply_count'
@@ -169,7 +169,7 @@ class phpBB extends BBP_Converter_Base {
 		// Topic total reply count (Includes unpublished replies, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'topics',
-			'from_fieldname'  => 'topic_replies_real',
+			'from_fieldname'  => 'topic_posts_approved',
 			'to_type'         => 'topic',
 			'to_fieldname'    => '_bbp_total_reply_count',
 			'callback_method' => 'callback_topic_reply_count'
@@ -448,7 +448,6 @@ class phpBB extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'from_tablename'  => 'users',
 			'from_fieldname'  => 'user_id',
-			'from_expression' => 'WHERE user_type !=2',
 			'to_type'         => 'user',
 			'to_fieldname'    => '_bbp_old_user_id'
 		);
@@ -495,10 +494,13 @@ class phpBB extends BBP_Converter_Base {
 
 		// User homepage.
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_website',
-			'to_type'        => 'user',
-			'to_fieldname'   => 'user_url'
+			'from_tablename'  => 'profile_fields_data',
+			'from_fieldname'  => 'pf_phpbb_website',
+			'join_tablename'  => 'users',
+			'join_type'       => 'LEFT',
+			'join_expression' => 'USING (user_id) WHERE users.user_type !=2',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_url'
 		);
 
 		// User registered.
@@ -510,36 +512,76 @@ class phpBB extends BBP_Converter_Base {
 			'callback_method' => 'callback_datetime'
 		);
 
-		// User AIM (Stored in usermeta)
+		// User AOL/AIM (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_aim',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_aol',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_yim',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_yahoo',
 			'to_type'        => 'user',
 			'to_fieldname'   => 'yim'
 		);
 
 		// Store ICQ (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_icq',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_icq',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_phpbb_user_icq'
 		);
 
-		// Store MSN (Stored in usermeta)
+		// Store MSN/WLM (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_msnm',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_wlm',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_phpbb_user_msnm'
+		);
+
+		// Store Facebook (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_facebook',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_phpbb_user_facebook'
+		);
+
+		// Store Google+ (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_googleplus',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_phpbb_user_googleplus'
+		);
+
+		// Store Skype (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_skype',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_phpbb_user_skype'
+		);
+
+		// Store Twitter (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_twitter',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_phpbb_user_twitter'
+		);
+
+		// Store Youtube (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_youtube',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_phpbb_user_youtube'
 		);
 
 		// Store Jabber
@@ -552,16 +594,16 @@ class phpBB extends BBP_Converter_Base {
 
 		// Store Occupation (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_occ',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_occupation',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_phpbb_user_occ'
 		);
 
 		// Store Interests (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_interests',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_interests',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_phpbb_user_interests'
 		);
@@ -577,8 +619,8 @@ class phpBB extends BBP_Converter_Base {
 
 		// Store Location (Stored in usermeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'users',
-			'from_fieldname' => 'user_from',
+			'from_tablename' => 'profile_fields_data',
+			'from_fieldname' => 'pf_phpbb_location',
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_phpbb_user_from'
 		);
