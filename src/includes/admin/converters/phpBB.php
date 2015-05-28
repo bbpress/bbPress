@@ -60,7 +60,7 @@ class phpBB extends BBP_Converter_Base {
 		// Forum total topic count (Includes unpublished topics, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
-			'from_fieldname' => 'forum_topics_real',
+			'from_fieldname' => 'forum_topics_approved',
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_total_topic_count'
 		);
@@ -68,7 +68,7 @@ class phpBB extends BBP_Converter_Base {
 		// Forum total reply count (Includes unpublished replies, Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'forums',
-			'from_fieldname' => 'forum_posts',
+			'from_fieldname' => 'forum_posts_approved',
 			'to_type'        => 'forum',
 			'to_fieldname'   => '_bbp_total_reply_count'
 		);
