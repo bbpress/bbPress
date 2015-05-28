@@ -641,28 +641,28 @@ class Example extends BBP_Converter_Base {
 			'to_fieldname'   => 'display_name'
 		);
 
-		// User AIM (Stored in usermeta)
+		// User Profile Field 1 (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'users_table',
-			'from_fieldname'  => 'the_users_aim',
+			'from_fieldname'  => 'the_users_custom_profile_field_1',
 			'to_type'         => 'user',
-			'to_fieldname'    => 'aim'
+			'to_fieldname'    => '_bbp_example_profile_field_1'
 		);
 
-		// User Yahoo (Stored in usermeta)
+		// User Profile Field 2 (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'users_table',
-			'from_fieldname'  => 'the_users_yahoo',
+			'from_fieldname'  => 'the_users_custom_profile_field_2',
 			'to_type'         => 'user',
-			'to_fieldname'    => 'yim'
+			'to_fieldname'    => '_bbp_example_profile_field_2'
 		);
 
-		// User Jabber (Stored in usermeta)
+		// User Profile Field 3 (Stored in usermeta)
 		$this->field_map[] = array(
 			'from_tablename' => 'users_table',
-			'from_fieldname' => 'the_users_jabber',
+			'from_fieldname' => 'the_users_custom_profile_field_3',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'jabber'
+			'to_fieldname'   => '_bbp_example_profile_field_3'
 		);
 
 		// Setup any table joins needed for the user section
