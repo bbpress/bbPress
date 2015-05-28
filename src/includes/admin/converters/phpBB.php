@@ -147,6 +147,25 @@ class phpBB extends BBP_Converter_Base {
 			'default'      => date('Y-m-d H:i:s')
 		);
 
+		/** Forum Subscriptions Section ***************************************/
+
+		// Subscribed forum ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forums_watch',
+			'from_fieldname'  => 'forum_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => '_bbp_forum_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'forums_watch',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'forum_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
 		/** Topic Section *****************************************************/
 
 		// Old topic id (Stored in postmeta)
@@ -320,6 +339,44 @@ class phpBB extends BBP_Converter_Base {
 		/**
 		 * phpBB Forums do not support topic tags
 		 */
+
+		/** Topic Subscriptions Section ***************************************/
+
+		// Subscribed topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_watch',
+			'from_fieldname'  => 'topic_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => '_bbp_subscriptions'
+		);
+
+		// Subscribed user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'topics_watch',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'topic_subscriptions',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
+
+		/** Favorites Section *************************************************/
+
+		// Favorited topic ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'bookmarks',
+			'from_fieldname'  => 'topic_id',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => '_bbp_favorites'
+		);
+
+		// Favorited user ID (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename'  => 'bookmarks',
+			'from_fieldname'  => 'user_id',
+			'to_type'         => 'favorites',
+			'to_fieldname'    => 'user_id',
+			'callback_method' => 'callback_userid'
+		);
 
 		/** Reply Section *****************************************************/
 
