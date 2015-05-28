@@ -574,7 +574,7 @@ class phpBB extends BBP_Converter_Base {
 			'from_tablename' => 'profile_fields_data',
 			'from_fieldname' => 'pf_phpbb_aol',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_phpbb_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -582,7 +582,7 @@ class phpBB extends BBP_Converter_Base {
 			'from_tablename' => 'profile_fields_data',
 			'from_fieldname' => 'pf_phpbb_yahoo',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_phpbb_user_yim'
 		);
 
 		// Store ICQ (Stored in usermeta)
@@ -646,7 +646,7 @@ class phpBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_jabber',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'jabber'
+			'to_fieldname'   => '_bbp_phpbb_user_jabber'
 		);
 
 		// Store Occupation (Stored in usermeta)
