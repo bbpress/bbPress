@@ -485,7 +485,7 @@ class Kunena3 extends BBP_Converter_Base {
 			'join_type'       => 'LEFT',
 			'join_expression' => 'ON kunena_users.userid = users.id',
 			'to_type'         => 'user',
-			'to_fieldname'    => 'aim'
+			'to_fieldname'    => '_bbp_kunena3_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -496,7 +496,7 @@ class Kunena3 extends BBP_Converter_Base {
 			'join_type'       => 'LEFT',
 			'join_expression' => 'ON kunena_users.userid = users.id',
 			'to_type'         => 'user',
-			'to_fieldname'    => 'yim'
+			'to_fieldname'    => '_bbp_kunena3_user_yim'
 		);
 
 		// Store Google Tak (Stored in usermeta)
@@ -507,7 +507,7 @@ class Kunena3 extends BBP_Converter_Base {
 			'join_type'       => 'LEFT',
 			'join_expression' => 'ON kunena_users.userid = users.id',
 			'to_type'         => 'user',
-			'to_fieldname'    => 'jabber'
+			'to_fieldname'    => '_bbp_kunena3_user_jabber'
 		);
 
 		// Store ICQ (Stored in usermeta)

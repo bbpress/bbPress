@@ -466,7 +466,7 @@ class MyBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_mybb_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -474,7 +474,7 @@ class MyBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'yahoo',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_mybb_user_yim'
 		);
 
 		// Store ICQ (Stored in usermeta)

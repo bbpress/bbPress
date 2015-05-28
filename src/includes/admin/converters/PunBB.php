@@ -558,7 +558,7 @@ class PunBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_punbb_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -566,7 +566,7 @@ class PunBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'yahoo',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_punbb_user_yim'
 		);
 
 		// Store Jabber
@@ -574,7 +574,7 @@ class PunBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'jabber',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'jabber'
+			'to_fieldname'   => '_bbp_punbb_user_jabber'
 		);
 
 		// Store ICQ (Stored in usermeta)

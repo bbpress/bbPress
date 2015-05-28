@@ -516,7 +516,7 @@ class FluxBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_fluxbb_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -524,7 +524,7 @@ class FluxBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'yahoo',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_fluxbb_user_yim'
 		);
 
 	// Store Jabber
@@ -532,7 +532,7 @@ class FluxBB extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'jabber',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'jabber'
+			'to_fieldname'   => '_bbp_fluxbb_user_jabber'
 		);
 
 		// Store ICQ (Stored in usermeta)

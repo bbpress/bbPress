@@ -496,7 +496,7 @@ class AEF extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_aef_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -504,7 +504,7 @@ class AEF extends BBP_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'yim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_aef_user_yim'
 		);
 
 		// Store ICQ (Stored in usermeta)

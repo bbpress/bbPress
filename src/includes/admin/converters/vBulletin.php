@@ -577,7 +577,7 @@ class vBulletin extends BBP_Converter_Base {
 			'from_tablename' => 'user',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_vbulletin_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -585,7 +585,7 @@ class vBulletin extends BBP_Converter_Base {
 			'from_tablename' => 'user',
 			'from_fieldname' => 'yahoo',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_vbulletin_user_yim'
 		);
 
 		// User ICQ (Stored in usermeta)

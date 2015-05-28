@@ -576,7 +576,7 @@ class SMF extends BBP_Converter_Base {
 			'from_tablename' => 'members',
 			'from_fieldname' => 'aim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'aim'
+			'to_fieldname'   => '_bbp_smf_user_aim'
 		);
 
 		// User Yahoo (Stored in usermeta)
@@ -584,7 +584,7 @@ class SMF extends BBP_Converter_Base {
 			'from_tablename' => 'members',
 			'from_fieldname' => 'yim',
 			'to_type'        => 'user',
-			'to_fieldname'   => 'yim'
+			'to_fieldname'   => '_bbp_smf_user_yim'
 		);
 
 		// Store ICQ (Stored in usermeta)
