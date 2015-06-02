@@ -78,11 +78,15 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	 * @covers ::bbp_create_initial_content
 	 */
 	public function test_bbp_create_initial_content() {
-		bbp_create_initial_content();
 
-		$forum_id = 3;
-		$topic_id = 4;
-		$reply_id = 5;
+		$f  = $this->factory->forum->create();
+
+		bbp_create_initial_content( array( 'forum_parent' => $f ) );
+
+		$forum_id = bbp_forum_query_subforum_ids( $f );
+		$forum_id = (int) $forum_id[0];
+		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
+		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
 		$now = 'right now';
 
 		// Forum post
@@ -90,7 +94,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( 'General chit-chat', bbp_get_forum_content( $forum_id ) );
 		$this->assertSame( 'open', bbp_get_forum_status( $forum_id ) );
 		$this->assertTrue( bbp_is_forum_public( $forum_id ) );
-		$this->assertSame( 0, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertSame( $f, bbp_get_forum_parent_id( $forum_id ) );
 
 		// Topic post
 		$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ) );
