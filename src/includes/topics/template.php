@@ -2365,7 +2365,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
  * @param array $args See {@link bbp_get_topic_tag_list()}
  * @uses bbp_get_topic_tag_list() To get the topic tag list
  */
-function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
+function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 	echo bbp_get_topic_tag_list( $topic_id, $args );
 }
 	/**
@@ -2380,7 +2380,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 	 * @uses get_the_term_list() To get the tags list
 	 * @return string Tag list of the topic
 	 */
-	function bbp_get_topic_tag_list( $topic_id = 0, $args = '' ) {
+	function bbp_get_topic_tag_list( $topic_id = 0, $args = array() ) {
 
 		// Bail if topic-tags are off
 		if ( ! bbp_allow_topic_tags() ) {

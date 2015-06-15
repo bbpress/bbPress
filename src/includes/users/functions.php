@@ -1568,7 +1568,7 @@ function bbp_user_email_change_handler( $action = '' ) {
  * @uses add_query_arg()                 To add arguments the link
  * @uses wp_mail()                       To send the notification
  */
-function bbp_edit_user_email_send_notification( $user_id = 0, $args = '' ) {
+function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) {
 
 	// Parse args
 	$r = bbp_parse_args( $args, array(
