@@ -149,11 +149,9 @@ class BBP_Admin {
 
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_bbp_suggest_topic',        array( $this, 'suggest_topic' ) );
-		add_action( 'wp_ajax_nopriv_bbp_suggest_topic', array( $this, 'suggest_topic' ) );
-
-		add_action( 'wp_ajax_bbp_suggest_user',         array( $this, 'suggest_user'  ) );
-		add_action( 'wp_ajax_nopriv_bbp_suggest_user',  array( $this, 'suggest_user'  ) );
+		// No _nopriv_ equivalent - users must be logged in
+		add_action( 'wp_ajax_bbp_suggest_topic', array( $this, 'suggest_topic' ) );
+		add_action( 'wp_ajax_bbp_suggest_user',  array( $this, 'suggest_user'  ) );
 
 		/** Filters ***********************************************************/
 
