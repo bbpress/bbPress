@@ -147,8 +147,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 	/**
 	 * The primary display function for group forums
+	 *
+	 * @since bbPress (r3746)
+	 *
+	 * @param int $group_id ID of the current group. Available only on BP 2.2+.
 	 */
-	public function display() {
+	public function display( $group_id = null ) {
 
 		// Prevent Topic Parent from appearing
 		add_action( 'bbp_theme_before_topic_form_forum', array( $this, 'ob_start'     ) );
