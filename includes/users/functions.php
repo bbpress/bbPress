@@ -1434,7 +1434,7 @@ function bbp_edit_user_handler( $action = '' ) {
 	} elseif ( is_integer( $edit_user ) ) {
 
 		// Maybe update super admin ability
-		if ( is_multisite() && ! bbp_is_user_home_edit() ) {
+		if ( is_multisite() && ! bbp_is_user_home_edit() && current_user_can( 'manage_network_options' ) && is_super_admin() ) {
 			empty( $_POST['super_admin'] ) ? revoke_super_admin( $edit_user ) : grant_super_admin( $edit_user );
 		}
 
