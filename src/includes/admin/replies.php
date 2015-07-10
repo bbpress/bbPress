@@ -144,10 +144,10 @@ class BBP_Replies_Admin {
 			'content'	=>
 				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( 'You can hide/display columns based on your needs and decide how many replies to list per screen using the Screen Options tab.',                                                                                                                                                                          'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Draft, or Trashed replies. The default view is to show all replies.',                                                                                                                   'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                                                                                                             'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can refine the list to show only replies in a specific category or from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection. You also can refine the list by clicking on the reply author, category or tag in the replies list.', 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can hide/display columns based on your needs and decide how many replies to list per screen using the Screen Options tab.',                                                                         'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Draft, Pending, Trashed, or Spam replies. The default view is to show all replies.',  'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                              'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can refine the list to show only replies in a specific forum or from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 

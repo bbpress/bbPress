@@ -144,9 +144,10 @@ class BBP_Topics_Admin {
 			'content'	=>
 				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                                                                                'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, or Trashed topics. The default view is to show all topics.',                                                                                 'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection. You also can refine the list by clicking on the topic creator in the topics list.', 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                               'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, Draft, Pending, Trashed, Closed, or Spam  topics. The default view is to show all topics.', 'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can view topics in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                    'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can refine the list to show only topics in a specific forum or from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection.',                 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
