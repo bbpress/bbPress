@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Tests for the topics component topic template functions.
  *
@@ -106,13 +105,42 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_post_date
 	 * @covers ::bbp_get_topic_post_date
-	 * @todo   Implement test_bbp_get_topic_post_date().
 	 */
 	public function test_bbp_get_topic_post_date() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+
+		$now = time();
+		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		// Configue our written date time, August 4, 2012 at 2:37 pm.
+		$gmt = false;
+		$date   = get_post_time( get_option( 'date_format' ), $gmt, $t, true );
+		$time   = get_post_time( get_option( 'time_format' ), $gmt, $t, true );
+		$result = sprintf( '%1$s at %2$s', $date, $time );
+
+		// Output, string, August 4, 2012 at 2:37 pm.
+		$this->expectOutputString( $result );
+		bbp_topic_post_date( $t );
+
+		// String, August 4, 2012 at 2:37 pm.
+		$datetime = bbp_get_topic_post_date( $t, false, false );
+		$this->assertSame( $result, $datetime );
+
+		// Humanized string, 4 days, 4 hours ago.
+		$datetime = bbp_get_topic_post_date( $t, true, false );
+		$this->assertSame( '4 days, 4 hours ago', $datetime );
+
+		// Humanized string using GMT formatted date, 4 days, 4 hours ago.
+		$datetime = bbp_get_topic_post_date( $t, true, true );
+		$this->assertSame( '4 days, 4 hours ago', $datetime );
 	}
 
 	/**

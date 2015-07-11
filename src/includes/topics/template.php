@@ -814,7 +814,7 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 
 		// 4 days, 4 hours ago
 		if ( ! empty( $humanize ) ) {
-			$gmt_s  = ! empty( $gmt ) ? 'U' : 'G';
+			$gmt_s  = ! empty( $gmt ) ? 'G' : 'U';
 			$date   = get_post_time( $gmt_s, $gmt, $topic_id );
 			$time   = false; // For filter below
 			$result = bbp_get_time_since( $date );
