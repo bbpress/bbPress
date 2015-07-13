@@ -998,7 +998,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r3653)
 	 */
 	public function new_reply_redirect_to( $redirect_url = '', $redirect_to = '', $reply_id = 0 ) {
-		global $wp_rewrite;
 
 		if ( bp_is_group() ) {
 			$topic_id       = bbp_get_reply_topic_id( $reply_id );
@@ -1014,7 +1013,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 			// Include pagination
 			} else {
-				$redirect_url = trailingslashit( $topic_url ) . trailingslashit( $wp_rewrite->pagination_base ) . trailingslashit( $reply_page ) . $reply_hash;
+				$redirect_url = trailingslashit( $topic_url ) . trailingslashit( bbp_get_paged_slug() ) . trailingslashit( $reply_page ) . $reply_hash;
 			}
 
 			// Add topic view query arg back to end if it is set
@@ -1339,7 +1338,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r4266)
 	 *
 	 * @param array $args
-	 * @global $wp_rewrite
 	 * @uses bbp_get_forum_id()
 	 * @uses maybe_map_permalink_to_group
 	 * @return array
@@ -1351,9 +1349,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return $args;
 		}
 
-		global $wp_rewrite;
-
-		$args['base'] = trailingslashit( $new ) . $wp_rewrite->pagination_base . '/%#%/';
+		$args['base'] = trailingslashit( $new ) . bbp_get_paged_slug() . '/%#%/';
 
 		return $args;
 	}
@@ -1364,7 +1360,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since bbPress (r4266)
 	 *
 	 * @param array $args
-	 * @global $wp_rewrite
 	 * @uses bbp_get_topic_id()
 	 * @uses maybe_map_permalink_to_group
 	 * @return array
@@ -1375,9 +1370,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			return $args;
 		}
 
-		global $wp_rewrite;
-
-		$args['base'] = trailingslashit( $new ) . $wp_rewrite->pagination_base . '/%#%/';
+		$args['base'] = trailingslashit( $new ) . bbp_get_paged_slug() . '/%#%/';
 
 		return $args;
 	}
