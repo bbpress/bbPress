@@ -17,6 +17,40 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Lookup and return a global variable
+ *
+ * @since bbPress (r5814)
+ *
+ * @param  string  $name     Name of global variable
+ * @param  string  $type     Type of variable to check with `is_a()`
+ * @param  mixed   $default  Default value to return if no global found
+ *
+ * @return mixed   Verified object if valid, Default or null if invalid
+ */
+function bbp_get_global_object( $name = '', $type = '', $default = null ) {
+
+	// Bail if no name passed
+	if ( empty( $name ) ) {
+		$retval = $default;
+
+	// Bail if no global exists
+	} elseif ( ! isset( $GLOBALS[ $name ] ) ) {
+		$retval = $default;
+
+	// Bail if not the correct type of global
+	} elseif ( ! empty( $type ) && ! is_a( $GLOBALS[ $name ], $type ) ) {
+		$retval = $default;
+
+	// Global variable exists
+	} else {
+		$retval = $GLOBALS[ $name ];
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_global_object', $retval, $name, $type, $default );
+}
+
+/**
  * Return the database class being used to interface with the environment.
  *
  * This function is abstracted to avoid global touches to the primary database
@@ -27,15 +61,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return object
  */
-function bbp_get_db() {
-
-	// WordPress's `$wpdb` global
-	if ( isset( $GLOBALS['wpdb'] ) && is_a( $GLOBALS['wpdb'], 'WPDB' ) ) {
-		$retval = $GLOBALS['wpdb'];
-	}
-
-	// Filter & return
-	return apply_filters( 'bbp_get_db', $retval );
+function bbp_db() {
+	return bbp_get_global_object( 'wpdb', 'WPDB' );
 }
 
 /**
@@ -49,33 +76,22 @@ function bbp_get_db() {
  *
  * @return object
  */
-function bbp_get_rewrite() {
-
-	// WordPress `$wp_rewrite` global
-	if ( isset( $GLOBALS['wp_rewrite'] ) && is_a( $GLOBALS['wp_rewrite'], 'WP_Rewrite' ) ) {
-		$retval = $GLOBALS['wp_rewrite'];
-
-	// Mock the expected object
-	} else {
-		$retval = (object) array(
-			'root'            => '',
-			'pagination_base' => '',
-		);
-	}
-
-	// Filter & return
-	return apply_filters( 'bbp_get_rewrite', $retval );
+function bbp_rewrite() {
+	return bbp_get_global_object( 'wp_rewrite', 'WP_Rewrite', (object) array(
+		'root'            => '',
+		'pagination_base' => '',
+	) );
 }
 
 /**
- * Get the URL root
+ * Get the root URL
  *
  * @since bbPress (r5814)
  *
  * @return string
  */
 function bbp_get_root_url() {
-	return apply_filters( 'bbp_get_root_url', bbp_get_rewrite()->root );
+	return apply_filters( 'bbp_get_root_url', bbp_rewrite()->root );
 }
 
 /**
@@ -86,7 +102,7 @@ function bbp_get_root_url() {
  * @return string
  */
 function bbp_get_paged_slug() {
-	return apply_filters( 'bbp_get_paged_slug', bbp_get_rewrite()->pagination_base );
+	return apply_filters( 'bbp_get_paged_slug', bbp_rewrite()->pagination_base );
 }
 
 /**
@@ -98,11 +114,11 @@ function bbp_get_paged_slug() {
  *
  * @return bool
  */
-function bbp_pretty_urls() {
+function bbp_use_pretty_urls() {
 
 	// Default
 	$retval  = false;
-	$rewrite = bbp_get_rewrite();
+	$rewrite = bbp_rewrite();
 
 	// Use $wp_rewrite->using_permalinks() if available
 	if ( method_exists( $rewrite, 'using_permalinks' ) ) {
