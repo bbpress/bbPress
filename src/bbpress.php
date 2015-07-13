@@ -276,7 +276,7 @@ final class bbPress {
 		$this->domain         = 'bbpress';      // Unique identifier for retrieving translated strings
 		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
-		
+
 		/** Deprecated ********************************************************/
 
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
@@ -293,64 +293,64 @@ final class bbPress {
 
 		/** Core **************************************************************/
 
-		require( $this->includes_dir . 'core/sub-actions.php'        );
-		require( $this->includes_dir . 'core/functions.php'          );
-		require( $this->includes_dir . 'core/cache.php'              );
-		require( $this->includes_dir . 'core/options.php'            );
-		require( $this->includes_dir . 'core/capabilities.php'       );
-		require( $this->includes_dir . 'core/update.php'             );
-		require( $this->includes_dir . 'core/template-functions.php' );
-		require( $this->includes_dir . 'core/template-loader.php'    );
-		require( $this->includes_dir . 'core/theme-compat.php'       );
+		require $this->includes_dir . 'core/sub-actions.php';
+		require $this->includes_dir . 'core/functions.php';
+		require $this->includes_dir . 'core/cache.php';
+		require $this->includes_dir . 'core/options.php';
+		require $this->includes_dir . 'core/capabilities.php';
+		require $this->includes_dir . 'core/update.php';
+		require $this->includes_dir . 'core/template-functions.php';
+		require $this->includes_dir . 'core/template-loader.php';
+		require $this->includes_dir . 'core/theme-compat.php';
 
 		/** Components ********************************************************/
 
 		// Common
-		require( $this->includes_dir . 'common/ajax.php'          );
-		require( $this->includes_dir . 'common/classes.php'       );
-		require( $this->includes_dir . 'common/functions.php'     );
-		require( $this->includes_dir . 'common/formatting.php'    );
-		require( $this->includes_dir . 'common/template.php'      );
-		require( $this->includes_dir . 'common/widgets.php'       );
-		require( $this->includes_dir . 'common/shortcodes.php'    );
+		require $this->includes_dir . 'common/ajax.php';
+		require $this->includes_dir . 'common/classes.php';
+		require $this->includes_dir . 'common/functions.php';
+		require $this->includes_dir . 'common/formatting.php';
+		require $this->includes_dir . 'common/template.php';
+		require $this->includes_dir . 'common/widgets.php';
+		require $this->includes_dir . 'common/shortcodes.php';
 
 		// Forums
-		require( $this->includes_dir . 'forums/capabilities.php'  );
-		require( $this->includes_dir . 'forums/functions.php'     );
-		require( $this->includes_dir . 'forums/template.php'      );
+		require $this->includes_dir . 'forums/capabilities.php';
+		require $this->includes_dir . 'forums/functions.php';
+		require $this->includes_dir . 'forums/template.php';
 
 		// Topics
-		require( $this->includes_dir . 'topics/capabilities.php'  );
-		require( $this->includes_dir . 'topics/functions.php'     );
-		require( $this->includes_dir . 'topics/template.php'      );
+		require $this->includes_dir . 'topics/capabilities.php';
+		require $this->includes_dir . 'topics/functions.php';
+		require $this->includes_dir . 'topics/template.php';
 
 		// Replies
-		require( $this->includes_dir . 'replies/capabilities.php' );
-		require( $this->includes_dir . 'replies/functions.php'    );
-		require( $this->includes_dir . 'replies/template.php'     );
+		require $this->includes_dir . 'replies/capabilities.php';
+		require $this->includes_dir . 'replies/functions.php';
+		require $this->includes_dir . 'replies/template.php';
 
 		// Search
-		require( $this->includes_dir . 'search/functions.php'     );
-		require( $this->includes_dir . 'search/template.php'      );
+		require $this->includes_dir . 'search/functions.php';
+		require $this->includes_dir . 'search/template.php';
 
 		// Users
-		require( $this->includes_dir . 'users/capabilities.php'   );
-		require( $this->includes_dir . 'users/functions.php'      );
-		require( $this->includes_dir . 'users/template.php'       );
-		require( $this->includes_dir . 'users/options.php'        );
+		require $this->includes_dir . 'users/capabilities.php';
+		require $this->includes_dir . 'users/functions.php';
+		require $this->includes_dir . 'users/template.php';
+		require $this->includes_dir . 'users/options.php';
 
 		/** Hooks *************************************************************/
 
-		require( $this->includes_dir . 'core/extend.php'  );
-		require( $this->includes_dir . 'core/actions.php' );
-		require( $this->includes_dir . 'core/filters.php' );
+		require $this->includes_dir . 'core/extend.php';
+		require $this->includes_dir . 'core/actions.php';
+		require $this->includes_dir . 'core/filters.php';
 
 		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
 		if ( is_admin() ) {
-			require( $this->includes_dir . 'admin/admin.php'   );
-			require( $this->includes_dir . 'admin/actions.php' );
+			require $this->includes_dir . 'admin/admin.php';
+			require $this->includes_dir . 'admin/actions.php';
 		}
 	}
 
