@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bbPress 2.5.8\n"
 "Report-Msgid-Bugs-To: https://bbpress.trac.wordpress.org\n"
-"POT-Creation-Date: 2015-04-20 17:00:36+00:00\n"
+"POT-Creation-Date: 2015-07-13 17:00:36+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,35 +88,35 @@ msgstr ""
 msgid "Topics with no replies"
 msgstr ""
 
-#: includes/admin/admin.php:200 includes/admin/functions.php:273
+#: includes/admin/admin.php:198 includes/admin/functions.php:273
 #: includes/admin/tools.php:34
 msgid "Repair Forums"
 msgstr ""
 
-#: includes/admin/admin.php:201
+#: includes/admin/admin.php:199
 msgid "Forum Repair"
 msgstr ""
 
-#: includes/admin/admin.php:210 includes/admin/functions.php:277
+#: includes/admin/admin.php:208 includes/admin/functions.php:277
 #: includes/admin/settings.php:1509
 msgid "Import Forums"
 msgstr ""
 
-#: includes/admin/admin.php:211
+#: includes/admin/admin.php:209
 msgid "Forum Import"
 msgstr ""
 
-#: includes/admin/admin.php:220 includes/admin/functions.php:281
+#: includes/admin/admin.php:218 includes/admin/functions.php:281
 #: includes/admin/tools.php:1208
 msgid "Reset Forums"
 msgstr ""
 
-#: includes/admin/admin.php:221
+#: includes/admin/admin.php:219
 msgid "Forum Reset"
 msgstr ""
 
-#: includes/admin/admin.php:235 includes/admin/admin.php:236
-#: includes/admin/admin.php:246 includes/admin/admin.php:247
+#: includes/admin/admin.php:233 includes/admin/admin.php:234
+#: includes/admin/admin.php:244 includes/admin/admin.php:245
 #: includes/admin/users.php:82 includes/common/widgets.php:662
 #: includes/extend/buddypress/loader.php:42
 #: includes/extend/buddypress/loader.php:175
@@ -127,95 +127,95 @@ msgstr ""
 msgid "Forums"
 msgstr ""
 
-#: includes/admin/admin.php:259 includes/admin/admin.php:260
-#: includes/admin/admin.php:268 includes/admin/admin.php:269
+#: includes/admin/admin.php:257 includes/admin/admin.php:258
+#: includes/admin/admin.php:266 includes/admin/admin.php:267
 msgid "Welcome to bbPress"
 msgstr ""
 
-#: includes/admin/admin.php:282 includes/admin/admin.php:283
-#: includes/admin/admin.php:304 includes/admin/admin.php:305
-#: includes/admin/admin.php:1012 includes/admin/admin.php:1099
+#: includes/admin/admin.php:280 includes/admin/admin.php:281
+#: includes/admin/admin.php:302 includes/admin/admin.php:303
+#: includes/admin/admin.php:1010 includes/admin/admin.php:1097
 msgid "Update Forums"
 msgstr ""
 
-#: includes/admin/admin.php:512
+#: includes/admin/admin.php:510
 msgid "Settings"
 msgstr ""
 
-#: includes/admin/admin.php:517
+#: includes/admin/admin.php:515
 msgid "About"
 msgstr ""
 
-#: includes/admin/admin.php:532
+#: includes/admin/admin.php:530
 msgid "Right Now in Forums"
 msgstr ""
 
-#: includes/admin/admin.php:547
+#: includes/admin/admin.php:545
 msgid "About bbPress"
 msgstr ""
 
-#: includes/admin/admin.php:632
+#: includes/admin/admin.php:630
 msgctxt "admin color scheme"
 msgid "Mint"
 msgstr ""
 
-#: includes/admin/admin.php:641
+#: includes/admin/admin.php:639
 msgctxt "admin color scheme"
 msgid "Evergreen"
 msgstr ""
 
-#: includes/admin/admin.php:722 includes/admin/admin.php:760
+#: includes/admin/admin.php:720 includes/admin/admin.php:758
 msgid "%s - %s"
 msgstr ""
 
-#: includes/admin/admin.php:778 includes/admin/admin.php:855
+#: includes/admin/admin.php:776 includes/admin/admin.php:853
 msgid "Welcome to bbPress %s"
 msgstr ""
 
-#: includes/admin/admin.php:779
+#: includes/admin/admin.php:777
 msgid ""
 "Thank you for updating! bbPress %s is bundled up and ready to weather the "
 "storm of users in your community!"
 msgstr ""
 
-#: includes/admin/admin.php:780 includes/admin/admin.php:857
+#: includes/admin/admin.php:778 includes/admin/admin.php:855
 msgid "Version %s"
 msgstr ""
 
-#: includes/admin/admin.php:784 includes/admin/admin.php:861
+#: includes/admin/admin.php:782 includes/admin/admin.php:859
 msgid "What&#8217;s New"
 msgstr ""
 
-#: includes/admin/admin.php:786 includes/admin/admin.php:863
+#: includes/admin/admin.php:784 includes/admin/admin.php:861
 msgid "Credits"
 msgstr ""
 
-#: includes/admin/admin.php:791
+#: includes/admin/admin.php:789
 msgid "Forum Subscriptions"
 msgstr ""
 
-#: includes/admin/admin.php:795
+#: includes/admin/admin.php:793
 msgid "Subscribe to Forums"
 msgstr ""
 
-#: includes/admin/admin.php:796
+#: includes/admin/admin.php:794
 msgid "Now your users can subscribe to new topics in specific forums."
 msgstr ""
 
-#: includes/admin/admin.php:800
+#: includes/admin/admin.php:798
 msgid "Manage Subscriptions"
 msgstr ""
 
-#: includes/admin/admin.php:801
+#: includes/admin/admin.php:799
 msgid ""
 "Your users can manage all of their subscriptions in one convenient location."
 msgstr ""
 
-#: includes/admin/admin.php:807
+#: includes/admin/admin.php:805
 msgid "Converters"
 msgstr ""
 
-#: includes/admin/admin.php:811
+#: includes/admin/admin.php:809
 msgid ""
 "We&#8217;re all abuzz about the hive of new importers, AEF, Drupal, FluxBB, "
 "Kunena Forums for Joomla, MyBB, Phorum, PHPFox, PHPWind, PunBB, SMF, Xenforo "
@@ -224,111 +224,111 @@ msgid ""
 "if you need to remove imported users."
 msgstr ""
 
-#: includes/admin/admin.php:817
+#: includes/admin/admin.php:815
 msgid "Theme Compatibility"
 msgstr ""
 
-#: includes/admin/admin.php:818
+#: includes/admin/admin.php:816
 msgid "Better handling of styles and scripts in the template stack."
 msgstr ""
 
-#: includes/admin/admin.php:822
+#: includes/admin/admin.php:820
 msgid "Polyglot support"
 msgstr ""
 
-#: includes/admin/admin.php:823
+#: includes/admin/admin.php:821
 msgid "bbPress fully supports automatic translation updates."
 msgstr ""
 
-#: includes/admin/admin.php:827
+#: includes/admin/admin.php:825
 msgid "User capabilities"
 msgstr ""
 
-#: includes/admin/admin.php:828
+#: includes/admin/admin.php:826
 msgid ""
 "Roles and capabilities have been swept through, cleaned up, and simplified."
 msgstr ""
 
-#: includes/admin/admin.php:834 includes/admin/admin.php:938
+#: includes/admin/admin.php:832 includes/admin/admin.php:936
 msgid "Go to Forum Settings"
 msgstr ""
 
-#: includes/admin/admin.php:856
+#: includes/admin/admin.php:854
 msgid ""
 "Thank you for updating! bbPress %s is waxed, polished, and ready for you to "
 "take it for a lap or two around the block!"
 msgstr ""
 
-#: includes/admin/admin.php:867
+#: includes/admin/admin.php:865
 msgid "bbPress is created by a worldwide swarm of busy, busy bees."
 msgstr ""
 
-#: includes/admin/admin.php:869
+#: includes/admin/admin.php:867
 msgid "Project Leaders"
 msgstr ""
 
-#: includes/admin/admin.php:874
+#: includes/admin/admin.php:872
 msgid "Founding Developer"
 msgstr ""
 
-#: includes/admin/admin.php:879
+#: includes/admin/admin.php:877
 msgid "Lead Developer"
 msgstr ""
 
-#: includes/admin/admin.php:884 includes/admin/admin.php:903
+#: includes/admin/admin.php:882 includes/admin/admin.php:901
 msgid "Feature Developer"
 msgstr ""
 
-#: includes/admin/admin.php:889
+#: includes/admin/admin.php:887
 msgid "Converter Specialist"
 msgstr ""
 
-#: includes/admin/admin.php:893
+#: includes/admin/admin.php:891
 msgid "Contributing Developers"
 msgstr ""
 
-#: includes/admin/admin.php:898
+#: includes/admin/admin.php:896
 msgid "Bug Testing"
 msgstr ""
 
-#: includes/admin/admin.php:907
+#: includes/admin/admin.php:905
 msgid "Core Contributors to bbPress 2.5"
 msgstr ""
 
-#: includes/admin/admin.php:964 includes/admin/admin.php:986
+#: includes/admin/admin.php:962 includes/admin/admin.php:984
 msgid "Update Forum"
 msgstr ""
 
-#: includes/admin/admin.php:975 includes/admin/admin.php:1029
+#: includes/admin/admin.php:973 includes/admin/admin.php:1027
 msgid "All done!"
 msgstr ""
 
-#: includes/admin/admin.php:976 includes/admin/admin.php:1030
+#: includes/admin/admin.php:974 includes/admin/admin.php:1028
 msgid "Go Back"
 msgstr ""
 
-#: includes/admin/admin.php:985
+#: includes/admin/admin.php:983
 msgid ""
 "You can update your forum through this page. Hit the link below to update."
 msgstr ""
 
-#: includes/admin/admin.php:1055
+#: includes/admin/admin.php:1053
 msgid ""
 "Warning! Problem updating %1$s. Your server may not be able to connect to "
 "sites running on it. Error message: <em>%2$s</em>"
 msgstr ""
 
-#: includes/admin/admin.php:1079
+#: includes/admin/admin.php:1077
 msgid ""
 "If your browser doesn&#8217;t start loading the next page automatically, "
 "click this link:"
 msgstr ""
 
-#: includes/admin/admin.php:1080
+#: includes/admin/admin.php:1078
 msgid "Next Forums"
 msgstr ""
 
-#: includes/admin/admin.php:1098
+#: includes/admin/admin.php:1096
 msgid ""
 "You can update all the forums on your network through this page. It works by "
 "calling the update script of each site automatically. Hit the link below to "
@@ -937,7 +937,7 @@ msgid "Select whether to open or close the topic."
 msgstr ""
 
 #: includes/admin/metaboxes.php:379 includes/admin/metaboxes.php:433
-#: includes/extend/buddypress/groups.php:1038 includes/topics/template.php:61
+#: includes/extend/buddypress/groups.php:1042 includes/topics/template.php:61
 #: templates/default/bbpress/form-topic.php:114
 msgid "Forum:"
 msgstr ""
@@ -2469,7 +2469,7 @@ msgstr ""
 msgid "Voices"
 msgstr ""
 
-#: includes/admin/topics.php:694 includes/extend/buddypress/groups.php:291
+#: includes/admin/topics.php:694 includes/extend/buddypress/groups.php:295
 #: templates/default/bbpress/form-topic.php:117
 msgid "(No Forum)"
 msgstr ""
@@ -3119,42 +3119,42 @@ msgstr ""
 msgid "%1$s replied to the topic %2$s in the forum %3$s"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:271
-#: includes/extend/buddypress/groups.php:274
+#: includes/extend/buddypress/groups.php:275
+#: includes/extend/buddypress/groups.php:278
 msgid "Group Forum Settings"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:275
-#: includes/extend/buddypress/groups.php:476
+#: includes/extend/buddypress/groups.php:279
+#: includes/extend/buddypress/groups.php:480
 msgid ""
 "Create a discussion forum to allow members of this group to communicate in a "
 "structured, bulletin-board style fashion."
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:279
-#: includes/extend/buddypress/groups.php:479
+#: includes/extend/buddypress/groups.php:283
+#: includes/extend/buddypress/groups.php:483
 msgid "Yes. I want this group to have a forum."
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:282
+#: includes/extend/buddypress/groups.php:286
 msgid "Saying no will not delete existing forum content."
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:287
+#: includes/extend/buddypress/groups.php:291
 msgid "Group Forum:"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:295
+#: includes/extend/buddypress/groups.php:299
 msgid ""
 "Network administrators can reconfigure which forum belongs to this group."
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:300
+#: includes/extend/buddypress/groups.php:304
 msgid "Save Settings"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:335
-#: includes/extend/buddypress/groups.php:494
+#: includes/extend/buddypress/groups.php:339
+#: includes/extend/buddypress/groups.php:498
 #: includes/extend/buddypress/notifications.php:161
 #: includes/forums/functions.php:118 includes/forums/functions.php:395
 #: includes/replies/functions.php:116 includes/replies/functions.php:516
@@ -3168,16 +3168,16 @@ msgstr ""
 msgid "<strong>ERROR</strong>: Are you sure you wanted to do that?"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:433
+#: includes/extend/buddypress/groups.php:437
 msgctxt "group admin edit screen"
 msgid "Discussion Forum"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:474
+#: includes/extend/buddypress/groups.php:478
 msgid "Group Forum"
 msgstr ""
 
-#: includes/extend/buddypress/groups.php:771
+#: includes/extend/buddypress/groups.php:775
 msgid "This group does not currently have a forum."
 msgstr ""
 
