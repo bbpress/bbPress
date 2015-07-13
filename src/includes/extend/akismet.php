@@ -219,7 +219,6 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id
 	 *
-	 * @global WP_Query $wpdb
 	 * @global string $akismet_api_host
 	 * @global string $akismet_api_port
 	 * @global object $current_user
