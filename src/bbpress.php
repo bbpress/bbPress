@@ -293,6 +293,7 @@ final class bbPress {
 
 		/** Core **************************************************************/
 
+		require $this->includes_dir . 'core/abstraction.php';
 		require $this->includes_dir . 'core/sub-actions.php';
 		require $this->includes_dir . 'core/functions.php';
 		require $this->includes_dir . 'core/cache.php';
