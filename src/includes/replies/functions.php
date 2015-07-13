@@ -2319,9 +2319,9 @@ function bbp_check_reply_edit() {
  *
  * @since bbPress (r3933)
  *
- * @global type $wpdb
- * @param type $reply_id
- * @param type $reply_position
+ * @param int $reply_id
+ * @param int $reply_position
+ *
  * @return mixed
  */
 function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
