@@ -2,8 +2,8 @@
 Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 3.6
-Tested up to: 4.1
-Stable tag: 2.5.7
+Tested up to: 4.2
+Stable tag: 2.5.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,11 @@ We're keeping things as small and light as possible while still allowing for gre
 2. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.5.8 =
+* Improved ajax actions
+* Improved user query parsing
+* Fix BuddyPress Groups notice
 
 = 2.5.7 =
 * Improved output of certain URLs
