@@ -159,7 +159,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $dependencies = array(), $
 	if ( !empty( $located ) ) {
 
 		$content_dir = constant( 'WP_CONTENT_DIR' );
- 
+
 		// IIS (Windows) here
 		// Replace back slashes with forward slash
 		if ( strpos( $located, '\\' ) !== false ) {
@@ -227,7 +227,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $dependencies = array(), 
 	if ( !empty( $located ) ) {
 
 		$content_dir = constant( 'WP_CONTENT_DIR' );
- 
+
 		// IIS (Windows) here
 		// Replace back slashes with forward slash
 		if ( strpos( $located, '\\' ) !== false ) {
@@ -457,8 +457,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * @param WP_Query $posts_query
  *
  * @uses get_query_var() To get {@link WP_Query} query var
- * @uses is_email() To check if the string is an email
- * @uses get_user_by() To try to get the user by email and nicename
+ * @uses get_user_by() To try to get the user by id or nicename
  * @uses get_userdata() to get the user data
  * @uses current_user_can() To check if the current user can edit the user
  * @uses is_user_member_of_blog() To check if user profile page exists
@@ -497,21 +496,12 @@ function bbp_parse_query( $posts_query ) {
 		// Setup the default user variable
 		$the_user = false;
 
-		// If using pretty permalinks, use the email or slug
+		// If using pretty permalinks, always use slug
 		if ( get_option( 'permalink_structure' ) ) {
+			$the_user = get_user_by( 'slug', $bbp_user );
 
-			// Email was passed
-			if ( is_email( $bbp_user ) ) {
-				$the_user = get_user_by( 'email', $bbp_user );
-
-			// Try nicename
-			} else {
-				$the_user = get_user_by( 'slug', $bbp_user );
-			}
-		}
-
-		// No user found by slug/email, so try the ID if it's numeric
-		if ( empty( $the_user ) && is_numeric( $bbp_user ) ) {
+		// If not using pretty permalinks, always use numeric ID
+		} elseif ( is_numeric( $bbp_user ) ) {
 			$the_user = get_user_by( 'id', $bbp_user );
 		}
 
