@@ -150,7 +150,8 @@ class BBP_Akismet {
 			$post_permalink = get_permalink( $post_data['post_parent'] );
 
 			// Use post parent to get datetime of last reply on this topic
-			if ( $reply_id = bbp_get_topic_last_reply_id( $post_data['post_parent'] ) ) {
+			$reply_id = bbp_get_topic_last_reply_id( $post_data['post_parent'] );
+			if ( ! empty( $reply_id ) ) {
 				$user_data['last_active'] = get_post_field( 'post_date', $reply_id );
 			}
 		}
