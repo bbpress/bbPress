@@ -55,7 +55,7 @@ function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item
 		$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), (int) $total_items );
 		$filter = 'bbp_multiple_new_subscription_notification';
 	} else {
-		if ( !empty( $secondary_item_id ) ) {
+		if ( ! empty( $secondary_item_id ) ) {
 			$text = sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
 		} else {
 			$text = sprintf( __( 'You have %d new reply to %s',             'bbpress' ), (int) $total_items, $topic_title );
@@ -98,7 +98,7 @@ add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypres
 function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
 	// Bail if somehow this is hooked to an edit action
-	if ( !empty( $is_edit ) ) {
+	if ( ! empty( $is_edit ) ) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 	$secondary_item_id = $author_id;
 
 	// Hierarchical replies
-	if ( !empty( $reply_to ) ) {
+	if ( ! empty( $reply_to ) ) {
 		$reply_to_item_id = bbp_get_topic_author_id( $reply_to );
 	}
 
@@ -128,7 +128,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
  	}
  
  	// Notify the immediate reply author if not the current reply author
- 	if ( !empty( $reply_to ) && ( $author_id !== $reply_to_item_id ) ) {
+ 	if ( ! empty( $reply_to ) && ( $author_id !== $reply_to_item_id ) ) {
 		$args['secondary_item_id'] = $reply_to_item_id ;
 
 		bp_notifications_add_notification( $args );

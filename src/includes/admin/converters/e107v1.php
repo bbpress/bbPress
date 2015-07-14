@@ -566,8 +566,8 @@ class e107v1 extends BBP_Converter_Base {
 		// Strip only the user id from the topic and reply authors
 		$field = preg_replace( '/(\d+?)+\.[\S\s]+/', '$1', $field );
 
-		if ( !isset( $this->map_userid[$field] ) ) {
-			if ( !empty( $this->sync_table ) ) {
+		if ( ! isset( $this->map_userid[$field] ) ) {
+			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
@@ -576,7 +576,7 @@ class e107v1 extends BBP_Converter_Base {
 			if ( !is_null( $row ) ) {
 				$this->map_userid[$field] = $row->value_id;
 			} else {
-				if ( !empty( $_POST['_bbp_converter_convert_users'] ) && ( $_POST['_bbp_converter_convert_users'] == 1 ) ) {
+				if ( ! empty( $_POST['_bbp_converter_convert_users'] ) && ( $_POST['_bbp_converter_convert_users'] == 1 ) ) {
 					$this->map_userid[$field] = 0;
 				} else {
 					$this->map_userid[$field] = $field;

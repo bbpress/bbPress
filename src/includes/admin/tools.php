@@ -509,13 +509,13 @@ function bbp_admin_repair_group_forum_relationship() {
 		$updated = $bbp_db->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}';" );
 
 		// Bump the count
-		if ( !empty( $updated ) && ! is_wp_error( $updated ) ) {
+		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
 			++$g_count;
 		}
 
 		// Update group to forum relationship data
 		$group_id = (int) $bbp_db->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}';" );
-		if ( !empty( $group_id ) ) {
+		if ( ! empty( $group_id ) ) {
 
 			// Update the group to forum meta connection in forums
 			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
@@ -620,7 +620,7 @@ function bbp_admin_repair_forum_topic_count() {
 	}
 
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
-	if ( !empty( $forums ) ) {
+	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
 			bbp_update_forum_topic_count_hidden( $forum->ID );
@@ -667,7 +667,7 @@ function bbp_admin_repair_forum_reply_count() {
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
-	if ( !empty( $forums ) ) {
+	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
 		}
@@ -1162,7 +1162,7 @@ function bbp_admin_repair_freshness() {
 
  	// Loop through forums
  	foreach ( $forums as $forum_id ) {
-		if ( !bbp_is_forum_category( $forum_id ) ) {
+		if ( ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_update_forum( array( 'forum_id' => $forum_id ) );
 		}
 	}
@@ -1606,7 +1606,7 @@ function bbp_admin_reset_handler() {
 
 	/** Post Meta *************************************************************/
 
-	if ( !empty( $sql_posts ) ) {
+	if ( ! empty( $sql_posts ) ) {
 		$sql_meta = array();
 		foreach ( $sql_posts as $key => $value ) {
 			$sql_meta[] = $key;
@@ -1628,9 +1628,9 @@ function bbp_admin_reset_handler() {
 	/** User ******************************************************************/
 
 	// First, if we're deleting previously imported users, delete them now
-	if ( !empty( $_POST['bbpress-delete-imported-users'] ) ) {
+	if ( ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
 		$sql_users  = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_user_id'", OBJECT_K );
-		if ( !empty( $sql_users ) ) {
+		if ( ! empty( $sql_users ) ) {
 			$sql_meta = array();
 			foreach ( $sql_users as $key => $value ) {
 				$sql_meta[] = $key;

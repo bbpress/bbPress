@@ -71,7 +71,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get the post
 				$_post = get_post( $args[0] );
-				if ( !empty( $_post ) ) {
+				if ( ! empty( $_post ) ) {
 
 					// Get caps for post type object
 					$post_type = get_post_type_object( $_post->post_type );
@@ -126,7 +126,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Get the post
 			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
+			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
@@ -155,7 +155,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Get the post
 			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ) {
+			if ( ! empty( $_post ) ) {
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );

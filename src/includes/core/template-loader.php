@@ -110,7 +110,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 
 	// A bbPress template file was located, so override the WordPress template
 	// and use it to switch off bbPress's theme compatibility.
-	if ( !empty( $new_template ) ) {
+	if ( ! empty( $new_template ) ) {
 		$template = bbp_set_template_included( $new_template );
 	}
 
@@ -159,7 +159,7 @@ function bbp_load_theme_functions() {
 		return;
 	}
 
-	if ( ! defined( 'WP_INSTALLING' ) || ( !empty( $pagenow ) && ( 'wp-activate.php' !== $pagenow ) ) ) {
+	if ( ! defined( 'WP_INSTALLING' ) || ( ! empty( $pagenow ) && ( 'wp-activate.php' !== $pagenow ) ) ) {
 		bbp_locate_template( 'bbpress-functions.php', true );
 	}
 }

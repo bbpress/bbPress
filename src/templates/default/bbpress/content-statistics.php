@@ -39,7 +39,7 @@ $stats = bbp_get_statistics(); ?>
 		<strong><?php echo esc_html( $stats['topic_tag_count'] ); ?></strong>
 	</dd>
 
-	<?php if ( !empty( $stats['empty_topic_tag_count'] ) ) : ?>
+	<?php if ( ! empty( $stats['empty_topic_tag_count'] ) ) : ?>
 
 		<dt><?php esc_html_e( 'Empty Topic Tags', 'bbpress' ); ?></dt>
 		<dd>
@@ -48,7 +48,7 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php endif; ?>
 
-	<?php if ( !empty( $stats['topic_count_hidden'] ) ) : ?>
+	<?php if ( ! empty( $stats['topic_count_hidden'] ) ) : ?>
 
 		<dt><?php esc_html_e( 'Hidden Topics', 'bbpress' ); ?></dt>
 		<dd>
@@ -59,7 +59,7 @@ $stats = bbp_get_statistics(); ?>
 
 	<?php endif; ?>
 
-	<?php if ( !empty( $stats['reply_count_hidden'] ) ) : ?>
+	<?php if ( ! empty( $stats['reply_count_hidden'] ) ) : ?>
 
 		<dt><?php esc_html_e( 'Hidden Replies', 'bbpress' ); ?></dt>
 		<dd>

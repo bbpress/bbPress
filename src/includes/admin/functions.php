@@ -132,7 +132,7 @@ function bbp_admin_menu_order( $menu_order ) {
 function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
-	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() ) {
+	if ( ! empty( $sample ) && is_admin() && bbp_is_custom_post_type() ) {
 		return urldecode( $post_link );
 	}
 

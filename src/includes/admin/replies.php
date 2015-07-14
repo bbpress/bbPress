@@ -98,7 +98,7 @@ class BBP_Replies_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type !== get_current_screen()->post_type ) ) {
+		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type !== get_current_screen()->post_type ) ) {
 			return true;
 		}
 
@@ -304,7 +304,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_reply_metabox'] ) || !wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' ) ) {
+		if ( empty( $_POST['bbp_reply_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_reply_metabox'], 'bbp_reply_metabox_save' ) ) {
 			return $reply_id;
 		}
 
@@ -314,9 +314,9 @@ class BBP_Replies_Admin {
 		}
 
 		// Get the reply meta post values
-		$topic_id = !empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id']    : 0;
-		$forum_id = !empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
-		$reply_to = !empty( $_POST['bbp_reply_to'] ) ? (int) $_POST['bbp_reply_to'] : 0;
+		$topic_id = ! empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id']    : 0;
+		$forum_id = ! empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
+		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? (int) $_POST['bbp_reply_to'] : 0;
 
 		// Get reply author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
@@ -549,7 +549,7 @@ class BBP_Replies_Admin {
 		if ( bbp_is_get_request() && ! empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed', 'approved', 'unapproved' ) ) && ! empty( $_GET['reply_id'] ) ) {
 			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
 			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
-			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No reply?
 			if ( empty( $notice ) || empty( $reply_id ) ) {
@@ -674,7 +674,7 @@ class BBP_Replies_Admin {
 			case 'bbp_reply_topic' :
 
 				// Output forum name
-				if ( !empty( $topic_id ) ) {
+				if ( ! empty( $topic_id ) ) {
 
 					// Topic Title
 					$topic_title = bbp_get_topic_title( $topic_id );
@@ -700,7 +700,7 @@ class BBP_Replies_Admin {
 				$topic_forum_id = bbp_get_topic_forum_id( $topic_id );
 
 				// Output forum name
-				if ( !empty( $reply_forum_id ) ) {
+				if ( ! empty( $reply_forum_id ) ) {
 
 					// Forum Title
 					$forum_title = bbp_get_forum_title( $reply_forum_id );
@@ -846,14 +846,14 @@ class BBP_Replies_Admin {
 		}
 
 		// Add Empty Spam button
-		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
 			$title = esc_attr__( 'Empty Spam', 'bbpress' );
 			submit_button( $title, 'button-secondary apply', 'delete_all', false );
 		}
 
 		// Get which forum is selected
-		$selected = !empty( $_GET['bbp_forum_id'] ) ? $_GET['bbp_forum_id'] : '';
+		$selected = ! empty( $_GET['bbp_forum_id'] ) ? $_GET['bbp_forum_id'] : '';
 
 		// Show the forums dropdown
 		bbp_dropdown( array(
@@ -880,7 +880,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Add post_parent query_var if one is present
-		if ( !empty( $_GET['bbp_forum_id'] ) ) {
+		if ( ! empty( $_GET['bbp_forum_id'] ) ) {
 			$query_vars['meta_key']   = '_bbp_forum_id';
 			$query_vars['meta_type']  = 'NUMERIC';
 			$query_vars['meta_value'] = $_GET['bbp_forum_id'];

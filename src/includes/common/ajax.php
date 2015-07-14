@@ -106,7 +106,7 @@ function bbp_ajax_response( $success = false, $content = '', $status = -1, $extr
 	);
 
 	// Merge extra response parameters in
-	if ( !empty( $extras ) && is_array( $extras ) ) {
+	if ( ! empty( $extras ) && is_array( $extras ) ) {
 		$response = array_merge( $response, $extras );
 	}
 

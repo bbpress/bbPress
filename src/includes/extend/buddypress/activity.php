@@ -385,12 +385,12 @@ class BBP_BuddyPress_Activity {
 	public function topic_create( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author_id = 0 ) {
 
 		// Bail early if topic is by anonymous user
-		if ( !empty( $anonymous_data ) ) {
+		if ( ! empty( $anonymous_data ) ) {
 			return;
 		}
 
 		// Bail if site is private
-		if ( !bbp_is_site_public() ) {
+		if ( ! bbp_is_site_public() ) {
 			return;
 		}
 
@@ -405,7 +405,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Bail if topic is not published
-		if ( !bbp_is_topic_published( $topic_id ) ) {
+		if ( ! bbp_is_topic_published( $topic_id ) ) {
 			return;
 		}
 
@@ -443,7 +443,7 @@ class BBP_BuddyPress_Activity {
 		) );
 
 		// Add the activity entry ID as a meta value to the topic
-		if ( !empty( $activity_id ) ) {
+		if ( ! empty( $activity_id ) ) {
 			update_post_meta( $topic_id, '_bbp_activity_id', $activity_id );
 		}
 	}
@@ -458,7 +458,7 @@ class BBP_BuddyPress_Activity {
 
 		// Get activity ID, bail if it doesn't exist
 		$activity_id = $this->get_activity_id( $topic_id );
-		if ( !empty( $activity_id ) ) {
+		if ( ! empty( $activity_id ) ) {
 			return bp_activity_delete( array( 'id' => $activity_id ) );
 		}
 
@@ -534,12 +534,12 @@ class BBP_BuddyPress_Activity {
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
 
 		// Do not log activity of anonymous users
-		if ( !empty( $anonymous_data ) ) {
+		if ( ! empty( $anonymous_data ) ) {
 			return;
 		}
 
 		// Bail if site is private
-		if ( !bbp_is_site_public() ) {
+		if ( ! bbp_is_site_public() ) {
 			return;
 		}
 
@@ -555,7 +555,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Bail if reply is not published
-		if ( !bbp_is_reply_published( $reply_id ) ) {
+		if ( ! bbp_is_reply_published( $reply_id ) ) {
 			return;
 		}
 
@@ -596,7 +596,7 @@ class BBP_BuddyPress_Activity {
 		) );
 
 		// Add the activity entry ID as a meta value to the reply
-		if ( !empty( $activity_id ) ) {
+		if ( ! empty( $activity_id ) ) {
 			update_post_meta( $reply_id, '_bbp_activity_id', $activity_id );
 		}
 	}
@@ -612,7 +612,7 @@ class BBP_BuddyPress_Activity {
 
 		// Get activity ID, bail if it doesn't exist
 		$activity_id = $this->get_activity_id( $reply_id );
-		if ( !empty( $activity_id ) ) {
+		if ( ! empty( $activity_id ) ) {
 			return bp_activity_delete( array( 'id' => $activity_id ) );
 		}
 

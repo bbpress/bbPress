@@ -355,7 +355,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
-		$id      = !empty( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+		$id      = ! empty( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
 
 		// Bail if user cannot add favorites for this user
 		if ( ! current_user_can( 'edit_user', $user_id ) ) {

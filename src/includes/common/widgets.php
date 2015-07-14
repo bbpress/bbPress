@@ -78,7 +78,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		}
 
@@ -113,17 +113,17 @@ class BBP_Login_Widget extends WP_Widget {
 
 					</div>
 
-					<?php if ( !empty( $settings['register'] ) || !empty( $settings['lostpass'] ) ) : ?>
+					<?php if ( ! empty( $settings['register'] ) || ! empty( $settings['lostpass'] ) ) : ?>
 
 						<div class="bbp-login-links">
 
-							<?php if ( !empty( $settings['register'] ) ) : ?>
+							<?php if ( ! empty( $settings['register'] ) ) : ?>
 
 								<a href="<?php echo esc_url( $settings['register'] ); ?>" title="<?php esc_attr_e( 'Register', 'bbpress' ); ?>" class="bbp-register-link"><?php _e( 'Register', 'bbpress' ); ?></a>
 
 							<?php endif; ?>
 
-							<?php if ( !empty( $settings['lostpass'] ) ) : ?>
+							<?php if ( ! empty( $settings['lostpass'] ) ) : ?>
 
 								<a href="<?php echo esc_url( $settings['lostpass'] ); ?>" title="<?php esc_attr_e( 'Lost Password', 'bbpress' ); ?>" class="bbp-lostpass-link"><?php _e( 'Lost Password', 'bbpress' ); ?></a>
 
@@ -287,7 +287,7 @@ class BBP_Views_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		} ?>
 
@@ -424,7 +424,7 @@ class BBP_Search_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		}
 
@@ -576,7 +576,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		} ?>
 
@@ -610,7 +610,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		$instance['parent_forum'] = sanitize_text_field( $new_instance['parent_forum'] );
 
 		// Force to any
-		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+		if ( ! empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
 		}
 
@@ -793,7 +793,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		} ?>
 
@@ -855,7 +855,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['max_shown']    = (int) $new_instance['max_shown'];
 
 		// Force to any
-		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+		if ( ! empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
 		}
 
@@ -989,7 +989,7 @@ class BBP_Stats_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		}
 
@@ -1139,7 +1139,7 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 
-		if ( !empty( $settings['title'] ) ) {
+		if ( ! empty( $settings['title'] ) ) {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		} ?>
 
@@ -1163,7 +1163,7 @@ class BBP_Replies_Widget extends WP_Widget {
 					endif;
 
 					// Reply author, link, and timestamp
-					if ( ! empty( $settings['show_date'] ) && !empty( $author_link ) ) :
+					if ( ! empty( $settings['show_date'] ) && ! empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link, 3: reply timestamp
 						printf( _x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>' );
@@ -1175,7 +1175,7 @@ class BBP_Replies_Widget extends WP_Widget {
 						printf( _x( '%1$s %2$s',         'widgets', 'bbpress' ), $reply_link,  '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>'              );
 
 					// Reply author and title
-					elseif ( !empty( $author_link ) ) :
+					elseif ( ! empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link
 						printf( _x( '%1$s on %2$s',      'widgets', 'bbpress' ), $author_link, $reply_link                                                                 );

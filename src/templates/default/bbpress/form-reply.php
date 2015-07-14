@@ -28,7 +28,7 @@ if ( bbp_is_reply_edit() ) : ?>
 
 				<?php do_action( 'bbp_theme_before_reply_form_notices' ); ?>
 
-				<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
+				<?php if ( ! bbp_is_topic_open() && ! bbp_is_reply_edit() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>
@@ -82,7 +82,7 @@ if ( bbp_is_reply_edit() ) : ?>
 
 					<?php endif; ?>
 
-					<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_reply_edit() || ( bbp_is_reply_edit() && !bbp_is_reply_anonymous() ) ) ) : ?>
+					<?php if ( bbp_is_subscriptions_active() && ! bbp_is_anonymous() && ( ! bbp_is_reply_edit() || ( bbp_is_reply_edit() && ! bbp_is_reply_anonymous() ) ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_reply_form_subscription' ); ?>
 

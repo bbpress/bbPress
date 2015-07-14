@@ -48,7 +48,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 				<?php do_action( 'bbp_theme_before_topic_form_notices' ); ?>
 
-				<?php if ( !bbp_is_topic_edit() && bbp_is_forum_closed() ) : ?>
+				<?php if ( ! bbp_is_topic_edit() && bbp_is_forum_closed() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>
@@ -111,7 +111,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<?php endif; ?>
 
-					<?php if ( !bbp_is_single_forum() ) : ?>
+					<?php if ( ! bbp_is_single_forum() ) : ?>
 
 						<?php do_action( 'bbp_theme_before_topic_form_forum' ); ?>
 
@@ -157,7 +157,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<?php endif; ?>
 
-					<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_topic_edit() || ( bbp_is_topic_edit() && !bbp_is_topic_anonymous() ) ) ) : ?>
+					<?php if ( bbp_is_subscriptions_active() && ! bbp_is_anonymous() && ( ! bbp_is_topic_edit() || ( bbp_is_topic_edit() && ! bbp_is_topic_anonymous() ) ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_topic_form_subscriptions' ); ?>
 
@@ -249,7 +249,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 <?php endif; ?>
 
-<?php if ( !bbp_is_single_forum() ) : ?>
+<?php if ( ! bbp_is_single_forum() ) : ?>
 
 </div>
 

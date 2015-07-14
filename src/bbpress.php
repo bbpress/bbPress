@@ -636,7 +636,7 @@ final class bbPress {
 		 */
 		global $wp_post_statuses;
 
-		if ( !empty( $wp_post_statuses['trash'] ) ) {
+		if ( ! empty( $wp_post_statuses['trash'] ) ) {
 
 			// User can view trash so set internal to false
 			if ( current_user_can( 'view_trash' ) ) {

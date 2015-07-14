@@ -28,7 +28,7 @@ function bbp_setup_akismet() {
 	}
 
 	// Bail if Akismet is turned off
-	if ( !bbp_is_akismet_active() ) {
+	if ( ! bbp_is_akismet_active() ) {
 		return;
 	}
 

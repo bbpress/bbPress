@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 function bbp_get_component_name() {
 
 	// Use existing ID
-	if ( !empty( bbpress()->extend->buddypress->id ) ) {
+	if ( ! empty( bbpress()->extend->buddypress->id ) ) {
 		$retval = bbpress()->extend->buddypress->id;
 
 	// Use default
@@ -56,17 +56,17 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 	$lid = bp_loggedin_user_id();
 
 	// Easy empty checking
-	if ( !empty( $user_id ) && is_numeric( $user_id ) ) {
+	if ( ! empty( $user_id ) && is_numeric( $user_id ) ) {
 		$bbp_user_id = $user_id;
 	}
 
 	// Currently viewing or editing a user
-	elseif ( ( true === $displayed_user_fallback ) && !empty( $did ) ) {
+	elseif ( ( true === $displayed_user_fallback ) && ! empty( $did ) ) {
 		$bbp_user_id = $did;
 	}
 
 	// Maybe fallback on the current_user ID
-	elseif ( ( true === $current_user_fallback ) && !empty( $lid ) ) {
+	elseif ( ( true === $current_user_fallback ) && ! empty( $lid ) ) {
 		$bbp_user_id = $lid;
 	}
 
@@ -83,7 +83,7 @@ add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
  * @return bool True if viewing single user, false if not
  */
 function bbp_filter_is_single_user( $is = false ) {
-	if ( !empty( $is ) ) {
+	if ( ! empty( $is ) ) {
 		return $is;
 	}
 
@@ -100,7 +100,7 @@ add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
  * @return bool True if viewing single user, false if not
  */
 function bbp_filter_is_user_home( $is = false ) {
-	if ( !empty( $is ) ) {
+	if ( ! empty( $is ) ) {
 		return $is;
 	}
 
@@ -302,7 +302,7 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 	}
 
 	// Get the forums
-	if ( !empty( $group_id ) ) {
+	if ( ! empty( $group_id ) ) {
 		$forum_ids = groups_get_groupmeta( $group_id, 'forum_id' );
 	}
 
@@ -334,7 +334,7 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 	}
 
 	// Get the forums
-	if ( !empty( $forum_id ) ) {
+	if ( ! empty( $forum_id ) ) {
 		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids', true );
 	}
 
@@ -405,7 +405,7 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Maybe update the groups forums
-	if ( !in_array( $group_id, $group_ids ) ) {
+	if ( ! in_array( $group_id, $group_ids ) ) {
 		$group_ids[] = $group_id;
 		return bbp_update_forum_group_ids( $forum_id, $group_ids );
 	}
@@ -431,7 +431,7 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 	// Maybe update the groups forums
-	if ( !in_array( $forum_id, $forum_ids ) ) {
+	if ( ! in_array( $forum_id, $forum_ids ) ) {
 		$forum_ids[] = $forum_id;
 		return bbp_update_group_forum_ids( $group_id, $forum_ids );
 	}
@@ -549,7 +549,7 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Check if the forum has groups
-	$retval    = (bool) !empty( $group_ids );
+	$retval    = (bool) ! empty( $group_ids );
 
 	return (bool) apply_filters( 'bbp_is_forum_group_forum', $retval, $forum_id, $group_ids );
 }

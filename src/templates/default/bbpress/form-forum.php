@@ -42,7 +42,7 @@ if ( bbp_is_forum_edit() ) : ?>
 
 				<?php do_action( 'bbp_theme_before_forum_form_notices' ); ?>
 
-				<?php if ( !bbp_is_forum_edit() && bbp_is_forum_closed() ) : ?>
+				<?php if ( ! bbp_is_forum_edit() && bbp_is_forum_closed() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>

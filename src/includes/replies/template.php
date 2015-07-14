@@ -350,19 +350,19 @@ function bbp_reply_id( $reply_id = 0 ) {
 		$bbp = bbpress();
 
 		// Easy empty checking
-		if ( !empty( $reply_id ) && is_numeric( $reply_id ) ) {
+		if ( ! empty( $reply_id ) && is_numeric( $reply_id ) ) {
 			$bbp_reply_id = $reply_id;
 
 		// Currently inside a replies loop
-		} elseif ( !empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->reply_query->in_the_loop ) && isset( $bbp->reply_query->post->ID ) ) {
 			$bbp_reply_id = $bbp->reply_query->post->ID;
 
 		// Currently inside a search loop
-		} elseif ( !empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_reply( $bbp->search_query->post->ID ) ) {
+		} elseif ( ! empty( $bbp->search_query->in_the_loop ) && isset( $bbp->search_query->post->ID ) && bbp_is_reply( $bbp->search_query->post->ID ) ) {
 			$bbp_reply_id = $bbp->search_query->post->ID;
 
 		// Currently viewing a forum
-		} elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && !empty( $bbp->current_reply_id ) ) {
+		} elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && ! empty( $bbp->current_reply_id ) ) {
 			$bbp_reply_id = $bbp->current_reply_id;
 
 		// Currently viewing a reply
@@ -662,7 +662,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 			$excerpt_length = strlen( $excerpt );
 		}
 
-		if ( !empty( $length ) && ( $excerpt_length > $length ) ) {
+		if ( ! empty( $length ) && ( $excerpt_length > $length ) ) {
 			$excerpt  = substr( $excerpt, 0, $length - 1 );
 			$excerpt .= '&hellip;';
 		}
@@ -700,8 +700,8 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// 4 days, 4 hours ago
-		if ( !empty( $humanize ) ) {
-			$gmt_s  = !empty( $gmt ) ? 'G' : 'U';
+		if ( ! empty( $humanize ) ) {
+			$gmt_s  = ! empty( $gmt ) ? 'G' : 'U';
 			$date   = get_post_time( $gmt_s, $gmt, $reply_id );
 			$time   = false; // For filter below
 			$result = bbp_get_time_since( $date );
@@ -810,7 +810,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
-			if ( !empty( $reason ) ) {
+			if ( ! empty( $reason ) ) {
 				$r .= "\t\t" . sprintf( esc_html__( 'This reply was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
 				$r .= "\t\t" . sprintf( esc_html__( 'This reply was modified %1$s by %2$s.', 'bbpress' ), esc_html( $since ), $author ) . "\n";
@@ -1180,9 +1180,9 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	 */
 	function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		if ( !empty( $reply_id ) ) {
+		if ( ! empty( $reply_id ) ) {
 			// Check for anonymous user
-			if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+			if ( ! bbp_is_reply_anonymous( $reply_id ) ) {
 				$author_avatar = get_avatar( bbp_get_reply_author_id( $reply_id ), $size );
 			} else {
 				$author_avatar = get_avatar( get_post_meta( $reply_id, '_bbp_anonymous_email', true ), $size );
@@ -1244,7 +1244,7 @@ function bbp_reply_author_link( $args = array() ) {
 		}
 
 		// Reply ID is good
-		if ( !empty( $reply_id ) ) {
+		if ( ! empty( $reply_id ) ) {
 
 			// Get some useful reply information
 			$author_url = bbp_get_reply_author_url( $reply_id );
@@ -1260,7 +1260,7 @@ function bbp_reply_author_link( $args = array() ) {
 			}
 
 			// Setup title and author_links array
-			$link_title   = !empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
+			$link_title   = ! empty( $link_title ) ? ' title="' . esc_attr( $link_title ) . '"' : '';
 			$author_links = array();
 
 			// Get avatar
@@ -1384,7 +1384,7 @@ function bbp_reply_author_email( $reply_id = 0 ) {
 			// Use reply author email address
 			$user_id      = bbp_get_reply_author_id( $reply_id );
 			$user         = get_userdata( $user_id );
-			$author_email = !empty( $user->user_email ) ? $user->user_email : '';
+			$author_email = ! empty( $user->user_email ) ? $user->user_email : '';
 
 		// Anonymous
 		} else {
@@ -1754,7 +1754,7 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 		$reply_to = isset( $_GET['bbp_reply_to'] ) ? (int) $_GET['bbp_reply_to'] : 0;
 
 		// Set visibility
-		$style  = !empty( $reply_to ) ? '' : ' style="display:none;"';
+		$style  = ! empty( $reply_to ) ? '' : ' style="display:none;"';
 		$link   = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . '#post-' . $reply_to;
 		$retval = '<a rel="nofollow" id="bbp-cancel-reply-to-link" href="' . esc_url( $link ) . '"' . $style . '>' . esc_html( $text ) . '</a>';
 
@@ -1799,7 +1799,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 		// Reply doesn't have a position so get the raw value
 		if ( empty( $reply_position ) ) {
-			$topic_id = !empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
+			$topic_id = ! empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
 
 			// Post is not the topic
 			if ( $reply_id !== $topic_id ) {
@@ -1807,7 +1807,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 				// Update the reply position in the posts table so we'll never have
 				// to hit the DB again.
-				if ( !empty( $reply_position ) ) {
+				if ( ! empty( $reply_position ) ) {
 					bbp_update_reply_position( $reply_id, $reply_position );
 				}
 
@@ -2519,7 +2519,7 @@ function bbp_topic_pagination_links() {
 	function bbp_get_topic_pagination_links() {
 		$bbp = bbpress();
 
-		if ( !isset( $bbp->reply_query->pagination_links ) || empty( $bbp->reply_query->pagination_links ) ) {
+		if ( ! isset( $bbp->reply_query->pagination_links ) || empty( $bbp->reply_query->pagination_links ) ) {
 			return false;
 		}
 

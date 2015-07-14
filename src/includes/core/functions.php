@@ -195,7 +195,7 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
 	$query_args = bbp_parse_args( $query_args, '', 'register_view' );
 
 	// Set show_stickies to false if it wasn't supplied
-	if ( !isset( $query_args['show_stickies'] ) ) {
+	if ( ! isset( $query_args['show_stickies'] ) ) {
 		$query_args['show_stickies'] = false;
 	}
 
@@ -221,7 +221,7 @@ function bbp_deregister_view( $view ) {
 	$bbp  = bbpress();
 	$view = sanitize_title( $view );
 
-	if ( !isset( $bbp->views[ $view ] ) ) {
+	if ( ! isset( $bbp->views[ $view ] ) ) {
 		return false;
 	}
 
@@ -252,7 +252,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 
 	$query_args = bbp_get_view_query_args( $view );
 
-	if ( !empty( $new_args ) ) {
+	if ( ! empty( $new_args ) ) {
 		$new_args   = bbp_parse_args( $new_args, '', 'view_query' );
 		$query_args = array_merge( $query_args, $new_args );
 	}
@@ -271,7 +271,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  */
 function bbp_get_view_query_args( $view ) {
 	$view   = bbp_get_view_id( $view );
-	$retval = !empty( $view ) ? bbpress()->views[$view]['query'] : false;
+	$retval = ! empty( $view ) ? bbpress()->views[$view]['query'] : false;
 
 	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }

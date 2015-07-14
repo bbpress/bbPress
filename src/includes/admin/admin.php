@@ -316,7 +316,7 @@ class BBP_Admin {
 	 * @return type
 	 */
 	public static function new_install() {
-		if ( !bbp_is_install() ) {
+		if ( ! bbp_is_install() ) {
 			return;
 		}
 
@@ -359,7 +359,7 @@ class BBP_Admin {
 			}
 
 			// Toggle the section if core integration is on
-			if ( ( true === $settings_integration ) && !empty( $section['page'] ) ) {
+			if ( ( true === $settings_integration ) && ! empty( $section['page'] ) ) {
 				$page = $section['page'];
 			} else {
 				$page = 'bbpress';
@@ -372,7 +372,7 @@ class BBP_Admin {
 			foreach ( (array) $fields as $field_id => $field ) {
 
 				// Add the field
-				if ( ! empty( $field['callback'] ) && !empty( $field['title'] ) ) {
+				if ( ! empty( $field['callback'] ) && ! empty( $field['title'] ) ) {
 					add_settings_field( $field_id, $field['title'], $field['callback'], $page, $section_id, $field['args'] );
 				}
 

@@ -141,7 +141,7 @@ function bbp_new_forum_handler( $action = '' ) {
 	$forum_author = bbp_get_current_user_id();
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
-	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_forum'] ) && wp_create_nonce( 'bbp-unfiltered-html-forum_new' ) === $_POST['_bbp_unfiltered_html_forum'] ) {
+	if ( current_user_can( 'unfiltered_html' ) && ! empty( $_POST['_bbp_unfiltered_html_forum'] ) && wp_create_nonce( 'bbp-unfiltered-html-forum_new' ) === $_POST['_bbp_unfiltered_html_forum'] ) {
 		remove_filter( 'bbp_new_forum_pre_title',   'wp_filter_kses'      );
 		remove_filter( 'bbp_new_forum_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_new_forum_pre_content', 'bbp_filter_kses', 30 );
@@ -149,7 +149,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Forum Title ***********************************************************/
 
-	if ( !empty( $_POST['bbp_forum_title'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_title'] ) ) {
 		$forum_title = sanitize_text_field( $_POST['bbp_forum_title'] );
 	}
 
@@ -163,7 +163,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Forum Content *********************************************************/
 
-	if ( !empty( $_POST['bbp_forum_content'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_content'] ) ) {
 		$forum_content = $_POST['bbp_forum_content'];
 	}
 
@@ -178,7 +178,7 @@ function bbp_new_forum_handler( $action = '' ) {
 	/** Forum Parent **********************************************************/
 
 	// Forum parent was passed (the norm)
-	if ( !empty( $_POST['bbp_forum_parent_id'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_parent_id'] ) ) {
 		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
 	}
 
@@ -190,7 +190,7 @@ function bbp_new_forum_handler( $action = '' ) {
 		bbp_add_error( 'bbp_new_forum_missing_parent', __( '<strong>ERROR</strong>: Your forum must have a parent.', 'bbpress' ) );
 
 	// Forum exists
-	} elseif ( !empty( $forum_parent_id ) ) {
+	} elseif ( ! empty( $forum_parent_id ) ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_parent_id ) ) {
@@ -215,26 +215,26 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Forum Flooding ********************************************************/
 
-	if ( !bbp_check_for_flood( $anonymous_data, $forum_author ) ) {
+	if ( ! bbp_check_for_flood( $anonymous_data, $forum_author ) ) {
 		bbp_add_error( 'bbp_forum_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 	}
 
 	/** Forum Duplicate *******************************************************/
 
-	if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_forum_post_type(), 'post_author' => $forum_author, 'post_content' => $forum_content, 'anonymous_data' => $anonymous_data ) ) ) {
+	if ( ! bbp_check_for_duplicate( array( 'post_type' => bbp_get_forum_post_type(), 'post_author' => $forum_author, 'post_content' => $forum_content, 'anonymous_data' => $anonymous_data ) ) ) {
 		bbp_add_error( 'bbp_forum_duplicate', __( '<strong>ERROR</strong>: This forum already exists.', 'bbpress' ) );
 	}
 
 	/** Forum Blacklist *******************************************************/
 
-	if ( !bbp_check_for_blacklist( $anonymous_data, $forum_author, $forum_title, $forum_content ) ) {
+	if ( ! bbp_check_for_blacklist( $anonymous_data, $forum_author, $forum_title, $forum_content ) ) {
 		bbp_add_error( 'bbp_forum_blacklist', __( '<strong>ERROR</strong>: Your forum cannot be created at this time.', 'bbpress' ) );
 	}
 
 	/** Forum Moderation ******************************************************/
 
 	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, $forum_author, $forum_title, $forum_content ) ) {
+	if ( ! bbp_check_for_moderation( $anonymous_data, $forum_author, $forum_title, $forum_content ) ) {
 		$post_status = bbp_get_pending_status_id();
 	}
 
@@ -266,7 +266,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** No Errors *************************************************************/
 
-	if ( !empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
+	if ( ! empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
 
 		/** Trash Check *******************************************************/
 
@@ -317,7 +317,7 @@ function bbp_new_forum_handler( $action = '' ) {
 		$redirect_url = bbp_get_forum_permalink( $forum_id, $redirect_to );
 
 		// Add view all?
-		if ( bbp_get_view_all() || !empty( $view_all ) ) {
+		if ( bbp_get_view_all() || ! empty( $view_all ) ) {
 
 			// User can moderate, so redirect to forum with view all set
 			if ( current_user_can( 'moderate' ) ) {
@@ -418,7 +418,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	}
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
-	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_forum'] ) && ( wp_create_nonce( 'bbp-unfiltered-html-forum_' . $forum_id ) === $_POST['_bbp_unfiltered_html_forum'] ) ) {
+	if ( current_user_can( 'unfiltered_html' ) && ! empty( $_POST['_bbp_unfiltered_html_forum'] ) && ( wp_create_nonce( 'bbp-unfiltered-html-forum_' . $forum_id ) === $_POST['_bbp_unfiltered_html_forum'] ) ) {
 		remove_filter( 'bbp_edit_forum_pre_title',   'wp_filter_kses'      );
 		remove_filter( 'bbp_edit_forum_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_edit_forum_pre_content', 'bbp_filter_kses', 30 );
@@ -427,7 +427,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/** Forum Parent ***********************************************************/
 
 	// Forum parent id was passed
-	if ( !empty( $_POST['bbp_forum_parent_id'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_parent_id'] ) ) {
 		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
 	}
 
@@ -435,7 +435,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 	$current_parent_forum_id = bbp_get_forum_parent_id( $forum_id );
 
 	// Forum exists
-	if ( !empty( $forum_parent_id ) && ( $forum_parent_id !== $current_parent_forum_id ) ) {
+	if ( ! empty( $forum_parent_id ) && ( $forum_parent_id !== $current_parent_forum_id ) ) {
 
 		// Forum is closed and user cannot access
 		if ( bbp_is_forum_closed( $forum_parent_id ) && !current_user_can( 'edit_forum', $forum_parent_id ) ) {
@@ -455,7 +455,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** Forum Title ***********************************************************/
 
-	if ( !empty( $_POST['bbp_forum_title'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_title'] ) ) {
 		$forum_title = sanitize_text_field( $_POST['bbp_forum_title'] );
 	}
 
@@ -469,7 +469,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** Forum Content *********************************************************/
 
-	if ( !empty( $_POST['bbp_forum_content'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_content'] ) ) {
 		$forum_content = $_POST['bbp_forum_content'];
 	}
 
@@ -483,14 +483,14 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** Forum Blacklist *******************************************************/
 
-	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) ) {
+	if ( ! bbp_check_for_blacklist( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) ) {
 		bbp_add_error( 'bbp_forum_blacklist', __( '<strong>ERROR</strong>: Your forum cannot be edited at this time.', 'bbpress' ) );
 	}
 
 	/** Forum Moderation ******************************************************/
 
 	$post_status = bbp_get_public_status_id();
-	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) ) {
+	if ( ! bbp_check_for_moderation( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) ) {
 		$post_status = bbp_get_pending_status_id();
 	}
 
@@ -523,11 +523,11 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/**
 	 * @todo omitted for 2.1
 	// Revision Reason
-	if ( !empty( $_POST['bbp_forum_edit_reason'] ) )
+	if ( ! empty( $_POST['bbp_forum_edit_reason'] ) )
 		$forum_edit_reason = sanitize_text_field( $_POST['bbp_forum_edit_reason'] );
 
 	// Update revision log
-	if ( !empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
+	if ( ! empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
 		bbp_update_forum_revision_log( array(
 			'forum_id'    => $forum_id,
 			'revision_id' => $revision_id,
@@ -539,7 +539,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** No Errors *************************************************************/
 
-	if ( !empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
+	if ( ! empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
 		do_action( 'bbp_edit_forum', array(
@@ -576,7 +576,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 		$forum_url = bbp_get_forum_permalink( $forum_id, $redirect_to );
 
 		// Add view all?
-		if ( !empty( $view_all ) ) {
+		if ( ! empty( $view_all ) ) {
 			$forum_url = bbp_add_view_all( $forum_url );
 		}
 
@@ -652,7 +652,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Visibility **************************************************/
 
-	if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
+	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
 
 		// Get forums current visibility
 		$visibility = bbp_get_forum_visibility( $forum_id );
@@ -1024,7 +1024,7 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
 	$users = (array) bbp_get_forum_subscribers( $forum_id );
 
 	// Users exist
-	if ( !empty( $users ) ) {
+	if ( ! empty( $users ) ) {
 
 		// Loop through users
 		foreach ( $users as $user ) {
@@ -1076,7 +1076,7 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 		$ancestors = get_post_ancestors( $forum );
 
 		// If has ancestors, loop through them...
-		if ( !empty( $ancestors ) ) {
+		if ( ! empty( $ancestors ) ) {
 			foreach ( (array) $ancestors as $parent_forum_id ) {
 
 				// Get forum counts
@@ -1167,7 +1167,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 		$ancestors = get_post_ancestors( $forum );
 
 		// If has ancestors, loop through them...
-		if ( !empty( $ancestors ) ) {
+		if ( ! empty( $ancestors ) ) {
 			foreach ( (array) $ancestors as $parent_forum_id ) {
 
 				// Get forum counts
@@ -1216,7 +1216,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 
 		// Loop through children and add together forum reply counts
 		$children = bbp_forum_query_subforum_ids( $forum_id );
-		if ( !empty( $children ) ) {
+		if ( ! empty( $children ) ) {
 			foreach ( $children as $child ) {
 				$children_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive
 			}
@@ -1234,7 +1234,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 
 		// Get the most recent topic in this forum_id
 		$recent_topic = get_posts( $post_vars );
-		if ( !empty( $recent_topic ) ) {
+		if ( ! empty( $recent_topic ) ) {
 			$topic_id = $recent_topic[0]->ID;
 		}
 	}
@@ -1244,7 +1244,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$children_last_topic = (int) $children_last_topic;
 
 	// If child forums have higher id, use that instead
-	if ( !empty( $children ) && ( $children_last_topic > $topic_id ) ) {
+	if ( ! empty( $children ) && ( $children_last_topic > $topic_id ) ) {
 		$topic_id = $children_last_topic;
 	}
 
@@ -1286,7 +1286,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 
 		// Loop through children and get the most recent reply id
 		$children = bbp_forum_query_subforum_ids( $forum_id );
-		if ( !empty( $children ) ) {
+		if ( ! empty( $children ) ) {
 			foreach ( $children as $child ) {
 				$children_last_reply = bbp_update_forum_last_reply_id( $child ); // Recursive
 			}
@@ -1294,7 +1294,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 
 		// If this forum has topics...
 		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-		if ( !empty( $topic_ids ) ) {
+		if ( ! empty( $topic_ids ) ) {
 
 			// ...get the most recent reply from those topics...
 			$reply_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
@@ -1309,7 +1309,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$children_last_reply = (int) $children_last_reply;
 
 	// If child forums have higher ID, check for newer reply id
-	if ( !empty( $children ) && ( $children_last_reply > $reply_id ) ) {
+	if ( ! empty( $children ) && ( $children_last_reply > $reply_id ) ) {
 		$reply_id = $children_last_reply;
 	}
 
@@ -1352,7 +1352,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
 		// Loop through children and add together forum reply counts
 		$children = bbp_forum_query_subforum_ids( $forum_id );
-		if ( !empty( $children ) ) {
+		if ( ! empty( $children ) ) {
 			foreach ( $children as $child ) {
 				$children_last_active = bbp_update_forum_last_active_id( $child, $active_id );
 			}
@@ -1360,7 +1360,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
 		// Don't count replies if the forum is a category
 		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-		if ( !empty( $topic_ids ) ) {
+		if ( ! empty( $topic_ids ) ) {
 			$active_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
 			$active_id = $active_id > max( $topic_ids ) ? $active_id : max( $topic_ids );
 
@@ -1375,7 +1375,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	$children_last_active = (int) $children_last_active;
 
 	// If child forums have higher id, use that instead
-	if ( !empty( $children ) && ( $children_last_active > $active_id ) ) {
+	if ( ! empty( $children ) && ( $children_last_active > $active_id ) ) {
 		$active_id = $children_last_active;
 	}
 
@@ -1411,7 +1411,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	}
 
 	// Update only if there is a time
-	if ( !empty( $new_time ) ) {
+	if ( ! empty( $new_time ) ) {
 		update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 	}
 
@@ -1466,7 +1466,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 
 	// Loop through subforums and add together forum topic counts
 	$children = bbp_forum_query_subforum_ids( $forum_id );
-	if ( !empty( $children ) ) {
+	if ( ! empty( $children ) ) {
 		foreach ( $children as $child ) {
 			$children_topic_count += bbp_update_forum_topic_count( $child ); // Recursive
 		}
@@ -1566,7 +1566,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 
 	// Loop through children and add together forum reply counts
 	$children = bbp_forum_query_subforum_ids( $forum_id );
-	if ( !empty( $children ) ) {
+	if ( ! empty( $children ) ) {
 		foreach ( (array) $children as $child ) {
 			$children_reply_count += bbp_update_forum_reply_count( $child );
 		}
@@ -1652,7 +1652,7 @@ function bbp_update_forum( $args = array() ) {
 	bbp_update_forum_topic_count_hidden( $r['forum_id'] );
 
 	// Update the parent forum if one was passed
-	if ( !empty( $r['post_parent'] ) && is_numeric( $r['post_parent'] ) ) {
+	if ( ! empty( $r['post_parent'] ) && is_numeric( $r['post_parent'] ) ) {
 		bbp_update_forum( array(
 			'forum_id'    => $r['post_parent'],
 			'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
@@ -1791,7 +1791,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 		$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
 
 		// There are forums that need to be excluded
-		if ( !empty( $forum_ids ) ) {
+		if ( ! empty( $forum_ids ) ) {
 
 			switch ( $type ) {
 
@@ -1883,7 +1883,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		// Remove bbp_get_private_status_id() if user is not capable
 		if ( ! current_user_can( 'read_private_forums' ) ) {
 			$key = array_search( bbp_get_private_status_id(), $post_stati );
-			if ( !empty( $key ) ) {
+			if ( ! empty( $key ) ) {
 				unset( $post_stati[$key] );
 			}
 
@@ -1897,7 +1897,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		// Remove bbp_get_hidden_status_id() if user is not capable
 		if ( ! current_user_can( 'read_hidden_forums' ) ) {
 			$key = array_search( bbp_get_hidden_status_id(), $post_stati );
-			if ( !empty( $key ) ) {
+			if ( ! empty( $key ) ) {
 				unset( $post_stati[$key] );
 			}
 
@@ -2011,7 +2011,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 			$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 		}
 
-		if ( !empty( $topic_ids ) ) {
+		if ( ! empty( $topic_ids ) ) {
 			$bbp_db    = bbp_db();
 			$topic_ids = implode( ',', wp_parse_id_list( $topic_ids ) );
 			$reply_id  = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent IN ( {$topic_ids} ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
@@ -2079,7 +2079,7 @@ function bbp_forum_enforce_hidden() {
 	}
 
 	// If forum is explicitly hidden and user not capable, set 404
-	if ( !empty( $forum_id ) && bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) ) {
+	if ( ! empty( $forum_id ) && bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) ) {
 		bbp_set_404();
 	}
 }
@@ -2134,7 +2134,7 @@ function bbp_forum_enforce_private() {
 	}
 
 	// If forum is explicitly hidden and user not capable, set 404
-	if ( !empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) ) {
+	if ( ! empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) ) {
 		bbp_set_404();
 	}
 }
@@ -2201,7 +2201,7 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 
 	// Loop through and delete child topics. Topic replies will get deleted by
 	// the bbp_delete_topic() action.
-	if ( !empty( $topics->posts ) ) {
+	if ( ! empty( $topics->posts ) ) {
 		foreach ( $topics->posts as $topic ) {
 			wp_delete_post( $topic->ID, true );
 		}
@@ -2258,7 +2258,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 
 	// Loop through and trash child topics. Topic replies will get trashed by
 	// the bbp_trash_topic() action.
-	if ( !empty( $topics->posts ) ) {
+	if ( ! empty( $topics->posts ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_topics = array();
@@ -2307,7 +2307,7 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
 	$pre_trashed_topics = get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true );
 
 	// There are topics to untrash
-	if ( !empty( $pre_trashed_topics ) ) {
+	if ( ! empty( $pre_trashed_topics ) ) {
 
 		// Maybe reverse the trashed topics array
 		if ( is_array( $pre_trashed_topics ) ) {
@@ -2338,7 +2338,7 @@ function bbp_untrash_forum_topics( $forum_id = 0 ) {
 function bbp_delete_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 
@@ -2360,7 +2360,7 @@ function bbp_delete_forum( $forum_id = 0 ) {
 function bbp_trash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 
@@ -2378,7 +2378,7 @@ function bbp_trash_forum( $forum_id = 0 ) {
 function bbp_untrash_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 
@@ -2398,7 +2398,7 @@ function bbp_untrash_forum( $forum_id = 0 ) {
 function bbp_deleted_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 
@@ -2416,7 +2416,7 @@ function bbp_deleted_forum( $forum_id = 0 ) {
 function bbp_trashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 
@@ -2434,7 +2434,7 @@ function bbp_trashed_forum( $forum_id = 0 ) {
 function bbp_untrashed_forum( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
 		return false;
 	}
 

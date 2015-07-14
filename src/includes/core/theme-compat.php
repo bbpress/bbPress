@@ -535,7 +535,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
-			'ID'             => !empty( $page->ID ) ? $page->ID : 0,
+			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => $new_title,
 			'post_author'    => 0,
 			'post_date'      => 0,
@@ -605,7 +605,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
-			'ID'             => !empty( $page->ID ) ? $page->ID : 0,
+			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => bbp_get_topic_archive_title(),
 			'post_author'    => 0,
 			'post_date'      => 0,
@@ -876,7 +876,7 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
 	if ( isset( $wp_filter[$tag] ) ) {
 
 		// Filters exist in this priority
-		if ( !empty( $priority ) && isset( $wp_filter[$tag][$priority] ) ) {
+		if ( ! empty( $priority ) && isset( $wp_filter[$tag][$priority] ) ) {
 
 			// Store filters in a backup
 			$bbp->filters->wp_filter[$tag][$priority] = $wp_filter[$tag][$priority];
@@ -928,7 +928,7 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 	if ( isset( $bbp->filters->wp_filter[$tag] ) ) {
 
 		// Filters exist in this priority
-		if ( !empty( $priority ) && isset( $bbp->filters->wp_filter[$tag][$priority] ) ) {
+		if ( ! empty( $priority ) && isset( $bbp->filters->wp_filter[$tag][$priority] ) ) {
 
 			// Store filters in a backup
 			$wp_filter[$tag][$priority] = $bbp->filters->wp_filter[$tag][$priority];

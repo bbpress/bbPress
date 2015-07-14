@@ -91,7 +91,7 @@ class BBP_Forums_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) ) {
+		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) ) {
 			return true;
 		}
 
@@ -300,7 +300,7 @@ class BBP_Forums_Admin {
 		}
 
 		// Nonce check
-		if ( empty( $_POST['bbp_forum_metabox'] ) || !wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) ) {
+		if ( empty( $_POST['bbp_forum_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_forum_metabox'], 'bbp_forum_metabox_save' ) ) {
 			return $forum_id;
 		}
 
@@ -315,7 +315,7 @@ class BBP_Forums_Admin {
 		}
 
 		// Parent ID
-		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
+		$parent_id = ( ! empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
 
 		// Update the forum meta bidness
 		bbp_update_forum( array(
@@ -436,7 +436,7 @@ class BBP_Forums_Admin {
 		}
 
 		// Only proceed if GET is a forum toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) && !empty( $_GET['forum_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) && ! empty( $_GET['forum_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$forum_id  = (int) $_GET['forum_id'];    // What's the forum id?
 			$success   = false;                      // Flag
@@ -504,10 +504,10 @@ class BBP_Forums_Admin {
 		}
 
 		// Only proceed if GET is a forum toggle action
-		if ( bbp_is_get_request() && !empty( $_GET['bbp_forum_toggle_notice'] ) && in_array( $_GET['bbp_forum_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_GET['forum_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['bbp_forum_toggle_notice'] ) && in_array( $_GET['bbp_forum_toggle_notice'], array( 'opened', 'closed' ) ) && ! empty( $_GET['forum_id'] ) ) {
 			$notice     = $_GET['bbp_forum_toggle_notice'];         // Which notice?
 			$forum_id   = (int) $_GET['forum_id'];                  // What's the forum id?
-			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Bail if no forum_id or notice
 			if ( empty( $notice ) || empty( $forum_id ) ) {
@@ -620,7 +620,7 @@ class BBP_Forums_Admin {
 
 			case 'bbp_forum_freshness' :
 				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
-				if ( !empty( $last_active ) ) {
+				if ( ! empty( $last_active ) ) {
 					echo esc_html( $last_active );
 				} else {
 					esc_html_e( 'No Topics', 'bbpress' );

@@ -395,13 +395,13 @@ class BBP_Walker_Reply extends Walker {
 		bbpress()->current_reply_id         = $object->ID;
 
 		// Check for a callback and use it if specified
-		if ( !empty( $args['callback'] ) ) {
+		if ( ! empty( $args['callback'] ) ) {
 			call_user_func( $args['callback'], $object, $args, $depth );
 			return;
 		}
 
 		// Style for div or list element
-		if ( !empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
+		if ( ! empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
 			echo "<div>\n";
 		} else {
 			echo "<li>\n";
@@ -416,13 +416,13 @@ class BBP_Walker_Reply extends Walker {
 	public function end_el( &$output = '', $object = false, $depth = 0, $args = array() ) {
 
 		// Check for a callback and use it if specified
-		if ( !empty( $args['end-callback'] ) ) {
+		if ( ! empty( $args['end-callback'] ) ) {
 			call_user_func( $args['end-callback'], $object, $args, $depth );
 			return;
 		}
 
 		// Style for div or list element
-		if ( !empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
+		if ( ! empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
 			echo "</div>\n";
 		} else {
 			echo "</li>\n";

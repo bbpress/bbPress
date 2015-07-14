@@ -723,7 +723,7 @@ function bbp_admin_setting_callback_subtheme_id() {
 		$theme_options .= '<option value="' . esc_attr( $id ) . '"' . selected( $theme->id, $current_package, false ) . '>' . sprintf( esc_html__( '%1$s - %2$s', 'bbpress' ), esc_html( $theme->name ), esc_html( str_replace( WP_CONTENT_DIR, '', $theme->dir ) ) )  . '</option>';
 	}
 
-	if ( !empty( $theme_options ) ) : ?>
+	if ( ! empty( $theme_options ) ) : ?>
 
 		<select name="_bbp_theme_package_id" id="_bbp_theme_package_id" <?php bbp_maybe_admin_setting_disabled( '_bbp_theme_package_id' ); ?>><?php echo $theme_options ?></select>
 		<label for="_bbp_theme_package_id"><?php esc_html_e( 'will serve all bbPress templates', 'bbpress' ); ?></label>
@@ -1729,7 +1729,7 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 			$bp = buddypress();
 
 			// Loop through root slugs and check for conflict
-			if ( !empty( $bp->pages ) ) {
+			if ( ! empty( $bp->pages ) ) {
 				foreach ( $bp->pages as $page => $page_data ) {
 					$page_base    = $page . '_base';
 					$page_title   = sprintf( __( '%s page', 'bbpress' ), $page_data->title );

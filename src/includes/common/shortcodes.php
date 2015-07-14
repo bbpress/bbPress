@@ -223,7 +223,7 @@ class BBP_Shortcodes {
 	public function display_forum( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -231,7 +231,7 @@ class BBP_Shortcodes {
 		$forum_id = bbpress()->current_forum_id = $attr['id'];
 
 		// Bail if ID passed is not a forum
-		if ( !bbp_is_forum( $forum_id ) ) {
+		if ( ! bbp_is_forum( $forum_id ) ) {
 			return $content;
 		}
 
@@ -319,7 +319,7 @@ class BBP_Shortcodes {
 	public function display_topic( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -331,12 +331,12 @@ class BBP_Shortcodes {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a topic
-		if ( !bbp_is_topic( $topic_id ) ) {
+		if ( ! bbp_is_topic( $topic_id ) ) {
 			return $content;
 		}
 
 		// Reset the queries if not in theme compat
-		if ( !bbp_is_theme_compat_active() ) {
+		if ( ! bbp_is_theme_compat_active() ) {
 
 			$bbp = bbpress();
 
@@ -385,7 +385,7 @@ class BBP_Shortcodes {
 	public function display_topic_form( $attr = array(), $content = '' ) {
 
 		// Sanity check supplied info
-		if ( !empty( $content ) || ( !empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || !bbp_is_forum( $attr['forum_id'] ) ) ) ) {
+		if ( ! empty( $content ) || ( ! empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || ! bbp_is_forum( $attr['forum_id'] ) ) ) ) {
 			return $content;
 		}
 
@@ -393,7 +393,7 @@ class BBP_Shortcodes {
 		$this->unset_globals();
 
 		// If forum id is set, use the 'bbp_single_forum' query name
-		if ( !empty( $attr['forum_id'] ) ) {
+		if ( ! empty( $attr['forum_id'] ) ) {
 
 			// Set the global current_forum_id for future requests
 			bbpress()->current_forum_id = $forum_id = bbp_get_forum_id( $attr['forum_id'] );
@@ -440,7 +440,7 @@ class BBP_Shortcodes {
 	public function display_reply( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -452,12 +452,12 @@ class BBP_Shortcodes {
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a reply
-		if ( !bbp_is_reply( $reply_id ) ) {
+		if ( ! bbp_is_reply( $reply_id ) ) {
 			return $content;
 		}
 
 		// Reset the queries if not in theme compat
-		if ( !bbp_is_theme_compat_active() ) {
+		if ( ! bbp_is_theme_compat_active() ) {
 
 			$bbp = bbpress();
 
@@ -552,7 +552,7 @@ class BBP_Shortcodes {
 	public function display_topics_of_tag( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -687,7 +687,7 @@ class BBP_Shortcodes {
 	public function display_search( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( !empty( $content ) ) {
+		if ( ! empty( $content ) ) {
 			return $content;
 		}
 

@@ -1194,7 +1194,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 		return;
 
 	// Source topic not found
-	} elseif ( !$source_topic = bbp_get_topic( $source_topic_id ) ) {
+	} elseif ( ! $source_topic = bbp_get_topic( $source_topic_id ) ) {
 		bbp_add_error( 'bbp_merge_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to merge was not found.', 'bbpress' ) );
 		return;
 	}
@@ -1215,7 +1215,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	}
 
 	// Destination topic not found
-	if ( !$destination_topic = bbp_get_topic( $destination_topic_id ) ) {
+	if ( ! $destination_topic = bbp_get_topic( $destination_topic_id ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to merge to was not found.', 'bbpress' ) );
 	}
 
@@ -1871,7 +1871,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// No tag name was provided
-			if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
+			if ( empty( $_POST['tag-name'] ) || ! $name = $_POST['tag-name'] ) {
 				bbp_add_error( 'bbp_manage_topic_tag_update_name', __( '<strong>ERROR</strong>: You need to enter a tag name.', 'bbpress' ) );
 				return;
 			}
@@ -1911,13 +1911,13 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// No tag name was provided
-			if ( empty( $_POST['tag-existing-name'] ) || !$name = $_POST['tag-existing-name'] ) {
+			if ( empty( $_POST['tag-existing-name'] ) || ! $name = $_POST['tag-existing-name'] ) {
 				bbp_add_error( 'bbp_manage_topic_tag_merge_name', __( '<strong>ERROR</strong>: You need to enter a tag name.', 'bbpress' ) );
 				return;
 			}
 
 			// If term does not exist, create it
-			if ( !$tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) ) {
+			if ( ! $tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) ) {
 				$tag = wp_insert_term( $name, bbp_get_topic_tag_tax_id() );
 			}
 
@@ -2177,7 +2177,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
 			$is_spam  = bbp_is_topic_spam( $topic_id );
 			$success  = true === $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
 			$failure  = true === $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam.', 'bbpress' );
-			$view_all = !$is_spam;
+			$view_all = ! $is_spam;
 
 			break;
 

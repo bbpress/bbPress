@@ -67,7 +67,7 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Bail if not activating
-	if ( empty( $action ) || !in_array( $action, array( 'activate', 'activate-selected' ) ) ) {
+	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected' ) ) ) {
 		return false;
 	}
 
@@ -79,7 +79,7 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $bbp->basename ) ) {
+	if ( empty( $basename ) && ! empty( $bbp->basename ) ) {
 		$basename = $bbp->basename;
 	}
 
@@ -116,7 +116,7 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// Bail if not deactivating
-	if ( empty( $action ) || !in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) ) {
+	if ( empty( $action ) || ! in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) ) {
 		return false;
 	}
 
@@ -128,7 +128,7 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $bbp->basename ) ) {
+	if ( empty( $basename ) && ! empty( $bbp->basename ) ) {
 		$basename = $bbp->basename;
 	}
 
