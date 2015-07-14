@@ -115,13 +115,53 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_voice_count
-	 * @todo   Implement test_bbp_admin_repair_topic_voice_count().
 	 */
 	public function test_bbp_admin_repair_topic_voice_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$u = $this->factory->user->create_many( 2 );
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_author' => $u[0],
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_author' => $u[1],
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$count = bbp_get_topic_voice_count( $t );
+		$this->assertSame( '3', $count );
+
+		// Delete the topic _bbp_voice_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_voice_count' ) );
+
+		$count = bbp_get_topic_voice_count( $t );
+		$this->assertSame( '0', $count );
+
+		// Repair the topic voice count meta.
+		bbp_admin_repair_topic_voice_count();
+
+		bbp_clean_post_cache( $t );
+
+		$count = bbp_get_topic_voice_count( $t );
+		$this->assertSame( '3', $count );
 	}
 
 	/**
