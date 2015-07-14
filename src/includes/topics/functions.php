@@ -1471,8 +1471,6 @@ function bbp_split_topic_handler( $action = '' ) {
 		return;
 	}
 
-	global $wpdb;
-
 	// Prevent debug notices
 	$from_reply_id = $destination_topic_id = 0;
 	$destination_topic_title = '';
@@ -1677,7 +1675,9 @@ function bbp_split_topic_handler( $action = '' ) {
 
 	// get_posts() is not used because it doesn't allow us to use '>='
 	// comparision without a filter.
-	$replies = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_date >= %s AND {$wpdb->posts}.post_parent = %d AND {$wpdb->posts}.post_type = %s ORDER BY {$wpdb->posts}.post_date ASC", $from_reply->post_date, $source_topic->ID, bbp_get_reply_post_type() ) );
+	$bbp_db  = bbp_db();
+	$query   = $bbp_db->prepare( "SELECT * FROM {$bbp_db->posts} WHERE {$bbp_db->posts}.post_date >= %s AND {$bbp_db->posts}.post_parent = %d AND {$bbp_db->posts}.post_type = %s ORDER BY {$bbp_db->posts}.post_date ASC", $from_reply->post_date, $source_topic->ID, bbp_get_reply_post_type() );
+	$replies = (array) $bbp_db->get_results( $query );
 
 	// Make sure there are replies to loop through
 	if ( ! empty( $replies ) && ! is_wp_error( $replies ) ) {
@@ -2508,7 +2508,6 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @return int Topic hidden reply count
  */
 function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) {
-	global $wpdb;
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) ) {
@@ -2519,8 +2518,10 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	// Get replies of topic
 	if ( empty( $reply_count ) ) {
+		$bbp_db      = bbp_db();
 		$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ) ) . "'";
-		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
+		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() );
+		$reply_count = $bbp_db->get_var( $query );
 	}
 
 	$reply_count = (int) $reply_count;
@@ -2672,14 +2673,13 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses wpdb::get_var() To execute our query and get the column back
  * @uses update_post_meta() To update the topic voice count meta
  * @uses apply_filters() Calls 'bbp_update_topic_voice_count' with the voice
  *                        count and topic id
  * @return int Voice count
  */
 function bbp_update_topic_voice_count( $topic_id = 0 ) {
-	global $wpdb;
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) ) {
@@ -2691,7 +2691,9 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	}
 
 	// Query the DB to get voices in this topic
-	$voices = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
+	$bbp_db = bbp_db();
+	$query  = $bbp_db->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$voices = (int) $bbp_db->get_var( $query );
 
 	// Update the voice count for this topic id
 	update_post_meta( $topic_id, '_bbp_voice_count', $voices );
@@ -2712,14 +2714,13 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses wpdb::get_var() To execute our query and get the column back
  * @uses update_post_meta() To update the topic anonymous reply count meta
  * @uses apply_filters() Calls 'bbp_update_topic_anonymous_reply_count' with the
  *                        anonymous reply count and topic id
  * @return int Anonymous reply count
  */
 function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
-	global $wpdb;
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) ) {
@@ -2730,11 +2731,14 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 		return;
 	}
 
-	$anonymous_replies = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( ID ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
+	// Query the DB to get anonymous replies in this topic
+	$bbp_db  = bbp_db();
+	$query   = $bbp_db->prepare( "SELECT COUNT( ID ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$replies = (int) $bbp_db->get_var( $query );
 
-	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $anonymous_replies );
+	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
 
-	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $anonymous_replies, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $replies, $topic_id );
 }
 
 /**

@@ -629,21 +629,21 @@ class BBP_Converter {
 	 * @since bbPress (r3813)
 	 */
 	public function sync_table( $drop = false ) {
-		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'bbp_converter_translator';
-		if ( ! empty( $drop ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
-			$wpdb->query( "DROP TABLE {$table_name}" );
+		$bbp_db     = bbp_db();
+		$table_name = $bbp_db->prefix . 'bbp_converter_translator';
+		if ( ! empty( $drop ) && $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
+			$bbp_db->query( "DROP TABLE {$table_name}" );
 		}
 
 		require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 
-		if ( !empty( $wpdb->charset ) ) {
-			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+		if ( !empty( $bbp_db->charset ) ) {
+			$charset_collate = "DEFAULT CHARACTER SET $bbp_db->charset";
 		}
 
-		if ( !empty( $wpdb->collate ) ) {
-			$charset_collate .= " COLLATE $wpdb->collate";
+		if ( !empty( $bbp_db->collate ) ) {
+			$charset_collate .= " COLLATE $bbp_db->collate";
 		}
 
 		/** Translator ****************************************************/
@@ -675,7 +675,7 @@ abstract class BBP_Converter_Base {
 	protected $field_map = array();
 
 	/**
-	 * @var object This is the connection to the WordPress datbase.
+	 * @var object This is the connection to the WordPress database.
 	 */
 	protected $wpdb;
 
@@ -739,11 +739,10 @@ abstract class BBP_Converter_Base {
 	}
 
 	private function setup_globals() {
-		global $wpdb;
 
 		/** Get database connections ******************************************/
 
-		$this->wpdb         = $wpdb;
+		$this->wpdb         = bbp_db();
 		$this->max_rows     = (int) $_POST['_bbp_converter_rows'];
 		$this->opdb         = new wpdb( $_POST['_bbp_converter_db_user'], $_POST['_bbp_converter_db_pass'], $_POST['_bbp_converter_db_name'], $_POST['_bbp_converter_db_server'] );
 		$this->opdb->prefix = $_POST['_bbp_converter_db_prefix'];

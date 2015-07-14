@@ -127,8 +127,7 @@ function bbp_show_lead_topic( $show_lead = false ) {
  * @uses bbp_get_paged() To get the current page value
  * @uses bbp_get_super_stickies() To get the super stickies
  * @uses bbp_get_stickies() To get the forum stickies
- * @uses wpdb::get_results() To execute our query and get the results
- * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
+ * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
  * @uses get_permalink() To get the permalink
  * @uses add_query_arg() To add custom args to the url
  * @uses apply_filters() Calls 'bbp_topics_pagination' with the pagination args
@@ -139,7 +138,6 @@ function bbp_show_lead_topic( $show_lead = false ) {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = array() ) {
-	global $wp_rewrite;
 
 	/** Defaults **************************************************************/
 
@@ -353,7 +351,7 @@ function bbp_has_topics( $args = array() ) {
 		}
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 
 			// User's topics
 			if ( bbp_is_single_user_topics() ) {
@@ -397,7 +395,7 @@ function bbp_has_topics( $args = array() ) {
 			}
 
 			// Use pagination base
-			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
 
 		// Unpretty pagination
 		} else {
@@ -419,7 +417,7 @@ function bbp_has_topics( $args = array() ) {
 		$bbp->topic_query->pagination_links = paginate_links( $bbp_topic_pagination );
 
 		// Remove first page from pagination
-		$bbp->topic_query->pagination_links = str_replace( $wp_rewrite->pagination_base . "/1/'", "'", $bbp->topic_query->pagination_links );
+		$bbp->topic_query->pagination_links = str_replace( bbp_get_paged_slug() . "/1/'", "'", $bbp->topic_query->pagination_links );
 	}
 
 	// Return object
@@ -850,8 +848,7 @@ function bbp_topic_pagination( $args = array() ) {
 	 *  - before: Before the links
 	 *  - after: After the links
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
-	 *                                       permalinks
+	 * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
 	 * @uses user_trailingslashit() To add a trailing slash
 	 * @uses trailingslashit() To add a trailing slash
 	 * @uses get_permalink() To get the permalink of the topic
@@ -865,7 +862,6 @@ function bbp_topic_pagination( $args = array() ) {
 	 * @return string Pagination links
 	 */
 	function bbp_get_topic_pagination( $args = array() ) {
-		global $wp_rewrite;
 
 		// Bail if threading replies
 		if ( bbp_thread_replies() ) {
@@ -880,8 +876,8 @@ function bbp_topic_pagination( $args = array() ) {
 		), 'get_topic_pagination' );
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() ) {
-			$base = trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+		if ( bbp_use_pretty_urls() ) {
+			$base = trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
 		} else {
 			$base = add_query_arg( 'paged', '%#%', get_permalink( $r['topic_id'] ) );
 		}
@@ -909,8 +905,8 @@ function bbp_topic_pagination( $args = array() ) {
 		if ( ! empty( $pagination_links ) ) {
 
 			// Remove first page from pagination
-			if ( $wp_rewrite->using_permalinks() ) {
-				$pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $pagination_links );
+			if ( bbp_use_pretty_urls() ) {
+				$pagination_links = str_replace( bbp_get_paged_slug() . '/1/', '', $pagination_links );
 			} else {
 				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
 			}
@@ -2639,7 +2635,6 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	 * @return string Topic edit url
 	 */
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
-		global $wp_rewrite;
 
 		$topic = bbp_get_topic( $topic_id );
 		if ( empty( $topic ) ) {
@@ -2650,13 +2645,16 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		$topic_link = bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $topic_link ) . bbp_get_edit_rewrite_id();
-			$url = trailingslashit( $url );
+			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, bbp_get_edit_rewrite_id() => '1' ), $topic_link );
+			$url = add_query_arg( array(
+				bbp_get_topic_post_type() => $topic->post_name,
+				bbp_get_edit_rewrite_id() => '1'
+			), $topic_link );
 		}
 
 		// Maybe add view=all
@@ -3766,7 +3764,6 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
-		global $wp_rewrite;
 
 		// Get the term
 		if ( ! empty( $tag ) ) {
@@ -3780,7 +3777,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 		if ( ! empty( $term->term_id ) ) {
 
 			// Pretty
-			if ( $wp_rewrite->using_permalinks() ) {
+			if ( bbp_use_pretty_urls() ) {
 				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . bbp_get_edit_rewrite_id() );
 
 			// Ugly

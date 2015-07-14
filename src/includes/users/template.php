@@ -335,8 +335,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 * @param int $user_id Optional. User id
 	 * @param string $user_nicename Optional. User nicename
 	 * @uses bbp_get_user_id() To get user id
-	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
-	 *                                       permalinks
+	 * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get blog home url
 	 * @uses apply_filters() Calls 'bbp_get_user_profile_url' with the user
@@ -344,7 +343,6 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 * @return string User profile url
 	 */
 	function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
-		global $wp_rewrite;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -359,14 +357,14 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 		}
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
 				$user_nicename = bbp_get_user_nicename( $user_id );
 			}
 
-			$url = trailingslashit( $wp_rewrite->root . bbp_get_user_slug() ) . $user_nicename;
+			$url = trailingslashit( bbp_get_root_url() . bbp_get_user_slug() ) . $user_nicename;
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
 
@@ -438,8 +436,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	 * @param string $user_nicename Optional. User nicename
 	 * @uses bbp_get_user_id() To get user id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
-	 *                                       permalinks
+	 * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get blog home url
 	 * @uses apply_filters() Calls 'bbp_get_user_edit_profile_url' with the
@@ -447,7 +444,6 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	 * @return string
 	 */
 	function bbp_get_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
-		global $wp_rewrite;
 
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) ) {
@@ -464,7 +460,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 		$profile_url = bbp_get_user_profile_url( $user_id, $user_nicename );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . 'edit';
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -819,7 +815,6 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 	 * @return string Permanent link to user profile page
 	 */
 	function bbp_get_favorites_permalink( $user_id = 0 ) {
-		global $wp_rewrite;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -837,7 +832,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 		$profile_url = bbp_get_user_profile_url( $user_id );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_rewrite_id();
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -979,7 +974,6 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 	 * @return string Permanent link to user subscriptions page
 	 */
 	function bbp_get_subscriptions_permalink( $user_id = 0 ) {
-		global $wp_rewrite;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -997,7 +991,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 		$profile_url = bbp_get_user_profile_url( $user_id );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_user_subscriptions_slug();
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -1420,7 +1414,6 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 	 * @return string Permanent link to user profile page
 	 */
 	function bbp_get_user_topics_created_url( $user_id = 0 ) {
-		global $wp_rewrite;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -1438,7 +1431,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		$profile_url = bbp_get_user_profile_url( $user_id );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_topic_archive_slug();
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -1478,7 +1471,6 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 	 * @return string Permanent link to user profile page
 	 */
 	function bbp_get_user_replies_created_url( $user_id = 0 ) {
-		global $wp_rewrite;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		$user_id = bbp_get_user_id( $user_id );
@@ -1496,7 +1488,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 		$profile_url = bbp_get_user_profile_url( $user_id );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_reply_archive_slug();
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );

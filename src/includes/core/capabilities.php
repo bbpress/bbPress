@@ -243,22 +243,23 @@ function bbp_remove_caps() {
 }
 
 /**
- * Get the $wp_roles global without needing to declare it everywhere
+ * Get the `$wp_roles` global without needing to declare it everywhere
  *
  * @since bbPress (r4293)
  *
- * @global WP_Roles $wp_roles
  * @return WP_Roles
  */
 function bbp_get_wp_roles() {
-	global $wp_roles;
 
-	// Load roles if not set
-	if ( ! isset( $wp_roles ) ) {
-		$wp_roles = new WP_Roles();
+	// Try to get `$wp_roles`
+	$retval = bbp_get_global_object( 'wp_roles', 'WP_Roles' );
+
+	// Set roles if not loaded
+	if ( is_null( $retval ) ) {
+		$retval = $GLOBALS['wp_roles'] = new WP_Roles();
 	}
 
-	return $wp_roles;
+	return $retval;
 }
 
 /**
@@ -272,7 +273,7 @@ function bbp_get_wp_roles() {
 function bbp_get_blog_roles() {
 
 	// Get WordPress's roles (returns $wp_roles global)
-	$wp_roles  = bbp_get_wp_roles();
+	$wp_roles = bbp_get_wp_roles();
 
 	// Apply the WordPress 'editable_roles' filter to let plugins ride along.
 	//
@@ -301,9 +302,9 @@ function bbp_add_forums_roles() {
 	$wp_roles = bbp_get_wp_roles();
 
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
-		$wp_roles->roles[$role_id]        = $details;
-		$wp_roles->role_objects[$role_id] = new WP_Role( $role_id, $details['capabilities'] );
-		$wp_roles->role_names[$role_id]   = $details['name'];
+		$wp_roles->roles[ $role_id ]        = $details;
+		$wp_roles->role_objects[ $role_id ] = new WP_Role( $role_id, $details['capabilities'] );
+		$wp_roles->role_names[ $role_id ]   = $details['name'];
 	}
 
 	return $wp_roles;
@@ -315,13 +316,9 @@ function bbp_add_forums_roles() {
  * @since bbPress (r4363)
  *
  * @see _bbp_reinit_dynamic_roles()
- *
- * @global WPDB $wpdb Used to get the database prefix
  */
 function bbp_filter_user_roles_option() {
-	global $wpdb;
-
-	$role_key = $wpdb->prefix . 'user_roles';
+	$role_key = bbp_db()->prefix . 'user_roles';
 
 	add_filter( 'option_' . $role_key, '_bbp_reinit_dynamic_roles' );
 }
@@ -418,7 +415,7 @@ function bbp_get_dynamic_roles() {
  */
 function bbp_get_dynamic_role_name( $role_id = '' ) {
 	$roles = bbp_get_dynamic_roles();
-	$role  = isset( $roles[$role_id] ) ? $roles[$role_id]['name'] : '';
+	$role  = isset( $roles[ $role_id ] ) ? $roles[ $role_id ]['name'] : '';
 
 	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
 }
@@ -444,7 +441,7 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 
 			// If keys match, unset
 			if ( $wp_role === $bbp_role ) {
-				unset( $all_roles[$wp_role] );
+				unset( $all_roles[ $wp_role ] );
 			}
 		}
 	}

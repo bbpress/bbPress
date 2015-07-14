@@ -108,7 +108,7 @@ function bbp_get_reply_post_type_supports() {
  * @uses current_user_can() To check if the current user is capable of editing
  *                           others' replies
  * @uses WP_Query To make query and get the replies
- * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
+ * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
  * @uses get_permalink() To get the permalink
  * @uses add_query_arg() To add custom args to the url
  * @uses apply_filters() Calls 'bbp_replies_pagination' with the pagination args
@@ -119,7 +119,6 @@ function bbp_get_reply_post_type_supports() {
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies( $args = array() ) {
-	global $wp_rewrite;
 
 	/** Defaults **************************************************************/
 
@@ -225,7 +224,7 @@ function bbp_has_replies( $args = array() ) {
 	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 
 			// User's replies
 			if ( bbp_is_single_user_replies() ) {
@@ -244,7 +243,7 @@ function bbp_has_replies( $args = array() ) {
 				$base = get_permalink( bbp_get_topic_id() );
 			}
 
-			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
 
 		// Unpretty permalinks
 		} else {
@@ -271,8 +270,8 @@ function bbp_has_replies( $args = array() ) {
 			) ) );
 
 			// Remove first page from pagination
-			if ( $wp_rewrite->using_permalinks() ) {
-				$bbp->reply_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $bbp->reply_query->pagination_links );
+			if ( bbp_use_pretty_urls() ) {
+				$bbp->reply_query->pagination_links = str_replace( bbp_get_paged_slug() . '/1/', '', $bbp->reply_query->pagination_links );
 			} else {
 				$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );
 			}
@@ -473,8 +472,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
 	 * @uses bbp_get_reply_position() To get the reply position
 	 * @uses get_option() To get the replies per page option
-	 * @uses WP_Rewrite::using_permalinks() To check if the blog uses
-	 *                                       permalinks
+	 * @uses bbp_use_pretty_urls() To check if the site uses pretty URLs
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses apply_filters() Calls 'bbp_get_reply_url' with the reply url,
 	 *                        reply id and bool count hidden
@@ -505,11 +503,10 @@ function bbp_reply_url( $reply_id = 0 ) {
 
 		// Include pagination
 		} else {
-			global $wp_rewrite;
 
 			// Pretty permalinks
-			if ( $wp_rewrite->using_permalinks() ) {
-				$url = trailingslashit( $topic_url ) . trailingslashit( $wp_rewrite->pagination_base ) . trailingslashit( $reply_page ) . $reply_hash;
+			if ( bbp_use_pretty_urls() ) {
+				$url = trailingslashit( $topic_url ) . trailingslashit( bbp_get_paged_slug() ) . trailingslashit( $reply_page ) . $reply_hash;
 
 			// Yucky links
 			} else {
@@ -2021,7 +2018,6 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 * @return string Reply edit url
 	 */
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
-		global $wp_rewrite;
 
 		$reply = bbp_get_reply( $reply_id );
 		if ( empty( $reply ) ) {
@@ -2031,13 +2027,16 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 		$reply_link = bbp_remove_view_all( bbp_get_reply_permalink( $reply_id ) );
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $reply_link ) . bbp_get_edit_rewrite_id();
-			$url = trailingslashit( $url );
+			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, bbp_get_edit_rewrite_id() => '1' ), $reply_link );
+			$url = add_query_arg( array(
+				bbp_get_reply_post_type() => $reply->post_name,
+				bbp_get_edit_rewrite_id() => '1'
+			), $reply_link );
 		}
 
 		// Maybe add view all

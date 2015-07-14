@@ -187,12 +187,11 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 		return;
 	}
 
-	global $wpdb;
-
-	$key   = $wpdb->prefix . '_bbp_favorites';
-	$users = wp_cache_get( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
+	$bbp_db = bbp_db();
+	$key    = $bbp_db->prefix . '_bbp_favorites';
+	$users  = wp_cache_get( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
 	if ( false === $users ) {
-		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
+		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 		wp_cache_set( 'bbp_get_topic_favoriters_' . $topic_id, $users, 'bbpress_users' );
 	}
 
@@ -498,12 +497,11 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
 		return;
 	}
 
-	global $wpdb;
-
-	$key   = $wpdb->prefix . '_bbp_forum_subscriptions';
-	$users = wp_cache_get( 'bbp_get_forum_subscribers_' . $forum_id, 'bbpress_users' );
+	$bbp_db = bbp_db();
+	$key    = $bbp_db->prefix . '_bbp_forum_subscriptions';
+	$users  = wp_cache_get( 'bbp_get_forum_subscribers_' . $forum_id, 'bbpress_users' );
 	if ( false === $users ) {
-		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$forum_id}', meta_value) > 0" );
+		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$forum_id}', meta_value) > 0" );
 		wp_cache_set( 'bbp_get_forum_subscribers_' . $forum_id, $users, 'bbpress_users' );
 	}
 
@@ -526,12 +524,11 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 		return;
 	}
 
-	global $wpdb;
-
-	$key   = $wpdb->prefix . '_bbp_subscriptions';
-	$users = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
+	$bbp_db = bbp_db();
+	$key    = $bbp_db->prefix . '_bbp_subscriptions';
+	$users  = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
 	if ( false === $users ) {
-		$users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
+		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
 		wp_cache_set( 'bbp_get_topic_subscribers_' . $topic_id, $users, 'bbpress_users' );
 	}
 
@@ -1315,9 +1312,6 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @uses bbp_is_user_home() To check if the user is at home (the display page
  *                           is the one of the logged in user)
  * @uses get_option() To get the displayed user's new email id option
- * @uses wpdb::prepare() To sanitize our sql query
- * @uses wpdb::get_var() To execute our query and get back the variable
- * @uses wpdb::query() To execute our query
  * @uses wp_update_user() To update the user
  * @uses delete_option() To delete the displayed user's email id option
  * @uses bbp_get_user_profile_edit_url() To get the edit profile url
@@ -1330,7 +1324,6 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @uses edit_user() To edit the user based on the post data
  * @uses get_userdata() To get the user data
  * @uses is_email() To check if the string is an email id or not
- * @uses wpdb::get_blog_prefix() To get the blog prefix
  * @uses is_network_admin() To check if the user is the network admin
  * @uses revoke_super_admin() To revoke super admin priviledges
  * @uses grant_super_admin() To grant super admin priviledges
@@ -1448,8 +1441,7 @@ function bbp_edit_user_handler( $action = '' ) {
  *
  * @since bbPress (r5660)
  *
- * @global object $wpdb
- * @param  string $action
+ * @param string $action
  *
  * @uses bbp_is_user_home_edit()         To check if on the current users profile edit page
  * @uses bbp_get_displayed_user_id()     To get the ID of the user being edited
@@ -1530,9 +1522,9 @@ function bbp_user_email_change_handler( $action = '' ) {
 
 					// Update signups table, if signups table & entry exists
 					// For Multisite & BuddyPress compatibility
-					global $wpdb;
-					if ( ! empty( $wpdb->signups ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
-						$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
+					$bbp_db = bbp_db();
+					if ( ! empty( $bbp_db->signups ) && $bbp_db->get_var( $bbp_db->prepare( "SELECT user_login FROM {$bbp_db->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login', 'raw' ) ) ) ) {
+						$bbp_db->query( $bbp_db->prepare( "UPDATE {$bbp_db->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
 					}
 
 					delete_option( $key );
@@ -1726,12 +1718,14 @@ function bbp_get_total_users() {
  * Return the raw database count of topics by a user
  *
  * @since bbPress (r3633)
+ *
  * @param int $user_id User ID to get count for
- * @global WPDB $wpdb
+ *
  * @uses bbp_get_user_id()
  * @uses get_posts_by_author_sql()
  * @uses bbp_get_topic_post_type()
  * @uses apply_filters()
+ *
  * @return int Raw DB count of topics
  */
 function bbp_get_user_topic_count_raw( $user_id = 0 ) {
@@ -1740,10 +1734,9 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 		return false;
 	}
 
-	global $wpdb;
-
-	$where = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
-	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+	$bbp_db = bbp_db();
+	$where  = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
+	$count  = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->posts} {$where}" );
 
 	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
 }
@@ -1752,12 +1745,14 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
  * Return the raw database count of replies by a user
  *
  * @since bbPress (r3633)
+ *
  * @param int $user_id User ID to get count for
- * @global WPDB $wpdb
+ *
  * @uses bbp_get_user_id()
  * @uses get_posts_by_author_sql()
  * @uses bbp_get_reply_post_type()
  * @uses apply_filters()
+ *
  * @return int Raw DB count of replies
  */
 function bbp_get_user_reply_count_raw( $user_id = 0 ) {
@@ -1766,10 +1761,9 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 		return false;
 	}
 
-	global $wpdb;
-
-	$where = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
-	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+	$bbp_db = bbp_db();
+	$where  = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
+	$count  = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->posts} {$where}" );
 
 	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
 }
@@ -1845,7 +1839,7 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 	$user_reply_count = (int) ( $count + $difference );
 
 	// Add them up and filter them
-	$new_count = apply_filters( 'bbp_bump_user_reply_count', ( (int) $count + (int) $difference ), $user_id, $difference, $count );
+	$new_count = apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
 
 	return bbp_update_user_reply_count( $user_id, $new_count );
 }
@@ -2068,7 +2062,6 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
  * Convert passwords from previous platfrom encryption to WordPress encryption.
  *
  * @since bbPress (r3813)
- * @global WPDB $wpdb
  */
 function bbp_user_maybe_convert_pass() {
 
@@ -2082,10 +2075,10 @@ function bbp_user_maybe_convert_pass() {
 		return;
 	}
 
-	global $wpdb;
-
 	// Bail if no user password to convert
-	$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->users} INNER JOIN {$wpdb->usermeta} ON user_id = ID WHERE meta_key = '_bbp_class' AND user_login = '%s' LIMIT 1", $username ) );
+	$bbp_db = bbp_db();
+	$query  = $bbp_db->prepare( "SELECT * FROM {$bbp_db->users} INNER JOIN {$bbp_db->usermeta} ON user_id = ID WHERE meta_key = '_bbp_class' AND user_login = '%s' LIMIT 1", $username );
+	$row    = $bbp_db->get_row( $query );
 	if ( empty( $row ) || is_wp_error( $row ) ) {
 		return;
 	}
