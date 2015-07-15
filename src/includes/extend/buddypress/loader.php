@@ -256,16 +256,33 @@ class BBP_Forums_Component extends BP_Component {
 		// Menus for logged in user
 		if ( is_user_logged_in() ) {
 
-			// Setup the logged in user variables
-			$user_domain = bp_loggedin_user_domain();
-			$forums_link = trailingslashit( $user_domain . $this->slug );
+			// If BuddyPress is network activated and bbPress is
+			// not activated on a the root blog but on any child one
+			if ( ! bp_is_root_blog() ) {
+				$my_account_link       = bbp_get_user_profile_url();
+				$my_topics_link        = bbp_get_user_topics_created_url();
+				$my_replies_link       = bbp_get_user_replies_created_url();
+				$my_favorites_link     = bbp_get_favorites_permalink();
+				$my_subscriptions_link = bbp_get_subscriptions_permalink();
+			} else {
+
+				// Setup the logged in user variables
+				$user_domain = bp_loggedin_user_domain();
+				$forums_link = trailingslashit( $user_domain . $this->slug );
+
+				$my_account_link       = trailingslashit( $forums_link );
+				$my_topics_link        = trailingslashit( $forums_link . bbp_get_topic_archive_slug() );
+				$my_replies_link       = trailingslashit( $forums_link . bbp_get_reply_archive_slug() );
+				$my_favorites_link     = trailingslashit( $forums_link . bbp_get_user_favorites_slug() );
+				$my_subscriptions_link = trailingslashit( $forums_link . bbp_get_user_subscriptions_slug() );
+			}
 
 			// Add the "My Account" sub menus
 			$wp_admin_nav[] = array(
 				'parent' => buddypress()->my_account_menu_id,
 				'id'     => 'my-account-' . $this->id,
 				'title'  => __( 'Forums', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link )
+				'href'   => $my_account_link
 			);
 
 			// Topics
@@ -273,7 +290,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-topics',
 				'title'  => __( 'Topics Started', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . bbp_get_topic_archive_slug() )
+				'href'   => $my_topics_link
 			);
 
 			// Replies
@@ -281,7 +298,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-replies',
 				'title'  => __( 'Replies Created', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . bbp_get_reply_archive_slug() )
+				'href'   => $my_replies_link
 			);
 
 			// Favorites
@@ -289,7 +306,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-favorites',
 				'title'  => __( 'Favorite Topics', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . bbp_get_user_favorites_slug() )
+				'href'   => $my_favorites_link
 			);
 
 			// Subscriptions
@@ -297,7 +314,7 @@ class BBP_Forums_Component extends BP_Component {
 				'parent' => 'my-account-' . $this->id,
 				'id'     => 'my-account-' . $this->id . '-subscriptions',
 				'title'  => __( 'Subscribed Topics', 'bbpress' ),
-				'href'   => trailingslashit( $forums_link . bbp_get_user_subscriptions_slug() )
+				'href'   => $my_subscriptions_link
 			);
 		}
 
