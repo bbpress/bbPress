@@ -252,14 +252,12 @@ function bbp_map_forum_mod_meta_caps( $caps, $cap, $user_id, $args ) {
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_forum() To make sure it is a forum
  * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy
- * @uses wp_get_object_terms() To get the forum's moderator terms
- * @uses is_wp_error() To check for errors
+ * @uses bbp_get_forum_mods() To get the forum's moderator terms
  * @uses bbp_get_term_taxonomy_user_id() To convert terms to user ids
  *
- * @return boolean|array Return false early, or if no moderator terms set, or
- *                 an array of User ids
+ * @return boolean|array Return false on error or empty, or array of user ids
  */
-function bbp_get_forum_mod_ids( $forum_id = 0 ) {
+function bbp_get_forum_moderator_ids( $forum_id = 0 ) {
 
 	// Bail if no forum ID.
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -273,32 +271,28 @@ function bbp_get_forum_mod_ids( $forum_id = 0 ) {
 	}
 
 	// Get forum taxonomy terms.
-	$taxonomy = bbp_get_forum_mod_tax_id();
-	$terms    = wp_get_object_terms( $forum_id, $taxonomy, array(
-		'fields' => 'ids',
-	) );
+	$terms = bbp_get_forum_mods( $forum_id );
 
 	// Bail if no terms found.
-	if ( empty( $terms ) || is_wp_error( $terms ) ) {
+	if ( empty( $terms ) ) {
 		return false;
 	}
 
-	$moderators = array();
+	// Setup default values
+	$term_ids      = wp_parse_id_list( $terms );
+	$taxonomy      = bbp_get_forum_mod_tax_id();
+	$moderator_ids = array();
 
 	// Convert term ids to user ids.
-	foreach ( $terms as $term ) {
-		$user_id = bbp_get_term_taxonomy_user_id( $term, $taxonomy );
-		if ( ! empty( $user_id ) ) {
-			$moderators[] = $user_id;
-		}
+	foreach ( $term_ids as $term_id ) {
+		$moderator_ids[] = bbp_get_term_taxonomy_user_id( $term_id, $taxonomy );
 	}
 
-	// Moderators found.
-	if ( ! empty( $moderators ) ) {
-		return $moderators;
-	}
+	// Remove empties
+	$retval = wp_parse_id_list( array_filter( $moderator_ids ) );
 
-	return false;
+	// Filter & return
+	return apply_filters( 'bbp_get_forum_moderator_ids', $retval, $forum_id );
 }
 
 /**
@@ -315,17 +309,17 @@ function bbp_get_forum_mod_ids( $forum_id = 0 ) {
  * @uses is_wp_error() To check for errors
  * @uses bbp_is_forum() To make sure the objects are forums
  *
- * @return boolean|array Return false early, or if user has no forums, or
- *                 an array of Forum ids
+ * @return boolean|array Return false on error or empty, or array of forum ids
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 
 	// Bail if no user ID.
+	$user_id = bbp_get_user_id( $user_id );
 	if ( empty( $user_id ) ) {
 		return false;
 	}
 
-	// Bail if user does not eist.
+	// Bail if user does not exist.
 	$user = get_userdata( $user_id );
 	if ( empty( $user ) ) {
 		return false;
@@ -351,7 +345,11 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 		}
 	}
 
-	return $forum_ids;
+	// Remove empties
+	$retval = wp_parse_id_list( array_filter( $forum_ids ) );
+
+	// Filter & return
+	return apply_filters( 'bbp_get_moderator_forum_ids', $retval, $user_id );
 }
 
 /**
