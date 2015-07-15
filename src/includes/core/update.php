@@ -191,12 +191,16 @@ function bbp_create_initial_content( $args = array() ) {
 		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
 	), 'create_initial_content' );
 
+	// Use the same time for each post
+	$current_time = current_time( 'mysql' );
+
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
 		'post_parent'  => $r['forum_parent'],
 		'post_status'  => $r['forum_status'],
 		'post_title'   => $r['forum_title'],
-		'post_content' => $r['forum_content']
+		'post_content' => $r['forum_content'],
+		'post_date'    => $current_time
 	) );
 
 	// Create the initial topic
@@ -204,7 +208,8 @@ function bbp_create_initial_content( $args = array() ) {
 		array(
 			'post_parent'  => $forum_id,
 			'post_title'   => $r['topic_title'],
-			'post_content' => $r['topic_content']
+			'post_content' => $r['topic_content'],
+			'post_date'    => $current_time
 		),
 		array(
 			'forum_id'     => $forum_id
@@ -215,7 +220,8 @@ function bbp_create_initial_content( $args = array() ) {
 	$reply_id = bbp_insert_reply(
 		array(
 			'post_parent'  => $topic_id,
-			'post_content' => $r['reply_content']
+			'post_content' => $r['reply_content'],
+			'post_date'    => $current_time
 		),
 		array(
 			'forum_id'     => $forum_id,
