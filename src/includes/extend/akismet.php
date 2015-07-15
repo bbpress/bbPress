@@ -596,7 +596,7 @@ class BBP_Akismet {
 	 *
 	 * @uses bbp_get_reply_id() To get the reply_id
 	 * @uses bbp_get_topic_id() To get the topic_id
-	 * @uses wp_get_object_terms() To a post's current terms
+	 * @uses bbp_get_topic_tag_names() To a post's current terms
 	 * @uses update_post_meta() To add spam terms to post meta
 	 *
 	 * @return array Array of existing topic terms
@@ -608,7 +608,7 @@ class BBP_Akismet {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Get any pre-existing terms
-		$existing_terms = wp_get_object_terms( $topic_id, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
+		$existing_terms = bbp_get_topic_tag_names( $topic_id );
 
 		// Save the terms for later in case the reply gets hammed
 		if ( ! empty( $terms ) ) {
