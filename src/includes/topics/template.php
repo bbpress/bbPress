@@ -2357,6 +2357,8 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
 /**
  * Output a the tags of a topic
  *
+ * @since bbPress (r2688)
+ *
  * @param int $topic_id Optional. Topic id
  * @param array $args See {@link bbp_get_topic_tag_list()}
  * @uses bbp_get_topic_tag_list() To get the topic tag list
@@ -2366,6 +2368,8 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 }
 	/**
 	 * Return the tags of a topic
+	 *
+	 * @since bbPress (r2688)
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @param array $args This function supports these arguments:
@@ -2380,14 +2384,15 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 
 		// Bail if topic-tags are off
 		if ( ! bbp_allow_topic_tags() ) {
-			return;
+			return '';
 		}
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'before' => '<div class="bbp-topic-tags"><p>' . esc_html__( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
-			'after'  => '</p></div>'
+			'after'  => '</p></div>',
+			'none'   => ''
 		), 'get_topic_tag_list' );
 
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -2398,19 +2403,20 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 			// Get pre-spam terms
 			$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
 
-			// If terms exist, explode them and compile the return value
+			// If terms exist, implode them and compile the return value
 			if ( ! empty( $terms ) ) {
 				$terms  = implode( $r['sep'], $terms );
 				$retval = $r['before'] . $terms . $r['after'];
-
-			// No terms so return emty string
-			} else {
-				$retval = '';
 			}
 
 		// Topic is not spam so display a clickable term list
 		} else {
-			$retval = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $r['before'], $r['sep'], $r['after'] );
+			$terms = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $r['before'], $r['sep'], $r['after'] );
+		}
+
+		// No terms so return none string
+		if ( empty( $terms ) ) {
+			$retval = $r['none'];
 		}
 
 		return $retval;

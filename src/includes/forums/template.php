@@ -2230,6 +2230,8 @@ function bbp_get_forum_mod_tax_labels() {
 /**
  * Output a the moderators of a forum
  *
+ * @since bbPress (r5834)
+ *
  * @param int   $forum_id Optional. Topic id
  * @param array $args     See {@link bbp_get_forum_mod_list()}
  * @uses bbp_get_topic_tag_list() To get the forum mod list
@@ -2239,6 +2241,8 @@ function bbp_forum_mod_list( $forum_id = 0, $args = array() ) {
 }
 	/**
 	 * Return the moderators of a forum
+	 *
+	 * @since bbPress (r5834)
 	 *
 	 * @param int   $forum_id Optional. Forum id
 	 * @param array $args     This function supports these arguments:
@@ -2254,19 +2258,49 @@ function bbp_forum_mod_list( $forum_id = 0, $args = array() ) {
 
 		// Bail if forum-mods are off
 		if ( ! bbp_allow_forum_mods() ) {
-			return;
+			return '';
 		}
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'before' => '<div class="bbp-forum-mods"><p>' . esc_html__( 'Moderators:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
-			'after'  => '</p></div>'
+			'after'  => '</p></div>',
+			'none'   => ''
 		), 'get_forum_mod_list' );
 
+		// Bail if forum ID is invalid
 		$forum_id = bbp_get_forum_id( $forum_id );
+		if ( empty( $forum_id ) ) {
+			return '';
+		}
 
-		$retval   = get_the_term_list( $forum_id, bbp_get_forum_mod_id(), $r['before'], $r['sep'], $r['after'] );
+		// Get forum moderators
+		$moderators = wp_get_object_terms( $forum_id, bbp_get_forum_mod_tax_id() );
+		if ( ! empty( $moderators ) ) {
+
+			// In admin, use nicenames
+			if ( is_admin() ) {
+
+				// @todo link to filtering forums by moderator
+				$users = wp_list_pluck( $moderators, 'name' );
+
+			// In theme, use display names & profile links
+			} else {
+				$users    = array();
+				$term_ids = wp_list_pluck( $moderators, 'term_id' );
+				foreach ( $term_ids as $term_id ) {
+					$user_id = bbp_get_term_taxonomy_user_id( $term_id );
+					$users[] = bbp_get_user_profile_link( $user_id );
+				}
+			}
+
+			$retval = $r['before'] . implode( $r['sep'], $users ) . $r['after'];
+
+		// No forum moderators
+		} else {
+			$retval = $r['none'];
+		}
 
 		return $retval;
 	}

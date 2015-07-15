@@ -695,12 +695,11 @@ class BBP_Forums_Admin {
 				break;
 
 			case 'bbp_forum_mods' :
-				$moderators = wp_get_object_terms( $forum_id, bbp_get_forum_mod_tax_id() );
-				if ( empty( $moderators ) ) {
-					esc_html__( 'None', 'bbpress' );
-				} else {
-					echo implode( ', ', wp_list_pluck( $moderators, 'name' ) );
-				}
+				bbp_forum_mod_list( $forum_id, array(
+					'before' => '',
+					'after'  => '',
+					'none'   => esc_html__( '&mdash;', 'bbpress' )
+				) );
 				break;
 
 			case 'bbp_forum_created':
