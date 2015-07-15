@@ -86,6 +86,11 @@ class BBP_BuddyPress_Members {
 	 */
 	public function user_profile_url( $user_id ) {
 
+		// Do not filter if not on BuddyPress root blog
+		if ( ! bp_is_root_blog() ) {
+			return false;
+		}
+
 		// Define local variable(s)
 		$profile_url    = '';
 		$component_slug = bbpress()->extend->buddypress->slug;
@@ -127,6 +132,12 @@ class BBP_BuddyPress_Members {
 	 * @return string
 	 */
 	public function get_favorites_permalink( $url, $user_id ) {
+
+		// Do not filter if not on BuddyPress root blog
+		if ( ! bp_is_root_blog() ) {
+			return false;
+		}
+
 		$component_slug = bbpress()->extend->buddypress->slug;
 		$url            = trailingslashit( bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_user_favorites_slug() );
 		return $url;
@@ -141,6 +152,12 @@ class BBP_BuddyPress_Members {
 	 * @return string
 	 */
 	public function get_subscriptions_permalink( $url, $user_id ) {
+
+		// Do not filter if not on BuddyPress root blog
+		if ( ! bp_is_root_blog() ) {
+			return false;
+		}
+
 		$component_slug = bbpress()->extend->buddypress->slug;
 		$url            = trailingslashit( bp_core_get_user_domain( $user_id ) . $component_slug . '/' . bbp_get_user_subscriptions_slug() );
 		return $url;
