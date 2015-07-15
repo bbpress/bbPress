@@ -584,7 +584,11 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
 
-				<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>"><?php bbp_forum_title( $widget_query->post->ID ); ?></a></li>
+				<li <?php echo ( bbp_get_forum_id() === $widget_query->post->ID ? ' class="bbp-forum-widget-current-forum"' : '' ); ?>>
+					<a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>">
+						<?php bbp_forum_title( $widget_query->post->ID ); ?>
+					</a>
+				</li>
 
 			<?php endwhile; ?>
 
