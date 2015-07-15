@@ -491,19 +491,13 @@ function bbp_form_forum_mods() {
 		// Get edit data
 		} elseif ( bbp_is_single_forum() || bbp_is_forum_edit() ) {
 
-			$forum_id = get_the_ID();
+			// Get the forum ID
+			$forum_id = bbp_get_forum_id( get_the_ID() );
 
 			// Forum exists
 			if ( ! empty( $forum_id ) ) {
-				$new_terms = bbp_get_forum_mod_names( $forum_id );
-
-			// Define local variable(s)
-			} else {
-				$new_terms = '';
+				$forum_mods = bbp_get_forum_mod_names( $forum_id );
 			}
-
-			// Set the return value
-			$forum_mods = ( ! empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
 
 		// No data
 		} else {

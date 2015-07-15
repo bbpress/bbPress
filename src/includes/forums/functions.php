@@ -1733,7 +1733,7 @@ function bbp_get_forum_mods( $forum_id = 0 ) {
  * @return string
  */
 function bbp_get_forum_mod_names( $forum_id = 0, $sep = ', ' ) {
-	$forum_mods = bbp_get_topic_tags( $forum_id );
+	$forum_mods = bbp_get_forum_mods( $forum_id );
 	$pluck      = wp_list_pluck( $forum_mods, 'name' );
 	$terms      = ! empty( $pluck ) ? implode( $sep, $pluck ) : '';
 

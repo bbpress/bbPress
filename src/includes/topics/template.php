@@ -2405,8 +2405,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 
 			// If terms exist, implode them and compile the return value
 			if ( ! empty( $terms ) ) {
-				$terms  = implode( $r['sep'], $terms );
-				$retval = $r['before'] . $terms . $r['after'];
+				$terms = $r['before'] . implode( $r['sep'], $terms ) . $r['after'];
 			}
 
 		// Topic is not spam so display a clickable term list
@@ -2415,7 +2414,9 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 		}
 
 		// No terms so return none string
-		if ( empty( $terms ) ) {
+		if ( ! empty( $terms ) ) {
+			$retval = $terms;
+		} else {
 			$retval = $r['none'];
 		}
 
@@ -3959,6 +3960,9 @@ function bbp_form_topic_tags() {
 	 */
 	function bbp_get_form_topic_tags() {
 
+		// Default return value
+		$topic_tags = '';
+
 		// Get _POST data
 		if ( ( bbp_is_topic_form_post_request() || bbp_is_reply_form_post_request() ) && isset( $_POST['bbp_topic_tags'] ) ) {
 			$topic_tags = wp_unslash( $_POST['bbp_topic_tags'] );
@@ -3971,7 +3975,7 @@ function bbp_form_topic_tags() {
 
 				// Post is a topic
 				case bbp_get_topic_post_type() :
-					$topic_id = get_the_ID();
+					$topic_id = bbp_get_topic_id( get_the_ID() );
 					break;
 
 				// Post is a reply
@@ -3987,34 +3991,14 @@ function bbp_form_topic_tags() {
 				if ( bbp_is_topic_spam( $topic_id ) ) {
 
 					// Get pre-spam terms
-					$new_terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
-
-					// If terms exist, explode them and compile the return value
-					if ( empty( $new_terms ) ) {
-						$new_terms = '';
-					}
+					$spam_terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
+					$topic_tags = ( ! empty( $spam_terms ) ) ? implode( ', ', $spam_terms ) : '';
 
 				// Topic is not spam so get real terms
 				} else {
-					$terms = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
-
-					// Loop through them
-					foreach ( $terms as $term ) {
-						$new_terms[] = $term->name;
-					}
+					$topic_tags = bbp_get_topic_tag_names( $topic_id );
 				}
-
-			// Define local variable(s)
-			} else {
-				$new_terms = '';
 			}
-
-			// Set the return value
-			$topic_tags = ( ! empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
-
-		// No data
-		} else {
-			$topic_tags = '';
 		}
 
 		return apply_filters( 'bbp_get_form_topic_tags', $topic_tags );
