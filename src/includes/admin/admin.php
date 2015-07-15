@@ -534,7 +534,7 @@ class BBP_Admin {
 	 * @param WP_Admin_Bar $wp_admin_bar
 	 */
 	public function admin_bar_about_link( $wp_admin_bar ) {
-		if ( is_user_logged_in() ) {
+		if ( is_user_logged_in() && current_user_can( 'bbp_about_page' ) ) {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'wp-logo',
 				'id'     => 'bbp-about',
