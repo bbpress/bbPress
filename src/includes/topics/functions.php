@@ -3681,22 +3681,36 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 /**
  * Get topic tags for a specific topic ID
  *
- * @since bbPress (r4165)
+ * @since bbPress (r5836)
  *
  * @param int $topic_id
+ *
+ * @return string
+ */
+function bbp_get_topic_tags( $topic_id = 0 ) {
+	$topic_id   = bbp_get_topic_id( $topic_id );
+	$terms      = (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+	$topic_tags = array_filter( $terms );
+
+	return apply_filters( 'bbp_get_topic_tags', $topic_tags, $topic_id );
+}
+
+/**
+ * Get topic tags for a specific topic ID
+ *
+ * @since bbPress (r4165)
+ *
+ * @param int    $topic_id
  * @param string $sep
+ *
  * @return string
  */
 function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
-	$topic_id   = bbp_get_topic_id( $topic_id );
-	$topic_tags = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
-	$terms      = array();
-	foreach ( $topic_tags as $term ) {
-		$terms[] = $term->name;
-	}
-	$terms = ! empty( $terms ) ? implode( $sep, $terms ) : '';
+	$topic_tags = bbp_get_topic_tags( $topic_id );
+	$pluck      = wp_list_pluck( $topic_tags, 'name' );
+	$terms      = ! empty( $pluck ) ? implode( $sep, $pluck ) : '';
 
-	return apply_filters( 'bbp_get_topic_tags', $terms, $topic_id );
+	return apply_filters( 'bbp_get_topic_tag_names', $terms, $topic_id, $sep );
 }
 
 /** Autoembed *****************************************************************/
