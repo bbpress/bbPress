@@ -464,6 +464,56 @@ function bbp_forum_row_actions() {
 }
 
 /**
+ * Output value of forum mods field
+ *
+ * @since bbPress (r5837)
+ * @uses bbp_get_form_forum_mods() To get the value of forum mods field
+ */
+function bbp_form_forum_mods() {
+	echo bbp_get_form_forum_mods();
+}
+	/**
+	 * Return value of forum mods field
+	 *
+	 * @since bbPress (r5837)
+	 *
+	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_mods' with the mods
+	 *
+	 * @return string Value of forum mods field
+	 */
+	function bbp_get_form_forum_mods() {
+
+		// Get _POST data
+		if ( bbp_is_forum_form_post_request() && isset( $_POST['bbp_forum_mods'] ) ) {
+			$forum_mods = wp_unslash( $_POST['bbp_forum_mods'] );
+
+		// Get edit data
+		} elseif ( bbp_is_single_forum() || bbp_is_forum_edit() ) {
+
+			$forum_id = get_the_ID();
+
+			// Forum exists
+			if ( ! empty( $forum_id ) ) {
+				$new_terms = bbp_get_forum_mod_names( $forum_id );
+
+			// Define local variable(s)
+			} else {
+				$new_terms = '';
+			}
+
+			// Set the return value
+			$forum_mods = ( ! empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
+
+		// No data
+		} else {
+			$forum_mods = '';
+		}
+
+		return apply_filters( 'bbp_get_form_forum_mods', $forum_mods );
+	}
+
+/**
  * Output the forums last active ID
  *
  * @since bbPress (r2860)
@@ -2276,7 +2326,7 @@ function bbp_forum_mod_list( $forum_id = 0, $args = array() ) {
 		}
 
 		// Get forum moderators
-		$moderators = wp_get_object_terms( $forum_id, bbp_get_forum_mod_tax_id() );
+		$moderators = bbp_get_forum_mods( $forum_id );
 		if ( ! empty( $moderators ) ) {
 
 			// In admin, use nicenames

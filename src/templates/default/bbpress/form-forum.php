@@ -96,7 +96,7 @@ if ( bbp_is_forum_edit() ) : ?>
 
 						<p>
 							<label for="bbp_forum_mods"><?php esc_html_e( 'Forum Moderators:', 'bbpress' ); ?></label><br />
-							<input type="text" value="<?php bbp_form_topic_tags(); ?>" size="40" name="bbp_forum_mods" id="bbp_forum_mods" />
+							<input type="text" value="<?php bbp_form_forum_mods(); ?>" size="40" name="bbp_forum_mods" id="bbp_forum_mods" />
 						</p>
 
 						<?php do_action( 'bbp_theme_after_forum_form_mods' ); ?>
