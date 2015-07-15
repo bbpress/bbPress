@@ -31,16 +31,19 @@
 
 /* Dashicons */
 
+th .bbp_forums_column:before,
 #dashboard_right_now a.bbp-glance-forums:before,
 #adminmenu #menu-posts-forum .wp-menu-image:before {
 	content: "\f449";
 }
 
+th .bbp_topics_column:before,
 #dashboard_right_now a.bbp-glance-topics:before,
 #adminmenu #menu-posts-topic .wp-menu-image:before {
 	content: "\f450";
 }
 
+th .bbp_replies_column:before,
 #dashboard_right_now a.bbp-glance-replies:before,
 #adminmenu #menu-posts-reply .wp-menu-image:before {
 	content: "\f451";
@@ -48,6 +51,30 @@
 
 #dashboard_right_now a.bbp-glance-topic-tags:before {
 	content: '\f323';
+}
+
+th .bbp_forums_column,
+th .bbp_topics_column,
+th .bbp_replies_column {
+	height: 16px;
+	width: 16px;
+}
+
+th .bbp_forums_column:before,
+th .bbp_topics_column:before,
+th .bbp_replies_column:before {
+	font: normal 20px/.5 'dashicons';
+	speak: none;
+	display: inline-block;
+	padding: 0;
+	top: 4px;
+	left: -4px;
+	position: relative;
+	vertical-align: top;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-decoration: none !important;
+	color: #444;
 }
 
 /* Deprecated Dashboard Metabox */
