@@ -1089,10 +1089,6 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 
-		if ( empty( $reply_id ) ) {
-			$reply_id = bbp_get_forum_last_topic_id( $forum_id );
-		}
-
 		return (int) apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
 	}
 

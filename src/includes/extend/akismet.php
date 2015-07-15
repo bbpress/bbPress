@@ -146,6 +146,7 @@ class BBP_Akismet {
 		/** Post **************************************************************/
 
 		if ( ! empty( $post_data['post_parent'] ) ) {
+
 			// Use post parent for permalink
 			$post_permalink = get_permalink( $post_data['post_parent'] );
 

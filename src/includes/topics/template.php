@@ -2010,10 +2010,6 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = get_post_meta( $topic_id, '_bbp_last_reply_id', true );
 
-		if ( empty( $reply_id ) ) {
-			$reply_id = $topic_id;
-		}
-
 		return (int) apply_filters( 'bbp_get_topic_last_reply_id', (int) $reply_id, $topic_id );
 	}
 
@@ -2097,7 +2093,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_last_reply_id() To get the topic last reply id
 	 * @uses bbp_get_reply_url() To get the reply url
-	 * @uses bbp_get_reply_permalink() To get the reply permalink
+	 * @uses bbp_get_topic_permalink() To get the topic permalink
 	 * @uses apply_filters() Calls 'bbp_get_topic_last_topic_url' with
 	 *                        the reply url and topic id
 	 * @return string Topic last reply url

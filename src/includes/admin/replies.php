@@ -760,7 +760,7 @@ class BBP_Replies_Admin {
 	 * @param array $reply Reply object
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses bbp_reply_content() To output reply content
-	 * @uses bbp_get_reply_permalink() To get the reply link
+	 * @uses bbp_get_reply_url() To get the reply link
 	 * @uses bbp_get_reply_title() To get the reply title
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the reply
