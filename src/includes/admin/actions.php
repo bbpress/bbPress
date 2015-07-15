@@ -89,6 +89,11 @@ add_filter( 'post_type_link', 'bbp_filter_sample_permalink', 10, 4 );
 // Add quick stats to dashboard glance elements
 add_filter( 'dashboard_glance_items', 'bbp_filter_dashboard_glance_items', -99 );
 
+// Maybe use icons for column headers
+add_filter( 'bbp_admin_forums_column_headers',  'bbp_filter_column_headers' );
+add_filter( 'bbp_admin_topics_column_headers',  'bbp_filter_column_headers' );
+add_filter( 'bbp_admin_replies_column_headers', 'bbp_filter_column_headers' );
+
 /**
  * When a new site is created in a multisite installation, run the activation
  * routine on that site
@@ -117,6 +122,61 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 
 	// restore original blog
 	restore_current_blog();
+}
+
+/**
+ * Show icons in list-table column headers instead of strings
+ *
+ * @since bbPress (r5833)
+ *
+ * @param  array $columns Column headers fed into list-table objects
+ *
+ * @return array Possibly altered column headers
+ */
+function bbp_filter_column_headers( $columns = array() ) {
+
+	// Do not filter column headers by default - maybe we'll turn it on later
+	if ( ! apply_filters( 'bbp_filter_column_headers', false ) ) {
+		return $columns;
+	}
+
+	/** Forums ****************************************************************/
+
+	// Forum topic count
+	if ( isset( $columns[ 'bbp_forum_topic_count' ] ) ) {
+		$columns[ 'bbp_forum_topic_count' ] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topics', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topics', 'bbpress' ) . '</span></span>';
+	}
+
+	// Forum reply count
+	if ( isset( $columns[ 'bbp_forum_reply_count' ] ) ) {
+		$columns[ 'bbp_forum_reply_count' ] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
+	}
+
+	/** Topics ****************************************************************/
+
+	// Topic forum
+	if ( isset( $columns[ 'bbp_topic_forum' ] ) ) {
+		$columns[ 'bbp_topic_forum' ] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
+	}
+
+	// Topic reply count
+	if ( isset( $columns[ 'bbp_topic_reply_count' ] ) ) {
+		$columns[ 'bbp_topic_reply_count' ] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
+	}
+
+	/** Replies ***************************************************************/
+
+	// Reply forum
+	if ( isset( $columns[ 'bbp_reply_forum' ] ) ) {
+		$columns[ 'bbp_reply_forum' ] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
+	}
+
+	// Reply topic
+	if ( isset( $columns[ 'bbp_reply_topic' ] ) ) {
+		$columns[ 'bbp_reply_topic' ] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topic', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topic', 'bbpress' ) . '</span></span>';
+	}
+
+	return $columns;
 }
 
 /** Sub-Actions ***************************************************************/
