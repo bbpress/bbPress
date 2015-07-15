@@ -259,11 +259,12 @@ class BBP_Forums_Component extends BP_Component {
 			// If BuddyPress is network activated and bbPress is
 			// not activated on a the root blog but on any child one
 			if ( ! bp_is_root_blog() ) {
-				$my_account_link       = bbp_get_user_profile_url();
-				$my_topics_link        = bbp_get_user_topics_created_url();
-				$my_replies_link       = bbp_get_user_replies_created_url();
-				$my_favorites_link     = bbp_get_favorites_permalink();
-				$my_subscriptions_link = bbp_get_subscriptions_permalink();
+				$user_id               = bbp_get_current_user_id();
+				$my_account_link       = bbp_get_user_profile_url( $user_id );
+				$my_topics_link        = bbp_get_user_topics_created_url( $user_id );
+				$my_replies_link       = bbp_get_user_replies_created_url( $user_id );
+				$my_favorites_link     = bbp_get_favorites_permalink( $user_id );
+				$my_subscriptions_link = bbp_get_subscriptions_permalink( $user_id );
 			} else {
 
 				// Setup the logged in user variables
