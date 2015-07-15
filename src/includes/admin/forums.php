@@ -63,10 +63,6 @@ class BBP_Forums_Admin {
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-		// Metabox actions
-		add_action( 'add_meta_boxes',        array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',             array( $this, 'attributes_metabox_save' ) );
-
 		// Forum Column headers.
 		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'column_headers' )        );
 
@@ -74,9 +70,16 @@ class BBP_Forums_Admin {
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data'    ), 10, 2 );
 		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
 
+		// Metabox actions
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
+
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_forum'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_forum_notice' ) );
+
+		// Forum moderators AJAX; run at -1 to preempt built-in tag search
+		add_action( 'wp_ajax_ajax-tag-search', array( $this, 'ajax_tag_search'         ), -1 );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
@@ -262,6 +265,79 @@ class BBP_Forums_Admin {
 	}
 
 	/**
+	 * Return user nicename suggestions instead of tag suggestions
+	 *
+	 * @since bbPress (r5834)
+	 *
+	 * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy id
+	 * @uses sanitize_key() To sanitize the taxonomy id
+	 * @uses get_taxonomy() To get the forum moderator taxonomy
+	 * @uses current_user_can() To check if the current user add/edit forum moderators
+	 * @uses get_users() To get an array of users
+	 * @uses user_nicename() To get the users nice name
+	 *
+	 * @return Return early if not a request for forum moderators tax
+	 */
+	public function ajax_tag_search() {
+
+		// Only do AJAX if this is a forum moderators tax search.
+		if ( ! isset( $_GET['tax'] ) || ( bbp_get_forum_mod_tax_id() !== $_GET['tax'] ) ) {
+			return;
+		}
+
+		$taxonomy = sanitize_key( $_GET['tax'] );
+		$tax      = get_taxonomy( $taxonomy );
+		if ( empty( $tax ) ) {
+			wp_die( 0 );
+		}
+
+		// Check permissions.
+		if ( ! current_user_can( $tax->cap->assign_terms ) ) {
+			wp_die( -1 );
+		}
+
+		$s = stripslashes( $_GET['q'] );
+
+		// Replace tag delimiter with a comma if needed.
+		$comma = _x( ',', 'tag delimiter', 'bbpress' );
+		if ( ',' !== $comma ) {
+			$s = str_replace( $comma, ',', $s );
+		}
+
+		if ( false !== strpos( $s, ',' ) ) {
+			$s = explode( ',', $s );
+			$s = $s[ count( $s ) - 1 ];
+		}
+
+		// Search on at least 2 characters.
+		$s = trim( $s );
+		if ( strlen( $s ) < 2 ) {
+			wp_die(); // Require 2 chars for matching.
+		}
+
+		// Get users.
+		$results = array();
+		$users   = get_users( array(
+			'blog_id'        => 0, // All users.
+			'fields'         => array( 'user_nicename' ),
+			'search'         => '*' . $s . '*',
+			'search_columns' => array( 'user_nicename' ),
+			'orderby'        => 'user_nicename',
+		) );
+
+		// Format the users into a nice array.
+		if ( ! empty( $users ) ) {
+			foreach ( array_values( $users ) as $details ) {
+				$results[] = $details->user_nicename;
+			}
+		}
+
+		// Echo results for AJAX.
+		echo join( $results, "\n" );
+		wp_die();
+	}
+
+	/**
 	 * Pass the forum attributes for processing
 	 *
 	 * @since bbPress (r2746)
@@ -348,7 +424,7 @@ class BBP_Forums_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
-			#misc-publishing-actions,
+			#minor-publishing,
 			#save-post {
 				display: none;
 			}
@@ -372,6 +448,7 @@ class BBP_Forums_Admin {
 			}
 
 			.column-author,
+			.column-bbp_forum_mods,
 			.column-bbp_reply_author,
 			.column-bbp_topic_author {
 				width: 10% !important;
@@ -565,15 +642,22 @@ class BBP_Forums_Admin {
 			return $columns;
 		}
 
-		$columns = array (
+		// Set list table column headers
+		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Forum',     'bbpress' ),
-			'bbp_forum_topic_count' => __( 'Topics',    'bbpress' ),
-			'bbp_forum_reply_count' => __( 'Replies',   'bbpress' ),
-			'author'                => __( 'Creator',   'bbpress' ),
-			'bbp_forum_created'     => __( 'Created' ,  'bbpress' ),
-			'bbp_forum_freshness'   => __( 'Freshness', 'bbpress' )
+			'title'                 => __( 'Forum',      'bbpress' ),
+			'bbp_forum_topic_count' => __( 'Topics',     'bbpress' ),
+			'bbp_forum_reply_count' => __( 'Replies',    'bbpress' ),
+			'author'                => __( 'Creator',    'bbpress' ),
+			'bbp_forum_mods'        => __( 'Moderators', 'bbpress' ),
+			'bbp_forum_created'     => __( 'Created' ,   'bbpress' ),
+			'bbp_forum_freshness'   => __( 'Freshness',  'bbpress' )
 		);
+
+		// Remove forum mods column if not enabled
+		if ( ! bbp_allow_forum_mods() ) {
+			unset( $columns['bbp_forum_mods'] );
+		}
 
 		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
 	}
@@ -608,6 +692,15 @@ class BBP_Forums_Admin {
 
 			case 'bbp_forum_reply_count' :
 				bbp_forum_reply_count( $forum_id );
+				break;
+
+			case 'bbp_forum_mods' :
+				$moderators = wp_get_object_terms( $forum_id, bbp_get_forum_mod_tax_id() );
+				if ( empty( $moderators ) ) {
+					esc_html__( 'None', 'bbpress' );
+				} else {
+					echo implode( ', ', wp_list_pluck( $moderators, 'name' ) );
+				}
 				break;
 
 			case 'bbp_forum_created':

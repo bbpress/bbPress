@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Get the default site options and their values.
- * 
+ *
  * These option
  *
  * @since bbPress (r3421)
@@ -37,6 +37,7 @@ function bbp_get_default_options() {
 		'_bbp_allow_global_access'    => 1,                          // Users from all sites can post
 		'_bbp_allow_revisions'        => 1,                          // Allow revisions
 		'_bbp_allow_topic_tags'       => 1,                          // Allow topic tagging
+		'_bbp_allow_forum_mods'       => 1,                          // Allow per-forum moderation
 		'_bbp_allow_threaded_replies' => 0,                          // Allow threaded replies
 		'_bbp_allow_search'           => 1,                          // Allow forum-wide search
 		'_bbp_thread_replies_depth'   => 2,                          // Thread replies depth
@@ -232,6 +233,20 @@ function bbp_is_subscriptions_active( $default = 1 ) {
  */
 function bbp_allow_topic_tags( $default = 1 ) {
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
+}
+
+/**
+ * Are per-forum moderators allowed
+ *
+ * @since bbPress (r5834)
+ *
+ * @param bool $default Optional. Default value true.
+ * @uses get_option() To get the allow per-forum moderators
+ *
+ * @return bool Are per-forum moderators allowed?
+ */
+function bbp_allow_forum_mods( $default = 1 ) {
+	return (bool) apply_filters( 'bbp_allow_forum_mods', (bool) get_option( '_bbp_allow_forum_mods', $default ) );
 }
 
 /**

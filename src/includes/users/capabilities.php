@@ -14,28 +14,104 @@
  *
  * @since bbPress (r4242)
  *
- * @param array $caps Capabilities for meta capability
- * @param string $cap Capability name
- * @param int $user_id User id
- * @param array $args Arguments
+ * @param array  $caps Capabilities for meta capability.
+ * @param string $cap Capability name.
+ * @param int    $user_id User id.
+ * @param array  $args Arguments.
+ * @uses bbp_is_user_inactive() To check if user is spammer or deleted
+ * @uses get_post() To get the post
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_reply_forum_id() To get the reply forum id
+ * @uses bbp_is_user_forum_mod() To check if the user is a forum moderator
  * @uses apply_filters() Filter mapped results
+ *
  * @return array Actual capabilities for meta capability
  */
 function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
-		case 'spectate'    :
-		case 'participate' :
-		case 'moderate'    :
+		case 'spectate' :
 
-			// Do not allow inactive users
+			// Do not allow inactive users.
 			if ( bbp_is_user_inactive( $user_id ) ) {
 				$caps = array( 'do_not_allow' );
 
-			// Moderators are always participants
+			// Default to the current cap.
 			} else {
 				$caps = array( $cap );
+			}
+			break;
+
+		case 'participate' :
+
+			// Do not allow inactive users.
+			if ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Default to the current cap.
+			} else {
+				$caps = array( $cap );
+			}
+			break;
+
+		case 'moderate' :
+
+			// Do not allow inactive users.
+			if ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Default to the current cap.
+			} else {
+				$caps = array( $cap );
+
+				// Bail if no post to check.
+				if ( empty( $args[0] ) ) {
+					break;
+				}
+
+				// Get the post.
+				$_post = get_post( $args[0] );
+				if ( empty( $_post ) ) {
+					break;
+				}
+
+				// Get forum ID for specific type of post.
+				switch ( $_post->post_type ) {
+
+					// Forum.
+					case bbp_get_forum_post_type() :
+						$forum_id = $_post->ID;
+						break;
+
+					// Topic.
+					case bbp_get_topic_post_type() :
+						$forum_id = bbp_get_topic_forum_id( $_post->ID );
+						break;
+
+					// Reply.
+					case bbp_get_reply_post_type() :
+						$forum_id = bbp_get_reply_forum_id( $_post->ID );
+						break;
+
+					// Any other post type defaults to 0.
+					default :
+						$forum_id = 0;
+						break;
+				}
+
+				// Bail if no forum ID.
+				if ( empty( $forum_id ) ) {
+					break;
+				}
+
+				// If user is a per-forum moderator, make sure they can spectate.
+				if ( bbp_is_user_forum_mod( $user_id, $forum_id ) ) {
+					$caps = array( 'spectate' );
+				}
 			}
 
 			break;
@@ -211,7 +287,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	if ( bbp_is_user_home_edit() ) {
 		return;
 	}
-	
+
 	// Bail if current user cannot promote the passing user
 	if ( ! current_user_can( 'promote_user', $user_id ) ) {
 		return;
@@ -307,7 +383,7 @@ function bbp_set_current_user_default_role() {
 		$bbp->current_user->add_role( $new_role );
 
 	// Don't add the user, but still give them the correct caps dynamically
-	} else {		
+	} else {
 		$bbp->current_user->caps[$new_role] = true;
 		$bbp->current_user->get_role_caps();
 	}
@@ -670,7 +746,7 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  *
  * @since bbPress (r4783)
  *
- * @param int $user_id 
+ * @param int $user_id
  * @return bool True if keymaster, false if not
  */
 function bbp_is_user_keymaster( $user_id = 0 ) {
