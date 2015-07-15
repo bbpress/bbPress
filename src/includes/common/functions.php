@@ -791,8 +791,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 		return true;
 	}
 
-	// Bail if author is keymaster
-	if ( ! empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
+	// Bail if user can moderate
+	// https://bbpress.trac.wordpress.org/ticket/2726
+	if ( ! empty( $author_id ) && user_can( $author_id, 'moderate' ) ) {
 		return true;
 	}
 
