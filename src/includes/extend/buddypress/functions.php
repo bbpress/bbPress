@@ -129,7 +129,7 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 			// Get the topic
 			$topic = get_posts( array(
 				'name'        => bp_action_variable( 1 ),
-				'post_status' => 'publish',
+				'post_status' => array_keys( bbp_get_topic_statuses() ),
 				'post_type'   => bbp_get_topic_post_type(),
 				'numberposts' => 1
 			) );
@@ -537,7 +537,7 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
  * @param int $forum_id
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_forum_group_ids() To get the forum's group ids
- * @uses apply_filters() Calls 'bbp_forum_is_group_forum' with the forum id 
+ * @uses apply_filters() Calls 'bbp_forum_is_group_forum' with the forum id
  * @return bool True if it is a group forum, false if not
  */
 function bbp_is_forum_group_forum( $forum_id = 0 ) {
