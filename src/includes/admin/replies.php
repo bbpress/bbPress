@@ -321,7 +321,7 @@ class BBP_Replies_Admin {
 		// Get reply author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
 		$author_id      = bbp_get_reply_author_id( $reply_id );
-		$is_edit        = (bool) isset( $_POST['save'] );
+		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( $_POST['hidden_post_status'] !== 'draft' ) );
 
 		// Formally update the reply
 		bbp_update_reply( $reply_id, $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit, $reply_to );

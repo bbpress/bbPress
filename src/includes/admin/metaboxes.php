@@ -391,6 +391,7 @@ function bbp_topic_metabox() {
 
 	// Post ID
 	$post_id = get_the_ID();
+	$status  = get_post_status( $post_id );
 
 	/** Type ******************************************************************/
 
@@ -410,6 +411,7 @@ function bbp_topic_metabox() {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
+		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $status ) ? 'draft' : $status ); ?>" />
 		<label class="screen-reader-text" for="bbp_open_close_topic"><?php esc_html_e( 'Select whether to open or close the topic.', 'bbpress' ); ?></label>
 		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post_id ) ); ?>
 	</p>
@@ -466,6 +468,7 @@ function bbp_reply_metabox() {
 
 	// Post ID
 	$post_id = get_the_ID();
+	$status  = get_post_status( $post_id );
 
 	// Get some meta
 	$reply_topic_id = bbp_get_reply_topic_id( $post_id );
@@ -478,6 +481,7 @@ function bbp_reply_metabox() {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
+		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $status ) ? 'draft' : $status ); ?>" />
 		<label class="screen-reader-text" for="post_status"><?php esc_html_e( 'Select what status to give the reply.', 'bbpress' ); ?></label>
 		<?php bbp_form_reply_status_dropdown( array( 'select_id' => 'post_status', 'reply_id' => $post_id ) ); ?>
 	</p>

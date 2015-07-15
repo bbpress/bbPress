@@ -315,7 +315,7 @@ class BBP_Topics_Admin {
 		// Get topic author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
 		$author_id      = bbp_get_topic_author_id( $topic_id );
-		$is_edit        = (bool) isset( $_POST['save'] );
+		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( $_POST['hidden_post_status'] !== 'draft' ) );
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
