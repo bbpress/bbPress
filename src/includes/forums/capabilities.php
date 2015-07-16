@@ -214,7 +214,7 @@ function bbp_get_forum_mod_caps() {
 /**
  * Maps forum moderator capabilities
  *
- * @since bbPress (rXXXX)
+ * @since bbPress (r5834)
  *
  * @param array  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
