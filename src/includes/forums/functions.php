@@ -2039,7 +2039,7 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  *
  * @param int $forum_id Forum id
  * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_public_child_ids() To get the forum ids
+ * @uses bbp_get_all_child_ids() To get the forum ids
  * @uses apply_filters() Calls 'bbp_forum_query_subforum_ids' with the subforum
  *                        ids and forum id
  */
@@ -2047,7 +2047,7 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 	$subforum_ids = bbp_get_all_child_ids( $forum_id, bbp_get_forum_post_type() );
 	//usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
 
-	return apply_filters( 'bbp_get_forum_subforum_ids', $subforum_ids, $forum_id );
+	return apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id );
 }
 
 /**
@@ -2104,7 +2104,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 		$reply_id = (int) $reply_id;
 	}
 
-	return (int) apply_filters( 'bbp_get_forum_last_reply_id', $reply_id, $forum_id );
+	return (int) apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
 }
 
 /** Listeners *****************************************************************/
