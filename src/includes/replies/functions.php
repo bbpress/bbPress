@@ -926,6 +926,12 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		// Get the topic ID if none was passed
 		if ( empty( $topic_id ) ) {
 			$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+			// Make every effort to get topic id
+			// https://bbpress.trac.wordpress.org/ticket/2529
+			if ( empty( $topic_id ) && ( current_action() === 'bbp_deleted_reply' ) ) {
+				$topic_id = get_post_field( 'post_parent', $reply_id );
+			}
 		}
 
 		// Get the forum ID if none was passed
