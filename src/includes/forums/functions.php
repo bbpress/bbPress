@@ -1585,8 +1585,9 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 
 		// Get topics of forum
 		if ( empty( $topic_count ) ) {
+			$statuses    = array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() );
+			$post_status = "'" . implode( "','", $statuses ) . "'";
 			$bbp_db      = bbp_db();
-			$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ) ) . "'";
 			$topic_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
 		}
 

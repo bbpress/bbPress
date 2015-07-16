@@ -2518,8 +2518,9 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	// Get replies of topic
 	if ( empty( $reply_count ) ) {
+		$statuses    = array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() );
+		$post_status = "'" . implode( "','", $statuses ) . "'";
 		$bbp_db      = bbp_db();
-		$post_status = "'" . implode( "','", array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ) ) . "'";
 		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() );
 		$reply_count = $bbp_db->get_var( $query );
 	}
