@@ -203,10 +203,6 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_reply_id() {
 		$f = $this->factory->forum->create();
 
-	//	$forum = bbp_get_forum_last_reply_id( $f );
-	//	$this->assertSame( 'bbp_get_forum_last_reply_id', $forum );
-	//	$f = $this->factory->forum->create();
-
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
 			'topic_meta' => array(
