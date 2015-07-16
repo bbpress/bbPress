@@ -13,6 +13,8 @@
 
 	<?php do_action( 'bbp_template_notices' ); ?>
 
+	<?php do_action( 'bbp_template_before_user_wrapper' ); ?>
+
 	<div id="bbp-user-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'details' ); ?>
@@ -26,4 +28,7 @@
 			<?php if ( bbp_is_single_user_profile() ) bbp_get_template_part( 'user', 'profile'         ); ?>
 		</div>
 	</div>
+
+	<?php do_action( 'bbp_template_after_user_wrapper' ); ?>
+
 </div>

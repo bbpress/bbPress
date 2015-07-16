@@ -16,7 +16,9 @@ do_action( 'bbp_template_before_user_details' ); ?>
 				<?php echo get_avatar( bbp_get_displayed_user_field( 'user_email', 'raw' ), apply_filters( 'bbp_single_user_details_avatar_size', 150 ) ); ?>
 			</a>
 		</span>
-	</div><!-- #author-avatar -->
+	</div>
+
+	<?php do_action( 'bbp_template_before_user_details_menu_items' ); ?>
 
 	<div id="bbp-user-navigation">
 		<ul>
@@ -65,7 +67,10 @@ do_action( 'bbp_template_before_user_details' ); ?>
 			<?php endif; ?>
 
 		</ul>
-	</div><!-- #bbp-user-navigation -->
-</div><!-- #bbp-single-user-details -->
+
+		<?php do_action( 'bbp_template_after_user_details_menu_items' ); ?>
+
+	</div>
+</div>
 
 <?php do_action( 'bbp_template_after_user_details' );
