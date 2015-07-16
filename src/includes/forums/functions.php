@@ -669,7 +669,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		return;
 	}
 
-	/** Forum Status ******************************************************/
+	/** Forum Status **********************************************************/
 
 	if ( ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
 		if ( 'closed' === $_POST['bbp_forum_status'] && ! bbp_is_forum_closed( $forum_id, false ) ) {
@@ -681,7 +681,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		}
 	}
 
-	/** Forum Type ********************************************************/
+	/** Forum Type ************************************************************/
 
 	if ( ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
 		if ( 'category' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
@@ -693,36 +693,50 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		}
 	}
 
-	/** Forum Visibility **************************************************/
+	/** Forum Visibility ******************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
+	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ) ) ) {
 
 		// Get forums current visibility
-		$visibility = bbp_get_forum_visibility( $forum_id );
+		$old_visibility = bbp_get_forum_visibility( $forum_id );
+
+		// Sanitize the new visibility
+		$new_visibility = sanitize_key( $_POST['bbp_forum_visibility'] );
 
 		// What is the new forum visibility setting?
-		switch ( $_POST['bbp_forum_visibility'] ) {
+		switch ( $new_visibility ) {
 
 			// Hidden
 			case bbp_get_hidden_status_id()  :
-				bbp_hide_forum( $forum_id, $visibility );
+				bbp_hide_forum( $forum_id, $old_visibility );
 				break;
 
 			// Private
 			case bbp_get_private_status_id() :
-				bbp_privatize_forum( $forum_id, $visibility );
+				bbp_privatize_forum( $forum_id, $old_visibility );
 				break;
 
 			// Publish (default)
 			case bbp_get_public_status_id()  :
-			default        :
-				bbp_publicize_forum( $forum_id, $visibility );
+			default :
+				bbp_publicize_forum( $forum_id, $old_visibility );
 				break;
 		}
+
+		/**
+		 * Allow custom forum visibility save actions
+		 *
+		 * @since bbPress (r5855)
+		 *
+		 * @param int    $forum_id       The forum ID
+		 * @param string $old_visibility The current forum visibility
+		 * @param string $new_visibility The new forum visibility
+		 */
+		do_action( 'bbp_update_forum_visibility', $forum_id, $old_visibility, $new_visibility );
 	}
 }
 
-/** Forum Actions *************************************************************/
+/** Forum Open/Close **********************************************************/
 
 /**
  * Closes a forum
@@ -773,6 +787,8 @@ function bbp_open_forum( $forum_id = 0 ) {
 	return $forum_id;
 }
 
+/** Forum Type ****************************************************************/
+
 /**
  * Make the forum a category
  *
@@ -816,6 +832,8 @@ function bbp_normalize_forum( $forum_id = 0 ) {
 
 	return $forum_id;
 }
+
+/** Forum Visibility **********************************************************/
 
 /**
  * Mark the forum as public
