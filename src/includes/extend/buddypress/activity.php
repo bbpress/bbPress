@@ -275,8 +275,8 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Get the activity stream item, bail if it doesn't exist
-		$existing = bp_activity_get_specific( array( 'activity_ids' => $activity_id, 'show_hidden' => true, 'spam' => 'all', ) );
-		if ( empty( $existing['total'] ) || ( 1 !== (int) $existing['total'] ) ) {
+		$existing = new BP_Activity_Activity( $activity_id );
+		if ( empty( $existing->component ) ) {
 			return null;
 		}
 
