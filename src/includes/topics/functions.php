@@ -961,6 +961,12 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 		// Get the forum ID if none was passed
 		if ( empty( $forum_id )  ) {
 			$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+			// Make every effort to get forum id
+			// https://bbpress.trac.wordpress.org/ticket/2529
+			if ( empty( $forum_id ) && ( current_action() === 'bbp_deleted_topic' ) ) {
+				$forum_id = get_post_field( 'post_parent', $topic_id );
+			}
 		}
 
 		// Set the active_id based on topic_id/reply_id
