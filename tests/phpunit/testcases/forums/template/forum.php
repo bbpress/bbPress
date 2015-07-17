@@ -96,6 +96,9 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
 		}
 
+		$now = time();
+		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
+
 		$f = $this->factory->forum->create();
 
 		$fresh_link = bbp_get_forum_freshness_link( $f );
@@ -103,6 +106,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_date' => $post_date,
 		) );
 
 		bbp_update_forum( array(
@@ -110,7 +114,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		) );
 
 		$fresh_link = bbp_get_forum_freshness_link( $f );
-		$this->assertSame( '<a href="http://example.org/?topic=topic-1" title="Topic 1">right now</a>', $fresh_link );
+		$this->assertSame( '<a href="http://example.org/?topic=topic-1" title="Topic 1">4 days, 4 hours ago</a>', $fresh_link );
 	}
 
 	/**
