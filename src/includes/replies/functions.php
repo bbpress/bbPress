@@ -929,7 +929,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 
 			// Make every effort to get topic id
 			// https://bbpress.trac.wordpress.org/ticket/2529
-			if ( empty( $topic_id ) && ( current_action() === 'bbp_deleted_reply' ) ) {
+			if ( empty( $topic_id ) && ( current_filter() === 'bbp_deleted_reply' ) ) {
 				$topic_id = get_post_field( 'post_parent', $reply_id );
 			}
 		}
