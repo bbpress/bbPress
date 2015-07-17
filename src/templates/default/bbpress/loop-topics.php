@@ -18,7 +18,7 @@ do_action( 'bbp_template_before_topics_loop' ); ?>
 				? esc_html_e( 'Replies', 'bbpress' )
 				: esc_html_e( 'Posts',   'bbpress' );
 			?></li>
-			<li class="bbp-topic-freshness"><?php esc_html_e( 'Freshness', 'bbpress' ); ?></li>
+			<li class="bbp-topic-freshness"><?php esc_html_e( 'Last Post', 'bbpress' ); ?></li>
 		</ul>
 	</li>
 
