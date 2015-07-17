@@ -57,13 +57,15 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_active_time() {
 		$f = $this->factory->forum->create();
 
-		$now = 'right now';
+		$now = time();
+		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
 
 		$last_time = bbp_get_forum_last_active_time( $f );
 		$this->assertSame( '', $last_time );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_date' => $post_date,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
@@ -71,10 +73,11 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_time( $f );
 		$last_time = bbp_get_forum_last_active_time( $f );
-		$this->assertSame( $now, $last_time );
+		$this->assertSame( '4 days, 4 hours ago', $last_time );
 
 		$this->factory->reply->create( array(
 			'post_parent' => $t,
+			'post_date' => $post_date,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -84,7 +87,7 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		bbp_update_forum_last_active_time( $f );
 
 		$last_time = bbp_get_forum_last_active_time( $f );
-		$this->assertSame( $now, $last_time );
+		$this->assertSame( '4 days, 4 hours ago', $last_time );
 	}
 
 	/**

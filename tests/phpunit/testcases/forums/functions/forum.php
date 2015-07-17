@@ -17,8 +17,12 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 
 		$f = $this->factory->forum->create();
 
+		$now = time();
+		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
+
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_date' => $post_date,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
@@ -26,13 +30,12 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 
 		$r = $this->factory->reply->create( array(
 			'post_parent' => $t,
+			'post_date' => $post_date,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
 			),
 		) );
-
-		$now = 'right now';
 
 		// Forum post
 		$this->assertSame( 'Forum 1', bbp_get_forum_title( $f ) );
@@ -54,7 +57,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 		$this->assertSame( $t, bbp_get_forum_last_topic_id( $f ) );
 		$this->assertSame( $r, bbp_get_forum_last_reply_id( $f ) );
 		$this->assertSame( $r, bbp_get_forum_last_active_id( $f ) );
-		$this->assertSame( $now, bbp_get_forum_last_active_time( $f ) );
+		$this->assertSame( '4 days, 4 hours ago', bbp_get_forum_last_active_time( $f ) );
 	}
 
 	/**
