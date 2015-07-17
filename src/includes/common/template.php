@@ -1409,7 +1409,7 @@ function bbp_dropdown( $args = array() ) {
 	 *  - select_id: ID of the select box. Defaults to 'bbp_forum_id'
 	 *  - tab: Deprecated. Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
-	 *  - show_none: Boolean or String __( '(No Forum)', 'bbpress' )
+	 *  - show_none: Boolean or String __( '&mdash; No Forum &mdash;', 'bbpress' )
 	 *  - disable_categories: Disable forum categories and closed forums?
 	 *                         Defaults to true. Only for forums and when
 	 *                         the category option is displayed.

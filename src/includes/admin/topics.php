@@ -226,7 +226,7 @@ class BBP_Topics_Admin {
 			'content' =>
 				'<p>' . __( 'Select the attributes that your topic should have:', 'bbpress' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default (No Forum) to post the topic without an assigned forum.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default "No forum" to post the topic without an assigned forum.', 'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Topic Type</strong> dropdown indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
@@ -779,7 +779,7 @@ class BBP_Topics_Admin {
 					echo $forum_title;
 
 				} else {
-					esc_html_e( '(No Forum)', 'bbpress' );
+					esc_html_e( '&mdash; No forum &mdash;', 'bbpress' );
 				}
 
 				break;

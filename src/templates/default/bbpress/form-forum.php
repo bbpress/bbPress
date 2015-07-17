@@ -138,7 +138,7 @@ if ( bbp_is_forum_edit() ) : ?>
 						<?php
 							bbp_dropdown( array(
 								'select_id' => 'bbp_forum_parent_id',
-								'show_none' => esc_html__( '(No Parent)', 'bbpress' ),
+								'show_none' => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
 								'selected'  => bbp_get_form_forum_parent(),
 								'exclude'   => bbp_get_forum_id()
 							) );

@@ -294,7 +294,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					<?php
 						bbp_dropdown( array(
 							'select_id' => 'bbp_group_forum_id',
-							'show_none' => __( '(No Forum)', 'bbpress' ),
+							'show_none' => __( '&mdash; No forum &mdash;', 'bbpress' ),
 							'selected'  => $forum_id
 						) );
 					?>

@@ -219,7 +219,7 @@ class BBP_Forums_Admin {
 					'<li>' . __( '<strong>Type</strong> indicates if the forum is a category or forum. Categories generally contain other forums.',                                                                                'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Status</strong> allows you to close a forum to new topics and forums.',                                                                                                                  'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Visibility</strong> lets you pick the scope of each forum and what users are allowed to access it.',                                                                                     'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Parent</strong> dropdown determines the parent forum. Select the forum or category from the dropdown, or leave the default (No Parent) to create the forum at the root of your forums.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Parent</strong> dropdown determines the parent forum. Select the forum or category from the dropdown, or leave the default "No parent" to create the forum at the root of your forums.', 'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Order</strong> allows you to order your forums numerically.',                                                                                                                            'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
