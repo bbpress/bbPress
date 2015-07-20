@@ -51,6 +51,66 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_forum_last_active_id
+	 * @covers ::bbp_get_forum_last_active_id
+	 */
+	public function test_bbp_get_forum_last_active_id_with_pending_reply() {
+		$u = $this->factory->user->create_many( 2 );
+		$f = $this->factory->forum->create();
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		bbp_update_forum_last_active_id( $f );
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		bbp_update_forum_last_active_id( $f );
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $t, $last_id );
+
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		bbp_update_forum_last_active_id( $f );
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r1, $last_id );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_author' => $u[1],
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			)
+		) );
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r1, $last_id );
+
+		bbp_approve_reply( $r2 );
+
+		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r2, $last_id );
+	}
+
+	/**
 	 * @covers ::bbp_forum_last_active_time
 	 * @covers ::bbp_get_forum_last_active_time
 	 */
