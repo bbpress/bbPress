@@ -183,4 +183,49 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_topic_voice_count( $t, true );
 		$this->assertSame( $int_value, $count );
 	}
+
+	/**
+	 * @covers ::bbp_topic_voice_count
+	 * @covers ::bbp_get_topic_voice_count
+	 */
+	public function test_bbp_get_topic_voice_count_with_pending_reply() {
+		$u = $this->factory->user->create_many( 2 );
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			)
+		) );
+
+		$this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_author' => $u[0],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			)
+		) );
+
+		$count = bbp_get_topic_voice_count( $t, true );
+		$this->assertSame( 2, $count );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_author' => $u[1],
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			)
+		) );
+
+		$count = bbp_get_topic_voice_count( $t, true );
+		$this->assertSame( 2, $count );
+
+		bbp_approve_reply( $r2 );
+
+		$count = bbp_get_topic_voice_count( $t, true );
+		$this->assertSame( 3, $count );
+	}
 }
