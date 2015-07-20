@@ -414,6 +414,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		// Get the forums last topic id _bbp_last_topic_id
 		$this->assertSame( 0, bbp_get_forum_last_topic_id( $f ) );
 
+		// Get the forums last reply id _bbp_last_reply_id
+		$this->assertSame( 0, bbp_get_forum_last_reply_id( $f ) );
+
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
 			'topic_meta' => array(
@@ -435,6 +438,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 				'topic_id' => $t,
 			)
 		) );
+
+		// Get the forums last reply id _bbp_last_reply_id
+		$this->assertSame( $r, bbp_get_forum_last_reply_id( $f ) );
 
 		// Get the topics last reply id _bbp_last_reply_id
 		$this->assertSame( $r, bbp_get_topic_last_reply_id( $t ) );
