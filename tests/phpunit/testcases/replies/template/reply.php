@@ -10,19 +10,32 @@
 class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 
 	/**
-	 * @covers ::bbp_reply_id
-	 * @covers ::bbp_get_reply_id
-	 * @todo   Implement test_bbp_get_reply_id().
+	 * @covers bbp_reply_id
+	 * @covers bbp_get_reply_id
 	 */
 	public function test_bbp_get_reply_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_id = bbp_get_reply_id( $r );
+		$this->assertSame( $r, $reply_id );
 	}
 
 	/**
-	 * @covers ::bbp_get_reply
+	 * @covers bbp_get_reply
 	 * @todo   Implement test_bbp_get_reply().
 	 */
 	public function test_bbp_get_reply() {
@@ -33,20 +46,40 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_reply_permalink
-	 * @covers ::bbp_get_reply_permalink
-	 * @todo   Implement test_bbp_get_reply_permalink().
+	 * @covers bbp_reply_permalink
+	 * @covers bbp_get_reply_permalink
 	 */
 	public function test_bbp_get_reply_permalink() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+		}
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_permalink = bbp_get_reply_permalink( $r );
+
+		$this->expectOutputString( $reply_permalink );
+		bbp_reply_permalink( $r );
+
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?reply=' . bbp_get_reply_id( $r ), $reply_permalink );
 	}
 
 	/**
-	 * @covers ::bbp_reply_url
-	 * @covers ::bbp_get_reply_url
+	 * @covers bbp_reply_url
+	 * @covers bbp_get_reply_url
 	 * @todo   Implement test_bbp_get_reply_url().
 	 */
 	public function test_bbp_get_reply_url() {
@@ -57,55 +90,124 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_reply_title
-	 * @covers ::bbp_get_reply_title
-	 * @todo   Implement test_bbp_get_reply_title().
+	 * @covers bbp_reply_title
+	 * @covers bbp_get_reply_title
 	 */
 	public function test_bbp_get_reply_title() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_title = bbp_get_reply_title( $r );
+		$this->assertSame( 'Reply To: ' . bbp_get_topic_title( $t ), $reply_title );
 	}
 
 	/**
-	 * @covers ::bbp_get_reply_title_fallback
-	 * @todo   Implement test_bbp_get_reply_title_fallback().
+	 * @covers bbp_get_reply_title_fallback
 	 */
 	public function test_bbp_get_reply_title_fallback() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_title'  => 'What are you supposed to be, some kind of a cosmonaut?',
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_title = 'What are you supposed to be, some kind of a cosmonaut?';
+		$reply_title_fallback = bbp_get_reply_title_fallback( $reply_title, $r );
+		$this->assertSame( $reply_title , $reply_title_fallback );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_title = '';
+		$reply_title_fallback = bbp_get_reply_title_fallback( $reply_title, $r );
+		$this->assertSame( 'Reply To: ' . bbp_get_topic_title( $t ), $reply_title_fallback );
 	}
 
 	/**
-	 * @covers ::bbp_reply_content
-	 * @covers ::bbp_get_reply_content
-	 * @todo   Implement test_bbp_get_reply_content().
+	 * @covers bbp_reply_content
+	 * @covers bbp_get_reply_content
 	 */
 	public function test_bbp_get_reply_content() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		remove_all_filters( 'bbp_get_reply_content' );
+		$reply_content = bbp_get_reply_content( $r );
+		$this->assertSame( 'Content of Reply 1', $reply_content );
 	}
 
 	/**
-	 * @covers ::bbp_reply_excerpt
-	 * @covers ::bbp_get_reply_excerpt
-	 * @todo   Implement test_bbp_get_reply_excerpt().
+	 * @covers bbp_reply_excerpt
+	 * @covers bbp_get_reply_excerpt
 	 */
 	public function test_bbp_get_reply_excerpt() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent'   => $t,
+			'post_content'  => 'I feel like the floor of a taxi cab.',
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		remove_all_filters( 'bbp_get_reply_content' );
+		$reply_excerpt = bbp_get_reply_excerpt( $r, 22 );
+		$this->assertSame( 'I feel like the floor&hellip;', $reply_excerpt );
 	}
 
 	/**
-	 * @covers ::bbp_reply_post_date
-	 * @covers ::bbp_get_reply_post_date
+	 * @covers bbp_reply_post_date
+	 * @covers bbp_get_reply_post_date
 	 */
 	public function test_bbp_get_reply_post_date() {
 		$f = $this->factory->forum->create();
@@ -118,7 +220,7 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		) );
 
 		$now = time();
-		$post_date = date( 'Y-m-d H:i:s', $now - 60*66 );
+		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 66 );
 
 		$r = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -153,63 +255,146 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_reply_topic_title
-	 * @covers ::bbp_get_reply_topic_title
-	 * @todo   Implement test_bbp_get_reply_topic_title().
+	 * @covers bbp_reply_topic_title
+	 * @covers bbp_get_reply_topic_title
 	 */
 	public function test_bbp_get_reply_topic_title() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_topic_title = bbp_get_reply_topic_title( $r );
+		$this->assertSame( bbp_get_topic_title( $t ), $reply_topic_title );
 	}
 
 	/**
-	 * @covers ::bbp_reply_topic_id
-	 * @covers ::bbp_get_reply_topic_id
-	 * @todo   Implement test_bbp_get_reply_topic_id().
+	 * @covers bbp_reply_topic_id
+	 * @covers bbp_get_reply_topic_id
 	 */
 	public function test_bbp_get_reply_topic_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_topic_id = bbp_get_reply_topic_id( $r );
+		$this->assertSame( $t, $reply_topic_id );
 	}
 
 	/**
-	 * @covers ::bbp_reply_forum_id
-	 * @covers ::bbp_get_reply_forum_id
-	 * @todo   Implement test_bbp_get_reply_forum_id().
+	 * @covers bbp_reply_forum_id
+	 * @covers bbp_get_reply_forum_id
 	 */
 	public function test_bbp_get_reply_forum_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_forum_id = bbp_get_reply_forum_id( $r );
+		$this->assertSame( $f, $reply_forum_id );
 	}
 
 	/**
-	 * @covers ::bbp_reply_ancestor_id
-	 * @covers ::bbp_get_reply_ancestor_id
-	 * @todo   Implement test_bbp_get_reply_ancestor_id().
+	 * @covers bbp_reply_ancestor_id
+	 * @covers bbp_get_reply_ancestor_id
 	 */
 	public function test_bbp_get_reply_ancestor_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+				'reply_to' => $r1,
+			),
+		) );
+
+		$reply_ancestor_id = bbp_get_reply_ancestor_id( $r2 );
+		$this->assertSame( $r1, $reply_ancestor_id );
 	}
 
 	/**
-	 * @covers ::bbp_reply_to
-	 * @covers ::bbp_get_reply_to
-	 * @todo   Implement test_bbp_get_reply_to().
+	 * @covers bbp_reply_to
+	 * @covers bbp_get_reply_to
 	 */
 	public function test_bbp_get_reply_to() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+				'reply_to' => $r1,
+			),
+		) );
+
+		$reply_to = bbp_get_reply_to( $r2 );
+		$this->assertSame( $r1, $reply_to );
 	}
 
 	/**
@@ -225,8 +410,8 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_reply_class
-	 * @covers ::bbp_get_reply_class
+	 * @covers bbp_reply_class
+	 * @covers bbp_get_reply_class
 	 * @todo   Implement test_bbp_get_reply_class().
 	 */
 	public function test_bbp_get_reply_class() {
@@ -237,8 +422,8 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_topic_pagination_count
-	 * @covers ::bbp_get_topic_pagination_count
+	 * @covers bbp_topic_pagination_count
+	 * @covers bbp_get_topic_pagination_count
 	 * @todo   Implement test_bbp_get_topic_pagination_count().
 	 */
 	public function test_bbp_get_topic_pagination_count() {
