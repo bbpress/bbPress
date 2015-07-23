@@ -107,23 +107,110 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_approve_reply
-	 * @todo   Implement test_bbp_approve_reply().
 	 */
 	public function test_bbp_approve_reply() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		// Create a forum.
+		$f = $this->factory->forum->create();
+
+		// Create a topic.
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		// Create some replies.
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_post_status = bbp_get_reply_status( $r1 );
+		$this->assertSame( 'publish', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $topic_reply_count );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_post_status = bbp_get_reply_status( $r2 );
+		$this->assertSame( 'pending', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $topic_reply_count );
+
+		bbp_approve_reply( $r2 );
+
+		$reply_post_status = bbp_get_reply_status( $r2 );
+		$this->assertSame( 'publish', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '2', $topic_reply_count );
 	}
 
 	/**
 	 * @covers ::bbp_unapprove_reply
-	 * @todo   Implement test_bbp_unapprove_reply().
 	 */
 	public function test_bbp_unapprove_reply() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		// Create a forum.
+		$f = $this->factory->forum->create();
+
+		// Create a topic.
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		// Create some replies.
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_post_status = bbp_get_reply_status( $r1 );
+		$this->assertSame( 'publish', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $topic_reply_count );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$reply_post_status = bbp_get_reply_status( $r2 );
+		$this->assertSame( 'publish', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '2', $topic_reply_count );
+
+		bbp_unapprove_reply( $r2 );
+
+		$reply_post_status = bbp_get_reply_status( $r2 );
+		$this->assertSame( 'pending', $reply_post_status );
+
+		$topic_reply_count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $topic_reply_count );
 	}
 }
