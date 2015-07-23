@@ -36,13 +36,53 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_freshness_link
 	 * @covers ::bbp_get_topic_freshness_link
-	 * @todo   Implement test_bbp_get_topic_freshness_link().
 	 */
 	public function test_bbp_get_topic_freshness_link() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+		}
+
+		$now = time();
+		$post_date    = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
+		$post_date_r1 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 80 );
+		$post_date_r2 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 60 );
+
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_topic_freshness_link( $t );
+		$this->assertSame( '<a href="http://example.org/?topic=topic-1" title="">4 days, 4 hours ago</a>', $link );
+
+		$r1 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_date' => $post_date_r1,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$link = bbp_get_topic_freshness_link( $t );
+		$this->assertSame( '<a href="http://example.org/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">3 days, 8 hours ago</a>', $link );
+
+		$r2 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_date' => $post_date_r2,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$link = bbp_get_topic_freshness_link( $t );
+		$this->assertSame( '<a href="http://example.org/?topic=topic-1/#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">2 days, 12 hours ago</a>', $link );
 	}
 
 	/**
