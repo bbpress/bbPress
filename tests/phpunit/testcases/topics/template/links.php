@@ -83,9 +83,6 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 
 		$link = bbp_get_topic_freshness_link( $t );
 		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">2 days, 12 hours ago</a>', $link );
-
-		// Retore the user
-		$this->set_current_user( $this->old_current_user );
 	}
 
 	/**
