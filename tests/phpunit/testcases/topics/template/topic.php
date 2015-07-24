@@ -22,13 +22,18 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_id
 	 * @covers ::bbp_get_topic_id
-	 * @todo   Implement test_bbp_get_topic_id().
 	 */
 	public function test_bbp_get_topic_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_id = bbp_get_topic_id( $t );
+		$this->assertSame( $t, $topic_id );
 	}
 
 	/**
@@ -45,25 +50,42 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_permalink
 	 * @covers ::bbp_get_topic_permalink
-	 * @todo   Implement test_bbp_get_topic_permalink().
 	 */
 	public function test_bbp_get_topic_permalink() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+		}
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_permalink = bbp_get_topic_permalink( $t );
+
+		$this->expectOutputString( $topic_permalink );
+		bbp_topic_permalink( $t );
+
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?topic=topic-1', $topic_permalink );
 	}
 
 	/**
 	 * @covers ::bbp_topic_title
 	 * @covers ::bbp_get_topic_title
-	 * @todo   Implement test_bbp_get_topic_title().
 	 */
 	public function test_bbp_get_topic_title() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( 'Topic 1', $topic_title );
 	}
 
 	/**
@@ -81,25 +103,38 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_content
 	 * @covers ::bbp_get_topic_content
-	 * @todo   Implement test_bbp_get_topic_content().
 	 */
 	public function test_bbp_get_topic_content() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		remove_all_filters( 'bbp_get_topic_content' );
+		$topic_content = bbp_get_topic_content( $t );
+		$this->assertSame( 'Content of Topic 1', $topic_content );
 	}
 
 	/**
 	 * @covers ::bbp_topic_excerpt
 	 * @covers ::bbp_get_topic_excerpt
-	 * @todo   Implement test_bbp_get_topic_excerpt().
 	 */
 	public function test_bbp_get_topic_excerpt() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_content'  => 'Talk about telekinetic activity, look at this mess!',
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		remove_all_filters( 'bbp_get_topic_content' );
+		$topic_excerpt = bbp_get_topic_excerpt( $t, 23 );
+		$this->assertSame( 'Talk about telekinetic&hellip;', $topic_excerpt );
 	}
 
 	/**
@@ -158,25 +193,35 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_forum_title
 	 * @covers ::bbp_get_topic_forum_title
-	 * @todo   Implement test_bbp_get_topic_forum_title().
 	 */
 	public function test_bbp_get_topic_forum_title() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_forum_title = bbp_get_topic_forum_title( $t );
+		$this->assertSame( bbp_get_forum_title( $f ), $topic_forum_title );
 	}
 
 	/**
 	 * @covers ::bbp_topic_forum_id
 	 * @covers ::bbp_get_topic_forum_id
-	 * @todo   Implement test_bbp_get_topic_forum_id().
 	 */
 	public function test_bbp_get_topic_forum_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_forum_id = bbp_get_topic_forum_id( $t );
+		$this->assertSame( $f, $topic_forum_id );
 	}
 
 	/**
