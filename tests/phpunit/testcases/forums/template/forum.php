@@ -107,14 +107,122 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
 			'post_date' => $post_date,
-		) );
-
-		bbp_update_forum( array(
-			'forum_id' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
 		) );
 
 		$fresh_link = bbp_get_forum_freshness_link( $f );
-		$this->assertSame( '<a href="http://example.org/?topic=topic-1" title="Topic 1">4 days, 4 hours ago</a>', $fresh_link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">4 days, 4 hours ago</a>', $fresh_link );
+	}
+
+	/**
+	 * @covers ::bbp_get_forum_freshness_link
+	 */
+	public function test_bbp_get_forum_freshness_link_with_unpublished_replies() {
+
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+		}
+
+		$now = time();
+		$post_date_t1 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 18 ); // 18 hours ago
+		$post_date_t2 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 16 ); // 16 hours ago
+		$post_date_t3 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 14 ); // 14 hours ago
+		$post_date_t4 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 12 ); // 12 hours ago
+		$post_date_t5 = date( 'Y-m-d H:i:s', $now - 60 * 60 * 10 ); // 1o hours ago
+
+		$f = $this->factory->forum->create();
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( 'No Topics', $link );
+
+		$t1 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date_t1,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
+
+		$t2 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date_t2,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-2" title="Topic 2">16 hours ago</a>', $link );
+
+		bbp_spam_topic( $t2 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
+
+		$t3 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date_t3,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-3" title="Topic 3">14 hours ago</a>', $link );
+
+		// Todo: Use bbp_trash_topic() and not wp_trash_post()
+		wp_trash_post( $t3 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
+
+		$t4 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date_t4,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-4" title="Topic 4">12 hours ago</a>', $link );
+
+		bbp_unapprove_topic( $t4 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
+
+		bbp_unspam_topic( $t2 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-2" title="Topic 2">16 hours ago</a>', $link );
+
+		// Todo: Use bbp_untrash_topic() and not wp_untrash_post()
+		wp_untrash_post( $t3 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-3" title="Topic 3">14 hours ago</a>', $link );
+
+		bbp_approve_topic( $t4 );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-4" title="Topic 4">12 hours ago</a>', $link );
+
+		$t5 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_date' => $post_date_t5,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$link = bbp_get_forum_freshness_link( $f );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-5" title="Topic 5">10 hours ago</a>', $link );
 	}
 
 	/**
