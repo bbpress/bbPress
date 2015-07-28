@@ -87,7 +87,6 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$forum_id = (int) $forum_id[0];
 		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
 		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
-		$now = 'right now';
 
 		// Forum post
 		$this->assertSame( 'General', bbp_get_forum_title( $forum_id ) );
@@ -129,7 +128,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $forum_id ) );
 		$this->assertSame( 'Reply To: Hello World!', bbp_get_forum_last_reply_title( $forum_id ) );
 		$this->assertSame( $reply_id, bbp_get_forum_last_active_id( $forum_id ) );
-		$this->assertSame( $now, bbp_get_forum_last_active_time( $forum_id ) );
+		$this->assertSame( '1 day, 16 hours ago', bbp_get_forum_last_active_time( $forum_id ) );
 
 		// Topic meta
 		$this->assertSame( '0.0.0.0', bbp_current_author_ip( $topic_id ) );
@@ -139,7 +138,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
 		$this->assertSame( $reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
 		$this->assertSame( $reply_id, bbp_get_topic_last_active_id( $topic_id ) );
-		$this->assertSame( $now, bbp_get_topic_last_active_time( $topic_id ) );
+		$this->assertSame( '1 day, 16 hours ago', bbp_get_topic_last_active_time( $topic_id ) );
 
 		// Reply Meta
 		$this->assertSame( '0.0.0.0', bbp_current_author_ip( $reply_id ) );

@@ -192,7 +192,10 @@ function bbp_create_initial_content( $args = array() ) {
 	), 'create_initial_content' );
 
 	// Use the same time for each post
-	$current_time = current_time( 'mysql' );
+	$current_time = time();
+	$forum_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 80 );
+	$topic_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 60 );
+	$reply_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 40 );
 
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
@@ -200,7 +203,7 @@ function bbp_create_initial_content( $args = array() ) {
 		'post_status'  => $r['forum_status'],
 		'post_title'   => $r['forum_title'],
 		'post_content' => $r['forum_content'],
-		'post_date'    => $current_time
+		'post_date'    => $forum_time
 	) );
 
 	// Create the initial topic
@@ -209,7 +212,7 @@ function bbp_create_initial_content( $args = array() ) {
 			'post_parent'  => $forum_id,
 			'post_title'   => $r['topic_title'],
 			'post_content' => $r['topic_content'],
-			'post_date'    => $current_time
+			'post_date'    => $topic_time
 		),
 		array(
 			'forum_id'     => $forum_id
@@ -221,7 +224,7 @@ function bbp_create_initial_content( $args = array() ) {
 		array(
 			'post_parent'  => $topic_id,
 			'post_content' => $r['reply_content'],
-			'post_date'    => $current_time
+			'post_date'    => $reply_time
 		),
 		array(
 			'forum_id'     => $forum_id,
