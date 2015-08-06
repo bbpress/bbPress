@@ -547,6 +547,40 @@ function bbp_reply_metabox() {
 	do_action( 'bbp_reply_metabox', $post_id );
 }
 
+/**
+ * Output the topic replies metabox
+ *
+ * @since bbPress (r5886)
+ *
+ * @param type $topic
+ *
+ * @return type
+ */
+function bbp_topic_replies_metabox( $topic = false ) {
+
+	// Bail if no topic to load replies for
+	if ( empty( $topic ) ) {
+		return;
+	}
+
+	// Pull in the list table class
+	if ( ! class_exists( 'BBP_Topic_Replies_List_Table' ) ) {
+		include_once bbpress()->admin->admin_dir . '/list-tables/topic-replies.php';
+	}
+
+	// Load up the list table
+	$replies_list_table = new BBP_Topic_Replies_List_Table();
+	$replies_list_table->prepare_items( $topic->ID ); ?>
+
+	<form id="bbp-topic-replies" method="get">
+		<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ); ?>" />
+
+		<?php $replies_list_table->display(); ?>
+	</form>
+
+	<?php
+}
+
 /** Users *********************************************************************/
 
 /**

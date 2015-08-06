@@ -78,8 +78,9 @@ class BBP_Topics_Admin {
 		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_topic_notice' ) );
 
-		// Anonymous metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'author_metabox'      ) );
+		// Metabox actions
+		add_action( 'add_meta_boxes', array( $this, 'author_metabox'  ) );
+		add_action( 'add_meta_boxes', array( $this, 'replies_metabox' ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -389,6 +390,46 @@ class BBP_Topics_Admin {
 	}
 
 	/**
+	 * Add the replies metabox
+	 *
+	 * Allows viewing & moderating of replies to a topic, based on the way
+	 * comments are visible on a blog post.
+	 *
+	 * @since bbPress (r5886)
+	 *
+	 * @uses bbp_get_topic() To get the topic
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
+	 *                    id
+	 */
+	public function replies_metabox() {
+
+		if ( $this->bail() ) {
+			return;
+		}
+
+		// Bail if post_type is not a reply
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		// Add the metabox
+		add_meta_box(
+			'bbp_topic_replies_metabox',
+			__( 'Replies', 'bbpress' ),
+			'bbp_topic_replies_metabox',
+			$this->post_type,
+			'normal',
+			'high'
+		);
+
+		do_action( 'bbp_topic_replies_metabox', get_the_ID() );
+	}
+
+	/**
 	 * Add some general styling to the admin area
 	 *
 	 * @since bbPress (r2464)
@@ -411,6 +452,17 @@ class BBP_Topics_Admin {
 			strong.label {
 				display: inline-block;
 				width: 60px;
+			}
+
+			.column-bbp_topic_reply_author, 
+			.column-bbp_forum_topic_author {
+				width: 25% !important;
+			}
+
+			.column-bbp_topic_reply_author .avatar,
+			.column-bbp_forum_topic_author .avatar {
+				float: left;
+				margin-right: 10px;
 			}
 
 			.column-bbp_forum_topic_count,
