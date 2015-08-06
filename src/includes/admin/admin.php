@@ -68,6 +68,13 @@ class BBP_Admin {
 	 */
 	public $show_separator = false;
 
+	/** Tools *****************************************************************/
+
+	/**
+	 * @var array Array of available repair tools
+	 */
+	public $tools = array();
+
 	/** Functions *************************************************************/
 
 	/**
