@@ -954,8 +954,7 @@ class BBP_Admin {
 		$action = isset( $_GET['action'] ) ? $_GET['action'] : ''; ?>
 
 		<div class="wrap">
-			<div id="icon-edit" class="icon32 icon32-posts-topic"><br /></div>
-			<h2><?php esc_html_e( 'Update Forum', 'bbpress' ); ?></h2>
+			<h1><?php esc_html_e( 'Update Forum', 'bbpress' ); ?></h1>
 
 		<?php
 
@@ -1001,8 +1000,7 @@ class BBP_Admin {
 		$action = isset( $_GET['action'] ) ? $_GET['action'] : ''; ?>
 
 		<div class="wrap">
-			<div id="icon-edit" class="icon32 icon32-posts-topic"><br /></div>
-			<h2><?php esc_html_e( 'Update Forums', 'bbpress' ); ?></h2>
+			<h1><?php esc_html_e( 'Update Forums', 'bbpress' ); ?></h1>
 
 		<?php
 

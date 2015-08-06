@@ -1278,7 +1278,7 @@ function bbp_admin_settings() {
 
 	<div class="wrap">
 
-		<h2><?php esc_html_e( 'Forums Settings', 'bbpress' ) ?></h2>
+		<h1><?php esc_html_e( 'Forums Settings', 'bbpress' ) ?></h1>
 
 		<form action="options.php" method="post">
 
@@ -1526,7 +1526,7 @@ function bbp_converter_settings() {
 ?>
 
 	<div class="wrap">
-
+		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Import Forums', 'bbpress' ) ); ?></h2>
 
 		<form action="#" method="post" id="bbp-converter-settings">
