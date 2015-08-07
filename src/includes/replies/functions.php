@@ -37,7 +37,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'post_password'  => '',
 		'post_content'   => '',
 		'post_title'     => '',
-	//	'menu_order'     => 0,
 		'menu_order'     => bbp_get_topic_reply_count( $reply_data['post_parent'], true ) + 1,
 		'comment_status' => 'closed'
 	), 'insert_reply' );
