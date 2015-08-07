@@ -27,8 +27,13 @@ class BBP_Tests_Replies_Template_Authors extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_reply_author_id() {
 		$u = $this->factory->user->create();
+		$t = $this->factory->topic->create();
 		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
 			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		$reply = bbp_get_reply_author_id( $r );
@@ -43,9 +48,13 @@ class BBP_Tests_Replies_Template_Authors extends BBP_UnitTestCase {
 		$u = $this->factory->user->create( array(
 			'display_name' => 'Barry B. Benson',
 		) );
-
+		$t = $this->factory->topic->create();
 		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
 			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		$reply = bbp_get_reply_author_display_name( $r );

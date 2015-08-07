@@ -14,7 +14,14 @@ class BBP_Tests_Replies_Template_Post_Type extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_reply_post_type
 	 */
 	public function test_bbp_reply_post_type() {
-		$r = $this->factory->reply->create();
+		$t = $this->factory->topic->create();
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
+		) );
 
 		$robj = get_post_type_object( 'reply' );
 		$this->assertInstanceOf( 'stdClass', $robj );

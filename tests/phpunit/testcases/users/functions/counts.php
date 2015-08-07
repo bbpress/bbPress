@@ -134,15 +134,17 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_get_user_replies_created() {
 		$u = $this->factory->user->create();
 
+		$t = $this->factory->topic->create();
+
 		$has_replies = bbp_get_user_replies_created( $u );
 		$this->assertFalse( $has_replies );
 
-		$r = $this->factory->reply->create_many( 3, array(
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
 			'post_author' => $u,
-		) );
-
-		bbp_update_reply( array(
-			'reply_id' => $r,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		$has_replies = bbp_get_user_replies_created( $u );
@@ -188,15 +190,25 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_get_user_reply_count_raw() {
 		$u = $this->factory->user->create();
 
+		$t = $this->factory->topic->create();
+
 		$r = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $t,
 			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		$count = bbp_get_user_reply_count_raw( $u );
 		$this->assertSame( 3, $count );
 
 		$r = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $t,
 			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		$count = bbp_get_user_reply_count_raw( $u );
@@ -281,6 +293,10 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 
 		$r = $this->factory->reply->create_many( $int_value, array(
 			'post_parent' => $t,
+			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
 		bbp_increase_user_reply_count( $r );
@@ -297,7 +313,7 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 		$int_value = 3;
 		$integer = true;
 
-		bbp_bump_user_topic_count( $u, $int_value );
+		bbp_update_user_topic_count( $u, $int_value );
 
 		$count = bbp_get_user_topic_count( $u, $integer );
 		$this->assertSame( $int_value, $count );
@@ -324,24 +340,34 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_decrease_user_reply_count() {
 		$u = $this->factory->user->create();
+		$int_value = 3;
+		$integer = true;
 
-		bbp_bump_user_reply_count( $u, 3 );
+		bbp_update_user_reply_count( $u, $int_value );
 
-		$count = bbp_get_user_reply_count( $u, true );
-		$this->assertSame( 3, $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $int_value, $count );
+
+		$t = $this->factory->topic->create();
 
 		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
 			'post_author' => $u,
+			'reply_meta' => array(
+				'topic_id' => $t,
+			),
 		) );
 
+		// Minus 1
 		bbp_decrease_user_reply_count( $r );
 
-		$count = bbp_get_user_reply_count( $u );
-		$this->assertSame( '2', $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $int_value - 1, $count );
 
+		// Minus 2
 		bbp_decrease_user_reply_count( $r );
 
-		$count = bbp_get_user_reply_count( $u, true );
-		$this->assertSame( 1, $count );
+		$count = bbp_get_user_reply_count( $u, $integer );
+		$this->assertSame( $int_value - 2, $count );
 	}
 }
