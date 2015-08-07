@@ -1839,7 +1839,7 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 	$user_reply_count = (int) ( $count + $difference );
 
 	// Add them up and filter them
-	$new_count = apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
+	$new_count = (int) apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
 
 	return bbp_update_user_reply_count( $user_id, $new_count );
 }
