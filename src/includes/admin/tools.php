@@ -93,7 +93,7 @@ function bbp_admin_repair() {
 									<strong><?php echo esc_html( $item['description'] ); ?></strong>
 									<div class="row-actions hide-if-no-js">
 										<span class="run">
-											<a href="<?php bbp_admin_repair_tool_run_url( $item['id'] ); ?>" aria-label="<?php printf( esc_html__( 'Run %s', 'bbpress' ), '' ); ?>"><?php esc_html_e( 'Run', 'bbpress' ); ?></a>
+											<a href="<?php bbp_admin_repair_tool_run_url( $item['id'] ); ?>" aria-label="<?php printf( esc_html__( 'Run %s', 'bbpress' ), $item['description'] ); ?>" id="<?php echo esc_attr( $item['id'] ); ?>" ><?php esc_html_e( 'Run', 'bbpress' ); ?></a>
 										</span>
 									</div>
 									<button type="button" class="toggle-row">
