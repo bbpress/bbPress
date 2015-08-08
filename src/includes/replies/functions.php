@@ -2154,7 +2154,7 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
  * @uses bbp_is_single_topic()
  * @uses bbp_user_can_view_forum()
  * @uses bbp_get_topic_forum_id()
- * @uses bbp_show_load_topic()
+ * @uses bbp_show_lead_topic()
  * @uses bbp_topic_permalink()
  * @uses bbp_topic_title()
  * @uses bbp_get_topic_reply_count()
