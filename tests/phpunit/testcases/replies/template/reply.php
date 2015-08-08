@@ -142,6 +142,9 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=3#post-' . bbp_get_reply_id( $r[6] );
 		$this->assertSame( $reply_url, bbp_get_reply_url( $r[6] ) );
 
+		// Remove the filter for WordPress < 4.0 compatibility.
+		remove_filter( 'bbp_show_lead_topic', '__return_true' );
+
 		// Reply menu position is bumped by 1 when bbp_show_lead_topic() false.
 		add_filter( 'bbp_show_lead_topic', '__return_false' );
 
@@ -172,6 +175,9 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		// 7th reply is on the third page, 3 replies per subsequent page.
 		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=3#post-' . bbp_get_reply_id( $r[6] );
 		$this->assertSame( $reply_url, bbp_get_reply_url( $r[6] ) );
+
+		// Remove the filter for WordPress < 4.0 compatibility.
+		remove_filter( 'bbp_show_lead_topic', '__return_false' );
 
 		// Restore the original reply pagination option value.
 		update_option( '_bbp_replies_per_page', $default_reply_page );
@@ -536,6 +542,9 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		$position = bbp_get_reply_position( $r[3] );
 		$this->assertSame( 4, $position );
 
+		// Remove the filter for WordPress < 4.0 compatibility.
+		remove_filter( 'bbp_show_lead_topic', '__return_true' );
+
 		// Reply menu position is bumped by 1 when bbp_show_lead_topic() false.
 		add_filter( 'bbp_show_lead_topic', '__return_false' );
 
@@ -562,6 +571,9 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 
 		$position = bbp_get_reply_position( $r[3] );
 		$this->assertSame( 5, $position );
+
+		// Remove the filter for WordPress < 4.0 compatibility.
+		remove_filter( 'bbp_show_lead_topic', '__return_false' );
 	}
 
 	/**
