@@ -1817,7 +1817,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 			}
 		}
 
-		// Bump the position by one if the lead topic is in the replies loop
+		// Bump the position by one if the topic is included in the reply loop
 		if ( ! bbp_show_lead_topic() ) {
 			$reply_position++;
 		}

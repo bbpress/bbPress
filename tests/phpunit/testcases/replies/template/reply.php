@@ -80,13 +80,101 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_reply_url
 	 * @covers ::bbp_get_reply_url
-	 * @todo   Implement test_bbp_get_reply_url().
+	 *
+	 * @ticket BBP2845
 	 */
 	public function test_bbp_get_reply_url() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Skipping URL tests in multisite for now.' );
+		}
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create_many( 7, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Store the original reply pagination option value.
+		$default_reply_page = bbp_get_replies_per_page();
+
+		// Lower the reply pagination value to test without so many replies.
+		update_option( '_bbp_replies_per_page', 3 );
+
+		// Reply menu position is unaltered when bbp_show_lead_topic() true.
+		add_filter( 'bbp_show_lead_topic', '__return_true' );
+
+		// 1st reply is on the first page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '/#post-' . bbp_get_reply_id( $r[0] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[0] ) );
+
+		// 2nd reply is on the first page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '/#post-' . bbp_get_reply_id( $r[1] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[1] ) );
+
+		// 3rd reply is on the first page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '/#post-' . bbp_get_reply_id( $r[2] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[2] ) );
+
+		// 4th reply is on the second page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[3] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[3] ) );
+
+		// 5th reply is on the second page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[4] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[4] ) );
+
+		// 6th reply is on the second page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[5] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[5] ) );
+
+		// 7th reply is on the third page, 3 replies and 1 topic per page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=3#post-' . bbp_get_reply_id( $r[6] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[6] ) );
+
+		// Reply menu position is bumped by 1 when bbp_show_lead_topic() false.
+		add_filter( 'bbp_show_lead_topic', '__return_false' );
+
+		// 1st reply is on the first page, 2 replies and 1 topic per first page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '/#post-' . bbp_get_reply_id( $r[0] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[0] ) );
+
+		// 2nd reply is on the first page, 2 replies and 1 topic per first page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '/#post-' . bbp_get_reply_id( $r[1] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[1] ) );
+
+		// 3rd reply is on the second page, 2 replies and 1 topic per first page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[2] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[2] ) );
+
+		// 4th reply is on the second page, 3 replies per subsequent page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[3] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[3] ) );
+
+		// 5th reply is on the second page, 3 replies per subsequent page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=2#post-' . bbp_get_reply_id( $r[4] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[4] ) );
+
+		// 6th reply is on the third page, 3 replies per subsequent page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=3#post-' . bbp_get_reply_id( $r[5] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[5] ) );
+
+		// 7th reply is on the third page, 3 replies per subsequent page.
+		$reply_url = bbp_get_topic_permalink( $t ) . '&paged=3#post-' . bbp_get_reply_id( $r[6] );
+		$this->assertSame( $reply_url, bbp_get_reply_url( $r[6] ) );
+
+		// Restore the original reply pagination option value.
+		update_option( '_bbp_replies_per_page', $default_reply_page );
 	}
 
 	/**
@@ -400,13 +488,80 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_reply_position
 	 * @covers ::bbp_get_reply_position
-	 * @todo   Implement test_bbp_get_reply_position().
+	 *
+	 * @ticket BBP2845
 	 */
 	public function test_bbp_get_reply_position() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create_many( 7, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Reply menu position is unaltered when bbp_show_lead_topic() true.
+		add_filter( 'bbp_show_lead_topic', '__return_true' );
+
+		$position = get_post_field( 'menu_order', $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position_raw( $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position( $r[3] );
+		$this->assertSame( 4, $position );
+
+		// Force a reply's 'menu_order' to 0.
+		wp_update_post( array(
+			'ID'         => $r[3],
+			'menu_order' => 0,
+		) );
+
+		$position = get_post_field( 'menu_order', $r[3] );
+		$this->assertSame( 0, $position );
+
+		$position = bbp_get_reply_position_raw( $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position( $r[3] );
+		$this->assertSame( 4, $position );
+
+		// Reply menu position is bumped by 1 when bbp_show_lead_topic() false.
+		add_filter( 'bbp_show_lead_topic', '__return_false' );
+
+		$position = get_post_field( 'menu_order', $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position_raw( $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position( $r[3] );
+		$this->assertSame( 5, $position );
+
+		// Force a reply's 'menu_order' to 0.
+		wp_update_post( array(
+			'ID'         => $r[3],
+			'menu_order' => 0,
+		) );
+
+		$position = get_post_field( 'menu_order', $r[3] );
+		$this->assertSame( 0, $position );
+
+		$position = bbp_get_reply_position_raw( $r[3] );
+		$this->assertSame( 4, $position );
+
+		$position = bbp_get_reply_position( $r[3] );
+		$this->assertSame( 5, $position );
 	}
 
 	/**
