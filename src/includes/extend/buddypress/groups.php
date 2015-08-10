@@ -9,7 +9,6 @@
  *
  * @package bbPress
  * @subpackage BuddyPress
- * @todo maybe move to BuddyPress Forums once bbPress 1.1 can be removed
  */
 
 // Exit if accessed directly
@@ -23,7 +22,6 @@ if ( !class_exists( 'BBP_Forums_Group_Extension' ) && class_exists( 'BP_Group_Ex
  *
  * @package bbPress
  * @subpackage BuddyPress
- * @todo Everything
  */
 class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
