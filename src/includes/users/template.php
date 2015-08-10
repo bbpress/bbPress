@@ -411,7 +411,7 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 		}
 
 		$user      = get_userdata( $user_id );
-		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
+		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_edit_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
 		return apply_filters( 'bbp_get_user_profile_edit_link', $edit_link, $user_id );
 	}
 
@@ -463,7 +463,6 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . 'edit';
 			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
 
 		// Unpretty permalinks
 		} else {
@@ -833,9 +832,8 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
-			$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_rewrite_id();
+			$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_slug();
 			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
 
 		// Unpretty permalinks
 		} else {
@@ -994,7 +992,6 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_user_subscriptions_slug();
 			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
 
 		// Unpretty permalinks
 		} else {
@@ -1434,7 +1431,6 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_topic_archive_slug();
 			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
 
 		// Unpretty permalinks
 		} else {
@@ -1491,7 +1487,6 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 		if ( bbp_use_pretty_urls() ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_reply_archive_slug();
 			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
 
 		// Unpretty permalinks
 		} else {
