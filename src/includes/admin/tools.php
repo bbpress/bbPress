@@ -709,15 +709,11 @@ function bbp_get_admin_repair_tool_registered_components() {
  * @since bbPress (r5885)
  */
 function bbp_admin_repair_list_search_form() {
-
-	// Get the search string if there is one
-	$search = ! empty( $_GET['s'] )
-		? stripslashes( $_GET['s'] )
-		: ''; ?>
+	?>
 
 	<p class="search-box">
 		<label class="screen-reader-text" for="bbp-repair-search-input"><?php esc_html_e( 'Search Tools:', 'bbpress' ); ?></label>
-		<input type="search" id="bbp-repair-search-input" name="s" value="<?php echo esc_attr( $search ); ?>">
+		<input type="search" id="bbp-repair-search-input" name="s" value="<?php _admin_search_query(); ?>">
 		<input type="submit" id="search-submit" class="button" value="<?php esc_html_e( 'Search Tools', 'bbpress' ); ?>">
 	</p>
 
