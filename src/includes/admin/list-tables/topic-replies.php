@@ -136,11 +136,16 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 */
    public function column_bbp_reply_content( $item = '' ) {
 
-		// Start with the `edit` action
+		// Define actions array
 		$actions = array(
-			'edit' => '<a href="' . get_edit_post_link( $item->ID ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>',
 			'view' => '<a href="' . bbp_get_reply_url( $item->ID )  . '">' . esc_html__( 'View', 'bbpress' ) . '</a>'
 		);
+
+		// Prepend `edit` link
+		if ( current_user_can( 'edit_reply', $item->ID ) ) {
+			$actions['edit'] = '<a href="' . get_edit_post_link( $item->ID ) . '">' . esc_html__( 'Edit', 'bbpress' ) . '</a>';
+			$actions         = array_reverse( $actions );
+		}
 
 		// Filter the reply content
 		$reply_content = apply_filters( 'bbp_get_reply_content', $item->post_content, $item->ID );
