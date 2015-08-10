@@ -82,22 +82,25 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	private function setup_actions() {
 
 		// Possibly redirect
-		add_action( 'bbp_template_redirect',         array( $this, 'redirect_canonical'              ) );
+		add_action( 'bbp_template_redirect',          array( $this, 'redirect_canonical'              ) );
 
 		// Remove group forum cap map when view is done
-		add_action( 'bbp_after_group_forum_display', array( $this, 'remove_group_forum_meta_cap_map' ) );
+		add_action( 'bbp_after_group_forum_display',  array( $this, 'remove_group_forum_meta_cap_map' ) );
 
-		// bbPress needs to listen to BuddyPress group deletion.
-		add_action( 'groups_before_delete_group',    array( $this, 'disconnect_forum_from_group'     ) );
+		// Check if group-forum status should be changed
+		add_action( 'groups_group_after_save',        array( $this, 'update_group_forum_visibility'   ) );
+
+		// bbPress needs to listen to BuddyPress group deletion
+		add_action( 'groups_before_delete_group',     array( $this, 'disconnect_forum_from_group'     ) );
 
 		// Adds a bbPress metabox to the new BuddyPress Group Admin UI
-		add_action( 'bp_groups_admin_meta_boxes',    array( $this, 'group_admin_ui_edit_screen'      ) );
+		add_action( 'bp_groups_admin_meta_boxes',     array( $this, 'group_admin_ui_edit_screen'      ) );
 
 		// Saves the bbPress options if they come from the BuddyPress Group Admin UI
-		add_action( 'bp_group_admin_edit_after',     array( $this, 'edit_screen_save'                ) );
+		add_action( 'bp_group_admin_edit_after',      array( $this, 'edit_screen_save'                ) );
 
 		// Adds a hidden input value to the "Group Settings" page
-		add_action( 'bp_before_group_settings_admin', array( $this, 'group_settings_hidden_field'    ) );
+		add_action( 'bp_before_group_settings_admin', array( $this, 'group_settings_hidden_field'     ) );
 	}
 
 	/**
@@ -680,6 +683,53 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			'forum_id' => $forum_id,
 			'group_id' => $group_id
 		) );
+	}
+
+	/**
+	 * Set forums' status to match the privacy status of the associated group
+	 *
+	 * Fired whenever a group is saved
+	 *
+	 * @param BP_Groups_Group $group Group object.
+	 */
+	public static function update_group_forum_visibility( BP_Groups_Group $group ) {
+
+		// Get group forum IDs
+		$forum_ids = bbp_get_group_forum_ids( $group->id );
+
+		// Bail if no forum IDs available
+		if ( empty( $forum_ids ) ) {
+			return;
+		}
+
+		// Loop through forum IDs
+		foreach ( $forum_ids as $forum_id ) {
+
+			// Get forum from ID
+			$forum = bbp_get_forum( $forum_id );
+
+			// Check for change
+			if ( $group->status !== $forum->post_status ) {
+				switch ( $group->status ) {
+
+					// Changed to hidden
+					case 'hidden' :
+						bbp_hide_forum( $forum_id, $forum->post_status );
+						break;
+
+					// Changed to private
+					case 'private' :
+						bbp_privatize_forum( $forum_id, $forum->post_status );
+						break;
+
+					// Changed to public
+					case 'public' :
+					default :
+						bbp_publicize_forum( $forum_id, $forum->post_status );
+						break;
+				}
+			}
+		}
 	}
 
 	/**
