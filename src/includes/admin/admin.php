@@ -635,7 +635,7 @@ class BBP_Admin {
 	public function register_admin_style() {
 
 		// Color schemes are not available when running out of src
-		if ( false !== strpos( $GLOBALS['wp_version'], '-src' ) ) {
+		if ( false !== strpos( plugin_basename( bbpress()->file ), 'src' ) ) {
 			return;
 		}
 
