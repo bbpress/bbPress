@@ -632,7 +632,12 @@ class BBP_Admin {
 	 *
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
-	public function register_admin_style () {
+	public function register_admin_style() {
+
+		// Color schemes are not available when running out of src
+		if ( false !== strpos( $GLOBALS['wp_version'], '-src' ) ) {
+			return;
+		}
 
 		// RTL and/or minified
 		$suffix  = is_rtl() ? '-rtl' : '';
