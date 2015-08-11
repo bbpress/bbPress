@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Kunena 2.x Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Kunena v2.x Forums for Joomla Forum converter.
  *
  * @since bbPress (r5144)

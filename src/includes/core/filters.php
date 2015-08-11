@@ -3,9 +3,6 @@
 /**
  * bbPress Filters
  *
- * @package bbPress
- * @subpackage Core
- *
  * This file contains the filters that are used through-out bbPress. They are
  * consolidated here to make searching for them easier, and to help developers
  * understand at a glance the order in which things occur.
@@ -14,6 +11,9 @@
  *
  *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
  *  - Admin: More in {@link BBP_Admin::setup_actions()} in admin.php
+ *
+ * @package bbPress
+ * @subpackage Core
  *
  * @see /core/actions.php
  */

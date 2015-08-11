@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress MyBB Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of MyBB Forum converter.
  *
  * @since bbPress (r5140)

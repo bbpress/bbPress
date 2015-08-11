@@ -4,7 +4,7 @@
  * bbPress Options
  *
  * @package bbPress
- * @subpackage Options
+ * @subpackage Core
  */
 
 // Exit if accessed directly

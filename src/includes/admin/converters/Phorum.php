@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Phorum Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Phorum Forum converter.
  *
  * @since bbPress (r5141)

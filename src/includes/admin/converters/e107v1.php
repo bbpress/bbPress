@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress e107 1.x Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of e107 v1.x Forum converter.
  *
  * @since bbPress (r5352)

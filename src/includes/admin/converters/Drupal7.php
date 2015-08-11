@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Drupal7 Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Drupal v7.x Forum converter.
  *
  * @since bbPress (r5138)

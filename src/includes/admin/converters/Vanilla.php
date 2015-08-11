@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Vanilla Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Vanilla 2.0.18.1 Converter
  *
  * @since bbPress (r4717)

@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Mingle Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Mingle Forums converter.
  *
  * @since bbPress (r4691)

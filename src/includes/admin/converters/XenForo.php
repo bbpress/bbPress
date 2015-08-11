@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress XenForo Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  *  Implementation of XenForo converter.
  *
  * @since bbPress (r5145)

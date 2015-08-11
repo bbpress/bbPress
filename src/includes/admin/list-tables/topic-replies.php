@@ -4,7 +4,7 @@
  * Topic Replies List Table class.
  *
  * @package    bbPress
- * @subpackage List_Table
+ * @subpackage Administration
  * @since      2.6.0
  * @access     private
  *

@@ -1,4 +1,12 @@
 <?php
+
+/**
+ * bbPress BBCode Parser
+ *
+ * @package bbPress
+ * @subpackage Administration
+ */
+
 /*
 This is a compressed copy of NBBC. Do not edit!
 

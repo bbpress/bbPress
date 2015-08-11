@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Invision Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of Invision Power Board v3.x converter.
  *
  * @since bbPress (r4713)

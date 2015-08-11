@@ -14,6 +14,9 @@
  * The following functions are wrappers for hookss, allowing them to be
  * manually called and/or piggy-backed on top of other hooks if needed.
  *
+ * @package bbPress
+ * @subpackage Core
+ *
  * @todo use anonymous functions when PHP minimun requirement allows (5.3)
  */
 

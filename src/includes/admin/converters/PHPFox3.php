@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress PHPFox3 Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of PHPFox v3.x Forum converter.
  *
  * @since bbPress (r5146)

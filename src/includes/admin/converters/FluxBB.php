@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress FluxBB Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of FluxBB Forum converter.
  *
  * @since bbPress (r5138)

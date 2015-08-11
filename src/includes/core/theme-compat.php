@@ -1,10 +1,10 @@
 <?php
 
 /**
- * bbPress Core Theme Compatibility
+ * bbPress Theme Compatibility
  *
  * @package bbPress
- * @subpackage ThemeCompatibility
+ * @subpackage Core
  */
 
 // Exit if accessed directly

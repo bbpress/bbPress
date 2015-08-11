@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress phpBB 3.x Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of phpBB v3 Converter.
  *
  * @since bbPress (r4689)

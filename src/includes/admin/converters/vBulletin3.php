@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress vBulletin 3.x Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of vBulletin v3.x Converter.
  *
  * @since bbPress (r5151)

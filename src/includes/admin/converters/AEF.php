@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress AEF Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of AEF Forum converter.
  *
  * @since bbPress (r5139)

@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress 1.x Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * bbPress 1.1 Converter
  *
  * @since bbPress (r3816)

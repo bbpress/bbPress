@@ -4,7 +4,7 @@
  * bbPress Updater
  *
  * @package bbPress
- * @subpackage Updater
+ * @subpackage Core
  */
 
 // Exit if accessed directly

@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress Example Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Example converter base impoprter template for bbPress
  *
  * @since bbPress (r4689)

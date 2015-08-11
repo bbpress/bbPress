@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress SimplePress5 Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of SimplePress v5 converter.
  *
  * @since bbPress (r4638)

@@ -3,14 +3,14 @@
 /**
  * bbPress Abstractions
  *
- * @package bbPress
- * @subpackage Core
- *
  * This file contains functions for abstracting WordPress core functionality
  * into convenient wrappers so they can be used more reliably.
  *
  * Many of the functions in this file are considered superfluous by
  * WordPress coding standards, but
+ *
+ * @package bbPress
+ * @subpackage Core
  */
 
 // Exit if accessed directly

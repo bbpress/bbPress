@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress PHPWind Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of PHPWind Forum converter.
  *
  * @since bbPress (r5142)

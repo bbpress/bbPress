@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress PunBB Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of PunBB v1.4.2 Forum converter.
  *
  * @since bbPress (r5153)

@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * bbPress SMF Converter
+ *
+ * @package bbPress
+ * @subpackage Converters
+ */
+
+/**
  * Implementation of SMF Forum converter.
  *
  * @since bbPress (r5189)
