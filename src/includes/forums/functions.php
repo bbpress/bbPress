@@ -1983,7 +1983,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		if ( ! current_user_can( 'read_private_forums' ) ) {
 			$key = array_search( bbp_get_private_status_id(), $post_stati );
 			if ( ! empty( $key ) ) {
-				unset( $post_stati[$key] );
+				unset( $post_stati[ $key ] );
 			}
 
 		// ...or add it if they are
@@ -1997,7 +1997,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		if ( ! current_user_can( 'read_hidden_forums' ) ) {
 			$key = array_search( bbp_get_hidden_status_id(), $post_stati );
 			if ( ! empty( $key ) ) {
-				unset( $post_stati[$key] );
+				unset( $post_stati[ $key ] );
 			}
 
 		// ...or add it if they are

@@ -170,7 +170,7 @@ function bbp_encode_bad( $content = '' ) {
 		$preg = $args ? "{$tag}(?:\s.*?)?" : $tag;
 
 		// Which walker to use based on the tag and arguments
-		if ( isset( $empty[$tag] ) ) {
+		if ( isset( $empty[ $tag ] ) ) {
 			array_walk( $content, 'bbp_encode_empty_callback',  $preg );
 		} else {
 			array_walk( $content, 'bbp_encode_normal_callback', $preg );

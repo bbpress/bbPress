@@ -254,7 +254,7 @@ class BBP_Users_Admin {
 			// Translate user role for display
 			if ( ! empty( $user_role ) ) {
 				$roles  = bbp_get_dynamic_roles();
-				$retval = translate_user_role( $roles[$user_role]['name'] );
+				$retval = translate_user_role( $roles[ $user_role ]['name'] );
 			}
 		}
 

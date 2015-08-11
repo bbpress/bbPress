@@ -798,12 +798,12 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		// Loop through revisions
 		foreach ( (array) $revisions as $revision ) {
 
-			if ( empty( $revision_log[$revision->ID] ) ) {
+			if ( empty( $revision_log[ $revision->ID ] ) ) {
 				$author_id = $revision->post_author;
 				$reason    = '';
 			} else {
-				$author_id = $revision_log[$revision->ID]['author'];
-				$reason    = $revision_log[$revision->ID]['reason'];
+				$author_id = $revision_log[ $revision->ID ]['author'];
+				$reason    = $revision_log[ $revision->ID ]['reason'];
 			}
 
 			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );

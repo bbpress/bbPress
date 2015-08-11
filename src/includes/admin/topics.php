@@ -1072,7 +1072,7 @@ class BBP_Topics_Admin {
 		$post_date = bbp_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
-		$messages[$this->post_type] = array(
+		$messages[ $this->post_type ] = array(
 			0 =>  '', // Left empty on purpose
 
 			// Updated

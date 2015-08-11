@@ -348,7 +348,7 @@ function bbp_filter_user_roles_option() {
  */
 function _bbp_reinit_dynamic_roles( $roles = array() ) {
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
-		$roles[$role_id] = $details;
+		$roles[ $role_id ] = $details;
 	}
 	return $roles;
 }

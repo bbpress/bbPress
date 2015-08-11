@@ -104,7 +104,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 		$bbp_current_poster = wp_get_current_commenter();
 
 		if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ) ) ) {
-			return $bbp_current_poster[$cookie_names[$key]];
+			return $bbp_current_poster[ $cookie_names[ $key ] ];
 		}
 
 		return $bbp_current_poster;

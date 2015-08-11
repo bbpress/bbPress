@@ -199,13 +199,13 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
 		$query_args['show_stickies'] = false;
 	}
 
-	$bbp->views[$view] = array(
+	$bbp->views[ $view ] = array(
 		'title'  => $title,
 		'query'  => $query_args,
 		'feed'   => $feed
 	);
 
-	return $bbp->views[$view];
+	return $bbp->views[ $view ];
 }
 
 /**
@@ -271,7 +271,9 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  */
 function bbp_get_view_query_args( $view ) {
 	$view   = bbp_get_view_id( $view );
-	$retval = ! empty( $view ) ? bbpress()->views[$view]['query'] : false;
+	$retval = ! empty( $view )
+		? bbpress()->views[ $view ]['query']
+		: false;
 
 	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }

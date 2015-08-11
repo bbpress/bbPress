@@ -795,11 +795,11 @@ class phpBB extends BBP_Converter_Base {
 		$i = 0;
 
 		do {
-			$value = ord( $input[$i++] );
-			$output .= $itoa64[$value & 0x3f];
+			$value = ord( $input[ $i++ ] );
+			$output .= $itoa64[ $value & 0x3f ];
 
 			if ($i < $count) {
-				$value |= ord( $input[$i] ) << 8;
+				$value |= ord( $input[ $i ] ) << 8;
 			}
 
 			$output .= $itoa64[( $value >> 6 ) & 0x3f];
@@ -809,7 +809,7 @@ class phpBB extends BBP_Converter_Base {
 			}
 
 			if ( $i < $count ) {
-				$value |= ord( $input[$i] ) << 16;
+				$value |= ord( $input[ $i ] ) << 16;
 			}
 
 			$output .= $itoa64[( $value >> 12 ) & 0x3f];

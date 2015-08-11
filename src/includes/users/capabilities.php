@@ -364,8 +364,8 @@ function bbp_set_current_user_default_role() {
 	/** Forum Role ************************************************************/
 
 	// Use a mapped role
-	if ( isset( $role_map[$user_role] ) ) {
-		$new_role = $role_map[$user_role];
+	if ( isset( $role_map[ $user_role ] ) ) {
+		$new_role = $role_map[ $user_role ];
 
 	// Use the default role
 	} else {
@@ -384,7 +384,7 @@ function bbp_set_current_user_default_role() {
 
 	// Don't add the user, but still give them the correct caps dynamically
 	} else {
-		$bbp->current_user->caps[$new_role] = true;
+		$bbp->current_user->caps[ $new_role ] = true;
 		$bbp->current_user->get_role_caps();
 	}
 }

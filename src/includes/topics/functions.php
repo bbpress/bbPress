@@ -3234,7 +3234,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 	// Unset incorrectly stuck revisions
 	foreach ( (array) $stickies as $key => $id ) {
 		if ( ! bbp_is_topic( $id ) ) {
-			unset( $stickies[$key] );
+			unset( $stickies[ $key ] );
 		}
 	}
 

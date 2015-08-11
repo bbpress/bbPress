@@ -151,7 +151,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 			// Step one: the first chunk
 			for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
-				$seconds = $chunks[$i][0];
+				$seconds = $chunks[ $i ][0];
 
 				// Finding the biggest chunk (if the chunk fits, break)
 				$count = floor( $since / $seconds );
@@ -161,23 +161,23 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			}
 
 			// If $i iterates all the way to $j, then the event happened 0 seconds ago
-			if ( ! isset( $chunks[$i] ) ) {
+			if ( ! isset( $chunks[ $i ] ) ) {
 				$output = $right_now_text;
 
 			} else {
 
 				// Set output var
-				$output = ( 1 == $count ) ? '1 '. $chunks[$i][1] : $count . ' ' . $chunks[$i][2];
+				$output = ( 1 == $count ) ? '1 '. $chunks[ $i ][1] : $count . ' ' . $chunks[ $i ][2];
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
-					$seconds2 = $chunks[$i + 1][0];
-					$name2    = $chunks[$i + 1][1];
+					$seconds2 = $chunks[ $i + 1 ][0];
+					$name2    = $chunks[ $i + 1 ][1];
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
 					if ( 0 != $count2 ) {
-						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[$i + 1][2];
+						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[ $i + 1 ][2];
 					}
 				}
 
@@ -1881,8 +1881,8 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 
 				// Setup matched variables to select
 				foreach ( $query_vars as $key => $value ) {
-					if ( isset( $select_query_vars[$key] ) ) {
-						$select_query_vars[$key] = $value;
+					if ( isset( $select_query_vars[ $key ] ) ) {
+						$select_query_vars[ $key ] = $value;
 					}
 				}
 

@@ -68,7 +68,7 @@ class BBP_Theme_Compat {
 	 * @return mixed
 	 */
 	public function __set( $property, $value ) {
-		return $this->_data[$property] = $value;
+		return $this->_data[ $property ] = $value;
 	}
 
 	/**
@@ -80,7 +80,9 @@ class BBP_Theme_Compat {
 	 * @return mixed
 	 */
 	public function __get( $property ) {
-		return array_key_exists( $property, $this->_data ) ? $this->_data[$property] : '';
+		return array_key_exists( $property, $this->_data )
+			? $this->_data[ $property ]
+			: '';
 	}
 }
 
@@ -96,14 +98,14 @@ function bbp_setup_theme_compat( $theme = '' ) {
 	$bbp = bbpress();
 
 	// Make sure theme package is available, set to default if not
-	if ( ! isset( $bbp->theme_compat->packages[$theme] ) || ! is_a( $bbp->theme_compat->packages[$theme], 'BBP_Theme_Compat' ) ) {
+	if ( ! isset( $bbp->theme_compat->packages[ $theme ] ) || ! is_a( $bbp->theme_compat->packages[ $theme ], 'BBP_Theme_Compat' ) ) {
 		$theme = 'default';
 	}
 
 	// Try to set the active theme compat theme. If it's not in the registered
 	// packages array, it doesn't exist, so do nothing with it.
-	if ( isset( $bbp->theme_compat->packages[$theme] ) ) {
-		$bbp->theme_compat->theme = $bbp->theme_compat->packages[$theme];
+	if ( isset( $bbp->theme_compat->packages[ $theme ] ) ) {
+		$bbp->theme_compat->theme = $bbp->theme_compat->packages[ $theme ];
 	}
 }
 
@@ -288,8 +290,8 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 	$bbp = bbpress();
 
 	// Only override if the flag is set and not previously registered
-	if ( empty( $bbp->theme_compat->packages[$theme->id] ) || ( true === $override ) ) {
-		$bbp->theme_compat->packages[$theme->id] = $theme;
+	if ( empty( $bbp->theme_compat->packages[ $theme->id ] ) || ( true === $override ) ) {
+		$bbp->theme_compat->packages[ $theme->id ] = $theme;
 	}
 }
 /**
@@ -873,36 +875,36 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
 	$bbp = bbpress();
 
 	// Filters exist
-	if ( isset( $wp_filter[$tag] ) ) {
+	if ( isset( $wp_filter[ $tag ] ) ) {
 
 		// Filters exist in this priority
-		if ( ! empty( $priority ) && isset( $wp_filter[$tag][$priority] ) ) {
+		if ( ! empty( $priority ) && isset( $wp_filter[ $tag ][ $priority ] ) ) {
 
 			// Store filters in a backup
-			$bbp->filters->wp_filter[$tag][$priority] = $wp_filter[$tag][$priority];
+			$bbp->filters->wp_filter[ $tag ][ $priority ] = $wp_filter[ $tag ][ $priority ];
 
 			// Unset the filters
-			unset( $wp_filter[$tag][$priority] );
+			unset( $wp_filter[ $tag ][ $priority ] );
 
 		// Priority is empty
 		} else {
 
 			// Store filters in a backup
-			$bbp->filters->wp_filter[$tag] = $wp_filter[$tag];
+			$bbp->filters->wp_filter[ $tag ] = $wp_filter[ $tag ];
 
 			// Unset the filters
-			unset( $wp_filter[$tag] );
+			unset( $wp_filter[ $tag ] );
 		}
 	}
 
 	// Check merged filters
-	if ( isset( $merged_filters[$tag] ) ) {
+	if ( isset( $merged_filters[ $tag ] ) ) {
 
 		// Store filters in a backup
-		$bbp->filters->merged_filters[$tag] = $merged_filters[$tag];
+		$bbp->filters->merged_filters[ $tag ] = $merged_filters[ $tag ];
 
 		// Unset the filters
-		unset( $merged_filters[$tag] );
+		unset( $merged_filters[ $tag ] );
 	}
 
 	return true;
@@ -925,36 +927,36 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 	$bbp = bbpress();
 
 	// Filters exist
-	if ( isset( $bbp->filters->wp_filter[$tag] ) ) {
+	if ( isset( $bbp->filters->wp_filter[ $tag ] ) ) {
 
 		// Filters exist in this priority
-		if ( ! empty( $priority ) && isset( $bbp->filters->wp_filter[$tag][$priority] ) ) {
+		if ( ! empty( $priority ) && isset( $bbp->filters->wp_filter[ $tag ][ $priority  ] ) ) {
 
 			// Store filters in a backup
-			$wp_filter[$tag][$priority] = $bbp->filters->wp_filter[$tag][$priority];
+			$wp_filter[ $tag ][ $priority ] = $bbp->filters->wp_filter[ $tag ][ $priority ];
 
 			// Unset the filters
-			unset( $bbp->filters->wp_filter[$tag][$priority] );
+			unset( $bbp->filters->wp_filter[ $tag ][ $priority ] );
 
 		// Priority is empty
 		} else {
 
 			// Store filters in a backup
-			$wp_filter[$tag] = $bbp->filters->wp_filter[$tag];
+			$wp_filter[ $tag ] = $bbp->filters->wp_filter[ $tag ];
 
 			// Unset the filters
-			unset( $bbp->filters->wp_filter[$tag] );
+			unset( $bbp->filters->wp_filter[ $tag ] );
 		}
 	}
 
 	// Check merged filters
-	if ( isset( $bbp->filters->merged_filters[$tag] ) ) {
+	if ( isset( $bbp->filters->merged_filters[ $tag ] ) ) {
 
 		// Store filters in a backup
-		$merged_filters[$tag] = $bbp->filters->merged_filters[$tag];
+		$merged_filters[ $tag ] = $bbp->filters->merged_filters[ $tag ];
 
 		// Unset the filters
-		unset( $bbp->filters->merged_filters[$tag] );
+		unset( $bbp->filters->merged_filters[ $tag ] );
 	}
 
 	return true;

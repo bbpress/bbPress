@@ -398,11 +398,11 @@ class BBP_Akismet {
 
 			// Key should not be ignored
 			if ( ! in_array( $key, $ignore ) && is_string( $value ) ) {
-				$post_data[$key] = $value;
+				$post_data[ $key ] = $value;
 
 			// Key should be ignored
 			} else {
-				$post_data[$key] = '';
+				$post_data[ $key ] = '';
 			}
 		}
 

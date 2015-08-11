@@ -1308,7 +1308,7 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 		}
 
 		// Set request varaible
-		$pre_ret_val = $_REQUEST[$request];
+		$pre_ret_val = $_REQUEST[ $request ];
 
 		// Treat different kinds of fields in different ways
 		switch ( $input_type ) {
@@ -1889,7 +1889,7 @@ function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 	// Unset fullscreen
 	foreach ( $plugins as $key => $value ) {
 		if ( 'fullscreen' === $value ) {
-			unset( $plugins[$key] );
+			unset( $plugins[ $key ] );
 			break;
 		}
 	}

@@ -370,12 +370,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				// No forum exists, so break the relationship
 				if ( empty( $forum ) ) {
 					$this->remove_forum( array( 'forum_id' => $forum_id ) );
-					unset( $forum_ids[$forum_id] );
+					unset( $forum_ids[ $forum_id ] );
 				}
 			}
 
 			// No support for multiple forums yet
-			$forum_id = (int) ( is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids );
+			$forum_id = (int) ( is_array( $forum_ids )
+				? $forum_ids[0]
+				: $forum_ids );
 		}
 
 		// Update the group ID and forum ID relationships
