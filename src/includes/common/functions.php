@@ -1784,7 +1784,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	/** Requested URL *********************************************************/
 
 	// Maybe include the port, if it's included in home_url()
-	if ( isset( $parsed_home['port'] ) ) {
+	if ( isset( $parsed_home['port'] ) && false === strpos( $_SERVER['HTTP_HOST'], ':' ) ) {
 		$request_host = $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'];
 	} else {
 		$request_host = $_SERVER['HTTP_HOST'];
@@ -1796,18 +1796,33 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
 	/** Look for match ********************************************************/
 
-	// Filter the requested URL, for configurations like reverse proxying
+	/**
+	 * Filters the requested URL being nonce-verified.
+	 *
+	 * Useful for configurations like reverse proxying.
+	 *
+	 * @since bbPress (2.5.0)
+	 *
+	 * @param string $requested_url The requested URL.
+	 */
 	$matched_url = apply_filters( 'bbp_verify_nonce_request_url', $requested_url );
 
 	// Check the nonce
-	$result = isset( $_REQUEST[$query_arg] ) ? wp_verify_nonce( $_REQUEST[$query_arg], $action ) : false;
+	$result = isset( $_REQUEST[ $query_arg ] ) ? wp_verify_nonce( $_REQUEST[ $query_arg ], $action ) : false;
 
 	// Nonce check failed
 	if ( empty( $result ) || empty( $action ) || ( strpos( $matched_url, $home_url ) !== 0 ) ) {
 		$result = false;
 	}
 
-	// Do extra things
+	/**
+	 * Fires at the end of the nonce verification check.
+	 *
+	 * @since bbPress (2.2.0)
+	 *
+	 * @param string $action Action nonce.
+	 * @param bool   $result Boolean result of nonce verification.
+	 */
 	do_action( 'bbp_verify_nonce_request', $action, $result );
 
 	return $result;
