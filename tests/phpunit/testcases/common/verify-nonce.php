@@ -27,17 +27,12 @@ class BBP_Tests_Core_Functions_BBPVerifyNonceRequest extends BBP_UnitTestCase {
 	}
 
 	public function tearDown() {
-		if ( '' !== $this->http_host ) {
 			$_SERVER['HTTP_HOST'] = $this->http_host;
-		}
 
-		if ( '' !== $this->server_port ) {
 			$_SERVER['SERVER_PORT'] = $this->server_port;
-		}
 
-		if ( '' !== $this->request_uri ) {
 			$_SERVER['REQUEST_URI'] = $this->request_uri;
-		}
+
 
 		parent::tearDown();
 	}
