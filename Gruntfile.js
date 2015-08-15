@@ -109,23 +109,6 @@ module.exports = function( grunt ) {
 				src: []
 			}
 		},
-		cssjanus: {
-			core: {
-				expand: true,
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				ext: '-rtl.css',
-				src: BBP_LTR_CSS,
-				options: { generateExactDuplicates: true }
-			},
-			dynamic: {
-				expand: true,
-				cwd: BUILD_DIR,
-				dest: BUILD_DIR,
-				ext: '-rtl.css',
-				src: []
-			}
-		},
 		cssmin: {
 			ltr: {
 				cwd: BUILD_DIR,
@@ -248,6 +231,31 @@ module.exports = function( grunt ) {
 				args: [ '-c', 'tests/phpunit/multisite.xml' ]
 			}
 		},
+		rtlcss: {
+			options: {
+				config: {
+					swapLeftRightInUrl: false,
+					swapLtrRtlInUrl: false,
+					autoRename: false,
+					preserveDirectives: true
+				},
+				saveUnmodified: false
+			},
+			core: {
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				ext: '-rtl.css',
+				src: BBP_LTR_CSS
+			},
+			dynamic: {
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				ext: '-rtl.css',
+				src: []
+			}
+		},
 		sass: {
 			colors: {
 				expand: true,
@@ -298,7 +306,7 @@ module.exports = function( grunt ) {
 			},
 			colors: {
 				files: [ SOURCE_DIR + 'includes/admin/styles/*/colors.scss' ],
-				tasks: [ 'sass:colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl' ]
+				tasks: [ 'sass:colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl' ]
 			},
 			config: {
 				files: 'Gruntfile.js'
@@ -317,7 +325,7 @@ module.exports = function( grunt ) {
 				files: BBP_LTR_CSS.map( function( path ) {
 					return SOURCE_DIR + path;
 				} ),
-				tasks: [ 'cssjanus:dynamic', 'cssmin:ltr', 'cssmin:rtl' ],
+				tasks: [ 'rtlcss:dynamic', 'cssmin:ltr', 'cssmin:rtl' ],
 				options: {
 					interval: 2000,
 					spawn: false
@@ -334,7 +342,7 @@ module.exports = function( grunt ) {
 	// Build tasks.
 	grunt.registerTask( 'src',     [ 'jsvalidate:src', 'jshint' ] );
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
-	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'cssjanus:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPUnit test task.
@@ -364,7 +372,7 @@ module.exports = function( grunt ) {
 	// Add a listener to the watch task.
 	//
 	// On `watch:all`, automatically updates the `copy:dynamic` and `clean:dynamic` configurations so that only the changed files are updated.
-	// On `watch:rtl`, automatically updates the `cssjanus:dynamic` configuration.
+	// On `watch:rtl`, automatically updates the `rtlcss:dynamic` configuration.
 	grunt.event.on( 'watch', function( action, filepath, target ) {
 		if ( target !== 'all' && target !== 'rtl' ) {
 			return;
@@ -376,7 +384,7 @@ module.exports = function( grunt ) {
 
 		grunt.config( [ 'clean', 'dynamic', 'src' ], cleanSrc );
 		grunt.config( [ 'copy', 'dynamic', 'src' ], copySrc );
-		grunt.config( [ 'cssjanus', 'dynamic', 'src' ], copySrc );
+		grunt.config( [ 'rtlcss', 'dynamic', 'src' ], copySrc );
 		grunt.config( [ 'uglify', 'dynamic', 'src' ], copySrc );
 	});
 };
