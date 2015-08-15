@@ -1062,13 +1062,14 @@ function bbp_admin_repair_topic_voice_count() {
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_trash_status_id() To get the trash status id
  * @uses bbp_get_spam_status_id() To get the spam status id
+ * @uses bbp_get_pending_status_id() To get the pending status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_hidden_reply_count() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
-	$statement = __( 'Counting the number of spammed and trashed replies in each topic&hellip; %s', 'bbpress' );
+	$statement = __( 'Counting the number of pending, spammed, and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
 	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_count_hidden';";
@@ -1080,8 +1081,9 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	$rpt = bbp_get_reply_post_type();
 	$tps = bbp_get_trash_status_id();
 	$sps = bbp_get_spam_status_id();
+	$pps = bbp_get_pending_status_id();
 
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}' ) GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}', '{$pps}' ) GROUP BY `post_parent`);";
 	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}

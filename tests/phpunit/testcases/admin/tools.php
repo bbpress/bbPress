@@ -166,13 +166,56 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
-	 * @todo   Implement test_bbp_admin_repair_topic_hidden_reply_count().
 	 */
 	public function test_bbp_admin_repair_topic_hidden_reply_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$count = bbp_get_topic_reply_count( $t, true );
+		$this->assertSame( 1, $count );
+
+		$r = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		bbp_spam_reply( $r[0] );
+		bbp_unapprove_reply( $r[2] );
+
+		$count = bbp_get_topic_reply_count_hidden( $t, true );
+		$this->assertSame( 2, $count );
+
+		// Delete the topic _bbp_reply_count_hidden meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_reply_count_hidden' ) );
+
+		$count = bbp_get_topic_reply_count_hidden( $t, true );
+		$this->assertSame( 0, $count );
+
+		// Repair the topic hidden reply count meta.
+		bbp_admin_repair_topic_hidden_reply_count();
+
+		bbp_clean_post_cache( $t );
+
+		$count = bbp_get_topic_reply_count_hidden( $t, true );
+		$this->assertSame( 2, $count );
 	}
 
 	/**
