@@ -26,7 +26,7 @@ class BBP_Tests_Forums_Template_Feeds extends BBP_UnitTestCase {
 		bbp_forum_topics_feed_link( $f );
 
 		$feed_link = bbp_get_forum_topics_feed_link( $f );
-		$this->assertSame( '<a href="http://example.org/?feed=rss2&#038;forum=forum-1" class="bbp-forum-rss-link topics"><span>Topics</span></a>', $feed_link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?feed=rss2&#038;forum=forum-1" class="bbp-forum-rss-link topics"><span>Topics</span></a>', $feed_link );
 	}
 
 	/**
@@ -46,6 +46,6 @@ class BBP_Tests_Forums_Template_Feeds extends BBP_UnitTestCase {
 		bbp_forum_replies_feed_link( $f );
 
 		$feed_link = bbp_get_forum_replies_feed_link( $f );
-		$this->assertSame( '<a href="http://example.org/?type=reply&#038;feed=rss2&#038;forum=forum-1" class="bbp-forum-rss-link replies"><span>Replies</span></a>', $feed_link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?type=reply&#038;feed=rss2&#038;forum=forum-1" class="bbp-forum-rss-link replies"><span>Replies</span></a>', $feed_link );
 	}
 }

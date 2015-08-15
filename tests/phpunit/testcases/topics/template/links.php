@@ -153,7 +153,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://example.org/?topic=topic-1/#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
 
 		// Todo: Use bbp_trash_reply() and not wp_trash_post()
 		wp_trash_post( $r3 );
