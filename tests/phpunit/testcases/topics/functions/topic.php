@@ -358,13 +358,29 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_delete_topic_replies
-	 * @todo   Implement test_bbp_delete_topic_replies().
 	 */
 	public function test_bbp_delete_topic_replies() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$this->assertSame( 2, bbp_get_topic_reply_count( $t, true ) );
+
+		bbp_delete_topic_replies( $t );
+
+		$count = count( bbp_get_all_child_ids( $t, bbp_get_reply_post_type() ) );
+		$this->assertSame( 0, ( $count ) );
 	}
 
 	/**
