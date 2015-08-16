@@ -10,6 +10,235 @@
 class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
+	 * Generic function to test the forum counts with a new topic
+	 */
+	public function test_bbp_forum_new_topic_counts() {
+		$f = $this->factory->forum->create();
+		$t1 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_author' => bbp_get_current_user_id(),
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$u = $this->factory->user->create();
+
+		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
+		$this->setUp_wp_mail( false );
+
+		// Simulate the 'bbp_new_topic' action.
+		do_action( 'bbp_new_topic', $t1, $f, false, bbp_get_current_user_id(), $t1 );
+
+		// Reverse our changes.
+		$this->tearDown_wp_mail( false );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		$t2 = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'post_author' => $u,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
+		$this->setUp_wp_mail( false );
+
+		// Simulate the 'bbp_new_topic' action.
+		do_action( 'bbp_new_topic', $t2, $f, false, $u , $t2 );
+
+		// Reverse our changes.
+		$this->tearDown_wp_mail( false );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 0, $count );
+	}
+
+	/**
+	 * Generic function to test the forum counts on a trashed/untrashed topic
+	 */
+	public function test_bbp_forum_trashed_untrashed_topic_counts() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create_many( 3, array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r1 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[1],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[1],
+			),
+		) );
+		$r2 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[2],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[2],
+			),
+		) );
+
+		$count = bbp_update_forum_topic_count( $f );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_update_forum_topic_count_hidden( $f );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_update_forum_reply_count( $f );
+		$this->assertSame( 4, $count );
+
+		// ToDo: Update this to use bbp_trash_topic().
+		wp_trash_post( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		// ToDo: Update this to use bbp_untrash_topic().
+		wp_untrash_post( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 4, $count );
+	}
+
+	/**
+	 * Generic function to test the forum counts on a spammed/unspammed topic
+	 */
+	public function test_bbp_forum_spammed_unspammed_topic_counts() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create_many( 3, array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r1 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[1],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[1],
+			),
+		) );
+		$r2 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[2],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[2],
+			),
+		) );
+
+		$count = bbp_update_forum_topic_count( $f );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_update_forum_topic_count_hidden( $f );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_update_forum_reply_count( $f );
+		$this->assertSame( 4, $count );
+
+		bbp_spam_topic( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		bbp_unspam_topic( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 4, $count );
+	}
+
+	/**
+	 * Generic function to test the forum counts on a approved/unapproved topic
+	 */
+	public function test_bbp_forum_approved_unapproved_topic_counts() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create_many( 3, array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r1 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[1],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[1],
+			),
+		) );
+		$r2 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t[2],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[2],
+			),
+		) );
+
+		$count = bbp_update_forum_topic_count( $f );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_update_forum_topic_count_hidden( $f );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_update_forum_reply_count( $f );
+		$this->assertSame( 4, $count );
+
+		bbp_unapprove_topic( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		bbp_approve_topic( $t[2] );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 3, $count );
+
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 4, $count );
+	}
+
+	/**
 	 * @covers ::bbp_bump_forum_topic_count
 	 */
 	public function test_bbp_bump_forum_topic_count() {
