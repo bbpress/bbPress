@@ -58,8 +58,6 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		bbp_clean_post_cache( $r2 );
-
 		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
 		$this->setUp_wp_mail( false );
 
