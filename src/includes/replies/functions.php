@@ -1092,11 +1092,11 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 		if ( ! empty( $ancestors ) ) {
 			foreach ( $ancestors as $ancestor ) {
 
-				// Get first parent that is a forum
+				// Get first parent that is a topic
 				if ( get_post_field( 'post_type', $ancestor ) === bbp_get_topic_post_type() ) {
 					$topic_id = $ancestor;
 
-					// Found a forum, so exit the loop and continue
+					// Found a topic, so exit the loop and continue
 					continue;
 				}
 			}
@@ -1106,7 +1106,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	// Update the topic ID
 	$topic_id = bbp_update_topic_id( $reply_id, $topic_id );
 
-	return apply_filters( 'bbp_update_reply_topic_id', $topic_id, $reply_id );
+	return (int) apply_filters( 'bbp_update_reply_topic_id', $topic_id, $reply_id );
 }
 
 /*
