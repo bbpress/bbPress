@@ -2049,7 +2049,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 function bbp_forum_query_topic_ids( $forum_id ) {
    	$topic_ids = bbp_get_public_child_ids( $forum_id, bbp_get_topic_post_type() );
 
-	return apply_filters( 'bbp_forum_query_topic_ids', $topic_ids, $forum_id );
+	return (array) apply_filters( 'bbp_forum_query_topic_ids', $topic_ids, $forum_id );
 }
 
 /**
@@ -2069,7 +2069,7 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 	$subforum_ids = bbp_get_all_child_ids( $forum_id, bbp_get_forum_post_type() );
 	//usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
 
-	return apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id );
+	return (array) apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id );
 }
 
 /**
