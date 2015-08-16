@@ -139,7 +139,7 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 		$has_replies = bbp_get_user_replies_created( $u );
 		$this->assertFalse( $has_replies );
 
-		$r = $this->factory->reply->create( array(
+		$r = $this->factory->reply->create_many( 3, array(
 			'post_parent' => $t,
 			'post_author' => $u,
 			'reply_meta' => array(
