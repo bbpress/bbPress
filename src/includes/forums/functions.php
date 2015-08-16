@@ -1252,19 +1252,21 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 /**
  * Update the forum last topic id
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
- * @param int $forum_id Optional. Forum id
- * @param int $topic_id Optional. Topic id
+ * @param int $forum_id Optional. Forum id.
+ * @param int $topic_id Optional. Topic id.
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_forum_query_subforum_ids() To get the subforum ids
  * @uses bbp_update_forum_last_topic_id() To update the last topic id of child
  *                                         forums
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses get_posts() To get the most recent topic in the forum
+ * @uses bbp_is_topic_published() To check if the topic is published
  * @uses update_post_meta() To update the forum's last active id meta
  * @uses apply_filters() Calls 'bbp_update_forum_last_topic_id' with the last
- *                        reply id and forum id
- * @return bool True on success, false on failure
+ *                        topic id and forum id
+ * @return int Id of the forums most recent topic
  */
 function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1320,10 +1322,10 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 /**
  * Update the forum last reply id
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
- * @param int $forum_id Optional. Forum id
- * @param int $reply_id Optional. Reply id
+ * @param int $forum_id Optional. Forum id.
+ * @param int $reply_id Optional. Reply id.
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_forum_query_subforum_ids() To get the subforum ids
  * @uses bbp_update_forum_last_reply_id() To update the last reply id of child
@@ -1334,7 +1336,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
  * @uses update_post_meta() To update the forum's last active id meta
  * @uses apply_filters() Calls 'bbp_update_forum_last_reply_id' with the last
  *                        reply id and forum id
- * @return bool True on success, false on failure
+ * @return int Id of the forums most recent reply
  */
 function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1385,21 +1387,22 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 /**
  * Update the forum last active post id
  *
- * @since bbPress (r2860)
+ * @since 2.0.0 bbPress (r2860)
  *
- * @param int $forum_id Optional. Forum id
- * @param int $active_id Optional. Active post id
+ * @param int $forum_id Optional. Forum id.
+ * @param int $active_id Optional. Active post id.
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_forum_query_subforum_ids() To get the subforum ids
  * @uses bbp_update_forum_last_active_id() To update the last active id of
  *                                          child forums
  * @uses bbp_forum_query_topic_ids() To get the topic ids in the forum
  * @uses bbp_forum_query_last_reply_id() To get the forum's last reply id
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses get_post_status() To make sure the reply is published
  * @uses update_post_meta() To update the forum's last active id meta
  * @uses apply_filters() Calls 'bbp_update_forum_last_active_id' with the last
  *                        active post id and forum id
- * @return bool True on success, false on failure
+ * @return int Id of the forums last active post
  */
 function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
@@ -1451,17 +1454,17 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 /**
  * Update the forums last active date/time (aka freshness)
  *
- * @since bbPress (r2680)
+ * @since 2.0.0 bbPress (r2680)
  *
- * @param int $forum_id Optional. Topic id
- * @param string $new_time Optional. New time in mysql format
+ * @param int    $forum_id Optional. Topic id.
+ * @param string $new_time Optional. New time in mysql format.
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_forum_last_active_id() To get the forum's last post id
  * @uses get_post_field() To get the post date of the forum's last post
  * @uses update_post_meta() To update the forum last active time
  * @uses apply_filters() Calls 'bbp_update_forum_last_active' with the new time
  *                        and forum id
- * @return bool True on success, false on failure
+ * @return string MySQL timestamp of last active topic or reply
  */
 function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -1476,7 +1479,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 		update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 	}
 
-	return (int) apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
+	return apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
 }
 
 /**
