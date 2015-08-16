@@ -2587,15 +2587,18 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 /**
  * Update the topics last active date/time (aka freshness)
  *
- * @since bbPress (r2680)
+ * @since 2.0.0 bbPress (r2680)
  *
- * @param int $topic_id Optional. Topic id
- * @param string $new_time Optional. New time in mysql format
+ * @param int    $topic_id Optional. Topic id.
+ * @param string $new_time Optional. New time in mysql format.
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_topic_id() To get the reply topic id
- * @uses current_time() To get the current time
- * @uses update_post_meta() To update the topic last active meta
- * @return bool True on success, false on failure
+ * @uses get_post_field() To get the timestamp of the newest topic reply
+ * @uses bbp_get_public_child_last_id() To get the newest topic reply id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses update_post_meta() To update the topic last active time meta
+ * @return string MySQL timestamp of last active reply
  */
 function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 
