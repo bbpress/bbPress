@@ -18,7 +18,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$now = time();
-		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
+		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -37,23 +37,27 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Forum post
+		// Get the forum.
+		$forum = bbp_get_forum( $f );
+
+		// Forum post.
 		$this->assertSame( 'Forum 1', bbp_get_forum_title( $f ) );
 		$this->assertSame( 'Content of Forum 1', bbp_get_forum_content( $f ) );
 		$this->assertSame( 'open', bbp_get_forum_status( $f ) );
 		$this->assertSame( 'forum', bbp_get_forum_type( $f ) );
 		$this->assertTrue( bbp_is_forum_public( $f ) );
 		$this->assertSame( 0, bbp_get_forum_parent_id( $f ) );
+		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?forum=' . $forum->post_name, $forum->guid );
 
-		// Forum meta
+		// Forum meta.
 		$this->assertSame( 0, bbp_get_forum_subforum_count( $f, true ) );
-		$this->assertSame( 1, bbp_get_forum_topic_count( $f, false, true ) ); // Topic count
-		$this->assertSame( 1, bbp_get_forum_topic_count( $f, true, true ) );  // Total topic count
-		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $f, true ) ); // Topic count hidden
-		$this->assertSame( 1, bbp_get_forum_reply_count( $f, false, true ) ); // Reply count
-		$this->assertSame( 1, bbp_get_forum_reply_count( $f, true, true ) );  // Total reply count
-		$this->assertSame( 2, bbp_get_forum_post_count( $f, false, true ) );  // Post count
-		$this->assertSame( 2, bbp_get_forum_post_count( $f, true, true ) );   // Total post count
+		$this->assertSame( 1, bbp_get_forum_topic_count( $f, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $f, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $f, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $f, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $f, true, true ) );
+		$this->assertSame( 2, bbp_get_forum_post_count( $f, false, true ) );
+		$this->assertSame( 2, bbp_get_forum_post_count( $f, true, true ) );
 		$this->assertSame( $t, bbp_get_forum_last_topic_id( $f ) );
 		$this->assertSame( $r, bbp_get_forum_last_reply_id( $f ) );
 		$this->assertSame( $r, bbp_get_forum_last_active_id( $f ) );

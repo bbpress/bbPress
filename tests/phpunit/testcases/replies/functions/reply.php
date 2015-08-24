@@ -32,14 +32,18 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 			),
 		) );
 
-		// reply post
+		// Get the reply.
+		$reply = bbp_get_reply( $r );
+
+		// Reply post.
 		$this->assertSame( 'Reply To: Topic 1', bbp_get_reply_title( $r ) );
 		$this->assertSame( 'publish', bbp_get_reply_status( $r ) );
-		$this->assertSame( $t, wp_get_post_parent_id( $r ) ); // post parent
+		$this->assertSame( $t, wp_get_post_parent_id( $r ) );
+		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?reply=' . $reply->post_name, $reply->guid );
 
-		// reply meta
-		$this->assertSame( $f, bbp_get_reply_forum_id( $r ) ); // _bbp_forum_id
-		$this->assertSame( $t, bbp_get_reply_topic_id( $r ) ); // _bbp_forum_id
+		// Reply meta.
+		$this->assertSame( $f, bbp_get_reply_forum_id( $r ) );
+		$this->assertSame( $t, bbp_get_reply_topic_id( $r ) );
 	}
 
 	/**
