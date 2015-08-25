@@ -229,5 +229,75 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 			'total_pages' => ceil( $total_items / $per_page )
 		) );
 	}
+
+	/**
+	 * Message to be displayed when there are no items
+	 *
+	 * @since bbPress (r5930)
+	 */
+	public function no_items() {
+		esc_html_e( 'No replies to this topic.', 'bbpress' );
+	}
+
+	/**
+	 * Display the list table
+	 *
+	 * This custom method is necessary because the one in `WP_List_Table` comes
+	 * with a nonce and check that we do not need.
+	 *
+	 * @since bbPress (r5930)
+	 */
+	public function display() {
+
+		// Top
+		$this->display_tablenav( 'top' ); ?>
+
+		<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+			<thead>
+				<tr>
+					<?php $this->print_column_headers(); ?>
+				</tr>
+			</thead>
+
+			<tbody id="the-list" data-wp-lists='list:<?php echo $this->_args['singular']; ?>'>
+				<?php $this->display_rows_or_placeholder(); ?>
+			</tbody>
+
+			<tfoot>
+				<tr>
+					<?php $this->print_column_headers( false ); ?>
+				</tr>
+			</tfoot>
+		</table>
+
+		<?php
+
+		// Bottom
+		$this->display_tablenav( 'bottom' );
+	}
+
+	/**
+	 * Generate the table navigation above or below the table
+	 *
+	 * This custom method is necessary because the one in `WP_List_Table` comes
+	 * with a nonce and check that we do not need.
+	 *
+	 * @since bbPress (r5930)
+	 *
+	 * @param string $which
+	 */
+	protected function display_tablenav( $which = '' ) {
+		?>
+
+		<div class="tablenav <?php echo esc_attr( $which ); ?>">
+			<?php
+				$this->extra_tablenav( $which );
+				$this->pagination( $which );
+			?>
+			<br class="clear" />
+		</div>
+
+		<?php
+	}
 }
 endif;

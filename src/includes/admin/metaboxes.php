@@ -568,12 +568,17 @@ function bbp_topic_replies_metabox( $topic = false ) {
 		include_once bbpress()->admin->admin_dir . '/list-tables/topic-replies.php';
 	}
 
+	// Look for pagination value
+	$page = isset( $_REQUEST['page'] )
+		? (int) $_REQUEST['page']
+		: 0;
+
 	// Load up the list table
 	$replies_list_table = new BBP_Topic_Replies_List_Table();
 	$replies_list_table->prepare_items( $topic->ID ); ?>
 
 	<form id="bbp-topic-replies" method="get">
-		<input type="hidden" name="page" value="<?php echo esc_attr( $_REQUEST['page'] ); ?>" />
+		<input type="hidden" name="page" value="<?php echo esc_attr( $page ); ?>" />
 
 		<?php $replies_list_table->display(); ?>
 	</form>
