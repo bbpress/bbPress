@@ -328,6 +328,9 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		$favorites[] = $topic_id;
 		$favorites   = implode( ',', wp_parse_id_list( array_filter( $favorites ) ) );
 		update_user_option( $user_id, '_bbp_favorites', $favorites );
+
+		// Purge cache
+		wp_cache_delete( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
 	}
 
 	do_action( 'bbp_add_user_favorite', $user_id, $topic_id );
@@ -370,6 +373,9 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 		} else {
 			delete_user_option( $user_id, '_bbp_favorites' );
 		}
+
+		// Purge cache
+		wp_cache_delete( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
 	}
 
 	do_action( 'bbp_remove_user_favorite', $user_id, $topic_id );
