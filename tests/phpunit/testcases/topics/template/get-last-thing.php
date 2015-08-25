@@ -45,11 +45,11 @@ class BBP_Tests_Topics_Template_Get_Topic_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$now = time();
-		$post_date_topic = date( 'Y-m-d H:i:s', $now - 60*60*100 );
-		$post_date_reply = date( 'Y-m-d H:i:s', $now - 60*60*80 );
+		$post_date_topic = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
+		$post_date_reply = date( 'Y-m-d H:i:s', $now - 60 * 60 * 80 );
 
 		$topic_time = '4 days, 4 hours ago';
-		$reply_time = '1 hour, 6 minutes ago';
+		$reply_time = '3 days, 8 hours ago';
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -78,7 +78,7 @@ class BBP_Tests_Topics_Template_Get_Topic_Last_Thing extends BBP_UnitTestCase {
 
 		// Reply time.
 		$datetime = bbp_get_topic_last_active_time( $t );
-		$this->assertSame( '1 hour, 6 minutes ago', $reply_time );
+		$this->assertSame( '3 days, 8 hours ago', $datetime );
 
 	}
 
