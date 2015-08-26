@@ -25,28 +25,28 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Forums
 	if ( current_user_can( 'publish_forums' ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
-		$text       = sprintf( _n( '%d Forum', '%d Forums', $r['forum_count'], 'bbpress' ), $r['forum_count'] );
+		$text       = sprintf( _n( '%s Forum', '%s Forums', $r['forum_count'], 'bbpress' ), $r['forum_count'] );
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>';
 	}
 
 	// Topics
 	if ( current_user_can( 'publish_topics' ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
-		$text       = sprintf( _n( '%d Topic', '%d Topics', $r['topic_count'], 'bbpress' ), $r['topic_count'] );
+		$text       = sprintf( _n( '%s Topic', '%s Topics', $r['topic_count'], 'bbpress' ), $r['topic_count'] );
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>';
 	}
 
 	// Replies
 	if ( current_user_can( 'publish_replies' ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
-		$text       = sprintf( _n( '%d Reply', '%d Replies', $r['reply_count'], 'bbpress' ), $r['reply_count'] );
+		$text       = sprintf( _n( '%s Reply', '%s Replies', $r['reply_count'], 'bbpress' ), $r['reply_count'] );
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>';
 	}
 
 	// Topic Tags
 	if ( bbp_allow_topic_tags() && current_user_can( 'manage_topic_tags' ) ) {
 		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
-		$text       = sprintf( _n( '%d Topic Tag', '%d Topic Tags', $r['topic_tag_count'], 'bbpress' ), $r['topic_tag_count'] );
+		$text       = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count'], 'bbpress' ), $r['topic_tag_count'] );
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>';
 	}
 
