@@ -157,12 +157,15 @@ class BBP_Akismet {
 			}
 		}
 
+		// Pass title & content together into comment content
+		$_post_content = trim( $post_data['post_title'] . "\n\n" . $post_data['post_content'] );
+
 		// Put post_data back into usable array
 		$_post = array(
 			'comment_author'                 => $user_data['name'],
 			'comment_author_email'           => $user_data['email'],
 			'comment_author_url'             => $user_data['website'],
-			'comment_content'                => $post_data['post_content'],
+			'comment_content'                => $_post_content,
 			'comment_post_ID'                => $post_data['post_parent'],
 			'comment_type'                   => $post_data['post_type'],
 			'comment_total'                  => $user_data['total_posts'],
@@ -283,13 +286,16 @@ class BBP_Akismet {
 			return;
 		}
 
+		// Pass title & content together into comment content
+		$_post_content = trim( $_post->post_title . "\n\n" . $_post->post_content );
+
 		// Set some default post_data
 		$post_data = array(
 			'comment_approved'     => $_post->post_status,
 			'comment_author'       => $_post->post_author ? get_the_author_meta( 'display_name', $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_name',    true ),
 			'comment_author_email' => $_post->post_author ? get_the_author_meta( 'email',        $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
 			'comment_author_url'   => $_post->post_author ? bbp_get_user_profile_url(            $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
-			'comment_content'      => $_post->post_content,
+			'comment_content'      => $_post_content,
 			'comment_date'         => $_post->post_date,
 			'comment_ID'           => $post_id,
 			'comment_post_ID'      => $_post->post_parent,
