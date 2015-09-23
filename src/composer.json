@@ -1,0 +1,29 @@
+{
+	"name": "bbpress/bbpress",
+	"description": "bbPress is forum software with a twist from the creators of WordPress.",
+	"type": "wordpress-plugin",
+	"keywords": [
+		"bulletin board",
+		"community",
+		"forum",
+		"support",
+		"wordpress"
+	],
+	"homepage": "https://bbpress.org",
+	"license": "GPL-2.0+",
+	"authors": [ {
+		"name": "bbPress Contributors",
+		"homepage": "https://bbpress.org/about/"
+	} ],
+	"support": {
+		"forum": "https://bbpress.org/support/",
+		"irc": "irc://irc.freenode.net/bbpress-dev",
+		"issues": "https://bbpress.trac.wordpress.org/",
+		"wiki": "https://codex.bbpress.org/",
+		"source": "https://bbpress.trac.wordpress.org/browser"
+	},
+	"require": {
+		"composer/installers": "~1.0",
+		"php": ">=5.2.4"
+	}
+}
