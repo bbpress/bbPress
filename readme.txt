@@ -23,8 +23,7 @@ We're keeping things as small and light as possible while still allowing for gre
 2. Search for 'bbPress'
 3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
 4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
-5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
-5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+5. If you have pretty permalinks enabled, visit yourdomain.com/forums, or if you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
 
 = From WordPress.org =
 
@@ -32,8 +31,7 @@ We're keeping things as small and light as possible while still allowing for gre
 2. Upload the 'bbpress' directory to your '/wp-content/plugins/' directory, using your favorite method (ftp, sftp, scp, etc...)
 3. Activate bbPress from your Plugins page. (You'll be greeted with a Welcome page.)
 4. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
-5a. If you have pretty permalinks enabled, visit yourdomain.com/forums.
-5b. If you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
+5. If you have pretty permalinks enabled, visit yourdomain.com/forums, or if you do not have pretty permalinks enabled, visit yourdomain.com?post_type=forum
 
 = Extra =
 
