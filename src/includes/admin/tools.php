@@ -2214,7 +2214,7 @@ function bbp_admin_reset_handler() {
 
 	// Stores messages
 	$messages = array();
-	$failed   = __( 'Failed',   'bbpress' );
+	$failed   = __( 'Failed!',   'bbpress' );
 	$success  = __( 'Success!', 'bbpress' );
 
 	// Flush the cache; things are about to get ugly.

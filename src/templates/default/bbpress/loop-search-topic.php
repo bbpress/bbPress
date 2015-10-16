@@ -19,7 +19,7 @@
 
 		<?php do_action( 'bbp_theme_before_topic_title' ); ?>
 
-		<h3><?php esc_html_e( 'Topic: ', 'bbpress' ); ?>
+		<h3><?php esc_html_e( 'Topic:', 'bbpress' ); ?>
 		<a href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_title(); ?></a></h3>
 
 		<div class="bbp-topic-title-meta">
