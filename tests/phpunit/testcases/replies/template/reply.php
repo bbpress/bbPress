@@ -260,6 +260,7 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		) );
 
 		$r = $this->factory->reply->create( array(
+			'post_content' => 'Content of Reply 1',
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,

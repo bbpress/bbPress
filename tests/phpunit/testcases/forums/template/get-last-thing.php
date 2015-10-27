@@ -186,6 +186,7 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,
@@ -339,6 +340,7 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		) );
 
 		$this->factory->reply->create( array(
+			'post_title' => 'Reply To: Topic 1',
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,

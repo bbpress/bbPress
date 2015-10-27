@@ -33,6 +33,12 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		if ( class_exists( 'BP_UnitTest_Factory' ) ) {
 			$this->bp_factory = new BP_UnitTest_Factory();
 		}
+
+		// Our default is ugly permalinks, so reset when needed.
+		global $wp_rewrite;
+		if ( $wp_rewrite->permalink_structure ) {
+			$this->set_permalink_structure();
+		}
 	}
 
 	function clean_up_global_scope() {
@@ -324,7 +330,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	public static function tearDown_wp_mail( $args ) {
 		if ( ! empty( self::$cached_SERVER_NAME ) ) {
 			$_SERVER['SERVER_NAME'] = self::$cached_SERVER_NAME;
-			unset( $this->cached_SERVER_NAME );
+			self::$cached_SERVER_NAME = '';
 		} else {
 			unset( $_SERVER['SERVER_NAME'] );
 		}
@@ -339,5 +345,30 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	public static function commit_transaction() {
 		global $wpdb;
 		$wpdb->query( 'COMMIT;' );
+	}
+
+	/**
+	 * Utility method that resets permalinks and flushes rewrites.
+	 *
+	 * @since 2.6.0 bbPress (r5947)
+	 *
+	 * @global WP_Rewrite $wp_rewrite
+	 *
+	 * @uses WP_UnitTestCase::set_permalink_structure()
+	 *
+	 * @param string $structure Optional. Permalink structure to set. Default empty.
+	 */
+	public function set_permalink_structure( $structure = '' ) {
+
+		// Use WP 4.4+'s version if it exists.
+		if ( method_exists( 'parent', 'set_permalink_structure' ) ) {
+			parent::set_permalink_structure( $structure );
+		} else {
+			global $wp_rewrite;
+
+			$wp_rewrite->init();
+			$wp_rewrite->set_permalink_structure( $structure );
+			$wp_rewrite->flush_rules();
+		}
 	}
 }

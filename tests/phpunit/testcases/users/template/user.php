@@ -24,11 +24,6 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$this->set_current_user( $this->old_current_user );
 	}
 
-	private function set_permalink_structure( $permalink_structure = '/%year%/%monthnum%/%day%/%postname%/' ) {
-		global $wp_rewrite;
-		$wp_rewrite->set_permalink_structure( $permalink_structure );
-	}
-
 	/**
 	 * @covers ::bbp_user_id
 	 * @covers ::bbp_get_user_id
@@ -129,7 +124,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$display_name = $this->keymaster_userdata->display_name;
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 
 		$profile_link      = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/" rel="nofollow">' . $display_name . '</a>';
 		$user_profile_link = bbp_get_user_profile_link( $this->keymaster_id );
@@ -144,7 +139,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 
 		$profile_link      = '<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '" rel="nofollow">' . $display_name . '</a>';
 		$user_profile_link = bbp_get_user_profile_link( $this->keymaster_id );
@@ -179,7 +174,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_get_user_profile_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$profile_url      = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/';
 		$user_profile_url = bbp_get_user_profile_url( $this->keymaster_id );
 
@@ -193,7 +188,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 
 		$profile_url      = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id;
 		$user_profile_url = bbp_get_user_profile_url( $this->keymaster_id );
@@ -214,7 +209,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$display_name = $this->keymaster_userdata->display_name;
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$profile_edit_link      = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/edit/" rel="nofollow">' . $display_name . '</a>';
 		$user_profile_edit_link = bbp_get_user_profile_edit_link( $this->keymaster_id );
 
@@ -228,7 +223,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$profile_edit_link      = '<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&#038;edit=1" rel="nofollow">' . $display_name . '</a>';
 		$user_profile_edit_link = bbp_get_user_profile_edit_link( $this->keymaster_id );
 
@@ -246,7 +241,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_user_profile_edit_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$profile_edit_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/edit/';
 
 		// Output.
@@ -256,7 +251,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$profile_edit_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&#038;edit=1';
 
 		// Output.
@@ -270,14 +265,14 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_get_user_profile_edit_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$profile_edit_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/edit/';
 
 		// String.
 		$this->assertSame( $profile_edit_url, bbp_get_user_profile_edit_url( $this->keymaster_id ) );
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$profile_edit_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&edit=1';
 
 		// String.
@@ -375,7 +370,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_favorites_permalink() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$favorites_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/favorites/';
 
 		// Output.
@@ -385,7 +380,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$favorites_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&#038;bbp_favs=favorites';
 
 		// Output.
@@ -399,14 +394,14 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
  	public function test_bbp_get_favorites_permalink() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$favorites_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/favorites/';
 
 		// String.
 		$this->assertSame( $favorites_url, bbp_get_favorites_permalink( $this->keymaster_id ) );
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$favorites_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&bbp_favs=favorites';
 
 		// String.
@@ -431,7 +426,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_subscriptions_permalink() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$subscriptions_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/subscriptions/';
 
 		// Output.
@@ -441,7 +436,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$subscriptions_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&#038;bbp_subs=subscriptions';
 
 		// Output.
@@ -455,14 +450,14 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
  	public function test_bbp_get_subscriptions_permalink() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$subscriptions_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/subscriptions/';
 
 		// String.
 		$this->assertSame( $subscriptions_url, bbp_get_subscriptions_permalink( $this->keymaster_id ) );
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$subscriptions_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&bbp_subs=subscriptions';
 
 		// String.
@@ -564,7 +559,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_user_topics_created_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$topics_created_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/topics/';
 
 		// Output.
@@ -574,7 +569,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$topics_created_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&#038;bbp_tops=1';
 
 		// Output.
@@ -588,14 +583,14 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_get_user_topics_created_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$topics_created_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/topics/';
 
 		// String.
 		$this->assertSame( $topics_created_url, bbp_get_user_topics_created_url( $this->keymaster_id ) );
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$topics_created_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '&bbp_tops=1';
 
 		// String.
@@ -608,7 +603,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_user_replies_created_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$replies_created_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/replies/';
 
 		// Output.
@@ -618,7 +613,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$replies_created_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user='. $this->keymaster_id . '&#038;bbp_reps=1';
 
 		// Output.
@@ -632,14 +627,14 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_get_user_replies_created_url() {
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$replies_created_url = 'http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/replies/';
 
 		// String.
 		$this->assertSame( $replies_created_url, bbp_get_user_replies_created_url( $this->keymaster_id ) );
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$replies_created_url = 'http://' . WP_TESTS_DOMAIN . '/?bbp_user='. $this->keymaster_id . '&bbp_reps=1';
 
 		// String.
@@ -714,7 +709,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$wp_avatar = get_avatar( $current_user, $size );
 
 		// Pretty permalinks
-		$this->set_permalink_structure();
+		$this->set_permalink_structure( '/%postname%/' );
 		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/" title="View ' . $display_name .
 			'&#039;s profile" class="bbp-author-avatar" rel="nofollow">' . $wp_avatar .
 			'</a>&nbsp;<a href="http://' . WP_TESTS_DOMAIN . '/forums/user/' . $this->keymaster_userdata->user_nicename . '/" title="View ' . $display_name .
@@ -730,7 +725,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		ob_clean();
 
 		// Ugly permalinks
-		$this->set_permalink_structure( '' );
+		$this->set_permalink_structure();
 		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '" title="View ' . $display_name .
 			'&#039;s profile" class="bbp-author-avatar" rel="nofollow">' . $wp_avatar .
 			'</a>&nbsp;<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '" title="View ' . $display_name .

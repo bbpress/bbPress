@@ -50,6 +50,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'post_date' => $post_date,
 			'topic_meta' => array(
@@ -104,6 +105,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'post_date' => $post_date,
 			'topic_meta' => array(

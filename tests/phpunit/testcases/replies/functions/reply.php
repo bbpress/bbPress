@@ -25,6 +25,8 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 		) );
 
 		$r = $this->factory->reply->create( array(
+			'post_title' => 'Reply To: Topic 1',
+			'post_content' => 'Content of reply to Topic 1',
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,
@@ -35,8 +37,11 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 		// Get the reply.
 		$reply = bbp_get_reply( $r );
 
+		remove_all_filters( 'bbp_get_reply_content' );
+
 		// Reply post.
 		$this->assertSame( 'Reply To: Topic 1', bbp_get_reply_title( $r ) );
+		$this->assertSame( 'Content of reply to Topic 1', bbp_get_reply_content( $r ) );
 		$this->assertSame( 'publish', bbp_get_reply_status( $r ) );
 		$this->assertSame( $t, wp_get_post_parent_id( $r ) );
 		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?reply=' . $reply->post_name, $reply->guid );

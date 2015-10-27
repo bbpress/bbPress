@@ -19,7 +19,9 @@ class BBP_Tests_Forums_Template_Feeds extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
 		}
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Forum 1',
+		) );
 
 		$feed_link = bbp_get_forum_topics_feed_link( $f );
 		$this->expectOutputString( $feed_link );
@@ -39,7 +41,9 @@ class BBP_Tests_Forums_Template_Feeds extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
 		}
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Forum 1',
+		) );
 
 		$feed_link = bbp_get_forum_replies_feed_link( $f );
 		$this->expectOutputString( $feed_link );

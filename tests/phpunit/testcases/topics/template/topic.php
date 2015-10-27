@@ -57,6 +57,7 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 		}
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,
@@ -78,6 +79,7 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	public function test_bbp_get_topic_title() {
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,
@@ -107,6 +109,7 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	public function test_bbp_get_topic_content() {
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
+			'post_content' => 'Content of Topic 1',
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,

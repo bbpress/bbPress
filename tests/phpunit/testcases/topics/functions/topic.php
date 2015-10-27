@@ -21,6 +21,8 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
 
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
+			'post_content' => 'Content for Topic 1',
 			'post_parent' => $f,
 			'post_date' => $post_date,
 			'topic_meta' => array(
@@ -40,8 +42,11 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		// Get the topic.
 		$topic = bbp_get_topic( $t );
 
+		remove_all_filters( 'bbp_get_topic_content' );
+
 		// Topic post.
 		$this->assertSame( 'Topic 1', bbp_get_topic_title( $t ) );
+		$this->assertSame( 'Content for Topic 1', bbp_get_topic_content( $t ) );
 		$this->assertSame( 'publish', bbp_get_topic_status( $t ) );
 		$this->assertSame( $f, wp_get_post_parent_id( $t ) );
 		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?topic=' . $topic->post_name, $topic->guid );

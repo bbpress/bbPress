@@ -15,7 +15,10 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_insert_forum() {
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Forum 1',
+			'post_content' => 'Content of Forum 1',
+		) );
 
 		$now = time();
 		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );

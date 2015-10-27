@@ -41,7 +41,9 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
 		}
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Forum 1',
+		) );
 
 		$forum_permalink = bbp_get_forum_permalink( $f );
 		$this->expectOutputString( $forum_permalink );
@@ -56,7 +58,9 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_title
 	 */
 	public function test_bbp_get_forum_title() {
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Forum 1',
+		) );
 
 		$forum = bbp_get_forum_title( $f );
 		$this->assertSame( 'Forum 1', $forum );
@@ -80,7 +84,9 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_content
 	 */
 	public function test_bbp_get_forum_content() {
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_content' => 'Content of Forum 1',
+		) );
 
 		$forum = bbp_get_forum_content( $f );
 		$this->assertSame( 'Content of Forum 1', $forum );
@@ -105,6 +111,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( 'No Topics', $fresh_link );
 
 		$t = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'post_date' => $post_date,
 			'topic_meta' => array(
@@ -138,6 +145,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( 'No Topics', $link );
 
 		$t1 = $this->factory->topic->create( array(
+			'post_title' => 'Topic 1',
 			'post_parent' => $f,
 			'post_date' => $post_date_t1,
 			'topic_meta' => array(
@@ -149,6 +157,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
 
 		$t2 = $this->factory->topic->create( array(
+			'post_title' => 'Topic 2',
 			'post_parent' => $f,
 			'post_date' => $post_date_t2,
 			'topic_meta' => array(
@@ -165,6 +174,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
 
 		$t3 = $this->factory->topic->create( array(
+			'post_title' => 'Topic 3',
 			'post_parent' => $f,
 			'post_date' => $post_date_t3,
 			'topic_meta' => array(
@@ -182,6 +192,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1" title="Topic 1">18 hours ago</a>', $link );
 
 		$t4 = $this->factory->topic->create( array(
+			'post_title' => 'Topic 4',
 			'post_parent' => $f,
 			'post_date' => $post_date_t4,
 			'topic_meta' => array(
@@ -214,6 +225,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-4" title="Topic 4">12 hours ago</a>', $link );
 
 		$t5 = $this->factory->topic->create( array(
+			'post_title' => 'Topic 5',
 			'post_parent' => $f,
 			'post_date' => $post_date_t5,
 			'topic_meta' => array(
