@@ -314,29 +314,30 @@ function bbp_get_template_stack() {
 	// Add 'bbp_template_stack' to the current filter array
 	$wp_current_filter[] = $tag;
 
-	// Bail if no stack setup
-	if ( empty( $wp_filter[ $tag ] ) ) {
-		return array();
-	}
+	if ( class_exists( 'WP_Hook' ) ) {
+		$filter = $wp_filter[ $tag ]->callbacks;
+	} else {
+		$filter = &$wp_filter[ $tag ];
 
-	// Sort
-	if ( ! isset( $merged_filters[ $tag ] ) ) {
-		ksort( $wp_filter[ $tag ] );
-		$merged_filters[ $tag ] = true;
+		// Sort
+		if ( ! isset( $merged_filters[ $tag ] ) ) {
+			ksort( $filter );
+			$merged_filters[ $tag ] = true;
+		}
 	}
 
 	// Ensure we're always at the beginning of the filter array
-	reset( $wp_filter[ $tag ] );
+	reset( $filter );
 
 	// Loop through 'bbp_template_stack' filters, and call callback functions
 	do {
-		foreach ( (array) current( $wp_filter[ $tag ] ) as $the_ ) {
+		foreach ( (array) current( $filter ) as $the_ ) {
 			if ( ! is_null( $the_['function'] ) ) {
 				$args[1] = $stack;
 				$stack[] = call_user_func_array( $the_['function'], array_slice( $args, 1, (int) $the_['accepted_args'] ) );
 			}
 		}
-	} while ( next( $wp_filter[ $tag ] ) !== false );
+	} while ( next( $filter ) !== false );
 
 	// Remove 'bbp_template_stack' from the current filter array
 	array_pop( $wp_current_filter );
