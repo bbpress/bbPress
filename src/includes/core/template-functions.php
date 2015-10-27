@@ -296,7 +296,8 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
  *
  * @see bbp_register_template_stack()
  *
- * @since bbPress (r4323)
+ * @since 2.2.0 bbPress (r4323)
+ * @since 2.6.0 bbPress (r5944) Added support for `WP_Hook`
  *
  * @global array $wp_filter Stores all of the filters
  * @global array $merged_filters Merges the filter hooks using this function.
@@ -314,6 +315,12 @@ function bbp_get_template_stack() {
 	// Add 'bbp_template_stack' to the current filter array
 	$wp_current_filter[] = $tag;
 
+	// Bail if no stack setup
+	if ( empty( $wp_filter[ $tag ] ) ) {
+		return array();
+	}
+
+	// Check if WP_Hook class exists, see #WP17817
 	if ( class_exists( 'WP_Hook' ) ) {
 		$filter = $wp_filter[ $tag ]->callbacks;
 	} else {
