@@ -47,7 +47,7 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 			),
 		) );
 
-		$this->assertEquals( array( $t1, $t2, $t3 ), bbp_forum_query_topic_ids( $f ) );
+		$this->assertEqualSets( array( $t1, $t2, $t3 ), bbp_forum_query_topic_ids( $f ) );
 	}
 
 	/**
@@ -64,7 +64,7 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 			'post_parent' => $f1,
 		) );
 
-		$this->assertEquals( array( $f2, $f3 ), bbp_forum_query_subforum_ids( $f1 ) );
+		$this->assertEqualSets( array( $f2, $f3 ), bbp_forum_query_subforum_ids( $f1 ) );
 	}
 
 	/**
