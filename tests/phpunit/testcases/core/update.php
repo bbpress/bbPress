@@ -131,7 +131,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( '1 day, 16 hours ago', bbp_get_forum_last_active_time( $forum_id ) );
 
 		// Topic meta
-		$this->assertSame( '0.0.0.0', bbp_current_author_ip( $topic_id ) );
+		$this->assertSame( '127.0.0.1', bbp_current_author_ip( $topic_id ) );
 		$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ) );
 		$this->assertSame( 1, bbp_get_topic_voice_count( $topic_id, true ) );
 		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
@@ -141,7 +141,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( '1 day, 16 hours ago', bbp_get_topic_last_active_time( $topic_id ) );
 
 		// Reply Meta
-		$this->assertSame( '0.0.0.0', bbp_current_author_ip( $reply_id ) );
+		$this->assertSame( '127.0.0.1', bbp_current_author_ip( $reply_id ) );
 		$this->assertSame( $forum_id, bbp_get_reply_forum_id( $reply_id ) );
 		$this->assertSame( $topic_id, bbp_get_reply_topic_id( $reply_id ) );
 	}

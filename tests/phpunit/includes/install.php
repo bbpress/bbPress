@@ -31,7 +31,7 @@ tests_add_filter( 'plugins_loaded', '_load_bbpress' );
 // Override some fussy global values
 $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 $_SERVER['HTTP_HOST']       = WP_TESTS_DOMAIN;
-$_SERVER['REMOTE_ADDR']     = '0.0.0.0';
+$_SERVER['REMOTE_ADDR']     = '127.0.0.1';
 
 // Fix PHP identity crisis
 $PHP_SELF = $GLOBALS['PHP_SELF'] = $_SERVER['PHP_SELF'] = '/index.php';

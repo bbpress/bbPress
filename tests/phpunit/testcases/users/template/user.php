@@ -323,7 +323,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	public function test_bbp_get_author_ip() {
 		$t = $this->factory->topic->create();
 
-		$author_ip = '<span class="bbp-author-ip">(0.0.0.0)</span>';
+		$author_ip = '<span class="bbp-author-ip">(127.0.0.1)</span>';
 
 		// String.
 		$this->assertSame( $author_ip, bbp_get_author_ip( $t ) );

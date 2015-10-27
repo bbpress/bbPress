@@ -138,7 +138,8 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 /**
  * Get the poster IP address
  *
- * @since bbPress (r3120)
+ * @since 2.0.0 bbPress (r3120)
+ * @since 2.6.0 bbPress (r5609) Added `empty()` check for unit tests
  *
  * @return string
  */
@@ -147,7 +148,7 @@ function bbp_current_author_ip() {
 	// Check for remote address
 	$remote_address = ! empty( $_SERVER['REMOTE_ADDR'] )
 		? $_SERVER['REMOTE_ADDR']
-		: '0.0.0.0';
+		: '127.0.0.1';
 
 	// Remove any unsavory bits
 	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $remote_address );
