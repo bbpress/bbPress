@@ -91,7 +91,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Disallow editing after', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_editlock',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_edit_lock' )
 			),
 
 			// Throttle setting
@@ -99,7 +99,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Throttle posting every', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_throttle',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_throttle_time' )
 			),
 
 			// Allow anonymous posting setting
@@ -230,7 +230,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_page',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_topics_per_page' )
 			),
 
 			// Replies per page setting
@@ -238,7 +238,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Replies', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_replies_per_page',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_replies_per_page' )
 			)
 		),
 
@@ -251,7 +251,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_rss_page',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_topics_per_rss_page' )
 			),
 
 			// Replies per page setting
@@ -259,7 +259,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Replies', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_replies_per_rss_page',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_replies_per_rss_page' )
 			)
 		),
 
@@ -272,7 +272,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forum Root', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_root_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for' => '_bbp_root_slug' )
 			),
 
 			// Include root setting
@@ -288,7 +288,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forum root should show', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_show_on_root',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_show_on_root' )
 			),
 		),
 
@@ -301,7 +301,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_forum_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_forum_slug' )
 			),
 
 			// Topic slug setting
@@ -309,7 +309,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_topic_slug' )
 			),
 
 			// Topic tag slug setting
@@ -317,7 +317,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic Tag', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tag_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_topic_tag_slug' )
 			),
 
 			// View slug setting
@@ -325,7 +325,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topic View', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_view_slug' )
 			),
 
 			// Reply slug setting
@@ -333,7 +333,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Reply', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_reply_slug' )
 			),
 
 			// Search slug setting
@@ -341,7 +341,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Search', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_search_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_search_slug' )
 			)
 		),
 
@@ -354,7 +354,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'User Base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_user_slug' )
 			),
 
 			// Topics slug setting
@@ -362,7 +362,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Topics Started', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_topic_archive_slug' )
 			),
 
 			// Replies slug setting
@@ -370,7 +370,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Replies Created', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_archive_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_reply_archive_slug' )
 			),
 
 			// Favorites slug setting
@@ -378,7 +378,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Favorite Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_favs_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_user_favs_slug' )
 			),
 
 			// Subscriptions slug setting
@@ -386,7 +386,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_subs_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_user_subs_slug' )
 			)
 		),
 
@@ -407,7 +407,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => __( 'Group Forums Parent', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums_root_id',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=>'_bbp_group_forums_root_id' )
 			)
 		),
 
@@ -475,7 +475,7 @@ function bbp_admin_setting_callback_editlock() {
 ?>
 
 	<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
-	<label for="_bbp_edit_lock"><?php esc_html_e( 'minutes', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'minutes', 'bbpress' ); ?>
 
 <?php
 }
@@ -491,7 +491,7 @@ function bbp_admin_setting_callback_throttle() {
 ?>
 
 	<input name="_bbp_throttle_time" id="_bbp_throttle_time" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_throttle_time' ); ?> />
-	<label for="_bbp_throttle_time"><?php esc_html_e( 'seconds', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'seconds', 'bbpress' ); ?>
 
 <?php
 }
@@ -803,7 +803,7 @@ function bbp_admin_setting_callback_topics_per_page() {
 ?>
 
 	<input name="_bbp_topics_per_page" id="_bbp_topics_per_page" type="number" min="1" step="1" value="<?php bbp_form_option( '_bbp_topics_per_page', '15' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_topics_per_page' ); ?> />
-	<label for="_bbp_topics_per_page"><?php esc_html_e( 'per page', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'per page', 'bbpress' ); ?>
 
 <?php
 }
@@ -819,7 +819,7 @@ function bbp_admin_setting_callback_replies_per_page() {
 ?>
 
 	<input name="_bbp_replies_per_page" id="_bbp_replies_per_page" type="number" min="1" step="1" value="<?php bbp_form_option( '_bbp_replies_per_page', '15' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_replies_per_page' ); ?> />
-	<label for="_bbp_replies_per_page"><?php esc_html_e( 'per page', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'per page', 'bbpress' ); ?>
 
 <?php
 }
@@ -850,7 +850,7 @@ function bbp_admin_setting_callback_topics_per_rss_page() {
 ?>
 
 	<input name="_bbp_topics_per_rss_page" id="_bbp_topics_per_rss_page" type="number" min="1" step="1" value="<?php bbp_form_option( '_bbp_topics_per_rss_page', '25' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_topics_per_rss_page' ); ?> />
-	<label for="_bbp_topics_per_rss_page"><?php esc_html_e( 'per page', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'per page', 'bbpress' ); ?>
 
 <?php
 }
@@ -866,7 +866,7 @@ function bbp_admin_setting_callback_replies_per_rss_page() {
 ?>
 
 	<input name="_bbp_replies_per_rss_page" id="_bbp_replies_per_rss_page" type="number" min="1" step="1" value="<?php bbp_form_option( '_bbp_replies_per_rss_page', '25' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_replies_per_rss_page' ); ?> />
-	<label for="_bbp_replies_per_rss_page"><?php esc_html_e( 'per page', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'per page', 'bbpress' ); ?>
 
 <?php
 }
@@ -1227,7 +1227,7 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 		'disabled'           => '_bbp_group_forums_root_id'
 	) ); ?>
 
-	<label for="_bbp_group_forums_root_id"><?php esc_html_e( 'is the parent for all group forums', 'bbpress' ); ?></label>
+	<?php esc_html_e( 'is the parent for all group forums', 'bbpress' ); ?>
 	<p class="description"><?php esc_html_e( 'Using the Forum Root is not recommended. Changing this does not move existing forums.', 'bbpress' ); ?></p>
 
 <?php
