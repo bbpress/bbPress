@@ -10,7 +10,8 @@
 /**
  * Implementation of Drupal v7.x Forum converter.
  *
- * @since bbPress (r5138)
+ * @since 2.5.0 bbPress (r5138)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/drupal
  */
 class Drupal7 extends BBP_Converter_Base {

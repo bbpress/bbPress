@@ -12,7 +12,7 @@
 /**
  * Return forum capabilities
  *
- * @since bbPress (r2593)
+ * @since 2.0.0 bbPress (r2593)
  *
  * @uses apply_filters() Calls 'bbp_get_forum_caps' with the capabilities
  * @return array Forum capabilities
@@ -32,7 +32,7 @@ function bbp_get_forum_caps() {
 /**
  * Maps forum capabilities
  *
- * @since bbPress (r4242)
+ * @since 2.2.0 bbPress (r4242)
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
@@ -196,7 +196,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 /**
  * Return forum moderator capabilities
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @uses apply_filters() Calls 'bbp_get_forum_mod_caps' with the capabilities
  *
@@ -214,7 +214,7 @@ function bbp_get_forum_mod_caps() {
 /**
  * Maps forum moderator capabilities
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param array  $caps Capabilities for meta capability.
  * @param string $cap Capability name.
@@ -246,7 +246,7 @@ function bbp_map_forum_mod_meta_caps( $caps, $cap, $user_id, $args ) {
 /**
  * Get moderators of a forum
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int $forum_id Forum id.
  * @uses bbp_get_forum_id() To get the forum id
@@ -298,7 +298,7 @@ function bbp_get_forum_moderator_ids( $forum_id = 0 ) {
 /**
  * Get forums of a moderator
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int $user_id User id.
  * @uses get_userdata() To get the user object
@@ -355,7 +355,7 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 /**
  * Can a user moderate a forum?
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int $user_id User id.
  * @param int $forum_id Forum id.

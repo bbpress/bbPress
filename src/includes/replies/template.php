@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return the unique id of the custom post type for replies
  *
- * @since bbPress (r2857)
+ * @since 2.0.0 bbPress (r2857)
  *
  * @uses bbp_get_reply_post_type() To get the reply post type
  */
@@ -25,7 +25,7 @@ function bbp_reply_post_type() {
 	/**
 	 * Return the unique id of the custom post type for replies
 	 *
-	 * @since bbPress (r2857)
+	 * @since 2.0.0 bbPress (r2857)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_forum_post_type' with the forum
 	 *                        post type id
@@ -38,7 +38,7 @@ function bbp_reply_post_type() {
 /**
  * Return array of labels used by the reply post type
  *
- * @since bbPress (r5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -65,7 +65,7 @@ function bbp_get_reply_post_type_labels() {
 /**
  * Return array of reply post type rewrite settings
  *
- * @since bbPress (r5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -79,7 +79,7 @@ function bbp_get_reply_post_type_rewrite() {
 /**
  * Return array of features the reply post type supports
  *
- * @since bbPress (rx5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -96,7 +96,7 @@ function bbp_get_reply_post_type_supports() {
 /**
  * The main reply loop. WordPress makes this easy for us
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param array $args All the arguments supported by {@link WP_Query}
  * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
@@ -285,7 +285,7 @@ function bbp_has_replies( $args = array() ) {
 /**
  * Whether there are more replies available in the loop
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @uses WP_Query bbPress::reply_query::have_posts() To check if there are more
  *                                                    replies available
@@ -307,7 +307,7 @@ function bbp_replies() {
 /**
  * Loads up the current reply in the loop
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @uses WP_Query bbPress::reply_query::the_post() To get the current reply
  * @return object Reply information
@@ -319,7 +319,7 @@ function bbp_the_reply() {
 /**
  * Output reply id
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param $reply_id Optional. Used to check emptiness
  * @uses bbp_get_reply_id() To get the reply id
@@ -330,7 +330,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 	/**
 	 * Return the id of the reply in a replies loop
 	 *
-	 * @since bbPress (r2553)
+	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param $reply_id Optional. Used to check emptiness
 	 * @uses bbPress::reply_query::post::ID To get the reply id
@@ -380,7 +380,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 /**
  * Gets a reply
  *
- * @since bbPress (r2787)
+ * @since 2.0.0 bbPress (r2787)
  *
  * @param int|object $reply reply id or reply object
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
@@ -423,7 +423,7 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 /**
  * Output the link to the reply in the reply loop
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_permalink() To get the reply permalink
@@ -434,7 +434,7 @@ function bbp_reply_permalink( $reply_id = 0 ) {
 	/**
 	 * Return the link to the reply
 	 *
-	 * @since bbPress (r2553)
+	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -451,7 +451,7 @@ function bbp_reply_permalink( $reply_id = 0 ) {
 /**
  * Output the paginated url to the reply in the reply loop
  *
- * @since bbPress (r2679)
+ * @since 2.0.0 bbPress (r2679)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_url() To get the reply url
@@ -462,7 +462,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	/**
 	 * Return the paginated url to the reply in the reply loop
 	 *
-	 * @since bbPress (r2679)
+	 * @since 2.0.0 bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @param string $redirect_to Optional. Pass a redirect value for use with
@@ -525,7 +525,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 /**
  * Output the title of the reply
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_title() To get the reply title
@@ -537,7 +537,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 	/**
 	 * Return the title of the reply
 	 *
-	 * @since bbPress (r2553)
+	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -555,7 +555,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 	/**
 	 * Get empty reply title fallback.
 	 *
-	 * @since bbPress (r5177)
+	 * @since 2.5.0 bbPress (r5177)
 	 *
 	 * @param string $post_title Required. Reply Title
 	 * @param int $post_id Required. Reply ID
@@ -582,7 +582,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 /**
  * Output the content of the reply
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. reply id
  * @uses bbp_get_reply_content() To get the reply content
@@ -593,7 +593,7 @@ function bbp_reply_content( $reply_id = 0 ) {
 	/**
 	 * Return the content of the reply
 	 *
-	 * @since bbPress (r2780)
+	 * @since 2.0.0 bbPress (r2780)
 	 *
 	 * @param int $reply_id Optional. reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -620,7 +620,7 @@ function bbp_reply_content( $reply_id = 0 ) {
 /**
  * Output the excerpt of the reply
  *
- * @since bbPress (r2751)
+ * @since 2.0.0 bbPress (r2751)
  *
  * @param int $reply_id Optional. Reply id
  * @param int $length Optional. Length of the excerpt. Defaults to 100 letters
@@ -632,7 +632,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	/**
 	 * Return the excerpt of the reply
 	 *
-	 * @since bbPress (r2751)
+	 * @since 2.0.0 bbPress (r2751)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @param int $length Optional. Length of the excerpt. Defaults to 100
@@ -673,7 +673,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 /**
  * Output the post date and time of a reply
  *
- * @since bbPress (r4155)
+ * @since 2.2.0 bbPress (r4155)
  *
  * @param int $reply_id Optional. Reply id.
  * @param bool $humanize Optional. Humanize output using time_since
@@ -686,7 +686,7 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 	/**
 	 * Return the post date and time of a reply
 	 *
-	 * @since bbPress (r4155)
+	 * @since 2.2.0 bbPress (r4155)
 	 *
 	 * @param int $reply_id Optional. Reply id.
 	 * @param bool $humanize Optional. Humanize output using time_since
@@ -719,7 +719,7 @@ function bbp_reply_post_date( $reply_id = 0, $humanize = false, $gmt = false ) {
 /**
  * Append revisions to the reply content
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param string $content Optional. Content to which we need to append the revisions to
  * @param int $reply_id Optional. Reply id
@@ -744,7 +744,7 @@ function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
 /**
  * Output the revision log of the reply
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_revision_log() To get the reply revision log
@@ -755,7 +755,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	/**
 	 * Return the formatted revision log of the reply
 	 *
-	 * @since bbPress (r2782)
+	 * @since 2.0.0 bbPress (r2782)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -826,7 +826,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		/**
 		 * Return the raw revision log of the reply
 		 *
-		 * @since bbPress (r2782)
+		 * @since 2.0.0 bbPress (r2782)
 		 *
 		 * @param int $reply_id Optional. Reply id
 		 * @uses bbp_get_reply_id() To get the reply id
@@ -846,7 +846,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 /**
  * Return the revisions of the reply
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_id() To get the reply id
@@ -865,7 +865,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
 /**
  * Return the revision count of the reply
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param int $reply_id Optional. Reply id
  * @param boolean $integer Optional. Whether or not to format the result
@@ -884,7 +884,7 @@ function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
 /**
  * Output the status of the reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_status() To get the reply status
@@ -895,7 +895,7 @@ function bbp_reply_status( $reply_id = 0 ) {
 	/**
 	 * Return the status of the reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -911,7 +911,7 @@ function bbp_reply_status( $reply_id = 0 ) {
 /**
  * Is the reply not spam or deleted?
  *
- * @since bbPress (r3496)
+ * @since 2.0.0 bbPress (r3496)
  *
  * @param int $reply_id Optional. Topic id
  * @uses bbp_get_reply_id() To get the reply id
@@ -926,7 +926,7 @@ function bbp_is_reply_published( $reply_id = 0 ) {
 /**
  * Is the reply marked as spam?
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_id() To get the reply id
@@ -941,7 +941,7 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 /**
  * Is the reply trashed?
  *
- * @since bbPress (r2884)
+ * @since 2.0.0 bbPress (r2884)
  *
  * @param int $reply_id Optional. Topic id
  * @uses bbp_get_reply_id() To get the reply id
@@ -956,7 +956,7 @@ function bbp_is_reply_trash( $reply_id = 0 ) {
 /**
  * Is the reply pending?
  *
- * @since bbPress (r5507)
+ * @since 2.6.0 bbPress (r5507)
  *
  * @param int $reply_id Optional. Topic id
  * @uses bbp_get_reply_id() To get the reply id
@@ -972,7 +972,7 @@ function bbp_is_reply_pending( $reply_id = 0 ) {
 /**
  * Is the reply private?
  *
- * @since bbPress (r5507)
+ * @since 2.6.0 bbPress (r5507)
  *
  * @param int $reply_id Optional. Topic id
  * @uses bbp_get_reply_id() To get the reply id
@@ -988,7 +988,7 @@ function bbp_is_reply_private( $reply_id = 0 ) {
 /**
  * Is the reply by an anonymous user?
  *
- * @since bbPress (r2753)
+ * @since 2.0.0 bbPress (r2753)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_id() To get the reply id
@@ -1018,8 +1018,9 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
  *
  * Output the author of the reply
  *
- * @since bbPress (r2667)
- * @deprecated bbPress (r5119)
+ * @since 2.0.0 bbPress (r2667)
+ *
+ * @deprecated 2.5.0 bbPress (r5119)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author() To get the reply author
@@ -1032,8 +1033,9 @@ function bbp_reply_author( $reply_id = 0 ) {
 	 *
 	 * Return the author of the reply
 	 *
-	 * @since bbPress (r2667)
-	 * @deprecated bbPress (r5119)
+	 * @since 2.0.0 bbPress (r2667)
+	 *
+	 * @deprecated 2.5.0 bbPress (r5119)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1060,7 +1062,7 @@ function bbp_reply_author( $reply_id = 0 ) {
 /**
  * Output the author ID of the reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author_id() To get the reply author id
@@ -1071,7 +1073,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 	/**
 	 * Return the author ID of the reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1090,7 +1092,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 /**
  * Output the author display_name of the reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author_display_name()
@@ -1101,7 +1103,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 	/**
 	 * Return the author display_name of the reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1152,7 +1154,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 /**
  * Output the author avatar of the reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id
  * @param int $size Optional. Size of the avatar. Defaults to 40
@@ -1164,7 +1166,7 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	/**
 	 * Return the author avatar of the reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @param int $size Optional. Size of the avatar. Defaults to 40
@@ -1197,7 +1199,7 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 /**
  * Output the author link of the reply
  *
- * @since bbPress (r2717)
+ * @since 2.0.0 bbPress (r2717)
  *
  * @param array $args Optional. If it is an integer, it is used as reply id.
  * @uses bbp_get_reply_author_link() To get the reply author link
@@ -1208,7 +1210,7 @@ function bbp_reply_author_link( $args = array() ) {
 	/**
 	 * Return the author link of the reply
 	 *
-	 * @since bbPress (r2717)
+	 * @since 2.0.0 bbPress (r2717)
 	 *
 	 * @param array $args Optional. If an integer, it is used as reply id.
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1307,7 +1309,7 @@ function bbp_reply_author_link( $args = array() ) {
 /**
  * Output the author url of the reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author_url() To get the reply author url
@@ -1318,7 +1320,7 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 	/**
 	 * Return the author url of the reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1351,7 +1353,7 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 /**
  * Output the reply author email address
  *
- * @since bbPress (r3445)
+ * @since 2.0.0 bbPress (r3445)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_author_email() To get the reply author email
@@ -1362,7 +1364,7 @@ function bbp_reply_author_email( $reply_id = 0 ) {
 	/**
 	 * Return the reply author email address
 	 *
-	 * @since bbPress (r3445)
+	 * @since 2.0.0 bbPress (r3445)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1404,7 +1406,7 @@ function bbp_reply_author_email( $reply_id = 0 ) {
 /**
  * Output the reply author role
  *
- * @since bbPress (r3860)
+ * @since 2.1.0 bbPress (r3860)
  *
  * @param array $args Optional.
  * @uses bbp_get_reply_author_role() To get the reply author role
@@ -1415,7 +1417,7 @@ function bbp_reply_author_role( $args = array() ) {
 	/**
 	 * Return the reply author role
 	 *
-	 * @since bbPress (r3860)
+	 * @since 2.1.0 bbPress (r3860)
 	 *
 	 * @param array $args Optional.
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1454,7 +1456,7 @@ function bbp_reply_author_role( $args = array() ) {
 /**
  * Output the topic title a reply belongs to
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_topic_title() To get the reply topic title
@@ -1465,7 +1467,7 @@ function bbp_reply_topic_title( $reply_id = 0 ) {
 	/**
 	 * Return the topic title a reply belongs to
 	 *
-	 * @since bbPress (r2553)
+	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1485,7 +1487,7 @@ function bbp_reply_topic_title( $reply_id = 0 ) {
 /**
  * Output the topic id a reply belongs to
  *
- * @since bbPress (r2553)
+ * @since 2.0.0 bbPress (r2553)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_topic_id() To get the reply topic id
@@ -1496,7 +1498,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	/**
 	 * Return the topic id a reply belongs to
 	 *
-	 * @since bbPress (r2553)
+	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1526,7 +1528,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 /**
  * Output the forum id a reply belongs to
  *
- * @since bbPress (r2679)
+ * @since 2.0.0 bbPress (r2679)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_forum_id() To get the reply forum id
@@ -1537,7 +1539,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	/**
 	 * Return the forum id a reply belongs to
 	 *
-	 * @since bbPress (r2679)
+	 * @since 2.0.0 bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1566,7 +1568,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 /**
  * Output the reply's ancestor reply id
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_ancestor_id() To get the reply's ancestor id
@@ -1577,7 +1579,7 @@ function bbp_reply_ancestor_id( $reply_id = 0 ) {
 	/**
 	 * Return the reply's ancestor reply id
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param in $reply_id Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1605,7 +1607,7 @@ function bbp_reply_ancestor_id( $reply_id = 0 ) {
 /**
  * Output the reply to id of a reply
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_to() To get the reply to id
@@ -1616,7 +1618,7 @@ function bbp_reply_to( $reply_id = 0 ) {
 	/**
 	 * Return the reply to id of a reply
 	 *
- 	 * @since bbPress (r4944)
+ 	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1644,7 +1646,7 @@ function bbp_reply_to( $reply_id = 0 ) {
 /**
  * Output the link for the reply to
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @param array $args
  * @uses bbp_get_reply_to_link() To get the reply to link
@@ -1656,7 +1658,7 @@ function bbp_reply_to_link( $args = array() ) {
 	/**
 	 * Return the link for a reply to a reply
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param array $args Arguments
 	 * @uses bbp_current_user_can_access_create_reply_form() To check permissions
@@ -1722,7 +1724,7 @@ function bbp_reply_to_link( $args = array() ) {
 /**
  * Output the reply to a reply cancellation link
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @uses bbp_get_cancel_reply_to_link() To get the reply cancellation link
  */
@@ -1732,7 +1734,7 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 	/**
 	 * Return the cancellation link for a reply to a reply
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param string $text The cancel text
 	 * @uses apply_filters() Calls 'bbp_get_cancel_reply_to_link' with the cancellation
@@ -1764,7 +1766,7 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 /**
  * Output the numeric position of a reply within a topic
  *
- * @since bbPress (r2984)
+ * @since 2.0.0 bbPress (r2984)
  *
  * @param int $reply_id Optional. Reply id
  * @param int $topic_id Optional. Topic id
@@ -1776,7 +1778,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 	/**
 	 * Return the numeric position of a reply within a topic
 	 *
-	 * @since bbPress (r2984)
+	 * @since 2.0.0 bbPress (r2984)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @param int $topic_id Optional. Topic id
@@ -1830,7 +1832,7 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 /**
  * Output admin links for reply
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param array $args See {@link bbp_get_reply_admin_links()}
  * @uses bbp_get_reply_admin_links() To get the reply admin links
@@ -1841,7 +1843,7 @@ function bbp_reply_admin_links( $args = array() ) {
 	/**
 	 * Return admin links for reply
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Optional. Reply id
@@ -1930,7 +1932,7 @@ function bbp_reply_admin_links( $args = array() ) {
 /**
  * Output the edit link of the reply
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_edit_link()}
  * @uses bbp_get_reply_edit_link() To get the reply edit link
@@ -1942,7 +1944,7 @@ function bbp_reply_edit_link( $args = array() ) {
 	/**
 	 * Return the edit link of the reply
 	 *
-	 * @since bbPress (r2740)
+	 * @since 2.0.0 bbPress (r2740)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
@@ -1995,7 +1997,7 @@ function bbp_reply_edit_link( $args = array() ) {
 /**
  * Output URL to the reply edit page
  *
- * @since bbPress (r2753)
+ * @since 2.0.0 bbPress (r2753)
  *
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_edit_url() To get the reply edit url
@@ -2006,7 +2008,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	/**
 	 * Return URL to the reply edit page
 	 *
-	 * @since bbPress (r2753)
+	 * @since 2.0.0 bbPress (r2753)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -2048,7 +2050,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 /**
  * Output the trash link of the reply
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_trash_link()}
  * @uses bbp_get_reply_trash_link() To get the reply trash link
@@ -2060,7 +2062,7 @@ function bbp_reply_trash_link( $args = array() ) {
 	/**
 	 * Return the trash link of the reply
 	 *
-	 * @since bbPress (r2740)
+	 * @since 2.0.0 bbPress (r2740)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
@@ -2124,7 +2126,7 @@ function bbp_reply_trash_link( $args = array() ) {
 /**
  * Output the spam link of the reply
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param array $args See {@link bbp_get_reply_spam_link()}
  * @uses bbp_get_reply_spam_link() To get the reply spam link
@@ -2136,7 +2138,7 @@ function bbp_reply_spam_link( $args = array() ) {
 	/**
 	 * Return the spam link of the reply
 	 *
-	 * @since bbPress (r2740)
+	 * @since 2.0.0 bbPress (r2740)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
@@ -2187,7 +2189,7 @@ function bbp_reply_spam_link( $args = array() ) {
  *
  * Output the move link of the reply
  *
- * @since bbPress (r4521)
+ * @since 2.3.0 bbPress (r4521)
  *
  * @param array $args See {@link bbp_get_reply_move_link()}
  * @uses bbp_get_reply_move_link() To get the reply move link
@@ -2201,7 +2203,7 @@ function bbp_reply_move_link( $args = array() ) {
 	 *
 	 * Return the move link of the reply
 	 *
-	 * @since bbPress (r4521)
+	 * @since 2.3.0 bbPress (r4521)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
@@ -2255,7 +2257,7 @@ function bbp_reply_move_link( $args = array() ) {
  *
  * Output the split link of the topic (but is bundled with each reply)
  *
- * @since bbPress (r2756)
+ * @since 2.0.0 bbPress (r2756)
  *
  * @param array $args See {@link bbp_get_topic_split_link()}
  * @uses bbp_get_topic_split_link() To get the topic split link
@@ -2269,7 +2271,7 @@ function bbp_topic_split_link( $args = array() ) {
 	 *
 	 * Return the split link of the topic (but is bundled with each reply)
 	 *
-	 * @since bbPress (r2756)
+	 * @since 2.0.0 bbPress (r2756)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - id: Reply id
@@ -2321,7 +2323,7 @@ function bbp_topic_split_link( $args = array() ) {
 /**
  * Output the approve link of the reply
  *
- * @since bbPress (r5507)
+ * @since 2.6.0 bbPress (r5507)
  *
  * @param array $args See {@link bbp_get_reply_approve_link()}
  * @uses bbp_get_reply_approve_link() To get the reply approve link
@@ -2333,7 +2335,7 @@ function bbp_reply_approve_link( $args = array() ) {
 	/**
 	 * Return the approve link of the reply
 	 *
-	 * @since bbPress (r5507)
+	 * @since 2.6.0 bbPress (r5507)
 	 *
 	 * @param array $args This function supports these args:
 	 *  - id: Optional. Reply id
@@ -2382,7 +2384,7 @@ function bbp_reply_approve_link( $args = array() ) {
 /**
  * Output the row class of a reply
  *
- * @since bbPress (r2678)
+ * @since 2.0.0 bbPress (r2678)
  *
  * @param int $reply_id Optional. Reply ID
  * @param array Extra classes you can pass when calling this function
@@ -2394,7 +2396,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 	/**
 	 * Return the row class of a reply
 	 *
-	 * @since bbPress (r2678)
+	 * @since 2.0.0 bbPress (r2678)
 	 *
 	 * @param int $reply_id Optional. Reply ID
 	 * @param array Extra classes you can pass when calling this function
@@ -2427,7 +2429,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 /**
  * Output the topic pagination count
  *
- * @since bbPress (r2519)
+ * @since 2.0.0 bbPress (r2519)
  *
  * @uses bbp_get_topic_pagination_count() To get the topic pagination count
  */
@@ -2437,7 +2439,7 @@ function bbp_topic_pagination_count() {
 	/**
 	 * Return the topic pagination count
 	 *
-	 * @since bbPress (r2519)
+	 * @since 2.0.0 bbPress (r2519)
 	 *
 	 * @uses bbp_number_format() To format the number value
 	 * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
@@ -2500,7 +2502,7 @@ function bbp_topic_pagination_count() {
 /**
  * Output topic pagination links
  *
- * @since bbPress (r2519)
+ * @since 2.0.0 bbPress (r2519)
  *
  * @uses bbp_get_topic_pagination_links() To get the topic pagination links
  */
@@ -2510,7 +2512,7 @@ function bbp_topic_pagination_links() {
 	/**
 	 * Return topic pagination links
 	 *
-	 * @since bbPress (r2519)
+	 * @since 2.0.0 bbPress (r2519)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_topic_pagination_links' with the
 	 *                        pagination links
@@ -2531,7 +2533,7 @@ function bbp_topic_pagination_links() {
 /**
  * Output the value of reply content field
  *
- * @since bbPress (r31301)
+ * @since 2.0.0 bbPress (r3130)
  *
  * @uses bbp_get_form_reply_content() To get value of reply content field
  */
@@ -2541,7 +2543,7 @@ function bbp_form_reply_content() {
 	/**
 	 * Return the value of reply content field
 	 *
-	 * @since bbPress (r31301)
+	 * @since 2.0.0 bbPress (r3130)
 	 *
 	 * @uses bbp_is_reply_edit() To check if it's the reply edit page
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_content' with the content
@@ -2568,7 +2570,7 @@ function bbp_form_reply_content() {
 /**
  * Output the value of the reply to field
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @uses bbp_get_form_reply_to() To get value of the reply to field
  */
@@ -2579,7 +2581,7 @@ function bbp_form_reply_to() {
 	/**
 	 * Return the value of reply to field
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @uses bbp_get_reply_id() To validate the reply to
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_to' with the reply to
@@ -2607,7 +2609,7 @@ function bbp_form_reply_to() {
  * Output a select box allowing to pick which reply an existing hierarchical
  * reply belongs to.
  *
- * @since bbPress (r5387)
+ * @since 2.6.0 bbPress (r5387)
  *
  * @param int $reply_id
  */
@@ -2617,7 +2619,7 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 	/**
 	 * Return a select box allowing to pick which topic/reply a reply belongs.
 	 *
-	 * @since bbPress (r5387)
+	 * @since 2.6.0 bbPress (r5387)
 	 *
 	 * @param int $reply_id
 	 *
@@ -2691,7 +2693,7 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 /**
  * Output checked value of reply log edit field
  *
- * @since bbPress (r31301)
+ * @since 2.0.0 bbPress (r3130)
  *
  * @uses bbp_get_form_reply_log_edit() To get the reply log edit value
  */
@@ -2701,7 +2703,7 @@ function bbp_form_reply_log_edit() {
 	/**
 	 * Return checked value of reply log edit field
 	 *
-	 * @since bbPress (r31301)
+	 * @since 2.0.0 bbPress (r3130)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_log_edit' with the
 	 *                        log edit value
@@ -2727,7 +2729,7 @@ function bbp_form_reply_log_edit() {
 /**
  * Output the value of the reply edit reason
  *
- * @since bbPress (r31301)
+ * @since 2.0.0 bbPress (r3130)
  *
  * @uses bbp_get_form_reply_edit_reason() To get the reply edit reason value
  */
@@ -2737,7 +2739,7 @@ function bbp_form_reply_edit_reason() {
 	/**
 	 * Return the value of the reply edit reason
 	 *
-	 * @since bbPress (r31301)
+	 * @since 2.0.0 bbPress (r3130)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_form_reply_edit_reason' with the
 	 *                        reply edit reason value
@@ -2760,7 +2762,7 @@ function bbp_form_reply_edit_reason() {
 /**
  * Output value reply status dropdown
  *
- * @since bbPress (r5399)
+ * @since 2.6.0 bbPress (r5399)
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_reply_status
@@ -2778,7 +2780,7 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 	 * capability. Because of this, no additional capablitiy checks are performed
 	 * within this function to check available reply statuses.
 	 *
-	 * @since bbPress (r5399)
+	 * @since 2.6.0 bbPress (r5399)
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_reply_status
@@ -2849,7 +2851,8 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
  *
  * @see bbp_reply_form_fields()
  *
- * @since bbPress (r5558)
+ * @since 2.6.0 bbPress (r5558)
+ *
  * @return boolean True if is a post request with valid nonce
  */
 function bbp_is_reply_form_post_request() {

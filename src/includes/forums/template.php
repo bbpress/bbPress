@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Output the unique id of the custom post type for forums
  *
- * @since bbPress (r2857)
+ * @since 2.0.0 bbPress (r2857)
  *
  * @uses bbp_get_forum_post_type() To get the forum post type
  */
@@ -25,7 +25,7 @@ function bbp_forum_post_type() {
 	/**
 	 * Return the unique id of the custom post type for forums
 	 *
-	 * @since bbPress (r2857)
+	 * @since 2.0.0 bbPress (r2857)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_forum_post_type' with the forum
 	 *                        post type id
@@ -39,7 +39,7 @@ function bbp_forum_post_type() {
 /**
  * Return array of labels used by the forum post type
  *
- * @since bbPress (r5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -66,7 +66,7 @@ function bbp_get_forum_post_type_labels() {
 /**
  * Return array of forum post type rewrite settings
  *
- * @since bbPress (r5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -80,7 +80,7 @@ function bbp_get_forum_post_type_rewrite() {
 /**
  * Return array of features the forum post type supports
  *
- * @since bbPress (r5129)
+ * @since 2.5.0 bbPress (r5129)
  *
  * @return array
  */
@@ -99,7 +99,7 @@ function bbp_get_forum_post_type_supports() {
  *
  * WordPress makes this easy for us.
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param array $args All the arguments supported by {@link WP_Query}
  * @uses WP_Query To make query and get the forums
@@ -149,7 +149,7 @@ function bbp_has_forums( $args = array() ) {
 /**
  * Whether there are more forums available in the loop
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbPress:forum_query::have_posts() To check if there are more forums
  *                                          available
@@ -171,7 +171,7 @@ function bbp_forums() {
 /**
  * Loads up the current forum in the loop
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbPress:forum_query::the_post() To get the current forum
  * @return object Forum information
@@ -185,7 +185,7 @@ function bbp_the_forum() {
 /**
  * Output forum id
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param $forum_id Optional. Used to check emptiness
  * @uses bbp_get_forum_id() To get the forum id
@@ -196,7 +196,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 	/**
 	 * Return the forum id
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param $forum_id Optional. Used to check emptiness
 	 * @uses bbPress::forum_query::in_the_loop To check if we're in the loop
@@ -251,7 +251,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 /**
  * Gets a forum
  *
- * @since bbPress (r2787)
+ * @since 2.0.0 bbPress (r2787)
  *
  * @param int|object $forum forum id or forum object
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
@@ -299,7 +299,7 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 /**
  * Output the link to the forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @param string $redirect_to Optional. Pass a redirect value for use with
@@ -312,7 +312,7 @@ function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 	/**
 	 * Return the link to the forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param string $redirect_to Optional. Pass a redirect value for use with
@@ -341,7 +341,7 @@ function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 /**
  * Output the title of the forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_title() To get the forum title
@@ -352,7 +352,7 @@ function bbp_forum_title( $forum_id = 0 ) {
 	/**
 	 * Return the title of the forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -370,7 +370,7 @@ function bbp_forum_title( $forum_id = 0 ) {
 /**
  * Output the forum archive title
  *
- * @since bbPress (r3249)
+ * @since 2.0.0 bbPress (r3249)
  *
  * @param string $title Default text to use as title
  */
@@ -380,7 +380,7 @@ function bbp_forum_archive_title( $title = '' ) {
 	/**
 	 * Return the forum archive title
 	 *
-	 * @since bbPress (r3249)
+	 * @since 2.0.0 bbPress (r3249)
 	 *
 	 * @param string $title Default text to use as title
 	 *
@@ -416,7 +416,7 @@ function bbp_forum_archive_title( $title = '' ) {
 /**
  * Output the content of the forum
  *
- * @since bbPress (r2780)
+ * @since 2.0.0 bbPress (r2780)
  *
  * @param int $forum_id Optional. Topic id
  * @uses bbp_get_forum_content() To get the forum content
@@ -427,7 +427,7 @@ function bbp_forum_content( $forum_id = 0 ) {
 	/**
 	 * Return the content of the forum
 	 *
-	 * @since bbPress (r2780)
+	 * @since 2.0.0 bbPress (r2780)
 	 *
 	 * @param int $forum_id Optional. Topic id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -454,7 +454,7 @@ function bbp_forum_content( $forum_id = 0 ) {
 /**
  * Allow forum rows to have adminstrative actions
  *
- * @since bbPress (r3653)
+ * @since 2.1.0 bbPress (r3653)
  *
  * @uses do_action()
  * @todo Links and filter
@@ -466,7 +466,8 @@ function bbp_forum_row_actions() {
 /**
  * Output value of forum mods field
  *
- * @since bbPress (r5837)
+ * @since 2.6.0 bbPress (r5837)
+ *
  * @uses bbp_get_form_forum_mods() To get the value of forum mods field
  */
 function bbp_form_forum_mods() {
@@ -475,7 +476,7 @@ function bbp_form_forum_mods() {
 	/**
 	 * Return value of forum mods field
 	 *
-	 * @since bbPress (r5837)
+	 * @since 2.6.0 bbPress (r5837)
 	 *
 	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
 	 * @uses apply_filters() Calls 'bbp_get_form_forum_mods' with the mods
@@ -510,7 +511,7 @@ function bbp_form_forum_mods() {
 /**
  * Output the forums last active ID
  *
- * @since bbPress (r2860)
+ * @since 2.0.0 bbPress (r2860)
  *
  * @uses bbp_get_forum_last_active_id() To get the forum's last active id
  * @param int $forum_id Optional. Forum id
@@ -521,7 +522,7 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 	/**
 	 * Return the forums last active ID
 	 *
-	 * @since bbPress (r2860)
+	 * @since 2.0.0 bbPress (r2860)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -540,7 +541,7 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 /**
  * Output the forums last update date/time (aka freshness)
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbp_get_forum_last_active_time() To get the forum freshness
  * @param int $forum_id Optional. Forum id
@@ -551,7 +552,7 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 	/**
 	 * Return the forums last update date/time (aka freshness)
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -595,7 +596,7 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
  *
  * Outputs a complete link with attributes and content.
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_freshness_link() To get the forum freshness link
@@ -608,7 +609,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 	 *
 	 * Returns a complete link with attributes and content.
 	 *
-	 * @since bbPress (r2625)
+	 * @since 2.0.0 bbPress (r2625)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -662,7 +663,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 /**
  * Output parent ID of a forum, if exists
  *
- * @since bbPress (r3675)
+ * @since 2.1.0 bbPress (r3675)
  *
  * @param int $forum_id Forum ID
  * @uses bbp_get_forum_parent_id() To get the forum's parent ID
@@ -673,7 +674,7 @@ function bbp_forum_parent_id( $forum_id = 0 ) {
 	/**
 	 * Return ID of forum parent, if exists
 	 *
-	 * @since bbPress (r3675)
+	 * @since 2.1.0 bbPress (r3675)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -691,7 +692,7 @@ function bbp_forum_parent_id( $forum_id = 0 ) {
 /**
  * Return array of parent forums
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_id() To get the forum id
@@ -718,7 +719,7 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
 /**
  * Return subforums of given forum
  *
- * @since bbPress (r2747)
+ * @since 2.0.0 bbPress (r2747)
  *
  * @param array $args All the arguments supported by {@link WP_Query}
  * @uses bbp_get_forum_id() To get the forum id
@@ -864,7 +865,7 @@ function bbp_list_forums( $args = array() ) {
 /**
  * Output the forum subscription link
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @uses bbp_get_forum_subscription_link()
  */
@@ -877,7 +878,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 	 *
 	 * A custom wrapper for bbp_get_user_subscribe_link()
 	 *
-	 * @since bbPress (r5156)
+	 * @since 2.5.0 bbPress (r5156)
 	 *
 	 * @uses bbp_parse_args()
 	 * @uses bbp_get_user_subscribe_link()
@@ -912,7 +913,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 /**
  * Output the forum's last topic id
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbp_get_forum_last_topic_id() To get the forum's last topic id
  * @param int $forum_id Optional. Forum id
@@ -923,7 +924,7 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
 	/**
 	 * Return the forum's last topic id
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -942,7 +943,7 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
 /**
  * Output the title of the last topic inside a forum
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_topic_title() To get the forum's last topic's title
@@ -953,7 +954,7 @@ function bbp_forum_last_topic_title( $forum_id = 0 ) {
 	/**
 	 * Return the title of the last topic inside a forum
 	 *
-	 * @since bbPress (r2625)
+	 * @since 2.0.0 bbPress (r2625)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -974,7 +975,7 @@ function bbp_forum_last_topic_title( $forum_id = 0 ) {
 /**
  * Output the link to the last topic in a forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_topic_permalink() To get the forum's last topic's
@@ -986,7 +987,7 @@ function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
 	/**
 	 * Return the link to the last topic in a forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1007,7 +1008,7 @@ function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
 /**
  * Return the author ID of the last topic of a forum
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_id() To get the forum id
@@ -1028,7 +1029,7 @@ function bbp_get_forum_last_topic_author_id( $forum_id = 0 ) {
 /**
  * Output link to author of last topic of forum
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_topic_author_link() To get the forum's last topic's
@@ -1040,7 +1041,7 @@ function bbp_forum_last_topic_author_link( $forum_id = 0 ) {
 	/**
 	 * Return link to author of last topic of forum
 	 *
-	 * @since bbPress (r2625)
+	 * @since 2.0.0 bbPress (r2625)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1064,7 +1065,7 @@ function bbp_forum_last_topic_author_link( $forum_id = 0 ) {
 /**
  * Output the forums last reply id
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbp_get_forum_last_reply_id() To get the forum's last reply id
  * @param int $forum_id Optional. Forum id
@@ -1075,7 +1076,7 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	/**
 	 * Return the forums last reply id
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1123,7 +1124,7 @@ function bbp_forum_last_reply_title( $forum_id = 0 ) {
 /**
  * Output the link to the last reply in a forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_reply_permalink() To get the forum last reply link
@@ -1134,7 +1135,7 @@ function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
 	/**
 	 * Return the link to the last reply in a forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1155,7 +1156,7 @@ function bbp_forum_last_reply_permalink( $forum_id = 0 ) {
 /**
  * Output the url to the last reply in a forum
  *
- * @since bbPress (r2683)
+ * @since 2.0.0 bbPress (r2683)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_reply_url() To get the forum last reply url
@@ -1166,7 +1167,7 @@ function bbp_forum_last_reply_url( $forum_id = 0 ) {
 	/**
 	 * Return the url to the last reply in a forum
 	 *
-	 * @since bbPress (r2683)
+	 * @since 2.0.0 bbPress (r2683)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1203,7 +1204,7 @@ function bbp_forum_last_reply_url( $forum_id = 0 ) {
 /**
  * Output author ID of last reply of forum
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_reply_author_id() To get the forum's last reply
@@ -1215,7 +1216,7 @@ function bbp_forum_last_reply_author_id( $forum_id = 0 ) {
 	/**
 	 * Return author ID of last reply of forum
 	 *
-	 * @since bbPress (r2625)
+	 * @since 2.0.0 bbPress (r2625)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1237,7 +1238,7 @@ function bbp_forum_last_reply_author_id( $forum_id = 0 ) {
 /**
  * Output link to author of last reply of forum
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_last_reply_author_link() To get the forum's last reply's
@@ -1249,7 +1250,7 @@ function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 	/**
 	 * Return link to author of last reply of forum
 	 *
-	 * @since bbPress (r2625)
+	 * @since 2.0.0 bbPress (r2625)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1274,7 +1275,7 @@ function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 /**
  * Output the topics link of the forum
  *
- * @since bbPress (r2883)
+ * @since 2.0.0 bbPress (r2883)
  *
  * @param int $forum_id Optional. Topic id
  * @uses bbp_get_forum_topics_link() To get the forum topics link
@@ -1286,7 +1287,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	/**
 	 * Return the topics link of the forum
 	 *
-	 * @since bbPress (r2883)
+	 * @since 2.0.0 bbPress (r2883)
 	 *
 	 * @param int $forum_id Optional. Topic id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1338,7 +1339,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 /**
  * Output total sub-forum count of a forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id to check
  * @param boolean $integer Optional. Whether or not to format the result
@@ -1350,7 +1351,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	/**
 	 * Return total subforum count of a forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param boolean $integer Optional. Whether or not to format the result
@@ -1371,7 +1372,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
 /**
  * Output total topic count of a forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
@@ -1384,7 +1385,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
 	/**
 	 * Return total topic count of a forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
@@ -1408,7 +1409,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
 /**
  * Output total reply count of a forum
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
@@ -1421,7 +1422,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 	/**
 	 * Return total post count of a forum
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
@@ -1445,7 +1446,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 /**
  * Output total post count of a forum
  *
- * @since bbPress (r2954)
+ * @since 2.0.0 bbPress (r2954)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $total_count Optional. To get the total count or normal count?
@@ -1458,7 +1459,7 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 	/**
 	 * Return total post count of a forum
 	 *
-	 * @since bbPress (r2954)
+	 * @since 2.0.0 bbPress (r2954)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
@@ -1485,7 +1486,7 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
  * Output total hidden topic count of a forum (hidden includes trashed, spammed,
  * and pending topics)
  *
- * @since bbPress (r2883)
+ * @since 2.0.0 bbPress (r2883)
  *
  * @param int $forum_id Optional. Topic id
  * @param boolean $integer Optional. Whether or not to format the result
@@ -1498,7 +1499,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 	 * Return total hidden topic count of a forum (hidden includes trashed,
 	 * spammed and pending topics)
 	 *
-	 * @since bbPress (r2883)
+	 * @since 2.0.0 bbPress (r2883)
 	 *
 	 * @param int $forum_id Optional. Topic id
 	 * @param boolean $integer Optional. Whether or not to format the result
@@ -1519,7 +1520,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 /**
  * Output the status of the forum
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_status() To get the forum status
@@ -1530,7 +1531,7 @@ function bbp_forum_status( $forum_id = 0 ) {
 	/**
 	 * Return the status of the forum
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1553,7 +1554,7 @@ function bbp_forum_status( $forum_id = 0 ) {
 /**
  * Output the visibility of the forum
  *
- * @since bbPress (r2997)
+ * @since 2.0.0 bbPress (r2997)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_visibility() To get the forum visibility
@@ -1564,7 +1565,7 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	/**
 	 * Return the visibility of the forum
 	 *
-	 * @since bbPress (r2997)
+	 * @since 2.0.0 bbPress (r2997)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1583,7 +1584,7 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 /**
  * Output the type of the forum
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_type() To get the forum type
@@ -1594,7 +1595,7 @@ function bbp_forum_type( $forum_id = 0 ) {
 	/**
 	 * Return the type of forum (category/forum/etc...)
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses get_post_meta() To get the forum category meta
@@ -1614,7 +1615,7 @@ function bbp_forum_type( $forum_id = 0 ) {
 /**
  * Is the forum a category?
  *
- * @since bbPress (r2746)
+ * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_type() To get the forum type
@@ -1631,7 +1632,7 @@ function bbp_is_forum_category( $forum_id = 0 ) {
 /**
  * Is the forum open?
  *
- * @since bbPress (r2746)
+ * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are open (only
@@ -1646,7 +1647,7 @@ function bbp_is_forum_open( $forum_id = 0, $check_ancestors = true ) {
 /**
 * Is the forum closed?
  *
- * @since bbPress (r2746)
+ * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are closed (only
@@ -1669,7 +1670,7 @@ function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Check if the forum status is a specific one, also maybe checking ancestors
  *
- * @since bbPress (r5499)
+ * @since 2.6.0 bbPress (r5499)
  *
  * @param bool $status_name The forum status name to check
  * @param bool $check_ancestors Check the forum ancestors
@@ -1743,7 +1744,7 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 /**
  * Is the forum public?
  *
- * @since bbPress (r2997)
+ * @since 2.0.0 bbPress (r2997)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are public
@@ -1765,7 +1766,7 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Is the forum private?
  *
- * @since bbPress (r2746)
+ * @since 2.0.0 bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are private
@@ -1787,7 +1788,7 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Is the forum hidden?
  *
- * @since bbPress (r2997)
+ * @since 2.0.0 bbPress (r2997)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are private (only if
@@ -1810,7 +1811,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 /**
  * Check the forum visibility ID
  *
- * @since bbPress (r5499)
+ * @since 2.6.0 bbPress (r5499)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $status_name The post status name to check
@@ -1887,7 +1888,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 /**
  * Output the author ID of the forum
  *
- * @since bbPress (r3675)
+ * @since 2.1.0 bbPress (r3675)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_author_id() To get the forum author id
@@ -1898,7 +1899,7 @@ function bbp_forum_author_id( $forum_id = 0 ) {
 	/**
 	 * Return the author ID of the forum
 	 *
-	 * @since bbPress (r3675)
+	 * @since 2.1.0 bbPress (r3675)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1917,7 +1918,7 @@ function bbp_forum_author_id( $forum_id = 0 ) {
 /**
  * Output the author of the forum
  *
- * @since bbPress (r3675)
+ * @since 2.1.0 bbPress (r3675)
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_author() To get the forum author
@@ -1928,7 +1929,7 @@ function bbp_forum_author_display_name( $forum_id = 0 ) {
 	/**
 	 * Return the author of the forum
 	 *
-	 * @since bbPress (r3675)
+	 * @since 2.1.0 bbPress (r3675)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
@@ -1949,7 +1950,7 @@ function bbp_forum_author_display_name( $forum_id = 0 ) {
 /**
  * Replace forum meta details for users that cannot view them.
  *
- * @since bbPress (r3162)
+ * @since 2.0.0 bbPress (r3162)
  *
  * @param string $retval
  * @param int $forum_id
@@ -1970,7 +1971,7 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
 /**
  * Replace forum author details for users that cannot view them.
  *
- * @since bbPress (r3162)
+ * @since 2.0.0 bbPress (r3162)
  *
  * @param string $author_link
  * @param array $args
@@ -2030,7 +2031,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 /**
  * Output the row class of a forum
  *
- * @since bbPress (r2667)
+ * @since 2.0.0 bbPress (r2667)
  *
  * @param int $forum_id Optional. Forum ID.
  * @param array Extra classes you can pass when calling this function
@@ -2042,7 +2043,7 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
 	/**
 	 * Return the row class of a forum
 	 *
-	 * @since bbPress (r2667)
+	 * @since 2.0.0 bbPress (r2667)
 	 *
 	 * @param int $forum_id Optional. Forum ID
 	 * @param array Extra classes you can pass when calling this function
@@ -2087,7 +2088,7 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
  * Output a fancy description of the current forum, including total topics,
  * total replies, and last activity.
  *
- * @since bbPress (r2860)
+ * @since 2.0.0 bbPress (r2860)
  *
  * @param array $args Arguments passed to alter output
  * @uses bbp_get_single_forum_description() Return the eventual output
@@ -2099,7 +2100,7 @@ function bbp_single_forum_description( $args = array() ) {
 	 * Return a fancy description of the current forum, including total
 	 * topics, total replies, and last activity.
 	 *
-	 * @since bbPress (r2860)
+	 * @since 2.0.0 bbPress (r2860)
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - forum_id: Forum id
@@ -2222,7 +2223,7 @@ function bbp_single_forum_description( $args = array() ) {
 /**
  * Output the unique id of the forum moderators taxonomy
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @uses bbp_get_forum_mod_tax_id() To get the forum modorator taxonomy ID
  */
@@ -2232,7 +2233,7 @@ function bbp_forum_mod_tax_id() {
 	/**
 	 * Return the unique id of the forum moderators taxonomy
 	 *
-	 * @since bbPress (r5834)
+	 * @since 2.6.0 bbPress (r5834)
 	 *
 	 * @uses apply_filters() Calls 'bbp_get_forum_mod_tax_id' with the forum
 	 *                        moderator taxonomy id
@@ -2245,7 +2246,7 @@ function bbp_forum_mod_tax_id() {
 /**
  * Return array of labels used by the forum-mod taxonomy
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @uses apply_filters() Calls 'bbp_get_forum_mod_tax_id' with the forum
  *                        moderator taxonomy labels
@@ -2270,7 +2271,7 @@ function bbp_get_forum_mod_tax_labels() {
 /**
  * Output a the moderators of a forum
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int   $forum_id Optional. Topic id
  * @param array $args     See {@link bbp_get_forum_mod_list()}
@@ -2282,7 +2283,7 @@ function bbp_forum_mod_list( $forum_id = 0, $args = array() ) {
 	/**
 	 * Return the moderators of a forum
 	 *
-	 * @since bbPress (r5834)
+	 * @since 2.6.0 bbPress (r5834)
 	 *
 	 * @param int   $forum_id Optional. Forum id
 	 * @param array $args     This function supports these arguments:
@@ -2350,7 +2351,7 @@ function bbp_forum_mod_list( $forum_id = 0, $args = array() ) {
 /**
  * Output the value of forum title field
  *
- * @since bbPress (r3551)
+ * @since 2.1.0 bbPress (r3551)
  *
  * @uses bbp_get_form_forum_title() To get the value of forum title field
  */
@@ -2360,7 +2361,7 @@ function bbp_form_forum_title() {
 	/**
 	 * Return the value of forum title field
 	 *
-	 * @since bbPress (r3551)
+	 * @since 2.1.0 bbPress (r3551)
 	 *
 	 * @uses bbp_is_forum_edit() To check if it's forum edit page
 	 * @uses apply_filters() Calls 'bbp_get_form_forum_title' with the title
@@ -2387,7 +2388,7 @@ function bbp_form_forum_title() {
 /**
  * Output the value of forum content field
  *
- * @since bbPress (r3551)
+ * @since 2.1.0 bbPress (r3551)
  *
  * @uses bbp_get_form_forum_content() To get value of forum content field
  */
@@ -2397,7 +2398,7 @@ function bbp_form_forum_content() {
 	/**
 	 * Return the value of forum content field
 	 *
-	 * @since bbPress (r3551)
+	 * @since 2.1.0 bbPress (r3551)
 	 *
 	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
 	 * @uses apply_filters() Calls 'bbp_get_form_forum_content' with the content
@@ -2424,7 +2425,7 @@ function bbp_form_forum_content() {
 /**
  * Output value of forum parent
  *
- * @since bbPress (r3551)
+ * @since 2.1.0 bbPress (r3551)
  *
  * @uses bbp_get_form_forum_parent() To get the topic's forum id
  */
@@ -2434,7 +2435,7 @@ function bbp_form_forum_parent() {
 	/**
 	 * Return value of forum parent
 	 *
-	 * @since bbPress (r3551)
+	 * @since 2.1.0 bbPress (r3551)
 	 *
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_parent_id() To get the topic forum id
@@ -2462,7 +2463,7 @@ function bbp_form_forum_parent() {
 /**
  * Output value of forum type
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @uses bbp_get_form_forum_type() To get the topic's forum id
  */
@@ -2472,7 +2473,7 @@ function bbp_form_forum_type() {
 	/**
 	 * Return value of forum type
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_type_id() To get the topic forum id
@@ -2500,7 +2501,7 @@ function bbp_form_forum_type() {
 /**
  * Output value of forum visibility
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @uses bbp_get_form_forum_visibility() To get the topic's forum id
  */
@@ -2510,7 +2511,7 @@ function bbp_form_forum_visibility() {
 	/**
 	 * Return value of forum visibility
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
 	 * @uses bbp_get_forum_visibility_id() To get the topic forum id
@@ -2538,7 +2539,7 @@ function bbp_form_forum_visibility() {
 /**
  * Output checked value of forum subscription
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @uses bbp_get_form_forum_subscribed() To get the subscribed checkbox value
  */
@@ -2548,7 +2549,7 @@ function bbp_form_forum_subscribed() {
 	/**
 	 * Return checked value of forum subscription
 	 *
-	 * @since bbPress (r5156)
+	 * @since 2.5.0 bbPress (r5156)
 	 *
 	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
 	 * @uses bbp_get_global_post_field() To get current post author
@@ -2600,7 +2601,7 @@ function bbp_form_forum_subscribed() {
 /**
  * Output value forum type dropdown
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_type
@@ -2615,7 +2616,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
 	/**
 	 * Return the forum type dropdown
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_type
@@ -2692,7 +2693,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
 /**
  * Output value forum status dropdown
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_status
@@ -2707,7 +2708,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
 	/**
 	 * Return the forum status dropdown
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_status
@@ -2784,7 +2785,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
 /**
  * Output value forum visibility dropdown
  *
- * @since bbPress (r3563)
+ * @since 2.1.0 bbPress (r3563)
  *
  * @param $args This function supports these arguments:
  *  - select_id: Select id. Defaults to bbp_forum_visibility
@@ -2799,7 +2800,7 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
 	/**
 	 * Return the forum visibility dropdown
 	 *
-	 * @since bbPress (r3563)
+	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @param $args This function supports these arguments:
 	 *  - select_id: Select id. Defaults to bbp_forum_visibility
@@ -2881,7 +2882,8 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
  *
  * @see bbp_forum_form_fields()
  *
- * @since bbPress (r5558)
+ * @since 2.6.0 bbPress (r5558)
+ *
  * @return boolean True if is a post request with valid nonce
  */
 function bbp_is_forum_form_post_request() {
@@ -2909,7 +2911,7 @@ function bbp_is_forum_form_post_request() {
 /**
  * Output the link for the forum feed
  *
- * @since bbPress (r3172)
+ * @since 2.0.0 bbPress (r3172)
  *
  * @param type $forum_id Optional. Forum ID.
  *
@@ -2921,7 +2923,7 @@ function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 	/**
 	 * Retrieve the link for the forum feed
 	 *
-	 * @since bbPress (r3172)
+	 * @since 2.0.0 bbPress (r3172)
 	 *
 	 * @param int $forum_id Optional. Forum ID.
 	 *
@@ -2971,7 +2973,7 @@ function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 /**
  * Output the link for the forum replies feed
  *
- * @since bbPress (r3172)
+ * @since 2.0.0 bbPress (r3172)
  *
  * @param type $forum_id Optional. Forum ID.
  *
@@ -2983,7 +2985,7 @@ function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 	/**
 	 * Retrieve the link for the forum replies feed
 	 *
-	 * @since bbPress (r3172)
+	 * @since 2.0.0 bbPress (r3172)
 	 *
 	 * @param int $forum_id Optional. Forum ID.
 	 *

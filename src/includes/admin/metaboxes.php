@@ -12,7 +12,7 @@
 /**
  * Filter the Dashboard "at a glance" items and append bbPress elements to it.
  *
- * @since bbPress (r5268)
+ * @since 2.6.0 bbPress (r5268)
  *
  * @param array $elements
  * @return array
@@ -59,8 +59,9 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
  *
  * Adds a dashboard widget with forum statistics
  *
- * @since bbPress (r2770)
- * @deprecated bbPress (r5268)
+ * @since 2.0.0 bbPress (r2770)
+ *
+ * @deprecated 2.6.0 bbPress (r5268)
  *
  * @uses bbp_get_version() To get the current bbPress version
  * @uses bbp_get_statistics() To get the forum statistics
@@ -284,7 +285,7 @@ function bbp_dashboard_widget_right_now() {
  *
  * The metabox that holds all of the additional forum information
  *
- * @since bbPress (r2744)
+ * @since 2.0.0 bbPress (r2744)
  *
  * @uses bbp_is_forum_closed() To check if a forum is closed or not
  * @uses bbp_is_forum_category() To check if a forum is a category or not
@@ -382,7 +383,7 @@ function bbp_forum_metabox() {
  *
  * The metabox that holds all of the additional topic information
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses do_action() Calls 'bbp_topic_metabox'
@@ -459,7 +460,7 @@ function bbp_topic_metabox() {
  *
  * The metabox that holds all of the additional reply information
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  *
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses do_action() Calls 'bbp_reply_metabox'
@@ -550,7 +551,7 @@ function bbp_reply_metabox() {
 /**
  * Output the topic replies metabox
  *
- * @since bbPress (r5886)
+ * @since 2.6.0 bbPress (r5886)
  *
  * @param type $topic
  *
@@ -591,7 +592,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 /**
  * Anonymous user information metabox
  *
- * @since bbPress (r2828)
+ * @since 2.0.0 bbPress (r2828)
  *
  * @uses bbp_is_reply_anonymous() To check if reply is anonymous
  * @uses bbp_is_topic_anonymous() To check if topic is anonymous

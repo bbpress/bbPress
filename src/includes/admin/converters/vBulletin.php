@@ -10,7 +10,8 @@
 /**
  * Implementation of vBulletin v4.x Converter.
  *
- * @since bbPress (r4724)
+ * @since 2.3.0 bbPress (r4724)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/vbulletin
  */
 class vBulletin extends BBP_Converter_Base {

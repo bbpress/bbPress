@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Allows all users to post links, quotes, code, formatting, lists, and images
  *
- * @since bbPress (r4603)
+ * @since 2.3.0 bbPress (r4603)
  *
  * @return array Associative array of allowed tags and attributes
  */
@@ -76,7 +76,7 @@ function bbp_kses_allowed_tags() {
 /**
  * Custom kses filter for forum topics and replies, for filtering incoming data
  *
- * @since bbPress (r4603)
+ * @since 2.3.0 bbPress (r4603)
  *
  * @param string $data Content to filter, expected to be escaped with slashes
  * @return string Filtered content
@@ -88,7 +88,7 @@ function bbp_filter_kses( $data = '' ) {
 /**
  * Custom kses filter for forum topics and replies, for raw data
  *
- * @since bbPress (r4603)
+ * @since 2.3.0 bbPress (r4603)
  *
  * @param string $data Content to filter, expected to not be escaped
  * @return string Filtered content
@@ -102,7 +102,7 @@ function bbp_kses_data( $data = '' ) {
 /**
  * Filter the topic or reply content and output code and pre tags
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
  * @return string Partially encodedd content
@@ -119,7 +119,7 @@ function bbp_code_trick( $content = '' ) {
  * When editing a topic or reply, reverse the code trick so the textarea
  * contains the correct editable content.
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
  * @return string Partially encodedd content
@@ -143,7 +143,7 @@ function bbp_code_trick_reverse( $content = '' ) {
 /**
  * Filter the content and encode any bad HTML tags
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
  * @return string Partially encodedd content
@@ -186,7 +186,7 @@ function bbp_encode_bad( $content = '' ) {
 /**
  * Callback to encode the tags in topic or reply content
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @param array $matches
  * @return string
@@ -222,7 +222,7 @@ function bbp_encode_callback( $matches = array() ) {
 /**
  * Callback to decode the tags in topic or reply content
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @param array $matches
  * @todo Experiment with _wp_specialchars()
@@ -251,7 +251,7 @@ function bbp_decode_callback( $matches = array() ) {
 /**
  * Callback to replace empty HTML tags in a content string
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @internal Used by bbp_encode_bad()
  * @param string $content
@@ -267,7 +267,7 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
 /**
  * Callback to replace normal HTML tags in a content string
  *
- * @since bbPress (r4641)
+ * @since 2.3.0 bbPress (r4641)
  *
  * @internal Used by bbp_encode_bad()
  * @param type $content
@@ -285,7 +285,8 @@ function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '') {
 /**
  * Catches links so rel=nofollow can be added (on output, not save)
  *
- * @since bbPress (r4865)
+ * @since 2.3.0 bbPress (r4865)
+ *
  * @param string $text Post text
  * @return string $text Text with rel=nofollow added to any links
  */
@@ -296,7 +297,8 @@ function bbp_rel_nofollow( $text = '' ) {
 /**
  * Adds rel=nofollow to a link
  *
- * @since bbPress (r4865)
+ * @since 2.3.0 bbPress (r4865)
+ *
  * @param array $matches
  * @return string $text Link with rel=nofollow added
  */
@@ -317,7 +319,7 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
  * This custom version of WordPress's make_clickable() skips links inside of
  * pre and code tags.
  *
- * @since bbPress (r4941)
+ * @since 2.4.0 bbPress (r4941)
  *
  * @param string $text Content to convert URIs.
  * @return string Content with converted URIs.

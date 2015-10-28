@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * A wrapper for wp_insert_post() that also includes the necessary meta values
  * for the topic to function properly.
  *
- * @since bbPress (r3349)
+ * @since 2.0.0 bbPress (r3349)
  *
  * @uses bbp_parse_args()
  * @uses bbp_get_topic_post_type()
@@ -935,7 +935,8 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
  * manual queries against the database to get their results. As such, this
  * function can be costly to run but is necessary to keep everything accurate.
  *
- * @since bbPress (r2800)
+ * @since 2.0.0 bbPress (r2800)
+ *
  * @param int $topic_id Topic id
  * @param string $last_active_time Optional. Last active time
  * @param int $forum_id Optional. Forum id
@@ -1139,7 +1140,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  *
  * Handles the front end merge topic submission
  *
- * @since bbPress (r2756)
+ * @since 2.0.0 bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
@@ -1393,7 +1394,7 @@ function bbp_merge_topic_handler( $action = '' ) {
  * When a topic is merged, update the counts of source and destination topic
  * and their forums.
  *
- * @since bbPress (r2756)
+ * @since 2.0.0 bbPress (r2756)
  *
  * @param int $destination_topic_id Destination topic id
  * @param int $source_topic_id Source topic id
@@ -1436,7 +1437,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  *
  * Handles the front end split topic submission
  *
- * @since bbPress (r2756)
+ * @since 2.0.0 bbPress (r2756)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
@@ -1773,7 +1774,7 @@ function bbp_split_topic_handler( $action = '' ) {
  * When a topic is split, update the counts of source and destination topic
  * and their forums.
  *
- * @since bbPress (r2756)
+ * @since 2.0.0 bbPress (r2756)
  *
  * @param int $from_reply_id From reply id
  * @param int $source_topic_id Source topic id
@@ -1813,7 +1814,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 /**
  * Handles the front end tag management (renaming, merging, destroying)
  *
- * @since bbPress (r2768)
+ * @since 2.0.0 bbPress (r2768)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
@@ -2004,7 +2005,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 /**
  * Return an associative array of available topic statuses
  *
- * @since bbPress (r5059)
+ * @since 2.4.0 bbPress (r5059)
  *
  * @return array
  */
@@ -2021,7 +2022,7 @@ function bbp_get_topic_statuses() {
 /**
  * Return an associative array of topic sticky types
  *
- * @since bbPress (r5059)
+ * @since 2.4.0 bbPress (r5059)
  *
  * @return array
  */
@@ -2038,7 +2039,7 @@ function bbp_get_topic_types() {
 /**
  * Return sticky topics of a forum
  *
- * @since bbPress (r2592)
+ * @since 2.0.0 bbPress (r2592)
  *
  * @param int $forum_id Optional. If not passed, super stickies are returned.
  * @uses bbp_get_super_stickies() To get the super stickies
@@ -2056,7 +2057,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
 /**
  * Return topics stuck to front page of the forums
  *
- * @since bbPress (r2592)
+ * @since 2.0.0 bbPress (r2592)
  *
  * @uses get_option() To get super sticky topics
  * @uses apply_filters() Calls 'bbp_get_super_stickies' with the stickies
@@ -2075,7 +2076,7 @@ function bbp_get_super_stickies() {
  * Handles the front end opening/closing, spamming/unspamming,
  * sticking/unsticking and trashing/untrashing/deleting of topics
  *
- * @since bbPress (r2727)
+ * @since 2.0.0 bbPress (r2727)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_get_topic() To get the topic
@@ -2257,7 +2258,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
 /**
  * Remove a deleted topic from all users' favorites
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $topic_id Get the topic id to remove
  * @uses bbp_get_topic_id To get the topic id
@@ -2290,7 +2291,7 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 /**
  * Remove a deleted topic from all users' subscriptions
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $topic_id Get the topic id to remove
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
@@ -2332,7 +2333,7 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 /**
  * Bump the total reply count of a topic
  *
- * @since bbPress (r3825)
+ * @since 2.1.0 bbPress (r3825)
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
@@ -2365,7 +2366,7 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 /**
  * Bump the total hidden reply count of a topic
  *
- * @since bbPress (r3825)
+ * @since 2.1.0 bbPress (r3825)
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1
@@ -2400,7 +2401,7 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 /**
  * Update the topic's forum id
  *
- * @since bbPress (r2855)
+ * @since 2.0.0 bbPress (r2855)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $forum_id Optional. Forum id
@@ -2437,7 +2438,7 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 /**
  * Update the topic's topic id
  *
- * @since bbPress (r2954)
+ * @since 2.0.0 bbPress (r2954)
  *
  * @param int $topic_id Optional. Topic id to update
  * @uses bbp_get_topic_id() To get the topic id
@@ -2456,7 +2457,7 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 /**
  * Adjust the total reply count of a topic
  *
- * @since bbPress (r2467)
+ * @since 2.0.0 bbPress (r2467)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually.
@@ -2495,7 +2496,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * Adjust the total hidden reply count of a topic (hidden includes trashed,
  * spammed and pending replies)
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually
@@ -2541,7 +2542,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 /**
  * Update the topic with the last active post ID
  *
- * @since bbPress (r2888)
+ * @since 2.0.0 bbPress (r2888)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $active_id Optional. active id
@@ -2625,7 +2626,7 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 /**
  * Update the topic with the most recent reply ID
  *
- * @since bbPress (r2625)
+ * @since 2.0.0 bbPress (r2625)
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_id Optional. Reply id
@@ -2673,7 +2674,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 /**
  * Adjust the total voice count of a topic
  *
- * @since bbPress (r2567)
+ * @since 2.0.0 bbPress (r2567)
  *
  * @param int $topic_id Optional. Topic id to update
  * @uses bbp_is_reply() To check if the passed topic id is a reply
@@ -2714,7 +2715,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 /**
  * Adjust the total anonymous reply count of a topic
  *
- * @since bbPress (r2567)
+ * @since 2.0.0 bbPress (r2567)
  *
  * @param int $topic_id Optional. Topic id to update
  * @uses bbp_is_reply() To check if the passed topic id is a reply
@@ -2754,7 +2755,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 /**
  * Update the revision log of the topic
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param array $args Supports these args:
  *  - topic_id: Topic id
@@ -2796,7 +2797,7 @@ function bbp_update_topic_revision_log( $args = array() ) {
 /**
  * Closes a topic
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -2866,7 +2867,7 @@ function bbp_close_topic( $topic_id = 0 ) {
 /**
  * Opens a topic
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -2936,7 +2937,7 @@ function bbp_open_topic( $topic_id = 0 ) {
 /**
  * Marks a topic as spam
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -2989,7 +2990,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3036,7 +3037,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3073,7 +3074,7 @@ function bbp_spam_topic_tags( $topic_id = 0 ) {
 /**
  * Unspams a topic
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -3133,7 +3134,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this after the topic is unspammed.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3168,7 +3169,7 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is unmarked as spam.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3191,7 +3192,7 @@ function bbp_unspam_topic_tags( $topic_id = 0 ) {
 /**
  * Sticks a topic to a forum or front
  *
- * @since bbPress (r2754)
+ * @since 2.0.0 bbPress (r2754)
  *
  * @param int $topic_id Optional. Topic id
  * @param int $super Should we make the topic a super sticky?
@@ -3253,7 +3254,7 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 /**
  * Approves a pending topic
  *
- * @since bbPress (r5503)
+ * @since 2.6.0 bbPress (r5503)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -3300,7 +3301,7 @@ function bbp_approve_topic( $topic_id = 0 ) {
 /**
  * Unapproves a topic
  *
- * @since bbPress (r5503)
+ * @since 2.6.0 bbPress (r5503)
  *
  * @param int $topic_id Topic id
  * @uses bbp_get_topic() To get the topic
@@ -3346,7 +3347,7 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 /**
  * Unsticks a topic both from front and it's forum
  *
- * @since bbPress (r2754)
+ * @since 2.0.0 bbPress (r2754)
  *
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_id() To get the topic id
@@ -3425,7 +3426,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is deleted.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3487,7 +3488,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3553,7 +3554,7 @@ function bbp_untrash_topic( $topic_id = 0 ) {
  *
  * Usually you'll want to do this after the topic is unspammed.
  *
- * @since bbPress (r5405)
+ * @since 2.6.0 bbPress (r5405)
  *
  * @param int $topic_id
  */
@@ -3641,7 +3642,7 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 /**
  * Return the topics per page setting
  *
- * @since bbPress (r3540)
+ * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (15)
  * @uses get_option() To get the setting
@@ -3665,7 +3666,7 @@ function bbp_get_topics_per_page( $default = 15 ) {
 /**
  * Return the topics per RSS page setting
  *
- * @since bbPress (r3540)
+ * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (25)
  * @uses get_option() To get the setting
@@ -3691,7 +3692,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 /**
  * Get topic tags for a specific topic ID
  *
- * @since bbPress (r5836)
+ * @since 2.6.0 bbPress (r5836)
  *
  * @param int $topic_id
  *
@@ -3708,7 +3709,7 @@ function bbp_get_topic_tags( $topic_id = 0 ) {
 /**
  * Get topic tags for a specific topic ID
  *
- * @since bbPress (r4165)
+ * @since 2.2.0 bbPress (r4165)
  *
  * @param int    $topic_id
  * @param string $sep
@@ -3728,7 +3729,8 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 /**
  * Check if autoembeds are enabled and hook them in if so
  *
- * @since bbPress (r3752)
+ * @since 2.1.0 bbPress (r3752)
+ *
  * @global WP_Embed $wp_embed
  */
 function bbp_topic_content_autoembed() {
@@ -3744,7 +3746,7 @@ function bbp_topic_content_autoembed() {
 /**
  * Output an RSS2 feed of topics, based on the query passed.
  *
- * @since bbPress (r3171)
+ * @since 2.0.0 bbPress (r3171)
  *
  * @uses bbp_version()
  * @uses bbp_is_single_topic()
@@ -3848,7 +3850,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 /**
  * Redirect if unathorized user is attempting to edit a topic
  *
- * @since bbPress (r3605)
+ * @since 2.1.0 bbPress (r3605)
  *
  * @uses bbp_is_topic_edit()
  * @uses current_user_can()
@@ -3872,7 +3874,7 @@ function bbp_check_topic_edit() {
 /**
  * Redirect if unathorized user is attempting to edit a topic tag
  *
- * @since bbPress (r3605)
+ * @since 2.1.0 bbPress (r3605)
  *
  * @uses bbp_is_topic_tag_edit()
  * @uses current_user_can()

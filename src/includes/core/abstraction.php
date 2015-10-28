@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Lookup and return a global variable
  *
- * @since bbPress (r5814)
+ * @since 2.5.8 bbPress (r5814)
  *
  * @param  string  $name     Name of global variable
  * @param  string  $type     Type of variable to check with `is_a()`
@@ -57,7 +57,7 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
  * class. bbPress supports WordPress's `$wpdb` global by default, and can be
  * filtered to support other configurations if needed.
  *
- * @since bbPress (r5814)
+ * @since 2.5.8 bbPress (r5814)
  *
  * @return object
  */
@@ -72,7 +72,7 @@ function bbp_db() {
  * rules class. bbPress supports WordPress's `$wp_rewrite` by default, but can
  * be filtered to support other configurations if needed.
  *
- * @since bbPress (r5814)
+ * @since 2.5.8 bbPress (r5814)
  *
  * @return object
  */
@@ -86,7 +86,7 @@ function bbp_rewrite() {
 /**
  * Get the root URL
  *
- * @since bbPress (r5814)
+ * @since 2.5.8 bbPress (r5814)
  *
  * @return string
  */
@@ -97,7 +97,7 @@ function bbp_get_root_url() {
 /**
  * Get the slug used for paginated requests
  *
- * @since bbPress (r4926)
+ * @since 2.4.0 bbPress (r4926)
  *
  * @return string
  */
@@ -108,7 +108,7 @@ function bbp_get_paged_slug() {
 /**
  * Is the environment using pretty URLs?
  *
- * @since bbPress (r5814)
+ * @since 2.5.8 bbPress (r5814)
  *
  * @global object $wp_rewrite The WP_Rewrite object
  *

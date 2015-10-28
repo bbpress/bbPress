@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Redirect back to $url when attempting to use the login page
  *
- * @since bbPress (r2815)
+ * @since 2.0.0 bbPress (r2815)
  *
  * @param string $url The url
  * @param string $raw_url Raw url
@@ -45,7 +45,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 /**
  * Is an anonymous topic/reply being made?
  *
- * @since bbPress (r2688)
+ * @since 2.0.0 bbPress (r2688)
  *
  * @uses is_user_logged_in() Is the user logged in?
  * @uses bbp_allow_anonymous() Is anonymous posting allowed?
@@ -66,7 +66,7 @@ function bbp_is_anonymous() {
 /**
  * Echoes the values for current poster (uses WP comment cookies)
  *
- * @since bbPress (r2734)
+ * @since 2.0.0 bbPress (r2734)
  *
  * @param string $key Which value to echo?
  * @uses bbp_get_current_anonymous_user_data() To get the current anonymous user
@@ -79,7 +79,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 	/**
 	 * Get the cookies for current poster (uses WP comment cookies).
 	 *
-	 * @since bbPress (r2734)
+	 * @since 2.0.0 bbPress (r2734)
 	 *
 	 * @param string $key Optional. Which value to get? If not given, then
 	 *                     an array is returned.
@@ -113,7 +113,7 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 /**
  * Set the cookies for current poster (uses WP comment cookies)
  *
- * @since bbPress (r2734)
+ * @since 2.0.0 bbPress (r2734)
  *
  * @param array $anonymous_data With keys 'bbp_anonymous_name',
  *                               'bbp_anonymous_email', 'bbp_anonymous_website'.
@@ -159,7 +159,7 @@ function bbp_current_author_ip() {
 /**
  * Get the poster user agent
  *
- * @since bbPress (r3446)
+ * @since 2.0.0 bbPress (r3446)
  *
  * @return string
  */
@@ -174,7 +174,7 @@ function bbp_current_author_ua() {
 /**
  * Get the users who have made the topic favorite
  *
- * @since bbPress (r2658)
+ * @since 2.0.0 bbPress (r2658)
  *
  * @param int $topic_id Optional. Topic id
  * @uses wpdb::get_col() To execute our query and get the column back
@@ -202,7 +202,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 /**
  * Get a user's favorite topics
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_favorites_topic_ids() To get the user's favorites
@@ -231,7 +231,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 /**
  * Get a user's favorite topics' ids
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
@@ -255,7 +255,7 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 /**
  * Check if a topic is in user's favorites or not
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -305,7 +305,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 /**
  * Add a topic to user's favorites
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -342,7 +342,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 /**
  * Remove a topic from user's favorites
  *
- * @since bbPress (r2652)
+ * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -491,7 +491,7 @@ function bbp_favorites_handler( $action = '' ) {
 /**
  * Get the users who have subscribed to the forum
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $forum_id Optional. forum id
  * @uses wpdb::get_col() To execute our query and get the column back
@@ -518,7 +518,7 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
 /**
  * Get the users who have subscribed to the topic
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Optional. Topic id
  * @uses wpdb::get_col() To execute our query and get the column back
@@ -545,9 +545,9 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 /**
  * Get a user's subscribed topics
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
- * @deprecated since bbPress (r5156)
+ * @deprecated 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_topic_subscriptions() To get the user's subscriptions
@@ -562,7 +562,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 /**
  * Get a user's subscribed topics
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
@@ -593,7 +593,7 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 /**
  * Get a user's subscribed forums
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
@@ -624,7 +624,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
 /**
  * Get a user's subscribed forum ids
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
@@ -648,7 +648,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 /**
  * Get a user's subscribed topics' ids
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
@@ -672,7 +672,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 /**
  * Check if a topic or forum is in user's subscription list or not
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
@@ -726,7 +726,7 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
 /**
  * Check if a forum is in user's subscription list or not
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. Topic id
@@ -783,7 +783,7 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
 /**
  * Check if a topic is in user's subscription list or not
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -840,7 +840,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 /**
  * Add a topic to user's subscriptions
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
@@ -886,7 +886,7 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0 ) {
 /**
  * Add a forum to user's subscriptions
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
@@ -923,7 +923,7 @@ function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
 /**
  * Add a topic to user's subscriptions
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -960,7 +960,7 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
 /**
  * Remove a topic from user's subscriptions
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
@@ -1006,7 +1006,7 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0 ) {
 /**
  * Remove a forum from user's subscriptions
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
@@ -1053,7 +1053,7 @@ function bbp_remove_user_forum_subscription( $user_id, $forum_id ) {
 /**
  * Remove a topic from user's subscriptions
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -1100,7 +1100,7 @@ function bbp_remove_user_topic_subscription( $user_id, $topic_id ) {
 /**
  * Handles the front end subscribing and unsubscribing forums
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
@@ -1205,7 +1205,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 /**
  * Handles the front end subscribing and unsubscribing topics
  *
- * @since bbPress (r2790)
+ * @since 2.0.0 bbPress (r2790)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
@@ -1312,7 +1312,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 /**
  * Handles the front end user editing from POST requests
  *
- * @since bbPress (r2790)
+ * @since 2.0.0 bbPress (r2790)
  *
  * @param string $action The requested action to compare this function to
  * @uses is_multisite() To check if it's a multisite
@@ -1446,7 +1446,7 @@ function bbp_edit_user_handler( $action = '' ) {
 /**
  * Handles user email address updating from GET requests
  *
- * @since bbPress (r5660)
+ * @since 2.6.0 bbPress (r5660)
  *
  * @param string $action
  *
@@ -1556,7 +1556,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 /**
  * Sends an email when an email address change occurs on POST requests
  *
- * @since bbPress (r5660)
+ * @since 2.6.0 bbPress (r5660)
  *
  * @see send_confirmation_on_profile_email()
  *
@@ -1638,7 +1638,7 @@ The %4$s Team
  * output actions if they don't want any unexpected junk to appear there, and
  * also avoids needing to pollute the templates with additional logic and actions.
  *
- * @since bbPress (r4273)
+ * @since 2.2.0 bbPress (r4273)
  *
  * @uses bbp_is_user_home_edit() To switch the action fired
  * @uses get_userdata() To get the current user's data
@@ -1655,7 +1655,7 @@ function bbp_user_edit_after() {
 /**
  * Get the topics that a user created
  *
- * @since bbPress (r2660)
+ * @since 2.0.0 bbPress (r2660)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the topic id
@@ -1681,7 +1681,7 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 /**
  * Get the replies that a user created
  *
- * @since bbPress (r4225)
+ * @since 2.2.0 bbPress (r4225)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the topic id
@@ -1709,7 +1709,8 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
 /**
  * Get the total number of users on the forums
  *
- * @since bbPress (r2769)
+ * @since 2.0.0 bbPress (r2769)
+ *
  * @uses count_users() To execute our query and get the var back
  * @uses apply_filters() Calls 'bbp_get_total_users' with number of users
  * @return int Total number of users
@@ -1724,7 +1725,7 @@ function bbp_get_total_users() {
 /**
  * Return the raw database count of topics by a user
  *
- * @since bbPress (r3633)
+ * @since 2.1.0 bbPress (r3633)
  *
  * @param int $user_id User ID to get count for
  *
@@ -1751,7 +1752,7 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 /**
  * Return the raw database count of replies by a user
  *
- * @since bbPress (r3633)
+ * @since 2.1.0 bbPress (r3633)
  *
  * @param int $user_id User ID to get count for
  *
@@ -1778,7 +1779,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 /**
  * Bump the topic count for a user by a certain amount.
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @param int $user_id
  * @param int $difference
@@ -1816,7 +1817,7 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 /**
  * Bump the reply count for a user by a certain amount.
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @param int $user_id
  * @param int $difference
@@ -1855,7 +1856,7 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
  * Helper function used to increase (by one) the count of topics for a user when
  * a topic is published.
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @access
  * @param $topic_id
@@ -1874,7 +1875,7 @@ function bbp_increase_user_topic_count( $topic_id = 0 ) {
  *
  * This is a helper function, hooked to `bbp_new_reply`
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @param $topic_id
  * @param $forum_id
@@ -1890,7 +1891,7 @@ function bbp_increase_user_reply_count( $reply_id = 0 ) {
  * Helper function used to decrease (by one) the count of topics for a user when
  * a topic is unpublished.
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @param $topic_id
  */
@@ -1903,7 +1904,7 @@ function bbp_decrease_user_topic_count( $topic_id = 0 ) {
  * Helper function used to increase (by one) the count of replies for a user when
  * a topic is unpublished.
  *
- * @since bbPress (r5309)
+ * @since 2.6.0 bbPress (r5309)
  *
  * @param $reply_id
  */
@@ -1917,7 +1918,7 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
 /**
  * Return the term id for a given user id and taxonomy
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int    $user_id User id.
  * @param string $taxonomy Taxonomy.
@@ -1957,7 +1958,7 @@ function bbp_get_user_taxonomy_term_id( $user_id = 0, $taxonomy = '' ) {
 /**
  * Return the user id for a given term id and taxonomy
  *
- * @since bbPress (r5834)
+ * @since 2.6.0 bbPress (r5834)
  *
  * @param int    $term_id Term id.
  * @param string $taxonomy Taxonomy.
@@ -2043,7 +2044,7 @@ function bbp_filter_forum_mod_term_link( $termlink = '', $term = '', $taxonomy =
  * met, we assume a user cannot perform this task, and look for ways they can
  * earn the ability to access this template.
  *
- * @since bbPress (r3605)
+ * @since 2.1.0 bbPress (r3605)
  *
  * @uses bbp_is_single_user_edit()
  * @uses current_user_can()
@@ -2094,7 +2095,7 @@ function bbp_check_user_edit() {
 /**
  * Check if a user is blocked, or cannot spectate the forums.
  *
- * @since bbPress (r2996)
+ * @since 2.0.0 bbPress (r2996)
  *
  * @uses is_user_logged_in() To check if user is logged in
  * @uses bbp_is_user_keymaster() To check if user is a keymaster
@@ -2132,7 +2133,7 @@ function bbp_forum_enforce_blocked() {
  *    a backwards compatible approach like this one was necessary to protect
  *    existing installations that may have custom template parts.
  *
- * @since bbPress (r5368)
+ * @since 2.6.0 bbPress (r5368)
  *
  * @param string $value
  * @param string $field
@@ -2189,7 +2190,7 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
 /**
  * Convert passwords from previous platfrom encryption to WordPress encryption.
  *
- * @since bbPress (r3813)
+ * @since 2.1.0 bbPress (r3813)
  */
 function bbp_user_maybe_convert_pass() {
 

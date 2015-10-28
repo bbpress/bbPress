@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * If there is no raw DB version, this is the first installation
  *
- * @since bbPress (r3764)
+ * @since 2.1.0 bbPress (r3764)
  *
  * @uses get_option()
  * @uses bbp_get_db_version() To get bbPress's database version
@@ -26,7 +26,7 @@ function bbp_is_install() {
 /**
  * Compare the bbPress version to the DB version to determine if updating
  *
- * @since bbPress (r3421)
+ * @since 2.0.0 bbPress (r3421)
  *
  * @uses get_option()
  * @uses bbp_get_db_version() To get bbPress's database version
@@ -45,7 +45,7 @@ function bbp_is_update() {
  * Note that this function currently is not used in bbPress core and is here
  * for third party plugins to use to check for bbPress activation.
  *
- * @since bbPress (r3421)
+ * @since 2.0.0 bbPress (r3421)
  *
  * @return bool True if activating bbPress, false if not
  */
@@ -95,7 +95,8 @@ function bbp_is_activation( $basename = '' ) {
 /**
  * Determine if bbPress is being deactivated
  *
- * @since bbPress (r3421)
+ * @since 2.0.0 bbPress (r3421)
+ *
  * @return bool True if deactivating bbPress, false if not
  */
 function bbp_is_deactivation( $basename = '' ) {
@@ -144,7 +145,8 @@ function bbp_is_deactivation( $basename = '' ) {
 /**
  * Update the DB to the latest version
  *
- * @since bbPress (r3421)
+ * @since 2.0.0 bbPress (r3421)
+ *
  * @uses update_option()
  * @uses bbp_get_db_version() To get bbPress's database version
  */
@@ -155,7 +157,7 @@ function bbp_version_bump() {
 /**
  * Setup the bbPress updater
  *
- * @since bbPress (r3419)
+ * @since 2.0.0 bbPress (r3419)
  *
  * @uses bbp_version_updater()
  * @uses bbp_version_bump()
@@ -175,7 +177,8 @@ function bbp_setup_updater() {
 /**
  * Create a default forum, topic, and reply
  *
- * @since bbPress (r3767)
+ * @since 2.1.0 bbPress (r3767)
+ *
  * @param array $args Array of arguments to override default values
  */
 function bbp_create_initial_content( $args = array() ) {
@@ -246,7 +249,7 @@ function bbp_create_initial_content( $args = array() ) {
  * This is most-often used when the data schema changes, but should also be used
  * to correct issues with bbPress meta-data silently on software update.
  *
- * @since bbPress (r4104)
+ * @since 2.2.0 bbPress (r4104)
  */
 function bbp_version_updater() {
 
@@ -308,7 +311,7 @@ function bbp_version_updater() {
 /**
  * Redirect user to bbPress's What's New page on activation
  *
- * @since bbPress (r4389)
+ * @since 2.2.0 bbPress (r4389)
  *
  * @internal Used internally to redirect bbPress to the about page on activation
  *
@@ -333,7 +336,7 @@ function bbp_add_activation_redirect() {
  * the current user a Key Master in the forums if they just activated bbPress,
  * regardless of the bbp_allow_global_access() setting.
  *
- * @since bbPress (r4910)
+ * @since 2.4.0 bbPress (r4910)
  *
  * @internal Used to internally make the current user a keymaster on activation
  *

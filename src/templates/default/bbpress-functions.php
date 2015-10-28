@@ -5,7 +5,7 @@
  *
  * @package bbPress
  * @subpackage BBP_Theme_Compat
- * @since bbPress (r3732)
+ * @since 2.1.0 bbPress (r3732)
  */
 
 // Exit if accessed directly
@@ -27,7 +27,7 @@ if ( !class_exists( 'BBP_Default' ) ) :
  *
  * See @link BBP_Theme_Compat() for more.
  *
- * @since bbPress (r3732)
+ * @since 2.1.0 bbPress (r3732)
  *
  * @package bbPress
  * @subpackage BBP_Theme_Compat
@@ -39,7 +39,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * The main bbPress (Default) Loader
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses BBP_Default::setup_globals()
 	 * @uses BBP_Default::setup_actions()
@@ -60,7 +60,8 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Setup the theme hooks
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
+	 *
 	 * @access private
 	 *
 	 * @uses add_filter() To add various filters
@@ -91,7 +92,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Inserts HTML at the top of the main content area to be compatible with
 	 * the Twenty Twelve theme.
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 */
 	public function before_main_content() {
 	?>
@@ -106,7 +107,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Inserts HTML at the bottom of the main content area to be compatible with
 	 * the Twenty Twelve theme.
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 */
 	public function after_main_content() {
 	?>
@@ -120,7 +121,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Load the theme CSS
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses wp_enqueue_style() To enqueue the styles
 	 */
@@ -147,7 +148,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * Enqueue the required Javascript files
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses bbp_is_single_forum() To check if it's the forum page
 	 * @uses bbp_is_single_topic() To check if it's the topic page
@@ -219,7 +220,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * These localizations require information that may not be loaded even by init.
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses bbp_is_single_forum() To check if it's the forum page
 	 * @uses bbp_is_single_topic() To check if it's the topic page
@@ -260,7 +261,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * AJAX handler to Subscribe/Unsubscribe a user from a forum
 	 *
-	 * @since bbPress (r5155)
+	 * @since 2.5.0 bbPress (r5155)
 	 *
 	 * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
 	 * @uses bbp_is_user_logged_in() To check if user is logged in
@@ -328,7 +329,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * AJAX handler to add or remove a topic from a user's favorites
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses bbp_is_favorites_active() To check if favorites are active
 	 * @uses bbp_is_user_logged_in() To check if user is logged in
@@ -396,7 +397,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	/**
 	 * AJAX handler to Subscribe/Unsubscribe a user from a topic
 	 *
-	 * @since bbPress (r3732)
+	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
 	 * @uses bbp_is_user_logged_in() To check if user is logged in

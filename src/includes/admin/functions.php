@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Add a separator to the WordPress admin menus
  *
- * @since bbPress (r2957)
+ * @since 2.0.0 bbPress (r2957)
  */
 function bbp_admin_separator() {
 
@@ -47,7 +47,7 @@ function bbp_admin_separator() {
 /**
  * Tell WordPress we have a custom menu order
  *
- * @since bbPress (r2957)
+ * @since 2.0.0 bbPress (r2957)
  *
  * @param bool $menu_order Menu order
  * @return mixed True if separator, false if not
@@ -63,7 +63,7 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
 /**
  * Move our custom separator above our custom post types
  *
- * @since bbPress (r2957)
+ * @since 2.0.0 bbPress (r2957)
  *
  * @param array $menu_order Menu Order
  * @uses bbp_get_forum_post_type() To get the forum post type
@@ -117,7 +117,7 @@ function bbp_admin_menu_order( $menu_order ) {
 /**
  * Filter sample permalinks so that certain languages display properly.
  *
- * @since bbPress (r3336)
+ * @since 2.0.0 bbPress (r3336)
  *
  * @param string $post_link Custom post type permalink
  * @param object $_post Post data object
@@ -143,7 +143,7 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
 /**
  * Sanitize permalink slugs when saving the settings page.
  *
- * @since bbPress (r5364)
+ * @since 2.6.0 bbPress (r5364)
  *
  * @param string $slug
  * @return string
@@ -173,7 +173,8 @@ function bbp_sanitize_slug( $slug = '' ) {
 /**
  * Uninstall all bbPress options and capabilities from a specific site.
  *
- * @since bbPress (r3765)
+ * @since 2.1.0 bbPress (r3765)
+ *
  * @param type $site_id
  */
 function bbp_do_uninstall( $site_id = 0 ) {
@@ -192,7 +193,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
 /**
  * Redirect user to bbPress's What's New page on activation
  *
- * @since bbPress (r4389)
+ * @since 2.2.0 bbPress (r4389)
  *
  * @internal Used internally to redirect bbPress to the about page on activation
  *
@@ -236,7 +237,8 @@ function bbp_do_activation_redirect() {
  * The conditional prevents the override when the user is viewing settings or
  * any third-party plugins.
  *
- * @since bbPress (r3888)
+ * @since 2.1.0 bbPress (r3888)
+ *
  * @global string $plugin_page
  * @global array $submenu_file
  */
@@ -252,7 +254,8 @@ function bbp_tools_modify_menu_highlight() {
 /**
  * Output the tabs in the admin area
  *
- * @since bbPress (r3872)
+ * @since 2.1.0 bbPress (r3872)
+ *
  * @param string $active_tab Name of the tab that is active
  */
 function bbp_tools_admin_tabs( $active_tab = '' ) {
@@ -262,7 +265,8 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 	/**
 	 * Output the tabs in the admin area
 	 *
-	 * @since bbPress (r3872)
+	 * @since 2.1.0 bbPress (r3872)
+	 *
 	 * @param string $active_tab Name of the tab that is active
 	 */
 	function bbp_get_tools_admin_tabs( $active_tab = '' ) {

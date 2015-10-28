@@ -32,7 +32,7 @@ if ( !class_exists( 'bbPress' ) ) :
  *
  * "How doth the little busy bee, improve each shining hour..."
  *
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  */
 final class bbPress {
 
@@ -90,7 +90,8 @@ final class bbPress {
 	 * Insures that only one instance of bbPress exists in memory at any one
 	 * time. Also prevents needing to define globals all over the place.
 	 *
-	 * @since bbPress (r3757)
+	 * @since 2.1.0 bbPress (r3757)
+	 *
 	 * @staticvar object $instance
 	 * @uses bbPress::setup_globals() Setup the globals needed
 	 * @uses bbPress::includes() Include the required files
@@ -120,7 +121,8 @@ final class bbPress {
 	/**
 	 * A dummy constructor to prevent bbPress from being loaded more than once.
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
+	 *
 	 * @see bbPress::instance()
 	 * @see bbpress();
 	 */
@@ -129,42 +131,42 @@ final class bbPress {
 	/**
 	 * A dummy magic method to prevent bbPress from being cloned
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 */
 	public function __clone() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' ); }
 
 	/**
 	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 */
 	public function __wakeup() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' ); }
 
 	/**
 	 * Magic method for checking the existence of a certain custom field
 	 *
-	 * @since bbPress (r3951)
+	 * @since 2.1.0 bbPress (r3951)
 	 */
 	public function __isset( $key ) { return isset( $this->data[ $key ] ); }
 
 	/**
 	 * Magic method for getting bbPress variables
 	 *
-	 * @since bbPress (r3951)
+	 * @since 2.1.0 bbPress (r3951)
 	 */
 	public function __get( $key ) { return isset( $this->data[ $key ] ) ? $this->data[ $key ] : null; }
 
 	/**
 	 * Magic method for setting bbPress variables
 	 *
-	 * @since bbPress (r3951)
+	 * @since 2.1.0 bbPress (r3951)
 	 */
 	public function __set( $key , $value ) { $this->data[ $key ] = $value; }
 
 	/**
 	 * Magic method for unsetting bbPress variables
 	 *
-	 * @since bbPress (r4628)
+	 * @since 2.3.0 bbPress (r4628)
 	 */
 	public function __unset( $key ) {
 		if ( isset( $this->data[ $key ] ) ) {
@@ -175,7 +177,7 @@ final class bbPress {
 	/**
 	 * Magic method to prevent notices and errors from invalid method calls
 	 *
-	 * @since bbPress (r4252)
+	 * @since 2.2.0 bbPress (r4252)
 	 */
 	public function __call( $name = '', $args = array() ) { unset( $name, $args ); return null; }
 
@@ -185,7 +187,8 @@ final class bbPress {
 	 * Set some smart defaults to class variables. Allow some of them to be
 	 * filtered to allow for early overriding.
 	 *
-	 * @since bbPress (r2626)
+	 * @since 2.0.0 bbPress (r2626)
+	 *
 	 * @access private
 	 * @uses plugin_dir_path() To generate bbPress plugin path
 	 * @uses plugin_dir_url() To generate bbPress plugin url
@@ -286,7 +289,8 @@ final class bbPress {
 	/**
 	 * Include required files
 	 *
-	 * @since bbPress (r2626)
+	 * @since 2.0.0 bbPress (r2626)
+	 *
 	 * @access private
 	 * @uses is_admin() If in WordPress admin, load additional file
 	 */
@@ -359,7 +363,8 @@ final class bbPress {
 	/**
 	 * Setup the default hooks and actions
 	 *
-	 * @since bbPress (r2644)
+	 * @since 2.0.0 bbPress (r2644)
+	 *
 	 * @access private
 	 * @uses add_action() To add various actions
 	 */
@@ -408,7 +413,7 @@ final class bbPress {
 	 * the bbp-theme-compat folders, it's fine to hardcode these here. If at a
 	 * later date we need to automate this, and API will need to be built.
 	 *
-	 * @since bbPress (r3829)
+	 * @since 2.1.0 bbPress (r3829)
 	 */
 	public function register_theme_packages() {
 
@@ -430,7 +435,7 @@ final class bbPress {
 	/**
 	 * Setup the default bbPress theme compatibility location.
 	 *
-	 * @since bbPress (r3778)
+	 * @since 2.1.0 bbPress (r3778)
 	 */
 	public function setup_theme() {
 
@@ -452,7 +457,7 @@ final class bbPress {
 	 * will be removed on bbPress updates. If you're creating custom
 	 * translation files, please use the global language folder.
 	 *
-	 * @since bbPress (r2596)
+	 * @since 2.0.0 bbPress (r2596)
 	 *
 	 * @uses apply_filters() Calls 'plugin_locale' with {@link get_locale()} value
 	 * @uses load_textdomain() To load the textdomain
@@ -480,7 +485,8 @@ final class bbPress {
 	/**
 	 * Setup the post types for forums, topics and replies
 	 *
-	 * @since bbPress (r2597)
+	 * @since 2.0.0 bbPress (r2597)
+	 *
 	 * @uses register_post_type() To register the post types
 	 * @uses apply_filters() Calls various filters to modify the arguments
 	 *                        sent to register_post_type()
@@ -569,7 +575,8 @@ final class bbPress {
 	 * We do some manipulation of the 'trash' status so trashed topics and
 	 * replies can be viewed from within the theme.
 	 *
-	 * @since bbPress (r2727)
+	 * @since 2.0.0 bbPress (r2727)
+	 *
 	 * @uses register_post_status() To register post statuses
 	 * @uses $wp_post_statuses To modify trash and private statuses
 	 * @uses current_user_can() To check if the current user is capable &
@@ -654,8 +661,8 @@ final class bbPress {
 	/**
 	 * Register the topic tag and forum moderator taxonomies
 	 *
-	 * @since bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
-	 * @since bbPress (r5834) Added bbp_get_forum_mod_tax_id() taxonomy
+	 * @since 2.0.0 bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
+	 * @since 2.6.0 bbPress (r5834) Added bbp_get_forum_mod_tax_id() taxonomy
 	 *
 	 * @uses register_taxonomy() To register the taxonomy
 	 * @uses bbp_get_topic_post_type() To get the topic post type
@@ -712,7 +719,8 @@ final class bbPress {
 	/**
 	 * Register the bbPress views
 	 *
-	 * @since bbPress (r2789)
+	 * @since 2.0.0 bbPress (r2789)
+	 *
 	 * @uses bbp_register_view() To register the views
 	 */
 	public static function register_views() {
@@ -748,7 +756,7 @@ final class bbPress {
 	/**
 	 * Register the bbPress shortcodes
 	 *
-	 * @since bbPress (r3031)
+	 * @since 2.0.0 bbPress (r3031)
 	 *
 	 * @uses BBP_Shortcodes
 	 */
@@ -764,7 +772,8 @@ final class bbPress {
 	 * execution. get_currentuserinfo() is used to check for XMLRPC_REQUEST to
 	 * avoid xmlrpc errors.
 	 *
-	 * @since bbPress (r2697)
+	 * @since 2.0.0 bbPress (r2697)
+	 *
 	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
@@ -776,7 +785,8 @@ final class bbPress {
 	/**
 	 * Add the bbPress-specific rewrite tags
 	 *
-	 * @since bbPress (r2753)
+	 * @since 2.0.0 bbPress (r2753)
+	 *
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public static function add_rewrite_tags() {
@@ -797,7 +807,8 @@ final class bbPress {
 	 * - Topic views
 	 * - User profiles
 	 *
-	 * @since bbPress (r2688)
+	 * @since 2.0.0 bbPress (r2688)
+	 *
 	 * @todo Extract into an API
 	 */
 	public static function add_rewrite_rules() {
@@ -896,7 +907,7 @@ final class bbPress {
 	 * - Topic Views
 	 * - Search
 	 *
-	 * @since bbPress (r4930)
+	 * @since 2.4.0 bbPress (r4930)
 	 */
 	public static function add_permastructs() {
 

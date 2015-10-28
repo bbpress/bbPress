@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * A bbPress specific method of formatting numeric values
  *
- * @since bbPress (r2486)
+ * @since 2.0.0 bbPress (r2486)
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
@@ -39,7 +39,7 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 /**
  * A bbPress specific method of formatting numeric values
  *
- * @since bbPress (r3857)
+ * @since 2.1.0 bbPress (r3857)
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
@@ -60,7 +60,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 /**
  * Convert time supplied from database query into specified date format.
  *
- * @since bbPress (r2455)
+ * @since 2.0.0 bbPress (r2544)
  *
  * @param string $time Time to convert
  * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
@@ -81,7 +81,7 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 /**
  * Output formatted time to display human readable time difference.
  *
- * @since bbPress (r2544)
+ * @since 2.0.0 bbPress (r2544)
  *
  * @param string $older_date Unix timestamp from which the difference begins.
  * @param string $newer_date Optional. Unix timestamp from which the
@@ -95,7 +95,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	/**
 	 * Return formatted time to display human readable time difference.
 	 *
-	 * @since bbPress (r2544)
+	 * @since 2.0.0 bbPress (r2544)
 	 *
 	 * @param string $older_date Unix timestamp from which the difference begins.
 	 * @param string $newer_date Optional. Unix timestamp from which the
@@ -204,7 +204,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
  *  - Removing periods from the end of the string
  *  - Trimming again
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param string $reason Optional. User submitted reason for editing.
  * @return string Status of topic
@@ -249,7 +249,7 @@ function bbp_get_redirect_to() {
 /**
  * Append 'view=all' to query string if it's already there from referer
  *
- * @since bbPress (r3325)
+ * @since 2.0.0 bbPress (r3325)
  *
  * @param string $original_link Original Link to be modified
  * @param bool $force Override bbp_get_view_all() check
@@ -273,7 +273,7 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
 /**
  * Remove 'view=all' from query string
  *
- * @since bbPress (r3325)
+ * @since 2.0.0 bbPress (r3325)
  *
  * @param string $original_link Original Link to be modified
  * @uses current_user_can() To check if the current user can moderate
@@ -288,7 +288,7 @@ function bbp_remove_view_all( $original_link = '' ) {
 /**
  * If current user can and is vewing all topics/replies
  *
- * @since bbPress (r3325)
+ * @since 2.0.0 bbPress (r3325)
  *
  * @uses current_user_can() To check if the current user can moderate
  * @uses apply_filters() Calls 'bbp_get_view_all' with the link and original link
@@ -302,7 +302,7 @@ function bbp_get_view_all( $cap = 'moderate' ) {
 /**
  * Assist pagination by returning correct page number
  *
- * @since bbPress (r2628)
+ * @since 2.0.0 bbPress (r2628)
  *
  * @uses get_query_var() To get the 'paged' value
  * @return int Current page number
@@ -335,7 +335,7 @@ function bbp_get_paged() {
  * edits it, the post_author field is set to the logged in user's id. This
  * function fixes that.
  *
- * @since bbPress (r2734)
+ * @since 2.0.0 bbPress (r2734)
  *
  * @param array $data Post data
  * @param array $postarr Original post array (includes post id)
@@ -373,7 +373,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 /**
  * Check the date against the _bbp_edit_lock setting.
  *
- * @since bbPress (r3133)
+ * @since 2.0.0 bbPress (r3133)
  *
  * @param string $post_date_gmt
  *
@@ -415,7 +415,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
 /**
  * Get the forum statistics
  *
- * @since bbPress (r2769)
+ * @since 2.0.0 bbPress (r2769)
  *
  * @param array $args Optional. The function supports these arguments (all
  *                     default to true):
@@ -604,7 +604,7 @@ function bbp_get_statistics( $args = array() ) {
  *
  * If there are any errors, those are directly added to {@link bbPress:errors}
  *
- * @since bbPress (r2734)
+ * @since 2.0.0 bbPress (r2734)
  *
  * @param array $args Optional. If no args are there, then $_POST values are
  *                     used.
@@ -651,7 +651,7 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
  *
  * Check to make sure that a user is not making a duplicate post
  *
- * @since bbPress (r2763)
+ * @since 2.0.0 bbPress (r2763)
  *
  * @param array $post_data Contains information about the comment
  * @uses current_user_can() To check if the current user can throttle
@@ -723,7 +723,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  * Check to make sure that a user is not making too many posts in a short amount
  * of time.
  *
- * @since bbPress (r2734)
+ * @since 2.0.0 bbPress (r2734)
  *
  * @param false|array $anonymous_data Optional - if it's an anonymous post. Do
  *                                     not supply if supplying $author_id.
@@ -773,7 +773,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 /**
  * Checks topics and replies against the discussion moderation of blocked keys
  *
- * @since bbPress (r3581)
+ * @since 2.1.0 bbPress (r3581)
  *
  * @param array $anonymous_data Anonymous user data
  * @param int $author_id Topic or reply author ID
@@ -897,7 +897,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 /**
  * Checks topics and replies against the discussion blacklist of blocked keys
  *
- * @since bbPress (r3446)
+ * @since 2.0.0 bbPress (r3446)
  *
  * @param array $anonymous_data Anonymous user data
  * @param int $author_id Topic or reply author ID
@@ -1011,7 +1011,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * WordPress core. Previously, we used `get_home_url()` to use already validated
  * user input, but it was causing issues in some installations.
  *
- * @since bbPress (r5409)
+ * @since 2.6.0 bbPress (r5409)
  *
  * @see  wp_mail
  * @see  wp_notify_postauthor
@@ -1039,7 +1039,7 @@ function bbp_get_do_not_reply_address() {
  * those cases, we recommend unhooking this function and creating your own
  * custom emailer script.
  *
- * @since bbPress (r5413)
+ * @since 2.6.0 bbPress (r5413)
  *
  * @param int $reply_id ID of the newly made reply
  * @param int $topic_id ID of the topic of the reply
@@ -1203,7 +1203,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  * those cases, we recommend unhooking this function and creating your own
  * custom emailer script.
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $topic_id ID of the newly made reply
  * @param int $forum_id ID of the forum for the topic
@@ -1353,8 +1353,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  *
  * This function is deprecated. Please use: bbp_notify_topic_subscribers()
  *
- * @since bbPress (r2668)
- * @deprecated bbPress (r5412)
+ * @since 2.0.0 bbPress (r2668)
+ *
+ * @deprecated 2.6.0 bbPress (r5412)
  *
  * @param int $reply_id ID of the newly made reply
  * @param int $topic_id ID of the topic of the reply
@@ -1410,7 +1411,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  * it allows for arguments to be passively or aggressively filtered using the
  * optional $filter_key parameter.
  *
- * @since bbPress (r3839)
+ * @since 2.1.0 bbPress (r3839)
  *
  * @param string|array $args Value to merge with $defaults
  * @param array $defaults Array that serves as the defaults.
@@ -1450,8 +1451,9 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 /**
  * Adds ability to include or exclude specific post_parent ID's
  *
- * @since bbPress (r2996)
- * @deprecated bbPress (r5814)
+ * @since 2.0.0 bbPress (r2996)
+ *
+ * @deprecated 2.5.8 bbPress (r5814)
  *
  * @global WP $wp
  * @param string $where
@@ -1546,7 +1548,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a count of public children
  *
- * @since bbPress (r2868)
+ * @since 2.0.0 bbPress (r2868)
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
@@ -1597,7 +1599,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a the child id's of public children
  *
- * @since bbPress (r2868)
+ * @since 2.0.0 bbPress (r2868)
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
@@ -1650,7 +1652,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Query the DB and get a the child id's of all children
  *
- * @since bbPress (r3325)
+ * @since 2.0.0 bbPress (r3325)
  *
  * @param int $  parent_id  Parent id
  * @param string $post_type Post type. Defaults to 'post'
@@ -1734,7 +1736,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * Used most frequently when editing a forum/topic/reply
  *
- * @since bbPress (r3694)
+ * @since 2.1.0 bbPress (r3694)
  *
  * @global WP_Query $post
  * @param string $field Name of the key
@@ -1757,7 +1759,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * To avoid security exploits within the theme.
  *
- * @since bbPress (r4022)
+ * @since 2.1.0 bbPress (r4022)
  *
  * @uses do_action() Calls 'bbp_check_referer' on $action.
  * @param string $action Action nonce
@@ -1801,7 +1803,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	 *
 	 * Useful for configurations like reverse proxying.
 	 *
-	 * @since bbPress (2.5.0)
+	 * @since 2.2.0 bbPress (r4361)
 	 *
 	 * @param string $requested_url The requested URL.
 	 */
@@ -1818,7 +1820,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	/**
 	 * Fires at the end of the nonce verification check.
 	 *
-	 * @since bbPress (2.2.0)
+	 * @since 2.1.0 bbPress (r4023)
 	 *
 	 * @param string $action Action nonce.
 	 * @param bool   $result Boolean result of nonce verification.
@@ -1835,7 +1837,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
  * responsible for sniffing out the query vars and serving up RSS2 feeds if
  * the stars align and the user has requested a feed of any bbPress type.
  *
- * @since bbPress (r3171)
+ * @since 2.0.0 bbPress (r3171)
  *
  * @param array $query_vars
  * @return array
@@ -2058,7 +2060,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 /**
  * Used to guess if page exists at requested path
  *
- * @since bbPress (r3304)
+ * @since 2.0.0 bbPress (r3304)
  *
  * @uses get_option() To see if pretty permalinks are enabled
  * @uses get_page_by_path() To see if page exists at path
@@ -2088,7 +2090,7 @@ function bbp_get_page_by_path( $path = '' ) {
  *
  * Used primarily with topics/replies inside hidden forums.
  *
- * @since bbPress (r3051)
+ * @since 2.0.0 bbPress (r3051)
  *
  * @global WP_Query $wp_query
  * @uses WP_Query::set_404()

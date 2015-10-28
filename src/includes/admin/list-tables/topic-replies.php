@@ -23,14 +23,14 @@ if ( class_exists( 'WP_List_Table' ) ) :
  * This list table is responsible for showing the replies to a topic in a
  * metabox, similar to comments in posts and pages.
  *
- * @since bbPress (r5886)
+ * @since 2.6.0 bbPress (r5886)
  */
 class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 	/**
 	 * The main constructor method
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function __construct( $args = array() ) {
 		$args = array(
@@ -44,7 +44,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Setup the list-table's columns
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @see WP_List_Table::::single_row_columns()
 	 *
@@ -62,7 +62,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Allow `bbp_reply_created` to be sortable
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @return array An associative array containing the `bbp_reply_created` column
 	 */
@@ -75,7 +75,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Setup the bulk actions
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @return array An associative array containing all the bulk actions
 	 */
@@ -93,7 +93,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Output the `cb` column for bulk actions (if we implement them)
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function column_cb( $item = '' ) {
 		return sprintf(
@@ -106,7 +106,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Output the contents of the `bbp_topic_reply_author` column
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function column_bbp_topic_reply_author( $item = '' ) {
 		bbp_reply_author_avatar( $item->ID, 50 );
@@ -120,7 +120,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Output the contents of the `bbp_reply_created` column
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function column_bbp_reply_created( $item = '' ) {
 		return sprintf( '%1$s <br /> %2$s',
@@ -132,7 +132,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Output the contents of the `bbp_reply_content` column
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
    public function column_bbp_reply_content( $item = '' ) {
 
@@ -158,7 +158,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Handle bulk action requests
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function process_bulk_action() {
 		switch ( $this->current_action() ) {
@@ -174,7 +174,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Prepare the list-table items for display
 	 *
-	 * @since bbPress (r5886)
+	 * @since 2.6.0 bbPress (r5886)
 	 *
 	 * @uses $this->_column_headers
 	 * @uses $this->items
@@ -233,7 +233,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	/**
 	 * Message to be displayed when there are no items
 	 *
-	 * @since bbPress (r5930)
+	 * @since 2.6.0 bbPress (r5930)
 	 */
 	public function no_items() {
 		esc_html_e( 'No replies to this topic.', 'bbpress' );
@@ -245,7 +245,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * This custom method is necessary because the one in `WP_List_Table` comes
 	 * with a nonce and check that we do not need.
 	 *
-	 * @since bbPress (r5930)
+	 * @since 2.6.0 bbPress (r5930)
 	 */
 	public function display() {
 
@@ -282,7 +282,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * This custom method is necessary because the one in `WP_List_Table` comes
 	 * with a nonce and check that we do not need.
 	 *
-	 * @since bbPress (r5930)
+	 * @since 2.6.0 bbPress (r5930)
 	 *
 	 * @param string $which
 	 */

@@ -10,7 +10,8 @@
 /**
  * bbPress 1.1 Converter
  *
- * @since bbPress (r3816)
+ * @since 2.1.0 bbPress (r3816)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/bbpress-1-x-buddypress-group-forums
  */
 class bbPress1 extends BBP_Converter_Base {
@@ -740,7 +741,7 @@ class bbPress1 extends BBP_Converter_Base {
 	/**
 	 * This callback strips `topic-` from topic subscriptions taxonomy
 	 *
-	 * @since (r5572)
+	 * @since 2.6.0 bbPress (r5572)
 	 *
 	 * @param string $field Topic ID
 	 * @return integer WordPress safe

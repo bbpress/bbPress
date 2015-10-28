@@ -10,7 +10,8 @@
 /**
  * Implementation of PHPWind Forum converter.
  *
- * @since bbPress (r5142)
+ * @since 2.5.0 bbPress (r5142)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/phpwind
  */
 class PHPWind extends BBP_Converter_Base {

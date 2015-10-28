@@ -15,8 +15,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Admin repair page
  *
- * @since bbPress (r2613) Converted from bbPress 1.2
- * @since bbPress (r5885) Upgraded to list-table UI
+ * @since 2.0.0 bbPress (r2613) Converted from bbPress 1.2
+ * @since 2.6.0 bbPress (r5885) Upgraded to list-table UI
  *
  * @todo Use a real list table
  *
@@ -162,7 +162,7 @@ function bbp_admin_repair() {
 /**
  * Handle the processing and feedback of the admin tools page
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses bbp_admin_repair_list() To get the recount list
  * @uses check_admin_referer() To verify the nonce and the referer
@@ -222,7 +222,7 @@ function bbp_admin_repair_handler() {
 /**
  * Output the URL to run a specific repair tool
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param string $component
  */
@@ -233,7 +233,7 @@ function bbp_admin_repair_tool_run_url( $component = '' ) {
 /**
  * Return the URL to run a specific repair tool
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param string $component
  */
@@ -249,7 +249,8 @@ function bbp_get_admin_repair_tool_run_url( $component = '' ) {
 /**
  * Contextual help for Repair Forums tools page
  *
- * @since bbPress (r5314)
+ * @since 2.6.0 bbPress (r5314)
+ *
  * @uses get_current_screen()
  */
 
@@ -287,7 +288,8 @@ function bbp_admin_tools_repair_help() {
 /**
  * Contextual help for Reset Forums tools page
  *
- * @since bbPress (r5314)
+ * @since 2.6.0 bbPress (r5314)
+ *
  * @uses get_current_screen()
  */
 
@@ -318,7 +320,8 @@ function bbp_admin_tools_reset_help() {
 /**
  * Contextual help for Import Forums tools page
  *
- * @since bbPress (r5314)
+ * @since 2.6.0 bbPress (r5314)
+ *
  * @uses get_current_screen()
  */
 
@@ -377,7 +380,7 @@ function bbp_admin_tools_converter_help() {
 /**
  * Assemble the admin notices
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @param string|WP_Error $message A message to be displayed or {@link WP_Error}
  * @param string $class Optional. A class to be added to the message div
@@ -431,7 +434,7 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
 /**
  * Register an admin area repair tool
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param array $args
  * @return
@@ -474,7 +477,7 @@ function bbp_register_repair_tool( $args = array() ) {
 /**
  * Register the default repair tools
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  */
 function bbp_register_default_repair_tools() {
 
@@ -672,7 +675,7 @@ function bbp_register_default_repair_tools() {
 /**
  * Get the array of available repair tools
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @return array
  */
@@ -706,7 +709,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 /**
  * Output the repair list search form
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  */
 function bbp_admin_repair_list_search_form() {
 	?>
@@ -747,7 +750,7 @@ function bbp_admin_repair_list_components_filter() {
 /**
  * Maybe translate a repair tool component name
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param string $component
  * @return string
@@ -779,7 +782,7 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 /**
  * Get the array of the repair list
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses apply_filters() Calls 'bbp_repair_list' with the list array
  * @return array Repair list of options
@@ -836,7 +839,7 @@ function bbp_admin_repair_list() {
 /**
  * Get filter links for components for a specific admir repair tool
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param array $item
  * @return array
@@ -868,7 +871,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 /**
  * Get filter links for components for a specific admir repair tool
  *
- * @since bbPress (r5885)
+ * @since 2.6.0 bbPress (r5885)
  *
  * @param array $args
  * @return array
@@ -951,7 +954,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 /**
  * Recount topic replies
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1006,7 +1009,7 @@ function bbp_admin_repair_topic_reply_count() {
 /**
  * Recount topic voices
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1055,7 +1058,7 @@ function bbp_admin_repair_topic_voice_count() {
 /**
  * Recount topic hidden replies (spammed/trashed)
  *
- * @since bbPress (r2747)
+ * @since 2.0.0 bbPress (r2747)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1094,7 +1097,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 /**
  * Repair group forum ID mappings after a bbPress 1.1 to bbPress 2.2 conversion
  *
- * @since bbPress (r4395)
+ * @since 2.2.0 bbPress (r4395)
  *
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @return If a wp_error() occurs and no converted forums are found
@@ -1231,7 +1234,7 @@ function bbp_admin_repair_group_forum_relationship() {
 /**
  * Recount forum topics
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1268,7 +1271,7 @@ function bbp_admin_repair_forum_topic_count() {
 /**
  * Recount forum replies
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1314,7 +1317,7 @@ function bbp_admin_repair_forum_reply_count() {
 /**
  * Recount topics by the users
  *
- * @since bbPress (r3889)
+ * @since 2.1.0 bbPress (r3889)
  *
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_public_status_id() To get the public status id
@@ -1366,7 +1369,7 @@ function bbp_admin_repair_user_topic_count() {
 /**
  * Recount topic replied by the users
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_public_status_id() To get the public status id
@@ -1418,7 +1421,7 @@ function bbp_admin_repair_user_reply_count() {
 /**
  * Clean the users' favorites
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1488,7 +1491,7 @@ function bbp_admin_repair_user_favorites() {
 /**
  * Clean the users' topic subscriptions
  *
- * @since bbPress (r2668)
+ * @since 2.0.0 bbPress (r2668)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1557,7 +1560,7 @@ function bbp_admin_repair_user_topic_subscriptions() {
 /**
  * Clean the users' forum subscriptions
  *
- * @since bbPress (r5155)
+ * @since 2.5.0 bbPress (r5155)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1628,7 +1631,7 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * forums role. By default, Admins will be Key Masters, and every other role
  * will be the default role defined in Settings > Forums (Participant).
  *
- * @since bbPress (r4340)
+ * @since 2.2.0 bbPress (r4340)
  *
  * @uses bbp_get_user_role_map() To get the map of user roles
  * @uses bbp_get_default_role() To get the default bbPress user role
@@ -1685,7 +1688,7 @@ function bbp_admin_repair_user_roles() {
 /**
  * Recaches the last post in every topic and forum
  *
- * @since bbPress (r3040)
+ * @since 2.0.0 bbPress (r3040)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1814,7 +1817,7 @@ function bbp_admin_repair_freshness() {
 /**
  * Repairs the relationship of sticky topics to the actual parent forum
  *
- * @since bbPress (r4695)
+ * @since 2.3.0 bbPress (r4695)
  *
  * @uses wpdb::get_col() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1884,7 +1887,7 @@ function bbp_admin_repair_sticky() {
  * had imported forums from another forum package previous to bbPress v2.6,
  * https://bbpress.trac.wordpress.org/ticket/2577
  *
- * @since bbPress (r5668)
+ * @since 2.6.0 bbPress (r5668)
  *
  * @uses wpdb::get_col() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -1933,7 +1936,7 @@ function bbp_admin_repair_closed_topics() {
 /**
  * Recaches the private and hidden forums
  *
- * @since bbPress (r4104)
+ * @since 2.2.0 bbPress (r4104)
  *
  * @uses bbp_repair_forum_visibility() To update private and hidden forum ids
  * @return array An array of the status code and the message
@@ -1954,7 +1957,7 @@ function bbp_admin_repair_forum_visibility() {
 /**
  * Recaches the parent forum meta for each topic and reply
  *
- * @since bbPress (r3876)
+ * @since 2.1.0 bbPress (r3876)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -2009,7 +2012,7 @@ function bbp_admin_repair_forum_meta() {
 /**
  * Recaches the topic for each post
  *
- * @since bbPress (r3876)
+ * @since 2.1.0 bbPress (r3876)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -2064,7 +2067,7 @@ function bbp_admin_repair_topic_meta() {
 /**
  * Recalculate reply menu order
  *
- * @since bbPress (r5367)
+ * @since 2.5.4 bbPress (r5367)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
@@ -2123,7 +2126,7 @@ function bbp_admin_repair_reply_menu_order() {
 /**
  * Admin reset page
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses do_action() Calls 'admin_notices' to display the notices
@@ -2190,7 +2193,7 @@ function bbp_admin_reset() {
 /**
  * Handle the processing and feedback of the admin tools page
  *
- * @since bbPress (r2613)
+ * @since 2.0.0 bbPress (r2613)
  *
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses wp_cache_flush() To flush the cache

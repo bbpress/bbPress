@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Adds a widget which displays the login form
  *
- * @since bbPress (r2827)
+ * @since 2.0.0 bbPress (r2827)
  *
  * @uses WP_Widget
  */
@@ -28,7 +28,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * Registers the login widget
 	 *
-	 * @since bbPress (r2827)
+	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @uses apply_filters() Calls 'bbp_login_widget_options' with the
 	 *                        widget options
@@ -45,7 +45,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3389)
 	 *
 	 * @uses register_widget()
 	 */
@@ -56,7 +56,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the login form
 	 *
-	 * @since bbPress (r2827)
+	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
@@ -153,7 +153,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Update the login widget options
 	 *
-	 * @since bbPress (r2827)
+	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -170,7 +170,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Output the login widget options form
 	 *
-	 * @since bbPress (r2827)
+	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Login_Widget::get_field_id() To output the field id
@@ -202,7 +202,7 @@ class BBP_Login_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults
@@ -221,7 +221,7 @@ class BBP_Login_Widget extends WP_Widget {
  *
  * Adds a widget which displays the view list
  *
- * @since bbPress (r3020)
+ * @since 2.0.0 bbPress (r3020)
  *
  * @uses WP_Widget
  */
@@ -232,7 +232,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * Registers the view widget
 	 *
-	 * @since bbPress (r3020)
+	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @uses apply_filters() Calls 'bbp_views_widget_options' with the
 	 *                        widget options
@@ -249,7 +249,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3389)
 	 *
 	 * @uses register_widget()
 	 */
@@ -260,7 +260,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the view list
 	 *
-	 * @since bbPress (r3020)
+	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
@@ -307,7 +307,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Update the view widget options
 	 *
-	 * @since bbPress (r3020)
+	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -322,7 +322,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Output the view widget options form
 	 *
-	 * @since bbPress (r3020)
+	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Views_Widget::get_field_id() To output the field id
@@ -345,7 +345,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults
@@ -362,7 +362,7 @@ class BBP_Views_Widget extends WP_Widget {
  *
  * Adds a widget which displays the forum search form
  *
- * @since bbPress (r4579)
+ * @since 2.3.0 bbPress (r4579)
  *
  * @uses WP_Widget
  */
@@ -373,7 +373,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * Registers the search widget
 	 *
-	 * @since bbPress (r4579)
+	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @uses apply_filters() Calls 'bbp_search_widget_options' with the
 	 *                        widget options
@@ -390,7 +390,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r4579)
+	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @uses register_widget()
 	 */
@@ -401,7 +401,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the search form
 	 *
-	 * @since bbPress (r4579)
+	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @uses apply_filters() Calls 'bbp_search_widget_title' with the title
 	 * @uses get_template_part() To get the search form
@@ -436,7 +436,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Update the widget options
 	 *
-	 * @since bbPress (r4579)
+	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -451,7 +451,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Output the search widget options form
 	 *
-	 * @since bbPress (r4579)
+	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Search_Widget::get_field_id() To output the field id
@@ -474,7 +474,7 @@ class BBP_Search_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults
@@ -491,7 +491,7 @@ class BBP_Search_Widget extends WP_Widget {
  *
  * Adds a widget which displays the forum list
  *
- * @since bbPress (r2653)
+ * @since 2.0.0 bbPress (r2653)
  *
  * @uses WP_Widget
  */
@@ -502,7 +502,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * Registers the forum widget
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @uses apply_filters() Calls 'bbp_forums_widget_options' with the
 	 *                        widget options
@@ -519,7 +519,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3389)
 	 *
 	 * @uses register_widget()
 	 */
@@ -530,7 +530,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the forum list
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
@@ -603,7 +603,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Update the forum widget options
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -624,7 +624,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Output the forum widget options form
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Forums_Widget::get_field_id() To output the field id
@@ -657,7 +657,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults
@@ -675,7 +675,7 @@ class BBP_Forums_Widget extends WP_Widget {
  *
  * Adds a widget which displays the topic list
  *
- * @since bbPress (r2653)
+ * @since 2.0.0 bbPress (r2653)
  *
  * @uses WP_Widget
  */
@@ -686,7 +686,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * Registers the topic widget
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @uses apply_filters() Calls 'bbp_topics_widget_options' with the
 	 *                        widget options
@@ -703,7 +703,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3389)
 	 *
 	 * @uses register_widget()
 	 */
@@ -714,7 +714,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the topic list
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $args
 	 * @param array $instance
@@ -844,7 +844,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Update the topic widget options
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -869,7 +869,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Output the topic widget options form
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Topics_Widget::get_field_id() To output the field id
@@ -911,7 +911,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget options into defaults
@@ -933,7 +933,7 @@ class BBP_Topics_Widget extends WP_Widget {
  *
  * Adds a widget which displays the forum statistics
  *
- * @since bbPress (r4509)
+ * @since 2.3.0 bbPress (r4509)
  *
  * @uses WP_Widget
  */
@@ -944,7 +944,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * Registers the stats widget
 	 *
-	 * @since bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4509)
 	 *
 	 * @uses  apply_filters() Calls 'bbp_stats_widget_options' with the
 	 *        widget options
@@ -961,7 +961,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4509)
 	 *
 	 * @uses register_widget()
 	 */
@@ -972,7 +972,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the statistics
 	 *
-	 * @since bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4509)
 	 *
 	 * @param array $args     Arguments
 	 * @param array $instance Instance
@@ -1005,7 +1005,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Update the stats widget options
 	 *
-	 * @since bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4509)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -1022,7 +1022,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Output the stats widget options form
 	 *
-	 * @since bbPress (r4509)
+	 * @since 2.3.0 bbPress (r4509)
 	 *
 	 * @param $instance
 	 *
@@ -1045,7 +1045,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults
@@ -1063,7 +1063,7 @@ class BBP_Stats_Widget extends WP_Widget {
  *
  * Adds a widget which displays the replies list
  *
- * @since bbPress (r2653)
+ * @since 2.0.0 bbPress (r2653)
  *
  * @uses WP_Widget
  */
@@ -1074,7 +1074,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * Registers the replies widget
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @uses apply_filters() Calls 'bbp_replies_widget_options' with the
 	 *                        widget options
@@ -1091,7 +1091,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Register the widget
 	 *
-	 * @since bbPress (r3389)
+	 * @since 2.0.0 bbPress (r3389)
 	 *
 	 * @uses register_widget()
 	 */
@@ -1102,7 +1102,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the replies list
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $args
 	 * @param array $instance
@@ -1209,7 +1209,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Update the reply widget options
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -1227,7 +1227,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Output the reply widget options form
 	 *
-	 * @since bbPress (r2653)
+	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Replies_Widget::get_field_id() To output the field id
@@ -1249,7 +1249,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	/**
 	 * Merge the widget settings into defaults array.
 	 *
-	 * @since bbPress (r4802)
+	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
 	 * @uses bbp_parse_args() To merge widget settings into defaults

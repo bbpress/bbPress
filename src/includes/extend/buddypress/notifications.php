@@ -4,7 +4,7 @@
  * Filter registered notifications components, and add 'forums' to the queried
  * 'component_name' array.
  *
- * @since bbPress (r5232)
+ * @since 2.6.0 bbPress (r5232)
  *
  * @see BP_Notifications_Notification::get()
  * @param array $component_names
@@ -28,7 +28,7 @@ add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notificati
 /**
  * Format the BuddyBar/Toolbar notifications
  *
- * @since bbPress (r5155)
+ * @since 2.5.0 bbPress (r5155)
  *
  * @package bbPress
  *
@@ -85,7 +85,7 @@ add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypres
  * Hooked into the new reply function, this notification action is responsible
  * for notifying topic and hierarchical reply authors of topic replies.
  *
- * @since bbPress (r5156)
+ * @since 2.5.0 bbPress (r5156)
  *
  * @param int $reply_id
  * @param int $topic_id
@@ -139,7 +139,7 @@ add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
 /**
  * Mark notifications as read when reading a topic
  *
- * @since bbPress (r5155)
+ * @since 2.5.0 bbPress (r5155)
  *
  * @return If not trying to mark a notification as read
  */

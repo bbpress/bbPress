@@ -101,7 +101,7 @@ add_filter( 'bbp_admin_replies_column_headers', 'bbp_filter_column_headers' );
  * When a new site is created in a multisite installation, run the activation
  * routine on that site
  *
- * @since bbPress (r3283)
+ * @since 2.0.0 bbPress (r3283)
  *
  * @param int $blog_id
  * @param int $user_id
@@ -130,7 +130,7 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 /**
  * Show icons in list-table column headers instead of strings
  *
- * @since bbPress (r5833)
+ * @since 2.6.0 bbPress (r5833)
  *
  * @param  array $columns Column headers fed into list-table objects
  *
@@ -187,7 +187,8 @@ function bbp_filter_column_headers( $columns = array() ) {
 /**
  * Piggy back admin_init action
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_init'
  */
 function bbp_admin_init() {
@@ -197,7 +198,8 @@ function bbp_admin_init() {
 /**
  * Piggy back admin_menu action
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_menu'
  */
 function bbp_admin_menu() {
@@ -207,7 +209,8 @@ function bbp_admin_menu() {
 /**
  * Piggy back admin_head action
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_head'
  */
 function bbp_admin_head() {
@@ -217,7 +220,8 @@ function bbp_admin_head() {
 /**
  * Piggy back admin_notices action
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_admin_notices() {
@@ -227,7 +231,8 @@ function bbp_admin_notices() {
 /**
  * Dedicated action to register bbPress importers
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_register_importers() {
@@ -237,7 +242,8 @@ function bbp_register_importers() {
 /**
  * Dedicated action to register admin styles
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_register_admin_style() {
@@ -247,7 +253,8 @@ function bbp_register_admin_style() {
 /**
  * Dedicated action to register admin settings
  *
- * @since bbPress (r3766)
+ * @since 2.1.0 bbPress (r3766)
+ *
  * @uses do_action() Calls 'bbp_register_admin_settings'
  */
 function bbp_register_admin_settings() {

@@ -10,7 +10,8 @@
 /**
  * Implementation of FluxBB Forum converter.
  *
- * @since bbPress (r5138)
+ * @since 2.5.0 bbPress (r5138)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/fluxbb
  */
 class FluxBB extends BBP_Converter_Base {

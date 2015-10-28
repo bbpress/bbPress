@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * Note that the _edit() checks are ahead of their counterparts, to prevent them
  * from being stomped on accident.
  *
- * @since bbPress (r3032)
+ * @since 2.0.0 bbPress (r3032)
  *
  * @param string $template
  *
@@ -120,7 +120,8 @@ function bbp_template_include_theme_supports( $template = '' ) {
 /**
  * Set the included template
  *
- * @since bbPress (r4975)
+ * @since 2.4.0 bbPress (r4975)
+ *
  * @param mixed $template Default false
  * @return mixed False if empty. Template name if template included
  */
@@ -133,7 +134,8 @@ function bbp_set_template_included( $template = false ) {
 /**
  * Is a bbPress template being included?
  *
- * @since bbPress (r4975)
+ * @since 2.4.0 bbPress (r4975)
+ *
  * @return bool True if yes, false if no
  */
 function bbp_is_template_included() {
@@ -146,7 +148,7 @@ function bbp_is_template_included() {
  * Attempt to load a custom bbPress functions file, similar to each themes
  * functions.php file.
  *
- * @since bbPress (r3732)
+ * @since 2.1.0 bbPress (r3732)
  *
  * @global string $pagenow
  * @uses bbp_locate_template()
@@ -169,7 +171,7 @@ function bbp_load_theme_functions() {
 /**
  * Get the user profile template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_displayed_user_id()
  * @uses bbp_get_query_template()
@@ -190,7 +192,7 @@ function bbp_get_single_user_template() {
 /**
  * Get the user profile edit template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_displayed_user_id()
  * @uses bbp_get_query_template()
@@ -212,7 +214,7 @@ function bbp_get_single_user_edit_template() {
 /**
  * Get the user favorites template
  *
- * @since bbPress (r4225)
+ * @since 2.2.0 bbPress (r4225)
  *
  * @uses bbp_get_displayed_user_id()
  * @uses bbp_get_query_template()
@@ -235,7 +237,7 @@ function bbp_get_favorites_template() {
 /**
  * Get the user subscriptions template
  *
- * @since bbPress (r4225)
+ * @since 2.2.0 bbPress (r4225)
  *
  * @uses bbp_get_displayed_user_id()
  * @uses bbp_get_query_template()
@@ -258,7 +260,7 @@ function bbp_get_subscriptions_template() {
 /**
  * Get the view template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_view_id()
  * @uses bbp_get_query_template()
@@ -278,7 +280,7 @@ function bbp_get_single_view_template() {
 /**
  * Get the search template
  *
- * @since bbPress (r4579)
+ * @since 2.3.0 bbPress (r4579)
  *
  * @uses bbp_get_query_template()
  * @return string Path to template file
@@ -294,7 +296,7 @@ function bbp_get_search_template() {
 /**
  * Get the single forum template
  *
- * @since bbPress (r3922)
+ * @since 2.1.0 bbPress (r3922)
  *
  * @uses bbp_get_forum_post_type()
  * @uses bbp_get_query_template()
@@ -310,7 +312,7 @@ function bbp_get_single_forum_template() {
 /**
  * Get the forum archive template
  *
- * @since bbPress (r3922)
+ * @since 2.1.0 bbPress (r3922)
  *
  * @uses bbp_get_forum_post_type()
  * @uses bbp_get_query_template()
@@ -326,7 +328,7 @@ function bbp_get_forum_archive_template() {
 /**
  * Get the forum edit template
  *
- * @since bbPress (r3566)
+ * @since 2.1.0 bbPress (r3566)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -342,7 +344,7 @@ function bbp_get_forum_edit_template() {
 /**
  * Get the single topic template
  *
- * @since bbPress (r3922)
+ * @since 2.1.0 bbPress (r3922)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -358,7 +360,7 @@ function bbp_get_single_topic_template() {
 /**
  * Get the topic archive template
  *
- * @since bbPress (r3922)
+ * @since 2.1.0 bbPress (r3922)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -374,7 +376,7 @@ function bbp_get_topic_archive_template() {
 /**
  * Get the topic edit template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -390,7 +392,7 @@ function bbp_get_topic_edit_template() {
 /**
  * Get the topic split template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -406,7 +408,7 @@ function bbp_get_topic_split_template() {
 /**
  * Get the topic merge template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_query_template()
@@ -422,7 +424,7 @@ function bbp_get_topic_merge_template() {
 /**
  * Get the single reply template
  *
- * @since bbPress (r3922)
+ * @since 2.1.0 bbPress (r3922)
  *
  * @uses bbp_get_reply_post_type()
  * @uses bbp_get_query_template()
@@ -438,7 +440,7 @@ function bbp_get_single_reply_template() {
 /**
  * Get the reply edit template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_reply_post_type()
  * @uses bbp_get_query_template()
@@ -454,7 +456,7 @@ function bbp_get_reply_edit_template() {
 /**
  * Get the reply move template
  *
- * @since bbPress (r4521)
+ * @since 2.3.0 bbPress (r4521)
  *
  * @uses bbp_get_reply_post_type()
  * @uses bbp_get_query_template()
@@ -470,7 +472,7 @@ function bbp_get_reply_move_template() {
 /**
  * Get the topic template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_topic_tag_tax_id()
  * @uses bbp_get_query_template()
@@ -489,7 +491,7 @@ function bbp_get_topic_tag_template() {
 /**
  * Get the topic edit template
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
  *
  * @uses bbp_get_topic_tag_tax_id()
  * @uses bbp_get_query_template()

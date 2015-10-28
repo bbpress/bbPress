@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * A wrapper for wp_insert_post() that also includes the necessary meta values
  * for the reply to function properly.
  *
- * @since bbPress (r3349)
+ * @since 2.0.0 bbPress (r3349)
  *
  * @uses bbp_parse_args()
  * @uses bbp_get_reply_post_type()
@@ -74,7 +74,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 /**
  * Handles the front end reply submission
  *
- * @since bbPress (r2574)
+ * @since 2.0.0 bbPress (r2574)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
@@ -884,7 +884,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 /**
  * Walk up the ancestor tree from the current reply, and update all the counts
  *
- * @since bbPress (r2884)
+ * @since 2.0.0 bbPress (r2884)
  *
  * @param int $reply_id Optional. Reply id
  * @param string $last_active_time Optional. Last active time
@@ -1014,7 +1014,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 /**
  * Update the reply with its forum id it is in
  *
- * @since bbPress (r2855)
+ * @since 2.0.0 bbPress (r2855)
  *
  * @param int $reply_id Optional. Reply id to update
  * @param int $forum_id Optional. Forum id
@@ -1063,7 +1063,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 /**
  * Update the reply with its topic id it is in
  *
- * @since bbPress (r2855)
+ * @since 2.0.0 bbPress (r2855)
  *
  * @param int $reply_id Optional. Reply id to update
  * @param int $topic_id Optional. Topic id
@@ -1112,7 +1112,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 /*
  * Update the reply's meta data with its reply to id
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Reply id to update
  * @param int $reply_to Optional. Reply to id
@@ -1150,7 +1150,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
  * Because settings can be changed, this function does not care if hierarchical
  * replies are active or to what depth.
  *
- * @since bbPress (r5390)
+ * @since 2.6.0 bbPress (r5390)
  *
  * @param int $reply_id
  * @return array
@@ -1196,7 +1196,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 /**
  * Update the revision log of the reply
  *
- * @since bbPress (r2782)
+ * @since 2.0.0 bbPress (r2782)
  *
  * @param array $args Supports these args:
  *  - reply_id: reply id
@@ -1240,7 +1240,7 @@ function bbp_update_reply_revision_log( $args = array() ) {
  *
  * Handles the front end move reply submission
  *
- * @since bbPress (r4521)
+ * @since 2.3.0 bbPress (r4521)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_add_error() To add an error message
@@ -1496,7 +1496,7 @@ function bbp_move_reply_handler( $action = '' ) {
  * When a reply is moved, update the counts of source and destination topic
  * and their forums.
  *
- * @since bbPress (r4521)
+ * @since 2.3.0 bbPress (r4521)
  *
  * @param int $move_reply_id Move reply id
  * @param int $source_topic_id Source topic id
@@ -1539,7 +1539,7 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  * Handles the front end spamming/unspamming and trashing/untrashing/deleting of
  * replies
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param string $action The requested action to compare this function to
  * @uses bbp_get_reply() To get the reply
@@ -1693,7 +1693,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 /**
  * Return an associative array of available reply statuses
  *
- * @since bbPress (r5399)
+ * @since 2.6.0 bbPress (r5399)
  *
  * @return array
  */
@@ -1711,7 +1711,7 @@ function bbp_get_reply_statuses() {
 /**
  * Marks a reply as spam
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
@@ -1759,7 +1759,7 @@ function bbp_spam_reply( $reply_id = 0 ) {
 /**
  * Unspams a reply
  *
- * @since bbPress (r2740)
+ * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
@@ -1813,7 +1813,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 /**
  * Approves a reply
  *
- * @since bbPress (r5506)
+ * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
@@ -1860,7 +1860,7 @@ function bbp_approve_reply( $reply_id = 0 ) {
 /**
  * Unapproves a reply
  *
- * @since bbPress (r5506)
+ * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id
  * @uses bbp_get_reply() To get the reply
@@ -2014,7 +2014,7 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
 /**
  * Return the replies per page setting
  *
- * @since bbPress (r3540)
+ * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (15)
  * @uses get_option() To get the setting
@@ -2038,7 +2038,7 @@ function bbp_get_replies_per_page( $default = 15 ) {
 /**
  * Return the replies per RSS page setting
  *
- * @since bbPress (r3540)
+ * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (25)
  * @uses get_option() To get the setting
@@ -2064,7 +2064,8 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
 /**
  * Check if autoembeds are enabled and hook them in if so
  *
- * @since bbPress (r3752)
+ * @since 2.1.0 bbPress (r3752)
+ *
  * @global WP_Embed $wp_embed
  */
 function bbp_reply_content_autoembed() {
@@ -2083,7 +2084,7 @@ function bbp_reply_content_autoembed() {
  * This function filters the 'post_where' of the WP_Query, and changes the query
  * to include both the topic AND its children in the same loop.
  *
- * @since bbPress (r4058)
+ * @since 2.1.0 bbPress (r4058)
  *
  * @param string $where
  * @return string
@@ -2148,7 +2149,7 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 /**
  * Output an RSS2 feed of replies, based on the query passed.
  *
- * @since bbPress (r3171)
+ * @since 2.0.0 bbPress (r3171)
  *
  * @uses bbp_version()
  * @uses bbp_is_single_topic()
@@ -2287,7 +2288,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 /**
  * Redirect if unathorized user is attempting to edit a reply
  *
- * @since bbPress (r3605)
+ * @since 2.1.0 bbPress (r3605)
  *
  * @uses bbp_is_reply_edit()
  * @uses current_user_can()
@@ -2318,7 +2319,7 @@ function bbp_check_reply_edit() {
  * freshness order. By updating the menu_order accordingly, we're able to
  * leverage core WordPress query ordering much more effectively.
  *
- * @since bbPress (r3933)
+ * @since 2.1.0 bbPress (r3933)
  *
  * @param int $reply_id
  * @param int $reply_position
@@ -2363,7 +2364,7 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
  * Get the position of a reply by querying the DB directly for the replies
  * of a given topic.
  *
- * @since bbPress (r3933)
+ * @since 2.1.0 bbPress (r3933)
  *
  * @param int $reply_id
  * @param int $topic_id
@@ -2404,7 +2405,7 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 /**
  * List replies
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  */
 function bbp_list_replies( $args = array() ) {
 
@@ -2442,7 +2443,7 @@ function bbp_list_replies( $args = array() ) {
  * @see https://bbpress.trac.wordpress.org/ticket/2588
  * @see https://bbpress.trac.wordpress.org/ticket/2586
  *
- * @since bbPress (r5377)
+ * @since 2.5.4 bbPress (r5377)
  *
  * @param int $reply_to
  * @param int $reply_id

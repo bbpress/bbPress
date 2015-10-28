@@ -14,7 +14,7 @@ if ( !class_exists( 'BBP_Akismet' ) ) :
 /**
  * Loads Akismet extension
  *
- * @since bbPress (r3277)
+ * @since 2.0.0 bbPress (r3277)
  *
  * @package bbPress
  * @subpackage Akismet
@@ -24,7 +24,7 @@ class BBP_Akismet {
 	/**
 	 * The main bbPress Akismet loader
 	 *
-	 * @since bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @uses add_filter()
 	 */
@@ -35,7 +35,8 @@ class BBP_Akismet {
 	/**
 	 * Setup the admin hooks
 	 *
-	 * @since bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3277)
+	 *
 	 * @access private
 	 *
 	 * @uses add_filter() To add various filters
@@ -81,7 +82,7 @@ class BBP_Akismet {
 	/**
 	 * Converts topic/reply data into Akismet comment checking format
 	 *
-	 * @since bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param string $post_data
 	 *
@@ -220,7 +221,7 @@ class BBP_Akismet {
 	/**
 	 * Submit a post for spamming or hamming
 	 *
-	 * @since bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param int $post_id
 	 *
@@ -362,7 +363,7 @@ class BBP_Akismet {
 	/**
 	 * Ping Akismet service and check for spam/ham response
 	 *
-	 * @since bbPress (r3277)
+	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param array $post_data
 	 * @param string $check Accepts check|submit
@@ -441,7 +442,7 @@ class BBP_Akismet {
 	/**
 	 * Update post meta after a spam check
 	 *
-	 * @since bbPress (r3308)
+	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 * @param object $_post
@@ -531,7 +532,7 @@ class BBP_Akismet {
 	/**
 	 * Update a post's Akismet history
 	 *
-	 * @since bbPress (r3308)
+	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 * @param string $message
@@ -572,7 +573,7 @@ class BBP_Akismet {
 	/**
 	 * Get a post's Akismet history
 	 *
-	 * @since bbPress (r3308)
+	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 *
@@ -595,7 +596,7 @@ class BBP_Akismet {
 	/**
 	 * Handle any terms submitted with a post flagged as spam
 	 *
-	 * @since bbPress (r3308)
+	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param string $terms Comma-separated list of terms
 	 * @param int $topic_id
@@ -632,7 +633,7 @@ class BBP_Akismet {
 	 * This code is directly taken from the akismet_http_post() function and
 	 * documented to bbPress 2.0 standard.
 	 *
-	 * @since bbPress (r3466)
+	 * @since 2.0.0 bbPress (r3466)
 	 *
 	 * @param string $request The request we are sending
 	 * @param string $host The host to send our request to
@@ -689,7 +690,7 @@ class BBP_Akismet {
 	/**
 	 * Return a user's roles on this site (including super_admin)
 	 *
-	 * @since bbPress (r4812)
+	 * @since 2.3.0 bbPress (r4812)
 	 *
 	 * @param type $user_id
 	 * @return boolean
@@ -723,7 +724,7 @@ class BBP_Akismet {
 	/**
 	 * Add Aksimet History metaboxes to topics and replies
 	 *
-	 * @since bbPress (r5049)
+	 * @since 2.4.0 bbPress (r5049)
 	 */
 	public function add_metaboxes() {
 
@@ -751,7 +752,7 @@ class BBP_Akismet {
 	/**
 	 * Output for Akismet History metabox
 	 *
-	 * @since bbPress (r5049)
+	 * @since 2.4.0 bbPress (r5049)
 	 *
 	 * @uses get_post_history() To get the Akismet history for the post
 	 * @uses get_the_ID() To get the post ID

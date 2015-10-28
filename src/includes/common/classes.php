@@ -22,7 +22,7 @@ if ( !class_exists( 'BBP_Component' ) ) :
  * @package bbPress
  * @subpackage Classes
  *
- * @since bbPress (r2688)
+ * @since 2.0.0 bbPress (r2688)
  */
 class BBP_Component {
 
@@ -58,7 +58,7 @@ class BBP_Component {
 	/**
 	 * bbPress Component loader
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @param array $args Required. Supports these args:
 	 *  - name: Unique name (for internal identification)
@@ -83,7 +83,8 @@ class BBP_Component {
 	/**
 	 * Component global variables
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
+	 *
 	 * @access private
 	 *
 	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_id'
@@ -98,7 +99,8 @@ class BBP_Component {
 	/**
 	 * Include required files
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
+	 *
 	 * @access private
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}includes'
@@ -110,7 +112,8 @@ class BBP_Component {
 	/**
 	 * Setup the actions
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
+	 *
 	 * @access private
 	 *
 	 * @uses add_action() To add various actions
@@ -130,7 +133,7 @@ class BBP_Component {
 	/**
 	 * Setup the component post types
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_post_types'
 	 */
@@ -141,7 +144,7 @@ class BBP_Component {
 	/**
 	 * Register component specific taxonomies
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_taxonomies'
 	 */
@@ -152,7 +155,7 @@ class BBP_Component {
 	/**
 	 * Add any additional rewrite tags
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_add_rewrite_tags'
 	 */
@@ -163,7 +166,7 @@ class BBP_Component {
 	/**
 	 * Generate any additional rewrite rules
 	 *
-	 * @since bbPress (r2700)
+	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_generate_rewrite_rules'
 	 */
@@ -180,7 +183,8 @@ if ( class_exists( 'Walker' ) ) :
  * @package bbPress
  * @subpackage Classes
  *
- * @since bbPress (r2746)
+ * @since 2.0.0 bbPress (r2746)
+ *
  * @uses Walker
  */
 class BBP_Walker_Dropdown extends Walker {
@@ -188,7 +192,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::$tree_type
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @var string
 	 */
@@ -197,7 +201,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::$db_fields
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @var array
 	 */
@@ -211,7 +215,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * Set the tree_type
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 */
 	public function __construct() {
 		$this->tree_type = bbp_get_forum_post_type();
@@ -220,7 +224,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::start_el()
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @param string $output Passed by reference. Used to append additional
 	 *                       content.
@@ -271,14 +275,14 @@ class BBP_Walker_Dropdown extends Walker {
  * @package bbPress
  * @subpackage Classes
  *
- * @since bbPress (r4944)
+ * @since 2.4.0 bbPress (r4944)
  */
 class BBP_Walker_Reply extends Walker {
 
 	/**
 	 * @see Walker::$tree_type
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @var string
 	 */
@@ -287,7 +291,7 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * @see Walker::$db_fields
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @var array
 	 */
@@ -299,7 +303,7 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * Confirm the tree_type
 	 *
-	 * @since bbPress (r5389)
+	 * @since 2.6.0 bbPress (r5389)
 	 */
 	public function __construct() {
 		$this->tree_type = bbp_get_reply_post_type();
@@ -308,7 +312,7 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * @see Walker::start_lvl()
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param string $output Passed by reference. Used to append additional content
 	 * @param int $depth Depth of reply
@@ -333,7 +337,7 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * @see Walker::end_lvl()
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param string $output Passed by reference. Used to append additional content
 	 * @param int $depth Depth of reply
@@ -356,7 +360,7 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 */
 	public function display_element( $element = false, &$children_elements = array(), $max_depth = 0, $depth = 0, $args = array(), &$output = '' ) {
 
@@ -384,7 +388,7 @@ class BBP_Walker_Reply extends Walker {
 	/**
 	 * @see Walker:start_el()
 	 *
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
@@ -411,7 +415,7 @@ class BBP_Walker_Reply extends Walker {
 	}
 
 	/**
-	 * @since bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 */
 	public function end_el( &$output = '', $object = false, $depth = 0, $args = array() ) {
 
@@ -436,7 +440,8 @@ class BBP_Walker_Reply extends Walker {
  * @package bbPress
  * @subpackage Classes
  *
- * @since bbPress (r5389)
+ * @since 2.6.0 bbPress (r5389)
+ *
  * @uses Walker
  */
 class BBP_Walker_Reply_Dropdown extends Walker {
@@ -444,7 +449,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	/**
 	 * @see Walker::$tree_type
 	 *
-	 * @since bbPress (r5389)
+	 * @since 2.6.0 bbPress (r5389)
 	 *
 	 * @var string
 	 */
@@ -453,7 +458,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	/**
 	 * @see Walker::$db_fields
 	 *
-	 * @since bbPress (r5389)
+	 * @since 2.6.0 bbPress (r5389)
 	 *
 	 * @var array
 	 */
@@ -467,7 +472,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	/**
 	 * Confirm the tree_type
 	 *
-	 * @since bbPress (r5389)
+	 * @since 2.6.0 bbPress (r5389)
 	 */
 	public function __construct() {
 		$this->tree_type = bbp_get_reply_post_type();
@@ -476,7 +481,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	/**
 	 * @see Walker::start_el()
 	 *
-	 * @since bbPress (r5389)
+	 * @since 2.6.0 bbPress (r5389)
 	 *
 	 * @param string $output Passed by reference. Used to append additional
 	 *                       content.

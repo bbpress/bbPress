@@ -24,7 +24,7 @@ if ( !class_exists( 'BBP_Forums_Component' ) ) :
 /**
  * Loads Forums Component
  *
- * @since bbPress (r3552)
+ * @since 2.1.0 bbPress (r3552)
  *
  * @package bbPress
  * @subpackage BuddyPress
@@ -34,7 +34,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Start the forums component creation process
 	 *
-	 * @since bbPress (r3552)
+	 * @since 2.1.0 bbPress (r3552)
 	 */
 	public function __construct() {
 		parent::start(
@@ -83,7 +83,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * The BP_FORUMS_SLUG constant is deprecated, and only used here for
 	 * backwards compatibility.
 	 *
-	 * @since bbPress (r3552)
+	 * @since 2.1.0 bbPress (r3552)
 	 */
 	public function setup_globals( $args = array() ) {
 		$bp = buddypress();
@@ -113,7 +113,8 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Setup the actions
 	 *
-	 * @since bbPress (r3395)
+	 * @since 2.0.0 bbPress (r3395)
+	 *
 	 * @access private
 	 * @uses add_filter() To add various filters
 	 * @uses add_action() To add various actions
@@ -130,7 +131,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Instantiate classes for BuddyPress integration
 	 *
-	 * @since bbPress (r3395)
+	 * @since 2.0.0 bbPress (r3395)
 	 */
 	public function setup_components() {
 
@@ -152,7 +153,7 @@ class BBP_Forums_Component extends BP_Component {
 	 * Allow the variables, actions, and filters to be modified by third party
 	 * plugins and themes.
 	 *
-	 * @since bbPress (r3902)
+	 * @since 2.1.0 bbPress (r3902)
 	 */
 	private function fully_loaded() {
 		do_action_ref_array( 'bbp_buddypress_loaded', array( $this ) );
@@ -161,7 +162,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Setup BuddyBar navigation
 	 *
-	 * @since bbPress (r3552)
+	 * @since 2.1.0 bbPress (r3552)
 	 */
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
@@ -249,7 +250,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Set up the admin bar
 	 *
-	 * @since bbPress (r3552)
+	 * @since 2.1.0 bbPress (r3552)
 	 */
 	public function setup_admin_bar( $wp_admin_nav = array() ) {
 
@@ -325,7 +326,7 @@ class BBP_Forums_Component extends BP_Component {
 	/**
 	 * Sets up the title for pages and <title>
 	 *
-	 * @since bbPress (r3552)
+	 * @since 2.1.0 bbPress (r3552)
 	 */
 	public function setup_title() {
 		$bp = buddypress();

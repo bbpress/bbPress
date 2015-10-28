@@ -16,7 +16,7 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Administration
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  */
 class BBP_Admin {
 
@@ -80,7 +80,7 @@ class BBP_Admin {
 	/**
 	 * The main bbPress admin loader
 	 *
-	 * @since bbPress (r2515)
+	 * @since 2.0.0 bbPress (r2515)
 	 *
 	 * @uses BBP_Admin::setup_globals() Setup the globals needed
 	 * @uses BBP_Admin::includes() Include the required files
@@ -95,7 +95,8 @@ class BBP_Admin {
 	/**
 	 * Admin globals
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
+	 *
 	 * @access private
 	 */
 	private function setup_globals() {
@@ -111,7 +112,8 @@ class BBP_Admin {
 	/**
 	 * Include required files
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
+	 *
 	 * @access private
 	 */
 	private function includes() {
@@ -129,7 +131,8 @@ class BBP_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
+	 *
 	 * @access private
 	 *
 	 * @uses add_action() To add various actions
@@ -188,7 +191,7 @@ class BBP_Admin {
 	/**
 	 * Add the admin menus
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
 	 *
 	 * @uses add_management_page() To add the Recount page in Tools section
 	 * @uses add_options_page() To add the Forums settings page in Settings
@@ -296,7 +299,8 @@ class BBP_Admin {
 	/**
 	 * Add the network admin menus
 	 *
-	 * @since bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3689)
+	 *
 	 * @uses add_submenu_page() To add the Update Forums page in Updates
 	 */
 	public function network_admin_menus() {
@@ -319,7 +323,8 @@ class BBP_Admin {
 	/**
 	 * If this is a new installation, create some initial forum content.
 	 *
-	 * @since bbPress (r3767)
+	 * @since 2.1.0 bbPress (r3767)
+	 *
 	 * @return type
 	 */
 	public static function new_install() {
@@ -333,7 +338,7 @@ class BBP_Admin {
 	/**
 	 * Register the settings
 	 *
-	 * @since bbPress (r2737)
+	 * @since 2.0.0 bbPress (r2737)
 	 *
 	 * @uses add_settings_section() To add our own settings section
 	 * @uses add_settings_field() To add various settings fields
@@ -392,7 +397,7 @@ class BBP_Admin {
 	/**
 	 * Maps settings capabilities
 	 *
-	 * @since bbPress (r4242)
+	 * @since 2.2.0 bbPress (r4242)
 	 *
 	 * @param array $caps Capabilities for meta capability
 	 * @param string $cap Capability name
@@ -453,7 +458,7 @@ class BBP_Admin {
 	/**
 	 * Register the importers
 	 *
-	 * @since bbPress (r2737)
+	 * @since 2.0.0 bbPress (r2737)
 	 *
 	 * @uses apply_filters() Calls 'bbp_importer_path' filter to allow plugins
 	 *                        to customize the importer script locations.
@@ -492,7 +497,7 @@ class BBP_Admin {
 	 *
 	 * Shows a nag message in admin area about the theme not supporting bbPress
 	 *
-	 * @since bbPress (r2743)
+	 * @since 2.0.0 bbPress (r2743)
 	 *
 	 * @uses current_user_can() To check notice should be displayed.
 	 */
@@ -503,7 +508,7 @@ class BBP_Admin {
 	/**
 	 * Add Settings link to plugins area
 	 *
-	 * @since bbPress (r2737)
+	 * @since 2.0.0 bbPress (r2737)
 	 *
 	 * @param array $links Links array in which we would prepend our link
 	 * @param string $file Current plugin basename
@@ -536,7 +541,7 @@ class BBP_Admin {
 	/**
 	 * Add a link to bbPress about page to the admin bar
 	 *
-	 * @since bbPress (r5136)
+	 * @since 2.5.0 bbPress (r5136)
 	 *
 	 * @param WP_Admin_Bar $wp_admin_bar
 	 */
@@ -554,7 +559,7 @@ class BBP_Admin {
 	/**
 	 * Enqueue any admin scripts we might need
 	 *
-	 * @since bbPress (r4260)
+	 * @since 2.2.0 bbPress (r4260)
 	 */
 	public function enqueue_scripts() {
 
@@ -593,7 +598,7 @@ class BBP_Admin {
 	/**
 	 * Enqueue any admin scripts we might need
 	 *
-	 * @since bbPress (r5224)
+	 * @since 2.6.0 bbPress (r5224)
 	 */
 	public function enqueue_styles() {
 
@@ -609,7 +614,7 @@ class BBP_Admin {
 	 * Remove the individual recount and converter menus.
 	 * They are grouped together by h2 tabs
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @uses remove_submenu_page() To remove menu items with alternat navigation
 	 */
@@ -628,7 +633,7 @@ class BBP_Admin {
 	 * way to be certain what the relative path of the admin images is.
 	 * We are including the two most common configurations here, just in case.
 	 *
-	 * @since bbPress (r2521)
+	 * @since 2.0.0 bbPress (r2521)
 	 *
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
@@ -665,7 +670,7 @@ class BBP_Admin {
 	/**
 	 * Hide theme compat package selection if only 1 package is registered
 	 *
-	 * @since bbPress (r4315)
+	 * @since 2.2.0 bbPress (r4315)
 	 *
 	 * @param array $sections Forums settings sections
 	 * @return array
@@ -681,7 +686,7 @@ class BBP_Admin {
 	/**
 	 * Allow keymaster role to save Forums settings
 	 *
-	 * @since bbPress (r4678)
+	 * @since 2.3.0 bbPress (r4678)
 	 *
 	 * @param string $capability
 	 * @return string Return 'keep_gate' capability
@@ -696,7 +701,7 @@ class BBP_Admin {
 	/**
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
-	 * @since bbPress (r4261)
+	 * @since 2.2.0 bbPress (r4261)
 	 *
 	 * @uses get_posts()
 	 * @uses bbp_get_topic_post_type()
@@ -736,7 +741,7 @@ class BBP_Admin {
 	/**
 	 * Ajax action for facilitating the topic and reply author auto-suggest
 	 *
-	 * @since bbPress (r5014)
+	 * @since 2.4.0 bbPress (r5014)
 	 */
 	public function suggest_user() {
 
@@ -775,7 +780,7 @@ class BBP_Admin {
 	/**
 	 * Output the about screen
 	 *
-	 * @since bbPress (r4159)
+	 * @since 2.2.0 bbPress (r4159)
 	 */
 	public function about_screen() {
 
@@ -852,7 +857,7 @@ class BBP_Admin {
 	 * Hardcoding this in here is pretty janky. It's fine for 2.2, but we'll
 	 * want to leverage api.wordpress.org eventually.
 	 *
-	 * @since bbPress (r4159)
+	 * @since 2.2.0 bbPress (r4159)
 	 */
 	public function credits_screen() {
 
@@ -955,7 +960,7 @@ class BBP_Admin {
 	/**
 	 * Update all bbPress forums across all sites
 	 *
-	 * @since bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3689)
 	 *
 	 * @uses get_blog_option()
 	 * @uses wp_remote_get()
@@ -1000,7 +1005,7 @@ class BBP_Admin {
 	/**
 	 * Update all bbPress forums across all sites
 	 *
-	 * @since bbPress (r3689)
+	 * @since 2.1.0 bbPress (r3689)
 	 *
 	 * @uses get_blog_option()
 	 * @uses wp_remote_get()
@@ -1114,7 +1119,7 @@ endif; // class_exists check
 /**
  * Setup bbPress Admin
  *
- * @since bbPress (r2596)
+ * @since 2.0.0 bbPress (r2596)
  *
  * @uses BBP_Admin
  */

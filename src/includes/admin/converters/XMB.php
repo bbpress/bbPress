@@ -10,7 +10,8 @@
 /**
  * Implementation of XMB Forum converter.
  *
- * @since bbPress (r5143)
+ * @since 2.5.0 bbPress (r5143)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/xmb
  */
 class XMB extends BBP_Converter_Base {

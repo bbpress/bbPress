@@ -16,7 +16,7 @@ if ( !class_exists( 'BBP_Forums_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Administration
- * @since bbPress (r2464)
+ * @since 2.0.0 bbPress (r2464)
  */
 class BBP_Forums_Admin {
 
@@ -32,7 +32,7 @@ class BBP_Forums_Admin {
 	/**
 	 * The main bbPress forums admin loader
 	 *
-	 * @since bbPress (r2515)
+	 * @since 2.0.0 bbPress (r2515)
 	 *
 	 * @uses BBP_Forums_Admin::setup_globals() Setup the globals needed
 	 * @uses BBP_Forums_Admin::setup_actions() Setup the hooks and actions
@@ -46,7 +46,8 @@ class BBP_Forums_Admin {
 	/**
 	 * Setup the admin hooks, actions and filters
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
+	 *
 	 * @access private
 	 *
 	 * @uses add_action() To add various actions
@@ -90,7 +91,8 @@ class BBP_Forums_Admin {
 	/**
 	 * Should we bail out of this method?
 	 *
-	 * @since bbPress (r4067)
+	 * @since 2.1.0 bbPress (r4067)
+	 *
 	 * @return boolean
 	 */
 	private function bail() {
@@ -104,7 +106,8 @@ class BBP_Forums_Admin {
 	/**
 	 * Admin globals
 	 *
-	 * @since bbPress (r2646)
+	 * @since 2.0.0 bbPress (r2646)
+	 *
 	 * @access private
 	 */
 	private function setup_globals() {
@@ -116,7 +119,8 @@ class BBP_Forums_Admin {
 	/**
 	 * Contextual help for bbPress forum edit page
 	 *
-	 * @since bbPress (r3119)
+	 * @since 2.0.0 bbPress (r3119)
+	 *
 	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
@@ -179,7 +183,8 @@ class BBP_Forums_Admin {
 	/**
 	 * Contextual help for bbPress forum edit page
 	 *
-	 * @since bbPress (r3119)
+	 * @since 2.0.0 bbPress (r3119)
+	 *
 	 * @uses get_current_screen()
 	 */
 	public function new_help() {
@@ -240,7 +245,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Add the forum attributes metabox
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @uses bbp_get_forum_post_type() To get the forum post type
 	 * @uses add_meta_box() To add the metabox
@@ -267,7 +272,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Return user nicename suggestions instead of tag suggestions
 	 *
-	 * @since bbPress (r5834)
+	 * @since 2.6.0 bbPress (r5834)
 	 *
 	 * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy id
 	 * @uses sanitize_key() To sanitize the taxonomy id
@@ -340,7 +345,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Pass the forum attributes for processing
 	 *
-	 * @since bbPress (r2746)
+	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @param int $forum_id Forum id
 	 * @uses current_user_can() To check if the current user is capable of
@@ -407,7 +412,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Add some general styling to the admin area
 	 *
-	 * @since bbPress (r2464)
+	 * @since 2.0.0 bbPress (r2464)
 	 *
 	 * @uses bbp_get_forum_post_type() To get the forum post type
 	 * @uses bbp_get_topic_post_type() To get the topic post type
@@ -490,7 +495,7 @@ class BBP_Forums_Admin {
 	 *
 	 * Handles the admin-side opening/closing of forums
 	 *
-	 * @since bbPress (r5254)
+	 * @since 2.6.0 bbPress (r5254)
 	 *
 	 * @uses bbp_get_forum() To get the forum
 	 * @uses current_user_can() To check if the user is capable of editing
@@ -566,7 +571,7 @@ class BBP_Forums_Admin {
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_forum()}
 	 *
-	 * @since bbPress (r5254)
+	 * @since 2.6.0 bbPress (r5254)
 	 *
 	 * @uses bbp_get_forum() To get the forum
 	 * @uses bbp_get_forum_title() To get the forum title of the forum
@@ -629,7 +634,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Manage the column headers for the forums page
 	 *
-	 * @since bbPress (r2485)
+	 * @since 2.0.0 bbPress (r2485)
 	 *
 	 * @param array $columns The columns
 	 * @uses apply_filters() Calls 'bbp_admin_forums_column_headers' with
@@ -665,7 +670,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Print extra columns for the forums page
 	 *
-	 * @since bbPress (r2485)
+	 * @since 2.0.0 bbPress (r2485)
 	 *
 	 * @param string $column Column
 	 * @param int $forum_id Forum id
@@ -732,7 +737,7 @@ class BBP_Forums_Admin {
 	 * Remove the quick-edit action link and display the description under
 	 * the forum title and add the open/close links
 	 *
-	 * @since bbPress (r2577)
+	 * @since 2.0.0 bbPress (r2577)
 	 *
 	 * @param array $actions Actions
 	 * @param array $forum Forum object
@@ -776,7 +781,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Custom user feedback messages for forum post type
 	 *
-	 * @since bbPress (r3080)
+	 * @since 2.0.0 bbPress (r3080)
 	 *
 	 * @global int $post_ID
 	 * @uses bbp_get_forum_permalink()
@@ -854,7 +859,7 @@ endif; // class_exists check
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
- * @since bbPress (r2596)
+ * @since 2.0.0 bbPress (r2596)
  *
  * @uses BBP_Forums_Admin
  */

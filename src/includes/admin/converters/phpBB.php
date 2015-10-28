@@ -10,7 +10,8 @@
 /**
  * Implementation of phpBB v3 Converter.
  *
- * @since bbPress (r4689)
+ * @since 2.3.0 bbPress (r4689)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/phpbb
  */
 class phpBB extends BBP_Converter_Base {

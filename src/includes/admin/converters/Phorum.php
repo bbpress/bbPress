@@ -10,7 +10,8 @@
 /**
  * Implementation of Phorum Forum converter.
  *
- * @since bbPress (r5141)
+ * @since 2.5.0 bbPress (r5141)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/phorum
  */
 class Phorum extends BBP_Converter_Base {

@@ -10,7 +10,8 @@
 /**
  *  Implementation of XenForo converter.
  *
- * @since bbPress (r5145)
+ * @since 2.5.0 bbPress (r5145)
+ *
  * @link Codex Docs https://codex.bbpress.org/import-forums/xenforo
  */
 class XenForo extends BBP_Converter_Base {

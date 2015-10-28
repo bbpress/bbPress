@@ -20,7 +20,8 @@ class BBP_Converter {
 	/**
 	 * The main bbPress Converter loader
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
+	 *
 	 * @uses BBP_Converter::includes() Include the required files
 	 * @uses BBP_Converter::setup_actions() Setup the actions
 	 */
@@ -58,7 +59,8 @@ class BBP_Converter {
 	/**
 	 * Setup the default actions
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
+	 *
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
@@ -76,7 +78,8 @@ class BBP_Converter {
 	/**
 	 * Register the settings
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
+	 *
 	 * @uses add_settings_section() To add our own settings section
 	 * @uses add_settings_field() To add various settings fields
 	 * @uses register_setting() To register various settings
@@ -141,7 +144,7 @@ class BBP_Converter {
 	/**
 	 * Admin scripts
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
 	 */
 	public function admin_head() { ?>
 
@@ -278,7 +281,7 @@ class BBP_Converter {
 	/**
 	 * Wrap the converter output in paragraph tags, so styling can be applied
 	 *
-	 * @since bbPress (r4052)
+	 * @since 2.1.0 bbPress (r4052)
 	 *
 	 * @param string $output
 	 */
@@ -299,7 +302,7 @@ class BBP_Converter {
 	/**
 	 * Callback processor
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
 	 */
 	public function process_callback() {
 
@@ -626,7 +629,7 @@ class BBP_Converter {
 	/**
 	 * Create Tables for fast syncing
 	 *
-	 * @since bbPress (r3813)
+	 * @since 2.1.0 bbPress (r3813)
 	 */
 	public function sync_table( $drop = false ) {
 
@@ -665,7 +668,7 @@ class BBP_Converter {
 /**
  * Base class to be extended by specific individual importers
  *
- * @since bbPress (r3813)
+ * @since 2.1.0 bbPress (r3813)
  */
 abstract class BBP_Converter_Base {
 
@@ -1273,7 +1276,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old topic stickies to new bbPress stickies.
 	 *
-	 * @since bbPress (r5170)
+	 * @since 2.5.0 bbPress (r5170)
 	 *
 	 * @uses WPDB $wpdb
 	 * @uses bbp_stick_topic() to set the imported topic as sticky
@@ -1304,7 +1307,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old topic super stickies to new bbPress super stickies.
 	 *
-	 * @since bbPress (r5170)
+	 * @since 2.5.0 bbPress (r5170)
 	 *
 	 * @uses WPDB $wpdb
 	 * @uses bbp_stick_topic() to set the imported topic as super sticky
@@ -1336,7 +1339,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old closed topics to bbPress closed topics.
 	 *
-	 * @since bbPress (r5425)
+	 * @since 2.6.0 bbPress (r5425)
 	 *
 	 * @uses bbp_close_topic() to close topics properly
 	 *
@@ -1366,7 +1369,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts old reply_to post id to new bbPress reply_to post id.
 	 *
-	 * @since  bbPress (r5093)
+	 * @since 2.4.0 bbPress (r5093)
 	 */
 	public function convert_reply_to_parents( $start ) {
 
@@ -1394,7 +1397,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts anonymous topics.
 	 *
-	 * @since  bbPress (r5538)
+	 * @since 2.6.0 bbPress (r5538)
 	 *
 	 * @uses add_post_meta() To add _bbp_anonymous_name topic meta key
 	 */
@@ -1440,7 +1443,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method converts anonymous replies.
 	 *
-	 * @since  bbPress (r5538)
+	 * @since 2.6.0 bbPress (r5538)
 	 *
 	 * @uses add_post_meta() To add _bbp_anonymous_name reply meta key
 	 */
@@ -1672,7 +1675,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * A mini cache system to reduce database calls to reply_to post id.
 	 *
-	 * @since  bbPress (r5093)
+	 * @since 2.4.0 bbPress (r5093)
 	 *
 	 * @param string $field
 	 * @return string
@@ -1724,7 +1727,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Check if the topic or reply author is anonymous
 	 *
-	 * @since  (r5544)
+	 * @since 2.6.0 bbPress (r5544)
 	 *
 	 * @param  string $field
 	 * @return string
