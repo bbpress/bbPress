@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Listens to the 'template_include' filter and waits for any bbPress specific
  * template condition to be met. If one is met and the template file exists,
- * it will be used; otherwise 
+ * it will be used; otherwise
  *
  * Note that the _edit() checks are ahead of their counterparts, to prevent them
  * from being stomped on accident.
@@ -508,7 +508,8 @@ function bbp_get_topic_tag_edit_template() {
 /**
  * Get the templates to use as the endpoint for bbPress template parts
  *
- * @since bbPress (r3311)
+ * @since 2.0.0 bbPress (r3311)
+ * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
  *
  * @uses apply_filters()
  * @uses bbp_set_theme_compat_templates()
@@ -524,6 +525,7 @@ function bbp_get_theme_compat_templates() {
 		'generic.php',
 		'page.php',
 		'single.php',
+		'singular.php',
 		'index.php'
 	);
 	return bbp_get_query_template( 'bbpress', $templates );
