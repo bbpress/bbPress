@@ -201,7 +201,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		if ( bbp_is_single_user_edit() ) {
 			$scripts['bbpress-user'] = array(
 				'file'         => 'js/user' . $suffix . '.js',
-				'dependencies' => array( 'user-query' )
+				'dependencies' => array()
 			);
 		}
 
