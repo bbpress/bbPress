@@ -878,7 +878,7 @@ class BBP_Admin {
 
 			<p class="about-description"><?php esc_html_e( 'bbPress is created by a worldwide swarm of busy, busy bees.', 'bbpress' ); ?></p>
 
-			<h4 class="wp-people-group"><?php esc_html_e( 'Project Leaders', 'bbpress' ); ?></h4>
+			<h3 class="wp-people-group"><?php esc_html_e( 'Project Leaders', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-project-leaders">
 				<li class="wp-person" id="wp-person-matt">
 					<a href="https://profiles.wordpress.org/matt"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="Matt Mullenweg" /></a>
@@ -902,7 +902,7 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h4>
+			<h3 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-jaredatch">
 					<a href="https://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
@@ -916,7 +916,7 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h4 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.5', 'bbpress' ); ?></h4>
+			<h3 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.5', 'bbpress' ); ?></h3>
 			<p class="wp-credits-list">
 				<a href="https://profiles.wordpress.org/alex-ye">alex-ye</a>,
 				<a href="https://profiles.wordpress.org/alexvorn2">alexvorn2</a>,
