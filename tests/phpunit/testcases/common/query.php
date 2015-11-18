@@ -9,6 +9,45 @@
  */
 class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 
+ 	/**
+	 * @covers ::bbp_query_post_parent__in
+	 * @todo   Implement test_bbp_query_post_parent__in().
+	 */
+	public function test_bbp_query_post_parent__in() {
+		// Remove the following lines when you implement this test.
+		$this->markTestIncomplete(
+			'This test has not been implemented yet.'
+		);
+	}
+
+	/**
+	 * @covers ::bbp_get_public_child_last_id
+	 */
+	public function test_bbp_get_public_child_last_id() {
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$last_id = bbp_get_public_child_last_id( $f, bbp_get_topic_post_type() );
+		$this->assertSame( $t, $last_id );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$last_id = bbp_get_public_child_last_id( $t, bbp_get_reply_post_type() );
+		$this->assertSame( $r, $last_id );
+	}
+
 	/**
 	 * @group  counts
 	 * @covers ::bbp_get_public_child_count
