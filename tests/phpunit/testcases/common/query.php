@@ -171,7 +171,6 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 			'post_status' => bbp_get_private_status_id(),
 		) );
 
-		bbp_clean_post_cache( $f );
 		$count = count( bbp_get_public_child_ids( $f, bbp_get_forum_post_type() ) );
 		$this->assertSame( 3, $count );
 

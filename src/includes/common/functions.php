@@ -1499,13 +1499,15 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 /**
  * Query the DB and get the last public post_id that has parent_id as post_parent
  *
- * @param int $parent_id Parent id
- * @param string $post_type Post type. Defaults to 'post'
+ * @since 2.0.0 bbPress (r2868)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
+ *
+ * @param int    $parent_id Parent id.
+ * @param string $post_type Post type. Defaults to 'post'.
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses wp_cache_get() To check if there is a cache of the last child id
- * @uses wpdb::prepare() To prepare the query
- * @uses wpdb::get_var() To get the result of the query in a variable
- * @uses wp_cache_set() To set the cache for future use
+ * @uses bbp_get_closed_status_id() To get the closed status id
+ * @uses WP_Query To get get the posts
  * @uses apply_filters() Calls 'bbp_get_public_child_last_id' with the child
  *                        id, parent id and post type
  * @return int The last active post_id
@@ -1517,29 +1519,28 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 	}
 
-	// The ID of the cached query
-	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
+	// Get the public posts status
+	$post_status = array( bbp_get_public_status_id() );
 
-	// Check for cache and set if needed
-	$child_id = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( false === $child_id ) {
-		$post_status = array( bbp_get_public_status_id() );
-
-		// Add closed status if topic post type
-		if ( $post_type === bbp_get_topic_post_type() ) {
-			$post_status[] = bbp_get_closed_status_id();
-		}
-
-		// Join post statuses together
-		$post_status = "'" . implode( "', '", $post_status ) . "'";
-		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type );
-		$child_id    = (int) $bbp_db->get_var( $query );
-
-		wp_cache_set( $cache_id, $child_id, 'bbpress_posts' );
-	} else {
-		$child_id = (int) $child_id;
+	// Add closed status if topic post type
+	if ( bbp_get_topic_post_type() === $post_type ) {
+		$post_status[] = bbp_get_closed_status_id();
 	}
+
+	$query = new WP_Query( array(
+		'fields'      => 'ids',
+		'post_parent' => $parent_id,
+		'post_status' => $post_status,
+		'post_type'   => $post_type,
+
+		// Maybe change these later
+		'posts_per_page'         => 1,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+	) );
+	$child_id = array_shift( $query->posts );
+	unset( $query );
 
 	// Filter and return
 	return (int) apply_filters( 'bbp_get_public_child_last_id', $child_id, $parent_id, $post_type );
@@ -1549,14 +1550,14 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * Query the DB and get a count of public children
  *
  * @since 2.0.0 bbPress (r2868)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
- * @param int $parent_id Parent id
- * @param string $post_type Post type. Defaults to 'post'
+ * @param int    $parent_id Parent id.
+ * @param string $post_type Post type. Defaults to 'post'.
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses wp_cache_get() To check if there is a cache of the children count
- * @uses wpdb::prepare() To prepare the query
- * @uses wpdb::get_var() To get the result of the query in a variable
- * @uses wp_cache_set() To set the cache for future use
+ * @uses bbp_get_closed_status_id() To get the closed status id
+ * @uses WP_Query To get get the posts
  * @uses apply_filters() Calls 'bbp_get_public_child_count' with the child
  *                        count, parent id and post type
  * @return int The number of children
@@ -1568,48 +1569,45 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 	}
 
-	// The ID of the cached query
-	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
+	// Check the public post status
+	$post_status = array( bbp_get_public_status_id() );
 
-	// Check for cache and set if needed
-	$child_count = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( false === $child_count ) {
-		$post_status = array( bbp_get_public_status_id() );
-
-		// Add closed status if topic post type
-		if ( $post_type === bbp_get_topic_post_type() ) {
-			$post_status[] = bbp_get_closed_status_id();
-		}
-
-		// Join post statuses together
-		$post_status = "'" . implode( "', '", $post_status ) . "'";
-		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type );
-		$child_count = (int) $bbp_db->get_var( $query );
-
-		wp_cache_set( $cache_id, $child_count, 'bbpress_posts' );
-	} else {
-		$child_count = (int) $child_count;
+	// Add closed status if topic post type
+	if ( bbp_get_topic_post_type() === $post_type ) {
+		$post_status[] = bbp_get_closed_status_id();
 	}
+
+	$query = new WP_Query( array(
+		'fields'      => 'ids',
+		'post_parent' => $parent_id,
+		'post_status' => $post_status,
+		'post_type'   => $post_type,
+
+		// Maybe change these later
+		'posts_per_page'         => -1,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+	) );
+	$child_count = $query->post_count;
+	unset( $query );
 
 	// Filter and return
 	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
 }
 
 /**
- * Query the DB and get a the child id's of public children
+ * Query the DB and get the child id's of public children
  *
  * @since 2.0.0 bbPress (r2868)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
- * @param int $parent_id Parent id
- * @param string $post_type Post type. Defaults to 'post'
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses wp_cache_get() To check if there is a cache of the children
+ * @param int    $parent_id Parent id.
+ * @param string $post_type Post type. Defaults to 'post'.
  * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses wpdb::prepare() To prepare the query
- * @uses wpdb::get_col() To get the result of the query in an array
- * @uses wp_cache_set() To set the cache for future use
+ * @uses WP_Query To get get the posts
  * @uses apply_filters() Calls 'bbp_get_public_child_ids' with the child ids,
  *                        parent id and post type
  * @return array The array of children
@@ -1621,29 +1619,28 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 	}
 
-	// The ID of the cached query
-	$cache_id  = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	// Get the public post status
+	$post_status = array( bbp_get_public_status_id() );
 
-	// Check for cache and set if needed
-	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
-	if ( false === $child_ids ) {
-		$post_status = array( bbp_get_public_status_id() );
-
-		// Add closed status if topic post type
-		if ( $post_type === bbp_get_topic_post_type() ) {
-			$post_status[] = bbp_get_closed_status_id();
-		}
-
-		// Join post statuses together
-		$post_status = "'" . implode( "', '", $post_status ) . "'";
-		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type );
-		$child_ids   = (array) $bbp_db->get_col( $query );
-
-		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
-	} else {
-		$child_ids = (array) $child_ids;
+	// Add closed status if topic post type
+	if ( bbp_get_topic_post_type() === $post_type ) {
+		$post_status[] = bbp_get_closed_status_id();
 	}
+
+	$query = new WP_Query( array(
+		'fields'      => 'ids',
+		'post_parent' => $parent_id,
+		'post_status' => $post_status,
+		'post_type'   => $post_type,
+
+		// Maybe change these later
+		'posts_per_page'         => -1,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+	) );
+	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
+	unset( $query );
 
 	// Filter and return
 	return (array) apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );

@@ -1555,9 +1555,10 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  * spammed and pending topics)
  *
  * @since 2.0.0 bbPress (r2888)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
- * @param int $forum_id Optional. Topic id to update
- * @param int $topic_count Optional. Set the topic count manually
+ * @param int $forum_id Optional. Topic id to update.
+ * @param int $topic_count Optional. Set the topic count manually.
  * @uses bbp_is_topic() To check if the supplied id is a topic
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
@@ -1565,8 +1566,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  * @uses bbp_get_trash_status_id() To get the trash status id
  * @uses bbp_get_spam_status_id() To get the spam status id
  * @uses bbp_get_pending_status_id() To get the pending status id
- * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_var() To execute our query and get the var back
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses update_post_meta() To update the forum hidden topic count meta
  * @uses apply_filters() Calls 'bbp_update_forum_topic_count_hidden' with the
  *                        hidden topic count and forum id
@@ -1589,10 +1589,20 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 
 		// Get topics of forum
 		if ( empty( $topic_count ) ) {
-			$statuses    = array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() );
-			$post_status = "'" . implode( "','", $statuses ) . "'";
-			$bbp_db      = bbp_db();
-			$topic_count = $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+			$query = new WP_Query( array(
+				'fields'      => 'ids',
+				'post_parent' => $forum_id,
+				'post_status' => array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ),
+				'post_type'   => bbp_get_topic_post_type(),
+
+				// Maybe change these later
+				'posts_per_page'         => -1,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'ignore_sticky_posts'    => true,
+			) );
+			$topic_count = $query->post_count;
+			unset( $query );
 		}
 
 		$topic_count = (int) $topic_count;
@@ -1608,20 +1618,19 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
  * Adjust the total reply count of a forum
  *
  * @since 2.0.0 bbPress (r2464)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
- * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
+ * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
- * @param bool $total_count Optional. To return the total count or normal
- *                           count?
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_forum_query_subforum_ids() To get the subforum ids
  * @uses bbp_update_forum_reply_count() To update the forum reply count
  * @uses bbp_forum_query_topic_ids() To get the forum topic ids
- * @uses wpdb::prepare() To prepare the sql statement
- * @uses wpdb::get_var() To execute the query and get the var back
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses update_post_meta() To update the forum's reply count meta
- * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the reply
+ * @uses apply_filters() Calls 'bbp_update_forum_reply_count' with the reply
  *                        count and forum id
  * @return int Forum reply count
  */
@@ -1642,9 +1651,20 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$reply_count = 0;
 	$topic_ids   = bbp_forum_query_topic_ids( $forum_id );
 	if ( ! empty( $topic_ids ) ) {
-		$bbp_db      = bbp_db();
-		$topic_ids   = implode( ',', wp_parse_id_list( $topic_ids ) );
-		$reply_count = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent IN ( {$topic_ids} ) AND post_status = '%s' AND post_type = '%s';", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
+		$query = new WP_Query( array(
+			'fields'          => 'ids',
+			'post_parent__in' => $topic_ids,
+			'post_status'     => bbp_get_public_status_id(),
+			'post_type'       => bbp_get_reply_post_type(),
+
+			// Maybe change these later
+			'posts_per_page'         => -1,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+		) );
+		$reply_count = ! empty( $query->posts ) ? count( $query->posts ) : 0;
+		unset( $query );
 	}
 
 	// Calculate total replies in this forum
@@ -2068,65 +2088,49 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  */
 function bbp_forum_query_subforum_ids( $forum_id ) {
 	$subforum_ids = bbp_get_all_child_ids( $forum_id, bbp_get_forum_post_type() );
-	//usort( $subforum_ids, '_bbp_forum_query_usort_subforum_ids' );
 
 	return (array) apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id );
-}
-
-/**
- * Callback to sort forum ID's based on last active time
- *
- * @since 2.1.0 bbPress (r3789)
- *
- * @param int $a First forum ID to compare
- * @param int $b Second forum ID to compare
- * @return Position change based on sort
- */
-function _bbp_forum_query_usort_subforum_ids( $a = 0, $b = 0 ) {
-	$ta = get_post_meta( $a, '_bbp_last_active_time', true );
-	$tb = get_post_meta( $b, '_bbp_last_active_time', true );
-	return ( $ta < $tb ) ? -1 : 1;
 }
 
 /**
  * Returns the forum's last reply id
  *
  * @since 2.0.0 bbPress (r2908)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
- * @param int $forum_id Forum id
- * @param int $topic_ids Optional. Topic ids
- * @uses wp_cache_get() To check for cache and retrieve it
+ * @param int $forum_id Forum id.
+ * @param int $topic_ids Optional. Topic ids.
+ * @uses bbp_get_forum_id() To validate the forum id
  * @uses bbp_forum_query_topic_ids() To get the forum's topic ids
- * @uses wpdb::prepare() To prepare the query
- * @uses wpdb::get_var() To execute the query and get the var back
+ * @uses bbp_get_public_status_id() To get the public status id
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wp_cache_set() To set the cache for future use
  * @uses apply_filters() Calls 'bbp_forum_query_last_reply_id' with the reply id
  *                        and forum id
  */
-function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
+function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 
-	$cache_id = 'bbp_get_forum_' . $forum_id . '_reply_id';
-	$reply_id = wp_cache_get( $cache_id, 'bbpress_posts' );
+	// Validate forum
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( false === $reply_id ) {
-
-		if ( empty( $topic_ids ) ) {
-			$topic_ids = bbp_forum_query_topic_ids( $forum_id );
-		}
-
-		if ( ! empty( $topic_ids ) ) {
-			$bbp_db    = bbp_db();
-			$topic_ids = implode( ',', wp_parse_id_list( $topic_ids ) );
-			$reply_id  = (int) $bbp_db->get_var( $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent IN ( {$topic_ids} ) AND post_status = '%s' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_public_status_id(), bbp_get_reply_post_type() ) );
-		} else {
-			$reply_id = 0;
-		}
-
-		wp_cache_set( $cache_id, $reply_id, 'bbpress_posts' );
-	} else {
-		$reply_id = (int) $reply_id;
+	// Get topic ID's if none were passed
+	if ( empty( $topic_ids ) ) {
+		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 	}
+
+	$query = new WP_Query( array(
+		'fields'          => 'ids',
+		'post_parent__in' => $topic_ids,
+		'post_status'     => bbp_get_public_status_id(),
+		'post_type'       => bbp_get_reply_post_type(),
+
+		// Maybe change these later
+		'posts_per_page'         => 1,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+	) );
+	$reply_id = array_shift( $query->posts );
+	unset( $query );
 
 	return (int) apply_filters( 'bbp_forum_query_last_reply_id', $reply_id, $forum_id );
 }
