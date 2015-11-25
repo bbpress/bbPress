@@ -42,7 +42,7 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		bbp_update_topic_last_active_id( $t );
+		bbp_update_topic_last_active_id( $t, $r2[1] );
 		$id = bbp_get_topic_last_active_id( $t );
 		$this->assertSame( $r2[1], $id );
 	}
@@ -124,7 +124,7 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		bbp_update_topic_last_reply_id( $t );
+		bbp_update_topic_last_reply_id( $t, $r2[1] );
 		$id = bbp_get_topic_last_reply_id( $t );
 		$this->assertSame( $r2[1], $id );
 	}
