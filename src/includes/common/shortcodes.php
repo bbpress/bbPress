@@ -189,8 +189,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @param array $attr
-	 * @param string $content
 	 * @uses bbp_has_forums()
 	 * @uses get_template_part()
 	 * @return string
@@ -280,8 +278,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @param array $attr
-	 * @param string $content
 	 * @uses bbp_get_hidden_forum_ids()
 	 * @uses get_template_part()
 	 * @return string
@@ -584,8 +580,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3346)
 	 *
-	 * @param array $attr
-	 * @param string $content
 	 * @uses get_template_part()
 	 * @return string
 	 */
