@@ -802,7 +802,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 *
-	 * @return shring
+	 * @return string
 	 */
 	public function display_stats() {
 
