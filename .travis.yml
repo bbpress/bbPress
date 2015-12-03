@@ -14,6 +14,7 @@ php:
     - 5.4
     - 5.5
     - 5.6
+    - 7.0
 
 # WordPress comes from the Git mirror, where 'master' mirrors svn 'trunk' and
 # x.y mirrors the latest from the x.y branch
@@ -30,12 +31,12 @@ env:
 # Build matrix options
 matrix:
   include:
-    - php: 7.0
+    - php: nightly
       env: WP_VERSION=master
     - php: hhvm
       env: WP_VERSION=master
   allow_failures:
-    - php: 7.0
+    - php: nightly
     - php: hhvm
 #  fast_finish: true
 
