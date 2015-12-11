@@ -2155,6 +2155,7 @@ function bbp_admin_reset() {
 							<?php esc_html_e( 'Forum Settings',       'bbpress' ); ?><br />
 							<?php esc_html_e( 'Forum Activity',       'bbpress' ); ?><br />
 							<?php esc_html_e( 'Forum User Roles',     'bbpress' ); ?><br />
+							<?php esc_html_e( 'Forum Moderators',     'bbpress' ); ?><br />
 							<?php esc_html_e( 'Importer Helper Data', 'bbpress' ); ?><br />
 						</td>
 					</tr>
@@ -2252,6 +2253,13 @@ function bbp_admin_reset_handler() {
 		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
 	}
+
+	/** Forum moderators ******************************************************/
+
+	$statement  = __( 'Deleting Forum Moderators&hellip; %s', 'bbpress' );
+	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'forum-mod';";
+	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
+	$messages[] = sprintf( $statement, $result );
 
 	/** Topic Tags ************************************************************/
 
