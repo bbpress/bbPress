@@ -41,8 +41,18 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
 		}
 
+		// Public category.
+		$c = $this->factory->forum->create( array(
+			'post_title' => 'Public Category',
+		) );
+
+		$category = bbp_get_forum_permalink( $c );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=public-category', $category );
+
+		// Public forum of public category.
 		$f = $this->factory->forum->create( array(
-			'post_title' => 'Forum 1',
+			'post_title' => 'Public Forum',
+			'post_parent' => $c,
 		) );
 
 		$forum_permalink = bbp_get_forum_permalink( $f );
@@ -50,7 +60,45 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		bbp_forum_permalink( $f );
 
 		$forum = bbp_get_forum_permalink( $f );
-		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=forum-1', $forum );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=public-category/public-forum', $forum );
+
+		// Private category.
+		$c = $this->factory->forum->create( array(
+			'post_title' => 'Private Category',
+		) );
+
+		$category = bbp_get_forum_permalink( $c );
+
+		$forum = bbp_get_forum_permalink( $f );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=private-category', $category );
+
+		// Private forum of private category.
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Private Forum',
+			'post_parent' => $c,
+		) );
+
+		bbp_privatize_forum( $c );
+		$forum = bbp_get_forum_permalink( $f );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=private-category/private-forum', $forum );
+
+		// Hidden category.
+		$c = $this->factory->forum->create( array(
+			'post_title' => 'Hidden Category',
+		) );
+
+		bbp_hide_forum( $c );
+		$category = bbp_get_forum_permalink( $c );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=hidden-category', $category );
+
+		// Hidden forum of hidden category.
+		$f = $this->factory->forum->create( array(
+			'post_title' => 'Hidden Forum',
+			'post_parent' => $c,
+		) );
+
+		$forum = bbp_get_forum_permalink( $f );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=hidden-category/hidden-forum', $forum );
 	}
 
 	/**
