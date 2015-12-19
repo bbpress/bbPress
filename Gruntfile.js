@@ -89,6 +89,12 @@ module.exports = function( grunt ) {
 				src: []
 			}
 		},
+		checkDependencies: {
+			options: {
+				packageManager: 'npm'
+			},
+			src: {}
+		},
 		copy: {
 			files: {
 				files: [
@@ -328,7 +334,7 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'colors', [ 'sass:colors' ] );
 
 	// Build tasks.
-	grunt.registerTask( 'src',     [ 'jsvalidate:src', 'jshint' ] );
+	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint' ] );
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
 	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
