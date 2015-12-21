@@ -79,11 +79,16 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_create_initial_content() {
 
-		$f  = $this->factory->forum->create();
+		$category_id = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'_bbp_forum_type' => 'category',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
-		bbp_create_initial_content( array( 'forum_parent' => $f ) );
+		bbp_create_initial_content( array( 'forum_parent' => $category_id ) );
 
-		$forum_id = bbp_forum_query_subforum_ids( $f );
+		$forum_id = bbp_forum_query_subforum_ids( $category_id );
 		$forum_id = (int) $forum_id[0];
 		$topic_id = bbp_get_forum_last_topic_id( $forum_id );
 		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
@@ -93,7 +98,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( 'General chit-chat', bbp_get_forum_content( $forum_id ) );
 		$this->assertSame( 'open', bbp_get_forum_status( $forum_id ) );
 		$this->assertTrue( bbp_is_forum_public( $forum_id ) );
-		$this->assertSame( $f, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertSame( $category_id, bbp_get_forum_parent_id( $forum_id ) );
 
 		// Topic post
 		$this->assertSame( $forum_id, bbp_get_topic_forum_id( $topic_id ) );
@@ -113,6 +118,22 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		$this->assertSame( $reply_content, bbp_get_reply_content( $reply_id ) );
 		$this->assertSame( 'publish', bbp_get_reply_status( $reply_id ) );
 		$this->assertTrue( bbp_is_reply_published( $reply_id ) );
+
+		// Category meta
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $category_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count( $category_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $category_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $category_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $category_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $category_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_post_count( $category_id, false, true ) );
+		$this->assertSame( 2, bbp_get_forum_post_count( $category_id, true, true ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $category_id ) );
+		$this->assertSame( 'Hello World!', bbp_get_forum_last_topic_title( $category_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $category_id ) );
+		$this->assertSame( 'Reply To: Hello World!', bbp_get_forum_last_reply_title( $category_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_active_id( $category_id ) );
+		$this->assertSame( '1 day, 16 hours ago', bbp_get_forum_last_active_time( $category_id ) );
 
 		// Forum meta
 		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
