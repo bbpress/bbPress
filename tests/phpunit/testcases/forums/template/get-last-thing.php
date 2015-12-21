@@ -14,14 +14,33 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_active_id
 	 */
 	public function test_bbp_get_forum_last_active_id() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
 
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
+
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		$t = $this->factory->topic->create( array(
@@ -33,7 +52,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $t, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( $t, $last_id );
 
 		$r = $this->factory->reply->create( array(
@@ -46,7 +70,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( $r, $last_id );
 	}
 
@@ -56,14 +85,34 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_last_active_id_with_pending_reply() {
 		$u = $this->factory->user->create_many( 2 );
-		$f = $this->factory->forum->create();
 
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
+
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		$t = $this->factory->topic->create( array(
@@ -75,7 +124,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $t, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( $t, $last_id );
 
 		$r1 = $this->factory->reply->create( array(
@@ -88,7 +142,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_id( $f );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r1, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
+
 		$this->assertSame( $r1, $last_id );
 
 		$r2 = $this->factory->reply->create( array(
@@ -101,12 +161,22 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r1, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( $r1, $last_id );
 
 		bbp_approve_reply( $r2 );
 
+		// Get the forums last active id.
 		$last_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r2, $last_id );
+
+		// Get the categories last active id.
+		$last_id = bbp_get_forum_last_active_id( $c );
 		$this->assertSame( $r2, $last_id );
 	}
 
@@ -115,12 +185,26 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_active_time
 	 */
 	public function test_bbp_get_forum_last_active_time() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$now = time();
-		$post_date = date( 'Y-m-d H:i:s', $now - 60*60*100 );
+		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
 
+		// Get the forums last active time.
 		$last_time = bbp_get_forum_last_active_time( $f );
+		$this->assertSame( '', $last_time );
+
+		// Get the categories last active time.
+		$last_time = bbp_get_forum_last_active_time( $c );
 		$this->assertSame( '', $last_time );
 
 		$t = $this->factory->topic->create( array(
@@ -132,7 +216,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		) );
 
 		bbp_update_forum_last_active_time( $f );
+
+		// Get the forums last active time.
 		$last_time = bbp_get_forum_last_active_time( $f );
+		$this->assertSame( '4 days, 4 hours ago', $last_time );
+
+		// Get the categories last active time.
+		$last_time = bbp_get_forum_last_active_time( $c );
 		$this->assertSame( '4 days, 4 hours ago', $last_time );
 
 		$this->factory->reply->create( array(
@@ -146,7 +236,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_active_time( $f );
 
+		// Get the forums last active time.
 		$last_time = bbp_get_forum_last_active_time( $f );
+		$this->assertSame( '4 days, 4 hours ago', $last_time );
+
+		// Get the categories last active time.
+		$last_time = bbp_get_forum_last_active_time( $c );
 		$this->assertSame( '4 days, 4 hours ago', $last_time );
 	}
 
@@ -155,14 +250,33 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_topic_id
 	 */
 	public function test_bbp_get_forum_last_topic_id() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
 
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
+
+		// Get the forums last topic id.
 		$last_id = bbp_get_forum_last_topic_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last topic id.
+		$last_id = bbp_get_forum_last_topic_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		bbp_update_forum_last_topic_id( $f );
 
+		// Get the forums last topic id.
 		$last_id = bbp_get_forum_last_topic_id( $f );
+		$this->assertSame( 0, $last_id );
+
+		// Get the categories last topic id.
+		$last_id = bbp_get_forum_last_topic_id( $c );
 		$this->assertSame( 0, $last_id );
 
 		$t = $this->factory->topic->create( array(
@@ -174,7 +288,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		bbp_update_forum_last_topic_id( $f );
 
+		// Get the forums last topic id.
 		$last_id = bbp_get_forum_last_topic_id( $f );
+		$this->assertSame( $t, $last_id );
+
+		// Get the categories last topic id.
+		$last_id = bbp_get_forum_last_topic_id( $c );
 		$this->assertSame( $t, $last_id );
 	}
 
@@ -183,7 +302,16 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_topic_title
 	 */
 	public function test_bbp_get_forum_last_topic_title() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_title' => 'Topic 1',
@@ -201,8 +329,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Get the forums last topic title.
 		$forum = bbp_get_forum_last_topic_title( $f );
 		$this->assertSame( 'Topic 1', $forum );
+
+		// Get the categories last topic title.
+		$category = bbp_get_forum_last_topic_title( $c );
+		$this->assertSame( 'Topic 1', $category );
 	}
 
 	/**
@@ -211,10 +344,19 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_last_topic_permalink() {
 		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+			$this->markTestSkipped( 'Skipping URL tests in multisite for now.' );
 		}
 
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -223,7 +365,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
+		// Get the forums last topic permalink.
 		$forum_last_topic_permalink = bbp_get_forum_last_topic_permalink( $f );
+		$this->assertSame( bbp_get_topic_permalink( $t ), $forum_last_topic_permalink );
+
+		// Get the categories last topic permalink.
+		$forum_last_topic_permalink = bbp_get_forum_last_topic_permalink( $c );
 		$this->assertSame( bbp_get_topic_permalink( $t ), $forum_last_topic_permalink );
 	}
 
@@ -233,8 +380,16 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_topic_author_id() {
 		$u = $this->factory->user->create();
 
+		$c = $this->factory->forum->create();
+
 		$f = $this->factory->forum->create( array(
 			'post_author' => $u,
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
 		) );
 
 		$t = $this->factory->topic->create( array(
@@ -254,7 +409,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Get the forums last author id.
 		$forum = bbp_get_forum_last_topic_author_id( $f );
+		$this->assertSame( $u, $forum );
+
+		// Get the categories last author id.
+		$forum = bbp_get_forum_last_topic_author_id( $c );
 		$this->assertSame( $u, $forum );
 	}
 
@@ -263,12 +423,21 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_topic_author_link	 */
 	public function test_bbp_get_forum_last_topic_author_link() {
 		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+			$this->markTestSkipped( 'Skipping URL tests in multisite for now.' );
 		}
 
 		$u = $this->factory->user->create();
 
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -278,7 +447,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
+		// Get the forums last topic author link.
 		$last_topic_author_link = bbp_get_forum_last_topic_author_link( $f );
+		$this->assertSame( bbp_get_user_profile_link( $u ), $last_topic_author_link );
+
+		// Get the categories last topic author link.
+		$last_topic_author_link = bbp_get_forum_last_topic_author_link( $c );
 		$this->assertSame( bbp_get_user_profile_link( $u ), $last_topic_author_link );
 	}
 
@@ -287,7 +461,16 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_reply_id
 	 */
 	public function test_bbp_get_forum_last_reply_id() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -304,11 +487,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
-		$last_reply_id = bbp_get_forum_last_reply_id( $f );
+		// Get the forums last reply id.
+		$last_reply_id_f = bbp_get_forum_last_reply_id( $f );
+		$this->assertSame( $last_reply_id_f, bbp_forum_query_last_reply_id( $f ) );
 
-		$this->assertSame( $last_reply_id, bbp_forum_query_last_reply_id( $f ) );
-
-		bbp_get_forum_last_reply_id( $f );
+		// Get the categories last reply id.
+		$last_reply_id_c = bbp_get_forum_last_reply_id( $c );
+		$this->assertSame( $last_reply_id_c, bbp_forum_query_last_reply_id( $c ) );
 
 		$this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -318,11 +503,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
-		$last_reply_id = bbp_get_forum_last_reply_id( $f );
+		// Get the forums last reply id.
+		$last_reply_id_f = bbp_get_forum_last_reply_id( $f );
+		$this->assertSame( $last_reply_id_f, bbp_forum_query_last_reply_id( $f ) );
 
-		bbp_get_forum_last_reply_id( $f );
-		$this->assertSame( $last_reply_id, bbp_forum_query_last_reply_id( $f ) );
-
+		// Get the categories last reply id.
+		$last_reply_id_c = bbp_get_forum_last_reply_id( $c );
+		$this->assertSame( $last_reply_id_c, bbp_forum_query_last_reply_id( $c ) );
 	}
 
 	/**
@@ -330,7 +517,16 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_last_reply_title
 	 */
 	public function test_bbp_get_forum_last_reply_title() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -348,8 +544,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Get the forums last reply title.
 		$forum = bbp_get_forum_last_reply_title( $f );
 		$this->assertSame( 'Reply To: Topic 1', $forum );
+
+		// Get the categories last reply title.
+		$category = bbp_get_forum_last_reply_title( $c );
+		$this->assertSame( 'Reply To: Topic 1', $category );
 	}
 
 	/**
@@ -383,8 +584,16 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_reply_author_id() {
 		$u = $this->factory->user->create();
 
+		$c = $this->factory->forum->create();
+
 		$f = $this->factory->forum->create( array(
 			'post_author' => $u,
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
 		) );
 
 		$t = $this->factory->topic->create( array(
@@ -404,11 +613,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
-		$last_reply_id = bbp_get_topic_last_active_id( $f );
-		$this->assertSame( $r, $last_reply_id );
-
+		// Get the forums last reply author id.
 		$forum = bbp_get_forum_last_reply_author_id( $f );
 		$this->assertSame( $u, $forum );
+
+		// Get the categories last reply author id.
+		$category = bbp_get_forum_last_reply_author_id( $c );
+		$this->assertSame( $u, $category );
 	}
 
 	/**
@@ -417,12 +628,22 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_get_forum_last_reply_author_link() {
 		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Skipping URL tests in multiste for now.' );
+			$this->markTestSkipped( 'Skipping URL tests in multisite for now.' );
 		}
 
 		$u = $this->factory->user->create();
 
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create();
+
+		$f = $this->factory->forum->create( array(
+			'post_author' => $u,
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -441,7 +662,12 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Get the forums last reply author link.
 		$last_reply_author_link = bbp_get_forum_last_reply_author_link( $f );
+		$this->assertSame( bbp_get_user_profile_link( $u ), $last_reply_author_link );
+
+		// Get the categories last reply author link.
+		$last_reply_author_link = bbp_get_forum_last_reply_author_link( $c );
 		$this->assertSame( bbp_get_user_profile_link( $u ), $last_reply_author_link );
 	}
 
@@ -454,14 +680,28 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_topic_last_reply_id
 	 */
 	public function test_bbp_get_forum_and_topic_last_topic_id_and_last_reply_id() {
+		$c = $this->factory->forum->create();
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'        => $c,
+				'_bbp_forum_type' => 'forum',
+				'_bbp_status'     => 'open',
+			),
+		) );
 
-		// Get the forums last topic id _bbp_last_topic_id
+		// Get the forums last topic id _bbp_last_topic_id.
 		$this->assertSame( 0, bbp_get_forum_last_topic_id( $f ) );
 
-		// Get the forums last reply id _bbp_last_reply_id
+		// Get the category last topic id _bbp_last_topic_id.
+		$this->assertSame( 0, bbp_get_forum_last_topic_id( $c ) );
+
+		// Get the forums last reply id _bbp_last_reply_id.
 		$this->assertSame( 0, bbp_get_forum_last_reply_id( $f ) );
+
+		// Get the category last reply id _bbp_last_reply_id.
+		$this->assertSame( 0, bbp_get_forum_last_reply_id( $c ) );
 
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -470,13 +710,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
-		// Get the forums last topic id _bbp_last_topic_id
+		// Get the forums last topic id _bbp_last_topic_id.
 		$this->assertSame( $t, bbp_get_forum_last_topic_id( $f ) );
 
-		// Get the topics last reply id _bbp_last_reply_id
-		$this->assertSame( 0, bbp_get_topic_last_reply_id( $t ) );
+		// Get the category last topic id _bbp_last_topic_id.
+		$this->assertSame( $t, bbp_get_forum_last_topic_id( $c ) );
 
-		// Create another reply
+		// Create another reply.
 		$r = $this->factory->reply->create( array(
 			'post_parent' => $t,
 			'reply_meta' => array(
@@ -485,10 +725,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
-		// Get the forums last reply id _bbp_last_reply_id
+		// Get the forums last reply id _bbp_last_reply_id.
 		$this->assertSame( $r, bbp_get_forum_last_reply_id( $f ) );
 
-		// Get the topics last reply id _bbp_last_reply_id
+		// Get the category last reply id _bbp_last_reply_id.
+		$this->assertSame( $r, bbp_get_forum_last_reply_id( $c ) );
+
+		// Get the topics last reply id _bbp_last_reply_id.
 		$this->assertSame( $r, bbp_get_topic_last_reply_id( $t ) );
 	}
 }
