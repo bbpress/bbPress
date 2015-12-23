@@ -230,7 +230,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::vbbp_admin_repair_forum_topic_count
+	 * @covers ::bbp_admin_repair_forum_topic_count
 	 * @todo   Implement test_bbp_admin_repair_forum_topic_count().
 	 */
 	public function test_bbp_admin_repair_forum_topic_count() {
