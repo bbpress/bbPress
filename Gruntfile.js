@@ -230,10 +230,9 @@ module.exports = function( grunt ) {
 		rtlcss: {
 			options: {
 				config: {
-					swapLeftRightInUrl: false,
-					swapLtrRtlInUrl: false,
+					processUrls: false,
 					autoRename: false,
-					preserveDirectives: true
+					clean: true
 				},
 				saveUnmodified: false
 			},
