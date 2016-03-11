@@ -229,7 +229,7 @@ module.exports = function( grunt ) {
 		},
 		rtlcss: {
 			options: {
-				config: {
+				opts: {
 					processUrls: false,
 					autoRename: false,
 					clean: true
