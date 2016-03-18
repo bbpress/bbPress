@@ -23,6 +23,9 @@
     "grunt-wp-i18n": "~0.5.2",
     "matchdep": "~1.0.1"
   },
+  "engines": {
+    "node": ">=4.2.1"
+  },
   "keywords": [
     "community",
     "forums",
