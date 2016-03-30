@@ -2272,7 +2272,7 @@ function bbp_admin_reset_handler() {
 
 	// First, if we're deleting previously imported users, delete them now
 	if ( ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
-		$sql_users  = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_user_id'", OBJECT_K );
+		$sql_users  = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'", OBJECT_K );
 		if ( ! empty( $sql_users ) ) {
 			$sql_meta = array();
 			foreach ( $sql_users as $key => $value ) {
