@@ -43,7 +43,10 @@ module.exports = function( grunt ) {
 			'!tests/**',
 			'!phpunit.xml',
 			'!phpunit.xml.dist'
-		];
+		],
+
+		// PostCSS
+		autoprefixer    = require('autoprefixer');
 
 	// Load tasks.
 	require( 'matchdep' ).filterDev([ 'grunt-*', '!grunt-legacy-util' ]).forEach( grunt.loadNpmTasks );
@@ -227,6 +230,38 @@ module.exports = function( grunt ) {
 				args: [ '-c', 'tests/phpunit/multisite.xml' ]
 			}
 		},
+		postcss: {
+			options: {
+				map: false,
+				processors: [
+					autoprefixer({
+						browsers: [
+							'Android >= 2.1',
+							'Chrome >= 21',
+							'Edge >= 12',
+							'Explorer >= 7',
+							'Firefox >= 17',
+							'Opera >= 12.1',
+							'Safari >= 6.0'
+						],
+						cascade: false
+					})
+				],
+				failOnError: false
+			},
+			core: {
+				expand: true,
+				cwd: SOURCE_DIR,
+				dest: SOURCE_DIR,
+				src: [ [ BBP_LTR_CSS ], 'includes/admin/styles/*/colors.scss' ]
+			},
+			colors: {
+				expand: true,
+				cwd: BUILD_DIR,
+				dest: BUILD_DIR,
+				src: [ 'includes/admin/styles/*/colors.css' ]
+			}
+		},
 		rtlcss: {
 			options: {
 				opts: {
@@ -330,12 +365,12 @@ module.exports = function( grunt ) {
 	// Register tasks.
 
 	// Color schemes task.
-	grunt.registerTask( 'colors', [ 'sass:colors' ] );
+	grunt.registerTask( 'colors', [ 'sass:colors', 'postcss:colors' ] );
 
 	// Build tasks.
 	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint' ] );
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
-	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'postcss:core', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPUnit test task.

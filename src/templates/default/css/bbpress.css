@@ -648,6 +648,8 @@ textarea#bbp_reply_content,
 textarea#bbp_topic_content,
 textarea#bbp_forum_content {
 	width: 97%;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
@@ -784,13 +786,16 @@ p.form-allowed-tags {
 		width: 60%;
 		background: #f9f9f9;
 		border: 1px solid #ddd;
+		-webkit-box-shadow: none;
 		box-shadow: none;
 		padding: 5px 8px;
+		-webkit-border-radius: 0;
 		border-radius: 0;
 	}
 	#bbpress-forums #bbp-your-profile fieldset input:focus,
 	#bbpress-forums #bbp-your-profile fieldset textarea:focus {
 		border: 1px solid #ccc;
+		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		outline-color: rgba(240,255,240,0.1);
 	}
@@ -859,6 +864,7 @@ div.indicator-hint {
 	border-style: solid;
 	padding: 0 0.6em;
 	margin: 5px 0 15px;
+	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	background-color: #ffffe0;
 	border-color: #e6db55;
