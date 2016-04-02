@@ -10,7 +10,7 @@
 /* Version Badge */
 
 .bbp-badge {
-	font: normal 150px/1 'dashicons' !important;
+	font: normal 150px/1 "dashicons" !important;
 	color: #000;
 	display: inline-block;
 }
@@ -24,10 +24,11 @@
 	top: 0;
 	right: 0;
 }
-	body.rtl .about-wrap .bbp-badge {
-		right: auto;
-		left: 0;
-	}
+
+body.rtl .about-wrap .bbp-badge {
+	right: auto;
+	left: 0;
+}
 
 /* Dashicons */
 
@@ -50,7 +51,7 @@ th .bbp_replies_column:before,
 }
 
 #dashboard_right_now a.bbp-glance-topic-tags:before {
-	content: '\f323';
+	content: "\f323";
 }
 
 th .bbp_forums_column,
@@ -63,7 +64,7 @@ th .bbp_replies_column {
 th .bbp_forums_column:before,
 th .bbp_topics_column:before,
 th .bbp_replies_column:before {
-	font: normal 20px/.5 'dashicons';
+	font: normal 20px/0.5 "dashicons";
 	speak: none;
 	display: inline-block;
 	padding: 0;
@@ -99,10 +100,11 @@ th .bbp_replies_column:before {
 	top: -17px;
 	left: 15px;
 }
-	body.rtl #bbp-dashboard-right-now p.sub {
-		right: 15px;
-		left: 0;
-	}
+
+body.rtl #bbp-dashboard-right-now p.sub {
+	right: 15px;
+	left: 0;
+}
 
 #bbp-dashboard-right-now .table {
 	margin: 0;
@@ -115,18 +117,20 @@ th .bbp_replies_column:before {
 	border-top: #ececec 1px solid;
 	width: 45%;
 }
-	body.rtl #bbp-dashboard-right-now .table_content {
-		float: right;
-	}
+
+body.rtl #bbp-dashboard-right-now .table_content {
+	float: right;
+}
 
 #bbp-dashboard-right-now .table_discussion {
 	float: right;
 	border-top: #ececec 1px solid;
 	width: 45%;
 }
-	body.rtl #bbp-dashboard-right-now .table_discussion {
-		float: left;
-	}
+
+body.rtl #bbp-dashboard-right-now .table_discussion {
+	float: left;
+}
 
 #bbp-dashboard-right-now table td {
 	padding: 3px 0;
@@ -144,10 +148,11 @@ th .bbp_replies_column:before {
 	font-size: 14px;
 	width: 1%;
 }
-	body.rtl #bbp-dashboard-right-now td.b {
-		padding-left: 6px;
-		padding-right: 0;
-	}
+
+body.rtl #bbp-dashboard-right-now td.b {
+	padding-left: 6px;
+	padding-right: 0;
+}
 
 #bbp-dashboard-right-now td.b a {
 	font-size: 18px;
@@ -163,17 +168,18 @@ th .bbp_replies_column:before {
 	padding-top: 6px;
 	color: #777;
 }
-	body.rtl #bbp-dashboard-right-now .t {
-		padding-left: 12px;
-		padding-right: 0;
-	}
+
+body.rtl #bbp-dashboard-right-now .t {
+	padding-left: 12px;
+	padding-right: 0;
+}
 
 #bbp-dashboard-right-now .t a {
 	white-space: nowrap;
 }
 
 #bbp-dashboard-right-now .spam {
-	color: red;
+	color: #f00;
 }
 
 #bbp-dashboard-right-now .waiting {
@@ -181,7 +187,7 @@ th .bbp_replies_column:before {
 }
 
 #bbp-dashboard-right-now .approved {
-	color: green;
+	color: #0f0;
 }
 
 #bbp-dashboard-right-now .versions {
@@ -199,7 +205,8 @@ th .bbp_replies_column:before {
 	position: relative;
 	top: -5px;
 }
-	body.rtl #bbp-dashboard-right-now a.button {
-		float: left;
-		clear: left;
-	}
+
+body.rtl #bbp-dashboard-right-now a.button {
+	float: left;
+	clear: left;
+}
