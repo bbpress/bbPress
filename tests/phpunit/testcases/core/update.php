@@ -81,8 +81,8 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 
 		$category_id = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 

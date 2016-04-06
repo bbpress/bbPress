@@ -16,17 +16,17 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_active_id() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -93,8 +93,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -102,9 +102,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -198,8 +198,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_active_time() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -207,9 +207,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -269,8 +269,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_topic_id() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -279,8 +279,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			'post_parent' => $c,
 			'forum_meta' => array(
 				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -327,8 +327,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_topic_title() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -337,8 +337,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			'post_parent' => $c,
 			'forum_meta' => array(
 				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -378,8 +378,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -387,9 +387,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -417,8 +417,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -427,9 +427,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			'post_author' => $u,
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -471,8 +471,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -480,9 +480,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -510,8 +510,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_reply_id() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -519,9 +519,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -572,8 +572,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_last_reply_title() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -581,9 +581,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -645,8 +645,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -655,9 +655,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			'post_author' => $u,
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -700,8 +700,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -710,9 +710,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			'post_author' => $u,
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
@@ -753,8 +753,8 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 	public function test_bbp_get_forum_and_topic_last_topic_id_and_last_reply_id() {
 		$c = $this->factory->forum->create( array(
 			'forum_meta' => array(
-				'_bbp_forum_type' => 'category',
-				'_bbp_status'     => 'open',
+				'forum_type' => 'category',
+				'status'     => 'open',
 			),
 		) );
 
@@ -762,9 +762,9 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'        => $c,
-				'_bbp_forum_type' => 'forum',
-				'_bbp_status'     => 'open',
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
 			),
 		) );
 
