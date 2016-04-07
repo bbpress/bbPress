@@ -288,6 +288,15 @@ class XenForo extends BBP_Converter_Base {
 			'callback_method' => 'callback_html'
 		);
 
+		// Topic status (Visible or Deleted)
+		$this->field_map[] = array(
+			'from_tablename'  => 'thread',
+			'from_fieldname'  => 'discussion_state',
+			'to_type'         => 'topic',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_status'
+		);
+
 		// Topic status (Open = 1 or Closed = 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'thread',
@@ -424,6 +433,14 @@ class XenForo extends BBP_Converter_Base {
 			'callback_method' => 'callback_userid'
 		);
 
+		// Reply status (Visible or Deleted)
+		$this->field_map[] = array(
+			'from_tablename'  => 'post',
+			'from_fieldname'  => 'message_state',
+			'to_type'         => 'reply',
+			'to_fieldname'    => 'post_status',
+			'callback_method' => 'callback_status'
+		);
 
 		// Reply author name (Stored in postmeta as _bbp_anonymous_name)
 		$this->field_map[] = array(
@@ -728,6 +745,26 @@ class XenForo extends BBP_Converter_Base {
 	}
 
 	/**
+	 * Translate the post status from XenForo to WordPress' strings.
+	 *
+	 * @param int $status XenForo post status
+	 * @return string WordPress safe
+	 */
+	public function callback_status( $status = 1 ) {
+		switch ( $status ) {
+			case 'deleted' :
+				$status = 'pending'; // bbp_get_pending_status_id()
+				break;
+
+			case 'visible'  :
+			default :
+				$status = 'publish'; // bbp_get_public_status_id()
+				break;
+		}
+		return $status;
+	}
+
+	/**
 	 * Translate the topic status from XenForo numeric's to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric topic status
@@ -776,5 +813,41 @@ class XenForo extends BBP_Converter_Base {
 	public function callback_topic_reply_count( $count = 1 ) {
 		$count = absint( (int) $count - 1 );
 		return $count;
+	}
+
+	/**
+	 * This callback processes any custom parser.php attributes and custom code with preg_replace
+	 */
+	protected function callback_html( $field ) {
+
+		// Strips Xenforo custom HTML first from $field before parsing $field to parser.php
+		$xenforo_markup = $field;
+		$xenforo_markup = html_entity_decode( $xenforo_markup );
+
+		// Replace '[QUOTE]' with '<blockquote>'
+		$xenforo_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $xenforo_markup );
+		// Replace '[/QUOTE]' with '</blockquote>'
+		$xenforo_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $xenforo_markup );
+		// Replace '[QUOTE=User Name($1)]' with '<em>@$1 wrote:</em><blockquote>"
+		$xenforo_markup = preg_replace( '/\[quote=\"(.*?)\,\spost\:\s(.*?)\,\s\member\:\s(.*?)\"\](.*?)\[\/quote\]/', '<em>@$1 wrote:</em><blockquote>', $xenforo_markup );
+		// Replace '[/quote]' with '</blockquote>'
+		$xenforo_markup = preg_replace( '/\[\/quote\]/', '</blockquote>', $xenforo_markup );
+
+		// Replace '[media=youtube]$1[/media]' with '$1"
+		$xenforo_markup = preg_replace( '/\[media\=youtube\](.*?)\[\/media\]/', 'https://youtu.be/$1', $xenforo_markup );
+		// Replace '[media=dailymotion]$1[/media]' with '$1"
+		$xenforo_markup = preg_replace( '/\[media\=dailymotion\](.*?)\[\/media\]/', 'https://www.dailymotion.com/video/$1', $xenforo_markup );
+		// Replace '[media=vimeo]$1[/media]' with '$1"
+		$xenforo_markup = preg_replace( '/\[media\=vimeo\](.*?)\[\/media\]/', 'https://vimeo.com/$1', $xenforo_markup );
+
+		// Now that Xenforo custom HTML has been stripped put the cleaned HTML back in $field
+		$field = $xenforo_markup;
+
+		// Parse out any bbCodes in $field with the BBCode 'parser.php'
+		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		$bbcode = BBCode::getInstance();
+		$bbcode->enable_smileys = false;
+		$bbcode->smiley_regex   = false;
+		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }
