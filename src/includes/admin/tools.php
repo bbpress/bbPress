@@ -2278,12 +2278,12 @@ function bbp_admin_reset_handler() {
 			foreach ( $sql_users as $key => $value ) {
 				$sql_meta[] = $key;
 			}
-			$statement  = __( 'Deleting User&hellip; %s', 'bbpress' );
+			$statement  = __( 'Deleting Imported Users&hellip; %s', 'bbpress' );
 			$sql_meta   = implode( "', '", $sql_meta );
 			$sql_delete = "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}');";
 			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
-			$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
+			$statement  = __( 'Deleting Imported User Meta&hellip; %s', 'bbpress' );
 			$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}');";
 			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
