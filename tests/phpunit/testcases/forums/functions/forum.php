@@ -15,9 +15,24 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_insert_forum() {
 
+		$c = $this->factory->forum->create( array(
+			'post_title' => 'Category 1',
+			'post_content' => 'Content of Category 1',
+			'forum_meta' => array(
+				'forum_type' => 'category',
+				'status'     => 'open',
+			),
+		) );
+
 		$f = $this->factory->forum->create( array(
 			'post_title' => 'Forum 1',
 			'post_content' => 'Content of Forum 1',
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
+			),
 		) );
 
 		$now = time();
@@ -40,17 +55,54 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Get the category.
+		$category = bbp_get_forum( $c );
+
 		// Get the forum.
 		$forum = bbp_get_forum( $f );
+
+		// Category post.
+		$this->assertSame( 'Category 1', bbp_get_forum_title( $c ) );
+		$this->assertSame( 'Content of Category 1', bbp_get_forum_content( $c ) );
+		$this->assertSame( 'open', bbp_get_forum_status( $c ) );
+		$this->assertSame( 'category', bbp_get_forum_type( $c ) );
+		$this->assertTrue( bbp_is_forum( $c ) );
+		$this->assertTrue( bbp_is_forum_category( $c ) );
+		$this->assertTrue( bbp_is_forum_open( $c ) );
+		$this->assertTrue( bbp_is_forum_public( $c ) );
+		$this->assertFalse( bbp_is_forum_closed( $c ) );
+		$this->assertFalse( bbp_is_forum_hidden( $c ) );
+		$this->assertFalse( bbp_is_forum_private( $c ) );
+		$this->assertSame( 0, bbp_get_forum_parent_id( $c ) );
+		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?forum=' . $category->post_name, $category->guid );
 
 		// Forum post.
 		$this->assertSame( 'Forum 1', bbp_get_forum_title( $f ) );
 		$this->assertSame( 'Content of Forum 1', bbp_get_forum_content( $f ) );
 		$this->assertSame( 'open', bbp_get_forum_status( $f ) );
 		$this->assertSame( 'forum', bbp_get_forum_type( $f ) );
+		$this->assertTrue( bbp_is_forum( $f ) );
+		$this->assertTrue( bbp_is_forum_open( $f ) );
 		$this->assertTrue( bbp_is_forum_public( $f ) );
-		$this->assertSame( 0, bbp_get_forum_parent_id( $f ) );
-		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?forum=' . $forum->post_name, $forum->guid );
+		$this->assertFalse( bbp_is_forum_closed( $f ) );
+		$this->assertFalse( bbp_is_forum_hidden( $f ) );
+		$this->assertFalse( bbp_is_forum_private( $f ) );
+		$this->assertSame( $c, bbp_get_forum_parent_id( $f ) );
+		$this->assertEquals( 'http://' . WP_TESTS_DOMAIN . '/?forum=' . $category->post_name . '/' . $forum->post_name, $forum->guid );
+
+		// Category meta.
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $c, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count( $c, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count( $c, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $c, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $c, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $c, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_post_count( $c, false, true ) );
+		$this->assertSame( 2, bbp_get_forum_post_count( $c, true, true ) );
+		$this->assertSame( $t, bbp_get_forum_last_topic_id( $c ) );
+		$this->assertSame( $r, bbp_get_forum_last_reply_id( $c ) );
+		$this->assertSame( $r, bbp_get_forum_last_active_id( $c ) );
+		$this->assertSame( '4 days, 4 hours ago', bbp_get_forum_last_active_time( $c ) );
 
 		// Forum meta.
 		$this->assertSame( 0, bbp_get_forum_subforum_count( $f, true ) );
@@ -59,6 +111,7 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $f, true ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $f, false, true ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $f, true, true ) );
+
 		$this->assertSame( 2, bbp_get_forum_post_count( $f, false, true ) );
 		$this->assertSame( 2, bbp_get_forum_post_count( $f, true, true ) );
 		$this->assertSame( $t, bbp_get_forum_last_topic_id( $f ) );
