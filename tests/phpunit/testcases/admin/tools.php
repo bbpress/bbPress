@@ -324,10 +324,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_forum_reply_count( $f, true, true );
 		$this->assertSame( 2, $count );
 
-		// Delete the category _bbp_total_reply_count meta key.
+		// Delete the _bbp_total_reply_count meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_reply_count' ) );
 
-		// Delete the forum _bbp_reply_count meta key.
+		// Delete the _bbp_reply_count meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_reply_count' ) );
 
 		// Category reply count.
