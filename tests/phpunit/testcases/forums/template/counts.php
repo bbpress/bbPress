@@ -24,20 +24,20 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 
 		bbp_update_forum_subforum_count( $f1 );
 
-		// Output
+		// Output.
 		$count = bbp_get_forum_subforum_count( $f1, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_forum_subforum_count( $f1 );
 
-		// Formatted string
+		// Formatted string.
 		$count = bbp_get_forum_subforum_count( $f1, false );
 		$this->assertSame( $formatted_value, $count );
 
-		// Integer
+		// Integer.
 		$count = bbp_get_forum_subforum_count( $f1, true );
 		$this->assertSame( $int_value, $count );
 
-		// Direct query
+		// Direct query.
 		$count = count( bbp_forum_query_subforum_ids( $f1 ) );
 		$this->assertSame( $int_value, $count );
 	}
@@ -47,27 +47,48 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_topic_count
 	 */
 	public function test_bbp_get_forum_topic_count() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+			),
+		) );
+
 		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->topic->create_many( $int_value, array(
-			'post_parent' => $f
+			'post_parent' => $f,
 		) );
 
+		bbp_update_forum_topic_count( $c );
 		bbp_update_forum_topic_count( $f );
 
-		// Output
+		// Forum output.
 		$count = bbp_get_forum_topic_count( $f, true, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_forum_topic_count( $f );
 
-		// Formatted string
+		// Forum formatted string.
 		$count = bbp_get_forum_topic_count( $f, true, false );
 		$this->assertSame( $formatted_value, $count );
 
-		// Integer
+		// Forum integer.
 		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( $int_value, $count );
+
+		// Category topic count.
+		$count = bbp_get_forum_topic_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count.
+		$count = bbp_get_forum_topic_count( $c, true, true );
 		$this->assertSame( $int_value, $count );
 	}
 
@@ -76,31 +97,52 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_reply_count
 	 */
 	public function test_bbp_get_forum_reply_count() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+			),
+		) );
+
 		$t = $this->factory->topic->create( array(
-			'post_parent' => $f
+			'post_parent' => $f,
 		) );
 
 		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->reply->create_many( $int_value, array(
-			'post_parent' => $t
+			'post_parent' => $t,
 		) );
 
+		bbp_update_forum_reply_count( $c );
 		bbp_update_forum_reply_count( $f );
 
-		// Output
+		// Forum Output.
 		$count = bbp_get_forum_reply_count( $f, true, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_forum_reply_count( $f );
 
-		// Formatted string
+		// Forum formatted string.
 		$count = bbp_get_forum_reply_count( $f, true, false );
 		$this->assertSame( $formatted_value, $count );
 
-		// Integer
+		// Forum integer.
 		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( $int_value, $count );
+
+		// Category reply count.
+		$count = bbp_get_forum_reply_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total reply count.
+		$count = bbp_get_forum_reply_count( $c, true, true );
 		$this->assertSame( $int_value, $count );
 	}
 
@@ -109,35 +151,57 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_post_count
 	 */
 	public function test_bbp_get_forum_post_count() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+			),
+		) );
+
 		$t = $this->factory->topic->create( array(
-			'post_parent' => $f
+			'post_parent' => $f,
 		) );
 
 		$int_value = 3;
 
-		// Topic + Replies
+		// Topic + Replies.
 		$result = 4;
 		$formatted_result = bbp_number_format( $result );
 
 		$this->factory->reply->create_many( $int_value, array(
-			'post_parent' => $t
+			'post_parent' => $t,
 		) );
 
+		bbp_update_forum_topic_count( $c );
 		bbp_update_forum_topic_count( $f );
+		bbp_update_forum_reply_count( $c );
 		bbp_update_forum_reply_count( $f );
 
-		// Output
+		// Forum output.
 		$count = bbp_get_forum_post_count( $f, true, false );
 		$this->expectOutputString( $formatted_result );
 		bbp_forum_post_count( $f );
 
-		// Formatted string
+		// Forum formatted string.
 		$count = bbp_get_forum_post_count( $f, true, false );
 		$this->assertSame( $formatted_result, $count );
 
-		// Integer
+		// Forum integer.
 		$count = bbp_get_forum_post_count( $f, true, true );
+		$this->assertSame( $result, $count );
+
+		// Category post count.
+		$count = bbp_get_forum_post_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total post count.
+		$count = bbp_get_forum_post_count( $c, true, true );
 		$this->assertSame( $result, $count );
 	}
 
@@ -146,28 +210,49 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_forum_topic_count_hidden
 	 */
 	public function test_bbp_get_forum_topic_count_hidden() {
-		$f = $this->factory->forum->create();
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+			),
+		) );
+
 		$int_value = 3;
 		$formatted_value = bbp_number_format( $int_value );
 
 		$this->factory->topic->create_many( $int_value, array(
 			'post_parent' => $f,
-			'post_status' => bbp_get_spam_status_id()
+			'post_status' => bbp_get_spam_status_id(),
 		) );
 
+		bbp_update_forum_topic_count_hidden( $c );
 		bbp_update_forum_topic_count_hidden( $f );
 
-		// Output
+		// Forum output.
 		$count = bbp_get_forum_topic_count_hidden( $f, false );
 		$this->expectOutputString( $formatted_value );
 		bbp_forum_topic_count_hidden( $f );
 
-		// Formatted string
+		// Forum formatted string.
 		$count = bbp_get_forum_topic_count_hidden( $f, false );
 		$this->assertSame( $formatted_value, $count );
 
-		// Integer
-		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
+		// Forum integer.
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
 		$this->assertSame( $int_value, $count );
+
+		// Category topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
 	}
 }
