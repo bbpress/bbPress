@@ -67,59 +67,59 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_forum_trashed_untrashed_topic_counts() {
 		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create_many( 3, array(
+		$t = $this->factory->topic->create_many( 2, array(
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
-		$r1 = $this->factory->reply->create_many( 2, array(
+		$r1 = $this->factory->reply->create_many( 1, array(
+			'post_parent' => $t[0],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[0],
+			),
+		) );
+		$r2 = $this->factory->reply->create_many( 1, array(
 			'post_parent' => $t[1],
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t[1],
 			),
 		) );
-		$r2 = $this->factory->reply->create_many( 2, array(
-			'post_parent' => $t[2],
-			'reply_meta' => array(
-				'forum_id' => $f,
-				'topic_id' => $t[2],
-			),
-		) );
 
 		$count = bbp_update_forum_topic_count( $f );
-		$this->assertSame( 3, $count );
+		$this->assertSame( 2, $count );
 
 		$count = bbp_update_forum_topic_count_hidden( $f );
 		$this->assertSame( 0, $count );
 
 		$count = bbp_update_forum_reply_count( $f );
-		$this->assertSame( 4, $count );
+		$this->assertSame( 2, $count );
 
 		// ToDo: Update this to use bbp_trash_topic().
-		wp_trash_post( $t[2] );
+		wp_trash_post( $t[1] );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
-		$this->assertSame( 2, $count );
+		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_reply_count( $f, true, true );
-		$this->assertSame( 2, $count );
+		$this->assertSame( 1, $count );
 
 		// ToDo: Update this to use bbp_untrash_topic().
-		wp_untrash_post( $t[2] );
+		wp_untrash_post( $t[1] );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
-		$this->assertSame( 3, $count );
+		$this->assertSame( 2, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
 
 		$count = bbp_get_forum_reply_count( $f, true, true );
-		$this->assertSame( 4, $count );
+		$this->assertSame( 2, $count );
 	}
 
 	/**
@@ -127,57 +127,57 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_forum_spammed_unspammed_topic_counts() {
 		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create_many( 3, array(
+		$t = $this->factory->topic->create_many( 2, array(
 			'post_parent' => $f,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
-		$r1 = $this->factory->reply->create_many( 2, array(
+		$r1 = $this->factory->reply->create_many( 1, array(
+			'post_parent' => $t[0],
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t[0],
+			),
+		) );
+		$r2 = $this->factory->reply->create_many( 1, array(
 			'post_parent' => $t[1],
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t[1],
 			),
 		) );
-		$r2 = $this->factory->reply->create_many( 2, array(
-			'post_parent' => $t[2],
-			'reply_meta' => array(
-				'forum_id' => $f,
-				'topic_id' => $t[2],
-			),
-		) );
 
 		$count = bbp_update_forum_topic_count( $f );
-		$this->assertSame( 3, $count );
+		$this->assertSame( 2, $count );
 
 		$count = bbp_update_forum_topic_count_hidden( $f );
 		$this->assertSame( 0, $count );
 
 		$count = bbp_update_forum_reply_count( $f );
-		$this->assertSame( 4, $count );
+		$this->assertSame( 2, $count );
 
-		bbp_spam_topic( $t[2] );
+		bbp_spam_topic( $t[1] );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
-		$this->assertSame( 2, $count );
+		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_reply_count( $f, true, true );
-		$this->assertSame( 2, $count );
+		$this->assertSame( 1, $count );
 
-		bbp_unspam_topic( $t[2] );
+		bbp_unspam_topic( $t[1] );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
-		$this->assertSame( 3, $count );
+		$this->assertSame( 2, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
 
 		$count = bbp_get_forum_reply_count( $f, true, true );
-		$this->assertSame( 4, $count );
+		$this->assertSame( 2, $count );
 	}
 
 	/**
