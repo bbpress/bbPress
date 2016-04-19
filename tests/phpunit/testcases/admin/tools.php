@@ -242,13 +242,128 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_reply_count
-	 * @todo   Implement test_bbp_admin_repair_forum_reply_count().
 	 */
 	public function test_bbp_admin_repair_forum_reply_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+				'status'     => 'open',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
+			),
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$r = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$r = $this->factory->reply->create_many( 3, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		bbp_update_forum_reply_count( $c );
+		bbp_update_forum_reply_count( $f );
+
+		// Category reply count.
+		$count = bbp_get_forum_reply_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total reply count.
+		$count = bbp_get_forum_reply_count( $c, true, true );
+		$this->assertSame( 4, $count );
+
+		// Forum reply count.
+		$count = bbp_get_forum_reply_count( $f, false, true );
+		$this->assertSame( 4, $count );
+
+		// Forum total reply count.
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 4, $count );
+
+		bbp_spam_reply( $r[0] );
+		bbp_unapprove_reply( $r[2] );
+
+		// Category reply count.
+		$count = bbp_get_forum_reply_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total reply count.
+		$count = bbp_get_forum_reply_count( $c, true, true );
+		$this->assertSame( 2, $count );
+
+		// Forum reply count.
+		$count = bbp_get_forum_reply_count( $f, false, true );
+		$this->assertSame( 2, $count );
+
+		// Forum total reply count.
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		// Delete the category _bbp_total_reply_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_reply_count' ) );
+
+		// Delete the forum _bbp_reply_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_reply_count' ) );
+
+		// Category reply count.
+		$count = bbp_get_forum_reply_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total reply count.
+		$count = bbp_get_forum_reply_count( $c, true, true );
+		$this->assertSame( 0, $count );
+
+		// Forum reply count.
+		$count = bbp_get_forum_reply_count( $f, false, true );
+		$this->assertSame( 0, $count );
+
+		// Forum total reply count.
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		// Repair the forum reply count meta.
+		bbp_admin_repair_forum_reply_count();
+
+		// Category reply count.
+		$count = bbp_get_forum_reply_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total reply count.
+		$count = bbp_get_forum_reply_count( $c, true, true );
+		$this->assertSame( 2, $count );
+
+		// Forum reply count.
+		$count = bbp_get_forum_reply_count( $f, false, true );
+		$this->assertSame( 2, $count );
+
+		// Forum total reply count.
+		$count = bbp_get_forum_reply_count( $f, true, true );
+		$this->assertSame( 2, $count );
 	}
 
 	/**
