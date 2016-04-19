@@ -231,13 +231,154 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_forum_topic_count
-	 * @todo   Implement test_bbp_admin_repair_forum_topic_count().
 	 */
 	public function test_bbp_admin_repair_forum_topic_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+				'status'     => 'open',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
+			),
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 1, $count );
+
+		$t = $this->factory->topic->create_many( 3, array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		bbp_update_forum_topic_count( $c );
+		bbp_update_forum_topic_count( $f );
+
+		// Category topic count.
+		$count = bbp_get_forum_topic_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count.
+		$count = bbp_get_forum_topic_count( $c, true, true );
+		$this->assertSame( 4, $count );
+
+		// Category topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
+
+		// Forum topic count.
+		$count = bbp_get_forum_topic_count( $f, false, true );
+		$this->assertSame( 4, $count );
+
+		// Forum total topic count.
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 4, $count );
+
+		// Forum topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$this->assertSame( 0, $count );
+
+		bbp_spam_topic( $t[0] );
+		bbp_unapprove_topic( $t[2] );
+
+		// Category topic count.
+		$count = bbp_get_forum_topic_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count.
+		$count = bbp_get_forum_topic_count( $c, true, true );
+		$this->assertSame( 2, $count );
+
+		// Category topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
+
+		// Forum topic count.
+		$count = bbp_get_forum_topic_count( $f, false, true );
+		$this->assertSame( 2, $count );
+
+		// Forum total topic count.
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		// Forum topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$this->assertSame( 2, $count );
+
+		// Delete the _bbp_total_topic_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_topic_count_hidden' ) );
+
+		// Delete the _bbp_total_topic_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_topic_count' ) );
+
+		// Delete the  _bbp_topic_count meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_topic_count' ) );
+
+		// Category topic count.
+		$count = bbp_get_forum_topic_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count.
+		$count = bbp_get_forum_topic_count( $c, true, true );
+		$this->assertSame( 0, $count );
+
+		// Category topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
+
+		// Forum topic count.
+		$count = bbp_get_forum_topic_count( $f, false, true );
+		$this->assertSame( 0, $count );
+
+		// Forum total topic count.
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 0, $count );
+
+		// Forum topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$this->assertSame( 0, $count );
+
+		// Repair the forum topic count meta.
+		bbp_admin_repair_forum_topic_count();
+
+		// Category topic count.
+		$count = bbp_get_forum_topic_count( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count.
+		$count = bbp_get_forum_topic_count( $c, true, true );
+		$this->assertSame( 2, $count );
+
+		// Category topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$this->assertSame( 0, $count );
+
+		// Forum topic count.
+		$count = bbp_get_forum_topic_count( $f, false, true );
+		$this->assertSame( 2, $count );
+
+		// Forum total topic count.
+		$count = bbp_get_forum_topic_count( $f, true, true );
+		$this->assertSame( 2, $count );
+
+		// Forum topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$this->assertSame( 2, $count );
 	}
 
 	/**
