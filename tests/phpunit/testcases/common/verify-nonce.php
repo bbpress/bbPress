@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @group core
+ * @group common
  * @group functions
  * @group bbp_verify_nonce_request
  */
