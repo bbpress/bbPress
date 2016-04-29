@@ -349,7 +349,7 @@ function bbp_make_clickable( $text = '' ) {
 				if ( 2101 < strlen( $chunk ) ) {
 					$r .= $chunk; // Too big, no whitespace: bail.
 				} else {
-					$r .= make_clickable( $chunk );
+					$r .= bbp_make_clickable( $chunk );
 				}
 			}
 		} else {
