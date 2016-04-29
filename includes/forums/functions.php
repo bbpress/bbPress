@@ -1931,7 +1931,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 	global $wpdb;
 
 	$cache_id = 'bbp_get_forum_' . $forum_id . '_reply_id';
-	$reply_id = (int) wp_cache_get( $cache_id, 'bbpress_posts' );
+	$reply_id = wp_cache_get( $cache_id, 'bbpress_posts' );
 
 	if ( false === $reply_id ) {
 
