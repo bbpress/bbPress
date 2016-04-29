@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 4.0
 Tested up to: 4.5
-Stable tag: 2.5.8
+Stable tag: 2.5.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,9 @@ bbPress is spry and nimble and allows for great add-on features through WordPres
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.5.9 =
+* Improved user mentions
 
 = 2.5.8 =
 * Improved ajax actions
