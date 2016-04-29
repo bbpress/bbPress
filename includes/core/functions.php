@@ -290,6 +290,8 @@ function bbp_has_errors() {
  * anywhere mentions might be used.
  *
  * @since bbPress (r4997)
+ * @deprecated 2.6.0 bbp_make_clickable()
+ *
  * @return string Pattern to match usernames with
  */
 function bbp_find_mentions_pattern() {
@@ -300,6 +302,7 @@ function bbp_find_mentions_pattern() {
  * Searches through the content to locate usernames, designated by an @ sign.
  *
  * @since bbPress (r4323)
+ * @deprecated 2.6.0 bbp_make_clickable()
  *
  * @param string $content The content
  * @return bool|array $usernames Existing usernames. False if no matches.
@@ -321,6 +324,7 @@ function bbp_find_mentions( $content = '' ) {
  * Finds and links @-mentioned users in the content
  *
  * @since bbPress (r4323)
+ * @deprecated 2.6.0 bbp_make_clickable()
  *
  * @uses bbp_find_mentions() To get usernames in content areas
  * @return string $content Content filtered for mentions

@@ -316,24 +316,19 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
  * @return string Content with converted URIs.
  */
 function bbp_make_clickable( $text ) {
-	$r       = '';
-	$in_code = false;
-	$textarr = preg_split( '/(<[^<>]+>)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE ); // split out HTML tags
+	$r               = '';
+	$textarr         = preg_split( '/(<[^<>]+>)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE ); // split out HTML tags
+	$nested_code_pre = 0; // Keep track of how many levels link is nested inside <pre> or <code>
 
 	foreach ( $textarr as $piece ) {
 
-		switch ( $piece ) {
-			case '<code>' :
-			case '<pre>'  :
-				$in_code = true;
-				break;
-			case '</code>' :
-			case '</pre>'  :
-				$in_code = false;
-				break;
+		if ( preg_match( '|^<code[\s>]|i', $piece ) || preg_match( '|^<pre[\s>]|i', $piece ) || preg_match( '|^<script[\s>]|i', $piece ) || preg_match( '|^<style[\s>]|i', $piece ) ) {
+			$nested_code_pre++;
+		} elseif ( $nested_code_pre && ( '</code>' === strtolower( $piece ) || '</pre>' === strtolower( $piece ) || '</script>' === strtolower( $piece ) || '</style>' === strtolower( $piece ) ) ) {
+			$nested_code_pre--;
 		}
 
-		if ( $in_code || empty( $piece ) || ( $piece[0] === '<' && ! preg_match('|^<\s*[\w]{1,20}+://|', $piece) ) ) {
+		if ( $nested_code_pre || empty( $piece ) || ( $piece[0] === '<' && ! preg_match( '|^<\s*[\w]{1,20}+://|', $piece ) ) ) {
 			$r .= $piece;
 			continue;
 		}
@@ -345,38 +340,112 @@ function bbp_make_clickable( $text ) {
 				if ( 2101 < strlen( $chunk ) ) {
 					$r .= $chunk; // Too big, no whitespace: bail.
 				} else {
-					$r .= make_clickable( $chunk );
+					$r .= bbp_make_clickable( $chunk );
 				}
 			}
 		} else {
-			$ret = " $piece "; // Pad with whitespace to simplify the regexes
-
-			$url_clickable = '~
-				([\\s(<.,;:!?])                                        # 1: Leading whitespace, or punctuation
-				(                                                      # 2: URL
-					[\\w]{1,20}+://                                # Scheme and hier-part prefix
-					(?=\S{1,2000}\s)                               # Limit to URLs less than about 2000 characters long
-					[\\w\\x80-\\xff#%\\~/@\\[\\]*(+=&$-]*+         # Non-punctuation URL character
-					(?:                                            # Unroll the Loop: Only allow puctuation URL character if followed by a non-punctuation URL character
-						[\'.,;:!?)]                            # Punctuation URL character
-						[\\w\\x80-\\xff#%\\~/@\\[\\]*(+=&$-]++ # Non-punctuation URL character
-					)*
-				)
-				(\)?)                                                  # 3: Trailing closing parenthesis (for parethesis balancing post processing)
-			~xS'; // The regex is a non-anchored pattern and does not have a single fixed starting character.
-			      // Tell PCRE to spend more time optimizing since, when used on a page load, it will probably be used several times.
-
-			$ret = preg_replace_callback( $url_clickable, '_make_url_clickable_cb', $ret );
-
-			$ret = preg_replace_callback( '#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]+)#is', '_make_web_ftp_clickable_cb', $ret );
-			$ret = preg_replace_callback( '#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $ret );
-
+			$ret = " {$piece} "; // Pad with whitespace to simplify the regexes
+			$ret = apply_filters( 'bbp_make_clickable', $ret );
 			$ret = substr( $ret, 1, -1 ); // Remove our whitespace padding.
 			$r .= $ret;
 		}
 	}
 
 	// Cleanup of accidental links within links
-	$r = preg_replace( '#(<a( [^>]+?>|>))<a [^>]+?>([^>]+?)</a></a>#i', "$1$3</a>", $r );
-	return $r;
+	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a></a>#i', "$1$3</a>", $r );
+}
+
+/**
+ * Make URLs clickable in content areas
+ *
+ * @since 2.6.0
+ *
+ * @param  string $text
+ * @return string
+ */
+function bbp_make_urls_clickable( $text = '' ) {
+	$url_clickable = '~
+		([\\s(<.,;:!?])                                # 1: Leading whitespace, or punctuation
+		(                                              # 2: URL
+			[\\w]{1,20}+://                            # Scheme and hier-part prefix
+			(?=\S{1,2000}\s)                           # Limit to URLs less than about 2000 characters long
+			[\\w\\x80-\\xff#%\\~/@\\[\\]*(+=&$-]*+     # Non-punctuation URL character
+			(?:                                        # Unroll the Loop: Only allow puctuation URL character if followed by a non-punctuation URL character
+				[\'.,;:!?)]                            # Punctuation URL character
+				[\\w\\x80-\\xff#%\\~/@\\[\\]*(+=&$-]++ # Non-punctuation URL character
+			)*
+		)
+		(\)?)                                          # 3: Trailing closing parenthesis (for parethesis balancing post processing)
+	~xS';
+
+	// The regex is a non-anchored pattern and does not have a single fixed starting character.
+	// Tell PCRE to spend more time optimizing since, when used on a page load, it will probably be used several times.
+	return preg_replace_callback( $url_clickable, '_make_url_clickable_cb', $text );
+}
+
+/**
+ * Make FTP clickable in content areas
+ *
+ * @since 2.6.0
+ *
+ * @see make_clickable()
+ *
+ * @param  string $text
+ * @return string
+ */
+function bbp_make_ftps_clickable( $text = '' ) {
+	return preg_replace_callback( '#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]+)#is', '_make_web_ftp_clickable_cb', $text );
+}
+
+/**
+ * Make emails clickable in content areas
+ *
+ * @since 2.6.0
+ *
+ * @see make_clickable()
+ *
+ * @param  string $text
+ * @return string
+ */
+function bbp_make_emails_clickable( $text = '' ) {
+	return preg_replace_callback( '#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $text );
+}
+
+/**
+ * Make mentions clickable in content areas
+ *
+ * @since 2.6.0
+ *
+ * @see make_clickable()
+ *
+ * @param  string $text
+ * @return string
+ */
+function bbp_make_mentions_clickable( $text = '' ) {
+	return preg_replace_callback( '#([\s>])@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
+}
+
+/**
+ * Callback to convert mention matchs to HTML A tag.
+ *
+ * @since 2.6.0
+ *
+ * @param array $matches Single Regex Match.
+ *
+ * @return string HTML A tag with link to user profile.
+ */
+function bbp_make_mentions_clickable_callback( $matches = array() ) {
+
+	// Get user; bail if not found
+	$user = get_user_by( 'slug', $matches[2] );
+	if ( empty( $user ) || bbp_is_user_inactive( $user->ID ) ) {
+		return $matches[0];
+	}
+
+	// Create the link to the user's profile
+	$url    = bbp_get_user_profile_url( $user->ID );
+	$anchor = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+	$link   = sprintf( $anchor, esc_url( $url ), esc_html( $user->user_nicename ) );
+
+	return $matches[1] . $link;
 }
