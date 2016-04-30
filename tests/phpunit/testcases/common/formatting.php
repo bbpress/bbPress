@@ -10,6 +10,7 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 	/**
 	 * @group bbp_make_clickable_misses
 	 * @group bbp_make_clickable_single
+	 * @covers ::bbp_make_clickable
 	 */
 	public function test_bbp_make_clickable_single_mention_misses() {
 		$u1 = $this->factory->user->create( array(
@@ -67,6 +68,7 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 	/**
 	 * @group bbp_make_clickable_hits
 	 * @group bbp_make_clickable_single
+	 * @covers ::bbp_make_clickable
 	 */
 	public function test_bbp_make_clickable_single_mention_hits() {
 		$u1 = $this->factory->user->create( array(
@@ -134,6 +136,7 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 	/**
 	 * @group bbp_make_clickable_hits
 	 * @group bbp_make_clickable_multiple
+	 * @covers ::bbp_make_clickable
 	 */
 	public function test_bbp_make_clickable_multiple_mention_hits() {
 		$u1 = $this->factory->user->create( array(
@@ -168,6 +171,7 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 	/**
 	 * @group bbp_make_clickable_misses
 	 * @group bbp_make_clickable_multiple
+	 * @covers ::bbp_make_clickable
 	 */
 	public function test_bbp_make_clickable_multiple_mention_misses() {
 		$u1 = $this->factory->user->create( array(
