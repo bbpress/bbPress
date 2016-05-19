@@ -3306,15 +3306,17 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
 				if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
 
 					// Get current topic id
-					$topic_id = bbp_get_topic_id( $r['topic_id'] );
+					$r['topic_id'] = bbp_get_topic_id( $r['topic_id'] );
 
 					// Topic is super sticky
-					if ( bbp_is_topic_super_sticky( $topic_id ) ) {
+					if ( bbp_is_topic_super_sticky( $r['topic_id'] ) ) {
 						$r['selected'] = 'super';
 
 					// Topic is sticky or normal
 					} else {
-						$r['selected'] = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
+						$r['selected'] = bbp_is_topic_sticky( $r['topic_id'], false )
+							? 'stick'
+							: 'unstick';
 					}
 				}
 			}
@@ -3328,7 +3330,7 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
 
 		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php echo $tab; ?>>
 
-			<?php foreach ( bbp_get_topic_types() as $key => $label ) : ?>
+			<?php foreach ( bbp_get_topic_types( $r['topic_id'] ) as $key => $label ) : ?>
 
 				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 

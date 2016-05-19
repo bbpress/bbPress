@@ -752,7 +752,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		/** Stickies **********************************************************/
 
-		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( bbp_get_topic_types() ) ) ) {
+		// Get the topic types
+		$topic_types = bbp_get_topic_types( $topic_id );
+
+		// Maybe sticky
+		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ) ) ) {
 
 			// What's the caps?
 			if ( current_user_can( 'moderate' ) ) {
