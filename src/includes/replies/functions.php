@@ -1695,15 +1695,17 @@ function bbp_toggle_reply_handler( $action = '' ) {
  *
  * @since 2.6.0 bbPress (r5399)
  *
+ * @param int $reply_id   Optional. Reply id.
+ *
  * @return array
  */
-function bbp_get_reply_statuses() {
+function bbp_get_reply_statuses( $reply_id = 0 ) {
 	return apply_filters( 'bbp_get_reply_statuses', array(
 		bbp_get_public_status_id()  => _x( 'Publish', 'Publish the reply',     'bbpress' ),
 		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the reply',        'bbpress' ),
 		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the reply',       'bbpress' ),
 		bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' ),
-	) );
+	), $reply_id );
 }
 
 /** Reply Actions *************************************************************/

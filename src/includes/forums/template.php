@@ -2682,7 +2682,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
 
 		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
 
-			<?php foreach ( bbp_get_forum_types() as $key => $label ) : ?>
+			<?php foreach ( bbp_get_forum_types( $r['forum_id'] ) as $key => $label ) : ?>
 
 				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
@@ -2774,7 +2774,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
 
 		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
 
-			<?php foreach ( bbp_get_forum_statuses() as $key => $label ) : ?>
+			<?php foreach ( bbp_get_forum_statuses( $r['forum_id'] ) as $key => $label ) : ?>
 
 				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 
@@ -2866,7 +2866,7 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
 
 		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select"<?php echo $tab; ?>>
 
-			<?php foreach ( bbp_get_forum_visibilities() as $key => $label ) : ?>
+			<?php foreach ( bbp_get_forum_visibilities( $r['forum_id'] ) as $key => $label ) : ?>
 
 				<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $key, $r['selected'] ); ?>><?php echo esc_html( $label ); ?></option>
 

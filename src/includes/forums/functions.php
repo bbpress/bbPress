@@ -1790,13 +1790,15 @@ function bbp_get_forum_mod_names( $forum_id = 0, $sep = ', ' ) {
  *
  * @since 2.4.0 bbPress (r5059)
  *
+ * @param int $forum_id   Optional. Forum id.
+ *
  * @return array
  */
-function bbp_get_forum_statuses() {
+function bbp_get_forum_statuses( $forum_id = 0 ) {
 	return apply_filters( 'bbp_get_forum_statuses', array(
 		'open'   => _x( 'Open',    'Open the forum',  'bbpress' ),
 		'closed' => _x( 'Closed',  'Close the forum', 'bbpress' )
-	) );
+	), $forum_id );
 }
 
 /**
@@ -1804,13 +1806,15 @@ function bbp_get_forum_statuses() {
  *
  * @since 2.4.0 bbPress (r5059)
  *
+ * @param int $forum_id   Optional. Forum id.
+ *
  * @return array
  */
-function bbp_get_forum_types() {
+function bbp_get_forum_types( $forum_id = 0 ) {
 	return apply_filters( 'bbp_get_forum_types', array(
 		'forum'    => _x( 'Forum',    'Forum accepts new topics', 'bbpress' ),
 		'category' => _x( 'Category', 'Forum is a category',      'bbpress' )
-	) );
+	), $forum_id );
 }
 
 /**
@@ -1818,14 +1822,16 @@ function bbp_get_forum_types() {
  *
  * @since 2.4.0 bbPress (r5059)
  *
+ * @param int $forum_id   Optional. Forum id.
+ *
  * @return array
  */
-function bbp_get_forum_visibilities() {
+function bbp_get_forum_visibilities( $forum_id = 0) {
 	return apply_filters( 'bbp_get_forum_visibilities', array(
 		bbp_get_public_status_id()  => _x( 'Public',  'Make forum public',  'bbpress' ),
 		bbp_get_private_status_id() => _x( 'Private', 'Make forum private', 'bbpress' ),
 		bbp_get_hidden_status_id()  => _x( 'Hidden',  'Make forum hidden',  'bbpress' )
-	) );
+	), $forum_id );
 }
 
 /** Queries *******************************************************************/
