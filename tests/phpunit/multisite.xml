@@ -19,4 +19,15 @@
 			<group>buddypress</group>
 		</exclude>
 	</groups>
+	<listeners>
+		<listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">
+			<arguments>
+				<array>
+					<element key="slowThreshold">
+						<integer>100</integer>
+					</element>
+				</array>
+			</arguments>
+		</listener>
+	</listeners>
 </phpunit>
