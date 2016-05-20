@@ -9,7 +9,7 @@
 -------------------------------------------------------------- */
 
 #bbpress-forums hr {
-	margin: 0 0 24px 0;
+	margin: 0 0 24px;
 }
 
 #bbpress-forums {
@@ -195,7 +195,7 @@ li.bbp-topic-freshness {
 	border: none;
 	max-width: 80px;
 	padding: 0;
-	margin: 12px auto 0 auto;
+	margin: 12px auto 0;
 	float: none;
 }
 
@@ -555,7 +555,7 @@ td.bbp-topic-counts {
 #bbpress-forums .bbp-forum-info .bbp-forum-content,
 #bbpress-forums p.bbp-topic-meta {
 	font-size: 11px;
-	margin: 5px 0 5px;
+	margin: 5px 0;
 	padding: 0;
 	word-wrap: break-word;
 }
@@ -786,7 +786,7 @@ p.form-allowed-tags {
 -------------------------------------------------------------- */
 
 #bbpress-forums #bbp-your-profile fieldset {
-	padding: 20px 20px 0 20px;
+	padding: 20px 20px 0;
 }
 
 #bbpress-forums #bbp-your-profile fieldset div {
@@ -934,7 +934,7 @@ div.bbp-template-notice.warning a {
 
 div.bbp-template-notice p,
 div.bbp-template-notice li {
-	margin: 0.5em 0 6px 0 !important;
+	margin: 0.5em 0 6px !important;
 	padding: 2px;
 	font-size: 12px;
 	line-height: 140%;
@@ -960,7 +960,7 @@ div.bbp-template-notice li {
 	border-top: 1px dotted #ddd;
 	width: 100%;
 	margin: 0;
-	padding: 8px 0 0 0;
+	padding: 8px 0 0;
 	font-size: 11px;
 	color: #aaa;
 }
@@ -1108,7 +1108,7 @@ fieldset div.avatar {
 	border: none;
 	height: 150px;
 	padding: 0;
-	margin: 0 0 20px 0;
+	margin: 0 0 20px;
 	width: 150px;
 }
 
