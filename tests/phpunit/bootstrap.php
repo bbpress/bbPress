@@ -44,7 +44,9 @@ require( BBP_TESTS_DIR . '/includes/factory.php' );
 
 if ( defined( 'BBP_TESTS_BUDDYPRESS' ) ) {
 	echo "Loading BuddyPress testcase...\n";
-	require BP_TESTS_DIR . '/includes/testcase.php';
+	if ( defined( 'BP_TESTS_DIR' ) ) {
+		require( BP_TESTS_DIR . '/includes/testcase.php' );
+	}
 } else {
 	echo "Not running BuddyPress tests. To execute these, use -c tests/phpunit/buddypress.xml\n";
 }
