@@ -1003,15 +1003,21 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		// Add Empty Spam button
+		// Add "Empty Spam" button for moderators
 		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
-			$title = esc_attr__( 'Empty Spam', 'bbpress' );
-			submit_button( $title, 'button-secondary apply', 'delete_all', false );
+			submit_button( 
+				esc_attr__( 'Empty Spam', 'bbpress' ),
+				'button-secondary apply',
+				'delete_all',
+				false
+			);
 		}
 
 		// Get which forum is selected
-		$selected = ! empty( $_GET['bbp_forum_id'] ) ? $_GET['bbp_forum_id'] : '';
+		$selected = ! empty( $_GET['bbp_forum_id'] )
+			? (int) $_GET['bbp_forum_id']
+			: 0;
 
 		// Show the forums dropdown
 		bbp_dropdown( array(

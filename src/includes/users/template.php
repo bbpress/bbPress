@@ -552,6 +552,8 @@ function bbp_admin_link( $args = array() ) {
 	 * @return The link
 	 */
 	function bbp_get_admin_link( $args = array() ) {
+
+		// Bail if user cannot globally moderate
 		if ( ! current_user_can( 'moderate' ) ) {
 			return;
 		}

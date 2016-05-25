@@ -388,7 +388,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
 
 			// What's the caps?
-			if ( current_user_can( 'moderate' ) ) {
+			if ( current_user_can( 'moderate', $topic_id ) ) {
 
 				// What's the haps?
 				switch ( $_POST['bbp_stick_topic'] ) {
@@ -427,7 +427,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		if ( bbp_get_view_all() || ! empty( $view_all ) ) {
 
 			// User can moderate, so redirect to topic with view all set
-			if ( current_user_can( 'moderate' ) ) {
+			if ( current_user_can( 'moderate', $topic_id ) ) {
 				$redirect_url = bbp_add_view_all( $redirect_url );
 
 			// User cannot moderate, so redirect to forum
@@ -759,7 +759,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ) ) ) {
 
 			// What's the caps?
-			if ( current_user_can( 'moderate' ) ) {
+			if ( current_user_can( 'moderate', $topic_id ) ) {
 
 				// What's the haps?
 				switch ( $_POST['bbp_stick_topic'] ) {

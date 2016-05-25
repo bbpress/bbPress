@@ -338,7 +338,7 @@ function bbp_new_forum_handler( $action = '' ) {
 		if ( bbp_get_view_all() || ! empty( $view_all ) ) {
 
 			// User can moderate, so redirect to forum with view all set
-			if ( current_user_can( 'moderate' ) ) {
+			if ( current_user_can( 'moderate', $forum_id ) ) {
 				$redirect_url = bbp_add_view_all( $redirect_url );
 
 			// User cannot moderate, so redirect to forum

@@ -108,7 +108,7 @@ if ( bbp_is_reply_edit() ) : ?>
 
 					<?php if ( bbp_is_reply_edit() ) : ?>
 
-						<?php if ( current_user_can( 'moderate' ) ) : ?>
+						<?php if ( current_user_can( 'moderate', bbp_get_reply_id() ) ) : ?>
 
 							<?php do_action( 'bbp_theme_before_reply_form_reply_to' ); ?>
 

@@ -318,7 +318,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Topic Closed **********************************************************/
 
 	// If topic is closed, moderators can still reply
-	if ( bbp_is_topic_closed( $topic_id ) && ! current_user_can( 'moderate' ) ) {
+	if ( bbp_is_topic_closed( $topic_id ) && ! current_user_can( 'moderate', $topic_id ) ) {
 		bbp_add_error( 'bbp_reply_topic_closed', __( '<strong>ERROR</strong>: Topic is closed.', 'bbpress' ) );
 	}
 

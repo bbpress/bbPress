@@ -494,7 +494,7 @@ function bbp_reply_metabox() {
 	/** Forum *****************************************************************/
 
 	// Only allow individual manipulation of reply forum if there is a mismatch
-	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) ) : ?>
+	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $post_id ) ) ) : ?>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
