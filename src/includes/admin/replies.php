@@ -100,7 +100,7 @@ class BBP_Replies_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type !== get_current_screen()->post_type ) ) {
+		if ( $this->post_type !== get_current_screen()->post_type ) {
 			return true;
 		}
 
