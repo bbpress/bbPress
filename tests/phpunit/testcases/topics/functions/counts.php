@@ -13,6 +13,8 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	 * Generic function to test the topics counts with a new reply
 	 */
 	public function test_bbp_topic_new_reply_counts() {
+		remove_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10 );
+
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -31,14 +33,11 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$u = $this->factory->user->create();
 
-		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
-		$this->setUp_wp_mail( false );
+		// Don't attempt to send an email. This is for speed and PHP errors.
+		remove_action( 'bbp_new_reply', 'bbp_notify_topic_subscribers', 11, 5 );
 
 		// Simulate the 'bbp_new_reply' action.
 		do_action( 'bbp_new_reply', $r1, $t, $f, false, bbp_get_current_user_id() );
-
-		// Reverse our changes.
-		$this->tearDown_wp_mail( false );
 
 		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( 1, $count );
@@ -58,14 +57,8 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
-		$this->setUp_wp_mail( false );
-
 		// Simulate the 'bbp_new_topic' action.
 		do_action( 'bbp_new_reply', $r2, $t, $f, false, $u );
-
-		// Reverse our changes.
-		$this->tearDown_wp_mail( false );
 
 		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( 2, $count );
@@ -75,6 +68,11 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		$count = bbp_get_topic_voice_count( $t, true );
 		$this->assertSame( 2, $count );
+
+		// Re-add removed actions.
+		add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 2 );
+		add_action( 'bbp_new_reply',    'bbp_notify_topic_subscribers',   11, 5 );
+
 	}
 
 	/**
@@ -341,6 +339,42 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_increase_topic_reply_count
+	 */
+	public function test_bbp_increase_topic_reply_count() {
+		$t = $this->factory->topic->create();
+
+		$count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '0', $count );
+
+		bbp_increase_topic_reply_count( $t );
+
+		$count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_decrease_topic_reply_count
+	 */
+	public function test_bbp_decrease_topic_reply_count() {
+		$t = $this->factory->topic->create();
+
+		$count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '0', $count );
+
+		// Set the count manually to 2
+		bbp_update_topic_reply_count( $t, 2 );
+
+		$count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '2', $count );
+
+		bbp_decrease_topic_reply_count( $t );
+
+		$count = bbp_get_topic_reply_count( $t );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
 	 * @covers ::bbp_bump_topic_reply_count_hidden
 	 */
 	public function test_bbp_bump_topic_reply_count_hidden() {
@@ -356,6 +390,42 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		$count = bbp_get_topic_reply_count_hidden( $t );
 		$this->assertSame( '4', $count );
+	}
+
+	/**
+	 * @covers ::bbp_increase_topic_reply_count_hidden
+	 */
+	public function test_bbp_increase_topic_reply_count_hidden() {
+		$t = $this->factory->topic->create();
+
+		$count = bbp_get_topic_reply_count_hidden( $t );
+		$this->assertSame( '0', $count );
+
+		bbp_increase_topic_reply_count_hidden( $t );
+
+		$count = bbp_get_topic_reply_count_hidden( $t );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_decrease_topic_reply_count_hidden
+	 */
+	public function test_bbp_decrease_topic_reply_count_hidden() {
+		$t = $this->factory->topic->create();
+
+		$count = bbp_get_topic_reply_count_hidden( $t );
+		$this->assertSame( '0', $count );
+
+		// Set the count manually to 2
+		bbp_update_topic_reply_count_hidden( $t, 2 );
+
+		$count = bbp_get_topic_reply_count_hidden( $t );
+		$this->assertSame( '2', $count );
+
+		bbp_decrease_topic_reply_count_hidden( $t );
+
+		$count = bbp_get_topic_reply_count_hidden( $t );
+		$this->assertSame( '1', $count );
 	}
 
 	/**

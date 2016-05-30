@@ -70,6 +70,16 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	// Update the topic and hierarchy
 	bbp_update_topic( $topic_id, $topic_meta['forum_id'], array(), $topic_data['post_author'], false );
 
+	/**
+	 * Fires after topic has been inserted via `bbp_insert_topic`.
+	 *
+	 * @since 2.6.0 bbPress (r6036)
+	 *
+	 * @param int $topic_id               The topic id.
+	 * @param int $topic_meta['forum_id'] The topic forum meta.
+	 */
+	do_action( 'bbp_insert_topic', (int) $topic_id, (int) $topic_meta['forum_id'] );
+
 	// Return new topic ID
 	return $topic_id;
 }
@@ -1021,21 +1031,32 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * Handle the moving of a topic from one forum to another. This includes walking
  * up the old and new branches and updating the counts.
  *
- * @param int $topic_id Topic id
- * @param int $old_forum_id Old forum id
- * @param int $new_forum_id New forum id
+ * @since 2.0.0 bbPress (r2907)
+ *
+ * @param int $topic_id     The topic id.
+ * @param int $old_forum_id Old forum id.
+ * @param int $new_forum_id New forum id.
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_clean_post_cache() To clean the old and new forum post caches
+ * @uses bbp_update_topic_forum_id() To update the topic forum id
  * @uses wp_update_post() To update the topic post parent`
  * @uses bbp_get_stickies() To get the old forums sticky topics
  * @uses delete_post_meta() To delete the forum sticky meta
  * @uses update_post_meta() To update the old forum sticky meta
  * @uses bbp_stick_topic() To stick the topic in the new forum
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_all_child_ids() To get the public child ids
+ * @uses bbp_get_all_child_ids() To get all the child ids
  * @uses bbp_update_reply_forum_id() To update the reply forum id
- * @uses bbp_update_topic_forum_id() To update the topic forum id
  * @uses get_post_ancestors() To get the topic's ancestors
+ * @uses bbp_get_public_child_ids() To get all the public child ids
+ * @uses get_post_field() To get the topic's post status
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_decrease_forum_topic_count() To bump the forum topic count by -1
+ * @uses bbp_bump_forum_reply_count() To bump the forum reply count
+ * @uses bbp_increase_forum_topic_count() To bump the forum topic count by 1
+ * @uses bbp_decrease_forum_topic_count_hidden() To bump the forum topic hidden count by -1
+ * @uses bbp_increase_forum_topic_count_hidden() To bump the forum topic hidden count by 1
  * @uses bbp_is_forum() To check if the ancestor is a forum
  * @uses bbp_update_forum() To update the forum
  */
@@ -1109,6 +1130,31 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 
 	// Get topic ancestors
 	$old_forum_ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
+
+	// Get reply count.
+	$public_reply_count = count( bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() ) );
+
+	// Topic status.
+	$topic_status = get_post_field( 'post_status', $topic_id );
+
+	// Update old/new forum counts.
+	if ( $topic_status === bbp_get_public_status_id() ) {
+
+		// Update old forum counts.
+		bbp_decrease_forum_topic_count( $old_forum_id );
+		bbp_bump_forum_reply_count( $old_forum_id, -$public_reply_count );
+
+		// Update new forum counts.
+		bbp_increase_forum_topic_count( $new_forum_id );
+		bbp_bump_forum_reply_count( $new_forum_id, $public_reply_count );
+	} else {
+
+		// Update old forum counts.
+		bbp_decrease_forum_topic_count_hidden( $old_forum_id );
+
+		// Update new forum counts.
+		bbp_increase_forum_topic_count_hidden( $new_forum_id );
+	}
 
 	// Loop through ancestors and update them
 	if ( ! empty( $old_forum_ancestors ) ) {
@@ -2378,6 +2424,72 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 }
 
 /**
+ * Increase the total reply count of a topic by one.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $topic_id The topic id.
+ *
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the replies topic id
+ * @uses bbp_is_reply_published() To check if the reply is published
+ * @uses bbp_increase_topic_reply_count_hidden() To increase the topics reply
+ *                                                hidden count by 1
+ * @uses bbp_bump_topic_reply_count() To bump the topic reply count
+ *
+ * @return void
+ */
+function bbp_increase_topic_reply_count( $topic_id = 0 ) {
+
+	// Bail early if no id is passed.
+	if ( empty( $topic_id ) ) {
+		return;
+	}
+
+	// If it's a reply, get the topic id.
+	if ( bbp_is_reply( $topic_id ) ) {
+		$reply_id = $topic_id;
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// If this is a new, unpublished, reply, update hidden count and bail.
+		if ( 'bbp_new_reply' === current_filter() && ! bbp_is_reply_published( $reply_id ) ) {
+			bbp_increase_topic_reply_count_hidden( $topic_id );
+			return;
+		}
+	}
+
+	bbp_bump_topic_reply_count( $topic_id );
+}
+
+/**
+ * Decrease the total reply count of a topic by one.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $topic_id The topic id.
+ *
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the replies topic id
+ * @uses bbp_bump_topic_reply_count() To bump the topic reply count
+ *
+ * @return void
+ */
+function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
+
+	// Bail early if no id is passed.
+	if ( empty( $topic_id ) ) {
+		return;
+	}
+
+	// If it's a reply, get the topic id.
+	if ( bbp_is_reply( $topic_id ) ) {
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
+	}
+
+	bbp_bump_topic_reply_count( $topic_id, -1 );
+}
+
+/**
  * Bump the total hidden reply count of a topic
  *
  * @since 2.1.0 bbPress (r3825)
@@ -2408,6 +2520,90 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $new_count );
 
 	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', $new_count, $topic_id, $difference );
+}
+
+/**
+ * Increase the total hidden reply count of a topic by one.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $topic_id The topic id.
+ *
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the topic id
+ * @uses bbp_bump_topic_reply_count_hidden() To bump topic hidden reply count
+ *
+ * @return void
+ */
+function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
+
+	// Bail early if no id is passed.
+	if ( empty( $topic_id ) ) {
+		return;
+	}
+
+	// If it's a reply, get the topic id.
+	if ( bbp_is_reply( $topic_id ) ) {
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
+	}
+
+	bbp_bump_topic_reply_count_hidden( $topic_id );
+}
+
+/**
+ * Decrease the total hidden reply count of a topic by one.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $topic_id The topic id.
+ *
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the topic id
+ * @uses bbp_bump_topic_reply_count_hidden() To bump topic hidden reply count
+ *
+ * @return void
+ */
+function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
+
+	// Bail early if no id is passed.
+	if ( empty( $topic_id ) ) {
+		return;
+	}
+
+	// If it's a reply, get the topic id.
+	if ( bbp_is_reply( $topic_id ) ) {
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
+	}
+
+	bbp_bump_topic_reply_count_hidden( $topic_id, -1 );
+}
+
+/**
+ * Update counts after a topic is inserted via `bbp_insert_topic`.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $reply_id The reply id.
+ * @param int $topic_id The topic id.
+ *
+ * @uses bbp_get_topic_status() To get the post status
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_increase_forum_topic_count() To bump the topic's forum topic count by 1
+ * @uses bbp_increase_forum_topic_count_hidden() To bump the topic's forum topic
+ *                                               hidden count by 1
+ *
+ * @return void
+ */
+function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
+
+	// If the topic is public, update the forum topic counts.
+	if ( bbp_get_topic_status( $topic_id ) === bbp_get_public_status_id() ) {
+		bbp_increase_forum_topic_count( $forum_id );
+
+	// If the topic isn't public only update the forum topic hidden count.
+	} else {
+		bbp_increase_forum_topic_count_hidden( $forum_id );
+	}
 }
 
 /** Topic Updaters ************************************************************/

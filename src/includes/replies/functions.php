@@ -65,8 +65,50 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	// Update the reply and hierarchy
 	bbp_update_reply( $reply_id, $reply_meta['topic_id'], $reply_meta['forum_id'], array(), $reply_data['post_author'], false, $reply_meta['reply_to'] );
 
+	/**
+	 * Fires after reply has been inserted via `bbp_insert_reply`.
+	 *
+	 * @since 2.6.0 bbPress (r6036)
+	 *
+	 * @param int $reply_id               The reply id.
+	 * @param int $reply_meta['topic_id'] The reply topic meta.
+	 * @param int $reply_meta['forum_id'] The reply forum meta.
+	 */
+	do_action( 'bbp_insert_reply', (int) $reply_id, (int) $reply_meta['topic_id'], (int) $reply_meta['forum_id'] );
+
 	// Return new reply ID
 	return $reply_id;
+}
+
+/**
+ * Update counts after a reply is inserted via `bbp_insert_reply`.
+ *
+ * @since 2.6.0 bbPress (r6036)
+ *
+ * @param int $reply_id The reply id.
+ * @param int $topic_id The topic id.
+ * @param int $forum_id The forum id.
+ *
+ * @uses bbp_get_reply_status() To get the reply status
+ * @uses bbp_get_public_status_id() To get the public status id
+ * @uses bbp_increase_topic_reply_count() To bump the topics reply count by 1
+ * @uses bbp_increase_forum_reply_count() To bump the forums reply count by 1
+ * @uses bbp_increase_topic_reply_count_hidden() To bump the topics hidden reply
+ *                                               count by 1
+ *
+ * @return void
+ */
+function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
+
+	// If the reply is public, update the forum/topic reply counts.
+	if ( bbp_get_reply_status( $reply_id ) === bbp_get_public_status_id() ) {
+		bbp_increase_topic_reply_count( $topic_id );
+		bbp_increase_forum_reply_count( $forum_id );
+
+	// If the reply isn't public only update the topic reply hidden count.
+	} else {
+		bbp_increase_topic_reply_count_hidden( $topic_id );
+	}
 }
 
 /** Post Form Handlers ********************************************************/
@@ -977,9 +1019,13 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 				bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
 
 				// Counts
-				bbp_update_topic_voice_count       ( $ancestor );
-				bbp_update_topic_reply_count       ( $ancestor );
-				bbp_update_topic_reply_count_hidden( $ancestor );
+				bbp_update_topic_voice_count( $ancestor );
+
+				// Only update reply count if we're deleting a reply, or in the dashboard.
+				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
+					bbp_update_topic_reply_count(        $ancestor );
+					bbp_update_topic_reply_count_hidden( $ancestor );
+				}
 
 			// Forum meta relating to most recent topic
 			} elseif ( bbp_is_forum( $ancestor ) ) {
@@ -1003,7 +1049,10 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 				}
 
 				// Counts
-				bbp_update_forum_reply_count( $ancestor );
+				// Only update reply count if we're deleting a reply, or in the dashboard.
+				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
+					bbp_update_forum_reply_count( $ancestor );
+				}
 			}
 		}
 	}

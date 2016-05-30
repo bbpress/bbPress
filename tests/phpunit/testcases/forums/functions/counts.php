@@ -13,6 +13,8 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	 * Generic function to test the forum counts with a new topic
 	 */
 	public function test_bbp_forum_new_topic_counts() {
+		remove_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10 );
+
 		$f = $this->factory->forum->create();
 		$t1 = $this->factory->topic->create( array(
 			'post_parent' => $f,
@@ -23,14 +25,11 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$u = $this->factory->user->create();
 
-		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
-		$this->setUp_wp_mail( false );
+		// Don't attempt to send an email. This is for speed and PHP errors.
+		remove_action( 'bbp_new_topic', 'bbp_notify_forum_subscribers', 11, 4 );
 
 		// Simulate the 'bbp_new_topic' action.
 		do_action( 'bbp_new_topic', $t1, $f, false, bbp_get_current_user_id(), $t1 );
-
-		// Reverse our changes.
-		$this->tearDown_wp_mail( false );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
 		$this->assertSame( 1, $count );
@@ -46,20 +45,18 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Cheating here, but we need $_SERVER['SERVER_NAME'] to be set.
-		$this->setUp_wp_mail( false );
-
 		// Simulate the 'bbp_new_topic' action.
 		do_action( 'bbp_new_topic', $t2, $f, false, $u , $t2 );
-
-		// Reverse our changes.
-		$this->tearDown_wp_mail( false );
 
 		$count = bbp_get_forum_topic_count( $f, true, true );
 		$this->assertSame( 2, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
+
+		// Re-add removed actions.
+		add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
+		add_action( 'bbp_new_topic',    'bbp_notify_forum_subscribers',   11, 4 );
 	}
 
 	/**
@@ -254,6 +251,47 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_increase_forum_topic_count
+	 */
+	public function test_bbp_increase_forum_topic_count() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_topic_count( $f );
+		$this->assertSame( '0', $count );
+
+		bbp_increase_forum_topic_count( $f );
+
+		$count = bbp_get_forum_topic_count( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_decrease_forum_topic_count
+	 */
+	public function test_bbp_decrease_forum_topic_count() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_topic_count( $f );
+		$this->assertSame( '0', $count );
+
+		$t = $this->factory->topic->create_many( 2, array(
+			'post_parent' => $f,
+		) );
+
+		bbp_update_forum_topic_count( $f );
+
+		$count = bbp_get_forum_topic_count( $f );
+		$this->assertSame( '2', $count );
+
+		bbp_update_forum_topic_count( $f );
+
+		bbp_decrease_forum_topic_count( $f );
+
+		$count = bbp_get_forum_topic_count( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
 	 * @covers ::bbp_bump_forum_topic_count_hidden
 	 */
 	public function test_bbp_bump_forum_topic_count_hidden() {
@@ -269,6 +307,50 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_increase_forum_topic_count_hidden
+	 */
+	public function test_bbp_increase_forum_topic_count_hidden() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '0', $count );
+
+		bbp_increase_forum_topic_count_hidden( $f );
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_decrease_forum_topic_count_hidden
+	 */
+	public function test_bbp_decrease_forum_topic_count_hidden() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '0', $count );
+
+		$t = $this->factory->topic->create_many( 2, array(
+			'post_parent' => $f,
+			'post_status' => bbp_get_spam_status_id(),
+			'topic_meta' => array(
+				'forum_id' => $f,
+				'spam_meta_status' => 'publish',
+			)
+		) );
+
+		bbp_update_forum_topic_count_hidden( $f );
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '2', $count );
+
+		bbp_decrease_forum_topic_count_hidden( $f );
+
+		$count = bbp_get_forum_topic_count_hidden( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
 	 * @covers ::bbp_bump_forum_reply_count
 	 */
 	public function test_bbp_bump_forum_reply_count() {
@@ -278,6 +360,49 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		$this->assertSame( '0', $count );
 
 		bbp_bump_forum_reply_count( $f );
+
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_increase_forum_reply_count
+	 */
+	public function test_bbp_increase_forum_reply_count() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '0', $count );
+
+		bbp_increase_forum_reply_count( $f );
+
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '1', $count );
+	}
+
+	/**
+	 * @covers ::bbp_decrease_forum_reply_count
+	 */
+	public function test_bbp_decrease_forum_reply_count() {
+		$f = $this->factory->forum->create();
+
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '0', $count );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+		) );
+
+		$r = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t,
+		) );
+
+		bbp_update_forum_reply_count( $f );
+
+		$count = bbp_get_forum_reply_count( $f );
+		$this->assertSame( '2', $count );
+
+		bbp_decrease_forum_reply_count( $f );
 
 		$count = bbp_get_forum_reply_count( $f );
 		$this->assertSame( '1', $count );

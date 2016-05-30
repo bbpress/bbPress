@@ -181,6 +181,11 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 		$this->assertSame( $new_forum_id, bbp_get_reply_forum_id( $reply_id ) );
 		$this->assertSame( $topic_id, bbp_get_reply_topic_id( $reply_id ) );
 
+		// Old Topic/Reply Counts
+		$this->assertSame( 0, bbp_get_forum_topic_count( $old_forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $old_forum_id, true, true ) );
+
+
 		// Retore the user
 		$this->set_current_user( $this->old_current_user );
 	}
