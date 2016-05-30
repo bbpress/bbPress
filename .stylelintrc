@@ -15,6 +15,9 @@
   "color-hex-length": "short",
   "color-named": "never",
   "color-no-invalid-hex": true,
+  "comment-empty-line-before": [ "always", {
+    ignore: ["stylelint-commands"],
+  } ],
   "declaration-bang-space-after": "never",
   "declaration-bang-space-before": "always",
   "declaration-block-no-duplicate-properties": [ true, {
@@ -27,7 +30,7 @@
   "declaration-colon-newline-after": "always-multi-line",
   "declaration-colon-space-after": "always-single-line",
   "declaration-colon-space-before": "never",
-  "font-family-name-quotes": "double-where-recommended",
+  "font-family-name-quotes": "always-where-recommended",
   "function-calc-no-unspaced-operator": true,
   "function-comma-space-after": "always",
   "function-comma-space-before": "never",
@@ -35,7 +38,7 @@
   "function-max-empty-lines": 1,
   "function-name-case": "lower",
   "function-parentheses-space-inside": "never",
-  "function-url-quotes": "none",
+  "function-url-quotes": "never",
   "function-whitespace-after": "always",
   "indentation": "tab",
   "keyframe-declaration-no-important": true,
