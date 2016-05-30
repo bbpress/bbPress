@@ -2583,8 +2583,8 @@ function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6036)
  *
- * @param int $reply_id The reply id.
  * @param int $topic_id The topic id.
+ * @param int $forum_id The forum id.
  *
  * @uses bbp_get_topic_status() To get the post status
  * @uses bbp_get_public_status_id() To get the public status id
