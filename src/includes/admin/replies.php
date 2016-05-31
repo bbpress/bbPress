@@ -853,7 +853,7 @@ class BBP_Replies_Admin {
 		// Add "Empty Spam" button for moderators
 		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
-			submit_button( 
+			submit_button(
 				esc_attr__( 'Empty Spam', 'bbpress' ),
 				'button-secondary apply',
 				'delete_all',
@@ -934,7 +934,12 @@ class BBP_Replies_Admin {
 			0 =>  '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf( __( 'Reply updated. <a href="%s">View topic</a>', 'bbpress' ), $topic_url ),
+			1 =>  sprintf(
+				'%1$s <a href="%2$s">%3$s</a>',
+				__( 'Reply updated.', 'bbpress' ),
+				$topic_url,
+				__( 'View topic', 'bbpress' )
+			),
 
 			// Custom field updated
 			2 => __( 'Custom field updated.', 'bbpress' ),
@@ -952,13 +957,23 @@ class BBP_Replies_Admin {
 					: false,
 
 			// Reply created
-			6 => sprintf( __( 'Reply created. <a href="%s">View topic</a>', 'bbpress' ), $topic_url ),
+			6 => sprintf(
+				'%1$s <a href="%2$s">%3$s</a>',
+				__( 'Reply created.', 'bbpress' ),
+				$topic_url,
+				__( 'View topic', 'bbpress' )
+			),
 
 			// Reply saved
 			7 => __( 'Reply saved.', 'bbpress' ),
 
 			// Reply submitted
-			8 => sprintf( __( 'Reply submitted. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
+			8 => sprintf(
+				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
+				__( 'Reply submitted.', 'bbpress' ),
+				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
+				__( 'Preview topic', 'bbpress' )
+			),
 
 			// Reply scheduled
 			9 => sprintf(
@@ -973,7 +988,12 @@ class BBP_Replies_Admin {
 			),
 
 			// Reply draft updated
-			10 => sprintf( __( 'Reply draft updated. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
+			10 => sprintf(
+				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
+				__( 'Reply draft updated.', 'bbpress' ),
+				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
+				__( 'Preview topic', 'bbpress' )
+			),
 		);
 
 		return $messages;
