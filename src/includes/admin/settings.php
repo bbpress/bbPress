@@ -944,7 +944,7 @@ function bbp_admin_setting_callback_show_on_root() {
 			'name' => __( 'Forum Index', 'bbpress' )
 		),
 		'topics' => array(
-			'name' => __( 'Topics by Freshness', 'bbpress' )
+			'name' => __( 'Topics by Last Post', 'bbpress' )
 		)
 	); ?>
 

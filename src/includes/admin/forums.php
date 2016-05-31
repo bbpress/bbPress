@@ -656,7 +656,7 @@ class BBP_Forums_Admin {
 			'author'                => __( 'Creator',    'bbpress' ),
 			'bbp_forum_mods'        => __( 'Moderators', 'bbpress' ),
 			'bbp_forum_created'     => __( 'Created' ,   'bbpress' ),
-			'bbp_forum_freshness'   => __( 'Freshness',  'bbpress' )
+			'bbp_forum_freshness'   => __( 'Last Post',  'bbpress' )
 		);
 
 		// Remove forum mods column if not enabled

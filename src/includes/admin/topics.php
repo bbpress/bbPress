@@ -459,7 +459,7 @@ class BBP_Topics_Admin {
 				width: 60px;
 			}
 
-			.column-bbp_topic_reply_author, 
+			.column-bbp_topic_reply_author,
 			.column-bbp_forum_topic_author {
 				width: 25% !important;
 			}
@@ -778,7 +778,7 @@ class BBP_Topics_Admin {
 			'bbp_topic_voice_count' => __( 'Voices',    'bbpress' ),
 			'bbp_topic_author'      => __( 'Author',    'bbpress' ),
 			'bbp_topic_created'     => __( 'Created',   'bbpress' ),
-			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
+			'bbp_topic_freshness'   => __( 'Last Post', 'bbpress' )
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
@@ -1006,7 +1006,7 @@ class BBP_Topics_Admin {
 		// Add "Empty Spam" button for moderators
 		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
-			submit_button( 
+			submit_button(
 				esc_attr__( 'Empty Spam', 'bbpress' ),
 				'button-secondary apply',
 				'delete_all',
