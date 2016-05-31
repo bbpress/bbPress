@@ -1335,7 +1335,7 @@ function bbp_converter_setting_callback_platform() {
 	while ( $file = readdir( $curdir ) ) {
 		if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
 			$file              = preg_replace( '/.php/', '', $file );
-			$platform_options .= '<option value="' . $file . '">' . esc_html( $file ) . '</option>';
+			$platform_options .= '<option value="' . esc_attr( $file ) . '">' . esc_html( $file ) . '</option>';
 		}
 	}
 
