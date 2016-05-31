@@ -811,7 +811,12 @@ class BBP_Forums_Admin {
 			0 =>  '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf( __( 'Forum updated. <a href="%s">View forum</a>', 'bbpress' ), $forum_url ),
+			1 =>  sprintf(
+				'%1$s <a href="%2$s">%3$s</a>',
+				__( 'Forum updated.', 'bbpress' ),
+				$forum_url,
+				__( 'View forum', 'bbpress' )
+			),
 
 			// Custom field updated
 			2 => __( 'Custom field updated.', 'bbpress' ),
@@ -829,13 +834,23 @@ class BBP_Forums_Admin {
 					: false,
 
 			// Forum created
-			6 => sprintf( __( 'Forum created. <a href="%s">View forum</a>', 'bbpress' ), $forum_url ),
+			6 => sprintf(
+				'%1$s <a href="%2$s">%3$s</a>',
+				__( 'Forum created.', 'bbpress' ),
+				$forum_url,
+				__( 'View forum', 'bbpress' )
+			),
 
 			// Forum saved
 			7 => __( 'Forum saved.', 'bbpress' ),
 
 			// Forum submitted
-			8 => sprintf( __( 'Forum submitted. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),
+			8 => sprintf(
+				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
+				__( 'Forum submitted.', 'bbpress' ),
+				esc_url( add_query_arg( 'preview', 'true', $forum_url ) ),
+				__( 'Preview forum', 'bbpress' )
+			),
 
 			// Forum scheduled
 			9 => sprintf(
@@ -850,7 +865,12 @@ class BBP_Forums_Admin {
 			),
 
 			// Forum draft updated
-			10 => sprintf( __( 'Forum draft updated. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),
+			10 => sprintf(
+				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
+				__( 'Forum draft updated.', 'bbpress' ),
+				esc_url( add_query_arg( 'preview', 'true', $forum_url ) ),
+				__( 'Preview forum', 'bbpress' )
+			),
 		);
 
 		return $messages;
