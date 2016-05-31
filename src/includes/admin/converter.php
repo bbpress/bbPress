@@ -1031,7 +1031,7 @@ abstract class BBP_Converter_Base {
 
 						// Types match and to_fieldname is present. This means
 						// we have some work to do here.
-						if ( ( $row['to_type'] == $to_type ) && ! is_null( $row['to_fieldname'] ) ) {
+						if ( ( $row['to_type'] == $to_type ) && isset( $row['to_fieldname'] ) ) {
 
 							// This row has a destination that matches one of the
 							// columns in this table.
