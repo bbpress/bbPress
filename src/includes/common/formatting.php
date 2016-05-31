@@ -354,7 +354,7 @@ function bbp_make_clickable( $text = '' ) {
 			}
 		} else {
 			$ret = " {$piece} "; // Pad with whitespace to simplify the regexes
-			$ret = apply_filters( 'bbp_make_clickable', $ret );
+			$ret = apply_filters( 'bbp_make_clickable', $ret, $text );
 			$ret = substr( $ret, 1, -1 ); // Remove our whitespace padding.
 			$r .= $ret;
 		}
