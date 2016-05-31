@@ -1060,7 +1060,7 @@ class BBP_Admin {
 
 							// Site errored out, no response?
 							if ( is_wp_error( $response ) ) {
-								wp_die( sprintf( __( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: <em>%2$s</em>', 'bbpress' ), $siteurl, $response->get_error_message() ) );
+								wp_die( sprintf( __( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ), $siteurl, '<em>' . $response->get_error_message() . '</em>' ) );
 							}
 
 							// Switch to the new blog

@@ -961,11 +961,16 @@ class BBP_Replies_Admin {
 			8 => sprintf( __( 'Reply submitted. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
 
 			// Reply scheduled
-			9 => sprintf( __( 'Reply scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
+			9 => sprintf(
+				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
+				sprintf(
+					__( 'Reply scheduled for: %s.', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
-					date_i18n( __( 'M j, Y @ G:i', 'bbpress' ),
-					strtotime( $post_date ) ),
-					$topic_url ),
+					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
+				),
+				$topic_url,
+				__( 'Preview topic', 'bbpress' )
+			),
 
 			// Reply draft updated
 			10 => sprintf( __( 'Reply draft updated. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),

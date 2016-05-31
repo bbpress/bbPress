@@ -838,11 +838,16 @@ class BBP_Forums_Admin {
 			8 => sprintf( __( 'Forum submitted. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),
 
 			// Forum scheduled
-			9 => sprintf( __( 'Forum scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview forum</a>', 'bbpress' ),
+			9 => sprintf(
+				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
+				sprintf(
+					__( 'Forum scheduled for: %s.', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
-					date_i18n( __( 'M j, Y @ G:i', 'bbpress' ),
-					strtotime( $post_date ) ),
-					$forum_url ),
+					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
+				),
+				$forum_url,
+				__( 'Preview forum', 'bbpress' )
+			),
 
 			// Forum draft updated
 			10 => sprintf( __( 'Forum draft updated. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),

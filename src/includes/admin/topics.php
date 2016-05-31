@@ -1114,11 +1114,16 @@ class BBP_Topics_Admin {
 			8 => sprintf( __( 'Topic submitted. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
 
 			// Topic scheduled
-			9 => sprintf( __( 'Topic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
+			9 => sprintf(
+				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
+				sprintf(
+					__( 'Topic scheduled for: %s.', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
-					date_i18n( __( 'M j, Y @ G:i', 'bbpress' ),
-					strtotime( $post_date ) ),
-					$topic_url ),
+					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
+				),
+				$topic_url,
+				__( 'Preview topic', 'bbpress' )
+			),
 
 			// Topic draft updated
 			10 => sprintf( __( 'Topic draft updated. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
