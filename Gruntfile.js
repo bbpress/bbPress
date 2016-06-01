@@ -218,6 +218,11 @@ module.exports = function( grunt ) {
 				tracUrl: 'bbpress.trac.wordpress.org'
 			}
 		},
+		upload_patch: {
+			options: {
+				tracUrl: 'bbpress.trac.wordpress.org'
+			}
+		},
 		phpunit: {
 			'default': {
 				cmd: 'phpunit',
