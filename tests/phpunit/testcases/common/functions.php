@@ -711,13 +711,27 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_get_do_not_reply_address
-	 * @todo   Implement test_bbp_get_do_not_reply_address().
 	 */
 	public function test_bbp_get_do_not_reply_address() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+
+		$_SERVER['SERVER_NAME'] = 'example.org';
+		$address = bbp_get_do_not_reply_address();
+		$this->assertEquals( 'noreply@example.org', $address );
+
+		$_SERVER['SERVER_NAME'] = 'www.example.org';
+		$address = bbp_get_do_not_reply_address();
+		$this->assertEquals( 'noreply@example.org', $address );
+
+		$_SERVER['SERVER_NAME'] = 'subdomain.example.org';
+		$address = bbp_get_do_not_reply_address();
+		$this->assertEquals( 'noreply@subdomain.example.org', $address );
+
+		$_SERVER['SERVER_NAME'] = 'www.subdomain.example.org';
+		$address = bbp_get_do_not_reply_address();
+		$this->assertEquals( 'noreply@subdomain.example.org', $address );
+
+		// Reset server name.
+		$_SERVER['SERVER_NAME'] = 'example.org';
 	}
 
 	/**
