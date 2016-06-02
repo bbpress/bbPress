@@ -801,6 +801,44 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	$_post     = array();
 	$match_out = '';
 
+	/** Max Links *************************************************************/
+
+	$max_links = get_option( 'comment_max_links' );
+	if ( ! empty( $max_links ) ) {
+
+		// How many links?
+		$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
+
+		// Allow for bumping the max to include the user's URL
+		if ( ! empty( $_post['url'] ) ) {
+			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
+		}
+
+		// Das ist zu viele links!
+		if ( $num_links >= $max_links ) {
+			return false;
+		}
+	}
+
+	/** Moderation ************************************************************/
+
+	/**
+	 * Filters the bbPress moderation keys.
+	 *
+	 * @since 2.6.0 bbPress (r6050)
+	 *
+	 * @param string $moderation List of moderation keys. One per new line.
+	 */
+	$moderation = apply_filters(
+		'bbp_moderation_keys',
+		trim( get_option( 'moderation_keys' )
+	) );
+
+	// Bail if blacklist is empty
+	if ( empty( $moderation ) ) {
+		return true;
+	}
+
 	/** User Data *************************************************************/
 
 	// Map anonymous user data
@@ -831,61 +869,35 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	$_post['title']   = $title;
 	$_post['content'] = $content;
 
-	/** Max Links *************************************************************/
+	/** Words *****************************************************************/
 
-	$max_links = get_option( 'comment_max_links' );
-	if ( ! empty( $max_links ) ) {
+	// Get words separated by new lines
+	$words = explode( "\n", $moderation );
 
-		// How many links?
-		$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
+	// Loop through words
+	foreach ( (array) $words as $word ) {
 
-		// Allow for bumping the max to include the user's URL
-		if ( ! empty( $_post['url'] ) ) {
-			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
+		// Trim the whitespace from the word
+		$word = trim( $word );
+
+		// Skip empty lines
+		if ( empty( $word ) ) {
+			continue;
 		}
 
-		// Das ist zu viele links!
-		if ( $num_links >= $max_links ) {
-			return false;
-		}
-	}
+		// Do some escaping magic so that '#' chars in the
+		// spam words don't break things:
+		$word    = preg_quote( $word, '#' );
+		$pattern = "#$word#i";
 
-	/** Blacklist *************************************************************/
+		// Loop through post data
+		foreach ( $_post as $post_data ) {
 
-	// Get the moderation keys
-	$blacklist = trim( get_option( 'moderation_keys' ) );
+			// Check each user data for current word
+			if ( preg_match( $pattern, $post_data ) ) {
 
-	// Bail if blacklist is empty
-	if ( ! empty( $blacklist ) ) {
-
-		// Get words separated by new lines
-		$words = explode( "\n", $blacklist );
-
-		// Loop through words
-		foreach ( (array) $words as $word ) {
-
-			// Trim the whitespace from the word
-			$word = trim( $word );
-
-			// Skip empty lines
-			if ( empty( $word ) ) {
-				continue;
-			}
-
-			// Do some escaping magic so that '#' chars in the
-			// spam words don't break things:
-			$word    = preg_quote( $word, '#' );
-			$pattern = "#$word#i";
-
-			// Loop through post data
-			foreach ( $_post as $post_data ) {
-
-				// Check each user data for current word
-				if ( preg_match( $pattern, $post_data ) ) {
-
-					// Post does not pass
-					return false;
-				}
+				// Post does not pass
+				return false;
 			}
 		}
 	}
@@ -920,13 +932,19 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 		return true;
 	}
 
-	// Define local variable
-	$_post = array();
-
 	/** Blacklist *************************************************************/
 
-	// Get the moderation keys
-	$blacklist = trim( get_option( 'blacklist_keys' ) );
+	/**
+	 * Filters the bbPress blacklist keys.
+	 *
+	 * @since 2.6.0 bbPress (r6050)
+	 *
+	 * @param string $blacklist List of blacklist keys. One per new line.
+	 */
+	$blacklist = apply_filters(
+		'bbp_blacklist_keys',
+		trim( get_option( 'blacklist_keys' )
+	) );
 
 	// Bail if blacklist is empty
 	if ( empty( $blacklist ) ) {
@@ -934,6 +952,9 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 	}
 
 	/** User Data *************************************************************/
+
+	// Define local variable
+	$_post = array();
 
 	// Map anonymous user data
 	if ( ! empty( $anonymous_data ) ) {
