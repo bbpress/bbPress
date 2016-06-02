@@ -56,6 +56,11 @@ class BBP_Users_Admin {
 		add_filter( 'manage_users_columns',       array( $this, 'user_role_column'        )        );
 		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'           ), 10, 3 );
 
+		// Only list bbPress roles under Forum Role, remove from WordPress' > 4.4 Site Role list.
+		if ( bbp_get_major_wp_version() >= 4.4 ) {
+			add_filter( 'get_role_list',          array( $this, 'user_role_list_filter'   ), 10, 2 );
+		}
+
 		// Process bulk role change
 		add_action( 'load-users.php',             array( $this, 'user_role_bulk_change'   )        );
 	}
@@ -128,7 +133,7 @@ class BBP_Users_Admin {
 	 */
 	public static function user_role_bulk_dropdown() {
 
-		// Bail if current user cannot promote users 
+		// Bail if current user cannot promote users
 		if ( ! current_user_can( 'promote_users' ) ) {
 			return;
 		}
@@ -183,7 +188,7 @@ class BBP_Users_Admin {
 		// Bail if nonce check fails
 		check_admin_referer( 'bbp-bulk-users', 'bbp-bulk-users-nonce' );
 
-		// Bail if current user cannot promote users 
+		// Bail if current user cannot promote users
 		if ( ! current_user_can( 'promote_users' ) ) {
 			return;
 		}
@@ -201,7 +206,7 @@ class BBP_Users_Admin {
 			}
 
 			// Set up user and role data
-			$user_role = bbp_get_user_role( $user_id );			
+			$user_role = bbp_get_user_role( $user_id );
 			$new_role  = sanitize_text_field( $_REQUEST['bbp-new-role'] );
 
 			// Only keymasters can set other keymasters
@@ -261,6 +266,27 @@ class BBP_Users_Admin {
 
 		// Pass retval through
 		return $retval;
+	}
+
+	/**
+	 * Filter the list of roles included in the WordPress site role list
+	 *
+	 * This ensures bbPress' roles are only displayed under the Forum Role list
+	 * in the WordPRess USers list table
+	 *
+	 * @since 2.6.0 bbPress (r6051)
+	 *
+	 * @return array $roles
+	 */
+	public static function user_role_list_filter( $roles, $user ) {
+
+		// Get the users role
+		$user_role = bbp_get_user_role( $user->ID );
+
+		if ( ! empty( $user_role ) ) {
+			unset( $roles[ $user_role ] );
+		}
+		return $roles;
 	}
 }
 new BBP_Users_Admin();
