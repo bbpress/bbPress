@@ -128,3 +128,18 @@ function bbp_use_pretty_urls() {
 	// Filter & return
 	return apply_filters( 'bbp_pretty_urls', $retval );
 }
+
+/**
+ * Parse the WordPress core version number
+ *
+ * @since 2.6.0 bbPress (r6051)
+ *
+ * @global string $wp_version
+ *
+ * @return string $wp_version
+ */
+function bbp_get_major_wp_version() {
+	global $wp_version;
+
+	return (float) $wp_version;
+}
