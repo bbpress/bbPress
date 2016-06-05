@@ -955,10 +955,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 	 *
 	 * @param string $blacklist List of blacklist keys. One per new line.
 	 */
-	$blacklist = apply_filters(
-		'bbp_blacklist_keys',
-		trim( get_option( 'blacklist_keys' )
-	) );
+	$blacklist = apply_filters( 'bbp_blacklist_keys', trim( get_option( 'blacklist_keys' ) ) );
 
 	// Bail if blacklist is empty
 	if ( empty( $blacklist ) ) {
