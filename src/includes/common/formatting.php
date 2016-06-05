@@ -367,7 +367,7 @@ function bbp_make_clickable( $text = '' ) {
 /**
  * Make URLs clickable in content areas
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6014)
  *
  * @param  string $text
  * @return string
@@ -395,7 +395,7 @@ function bbp_make_urls_clickable( $text = '' ) {
 /**
  * Make FTP clickable in content areas
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6014)
  *
  * @see make_clickable()
  *
@@ -409,7 +409,7 @@ function bbp_make_ftps_clickable( $text = '' ) {
 /**
  * Make emails clickable in content areas
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6014)
  *
  * @see make_clickable()
  *
@@ -423,7 +423,7 @@ function bbp_make_emails_clickable( $text = '' ) {
 /**
  * Make mentions clickable in content areas
  *
- * @since 2.6.0
+ * @since 2.6.0 bbPress (r6014)
  *
  * @see make_clickable()
  *
@@ -437,7 +437,7 @@ function bbp_make_mentions_clickable( $text = '' ) {
 /**
  * Callback to convert mention matchs to HTML A tag.
  *
- * @since 2.6.0
+ * @since 2.6.0 (r6014)
  *
  * @param array $matches Single Regex Match.
  *
