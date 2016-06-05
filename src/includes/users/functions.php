@@ -1720,6 +1720,71 @@ function bbp_get_total_users() {
 	return apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
 }
 
+/**
+ * Get user IDs from nicenames
+ *
+ * This function is primarily used when saving object moderators
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param mixed $user_nicenames
+ * @return array
+ */
+function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
+
+	// Default value
+	$user_ids = array();
+
+	// Only query if nicenames
+	if ( ! empty( $user_nicenames ) ) {
+
+		// Maybe explode by comma
+		$user_nicenames = ( is_string( $user_nicenames ) && strstr( $user_nicenames, ',' ) )
+			? explode( ',', $user_nicenames )
+			: (array) $user_nicenames;
+
+		// Do the query
+		$users    = implode( "', '", array_map( 'trim', $user_nicenames ) );
+		$bbp_db   = bbp_db();
+		$query    = "SELECT ID FROM `{$bbp_db->users}` WHERE user_nicename IN ('{$users}')";
+		$user_ids = $bbp_db->get_col( $query );
+	}
+
+	return apply_filters( 'bbp_get_user_ids_from_nicenames', $user_ids, $user_nicenames );
+}
+
+/**
+ * Get user nicenames from IDs
+ *
+ * This function is primarily used when saving object moderators
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param mixed $user_ids
+ * @return array
+ */
+function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
+
+	// Default value
+	$user_nicenames = array();
+
+	// Only query if nicenames
+	if ( ! empty( $user_ids ) ) {
+
+		// Get user objects
+		$users = get_users( array(
+			'include' => $user_ids
+		) );
+
+		// Pluck or empty
+		if ( ! empty( $users ) ) {
+			$user_nicenames = wp_list_pluck( $users, 'user_nicename' );
+		}
+	}
+
+	return apply_filters( 'bbp_get_user_nicenames_from_ids', $user_nicenames, $user_ids );
+}
+
 /** Post Counts ***************************************************************/
 
 /**
@@ -1911,127 +1976,6 @@ function bbp_decrease_user_topic_count( $topic_id = 0 ) {
 function bbp_decrease_user_reply_count( $reply_id = 0 ) {
 	$user_id = bbp_get_reply_author_id( $reply_id );
 	return bbp_bump_user_reply_count( $user_id, -1 );
-}
-
-/** User Nicename Taxonomies **************************************************/
-
-/**
- * Return the term id for a given user id and taxonomy
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @param int    $user_id User id.
- * @param string $taxonomy Taxonomy.
- * @uses get_userdata() To get the user data
- * @uses taxonomy_exists() To make sure the taxonomy exists
- * @uses get_term_by() To get the term by name
- *
- * @return boolean|int Return false early, or if not found, or int term id
- */
-function bbp_get_user_taxonomy_term_id( $user_id = 0, $taxonomy = '' ) {
-
-	// Bail if no user ID.
-	if ( empty( $user_id ) ) {
-		return false;
-	}
-
-	// Bail if user does not exist.
-	$user = get_userdata( $user_id );
-	if ( empty( $user ) ) {
-		return false;
-	}
-
-	// Bail if no taxonomy.
-	if ( empty( $taxonomy ) || ! taxonomy_exists( $taxonomy ) ) {
-		return false;
-	}
-
-	// Get the term id.
-	$term = get_term_by( 'name', $user->user_nicename, $taxonomy );
-	if ( ! empty( $term ) ) {
-		return $term->term_id;
-	}
-
-	return false;
-}
-
-/**
- * Return the user id for a given term id and taxonomy
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @param int    $term_id Term id.
- * @param string $taxonomy Taxonomy.
- * @uses taxonomy_exists() To make sure the taxonomy exists
- * @uses get_term() To get the term by term id
- * @uses get_user_by() To get the user by nicename
- *
- * @return boolean|int Return false early, or if not found, or int user id
- */
-function bbp_get_term_taxonomy_user_id( $term_id = 0, $taxonomy = '' ) {
-
-	// Bail if no user ID.
-	if ( empty( $term_id ) ) {
-		return false;
-	}
-
-	// Bail if no taxonomy.
-	if ( empty( $taxonomy ) || ! taxonomy_exists( $taxonomy ) ) {
-		return false;
-	}
-
-	// Bail if no term exists.
-	$term = get_term( $term_id, $taxonomy );
-	if ( empty( $term ) ) {
-		return false;
-	}
-
-	// Get the user by nicename.
-	$nicename = $term->name;
-	$user     = get_user_by( 'slug', $nicename );
-	if ( ! empty( $user ) ) {
-		return $user->ID;
-	}
-
-	return false;
-}
-
-function bbp_filter_forum_mod_term_link( $termlink = '', $term = '', $taxonomy = '' ) {
-
-	// Bail if taxonomy is not forum mod
-	if ( bbp_get_forum_mod_tax_id() !== $taxonomy ) {
-		return $termlink;
-	}
-
-	// Bail if forum mods is not allowed
-	if ( ! bbp_allow_forum_mods() ) {
-		return $termlink;
-	}
-
-	// Get user ID from taxonomy term
-	$user_id = bbp_get_term_taxonomy_user_id( $term->term_id, bbp_get_forum_mod_tax_id() );
-
-	if ( is_admin() ) {
-
-		// Get the moderator's display name
-		$display_name = get_userdata( $user_id )->display_name;
-		$user_link    = get_edit_user_link( $user_id );
-
-		// Link or name only
-		if ( ! empty( $user_link ) ) {
-			$retval = '<a href="' . esc_url( $user_link ) . '">' . esc_html( $display_name ) . '</a>';
-
-		// Can't edit
-		} else {
-			$retval = $display_name;
-		}
-
-	// Theme side term link
-	} else {
-		$retval = bbp_get_user_profile_link( $user_id );
-	}
-
-	return $retval;
 }
 
 /** Permissions ***************************************************************/

@@ -392,35 +392,6 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
-		/** Stickies **********************************************************/
-
-		// Sticky check after 'bbp_new_topic' action so forum ID meta is set
-		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
-
-			// What's the caps?
-			if ( current_user_can( 'moderate', $topic_id ) ) {
-
-				// What's the haps?
-				switch ( $_POST['bbp_stick_topic'] ) {
-
-					// Sticky in this forum
-					case 'stick'   :
-						bbp_stick_topic( $topic_id );
-						break;
-
-					// Super sticky in all forums
-					case 'super'   :
-						bbp_stick_topic( $topic_id, true );
-						break;
-
-					// We can avoid this as it is a new topic
-					case 'unstick' :
-					default        :
-						break;
-				}
-			}
-		}
-
 		/** Additional Actions (After Save) ***********************************/
 
 		do_action( 'bbp_new_topic_post_extras', $topic_id );
@@ -760,39 +731,6 @@ function bbp_edit_topic_handler( $action = '' ) {
 			bbp_move_topic_handler( $topic_id, $topic->post_parent, $forum_id );
 		}
 
-		/** Stickies **********************************************************/
-
-		// Get the topic types
-		$topic_types = bbp_get_topic_types( $topic_id );
-
-		// Maybe sticky
-		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ) ) ) {
-
-			// What's the caps?
-			if ( current_user_can( 'moderate', $topic_id ) ) {
-
-				// What's the haps?
-				switch ( $_POST['bbp_stick_topic'] ) {
-
-					// Sticky in forum
-					case 'stick'   :
-						bbp_stick_topic( $topic_id );
-						break;
-
-					// Sticky in all forums
-					case 'super'   :
-						bbp_stick_topic( $topic_id, true );
-						break;
-
-					// Normal
-					case 'unstick' :
-					default        :
-						bbp_unstick_topic( $topic_id );
-						break;
-				}
-			}
-		}
-
 		/** Additional Actions (After Save) ***********************************/
 
 		do_action( 'bbp_edit_topic_post_extras', $topic_id );
@@ -878,6 +816,36 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	// Check forum_id
 	if ( empty( $forum_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
+	}
+
+	// Get the topic types
+	$topic_types = bbp_get_topic_types( $topic_id );
+
+	// Sticky check after 'bbp_new_topic' action so forum ID meta is set
+	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ) ) ) {
+
+		// What's the caps?
+		if ( current_user_can( 'moderate', $topic_id ) ) {
+
+			// What's the haps?
+			switch ( $_POST['bbp_stick_topic'] ) {
+
+				// Sticky in this forum
+				case 'stick'   :
+					bbp_stick_topic( $topic_id );
+					break;
+
+				// Super sticky in all forums
+				case 'super'   :
+					bbp_stick_topic( $topic_id, true );
+					break;
+
+				// We can avoid this as it is a new topic
+				case 'unstick' :
+				default        :
+					break;
+			}
+		}
 	}
 
 	// If anonymous post, store name, email, website and ip in post_meta.

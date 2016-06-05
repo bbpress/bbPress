@@ -130,72 +130,44 @@ new BBP_Skip_Children();
  * Will call to clean the term object cache associated with the post ID.
  *
  * @since 2.1.0 bbPress (r4040)
- * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  *
- * @param int     $post_id The post id.
- * @param WP_Post $post    The WP_Post object.
- *
- * @uses get_post() To get the post object.
- * @uses bbp_get_forum_post_type() To get the forum post type.
- * @uses bbp_get_topic_post_type() To get the topic post type.
- * @uses bbp_get_reply_post_type() To get the reply post type.
- * @uses wp_cache_delete() To delete the cache item.
- * @uses clean_object_term_cache() To clean the term cache.
- * @uses bbp_clean_post_cache() Recursion.
  * @uses do_action() Calls 'bbp_clean_post_cache' on $id
- *
- * @return void
+ * @param object|int $_post The post object or ID to remove from the cache
  */
-function bbp_clean_post_cache( $post_id = null, $post = null ) {
+function bbp_clean_post_cache( $_post = '' ) {
 
-	// Get the post object.
-	if ( null !== $post ) {
-		$post = get_post( $post );
-	} else {
-		$post = get_post( $post_id );
-	}
-
-	// Bail if no post.
-	if ( empty( $post ) ) {
+	// Bail if no post
+	$_post = get_post( $_post );
+	if ( empty( $_post ) ) {
 		return;
 	}
 
-	// Child query types to clean.
+	// Child query types to clean
 	$post_types = array(
 		bbp_get_forum_post_type(),
 		bbp_get_topic_post_type(),
-		bbp_get_reply_post_type(),
+		bbp_get_reply_post_type()
 	);
 
-	// Bail if not a bbPress post type.
-	if ( ! in_array( $post->post_type, $post_types, true ) ) {
+	// Bail if not a bbPress post type
+	if ( ! in_array( $_post->post_type, $post_types, true ) ) {
 		return;
 	}
 
-	// Be sure we haven't recached the post data.
-	wp_cache_delete( $post->ID, 'posts'     );
-	wp_cache_delete( $post->ID, 'post_meta' );
+	wp_cache_delete( $_post->ID, 'posts'     );
+	wp_cache_delete( $_post->ID, 'post_meta' );
 
-	// Clean the term cache for the given post.
-	clean_object_term_cache( $post->ID, $post->post_type );
+	clean_object_term_cache( $_post->ID, $_post->post_type );
 
-	// Loop through query types and clean caches.
+	do_action( 'bbp_clean_post_cache', $_post->ID, $_post );
+
+	// Loop through query types and clean caches
 	foreach ( $post_types as $post_type ) {
-		wp_cache_delete( 'bbp_parent_all_'    . $post->ID . '_type_' . $post_type . '_child_ids',     'bbpress_posts' );
+		wp_cache_delete( 'bbp_parent_all_'    . $_post->ID . '_type_' . $post_type . '_child_ids',     'bbpress_posts' );
 	}
 
-	/**
-	 * Fires immediately after the given post's cache is cleaned.
-	 *
-	 * @since 2.1.0
-	 *
-	 * @param int     $post_id Post ID.
-	 * @param WP_Post $post    Post object.
-	 */
-	do_action( 'bbp_clean_post_cache', $post->ID, $post );
-
-	// Invalidate parent caches.
-	if ( ! empty( $post->post_parent ) ) {
-		bbp_clean_post_cache( $post->post_parent );
+	// Invalidate parent caches
+	if ( ! empty( $_post->post_parent ) ) {
+		bbp_clean_post_cache( $_post->post_parent );
 	}
 }

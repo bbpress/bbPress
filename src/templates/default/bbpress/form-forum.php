@@ -90,13 +90,13 @@ if ( bbp_is_forum_edit() ) : ?>
 
 					<?php endif; ?>
 
-					<?php if ( bbp_allow_forum_mods() && current_user_can( 'assign_forum_mods' ) ) : ?>
+					<?php if ( bbp_allow_forum_mods() && current_user_can( 'assign_moderators' ) ) : ?>
 
 						<?php do_action( 'bbp_theme_before_forum_form_mods' ); ?>
 
 						<p>
-							<label for="bbp_forum_mods"><?php esc_html_e( 'Forum Moderators:', 'bbpress' ); ?></label><br />
-							<input type="text" value="<?php bbp_form_forum_mods(); ?>" size="40" name="bbp_forum_mods" id="bbp_forum_mods" />
+							<label for="bbp_moderators"><?php esc_html_e( 'Forum Moderators:', 'bbpress' ); ?></label><br />
+							<input type="text" value="<?php bbp_form_forum_moderators(); ?>" size="40" name="bbp_moderators" id="bbp_moderators" />
 						</p>
 
 						<?php do_action( 'bbp_theme_after_forum_form_mods' ); ?>

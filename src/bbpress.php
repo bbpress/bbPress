@@ -226,7 +226,6 @@ final class bbPress {
 
 		// Post type identifiers
 		$this->forum_post_type   = apply_filters( 'bbp_forum_post_type',  'forum'     );
-		$this->forum_mod_tax_id  = apply_filters( 'bbp_forum_mod_tax_id', 'forum-mod' );
 		$this->topic_post_type   = apply_filters( 'bbp_topic_post_type',  'topic'     );
 		$this->topic_tag_tax_id  = apply_filters( 'bbp_topic_tag_tax_id', 'topic-tag' );
 		$this->reply_post_type   = apply_filters( 'bbp_reply_post_type',  'reply'     );
@@ -662,7 +661,6 @@ final class bbPress {
 	 * Register the topic tag and forum moderator taxonomies
 	 *
 	 * @since 2.0.0 bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
-	 * @since 2.6.0 bbPress (r5834) Added bbp_get_forum_mod_tax_id() taxonomy
 	 *
 	 * @uses register_taxonomy() To register the taxonomy
 	 * @uses bbp_get_topic_post_type() To get the topic post type
@@ -672,9 +670,6 @@ final class bbPress {
 	 * @uses bbp_allow_topic_tags() To check if topic tags are allowed
 	 * @uses current_user_can() To check if the current user can edit/delete tags
 	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_forum_mod_tax_labels() To get the forum moderator taxonomy label
-	 * @uses bbp_get_forum_mod_caps() To check the forum moderator capabilities
-	 * @uses bbp_allow_forum_mods() To check if forum moderators are allowed
 	 * @uses current_user_can() To check if the current user can edit/delete forums
 	 */
 	public static function register_taxonomies() {
@@ -694,24 +689,6 @@ final class bbPress {
 				'show_in_nav_menus'     => false,
 				'public'                => true,
 				'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
-			)
-		) );
-
-		// Register the forum-mod taxonomy.
-		register_taxonomy(
-			bbp_get_forum_mod_tax_id(),
-			bbp_get_forum_post_type(),
-			apply_filters( 'bbp_register_forum_moderator_taxonomy', array(
-				'labels'                => bbp_get_forum_mod_tax_labels(),
-				'capabilities'          => bbp_get_forum_mod_caps(),
-				'update_count_callback' => '_update_post_term_count',
-				'query_var'             => false,
-				'show_tagcloud'         => true,
-				'hierarchical'          => false,
-				'show_in_menu'          => true,
-				'show_in_nav_menus'     => false,
-				'public'                => false,
-				'show_ui'               => bbp_allow_forum_mods() && current_user_can( 'bbp_forum_mods_admin' ),
 			)
 		) );
 	}

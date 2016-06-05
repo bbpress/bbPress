@@ -72,16 +72,14 @@ class BBP_Topics_Admin {
 		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
 		// Topic metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'author_metabox'     ) );
+		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'    ) );
+		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_topic_notice' ) );
-
-		// Metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'author_metabox'  ) );
-		add_action( 'add_meta_boxes', array( $this, 'replies_metabox' ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -265,7 +263,7 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		add_meta_box (
+		add_meta_box(
 			'bbp_topic_attributes',
 			__( 'Topic Attributes', 'bbpress' ),
 			'bbp_topic_metabox',
@@ -289,7 +287,7 @@ class BBP_Topics_Admin {
 	 *                    topic id and parent id
 	 * @return int Parent id
 	 */
-	public function attributes_metabox_save( $topic_id ) {
+	public function save_meta_boxes( $topic_id ) {
 
 		if ( $this->bail() ) {
 			return $topic_id;
@@ -325,30 +323,6 @@ class BBP_Topics_Admin {
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
-
-		// Stickies
-		if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
-
-			// What's the haps?
-			switch ( $_POST['bbp_stick_topic'] ) {
-
-				// Sticky in this forum
-				case 'stick'   :
-					bbp_stick_topic( $topic_id );
-					break;
-
-				// Super sticky in all forums
-				case 'super'   :
-					bbp_stick_topic( $topic_id, true );
-					break;
-
-				// Normal
-				case 'unstick' :
-				default        :
-					bbp_unstick_topic( $topic_id );
-					break;
-			}
-		}
 
 		// Allow other fun things to happen
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id       );

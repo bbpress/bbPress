@@ -183,127 +183,18 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		case 'bbp_forums_admin' :
 			$caps = array( 'keep_gate' );
 			break;
-
-		// Forum moderator admin area.
-		case 'bbp_forum_mods_admin' :
-			$caps = array( 'keep_gate' );
-			break;
 	}
 
 	return apply_filters( 'bbp_map_forum_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**
- * Return forum moderator capabilities
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @uses apply_filters() Calls 'bbp_get_forum_mod_caps' with the capabilities
- *
- * @return array Forum mod capabilities.
- */
-function bbp_get_forum_mod_caps() {
-	return apply_filters( 'bbp_get_forum_mod_caps', array(
-		'manage_terms' => 'keep_gate',
-		'edit_terms'   => 'keep_gate',
-		'delete_terms' => 'keep_gate',
-		'assign_terms' => 'keep_gate',
-	) );
-}
-
-/**
- * Maps forum moderator capabilities
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @param array  $caps Capabilities for meta capability.
- * @param string $cap Capability name.
- * @param int    $user_id User id.
- * @param mixed  $args Arguments.
- * @uses apply_filters() Filter capabilities map results.
- *
- * @return array Actual capabilities for meta capability.
- */
-function bbp_map_forum_mod_meta_caps( $caps, $cap, $user_id, $args ) {
-
-	// What capability is being checked?
-	switch ( $cap ) {
-		case 'manage_forum_mods'    :
-		case 'edit_forum_mods'      :
-		case 'delete_forum_mods'    :
-		case 'assign_forum_mods'    :
-		case 'bbp_forum_mods_admin' :
-
-			// Key Masters can always edit.
-			if ( user_can( $user_id, 'keep_gate' ) ) {
-				$caps = array( 'keep_gate' );
-			}
-	}
-
-	return apply_filters( 'bbp_map_forum_mod_meta_caps', $caps, $cap, $user_id, $args );
-}
-
-/**
- * Get moderators of a forum
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @param int $forum_id Forum id.
- * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_is_forum() To make sure it is a forum
- * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy
- * @uses bbp_get_forum_mods() To get the forum's moderator terms
- * @uses bbp_get_term_taxonomy_user_id() To convert terms to user ids
- *
- * @return boolean|array Return false on error or empty, or array of user ids
- */
-function bbp_get_forum_moderator_ids( $forum_id = 0 ) {
-
-	// Bail if no forum ID.
-	$forum_id = bbp_get_forum_id( $forum_id );
-	if ( empty( $forum_id ) ) {
-		return false;
-	}
-
-	// Bail if forum does not exist.
-	if ( ! bbp_is_forum( $forum_id ) ) {
-		return false;
-	}
-
-	// Get forum taxonomy terms.
-	$terms = bbp_get_forum_mods( $forum_id );
-
-	// Bail if no terms found.
-	if ( empty( $terms ) ) {
-		return false;
-	}
-
-	// Setup default values
-	$term_ids      = wp_parse_id_list( $terms );
-	$taxonomy      = bbp_get_forum_mod_tax_id();
-	$moderator_ids = array();
-
-	// Convert term ids to user ids.
-	foreach ( $term_ids as $term_id ) {
-		$moderator_ids[] = bbp_get_term_taxonomy_user_id( $term_id, $taxonomy );
-	}
-
-	// Remove empties
-	$retval = wp_parse_id_list( array_filter( $moderator_ids ) );
-
-	// Filter & return
-	return apply_filters( 'bbp_get_forum_moderator_ids', $retval, $forum_id );
-}
-
-/**
- * Get forums of a moderator
+ * Get array of forum IDs that a user can moderate
  *
  * @since 2.6.0 bbPress (r5834)
  *
  * @param int $user_id User id.
  * @uses get_userdata() To get the user object
- * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy
- * @uses bbp_get_user_taxonomy_term_id() To get the user taxonomy term id
  * @uses get_term_by() To get the term id
  * @uses get_objects_in_term() Get the forums the user moderates
  * @uses is_wp_error() To check for errors
@@ -313,43 +204,35 @@ function bbp_get_forum_moderator_ids( $forum_id = 0 ) {
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 
+	// Default return value
+	$retval = $forums = array();
+
 	// Bail if no user ID.
 	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	if ( ! empty( $user_id ) ) {
 
-	// Bail if user does not exist.
-	$user = get_userdata( $user_id );
-	if ( empty( $user ) ) {
-		return false;
-	}
+		// Bail if user does not exist.
+		$user = get_userdata( $user_id );
+		if ( ! empty( $user ) ) {
 
-	// Convert user id to term id.
-	$taxonomy = bbp_get_forum_mod_tax_id();
-	$term_id  = bbp_get_user_taxonomy_term_id( $user_id, $taxonomy );
+			// Get the forums this user can moderate
+			$forums = get_posts( array(
+				'post_type'   => bbp_get_forum_post_type(),
+				'meta_key'    => '_bbp_moderator_id',
+				'meta_type'   => 'NUMERIC',
+				'meta_value'  => $user_id,
+				'numberposts' => -1
+			) );
 
-	// Get moderator forums.
-	$forums   = get_objects_in_term( $term_id, $taxonomy );
-
-	// Forums found.
-	if ( empty( $forums ) || is_wp_error( $forums ) ) {
-		return false;
-	}
-
-	// Make sure the ids returned are forums.
-	$forum_ids = array();
-	foreach ( $forums as $forum_id ) {
-		if ( bbp_is_forum( $forum_id ) ) {
-			$forum_ids[] = $forum_id;
+			// Pluck IDs
+			if ( ! empty( $forums ) ) {
+				$retval = wp_list_pluck( $forums, 'ID' );
+			}
 		}
 	}
 
-	// Remove empties
-	$retval = wp_parse_id_list( array_filter( $forum_ids ) );
-
 	// Filter & return
-	return apply_filters( 'bbp_get_moderator_forum_ids', $retval, $user_id );
+	return (array) apply_filters( 'bbp_get_moderator_forum_ids', $retval, $user_id, $forums );
 }
 
 /**
@@ -362,11 +245,11 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  * @uses bbp_get_user_id()
  * @uses bbp_get_forum_id()
  * @uses bbp_get_moderator_forum_ids()
- * @uses apply_filters() Calls 'bbp_is_user_forum_mod' with the forums
+ * @uses apply_filters() Calls 'bbp_is_user_forum_moderator' with the forums
  *
  * @return bool Return true if user is moderator of forum
  */
-function bbp_is_user_forum_mod( $user_id = 0, $forum_id = 0 ) {
+function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 
 	// Assume user cannot moderate the forum.
 	$retval    = false;
@@ -383,5 +266,5 @@ function bbp_is_user_forum_mod( $user_id = 0, $forum_id = 0 ) {
 		$retval = in_array( $forum_id, $forum_ids );
 	}
 
-	return (bool) apply_filters( 'bbp_is_user_forum_mod', $retval, $user_id, $forum_id, $forum_ids );
+	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id, $forum_ids );
 }

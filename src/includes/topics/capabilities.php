@@ -58,7 +58,7 @@ function bbp_get_topic_tag_caps() {
  * @uses get_post() To get the post
  * @uses get_post_type_object() To get the post type object
  * @uses bbp_get_public_status_id() To get the  public status id
- * @uses bbp_is_user_forum_mod() To check if the user is a forum moderator
+ * @uses bbp_is_user_forum_moderator() To check if the user is a forum moderator
  * @uses bbp_get_topic_forum_id() To get the opic forum id
  * @uses apply_filters() Filter capability map results
  *
@@ -155,7 +155,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				} else {
 
 					// If user is a per-forum moderator, make sure they can spectate.
-					if ( bbp_is_user_forum_mod( $user_id, bbp_get_topic_forum_id( $_post->ID ) ) ) {
+					if ( bbp_is_user_forum_moderator( $user_id, bbp_get_topic_forum_id( $_post->ID ) ) ) {
 						$caps = array( 'spectate' );
 
 					// Fallback to edit_others_posts.

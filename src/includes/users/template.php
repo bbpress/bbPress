@@ -2109,3 +2109,66 @@ function bbp_current_user_can_access_anonymous_user_form() {
 	// Allow access to be filtered
 	return (bool) apply_filters( 'bbp_current_user_can_access_anonymous_user_form', (bool) $retval );
 }
+
+/** Moderators ****************************************************************/
+
+/**
+ * Output the moderators of a forum
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param int   $forum_id Optional. Topic id
+ * @param array $args     See {@link bbp_get_moderator_list()}
+ * @uses bbp_get_moderator_list() To get the moderator list
+ */
+function bbp_moderator_list( $forum_id = 0, $args = array() ) {
+	echo bbp_get_moderator_list( $forum_id, $args );
+}
+
+	/**
+	 * Return the moderators for an object
+	 *
+	 * @since 2.6.0 bbPress
+	 *
+	 * @param int   $object_id Optional. Object id
+	 * @param array $args     This function supports these arguments:
+	 *  - before: Before the tag list
+	 *  - sep: Tag separator
+	 *  - after: After the tag list
+	 *
+	 * @return string Moderator list of the object
+	 */
+	function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
+
+		// Parse arguments against default values
+		$r = bbp_parse_args( $args, array(
+			'before' => '<div class="bbp-moderators"><p>' . esc_html__( 'Moderators:', 'bbpress' ) . '&nbsp;',
+			'sep'    => ', ',
+			'after'  => '</p></div>',
+			'none'   => ''
+		), 'get_moderator_list' );
+
+		// Get forum moderators
+		$user_ids = bbp_get_moderator_ids( $object_id );
+		if ( ! empty( $user_ids ) ) {
+
+			// In admin, use nicenames
+			if ( is_admin() ) {
+				$users = bbp_get_user_nicenames_from_ids( $user_ids );
+
+			// In theme, use display names & profile links
+			} else {
+				foreach ( $user_ids as $user_id ) {
+					$users[] = bbp_get_user_profile_link( $user_id );
+				}
+			}
+
+			$retval = $r['before'] . implode( $r['sep'], $users ) . $r['after'];
+
+		// No forum moderators
+		} else {
+			$retval = $r['none'];
+		}
+
+		return apply_filters( 'bbp_get_moderator_list', $retval );
+	}

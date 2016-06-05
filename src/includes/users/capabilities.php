@@ -25,7 +25,7 @@
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses bbp_is_user_forum_mod() To check if the user is a forum moderator
+ * @uses bbp_is_user_forum_moderator() To check if the user is a forum moderator
  * @uses apply_filters() Filter mapped results
  *
  * @return array Actual capabilities for meta capability
@@ -109,7 +109,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 				}
 
 				// If user is a per-forum moderator, make sure they can spectate.
-				if ( bbp_is_user_forum_mod( $user_id, $forum_id ) ) {
+				if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) ) {
 					$caps = array( 'spectate' );
 				}
 			}
@@ -796,4 +796,75 @@ function bbp_user_has_profile( $user_id = 0 ) {
 
 	// Filter and return
 	return (bool) apply_filters( 'bbp_show_user_profile', $retval, $user_id );
+}
+
+/** Moderators ****************************************************************/
+
+/**
+ * Add a moderator to an object
+ *
+ * @since 2.6.0 bbPRess
+ *
+ * @param int $object_id Traditionally a forum ID, but could be useful
+ * @param int $user_id
+ *
+ * @return @mixed
+ */
+function bbp_add_moderator( $object_id = 0, $user_id = 0 ) {
+	return add_post_meta( $object_id, '_bbp_moderator_id', $user_id );
+}
+
+/**
+ * Remove a moderator user ID from an object
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param int $object_id
+ * @param int $user_id
+ *
+ * @return mixed
+ */
+function bbp_remove_moderator( $object_id = 0, $user_id = 0 ) {
+	return delete_post_meta( $object_id, '_bbp_moderator_id', $user_id );
+}
+
+/**
+ * Get user IDs of moderators for an object
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param int $object_id
+ *
+ * @return mixed
+ */
+function bbp_get_moderator_ids( $object_id = 0 ) {
+	return get_post_meta( $object_id, '_bbp_moderator_id', false );
+}
+
+/**
+ * Get moderators for a specific object ID. Will return global moderators when
+ * object ID is empty.
+ *
+ * @since 2.6.0 bbPress
+ *
+ * @param int $object_id
+ *
+ * @return array
+ */
+function bbp_get_moderators( $object_id = 0 ) {
+
+	// Get global moderators
+	if ( empty( $object_id ) ) {
+		$users = get_users( array(
+			'role__in' => bbp_get_moderator_role(),
+		) );
+
+	// Get object moderators
+	} else {
+		$users = get_users( array(
+			'include' => bbp_get_moderator_ids( $object_id ),
+		) );
+	}
+
+	return apply_filters( 'bbp_get_moderators', $users, $object_id );
 }

@@ -846,10 +846,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	 *
 	 * @param string $moderation List of moderation keys. One per new line.
 	 */
-	$moderation = apply_filters(
-		'bbp_moderation_keys',
-		trim( get_option( 'moderation_keys' )
-	) );
+	$moderation = apply_filters( 'bbp_moderation_keys', trim( get_option( 'moderation_keys' ) ) );
 
 	// Bail if blacklist is empty
 	if ( empty( $moderation ) ) {
@@ -1689,7 +1686,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @param int $  parent_id  Parent id
+ * @param int $parent_id  Parent id
  * @param string $post_type Post type. Defaults to 'post'
  * @uses wp_cache_get() To check if there is a cache of the children
  * @uses bbp_get_public_status_id() To get the public status id

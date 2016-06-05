@@ -40,7 +40,7 @@ function bbp_get_reply_caps() {
  * @uses get_post() To get the post
  * @uses get_post_type_object() To get the post type object
  * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_is_user_forum_mod() To check if the user is a forum moderator
+ * @uses bbp_is_user_forum_moderator() To check if the user is a forum moderator
  * @uses bbp_get_reply_forum_id() To get the repliy forum id
  * @uses apply_filters() Filter mapped results
  *
@@ -134,7 +134,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = $post_type->cap->edit_posts;
 
 				// User is a per-forum moderator, make sure they can spectate.
-				} elseif ( bbp_allow_forum_mods() && bbp_is_user_forum_mod( $user_id, bbp_get_reply_forum_id( $_post->ID ) ) ) {
+				} elseif ( bbp_allow_forum_mods() && bbp_is_user_forum_moderator( $user_id, bbp_get_reply_forum_id( $_post->ID ) ) ) {
 					$caps = array( 'spectate' );
 
 				// Fallback to edit_others_posts.

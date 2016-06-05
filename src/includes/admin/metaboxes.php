@@ -645,3 +645,31 @@ function bbp_author_metabox() {
 
 	do_action( 'bbp_author_metabox', $post_id );
 }
+
+/**
+ * Moderator assignment metabox
+ *
+ * @since 2.6.0 bbPress (r2828)
+ *
+ * @uses get_the_ID() To get the global post ID
+ * @uses get_post_meta() To get the author user information
+ */
+function bbp_moderator_assignment_metabox() {
+
+	// Post ID
+	$object_id      = get_the_ID();
+	$user_ids       = bbp_get_moderator_ids( $object_id );
+	$user_nicenames = bbp_get_user_nicenames_from_ids( $user_ids );
+	$moderators     = ! empty( $user_nicenames )
+		? implode( ', ', array_map( 'esc_attr', $user_nicenames ) )
+		: ''; ?>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_moderators"><?php esc_html_e( 'Moderators', 'bbpress' ); ?></label>
+		<input type="text" id="bbp_moderators" name="bbp_moderators" value="<?php echo esc_attr( $moderators ); ?>" />
+	</p>
+
+	<?php
+
+	do_action( 'bbp_moderator_assignment_metabox', $object_id );
+}

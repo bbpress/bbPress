@@ -72,15 +72,13 @@ class BBP_Replies_Admin {
 		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
 		// Reply metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'author_metabox'     ) );
+		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_reply'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_reply_notice' ) );
-
-		// Anonymous metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'author_metabox'      ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -263,7 +261,7 @@ class BBP_Replies_Admin {
 			return;
 		}
 
-		add_meta_box (
+		add_meta_box(
 			'bbp_reply_attributes',
 			__( 'Reply Attributes', 'bbpress' ),
 			'bbp_reply_metabox',
@@ -287,7 +285,7 @@ class BBP_Replies_Admin {
 	 *                    reply id and parent id
 	 * @return int Parent id
 	 */
-	public function attributes_metabox_save( $reply_id ) {
+	public function save_meta_boxes( $reply_id ) {
 
 		if ( $this->bail() ) {
 			return $reply_id;

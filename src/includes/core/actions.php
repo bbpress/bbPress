@@ -340,7 +340,7 @@ add_action( 'bbp_new_reply_pre_extras',  'bbp_clean_post_cache' );
 add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
 
 // Clean bbPress post caches when WordPress's is cleaned
-add_action( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
+add_action( 'clean_post_cache', 'bbp_clean_post_cache' );
 
 /**
  * bbPress needs to redirect the user around in a few different circumstances:

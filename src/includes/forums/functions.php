@@ -137,7 +137,6 @@ function bbp_new_forum_handler( $action = '' ) {
 	$view_all = $anonymous_data = false;
 	$forum_parent_id = $forum_author = 0;
 	$forum_title = $forum_content = '';
-	$terms = array( bbp_get_forum_mod_tax_id() => array() );
 
 	/** Forum Author **********************************************************/
 
@@ -248,22 +247,6 @@ function bbp_new_forum_handler( $action = '' ) {
 		$post_status = bbp_get_pending_status_id();
 	}
 
-	/** Forum Mods ************************************************************/
-
-	if ( bbp_allow_forum_mods() && ! empty( $_POST['bbp_forum_mods'] ) ) {
-
-		// Escape tag input
-		$terms = sanitize_text_field( $_POST['bbp_forum_mods'] );
-
-		// Explode by comma
-		if ( strstr( $terms, ',' ) ) {
-			$terms = explode( ',', $terms );
-		}
-
-		// Add forum_mod ID as main key
-		$terms = array( bbp_get_forum_mod_tax_id() => $terms );
-	}
-
 	/** Additional Actions (Before Save) **************************************/
 
 	do_action( 'bbp_new_forum_pre_extras', $forum_parent_id );
@@ -284,7 +267,6 @@ function bbp_new_forum_handler( $action = '' ) {
 		'post_parent'    => $forum_parent_id,
 		'post_status'    => $post_status,
 		'post_type'      => bbp_get_forum_post_type(),
-		'tax_input'      => $terms,
 		'comment_status' => 'closed'
 	) );
 
@@ -521,31 +503,6 @@ function bbp_edit_forum_handler( $action = '' ) {
 		$post_status = bbp_get_pending_status_id();
 	}
 
-	/** Forum Mods ************************************************************/
-
-	// Either replace terms
-	if ( bbp_allow_forum_mods() && current_user_can( 'assign_forum_mods' ) && ! empty( $_POST['bbp_forum_mods'] ) ) {
-
-		// Escape tag input
-		$terms = sanitize_text_field( $_POST['bbp_forum_mods'] );
-
-		// Explode by comma
-		if ( strstr( $terms, ',' ) ) {
-			$terms = explode( ',', $terms );
-		}
-
-		// Add forum mod ID as main key
-		$terms = array( bbp_get_forum_mod_tax_id() => $terms );
-
-	// ...or remove them.
-	} elseif ( isset( $_POST['bbp_forum_mods'] ) ) {
-		$terms = array( bbp_get_forum_mod_tax_id() => array() );
-
-	// Existing terms
-	} else {
-		$terms = array( bbp_get_forum_mod_tax_id() => explode( ',', bbp_get_forum_mod_names( $forum_id, ',' ) ) );
-	}
-
 	/** Additional Actions (Before Save) **************************************/
 
 	do_action( 'bbp_edit_forum_pre_extras', $forum_id );
@@ -743,6 +700,40 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		 * @param string $new_visibility The new forum visibility
 		 */
 		do_action( 'bbp_update_forum_visibility', $forum_id, $old_visibility, $new_visibility );
+	}
+
+	/** Forum Moderators ******************************************************/
+
+	// Either replace terms
+	if ( bbp_allow_forum_mods() ) {
+		if ( current_user_can( 'assign_moderators' ) && ! empty( $_POST['bbp_moderators'] ) ) {
+
+			// Escape tag input
+			$users = sanitize_text_field( $_POST['bbp_moderators'] );
+
+			// Explode by comma
+			$users = strstr( $users, ',' )
+				? explode( ',', $users )
+				: (array) $users;
+
+			$user_ids = bbp_get_user_ids_from_nicenames( $users );
+
+			// Update forum moderators
+			if ( ! empty( $user_ids ) ) {
+
+				// Remove all moderators
+				bbp_remove_moderator( $forum_id, null );
+
+				// Add moderators
+				foreach ( $user_ids as $user_id ) {
+					bbp_add_moderator( $forum_id, $user_id );
+				}
+			}
+
+		// ...or remove them.
+		} elseif ( isset( $_POST['bbp_moderators'] ) ) {
+			bbp_remove_moderator( $forum_id, null );
+		}
 	}
 }
 
@@ -1984,43 +1975,6 @@ function bbp_update_forum( $args = array() ) {
 			'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
 		) );
 	}
-}
-
-/** Forum Mods ****************************************************************/
-
-/**
- * Get forum mods for a specific forum ID
- *
- * @since 2.6.0 bbPress (r5836)
- *
- * @param int $forum_id
- *
- * @return string
- */
-function bbp_get_forum_mods( $forum_id = 0 ) {
-	$forum_id   = bbp_get_forum_id( $forum_id );
-	$terms      = (array) get_the_terms( $forum_id, bbp_get_forum_mod_tax_id() );
-	$forum_mods = array_filter( $terms );
-
-	return apply_filters( 'bbp_get_forum_mods', $forum_mods, $forum_id );
-}
-
-/**
- * Get forum mods for a specific forum ID
- *
- * @since 2.2.0 bbPress (r4165)
- *
- * @param int    $forum_id
- * @param string $sep
- *
- * @return string
- */
-function bbp_get_forum_mod_names( $forum_id = 0, $sep = ', ' ) {
-	$forum_mods = bbp_get_forum_mods( $forum_id );
-	$pluck      = wp_list_pluck( $forum_mods, 'name' );
-	$terms      = ! empty( $pluck ) ? implode( $sep, $pluck ) : '';
-
-	return apply_filters( 'bbp_get_forum_mod_names', $terms, $forum_id, $sep );
 }
 
 /** Helpers *******************************************************************/

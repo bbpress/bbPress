@@ -46,6 +46,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'moderate'              => true,
 				'throttle'              => true,
 				'view_trash'            => true,
+				'assign_moderators'     => true,
 
 				// Forum caps
 				'publish_forums'        => true,
@@ -91,6 +92,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'moderate'              => true,
 				'throttle'              => true,
 				'view_trash'            => true,
+				'assign_moderators'     => true,
 
 				// Forum caps
 				'publish_forums'        => true,

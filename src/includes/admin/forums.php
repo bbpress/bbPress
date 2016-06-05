@@ -72,15 +72,13 @@ class BBP_Forums_Admin {
 		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
 
 		// Metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'moderators_metabox' ) );
+		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
 
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_forum'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_forum_notice' ) );
-
-		// Forum moderators AJAX; run at -1 to preempt built-in tag search
-		add_action( 'wp_ajax_ajax-tag-search', array( $this, 'ajax_tag_search'         ), -1 );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
@@ -257,7 +255,8 @@ class BBP_Forums_Admin {
 			return;
 		}
 
-		add_meta_box (
+		// Meta data
+		add_meta_box(
 			'bbp_forum_attributes',
 			__( 'Forum Attributes', 'bbpress' ),
 			'bbp_forum_metabox',
@@ -270,76 +269,36 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Return user nicename suggestions instead of tag suggestions
+	 * Add the forum moderators metabox
 	 *
-	 * @since 2.6.0 bbPress (r5834)
+	 * @since 2.6.0 bbPress
 	 *
-	 * @uses bbp_get_forum_mod_tax_id() To get the forum moderator taxonomy id
-	 * @uses sanitize_key() To sanitize the taxonomy id
-	 * @uses get_taxonomy() To get the forum moderator taxonomy
-	 * @uses current_user_can() To check if the current user add/edit forum moderators
-	 * @uses get_users() To get an array of users
-	 * @uses user_nicename() To get the users nice name
-	 *
-	 * @return Return early if not a request for forum moderators tax
+	 * @uses bbp_get_forum_post_type() To get the forum post type
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
-	public function ajax_tag_search() {
+	public function moderators_metabox() {
 
-		// Only do AJAX if this is a forum moderators tax search.
-		if ( ! isset( $_GET['tax'] ) || ( bbp_get_forum_mod_tax_id() !== $_GET['tax'] ) ) {
+		if ( $this->bail() ) {
 			return;
 		}
 
-		$taxonomy = sanitize_key( $_GET['tax'] );
-		$tax      = get_taxonomy( $taxonomy );
-		if ( empty( $tax ) ) {
-			wp_die( 0 );
+		// Bail if feature not active or user cannot assign moderators
+		if ( ! bbp_allow_forum_mods() || ! current_user_can( 'assign_moderators' ) ) {
+			return;
 		}
 
-		// Check permissions.
-		if ( ! current_user_can( $tax->cap->assign_terms ) ) {
-			wp_die( -1 );
-		}
+		// Moderators
+		add_meta_box(
+			'bbp_moderator_assignment_metabox',
+			__( 'Forum Moderators', 'bbpress' ),
+			'bbp_moderator_assignment_metabox',
+			$this->post_type,
+			'side',
+			'high'
+		);
 
-		$s = stripslashes( $_GET['q'] );
-
-		// Replace tag delimiter with a comma if needed.
-		$comma = _x( ',', 'tag delimiter', 'bbpress' );
-		if ( ',' !== $comma ) {
-			$s = str_replace( $comma, ',', $s );
-		}
-
-		if ( false !== strpos( $s, ',' ) ) {
-			$s = explode( ',', $s );
-			$s = $s[ count( $s ) - 1 ];
-		}
-
-		// Search on at least 2 characters.
-		$s = trim( $s );
-		if ( strlen( $s ) < 2 ) {
-			wp_die(); // Require 2 chars for matching.
-		}
-
-		// Get users.
-		$results = array();
-		$users   = get_users( array(
-			'blog_id'        => 0, // All users.
-			'fields'         => array( 'user_nicename' ),
-			'search'         => '*' . $s . '*',
-			'search_columns' => array( 'user_nicename' ),
-			'orderby'        => 'user_nicename',
-		) );
-
-		// Format the users into a nice array.
-		if ( ! empty( $users ) ) {
-			foreach ( array_values( $users ) as $details ) {
-				$results[] = $details->user_nicename;
-			}
-		}
-
-		// Echo results for AJAX.
-		echo join( $results, "\n" );
-		wp_die();
+		do_action( 'bbp_forum_moderators_metabox' );
 	}
 
 	/**
@@ -364,7 +323,7 @@ class BBP_Forums_Admin {
 	 *                    forum id
 	 * @return int Forum id
 	 */
-	public function attributes_metabox_save( $forum_id ) {
+	public function save_meta_boxes( $forum_id ) {
 
 		if ( $this->bail() ) {
 			return $forum_id;
@@ -391,17 +350,19 @@ class BBP_Forums_Admin {
 		}
 
 		// Bail if current user cannot edit this forum
-		if ( !current_user_can( 'edit_forum', $forum_id ) ) {
+		if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
 			return $forum_id;
 		}
 
 		// Parent ID
-		$parent_id = ( ! empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
+		$parent_id = ( ! empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) )
+			? (int) $_POST['parent_id']
+			: 0;
 
 		// Update the forum meta bidness
 		bbp_update_forum( array(
 			'forum_id'    => $forum_id,
-			'post_parent' => (int) $parent_id
+			'post_parent' => $parent_id
 		) );
 
 		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
@@ -437,6 +398,10 @@ class BBP_Forums_Admin {
 			strong.label {
 				display: inline-block;
 				width: 60px;
+			}
+
+			#bbp_moderators {
+				width: 100%;
 			}
 
 			#bbp_forum_attributes hr {
@@ -518,7 +483,7 @@ class BBP_Forums_Admin {
 		}
 
 		// Only proceed if GET is a forum toggle action
-		if ( bbp_is_get_request() && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) && ! empty( $_GET['forum_id'] ) ) {
+		if ( bbp_is_get_request() && ! empty( $_GET['forum_id'] ) && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
 			$forum_id  = (int) $_GET['forum_id'];    // What's the forum id?
 			$success   = false;                      // Flag
@@ -531,7 +496,7 @@ class BBP_Forums_Admin {
 			}
 
 			// What is the user doing here?
-			if ( !current_user_can( 'keep_gate', $forum->ID ) ) {
+			if ( ! current_user_can( 'keep_gate', $forum->ID ) ) {
 				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
 			}
 
@@ -653,8 +618,8 @@ class BBP_Forums_Admin {
 			'title'                 => __( 'Forum',      'bbpress' ),
 			'bbp_forum_topic_count' => __( 'Topics',     'bbpress' ),
 			'bbp_forum_reply_count' => __( 'Replies',    'bbpress' ),
-			'author'                => __( 'Creator',    'bbpress' ),
 			'bbp_forum_mods'        => __( 'Moderators', 'bbpress' ),
+			'author'                => __( 'Creator',    'bbpress' ),
 			'bbp_forum_created'     => __( 'Created' ,   'bbpress' ),
 			'bbp_forum_freshness'   => __( 'Last Post',  'bbpress' )
 		);
@@ -700,7 +665,7 @@ class BBP_Forums_Admin {
 				break;
 
 			case 'bbp_forum_mods' :
-				bbp_forum_mod_list( $forum_id, array(
+				bbp_moderator_list( $forum_id, array(
 					'before' => '',
 					'after'  => '',
 					'none'   => esc_html__( '&mdash;', 'bbpress' )
