@@ -416,6 +416,8 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  * Get the forum statistics
  *
  * @since 2.0.0 bbPress (r2769)
+ * @since 2.6.0 bbPress (r6055) Introduced the `count_pending_topics` and
+ *                               `count_pending_replies` arguments.
  *
  * @param array $args Optional. The function supports these arguments (all
  *                     default to true):
@@ -423,6 +425,8 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  *  - count_forums: Count forums?
  *  - count_topics: Count topics? If set to false, private, spammed and trashed
  *                   topics are also not counted.
+ *  - count_pending_topics: Count pending topics? (only counted if the current
+ *                           user has edit_others_topics cap)
  *  - count_private_topics: Count private topics? (only counted if the current
  *                           user has read_private_topics cap)
  *  - count_spammed_topics: Count spammed topics? (only counted if the current
@@ -431,6 +435,8 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  *                           user has view_trash cap)
  *  - count_replies: Count replies? If set to false, private, spammed and
  *                   trashed replies are also not counted.
+ *  - count_pending_replies: Count pending replies? (only counted if the current
+ *                           user has edit_others_replies cap)
  *  - count_private_replies: Count private replies? (only counted if the current
  *                           user has read_private_replies cap)
  *  - count_spammed_replies: Count spammed replies? (only counted if the current
@@ -439,7 +445,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  *                           user has view_trash cap)
  *  - count_tags: Count tags? If set to false, empty tags are also not counted
  *  - count_empty_tags: Count empty tags?
- * @uses bbp_count_users() To count the number of registered users
+ * @uses bbp_get_total_users() To count the number of registered users
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() To get the reply post type
@@ -457,10 +463,12 @@ function bbp_get_statistics( $args = array() ) {
 		'count_users'           => true,
 		'count_forums'          => true,
 		'count_topics'          => true,
+		'count_pending_topics'  => true,
 		'count_private_topics'  => true,
 		'count_spammed_topics'  => true,
 		'count_trashed_topics'  => true,
 		'count_replies'         => true,
+		'count_pending_replies' => true,
 		'count_private_replies' => true,
 		'count_spammed_replies' => true,
 		'count_trashed_replies' => true,
@@ -489,6 +497,7 @@ function bbp_get_statistics( $args = array() ) {
 	}
 
 	// Post statuses
+	$pending = bbp_get_pending_status_id();
 	$private = bbp_get_private_status_id();
 	$spam    = bbp_get_spam_status_id();
 	$trash   = bbp_get_trash_status_id();
@@ -503,6 +512,9 @@ function bbp_get_statistics( $args = array() ) {
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
+			// Pending
+			$topics['pending'] = ( ! empty( $r['count_pending_topics'] ) && current_user_can( 'edit_others_topics' ) ) ? (int) $all_topics->{$pending} : 0;
+
 			// Private
 			$topics['private'] = ( ! empty( $r['count_private_topics'] ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->{$private} : 0;
 
@@ -513,9 +525,10 @@ function bbp_get_statistics( $args = array() ) {
 			$topics['trashed'] = ( ! empty( $r['count_trashed_topics'] ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$trash}   : 0;
 
 			// Total hidden (private + spam + trash)
-			$topic_count_hidden = $topics['private'] + $topics['spammed'] + $topics['trashed'];
+			$topic_count_hidden = $topics['pending'] + $topics['private'] + $topics['spammed'] + $topics['trashed'];
 
 			// Generate the hidden topic count's title attribute
+			$topic_titles[] = ! empty( $topics['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), number_format_i18n( $topics['pending'] ) ) : '';
 			$topic_titles[] = ! empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $topics['private'] ) ) : '';
 			$topic_titles[] = ! empty( $topics['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $topics['spammed'] ) ) : '';
 			$topic_titles[] = ! empty( $topics['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $topics['trashed'] ) ) : '';
@@ -535,6 +548,9 @@ function bbp_get_statistics( $args = array() ) {
 
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
 
+			// Pending
+			$replies['pending'] = ( ! empty( $r['count_pending_replies'] ) && current_user_can( 'edit_others_replies' ) ) ? (int) $all_replies->{$pending} : 0;
+
 			// Private
 			$replies['private'] = ( ! empty( $r['count_private_replies'] ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->{$private} : 0;
 
@@ -545,9 +561,10 @@ function bbp_get_statistics( $args = array() ) {
 			$replies['trashed'] = ( ! empty( $r['count_trashed_replies'] ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$trash}   : 0;
 
 			// Total hidden (private + spam + trash)
-			$reply_count_hidden = $replies['private'] + $replies['spammed'] + $replies['trashed'];
+			$reply_count_hidden = $replies['pending'] + $replies['private'] + $replies['spammed'] + $replies['trashed'];
 
 			// Generate the hidden topic count's title attribute
+			$reply_titles[] = ! empty( $replies['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), number_format_i18n( $replies['pending'] ) ) : '';
 			$reply_titles[] = ! empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $replies['private'] ) ) : '';
 			$reply_titles[] = ! empty( $replies['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $replies['spammed'] ) ) : '';
 			$reply_titles[] = ! empty( $replies['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $replies['trashed'] ) ) : '';
