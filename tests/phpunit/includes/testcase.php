@@ -49,7 +49,13 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		parent::tearDown();
 
 		if ( is_multisite() ) {
-			$blogs = wp_get_sites();
+			// WordPress 4.6 deprecated `wp_get_sites()`, see https://core.trac.wordpress.org/changeset/37653
+			if ( bbp_get_major_wp_version() >= 4.6 ) {
+				$blogs = get_sites();
+			} else {
+				$blogs = wp_get_sites();
+			}
+
 			foreach ( $blogs as $blog ) {
 				if ( 1 !== (int) $blog['blog_id'] ) {
 					wpmu_delete_blog( $blog['blog_id'], true );
