@@ -52,7 +52,13 @@ class BBP_Users_Admin {
 		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
 
 		// WordPress user screen
-		add_action( 'restrict_manage_users',      array( $this, 'user_role_bulk_dropdown' )        );
+		// Remvove the bottom list table "change forum role" dropdown from WordPress < 4.6.
+		// See https://bbpress.trac.wordpress.org/ticket/2906.
+		if ( bbp_get_major_wp_version() < 4.6 ) {
+			add_action( 'restrict_manage_users',  array( __CLASS__, 'user_role_bulk_dropdown' )    );
+		} else {
+			add_action( 'restrict_manage_users',  array( $this, 'user_role_bulk_dropdown' )        );
+		}
 		add_filter( 'manage_users_columns',       array( $this, 'user_role_column'        )        );
 		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'           ), 10, 3 );
 
@@ -130,8 +136,17 @@ class BBP_Users_Admin {
 	 * Add bulk forums role dropdown to the WordPress users table
 	 *
 	 * @since 2.2.0 bbPress (r4360)
+	 * @since 2.6.0 bbPress (r6055) Introduced the `$which` parameter.
+	 *
+	 * @param string $which The location of the extra table nav markup: 'top' or 'bottom'.
 	 */
-	public static function user_role_bulk_dropdown() {
+	public static function user_role_bulk_dropdown( $which ) {
+
+		// Remove the bottom list table "change forum role" dropdown from WordPress < 4.6.
+		// See https://bbpress.trac.wordpress.org/ticket/2906.
+		if ( bbp_get_major_wp_version() < 4.6 ) {
+			remove_action( 'restrict_manage_users', array( __CLASS__, 'user_role_bulk_dropdown' ) );
+		}
 
 		// Bail if current user cannot promote users
 		if ( ! current_user_can( 'promote_users' ) ) {
@@ -144,15 +159,19 @@ class BBP_Users_Admin {
 		// Only keymasters can set other keymasters
 		if ( ! bbp_is_user_keymaster() ) {
 			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
-		} ?>
+		}
 
-		<label class="screen-reader-text" for="bbp-new-role"><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
-		<select name="bbp-new-role" id="bbp-new-role" style="display:inline-block; float:none;">
+		$select_id = 'bottom' === $which ? 'bbp-new-role2' : 'bbp-new-role';
+		$button_id = 'bottom' === $which ? 'bbp-change-role2' : 'bbp-change-role';
+		?>
+
+		<label class="screen-reader-text" for="<?php echo $select_id; ?>"><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
+		<select name="<?php echo $select_id; ?>" id="<?php echo $select_id; ?>" style="display:inline-block; float:none;">
 			<option value=''><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></option>
 			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 				<option value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
 			<?php endforeach; ?>
-		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
+		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', $button_id, false );
 
 		wp_nonce_field( 'bbp-bulk-users', 'bbp-bulk-users-nonce' );
 	}
@@ -160,6 +179,8 @@ class BBP_Users_Admin {
 	/**
 	 * Process bulk dropdown form submission from the WordPress Users
 	 * Table
+	 *
+	 * @since 2.2.0 bbPress (r4365)
 	 *
 	 * @uses current_user_can() to check for 'promote users' capability
 	 * @uses bbp_get_dynamic_roles() to get forum roles
@@ -175,13 +196,20 @@ class BBP_Users_Admin {
 		}
 
 		// Bail if this isn't a bbPress action
-		if ( empty( $_REQUEST['bbp-new-role'] ) || empty( $_REQUEST['bbp-change-role'] ) ) {
+		if ( ( empty( $_REQUEST['bbp-new-role'] ) && empty( $_REQUEST['bbp-new-role2'] ) ) || ( empty( $_REQUEST['bbp-change-role'] ) && empty( $_REQUEST['bbp-change-role2'] ) ) ) {
 			return;
+		}
+
+		$new_role = false;
+		if ( ! empty( $_REQUEST['bbp-change-role2'] ) && ! empty( $_REQUEST['bbp-new-role2'] ) ) {
+			$new_role = $_REQUEST['bbp-new-role2'];
+		} elseif ( ! empty( $_REQUEST['bbp-change-role'] ) && ! empty( $_REQUEST['bbp-new-role'] ) ) {
+			$new_role = $_REQUEST['bbp-new-role'];
 		}
 
 		// Check that the new role exists
 		$dynamic_roles = bbp_get_dynamic_roles();
-		if ( empty( $dynamic_roles[ $_REQUEST['bbp-new-role'] ] ) ) {
+		if ( ! $new_role || empty( $dynamic_roles[ $new_role ] ) ) {
 			return;
 		}
 
@@ -207,7 +235,7 @@ class BBP_Users_Admin {
 
 			// Set up user and role data
 			$user_role = bbp_get_user_role( $user_id );
-			$new_role  = sanitize_text_field( $_REQUEST['bbp-new-role'] );
+			$new_role  = sanitize_text_field( $new_role );
 
 			// Only keymasters can set other keymasters
 			if ( in_array( bbp_get_keymaster_role(), array( $user_role, $new_role ) ) && ! bbp_is_user_keymaster() ) {
