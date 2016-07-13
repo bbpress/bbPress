@@ -2,8 +2,8 @@
 Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 4.0
-Tested up to: 4.5
-Stable tag: 2.5.9
+Tested up to: 4.6
+Stable tag: 2.5.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ bbPress is forum software, made the WordPress way.
 
 Are you looking for a timeless, elegant, and streamlined discussion board? bbPress is focused on ease of integration, ease of use, modern web standards, and performance.
 
-bbPress is spry and nimble and allows for great add-on features through WordPress's extensive plugin system. It is intentionally simple yet infinitely powerful forum software, built by contributors to WordPress.
+bbPress is spry & nimble, and allows for great add-on features through WordPress's extensive plugin system. It is intentionally simple yet infinitely powerful forum software, built by contributors to WordPress.
 
 == Installation ==
 
@@ -52,6 +52,9 @@ bbPress is spry and nimble and allows for great add-on features through WordPres
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.5.10 =
+* Improved user display-name rendering
 
 = 2.5.9 =
 * Improved user mentions
