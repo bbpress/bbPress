@@ -1652,8 +1652,11 @@ function bbp_author_link( $args = '' ) {
 			}
 
 			// Assemble some link bits
-			$link_title = !empty( $r['link_title'] ) ? ' title="' . $r['link_title'] . '"' : '';
-			$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
+			$link_title = !empty( $r['link_title'] )
+				? ' title="' . esc_attr( $r['link_title'] ) . '"'
+				: '';
+
+			$anonymous = bbp_is_reply_anonymous( $r['post_id'] );
 
 			// Get avatar
 			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
@@ -1662,14 +1665,14 @@ function bbp_author_link( $args = '' ) {
 
 			// Get display name
 			if ( 'name' === $r['type'] || 'both' === $r['type'] ) {
-				$author_links[] = get_the_author_meta( 'display_name', $user_id );
+				$author_links[] = esc_html( get_the_author_meta( 'display_name', $user_id ) );
 			}
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
 				$author_url = bbp_get_user_profile_url( $user_id );
 				foreach ( $author_links as $link_text ) {
-					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
+					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', esc_url( $author_url ), $link_title, $link_text );
 				}
 				$author_link = implode( '&nbsp;', $author_link );
 
