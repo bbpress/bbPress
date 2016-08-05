@@ -1045,7 +1045,7 @@ function bbp_admin_setting_callback_user_favs_slug() {
 }
 
 /**
- * Favorites slug setting field
+ * Subscriptions slug setting field
  *
  * @since 2.4.0 bbPress (r4932)
  *
