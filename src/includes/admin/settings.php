@@ -1041,7 +1041,7 @@ function bbp_admin_setting_callback_user_favs_slug() {
 
 <?php
 	// Slug Check
-	bbp_form_slug_conflict_check( '_bbp_reply_archive_slug', 'favorites' );
+	bbp_form_slug_conflict_check( '_bbp_user_favs_slug', 'favorites' );
 }
 
 /**
