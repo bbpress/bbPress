@@ -24,7 +24,14 @@ class BBP_Tests_Replies_Template_Post_Type extends BBP_UnitTestCase {
 		) );
 
 		$robj = get_post_type_object( 'reply' );
-		$this->assertInstanceOf( 'stdClass', $robj );
+
+		// WordPress 4.6 introduced `WP_Post_Type` class
+		if ( bbp_get_major_wp_version() < 4.6 ) {
+			$this->assertInstanceOf( 'stdClass', $robj );
+		} else {
+			$this->assertInstanceOf( 'WP_Post_Type', $robj );
+		}
+
 		$this->assertEquals( 'reply', $robj->name );
 
 		// Test some defaults

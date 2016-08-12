@@ -17,7 +17,14 @@ class BBP_Tests_Topics_Template_Post_Type extends BBP_UnitTestCase {
 		$t = $this->factory->topic->create();
 
 		$tobj = get_post_type_object( 'topic' );
-		$this->assertInstanceOf( 'stdClass', $tobj );
+
+		// WordPress 4.6 introduced `WP_Post_Type` class
+		if ( bbp_get_major_wp_version() < 4.6 ) {
+			$this->assertInstanceOf( 'stdClass', $tobj );
+		} else {
+			$this->assertInstanceOf( 'WP_Post_Type', $tobj );
+		}
+
 		$this->assertEquals( 'topic', $tobj->name );
 
 		// Test some defaults

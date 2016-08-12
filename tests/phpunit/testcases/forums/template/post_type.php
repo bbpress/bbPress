@@ -17,7 +17,14 @@ class BBP_Tests_Forums_Template_Post_Type extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 
 		$fobj = get_post_type_object( 'forum' );
-		$this->assertInstanceOf( 'stdClass', $fobj );
+
+		// WordPress 4.6 introduced `WP_Post_Type` class
+		if ( bbp_get_major_wp_version() < 4.6 ) {
+			$this->assertInstanceOf( 'stdClass', $fobj );
+		} else {
+			$this->assertInstanceOf( 'WP_Post_Type', $fobj );
+		}
+
 		$this->assertEquals( 'forum', $fobj->name );
 
 		// Test some defaults
