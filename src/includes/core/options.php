@@ -518,7 +518,7 @@ function bbp_include_root_slug( $default = 1 ) {
 }
 
 /**
- * Return the search slug
+ * What to show on root, forums or topics?
  *
  * @since 2.4.0 bbPress (r4932)
  *
