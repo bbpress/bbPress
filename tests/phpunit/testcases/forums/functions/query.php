@@ -69,12 +69,61 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_forum_query_last_reply_id
-	 * @todo   Implement test_bbp_forum_query_last_reply_id().
 	 */
 	public function test_bbp_forum_query_last_reply_id() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array(
+				'forum_type' => 'category',
+				'status'     => 'open',
+			),
+		) );
+
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta' => array(
+				'forum_id'   => $c,
+				'forum_type' => 'forum',
+				'status'     => 'open',
+			),
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Get the forums last reply id.
+		$query_last_reply_f = bbp_forum_query_last_reply_id( $f );
+		$this->assertSame( $query_last_reply_f, bbp_get_forum_last_reply_id( $f ) );
+
+		// Get the categories last reply id.
+		$query_last_reply_c = bbp_forum_query_last_reply_id( $c );
+		$this->assertSame( $query_last_reply_c, bbp_get_forum_last_reply_id( $c ) );
+
+		$this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Get the forums last reply id.
+		$query_last_reply_f = bbp_forum_query_last_reply_id( $f );
+		$this->assertSame( $query_last_reply_f, bbp_get_forum_last_reply_id( $f ) );
+
+		// Get the categories last reply id.
+		$query_last_reply_c = bbp_forum_query_last_reply_id( $c );
+		$this->assertSame( $query_last_reply_c, bbp_get_forum_last_reply_id( $c ) );
 	}
 }
