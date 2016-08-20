@@ -15,24 +15,13 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		// There's a bug in the multisite tests that causes the
-		// transaction rollback to fail for the first user created,
-		// which busts every other attempt to create users. This is a
-		// hack workaround.
-		global $wpdb;
-		if ( is_multisite() ) {
-			$user_1 = get_user_by( 'login', 'user 1' );
-			if ( $user_1 ) {
-				$wpdb->delete( $wpdb->users, array( 'ID' => $user_1->ID ) );
-				clean_user_cache( $user_1 );
-			}
-		}
-
 		$this->factory = new BBP_UnitTest_Factory;
 
 		if ( class_exists( 'BP_UnitTest_Factory' ) ) {
 			$this->bp_factory = new BP_UnitTest_Factory();
 		}
+
+		global $wpdb;
 
 		// Our default is ugly permalinks, so reset when needed.
 		global $wp_rewrite;
@@ -41,27 +30,30 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		}
 	}
 
-	function clean_up_global_scope() {
-		parent::clean_up_global_scope();
-	}
+	public function tearDown() {
+		global $wpdb;
 
-	function tearDown() {
 		parent::tearDown();
 
 		if ( is_multisite() ) {
-			// WordPress 4.6 deprecated `wp_get_sites()`, see https://core.trac.wordpress.org/changeset/37653
-			if ( bbp_get_major_wp_version() >= 4.6 ) {
-				$blogs = get_sites();
-			} else {
-				$blogs = wp_get_sites();
-			}
-
-			foreach ( $blogs as $blog ) {
-				if ( 1 !== (int) $blog['blog_id'] ) {
-					wpmu_delete_blog( $blog['blog_id'], true );
-				}
+			foreach ( $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs WHERE blog_id != 1" ) as $blog_id ) {
+				wpmu_delete_blog( $blog_id, true );
 			}
 		}
+
+		foreach ( $wpdb->get_col( "SELECT ID FROM $wpdb->users WHERE ID != 1" ) as $user_id ) {
+			if ( is_multisite() ) {
+				wpmu_delete_user( $user_id );
+			} else {
+				wp_delete_user( $user_id );
+			}
+		}
+
+		$this->commit_transaction();
+	}
+
+	function clean_up_global_scope() {
+		parent::clean_up_global_scope();
 	}
 
 	function assertPreConditions() {
