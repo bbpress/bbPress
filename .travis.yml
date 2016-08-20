@@ -36,6 +36,15 @@ matrix:
       env: WP_VERSION=master
     - php: hhvm
       env: WP_VERSION=master
+      sudo: required
+      dist: trusty
+      group: edge
+      addons:
+        apt:
+          packages:
+            - mysql-server-5.6
+            - mysql-client-core-5.6
+            - mysql-client-5.6
   exclude:
     - php: 7.0
       env: WP_VERSION=4.2
@@ -79,6 +88,8 @@ before_install:
     - node --version
     - npm install -g grunt-cli
     - npm --version
+    - phpenv versions
+    - mysql --version
 
 # before_script: Failures in this section will result in build status 'failed'
 before_script:
