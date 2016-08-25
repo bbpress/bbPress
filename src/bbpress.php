@@ -921,7 +921,7 @@ final class bbPress {
 		) );
 
 		// Search Permastruct
-		add_permastruct( $user_id, $search_slug . '/%' . $search_id . '%', array(
+		add_permastruct( $search_id, $search_slug . '/%' . $search_id . '%', array(
 			'with_front'  => false,
 			'ep_mask'     => EP_NONE,
 			'paged'       => true,
