@@ -618,7 +618,7 @@ function bbp_get_reply_slug( $default = 'reply' ) {
  *
  * @return string
  */
-function bbp_get_user_slug( $default = 'user' ) {
+function bbp_get_user_slug( $default = 'users' ) {
 	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
 }
 
