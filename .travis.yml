@@ -20,6 +20,7 @@ php:
 # x.y mirrors the latest from the x.y branch
 env:
     - WP_VERSION=master
+    - WP_VERSION=4.6
     - WP_VERSION=4.5
     - WP_VERSION=4.4
     - WP_VERSION=4.3
