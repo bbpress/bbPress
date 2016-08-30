@@ -755,13 +755,40 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_check_for_blacklist
-	 * @todo   Implement test_bbp_check_for_blacklist().
 	 */
 	public function test_bbp_check_for_blacklist() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'Beware, they maybe bees hibernating.';
+
+		update_option( 'blacklist_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+
+		update_option( 'blacklist_keys',"foo\nbar" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_false_when_link_matches_blacklist_keys() {
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
+
+		update_option( 'blacklist_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
 	}
 
 	/**
