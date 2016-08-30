@@ -692,7 +692,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_check_for_moderation() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'Beware, there maybe bees hibernating.';
 
@@ -712,9 +712,117 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_check_for_moderation
 	 */
+	public function test_should_return_false_for_user_url_moderation_check() {
+		$u = $this->factory->user->create( array(
+			'user_url'   => 'http://example.net/banned',
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'moderation_keys',"http://example.net/banned\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_false_for_user_email_moderation_check() {
+		$u = $this->factory->user->create( array(
+			'user_email' => 'banned@example.net',
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'moderation_keys',"banned@example.net\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_false_for_user_ip_moderation_check() {
+		$u = $this->factory->user->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'moderation_keys',"127.0.0.1\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_true_for_moderators_to_bypass_moderation_check() {
+		// Create a moderator user.
+		$old_current_user = 0;
+		$this->old_current_user = get_current_user_id();
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->moderator_id = get_current_user_id();
+		bbp_set_user_role( $this->moderator_id, bbp_get_moderator_role() );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => bbp_get_current_user_id(),
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'moderation_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertTrue( $result );
+
+		// Retore the original user.
+		$this->set_current_user( $this->old_current_user );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
 	public function test_should_return_false_when_link_count_exceeds_comment_max_links_setting() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
 
@@ -728,7 +836,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_should_return_true_when_link_count_does_not_exceed_comment_max_links_setting() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
 
@@ -742,7 +850,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_should_return_false_when_link_matches_moderation_keys() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
 
@@ -758,7 +866,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_bbp_check_for_blacklist() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'Beware, they maybe bees hibernating.';
 
@@ -778,9 +886,149 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_check_for_blacklist
 	 */
+	public function test_should_return_false_for_user_url_blacklist_check() {
+		$u = $this->factory->user->create( array(
+			'user_url'   => 'http://example.net/banned',
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'blacklist_keys',"http://example.net/banned\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_false_for_user_email_blacklist_check() {
+		$u = $this->factory->user->create( array(
+			'user_email' => 'banned@example.net',
+		) );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'blacklist_keys',"banned@example.net\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_false_for_user_ip_blacklist_check() {
+		$u = $this->factory->user->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'blacklist_keys',"127.0.0.1\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_false_for_moderators_to_bypass_blacklist_check() {
+		// Create a moderator user.
+		$old_current_user = 0;
+		$this->old_current_user = get_current_user_id();
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->moderator_id = get_current_user_id();
+		bbp_set_user_role( $this->moderator_id, bbp_get_moderator_role() );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => bbp_get_current_user_id(),
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'blacklist_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+
+		// Retore the original user.
+		$this->set_current_user( $this->old_current_user );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_true_for_keymasterss_to_bypass_blacklist_check() {
+		// Create a keymaster user.
+		$old_current_user = 0;
+		$this->old_current_user = get_current_user_id();
+		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->keymaster_id = get_current_user_id();
+		bbp_set_user_role( $this->keymaster_id, bbp_get_keymaster_role() );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => bbp_get_current_user_id(),
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees hibernating.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'blacklist_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertTrue( $result );
+
+		// Retore the original user.
+		$this->set_current_user( $this->old_current_user );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
 	public function test_should_return_false_when_link_matches_blacklist_keys() {
 		$anonymous_data = false;
-		$author_id      = 'Bzzz';
+		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
 
