@@ -862,6 +862,30 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_false_when_html_wrapped_content_matches_moderation_keys() {
+		$u = $this->factory->user->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees <strong>hiber</strong><em>nating</em>.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
+
+		update_option( 'moderation_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
 	 * @covers ::bbp_check_for_blacklist
 	 */
 	public function test_bbp_check_for_blacklist() {
@@ -1031,6 +1055,30 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$author_id      = 0;
 		$title          = 'Sting';
 		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
+
+		update_option( 'blacklist_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_blacklist
+	 */
+	public function test_should_return_false_when_html_wrapped_content_matches_blacklist_keys() {
+		$u = $this->factory->user->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+			'post_title' => 'Sting',
+			'post_content' => 'Beware, there maybe bees <strong>hiber</strong><em>nating</em>.',
+		) );
+
+		$anonymous_data = false;
+		$author_id      = bbp_get_topic_author_id( $t );
+		$title          = bbp_get_topic_title( $t );
+		$content        = bbp_get_topic_content( $t );
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 

@@ -883,6 +883,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
 	$_post['title']   = $title;
 	$_post['content'] = $content;
 
+	// Ensure HTML tags are not being used to bypass the moderation list.
+	$_post['comment_without_html'] = wp_strip_all_tags( $content );
+
 	/** Words *****************************************************************/
 
 	// Get words separated by new lines
@@ -994,6 +997,9 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 	// Post title and content
 	$_post['title']   = $title;
 	$_post['content'] = $content;
+
+	// Ensure HTML tags are not being used to bypass the blacklist.
+	$_post['comment_without_html'] = wp_strip_all_tags( $content );
 
 	/** Words *****************************************************************/
 
