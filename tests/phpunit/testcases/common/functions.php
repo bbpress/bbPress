@@ -689,13 +689,68 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_check_for_moderation
-	 * @todo   Implement test_bbp_check_for_moderation().
 	 */
 	public function test_bbp_check_for_moderation() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'Beware, there maybe bees hibernating.';
+
+		update_option( 'moderation_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
+
+		update_option( 'moderation_keys',"foo\nbar" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_false_when_link_count_exceeds_comment_max_links_setting() {
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
+
+		update_option( 'comment_max_links', 2 );
+		$results = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+		$this->assertFalse( $results );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_true_when_link_count_does_not_exceed_comment_max_links_setting() {
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'This is a post with <a href="http://example.com">multiple</a> <a href="http://bob.example.com">links</a>.';
+
+		update_option( 'comment_max_links', 3 );
+		$results = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+		$this->assertTrue( $results );
+	}
+
+	/**
+	 * @covers ::bbp_check_for_moderation
+	 */
+	public function test_should_return_false_when_link_matches_moderation_keys() {
+		$anonymous_data = false;
+		$author_id      = 'Bzzz';
+		$title          = 'Sting';
+		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
+
+		update_option( 'moderation_keys',"hibernating\nfoo" );
+
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content );
+
+		$this->assertFalse( $result );
 	}
 
 	/**
