@@ -134,7 +134,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = $post_type->cap->edit_posts;
 
 				// User is a per-forum moderator, make sure they can spectate.
-				} elseif ( bbp_allow_forum_mods() && bbp_is_user_forum_moderator( $user_id, bbp_get_reply_forum_id( $_post->ID ) ) ) {
+				} elseif ( bbp_is_user_forum_moderator( $user_id, bbp_get_reply_forum_id( $_post->ID ) ) ) {
 					$caps = array( 'spectate' );
 
 				// Fallback to edit_others_posts.

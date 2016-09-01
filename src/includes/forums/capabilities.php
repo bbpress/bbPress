@@ -257,13 +257,18 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 	// Validate user ID - fallback to current user if no ID passed.
 	$user_id   = bbp_get_user_id( $user_id, false, ! empty( $user_id ) );
 	$forum_id  = bbp_get_forum_id( $forum_id );
+	$forum_ids = array();
 
-	// Get forums the user can moderate.
-	$forum_ids = bbp_get_moderator_forum_ids( $user_id );
+	// Only check if per-forum moderation is enabled
+	if ( bbp_allow_forum_mods() ) {
 
-	// Is this forum ID in the users array of forum IDs?
-	if ( ! empty( $forum_ids ) ) {
-		$retval = in_array( $forum_id, $forum_ids );
+		// Get forums the user can moderate.
+		$forum_ids = bbp_get_moderator_forum_ids( $user_id );
+
+		// Is this forum ID in the users array of forum IDs?
+		if ( ! empty( $forum_ids ) ) {
+			$retval = in_array( $forum_id, $forum_ids );
+		}
 	}
 
 	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id, $forum_ids );
