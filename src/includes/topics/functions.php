@@ -778,7 +778,7 @@ function bbp_edit_topic_handler( $action = '' ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_current_user_id() To get the current user id
- * @yses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses update_post_meta() To update the topic metas
  * @uses set_transient() To update the flood check transient for the ip
  * @uses bbp_update_user_last_posted() To update the users last posted time
