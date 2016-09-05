@@ -28,13 +28,12 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		$id = bbp_update_topic_last_active_id( $t, $r1 );
-		$this->assertSame( $r1, $id );
+		// Pass both the topic id and reply id to bbp_update_topic_last_active_id().
+		bbp_update_topic_last_active_id( $t, $r1 );
+		$last_active_id = bbp_get_topic_last_active_id( $t );
+		$this->assertSame( $r1, $last_active_id );
 
-		$id = bbp_get_topic_last_active_id( $t );
-		$this->assertSame( $r1, $id );
-
-		$r2 = $this->factory->reply->create_many( 2, array(
+		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,
@@ -42,9 +41,37 @@ class BBP_Tests_Topics_Functions_Update_Topic_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		bbp_update_topic_last_active_id( $t, $r2[1] );
-		$id = bbp_get_topic_last_active_id( $t );
-		$this->assertSame( $r2[1], $id );
+		// Pass the topic id to bbp_update_topic_last_active_id().
+		bbp_update_topic_last_active_id( $t );
+		$last_active_id = bbp_get_topic_last_active_id( $t );
+		$this->assertSame( $r2, $last_active_id );
+
+		$r3 = $this->factory->reply->create( array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Pass the reply id to bbp_update_topic_last_active_id().
+		bbp_update_topic_last_active_id( $r3 );
+		$last_active_id = bbp_get_topic_last_active_id( $t );
+		$this->assertSame( $r3, $last_active_id );
+
+		// Create a couple of replies.
+		$r4 = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		// Pass both the topic id and reply id of the array.
+		bbp_update_topic_last_active_id( $t, $r4[1] );
+		$last_active_id = bbp_get_topic_last_active_id( $t );
+		$this->assertSame( $r4[1], $last_active_id );
 	}
 
 	/**
