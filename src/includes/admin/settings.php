@@ -332,7 +332,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Reply slug setting
 			'_bbp_reply_slug' => array(
-				'title'             => __( 'Reply', 'bbpress' ),
+				'title'             => _x( 'Reply', 'noun', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
 				'args'              => array( 'label_for'=>'_bbp_reply_slug' )

@@ -46,7 +46,7 @@ function bbp_get_reply_post_type_labels() {
 	return apply_filters( 'bbp_get_reply_post_type_labels', array(
 		'name'               => __( 'Replies',                   'bbpress' ),
 		'menu_name'          => __( 'Replies',                   'bbpress' ),
-		'singular_name'      => __( 'Reply',                     'bbpress' ),
+		'singular_name'      => _x( 'Reply', 'noun',             'bbpress' ),
 		'all_items'          => __( 'All Replies',               'bbpress' ),
 		'add_new'            => __( 'New Reply',                 'bbpress' ),
 		'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
@@ -1675,7 +1675,7 @@ function bbp_reply_to_link( $args = array() ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'reply_text'   => __( 'Reply', 'bbpress' ),
+			'reply_text'   => _x( 'Reply', 'verb', 'bbpress' ),
 			'depth'        => 0,
 			'add_below'    => 'post',
 			'respond_id'   => 'new-reply-' . bbp_get_topic_id(),

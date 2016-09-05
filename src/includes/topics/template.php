@@ -3087,7 +3087,7 @@ function bbp_topic_reply_link( $args = array() ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'reply_text'   => esc_html__( 'Reply', 'bbpress' ),
+			'reply_text'   => esc_html_x( 'Reply', 'verb', 'bbpress' ),
 		), 'get_topic_reply_link' );
 
 		// Get the reply to use it's ID and post_parent
