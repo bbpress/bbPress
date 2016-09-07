@@ -2254,6 +2254,20 @@ function bbp_admin_reset_handler() {
 		$messages[] = sprintf( $statement, $result );
 	}
 
+	/** Post Revisions ********************************************************/
+
+	if ( ! empty( $sql_posts ) ) {
+		$sql_meta = array();
+		foreach ( $sql_posts as $key => $value ) {
+			$sql_meta[] = $key;
+		}
+		$statement  = __( 'Deleting Post Revisions&hellip; %s', 'bbpress' );
+		$sql_meta   = implode( "', '", $sql_meta );
+		$sql_delete = "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision';";
+		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
+		$messages[] = sprintf( $statement, $result );
+	}
+
 	/** Forum moderators ******************************************************/
 
 	$statement  = __( 'Deleting Forum Moderators&hellip; %s', 'bbpress' );
