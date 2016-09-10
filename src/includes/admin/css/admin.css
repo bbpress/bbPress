@@ -10,7 +10,7 @@
 /* Version Badge */
 
 .bbp-badge {
-	font: normal 150px/1 "dashicons" !important;
+	font: 400 150px/1 dashicons !important;
 	color: #000;
 	display: inline-block;
 }
@@ -64,7 +64,7 @@ th .bbp_replies_column {
 th .bbp_forums_column:before,
 th .bbp_topics_column:before,
 th .bbp_replies_column:before {
-	font: normal 20px/0.5 "dashicons";
+	font: 400 20px/0.5 dashicons;
 	speak: none;
 	display: inline-block;
 	padding: 0;
@@ -196,7 +196,7 @@ body.rtl #bbp-dashboard-right-now .t {
 }
 
 #bbp-dashboard-right-now .versions .b {
-	font-weight: bold;
+	font-weight: 700;
 }
 
 #bbp-dashboard-right-now a.button {

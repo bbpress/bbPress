@@ -105,7 +105,7 @@ body.reply-edit .reply {
 #bbpress-forums li.bbp-footer {
 	background: #f3f3f3;
 	border-top: 1px solid #eee;
-	font-weight: bold;
+	font-weight: 700;
 	padding: 8px;
 	text-align: center;
 }
@@ -265,7 +265,7 @@ div.bbp-reply-header {
 
 span.bbp-author-ip {
 	font-size: 11px;
-	font-weight: bold;
+	font-weight: 700;
 	word-wrap: break-word;
 	color: #aaa;
 }
@@ -299,7 +299,7 @@ span.bbp-author-ip {
 	background: none;
 	border: none;
 	display: inline;
-	font-weight: normal;
+	font-weight: 400;
 	margin: 0;
 	padding: 0;
 }
@@ -466,7 +466,7 @@ span.bbp-admin-links {
 
 span.bbp-admin-links a {
 	color: #bbb;
-	font-weight: normal;
+	font-weight: 400;
 	font-size: 10px;
 	text-transform: uppercase;
 	text-decoration: none;
@@ -502,7 +502,7 @@ td.bbp-topic-counts {
 	color: #7c7;
 	border: 1px solid #aca;
 	background-color: #dfd;
-	font-weight: bold;
+	font-weight: 700;
 	font-size: 13px;
 }
 
@@ -530,7 +530,7 @@ td.bbp-topic-counts {
 	color: #7c7;
 	border: 1px solid #aca;
 	background-color: #dfd;
-	font-weight: bold;
+	font-weight: 700;
 	font-size: 13px;
 }
 
@@ -1023,7 +1023,7 @@ div.bbp-template-notice li {
 }
 
 .bbp-logged-in h4 {
-	font-weight: bold;
+	font-weight: 700;
 	font-size: 1.3em;
 	clear: none;
 	margin-bottom: 10px;
