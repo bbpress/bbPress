@@ -16,7 +16,7 @@ addReply = {
 			respond.parentNode.insertBefore(div, respond);
 		}
 
-		reply.parentNode.insertBefore(respond);
+		reply.parentNode.appendChild(respond);
 		if ( post && postId ) {
 			post.value = postId;
 		}
