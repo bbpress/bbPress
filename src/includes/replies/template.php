@@ -548,8 +548,9 @@ function bbp_reply_title( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_title( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
+		$title    = get_the_title( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_title', get_the_title( $reply_id ), $reply_id );
+		return apply_filters( 'bbp_get_reply_title', $title, $reply_id );
 	}
 
 	/**
