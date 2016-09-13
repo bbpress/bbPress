@@ -2677,34 +2677,58 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Profile page
 	} elseif ( bbp_is_single_user() ) {
 
-		// User is viewing their own profile
-		if ( bbp_is_user_home() ) {
-			$new_title['text'] = esc_attr_x( 'Your', 'User viewing his/her own profile', 'bbpress' );
-
-		// User is viewing someone else's profile (so use their display name)
-		} else {
-			$new_title['text'] = sprintf( esc_attr_x( "%s's", 'User viewing another users profile', 'bbpress' ), get_userdata( bbp_get_user_id() )->display_name );
-		}
+		// Is user viewing their own profile?
+		$is_user_home = bbp_is_user_home();
 
 		// User topics created
 		if ( bbp_is_single_user_topics() ) {
-			$new_title['format'] = esc_attr__( "%s Topics",        'bbpress' );
+			if ( true === $is_user_home ) {
+				$new_title['text'] = esc_attr__( 'Your Topics', 'bbpress' );
+			} else {
+				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+				/* translators: user's display name */
+				$new_title['format'] = esc_attr__( "%s's Topics", 'bbpress' );
+			}
 
-		// User rueplies created
+		// User replies created
 		} elseif ( bbp_is_single_user_replies() ) {
-			$new_title['format'] = esc_attr__( "%s Replies",       'bbpress' );
+			if ( true === $is_user_home ) {
+				$new_title['text'] = esc_attr__( 'Your Replies', 'bbpress' );
+			} else {
+				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+				/* translators: user's display name */
+				$new_title['format'] = esc_attr__( "%s's Replies", 'bbpress' );
+			}
 
 		// User favorites
 		} elseif ( bbp_is_favorites() ) {
-			$new_title['format'] = esc_attr__( "%s Favorites",     'bbpress' );
+			if ( true === $is_user_home ) {
+				$new_title['text'] = esc_attr__( 'Your Favorites', 'bbpress' );
+			} else {
+				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+				/* translators: user's display name */
+				$new_title['format'] = esc_attr__( "%s's Favorites", 'bbpress' );
+			}
 
 		// User subscriptions
 		} elseif ( bbp_is_subscriptions() ) {
-			$new_title['format'] = esc_attr__( "%s Subscriptions", 'bbpress' );
+			if ( true === $is_user_home ) {
+				$new_title['text'] = esc_attr__( 'Your Subscriptions', 'bbpress' );
+			} else {
+				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+				/* translators: user's display name */
+				$new_title['format'] = esc_attr__( "%s's Subscriptions", 'bbpress' );
+			}
 
 		// User "home"
 		} else {
-			$new_title['format'] = esc_attr__( "%s Profile",       'bbpress' );
+			if ( true === $is_user_home ) {
+				$new_title['text'] = esc_attr__( 'Your Profile', 'bbpress' );
+			} else {
+				$new_title['text'] = get_userdata( bbp_get_user_id() )->display_name;
+				/* translators: user's display name */
+				$new_title['format'] = esc_attr__( "%s's Profile", 'bbpress' );
+			}
 		}
 
 	// Profile edit page
