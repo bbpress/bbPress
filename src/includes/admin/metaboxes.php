@@ -533,13 +533,20 @@ function bbp_reply_metabox() {
 
 	/** Reply To **************************************************************/
 
-	?>
+	// Only show reply-to drop-down when editing an existing reply
+	if ( ! empty( $reply_topic_id ) ) : ?>
 
-	<p>
-		<strong class="label"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_reply_to"><?php esc_html_e( 'Reply To', 'bbpress' ); ?></label>
-		<?php bbp_reply_to_dropdown( $post_id ); ?>
-	</p>
+		<p>
+			<strong class="label"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_reply_to"><?php esc_html_e( 'Reply To', 'bbpress' ); ?></label>
+			<?php bbp_reply_to_dropdown( $post_id ); ?>
+		</p>
+
+	<?php
+
+	endif;
+
+	?>
 
 	<input name="ping_status" type="hidden" id="ping_status" value="open" />
 
