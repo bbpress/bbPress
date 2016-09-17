@@ -324,11 +324,6 @@ class BBP_Topics_Admin {
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
 
-		// If the topic was moved to a new forum, move the topic to update all the meta
-		if ( $forum_id !== $topic->post_parent ) {
-			bbp_move_topic_handler( $topic_id, $topic->post_parent, $forum_id );
-		}
-
 		// Allow other fun things to happen
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id       );
 		do_action( 'bbp_author_metabox_save',           $topic_id, $anonymous_data );
