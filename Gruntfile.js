@@ -46,9 +46,7 @@ module.exports = function( grunt ) {
 		],
 
 		// PostCSS
-		autoprefixer = require('autoprefixer'),
-		stylelint    = require('stylelint'),
-		reporter     = require('postcss-reporter');
+		autoprefixer = require('autoprefixer');
 
 	// Load tasks.
 	require( 'matchdep' ).filterDev([ 'grunt-*', '!grunt-legacy-util' ]).forEach( grunt.loadNpmTasks );
@@ -267,23 +265,6 @@ module.exports = function( grunt ) {
 				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
 				src: [ 'includes/admin/styles/*/colors.css' ]
-			},
-			lint: {
-				options: {
-					syntax: require('postcss-scss'),
-					processors: [
-						stylelint(),
-						reporter({
-							clearMessages: true,
-							throwError: true
-							}
-						)
-					]
-				},
-				expand: true,
-				cwd: SOURCE_DIR,
-				dest: SOURCE_DIR,
-				src: [ [ BBP_LTR_CSS ], 'includes/admin/styles/*/colors.scss' ]
 			}
 		},
 		rtlcss: {
@@ -320,6 +301,26 @@ module.exports = function( grunt ) {
 				options: {
 					outputStyle: 'expanded'
 				}
+			}
+		},
+		stylelint: {
+			css: {
+				options: {
+					configFile: '.stylelintrc',
+					format: 'css'
+				},
+				expand: true,
+				cwd: SOURCE_DIR,
+				src: BBP_LTR_CSS
+			},
+			scss: {
+				options: {
+					configFile: '.stylelintrc',
+					format: 'scss'
+				},
+				expand: true,
+				cwd: SOURCE_DIR,
+				src: [ 'includes/admin/styles/*/colors.scss' ]
 			}
 		},
 		uglify: {
@@ -392,7 +393,7 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'colors', [ 'sass:colors', 'postcss:colors' ] );
 
 	// Build tasks.
-	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint', 'postcss:lint' ] );
+	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint', 'stylelint' ] );
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
 	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'postcss:core', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
