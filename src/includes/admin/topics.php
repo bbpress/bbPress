@@ -295,9 +295,9 @@ class BBP_Topics_Admin {
 			return $bulk_messages;
 		}
 
-		$bulk_messages['topic']['updated'] = _n( '%s topic updated.', '%s topics updated.', $bulk_counts['updated'] );
-		$bulk_messages['topic']['locked']  = ( 1 === $bulk_counts['locked'] ) ? __( '1 topic not updated, somebody is editing it.' ) :
-		                                          _n( '%s topic not updated, somebody is editing it.', '%s topics not updated, somebody is editing them.', $bulk_counts['locked'] );
+		$bulk_messages['topic']['updated'] = _n( '%s topic updated.', '%s topics updated.', $bulk_counts['updated'], 'bbpress'  );
+		$bulk_messages['topic']['locked']  = ( 1 === $bulk_counts['locked'] ) ? __( '1 topic not updated, somebody is editing it.', 'bbpress'  ) :
+		                                          _n( '%s topic not updated, somebody is editing it.', '%s topics not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress'  );
 		return $bulk_messages;
 	}
 
