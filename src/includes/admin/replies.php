@@ -47,6 +47,7 @@ class BBP_Replies_Admin {
 	 * Setup the admin hooks, actions and filters
 	 *
 	 * @since 2.0.0 bbPress (r2646)
+	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
 	 *
@@ -63,6 +64,13 @@ class BBP_Replies_Admin {
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
+
+		// Reply bulk actions, added in WordPress 4.7, see #WP16031
+		if ( bbp_get_major_wp_version() >= 4.7 ) {
+			add_filter( 'bulk_actions-edit-reply',        array( $this, 'bulk_actions' ) );
+			add_filter( 'handle_bulk_actions-edit-reply', array( $this, 'handle_bulk_actions' ), 10, 3 );
+			add_filter( 'bulk_post_updated_messages',     array( $this, 'bulk_post_updated_messages' ), 10, 2 );
+		}
 
 		// Reply column headers.
 		add_filter( 'manage_' . $this->post_type . '_posts_columns',  array( $this, 'column_headers' ) );
@@ -174,7 +182,7 @@ class BBP_Replies_Admin {
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
-				'<p>' . __( 'You can also edit or move multiple replies to the trash at once. Select the replies you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
+				'<p>' . __( 'You can also edit, spam, or move multiple replies to the trash at once. Select the replies you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
 				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected replies at once. To remove a reply from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
 		) );
 
@@ -244,6 +252,116 @@ class BBP_Replies_Admin {
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
 		);
+	}
+
+	/**
+	 * Add spam/unspam bulk actions to the bulk action dropdown.
+	 *
+	 * @since 2.6.0 bbPress (r6101)
+	 *
+	 * @param array $actions The list of bulk actions.
+	 * @return array The filtered list of bulk actions.
+	 */
+	public function bulk_actions( $actions ) {
+
+		if ( $this->bail() ) {
+			return $actions;
+		}
+
+		if ( current_user_can( 'moderate' ) ) {
+			if ( bbp_get_spam_status_id() === get_query_var( 'post_status' ) ) {
+				$actions['unspam'] = __( 'Unspam', 'bbpress' );
+			} else {
+				$actions['spam'] = __( 'Spam', 'bbpress' );
+			}
+		}
+
+		return $actions;
+	}
+
+	/**
+	 * Add custom bulk action updated messages for replies.
+	 *
+	 * @since 2.6.0 bbPress (r6101)
+	 *
+	 * @param array $bulk_messages Arrays of messages, each keyed by the corresponding post type.
+	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
+	 */
+	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
+
+		if ( $this->bail() ) {
+			return $bulk_messages;
+		}
+
+		$bulk_messages['reply']['updated'] = _n( '%s reply updated.', '%s replies updated.', $bulk_counts['updated'] );
+		$bulk_messages['reply']['locked']  = ( 1 === $bulk_counts['locked'] ) ? __( '1 reply not updated, somebody is editing it.' ) :
+		                                          _n( '%s reply not updated, somebody is editing it.', '%s replies not updated, somebody is editing them.', $bulk_counts['locked'] );
+		return $bulk_messages;
+	}
+
+	/**
+	 * Handle spam/unspam bulk actions.
+	 *
+	 * @since 2.6.0 bbPress (r6101)
+	 *
+	 * @param string $sendback The sendback URL.
+	 * @param string $doaction The action to be taken.
+	 * @param array  $post_ids The post IDS to take the action on.
+	 * @return string The sendback URL.
+	 */
+	public function handle_bulk_actions( $sendback, $doaction, $post_ids ) {
+
+		if ( $this->bail() ) {
+			return $sendback;
+		}
+
+		$sendback = remove_query_arg( array( 'spam', 'unspam' ), $sendback );
+		$updated = $locked = 0;
+
+		if ( 'spam' === $doaction ) {
+
+			foreach ( (array) $post_ids as $post_id ) {
+				if ( ! current_user_can( 'moderate', $post_id ) ) {
+					wp_die( __( 'Sorry, you are not allowed to spam this item.', 'bbpress' ) );
+				}
+
+				if ( wp_check_post_lock( $post_id ) ) {
+					$locked++;
+					continue;
+				}
+
+				if ( ! bbp_spam_reply( $post_id ) ) {
+					wp_die( __( 'Error in spamming reply.', 'bbpress' ) );
+				}
+
+				$updated++;
+			}
+
+			$sendback = add_query_arg( array( 'updated' => $updated, 'ids' => join( ',', $post_ids ), 'locked' => $locked ), $sendback );
+
+		} elseif ( 'unspam' === $doaction ) {
+
+			foreach ( (array) $post_ids as $post_id ) {
+				if ( ! current_user_can( 'moderate', $post_id ) ) {
+					wp_die( __( 'Sorry, you are not allowed to unspam this reply.', 'bbpress' ) );
+				}
+
+				if ( wp_check_post_lock( $post_id ) ) {
+					$locked++;
+					continue;
+				}
+
+				if ( ! bbp_unspam_reply( $post_id ) ) {
+					wp_die( __( 'Error in unspamming reply.', 'bbpress' ) );
+				}
+
+				$updated++;
+			}
+
+			$sendback = add_query_arg( array( 'updated' => $updated, 'ids' => join( ',', $post_ids ), 'locked' => $locked ), $sendback );
+		}
+
+		return $sendback;
 	}
 
 	/**
