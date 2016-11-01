@@ -136,6 +136,19 @@ function bbp_init() {
 }
 
 /**
+ * Initialize roles
+ *
+ * @since 2.6.0 bbPress (r6106)
+ *
+ * @uses do_action() Calls 'bbp_roles_init'
+ *
+ * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized
+ */
+function bbp_roles_init( $wp_roles ) {
+	do_action( 'bbp_roles_init', $wp_roles );
+}
+
+/**
  * Initialize widgets
  *
  * @since 2.0.0 bbPress (r3389)

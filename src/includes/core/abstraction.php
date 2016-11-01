@@ -7,7 +7,7 @@
  * into convenient wrappers so they can be used more reliably.
  *
  * Many of the functions in this file are considered superfluous by
- * WordPress coding standards, but
+ * WordPress coding standards, but they're handy for plugins of plugins to use.
  *
  * @package bbPress
  * @subpackage Core
@@ -48,6 +48,17 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_global_object', $retval, $name, $type, $default );
+}
+
+/**
+ * Get the `$wp_roles` global without needing to declare it everywhere
+ *
+ * @since 2.2.0 bbPress (r4293)
+ *
+ * @return WP_Roles
+ */
+function bbp_get_wp_roles() {
+	return bbp_get_global_object( 'wp_roles', 'WP_Roles' );
 }
 
 /**

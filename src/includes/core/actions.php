@@ -41,6 +41,7 @@ add_action( 'plugins_loaded',           'bbp_loaded',                 10    );
 add_action( 'init',                     'bbp_init',                   0     ); // Early for bbp_register
 add_action( 'parse_query',              'bbp_parse_query',            2     ); // Early for overrides
 add_action( 'widgets_init',             'bbp_widgets_init',           10    );
+add_action( 'wp_roles_init',            'bbp_roles_init',             10    );
 add_action( 'generate_rewrite_rules',   'bbp_generate_rewrite_rules', 10    );
 add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',        10    );
 add_action( 'wp_head',                  'bbp_head',                   10    );
@@ -67,7 +68,6 @@ add_action( 'bbp_loaded', 'bbp_setup_globals',             8  );
 add_action( 'bbp_loaded', 'bbp_setup_option_filters',      10 );
 add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
 add_action( 'bbp_loaded', 'bbp_register_theme_packages',   14 );
-add_action( 'bbp_loaded', 'bbp_filter_user_roles_option',  16 );
 
 /**
  * bbp_init - Attached to 'init' above
@@ -84,17 +84,13 @@ add_action( 'bbp_init', 'bbp_add_permastructs',  40  );
 add_action( 'bbp_init', 'bbp_ready',             999 );
 
 /**
- * There is no action API for roles to use, so hook in immediately after
- * everything is included (including the theme's functions.php. This is after
- * the $wp_roles global is set but before $wp->init().
+ * bbp_roles_init - Attached to 'wp_roles_init' above
  *
- * If it's hooked in any sooner, role names may not be translated correctly.
- *
- * @link https://bbpress.trac.wordpress.org/ticket/2219
- *
- * This is kind of lame, but is all we have for now.
+ * Attach various role related actions to the wp_roles_init action.
+ * The load order helps to execute code at the correct time.
+ *                                                    v---Load order
  */
-add_action( 'bbp_after_setup_theme', 'bbp_add_forums_roles', 1 );
+add_action( 'bbp_roles_init', 'bbp_add_forums_roles', 1 );
 
 /**
  * When setting up the current user, make sure they have a role for the forums.
