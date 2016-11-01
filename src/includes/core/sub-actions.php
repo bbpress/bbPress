@@ -149,26 +149,14 @@ function bbp_widgets_init() {
 /**
  * Setup the currently logged-in user
  *
- * We white-list the WordPress customizer which purposely loads the user early.
- *
  * @link https://bbpress.trac.wordpress.org/ticket/2309
  * @link https://core.trac.wordpress.org/ticket/24169
  *
  * @since 2.0.0 bbPress (r2695)
  *
- * @uses did_action() To make sure the user isn't loaded out of order
  * @uses do_action() Calls 'bbp_setup_current_user'
  */
 function bbp_setup_current_user() {
-
-	// If the current user is being setup before the "init" action has fired,
-	// strange (and difficult to debug) role/capability issues will occur.
-	if ( ! isset( $GLOBALS['wp_customize'] ) && ! did_action( 'after_setup_theme' ) ) {
-		$e = new Exception;
-		$trace = $e->getTraceAsString();
-		_doing_it_wrong( __FUNCTION__, __( 'The current user is being initialized without using $wp->init().', 'bbpress' ) . "\n===\nTrace:\n" . substr( $trace, strpos( $trace, '#6' ) ) . "\n===\n", '2.3' );
-	}
-
 	do_action( 'bbp_setup_current_user' );
 }
 
