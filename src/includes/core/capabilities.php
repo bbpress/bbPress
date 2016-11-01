@@ -366,38 +366,46 @@ function _bbp_reinit_dynamic_roles( $roles = array() ) {
  * @return array
  */
 function bbp_get_dynamic_roles() {
-	return (array) apply_filters( 'bbp_get_dynamic_roles', array(
+	static $bbp_roles = null;
 
-		// Keymaster
-		bbp_get_keymaster_role() => array(
-			'name'         => __( 'Keymaster', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_keymaster_role() )
-		),
+	// Only run once
+	if ( null === $bbp_roles ) {
+		$bbp_roles = array(
 
-		// Moderator
-		bbp_get_moderator_role() => array(
-			'name'         => __( 'Moderator', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_moderator_role() )
-		),
+			// Keymaster
+			bbp_get_keymaster_role() => array(
+				'name'         => __( 'Keymaster', 'bbpress' ),
+				'capabilities' => bbp_get_caps_for_role( bbp_get_keymaster_role() )
+			),
 
-		// Participant
-		bbp_get_participant_role() => array(
-			'name'         => __( 'Participant', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
-		),
+			// Moderator
+			bbp_get_moderator_role() => array(
+				'name'         => __( 'Moderator', 'bbpress' ),
+				'capabilities' => bbp_get_caps_for_role( bbp_get_moderator_role() )
+			),
 
-		// Spectator
-		bbp_get_spectator_role() => array(
-			'name'         => __( 'Spectator', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
-		),
+			// Participant
+			bbp_get_participant_role() => array(
+				'name'         => __( 'Participant', 'bbpress' ),
+				'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
+			),
 
-		// Blocked
-		bbp_get_blocked_role() => array(
-			'name'         => __( 'Blocked', 'bbpress' ),
-			'capabilities' => bbp_get_caps_for_role( bbp_get_blocked_role() )
-		)
-	) );
+			// Spectator
+			bbp_get_spectator_role() => array(
+				'name'         => __( 'Spectator', 'bbpress' ),
+				'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
+			),
+
+			// Blocked
+			bbp_get_blocked_role() => array(
+				'name'         => __( 'Blocked', 'bbpress' ),
+				'capabilities' => bbp_get_caps_for_role( bbp_get_blocked_role() )
+			)
+		);
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_dynamic_roles', $bbp_roles );
 }
 
 /**
