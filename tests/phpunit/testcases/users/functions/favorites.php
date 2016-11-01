@@ -119,7 +119,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 		$t = $this->factory->topic->create_many( 3 );
 
 		// Add topic favorites.
-		update_user_option( $u, '_bbp_favorites', $t[0] );
+		add_post_meta( $t[0], '_bbp_favorite', $u, false );
 
 		// Add user favorite.
 		bbp_add_user_favorite( $u, $t[1] );
@@ -144,7 +144,9 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 		$t = $this->factory->topic->create_many( 3 );
 
 		// Add topic favorites.
-		update_user_option( $u, '_bbp_favorites', implode( ',', $t ) );
+		foreach ( $t as $topic ) {
+			add_post_meta( $topic, '_bbp_favorite', $u );
+		}
 
 		// Remove user favorite.
 		bbp_remove_user_favorite( $u, $t[2] );

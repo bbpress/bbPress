@@ -169,6 +169,98 @@ function bbp_current_author_ua() {
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
 
+/** User Relationships ********************************************************/
+
+/**
+ * Set a user id on an object
+ *
+ * @since 2.7 bbPress()
+ *
+ * @param int    $object_id The object id
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type
+ *
+ * @uses bbp_is_object_of_user() To check if the term has already been set
+ * @uses add_post_meta() To set the term on the object
+ * @uses apply_filters() Calls 'bbp_add_user_to_object' with the object id, user
+ *                        id, and taxonomy
+ * @return bool Returns true if the user taxonomy term is added to the object,
+ *               otherwise false
+ */
+function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+
+	return (bool) apply_filters( 'bbp_add_user_to_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+}
+
+/**
+ * Remove a user id from an object
+ *
+ * @since 2.7 bbPress()
+ *
+ * @param int    $object_id The post id
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type
+ *
+ * @uses bbp_is_object_of_user() To check if the term is set
+ * @uses delete_post_meta() To remove the term from the object
+ * @uses apply_filters() Calls 'bbp_remove_user_from_object' with the object
+ *                        id, user id, and taxonomy
+ * @return bool Returns true is the user taxonomy term is removed from the object,
+ *               otherwise false
+ */
+function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$retval = delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+
+	return (bool) apply_filters( 'bbp_remove_user_from_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+}
+
+/**
+ * Get user taxonomy terms for an object
+ *
+ * @since 2.7 bbPress()
+ *
+ * @param int    $object_id The object id
+ * @param string $meta_key  The key used to index this relationship
+ * @param string $meta_type The type of meta to look in
+ *
+ * @uses get_post_meta() To get the user taxonomy terms
+ * @uses apply_filters() Calls 'bbp_get_users_for_object' with the user
+ *                        taxonomy terms, object id, and taxonomy
+ * @return array Returns the user taxonomy terms of the object
+ */
+function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$meta   = get_metadata( $meta_type, $object_id, $meta_key, false );
+	$retval = wp_parse_id_list( $meta );
+
+	return (array) apply_filters( 'bbp_get_users_for_object', (array) $retval, $object_id, $meta_key, $meta_type );
+}
+
+/**
+ * Check if the user id is set on an object
+ *
+ * @since 2.7 bbPress()
+ *
+ * @param int    $object_id The object id
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type
+ *
+ * @uses get_post_meta() To check if the user id is set on the object
+ * @uses apply_filters() Calls 'bbp_is_object_of_user' with the object id,
+ *                        user id, and taxonomy
+ * @return bool Returns true if the user id is set on the object for the
+ *               taxonomy, otherwise false
+ */
+function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$user_ids = bbp_get_users_for_object( $object_id, $meta_key, $meta_type );
+	$retval   = is_numeric( array_search( $user_id, $user_ids, true ) );
+
+	return (bool) apply_filters( 'bbp_is_object_of_user', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+}
+
 /** Favorites *****************************************************************/
 
 /**
@@ -184,19 +276,9 @@ function bbp_current_author_ua() {
  */
 function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	if ( empty( $topic_id ) ) {
-		return;
-	}
+	$users    = bbp_get_users_for_object( $topic_id, '_bbp_favorite' );
 
-	$bbp_db = bbp_db();
-	$key    = $bbp_db->prefix . '_bbp_favorites';
-	$users  = wp_cache_get( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
-	if ( false === $users ) {
-		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
-		wp_cache_set( 'bbp_get_topic_favoriters_' . $topic_id, $users, 'bbpress_users' );
-	}
-
-	return apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
+	return (array) apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
 }
 
 /**
@@ -212,44 +294,40 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
-
-	// If user has favorites, load them
+	$user_id   = bbp_get_user_id( $user_id );
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
-	if ( ! empty( $favorites ) ) {
-		$query = bbp_has_topics( array( 'post__in' => $favorites ) );
-	} else {
-		$query = false;
-	}
+	$query     = ! empty( $favorites )
+		? bbp_has_topics( array( 'post__in' => $favorites ) )
+		: false;
 
 	return apply_filters( 'bbp_get_user_favorites', $query, $user_id, $favorites );
 }
 
 /**
- * Get a user's favorite topics' ids
+ * Get a user's favorite topic ids
  *
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
- * @uses get_user_option() To get the user favorites
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
  *                        the favorites and user id
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$user_id   = bbp_get_user_id( $user_id );
+	$favorites = new WP_Query( array(
+		'fields'     => 'ids',
+		'post_type'  => bbp_get_topic_post_type(),
+		'meta_query' => array( array(
+			'key'     => '_bbp_favorite',
+			'value'   => $user_id,
+			'compare' => 'NUMERIC'
+		) )
+	) );
 
-	$favorites = get_user_option( '_bbp_favorites', $user_id );
-	$favorites = array_filter( wp_parse_id_list( $favorites ) );
-
-	return (array) apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites, $user_id );
+	return (array) apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites->posts, $user_id );
 }
 
 /**
@@ -263,18 +341,14 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
  * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_object_of_user() To check if the user has a favorite
  * @uses apply_filters() Calls 'bbp_is_user_favorite' with the bool, user id,
  *                        topic id and favorites
  * @return bool True if the topic is in user's favorites, otherwise false
  */
 function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
-
-	$user_id = bbp_get_user_id( $user_id, true, true );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
-
 	$retval    = false;
+	$user_id   = bbp_get_user_id( $user_id, true, true );
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
 
 	if ( ! empty( $favorites ) ) {
@@ -295,7 +369,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 
 		// Is topic_id in the user's favorites
 		if ( ! empty( $topic_id ) ) {
-			$retval = in_array( $topic_id, $favorites );
+			$retval = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_favorite' );
 		}
 	}
 
@@ -309,29 +383,31 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
- * @uses update_user_option() To update the user favorites
+ * @uses bbp_is_user_favorite() To check if the topic is a user favorite
  * @uses do_action() Calls 'bbp_add_user_favorite' with the user id and topic id
  * @return bool Always true
  */
 function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
 		return false;
 	}
 
+	// Bail if to topic
 	$topic = bbp_get_topic( $topic_id );
 	if ( empty( $topic ) ) {
 		return false;
 	}
 
-	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
-	if ( ! in_array( $topic_id, $favorites ) ) {
-		$favorites[] = $topic_id;
-		$favorites   = implode( ',', wp_parse_id_list( array_filter( $favorites ) ) );
-		update_user_option( $user_id, '_bbp_favorites', $favorites );
+	// Bail if already a favorite
+	if ( bbp_is_user_favorite( $user_id, $topic_id ) ) {
+		return false;
+	}
 
-		// Purge cache
-		wp_cache_delete( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
+	// Bail if add fails
+	if ( ! bbp_add_user_to_object( $topic_id, $user_id, '_bbp_favorite' ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_add_user_favorite', $user_id, $topic_id );
@@ -346,37 +422,26 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
- * @uses update_user_option() To update the user favorites
- * @uses delete_user_option() To delete the user favorites meta
+ * @uses bbp_is_user_favorite() To check if the topic is a user favorite
  * @uses do_action() Calls 'bbp_remove_user_favorite' with the user & topic id
  * @return bool True if the topic was removed from user's favorites, otherwise
  *               false
  */
 function bbp_remove_user_favorite( $user_id, $topic_id ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
 		return false;
 	}
 
-	$favorites = (array) bbp_get_user_favorites_topic_ids( $user_id );
-	if ( empty( $favorites ) ) {
+	// Bail if not already a favorite
+	if ( ! bbp_is_user_favorite( $user_id, $topic_id ) ) {
 		return false;
 	}
 
-	$pos = array_search( $topic_id, $favorites );
-	if ( is_numeric( $pos ) ) {
-		array_splice( $favorites, $pos, 1 );
-		$favorites = array_filter( $favorites );
-
-		if ( ! empty( $favorites ) ) {
-			$favorites = implode( ',', wp_parse_id_list( $favorites ) );
-			update_user_option( $user_id, '_bbp_favorites', $favorites );
-		} else {
-			delete_user_option( $user_id, '_bbp_favorites' );
-		}
-
-		// Purge cache
-		wp_cache_delete( 'bbp_get_topic_favoriters_' . $topic_id, 'bbpress_users' );
+	// Bail if remove fails
+	if ( ! bbp_remove_user_from_object( $topic_id, $user_id, '_bbp_favorite' ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_remove_user_favorite', $user_id, $topic_id );
@@ -425,8 +490,8 @@ function bbp_favorites_handler( $action = '' ) {
 	}
 
 	// What action is taking place?
-	$topic_id    = intval( $_GET['topic_id'] );
-	$user_id     = bbp_get_user_id( 0, true, true );
+	$topic_id = intval( $_GET['topic_id'] );
+	$user_id  = bbp_get_user_id( 0, true, true );
 
 	// Check for empty topic
 	if ( empty( $topic_id ) ) {
@@ -494,25 +559,15 @@ function bbp_favorites_handler( $action = '' ) {
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $forum_id Optional. forum id
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses bbp_get_users_for_object() To get the forum subscribers
  * @uses apply_filters() Calls 'bbp_get_forum_subscribers' with the subscribers
  * @return array|bool Results if the forum has any subscribers, otherwise false
  */
 function bbp_get_forum_subscribers( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
-	if ( empty( $forum_id ) ) {
-		return;
-	}
+	$users    = bbp_get_users_for_object( $forum_id, '_bbp_subscription' );
 
-	$bbp_db = bbp_db();
-	$key    = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$users  = wp_cache_get( 'bbp_get_forum_subscribers_' . $forum_id, 'bbpress_users' );
-	if ( false === $users ) {
-		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$forum_id}', meta_value) > 0" );
-		wp_cache_set( 'bbp_get_forum_subscribers_' . $forum_id, $users, 'bbpress_users' );
-	}
-
-	return apply_filters( 'bbp_get_forum_subscribers', $users, $forum_id );
+	return (array) apply_filters( 'bbp_get_forum_subscribers', $users, $forum_id );
 }
 
 /**
@@ -521,25 +576,15 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Optional. Topic id
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses bbp_get_user_terms_by_object() To get the topic subscribers
  * @uses apply_filters() Calls 'bbp_get_topic_subscribers' with the subscribers
  * @return array|bool Results if the topic has any subscribers, otherwise false
  */
 function bbp_get_topic_subscribers( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	if ( empty( $topic_id ) ) {
-		return;
-	}
+	$users    = bbp_get_users_for_object( $topic_id, '_bbp_subscription' );
 
-	$bbp_db = bbp_db();
-	$key    = $bbp_db->prefix . '_bbp_subscriptions';
-	$users  = wp_cache_get( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
-	if ( false === $users ) {
-		$users = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}' and FIND_IN_SET('{$topic_id}', meta_value) > 0" );
-		wp_cache_set( 'bbp_get_topic_subscribers_' . $topic_id, $users, 'bbpress_users' );
-	}
-
-	return apply_filters( 'bbp_get_topic_subscribers', $users, $topic_id );
+	return (array) apply_filters( 'bbp_get_topic_subscribers', $users, $topic_id );
 }
 
 /**
@@ -574,13 +619,10 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 
 	// Default to the displayed user
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$user_id       = bbp_get_user_id( $user_id );
+	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
 
 	// If user has subscriptions, load them
-	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
 	if ( ! empty( $subscriptions ) ) {
 		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
 	} else {
@@ -605,13 +647,10 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
 
 	// Default to the displayed user
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$user_id       = bbp_get_user_id( $user_id );
+	$subscriptions = bbp_get_user_subscribed_forum_ids( $user_id );
 
 	// If user has subscriptions, load them
-	$subscriptions = bbp_get_user_subscribed_forum_ids( $user_id );
 	if ( ! empty( $subscriptions ) ) {
 		$query = bbp_has_forums( array( 'post__in' => $subscriptions ) );
 	} else {
@@ -628,21 +667,24 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
- * @uses get_user_option() To get the user's subscriptions
+ * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses apply_filters() Calls 'bbp_get_user_subscribed_forum_ids' with
  *                        the subscriptions and user id
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$user_id       = bbp_get_user_id( $user_id );
+	$subscriptions = new WP_Query( array(
+		'fields'     => 'ids',
+		'post_type'  => bbp_get_forum_post_type(),
+		'meta_query' => array( array(
+			'key'     => '_bbp_subscription',
+			'value'   => $user_id,
+			'compare' => 'NUMERIC'
+		) )
+	) );
 
-	$subscriptions = get_user_option( '_bbp_forum_subscriptions', $user_id );
-	$subscriptions = array_filter( wp_parse_id_list( $subscriptions ) );
-
-	return (array) apply_filters( 'bbp_get_user_subscribed_forum_ids', $subscriptions, $user_id );
+	return (array) apply_filters( 'bbp_get_user_subscribed_forum_ids', $subscriptions->posts, $user_id );
 }
 
 /**
@@ -652,21 +694,24 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
- * @uses get_user_option() To get the user's subscriptions
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_get_user_subscribed_topic_ids' with
  *                        the subscriptions and user id
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
-	}
+	$user_id       = bbp_get_user_id( $user_id );
+	$subscriptions = new WP_Query( array(
+		'fields'     => 'ids',
+		'post_type'  => bbp_get_topic_post_type(),
+		'meta_query' => array( array(
+			'key'     => '_bbp_subscription',
+			'value'   => $user_id,
+			'compare' => 'NUMERIC'
+		) )
+	) );
 
-	$subscriptions = get_user_option( '_bbp_subscriptions', $user_id );
-	$subscriptions = array_filter( wp_parse_id_list( $subscriptions ) );
-
-	return (array) apply_filters( 'bbp_get_user_subscribed_topic_ids', $subscriptions, $user_id );
+	return (array) apply_filters( 'bbp_get_user_subscribed_topic_ids', $subscriptions->posts, $user_id );
 }
 
 /**
@@ -732,9 +777,9 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
  * @param int $forum_id Optional. Topic id
  * @param array $subscribed_ids Optional. Array of forum ID's to check
  * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
  * @uses bbp_get_forum() To get the forum
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_object_of_user() To check if the user has a subscription
  * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
  *                        forum id and subsriptions
  * @return bool True if the forum is in user's subscriptions, otherwise false
@@ -770,9 +815,9 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
 				$forum_id = get_the_ID();
 			}
 
-			// Is forum_id in the user's favorites
+			// Is forum_id in the user's subscriptions
 			if ( ! empty( $forum_id ) ) {
-				$retval = in_array( $forum_id, $subscribed_ids );
+				$retval = bbp_is_object_of_user( $forum_id, $user_id, '_bbp_subscription' );
 			}
 		}
 	}
@@ -789,9 +834,9 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
  * @param int $topic_id Optional. Topic id
  * @param array $subscribed_ids Optional. Array of topic ID's to check
  * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
  * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_object_of_user() To check if the user is subscribed
  * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
  *                        topic id and subsriptions
  * @return bool True if the topic is in user's subscriptions, otherwise false
@@ -827,9 +872,9 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 				$topic_id = get_the_ID();
 			}
 
-			// Is topic_id in the user's favorites
+			// Is topic_id in the user's subscriptions
 			if ( ! empty( $topic_id ) ) {
-				$retval = in_array( $topic_id, $subscribed_ids );
+				$retval = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_subscription' );
 			}
 		}
 	}
@@ -838,22 +883,19 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 }
 
 /**
- * Add a topic to user's subscriptions
+ * Add a user subscription
  *
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
  * @uses get_post() To get the post object
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's forum subscriptions
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's topic subscriptions
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses update_user_option() To update the user's subscriptions
- * @uses do_action() Calls 'bbp_add_user_subscription' with the user & topic id
+ * @uses do_action() Calls 'bbp_add_user_subscription' with the user & object id
  * @return bool Always true
  */
 function bbp_add_user_subscription( $user_id = 0, $object_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $object_id ) ) {
 		return false;
 	}
@@ -864,18 +906,14 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0 ) {
 		return false;
 	}
 
-	switch( $post_type ) {
+	// Bail if already subscribed
+	if ( bbp_is_user_subscribed( $user_id, $object_id ) ) {
+		return false;
+	}
 
-		// Forum
-		case bbp_get_forum_post_type() :
-			bbp_add_user_forum_subscription( $user_id, $object_id );
-			break;
-
-		// Topic
-		case bbp_get_topic_post_type() :
-		default :
-			bbp_add_user_topic_subscription( $user_id, $object_id );
-			break;
+	// Bail if add fails
+	if ( ! bbp_add_user_to_object( $object_id, $user_id, '_bbp_subscription' ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_add_user_subscription', $user_id, $object_id, $post_type );
@@ -890,29 +928,32 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
  * @uses bbp_get_forum() To get the forum
- * @uses update_user_option() To update the user's subscriptions
+ * @uses bbp_add_user_subscription() To add the user subscription
  * @uses do_action() Calls 'bbp_add_user_subscription' with the user & forum id
  * @return bool Always true
  */
 function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $forum_id ) ) {
 		return false;
 	}
 
+	// Bail if no forum
 	$forum = bbp_get_forum( $forum_id );
 	if ( empty( $forum ) ) {
 		return false;
 	}
 
-	$subscriptions = (array) bbp_get_user_subscribed_forum_ids( $user_id );
-	if ( ! in_array( $forum_id, $subscriptions ) ) {
-		$subscriptions[] = $forum_id;
-		$subscriptions   = implode( ',', wp_parse_id_list( array_filter( $subscriptions ) ) );
-		update_user_option( $user_id, '_bbp_forum_subscriptions', $subscriptions );
+	// Bail if already subscribed
+	if ( bbp_is_user_subscribed( $user_id, $forum_id ) ) {
+		return false;
+	}
 
-		wp_cache_delete( 'bbp_get_forum_subscribers_' . $forum_id, 'bbpress_users' );
+	// Bail if add fails
+	if ( ! bbp_add_user_subscription( $user_id, $forum_id ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_add_user_forum_subscription', $user_id, $forum_id );
@@ -927,29 +968,32 @@ function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
  * @uses bbp_get_topic() To get the topic
- * @uses update_user_option() To update the user's subscriptions
+ * @uses bbp_add_user_subscription() To add the subscription
  * @uses do_action() Calls 'bbp_add_user_subscription' with the user & topic id
  * @return bool Always true
  */
 function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
 		return false;
 	}
 
+	// Bail if no topic
 	$topic = bbp_get_topic( $topic_id );
 	if ( empty( $topic ) ) {
 		return false;
 	}
 
-	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
-	if ( ! in_array( $topic_id, $subscriptions ) ) {
-		$subscriptions[] = $topic_id;
-		$subscriptions   = implode( ',', wp_parse_id_list( array_filter( $subscriptions ) ) );
-		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
+	// Bail if already subscribed
+	if ( bbp_is_user_subscribed_to_topic( $user_id, $topic_id ) ) {
+		return false;
+	}
 
-		wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
+	// Bail if add fails
+	if ( ! bbp_add_user_subscription( $user_id, $topic_id ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_add_user_topic_subscription', $user_id, $topic_id );
@@ -958,44 +1002,40 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
 }
 
 /**
- * Remove a topic from user's subscriptions
+ * Remove a user subscription
  *
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
  * @uses get_post() To get the post object
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_remove_user_forum_subscription() To remove the user's subscription
- * @uses bbp_remove_user_topic_subscription() To remove the user's subscription
+ * @uses bbp_is_user_subscribed() To check if the user is already subscribed
  * @uses do_action() Calls 'bbp_remove_user_subscription' with the user id and
  *                    topic id
  * @return bool True if the topic was removed from user's subscriptions,
  *               otherwise false
  */
 function bbp_remove_user_subscription( $user_id = 0, $object_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $object_id ) ) {
 		return false;
 	}
 
+	// Get post type
 	$post_type = get_post_type( $object_id );
 	if ( empty( $post_type ) ) {
 		return false;
 	}
 
-	switch( $post_type ) {
+	// Bail if not subscribed
+	if ( ! bbp_is_user_subscribed( $user_id, $object_id ) ) {
+		return false;
+	}
 
-		// Forum
-		case bbp_get_forum_post_type() :
-			bbp_remove_user_forum_subscription( $user_id, $object_id );
-			break;
-
-		// Topic
-		case bbp_get_topic_post_type() :
-		default :
-			bbp_remove_user_topic_subscription( $user_id, $object_id );
-			break;
+	// Bail if remove fails
+	if ( ! bbp_remove_user_from_object( $object_id, $user_id, '_bbp_subscription' ) ) {
+		return false;
 	}
 
 	do_action( 'bbp_remove_user_subscription', $user_id, $object_id, $post_type );
@@ -1010,40 +1050,23 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $forum_id Optional. forum id
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
- * @uses update_user_option() To update the user's subscriptions
- * @uses delete_user_option() To delete the user's subscriptions meta
+ * @uses bbp_remove_user_subscription() To remove the subscription
  * @uses do_action() Calls 'bbp_remove_user_subscription' with the user id and
  *                    forum id
  * @return bool True if the forum was removed from user's subscriptions,
  *               otherwise false
  */
-function bbp_remove_user_forum_subscription( $user_id, $forum_id ) {
+function bbp_remove_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $forum_id ) ) {
 		return false;
 	}
 
-	$subscriptions = (array) bbp_get_user_subscribed_forum_ids( $user_id );
-	if ( empty( $subscriptions ) ) {
+	// Bail if remove fails
+	if ( ! bbp_remove_user_subscription( $user_id, $forum_id ) ) {
 		return false;
 	}
-
-	$pos = array_search( $forum_id, $subscriptions );
-	if ( false === $pos ) {
-		return false;
-	}
-
-	array_splice( $subscriptions, $pos, 1 );
-	$subscriptions = array_filter( $subscriptions );
-
-	if ( ! empty( $subscriptions ) ) {
-		$subscriptions = implode( ',', wp_parse_id_list( $subscriptions ) );
-		update_user_option( $user_id, '_bbp_forum_subscriptions', $subscriptions );
-	} else {
-		delete_user_option( $user_id, '_bbp_forum_subscriptions' );
-	}
-
-	wp_cache_delete( 'bbp_get_forum_subscribers_' . $forum_id, 'bbpress_users' );
 
 	do_action( 'bbp_remove_user_forum_subscription', $user_id, $forum_id );
 
@@ -1057,40 +1080,23 @@ function bbp_remove_user_forum_subscription( $user_id, $forum_id ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
- * @uses update_user_option() To update the user's subscriptions
- * @uses delete_user_option() To delete the user's subscriptions meta
+ * @uses bbp_remove_user_subscription() To remove the subscription
  * @uses do_action() Calls 'bbp_remove_user_topic_subscription' with the user id and
  *                    topic id
  * @return bool True if the topic was removed from user's subscriptions,
  *               otherwise false
  */
-function bbp_remove_user_topic_subscription( $user_id, $topic_id ) {
+function bbp_remove_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
+
+	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
 		return false;
 	}
 
-	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
-	if ( empty( $subscriptions ) ) {
+	// Bail if remove fails
+	if ( ! bbp_remove_user_subscription( $user_id, $topic_id ) ) {
 		return false;
 	}
-
-	$pos = array_search( $topic_id, $subscriptions );
-	if ( false === $pos ) {
-		return false;
-	}
-
-	array_splice( $subscriptions, $pos, 1 );
-	$subscriptions = array_filter( $subscriptions );
-
-	if ( ! empty( $subscriptions ) ) {
-		$subscriptions = implode( ',', wp_parse_id_list( $subscriptions ) );
-		update_user_option( $user_id, '_bbp_subscriptions', $subscriptions );
-	} else {
-		delete_user_option( $user_id, '_bbp_subscriptions' );
-	}
-
-	wp_cache_delete( 'bbp_get_topic_subscribers_' . $topic_id, 'bbpress_users' );
 
 	do_action( 'bbp_remove_user_topic_subscription', $user_id, $topic_id );
 

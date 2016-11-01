@@ -86,6 +86,65 @@
 	}
 
 	/**
+	 * @covers ::bbp_add_user_to_object
+	 */
+	public function test_bbp_add_user_to_object() {
+		$u = $this->factory->user->create_many( 3 );
+		$t = $this->factory->topic->create();
+
+		// Add object terms.
+		foreach ( $u as $k => $v ) {
+			bbp_add_user_to_object( $t, $v, '_bbp_moderator' );
+		}
+
+		$r = get_metadata( 'post', $t, '_bbp_moderator', false );
+
+		$this->assertCount( 3, $r );
+	}
+
+	/**
+	 * @covers ::bbp_remove_user_from_object
+	 */
+	public function test_bbp_remove_user_from_object() {
+		$u = $this->factory->user->create();
+		$t = $this->factory->topic->create();
+
+		// Add object terms.
+		add_metadata( 'post', $t, '_bbp_moderator', $u, false );
+
+		$r = get_metadata( 'post', $t, '_bbp_moderator', false );
+
+		$this->assertCount( 1, $r );
+
+		$r = bbp_remove_user_from_object( $t, $u, '_bbp_moderator' );
+
+		$this->assertTrue( $r );
+
+		$r = get_metadata( 'post', $t, '_bbp_moderator', false );
+
+		$this->assertCount( 0, $r );
+	}
+
+	/**
+	 * @covers ::bbp_is_object_of_user
+	 */
+	public function test_bbp_is_object_of_user() {
+		$u = $this->factory->user->create();
+		$t = $this->factory->topic->create();
+
+		$r = bbp_is_object_of_user( $t, $u, '_bbp_moderator' );
+
+		$this->assertFalse( $r );
+
+		// Add user id.
+		add_metadata( 'post', $t, '_bbp_moderator', $u, false );
+
+		$r = bbp_is_object_of_user( $t, $u, '_bbp_moderator' );
+
+		$this->assertTrue( $r );
+	}
+
+ 	/**
 	 * @covers ::bbp_edit_user_handler
 	 * @todo   Implement test_bbp_edit_user_handler().
 	 */

@@ -811,7 +811,7 @@ function bbp_user_has_profile( $user_id = 0 ) {
  * @return @mixed
  */
 function bbp_add_moderator( $object_id = 0, $user_id = 0 ) {
-	return add_post_meta( $object_id, '_bbp_moderator_id', $user_id );
+	return bbp_add_user_to_object( $object_id, $user_id, '_bbp_moderator_id' );
 }
 
 /**
@@ -825,7 +825,7 @@ function bbp_add_moderator( $object_id = 0, $user_id = 0 ) {
  * @return mixed
  */
 function bbp_remove_moderator( $object_id = 0, $user_id = 0 ) {
-	return delete_post_meta( $object_id, '_bbp_moderator_id', $user_id );
+	return bbp_remove_user_from_object( $object_id, $user_id, '_bbp_moderator_id' );
 }
 
 /**
@@ -838,7 +838,7 @@ function bbp_remove_moderator( $object_id = 0, $user_id = 0 ) {
  * @return mixed
  */
 function bbp_get_moderator_ids( $object_id = 0 ) {
-	return get_post_meta( $object_id, '_bbp_moderator_id', false );
+	return bbp_get_users_for_object( $object_id, '_bbp_moderator_id' );
 }
 
 /**
