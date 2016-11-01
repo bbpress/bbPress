@@ -245,26 +245,6 @@ function bbp_remove_caps() {
 }
 
 /**
- * Get the `$wp_roles` global without needing to declare it everywhere
- *
- * @since 2.2.0 bbPress (r4293)
- *
- * @return WP_Roles
- */
-function bbp_get_wp_roles() {
-
-	// Try to get `$wp_roles`
-	$retval = bbp_get_global_object( 'wp_roles', 'WP_Roles' );
-
-	// Set roles if not loaded
-	if ( is_null( $retval ) ) {
-		$retval = $GLOBALS['wp_roles'] = new WP_Roles();
-	}
-
-	return $retval;
-}
-
-/**
  * Get the available roles minus bbPress's dynamic roles
  *
  * @since 2.4.0 bbPress (r5064)
@@ -294,21 +274,32 @@ function bbp_get_blog_roles() {
  *
  * We do this to avoid adding these values to the database.
  *
+ * Note: bbPress is purposely assertive here, overwriting any keys & values
+ * that may already exist in the $wp_roles array.
+ *
  * @since 2.2.0 bbPress (r4290)
  *
- * @uses bbp_get_wp_roles() To load and get the $wp_roles global
  * @uses bbp_get_dynamic_roles() To get and add bbPress's roles to $wp_roles
+ *
+ * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized
+ *
  * @return WP_Roles The main $wp_roles global
  */
-function bbp_add_forums_roles() {
-	$wp_roles = bbp_get_wp_roles();
+function bbp_add_forums_roles( $wp_roles = null ) {
 
+	// Attempt to get global roles if not passed in & not mid-initialization
+	if ( ( null === $wp_roles ) && ! doing_action( 'wp_roles_init' ) ) {
+		$wp_roles = bbp_get_wp_roles();
+	}
+
+	// Loop through dynamic roles and add them to the $wp_roles array
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
 		$wp_roles->roles[ $role_id ]        = $details;
 		$wp_roles->role_objects[ $role_id ] = new WP_Role( $role_id, $details['capabilities'] );
 		$wp_roles->role_names[ $role_id ]   = $details['name'];
 	}
 
+	// Return the modified $wp_roles array
 	return $wp_roles;
 }
 
@@ -316,6 +307,7 @@ function bbp_add_forums_roles() {
  * Helper function to add filter to option_wp_user_roles
  *
  * @since 2.2.0 bbPress (r4363)
+ * @deprecated 2.6.0 bbPress (r6105)
  *
  * @see _bbp_reinit_dynamic_roles()
  */
@@ -342,6 +334,7 @@ function bbp_filter_user_roles_option() {
  * @see WP_Roles::_init()
  *
  * @since 2.2.0 bbPress (r4363)
+ * @deprecated 2.6.0 bbPress (r6105)
  *
  * @internal Used by bbPress to reinitialize dynamic roles on blog switch
  *
