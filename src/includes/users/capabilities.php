@@ -474,7 +474,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @uses bbp_spam_reply()
  * @uses restore_current_blog()
  *
- * @return If no user ID passed
+ * @return bool If no user ID passed.
  */
 function bbp_make_spam_user( $user_id = 0 ) {
 
@@ -565,7 +565,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
  * @uses bbp_unspam_reply()
  * @uses restore_current_blog()
  *
- * @return If no user ID passed
+ * @return bool If no user ID passed.
  */
 function bbp_make_ham_user( $user_id = 0 ) {
 
@@ -764,7 +764,6 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4362)
  *
  * @param int $user_id User ID to check
- * @param int $blog_id Blog ID to check
  *
  * @uses bbp_get_user_id() To verify the user ID
  * @uses get_userdata() To get the user's data
@@ -772,7 +771,7 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
  * @uses bbp_is_user_inactive() To check if user is spammer or deleted
  * @uses apply_filters() To allow override of this functions result
  *
- * @return boolean Whether or not the user has a profile on this blog_id
+ * @return bool Whether or not the user has a profile on this blog_id.
  */
 function bbp_user_has_profile( $user_id = 0 ) {
 
@@ -822,7 +821,7 @@ function bbp_add_moderator( $object_id = 0, $user_id = 0 ) {
  * @param int $object_id
  * @param int $user_id
  *
- * @return mixed
+ * @return bool
  */
 function bbp_remove_moderator( $object_id = 0, $user_id = 0 ) {
 	return bbp_remove_user_from_object( $object_id, $user_id, '_bbp_moderator_id' );

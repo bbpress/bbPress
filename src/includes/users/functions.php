@@ -174,7 +174,7 @@ function bbp_current_author_ua() {
 /**
  * Set a user id on an object
  *
- * @since 2.7 bbPress()
+ * @since 2.6.0 bbPress(r6109)
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
@@ -197,7 +197,7 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
 /**
  * Remove a user id from an object
  *
- * @since 2.7 bbPress()
+ * @since 2.6.0 bbPress(r6109)
  *
  * @param int    $object_id The post id
  * @param int    $user_id   The user id
@@ -220,7 +220,7 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = 
 /**
  * Get user taxonomy terms for an object
  *
- * @since 2.7 bbPress()
+ * @since 2.6.0 bbPress(r6109)
  *
  * @param int    $object_id The object id
  * @param string $meta_key  The key used to index this relationship
@@ -241,7 +241,7 @@ function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 
 /**
  * Check if the user id is set on an object
  *
- * @since 2.7 bbPress()
+ * @since 2.6.0 bbPress(r6109)
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
