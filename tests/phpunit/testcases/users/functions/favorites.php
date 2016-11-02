@@ -23,7 +23,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 		$expected = array( $u[0], $u[1] );
 		$favoriters = bbp_get_topic_favoriters( $t );
 
-		$this->assertEquals( $expected, $favoriters );
+		$this->assertEqualSets( $expected, $favoriters );
 
 		// Add topic favorites.
 		bbp_add_user_favorite( $u[2], $t );
@@ -31,7 +31,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 		$expected = array( $u[0], $u[1], $u[2] );
 		$favoriters = bbp_get_topic_favoriters( $t );
 
-		$this->assertEquals( $expected, $favoriters );
+		$this->assertEqualSets( $expected, $favoriters );
 
 		// Remove user favorite.
 		bbp_remove_user_favorite( $u[1], $t );
@@ -39,7 +39,7 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 		$expected = array( $u[0], $u[2] );
 		$favoriters = bbp_get_topic_favoriters( $t );
 
-		$this->assertEquals( $expected, $favoriters );
+		$this->assertEqualSets( $expected, $favoriters );
 	}
 
 	/**
@@ -82,14 +82,14 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[1], $t[2] ), $favorites );
+		$this->assertEqualSets( array( $t[0], $t[1], $t[2] ), $favorites );
 
 		// Remove user favorite.
 		bbp_remove_user_favorite( $u, $t[1] );
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[2] ), $favorites );
+		$this->assertEqualSets( array( $t[0], $t[2] ), $favorites );
 	}
 
 	/**
@@ -126,14 +126,14 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[1] ), $favorites );
+		$this->assertEqualSets( array( $t[0], $t[1] ), $favorites );
 
 		// Add user favorite.
 		bbp_add_user_favorite( $u, $t[2] );
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[1], $t[2] ), $favorites );
+		$this->assertEqualSets( array( $t[0], $t[1], $t[2] ), $favorites );
 	}
 
 	/**
@@ -153,14 +153,14 @@ class BBP_Tests_Users_Functions_Favorites extends BBP_UnitTestCase {
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[1] ), $favorites );
+		$this->assertEqualSets( array( $t[0], $t[1] ), $favorites );
 
 		// Remove user favorite.
 		bbp_remove_user_favorite( $u, $t[1] );
 
 		$favorites = bbp_get_user_favorites_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0] ), $favorites );
+		$this->assertEqualSets( array( $t[0] ), $favorites );
 	}
 
 	/**

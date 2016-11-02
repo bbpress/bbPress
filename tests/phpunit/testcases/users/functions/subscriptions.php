@@ -23,7 +23,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscribers = bbp_get_forum_subscribers( $f[0] );
 
-		$this->assertEquals( array( $u[0], $u[1], $u[2] ), $subscribers );
+		$this->assertEqualSets( array( $u[0], $u[1], $u[2] ), $subscribers );
 
 		// Add forum subscriptions.
 		bbp_add_user_forum_subscription( $u[0], $f[1] );
@@ -31,7 +31,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscribers = bbp_get_forum_subscribers( $f[1] );
 
-		$this->assertEquals( array( $u[0], $u[2] ), $subscribers );
+		$this->assertEqualSets( array( $u[0], $u[2] ), $subscribers );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscribers = bbp_get_topic_subscribers( $t[0] );
 
-		$this->assertEquals( array( $u[0], $u[1], $u[2] ), $subscribers );
+		$this->assertEqualSets( array( $u[0], $u[1], $u[2] ), $subscribers );
 
 		// Add topic subscriptions.
 		bbp_add_user_topic_subscription( $u[0], $t[1] );
@@ -56,7 +56,7 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscribers = bbp_get_topic_subscribers( $t[1] );
 
-		$this->assertEquals( array( $u[0], $u[2] ), $subscribers );
+		$this->assertEqualSets( array( $u[0], $u[2] ), $subscribers );
 	}
 
 	/**
@@ -152,14 +152,14 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscriptions = bbp_get_user_subscribed_forum_ids( $u );
 
-		$this->assertEquals( array( $f[0], $f[1], $f[2] ), $subscriptions );
+		$this->assertEqualSets( array( $f[0], $f[1], $f[2] ), $subscriptions );
 
 		// Remove forum subscription.
 		bbp_remove_user_forum_subscription( $u, $f[1] );
 
 		$subscriptions = bbp_get_user_subscribed_forum_ids( $u );
 
-		$this->assertEquals( array( $f[0], $f[2] ), $subscriptions );
+		$this->assertEqualSets( array( $f[0], $f[2] ), $subscriptions );
 	}
 
 	/**
@@ -176,14 +176,14 @@ class BBP_Tests_Users_Functions_Subscriptions extends BBP_UnitTestCase {
 
 		$subscriptions = bbp_get_user_subscribed_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[1], $t[2] ), $subscriptions );
+		$this->assertEqualSets( array( $t[0], $t[1], $t[2] ), $subscriptions );
 
 		// Remove topic subscription.
 		bbp_remove_user_topic_subscription( $u, $t[1] );
 
 		$subscriptions = bbp_get_user_subscribed_topic_ids( $u );
 
-		$this->assertEquals( array( $t[0], $t[2] ), $subscriptions );
+		$this->assertEqualSets( array( $t[0], $t[2] ), $subscriptions );
 	}
 
 	/**
