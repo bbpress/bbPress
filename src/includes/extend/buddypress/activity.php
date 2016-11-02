@@ -611,7 +611,7 @@ class BBP_BuddyPress_Activity {
 		}
 	}
 
- 	/**
+	/**
 	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted
 	 *
 	 * @param int $reply_id

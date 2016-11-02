@@ -203,7 +203,7 @@ function bbp_dashboard_widget_right_now() {
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
 					?>
 
@@ -225,7 +225,7 @@ function bbp_dashboard_widget_right_now() {
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
-                        $num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
+						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
 					?>
 

@@ -238,7 +238,7 @@ class Mingle extends BBP_Converter_Base {
 
 		/**
 		 * Mingle Forums do not support topic tags
-         */
+		 */
 
 		/** Reply Section ******************************************************/
 
@@ -475,8 +475,8 @@ class Mingle extends BBP_Converter_Base {
 	}
 
 	/**
-	* This callback processes any custom BBCodes with parser.php
-	*/
+	 * This callback processes any custom BBCodes with parser.php
+	 */
 	protected function callback_html( $field ) {
 		require_once( bbpress()->admin->admin_dir . 'parser.php' );
 		$bbcode = BBCode::getInstance();

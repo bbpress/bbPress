@@ -318,7 +318,7 @@ class BBP_Akismet {
 
 		// Add some reporter info
 		if ( is_object( $current_user ) ) {
-		    $post_data['reporter'] = $current_user->user_login;
+			$post_data['reporter'] = $current_user->user_login;
 		}
 
 		// Add the current site domain

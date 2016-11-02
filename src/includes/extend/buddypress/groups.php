@@ -1391,7 +1391,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @uses bbp_get_forum_id()
 	 * @uses maybe_map_permalink_to_group
 	 * @return array
- 	 */
+	 */
 	public function topic_pagination( $args ) {
 		$new = $this->maybe_map_permalink_to_group( bbp_get_forum_id() );
 

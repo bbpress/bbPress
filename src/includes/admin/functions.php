@@ -209,7 +209,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
 function bbp_do_activation_redirect() {
 
 	// Bail if no activation redirect
-    if ( ! get_transient( '_bbp_activation_redirect' ) ) {
+	if ( ! get_transient( '_bbp_activation_redirect' ) ) {
 		return;
 	}
 

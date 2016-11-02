@@ -29,9 +29,9 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-    public function setup_globals() {
+	public function setup_globals() {
 
-    	/** Forum Section *****************************************************/
+		/** Forum Section *****************************************************/
 
 
 		// Old forum id (Stored in postmeta)
@@ -295,7 +295,7 @@ class Kunena2 extends BBP_Converter_Base {
 			'callback_method' => 'callback_topic_status'
 		);
 
-        /** Tags Section ******************************************************/
+		/** Tags Section ******************************************************/
 
 		/**
 		 * Kunena v2.x Forums do not support topic tags out of the box
@@ -398,70 +398,70 @@ class Kunena2 extends BBP_Converter_Base {
 			'callback_method' => 'callback_datetime'
 		);
 
-        /** User Section ******************************************************/
+		/** User Section ******************************************************/
 
-        //Note: We are importing the Joomla User details and the Kunena v2.x user profile details.
+		//Note: We are importing the Joomla User details and the Kunena v2.x user profile details.
 
-        // Store old user id (Stored in usermeta)
-        $this->field_map[] = array(
-            'from_tablename' => 'users',
-            'from_fieldname' => 'id',
-            'to_type'        => 'user',
-            'to_fieldname'   => '_bbp_old_user_id'
-        );
+		// Store old user id (Stored in usermeta)
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'id',
+			'to_type'        => 'user',
+			'to_fieldname'   => '_bbp_old_user_id'
+		);
 
-        // Store old user password (Stored in usermeta serialized with salt)
-        $this->field_map[] = array(
-            'from_tablename'  => 'users',
-            'from_fieldname'  => 'password',
-            'to_type'         => 'user',
-            'to_fieldname'    => '_bbp_password',
-            'callback_method' => 'callback_savepass'
-        );
+		// Store old user password (Stored in usermeta serialized with salt)
+		$this->field_map[] = array(
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'password',
+			'to_type'         => 'user',
+			'to_fieldname'    => '_bbp_password',
+			'callback_method' => 'callback_savepass'
+		);
 
-        // Store old user salt. This is only used for the SELECT row info for the above password save
-        /*
-        $this->field_map[] = array(
-            'from_tablename' => 'users',
-            'from_fieldname' => 'salt',
-            'to_type' => 'user',
-            'to_fieldname' => ''
-        );
-         */
+		// Store old user salt. This is only used for the SELECT row info for the above password save
+		/*
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'salt',
+			'to_type' => 'user',
+			'to_fieldname' => ''
+		);
+		 */
 
-        // User password verify class. Stores in usermeta for verifying password.
-        /*
-        $this->field_map[] = array(
-            'to_type' => 'user',
-            'to_fieldname' => '_bbp_class',
-            'default' => 'Kunena2'
-        );
-         */
+		// User password verify class. Stores in usermeta for verifying password.
+		/*
+		$this->field_map[] = array(
+			'to_type' => 'user',
+			'to_fieldname' => '_bbp_class',
+			'default' => 'Kunena2'
+		);
+		 */
 
-        // User name.
-        $this->field_map[] = array(
-            'from_tablename' => 'users',
-            'from_fieldname' => 'username',
-            'to_type'        => 'user',
-            'to_fieldname'   => 'user_login'
-        );
+		// User name.
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'username',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_login'
+		);
 
-        // User email.
-        $this->field_map[] = array(
-            'from_tablename' => 'users',
-            'from_fieldname' => 'email',
-            'to_type'        => 'user',
-            'to_fieldname'   => 'user_email'
-        );
+		// User email.
+		$this->field_map[] = array(
+			'from_tablename' => 'users',
+			'from_fieldname' => 'email',
+			'to_type'        => 'user',
+			'to_fieldname'   => 'user_email'
+		);
 
-        // User registered.
-        $this->field_map[] = array(
-            'from_tablename'  => 'users',
-            'from_fieldname'  => 'registerDate',
-            'to_type'         => 'user',
-            'to_fieldname'    => 'user_registered',
-            'callback_method' => 'callback_datetime'
-        );
+		// User registered.
+		$this->field_map[] = array(
+			'from_tablename'  => 'users',
+			'from_fieldname'  => 'registerDate',
+			'to_type'         => 'user',
+			'to_fieldname'    => 'user_registered',
+			'callback_method' => 'callback_datetime'
+		);
 
 		// User display name.
 		$this->field_map[] = array(
@@ -471,34 +471,34 @@ class Kunena2 extends BBP_Converter_Base {
 			'to_fieldname'   => 'display_name'
 		);
 
-    }
+	}
 
-    /**
-     * This method allows us to indicates what is or is not converted for each
-     * converter.
-     */
-    public function info() {
-        return '';
-    }
+	/**
+	 * This method allows us to indicates what is or is not converted for each
+	 * converter.
+	 */
+	public function info() {
+		return '';
+	}
 
-    /**
-     * This method is to save the salt and password together.  That
-     * way when we authenticate it we can get it out of the database
-     * as one value. Array values are auto sanitized by WordPress.
-     */
-    public function callback_savepass($field, $row) {
-        $pass_array = array('hash' => $field, 'salt' => $row['salt']);
-        return $pass_array;
-    }
+	/**
+	 * This method is to save the salt and password together.  That
+	 * way when we authenticate it we can get it out of the database
+	 * as one value. Array values are auto sanitized by WordPress.
+	 */
+	public function callback_savepass($field, $row) {
+		$pass_array = array('hash' => $field, 'salt' => $row['salt']);
+		return $pass_array;
+	}
 
-    /**
-     * This method is to take the pass out of the database and compare
-     * to a pass the user has typed in.
-     */
-    public function authenticate_pass($password, $serialized_pass) {
-        $pass_array = unserialize($serialized_pass);
-        return ( $pass_array['hash'] == md5(md5($password) . $pass_array['salt']) );
-    }
+	/**
+	 * This method is to take the pass out of the database and compare
+	 * to a pass the user has typed in.
+	 */
+	public function authenticate_pass($password, $serialized_pass) {
+		$pass_array = unserialize($serialized_pass);
+		return ( $pass_array['hash'] == md5(md5($password) . $pass_array['salt']) );
+	}
 	/**
 	 * Translate the forum type from Kunena v2.x numeric's to WordPress's strings.
 	 *

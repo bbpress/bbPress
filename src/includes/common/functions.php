@@ -1900,10 +1900,10 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 
 			// Check if this query is for a bbPress post type
 			foreach ( $post_types as $bbp_pt ) {
-			    if ( in_array( $bbp_pt, $qv_array, true ) ) {
-				    $post_type = $bbp_pt;
-				    break;
-			    }
+				if ( in_array( $bbp_pt, $qv_array, true ) ) {
+					$post_type = $bbp_pt;
+					break;
+				}
 			}
 
 			// Looking at a bbPress post type
