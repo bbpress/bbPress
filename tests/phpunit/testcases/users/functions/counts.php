@@ -182,6 +182,15 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 
 		$count = bbp_get_user_topic_count_raw( $u );
 		$this->assertSame( 6, $count );
+
+		$t = $this->factory->topic->create( array(
+			'post_author' => $u,
+		) );
+
+		bbp_close_topic( $t );
+
+		$count = bbp_get_user_topic_count_raw( $u );
+		$this->assertSame( 7, $count );
 	}
 
 	/**
