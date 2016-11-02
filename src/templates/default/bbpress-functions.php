@@ -211,7 +211,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Enqueue the scripts
 		foreach ( $scripts as $handle => $attributes ) {
-			bbp_enqueue_script( $handle, $attributes['file'], $attributes['dependencies'], $this->version, 'screen' );
+			bbp_enqueue_script( $handle, $attributes['file'], $attributes['dependencies'], $this->version, true );
 		}
 	}
 

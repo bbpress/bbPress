@@ -196,7 +196,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  *
  * @return string The script filename if one is located.
  */
-function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = 'all' ) {
+function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = false ) {
 
 	// No file found yet
 	$located = false;
