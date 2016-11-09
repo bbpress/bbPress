@@ -377,31 +377,31 @@ function bbp_get_dynamic_roles() {
 
 		// Keymaster
 		bbp_get_keymaster_role() => array(
-			'name'         => __( 'Keymaster', 'bbpress' ),
+			'name'         => 'Keymaster',
 			'capabilities' => bbp_get_caps_for_role( bbp_get_keymaster_role() )
 		),
 
 		// Moderator
 		bbp_get_moderator_role() => array(
-			'name'         => __( 'Moderator', 'bbpress' ),
+			'name'         => 'Moderator',
 			'capabilities' => bbp_get_caps_for_role( bbp_get_moderator_role() )
 		),
 
 		// Participant
 		bbp_get_participant_role() => array(
-			'name'         => __( 'Participant', 'bbpress' ),
+			'name'         => 'Participant',
 			'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
 		),
 
 		// Spectator
 		bbp_get_spectator_role() => array(
-			'name'         => __( 'Spectator', 'bbpress' ),
+			'name'         => 'Spectator',
 			'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
 		),
 
 		// Blocked
 		bbp_get_blocked_role() => array(
-			'name'         => __( 'Blocked', 'bbpress' ),
+			'name'         => 'Blocked',
 			'capabilities' => bbp_get_caps_for_role( bbp_get_blocked_role() )
 		)
 	) );

@@ -103,7 +103,7 @@ class BBP_Users_Admin {
 
 							<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 
-								<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+								<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 
 							<?php endforeach; ?>
 
@@ -139,7 +139,7 @@ class BBP_Users_Admin {
 		<select name="bbp-new-role" id="bbp-new-role" style="display:inline-block; float:none;">
 			<option value=''><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></option>
 			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
-				<option value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+				<option value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 			<?php endforeach; ?>
 		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', 'bbp-change-role', false );
 
@@ -243,7 +243,7 @@ class BBP_Users_Admin {
 			// Translate user role for display
 			if ( ! empty( $user_role ) ) {
 				$roles  = bbp_get_dynamic_roles();
-				$retval = translate_user_role( $roles[$user_role]['name'] );
+				$retval = bbp_translate_user_role( $roles[$user_role]['name'] );
 			}
 		}
 

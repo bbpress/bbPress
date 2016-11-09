@@ -521,7 +521,7 @@ function bbp_admin_setting_callback_global_access() {
 		<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
 		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
 
-			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 
 		<?php endforeach; ?>
 		</select>
