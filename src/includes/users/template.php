@@ -1325,7 +1325,7 @@ function bbp_edit_user_blog_role() {
 
 		<?php foreach ( $blog_roles as $role => $details ) : ?>
 
-			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 
 		<?php endforeach; ?>
 
@@ -1362,7 +1362,7 @@ function bbp_edit_user_forums_role() {
 
 		<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 
-			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo translate_user_role( $details['name'] ); ?></option>
+			<option <?php selected( $user_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 
 		<?php endforeach; ?>
 

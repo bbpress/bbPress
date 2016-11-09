@@ -287,13 +287,11 @@ function bbp_get_blog_roles() {
  */
 function bbp_add_forums_roles( $wp_roles = null ) {
 
-	// Attempt to get global roles if not passed in & not mid-initialization
-	if ( ( null === $wp_roles ) && ! doing_action( 'wp_roles_init' ) ) {
-		$wp_roles = bbp_get_wp_roles();
-	}
+	// Get the dynamic roles
+	$bbp_roles = bbp_get_dynamic_roles();
 
 	// Loop through dynamic roles and add them to the $wp_roles array
-	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
+	foreach ( $bbp_roles as $role_id => $details ) {
 		$wp_roles->roles[ $role_id ]        = $details;
 		$wp_roles->role_objects[ $role_id ] = new WP_Role( $role_id, $details['capabilities'] );
 		$wp_roles->role_names[ $role_id ]   = $details['name'];
@@ -362,63 +360,39 @@ function _bbp_reinit_dynamic_roles( $roles = array() ) {
  * user management.
  *
  * @since 2.2.0 bbPress (r4284)
+ * @since 2.6.0 bbPress (r6117) Use bbpress()->roles
  *
  * @return array
  */
 function bbp_get_dynamic_roles() {
-	static $bbp_roles = null;
 
-	// Only run once
-	if ( null === $bbp_roles ) {
-		$bbp_roles = array(
+	// Defaults
+	$to_array = array();
+	$roles    = bbpress()->roles;
 
-			// Keymaster
-			bbp_get_keymaster_role() => array(
-				'name'         => __( 'Keymaster', 'bbpress' ),
-				'capabilities' => bbp_get_caps_for_role( bbp_get_keymaster_role() )
-			),
-
-			// Moderator
-			bbp_get_moderator_role() => array(
-				'name'         => __( 'Moderator', 'bbpress' ),
-				'capabilities' => bbp_get_caps_for_role( bbp_get_moderator_role() )
-			),
-
-			// Participant
-			bbp_get_participant_role() => array(
-				'name'         => __( 'Participant', 'bbpress' ),
-				'capabilities' => bbp_get_caps_for_role( bbp_get_participant_role() )
-			),
-
-			// Spectator
-			bbp_get_spectator_role() => array(
-				'name'         => __( 'Spectator', 'bbpress' ),
-				'capabilities' => bbp_get_caps_for_role( bbp_get_spectator_role() )
-			),
-
-			// Blocked
-			bbp_get_blocked_role() => array(
-				'name'         => __( 'Blocked', 'bbpress' ),
-				'capabilities' => bbp_get_caps_for_role( bbp_get_blocked_role() )
-			)
-		);
+	// Convert WP_Roles objects to arrays
+	foreach ( $roles as $role_id => $wp_role ) {
+		$to_array[ $role_id ] = (array) $wp_role;
 	}
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_dynamic_roles', $bbp_roles );
+	return (array) apply_filters( 'bbp_get_dynamic_roles', $to_array, $roles );
 }
 
 /**
  * Gets a translated role name from a role ID
  *
  * @since 2.3.0 bbPress (r4792)
+ * @since 2.6.0 bbPress (r6117) Use bbp_translate_user_role()
  *
  * @param string $role_id
  * @return string Translated role name
  */
 function bbp_get_dynamic_role_name( $role_id = '' ) {
 	$roles = bbp_get_dynamic_roles();
-	$role  = isset( $roles[ $role_id ] ) ? $roles[ $role_id ]['name'] : '';
+	$role  = isset( $roles[ $role_id ] )
+		? bbp_translate_user_role( $roles[ $role_id ]['name'] )
+		: '';
 
 	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
 }
@@ -432,7 +406,7 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
  * @since 2.2.0 bbPress (r4303)
  *
  * @param array $all_roles All registered roles
- * @return array 
+ * @return array
  */
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 
@@ -526,7 +500,7 @@ function bbp_add_roles() {
 /**
  * Removes bbPress-specific user roles from the `wp_user_roles` array.
  *
- * This is currently only used when updating, uninstalling, or resetting bbPress. 
+ * This is currently only used when updating, uninstalling, or resetting bbPress.
  *
  * @see	bbp_admin_reset_handler()
  * @see bbp_do_uninstall()

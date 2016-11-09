@@ -66,17 +66,22 @@ final class bbPress {
 	/**
 	 * @var array Topic views
 	 */
-	public $views        = array();
+	public $views = array();
 
 	/**
 	 * @var array Overloads get_option()
 	 */
-	public $options      = array();
+	public $options = array();
 
 	/**
 	 * @var array Overloads get_user_meta()
 	 */
 	public $user_options = array();
+
+	/**
+	 * @var array Dynamically initialized user roles
+	 */
+	public $roles = array();
 
 	/** Singleton *************************************************************/
 
@@ -315,6 +320,7 @@ final class bbPress {
 		require $this->includes_dir . 'common/classes.php';
 		require $this->includes_dir . 'common/functions.php';
 		require $this->includes_dir . 'common/formatting.php';
+		require $this->includes_dir . 'common/locale.php';
 		require $this->includes_dir . 'common/template.php';
 		require $this->includes_dir . 'common/widgets.php';
 		require $this->includes_dir . 'common/shortcodes.php';
@@ -382,6 +388,7 @@ final class bbPress {
 		$actions = array(
 			'setup_theme',              // Setup the default theme compat
 			'setup_current_user',       // Setup currently logged in user
+			'roles_init',               // User roles init
 			'register_post_types',      // Register post types (forum|topic|reply)
 			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
 			'register_taxonomies',      // Register taxonomies (topic-tag)
@@ -744,17 +751,34 @@ final class bbPress {
 	/**
 	 * Setup the currently logged-in user
 	 *
-	 * Do not to call this prematurely, I.E. before the 'init' action has
-	 * started. This function is naturally hooked into 'init' to ensure proper
-	 * execution. get_currentuserinfo() is used to check for XMLRPC_REQUEST to
-	 * avoid xmlrpc errors.
-	 *
 	 * @since 2.0.0 bbPress (r2697)
 	 *
 	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
 		$this->current_user = wp_get_current_user();
+	}
+
+	/**
+	 * Initialize forum-specific roles
+	 *
+	 * @since 2.6.0
+	 */
+	public function roles_init() {
+
+		// Get role IDs
+		$keymaster   = bbp_get_keymaster_role();
+		$moderator   = bbp_get_moderator_role();
+		$participant = bbp_get_participant_role();
+		$spectator   = bbp_get_spectator_role();
+		$blocked     = bbp_get_blocked_role();
+
+		// Build the roles into one useful array
+		$this->roles[ $keymaster   ] = new WP_Role( 'Keymaster',   bbp_get_caps_for_role( $keymaster   ) );
+		$this->roles[ $moderator   ] = new WP_Role( 'Moderator',   bbp_get_caps_for_role( $moderator   ) );
+		$this->roles[ $participant ] = new WP_Role( 'Participant', bbp_get_caps_for_role( $participant ) );
+		$this->roles[ $spectator   ] = new WP_Role( 'Spectator',   bbp_get_caps_for_role( $spectator   ) );
+		$this->roles[ $blocked     ] = new WP_Role( 'Blocked',     bbp_get_caps_for_role( $blocked     ) );
 	}
 
 	/** Custom Rewrite Rules **************************************************/

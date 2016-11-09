@@ -90,7 +90,7 @@ add_action( 'bbp_init', 'bbp_ready',             999 );
  * The load order helps to execute code at the correct time.
  *                                                    v---Load order
  */
-add_action( 'bbp_roles_init', 'bbp_add_forums_roles', 1 );
+add_action( 'bbp_roles_init', 'bbp_add_forums_roles', 8 );
 
 /**
  * When setting up the current user, make sure they have a role for the forums.
