@@ -308,7 +308,7 @@ function bbp_get_template_stack() {
 	$tag  = 'bbp_template_stack';
 	$args = $stack = array();
 
-	// Add 'bp_template_stack' to the current filter array.
+	// Add 'bbp_template_stack' to the current filter array.
 	$wp_current_filter[] = $tag;
 
 	// Sort.
@@ -326,7 +326,7 @@ function bbp_get_template_stack() {
 	// Ensure we're always at the beginning of the filter array.
 	reset( $filter );
 
-	// Loop through 'bp_template_stack' filters, and call callback functions.
+	// Loop through 'bbp_template_stack' filters, and call callback functions.
 	do {
 		foreach( (array) current( $filter ) as $the_ ) {
 			if ( ! is_null( $the_['function'] ) ) {
@@ -336,7 +336,7 @@ function bbp_get_template_stack() {
 		}
 	} while ( next( $filter ) !== false );
 
-	// Remove 'bp_template_stack' from the current filter array.
+	// Remove 'bbp_template_stack' from the current filter array.
 	array_pop( $wp_current_filter );
 
 	// Remove empties and duplicates.
