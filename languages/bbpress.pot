@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the bbPress package.
 msgid ""
 msgstr ""
-"Project-Id-Version: bbPress 2.5.10\n"
+"Project-Id-Version: bbPress 2.5.11\n"
 "Report-Msgid-Bugs-To: https://bbpress.trac.wordpress.org\n"
-"POT-Creation-Date: 2016-07-13 15:23:01+00:00\n"
+"POT-Creation-Date: 2016-11-09 23:11:04+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,75 +16,75 @@ msgstr ""
 msgid "Cheatin&#8217; huh?"
 msgstr ""
 
-#: bbpress.php:404 templates/default/bbpress-functions.php:51
+#: bbpress.php:405 templates/default/bbpress-functions.php:51
 msgid "bbPress Default"
 msgstr ""
 
-#: bbpress.php:484
+#: bbpress.php:485
 msgid "bbPress Forums"
 msgstr ""
 
-#: bbpress.php:509
+#: bbpress.php:510
 msgid "bbPress Topics"
 msgstr ""
 
-#: bbpress.php:534
+#: bbpress.php:535
 msgid "bbPress Replies"
 msgstr ""
 
-#: bbpress.php:569
+#: bbpress.php:570
 msgctxt "post"
 msgid "Closed"
 msgstr ""
 
-#: bbpress.php:570
+#: bbpress.php:571
 msgctxt "post"
 msgid "Closed <span class=\"count\">(%s)</span>"
 msgid_plural "Closed <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bbpress.php:580
+#: bbpress.php:581
 msgctxt "post"
 msgid "Spam"
 msgstr ""
 
-#: bbpress.php:581
+#: bbpress.php:582
 msgctxt "post"
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bbpress.php:593
+#: bbpress.php:594
 msgctxt "post"
 msgid "Orphan"
 msgstr ""
 
-#: bbpress.php:594
+#: bbpress.php:595
 msgctxt "post"
 msgid "Orphan <span class=\"count\">(%s)</span>"
 msgid_plural "Orphans <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bbpress.php:606
+#: bbpress.php:607
 msgctxt "post"
 msgid "Hidden"
 msgstr ""
 
-#: bbpress.php:607
+#: bbpress.php:608
 msgctxt "post"
 msgid "Hidden <span class=\"count\">(%s)</span>"
 msgid_plural "Hidden <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bbpress.php:677
+#: bbpress.php:678
 msgid "Most popular topics"
 msgstr ""
 
-#: bbpress.php:689
+#: bbpress.php:690
 msgid "Topics with no replies"
 msgstr ""
 
@@ -2706,6 +2706,36 @@ msgid ""
 "they always return false."
 msgstr ""
 
+#. translators: user role
+#: includes/common/locale.php:44
+msgctxt "User role"
+msgid "Keymaster"
+msgstr ""
+
+#. translators: user role
+#: includes/common/locale.php:47
+msgctxt "User role"
+msgid "Moderator"
+msgstr ""
+
+#. translators: user role
+#: includes/common/locale.php:50
+msgctxt "User role"
+msgid "Participant"
+msgstr ""
+
+#. translators: user role
+#: includes/common/locale.php:53
+msgctxt "User role"
+msgid "Spectator"
+msgstr ""
+
+#. translators: user role
+#: includes/common/locale.php:56
+msgctxt "User role"
+msgid "Blocked"
+msgstr ""
+
 #: includes/common/template.php:1457
 msgid "No topics available"
 msgstr ""
@@ -3013,32 +3043,8 @@ msgstr ""
 msgid "Recent Replies"
 msgstr ""
 
-#: includes/core/capabilities.php:380
-msgid "Keymaster"
-msgstr ""
-
-#: includes/core/capabilities.php:386
-msgid "Moderator"
-msgstr ""
-
-#: includes/core/capabilities.php:392
-msgid "Participant"
-msgstr ""
-
-#: includes/core/capabilities.php:398
-msgid "Spectator"
-msgstr ""
-
-#: includes/core/capabilities.php:404
-msgid "Blocked"
-msgstr ""
-
 #: includes/core/capabilities.php:523
 msgid "Editable forum roles no longer exist."
-msgstr ""
-
-#: includes/core/sub-actions.php:147
-msgid "The current user is being initialized without using $wp->init()."
 msgstr ""
 
 #: includes/core/update.php:186
@@ -4939,9 +4945,9 @@ msgstr ""
 msgid "bbPress"
 msgstr ""
 
-#. #-#-#-#-#  plugin.pot (bbPress 2.5.10)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5.11)  #-#-#-#-#
 #. Plugin URI of the plugin/theme
-#. #-#-#-#-#  plugin.pot (bbPress 2.5.10)  #-#-#-#-#
+#. #-#-#-#-#  plugin.pot (bbPress 2.5.11)  #-#-#-#-#
 #. Author URI of the plugin/theme
 msgid "https://bbpress.org"
 msgstr ""
