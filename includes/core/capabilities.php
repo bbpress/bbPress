@@ -417,7 +417,7 @@ function bbp_get_dynamic_roles() {
  */
 function bbp_get_dynamic_role_name( $role_id = '' ) {
 	$roles = bbp_get_dynamic_roles();
-	$role  = isset( $roles[$role_id] ) ? $roles[$role_id]['name'] : '';
+	$role  = isset( $roles[$role_id] ) ? bbp_translate_role_name( $roles[$role_id]['name'] ) : '';
 
 	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
 }
