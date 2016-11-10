@@ -43,6 +43,7 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 * bbPress also comes with built-in support for Akismet and BuddyPress, two very popular and very powerful WordPress plugins. If you're using either, visit your Forum Settings page and ensure that integration appears correct.
 
 == Screenshots ==
+
 1. Forums - Admin Interface
 2. Topics - Admin Interface
 3. Replies - Admin Interface
