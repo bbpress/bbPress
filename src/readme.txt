@@ -1,11 +1,11 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
-Requires at least: 4.0
-Tested up to: 4.6
-Stable tag: 2.5.10
+Requires at least: 4.2
+Tested up to: 4.7
+Stable tag: 2.5.11
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 bbPress is forum software, made the WordPress way.
 
@@ -52,6 +52,11 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.5.11 =
+* Improved support for WordPress 4.7
+* Improved localization of role names
+* Increase minimum WordPress version to 4.2
 
 = 2.5.10 =
 * Improved user display-name rendering
@@ -173,7 +178,7 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 * Improved user roles and capabilities
 * Improved theme compatibility
 * Improved BuddyPress Group Forums integration
-* Improved forums conversion tool
+* Improved forums convertion tool
 * Improved forums tools and settings
 * Improved multisite support
 * Added What's New and Credits pages
