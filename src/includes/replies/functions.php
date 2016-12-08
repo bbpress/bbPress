@@ -1615,22 +1615,15 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		return;
 	}
 
-	// Setup possible get actions
-	$possible_actions = array(
-		'bbp_toggle_reply_spam',
-		'bbp_toggle_reply_trash',
-		'bbp_toggle_reply_approve'
-	);
+	// Get possible reply-handler actions
+	$possible_actions = bbp_get_reply_handler_actions();
 
 	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions, true ) ) {
 		return;
 	}
 
-	$failure   = '';                         // Empty failure string
-	$view_all  = false;                      // Assume not viewing all
 	$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
-	$success   = false;                      // Flag
 	$post_data = array( 'ID' => $reply_id ); // Prelim array
 
 	// Make sure reply exists
@@ -1640,68 +1633,126 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	}
 
 	// What is the user doing here?
-	if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' === $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
+	if ( ! current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply->ID ) ) ) {
 		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
 		return;
 	}
 
+	// Do the reply toggling
+	$retval = bbp_toggle_reply( array(
+		'id'     => $reply_id,
+		'action' => $action,
+		'data'   => $post_data
+	) );
+
+	// Do additional reply toggle actions
+	do_action( 'bbp_toggle_reply_handler', $retval['status'], $post_data, $action );
+
+	// Redirect back to reply
+	if ( ( false !== $retval['status'] ) && ! is_wp_error( $retval['status'] ) ) {
+		bbp_redirect( $retval['redirect_to'] );
+
+	// Handle errors
+	} else {
+		bbp_add_error( 'bbp_toggle_reply', $retval['message'] );
+	}
+}
+
+/**
+ * Do the actual reply toggling
+ *
+ * This function is used by `bbp_toggle_reply_handler()` to do the actual heavy
+ * lifting when it comes to toggling replies. It only really makes sense to call
+ * within that context, so if you need to call this function directly, make sure
+ * you're also doing what the handler does too.
+ *
+ * @since 2.6.0
+ * @access private
+ *
+ * @param array $args
+ */
+function bbp_toggle_reply( $args = array() ) {
+
+	// Parse the arguments
+	$r = bbp_parse_args( $args, array(
+		'id'     => 0,
+		'action' => '',
+		'data'   => array()
+	) );
+
+	// Build the nonce suffix
+	$nonce_suffix = bbp_get_reply_post_type() . '_' . (int) $r['id'];
+
+	// Default return values
+	$retval = array(
+		'status'      => 0,
+		'message'     => '',
+		'redirect_to' => bbp_get_reply_url( $r['id'], bbp_get_redirect_to() ),
+		'view_all'    => false
+	);
+
 	// What action are we trying to perform?
-	switch ( $action ) {
+	switch ( $r['action'] ) {
 
 		// Toggle approve
 		case 'bbp_toggle_reply_approve' :
-			check_ajax_referer( 'approve-reply_' . $reply_id );
+			check_ajax_referer( "approve-{$nonce_suffix}" );
 
-			$is_approve = bbp_is_reply_pending( $reply_id );
-			$success    = $is_approve ? bbp_approve_reply( $reply_id ) : bbp_unapprove_reply( $reply_id );
-			$failure    = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply!', 'bbpress' );
-			$view_all   = ! $is_approve;
+			$is_approve         = bbp_is_reply_pending( $r['id'] );
+			$retval['status']   = $is_approve ? bbp_approve_reply( $r['id'] ) : bbp_unapprove_reply( $r['id'] );
+			$retval['message']  = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply!', 'bbpress' );
+			$retval['view_all'] = ! $is_approve;
 
 			break;
 
 		// Toggle spam
 		case 'bbp_toggle_reply_spam' :
-			check_ajax_referer( 'spam-reply_' . $reply_id );
+			check_ajax_referer( "spam-{$nonce_suffix}" );
 
-			$is_spam  = bbp_is_reply_spam( $reply_id );
-			$success  = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
-			$failure  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
-			$view_all = ! $is_spam;
+			$is_spam            = bbp_is_reply_spam( $r['id'] );
+			$retval['status']   = $is_spam ? bbp_unspam_reply( $r['id'] ) : bbp_spam_reply( $r['id'] );
+			$retval['message']  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
+			$retval['view_all'] = ! $is_spam;
 
 			break;
 
 		// Toggle trash
 		case 'bbp_toggle_reply_trash' :
 
-			$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
+			// Subaction?
+			$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ), true )
+				? $_GET['sub_action']
+				: false;
 
+			// Bail if no subaction
 			if ( empty( $sub_action ) ) {
 				break;
 			}
 
+			// Which subaction?
 			switch ( $sub_action ) {
 				case 'trash':
-					check_ajax_referer( 'trash-' . bbp_get_reply_post_type() . '_' . $reply_id );
+					check_ajax_referer( "trash-{$nonce_suffix}" );
 
-					$view_all = true;
-					$success  = wp_trash_post( $reply_id );
-					$failure  = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
+					$retval['view_all'] = true;
+					$retval['status']   = wp_trash_post( $r['id'] );
+					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
 
 					break;
 
 				case 'untrash':
-					check_ajax_referer( 'untrash-' . bbp_get_reply_post_type() . '_' . $reply_id );
+					check_ajax_referer( "untrash-{$nonce_suffix}" );
 
-					$success = wp_untrash_post( $reply_id );
-					$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
+					$retval['status']  = wp_untrash_post( $r['id'] );
+					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
 
 					break;
 
 				case 'delete':
-					check_ajax_referer( 'delete-' . bbp_get_reply_post_type() . '_' . $reply_id );
+					check_ajax_referer( "delete-{$nonce_suffix}" );
 
-					$success = wp_delete_post( $reply_id );
-					$failure = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
+					$retval['status']  = wp_delete_post( $r['id'] );
+					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
 
 					break;
 			}
@@ -1709,32 +1760,13 @@ function bbp_toggle_reply_handler( $action = '' ) {
 			break;
 	}
 
-	// Do additional reply toggle actions
-	do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
-
-	// No errors
-	if ( ( false !== $success ) && !is_wp_error( $success ) ) {
-
-		/** Redirect **********************************************************/
-
-		// Redirect to
-		$redirect_to = bbp_get_redirect_to();
-
-		// Get the reply URL
-		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
-
-		// Add view all if needed
-		if ( ! empty( $view_all ) ) {
-			$reply_url = bbp_add_view_all( $reply_url, true );
-		}
-
-		// Redirect back to reply
-		bbp_redirect( $reply_url );
-
-	// Handle errors
-	} else {
-		bbp_add_error( 'bbp_toggle_reply', $failure );
+	// Add view all if needed
+	if ( ! empty( $retval['view_all'] ) ) {
+		$retval['redirect_to'] = bbp_add_view_all( $retval['redirect_to'], true );
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_do_toggle_reply_handler', $retval, $r, $args );
 }
 
 /** Helpers *******************************************************************/
@@ -1755,6 +1787,19 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
 		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the reply',       'bbpress' ),
 		bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' ),
 	), $reply_id );
+}
+
+/**
+ * Return array of available reply handler actions
+ *
+ * @since 2.6.0 bbPress (rxxxx)
+ */
+function bbp_get_reply_handler_actions() {
+	return apply_filters( 'bbp_get_reply_handler_actions', array(
+		'bbp_toggle_reply_spam',
+		'bbp_toggle_reply_trash',
+		'bbp_toggle_reply_approve'
+	) );
 }
 
 /** Reply Actions *************************************************************/
