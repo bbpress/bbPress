@@ -2218,7 +2218,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
  * within that context, so if you need to call this function directly, make sure
  * you're also doing what the handler does too.
  *
- * @since 2.6.0
+ * @since 2.6.0  bbPress (r6133)
  * @access private
  *
  * @param array $args
