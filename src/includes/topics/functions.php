@@ -2258,7 +2258,7 @@ function bbp_toggle_topic( $args = array() ) {
 			$retval['status'] = ( true === $is_pending )
 				? bbp_approve_topic( $r['id'] )
 				: bbp_unapprove_topic( $r['id'] );
-			
+
 			// Feedback
 			$retval['message'] = ( true === $is_pending )
 				? __( '<strong>ERROR</strong>: There was a problem approving the topic.',   'bbpress' )
@@ -2290,7 +2290,7 @@ function bbp_toggle_topic( $args = array() ) {
 
 			$is_sticky = bbp_is_topic_sticky( $r['id'] );
 			$is_super  = false === $is_sticky && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
-			
+
 			// Toggle
 			$retval['status'] = ( true === $is_sticky )
 				? bbp_unstick_topic( $r['id'] )
