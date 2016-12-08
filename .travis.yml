@@ -9,6 +9,7 @@ language: php
 
 # PHP version used in first build configuration.
 php:
+    - 7.1
     - 7.0
     - 5.6
     - 5.5
@@ -32,8 +33,6 @@ env:
 # Build matrix options
 matrix:
   include:
-    - php: 7.1
-      env: WP_VERSION=master
     - php: nightly
       env: WP_VERSION=master
     - php: hhvm
@@ -55,7 +54,6 @@ matrix:
     - php: 7.0
       env: WP_VERSION=4.0
   allow_failures:
-    - php: 7.1
     - php: nightly
     - php: hhvm
 #  fast_finish: true
