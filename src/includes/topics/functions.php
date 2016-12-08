@@ -2252,9 +2252,17 @@ function bbp_toggle_topic( $args = array() ) {
 			check_ajax_referer( "approve-{$nonce_suffix}" );
 
 			$is_pending         = bbp_is_topic_pending( $r['id'] );
-			$retval['status']   = true === $is_pending ? bbp_approve_topic( $r['id'] ) : bbp_unapprove_topic( $r['id'] );
-			$retval['message']  = true === $is_pending ? __( '<strong>ERROR</strong>: There was a problem approving the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the topic.', 'bbpress' );
 			$retval['view_all'] = ! $is_pending;
+
+			// Toggle
+			$retval['status'] = ( true === $is_pending )
+				? bbp_approve_topic( $r['id'] )
+				: bbp_unapprove_topic( $r['id'] );
+			
+			// Feedback
+			$retval['message'] = ( true === $is_pending )
+				? __( '<strong>ERROR</strong>: There was a problem approving the topic.',   'bbpress' )
+				: __( '<strong>ERROR</strong>: There was a problem unapproving the topic.', 'bbpress' );
 
 			break;
 
@@ -2262,9 +2270,17 @@ function bbp_toggle_topic( $args = array() ) {
 		case 'bbp_toggle_topic_close' :
 			check_ajax_referer( "close-{$nonce_suffix}" );
 
-			$is_open           = bbp_is_topic_open( $r['id'] );
-			$retval['status']  = true === $is_open ? bbp_close_topic( $r['id'] ) : bbp_open_topic( $r['id'] );
-			$retval['message'] = true === $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic.', 'bbpress' );
+			$is_open = bbp_is_topic_open( $r['id'] );
+
+			// Toggle
+			$retval['status'] = ( true === $is_open )
+				? bbp_close_topic( $r['id'] )
+				: bbp_open_topic( $r['id'] );
+
+			// Feedback
+			$retval['message'] = ( true === $is_open )
+				? __( '<strong>ERROR</strong>: There was a problem closing the topic.', 'bbpress' )
+				: __( '<strong>ERROR</strong>: There was a problem opening the topic.', 'bbpress' );
 
 			break;
 
@@ -2272,10 +2288,18 @@ function bbp_toggle_topic( $args = array() ) {
 		case 'bbp_toggle_topic_stick' :
 			check_ajax_referer( "stick-{$nonce_suffix}" );
 
-			$is_sticky         = bbp_is_topic_sticky( $r['id'] );
-			$is_super          = false === $is_sticky && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
-			$retval['status']  = true  === $is_sticky ? bbp_unstick_topic( $r['id'] ) : bbp_stick_topic( $r['id'], $is_super );
-			$retval['message'] = true  === $is_sticky ? __( '<strong>ERROR</strong>: There was a problem unsticking the topic.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem sticking the topic.', 'bbpress' );
+			$is_sticky = bbp_is_topic_sticky( $r['id'] );
+			$is_super  = false === $is_sticky && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
+			
+			// Toggle
+			$retval['status'] = ( true === $is_sticky )
+				? bbp_unstick_topic( $r['id'] )
+				: bbp_stick_topic( $r['id'], $is_super );
+
+			// Feedback
+			$retval['message'] = ( true === $is_sticky )
+				? __( '<strong>ERROR</strong>: There was a problem unsticking the topic.', 'bbpress' )
+				: __( '<strong>ERROR</strong>: There was a problem sticking the topic.',   'bbpress' );
 
 			break;
 
@@ -2284,9 +2308,17 @@ function bbp_toggle_topic( $args = array() ) {
 			check_ajax_referer( "spam-{$nonce_suffix}" );
 
 			$is_spam            = bbp_is_topic_spam( $r['id'] );
-			$retval['status']   = true === $is_spam ? bbp_unspam_topic( $r['id'] ) : bbp_spam_topic( $r['id'] );
-			$retval['message']  = true === $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam.', 'bbpress' );
 			$retval['view_all'] = ! $is_spam;
+
+			// Toggle
+			$retval['status'] = ( true === $is_spam )
+				? bbp_unspam_topic( $r['id'] )
+				: bbp_spam_topic( $r['id'] );
+
+			// Feedback
+			$retval['message'] = ( true === $is_spam )
+				? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam.', 'bbpress' )
+				: __( '<strong>ERROR</strong>: There was a problem marking the topic as spam.',   'bbpress' );
 
 			break;
 
@@ -2297,9 +2329,9 @@ function bbp_toggle_topic( $args = array() ) {
 				case 'trash':
 					check_ajax_referer( "trash-{$nonce_suffix}" );
 
-					$view_all = true;
-					$retval['status']  = wp_trash_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem trashing the topic.', 'bbpress' );
+					$retval['view_all'] = true;
+					$retval['status']   = wp_trash_post( $r['id'] );
+					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the topic.', 'bbpress' );
 
 					break;
 
