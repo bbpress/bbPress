@@ -512,6 +512,9 @@ function bbp_get_statistics( $args = array() ) {
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
+			// Declare empty arrays
+			$topics = $topic_titles = array();
+
 			// Pending
 			$topics['pending'] = ( ! empty( $r['count_pending_topics'] ) && current_user_can( 'edit_others_topics' ) ) ? (int) $all_topics->{$pending} : 0;
 
@@ -548,6 +551,9 @@ function bbp_get_statistics( $args = array() ) {
 
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
 
+			// Declare empty arrays
+			$replies = $reply_titles = array();
+
 			// Pending
 			$replies['pending'] = ( ! empty( $r['count_pending_replies'] ) && current_user_can( 'edit_others_replies' ) ) ? (int) $all_replies->{$pending} : 0;
 
@@ -571,7 +577,6 @@ function bbp_get_statistics( $args = array() ) {
 
 			// Compile the hidden replies title
 			$hidden_reply_title = implode( ' | ', array_filter( $reply_titles ) );
-
 		}
 	}
 
