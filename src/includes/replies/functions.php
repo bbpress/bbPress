@@ -1629,6 +1629,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	// Make sure reply exists
 	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) ) {
+		bbp_add_error( 'bbp_toggle_reply_exists', __( '<strong>ERROR:</strong> This reply could not be found or no longer exists.', 'bbpress' ) );
 		return;
 	}
 
