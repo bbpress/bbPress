@@ -492,12 +492,12 @@ class BBP_Forums_Admin {
 
 			// Bail if forum is missing
 			if ( empty( $forum ) ) {
-				wp_die( __( 'The forum was not found!', 'bbpress' ) );
+				wp_die( __( 'The forum was not found.', 'bbpress' ) );
 			}
 
 			// What is the user doing here?
 			if ( ! current_user_can( 'keep_gate', $forum->ID ) ) {
-				wp_die( __( 'You do not have the permission to do that.', 'bbpress' ) );
+				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
 			}
 
 			switch ( $action ) {

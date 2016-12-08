@@ -495,7 +495,7 @@ function bbp_favorites_handler( $action = '' ) {
 
 	// Check for empty topic
 	if ( empty( $topic_id ) ) {
-		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
+		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found. Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
 
 	// Check nonce
 	} elseif ( ! bbp_verify_nonce_request( 'toggle-favorite_' . $topic_id ) ) {
@@ -503,7 +503,7 @@ function bbp_favorites_handler( $action = '' ) {
 
 	// Check current user's ability to edit the user
 	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
-		bbp_add_error( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+		bbp_add_error( 'bbp_favorite_permission', __( '<strong>ERROR</strong>: You do not have permission to edit favorites for that user!.', 'bbpress' ) );
 	}
 
 	// Bail if errors
@@ -545,9 +545,9 @@ function bbp_favorites_handler( $action = '' ) {
 
 	// Fail! Handle errors
 	} elseif ( true === $is_favorite && 'bbp_favorite_remove' === $action ) {
-		bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
+		bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites.', 'bbpress' ) );
 	} elseif ( false === $is_favorite && 'bbp_favorite_add' === $action ) {
-		bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
+		bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic.', 'bbpress' ) );
 	}
 }
 
@@ -1152,7 +1152,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 
 	// Check for empty forum
 	if ( empty( $forum_id ) ) {
-		bbp_add_error( 'bbp_subscription_forum_id', __( '<strong>ERROR</strong>: No forum was found! Which forum are you subscribing/unsubscribing to?', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscription_forum_id', __( '<strong>ERROR</strong>: No forum was found. Which forum are you subscribing/unsubscribing to?', 'bbpress' ) );
 
 	// Check nonce
 	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_' . $forum_id ) ) {
@@ -1160,7 +1160,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 
 	// Check current user's ability to edit the user
 	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
-		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscription_permission', __( '<strong>ERROR</strong>: You do not have permission to edit favorites of that user.', 'bbpress' ) );
 	}
 
 	// Bail if we have errors
@@ -1202,9 +1202,9 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 
 	// Fail! Handle errors
 	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
-		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that forum!', 'bbpress' ) );
+		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that forum.', 'bbpress' ) );
 	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
-		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that forum!', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that forum.', 'bbpress' ) );
 	}
 }
 
@@ -1257,7 +1257,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Check for empty topic
 	if ( empty( $topic_id ) ) {
-		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found. Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
 
 	// Check nonce
 	} elseif ( ! bbp_verify_nonce_request( 'toggle-subscription_' . $topic_id ) ) {
@@ -1265,7 +1265,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Check current user's ability to edit the user
 	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
-		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscription_permission', __( '<strong>ERROR</strong>: You do not have permission to edit favorites of that user.', 'bbpress' ) );
 	}
 
 	// Bail if we have errors
@@ -1307,9 +1307,9 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Fail! Handle errors
 	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
-		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
+		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic.', 'bbpress' ) );
 	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
-		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
+		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic.', 'bbpress' ) );
 	}
 }
 

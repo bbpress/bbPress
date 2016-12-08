@@ -142,7 +142,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	// User cannot create forums
 	if ( !current_user_can( 'publish_forums' ) ) {
-		bbp_add_error( 'bbp_forum_permissions', __( '<strong>ERROR</strong>: You do not have permission to create new forums.', 'bbpress' ) );
+		bbp_add_error( 'bbp_forum_permission', __( '<strong>ERROR</strong>: You do not have permission to create new forums.', 'bbpress' ) );
 		return;
 	}
 
@@ -422,7 +422,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	// User cannot edit this forum
 	} elseif ( !current_user_can( 'edit_forum', $forum_id ) ) {
-		bbp_add_error( 'bbp_edit_forum_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that forum.', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_forum_permission', __( '<strong>ERROR</strong>: You do not have permission to edit that forum.', 'bbpress' ) );
 		return;
 	}
 

@@ -179,7 +179,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// User cannot create replies
 		if ( !current_user_can( 'publish_replies' ) ) {
-			bbp_add_error( 'bbp_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
 		}
 
 		// Reply author is current user
@@ -572,7 +572,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 			// User cannot edit this reply
 			if ( !current_user_can( 'edit_reply', $reply_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
 				return;
 			}
 
@@ -1330,7 +1330,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** Move Reply ***********************************************************/
 
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>ERROR</strong>: Reply ID to move not found!', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>ERROR</strong>: A reply ID is required', 'bbpress' ) );
 	} else {
 		$move_reply_id = (int) $_POST['bbp_reply_id'];
 	}
@@ -1360,7 +1360,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 	// Use cannot edit topic
 	if ( !current_user_can( 'edit_topic', $source_topic->ID ) ) {
-		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
 	// How to move
@@ -1383,7 +1383,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// Get destination topic id
 				if ( empty( $_POST['bbp_destination_topic'] ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_id', __( '<strong>ERROR</strong>: A topic ID is required.', 'bbpress' ) );
 				} else {
 					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
 				}
@@ -1393,12 +1393,12 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// No destination topic
 				if ( empty( $destination_topic ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to move to was not found!', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to move to was not found.', 'bbpress' ) );
 				}
 
 				// User cannot edit the destination topic
 				if ( !current_user_can( 'edit_topic', $destination_topic->ID ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic!', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
 				// Bump the reply position
@@ -1457,7 +1457,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// User cannot publish posts
 				} else {
-					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
 				}
 
 				break;
@@ -1635,7 +1635,7 @@ function bbp_toggle_reply_handler( $action = '' ) {
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) ) {
-		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
 
@@ -1711,7 +1711,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 			$is_approve         = bbp_is_reply_pending( $r['id'] );
 			$retval['status']   = $is_approve ? bbp_approve_reply( $r['id'] ) : bbp_unapprove_reply( $r['id'] );
-			$retval['message']  = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply!', 'bbpress' );
+			$retval['message']  = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply.', 'bbpress' );
 			$retval['view_all'] = ! $is_approve;
 
 			break;
@@ -1722,7 +1722,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 			$is_spam            = bbp_is_reply_spam( $r['id'] );
 			$retval['status']   = $is_spam ? bbp_unspam_reply( $r['id'] ) : bbp_spam_reply( $r['id'] );
-			$retval['message']  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
+			$retval['message']  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam.', 'bbpress' );
 			$retval['view_all'] = ! $is_spam;
 
 			break;
@@ -1737,7 +1737,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 					$retval['view_all'] = true;
 					$retval['status']   = wp_trash_post( $r['id'] );
-					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
+					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the reply.', 'bbpress' );
 
 					break;
 
@@ -1745,7 +1745,7 @@ function bbp_toggle_reply( $args = array() ) {
 					check_ajax_referer( "untrash-{$nonce_suffix}" );
 
 					$retval['status']  = wp_untrash_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
+					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem untrashing the reply.', 'bbpress' );
 
 					break;
 
@@ -1753,7 +1753,7 @@ function bbp_toggle_reply( $args = array() ) {
 					check_ajax_referer( "delete-{$nonce_suffix}" );
 
 					$retval['status']  = wp_delete_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
+					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem deleting the reply.', 'bbpress' );
 
 					break;
 			}

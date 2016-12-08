@@ -654,12 +654,12 @@ class BBP_Topics_Admin {
 
 			// Bail if topic is missing
 			if ( empty( $topic ) ) {
-				wp_die( __( 'The topic was not found!', 'bbpress' ) );
+				wp_die( __( 'The topic was not found.', 'bbpress' ) );
 			}
 
 			// What is the user doing here?
 			if ( !current_user_can( 'moderate', $topic->ID ) ) {
-				wp_die( __( 'You do not have the permission to do that.', 'bbpress' ) );
+				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
 			}
 
 			switch ( $action ) {

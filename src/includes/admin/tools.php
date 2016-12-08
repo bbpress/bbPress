@@ -2080,7 +2080,7 @@ function bbp_admin_repair_reply_menu_order() {
 	// Define variables
 	$bbp_db    = bbp_db();
 	$statement = __( 'Recalculating reply menu order &hellip; %s', 'bbpress' );
-	$result    = __( 'No reply positions to recalculate!',         'bbpress' );
+	$result    = __( 'No reply positions to recalculate.',         'bbpress' );
 
 	// Delete cases where `_bbp_reply_to` was accidentally set to itself
 	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`;" ) ) ) {

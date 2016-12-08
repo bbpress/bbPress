@@ -115,8 +115,8 @@
 
 		<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
 			<div class="entry-content"><?php is_user_logged_in()
-				? esc_html_e( 'You do not have the permissions to edit this topic!', 'bbpress' )
-				: esc_html_e( 'You cannot edit this topic.',                         'bbpress' );
+				? esc_html_e( 'You do not have permission to edit this topic.', 'bbpress' )
+				: esc_html_e( 'You cannot edit this topic.',                    'bbpress' );
 			?></div>
 		</div>
 

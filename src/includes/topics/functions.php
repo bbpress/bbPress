@@ -162,7 +162,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		// User cannot create topics
 		if ( ! current_user_can( 'publish_topics' ) ) {
-			bbp_add_error( 'bbp_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to create new topics.', 'bbpress' ) );
+			bbp_add_error( 'bbp_topic_permission', __( '<strong>ERROR</strong>: You do not have permission to create new topics.', 'bbpress' ) );
 			return;
 		}
 
@@ -504,7 +504,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 			// User cannot edit this topic
 			if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>ERROR</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
 			}
 
 			// Set topic author
@@ -1232,7 +1232,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 
 	// Cannot edit source topic
 	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
-		bbp_add_error( 'bbp_merge_topic_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_merge_topic_source_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 		return;
 	}
 
@@ -1252,7 +1252,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 
 	// Cannot edit destination topic
 	if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
-		bbp_add_error( 'bbp_merge_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_merge_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 	}
 
 	// Bail if errors
@@ -1511,7 +1511,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Split Reply ***********************************************************/
 
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_split_topic_reply_id', __( '<strong>ERROR</strong>: Reply ID to split the topic from not found!', 'bbpress' ) );
+		bbp_add_error( 'bbp_split_topic_reply_id', __( '<strong>ERROR</strong>: A reply ID is required.', 'bbpress' ) );
 	} else {
 		$from_reply_id = (int) $_POST['bbp_reply_id'];
 	}
@@ -1541,7 +1541,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 	// Use cannot edit topic
 	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
-		bbp_add_error( 'bbp_split_topic_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_split_topic_source_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
 	// How to Split
@@ -1564,7 +1564,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 				// Get destination topic id
 				if ( empty( $_POST['bbp_destination_topic'] ) ) {
-					bbp_add_error( 'bbp_split_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
+					bbp_add_error( 'bbp_split_topic_destination_id', __( '<strong>ERROR</strong>: A topic ID is required.', 'bbpress' ) );
 				} else {
 					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
 				}
@@ -1574,12 +1574,12 @@ function bbp_split_topic_handler( $action = '' ) {
 
 				// No destination topic
 				if ( empty( $destination_topic ) ) {
-					bbp_add_error( 'bbp_split_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to split to was not found!', 'bbpress' ) );
+					bbp_add_error( 'bbp_split_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to split to was not found.', 'bbpress' ) );
 				}
 
 				// User cannot edit the destination topic
 				if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
-					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic!', 'bbpress' ) );
+					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
 				break;
@@ -1622,7 +1622,7 @@ function bbp_split_topic_handler( $action = '' ) {
 
 				// User cannot publish posts
 				} else {
-					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
+					bbp_add_error( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
 				}
 
 				break;
@@ -1897,7 +1897,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Can user edit topic tags?
 			if ( ! current_user_can( 'edit_topic_tags' ) ) {
-				bbp_add_error( 'bbp_manage_topic_tag_update_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags.', 'bbpress' ) );
+				bbp_add_error( 'bbp_manage_topic_tag_update_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the topic tags.', 'bbpress' ) );
 				return;
 			}
 
@@ -1937,7 +1937,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Can user edit topic tags?
 			if ( ! current_user_can( 'edit_topic_tags' ) ) {
-				bbp_add_error( 'bbp_manage_topic_tag_merge_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags.', 'bbpress' ) );
+				bbp_add_error( 'bbp_manage_topic_tag_merge_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the topic tags.', 'bbpress' ) );
 				return;
 			}
 
@@ -1995,7 +1995,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Can user delete topic tags?
 			if ( ! current_user_can( 'delete_topic_tags' ) ) {
-				bbp_add_error( 'bbp_manage_topic_tag_delete_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to delete the topic tags.', 'bbpress' ) );
+				bbp_add_error( 'bbp_manage_topic_tag_delete_permission', __( '<strong>ERROR</strong>: You do not have permission to delete the topic tags.', 'bbpress' ) );
 				return;
 			}
 
@@ -2167,7 +2167,7 @@ function bbp_toggle_topic_handler( $action = '' ) {
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_topic', $topic->ID ) || ( 'bbp_toggle_topic_trash' === $action && ! current_user_can( 'delete_topic', $topic->ID ) ) ) {
-		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>ERROR:</strong> You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
 
