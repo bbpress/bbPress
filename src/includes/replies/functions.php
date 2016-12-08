@@ -1615,8 +1615,8 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		return;
 	}
 
-	// Get possible reply-handler actions
-	$possible_actions = bbp_get_reply_handler_actions();
+	// Get possible reply-handler toggles
+	$possible_actions = bbp_get_reply_toggles();
 
 	// Bail if actions aren't meant for this function
 	if ( ! in_array( $action, $possible_actions, true ) ) {
@@ -1794,8 +1794,8 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  *
  * @since 2.6.0 bbPress (rxxxx)
  */
-function bbp_get_reply_handler_actions() {
-	return apply_filters( 'bbp_get_reply_handler_actions', array(
+function bbp_get_reply_toggles() {
+	return apply_filters( 'bbp_get_toggle_reply_actions', array(
 		'bbp_toggle_reply_spam',
 		'bbp_toggle_reply_trash',
 		'bbp_toggle_reply_approve'
