@@ -1615,16 +1615,16 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		return;
 	}
 
-	// Get possible reply-handler toggles
-	$possible_actions = bbp_get_reply_toggles();
+	// What's the reply id?
+	$reply_id = bbp_get_reply_id( (int) $_GET['reply_id'] );
 
-	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions, true ) ) {
+	// Get possible reply-handler toggles
+	$toggles = bbp_get_reply_toggles( $reply_id );
+
+	// Bail if action isn't meant for this function
+	if ( ! in_array( $action, $toggles, true ) ) {
 		return;
 	}
-
-	$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
-	$post_data = array( 'ID' => $reply_id ); // Prelim array
 
 	// Make sure reply exists
 	$reply = bbp_get_reply( $reply_id );
@@ -1633,15 +1633,18 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	}
 
 	// What is the user doing here?
-	if ( ! current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply->ID ) ) ) {
+	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) ) {
 		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
 		return;
 	}
 
-	// Subaction?
-	$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ), true )
+	// Sub-action?
+	$sub_action = ! empty( $_GET['sub_action'] )
 		? sanitize_key( $_GET['sub_action'] )
 		: false;
+
+	// Preliminary array
+	$post_data = array( 'ID' => $reply_id );
 
 	// Do the reply toggling
 	$retval = bbp_toggle_reply( array(
@@ -1726,11 +1729,6 @@ function bbp_toggle_reply( $args = array() ) {
 		// Toggle trash
 		case 'bbp_toggle_reply_trash' :
 
-			// Bail if no subaction
-			if ( empty( $r['sub_action'] ) ) {
-				break;
-			}
-
 			// Which subaction?
 			switch ( $r['sub_action'] ) {
 				case 'trash':
@@ -1796,14 +1794,16 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6133)
  *
+ * @param int $reply_id   Optional. Reply id.
+ *
  * @return array
  */
-function bbp_get_reply_toggles() {
+function bbp_get_reply_toggles( $reply_id = 0 ) {
 	return apply_filters( 'bbp_get_toggle_reply_actions', array(
 		'bbp_toggle_reply_spam',
 		'bbp_toggle_reply_trash',
 		'bbp_toggle_reply_approve'
-	) );
+	), $reply_id );
 }
 
 /** Reply Actions *************************************************************/
