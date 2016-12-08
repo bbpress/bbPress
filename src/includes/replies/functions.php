@@ -1638,11 +1638,17 @@ function bbp_toggle_reply_handler( $action = '' ) {
 		return;
 	}
 
+	// Subaction?
+	$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ), true )
+		? sanitize_key( $_GET['sub_action'] )
+		: false;
+
 	// Do the reply toggling
 	$retval = bbp_toggle_reply( array(
-		'id'     => $reply_id,
-		'action' => $action,
-		'data'   => $post_data
+		'id'         => $reply_id,
+		'action'     => $action,
+		'sub_action' => $sub_action,
+		'data'       => $post_data
 	) );
 
 	// Do additional reply toggle actions
@@ -1675,9 +1681,10 @@ function bbp_toggle_reply( $args = array() ) {
 
 	// Parse the arguments
 	$r = bbp_parse_args( $args, array(
-		'id'     => 0,
-		'action' => '',
-		'data'   => array()
+		'id'         => 0,
+		'action'     => '',
+		'sub_action' => '',
+		'data'       => array()
 	) );
 
 	// Build the nonce suffix
@@ -1719,18 +1726,13 @@ function bbp_toggle_reply( $args = array() ) {
 		// Toggle trash
 		case 'bbp_toggle_reply_trash' :
 
-			// Subaction?
-			$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ), true )
-				? $_GET['sub_action']
-				: false;
-
 			// Bail if no subaction
-			if ( empty( $sub_action ) ) {
+			if ( empty( $r['sub_action'] ) ) {
 				break;
 			}
 
 			// Which subaction?
-			switch ( $sub_action ) {
+			switch ( $r['sub_action'] ) {
 				case 'trash':
 					check_ajax_referer( "trash-{$nonce_suffix}" );
 
@@ -1766,7 +1768,7 @@ function bbp_toggle_reply( $args = array() ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_do_toggle_reply_handler', $retval, $r, $args );
+	return apply_filters( 'bbp_toggle_reply', $retval, $r, $args );
 }
 
 /** Helpers *******************************************************************/
@@ -1790,9 +1792,11 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
 }
 
 /**
- * Return array of available reply handler actions
+ * Return array of available reply toggle actions
  *
- * @since 2.6.0 bbPress (rxxxx)
+ * @since 2.6.0 bbPress (r6133)
+ *
+ * @return array
  */
 function bbp_get_reply_toggles() {
 	return apply_filters( 'bbp_get_toggle_reply_actions', array(
