@@ -608,7 +608,7 @@ class BBP_Replies_Admin {
 
 			// What is the user doing here?
 			if ( !current_user_can( 'moderate', $reply->ID ) ) {
-				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
+				wp_die( __( 'You do not have the permission to do that.', 'bbpress' ) );
 			}
 
 			switch ( $action ) {

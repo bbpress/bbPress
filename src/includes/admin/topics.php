@@ -659,7 +659,7 @@ class BBP_Topics_Admin {
 
 			// What is the user doing here?
 			if ( !current_user_can( 'moderate', $topic->ID ) ) {
-				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
+				wp_die( __( 'You do not have the permission to do that.', 'bbpress' ) );
 			}
 
 			switch ( $action ) {
