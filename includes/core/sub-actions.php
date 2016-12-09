@@ -135,7 +135,7 @@ function bbp_widgets_init() {
 /**
  * Initialize roles
  *
- * @since bbPress (r3389)
+ * @since bbPress (r6147)
  *
  * @param WP_Roles $wp_roles The main WordPress roles global
  *
