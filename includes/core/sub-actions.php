@@ -133,6 +133,19 @@ function bbp_widgets_init() {
 }
 
 /**
+ * Initialize roles
+ *
+ * @since bbPress (r3389)
+ *
+ * @param WP_Roles $wp_roles The main WordPress roles global
+ *
+ * @uses do_action() Calls 'bbp_roles_init'
+ */
+function bbp_roles_init( $wp_roles = null ) {
+	do_action( 'bbp_roles_init', $wp_roles );
+}
+
+/**
  * Setup the currently logged-in user
  *
  * @since bbPress (r2695)

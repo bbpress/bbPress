@@ -45,6 +45,7 @@ add_action( 'generate_rewrite_rules',   'bbp_generate_rewrite_rules', 10    );
 add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',        10    );
 add_action( 'wp_head',                  'bbp_head',                   10    );
 add_action( 'wp_footer',                'bbp_footer',                 10    );
+add_action( 'wp_roles_init',            'bbp_roles_init',             10    );
 add_action( 'set_current_user',         'bbp_setup_current_user',     10    );
 add_action( 'setup_theme',              'bbp_setup_theme',            10    );
 add_action( 'after_setup_theme',        'bbp_after_setup_theme',      10    );
@@ -84,17 +85,9 @@ add_action( 'bbp_init', 'bbp_add_permastructs',  40  );
 add_action( 'bbp_init', 'bbp_ready',             999 );
 
 /**
- * There is no action API for roles to use, so hook in immediately after
- * everything is included (including the theme's functions.php. This is after
- * the $wp_roles global is set but before $wp->init().
- *
- * If it's hooked in any sooner, role names may not be translated correctly.
- *
- * @link http://bbpress.trac.wordpress.org/ticket/2219
- *
- * This is kind of lame, but is all we have for now.
+ * bbp_roles_init - Attached to 'wp_roles_init' above
  */
-add_action( 'bbp_after_setup_theme', 'bbp_add_forums_roles', 1 );
+add_action( 'bbp_roles_init', 'bbp_add_forums_roles', 1 );
 
 /**
  * When setting up the current user, make sure they have a role for the forums.

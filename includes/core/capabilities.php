@@ -292,19 +292,27 @@ function bbp_get_blog_roles() {
  *
  * @since bbPress (r4290)
  *
+ * @param WP_Roles $wp_roles The main WordPress roles global
+ *
  * @uses bbp_get_wp_roles() To load and get the $wp_roles global
  * @uses bbp_get_dynamic_roles() To get and add bbPress's roles to $wp_roles
  * @return WP_Roles The main $wp_roles global
  */
-function bbp_add_forums_roles() {
-	$wp_roles = bbp_get_wp_roles();
+function bbp_add_forums_roles( $wp_roles = null ) {
 
+	// Attempt to get global roles if not passed in & not mid-initialization
+	if ( ( null === $wp_roles ) && ! doing_action( 'wp_roles_init' ) ) {
+		$wp_roles = bbp_get_wp_roles();
+	}
+
+	// Loop through dynamic roles and add them to the $wp_roles array
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
 		$wp_roles->roles[$role_id]        = $details;
 		$wp_roles->role_objects[$role_id] = new WP_Role( $role_id, $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
 	}
 
+	// Return the modified $wp_roles array
 	return $wp_roles;
 }
 
