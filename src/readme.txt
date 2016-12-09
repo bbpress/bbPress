@@ -1,8 +1,8 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
-Requires at least: 4.2
-Tested up to: 4.7
+Requires at least: 4.7
+Tested up to: 4.8
 Stable tag: 2.5.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -53,6 +53,10 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.5.12 =
+* Bump minimum WordPress version to 4.7
+* Use 'wp_roles_init' action for dynamic roles
 
 = 2.5.11 =
 * Improved support for WordPress 4.7
