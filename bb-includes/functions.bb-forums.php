@@ -61,9 +61,10 @@ function bb_get_forums( $args = null ) {
 	if ( is_numeric($args) ) {
 		$args = array( 'child_of' => $args, 'hierarchical' => 1, 'depth' => 0 );
 	} elseif ( is_callable($args) ) {
+		$_args = func_get_args();
 		$args = array( 'callback' => $args );
 		if ( 1 < func_num_args() )
-			$args['callback_args'] = func_get_arg(1);
+			$args['callback_args'] = $_args[1];
 	}
 
 	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0, 'cut_branch' => 0, 'where' => '', 'order_by' => 'forum_order' );

@@ -59,15 +59,16 @@ function bb_get_topic_from_uri( $uri ) {
 }
 
 function get_latest_topics( $args = null ) {
+	$_args = func_get_args();
 	$defaults = array( 'forum' => false, 'page' => 1, 'exclude' => false, 'number' => false );
 	if ( is_numeric( $args ) )
 		$args = array( 'forum' => $args );
 	else
 		$args = wp_parse_args( $args ); // Make sure it's an array
 	if ( 1 < func_num_args() )
-		$args['page'] = func_get_arg(1);
+		$args['page'] = $_args[1];
 	if ( 2 < func_num_args() )
-		$args['exclude'] = func_get_arg(2);
+		$args['exclude'] = $_args[2];
 
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
@@ -436,10 +437,11 @@ function bb_update_topic_voices( $topic_id )
 // A topic is the container, the thread is it's contents (the posts)
 
 function get_thread( $topic_id, $args = null ) {
+	$_args = func_get_args();
 	$defaults = array( 'page' => 1, 'order' => 'ASC' );
 	if ( is_numeric( $args ) )
 		$args = array( 'page' => $args );
-	if ( @func_get_arg(2) )
+	if ( @$_args[2] )
 		$defaults['order'] = 'DESC';
 
 	$args = wp_parse_args( $args, $defaults );
