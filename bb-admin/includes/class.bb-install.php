@@ -101,7 +101,7 @@ class BB_Install
 	 * @param string $caller The full path of the file that instantiated the class
 	 * @return boolean Always returns true
 	 */
-	function BB_Install( $caller )
+	function __construct( $caller )
 	{
 		$this->caller = $caller;
 
@@ -159,6 +159,10 @@ class BB_Install
 		}
 
 		return true;
+	}
+
+	function BB_Install( $caller ) {
+		$this->__construct( $caller );
 	}
 
 	/**
@@ -1280,7 +1284,7 @@ class BB_Install
 		// We'll fail here if the values are no good.
 		require_once( BACKPRESS_PATH . 'class.bpdb-multi.php' );
 
-		$bbdb =& new BPDB_Multi( array(
+		$bbdb = new BPDB_Multi( array(
 			'name'     => BBDB_NAME,
 			'user'     => BBDB_USER,
 			'password' => BBDB_PASSWORD,
