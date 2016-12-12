@@ -647,13 +647,14 @@ function bb_forum_bread_crumb( $args = '' ) {
 function &bb_forums( $args = '' ) {
 	global $bb_forums_loop;
 
+	$_args = func_get_args();
 	$default_type = 'flat';
 
 	if ( is_numeric($args) ) {
 		$args = array( 'child_of' => $args );
 	} elseif ( func_num_args() > 1 ) { // bb_forums( 'ul', $args ); Deprecated
 		$default_type = $args;
-		$args = func_get_arg(1);
+		$args = $_args[1];
 	} elseif ( $args && is_string($args) && false === strpos($args, '=') ) {
 		$args = array( 'type' => $args );
 	}
@@ -1989,14 +1990,15 @@ function bb_get_tag_remove_link() {
 }
 
 function bb_tag_heat_map( $args = '' ) {
+	$_args = func_get_args();
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
-		$args['smallest'] = func_get_arg(0);
-		$args['largest']  = func_get_arg(1);
-		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
-		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
+		$args['smallest'] = $_args[0];
+		$args['largest']  = $_args[1];
+		$args['unit']     = 2 < $fn ? $_args[2] : $unit;
+		$args['limit']    = 3 < $fn ? $_args[3] : $limit;
 	endif;
 
 	extract($args, EXTR_SKIP);
@@ -2011,6 +2013,7 @@ function bb_tag_heat_map( $args = '' ) {
 }
 
 function bb_related_tags_heat_map( $args = '' ) {
+	$_args = func_get_args();
 	if ( $args && is_string($args) && false === strpos($args, '=') || is_numeric($args) )
 		$args = array( 'tag' => $args );
 
@@ -2018,10 +2021,10 @@ function bb_related_tags_heat_map( $args = '' ) {
 	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
-		$args['smallest'] = func_get_arg(0);
-		$args['largest']  = func_get_arg(1);
-		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
-		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
+		$args['smallest'] = $_args[0];
+		$args['largest']  = $_args[1];
+		$args['unit']     = 2 < $fn ? $_args[2] : $unit;
+		$args['limit']    = 3 < $fn ? $_args[3] : $limit;
 	endif;
 
 	extract($args, EXTR_SKIP);
@@ -2096,19 +2099,21 @@ function tag_pages() {
 }
 
 function bb_forum_dropdown( $args = '' ) {
+	$_args = func_get_args();
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
-		$args['callback_args'] = func_get_arg(1);
+		$args['callback_args'] = $_args[1];
 	echo bb_get_forum_dropdown( $args );
 }
 
 function bb_get_forum_dropdown( $args = '' ) {
+	$_args = func_get_args();
 	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0 );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
-		$args['callback_args'] = func_get_arg(1);
+		$args['callback_args'] = $_args[1];
 
 	$args = wp_parse_args( $args, $defaults );
 
