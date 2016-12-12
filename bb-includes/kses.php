@@ -45,15 +45,22 @@ function wp_kses_split($string, $allowed_html, $allowed_protocols)
 # matches stray ">" characters.
 ###############################################################################
 {
-  return preg_replace('%(<'.   # EITHER: <
+  global $pass_allowed_html, $pass_allowed_protocols;
+  $pass_allowed_html = $allowed_html;
+  $pass_allowed_protocols = $allowed_protocols;
+  return preg_replace_callback('%(<'.   # EITHER: <
                       '[^>]*'. # things that aren't >
                       '(>|$)'. # > or end of string
-                      '|>)%e', # OR: just a >
-                      "wp_kses_split2('\\1', \$allowed_html, ".
-                      '$allowed_protocols)',
+					  '|>)%', # OR: just a >
+					  '_wp_kses_split_callback',
                       $string);
 } # function wp_kses_split
 
+function _wp_kses_split_callback( $match )
+{
+	global $pass_allowed_html, $pass_allowed_protocols;
+	return wp_kses_split2( $match[1], $pass_allowed_html, $pass_allowed_protocols );
+}
 
 function wp_kses_split2($string, $allowed_html, $allowed_protocols)
 ###############################################################################
@@ -434,12 +441,11 @@ function wp_kses_bad_protocol_once($string, $allowed_protocols)
 # handling whitespace and HTML entities.
 ###############################################################################
 {
-  return preg_replace('/^((&[^;]*;|[\sA-Za-z0-9])*)'.
-                      '(:|&#58;|&#[Xx]3[Aa];)\s*/e',
-                      'wp_kses_bad_protocol_once2("\\1", $allowed_protocols)',
-                      $string);
+  $string2 = preg_split( '/:|&#0*58;|&#x0*3a;/i', $string, 2 );
+  if ( isset($string2[1]) && ! preg_match('%/\?%', $string2[0]) )
+    $string = wp_kses_bad_protocol_once2( $string2[0], $allowed_protocols ) . trim( $string2[1] );
+  return $string;
 } # function wp_kses_bad_protocol_once
-
 
 function wp_kses_bad_protocol_once2($string, $allowed_protocols)
 ###############################################################################
@@ -481,14 +487,17 @@ function wp_kses_normalize_entities($string)
 
   $string = preg_replace('/&amp;([A-Za-z][A-Za-z0-9]{0,19});/',
                          '&\\1;', $string);
-  $string = preg_replace('/&amp;#0*([0-9]{1,5});/e',
-                         'wp_kses_normalize_entities2("\\1")', $string);
+  $string = preg_replace_callback('/&amp;#0*([0-9]{1,5});/',
+                         '_wp_kses_normalize_entities_callback', $string);
   $string = preg_replace('/&amp;#([Xx])0*(([0-9A-Fa-f]{2}){1,2});/',
                          '&#\\1\\2;', $string);
 
   return $string;
 } # function wp_kses_normalize_entities
 
+function _wp_kses_normalize_entities_callback($match) {
+  return wp_kses_normalize_entities2($match[1]);
+}
 
 function wp_kses_normalize_entities2($i)
 ###############################################################################
@@ -507,11 +516,20 @@ function wp_kses_decode_entities($string)
 # URL protocol whitelisting system anyway.
 ###############################################################################
 {
-  $string = preg_replace('/&#([0-9]+);/e', 'chr("\\1")', $string);
-  $string = preg_replace('/&#[Xx]([0-9A-Fa-f]+);/e', 'chr(hexdec("\\1"))',
+  $string = preg_replace_callback('/&#([0-9]+);/', '_wp_kses_decode_entities_chr', $string);
+  $string = preg_replace_callback('/&#[Xx]([0-9A-Fa-f]+);/', '_wp_kses_decode_entities_chr_hexdec',
                          $string);
 
   return $string;
 } # function wp_kses_decode_entities
 
+# Regex callback for wp_kses_decode_entities()
+function _wp_kses_decode_entities_chr( $match ) {
+  return chr( $match[1] );
+}
+
+##
+function _wp_kses_decode_entities_chr_hexdec( $match ) {
+  return chr( hexdec( $match[1] ) );
+}
 ?>
