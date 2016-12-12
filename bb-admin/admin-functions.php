@@ -247,7 +247,7 @@ class BB_User_Search {
 	var $total_users_for_query = 0;
 	var $search_errors;
 
-	function BB_User_Search ($search_term = false, $page = 1 ) { // constructor
+	function __construct ($search_term = false, $page = 1 ) { // constructor
 		$this->search_term = $search_term ? stripslashes($search_term) : false;
 		$this->raw_page = ( '' == $page ) ? false : (int) $page;
 		$page = (int) $page;
@@ -257,6 +257,10 @@ class BB_User_Search {
 		$this->query();
 		$this->prepare_vars_for_template_usage();
 		$this->do_paging();
+	}
+
+	function BB_User_Search ($search_term = false, $page = 1 ) {
+		$this->__construct( $search_term, $page );
 	}
 
 	function prepare_query() {
@@ -402,7 +406,7 @@ class BB_Users_By_Role extends BB_User_Search {
 	var $role = '';
 	var $title = '';
 
-	function BB_Users_By_Role($role = '', $page = '') { // constructor
+	function __construct($role = '', $page = '') { // constructor
 		$this->role = $role ? $role : 'member';
 		$this->raw_page = ( '' == $page ) ? false : (int) $page;
 		$this->page = (int) ( '' == $page ) ? 1 : $page;
@@ -410,6 +414,10 @@ class BB_Users_By_Role extends BB_User_Search {
 		$this->prepare_query();
 		$this->query();
 		$this->do_paging();
+	}
+
+	function BB_Users_By_Role($role = '', $page = '') {
+		$this->__construct($role, $page);
 	}
 
 	function query() {
@@ -434,12 +442,13 @@ function bb_new_forum( $args ) {
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
+	$_args = func_get_args();
 	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
 	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_name']  = func_get_arg(0);
-		$args['forum_desc']  = func_get_arg(1);
-		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
+		$args['forum_name']  = $_args[0];
+		$args['forum_desc']  = $_args[1];
+		$args['forum_order'] = 2 < func_num_args() ? $_args[2] : 0;
 	endif;
 
 	extract($args, EXTR_SKIP);
@@ -479,13 +488,14 @@ function bb_update_forum( $args ) {
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
+	$_args = func_get_args();
 	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
 	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_id']    = func_get_arg(0);
-		$args['forum_name']  = func_get_arg(1);
-		$args['forum_desc']  = 2 < func_num_args() ? func_get_arg(2) : '';
-		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : 0;
+		$args['forum_id']    = $_args[0];
+		$args['forum_name']  = $_args[1];
+		$args['forum_desc']  = 2 < func_num_args() ? $_args[2] : '';
+		$args['forum_order'] = 3 < func_num_args() && is_numeric($_args[3]) ? $_args[3] : 0;
 	endif;
 
 	extract($args, EXTR_SKIP);

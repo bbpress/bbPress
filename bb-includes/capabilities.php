@@ -7,7 +7,7 @@ class BB_Roles {
 	var $role_names = array();
 	var $role_key;
 
-	function BB_Roles() {
+	function __construct() {
 		global $bbdb;
 		$this->role_key = $bbdb->prefix . 'user_roles';
 
@@ -20,6 +20,10 @@ class BB_Roles {
 			$this->role_objects[$role] = new BB_Role($role, $this->roles[$role]['capabilities']);
 			$this->role_names[$role] = $this->roles[$role]['name'];
 		}
+	}
+
+	function BB_Roles() {
+		$this->__construct();
 	}
 
 	function get_roles( $role_key = '' ) {
@@ -213,9 +217,13 @@ class BB_Role {
 	var $name;
 	var $capabilities;
 
-	function BB_Role($role, $capabilities) {
+	function __construct($role, $capabilities) {
 		$this->name = $role;
 		$this->capabilities = $capabilities;
+	}
+
+	function BB_Role($role, $capabilities) {
+		$this->__construct($role, $capabilities);
 	}
 
 	function add_cap($cap, $grant) {
@@ -250,7 +258,7 @@ class BB_User {
 	var $roles = array();
 	var $allcaps = array();
 
-	function BB_User($id) {
+	function __construct($id) {
 		global $bb_roles, $bbdb;
 
 		$this->data = bb_get_user( $id );
@@ -267,6 +275,10 @@ class BB_User {
 			do_action_ref_array('bb_user_has_no_caps', array(&$this));
 		}
 		$this->get_role_caps();
+	}
+
+	function BB_User($id) {
+		$this->__construct($id);
 	}
 
 	function get_role_caps() {

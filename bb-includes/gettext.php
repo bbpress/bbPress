@@ -101,7 +101,7 @@ class gettext_reader {
 	 * @param object Reader the StreamReader object
 	 * @param boolean enable_cache Enable or disable caching of strings (default on)
 	 */
-	function gettext_reader($Reader, $enable_cache = true) {
+	function __construct($Reader, $enable_cache = true) {
 		// If there isn't a StreamReader, turn on short circuit mode.
 		if (! $Reader || isset($Reader->error) ) {
 			$this->short_circuit = true;
@@ -135,6 +135,10 @@ class gettext_reader {
 		$this->total = $this->readint();
 		$this->originals = $this->readint();
 		$this->translations = $this->readint();
+	}
+
+	function gettext_reader($Reader, $enable_cache = true) {
+		$this->__construct($Reader, $enable_cache);
 	}
 
 	/**
@@ -291,7 +295,7 @@ class gettext_reader {
 				$header = $this->get_translation_string(0);
 			}
 			$header .= "\n"; //make sure our regex matches
-			if (eregi("plural-forms: ([^\n]*)\n", $header, $regs))
+			if (preg_match("/plural-forms: ([^\n]*)\n/i", $header, $regs))
 				$expr = $regs[1];
 			else
 				$expr = "nplurals=2; plural=n == 1 ? 0 : 1;";
