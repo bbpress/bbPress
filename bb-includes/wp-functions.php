@@ -922,42 +922,40 @@ add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
 if ( !function_exists('add_query_arg') ) : // [WP6064]
+
 function add_query_arg() {
-	$ret = '';
-	if ( is_array(func_get_arg(0)) ) {
-		if ( @func_num_args() < 2 || false === @func_get_arg(1) )
+	$args = func_get_args();
+	if ( is_array( $args[0] ) ) {
+		if ( count( $args ) < 2 || false === $args[1] )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
-			$uri = @func_get_arg(1);
+			$uri = $args[1];
 	} else {
-		if ( @func_num_args() < 3 || false === @func_get_arg(2) )
+		if ( count( $args ) < 3 || false === $args[2] )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
-			$uri = @func_get_arg(2);
+			$uri = $args[2];
 	}
 
-	if ( $frag = strstr($uri, '#') )
-		$uri = substr($uri, 0, -strlen($frag));
+	if ( $frag = strstr( $uri, '#' ) )
+		$uri = substr( $uri, 0, -strlen( $frag ) );
 	else
 		$frag = '';
 
-	if ( preg_match('|^https?://|i', $uri, $matches) ) {
-		$protocol = $matches[0];
-		$uri = substr($uri, strlen($protocol));
+	if ( 0 === stripos( $uri, 'http://' ) ) {
+		$protocol = 'http://';
+		$uri = substr( $uri, 7 );
+	} elseif ( 0 === stripos( $uri, 'https://' ) ) {
+		$protocol = 'https://';
+		$uri = substr( $uri, 8 );
 	} else {
 		$protocol = '';
 	}
 
-	if (strpos($uri, '?') !== false) {
-		$parts = explode('?', $uri, 2);
-		if ( 1 == count($parts) ) {
-			$base = '?';
-			$query = $parts[0];
-		} else {
-			$base = $parts[0] . '?';
-			$query = $parts[1];
-		}
-	} elseif (!empty($protocol) || strpos($uri, '=') === false ) {
+	if ( strpos( $uri, '?' ) !== false ) {
+		list( $base, $query ) = explode( '?', $uri, 2 );
+		$base .= '?';
+	} elseif ( $protocol || strpos( $uri, '=' ) === false ) {
 		$base = $uri . '?';
 		$query = '';
 	} else {
@@ -965,25 +963,26 @@ function add_query_arg() {
 		$query = $uri;
 	}
 
-	wp_parse_str($query, $qs);
-	$qs = urlencode_deep($qs); // this re-URL-encodes things that were already in the query string
-	if ( is_array(func_get_arg(0)) ) {
-		$kayvees = func_get_arg(0);
-		$qs = array_merge($qs, $kayvees);
+	wp_parse_str( $query, $qs );
+	$qs = urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
+	if ( is_array( $args[0] ) ) {
+		foreach ( $args[0] as $k => $v ) {
+			$qs[ $k ] = $v;
+		}
 	} else {
-		$qs[func_get_arg(0)] = func_get_arg(1);
+		$qs[ $args[0] ] = $args[1];
 	}
 
 	foreach ( $qs as $k => $v ) {
 		if ( $v === false )
-			unset($qs[$k]);
+			unset( $qs[$k] );
 	}
 
-	$ret = build_query($qs);
-	$ret = trim($ret, '?');
-	$ret = preg_replace('#=(&|$)#', '$1', $ret);
+	$ret = build_query( $qs );
+	$ret = trim( $ret, '?' );
+	$ret = preg_replace( '#=(&|$)#', '$1', $ret );
 	$ret = $protocol . $base . $ret . $frag;
-	$ret = rtrim($ret, '?');
+	$ret = rtrim( $ret, '?' );
 	return $ret;
 }
 endif;
