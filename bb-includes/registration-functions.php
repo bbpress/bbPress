@@ -1,9 +1,9 @@
 <?php
 
 function bb_verify_email( $email, $check_domain = false ) {
-	if (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
-		'[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
-		'[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$', $email)) {
+	if (preg_match('#^[-!\#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
+		'[-!\#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
+		'[-!\#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$#', $email)) {
 		if ( $check_domain && function_exists('checkdnsrr') ) {
 			list (, $domain)  = explode('@', $email);
 			if ( checkdnsrr($domain . '.', 'MX') || checkdnsrr($domain . '.', 'A') ) {
