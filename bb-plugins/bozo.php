@@ -277,7 +277,7 @@ function bb_bozo_admin_page() {
 	class BB_Bozo_Users extends BB_Users_By_Role {
 		var $title = '';
 
-		function BB_Bozo_Users( $page = '' ) { // constructor
+		function __construct( $page = '' ) { // constructor
 			$this->raw_page = ( '' == $page ) ? false : (int) $page;
 			$this->page = (int) ( '' == $page ) ? 1 : $page;
 			$this->title = __('These users have been marked as bozos');
@@ -285,6 +285,10 @@ function bb_bozo_admin_page() {
 			$this->prepare_query();
 			$this->query();
 			$this->do_paging();
+		}
+
+		function BB_Bozo_Users( $page = '' ) {
+			$this->__construct( $page );
 		}
 
 		function query() {

@@ -16,9 +16,13 @@ class BB_Query {
 	var $errors;
 
 	// Can optionally pass unique id string to help out filters
-	function BB_Query( $type = 'topic', $query = '', $id = '' ) {
+	function __construct( $type = 'topic', $query = '', $id = '' ) {
 		if ( !empty($query) )
 			$this->query($type, $query, $id);
+	}
+
+	function BB_Query( $type = 'topic', $query = '', $id = '' ) {
+		$this->__construct( $type, $query, $id );
 	}
 
 	function &query( $type = 'topic', $query, $id = '' ) {
@@ -781,11 +785,15 @@ class BB_Query_Form extends BB_Query {
 	var $allowed;
 
 	// Can optionally pass unique id string to help out filters
-	function BB_Query_Form( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
+	function __construct( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
 		$this->defaults = wp_parse_args( $defaults );
 		$this->allowed  = wp_parse_args( $allowed );
 		if ( !empty($defaults) || !empty($allowed) )
 			$this->query_from_env($type, $defaults, $allowed, $id);
+	}
+
+	function BB_Query_Form( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
+		$this->__construct( $type, $defaults, $allowed, $id );
 	}
 
 	function form( $args = null ) {
@@ -932,7 +940,7 @@ class BB_Dir_Map {
 	var $_current_root;
 	var $_current_file;
 
-	function BB_DIR_MAP( $root, $args = '' ) {
+	function __construct( $root, $args = '' ) {
 		if ( !is_dir( $root ) ) {
 			$this->error = new WP_Error( 'bb_dir_map', __('Not a valid directory') );
 			return;
@@ -945,6 +953,10 @@ class BB_Dir_Map {
 		}
 		$this->_current_root = $this->root = rtrim($root, '/\\');
 		$this->map();
+	}
+
+	function BB_Dir_Map( $root, $args = '' ) {
+		$this->__construct( $root, $args );
 	}
 
 	function parse_args( $args ) {
@@ -1183,10 +1195,14 @@ class BB_Loop {
 		return $a;
 	}
 
-	function BB_Loop( &$elements ) {
+	function __construct( &$elements ) {
 		$this->elements = $elements;
 		if ( !is_array($this->elements) || empty($this->elements) )
 			return $this->elements = false;
+	}
+
+	function BB_Loop( &$elements ) {
+		$this->__construct( $elements );
 	}
 
 	function step() {

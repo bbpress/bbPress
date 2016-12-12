@@ -164,9 +164,13 @@ class BB_Locale {
 		$GLOBALS['month_abbrev']    = $this->month_abbrev;
 	}
 
-	function BB_Locale() {
+	function __construct() {
 		$this->init();
 		$this->register_globals();
+	}
+
+	function BB_Locale() {
+		$this->__construct();
 	}
 }
 

@@ -94,7 +94,7 @@ class BB_Install
 	 * @param string $caller The full path of the file that instantiated the class
 	 * @return boolean
 	 **/
-	function BB_Install($caller)
+	function __construct($caller)
 	{
 		$this->caller = $caller;
 		
@@ -102,6 +102,11 @@ class BB_Install
 		$this->define_paths();
 		
 		return true;
+	}
+
+	function BB_Install($caller)
+	{
+		$this->__construct($caller);
 	}
 	
 	/**

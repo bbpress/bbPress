@@ -6,8 +6,12 @@ class BB_Scripts {
 	var $args = array();
 	var $to_print = array();
 
-	function BB_Scripts() {
+	function __construct() {
 		$this->default_scripts();
+	}
+
+	function BB_Scripts() {
+		$this->__construct();
 	}
 
 	function default_scripts() {
@@ -208,12 +212,16 @@ class _BB_Script {
 	var $l10n_object = '';
 	var $l10n = array();
 
-	function _BB_Script() {
+	function __construct() {
 		@list($this->handle, $this->src, $this->deps, $this->ver ) = func_get_args();
 		if ( !is_array($this->deps) )
 			$this->deps = array();
 		if ( !$this->ver )
 			$this->ver = false;
+	}
+
+	function _BB_Script() {
+		$this->__construct();
 	}
 
 	function localize( $object_name, $l10n ) {

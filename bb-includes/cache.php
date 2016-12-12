@@ -5,11 +5,15 @@ class BB_Cache {
 	var $flush_freq = 100;
 	var $flush_time = 172800; // 2 days
 
-	function BB_Cache() {
+	function __construct() {
 		if ( false === bb_get_option( 'use_cache' ) || !is_writable(BB_PATH . 'bb-cache/') )
 			$this->use_cache = false;
 		else
 			$this->flush_old();
+	}
+
+	function BB_Cache() {
+		$this->__construct();
 	}
 
 	function get_user( $user_id, $use_cache = true ) {

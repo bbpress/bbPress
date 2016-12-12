@@ -5,7 +5,7 @@ class WP_Error {
 	var $errors = array();
 	var $error_data = array();
 
-	function WP_Error($code = '', $message = '', $data = '') {
+	function __construct($code = '', $message = '', $data = '') {
 		if ( empty($code) )
 			return;
 
@@ -13,6 +13,10 @@ class WP_Error {
 
 		if ( ! empty($data) )
 			$this->error_data[$code] = $data;
+	}
+
+	function WP_Error($code = '', $message = '', $data = '') {
+		$this->__construct($code, $message, $data);
 	}
 
 	function get_error_codes() {
@@ -92,9 +96,13 @@ if ( !class_exists('WP_Ajax_Response') ) : // [WP5920]
 class WP_Ajax_Response {
 	var $responses = array();
 
-	function WP_Ajax_Response( $args = '' ) {
+	function __construct( $args = '' ) {
 		if ( !empty($args) )
 			$this->add($args);
+	}
+
+	function WP_Ajax_Response( $args = '' ) {
+		$this->__construct( $args );
 	}
 
 	// a WP_Error object can be passed in 'id' or 'data'
