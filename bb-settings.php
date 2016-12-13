@@ -185,7 +185,7 @@ if ( !$bb_table_prefix ) {
 
 // Setup the global database connection
 $bbdb_class = BB_DATABASE_CLASS;
-$bbdb =& new $bbdb_class( array(
+$bbdb = new $bbdb_class( array(
 	'name' => BBDB_NAME,
 	'user' => BBDB_USER,
 	'password' => BBDB_PASSWORD,
