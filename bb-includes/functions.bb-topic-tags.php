@@ -354,15 +354,16 @@ function bb_get_tagged_topic_ids( $tag_id ) {
 
 function get_tagged_topics( $args ) {
 	global $tagged_topic_count;
+	$_args = func_get_args();
 	$defaults = array( 'tag_id' => false, 'page' => 1, 'number' => false, 'count' => true );
 	if ( is_numeric( $args ) )
 		$args = array( 'tag_id' => $args );
 	else
 		$args = wp_parse_args( $args ); // Make sure it's an array
 	if ( 1 < func_num_args() )
-		$args['page'] = func_get_arg(1);
+		$args['page'] = $_args[1];
 	if ( 2 < func_num_args() )
-		$args['number'] = func_get_arg(2);
+		$args['number'] = $_args[2];
 
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
@@ -376,15 +377,16 @@ function get_tagged_topics( $args ) {
 }
 
 function get_tagged_topic_posts( $args ) {
+	$_args = func_get_args();
 	$defaults = array( 'tag_id' => false, 'page' => 1, 'number' => false );
 	if ( is_numeric( $args ) )
 		$args = array( 'tag_id' => $args );
 	else
 		$args = wp_parse_args( $args ); // Make sure it's an array
 	if ( 1 < func_num_args() )
-		$args['page'] = func_get_arg(1);
+		$args['page'] = $_args[1];
 	if ( 2 < func_num_args() )
-		$args['number'] = func_get_arg(2);
+		$args['number'] = $_args[2];
 
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
