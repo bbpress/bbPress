@@ -889,8 +889,11 @@ endif;
 
 if ( !class_exists( 'WP_User' ) ) : // Deprecated in BackPress not WordPress
 class WP_User extends BP_User {
-	function WP_User( $id, $name = '' ) {
+	function __construct( $id, $name = '' ) {
 		return parent::BP_User( $id, $name );
+	}
+	function WP_User( $id, $name = '' ) {
+		$this->__construct( $id, $name );
 	}
 }
 endif;

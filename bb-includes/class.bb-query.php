@@ -16,11 +16,15 @@ class BB_Query {
 	var $found_rows = false;
 
 	// Can optionally pass unique id string to help out filters
-	function BB_Query( $type = 'topic', $query = '', $id = '' ) {
+	function __construct( $type = 'topic', $query = '', $id = '' ) {
 		$this->init( $type, $query, $id );
 
 		if ( !empty($this->query) )
 			$this->query();
+	}
+
+	function BB_Query( $type = 'topic', $query = '', $id = '' ) {
+		$this->__construct( $type, $query, $id );
 	}
 
 	function init( $type = null, $query = null, $id = null ) {
@@ -882,11 +886,15 @@ class BB_Query_Form extends BB_Query {
 	var $allowed;
 
 	// Can optionally pass unique id string to help out filters
-	function BB_Query_Form( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
+	function __construct( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
 		$this->defaults = wp_parse_args( $defaults );
 		$this->allowed  = wp_parse_args( $allowed );
 		if ( !empty($defaults) || !empty($allowed) )
 			$this->query_from_env($type, $defaults, $allowed, $id);
+	}
+
+	function BB_Query_Form( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
+		$this->__construct( $type, $defaults, $allowed, $id );
 	}
 
 	function form( $args = null ) {

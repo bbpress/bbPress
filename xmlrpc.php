@@ -104,7 +104,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @since 1.0
 	 * @return void
 	 */
-	function BB_XMLRPC_Server()
+	function __construct()
 	{
 		// bbPress publishing API
 		if ( bb_get_option( 'enable_xmlrpc' ) ) {
@@ -173,7 +173,10 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->IXR_Server( $this->methods );
 	}
 
-
+	function BB_XMLRPC_Server()
+	{
+		$this->__construct();
+	}
 
 	/**
 	 * Utility methods

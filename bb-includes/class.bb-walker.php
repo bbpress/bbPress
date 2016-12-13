@@ -162,10 +162,14 @@ class BB_Loop {
 		return $a;
 	}
 
-	function BB_Loop( &$elements ) {
+	function __construct( &$elements ) {
 		$this->elements = $elements;
 		if ( !is_array($this->elements) || empty($this->elements) )
 			return $this->elements = false;
+	}
+
+	function BB_Loop( &$elements ) {
+		$this->__construct( $elements );
 	}
 
 	function step() {
