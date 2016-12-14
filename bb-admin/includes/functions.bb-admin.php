@@ -1279,15 +1279,14 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 		return $output;
 	}
 	
-	function start_el($output, $forum, $depth) {
+	function start_el($output, $forum, $depth = 0) {
 		$this->forum_id = $forum->forum_id;
 		$indent = str_repeat("\t", $depth + 1);
 		$output .= $indent . "<li id='forum-$this->forum_id'" . get_alt_class( 'forum', 'forum clear list-block' ) . ">\n";
-
 		return $output;
 	}
 	
-	function end_el($output, $forum, $depth) {
+	function end_el($output, $forum, $depth = 0) {
 		$indent = str_repeat("\t", $depth + 1);
 		$output .= $indent . "</li>\n";
 		return $output;
