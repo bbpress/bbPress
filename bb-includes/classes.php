@@ -1039,8 +1039,8 @@ class BB_Walker {
 	var $db_fields;
 
 	//abstract callbacks
-	function start_lvl($output) { return $output; }
-	function end_lvl($output)   { return $output; }
+	function start_lvl($output, $depth) { return $output; }
+	function end_lvl($output, $depth)   { return $output; }
 	function start_el($output)  { return $output; }
 	function end_el($output)    { return $output; }
 
@@ -1177,8 +1177,8 @@ class BB_Walker_Blank extends BB_Walker { // Used for template functions
 		return $output;
 	}
 
-	function start_el()  { return ''; }
-	function end_el()    { return ''; }
+	function start_el( $output )  { return ''; }
+	function end_el( $output )    { return ''; }
 }
 
 class BB_Loop {
