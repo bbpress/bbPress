@@ -72,7 +72,7 @@ function bbp_admin_repair() {
 							</label>
 							<input id="cb-select-all-1" type="checkbox">
 						</td>
-						<th scope="col" id="description" class="manage-column column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
+						<th scope="col" id="description" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
 						<th scope="col" id="components" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
 						<th scope="col" id="overhead" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
 					</tr>
@@ -89,7 +89,7 @@ function bbp_admin_repair() {
 									<label class="screen-reader-text" for="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>"></label>
 									<input type="checkbox" name="checked[]" value="<?php echo esc_attr( $item['id'] ); ?>" id="<?php echo esc_attr( str_replace( '_', '-', $item['id'] ) ); ?>">
 								</th>
-								<td class="bbp-tool-title column-primary">
+								<td class="bbp-tool-title column-primary column-description" data-colname="<?php esc_html_e( 'Description', 'bbpress' ); ?>">
 									<strong><?php echo esc_html( $item['description'] ); ?></strong>
 									<div class="row-actions hide-if-no-js">
 										<span class="run">
@@ -100,14 +100,14 @@ function bbp_admin_repair() {
 										<span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'bbpress' ); ?></span>
 									</button>
 								</td>
-								<td class="column-components desc">
+								<td class="column-components desc" data-colname="<?php esc_html_e( 'Components', 'bbpress' ); ?>">
 									<div class="bbp-tool-overhead">
 
 										<?php echo implode( ', ', bbp_get_admin_repair_tool_components( $item ) ); ?>
 
 									</div>
 								</td>
-								<td class="column-overhead desc">
+								<td class="column-overhead desc" data-colname="<?php esc_html_e( 'Overhead', 'bbpress' ); ?>">
 									<div class="bbp-tool-overhead">
 
 										<?php echo esc_html( $item['overhead'] ); ?>
@@ -137,7 +137,7 @@ function bbp_admin_repair() {
 							</label>
 							<input id="cb-select-all-2" type="checkbox">
 						</td>
-						<th scope="col" class="manage-column column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
+						<th scope="col" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
 						<th scope="col" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
 						<th scope="col" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
 					</tr>
