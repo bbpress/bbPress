@@ -27,6 +27,11 @@ class BBP_Topics_Admin {
 	 */
 	private $post_type = '';
 
+	/**
+	 * @var WP_Screen The current screen object
+	 */
+	private $screen;
+
 	/** Functions *************************************************************/
 
 	/**
@@ -107,7 +112,14 @@ class BBP_Topics_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( $this->post_type !== get_current_screen()->post_type ) {
+
+		// Not for a post type
+		if ( empty( $this->screen->post_type ) ) {
+			return true;
+		}
+
+		// Not this post type
+		if ( $this->post_type != $this->screen->post_type ) {
 			return true;
 		}
 
@@ -122,7 +134,8 @@ class BBP_Topics_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		$this->post_type = bbp_get_topic_post_type();
+		$this->post_type = bbp_get_forum_post_type();
+		$this->screen    = get_current_screen();
 	}
 
 	/** Contextual Help *******************************************************/
@@ -141,7 +154,7 @@ class BBP_Topics_Admin {
 		}
 
 		// Overview
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
@@ -149,7 +162,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Screen Content
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
@@ -163,7 +176,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Available Actions
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
@@ -181,7 +194,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Bulk Actions
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
@@ -190,7 +203,7 @@ class BBP_Topics_Admin {
 		) );
 
 		// Help Sidebar
-		get_current_screen()->set_help_sidebar(
+		$this->screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',     'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',  'bbpress' ) . '</p>'
@@ -202,7 +215,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 *
-	 * @uses get_current_screen()
+	 * @uses $this->screen
 	 */
 	public function new_help() {
 
@@ -212,13 +225,13 @@ class BBP_Topics_Admin {
 
 		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'      => 'customize-display',
 			'title'   => __( 'Customizing This Display', 'bbpress' ),
 			'content' => $customize_display,
 		) );
 
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'      => 'title-topic-editor',
 			'title'   => __( 'Title and Topic Editor', 'bbpress' ),
 			'content' =>
@@ -232,7 +245,7 @@ class BBP_Topics_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'      => 'topic-attributes',
 			'title'   => __( 'Topic Attributes', 'bbpress' ),
 			'content' =>
@@ -243,13 +256,13 @@ class BBP_Topics_Admin {
 				'</ul>'
 		) );
 
-		get_current_screen()->add_help_tab( array(
+		$this->screen->add_help_tab( array(
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
 		) );
 
-		get_current_screen()->set_help_sidebar(
+		$this->screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
