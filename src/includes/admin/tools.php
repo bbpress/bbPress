@@ -670,6 +670,26 @@ function bbp_register_default_repair_tools() {
 		'overhead'    => esc_html__( 'Low', 'bbpress' ),
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
+
+	// Migrate favorites from user-meta to post-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-favorites-move',
+		'description' => __( 'Upgrade user favorites', 'bbpress' ),
+		'callback'    => 'bbp_admin_migrate_user_favorites',
+		'priority'    => 100,
+		'overhead'    => esc_html__( 'High', 'bbpress' ),
+		'components'  => array( bbp_get_user_rewrite_id() )
+	) );
+
+	// Migrate favorites from user-meta to post-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-subscriptions-move',
+		'description' => __( 'Upgrade user subscriptions', 'bbpress' ),
+		'callback'    => 'bbp_admin_migrate_user_subscriptions',
+		'priority'    => 105,
+		'overhead'    => esc_html__( 'High', 'bbpress' ),
+		'components'  => array( bbp_get_user_rewrite_id() )
+	) );
 }
 
 /**
@@ -2119,6 +2139,118 @@ function bbp_admin_repair_reply_menu_order() {
 	wp_cache_flush();
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Upgrade user favorites for bbPress 2.6 and higher
+ *
+ * @since 2.6.0 bbPress (rxxxx)
+ *
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_migrate_user_favorites() {
+
+	// Define variables
+	$bbp_db    = bbp_db();
+	$statement = __( 'Upgrading user favorites &hellip; %s', 'bbpress' );
+	$result    = __( 'No favorites to upgrade.',             'bbpress' );
+	$changed   = $total = 0;
+	$key       = $bbp_db->prefix . '_bbp_favorites';
+	$favorites = $bbp_db->get_col( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+
+	// Bail if no closed topics found
+	if ( empty( $favorites ) || is_wp_error( $favorites ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Loop through each user's favorites
+	foreach ( $favorites as $meta_id => $meta ) {
+
+		// Get post IDs
+		$post_ids  = maybe_unserialize( $meta->meta_value );
+		$to_change = count( $post_ids );
+		$changed   = 0;
+
+		// Add user ID to all favorited posts
+		foreach ( $post_ids as $post_id ) {
+			$added = add_post_meta( $post_id, '_bbp_favorite', $meta->user_id );
+
+			// Bump counts if successfully added
+			if ( ! empty( $added ) ) {
+				++$changed;
+				++$total;
+			}
+		}
+
+		// Delete the old meta data
+		if ( $changed === $to_change ) {
+			delete_metadata_by_mid( 'user', $meta_id );
+		}
+	}
+
+	// Cleanup
+	unset( $favorites, $added, $post_ids );
+
+	// Complete results
+	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $changed, 'bbpress' ), $changed );
+
+	return array( 0, sprintf( $statement, $result ) );
+}
+
+/**
+ * Upgrade user subscriptions for bbPress 2.6 and higher
+ *
+ * @since 2.6.0 bbPress (rxxxx)
+ *
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_migrate_user_subscriptions() {
+
+	// Define variables
+	$bbp_db        = bbp_db();
+	$statement     = __( 'Upgrading user subscriptions &hellip; %s', 'bbpress' );
+	$result        = __( 'No subscriptions to upgrade.',             'bbpress' );
+	$changed       = $total = 0;
+	$key           = $bbp_db->prefix . '_bbp_subscriptions';
+	$subscriptions = $bbp_db->get_col( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+
+	// Bail if no closed topics found
+	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Loop through each user's favorites
+	foreach ( $subscriptions as $meta_id => $meta ) {
+
+		// Get post IDs
+		$post_ids  = maybe_unserialize( $meta->meta_value );
+		$to_change = count( $post_ids );
+		$changed   = 0;
+
+		// Add user ID to all favorited posts
+		foreach ( $post_ids as $post_id ) {
+			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id );
+
+			// Bump counts if successfully added
+			if ( ! empty( $added ) ) {
+				++$changed;
+				++$total;
+			}
+		}
+
+		// Delete the old meta data
+		if ( $changed === $to_change ) {
+			delete_metadata_by_mid( 'user', $meta_id );
+		}
+	}
+
+	// Cleanup
+	unset( $subscriptions, $added, $post_ids );
+
+	// Complete results
+	$result = sprintf( _n( 'Complete! %d subscription upgraded.', 'Complete! %d subscriptions upgraded.', $total, 'bbpress' ), $total );
+
+	return array( 0, sprintf( $statement, $result ) );
 }
 
 /** Reset ********************************************************************/
