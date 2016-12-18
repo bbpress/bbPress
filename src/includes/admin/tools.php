@@ -2144,7 +2144,7 @@ function bbp_admin_repair_reply_menu_order() {
 /**
  * Upgrade user favorites for bbPress 2.6 and higher
  *
- * @since 2.6.0 bbPress (rxxxx)
+ * @since 2.6.0 bbPress (r6174)
  *
  * @return array An array of the status code and the message
  */
@@ -2192,7 +2192,7 @@ function bbp_admin_migrate_user_favorites() {
 	unset( $favorites, $added, $post_ids );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $changed, 'bbpress' ), $changed );
+	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), $total );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -2200,7 +2200,7 @@ function bbp_admin_migrate_user_favorites() {
 /**
  * Upgrade user subscriptions for bbPress 2.6 and higher
  *
- * @since 2.6.0 bbPress (rxxxx)
+ * @since 2.6.0 bbPress (r6174)
  *
  * @return array An array of the status code and the message
  */
