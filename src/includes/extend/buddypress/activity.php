@@ -387,7 +387,6 @@ class BBP_BuddyPress_Activity {
 	 * @uses bbp_get_topic_content()
 	 * @uses bbp_get_forum_permalink()
 	 * @uses bbp_get_forum_title()
-	 * @uses bp_create_excerpt()
 	 * @uses apply_filters()
 	 * @return Bail early if topic is by anonymous user
 	 */
@@ -537,9 +536,8 @@ class BBP_BuddyPress_Activity {
 	 * @uses bbp_get_topic_title()
 	 * @uses bbp_get_forum_permalink()
 	 * @uses bbp_get_forum_title()
-	 * @uses bp_create_excerpt()
 	 * @uses apply_filters()
-	 * @return Bail early if topic is by anonywous user
+	 * @return Bail early if topic is by anonymous user
 	 */
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
 
