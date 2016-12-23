@@ -1,6 +1,24 @@
 <?php
 
 /**
+ * bbPress BuddyPress Notifications
+ *
+ * @package bbPress
+ * @subpackage BuddyPress
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+// Hooks
+add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notifications_get_registered_components', 10 );
+add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypress_notifications', 10, 5 );
+add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
+add_action( 'bbp_get_request', 'bbp_buddypress_mark_notifications', 1 );
+
+/** BuddyPress Helpers ********************************************************/
+
+/**
  * Filter registered notifications components, and add 'forums' to the queried
  * 'component_name' array.
  *
@@ -23,7 +41,6 @@ function bbp_filter_notifications_get_registered_components( $component_names = 
 	// Return component's with 'forums' appended
 	return $component_names;
 }
-add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notifications_get_registered_components', 10 );
 
 /**
  * Format the BuddyBar/Toolbar notifications
@@ -79,7 +96,6 @@ function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item
 
 	return $return;
 }
-add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypress_notifications', 10, 5 );
 
 /**
  * Hooked into the new reply function, this notification action is responsible
@@ -126,7 +142,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 
 		bp_notifications_add_notification( $args );
  	}
- 
+
  	// Notify the immediate reply author if not the current reply author
  	if ( ! empty( $reply_to ) && ( $author_id !== $reply_to_item_id ) ) {
 		$args['secondary_item_id'] = $reply_to_item_id ;
@@ -134,7 +150,6 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 		bp_notifications_add_notification( $args );
  	}
 }
-add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
 
 /**
  * Mark notifications as read when reading a topic
@@ -184,4 +199,3 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 	// Redirect
 	bbp_redirect( $redirect );
 }
-add_action( 'bbp_get_request', 'bbp_buddypress_mark_notifications', 1 );

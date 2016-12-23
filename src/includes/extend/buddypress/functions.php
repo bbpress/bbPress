@@ -5,11 +5,16 @@
  *
  * @package bbPress
  * @subpackage BuddyPress
- * @todo maybe move to BuddyPress Forums once bbPress 1.1 can be removed
  */
 
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
+
+// Hooks
+add_action( 'bp_modify_page_title', 'bbp_filter_modify_page_title', 10, 3 );
+add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
+add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
+add_filter( 'bbp_is_user_home', 'bbp_filter_is_user_home', 10, 1 );
 
 /** BuddyPress Helpers ********************************************************/
 
@@ -73,7 +78,6 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 
 	return $bbp_user_id;
 }
-add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
 
 /**
  * Filter the bbPress is_single_user function with BuddyPress eqivalent
@@ -90,7 +94,6 @@ function bbp_filter_is_single_user( $is = false ) {
 
 	return bp_is_user();
 }
-add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
 
 /**
  * Filter the bbPress is_user_home function with BuddyPress eqivalent
@@ -107,7 +110,6 @@ function bbp_filter_is_user_home( $is = false ) {
 
 	return bp_is_my_profile();
 }
-add_filter( 'bbp_is_user_home', 'bbp_filter_is_user_home', 10, 1 );
 
 /**
  * Add the topic title to the <title> if viewing a single group forum topic
@@ -143,7 +145,6 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 	// Return the title
 	return $new_title;
 }
-add_action( 'bp_modify_page_title', 'bbp_filter_modify_page_title', 10, 3 );
 
 /** BuddyPress Screens ********************************************************/
 
