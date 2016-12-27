@@ -2239,7 +2239,7 @@ function bbp_admin_upgrade_user_favorites() {
 	foreach ( $favorites as $meta_id => $meta ) {
 
 		// Get post IDs
-		$post_ids  = maybe_unserialize( $meta->meta_value );
+		$post_ids  = explode( ',', $meta->meta_value );
 		$to_change = count( $post_ids );
 		$changed   = 0;
 
@@ -2295,7 +2295,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 	foreach ( $subscriptions as $meta_id => $meta ) {
 
 		// Get post IDs
-		$post_ids  = maybe_unserialize( $meta->meta_value );
+		$post_ids  = explode( ',', $meta->meta_value );
 		$to_change = count( $post_ids );
 		$changed   = 0;
 
