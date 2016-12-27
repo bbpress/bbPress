@@ -42,19 +42,22 @@ add_action( 'admin_menu',              'bbp_admin_menu'                    );
 add_action( 'admin_init',              'bbp_admin_init'                    );
 add_action( 'admin_head',              'bbp_admin_head'                    );
 add_action( 'admin_notices',           'bbp_admin_notices'                 );
-add_action( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
 add_action( 'menu_order',              'bbp_admin_menu_order'              );
+add_action( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
+add_action( 'current_screen',          'bbp_current_screen'                );
 add_action( 'wpmu_new_blog',           'bbp_new_site',               10, 6 );
 
 // Hook on to admin_init
-add_action( 'bbp_admin_init', 'bbp_admin_forums'                );
-add_action( 'bbp_admin_init', 'bbp_admin_topics'                );
-add_action( 'bbp_admin_init', 'bbp_admin_replies'               );
 add_action( 'bbp_admin_init', 'bbp_setup_updater',          999 );
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );
 add_action( 'bbp_admin_init', 'bbp_register_admin_style'        );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
 add_action( 'bbp_admin_init', 'bbp_do_activation_redirect', 1   );
+
+// Hook on to current_screen
+add_action( 'bbp_current_screen', 'bbp_admin_forums'  );
+add_action( 'bbp_current_screen', 'bbp_admin_topics'  );
+add_action( 'bbp_current_screen', 'bbp_admin_replies' );
 
 // Initialize the admin area
 add_action( 'bbp_init', 'bbp_admin' );
@@ -259,4 +262,16 @@ function bbp_register_admin_style() {
  */
 function bbp_register_admin_settings() {
 	do_action( 'bbp_register_admin_settings' );
+}
+
+/**
+ * Dedicated action to hook into the current screen
+ *
+ * @since 2.6.0 bbPress (r6185)
+ *
+ * @param WP_Screen $current_screen
+ * @uses do_action() Calls 'bbp_current_screen'
+ */
+function bbp_current_screen( $current_screen = '' ) {
+	do_action( 'bbp_current_screen', $current_screen );
 }

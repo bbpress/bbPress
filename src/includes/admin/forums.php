@@ -27,11 +27,6 @@ class BBP_Forums_Admin {
 	 */
 	private $post_type = '';
 
-	/**
-	 * @var WP_Screen The current screen object
-	 */
-	private $screen;
-
 	/** Functions *************************************************************/
 
 	/**
@@ -79,6 +74,7 @@ class BBP_Forums_Admin {
 		// Metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
 		add_action( 'add_meta_boxes', array( $this, 'moderators_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'   ) );
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
 
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
@@ -92,28 +88,6 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Should we bail out of this method?
-	 *
-	 * @since 2.1.0 bbPress (r4067)
-	 *
-	 * @return boolean
-	 */
-	private function bail() {
-
-		// Not for a post type
-		if ( empty( $this->screen->post_type ) ) {
-			return true;
-		}
-
-		// Not this post type
-		if ( $this->post_type != $this->screen->post_type ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Admin globals
 	 *
 	 * @since 2.0.0 bbPress (r2646)
@@ -122,7 +96,6 @@ class BBP_Forums_Admin {
 	 */
 	private function setup_globals() {
 		$this->post_type = bbp_get_forum_post_type();
-		$this->screen    = get_current_screen();
 	}
 
 	/** Contextual Help *******************************************************/
@@ -136,12 +109,8 @@ class BBP_Forums_Admin {
 	 */
 	public function edit_help() {
 
-		if ( $this->bail() ) {
-			return;
-		}
-
 		// Overview
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'overview',
 			'title'		=> __( 'Overview', 'bbpress' ),
 			'content'	=>
@@ -149,7 +118,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Screen Content
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'screen-content',
 			'title'		=> __( 'Screen Content', 'bbpress' ),
 			'content'	=>
@@ -162,7 +131,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Available Actions
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'action-links',
 			'title'		=> __( 'Available Actions', 'bbpress' ),
 			'content'	=>
@@ -175,7 +144,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Bulk Actions
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'		=> 'bulk-actions',
 			'title'		=> __( 'Bulk Actions', 'bbpress' ),
 			'content'	=>
@@ -184,7 +153,7 @@ class BBP_Forums_Admin {
 		) );
 
 		// Help Sidebar
-		$this->screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
@@ -196,23 +165,19 @@ class BBP_Forums_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 *
-	 * @uses $this->screen
+	 * @uses get_current_screen()
 	 */
 	public function new_help() {
 
-		if ( $this->bail() ) {
-			return;
-		}
-
 		$customize_display = '<p>' . __( 'The title field and the big forum editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'customize-display',
 			'title'   => __( 'Customizing This Display', 'bbpress' ),
 			'content' => $customize_display,
 		) );
 
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'title-forum-editor',
 			'title'   => __( 'Title and Forum Editor', 'bbpress' ),
 			'content' =>
@@ -226,7 +191,7 @@ class BBP_Forums_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your forum without inserting it. This is usually useful only if your theme makes use of the featured image as a forum thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'forum-attributes',
 			'title'   => __( 'Forum Attributes', 'bbpress' ),
 			'content' =>
@@ -240,13 +205,13 @@ class BBP_Forums_Admin {
 				'</ul>'
 		) );
 
-		$this->screen->add_help_tab( array(
+		get_current_screen()->add_help_tab( array(
 			'id'      => 'publish-box',
 			'title'   => __( 'Publish Box', 'bbpress' ),
 			'content' => $publish_box,
 		) );
 
-		$this->screen->set_help_sidebar(
+		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
 			'<p>' . __( '<a href="https://codex.bbpress.org" target="_blank">bbPress Documentation</a>',    'bbpress' ) . '</p>' .
 			'<p>' . __( '<a href="https://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>', 'bbpress' ) . '</p>'
@@ -263,10 +228,6 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-
-		if ( $this->bail() ) {
-			return;
-		}
 
 		// Meta data
 		add_meta_box(
@@ -292,10 +253,6 @@ class BBP_Forums_Admin {
 	 */
 	public function moderators_metabox() {
 
-		if ( $this->bail() ) {
-			return;
-		}
-
 		// Bail if feature not active or user cannot assign moderators
 		if ( ! bbp_allow_forum_mods() || ! current_user_can( 'assign_moderators' ) ) {
 			return;
@@ -312,6 +269,18 @@ class BBP_Forums_Admin {
 		);
 
 		do_action( 'bbp_forum_moderators_metabox' );
+	}
+
+	/**
+	 * Remove comments & discussion metaboxes if comments are not supported
+	 *
+	 * @since 2.6.0 bbPress
+	 */
+	public function comments_metabox() {
+		if ( ! post_type_supports( $this->post_type, 'comments' ) ) {
+			remove_meta_box( 'commentstatusdiv', $this->post_type, 'normal' );
+			remove_meta_box( 'commentsdiv',      $this->post_type, 'normal' );
+		}
 	}
 
 	/**
@@ -337,10 +306,6 @@ class BBP_Forums_Admin {
 	 * @return int Forum id
 	 */
 	public function save_meta_boxes( $forum_id ) {
-
-		if ( $this->bail() ) {
-			return $forum_id;
-		}
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -395,10 +360,7 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	public function admin_head() {
-
-		if ( $this->bail() ) {
-			return;
-		} ?>
+		?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -491,10 +453,6 @@ class BBP_Forums_Admin {
 	 */
 	public function toggle_forum() {
 
-		if ( $this->bail() ) {
-			return;
-		}
-
 		// Only proceed if GET is a forum toggle action
 		if ( bbp_is_get_request() && ! empty( $_GET['forum_id'] ) && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_forum_close' ) ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
@@ -559,10 +517,6 @@ class BBP_Forums_Admin {
 	 */
 	public function toggle_forum_notice() {
 
-		if ( $this->bail() ) {
-			return;
-		}
-
 		// Only proceed if GET is a forum toggle action
 		if ( bbp_is_get_request() && ! empty( $_GET['bbp_forum_toggle_notice'] ) && in_array( $_GET['bbp_forum_toggle_notice'], array( 'opened', 'closed' ) ) && ! empty( $_GET['forum_id'] ) ) {
 			$notice     = $_GET['bbp_forum_toggle_notice'];         // Which notice?
@@ -621,10 +575,6 @@ class BBP_Forums_Admin {
 	 */
 	public function column_headers( $columns ) {
 
-		if ( $this->bail() ) {
-			return $columns;
-		}
-
 		// Set list table column headers
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
@@ -663,10 +613,6 @@ class BBP_Forums_Admin {
 	 *                    column and forum id
 	 */
 	public function column_data( $column, $forum_id ) {
-
-		if ( $this->bail() ) {
-			return;
-		}
 
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
@@ -730,10 +676,6 @@ class BBP_Forums_Admin {
 	 */
 	public function row_actions( $actions, $forum ) {
 
-		if ( $this->bail() ) {
-			return $actions;
-		}
-
 		unset( $actions['inline hide-if-no-js'] );
 
 		// Only show the actions if the user is capable of viewing them :)
@@ -773,10 +715,6 @@ class BBP_Forums_Admin {
 	 */
 	public function updated_messages( $messages ) {
 		global $post_ID;
-
-		if ( $this->bail() ) {
-			return $messages;
-		}
 
 		// URL for the current forum
 		$forum_url = bbp_get_forum_permalink( $post_ID );
@@ -866,6 +804,13 @@ endif; // class_exists check
  *
  * @uses BBP_Forums_Admin
  */
-function bbp_admin_forums() {
+function bbp_admin_forums( $current_screen ) {
+
+	// Bail if not a forum screen
+	if ( empty( $current_screen->post_type ) || ( bbp_get_forum_post_type() !== $current_screen->post_type ) ) {
+		return;
+	}
+
+	// Init the forums admin
 	bbpress()->admin->forums = new BBP_Forums_Admin();
 }
