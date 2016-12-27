@@ -2245,6 +2245,13 @@ function bbp_admin_upgrade_user_favorites() {
 
 		// Add user ID to all favorited posts
 		foreach ( $post_ids as $post_id ) {
+
+			// Skip if already exists
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d" ), $post_id, '_bbp_favorite', $meta->user_id ) ) {
+				continue;
+			}
+
+			// Add the post meta
 			$added = add_post_meta( $post_id, '_bbp_favorite', $meta->user_id, false );
 
 			// Bump counts if successfully added
@@ -2301,6 +2308,13 @@ function bbp_admin_upgrade_user_subscriptions() {
 
 		// Add user ID to all favorited posts
 		foreach ( $post_ids as $post_id ) {
+
+			// Skip if already exists
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d" ), $post_id, '_bbp_subscription', $meta->user_id ) ) {
+				continue;
+			}
+
+			// Add the post meta
 			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id, false );
 
 			// Bump counts if successfully added
