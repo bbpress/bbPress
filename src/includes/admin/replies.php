@@ -1055,6 +1055,7 @@ endif; // class_exists check
  *
  * @since 2.0.0 bbPress (r2596)
  *
+ * @param WP_Screen $current_screen Current screen object
  * @uses BBP_Replies_Admin
  */
 function bbp_admin_replies( $current_screen ) {
