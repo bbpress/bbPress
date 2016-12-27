@@ -281,7 +281,7 @@ function bbp_version_updater() {
 
 		/** 2.2 Branch ********************************************************/
 
-		// 2.2
+		// 2.2.x
 		if ( $raw_db_version < 220 ) {
 
 			// Remove any old bbPress roles
@@ -293,9 +293,37 @@ function bbp_version_updater() {
 
 		/** 2.3 Branch ********************************************************/
 
-		// 2.3
+		// 2.3.x
 		if ( $raw_db_version < 230 ) {
 			// No changes
+		}
+
+		/** 2.4 Branch ********************************************************/
+
+		// 2.4.x
+		if ( $raw_db_version < 240 ) {
+			// No changes
+		}
+
+		/** 2.5 Branch ********************************************************/
+
+		// 2.5.x
+		if ( $raw_db_version < 250 ) {
+			// No changes
+		}
+
+		/** 2.6 Branch ********************************************************/
+
+		// 2.6.x
+		if ( $raw_db_version < 260 ) {
+
+			/**
+			 * Upgrade user favorites and subscriptions
+			 *
+			 * @link https://bbpress.trac.wordpress.org/ticket/2959
+			 */
+			bbp_admin_upgrade_user_favorites();
+			bbp_admin_upgrade_user_subscriptions();
 		}
 	}
 

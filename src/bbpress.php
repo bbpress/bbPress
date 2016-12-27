@@ -203,8 +203,8 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-alpha-6091';
-		$this->db_version = '250';
+		$this->version    = '2.6-alpha-6183';
+		$this->db_version = '260';
 
 		/** Paths *************************************************************/
 

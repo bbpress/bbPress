@@ -2254,7 +2254,7 @@ function bbp_admin_upgrade_user_favorites() {
 			}
 		}
 
-		// Delete the old meta data
+		// Delete user meta if everything was copied successfully
 		if ( $changed === $to_change ) {
 			delete_metadata_by_mid( 'user', $meta_id );
 		}
@@ -2310,7 +2310,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 			}
 		}
 
-		// Delete the old meta data
+		// Delete user meta if everything was copied successfully
 		if ( $changed === $to_change ) {
 			delete_metadata_by_mid( 'user', $meta_id );
 		}
