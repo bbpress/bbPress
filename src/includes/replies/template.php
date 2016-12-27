@@ -48,7 +48,7 @@ function bbp_get_reply_post_type_labels() {
 		'menu_name'          => __( 'Replies',                   'bbpress' ),
 		'singular_name'      => _x( 'Reply', 'noun',             'bbpress' ),
 		'all_items'          => __( 'All Replies',               'bbpress' ),
-		'add_new'            => __( 'New Reply',                 'bbpress' ),
+		'add_new'            => __( 'Add New',                   'bbpress' ),
 		'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
 		'edit'               => __( 'Edit',                      'bbpress' ),
 		'edit_item'          => __( 'Edit Reply',                'bbpress' ),

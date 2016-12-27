@@ -48,7 +48,7 @@ function bbp_get_topic_post_type_labels() {
 		'menu_name'          => __( 'Topics',                   'bbpress' ),
 		'singular_name'      => __( 'Topic',                    'bbpress' ),
 		'all_items'          => __( 'All Topics',               'bbpress' ),
-		'add_new'            => __( 'New Topic',                'bbpress' ),
+		'add_new'            => __( 'Add New',                  'bbpress' ),
 		'add_new_item'       => __( 'Create New Topic',         'bbpress' ),
 		'edit'               => __( 'Edit',                     'bbpress' ),
 		'edit_item'          => __( 'Edit Topic',               'bbpress' ),

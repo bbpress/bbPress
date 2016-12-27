@@ -49,7 +49,7 @@ function bbp_get_forum_post_type_labels() {
 		'menu_name'          => __( 'Forums',                   'bbpress' ),
 		'singular_name'      => __( 'Forum',                    'bbpress' ),
 		'all_items'          => __( 'All Forums',               'bbpress' ),
-		'add_new'            => __( 'New Forum',                'bbpress' ),
+		'add_new'            => __( 'Add New',                  'bbpress' ),
 		'add_new_item'       => __( 'Create New Forum',         'bbpress' ),
 		'edit'               => __( 'Edit',                     'bbpress' ),
 		'edit_item'          => __( 'Edit Forum',               'bbpress' ),
