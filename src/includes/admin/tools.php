@@ -2228,7 +2228,7 @@ function bbp_admin_upgrade_user_favorites() {
 	$result    = __( 'No favorites to upgrade.',             'bbpress' );
 	$changed   = $total = 0;
 	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$favorites = $bbp_db->get_col( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+	$favorites = $bbp_db->get_results( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
 
 	// Bail if no closed topics found
 	if ( empty( $favorites ) || is_wp_error( $favorites ) ) {
@@ -2236,7 +2236,7 @@ function bbp_admin_upgrade_user_favorites() {
 	}
 
 	// Loop through each user's favorites
-	foreach ( $favorites as $meta_id => $meta ) {
+	foreach ( $favorites as $meta ) {
 
 		// Get post IDs
 		$post_ids  = explode( ',', $meta->meta_value );
@@ -2247,7 +2247,7 @@ function bbp_admin_upgrade_user_favorites() {
 		foreach ( $post_ids as $post_id ) {
 
 			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d" ), $post_id, '_bbp_favorite', $meta->user_id ) ) {
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, '_bbp_favorite', $meta->user_id ) ) ) {
 				continue;
 			}
 
@@ -2263,7 +2263,7 @@ function bbp_admin_upgrade_user_favorites() {
 
 		// Delete user meta if everything was copied successfully
 		if ( $changed === $to_change ) {
-			delete_metadata_by_mid( 'user', $meta_id );
+			//delete_metadata_by_mid( 'user', $meta->umeta_id );
 		}
 	}
 
@@ -2291,7 +2291,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 	$result        = __( 'No subscriptions to upgrade.',             'bbpress' );
 	$changed       = $total = 0;
 	$key           = $bbp_db->prefix . '_bbp_subscriptions';
-	$subscriptions = $bbp_db->get_col( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+	$subscriptions = $bbp_db->get_results( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
 
 	// Bail if no closed topics found
 	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
@@ -2299,7 +2299,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 	}
 
 	// Loop through each user's favorites
-	foreach ( $subscriptions as $meta_id => $meta ) {
+	foreach ( $subscriptions as $meta ) {
 
 		// Get post IDs
 		$post_ids  = explode( ',', $meta->meta_value );
@@ -2310,7 +2310,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 		foreach ( $post_ids as $post_id ) {
 
 			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d" ), $post_id, '_bbp_subscription', $meta->user_id ) ) {
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, '_bbp_subscription', $meta->user_id ) ) ) {
 				continue;
 			}
 
@@ -2326,7 +2326,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 
 		// Delete user meta if everything was copied successfully
 		if ( $changed === $to_change ) {
-			delete_metadata_by_mid( 'user', $meta_id );
+			//delete_metadata_by_mid( 'user', $meta->umeta_id );
 		}
 	}
 
