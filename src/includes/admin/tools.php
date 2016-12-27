@@ -2245,7 +2245,7 @@ function bbp_admin_upgrade_user_favorites() {
 
 		// Add user ID to all favorited posts
 		foreach ( $post_ids as $post_id ) {
-			$added = add_post_meta( $post_id, '_bbp_favorite', $meta->user_id );
+			$added = add_post_meta( $post_id, '_bbp_favorite', $meta->user_id, false );
 
 			// Bump counts if successfully added
 			if ( ! empty( $added ) ) {
@@ -2301,7 +2301,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 
 		// Add user ID to all favorited posts
 		foreach ( $post_ids as $post_id ) {
-			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id );
+			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id, false );
 
 			// Bump counts if successfully added
 			if ( ! empty( $added ) ) {
