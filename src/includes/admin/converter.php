@@ -3,7 +3,7 @@
 /**
  * bbPress Converter
  *
- * Based on the hard work of Adam Ellis at http://bbconverter.com
+ * Based on the hard work of Adam Ellis
  *
  * @package bbPress
  * @subpackage Administration
@@ -635,7 +635,7 @@ class BBP_Converter {
 
 		$bbp_db     = bbp_db();
 		$table_name = $bbp_db->prefix . 'bbp_converter_translator';
-		if ( ! empty( $drop ) && $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name ) {
+		if ( ! empty( $drop ) && $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
 			$bbp_db->query( "DROP TABLE {$table_name}" );
 		}
 
@@ -652,7 +652,7 @@ class BBP_Converter {
 		$sql = array();
 		$max_index_length = 191;
 
-		/** Translator ****************************************************/
+		/** Translator ********************************************************/
 
 		$sql[] = "CREATE TABLE {$table_name} (
 					meta_id mediumint(8) unsigned not null auto_increment,
@@ -764,14 +764,14 @@ abstract class BBP_Converter_Base {
 		 * Syncing
 		 */
 		$this->sync_table_name = $this->wpdb->prefix . 'bbp_converter_translator';
-		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) == $this->sync_table_name ) {
+		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) === $this->sync_table_name ) {
 			$this->sync_table = true;
 		} else {
 			$this->sync_table = false;
 		}
 
 		/**
-		 * Charset
+		 * Character set
 		 */
 		if ( empty( $this->wpdb->charset ) ) {
 			$this->charset = 'UTF8';
@@ -926,7 +926,7 @@ abstract class BBP_Converter_Base {
 	public function convert_table( $to_type, $start ) {
 
 		// Are we usig a sync table, or postmeta?
-		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) == $this->sync_table_name ) {
+		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) === $this->sync_table_name ) {
 			$this->sync_table = true;
 		} else {
 			$this->sync_table = false;
@@ -948,15 +948,15 @@ abstract class BBP_Converter_Base {
 				break;
 
 			case 'forum_subscriptions' :
-				$tablename = $this->wpdb->usermeta;
+				$tablename = $this->wpdb->postmeta;
 				break;
 
 			case 'topic_subscriptions' :
-				$tablename = $this->wpdb->usermeta;
+				$tablename = $this->wpdb->postmeta;
 				break;
 
 			case 'favorites' :
-				$tablename = $this->wpdb->usermeta;
+				$tablename = $this->wpdb->postmeta;
 				break;
 
 			default :
@@ -974,7 +974,7 @@ abstract class BBP_Converter_Base {
 		foreach ( $this->field_map as $item ) {
 
 			// Yay a match, and we have a from table, too
-			if ( ( $item['to_type'] == $to_type ) && ! empty( $item['from_tablename'] ) ) {
+			if ( ( $item['to_type'] === $to_type ) && ! empty( $item['from_tablename'] ) ) {
 
 				// $from_tablename was set from a previous loop iteration
 				if ( ! empty( $from_tablename ) ) {
@@ -1035,7 +1035,7 @@ abstract class BBP_Converter_Base {
 
 						// Types match and to_fieldname is present. This means
 						// we have some work to do here.
-						if ( ( $row['to_type'] == $to_type ) && isset( $row['to_fieldname'] ) ) {
+						if ( ( $row['to_type'] === $to_type ) && isset( $row['to_fieldname'] ) ) {
 
 							// This row has a destination that matches one of the
 							// columns in this table.
@@ -1043,19 +1043,19 @@ abstract class BBP_Converter_Base {
 
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {
-									$insert_post[$row['to_fieldname']] = $row['default'];
+									$insert_post[ $row['to_fieldname'] ] = $row['default'];
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( ( 'callback_userid' == $row['callback_method'] ) && empty( $_POST['_bbp_converter_convert_users'] ) ) {
-										$insert_post[$row['to_fieldname']] = $forum[$row['from_fieldname']];
+									if ( ( 'callback_userid' === $row['callback_method'] ) && empty( $_POST['_bbp_converter_convert_users'] ) ) {
+										$insert_post[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
 									} else {
-										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[$row['from_fieldname']], $forum ) );
+										$insert_post[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
 									}
 
 								// Maps the field from the old forum.
 								} else {
-									$insert_post[$row['to_fieldname']] = $forum[$row['from_fieldname']];
+									$insert_post[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
 								}
 
 							// Destination field is not empty, so we might need
@@ -1064,19 +1064,19 @@ abstract class BBP_Converter_Base {
 
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {
-									$insert_postmeta[$row['to_fieldname']] = $row['default'];
+									$insert_postmeta[ $row['to_fieldname'] ] = $row['default'];
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( ( $row['callback_method'] == 'callback_userid' ) && ( 0 == $_POST['_bbp_converter_convert_users'] ) ) {
-										$insert_postmeta[$row['to_fieldname']] = $forum[$row['from_fieldname']];
+									if ( ( $row['callback_method'] === 'callback_userid' ) && ( 0 == $_POST['_bbp_converter_convert_users'] ) ) {
+										$insert_postmeta[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
 									} else {
-										$insert_postmeta[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[$row['from_fieldname']], $forum ) );
+										$insert_postmeta[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
 									}
 
 								// Maps the field from the old forum.
 								} else {
-									$insert_postmeta[$row['to_fieldname']] = $forum[$row['from_fieldname']];
+									$insert_postmeta[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
 								}
 							}
 						}
@@ -1128,21 +1128,22 @@ abstract class BBP_Converter_Base {
 								}
 								break;
 
-							/** Forum Subscriptions *********************************/
+							/** Forum Subscriptions ***************************/
 
 							case 'forum_subscriptions':
 								$user_id = $insert_post['user_id'];
-								if ( is_numeric( $user_id ) ) {
-									foreach ($insert_postmeta as $key => $value) {
+								$items   = wp_list_pluck( $insert_postmeta, '_bbp_forum_subscriptions' );
+								if ( is_numeric( $user_id ) && ! empty( $items ) ) {
+									foreach ( $items as $value ) {
 
-										// Only extract values from the key _bbp_forum_subscriptions
-										if ( '_bbp_forum_subscriptions' == $key ) {
+										// Maybe string with commas
+										$value = is_string( $value )
+											? explode( ',', $value )
+											: (array) $value;
 
-											// Get the new forum ID
-											$forum_id = $this->callback_forumid( $value );
-
-											// Add the topic ID to the users subscribed forums
-											bbp_add_user_forum_subscription( $user_id, $forum_id );
+										// Add user ID to forums subscribed users
+										foreach ( $value as $fav ) {
+											bbp_add_user_forum_subscription( $user_id, $this->callback_forumid( $fav ) );
 										}
 									}
 								}
@@ -1152,46 +1153,39 @@ abstract class BBP_Converter_Base {
 
 							case 'topic_subscriptions':
 								$user_id = $insert_post['user_id'];
-								if ( is_numeric( $user_id ) ) {
-									foreach ($insert_postmeta as $key => $value) {
+								$items   = wp_list_pluck( $insert_postmeta, '_bbp_subscriptions' );
+								if ( is_numeric( $user_id ) && ! empty( $items ) ) {
+									foreach ( $items as $value ) {
 
-										// Only extract values from the key _bbp_subscriptions
-										if ( '_bbp_subscriptions' == $key ) {
+										// Maybe string with commas
+										$value = is_string( $value )
+											? explode( ',', $value )
+											: (array) $value;
 
-											// Get the new topic ID
-											$topic_id = $this->callback_topicid( $value );
-
-											// Add the topic ID to the users subscribed topics
-											bbp_add_user_topic_subscription( $user_id, $topic_id );
+										// Add user ID to topics subscribed users
+										foreach ( $value as $fav ) {
+											bbp_add_user_topic_subscription( $user_id, $this->callback_topicid( $fav ) );
 										}
 									}
 								}
 								break;
 
-							/** Favorites *********************************/
+							/** Favorites *************************************/
 
 							case 'favorites':
 								$user_id = $insert_post['user_id'];
-								if ( is_numeric( $user_id ) ) {
+								$items   = wp_list_pluck( $insert_postmeta, '_bbp_favorites' );
+								if ( is_numeric( $user_id ) && ! empty( $items ) ) {
+									foreach ( $items as $value ) {
 
-									// Loop through the array
-									foreach ($insert_postmeta as $key => $value) {
+										// Maybe string with commas
+										$value = is_string( $value )
+											? explode( ',', $value )
+											: (array) $value;
 
-										// Only extract values from the key _bbp_favorites
-										if ( '_bbp_favorites' == $key ) {
-
-											// Our array may contain comma delimited favorites so lets explode these
-											$insert_postmeta = explode(",", $insert_postmeta['_bbp_favorites']);
-
-											// Loop through our updated exploded array
-											foreach ($insert_postmeta as $key => $value) {
-
-												// Get the new topic ID
-												$topic_id = $this->callback_topicid( $value );
-
-												// Add the topic ID to the users favorites
-												bbp_add_user_favorite( $user_id, $topic_id );
-											}
+										// Add user ID to topics favorited users
+										foreach ( $value as $fav ) {
+											bbp_add_user_favorite( $user_id, $this->callback_topicid( $fav ) );
 										}
 									}
 								}
@@ -1225,7 +1219,7 @@ abstract class BBP_Converter_Base {
 										 *          _bbp_old_reply_id         // The old reply ID
 										 *          _bbp_old_reply_to_id      // The old reply to ID
 										 */
-										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
+										if ( '_id' === substr( $key, -3 ) && ( true === $this->sync_table ) ) {
 											$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => $key, 'meta_value' => $value ) );
 										}
 
@@ -1235,7 +1229,7 @@ abstract class BBP_Converter_Base {
 										 * the _bbp_reply_to value with the new bbPress
 										 * value using convert_reply_to_parents()
 										 */
-										if ( ( 'reply' == $to_type ) && ( '_bbp_old_reply_to_id' == $key ) ) {
+										if ( ( 'reply' === $to_type ) && ( '_bbp_old_reply_to_id' === $key ) ) {
 											add_post_meta( $post_id, '_bbp_reply_to', $value );
 										}
 									}
@@ -1599,12 +1593,13 @@ abstract class BBP_Converter_Base {
 			$rval[] = $field['Field'];
 		}
 
-		if ( $tablename == $this->wpdb->users ) {
+		if ( $tablename === $this->wpdb->users ) {
 			$rval[] = 'role';
 			$rval[] = 'yim';
 			$rval[] = 'aim';
 			$rval[] = 'jabber';
 		}
+
 		return $rval;
 	}
 
@@ -1637,7 +1632,7 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_forumid( $field ) {
-		if ( ! isset( $this->map_forumid[$field] ) ) {
+		if ( ! isset( $this->map_forumid[ $field ] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_forum_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
@@ -1645,12 +1640,12 @@ abstract class BBP_Converter_Base {
 			}
 
 			if ( !is_null( $row ) ) {
-				$this->map_forumid[$field] = $row->value_id;
+				$this->map_forumid[ $field ] = $row->value_id;
 			} else {
-				$this->map_forumid[$field] = 0;
+				$this->map_forumid[ $field ] = 0;
 			}
 		}
-		return $this->map_forumid[$field];
+		return $this->map_forumid[ $field ];
 	}
 
 	/**
@@ -1660,7 +1655,7 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_topicid( $field ) {
-		if ( ! isset( $this->map_topicid[$field] ) ) {
+		if ( ! isset( $this->map_topicid[ $field ] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_topic_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
@@ -1668,12 +1663,12 @@ abstract class BBP_Converter_Base {
 			}
 
 			if ( !is_null( $row ) ) {
-				$this->map_topicid[$field] = $row->value_id;
+				$this->map_topicid[ $field ] = $row->value_id;
 			} else {
-				$this->map_topicid[$field] = 0;
+				$this->map_topicid[ $field ] = 0;
 			}
 		}
-		return $this->map_topicid[$field];
+		return $this->map_topicid[ $field ];
 	}
 
 	/**
@@ -1685,7 +1680,7 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_reply_to( $field ) {
-		if ( ! isset( $this->map_reply_to[$field] ) ) {
+		if ( ! isset( $this->map_reply_to[ $field ] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_reply_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
@@ -1693,12 +1688,12 @@ abstract class BBP_Converter_Base {
 			}
 
 			if ( !is_null( $row ) ) {
-				$this->map_reply_to[$field] = $row->value_id;
+				$this->map_reply_to[ $field ] = $row->value_id;
 			} else {
-				$this->map_reply_to[$field] = 0;
+				$this->map_reply_to[ $field ] = 0;
 			}
 		}
-		return $this->map_reply_to[$field];
+		return $this->map_reply_to[ $field ];
 	}
 
 	/**
@@ -1708,7 +1703,7 @@ abstract class BBP_Converter_Base {
 	 * @return string
 	 */
 	private function callback_userid( $field ) {
-		if ( ! isset( $this->map_userid[$field] ) ) {
+		if ( ! isset( $this->map_userid[ $field ] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
 			} else {
@@ -1716,16 +1711,16 @@ abstract class BBP_Converter_Base {
 			}
 
 			if ( !is_null( $row ) ) {
-				$this->map_userid[$field] = $row->value_id;
+				$this->map_userid[ $field ] = $row->value_id;
 			} else {
-				if ( ! empty( $_POST['_bbp_converter_convert_users'] ) && ( $_POST['_bbp_converter_convert_users'] == 1 ) ) {
-					$this->map_userid[$field] = 0;
+				if ( ! empty( $_POST['_bbp_converter_convert_users'] ) && ( (int) $_POST['_bbp_converter_convert_users'] === 1 ) ) {
+					$this->map_userid[ $field ] = 0;
 				} else {
-					$this->map_userid[$field] = $field;
+					$this->map_userid[ $field ] = $field;
 				}
 			}
 		}
-		return $this->map_userid[$field];
+		return $this->map_userid[ $field ];
 	}
 
 	/**
@@ -1756,18 +1751,18 @@ abstract class BBP_Converter_Base {
 	private function callback_topicid_to_forumid( $field ) {
 		$topicid = $this->callback_topicid( $field );
 		if ( empty( $topicid ) ) {
-			$this->map_topicid_to_forumid[$topicid] = 0;
-		} elseif ( ! isset( $this->map_topicid_to_forumid[$topicid] ) ) {
+			$this->map_topicid_to_forumid[ $topicid ] = 0;
+		} elseif ( ! isset( $this->map_topicid_to_forumid[ $topicid ] ) ) {
 			$row = $this->wpdb->get_row( 'SELECT post_parent FROM ' . $this->wpdb->posts . ' WHERE ID = "' . $topicid . '" LIMIT 1' );
 
 			if ( !is_null( $row ) ) {
-				$this->map_topicid_to_forumid[$topicid] = $row->post_parent;
+				$this->map_topicid_to_forumid[ $topicid ] = $row->post_parent;
 			} else {
-				$this->map_topicid_to_forumid[$topicid] = 0;
+				$this->map_topicid_to_forumid[ $topicid ] = 0;
 			}
 		}
 
-		return $this->map_topicid_to_forumid[$topicid];
+		return $this->map_topicid_to_forumid[ $topicid ];
 	}
 
 	protected function callback_slug( $field ) {
@@ -1819,7 +1814,7 @@ function bbp_new_converter( $platform ) {
 		while ( $file = readdir( $curdir ) ) {
 			if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === FALSE ) {
 				$file = preg_replace( '/.php/', '', $file );
-				if ( $platform == $file ) {
+				if ( $platform === $file ) {
 					$found = true;
 					continue;
 				}
