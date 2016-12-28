@@ -2794,7 +2794,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 		$statuses    = array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() );
 		$post_status = "'" . implode( "','", $statuses ) . "'";
 		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() );
+		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s", $topic_id, bbp_get_reply_post_type() );
 		$reply_count = $bbp_db->get_var( $query );
 	}
 
@@ -2969,7 +2969,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 
 	// Query the DB to get voices in this topic
 	$bbp_db = bbp_db();
-	$query  = $bbp_db->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$query  = $bbp_db->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s ) OR ( ID = %d AND post_type = %s )", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
 	$voices = (int) $bbp_db->get_var( $query );
 
 	// Update the voice count for this topic id
@@ -3010,7 +3010,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 
 	// Query the DB to get anonymous replies in this topic
 	$bbp_db  = bbp_db();
-	$query   = $bbp_db->prepare( "SELECT COUNT( ID ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$query   = $bbp_db->prepare( "SELECT COUNT( ID ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s AND post_author = 0 ) OR ( ID = %d AND post_type = %s AND post_author = 0 )", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
 	$replies = (int) $bbp_db->get_var( $query );
 
 	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );

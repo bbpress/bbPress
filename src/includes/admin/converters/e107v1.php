@@ -576,9 +576,9 @@ class e107v1 extends BBP_Converter_Base {
 
 		if ( ! isset( $this->map_userid[ $field ] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			} else {
-				$row = $this->wpdb->get_row( $this->wpdb->prepare( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_bbp_old_user_id" AND meta_value = "%s" LIMIT 1', $field ) );
+				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT user_id AS value_id FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			}
 
 			if ( !is_null( $row ) ) {

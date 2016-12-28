@@ -1865,12 +1865,13 @@ function bbp_get_user_closed_topic_count( $user_id = 0 ) {
 	}
 
 	$bbp_db = bbp_db();
-	$count  = (int) $bbp_db->get_var( "SELECT COUNT(*)
-		FROM {$bbp_db->posts}
-		WHERE post_type = '" . bbp_get_topic_post_type() . "'
-		AND post_status = '" . bbp_get_closed_status_id() . "'
-		AND post_author = $user_id;"
-	);
+	$count  = (int) $bbp_db->get_var( $bbp_db->prepare(
+		"SELECT COUNT(*)
+			FROM {$bbp_db->posts}
+			WHERE post_type = %s
+				AND post_status = %s
+				AND post_author = %d"
+	), bbp_get_topic_post_type(), bbp_get_closed_status_id(), $user_id );
 
 	return (int) apply_filters( 'bbp_get_user_closed_topic_count', $count, $user_id );
 }
@@ -2184,7 +2185,7 @@ function bbp_user_maybe_convert_pass() {
 
 	// Bail if no user password to convert
 	$bbp_db = bbp_db();
-	$query  = $bbp_db->prepare( "SELECT * FROM {$bbp_db->users} INNER JOIN {$bbp_db->usermeta} ON user_id = ID WHERE meta_key = '_bbp_class' AND user_login = '%s' LIMIT 1", $username );
+	$query  = $bbp_db->prepare( "SELECT * FROM {$bbp_db->users} INNER JOIN {$bbp_db->usermeta} ON user_id = ID WHERE meta_key = %s AND user_login = %s LIMIT 1", '_bbp_class', $username );
 	$row    = $bbp_db->get_row( $query );
 	if ( empty( $row ) || is_wp_error( $row ) ) {
 		return;

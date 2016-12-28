@@ -1757,7 +1757,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type );
+		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC", $parent_id, $post_type );
 		$child_ids   = (array) $bbp_db->get_col( $query );
 
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );

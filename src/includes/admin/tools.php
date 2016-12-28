@@ -1089,7 +1089,7 @@ function bbp_admin_repair_topic_reply_count() {
 						AND `replies`.`post_type`   = '{$rpt}'
 				WHERE `topics`.`post_type` = '{$tpt}'
 					AND `topics`.`post_status` IN ( '{$pps}', '{$cps}' )
-				GROUP BY `topics`.`ID`);";
+				GROUP BY `topics`.`ID`)";
 
 	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
@@ -1118,7 +1118,7 @@ function bbp_admin_repair_topic_voice_count() {
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_voice_count';";
+	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_voice_count'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
@@ -1138,7 +1138,7 @@ function bbp_admin_repair_topic_voice_count() {
 				WHERE `posts`.`post_type` IN ( '{$tpt}', '{$rpt}' )
 					AND `posts`.`post_status` IN ( '{$pps}', '{$cps}' )
 					AND `posts`.`post_author` != '0'
-				GROUP BY `postmeta`.`meta_value`);";
+				GROUP BY `postmeta`.`meta_value`)";
 
 	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
@@ -1167,7 +1167,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	$statement = __( 'Counting the number of pending, spammed, and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_count_hidden';";
+	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_count_hidden'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
@@ -1178,7 +1178,7 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 	$sps = bbp_get_spam_status_id();
 	$pps = bbp_get_pending_status_id();
 
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}', '{$pps}' ) GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}', '{$pps}' ) GROUP BY `post_parent`)";
 	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
@@ -1215,7 +1215,7 @@ function bbp_admin_repair_group_forum_relationship() {
 										ON `forum`.`ID` = `forummeta`.`post_id`
 										AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
 								WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
-								GROUP BY `forum`.`ID`;" );
+								GROUP BY `forum`.`ID`" );
 
 	// Bail if forum IDs returned an error
 	if ( is_wp_error( $forum_ids ) || empty( $bbp_db->last_result ) ) {
@@ -1234,7 +1234,7 @@ function bbp_admin_repair_group_forum_relationship() {
 		}
 
 		// Attempt to update group meta
-		$updated = $bbp_db->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}';" );
+		$updated = $bbp_db->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}'" );
 
 		// Bump the count
 		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
@@ -1242,14 +1242,14 @@ function bbp_admin_repair_group_forum_relationship() {
 		}
 
 		// Update group to forum relationship data
-		$group_id = (int) $bbp_db->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}';" );
+		$group_id = (int) $bbp_db->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}'" );
 		if ( ! empty( $group_id ) ) {
 
 			// Update the group to forum meta connection in forums
 			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
 
 			// Get the group status
-			$group_status = $bbp_db->get_var( "SELECT `status` FROM `{$groups_table}` WHERE `id` = '{$group_id}';" );
+			$group_status = $bbp_db->get_var( "SELECT `status` FROM `{$groups_table}` WHERE `id` = '{$group_id}'" );
 
 			// Sync up forum visibility based on group status
 			switch ( $group_status ) {
@@ -1342,7 +1342,7 @@ function bbp_admin_repair_forum_topic_count() {
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden' );";
+	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden' )";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
@@ -1424,7 +1424,7 @@ function bbp_admin_repair_user_topic_count() {
 	$statement   = __( 'Counting the number of topics each user has created&hellip; %s', 'bbpress' );
 	$result      = __( 'Failed!', 'bbpress' );
 
-	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
+	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`";
 	$insert_rows = $bbp_db->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) ) {
@@ -1441,14 +1441,14 @@ function bbp_admin_repair_user_topic_count() {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk};";
+		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
 
 		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
 			return array( 4, sprintf( $statement, $result ) );
@@ -1476,7 +1476,7 @@ function bbp_admin_repair_user_reply_count() {
 	$statement   = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
 	$result      = __( 'Failed!', 'bbpress' );
 
-	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
+	$sql_select  = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`";
 	$insert_rows = $bbp_db->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) ) {
@@ -1493,14 +1493,14 @@ function bbp_admin_repair_user_reply_count() {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	foreach ( array_chunk( $insert_values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk};";
+		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
 
 		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
 			return array( 4, sprintf( $statement, $result ) );
@@ -1529,13 +1529,13 @@ function bbp_admin_repair_user_favorites() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';" );
+	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
 	if ( is_wp_error( $users ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$topics = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
+	$topics = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "'" );
 
 	if ( is_wp_error( $topics ) ) {
 		return array( 2, sprintf( $statement, $result ) );
@@ -1564,14 +1564,14 @@ function bbp_admin_repair_user_favorites() {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk};";
+		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
 		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
 		}
@@ -1599,13 +1599,13 @@ function bbp_admin_repair_user_topic_subscriptions() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	$key       = $bbp_db->prefix . '_bbp_subscriptions';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';" );
+	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
 	if ( is_wp_error( $users ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$topics = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
+	$topics = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "'" );
 	if ( is_wp_error( $topics ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
@@ -1633,14 +1633,14 @@ function bbp_admin_repair_user_topic_subscriptions() {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk};";
+		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
 		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
 		}
@@ -1668,13 +1668,13 @@ function bbp_admin_repair_user_forum_subscriptions() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	$key       = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';" );
+	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `subscriptions` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
 	if ( is_wp_error( $users ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$forums = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
+	$forums = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "'" );
 	if ( is_wp_error( $forums ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
@@ -1702,14 +1702,14 @@ function bbp_admin_repair_user_forum_subscriptions() {
 		return array( 0, sprintf( $statement, $result ) );
 	}
 
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
 	foreach ( array_chunk( $values, 10000 ) as $chunk ) {
 		$chunk = "\n" . implode( ",\n", $chunk );
-		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk};";
+		$sql_insert = "INSERT INTO `{$bbp_db->usermeta}` (`user_id`, `meta_key`, `meta_value`) VALUES {$chunk}";
 		if ( is_wp_error( $bbp_db->query( $sql_insert ) ) ) {
 			return array( 5, sprintf( $statement, $result ) );
 		}
@@ -1800,7 +1800,7 @@ function bbp_admin_repair_freshness() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	// First, delete everything.
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );" ) ) ) {
+	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' )" ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -1815,7 +1815,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` );" ) ) ) {
+			GROUP BY `topic`.`ID` )" ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
@@ -1824,7 +1824,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_reply_id', 0
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
@@ -1833,7 +1833,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
 			FROM `{$bbp_db->posts}` AS `forum` INNER JOIN `{$bbp_db->posts}` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
 			WHERE `topic`.`post_status` = '{$pps}' AND `forum`.`post_type` = '{$fpt}' AND `topic`.`post_type` = '{$tpt}'
-			GROUP BY `forum`.`ID` );" ) ) ) {
+			GROUP BY `forum`.`ID` )" ) ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
@@ -1842,7 +1842,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_topic_id', 0
 			FROM `{$bbp_db->posts}` AS `forum` LEFT JOIN `{$bbp_db->postmeta}` AS `topic`
 			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
-			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' );" ) ) ) {
+			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' )" ) ) ) {
 		return array( 5, sprintf( $statement, $result ) );
 	}
 
@@ -1851,7 +1851,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` );" ) ) ) {
+			GROUP BY `topic`.`ID` )" ) ) ) {
 		return array( 6, sprintf( $statement, $result ) );
 	}
 
@@ -1860,7 +1860,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_active_id', `ID`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
 		return array( 7, sprintf( $statement, $result ) );
 	}
 
@@ -1869,7 +1869,7 @@ function bbp_admin_repair_freshness() {
 			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` );" ) ) ) {
+			GROUP BY `topic`.`ID` )" ) ) ) {
 		return array( 8, sprintf( $statement, $result ) );
 	}
 
@@ -1878,12 +1878,12 @@ function bbp_admin_repair_freshness() {
 			( SELECT `ID`, '_bbp_last_active_time', `post_date`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' );" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
 		return array( 9, sprintf( $statement, $result ) );
 	}
 
 	// Forums need to know what their last active item is as well. Now it gets a bit more complex to do in the database.
-	$forums = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$fpt}' and `post_status` != 'auto-draft';" );
+	$forums = $bbp_db->get_col( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$fpt}' and `post_status` != 'auto-draft'" );
 	if ( is_wp_error( $forums ) ) {
 		return array( 10, sprintf( $statement, $result ) );
 	}
@@ -1927,7 +1927,7 @@ function bbp_admin_repair_sticky() {
 	$statement = __( 'Repairing the sticky topic to the parent forum relationships&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$forums    = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "';" );
+	$forums    = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_forum_post_type() . "'" );
 
 	// Bail if no forums found
 	if ( empty( $forums ) || is_wp_error( $forums ) ) {
@@ -1996,7 +1996,7 @@ function bbp_admin_repair_closed_topics() {
 	$result        = __( 'No closed topics to repair.', 'bbpress' );
 	$changed       = 0;
 
-	$closed_topics = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'closed';" );
+	$closed_topics = $bbp_db->get_col( "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'closed'" );
 
 	// Bail if no closed topics found
 	if ( empty( $closed_topics ) || is_wp_error( $closed_topics ) ) {
@@ -2065,7 +2065,7 @@ function bbp_admin_repair_forum_meta() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	// First, delete everything.
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_forum_id';" ) ) ) {
+	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_forum_id'" ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -2079,7 +2079,7 @@ function bbp_admin_repair_forum_meta() {
 			FROM `$bbp_db->posts`
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
-			GROUP BY `topic`.`ID` );" ) ) ) {
+			GROUP BY `topic`.`ID` )" ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
@@ -2093,7 +2093,7 @@ function bbp_admin_repair_forum_meta() {
 				ON `reply`.`post_parent` = `topic`.`ID`
 			WHERE `topic`.`post_type` = '{$tpt}'
 				AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `reply`.`ID` );" ) ) ) {
+			GROUP BY `reply`.`ID` )" ) ) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
@@ -2120,7 +2120,7 @@ function bbp_admin_repair_topic_meta() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	// First, delete everything.
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_topic_id';" ) ) ) {
+	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_topic_id'" ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -2134,7 +2134,7 @@ function bbp_admin_repair_topic_meta() {
 			FROM `$bbp_db->posts`
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
-			GROUP BY `topic`.`ID` );" ) ) ) {
+			GROUP BY `topic`.`ID` )" ) ) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
@@ -2148,7 +2148,7 @@ function bbp_admin_repair_topic_meta() {
 				ON `reply`.`post_parent` = `topic`.`ID`
 			WHERE `topic`.`post_type` = '{$tpt}'
 				AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `reply`.`ID` );" ) ) ) {
+			GROUP BY `reply`.`ID` )" ) ) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
@@ -2175,7 +2175,7 @@ function bbp_admin_repair_reply_menu_order() {
 	$result    = __( 'No reply positions to recalculate.',         'bbpress' );
 
 	// Delete cases where `_bbp_reply_to` was accidentally set to itself
-	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`;" ) ) ) {
+	if ( is_wp_error( $bbp_db->query( "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`" ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
@@ -2192,7 +2192,7 @@ function bbp_admin_repair_reply_menu_order() {
 										)`b`
 										ON `a`.`menu_order` = `b`.`menu_order`
 										AND `a`.`post_parent` = `b`.`post_parent`
-										WHERE `post_type` = '{$rpt}';", OBJECT_K );
+										WHERE `post_type` = '{$rpt}'", OBJECT_K );
 
 	// Bail if no replies returned
 	if ( empty( $replies ) ) {
@@ -2228,7 +2228,7 @@ function bbp_admin_upgrade_user_favorites() {
 	$result    = __( 'No favorites to upgrade.',             'bbpress' );
 	$changed   = $total = 0;
 	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$favorites = $bbp_db->get_results( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+	$favorites = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
 
 	// Bail if no closed topics found
 	if ( empty( $favorites ) || is_wp_error( $favorites ) ) {
@@ -2291,7 +2291,7 @@ function bbp_admin_upgrade_user_subscriptions() {
 	$result        = __( 'No subscriptions to upgrade.',             'bbpress' );
 	$changed       = $total = 0;
 	$key           = $bbp_db->prefix . '_bbp_subscriptions';
-	$subscriptions = $bbp_db->get_results( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = '{$key}'" );
+	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
 
 	// Bail if no closed topics found
 	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
@@ -2467,7 +2467,7 @@ function bbp_admin_reset_handler() {
 		}
 		$statement  = __( 'Deleting Post Meta&hellip; %s', 'bbpress' );
 		$sql_meta   = implode( "', '", $sql_meta );
-		$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}');";
+		$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')";
 		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
 	}
@@ -2481,7 +2481,7 @@ function bbp_admin_reset_handler() {
 		}
 		$statement  = __( 'Deleting Post Revisions&hellip; %s', 'bbpress' );
 		$sql_meta   = implode( "', '", $sql_meta );
-		$sql_delete = "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision';";
+		$sql_delete = "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'";
 		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
 	}
@@ -2489,14 +2489,14 @@ function bbp_admin_reset_handler() {
 	/** Forum moderators ******************************************************/
 
 	$statement  = __( 'Deleting Forum Moderators&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'forum-mod';";
+	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'forum-mod'";
 	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
 	/** Topic Tags ************************************************************/
 
 	$statement  = __( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag';";
+	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'";
 	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
@@ -2512,11 +2512,11 @@ function bbp_admin_reset_handler() {
 			}
 			$statement  = __( 'Deleting Imported Users&hellip; %s', 'bbpress' );
 			$sql_meta   = implode( "', '", $sql_meta );
-			$sql_delete = "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}');";
+			$sql_delete = "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')";
 			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
 			$statement  = __( 'Deleting Imported User Meta&hellip; %s', 'bbpress' );
-			$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}');";
+			$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')";
 			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 			$messages[] = sprintf( $statement, $result );
 		}
@@ -2524,7 +2524,7 @@ function bbp_admin_reset_handler() {
 
 	// Next, if we still have users that were not imported delete that meta data
 	$statement  = __( 'Deleting User Meta&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%';";
+	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'";
 	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
 	$messages[] = sprintf( $statement, $result );
 
