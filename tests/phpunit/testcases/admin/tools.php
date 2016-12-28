@@ -698,6 +698,84 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_upgrade_user_favorites
+	 */
+	public function test_bbp_admin_upgrade_user_favorites() {
+
+		$u = $this->factory->user->create_many( 2 );
+		$t = $this->factory->topic->create();
+
+		// Create 2.5.x user meta favorites
+		update_user_option( $u[0], '_bbp_favorites', $t );
+		update_user_option( $u[1], '_bbp_favorites', $t );
+
+		// Upgrade the user favorites.
+		bbp_admin_upgrade_user_favorites();
+
+		$expected            = array( $u[0], $u[1] );
+		$favoriters          = bbp_get_topic_favoriters( $t );
+		$post_meta_favorites = get_post_meta( $t, '_bbp_favorite', false );
+
+		$this->assertEqualSets( $expected, $favoriters );
+		$this->assertEqualSets( $expected, $post_meta_favorites );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_topic_subscriptions
+	 */
+	public function test_bbp_admin_upgrade_user_topic_subscriptions() {
+
+		$u = $this->factory->user->create_many( 2 );
+
+		$f = $this->factory->forum->create();
+
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		// Create 2.5.x user meta topic subscriptions.
+		update_user_option( $u[0], '_bbp_subscriptions', $t );
+		update_user_option( $u[1], '_bbp_subscriptions', $t );
+
+		// Upgrade the user topic subscriptions.
+		bbp_admin_upgrade_user_topic_subscriptions();
+
+		$expected            = array( $u[0], $u[1] );
+		$topic_subscribers   = bbp_get_topic_subscribers( $t );
+		$post_meta_topic_sub = get_post_meta( $t, '_bbp_subscription', false );
+
+		$this->assertEqualSets( $expected, $topic_subscribers );
+		$this->assertEqualSets( $expected, $post_meta_topic_sub );
+	}
+
+	/**
+	 * @covers ::bbp_admin_upgrade_user_forum_subscriptions
+	 */
+	public function test_bbp_admin_upgrade_user_forum_subscriptions() {
+
+		$u = $this->factory->user->create_many( 2 );
+
+		$f = $this->factory->forum->create();
+
+		// Create 2.5.x user meta forum subscriptions.
+		update_user_option( $u[0], '_bbp_forum_subscriptions', $f );
+		update_user_option( $u[1], '_bbp_forum_subscriptions', $f );
+
+		// Upgrade the user forum subscriptions.
+		bbp_admin_upgrade_user_forum_subscriptions();
+
+		$expected            = array( $u[0], $u[1] );
+		$forum_subscribers   = bbp_get_forum_subscribers( $f );
+		$post_meta_forum_sub = get_post_meta( $f, '_bbp_subscription', false );
+
+		$this->assertEqualSets( $expected, $forum_subscribers );
+		$this->assertEqualSets( $expected, $post_meta_forum_sub );
+	}
+
+	/**
 	 * @covers ::bbp_admin_reset
 	 * @todo   Implement test_bbp_admin_reset().
 	 */
