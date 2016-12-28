@@ -275,7 +275,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** No Errors *************************************************************/
 
-	if ( ! empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
+	if ( ! empty( $forum_id ) && ! is_wp_error( $forum_id ) ) {
 
 		/** Trash Check *******************************************************/
 
@@ -548,7 +548,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** No Errors *************************************************************/
 
-	if ( ! empty( $forum_id ) && !is_wp_error( $forum_id ) ) {
+	if ( ! empty( $forum_id ) && ! is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
 		do_action( 'bbp_edit_forum', array(
@@ -2172,7 +2172,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Bail if $posts_query is not an object or of incorrect class
-	if ( !is_object( $posts_query ) || !is_a( $posts_query, 'WP_Query' ) ) {
+	if ( ! is_object( $posts_query ) || ! is_a( $posts_query, 'WP_Query' ) ) {
 		return;
 	}
 
@@ -2357,7 +2357,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 function bbp_forum_enforce_hidden() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_hidden_forums' ) ) {
+	if ( ! is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_hidden_forums' ) ) {
 		return;
 	}
 
@@ -2412,7 +2412,7 @@ function bbp_forum_enforce_hidden() {
 function bbp_forum_enforce_private() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_private_forums' ) ) {
+	if ( ! is_singular() || bbp_is_user_keymaster() || current_user_can( 'read_private_forums' ) ) {
 		return;
 	}
 

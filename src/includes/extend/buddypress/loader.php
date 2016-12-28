@@ -167,7 +167,7 @@ class BBP_Forums_Component extends BP_Component {
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
 		// Stop if there is no user displayed or logged in
-		if ( !is_user_logged_in() && !bp_displayed_user_id() ) {
+		if ( ! is_user_logged_in() && !bp_displayed_user_id() ) {
 			return;
 		}
 

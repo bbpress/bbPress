@@ -303,7 +303,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				</div>
 			<?php endif; ?>
 
-			<?php if ( !is_admin() ) : ?>
+			<?php if ( ! is_admin() ) : ?>
 				<input type="submit" value="<?php esc_attr_e( 'Save Settings', 'bbpress' ); ?>" />
 			<?php endif; ?>
 
@@ -425,7 +425,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Redirect after save when not in admin
-		if ( !is_admin() ) {
+		if ( ! is_admin() ) {
 			bp_core_redirect( trailingslashit( bp_get_group_permalink( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
 		}
 	}

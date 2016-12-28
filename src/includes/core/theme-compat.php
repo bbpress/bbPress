@@ -485,7 +485,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	$bbp_shortcodes = bbpress()->shortcodes;
 
 	// Bail if shortcodes are unset somehow
-	if ( !is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) ) {
+	if ( ! is_a( $bbp_shortcodes, 'BBP_Shortcodes' ) ) {
 		return $template;
 	}
 

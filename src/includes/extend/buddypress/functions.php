@@ -309,7 +309,7 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 	}
 
 	// Make sure result is an array
-	if ( !is_array( $forum_ids ) ) {
+	if ( ! is_array( $forum_ids ) ) {
 		$forum_ids = (array) $forum_ids;
 	}
 
@@ -341,7 +341,7 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 	}
 
 	// Make sure result is an array
-	if ( !is_array( $group_ids ) ) {
+	if ( ! is_array( $group_ids ) ) {
 		$group_ids = (array) $group_ids;
 	}
 

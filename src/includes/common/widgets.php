@@ -82,7 +82,7 @@ class BBP_Login_Widget extends WP_Widget {
 			echo $args['before_title'] . $settings['title'] . $args['after_title'];
 		}
 
-		if ( !is_user_logged_in() ) : ?>
+		if ( ! is_user_logged_in() ) : ?>
 
 			<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
 				<fieldset>
@@ -614,7 +614,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		$instance['parent_forum'] = sanitize_text_field( $new_instance['parent_forum'] );
 
 		// Force to any
-		if ( ! empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+		if ( ! empty( $instance['parent_forum'] ) && ! is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
 		}
 
@@ -859,7 +859,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['max_shown']    = (int) $new_instance['max_shown'];
 
 		// Force to any
-		if ( ! empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+		if ( ! empty( $instance['parent_forum'] ) && ! is_numeric( $instance['parent_forum'] ) ) {
 			$instance['parent_forum'] = 'any';
 		}
 

@@ -54,7 +54,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
  *               anonymous is not allowed or user is logged in
  */
 function bbp_is_anonymous() {
-	if ( !is_user_logged_in() && bbp_allow_anonymous() ) {
+	if ( ! is_user_logged_in() && bbp_allow_anonymous() ) {
 		$is_anonymous = true;
 	} else {
 		$is_anonymous = false;

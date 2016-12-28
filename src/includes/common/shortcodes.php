@@ -222,7 +222,7 @@ class BBP_Shortcodes {
 	public function display_forum( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -316,7 +316,7 @@ class BBP_Shortcodes {
 	public function display_topic( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -382,7 +382,7 @@ class BBP_Shortcodes {
 	public function display_topic_form( $attr = array(), $content = '' ) {
 
 		// Sanity check supplied info
-		if ( ! empty( $content ) || ( ! empty( $attr['forum_id'] ) && ( !is_numeric( $attr['forum_id'] ) || ! bbp_is_forum( $attr['forum_id'] ) ) ) ) {
+		if ( ! empty( $content ) || ( ! empty( $attr['forum_id'] ) && ( ! is_numeric( $attr['forum_id'] ) || ! bbp_is_forum( $attr['forum_id'] ) ) ) ) {
 			return $content;
 		}
 
@@ -437,7 +437,7 @@ class BBP_Shortcodes {
 	public function display_reply( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -549,7 +549,7 @@ class BBP_Shortcodes {
 	public function display_topics_of_tag( $attr, $content = '' ) {
 
 		// Sanity check required info
-		if ( ! empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) ) {
+		if ( ! empty( $content ) || ( empty( $attr['id'] ) || ! is_numeric( $attr['id'] ) ) ) {
 			return $content;
 		}
 
@@ -733,7 +733,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_login' );
 
 		// Output templates
-		if ( !is_user_logged_in() ) {
+		if ( ! is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-login' );
 		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'  );
@@ -759,7 +759,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_register' );
 
 		// Output templates
-		if ( !is_user_logged_in() ) {
+		if ( ! is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-register' );
 		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'     );
@@ -785,7 +785,7 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_lost_pass' );
 
 		// Output templates
-		if ( !is_user_logged_in() ) {
+		if ( ! is_user_logged_in() ) {
 			bbp_get_template_part( 'form',     'user-lost-pass' );
 		} else {
 			bbp_get_template_part( 'feedback', 'logged-in'      );

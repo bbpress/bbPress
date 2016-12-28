@@ -581,7 +581,7 @@ class e107v1 extends BBP_Converter_Base {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT user_id AS value_id FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			}
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_userid[ $field ] = $row->value_id;
 			} else {
 				if ( ! empty( $_POST['_bbp_converter_convert_users'] ) && ( $_POST['_bbp_converter_convert_users'] == 1 ) ) {

@@ -1553,12 +1553,12 @@ function bbp_admin_repair_user_favorites() {
 
 	$values = array();
 	foreach ( $users as $user ) {
-		if ( empty( $user->favorites ) || !is_string( $user->favorites ) ) {
+		if ( empty( $user->favorites ) || ! is_string( $user->favorites ) ) {
 			continue;
 		}
 
 		$favorites = array_intersect( $topics, explode( ',', $user->favorites ) );
-		if ( empty( $favorites ) || !is_array( $favorites ) ) {
+		if ( empty( $favorites ) || ! is_array( $favorites ) ) {
 			continue;
 		}
 
@@ -1622,12 +1622,12 @@ function bbp_admin_repair_user_topic_subscriptions() {
 
 	$values = array();
 	foreach ( $users as $user ) {
-		if ( empty( $user->subscriptions ) || !is_string( $user->subscriptions ) ) {
+		if ( empty( $user->subscriptions ) || ! is_string( $user->subscriptions ) ) {
 			continue;
 		}
 
 		$subscriptions = array_intersect( $topics, explode( ',', $user->subscriptions ) );
-		if ( empty( $subscriptions ) || !is_array( $subscriptions ) ) {
+		if ( empty( $subscriptions ) || ! is_array( $subscriptions ) ) {
 			continue;
 		}
 
@@ -1691,12 +1691,12 @@ function bbp_admin_repair_user_forum_subscriptions() {
 
 	$values = array();
 	foreach ( $users as $user ) {
-		if ( empty( $user->subscriptions ) || !is_string( $user->subscriptions ) ) {
+		if ( empty( $user->subscriptions ) || ! is_string( $user->subscriptions ) ) {
 			continue;
 		}
 
 		$subscriptions = array_intersect( $forums, explode( ',', $user->subscriptions ) );
-		if ( empty( $subscriptions ) || !is_array( $subscriptions ) ) {
+		if ( empty( $subscriptions ) || ! is_array( $subscriptions ) ) {
 			continue;
 		}
 

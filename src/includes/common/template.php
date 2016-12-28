@@ -1472,7 +1472,7 @@ function bbp_dropdown( $args = array() ) {
 		}
 
 		// Force array
-		if ( ! empty( $r['exclude'] ) && !is_array( $r['exclude'] ) ) {
+		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
 			$r['exclude'] = explode( ',', $r['exclude'] );
 		}
 

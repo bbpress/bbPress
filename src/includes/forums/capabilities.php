@@ -137,7 +137,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					$caps[] = 'do_not_allow';
 
 				// User is author so allow edit if not in admin
-				} elseif ( !is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
+				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 					$caps[] = $post_type->cap->edit_posts;
 
 				// Unknown, so map to edit_others_posts

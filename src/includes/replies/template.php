@@ -784,7 +784,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
 
 		// Check reply and revision log exist
-		if ( empty( $reply_id ) || empty( $revision_log ) || !is_array( $revision_log ) ) {
+		if ( empty( $reply_id ) || empty( $revision_log ) || ! is_array( $revision_log ) ) {
 			return false;
 		}
 

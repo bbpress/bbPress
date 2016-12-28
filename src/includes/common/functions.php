@@ -125,7 +125,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			array( 1,                   __( 'second', 'bbpress' ), __( 'seconds', 'bbpress' ) )
 		);
 
-		if ( ! empty( $older_date ) && !is_numeric( $older_date ) ) {
+		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
 			$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
 			$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
 			$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
