@@ -1640,7 +1640,7 @@ abstract class BBP_Converter_Base {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_forum_id', $field ) );
 			}
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_forumid[ $field ] = $row->value_id;
 			} else {
 				$this->map_forumid[ $field ] = 0;
@@ -1663,7 +1663,7 @@ abstract class BBP_Converter_Base {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_topic_id', $field ) );
 			}
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_topicid[ $field ] = $row->value_id;
 			} else {
 				$this->map_topicid[ $field ] = 0;
@@ -1688,7 +1688,7 @@ abstract class BBP_Converter_Base {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_reply_id', $field ) );
 			}
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_reply_to[ $field ] = $row->value_id;
 			} else {
 				$this->map_reply_to[ $field ] = 0;
@@ -1711,7 +1711,7 @@ abstract class BBP_Converter_Base {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT user_id AS value_id FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			}
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_userid[ $field ] = $row->value_id;
 			} else {
 				if ( ! empty( $_POST['_bbp_converter_convert_users'] ) && ( (int) $_POST['_bbp_converter_convert_users'] === 1 ) ) {
@@ -1756,7 +1756,7 @@ abstract class BBP_Converter_Base {
 		} elseif ( ! isset( $this->map_topicid_to_forumid[ $topicid ] ) ) {
 			$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT post_parent FROM {$this->wpdb->posts} WHERE ID = %d LIMIT 1", $topicid ) );
 
-			if ( !is_null( $row ) ) {
+			if ( ! is_null( $row ) ) {
 				$this->map_topicid_to_forumid[ $topicid ] = $row->post_parent;
 			} else {
 				$this->map_topicid_to_forumid[ $topicid ] = 0;
