@@ -274,7 +274,7 @@ class BBP_Forums_Admin {
 	/**
 	 * Remove comments & discussion metaboxes if comments are not supported
 	 *
-	 * @since 2.6.0 bbPress
+	 * @since 2.6.0 bbPress (r6186)
 	 */
 	public function comments_metabox() {
 		if ( ! post_type_supports( $this->post_type, 'comments' ) ) {
