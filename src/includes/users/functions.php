@@ -1870,8 +1870,11 @@ function bbp_get_user_closed_topic_count( $user_id = 0 ) {
 			FROM {$bbp_db->posts}
 			WHERE post_type = %s
 				AND post_status = %s
-				AND post_author = %d"
-	), bbp_get_topic_post_type(), bbp_get_closed_status_id(), $user_id );
+				AND post_author = %d",
+		bbp_get_topic_post_type(),
+		bbp_get_closed_status_id(),
+		$user_id
+	) );
 
 	return (int) apply_filters( 'bbp_get_user_closed_topic_count', $count, $user_id );
 }
