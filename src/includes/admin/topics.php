@@ -418,7 +418,7 @@ class BBP_Topics_Admin {
 	 *
 	 * Allows viewing of users who have favorited a topic.
 	 *
-	 * @since 2.6.0 bbPress (r6179)
+	 * @since 2.6.0 bbPress (r6197)
 	 *
 	 * @uses add_meta_box() To add the metabox
 	 */
@@ -450,7 +450,7 @@ class BBP_Topics_Admin {
 	 *
 	 * Allows viewing of users who have subscribed to a topic.
 	 *
-	 * @since 2.6.0 bbPress (r6179)
+	 * @since 2.6.0 bbPress (r6197)
 	 *
 	 * @uses add_meta_box() To add the metabox
 	 */
