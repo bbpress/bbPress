@@ -275,7 +275,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Should box be checked already?
 		$checked = is_admin() ? bp_group_is_forum_enabled( $group ) : bp_get_new_group_enable_forum() || bp_group_is_forum_enabled( bp_get_group_id() ); ?>
 
-		<h4><?php esc_html_e( 'Group Forum Settings', 'bbpress' ); ?></h4>
+		<h2><?php esc_html_e( 'Group Forum Settings', 'bbpress' ); ?></h2>
 
 		<fieldset>
 			<legend class="screen-reader-text"><?php esc_html_e( 'Group Forum Settings', 'bbpress' ); ?></legend>
@@ -283,7 +283,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 			<div class="field-group">
 				<div class="checkbox">
-					<label><input type="checkbox" name="bbp-edit-group-forum" id="bbp-edit-group-forum" value="1"<?php checked( $checked ); ?> /> <?php esc_html_e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
+					<label for="bbp-edit-group-forum"><input type="checkbox" name="bbp-edit-group-forum" id="bbp-edit-group-forum" value="1"<?php checked( $checked ); ?> /> <?php esc_html_e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
 				</div>
 
 				<p class="description"><?php esc_html_e( 'Saying no will not delete existing forum content.', 'bbpress' ); ?></p>
@@ -483,7 +483,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		$checked = bp_get_new_group_enable_forum() || groups_get_groupmeta( $group_id, 'forum_id' ); ?>
 
-		<h4><?php esc_html_e( 'Group Forum', 'bbpress' ); ?></h4>
+		<h2><?php esc_html_e( 'Group Forum', 'bbpress' ); ?></h2>
 
 		<p><?php esc_html_e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
@@ -834,7 +834,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						// Setup the forum
 						bbp_the_forum(); ?>
 
-						<h3><?php bbp_forum_title(); ?></h3>
+						<h2><?php bbp_forum_title(); ?></h2>
 
 						<?php bbp_get_template_part( 'content', 'single-forum' );
 
@@ -866,7 +866,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// If no topic, 404
 					if ( ! bbp_topics() ) {
 						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
-						<h3><?php bbp_forum_title(); ?></h3>
+						<h2><?php bbp_forum_title(); ?></h2>
 						<?php bbp_get_template_part( 'feedback', 'no-topics' );
 						break;
 					}
@@ -874,7 +874,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// Setup the topic
 					bbp_the_topic(); ?>
 
-					<h3><?php bbp_topic_title(); ?></h3>
+					<h2><?php bbp_topic_title(); ?></h2>
 
 					<?php
 
@@ -928,7 +928,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// If no topic, 404
 					if ( ! bbp_replies() ) {
 						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
-						<h3><?php bbp_forum_title(); ?></h3>
+						<h2><?php bbp_forum_title(); ?></h2>
 						<?php bbp_get_template_part( 'feedback', 'no-replies' );
 						break;
 					}
@@ -936,7 +936,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					// Setup the reply
 					bbp_the_reply(); ?>
 
-					<h3><?php bbp_reply_title(); ?></h3>
+					<h2><?php bbp_reply_title(); ?></h2>
 
 					<?php if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
 
