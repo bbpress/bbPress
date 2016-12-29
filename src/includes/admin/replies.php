@@ -340,7 +340,6 @@ class BBP_Replies_Admin {
 	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-
 		add_meta_box(
 			'bbp_reply_attributes',
 			__( 'Reply Attributes', 'bbpress' ),
@@ -349,8 +348,6 @@ class BBP_Replies_Admin {
 			'side',
 			'high'
 		);
-
-		do_action( 'bbp_reply_attributes_metabox' );
 	}
 
 	/**
@@ -365,8 +362,6 @@ class BBP_Replies_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_meta_box() To add the metabox
-	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
-	 *                    id
 	 */
 	public function author_metabox() {
 
@@ -384,8 +379,6 @@ class BBP_Replies_Admin {
 			'side',
 			'high'
 		);
-
-		do_action( 'bbp_author_metabox', get_the_ID() );
 	}
 
 	/**

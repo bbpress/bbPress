@@ -72,10 +72,11 @@ class BBP_Forums_Admin {
 		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
 
 		// Metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
-		add_action( 'add_meta_boxes', array( $this, 'moderators_metabox' ) );
-		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'   ) );
-		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'    ) );
+		add_action( 'add_meta_boxes', array( $this, 'moderators_metabox'    ) );
+		add_action( 'add_meta_boxes', array( $this, 'subscriptions_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
 
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_forum'        ) );
@@ -228,8 +229,6 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-
-		// Meta data
 		add_meta_box(
 			'bbp_forum_attributes',
 			__( 'Forum Attributes', 'bbpress' ),
@@ -238,8 +237,6 @@ class BBP_Forums_Admin {
 			'side',
 			'high'
 		);
-
-		do_action( 'bbp_forum_attributes_metabox' );
 	}
 
 	/**
@@ -267,8 +264,38 @@ class BBP_Forums_Admin {
 			'side',
 			'high'
 		);
+	}
 
-		do_action( 'bbp_forum_moderators_metabox' );
+	/**
+	 * Add the subscriptions metabox
+	 *
+	 * Allows viewing of users who have subscribed to a forum.
+	 *
+	 * @since 2.6.0 bbPress (r6179)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 */
+	public function subscriptions_metabox() {
+
+		// Bail if post_type is not a reply
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		// Bail if no subscriptions
+		if ( ! bbp_is_subscriptions_active() ) {
+			return;
+		}
+
+		// Add the metabox
+		add_meta_box(
+			'bbp_forum_subscriptions_metabox',
+			__( 'Subscriptions', 'bbpress' ),
+			'bbp_forum_subscriptions_metabox',
+			$this->post_type,
+			'normal',
+			'high'
+		);
 	}
 
 	/**

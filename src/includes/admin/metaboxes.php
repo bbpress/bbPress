@@ -293,10 +293,9 @@ function bbp_dashboard_widget_right_now() {
  * @uses bbp_dropdown() To show a dropdown of the forums for forum parent
  * @uses do_action() Calls 'bbp_forum_metabox'
  */
-function bbp_forum_metabox() {
+function bbp_forum_metabox( $post ) {
 
 	// Post ID
-	$post_id     = get_the_ID();
 	$post_parent = bbp_get_global_post_field( 'post_parent', 'raw'  );
 	$menu_order  = bbp_get_global_post_field( 'menu_order',  'edit' );
 
@@ -307,7 +306,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_type_dropdown( array( 'forum_id' => $post_id ) ); ?>
+		<?php bbp_form_forum_type_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
 	<?php
@@ -319,7 +318,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_status_dropdown( array( 'forum_id' => $post_id ) ); ?>
+		<?php bbp_form_forum_status_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
 	<?php
@@ -331,7 +330,7 @@ function bbp_forum_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ) ?></label>
-		<?php bbp_form_forum_visibility_dropdown( array( 'forum_id' => $post_id ) ); ?>
+		<?php bbp_form_forum_visibility_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
 	<hr />
@@ -352,7 +351,7 @@ function bbp_forum_metabox() {
 			'orderby'            => 'title',
 			'order'              => 'ASC',
 			'walker'             => '',
-			'exclude'            => $post_id,
+			'exclude'            => $post->ID,
 
 			// Output-related
 			'select_id'          => 'parent_id',
@@ -373,7 +372,7 @@ function bbp_forum_metabox() {
 
 	<?php
 	wp_nonce_field( 'bbp_forum_metabox_save', 'bbp_forum_metabox' );
-	do_action( 'bbp_forum_metabox', $post_id );
+	do_action( 'bbp_forum_metabox', $post );
 }
 
 /** Topics ********************************************************************/
@@ -388,11 +387,7 @@ function bbp_forum_metabox() {
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses do_action() Calls 'bbp_topic_metabox'
  */
-function bbp_topic_metabox() {
-
-	// Post ID
-	$post_id = get_the_ID();
-	$status  = get_post_status( $post_id );
+function bbp_topic_metabox( $post ) {
 
 	/** Type ******************************************************************/
 
@@ -401,7 +396,7 @@ function bbp_topic_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_stick_topic"><?php esc_html_e( 'Topic Type', 'bbpress' ); ?></label>
-		<?php bbp_form_topic_type_dropdown( array( 'topic_id' => $post_id ) ); ?>
+		<?php bbp_form_topic_type_dropdown( array( 'topic_id' => $post->ID ) ); ?>
 	</p>
 
 	<?php
@@ -412,9 +407,9 @@ function bbp_topic_metabox() {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
-		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $status ) ? 'draft' : $status ); ?>" />
+		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="bbp_open_close_topic"><?php esc_html_e( 'Select whether to open or close the topic.', 'bbpress' ); ?></label>
-		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post_id ) ); ?>
+		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post->ID ) ); ?>
 	</p>
 
 	<?php
@@ -430,7 +425,7 @@ function bbp_topic_metabox() {
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
 		<?php bbp_dropdown( array(
 			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => bbp_get_topic_forum_id( $post_id ),
+			'selected'           => bbp_get_topic_forum_id( $post->ID ),
 			'numberposts'        => -1,
 			'orderby'            => 'title',
 			'order'              => 'ASC',
@@ -450,7 +445,7 @@ function bbp_topic_metabox() {
 
 	<?php
 	wp_nonce_field( 'bbp_topic_metabox_save', 'bbp_topic_metabox' );
-	do_action( 'bbp_topic_metabox', $post_id );
+	do_action( 'bbp_topic_metabox', $post );
 }
 
 /** Replies *******************************************************************/
@@ -465,15 +460,11 @@ function bbp_topic_metabox() {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses do_action() Calls 'bbp_reply_metabox'
  */
-function bbp_reply_metabox() {
-
-	// Post ID
-	$post_id = get_the_ID();
-	$status  = get_post_status( $post_id );
+function bbp_reply_metabox( $post ) {
 
 	// Get some meta
-	$reply_topic_id = bbp_get_reply_topic_id( $post_id );
-	$reply_forum_id = bbp_get_reply_forum_id( $post_id );
+	$reply_topic_id = bbp_get_reply_topic_id( $post->ID );
+	$reply_forum_id = bbp_get_reply_forum_id( $post->ID );
 	$topic_forum_id = bbp_get_topic_forum_id( $reply_topic_id );
 
 	/** Status ****************************************************************/
@@ -482,9 +473,9 @@ function bbp_reply_metabox() {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
-		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $status ) ? 'draft' : $status ); ?>" />
+		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="post_status"><?php esc_html_e( 'Select what status to give the reply.', 'bbpress' ); ?></label>
-		<?php bbp_form_reply_status_dropdown( array( 'select_id' => 'post_status', 'reply_id' => $post_id ) ); ?>
+		<?php bbp_form_reply_status_dropdown( array( 'select_id' => 'post_status', 'reply_id' => $post->ID ) ); ?>
 	</p>
 
 	<hr />
@@ -494,7 +485,7 @@ function bbp_reply_metabox() {
 	/** Forum *****************************************************************/
 
 	// Only allow individual manipulation of reply forum if there is a mismatch
-	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $post_id ) ) ) : ?>
+	if ( ( $reply_forum_id !== $topic_forum_id ) && ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $post->ID ) ) ) : ?>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
@@ -539,7 +530,7 @@ function bbp_reply_metabox() {
 		<p>
 			<strong class="label"><?php esc_html_e( 'Reply To:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_reply_to"><?php esc_html_e( 'Reply To', 'bbpress' ); ?></label>
-			<?php bbp_reply_to_dropdown( $post_id ); ?>
+			<?php bbp_reply_to_dropdown( $post->ID ); ?>
 		</p>
 
 	<?php
@@ -552,7 +543,7 @@ function bbp_reply_metabox() {
 
 	<?php
 	wp_nonce_field( 'bbp_reply_metabox_save', 'bbp_reply_metabox' );
-	do_action( 'bbp_reply_metabox', $post_id );
+	do_action( 'bbp_reply_metabox', $post );
 }
 
 /**
@@ -573,7 +564,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 
 	// Pull in the list table class
 	if ( ! class_exists( 'BBP_Topic_Replies_List_Table' ) ) {
-		include_once bbpress()->admin->admin_dir . '/list-tables/topic-replies.php';
+		require_once bbpress()->admin->admin_dir . '/list-tables/topic-replies.php';
 	}
 
 	// Look for pagination value
@@ -601,35 +592,32 @@ function bbp_topic_replies_metabox( $topic = false ) {
  *
  * @since 2.0.0 bbPress (r2828)
  *
+ * @param WP_Post $post The current post object
  * @uses bbp_is_reply_anonymous() To check if reply is anonymous
  * @uses bbp_is_topic_anonymous() To check if topic is anonymous
- * @uses get_the_ID() To get the global post ID
  * @uses get_post_meta() To get the author user information
  */
-function bbp_author_metabox() {
-
-	// Post ID
-	$post_id = get_the_ID();
+function bbp_author_metabox( $post ) {
 
 	// Show extra bits if topic/reply is anonymous
-	if ( bbp_is_reply_anonymous( $post_id ) || bbp_is_topic_anonymous( $post_id ) ) : ?>
+	if ( bbp_is_reply_anonymous( $post->ID ) || bbp_is_topic_anonymous( $post->ID ) ) : ?>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Name:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_name"><?php esc_html_e( 'Name', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_name', true ) ); ?>" />
+			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo esc_attr( get_post_meta( $post->ID, '_bbp_anonymous_name', true ) ); ?>" />
 		</p>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Email:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_email', true ) ); ?>" />
+			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo esc_attr( get_post_meta( $post->ID, '_bbp_anonymous_email', true ) ); ?>" />
 		</p>
 
 		<p>
 			<strong class="label"><?php esc_html_e( 'Website:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_anonymous_website"><?php esc_html_e( 'Website', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_anonymous_website', true ) ); ?>" />
+			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo esc_attr( get_post_meta( $post->ID, '_bbp_anonymous_website', true ) ); ?>" />
 		</p>
 
 	<?php else : ?>
@@ -645,12 +633,12 @@ function bbp_author_metabox() {
 	<p>
 		<strong class="label"><?php esc_html_e( 'IP:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_author_ip_address"><?php esc_html_e( 'IP Address', 'bbpress' ); ?></label>
-		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo esc_attr( get_post_meta( $post_id, '_bbp_author_ip', true ) ); ?>" disabled="disabled" />
+		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo esc_attr( get_post_meta( $post->ID, '_bbp_author_ip', true ) ); ?>" disabled="disabled" />
 	</p>
 
 	<?php
 
-	do_action( 'bbp_author_metabox', $post_id );
+	do_action( 'bbp_author_metabox', $post );
 }
 
 /**
@@ -661,11 +649,10 @@ function bbp_author_metabox() {
  * @uses get_the_ID() To get the global post ID
  * @uses get_post_meta() To get the author user information
  */
-function bbp_moderator_assignment_metabox() {
+function bbp_moderator_assignment_metabox( $post ) {
 
-	// Post ID
-	$object_id      = get_the_ID();
-	$user_ids       = bbp_get_moderator_ids( $object_id );
+	// Get nicenames
+	$user_ids       = bbp_get_moderator_ids( $post->ID );
 	$user_nicenames = bbp_get_user_nicenames_from_ids( $user_ids );
 	$moderators     = ! empty( $user_nicenames )
 		? implode( ', ', array_map( 'esc_attr', $user_nicenames ) )
@@ -678,5 +665,95 @@ function bbp_moderator_assignment_metabox() {
 
 	<?php
 
-	do_action( 'bbp_moderator_assignment_metabox', $object_id );
+	do_action( 'bbp_moderator_assignment_metabox', $post );
+}
+
+/**
+ * See who marked a topic as a favorite
+ *
+ * @since 2.6.0 bbPress (r6179)
+ */
+function bbp_topic_favorites_metabox( $post ) {
+
+	// Get user IDs
+	$user_ids = bbp_get_topic_favoriters( $post->ID );
+
+	// Output
+	?><p><?php
+
+		// Users were found
+		if ( ! empty( $user_ids ) ) :
+
+			foreach ( $user_ids as $user_id ) :
+				echo get_avatar( $user_id, 32 );
+			endforeach;
+
+		// No users
+		else :
+			esc_html_e( 'No users have favorited this topic.', 'bbpress' );
+		endif;
+
+	?></p><?php
+
+	do_action( 'bbp_favorites_metabox', $post );
+}
+
+/**
+ * See who subscribed to a topic
+ *
+ * @since 2.6.0 bbPress (r6179)
+ */
+function bbp_topic_subscriptions_metabox( $post ) {
+
+	// Get user IDs
+	$user_ids = bbp_get_topic_subscribers( $post->ID );
+
+	// Output
+	?><p><?php
+
+		// Users were found
+		if ( ! empty( $user_ids ) ) :
+
+			foreach ( $user_ids as $user_id ) :
+				echo get_avatar( $user_id, 32 );
+			endforeach;
+
+		// No users
+		else :
+			esc_html_e( 'No users have subscribed to this topic.', 'bbpress' );
+		endif;
+
+	?></p><?php
+
+	do_action( 'bbp_subscriptions_metabox', $post );
+}
+
+/**
+ * See who subscribed to a forum
+ *
+ * @since 2.6.0 bbPress (r6179)
+ */
+function bbp_forum_subscriptions_metabox( $post ) {
+
+	// Get user IDs
+	$user_ids = bbp_get_forum_subscribers( $post->ID );
+
+	// Output
+	?><p><?php
+
+		// Users were found
+		if ( ! empty( $user_ids ) ) :
+
+			foreach ( $user_ids as $user_id ) :
+				echo get_avatar( $user_id, 32 );
+			endforeach;
+
+		// No users
+		else :
+			esc_html_e( 'No users have subscribed to this forum.', 'bbpress' );
+		endif;
+
+	?></p><?php
+
+	do_action( 'bbp_forum_subscriptions_metabox', $post );
 }

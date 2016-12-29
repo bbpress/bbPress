@@ -548,18 +548,18 @@ function bbp_parse_query( $posts_query ) {
 			$posts_query->bbp_is_single_user_edit = true;
 
 			// Load the core WordPress contact methods
-			if ( !function_exists( '_wp_get_user_contactmethods' ) ) {
-				include_once( ABSPATH . 'wp-includes/registration.php' );
+			if ( ! function_exists( '_wp_get_user_contactmethods' ) ) {
+				require_once ABSPATH . 'wp-includes/registration.php';
 			}
 
 			// Load the edit_user functions
-			if ( !function_exists( 'edit_user' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/user.php' );
+			if ( ! function_exists( 'edit_user' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/user.php';
 			}
 
 			// Load the grant/revoke super admin functions
-			if ( is_multisite() && !function_exists( 'revoke_super_admin' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/ms.php' );
+			if ( is_multisite() && ! function_exists( 'revoke_super_admin' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/ms.php';
 			}
 
 			// Editing a user

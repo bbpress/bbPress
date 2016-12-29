@@ -80,11 +80,13 @@ class BBP_Topics_Admin {
 		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
 		// Topic metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox' ) );
-		add_action( 'add_meta_boxes', array( $this, 'author_metabox'     ) );
-		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'    ) );
-		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'   ) );
-		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'    ) );
+		add_action( 'add_meta_boxes', array( $this, 'author_metabox'        ) );
+		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'       ) );
+		add_action( 'add_meta_boxes', array( $this, 'favorites_metabox'     ) );
+		add_action( 'add_meta_boxes', array( $this, 'subscriptions_metabox' ) );
+		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
@@ -342,7 +344,6 @@ class BBP_Topics_Admin {
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-
 		add_meta_box(
 			'bbp_topic_attributes',
 			__( 'Topic Attributes', 'bbpress' ),
@@ -351,8 +352,6 @@ class BBP_Topics_Admin {
 			'side',
 			'high'
 		);
-
-		do_action( 'bbp_topic_attributes_metabox' );
 	}
 
 	/**
@@ -360,13 +359,7 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2828)
 	 *
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses bbp_get_reply() To get the reply
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_meta_box() To add the metabox
-	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
-	 *                    id
 	 */
 	public function author_metabox() {
 
@@ -384,8 +377,6 @@ class BBP_Topics_Admin {
 			'side',
 			'high'
 		);
-
-		do_action( 'bbp_author_metabox', get_the_ID() );
 	}
 
 	/**
@@ -420,8 +411,70 @@ class BBP_Topics_Admin {
 			'normal',
 			'high'
 		);
+	}
 
-		do_action( 'bbp_topic_replies_metabox', get_the_ID() );
+	/**
+	 * Add the favorites metabox
+	 *
+	 * Allows viewing of users who have favorited a topic.
+	 *
+	 * @since 2.6.0 bbPress (r6179)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 */
+	public function favorites_metabox() {
+
+		// Bail if post_type is not a reply
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		// Bail if no favorites
+		if ( ! bbp_is_favorites_active() ) {
+			return;
+		}
+
+		// Add the metabox
+		add_meta_box(
+			'bbp_topic_favorites_metabox',
+			__( 'Favorites', 'bbpress' ),
+			'bbp_topic_favorites_metabox',
+			$this->post_type,
+			'normal',
+			'high'
+		);
+	}
+
+	/**
+	 * Add the subscriptions metabox
+	 *
+	 * Allows viewing of users who have subscribed to a topic.
+	 *
+	 * @since 2.6.0 bbPress (r6179)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 */
+	public function subscriptions_metabox() {
+
+		// Bail if post_type is not a reply
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		// Bail if no subscriptions
+		if ( ! bbp_is_subscriptions_active() ) {
+			return;
+		}
+
+		// Add the metabox
+		add_meta_box(
+			'bbp_topic_subscriptions_metabox',
+			__( 'Subscriptions', 'bbpress' ),
+			'bbp_topic_subscriptions_metabox',
+			$this->post_type,
+			'normal',
+			'high'
+		);
 	}
 
 	/**
