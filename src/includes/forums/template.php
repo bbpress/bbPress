@@ -56,6 +56,7 @@ function bbp_get_forum_post_type_labels() {
 		'new_item'           => __( 'New Forum',                'bbpress' ),
 		'view'               => __( 'View Forum',               'bbpress' ),
 		'view_item'          => __( 'View Forum',               'bbpress' ),
+		'view_items'         => __( 'View Forums',              'bbpress' ),
 		'search_items'       => __( 'Search Forums',            'bbpress' ),
 		'not_found'          => __( 'No forums found',          'bbpress' ),
 		'not_found_in_trash' => __( 'No forums found in Trash', 'bbpress' ),

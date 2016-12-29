@@ -55,6 +55,7 @@ function bbp_get_reply_post_type_labels() {
 		'new_item'           => __( 'New Reply',                 'bbpress' ),
 		'view'               => __( 'View Reply',                'bbpress' ),
 		'view_item'          => __( 'View Reply',                'bbpress' ),
+		'view_items'         => __( 'View Replies',              'bbpress' ),
 		'search_items'       => __( 'Search Replies',            'bbpress' ),
 		'not_found'          => __( 'No replies found',          'bbpress' ),
 		'not_found_in_trash' => __( 'No replies found in Trash', 'bbpress' ),
