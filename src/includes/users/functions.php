@@ -269,7 +269,7 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $m
  * @since 2.0.0 bbPress (r2658)
  *
  * @param int $topic_id Optional. Topic id
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses bbp_get_users_for_object() To get user IDs who favorited
  * @uses apply_filters() Calls 'bbp_get_topic_favoriters' with the users and
  *                        topic id
  * @return array|bool Results if the topic has any favoriters, otherwise false
@@ -576,7 +576,7 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_terms_by_object() To get the topic subscribers
+ * @uses bbp_get_users_for_object() To get the topic subscribers
  * @uses apply_filters() Calls 'bbp_get_topic_subscribers' with the subscribers
  * @return array|bool Results if the topic has any subscribers, otherwise false
  */
@@ -1338,8 +1338,8 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @uses get_userdata() To get the user data
  * @uses is_email() To check if the string is an email id or not
  * @uses is_network_admin() To check if the user is the network admin
- * @uses revoke_super_admin() To revoke super admin priviledges
- * @uses grant_super_admin() To grant super admin priviledges
+ * @uses revoke_super_admin() To revoke super admin privileges
+ * @uses grant_super_admin() To grant super admin privileges
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  */
 function bbp_edit_user_handler( $action = '' ) {
@@ -1739,7 +1739,7 @@ function bbp_get_total_users() {
 function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 
 	// Default value
-	$user_ids = array();
+	$retval = array();
 
 	// Only query if nicenames
 	if ( ! empty( $user_nicenames ) ) {
@@ -1749,14 +1749,18 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 			? explode( ',', $user_nicenames )
 			: (array) $user_nicenames;
 
-		// Do the query
-		$users    = implode( "', '", array_map( 'trim', $user_nicenames ) );
-		$bbp_db   = bbp_db();
-		$query    = "SELECT ID FROM `{$bbp_db->users}` WHERE user_nicename IN ('{$users}')";
-		$user_ids = $bbp_db->get_col( $query );
+		// Get users
+		$users = get_users( array(
+			'nicename__in' => $user_nicenames
+		) );
+
+		// Pluck or empty
+		if ( ! empty( $users ) ) {
+			$retval = wp_list_pluck( $users, 'ID' );
+		}
 	}
 
-	return apply_filters( 'bbp_get_user_ids_from_nicenames', $user_ids, $user_nicenames );
+	return apply_filters( 'bbp_get_user_ids_from_nicenames', $retval, $user_nicenames );
 }
 
 /**
@@ -1772,23 +1776,23 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 
 	// Default value
-	$user_nicenames = array();
+	$retval = array();
 
 	// Only query if nicenames
 	if ( ! empty( $user_ids ) ) {
 
-		// Get user objects
+		// Get users
 		$users = get_users( array(
 			'include' => $user_ids
 		) );
 
 		// Pluck or empty
 		if ( ! empty( $users ) ) {
-			$user_nicenames = wp_list_pluck( $users, 'user_nicename' );
+			$retval = wp_list_pluck( $users, 'user_nicename' );
 		}
 	}
 
-	return apply_filters( 'bbp_get_user_nicenames_from_ids', $user_nicenames, $user_ids );
+	return apply_filters( 'bbp_get_user_nicenames_from_ids', $retval, $user_ids );
 }
 
 /** Post Counts ***************************************************************/
@@ -1813,11 +1817,9 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 		return false;
 	}
 
-	$bbp_db = bbp_db();
-	$where  = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
-	$count  = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->posts} {$where}" );
+	$count = count_user_posts( $user_id, bbp_get_topic_post_type(), false );
 	// Manually add the user closed topic count, see #2978 and #WP12706
-	$count  = $count + bbp_get_user_closed_topic_count( $user_id );
+	$count = $count + bbp_get_user_closed_topic_count( $user_id );
 
 	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
 }
@@ -1842,9 +1844,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 		return false;
 	}
 
-	$bbp_db = bbp_db();
-	$where  = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
-	$count  = (int) $bbp_db->get_var( "SELECT COUNT(*) FROM {$bbp_db->posts} {$where}" );
+	$count = count_user_posts( $user_id, bbp_get_reply_post_type(), false );
 
 	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
 }
