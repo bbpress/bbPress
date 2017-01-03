@@ -468,13 +468,14 @@ if ( !function_exists( 'tag_heat_map' ) ) :
 function tag_heat_map( $args = '' ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_tag_heat_map (with variations to arguments)');
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
+	$_args = func_get_args();
 	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
-		$args['smallest'] = func_get_arg(0);
-		$args['largest']  = func_get_arg(1);
-		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
-		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
+		$args['smallest'] = $_args[0];
+		$args['largest']  = $_args[1];
+		$args['unit']     = 2 < $fn ? $_args[2] : $unit;
+		$args['limit']    = 3 < $fn ? $_args[3] : $limit;
 	endif;
 
 	bb_tag_heat_map( $args );
