@@ -168,7 +168,7 @@ We're keeping things as small and light as possible while still allowing for gre
 * Improved user roles and capabilities
 * Improved theme compatibility
 * Improved BuddyPress Group Forums integration
-* Improved forums convertion tool
+* Improved forums conversion tool
 * Improved forums tools and settings
 * Improved multisite support
 * Added What's New and Credits pages
