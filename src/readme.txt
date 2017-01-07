@@ -183,7 +183,7 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 * Improved user roles and capabilities
 * Improved theme compatibility
 * Improved BuddyPress Group Forums integration
-* Improved forums convertion tool
+* Improved forums conversion tool
 * Improved forums tools and settings
 * Improved multisite support
 * Added What's New and Credits pages
