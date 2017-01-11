@@ -17,7 +17,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author:      The bbPress Contributors
  * Author URI:  https://bbpress.org
- * Version:     2.6-alpha
+ * Version:     2.6-beta-1
  * Text Domain: bbpress
  * Domain Path: /languages/
  * License:     GPLv2 or later (license.txt)
@@ -203,7 +203,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-alpha-6183';
+		$this->version    = '2.6-beta-6213';
 		$this->db_version = '260';
 
 		/** Paths *************************************************************/
@@ -481,7 +481,7 @@ final class bbPress {
 		// Look in global /wp-content/languages/bbpress folder
 		load_textdomain( $this->domain, $mofile_global );
 
-		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
+		// Look in local /wp-content/plugins/bbpress/languages/ folder
 		load_textdomain( $this->domain, $mofile_local );
 
 		// Look in global /wp-content/languages/plugins/
