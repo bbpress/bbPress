@@ -287,20 +287,24 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_favorites_topic_ids() To get the user's favorites
  * @uses bbp_has_topics() To get the topics
  * @uses apply_filters() Calls 'bbp_get_user_favorites' with the topic query and
  *                        user id
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites( $user_id = 0 ) {
-	$user_id   = bbp_get_user_id( $user_id );
-	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
-	$query     = ! empty( $favorites )
-		? bbp_has_topics( array( 'post__in' => $favorites ) )
-		: false;
+	$user_id = bbp_get_user_id( $user_id );
+	$query   = bbp_has_topics( array(
+		'meta_query' => array(
+			array(
+				'key'     => '_bbp_favorite',
+				'value'   => $user_id,
+				'compare' => 'NUMERIC'
+			)
+		)
+	) );
 
-	return apply_filters( 'bbp_get_user_favorites', $query, $user_id, $favorites );
+	return apply_filters( 'bbp_get_user_favorites', $query, $user_id );
 }
 
 /**
@@ -611,24 +615,22 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
  * @uses bbp_has_topics() To get the topics
  * @uses apply_filters() Calls 'bbp_get_user_subscriptions' with the topic query
  *                        and user id
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
-
-	// Default to the displayed user
-	$user_id       = bbp_get_user_id( $user_id );
-	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
-
-	// If user has subscriptions, load them
-	if ( ! empty( $subscriptions ) ) {
-		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
-	} else {
-		$query = false;
-	}
+	$user_id = bbp_get_user_id( $user_id );
+	$query   = bbp_has_topics( array(
+		'meta_query' => array(
+			array(
+				'key'     => '_bbp_subscription',
+				'value'   => $user_id,
+				'compare' => 'NUMERIC'
+			)
+		)
+	) );
 
 	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, $user_id );
 }
@@ -639,24 +641,22 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's subscriptions
  * @uses bbp_has_forums() To get the forums
  * @uses apply_filters() Calls 'bbp_get_user_forum_subscriptions' with the forum
  *                        query and user id
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
-
-	// Default to the displayed user
-	$user_id       = bbp_get_user_id( $user_id );
-	$subscriptions = bbp_get_user_subscribed_forum_ids( $user_id );
-
-	// If user has subscriptions, load them
-	if ( ! empty( $subscriptions ) ) {
-		$query = bbp_has_forums( array( 'post__in' => $subscriptions ) );
-	} else {
-		$query = false;
-	}
+	$user_id = bbp_get_user_id( $user_id );
+	$query   = bbp_has_forums( array(
+		'meta_query' => array(
+			array(
+				'key'     => '_bbp_subscription',
+				'value'   => $user_id,
+				'compare' => 'NUMERIC'
+			)
+		)
+	) );
 
 	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, $user_id );
 }
