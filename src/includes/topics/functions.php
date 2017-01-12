@@ -4029,9 +4029,8 @@ function bbp_topic_content_autoembed() {
  * @uses bbp_has_topics()
  * @uses bbp_topics()
  * @uses bbp_the_topic()
- * @uses get_wp_title_rss()
  * @uses get_option()
- * @uses bloginfo_rss
+ * @uses bloginfo_rss()
  * @uses self_link()
  * @uses the_author()
  * @uses get_post_time()

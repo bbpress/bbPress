@@ -2269,7 +2269,7 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
  * @uses bbp_reply_content()
  * @uses get_wp_title_rss()
  * @uses get_option()
- * @uses bloginfo_rss
+ * @uses bloginfo_rss()
  * @uses self_link()
  * @uses the_author()
  * @uses get_post_time()
@@ -2288,11 +2288,11 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 	// Adjust the title based on context
 	if ( bbp_is_single_topic() && bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) {
-		$title = apply_filters( 'wp_title_rss', get_wp_title_rss( ' &#187; ' ) );
+		$title = apply_filters( 'wp_title_rss', get_wp_title_rss() );
 	} elseif ( ! bbp_show_lead_topic() ) {
-		$title = ' &#187; ' .  __( 'All Posts',   'bbpress' );
+		$title = get_bloginfo_rss( 'name' ) . ' &#187; ' .  __( 'All Posts',   'bbpress' );
 	} else {
-		$title = ' &#187; ' .  __( 'All Replies', 'bbpress' );
+		$title = get_bloginfo_rss( 'name' ) . ' &#187; ' .  __( 'All Replies', 'bbpress' );
 	}
 
 	// Display the feed
@@ -2310,7 +2310,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 	>
 
 	<channel>
-		<title><?php bloginfo_rss('name'); echo $title; ?></title>
+		<title><?php echo $title; ?></title>
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
