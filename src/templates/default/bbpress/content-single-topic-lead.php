@@ -51,7 +51,7 @@ do_action( 'bbp_template_before_lead_topic' ); ?>
 
 				<?php bbp_topic_author_link( array( 'sep' => '<br />', 'show_role' => true ) ); ?>
 
-				<?php if ( bbp_is_user_keymaster() ) : ?>
+				<?php if ( current_user_can( 'moderate', bbp_get_reply_id() ) ) : ?>
 
 					<?php do_action( 'bbp_theme_before_topic_author_admin_details' ); ?>
 
