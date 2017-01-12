@@ -2301,7 +2301,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 	$result        = __( 'No topic subscriptions to upgrade.',             'bbpress' );
 	$changed       = $total = 0;
 	$key           = $bbp_db->prefix . '_bbp_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
+	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
 
 	// Bail if no topic subscriptions found
 	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
@@ -2364,7 +2364,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 	$result        = __( 'No forum subscriptions to upgrade.',             'bbpress' );
 	$changed       = $total = 0;
 	$key           = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
+	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
 
 	// Bail if no forum subscriptions found
 	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
