@@ -452,7 +452,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  * @uses wp_count_posts() To count the number of forums, topics and replies
  * @uses wp_count_terms() To count the number of topic tags
  * @uses current_user_can() To check if the user is capable of doing things
- * @uses number_format_i18n() To format the number
+ * @uses bbp_number_format_i18n() To format the number
  * @uses apply_filters() Calls 'bbp_get_statistics' with the statistics and args
  * @return object Walked forum tree
  */
@@ -527,14 +527,14 @@ function bbp_get_statistics( $args = array() ) {
 			// Trash
 			$topics['trashed'] = ( ! empty( $r['count_trashed_topics'] ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$trash}   : 0;
 
-			// Total hidden (private + spam + trash)
+			// Total hidden (pending + private + spam + trash)
 			$topic_count_hidden = $topics['pending'] + $topics['private'] + $topics['spammed'] + $topics['trashed'];
 
 			// Generate the hidden topic count's title attribute
-			$topic_titles[] = ! empty( $topics['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), number_format_i18n( $topics['pending'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $topics['private'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $topics['spammed'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $topics['trashed'] ) ) : '';
+			$topic_titles[] = ! empty( $topics['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $topics['pending'] ) ) : '';
+			$topic_titles[] = ! empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $topics['private'] ) ) : '';
+			$topic_titles[] = ! empty( $topics['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['spammed'] ) ) : '';
+			$topic_titles[] = ! empty( $topics['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['trashed'] ) ) : '';
 
 			// Compile the hidden topic title
 			$hidden_topic_title = implode( ' | ', array_filter( $topic_titles ) );
@@ -566,14 +566,14 @@ function bbp_get_statistics( $args = array() ) {
 			// Trash
 			$replies['trashed'] = ( ! empty( $r['count_trashed_replies'] ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$trash}   : 0;
 
-			// Total hidden (private + spam + trash)
+			// Total hidden (pending + private + spam + trash)
 			$reply_count_hidden = $replies['pending'] + $replies['private'] + $replies['spammed'] + $replies['trashed'];
 
 			// Generate the hidden topic count's title attribute
-			$reply_titles[] = ! empty( $replies['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), number_format_i18n( $replies['pending'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $replies['private'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $replies['spammed'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $replies['trashed'] ) ) : '';
+			$reply_titles[] = ! empty( $replies['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $replies['pending'] ) ) : '';
+			$reply_titles[] = ! empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $replies['private'] ) ) : '';
+			$reply_titles[] = ! empty( $replies['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['spammed'] ) ) : '';
+			$reply_titles[] = ! empty( $replies['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['trashed'] ) ) : '';
 
 			// Compile the hidden replies title
 			$hidden_reply_title = implode( ' | ', array_filter( $reply_titles ) );
@@ -593,7 +593,7 @@ function bbp_get_statistics( $args = array() ) {
 	}
 
 	// Tally the tallies
-	$statistics = array_map( 'number_format_i18n', array_map( 'absint', compact(
+	$counts = array_map( 'absint', compact(
 		'user_count',
 		'forum_count',
 		'topic_count',
@@ -602,7 +602,13 @@ function bbp_get_statistics( $args = array() ) {
 		'reply_count_hidden',
 		'topic_tag_count',
 		'empty_topic_tag_count'
-	) ) );
+	) );
+
+	// Loop through and store the integer and i18n formatted counts.
+	foreach ( $counts as $key => $count ) {
+		$statistics[ $key ]         = bbp_number_format_i18n( $count );
+		$statistics[ "{$key}_int" ] = $count;
+	}
 
 	// Add the hidden (topic/reply) count title attribute strings because we
 	// don't need to run the math functions on these (see above)
