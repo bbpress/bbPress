@@ -194,45 +194,25 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * @since 2.6.0 bbPress (r5834)
  *
  * @param int $user_id User id.
- * @uses get_userdata() To get the user object
- * @uses get_term_by() To get the term id
- * @uses get_objects_in_term() Get the forums the user moderates
- * @uses is_wp_error() To check for errors
- * @uses bbp_is_forum() To make sure the objects are forums
  *
  * @return boolean|array Return false on error or empty, or array of forum ids
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
-
-	// Default return value
-	$retval = $forums = array();
-
-	// Bail if no user ID.
 	$user_id = bbp_get_user_id( $user_id );
-	if ( ! empty( $user_id ) ) {
-
-		// Bail if user does not exist.
-		$user = get_userdata( $user_id );
-		if ( ! empty( $user ) ) {
-
-			// Get the forums this user can moderate
-			$forums = get_posts( array(
-				'post_type'   => bbp_get_forum_post_type(),
-				'meta_key'    => '_bbp_moderator_id',
-				'meta_type'   => 'NUMERIC',
-				'meta_value'  => $user_id,
-				'numberposts' => -1
-			) );
-
-			// Pluck IDs
-			if ( ! empty( $forums ) ) {
-				$retval = wp_list_pluck( $forums, 'ID' );
-			}
-		}
-	}
+	$forums  = new WP_Query( array(
+		'fields'        => 'ids',
+		'post_type'     => bbp_get_forum_post_type(),
+		'nopaging'      => true,
+		'no_found_rows' => true,
+		'meta_query'    => array( array(
+			'key'     => '_bbp_moderator_id',
+			'value'   => $user_id,
+			'compare' => 'NUMERIC'
+		) )
+	) );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_moderator_forum_ids', $retval, $user_id, $forums );
+	return (array) apply_filters( 'bbp_get_moderator_forum_ids', $forums->posts, $user_id, $forums );
 }
 
 /**
