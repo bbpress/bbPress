@@ -1283,7 +1283,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		if ( ! empty( $deleted ) && current_user_can( 'edit_others_topics' ) ) {
 
 			// Extra text
-			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
+			$extra = ' ' . sprintf( _n( '(+ %d hidden)', '(+ %d hidden)', $deleted, 'bbpress' ), $deleted );
 
 			// No link
 			if ( bbp_get_view_all() ) {
