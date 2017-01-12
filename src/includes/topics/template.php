@@ -910,7 +910,7 @@ function bbp_topic_pagination( $args = array() ) {
 			if ( bbp_use_pretty_urls() ) {
 				$pagination_links = str_replace( bbp_get_paged_slug() . '/1/', '', $pagination_links );
 			} else {
-				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
+				$pagination_links = preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links );
 			}
 
 			// Add before and after to pagination links

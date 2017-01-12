@@ -155,7 +155,7 @@ function bbp_has_search_results( $args = array() ) {
 		if ( bbp_use_pretty_urls() ) {
 			$bbp->search_query->pagination_links = str_replace( bbp_get_paged_slug() . '/1/', '', $bbp->search_query->pagination_links );
 		} else {
-			$bbp->search_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->search_query->pagination_links );
+			$bbp->search_query->pagination_links = preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $bbp->search_query->pagination_links );
 		}
 	}
 
