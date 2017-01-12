@@ -1024,6 +1024,7 @@ function bbp_repair_forum_visibility() {
 	$private_forums = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'post_type'        => bbp_get_forum_post_type(),
 		'post_status'      => bbp_get_private_status_id(),
 		'fields'           => 'ids'
@@ -1031,6 +1032,7 @@ function bbp_repair_forum_visibility() {
 	$hidden_forums = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'post_type'        => bbp_get_forum_post_type(),
 		'post_status'      => bbp_get_hidden_status_id(),
 		'fields'           => 'ids'
@@ -1827,6 +1829,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 				'update_post_term_cache' => false,
 				'update_post_meta_cache' => false,
 				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true
 			) );
 			$topic_count = $query->post_count;
 			unset( $query );
@@ -1889,6 +1892,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 			'update_post_term_cache' => false,
 			'update_post_meta_cache' => false,
 			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
 		) );
 		$reply_count = ! empty( $query->posts ) ? count( $query->posts ) : 0;
 		unset( $query );
@@ -2328,6 +2332,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 	$reply_id = array_shift( $query->posts );
 	unset( $query );
@@ -2504,6 +2509,7 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 		'post_status'      => array_keys( get_post_stati() ),
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'fields'           => 'id=>parent'
 	) );
 
@@ -2561,6 +2567,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 		'post_status'      => $post_stati,
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'fields'           => 'id=>parent'
 	) );
 

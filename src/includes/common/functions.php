@@ -1581,6 +1581,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 	$child_id = array_shift( $query->posts );
 	unset( $query );
@@ -1631,6 +1632,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 	$child_count = $query->post_count;
 	unset( $query );
@@ -1681,6 +1683,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
 	unset( $query );

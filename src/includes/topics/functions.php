@@ -3273,6 +3273,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 		'post_parent'      => $topic_id,
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'fields'           => 'id=>parent'
 	) );
 
@@ -3710,6 +3711,7 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 		'post_parent'      => $topic_id,
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'fields'           => 'id=>parent'
 	) );
 
@@ -3771,6 +3773,7 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 		'post_parent'      => $topic_id,
 		'posts_per_page'   => -1,
 		'nopaging'         => true,
+		'no_found_rows'    => true,
 		'fields'           => 'id=>parent'
 	) );
 
