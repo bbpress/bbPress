@@ -337,14 +337,50 @@ class BBP_Akismet {
 
 				// Spammy
 				case 'spam' :
-					$this->update_post_history( $post_id, sprintf( esc_html__( '%1$s reported this %2$s as spam', 'bbpress' ),     $post_data['reporter'], $post_data['comment_type'] ), 'report-spam' );
+					if ( 'topic' === $post_data['comment_type'] ) {
+						/* translators: %s: reporter name */
+						$message = sprintf( esc_html__( '%s reported this topic as spam', 'bbpress' ),
+							$post_data['reporter']
+						);
+					} elseif ( 'reply' === $post_data['comment_type'] ) {
+						/* translators: %s: reporter name */
+						$message = sprintf( esc_html__( '%s reported this reply as spam', 'bbpress' ),
+							$post_data['reporter']
+						);
+					} else {
+						/* translators: 1: reporter name, 2: comment type */
+						$message = sprintf( esc_html__( '%1$s reported this %2$s as spam', 'bbpress' ),
+							$post_data['reporter'],
+							$post_data['comment_type']
+						);
+					}
+
+					$this->update_post_history( $post_id, $message, 'report-spam' );
 					update_post_meta( $post_id, '_bbp_akismet_user_result', 'true'                 );
 					update_post_meta( $post_id, '_bbp_akismet_user',        $post_data['reporter'] );
 					break;
 
 				// Hammy
-				case 'ham'  :
-					$this->update_post_history( $post_id, sprintf( esc_html__( '%1$s reported this %2$s as not spam', 'bbpress' ), $post_data['reporter'], $post_data['comment_type'] ), 'report-ham'  );
+				case 'ham' :
+					if ( 'topic' === $post_data['comment_type'] ) {
+						/* translators: %s: reporter name */
+						$message = sprintf( esc_html__( '%s reported this topic as not spam', 'bbpress' ),
+							$post_data['reporter']
+						);
+					} elseif ( 'reply' === $post_data['comment_type'] ) {
+						/* translators: %s: reporter name */
+						$message = sprintf( esc_html__( '%s reported this reply as not spam', 'bbpress' ),
+							$post_data['reporter']
+						);
+					} else {
+						/* translators: 1: reporter name, 2: comment type */
+						$message = sprintf( esc_html__( '%1$s reported this %2$s as not spam', 'bbpress' ),
+							$post_data['reporter'],
+							$post_data['comment_type']
+						);
+					}
+
+					$this->update_post_history( $post_id, $message, 'report-ham' );
 					update_post_meta( $post_id, '_bbp_akismet_user_result', 'false'                 );
 					update_post_meta( $post_id, '_bbp_akismet_user',         $post_data['reporter'] );
 
