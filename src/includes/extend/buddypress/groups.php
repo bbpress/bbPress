@@ -238,7 +238,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			case 'publish_topics'      :
 			case 'read_hidden_forums'  :
 			case 'read_private_forums' :
-				if ( bbp_group_is_member() || bbp_group_is_mod() || bbp_group_is_admin() ) {
+				if ( bbp_group_is_banned() ) {
+					$caps = array( 'do_not_allow' );
+
+				} else if ( bbp_group_is_member() || bbp_group_is_mod() || bbp_group_is_admin() ) {
 					$caps = array( 'participate' );
 				}
 				break;
