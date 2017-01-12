@@ -11,7 +11,7 @@
 	</php>
 	<testsuites>
 		<testsuite>
-			<directory suffix=".php" phpVersion="5.3.0" phpVersionOperator=">=">./testcases/</directory>
+			<directory suffix=".php">./testcases/</directory>
 		</testsuite>
 	</testsuites>
 	<groups>
