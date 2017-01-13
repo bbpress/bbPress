@@ -322,9 +322,11 @@ function bbp_version_updater() {
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/2959
 			 */
-			bbp_admin_upgrade_user_favorites();
-			bbp_admin_upgrade_user_topic_subscriptions();
-			bbp_admin_upgrade_user_forum_subscriptions();
+			if ( ! wp_is_large_network( 'users' ) ) {
+				bbp_admin_upgrade_user_favorites();
+				bbp_admin_upgrade_user_topic_subscriptions();
+				bbp_admin_upgrade_user_forum_subscriptions();
+			}
 		}
 	}
 
