@@ -596,7 +596,7 @@ function bbp_parse_query( $posts_query ) {
 		$posts_query->is_home = false;
 
 		// User is looking at their own profile
-		if ( get_current_user_id() === $the_user->ID ) {
+		if ( bbp_get_current_user_id() === $the_user->ID ) {
 			$posts_query->bbp_is_single_user_home = true;
 		}
 

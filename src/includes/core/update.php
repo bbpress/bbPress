@@ -385,8 +385,10 @@ function bbp_make_current_user_keymaster() {
 		return;
 	}
 
-	// Get the current user ID
+	// Cannot use bbp_get_current_user_id() here, during activation process
 	$user_id = get_current_user_id();
+
+	// Get the current blog ID, to know if they should be promoted here
 	$blog_id = get_current_blog_id();
 
 	// Bail if user is not actually a member of this site
