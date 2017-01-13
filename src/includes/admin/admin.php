@@ -924,7 +924,6 @@ class BBP_Admin {
 				<a href="https://profiles.wordpress.org/boonebgorges">boonebgorges</a>,
 				<a href="https://profiles.wordpress.org/casiepa">casiepa</a>,
 				<a href="https://profiles.wordpress.org/cfinke">cfinke</a>,
-				<a href="https://profiles.wordpress.org/cfinke">cfinke</a>,
 				<a href="https://profiles.wordpress.org/danielbachhuber">danielbachhuber</a>,
 				<a href="https://profiles.wordpress.org/dimitrovadrian">dimitrov.adrian</a>,
 				<a href="https://profiles.wordpress.org/DJPaul">DJPaul</a>,
