@@ -322,7 +322,7 @@ function bbp_version_updater() {
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/2959
 			 */
-			if ( ! wp_is_large_network( 'users' ) ) {
+			if ( ! bbp_is_large_install() ) {
 				bbp_admin_upgrade_user_favorites();
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();

@@ -154,3 +154,27 @@ function bbp_get_major_wp_version() {
 
 	return (float) $wp_version;
 }
+
+/**
+ * Is this a large bbPress installation?
+ *
+ * @since 2.6.0 bbPress (r6242)
+ *
+ * @return bool True if more than 10000 users, false not
+ */
+function bbp_is_large_install() {
+
+	// Default to false
+	$retval = false;
+
+	// Multisite has a function specifically for this
+	if ( function_exists( 'wp_is_large_network' ) ) {
+		$retval = wp_is_large_network( 'users' );
+	} else {
+		$bbp_db = bbp_db();
+		$count  = $bbp_db->get_var( "SELECT COUNT(ID) as c FROM {$bbp_db->users} WHERE user_status = '0'" );
+		$retval = apply_filters( 'wp_is_large_network', ( $count > 10000 ), 'users', $count );
+	}
+
+	return (bool) $retval;
+}
