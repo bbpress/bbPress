@@ -2033,7 +2033,7 @@ function bbp_topic_last_reply_title( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_last_reply_id() To get the topic last reply id
 	 * @uses bbp_get_reply_title() To get the reply title
-	 * @uses apply_filters() Calls 'bbp_get_topic_last_topic_title' with
+	 * @uses apply_filters() Calls 'bbp_get_topic_last_reply_title' with
 	 *                        the reply title and topic id
 	 * @return string Topic last reply title
 	 */
@@ -2042,7 +2042,10 @@ function bbp_topic_last_reply_title( $topic_id = 0 ) {
 		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 		$retval   = bbp_get_reply_title( $reply_id );
 
-		return apply_filters( 'bbp_get_topic_last_topic_title', $retval, $topic_id, $reply_id );
+		// Misspelled. Use 'bbp_get_topic_last_reply_title' hook instead.
+		$retval = apply_filters( 'bbp_get_topic_last_topic_title', $retval, $topic_id, $reply_id );
+
+		return apply_filters( 'bbp_get_topic_last_reply_title', $retval, $topic_id, $reply_id );
 	}
 
 /**
@@ -2065,7 +2068,7 @@ function bbp_topic_last_reply_permalink( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_last_reply_id() To get the topic last reply id
 	 * @uses bbp_get_reply_permalink() To get the reply permalink
-	 * @uses apply_filters() Calls 'bbp_get_topic_last_topic_permalink' with
+	 * @uses apply_filters() Calls 'bbp_get_topic_last_reply_permalink' with
 	 *                        the reply permalink and topic id
 	 * @return string Permanent link to the reply
 	 */
@@ -2098,7 +2101,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_last_reply_id() To get the topic last reply id
 	 * @uses bbp_get_reply_url() To get the reply url
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
-	 * @uses apply_filters() Calls 'bbp_get_topic_last_topic_url' with
+	 * @uses apply_filters() Calls 'bbp_get_topic_last_reply_url' with
 	 *                        the reply url and topic id
 	 * @return string Topic last reply url
 	 */
