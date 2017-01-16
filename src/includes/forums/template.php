@@ -2345,7 +2345,7 @@ function bbp_form_forum_parent() {
 			$forum_parent = 0;
 		}
 
-		return apply_filters( 'bbp_get_form_forum_parent', esc_attr( $forum_parent ) );
+		return apply_filters( 'bbp_get_form_forum_parent', $forum_parent );
 	}
 
 /**

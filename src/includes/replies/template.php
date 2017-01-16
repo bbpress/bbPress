@@ -2600,7 +2600,7 @@ function bbp_form_reply_to() {
 			$reply_to = bbp_get_reply_to();
 		}
 
-		return (int) apply_filters( 'bbp_get_form_reply_to', $reply_to );
+		return apply_filters( 'bbp_get_form_reply_to', $reply_to );
 	}
 
 /**

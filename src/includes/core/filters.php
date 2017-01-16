@@ -171,7 +171,7 @@ add_filter( 'bbp_get_form_reply_content', 'bbp_code_trick_reverse' );
 add_filter( 'bbp_get_form_reply_content', 'esc_textarea'           );
 add_filter( 'bbp_get_form_reply_content', 'trim'                   );
 
-// Form input output - sanitize
+// Form input/output - sanitize
 add_filter( 'bbp_get_form_reply_edit_reason', 'esc_attr' );
 add_filter( 'bbp_get_form_reply_edit_reason', 'trim'     );
 add_filter( 'bbp_get_form_topic_edit_reason', 'esc_attr' );
@@ -180,6 +180,15 @@ add_filter( 'bbp_get_form_topic_title',       'esc_attr' );
 add_filter( 'bbp_get_form_topic_title',       'trim'     );
 add_filter( 'bbp_get_form_topic_tags',        'esc_attr' );
 add_filter( 'bbp_get_form_topic_tags',        'trim'     );
+add_filter( 'bbp_get_form_forum_type',        'esc_attr' );
+add_filter( 'bbp_get_form_forum_type',        'trim'     );
+add_filter( 'bbp_get_form_forum_visibility',  'esc_attr' );
+add_filter( 'bbp_get_form_forum_visibility',  'trim'     );
+add_filter( 'bbp_get_form_forum_moderators',  'esc_attr' );
+add_filter( 'bbp_get_form_forum_moderators',  'trim'     );
+add_filter( 'bbp_get_form_topic_forum',       'absint'   );
+add_filter( 'bbp_get_form_forum_parent',      'absint'   );
+add_filter( 'bbp_get_form_reply_to',          'absint'   );
 
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_user_topic_count',         'bbp_number_format', 10 );
