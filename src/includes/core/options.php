@@ -271,25 +271,6 @@ function bbp_allow_search( $default = 1 ) {
 }
 
 /**
- * Are replies threaded
- *
- * @since 2.4.0 bbPress (r4944)
- *
- * @param bool $default Optional. Default value true
- * @uses apply_filters() Calls 'bbp_thread_replies' with the calculated value and
- *                        the thread replies depth
- * @uses get_option() To get thread replies option
- * @return bool Are replies threaded?
- */
-function bbp_thread_replies() {
-	$depth  = bbp_thread_replies_depth();
-	$allow  = bbp_allow_threaded_replies();
-	$retval = (bool) ( ( $depth >= 2 ) && ( true === $allow ) );
-
-	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth, $allow );
-}
-
-/**
  * Are threaded replies allowed
  *
  * @since 2.4.0 bbPress (r4964)

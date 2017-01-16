@@ -2504,7 +2504,34 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 /** Hierarchical Replies ******************************************************/
 
 /**
- * List replies
+ * Are replies threaded?
+ *
+ * @since 2.4.0 bbPress (r4944)
+ * @since 2.6.0 bbPress (r6245) Always false on user profile reply pages
+ *
+ * @param bool $default Optional. Default value true
+ * @uses apply_filters() Calls 'bbp_thread_replies' with the calculated value and
+ *                        the thread replies depth
+ * @uses get_option() To get thread replies option
+ * @return bool Are replies threaded?
+ */
+function bbp_thread_replies() {
+	$depth = bbp_thread_replies_depth();
+	$allow = bbp_allow_threaded_replies();
+
+	// Never thread replies on user profile pages. It looks weird, and we know
+	// it is undesirable for the majority of installations.
+	if ( bbp_is_single_user_replies() ) {
+		$retval = false;
+	} else {
+		$retval = (bool) ( ( $depth >= 2 ) && ( true === $allow ) );
+	}
+
+	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth, $allow );
+}
+
+/**
+ * List threaded replies
  *
  * @since 2.4.0 bbPress (r4944)
  */
