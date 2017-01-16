@@ -3368,10 +3368,10 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
 	echo bbp_get_form_topic_status_dropdown( $args );
 }
 	/**
-	 * Returns topic status downdown
+	 * Returns topic status dropdown
 	 *
 	 * This dropdown is only intended to be seen by users with the 'moderate'
-	 * capability. Because of this, no additional capablitiy checks are performed
+	 * capability. Because of this, no additional capability checks are performed
 	 * within this function to check available topic statuses.
 	 *
 	 * @since 2.4.0 bbPress (r5059)

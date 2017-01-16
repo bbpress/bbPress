@@ -2772,10 +2772,10 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 	echo bbp_get_form_reply_status_dropdown( $args );
 }
 	/**
-	 * Returns reply status downdown
+	 * Returns reply status dropdown
 	 *
 	 * This dropdown is only intended to be seen by users with the 'moderate'
-	 * capability. Because of this, no additional capablitiy checks are performed
+	 * capability. Because of this, no additional capability checks are performed
 	 * within this function to check available reply statuses.
 	 *
 	 * @since 2.6.0 bbPress (r5399)
