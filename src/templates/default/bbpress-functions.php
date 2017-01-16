@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Theme Setup ***************************************************************/
 
-if ( !class_exists( 'BBP_Default' ) ) :
+if ( ! class_exists( 'BBP_Default' ) ) :
 
 /**
  * Loads bbPress Default Theme functionality

@@ -20,7 +20,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-if ( !class_exists( 'BBP_Forums_Component' ) ) :
+if ( ! class_exists( 'BBP_Forums_Component' ) ) :
 /**
  * Loads Forums Component
  *

@@ -10,7 +10,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-if ( !class_exists( 'BBP_Topics_Admin' ) ) :
+if ( ! class_exists( 'BBP_Topics_Admin' ) ) :
 /**
  * Loads bbPress topics admin area
  *

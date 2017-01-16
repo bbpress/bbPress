@@ -10,7 +10,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-if ( !class_exists( 'BBP_Component' ) ) :
+if ( ! class_exists( 'BBP_Component' ) ) :
 /**
  * bbPress Component Class
  *
