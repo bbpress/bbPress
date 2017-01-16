@@ -2020,6 +2020,8 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 /**
  * Output the title of the last reply inside a topic
  *
+ * @since 2.0.0 bbPress (r2753)
+ *
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_last_reply_title() To get the topic last reply title
  */
@@ -2028,6 +2030,9 @@ function bbp_topic_last_reply_title( $topic_id = 0 ) {
 }
 	/**
 	 * Return the title of the last reply inside a topic
+	 *
+	 * @since 2.0.0 bbPress (r2753)
+	 * @since 2.6.0 bbPress https://bbpress.trac.wordpress.org/ticket/3039
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
