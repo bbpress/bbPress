@@ -3136,7 +3136,7 @@ function bbp_forum_pagination_count() {
 	 * @uses bbp_number_format() To format the number value
 	 * @uses apply_filters() Calls 'bbp_get_forum_pagination_count' with the
 	 *                        pagination count
-	 * @return string Forum Pagintion count
+	 * @return string Forum Pagination count
 	 */
 	function bbp_get_forum_pagination_count() {
 		$bbp = bbpress();
