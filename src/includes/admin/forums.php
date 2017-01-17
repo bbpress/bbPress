@@ -58,9 +58,6 @@ class BBP_Forums_Admin {
 	 */
 	private function setup_actions() {
 
-		// Add some general styling to the admin area
-		add_action( 'bbp_admin_head',        array( $this, 'admin_head'       ) );
-
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
@@ -373,88 +370,6 @@ class BBP_Forums_Admin {
 		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
 
 		return $forum_id;
-	}
-
-	/**
-	 * Add some general styling to the admin area
-	 *
-	 * @since 2.0.0 bbPress (r2464)
-	 *
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses do_action() Calls 'bbp_admin_head'
-	 */
-	public function admin_head() {
-		?>
-
-		<style type="text/css" media="screen">
-		/*<![CDATA[*/
-
-			#minor-publishing,
-			#save-post {
-				display: none;
-			}
-
-			strong.label {
-				display: inline-block;
-				width: 60px;
-			}
-
-			#bbp_moderators {
-				width: 100%;
-			}
-
-			#bbp_forum_attributes hr {
-				border-style: solid;
-				border-width: 1px;
-				border-color: #ccc #fff #fff #ccc;
-			}
-
-			.column-bbp_forum_topic_count,
-			.column-bbp_forum_reply_count,
-			.column-bbp_topic_reply_count,
-			.column-bbp_topic_voice_count {
-				width: 8% !important;
-			}
-
-			.column-author,
-			.column-bbp_forum_mods,
-			.column-bbp_reply_author,
-			.column-bbp_topic_author {
-				width: 10% !important;
-			}
-
-			.column-bbp_topic_forum,
-			.column-bbp_reply_forum,
-			.column-bbp_reply_topic {
-				width: 10% !important;
-			}
-
-			.column-bbp_forum_freshness,
-			.column-bbp_topic_freshness {
-				width: 10% !important;
-			}
-
-			.column-bbp_forum_created,
-			.column-bbp_topic_created,
-			.column-bbp_reply_created {
-				width: 15% !important;
-			}
-
-			.status-closed {
-				background-color: #eaeaea;
-			}
-
-			.status-spam {
-				background-color: #faeaea;
-			}
-
-		/*]]>*/
-		</style>
-
-		<?php
 	}
 
 	/**

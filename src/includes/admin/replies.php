@@ -59,9 +59,6 @@ class BBP_Replies_Admin {
 	 */
 	private function setup_actions() {
 
-		// Add some general styling to the admin area
-		add_action( 'bbp_admin_head',        array( $this, 'admin_head'       ) );
-
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
@@ -450,76 +447,6 @@ class BBP_Replies_Admin {
 		do_action( 'bbp_author_metabox_save',           $reply_id, $anonymous_data                 );
 
 		return $reply_id;
-	}
-
-	/**
-	 * Add some general styling to the admin area
-	 *
-	 * @since 2.0.0 bbPress (r2464)
-	 *
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses do_action() Calls 'bbp_admin_head'
-	 */
-	public function admin_head() {
-		?>
-
-		<style type="text/css" media="screen">
-		/*<![CDATA[*/
-
-			strong.label {
-				display: inline-block;
-				width: 60px;
-			}
-
-			.column-bbp_forum_topic_count,
-			.column-bbp_forum_reply_count,
-			.column-bbp_topic_reply_count,
-			.column-bbp_topic_voice_count {
-				width: 8% !important;
-			}
-
-			.column-author,
-			.column-bbp_reply_author,
-			.column-bbp_topic_author {
-				width: 10% !important;
-			}
-
-			.column-bbp_topic_forum,
-			.column-bbp_reply_forum,
-			.column-bbp_reply_topic {
-				width: 10% !important;
-			}
-
-			.column-bbp_forum_freshness,
-			.column-bbp_topic_freshness {
-				width: 10% !important;
-			}
-
-			.column-bbp_forum_created,
-			.column-bbp_topic_created,
-			.column-bbp_reply_created {
-				width: 15% !important;
-			}
-
-			.status-closed {
-				background-color: #eaeaea;
-			}
-
-			.status-spam {
-				background-color: #faeaea;
-			}
-
-			.status-pending {
-				background-color: #fef7f1;
-			}
-
-		/*]]>*/
-		</style>
-
-		<?php
 	}
 
 	/**
