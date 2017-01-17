@@ -1386,7 +1386,7 @@ function bbp_admin_repair_forum_topic_count() {
 /**
  * Recount topic in each topic-tag
  *
- * @since 2.6.0 bbPress (r2613)
+ * @since 2.6.0 bbPress (r6256)
  *
  * @uses bbp_get_topic_tag_tax_id() To get the topic-tag taxonomy
  * @uses get_terms() To get the terms
