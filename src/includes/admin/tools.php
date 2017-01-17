@@ -564,19 +564,29 @@ function bbp_register_default_repair_tools() {
 	// Count topics
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-forum-topics',
-		'description' => __( 'Count topics in each forum', 'bbpress' ),
+		'description' => __( 'Recount topics in each forum', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_forum_topic_count',
 		'priority'    => 45,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_topic_post_type() )
 	) );
 
+	// Count topic tags
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-topic-tags',
+		'description' => __( 'Recount topics in each topic-tag', 'bbpress' ),
+		'callback'    => 'bbp_admin_repair_topic_tag_count',
+		'priority'    => 50,
+		'overhead'    => 'medium',
+		'components'  => array( bbp_get_topic_post_type(), bbp_get_topic_tag_tax_id() )
+	) );
+
 	// Count forum replies
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-forum-replies',
-		'description' => __( 'Count replies in each forum', 'bbpress' ),
+		'description' => __( 'Recount replies in each forum', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_forum_reply_count',
-		'priority'    => 50,
+		'priority'    => 55,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_reply_post_type() )
 	) );
@@ -584,9 +594,9 @@ function bbp_register_default_repair_tools() {
 	// Count topic replies
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-topic-replies',
-		'description' => __( 'Count replies in each topic', 'bbpress' ),
+		'description' => __( 'Recount replies in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_reply_count',
-		'priority'    => 55,
+		'priority'    => 60,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 	) );
@@ -594,9 +604,9 @@ function bbp_register_default_repair_tools() {
 	// Count topic voices
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-topic-voices',
-		'description' => __( 'Count voices in each topic', 'bbpress' ),
+		'description' => __( 'Recount voices in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_voice_count',
-		'priority'    => 60,
+		'priority'    => 65,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -604,9 +614,9 @@ function bbp_register_default_repair_tools() {
 	// Count non-published replies to each topic
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-topic-hidden-replies',
-		'description' => __( 'Count pending, spammed, & trashed replies in each topic', 'bbpress' ),
+		'description' => __( 'Recount pending, spammed, & trashed replies in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_hidden_reply_count',
-		'priority'    => 65,
+		'priority'    => 70,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 	) );
@@ -616,7 +626,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topics',
 		'description' => __( 'Recount topics for each user', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_topic_count',
-		'priority'    => 70,
+		'priority'    => 75,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -626,7 +636,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-replies',
 		'description' => __( 'Recount replies for each user', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_reply_count',
-		'priority'    => 75,
+		'priority'    => 80,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_reply_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -636,7 +646,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-favorites',
 		'description' => __( 'Remove unpublished topics from user favorites', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_favorites',
-		'priority'    => 80,
+		'priority'    => 85,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -646,7 +656,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topic-subscriptions',
 		'description' => __( 'Remove unpublished topics from user subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_topic_subscriptions',
-		'priority'    => 85,
+		'priority'    => 90,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -656,7 +666,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-forum-subscriptions',
 		'description' => __( 'Remove unpublished forums from user subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_forum_subscriptions',
-		'priority'    => 90,
+		'priority'    => 95,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -666,7 +676,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-role-map',
 		'description' => __( 'Remap existing users to default forum roles', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_roles',
-		'priority'    => 95,
+		'priority'    => 100,
 		'overhead'    => 'low',
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
@@ -676,7 +686,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-favorites-move',
 		'description' => __( 'Upgrade user favorites', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_favorites',
-		'priority'    => 100,
+		'priority'    => 105,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
@@ -686,7 +696,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topic-subscriptions-move',
 		'description' => __( 'Upgrade user topic subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_topic_subscriptions',
-		'priority'    => 105,
+		'priority'    => 110,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
@@ -696,7 +706,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-forum-subscriptions-move',
 		'description' => __( 'Upgrade user forum subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_forum_subscriptions',
-		'priority'    => 110,
+		'priority'    => 115,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
@@ -836,6 +846,9 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 			break;
 		case bbp_get_reply_post_type() :
 			$name = esc_html__( 'Replies', 'bbpress' );
+			break;
+		case bbp_get_topic_tag_tax_id() :
+			$name = esc_html__( 'Topic Tags', 'bbpress' );
 			break;
 		default :
 			$name = ucwords( $component );
@@ -1366,6 +1379,57 @@ function bbp_admin_repair_forum_topic_count() {
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
 	}
+
+	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Recount topic in each topic-tag
+ *
+ * @since 2.6.0 bbPress (r2613)
+ *
+ * @uses bbp_get_topic_tag_tax_id() To get the topic-tag taxonomy
+ * @uses get_terms() To get the terms
+ * @uses wp_list_pluck() To get term taxonomy IDs
+ * @uses get_taxonomy() To get term taxonomy object
+ * @uses _update_post_term_count() To update generic counts
+ * @uses bbp_update_topic_tag_count() To update topic-tag counts
+ * @uses clean_term_cache() To bust the terms cache
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_topic_tag_count() {
+
+	// Define variables
+	$statement = __( 'Counting the number of topics in each topic-tag&hellip; %s', 'bbpress' );
+	$result    = __( 'Failed!', 'bbpress' );
+	$tax_id    = bbp_get_topic_tag_tax_id();
+	$terms     = get_terms( $tax_id, array( 'hide_empty' => false ) );
+	$tt_ids    = wp_list_pluck( $terms, 'term_taxonomy_id' );
+	$ints      = array_map( 'intval', $tt_ids );
+	$taxonomy  = get_taxonomy( $tax_id );
+
+	// Bail if taxonomy does not exist
+	if ( empty( $taxonomy ) ) {
+		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Custom callback
+	if ( ! empty( $taxonomy->update_count_callback ) ) {
+
+		// Bail if callback is not callable
+		if ( ! is_callable( $taxonomy->update_count_callback ) ) {
+			return array( 1, sprintf( $statement, $result ) );
+		}
+
+		call_user_func( $taxonomy->update_count_callback, $ints, $taxonomy );
+
+	// Generic callback fallback
+	} else {
+		_update_post_term_count( $ints, $taxonomy );
+	}
+
+	// Bust the cache
+	clean_term_cache( $ints, '', false );
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
 }
