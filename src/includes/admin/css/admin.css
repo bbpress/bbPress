@@ -286,11 +286,11 @@ body.post-type-reply strong.label {
 }
 
 #the-list .status-spam {
-	background-color: #ffeeee;
+	background-color: #fee;
 }
 
 #the-list .status-spam:nth-child(odd) {
-	background-color: #ffdddd;
+	background-color: #fdd;
 }
 
 #the-list .status-pending {
