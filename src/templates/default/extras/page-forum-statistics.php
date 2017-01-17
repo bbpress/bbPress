@@ -21,7 +21,7 @@ get_header(); ?>
 
 				<?php get_the_content() ? the_content() : wpautop( esc_html__( 'Here are the statistics and popular topics of our forums.', 'bbpress' ) ); ?>
 
-				<div id="bbpress-forums">
+				<div id="bbpress-forums" class="bbpress-wrapper">
 
 					<?php bbp_get_template_part( 'content', 'statistics' ); ?>
 

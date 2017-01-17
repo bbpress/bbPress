@@ -8,6 +8,11 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
+.entry-content .bbpress-wrapper a {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
 #bbpress-forums hr {
 	margin: 0 0 24px;
 }

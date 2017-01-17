@@ -841,7 +841,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Assume forum query
 		bbp_set_query_name( 'bbp_single_forum' ); ?>
 
-		<div id="bbpress-forums">
+		<div id="bbpress-forums" class="bbpress-wrapper">
 
 			<?php switch ( $forum_action ) :
 

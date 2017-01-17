@@ -370,7 +370,7 @@ class BBP_Shortcodes {
 	 *
 	 * Supports 'forum_id' attribute to display the topic form for a particular
 	 * forum. This currently has styling issues from not being wrapped in
-	 * <div id="bbpress-forums"></div> which will need to be sorted out later.
+	 * <div id="bbpress-forums" class="bbpress-wrapper"></div> which will need to be sorted out later.
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *

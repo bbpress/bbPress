@@ -9,7 +9,7 @@
 
 if ( bbp_is_forum_edit() ) : ?>
 
-<div id="bbpress-forums">
+<div id="bbpress-forums" class="bbpress-wrapper">
 
 	<?php bbp_breadcrumb(); ?>
 

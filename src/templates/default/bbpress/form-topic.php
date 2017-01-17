@@ -9,7 +9,7 @@
 
 if ( ! bbp_is_single_forum() ) : ?>
 
-<div id="bbpress-forums">
+<div id="bbpress-forums" class="bbpress-wrapper">
 
 	<?php bbp_breadcrumb(); ?>
 

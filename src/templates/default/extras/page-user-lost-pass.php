@@ -25,7 +25,7 @@ get_header(); ?>
 
 				<?php the_content(); ?>
 
-				<div id="bbpress-forums">
+				<div id="bbpress-forums" class="bbpress-wrapper">
 
 					<?php bbp_breadcrumb(); ?>
 

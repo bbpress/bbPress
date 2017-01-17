@@ -21,7 +21,7 @@ get_header(); ?>
 
 				<?php get_the_content() ? the_content() : wpautop( esc_html__( 'This is a collection of tags that are currently popular on our forums.', 'bbpress' ) ); ?>
 
-				<div id="bbpress-forums">
+				<div id="bbpress-forums" class="bbpress-wrapper">
 
 					<?php bbp_breadcrumb(); ?>
 

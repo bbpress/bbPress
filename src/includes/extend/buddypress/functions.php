@@ -212,7 +212,7 @@ function bbp_member_forums_screen_subscriptions() {
 function bbp_member_forums_topics_content() {
 ?>
 
-	<div id="bbpress-forums">
+	<div id="bbpress-forums" class="bbpress-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'topics-created' ); ?>
 
@@ -231,7 +231,7 @@ function bbp_member_forums_topics_content() {
 function bbp_member_forums_replies_content() {
 ?>
 
-	<div id="bbpress-forums">
+	<div id="bbpress-forums" class="bbpress-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'replies-created' ); ?>
 
@@ -250,7 +250,7 @@ function bbp_member_forums_replies_content() {
 function bbp_member_forums_favorites_content() {
 ?>
 
-	<div id="bbpress-forums">
+	<div id="bbpress-forums" class="bbpress-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'favorites' ); ?>
 
@@ -269,7 +269,7 @@ function bbp_member_forums_favorites_content() {
 function bbp_member_forums_subscriptions_content() {
 ?>
 
-	<div id="bbpress-forums">
+	<div id="bbpress-forums" class="bbpress-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'subscriptions' ); ?>
 
