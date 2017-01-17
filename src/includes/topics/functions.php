@@ -3993,6 +3993,68 @@ function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 	return apply_filters( 'bbp_get_topic_tag_names', $terms, $topic_id, $sep );
 }
 
+/**
+ * Will update topic-tag count based on object type.
+ *
+ * Function for the default callback for topic-tag taxonomies.
+ *
+ * @see https://bbpress.trac.wordpress.org/ticket/3043
+ * @access private
+ *
+ * @since 2.6.0 bbPress (r6253)
+ *
+ * @param array  $terms    List of Term taxonomy IDs.
+ * @param object $taxonomy Current taxonomy object of terms.
+ */
+function bbp_update_topic_tag_count( $terms, $taxonomy ) {
+
+	// Bail if no object types are available
+	if ( empty( $terms ) || empty( $taxonomy->object_type ) ) {
+		return;
+	}
+
+	// Get object types
+	$object_types = (array) $taxonomy->object_type;
+
+	foreach ( $object_types as &$object_type ) {
+		list( $object_type ) = explode( ':', $object_type );
+	}
+
+	$object_types = array_unique( $object_types );
+
+	if ( ! empty( $object_types ) ) {
+		$object_types = esc_sql( array_filter( $object_types, 'post_type_exists' ) );
+	}
+
+	// Statuses to count
+	$object_statuses = array(
+		bbp_get_public_status_id(),
+		bbp_get_closed_status_id()
+	);
+
+	// Get database
+	$bbp_db = bbp_db();
+
+	// Loop through terms, maybe update counts
+	foreach ( (array) $terms as $term ) {
+		$count = 0;
+
+		// Get count, and bump it
+		if ( ! empty( $object_types ) ) {
+			$query    = "SELECT COUNT(*) FROM {$bbp_db->term_relationships}, {$bbp_db->posts} WHERE {$bbp_db->posts}.ID = {$bbp_db->term_relationships}.object_id AND post_status IN ('" . implode("', '", $object_statuses ) . "') AND post_type IN ('" . implode("', '", $object_types ) . "') AND term_taxonomy_id = %d";
+			$prepare  = $bbp_db->prepare( $query, $term );
+			$count   += (int) $bbp_db->get_var( $prepare );
+		}
+
+		/** This action is documented in wp-includes/taxonomy.php */
+		do_action( 'edit_term_taxonomy', $term, $taxonomy->name );
+		$bbp_db->update( $bbp_db->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
+
+		/** This action is documented in wp-includes/taxonomy.php */
+		do_action( 'edited_term_taxonomy', $term, $taxonomy->name );
+	}
+}
+
 /** Autoembed *****************************************************************/
 
 /**

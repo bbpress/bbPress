@@ -689,7 +689,7 @@ final class bbPress {
 				'labels'                => bbp_get_topic_tag_tax_labels(),
 				'rewrite'               => bbp_get_topic_tag_tax_rewrite(),
 				'capabilities'          => bbp_get_topic_tag_caps(),
-				'update_count_callback' => '_update_post_term_count',
+				'update_count_callback' => 'bbp_update_topic_tag_count',
 				'query_var'             => true,
 				'show_tagcloud'         => true,
 				'hierarchical'          => false,
