@@ -7,6 +7,9 @@
  * @subpackage Theme
 */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_search_results_loop' ); ?>
 
 <ul id="bbp-search-results" class="forums bbp-search-results">

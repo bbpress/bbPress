@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 if ( bbp_is_forum_edit() ) : ?>
 
 <div id="bbpress-forums" class="bbpress-wrapper">

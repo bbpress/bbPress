@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 ?>
 
 <div id="post-<?php bbp_reply_id(); ?>" class="bbp-reply-header">

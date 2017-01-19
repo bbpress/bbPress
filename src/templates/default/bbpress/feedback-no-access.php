@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 ?>
 
 <div id="forum-private" class="bbp-forum-content">

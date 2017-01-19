@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_user_favorites' ); ?>
 
 <div id="bbp-user-favorites" class="bbp-user-favorites">

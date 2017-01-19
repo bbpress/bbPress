@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_user_profile' ); ?>
 
 <div id="bbp-user-profile" class="bbp-user-profile">

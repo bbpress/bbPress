@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_lead_topic' ); ?>
 
 <ul id="bbp-topic-<?php bbp_topic_id(); ?>-lead" class="bbp-lead-topic">

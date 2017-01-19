@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 if ( bbp_current_user_can_access_anonymous_user_form() ) : ?>
 
 	<?php do_action( 'bbp_theme_before_anonymous_form' ); ?>

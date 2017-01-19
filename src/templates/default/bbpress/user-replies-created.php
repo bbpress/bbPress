@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_user_replies' ); ?>
 
 <div id="bbp-user-replies-created" class="bbp-user-replies-created">

@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 <?php if ( bbp_is_subscriptions_active() ) : ?>

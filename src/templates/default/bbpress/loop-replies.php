@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 do_action( 'bbp_template_before_replies_loop' ); ?>
 
 <ul id="topic-<?php bbp_topic_id(); ?>-replies" class="forums bbp-replies">
