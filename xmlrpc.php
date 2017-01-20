@@ -170,7 +170,7 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		$this->initialise_site_option_info();
 		$this->methods = apply_filters( 'bb_xmlrpc_methods', $this->methods );
-		$this->IXR_Server( $this->methods );
+		parent::__construct( $this->methods );
 	}
 
 	function BB_XMLRPC_Server()
