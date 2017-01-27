@@ -1150,6 +1150,29 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	// Poster name
 	$reply_author_name = bbp_get_reply_author_display_name( $reply_id );
 
+	/** Users *****************************************************************/
+
+	// Get topic subscribers and bail if empty
+	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
+	$user_ids = array_filter( array_map( 'intval', $user_ids ) );
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
+	// Remove the reply author from the list.
+	$reply_author_key = array_search( (int) $reply_author, $user_ids, true );
+	if ( false !== $reply_author_key ) {
+		unset( $user_ids[ $reply_author_key ] );
+	}
+
+	// Bail of the reply author was the only one subscribed.
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
 	/** Mail ******************************************************************/
 
 	// Remove filters from reply content and topic title to prevent content
@@ -1192,7 +1215,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 		return;
 	}
 
-	/** Users *****************************************************************/
+	/** Headers ***************************************************************/
 
 	// Get the noreply@ address
 	$no_reply   = bbp_get_do_not_reply_address();
@@ -1203,24 +1226,8 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	// Setup the From header
 	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
-	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
-
-	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
-	if ( empty( $user_ids ) ) {
-		return false;
-	}
-
 	// Loop through users
 	foreach ( (array) $user_ids as $user_id ) {
-
-		// Don't send notifications to the person who made the post
-		if ( ! empty( $reply_author ) && (int) $user_id === (int) $reply_author ) {
-			continue;
-		}
-
-		// Get email address of subscribed user
 		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
 	}
 
@@ -1307,6 +1314,29 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	// Poster name
 	$topic_author_name = bbp_get_topic_author_display_name( $topic_id );
 
+	/** Users *****************************************************************/
+
+	// Get topic subscribers and bail if empty
+	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
+	$user_ids = array_filter( array_map( 'intval', $user_ids ) );
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
+	// Remove the topic author from the list.
+	$topic_author_key = array_search( (int) $topic_author, $user_ids, true );
+	if ( false !== $topic_author_key ) {
+		unset( $user_ids[ $topic_author_key ] );
+	}
+
+	// Bail of the topic author was the only one subscribed.
+	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
 	/** Mail ******************************************************************/
 
 	// Remove filters from reply content and topic title to prevent content
@@ -1349,7 +1379,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 		return;
 	}
 
-	/** User ******************************************************************/
+	/** Headers ***************************************************************/
 
 	// Get the noreply@ address
 	$no_reply   = bbp_get_do_not_reply_address();
@@ -1360,24 +1390,8 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	// Setup the From header
 	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
-	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
-
-	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
-	if ( empty( $user_ids ) ) {
-		return false;
-	}
-
 	// Loop through users
 	foreach ( (array) $user_ids as $user_id ) {
-
-		// Don't send notifications to the person who made the post
-		if ( ! empty( $topic_author ) && (int) $user_id === (int) $topic_author ) {
-			continue;
-		}
-
-		// Get email address of subscribed user
 		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
 	}
 
