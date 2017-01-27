@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 // Hooks
 add_filter( 'bp_notifications_get_registered_components', 'bbp_filter_notifications_get_registered_components', 10 );
-add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypress_notifications', 10, 5 );
+add_filter( 'bp_notifications_get_notifications_for_user', 'bbp_format_buddypress_notifications', 10, 8 );
 add_action( 'bbp_new_reply', 'bbp_buddypress_add_notification', 10, 7 );
 add_action( 'bbp_get_request', 'bbp_buddypress_mark_notifications', 1 );
 
@@ -49,50 +49,66 @@ function bbp_filter_notifications_get_registered_components( $component_names = 
  *
  * @package bbPress
  *
- * @param string $action The kind of notification being rendered
- * @param int $item_id The primary item id
- * @param int $secondary_item_id The secondary item id
- * @param int $total_items The total number of messaging-related notifications waiting for the user
- * @param string $format 'string' for BuddyBar-compatible notifications; 'array' for WP Toolbar
+ * @param string $content               Component action. Deprecated. Do not do checks against this! Use
+ *                                      the 6th parameter instead - $component_action_name.
+ * @param int    $item_id               Notification item ID.
+ * @param int    $secondary_item_id     Notification secondary item ID.
+ * @param int    $action_item_count     Number of notifications with the same action.
+ * @param string $format                Format of return. Either 'string' or 'object'.
+ * @param string $component_action_name Canonical notification action.
+ * @param string $component_name        Notification component ID.
+ * @param int    $id                    Notification ID.
  */
-function bbp_format_buddypress_notifications( $action, $item_id, $secondary_item_id, $total_items, $format = 'string' ) {
+function bbp_format_buddypress_notifications( $content, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id ) {
 
 	// Bail if not the notification action we are looking for
-	if ( 'bbp_new_reply' !== $action ) {
-		return $action;
+	if ( 'bbp_new_reply' !== $component_action_name ) {
+		return $component_action_name;
 	}
 
 	// New reply notifications
 	$topic_id    = bbp_get_reply_topic_id( $item_id );
 	$topic_title = bbp_get_topic_title( $topic_id );
-	$topic_link  = wp_nonce_url( add_query_arg( array( 'action' => 'bbp_mark_read', 'topic_id' => $topic_id ), bbp_get_reply_url( $item_id ) ), 'bbp_mark_topic_' . $topic_id );
-	$title_attr  = __( 'Topic Replies', 'bbpress' );
+	$topic_link  = wp_nonce_url(
+		add_query_arg(
+			array(
+				'action'   => 'bbp_mark_read',
+				'topic_id' => $topic_id
+			),
+			bbp_get_reply_url( $item_id )
+		),
+		'bbp_mark_topic_' . $topic_id
+	);
 
-	if ( (int) $total_items > 1 ) {
-		$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), (int) $total_items );
+	// Cast to int
+	$action_item_count = (int) $action_item_count;
+
+	// Multiple
+	if ( $action_item_count > 1 ) {
 		$filter = 'bbp_multiple_new_subscription_notification';
+		$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), $action_item_count );
+
+	// Single
 	} else {
-		if ( ! empty( $secondary_item_id ) ) {
-			$text = sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), (int) $total_items, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) );
-		} else {
-			$text = sprintf( __( 'You have %d new reply to %s',             'bbpress' ), (int) $total_items, $topic_title );
-		}
 		$filter = 'bbp_single_new_subscription_notification';
+		$text   = ! empty( $secondary_item_id )
+			? sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
+			: sprintf( __( 'You have %d new reply to %s',             'bbpress' ), $action_item_count, $topic_title );
 	}
 
 	// WordPress Toolbar
 	if ( 'string' === $format ) {
-		$return = apply_filters( $filter, '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr( $title_attr ) . '">' . esc_html( $text ) . '</a>', (int) $total_items, $text, $topic_link );
+		$return = apply_filters( $filter, '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr__( 'Topic Replies', 'bbpress' ) . '">' . esc_html( $text ) . '</a>', $action_item_count, $text, $topic_link );
 
 	// Deprecated BuddyBar
 	} else {
 		$return = apply_filters( $filter, array(
 			'text' => $text,
 			'link' => $topic_link
-		), $topic_link, (int) $total_items, $text, $topic_title );
+		), $topic_link, $action_item_count, $text, $topic_title );
 	}
 
-	do_action( 'bbp_format_buddypress_notifications', $action, $item_id, $secondary_item_id, $total_items );
+	do_action( 'bbp_format_buddypress_notifications', $component_action_name, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id );
 
 	return $return;
 }
