@@ -2329,35 +2329,33 @@ function bbp_toggle_topic( $args = array() ) {
 				case 'trash':
 					check_ajax_referer( "trash-{$nonce_suffix}" );
 
-					$retval['view_all'] = true;
-					$retval['status']   = wp_trash_post( $r['id'] );
-					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the topic.', 'bbpress' );
+					$retval['view_all']    = true;
+					$retval['status']      = wp_trash_post( $r['id'] );
+					$retval['message']     = __( '<strong>ERROR</strong>: There was a problem trashing the topic.', 'bbpress' );
+					$retval['redirect_to'] = bbp_get_topic_permalink( $r['id'] );
 
 					break;
 
 				case 'untrash':
 					check_ajax_referer( "untrash-{$nonce_suffix}" );
 
-					$retval['status']  = wp_untrash_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem untrashing the topic.', 'bbpress' );
+					$retval['status']      = wp_untrash_post( $r['id'] );
+					$retval['message']     = __( '<strong>ERROR</strong>: There was a problem untrashing the topic.', 'bbpress' );
+					$retval['redirect_to'] = bbp_get_topic_permalink( $r['id'] );
 
 					break;
 
 				case 'delete':
 					check_ajax_referer( "delete-{$nonce_suffix}" );
 
-					$retval['status']  = wp_delete_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem deleting the topic.', 'bbpress' );
+					$retval['status']      = wp_delete_post( $r['id'] );
+					$retval['message']     = __( '<strong>ERROR</strong>: There was a problem deleting the topic.', 'bbpress' );
+					$retval['redirect_to'] = bbp_get_forum_permalink( $retval['status']->post_parent );
 
 					break;
 			}
 
 			break;
-	}
-
-	// Maybe redirect back to the topic's forum
-	if ( isset( $r['sub_action'] ) && ( 'delete' === $r['sub_action'] ) ) {
-		$retval['redirect_to'] = bbp_get_forum_permalink( $retval['status']->post_parent );
 	}
 
 	// Add view all if needed
