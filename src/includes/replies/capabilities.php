@@ -165,7 +165,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				} elseif ( user_can( $user_id, 'moderate' ) ) {
 					$caps[] = 'moderate';
 
-				// User is author so allow edit if not in admin
+				// User is author so allow delete if not in admin
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 					$caps[] = $post_type->cap->delete_posts;
 
