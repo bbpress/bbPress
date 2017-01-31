@@ -382,8 +382,8 @@ function bbp_use_autoembed( $default = 1 ) {
  * @since 2.1.0 bbPress (r3829)
  *
  * @param $default string Optional. Default value 'default'
- * @uses get_option() To get the subtheme option
- * @return string ID of the subtheme
+ * @uses get_option() To get the theme-package option
+ * @return string ID of the theme-package
  */
 function bbp_get_theme_package_id( $default = 'default' ) {
 	return apply_filters( 'bbp_get_theme_package_id', get_option( '_bbp_theme_package_id', $default ) );
@@ -413,7 +413,7 @@ function bbp_title_max_length( $default = 80 ) {
 	}
 
 /**
- * Output the grop forums root parent forum id
+ * Output the group forums root parent forum id
  *
  * @since 2.1.0 bbPress (r3575)
  *
@@ -423,7 +423,7 @@ function bbp_group_forums_root_id( $default = 0 ) {
 	echo bbp_get_group_forums_root_id( $default );
 }
 	/**
-	 * Return the grop forums root parent forum id
+	 * Return the group forums root parent forum id
 	 *
 	 * @since 2.1.0 bbPress (r3575)
 	 *
