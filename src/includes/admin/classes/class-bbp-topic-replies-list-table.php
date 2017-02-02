@@ -21,7 +21,7 @@ if ( class_exists( 'WP_List_Table' ) ) :
  * Topic replies list table
  *
  * This list table is responsible for showing the replies to a topic in a
- * metabox, similar to comments in posts and pages.
+ * meta-box, similar to comments in posts and pages.
  *
  * @since 2.6.0 bbPress (r5886)
  */
@@ -42,7 +42,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Setup the list-table's columns
+	 * Setup the list-table columns
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
@@ -55,7 +55,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 			//'cb'                 => '<input type="checkbox" />',
 			'bbp_topic_reply_author' => esc_html__( 'Author',  'bbpress' ),
 			'bbp_reply_content'      => esc_html__( 'Content', 'bbpress' ),
-			'bbp_reply_created'      => esc_html__( 'Replied',  'bbpress' ),
+			'bbp_reply_created'      => esc_html__( 'Replied', 'bbpress' ),
 		);
 	}
 
@@ -91,7 +91,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the `cb` column for bulk actions (if we implement them)
+	 * Output the check-box column for bulk actions (if we implement them)
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -201,8 +201,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		// Query parameters
 		$per_page     = 5;
 		$current_page = $this->get_pagenum();
-		$orderby      = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'date';
-		$order        = ( ! empty( $_REQUEST['order']   ) ) ? $_REQUEST['order']   : 'asc';
+		$orderby      = ( ! empty( $_REQUEST['orderby'] ) ) ? sanitize_key( $_REQUEST['orderby'] ) : 'date';
+		$order        = ( ! empty( $_REQUEST['order']   ) ) ? sanitize_key( $_REQUEST['order']   ) : 'asc';
 
 		// Query for replies
 		$reply_query  = new WP_Query( array(
