@@ -277,28 +277,62 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 		$active_class = 'nav-tab nav-tab-active';
 
 		// Setup core admin tabs
-		$tabs = apply_filters( 'bbp_tools_admin_tabs', array(
-			'0' => array(
-				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-repair'    ), 'tools.php' ) ),
-				'name' => __( 'Repair Forums', 'bbpress' )
-			),
-			'1' => array(
-				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) ),
-				'name' => __( 'Import Forums', 'bbpress' )
-			),
-			'2' => array(
-				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-reset'     ), 'tools.php' ) ),
-				'name' => __( 'Reset Forums', 'bbpress' )
-			)
-		) );
+		$tabs = bbp_get_tools_admin_pages();
 
 		// Loop through tabs and build navigation
-		foreach ( array_values( $tabs ) as $tab_data ) {
-			$is_current = (bool) ( $tab_data['name'] == $active_tab );
+		foreach ( $tabs as $tab ) {
+
+			// Skip if user cannot visit page
+			if ( ! current_user_can( $tab['cap'] ) ) {
+				continue;
+			}
+
+			// Setup tab HTML
+			$is_current = (bool) ( $tab['name'] == $active_tab );
 			$tab_class  = $is_current ? $active_class : $idle_class;
-			$tabs_html .= '<a href="' . esc_url( $tab_data['href'] ) . '" class="' . esc_attr( $tab_class ) . '">' . esc_html( $tab_data['name'] ) . '</a>';
+			$tab_url    = get_admin_url( '', add_query_arg( array( 'page' => $tab['page'] ), 'tools.php' ) );
+			$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . esc_html( $tab['name'] ) . '</a>';
 		}
 
 		// Output the tabs
 		return $tabs_html;
 	}
+
+/**
+ * Return possible tools pages
+ *
+ * @since 2.6.0 (r6273)
+ *
+ * @return array
+ */
+function bbp_get_tools_admin_pages() {
+	return apply_filters( 'bbp_tools_admin_tabs', array(
+		array(
+			'page' => 'bbp-repair',
+			'func' => 'bbp_admin_repair',
+			'cap'  => 'bbp_tools_repair_page',
+			'name' => esc_html__( 'Repair Forums', 'bbpress' ),
+
+			// Deprecated 2.6.0
+			'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-repair'    ), 'tools.php' ) )
+		),
+		array(
+			'page' => 'bbp-converter',
+			'func' => 'bbp_converter_settings',
+			'cap'  => 'bbp_tools_import_page',
+			'name' => esc_html__( 'Import Forums', 'bbpress' ),
+
+			// Deprecated 2.6.0
+			'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-converter' ), 'tools.php' ) )
+		),
+		array(
+			'page' => 'bbp-reset',
+			'func' => 'bbp_admin_reset',
+			'cap'  => 'bbp_tools_reset_page',
+			'name' => esc_html__( 'Reset Forums', 'bbpress' ),
+
+			// Deprecated 2.6.0
+			'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-reset'     ), 'tools.php' ) )
+		)
+	) );
+}

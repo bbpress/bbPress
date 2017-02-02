@@ -201,59 +201,47 @@ class BBP_Admin {
 
 		$hooks = array();
 
-		// These are later removed in admin_head
-		if ( current_user_can( 'bbp_tools_page' ) ) {
-			if ( current_user_can( 'bbp_tools_repair_page' ) ) {
-				$hooks[] = add_management_page(
-					__( 'Repair Forums', 'bbpress' ),
-					__( 'Forum Repair',  'bbpress' ),
-					$this->minimum_capability,
-					'bbp-repair',
-					'bbp_admin_repair'
-				);
-			}
+		// Get the tools pages
+		$tools = bbp_get_tools_admin_pages();
 
-			if ( current_user_can( 'bbp_tools_import_page' ) ) {
-				$hooks[] = add_management_page(
-					__( 'Import Forums', 'bbpress' ),
-					__( 'Forum Import',  'bbpress' ),
-					$this->minimum_capability,
-					'bbp-converter',
-					'bbp_converter_settings'
-				);
-			}
+		// Loop through tools and check
+		foreach ( $tools as $tool ) {
 
-			if ( current_user_can( 'bbp_tools_reset_page' ) ) {
-				$hooks[] = add_management_page(
-					__( 'Reset Forums', 'bbpress' ),
-					__( 'Forum Reset',  'bbpress' ),
-					$this->minimum_capability,
-					'bbp-reset',
-					'bbp_admin_reset'
-				);
-			}
-
-			// Fudge the highlighted subnav item when on a bbPress admin page
-			foreach ( $hooks as $hook ) {
-				add_action( "admin_head-$hook", 'bbp_tools_modify_menu_highlight' );
-			}
-
-			// Forums Tools Root
-			add_management_page(
-				__( 'Forums', 'bbpress' ),
-				__( 'Forums', 'bbpress' ),
-				$this->minimum_capability,
-				'bbp-repair',
-				'bbp_admin_repair'
+			// Try to add the admin page
+			$page = add_management_page(
+				$tool['name'],
+				$tool['name'],
+				$tool['cap'],
+				$tool['page'],
+				$tool['func']
 			);
+
+			// Add page to hook if user can view it
+			if ( false !== $page ) {
+				$hooks[] = $page;
+			}
 		}
 
+		// Fudge the highlighted subnav item when on a bbPress admin page
+		foreach ( $hooks as $hook ) {
+			add_action( "admin_head-{$hook}", 'bbp_tools_modify_menu_highlight' );
+		}
+
+		// Forums Tools Root
+		add_management_page(
+			__( 'Forums', 'bbpress' ),
+			__( 'Forums', 'bbpress' ),
+			'bbp_tools_page',
+			'bbp-repair',
+			'bbp_admin_repair'
+		);
+
 		// Are settings enabled?
-		if ( ! bbp_settings_integration() && current_user_can( 'bbp_settings_page' ) ) {
+		if ( ! bbp_settings_integration() ) {
 			add_options_page(
 				__( 'Forums',  'bbpress' ),
 				__( 'Forums',  'bbpress' ),
-				$this->minimum_capability,
+				'bbp_settings_page',
 				'bbpress',
 				'bbp_admin_settings'
 			);
@@ -266,7 +254,7 @@ class BBP_Admin {
 			add_dashboard_page(
 				__( 'Welcome to bbPress',  'bbpress' ),
 				__( 'Welcome to bbPress',  'bbpress' ),
-				$this->minimum_capability,
+				'bbp_about_page',
 				'bbp-about',
 				array( $this, 'about_screen' )
 			);
@@ -275,7 +263,7 @@ class BBP_Admin {
 			add_dashboard_page(
 				__( 'Welcome to bbPress',  'bbpress' ),
 				__( 'Welcome to bbPress',  'bbpress' ),
-				$this->minimum_capability,
+				'bbp_about_page',
 				'bbp-credits',
 				array( $this, 'credits_screen' )
 			);

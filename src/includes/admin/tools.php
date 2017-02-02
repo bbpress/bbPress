@@ -10,6 +10,48 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Output a bbPress specific tools box
+ *
+ * @since 2.6.0 bbPress (r6273)
+ */
+function bbp_admin_tools_box() {
+
+	// Bail if user cannot access tools page
+	if ( ! current_user_can( 'bbp_tools_page' ) ) {
+		return;
+	}
+
+	// Get the tools pages
+	$links = array();
+	$tools = bbp_get_tools_admin_pages(); ?>
+
+	<div class="card">
+		<h3 class="title"><?php _e( 'Forums', 'bbpress' ) ?></h3>
+		<p><?php esc_html_e( 'bbPress provides the following tools to help you manage your forums:', 'bbpress' ); ?></p>
+
+		<?php
+
+		// Loop through tools and create links
+		foreach ( $tools as $tool ) {
+
+			// Skip if user cannot see this page
+			if ( ! current_user_can( $tool['cap'] ) ) {
+				continue;
+			}
+
+			// Add link to array
+			$links[] = sprintf( '<a href="%s">%s</a>', get_admin_url( '', add_query_arg( array( 'page' => $tool['page'] ), 'tools.php' ) ), $tool['name'] );
+		}
+
+		// Output links
+		echo '<p class="bbp-tools-links">' . implode( ' &middot; ', $links ) . '</p>';
+
+	?></div>
+
+<?php
+}
+
 /** Repair ********************************************************************/
 
 /**
