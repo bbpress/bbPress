@@ -658,10 +658,9 @@ function bbp_moderator_assignment_metabox( $post ) {
 		? implode( ', ', array_map( 'esc_attr', $user_nicenames ) )
 		: ''; ?>
 
-	<p>
-		<label class="screen-reader-text" for="bbp_moderators"><?php esc_html_e( 'Moderators', 'bbpress' ); ?></label>
-		<input type="text" id="bbp_moderators" name="bbp_moderators" value="<?php echo esc_attr( $moderators ); ?>" />
-	</p>
+	<label class="screen-reader-text" for="bbp_moderators"><?php esc_html_e( 'Moderators', 'bbpress' ); ?></label>
+	<input type="text" id="bbp_moderators" name="bbp_moderators" value="<?php echo esc_attr( $moderators ); ?>" />
+	<p class="howto"><?php esc_html_e( 'Separate user-names with commas', 'bbpress' ); ?></p>
 
 	<?php
 
