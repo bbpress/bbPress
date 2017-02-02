@@ -281,9 +281,9 @@ function bbp_dashboard_widget_right_now() {
 /** Forums ********************************************************************/
 
 /**
- * Forum metabox
+ * Forum meta-box
  *
- * The metabox that holds all of the additional forum information
+ * The meta-box that holds all of the additional forum information
  *
  * @since 2.0.0 bbPress (r2744)
  *
@@ -378,9 +378,9 @@ function bbp_forum_metabox( $post ) {
 /** Topics ********************************************************************/
 
 /**
- * Topic metabox
+ * Topic meta-box
  *
- * The metabox that holds all of the additional topic information
+ * The meta-box that holds all of the additional topic information
  *
  * @since 2.0.0 bbPress (r2464)
  *
@@ -451,9 +451,9 @@ function bbp_topic_metabox( $post ) {
 /** Replies *******************************************************************/
 
 /**
- * Reply metabox
+ * Reply meta-box
  *
- * The metabox that holds all of the additional reply information
+ * The meta-box that holds all of the additional reply information
  *
  * @since 2.0.0 bbPress (r2464)
  *
@@ -547,7 +547,7 @@ function bbp_reply_metabox( $post ) {
 }
 
 /**
- * Output the topic replies metabox
+ * Output the topic replies meta-box
  *
  * @since 2.6.0 bbPress (r5886)
  *
@@ -588,7 +588,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 /** Users *********************************************************************/
 
 /**
- * Anonymous user information metabox
+ * Anonymous user information meta-box
  *
  * @since 2.0.0 bbPress (r2828)
  *
@@ -642,7 +642,7 @@ function bbp_author_metabox( $post ) {
 }
 
 /**
- * Moderator assignment metabox
+ * Moderator assignment meta-box
  *
  * @since 2.6.0 bbPress (r2828)
  *

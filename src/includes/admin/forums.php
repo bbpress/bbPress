@@ -217,12 +217,12 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the forum attributes metabox
+	 * Add the forum attributes meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function attributes_metabox() {
@@ -237,12 +237,12 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the forum moderators metabox
+	 * Add the forum moderators meta-box
 	 *
 	 * @since 2.6.0 bbPress
 	 *
 	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function moderators_metabox() {
@@ -264,13 +264,13 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the subscriptions metabox
+	 * Add the subscriptions meta-box
 	 *
 	 * Allows viewing of users who have subscribed to a forum.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
 	 *
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function subscriptions_metabox() {
 
@@ -284,7 +284,7 @@ class BBP_Forums_Admin {
 			return;
 		}
 
-		// Add the metabox
+		// Add the meta-box
 		add_meta_box(
 			'bbp_forum_subscriptions_metabox',
 			__( 'Subscriptions', 'bbpress' ),
@@ -296,7 +296,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Remove comments & discussion metaboxes if comments are not supported
+	 * Remove comments & discussion meta-boxes if comments are not supported
 	 *
 	 * @since 2.6.0 bbPress (r6186)
 	 */

@@ -91,7 +91,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// bbPress needs to listen to BuddyPress group deletion
 		add_action( 'groups_before_delete_group',     array( $this, 'disconnect_forum_from_group'     ) );
 
-		// Adds a bbPress metabox to the new BuddyPress Group Admin UI
+		// Adds a bbPress meta-box to the new BuddyPress Group Admin UI
 		add_action( 'bp_groups_admin_meta_boxes',     array( $this, 'group_admin_ui_edit_screen'      ) );
 
 		// Saves the bbPress options if they come from the BuddyPress Group Admin UI
@@ -459,7 +459,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Adds a metabox to BuddyPress Group Admin UI
+	 * Adds a meta-box to BuddyPress Group Admin UI
 	 *
 	 * @since 2.3.0 bbPress (r4814)
 	 *
@@ -478,7 +478,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Displays the bbPress metabox in BuddyPress Group Admin UI
+	 * Displays the bbPress meta-box in BuddyPress Group Admin UI
 	 *
 	 * @since 2.3.0 bbPress (r4814)
 	 *

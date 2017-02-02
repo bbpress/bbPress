@@ -76,7 +76,7 @@ class BBP_Topics_Admin {
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data' ), 10, 2 );
 		add_filter( 'post_row_actions',                                     array( $this, 'row_actions' ), 10, 2 );
 
-		// Topic metabox actions
+		// Topic meta-box actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'    ) );
 		add_action( 'add_meta_boxes', array( $this, 'author_metabox'        ) );
 		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'       ) );
@@ -332,12 +332,12 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the topic attributes metabox
+	 * Add the topic attributes meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2744)
 	 *
 	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
 	public function attributes_metabox() {
@@ -352,11 +352,11 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the author info metabox
+	 * Add the author info meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2828)
 	 *
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function author_metabox() {
 
@@ -365,7 +365,7 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		// Add the metabox
+		// Add the meta-box
 		add_meta_box(
 			'bbp_author_metabox',
 			__( 'Author Information', 'bbpress' ),
@@ -377,7 +377,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the replies metabox
+	 * Add the replies meta-box
 	 *
 	 * Allows viewing & moderating of replies to a topic, based on the way
 	 * comments are visible on a blog post.
@@ -388,7 +388,7 @@ class BBP_Topics_Admin {
 	 * @uses bbp_get_reply() To get the reply
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
 	 *                    id
 	 */
@@ -399,7 +399,7 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		// Add the metabox
+		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_replies_metabox',
 			__( 'Replies', 'bbpress' ),
@@ -411,13 +411,13 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the favorites metabox
+	 * Add the favorites meta-box
 	 *
 	 * Allows viewing of users who have favorited a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
 	 *
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function favorites_metabox() {
 
@@ -431,7 +431,7 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		// Add the metabox
+		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_favorites_metabox',
 			__( 'Favorites', 'bbpress' ),
@@ -443,13 +443,13 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the subscriptions metabox
+	 * Add the subscriptions meta-box
 	 *
 	 * Allows viewing of users who have subscribed to a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
 	 *
-	 * @uses add_meta_box() To add the metabox
+	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function subscriptions_metabox() {
 
@@ -463,7 +463,7 @@ class BBP_Topics_Admin {
 			return;
 		}
 
-		// Add the metabox
+		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_subscriptions_metabox',
 			__( 'Subscriptions', 'bbpress' ),
@@ -475,7 +475,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Remove comments & discussion metaboxes if comments are not supported
+	 * Remove comments & discussion meta-boxes if comments are not supported
 	 *
 	 * @since 2.6.0 bbPress (r6186)
 	 */

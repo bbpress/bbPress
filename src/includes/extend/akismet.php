@@ -758,7 +758,7 @@ class BBP_Akismet {
 	/** Admin *****************************************************************/
 
 	/**
-	 * Add Aksimet History metaboxes to topics and replies
+	 * Add Aksimet History meta-boxes to topics and replies
 	 *
 	 * @since 2.4.0 bbPress (r5049)
 	 */
@@ -786,7 +786,7 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Output for Akismet History metabox
+	 * Output for Akismet History meta-box
 	 *
 	 * @since 2.4.0 bbPress (r5049)
 	 *
