@@ -1527,7 +1527,7 @@ function bbp_converter_setting_callback_convert_users() {
  * @uses settings_fields() To output the hidden fields for the form
  * @uses do_settings_sections() To output the settings sections
  */
-function bbp_converter_settings() {
+function bbp_converter_settings_page() {
 ?>
 
 	<div class="wrap">

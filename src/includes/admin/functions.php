@@ -309,7 +309,7 @@ function bbp_get_tools_admin_pages() {
 	return apply_filters( 'bbp_tools_admin_tabs', array(
 		array(
 			'page' => 'bbp-repair',
-			'func' => 'bbp_admin_repair',
+			'func' => 'bbp_admin_repair_page',
 			'cap'  => 'bbp_tools_repair_page',
 			'name' => esc_html__( 'Repair Forums', 'bbpress' ),
 
@@ -318,7 +318,7 @@ function bbp_get_tools_admin_pages() {
 		),
 		array(
 			'page' => 'bbp-converter',
-			'func' => 'bbp_converter_settings',
+			'func' => 'bbp_converter_settings_page',
 			'cap'  => 'bbp_tools_import_page',
 			'name' => esc_html__( 'Import Forums', 'bbpress' ),
 
@@ -327,7 +327,7 @@ function bbp_get_tools_admin_pages() {
 		),
 		array(
 			'page' => 'bbp-reset',
-			'func' => 'bbp_admin_reset',
+			'func' => 'bbp_admin_reset_page',
 			'cap'  => 'bbp_tools_reset_page',
 			'name' => esc_html__( 'Reset Forums', 'bbpress' ),
 

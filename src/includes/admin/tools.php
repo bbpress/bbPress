@@ -68,7 +68,7 @@ function bbp_admin_tools_box() {
  * @uses do_action() Calls 'admin_notices' to display the notices
  * @uses wp_nonce_field() To add a hidden nonce field
  */
-function bbp_admin_repair() {
+function bbp_admin_repair_page() {
 
 	// Get the registered repair tools
 	$tools = bbp_admin_repair_list(); ?>
@@ -1634,7 +1634,7 @@ function bbp_admin_repair_user_reply_count() {
 }
 
 /**
- * Clean the users' favorites
+ * Repair user favorites
  *
  * @since 2.0.0 bbPress (r2613)
  *
@@ -1648,10 +1648,10 @@ function bbp_admin_repair_user_favorites() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
-	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
+	$statement = __( 'Removing unpublished topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$key       = $bbp_db->prefix . '_bbp_favorites';
+	// Query for users with favorites
 	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
 	if ( is_wp_error( $users ) ) {
@@ -2525,7 +2525,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-/** Reset ********************************************************************/
+/** Reset *********************************************************************/
 
 /**
  * Admin reset page
@@ -2536,7 +2536,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
  * @uses do_action() Calls 'admin_notices' to display the notices
  * @uses wp_nonce_field() To add a hidden nonce field
  */
-function bbp_admin_reset() {
+function bbp_admin_reset_page() {
 ?>
 
 	<div class="wrap">
