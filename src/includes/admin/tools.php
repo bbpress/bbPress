@@ -2542,8 +2542,7 @@ function bbp_admin_reset_page() {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Reset Forums', 'bbpress' ) ); ?></h2>
-		<p><?php esc_html_e( 'Revert your forums back to a brand new installation. This process cannot be undone.', 'bbpress' ); ?></p>
-		<p><strong><?php esc_html_e( 'Backup your database before proceeding.', 'bbpress' ); ?></strong></p>
+		<p><?php esc_html_e( 'Revert your forums back to a brand new installation, as if bbPress were never installed. This process cannot be undone.', 'bbpress' ); ?></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">
@@ -2555,7 +2554,7 @@ function bbp_admin_reset_page() {
 							<?php esc_html_e( 'All Topics',           'bbpress' ); ?><br />
 							<?php esc_html_e( 'All Replies',          'bbpress' ); ?><br />
 							<?php esc_html_e( 'All Topic Tags',       'bbpress' ); ?><br />
-							<?php esc_html_e( 'Related Meta Data',    'bbpress' ); ?><br />
+							<?php esc_html_e( 'All Meta Data',        'bbpress' ); ?><br />
 							<?php esc_html_e( 'Forum Settings',       'bbpress' ); ?><br />
 							<?php esc_html_e( 'Forum Activity',       'bbpress' ); ?><br />
 							<?php esc_html_e( 'Forum User Roles',     'bbpress' ); ?><br />
@@ -2569,7 +2568,7 @@ function bbp_admin_reset_page() {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
 								<label><input type="checkbox" class="checkbox" name="bbpress-delete-imported-users" id="bbpress-delete-imported-users" value="1" /> <?php esc_html_e( 'This option will delete all previously imported users, and cannot be undone.', 'bbpress' ); ?></label>
-								<p class="description"><?php esc_html_e( 'Note: Resetting without this checked will delete the meta-data necessary to delete these users.', 'bbpress' ); ?></p>
+								<p class="description"><?php esc_html_e( 'Proceeding without this checked removes the meta-data necessary to delete these users later.', 'bbpress' ); ?></p>
 							</fieldset>
 						</td>
 					</tr>
@@ -2579,6 +2578,7 @@ function bbp_admin_reset_page() {
 							<fieldset>
 								<legend class="screen-reader-text"><span><?php esc_html_e( "Say it ain't so!", 'bbpress' ); ?></span></legend>
 								<label><input type="checkbox" class="checkbox" name="bbpress-are-you-sure" id="bbpress-are-you-sure" value="1" /> <?php esc_html_e( 'This process cannot be undone.', 'bbpress' ); ?></label>
+								<p class="description"><?php esc_html_e( 'Backup your database before proceeding.', 'bbpress' ); ?></p>
 							</fieldset>
 						</td>
 					</tr>
