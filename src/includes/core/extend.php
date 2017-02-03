@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 function bbp_setup_akismet() {
 
 	// Bail if no akismet
-	if ( !defined( 'AKISMET_VERSION' ) ) {
+	if ( ! defined( 'AKISMET_VERSION' ) ) {
 		return;
 	}
 
@@ -33,7 +33,7 @@ function bbp_setup_akismet() {
 	}
 
 	// Include the Akismet Component
-	require( bbpress()->includes_dir . 'extend/akismet.php' );
+	require_once bbpress()->includes_dir . 'extend/akismet.php';
 
 	// Instantiate Akismet for bbPress
 	bbpress()->extend->akismet = new BBP_Akismet();
@@ -69,7 +69,7 @@ function bbp_setup_buddypress() {
 	}
 
 	// Include the BuddyPress Component
-	require( bbpress()->includes_dir . 'extend/buddypress/loader.php' );
+	require_once bbpress()->includes_dir . 'extend/buddypress/loader.php';
 
 	// Instantiate BuddyPress for bbPress
 	bbpress()->extend->buddypress = new BBP_Forums_Component();

@@ -639,7 +639,7 @@ class BBP_Converter {
 			$bbp_db->query( "DROP TABLE {$table_name}" );
 		}
 
-		require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 
 		if ( ! empty( $bbp_db->charset ) ) {
 			$charset_collate = "DEFAULT CHARACTER SET $bbp_db->charset";
@@ -1779,7 +1779,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	protected function callback_html( $field ) {
-		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		require_once bbpress()->admin->admin_dir . 'parser.php';
 		$bbcode = BBCode::getInstance();
 		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
@@ -1825,7 +1825,7 @@ function bbp_new_converter( $platform ) {
 	}
 
 	if ( true === $found ) {
-		require_once( bbpress()->admin->admin_dir . 'converters/' . $platform . '.php' );
+		require_once bbpress()->admin->admin_dir . 'converters/' . $platform . '.php';
 		return new $platform;
 	} else {
 		return null;

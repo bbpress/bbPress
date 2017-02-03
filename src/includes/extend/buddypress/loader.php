@@ -89,12 +89,12 @@ class BBP_Forums_Component extends BP_Component {
 		$bp = buddypress();
 
 		// Define the parent forum ID
-		if ( !defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
+		if ( ! defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
 			define( 'BP_FORUMS_PARENT_FORUM_ID', 1 );
 		}
 
 		// Define a slug, if necessary
-		if ( !defined( 'BP_FORUMS_SLUG' ) ) {
+		if ( ! defined( 'BP_FORUMS_SLUG' ) ) {
 			define( 'BP_FORUMS_SLUG', $this->id );
 		}
 

@@ -628,7 +628,7 @@ class Invision extends BBP_Converter_Base {
 		// Now that Invision custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $invision_markup;
 
-		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		require_once bbpress()->admin->admin_dir . 'parser.php';
 		$bbcode = BBCode::getInstance();
 		$bbcode->enable_smileys = false;
 		$bbcode->smiley_regex   = false;

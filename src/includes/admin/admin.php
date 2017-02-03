@@ -129,7 +129,7 @@ class BBP_Admin {
 		// Components
 		require $this->admin_dir . 'converter.php';
 		require $this->admin_dir . 'settings.php';
-		require $this->admin_dir . 'functions.php';
+		require $this->admin_dir . 'common.php';
 		require $this->admin_dir . 'metaboxes.php';
 		require $this->admin_dir . 'forums.php';
 		require $this->admin_dir . 'topics.php';
@@ -464,12 +464,12 @@ class BBP_Admin {
 	public function register_importers() {
 
 		// Leave if we're not in the import section
-		if ( !defined( 'WP_LOAD_IMPORTERS' ) ) {
+		if ( ! defined( 'WP_LOAD_IMPORTERS' ) ) {
 			return;
 		}
 
 		// Load Importer API
-		require_once( ABSPATH . 'wp-admin/includes/import.php' );
+		require_once ABSPATH . 'wp-admin/includes/import.php';
 
 		// Load our importers
 		$importers = apply_filters( 'bbp_importers', array( 'bbpress' ) );
@@ -485,7 +485,7 @@ class BBP_Admin {
 
 			// If the file exists, include it
 			if ( file_exists( $import_file ) ) {
-				require( $import_file );
+				require $import_file;
 			}
 		}
 	}

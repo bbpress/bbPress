@@ -761,7 +761,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * - decodes necessary HTML entities
 	 */
 	protected function callback_html( $field ) {
-		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		require_once bbpress()->admin->admin_dir . 'parser.php';
 		$bbcode = BBCode::getInstance();
 		$bbcode->enable_smileys = false;
 		$bbcode->smiley_regex   = false;

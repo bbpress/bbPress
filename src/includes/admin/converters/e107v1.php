@@ -631,7 +631,7 @@ class e107v1 extends BBP_Converter_Base {
 		$field = $e107v1_markup;
 
 		// Parse out any bbCodes in $field with the BBCode 'parser.php'
-		require_once( bbpress()->admin->admin_dir . 'parser.php' );
+		require_once bbpress()->admin->admin_dir . 'parser.php';
 		$bbcode = BBCode::getInstance();
 		$bbcode->enable_smileys = false;
 		$bbcode->smiley_regex   = false;
