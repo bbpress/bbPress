@@ -317,6 +317,15 @@ function bbp_get_tools_admin_pages() {
 			'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-repair'    ), 'tools.php' ) )
 		),
 		array(
+			'page' => 'bbp-upgrade',
+			'func' => 'bbp_admin_upgrade_page',
+			'cap'  => 'bbp_tools_upgrade_page',
+			'name' => esc_html__( 'Upgrade Forums', 'bbpress' ),
+
+			// Deprecated 2.6.0
+			'href' => get_admin_url( '', add_query_arg( array( 'page' => 'bbp-upgrade' ), 'tools.php' ) )
+		),
+		array(
 			'page' => 'bbp-converter',
 			'func' => 'bbp_converter_settings_page',
 			'cap'  => 'bbp_tools_import_page',

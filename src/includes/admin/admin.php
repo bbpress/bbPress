@@ -118,6 +118,7 @@ class BBP_Admin {
 	 */
 	private function includes() {
 		require( $this->admin_dir . 'tools.php'     );
+		require( $this->admin_dir . 'upgrades.php'  );
 		require( $this->admin_dir . 'converter.php' );
 		require( $this->admin_dir . 'settings.php'  );
 		require( $this->admin_dir . 'functions.php' );
@@ -233,7 +234,7 @@ class BBP_Admin {
 			__( 'Forums', 'bbpress' ),
 			'bbp_tools_page',
 			'bbp-repair',
-			'bbp_admin_repair'
+			'bbp_admin_repair_page'
 		);
 
 		// Are settings enabled?
