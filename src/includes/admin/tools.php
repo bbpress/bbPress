@@ -754,7 +754,7 @@ function bbp_register_default_repair_tools() {
 		'callback'    => 'bbp_admin_upgrade_user_favorites',
 		'priority'    => 105,
 		'overhead'    => 'high',
-		'components'  => array( bbp_get_user_rewrite_id() )
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 	) );
 
 	// Migrate topic subscriptions from user-meta to post-meta
@@ -765,7 +765,7 @@ function bbp_register_default_repair_tools() {
 		'callback'    => 'bbp_admin_upgrade_user_topic_subscriptions',
 		'priority'    => 110,
 		'overhead'    => 'high',
-		'components'  => array( bbp_get_user_rewrite_id() )
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
 
 	// Migrate forum subscriptions from user-meta to post-meta
@@ -776,7 +776,40 @@ function bbp_register_default_repair_tools() {
 		'callback'    => 'bbp_admin_upgrade_user_forum_subscriptions',
 		'priority'    => 115,
 		'overhead'    => 'high',
-		'components'  => array( bbp_get_user_rewrite_id() )
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
+	) );
+
+	// Remove favorites from user-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-favorites-delete',
+		'type'        => 'upgrade',
+		'description' => __( 'Remove favorites from user-meta', 'bbpress' ),
+		'callback'    => 'bbp_admin_upgrade_remove_favorites_from_usermeta',
+		'priority'    => 120,
+		'overhead'    => 'medium',
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
+	) );
+
+	// Remove topic subscriptions from user-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-topic-subscriptions-delete',
+		'type'        => 'upgrade',
+		'description' => __( 'Remove topic subscriptions from user-meta', 'bbpress' ),
+		'callback'    => 'bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta',
+		'priority'    => 125,
+		'overhead'    => 'medium',
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
+	) );
+
+	// Remove forum subscriptions from user-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-forum-subscriptions-delete',
+		'type'        => 'upgrade',
+		'description' => __( 'Remove forum subscriptions from user-meta', 'bbpress' ),
+		'callback'    => 'bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta',
+		'priority'    => 130,
+		'overhead'    => 'medium',
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
 }
 
@@ -930,6 +963,15 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 			break;
 		case bbp_get_topic_tag_tax_id() :
 			$name = esc_html__( 'Topic Tags', 'bbpress' );
+			break;
+		case bbp_get_user_rewrite_id() :
+			$name = esc_html__( 'Users', 'bbpress' );
+			break;
+		case bbp_get_user_favorites_rewrite_id() :
+			$name = esc_html__( 'Favorites', 'bbpress' );
+			break;
+		case bbp_get_user_subscriptions_rewrite_id() :
+			$name = esc_html__( 'Subscriptions', 'bbpress' );
 			break;
 		default :
 			$name = ucwords( $component );
@@ -2369,195 +2411,6 @@ function bbp_admin_repair_reply_menu_order() {
 	wp_cache_flush();
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
-}
-
-/**
- * Upgrade user favorites for bbPress 2.6 and higher
- *
- * @since 2.6.0 bbPress (r6174)
- *
- * @return array An array of the status code and the message
- */
-function bbp_admin_upgrade_user_favorites() {
-
-	// Define variables
-	$bbp_db    = bbp_db();
-	$statement = __( 'Upgrading user favorites &hellip; %s', 'bbpress' );
-	$result    = __( 'No favorites to upgrade.',             'bbpress' );
-	$changed   = $total = 0;
-	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$favorites = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
-
-	// Bail if no closed topics found
-	if ( empty( $favorites ) || is_wp_error( $favorites ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	// Loop through each user's favorites
-	foreach ( $favorites as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$to_change = count( $post_ids );
-		$changed   = 0;
-
-		// Add user ID to all favorited posts
-		foreach ( $post_ids as $post_id ) {
-
-			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, '_bbp_favorite', $meta->user_id ) ) ) {
-				continue;
-			}
-
-			// Add the post meta
-			$added = add_post_meta( $post_id, '_bbp_favorite', $meta->user_id, false );
-
-			// Bump counts if successfully added
-			if ( ! empty( $added ) ) {
-				++$changed;
-				++$total;
-			}
-		}
-
-		// Delete user meta if everything was copied successfully
-		if ( $changed === $to_change ) {
-			//delete_metadata_by_mid( 'user', $meta->umeta_id );
-		}
-	}
-
-	// Cleanup
-	unset( $favorites, $added, $post_ids );
-
-	// Complete results
-	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), $total );
-
-	return array( 0, sprintf( $statement, $result ) );
-}
-
-/**
- * Upgrade user topic subscriptions for bbPress 2.6 and higher
- *
- * @since 2.6.0 bbPress (r6174)
- *
- * @return array An array of the status code and the message
- */
-function bbp_admin_upgrade_user_topic_subscriptions() {
-
-	// Define variables
-	$bbp_db        = bbp_db();
-	$statement     = __( 'Upgrading user topic subscriptions &hellip; %s', 'bbpress' );
-	$result        = __( 'No topic subscriptions to upgrade.',             'bbpress' );
-	$changed       = $total = 0;
-	$key           = $bbp_db->prefix . '_bbp_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
-
-	// Bail if no topic subscriptions found
-	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	// Loop through each user's topic subscriptions
-	foreach ( $subscriptions as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$to_change = count( $post_ids );
-		$changed   = 0;
-
-		// Add user ID to all subscribed topics
-		foreach ( $post_ids as $post_id ) {
-
-			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, '_bbp_subscription', $meta->user_id ) ) ) {
-				continue;
-			}
-
-			// Add the post meta
-			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id, false );
-
-			// Bump counts if successfully added
-			if ( ! empty( $added ) ) {
-				++$changed;
-				++$total;
-			}
-		}
-
-		// Delete user meta if everything was copied successfully
-		if ( $changed === $to_change ) {
-			//delete_metadata_by_mid( 'user', $meta->umeta_id );
-		}
-	}
-
-	// Cleanup
-	unset( $subscriptions, $added, $post_ids );
-
-	// Complete results
-	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), $total );
-
-	return array( 0, sprintf( $statement, $result ) );
-}
-
-/**
- * Upgrade user forum subscriptions for bbPress 2.6 and higher
- *
- * @since 2.6.0 bbPress (r6193)
- *
- * @return array An array of the status code and the message
- */
-function bbp_admin_upgrade_user_forum_subscriptions() {
-
-	// Define variables
-	$bbp_db        = bbp_db();
-	$statement     = __( 'Upgrading user forum subscriptions &hellip; %s', 'bbpress' );
-	$result        = __( 'No forum subscriptions to upgrade.',             'bbpress' );
-	$changed       = $total = 0;
-	$key           = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
-
-	// Bail if no forum subscriptions found
-	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
-		return array( 1, sprintf( $statement, $result ) );
-	}
-
-	// Loop through each user's forum subscriptions
-	foreach ( $subscriptions as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$to_change = count( $post_ids );
-		$changed   = 0;
-
-		// Add user ID to all subscribed forums
-		foreach ( $post_ids as $post_id ) {
-
-			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, '_bbp_forum_subscription', $meta->user_id ) ) ) {
-				continue;
-			}
-
-			// Add the post meta
-			$added = add_post_meta( $post_id, '_bbp_subscription', $meta->user_id, false );
-
-			// Bump counts if successfully added
-			if ( ! empty( $added ) ) {
-				++$changed;
-				++$total;
-			}
-		}
-
-		// Delete user meta if everything was copied successfully
-		if ( $changed === $to_change ) {
-			//delete_metadata_by_mid( 'user', $meta->umeta_id );
-		}
-	}
-
-	// Cleanup
-	unset( $subscriptions, $added, $post_ids );
-
-	// Complete results
-	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), $total );
-
-	return array( 0, sprintf( $statement, $result ) );
 }
 
 /** Reset *********************************************************************/
