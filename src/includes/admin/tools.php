@@ -771,6 +771,13 @@ function bbp_get_admin_repair_tools() {
 	return apply_filters( 'bbp_get_admin_repair_tools', $tools );
 }
 
+/**
+ * Return array of components from the array of registered tools
+ *
+ * @since 2.5.0 bbPress (r5885)
+ *
+ * @return array
+ */
 function bbp_get_admin_repair_tool_registered_components() {
 	$tools   = bbp_get_admin_repair_tools();
 	$plucked = wp_list_pluck( $tools, 'components' );
