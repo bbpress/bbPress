@@ -604,14 +604,18 @@ class BBP_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 *
-	 * @uses remove_submenu_page() To remove menu items with alternat navigation
+	 * @uses remove_submenu_page() To remove menu items with alternate navigation
 	 */
 	public function admin_head() {
-		remove_submenu_page( 'tools.php', 'bbp-repair'    );
-		remove_submenu_page( 'tools.php', 'bbp-converter' );
-		remove_submenu_page( 'tools.php', 'bbp-reset'     );
-		remove_submenu_page( 'index.php', 'bbp-about'     );
-		remove_submenu_page( 'index.php', 'bbp-credits'   );
+
+		// Tools
+		foreach ( bbp_get_tools_admin_pages() as $tool ) {
+			remove_submenu_page( 'tools.php', $tool['page'] );
+		}
+
+		// About
+		remove_submenu_page( 'index.php', 'bbp-about'   );
+		remove_submenu_page( 'index.php', 'bbp-credits' );
 	}
 
 	/**
