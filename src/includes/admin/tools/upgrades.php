@@ -10,8 +10,6 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-/** Upgrades ******************************************************************/
-
 /**
  * Admin repair page
  *
@@ -171,15 +169,15 @@ function bbp_admin_upgrade_user_favorites() {
 	$result    = __( 'No favorites to upgrade.',             'bbpress' );
 	$total     = 0;
 	$key       = $bbp_db->prefix . '_bbp_favorites';
-	$favorites = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
+	$favs      = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s", $key ) );
 
 	// Bail if no closed topics found
-	if ( empty( $favorites ) || is_wp_error( $favorites ) ) {
+	if ( empty( $favs ) || is_wp_error( $favs ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Loop through each user's favorites
-	foreach ( $favorites as $meta ) {
+	foreach ( $favs as $meta ) {
 
 		// Get post IDs
 		$post_ids = explode( ',', $meta->meta_value );
@@ -203,7 +201,7 @@ function bbp_admin_upgrade_user_favorites() {
 	}
 
 	// Cleanup
-	unset( $favorites, $added, $post_ids );
+	unset( $favs, $added, $post_ids );
 
 	// Complete results
 	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), $total );
@@ -221,20 +219,20 @@ function bbp_admin_upgrade_user_favorites() {
 function bbp_admin_upgrade_user_topic_subscriptions() {
 
 	// Define variables
-	$bbp_db        = bbp_db();
-	$statement     = __( 'Upgrading user topic subscriptions &hellip; %s', 'bbpress' );
-	$result        = __( 'No topic subscriptions to upgrade.',             'bbpress' );
-	$total         = 0;
-	$key           = $bbp_db->prefix . '_bbp_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
+	$bbp_db    = bbp_db();
+	$statement = __( 'Upgrading user topic subscriptions &hellip; %s', 'bbpress' );
+	$result    = __( 'No topic subscriptions to upgrade.',             'bbpress' );
+	$total     = 0;
+	$key       = $bbp_db->prefix . '_bbp_subscriptions';
+	$subs      = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
 
 	// Bail if no topic subscriptions found
-	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
+	if ( empty( $subs ) || is_wp_error( $subs ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Loop through each user's topic subscriptions
-	foreach ( $subscriptions as $meta ) {
+	foreach ( $subs as $meta ) {
 
 		// Get post IDs
 		$post_ids = explode( ',', $meta->meta_value );
@@ -258,7 +256,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 	}
 
 	// Cleanup
-	unset( $subscriptions, $added, $post_ids );
+	unset( $subs, $added, $post_ids );
 
 	// Complete results
 	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), $total );
@@ -276,20 +274,20 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 function bbp_admin_upgrade_user_forum_subscriptions() {
 
 	// Define variables
-	$bbp_db        = bbp_db();
-	$statement     = __( 'Upgrading user forum subscriptions &hellip; %s', 'bbpress' );
-	$result        = __( 'No forum subscriptions to upgrade.',             'bbpress' );
-	$total         = 0;
-	$key           = $bbp_db->prefix . '_bbp_forum_subscriptions';
-	$subscriptions = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
+	$bbp_db    = bbp_db();
+	$statement = __( 'Upgrading user forum subscriptions &hellip; %s', 'bbpress' );
+	$result    = __( 'No forum subscriptions to upgrade.',             'bbpress' );
+	$total     = 0;
+	$key       = $bbp_db->prefix . '_bbp_forum_subscriptions';
+	$subs      = $bbp_db->get_results( $bbp_db->prepare( "SELECT * FROM {$bbp_db->usermeta} WHERE meta_key = %s ORDER BY user_id", $key ) );
 
 	// Bail if no forum subscriptions found
-	if ( empty( $subscriptions ) || is_wp_error( $subscriptions ) ) {
+	if ( empty( $subs ) || is_wp_error( $subs ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Loop through each user's forum subscriptions
-	foreach ( $subscriptions as $meta ) {
+	foreach ( $subs as $meta ) {
 
 		// Get post IDs
 		$post_ids = explode( ',', $meta->meta_value );
@@ -313,7 +311,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 	}
 
 	// Cleanup
-	unset( $subscriptions, $added, $post_ids );
+	unset( $subs, $added, $post_ids );
 
 	// Complete results
 	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), $total );
@@ -344,7 +342,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 	}
 
 	// Loop through each user's favorites
-	foreach ( $favorites as $meta ) {
+	foreach ( $favs as $meta ) {
 
 		// Get post IDs
 		$post_ids  = explode( ',', $meta->meta_value );
