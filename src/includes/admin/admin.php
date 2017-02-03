@@ -426,6 +426,7 @@ class BBP_Admin {
 			case 'bbp_about_page'            : // About and Credits
 			case 'bbp_tools_page'            : // Tools Page
 			case 'bbp_tools_repair_page'     : // Tools - Repair Page
+			case 'bbp_tools_upgrade_page'    : // Tools - Upgrade Page
 			case 'bbp_tools_import_page'     : // Tools - Import Page
 			case 'bbp_tools_reset_page'      : // Tools - Reset Page
 			case 'bbp_settings_page'         : // Settings Page
