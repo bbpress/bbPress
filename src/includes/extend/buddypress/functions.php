@@ -11,10 +11,10 @@
 defined( 'ABSPATH' ) || exit;
 
 // Hooks
-add_action( 'bp_modify_page_title', 'bbp_filter_modify_page_title', 10, 3 );
-add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
-add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
-add_filter( 'bbp_is_user_home', 'bbp_filter_is_user_home', 10, 1 );
+add_filter( 'bp_modify_page_title', 'bbp_filter_modify_page_title', 10, 3 );
+add_filter( 'bbp_get_user_id',      'bbp_filter_user_id',           10, 3 );
+add_filter( 'bbp_is_single_user',   'bbp_filter_is_single_user',    10, 1 );
+add_filter( 'bbp_is_user_home',     'bbp_filter_is_user_home',      10, 1 );
 
 /** BuddyPress Helpers ********************************************************/
 
