@@ -13,8 +13,8 @@ $tests_dir_path   = $argv[2];
 $multisite        = ! empty( $argv[3] );
 
 // Pull in the WordPress core test suite
-require_once( $config_file_path );
-require_once( $tests_dir_path . '/includes/functions.php' );
+require_once $config_file_path;
+require_once $tests_dir_path . '/includes/functions.php';
 
 /**
  * Include bbPress via `plugins_loaded` event
@@ -38,7 +38,7 @@ $PHP_SELF = $GLOBALS['PHP_SELF'] = $_SERVER['PHP_SELF'] = '/index.php';
 
 // Include WordPress
 echo "Loading WordPress via `wp-settings.php`...\n";
-require_once( ABSPATH . '/wp-settings.php' );
+require_once ABSPATH . '/wp-settings.php';
 
 // Fix fussy database settings
 $wpdb->query( 'SET storage_engine = INNODB' );

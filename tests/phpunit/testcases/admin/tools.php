@@ -13,10 +13,12 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
 		$this->keymaster_id = get_current_user_id();
+
 		bbp_set_user_role( $this->keymaster_id, bbp_get_keymaster_role() );
 
-		if ( ! function_exists( 'bbp_admin_repair' ) ) {
-			require_once( BBP_PLUGIN_DIR . 'includes/admin/tools.php' );
+		if ( ! function_exists( 'bbp_admin_repair_page' ) ) {
+			require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
+			require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrades.php';
 		}
 	}
 
