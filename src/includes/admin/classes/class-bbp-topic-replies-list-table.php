@@ -34,9 +34,9 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 */
 	public function __construct( $args = array() ) {
 		$args = array(
-			'singular' => esc_html_x( 'Reply', 'noun', 'bbpress' ),
-			'plural'   => esc_html__( 'Replies', 'bbpress' ),
-			'ajax'     => true
+			'singular' => 'reply',
+			'plural'   => 'replies',
+			'ajax'     => false
 		);
 		parent::__construct( $args );
 	}
