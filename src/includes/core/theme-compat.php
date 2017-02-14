@@ -679,6 +679,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_content'   => $bbp_shortcodes->display_reply_index(),
 			'post_type'      => bbp_get_reply_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
+			'is_archive'     => true,
 			'comment_status' => 'closed'
 		) );
 
@@ -707,6 +708,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_content'   => $new_content,
 			'post_type'      => bbp_get_reply_post_type(),
 			'post_status'    => bbp_get_reply_status(),
+			'is_single'      => true,
 			'comment_status' => 'closed'
 		) );
 
@@ -723,6 +725,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( bbp_get_view_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
+			'is_archive'     => true,
 			'comment_status' => 'closed'
 		) );
 
@@ -739,6 +742,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( bbp_get_search_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
+			'is_archive'     => true,
 			'comment_status' => 'closed'
 		) );
 
@@ -768,8 +772,8 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_type'      => '',
 			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
 			'post_status'    => bbp_get_public_status_id(),
-			'comment_status' => 'closed',
-			'is_tax'         => true
+			'is_tax'         => true,
+			'comment_status' => 'closed'
 		) );
 	}
 
