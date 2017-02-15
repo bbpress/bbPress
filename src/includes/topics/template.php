@@ -1866,7 +1866,7 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get topic id
-	 * @uses get_post_meta() To get the topic lst active meta
+	 * @uses get_post_meta() To get the topic last active meta
 	 * @uses bbp_get_topic_last_reply_id() To get topic last reply id
 	 * @uses get_post_field() To get the post date of topic/reply
 	 * @uses bbp_convert_date() To convert date
@@ -1999,7 +1999,7 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 	echo bbp_get_topic_last_reply_id( $topic_id );
 }
 	/**
-	 * Return the topics last update date/time (aka freshness)
+	 * Return the id of the topics last reply
 	 *
 	 * @since 2.0.0 bbPress (r2625)
 	 *
