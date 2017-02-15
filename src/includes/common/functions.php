@@ -1680,8 +1680,8 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) ) {
-		return false;
+	if ( empty( $parent_id ) || empty( $post_type ) ) {
+		return array();
 	}
 
 	// Get the public post status
@@ -1740,8 +1740,8 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) ) {
-		return false;
+	if ( empty( $parent_id ) || empty( $post_type ) ) {
+		return array();
 	}
 
 	// The ID of the cached query
