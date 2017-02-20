@@ -448,7 +448,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r3405)
  *
  * @param int $user_id Optional. User ID to spam. Defaults to displayed user.
-
+ *
  * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
  * @uses bbp_get_displayed_user_id()
