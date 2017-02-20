@@ -56,7 +56,7 @@ class BBP_Theme_Compat {
 	 *
 	 * @param array $properties
 	 */
-    public function __construct( Array $properties = array() ) {
+	public function __construct( Array $properties = array() ) {
 		$this->_data = $properties;
 	}
 
@@ -458,7 +458,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @uses bbp_set_theme_compat_template() To set the global theme compat template
  */
 function bbp_template_include_theme_compat( $template = '' ) {
-	
+
 	/**
 	 * Bail if a root template was already found. This prevents unintended
 	 * recursive filtering of 'the_content'.
