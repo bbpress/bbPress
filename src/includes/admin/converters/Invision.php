@@ -552,8 +552,8 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	/**
-	* This callback processes any custom BBCodes with parser.php
-	*/
+	 * This callback processes any custom BBCodes with parser.php
+	 */
 	protected function callback_html( $field ) {
 
 		// Strips Invision custom HTML first from $field before parsing $field to parser.php
