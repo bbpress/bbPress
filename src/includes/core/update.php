@@ -359,7 +359,7 @@ function bbp_add_activation_redirect() {
 	}
 
 	// Add the transient to redirect
-    set_transient( '_bbp_activation_redirect', true, 30 );
+	set_transient( '_bbp_activation_redirect', true, 30 );
 }
 
 /**
