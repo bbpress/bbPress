@@ -110,8 +110,8 @@ function bbp_get_forum_post_type_supports() {
  * @uses current_user_can() To check if the current user is capable of editing
  *                           others' forums
  * @uses apply_filters() Calls 'bbp_has_forums' with
- *                        bbPres::forum_query::have_posts()
- *                        and bbPres::forum_query
+ *                        bbPress::forum_query::have_posts()
+ *                        and bbPress::forum_query
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums( $args = array() ) {

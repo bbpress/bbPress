@@ -135,8 +135,8 @@ function bbp_show_lead_topic( $show_lead = false ) {
  * @uses apply_filters() Calls 'bbp_topics_pagination' with the pagination args
  * @uses paginate_links() To paginate the links
  * @uses apply_filters() Calls 'bbp_has_topics' with
- *                        bbPres::topic_query::have_posts()
- *                        and bbPres::topic_query
+ *                        bbPress::topic_query::have_posts()
+ *                        and bbPress::topic_query
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = array() ) {

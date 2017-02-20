@@ -115,8 +115,8 @@ function bbp_get_reply_post_type_supports() {
  * @uses apply_filters() Calls 'bbp_replies_pagination' with the pagination args
  * @uses paginate_links() To paginate the links
  * @uses apply_filters() Calls 'bbp_has_replies' with
- *                        bbPres::reply_query::have_posts()
- *                        and bbPres::reply_query
+ *                        bbPress::reply_query::have_posts()
+ *                        and bbPress::reply_query
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies( $args = array() ) {
