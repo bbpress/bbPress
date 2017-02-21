@@ -1428,7 +1428,8 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 	 *                           count?
 	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses get_post_meta() To get the forum post count
+	 * @uses bbp_get_forum_topic_count() To get the topic count
+	 * @uses bbp_get_forum_reply_count() To get the reply count
 	 * @uses apply_filters() Calls 'bbp_get_forum_post_count' with the
 	 *                        post count and forum id
 	 * @return int Forum post count
@@ -1436,10 +1437,11 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 	function bbp_get_forum_post_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count, true );
-		$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
-		$replies  = (int) get_post_meta( $forum_id, $meta_key, true );
+		$replies  = bbp_get_forum_reply_count( $forum_id, $total_count, true );
 		$retval   = $replies + $topics;
-		$filter   = ( true === $integer ) ? 'bbp_get_forum_post_count_int' : 'bbp_get_forum_post_count';
+		$filter   = ( true === $integer )
+				? 'bbp_get_forum_post_count_int'
+				: 'bbp_get_forum_post_count';
 
 		return apply_filters( $filter, $retval, $forum_id );
 	}
