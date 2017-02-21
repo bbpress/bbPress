@@ -207,7 +207,7 @@ add_filter( 'bbp_get_forum_topic_count_hidden', 'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_reply_count_hidden', 'bbp_number_format', 10 );
 
 // Add absint filter to functions expecting absolute values
-add_filter( 'bbp_get_user_topic_count_int',         'intval', 10 );
+add_filter( 'bbp_get_user_topic_count_int',         'absint', 10 );
 add_filter( 'bbp_get_user_reply_count_int',         'absint', 10 );
 add_filter( 'bbp_get_user_post_count_int',          'absint', 10 );
 add_filter( 'bbp_get_forum_subforum_count_int',     'absint', 10 );
