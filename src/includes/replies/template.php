@@ -2456,11 +2456,17 @@ function bbp_topic_pagination_count() {
 		$retstr = '';
 
 		// Set pagination values
-		$start_num = intval( ( $bbp->reply_query->paged - 1 ) * $bbp->reply_query->posts_per_page ) + 1;
-		$from_num  = bbp_number_format( $start_num );
-		$to_num    = bbp_number_format( ( $start_num + ( $bbp->reply_query->posts_per_page - 1 ) > $bbp->reply_query->found_posts ) ? $bbp->reply_query->found_posts : $start_num + ( $bbp->reply_query->posts_per_page - 1 ) );
-		$total_int = (int) $bbp->reply_query->found_posts;
-		$total     = bbp_number_format( $total_int );
+		$total_int = intval( $bbp->reply_query->found_posts    );
+		$ppp_int   = intval( $bbp->reply_query->posts_per_page );
+		$start_int = intval( ( $bbp->reply_query->paged - 1 ) * $ppp_int ) + 1;
+		$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
+				? $total_int
+				: $start_int + ( $ppp_int - 1 ) );
+
+		// Format numbers for display
+		$total_num = bbp_number_format( $total_int );
+		$from_num  = bbp_number_format( $start_int );
+		$to_num    = bbp_number_format( $to_int    );
 
 		// We are threading replies
 		if ( bbp_thread_replies() ) {
@@ -2473,11 +2479,11 @@ function bbp_topic_pagination_count() {
 
 			// Several replies in a topic with a single page
 			if ( empty( $to_num ) ) {
-				$retstr = sprintf( _n( 'Viewing %1$s reply', 'Viewing %1$s replies', $total_int, 'bbpress' ), $total );
+				$retstr = sprintf( _n( 'Viewing %1$s reply', 'Viewing %1$s replies', $total_int, 'bbpress' ), $total_num );
 
 			// Several replies in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
+				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total_num );
 			}
 
 		// We are including the lead topic
@@ -2485,11 +2491,11 @@ function bbp_topic_pagination_count() {
 
 			// Several posts in a topic with a single page
 			if ( empty( $to_num ) ) {
-				$retstr = sprintf( _n( 'Viewing %1$s post', 'Viewing %1$s posts', $total_int, 'bbpress' ), $total );
+				$retstr = sprintf( _n( 'Viewing %1$s post', 'Viewing %1$s posts', $total_int, 'bbpress' ), $total_num );
 
 			// Several posts in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
+				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total_num );
 			}
 		}
 

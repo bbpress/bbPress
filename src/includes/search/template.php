@@ -401,20 +401,25 @@ function bbp_search_pagination_count() {
 		$retstr = '';
 
 		// Set pagination values
-		$start_num = intval( ( $bbp->search_query->paged - 1 ) * $bbp->search_query->posts_per_page ) + 1;
-		$from_num  = bbp_number_format( $start_num );
-		$to_num    = bbp_number_format( ( $start_num + ( $bbp->search_query->posts_per_page - 1 ) > $bbp->search_query->found_posts ) ? $bbp->search_query->found_posts : $start_num + ( $bbp->search_query->posts_per_page - 1 ) );
-		$total_int = (int) $bbp->search_query->found_posts;
-		$total     = bbp_number_format( $total_int );
+		$total_int = intval( $bbp->search_query->found_posts    );
+		$ppp_int   = intval( $bbp->search_query->posts_per_page );
+		$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
+		$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
+				? $total_int
+				: $start_int + ( $ppp_int - 1 ) );
+
+		// Format numbers for display
+		$total_num = bbp_number_format( $total_int );
+		$from_num  = bbp_number_format( $start_int );
+		$to_num    = bbp_number_format( $to_int    );
 
 		// Single page of results
 		if ( empty( $to_num ) ) {
-			$retstr = sprintf( _n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ), $total );
+			$retstr = sprintf( _n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ), $total_num );
 
 		// Several pages of results
 		} else {
-			$retstr = sprintf( _n( 'Viewing %2$s results (of %4$s total)', 'Viewing %1$s results - %2$s through %3$s (of %4$s total)', $bbp->search_query->post_count, 'bbpress' ), $bbp->search_query->post_count, $from_num, $to_num, $total );
-
+			$retstr = sprintf( _n( 'Viewing %2$s results (of %4$s total)', 'Viewing %1$s results - %2$s through %3$s (of %4$s total)', $bbp->search_query->post_count, 'bbpress' ), $bbp->search_query->post_count, $from_num, $to_num, $total_num );
 		}
 
 		// Filter and return
