@@ -242,6 +242,17 @@ function bbp_register_shortcodes() {
 }
 
 /**
+ * Register the default bbPress meta-data
+ *
+ * @since 2.6.0 bbPress (r46300)
+ *
+ * @uses do_action() Calls 'bbp_register_meta'
+ */
+function bbp_register_meta() {
+	do_action( 'bbp_register_meta' );
+}
+
+/**
  * Enqueue bbPress specific CSS and JS
  *
  * @since 2.0.0 bbPress (r3373)

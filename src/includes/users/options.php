@@ -214,15 +214,17 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 	 * @return string
 	 */
 	function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
- 
+
 		// Validate user id
 		$user_id = bbp_get_user_id( $user_id );
 		if ( empty( $user_id ) ) {
 			return false;
 		}
 
-		$count  = (int) get_user_option( '_bbp_topic_count', $user_id );
-		$filter = ( true === $integer ) ? 'bbp_get_user_topic_count_int' : 'bbp_get_user_topic_count';
+		$count  = bbp_number_not_negative( get_user_option( '_bbp_topic_count', $user_id ) );
+		$filter = ( true === $integer )
+			? 'bbp_get_user_topic_count_int'
+			: 'bbp_get_user_topic_count';
 
 		return apply_filters( $filter, $count, $user_id );
 	}
@@ -260,8 +262,10 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 			return false;
 		}
 
-		$count  = (int) get_user_option( '_bbp_reply_count', $user_id );
-		$filter = ( true === $integer ) ? 'bbp_get_user_reply_count_int' : 'bbp_get_user_reply_count';
+		$count  = bbp_number_not_negative( get_user_option( '_bbp_reply_count', $user_id ) );
+		$filter = ( true === $integer )
+			? 'bbp_get_user_reply_count_int'
+			: 'bbp_get_user_reply_count';
 
 		return apply_filters( $filter, $count, $user_id );
 	}
@@ -301,8 +305,10 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
 
 		$topics  = bbp_get_user_topic_count( $user_id, true );
 		$replies = bbp_get_user_reply_count( $user_id, true );
-		$count   = (int) $topics + $replies;
-		$filter  = ( true === $integer ) ? 'bbp_get_user_post_count_int' : 'bbp_get_user_post_count';
+		$count   = bbp_number_not_negative( $topics + $replies );
+		$filter  = ( true === $integer )
+			? 'bbp_get_user_post_count_int'
+			: 'bbp_get_user_post_count';
 
 		return apply_filters( $filter, $count, $user_id );
 	}

@@ -389,6 +389,7 @@ final class bbPress {
 			'setup_theme',              // Setup the default theme compat
 			'setup_current_user',       // Setup currently logged in user
 			'roles_init',               // User roles init
+			'register_meta',            // Register meta (forum|topic|reply|user)
 			'register_post_types',      // Register post types (forum|topic|reply)
 			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
 			'register_taxonomies',      // Register taxonomies (topic-tag)
@@ -746,6 +747,44 @@ final class bbPress {
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
+	}
+
+	/**
+	 * Register bbPress meta-data
+	 *
+	 * Counts added in 2.6.0 to avoid negative values
+	 *
+	 * @since 2.6.0 bbPress (r6300)
+	 */
+	public function register_meta() {
+
+		// Define "count" meta-type array
+		$count = array(
+			'type'              => 'integer',
+			'description'       => esc_html__( 'bbPress Item Count', 'bbpress' ),
+			'single'            => true,
+			'sanitize_callback' => 'bbp_number_not_negative',
+			'show_in_rest'      => true
+		);
+
+		/** Post **************************************************************/
+
+		// Counts
+		register_meta( 'post', '_bbp_topic_count',           $count );
+		register_meta( 'post', '_bbp_reply_count',           $count );
+		register_meta( 'post', '_bbp_total_topic_count',     $count );
+		register_meta( 'post', '_bbp_total_reply_count',     $count );
+		register_meta( 'post', '_bbp_voice_count',           $count );
+		register_meta( 'post', '_bbp_anonymous_reply_count', $count );
+		register_meta( 'post', '_bbp_topic_count_hidden',    $count );
+		register_meta( 'post', '_bbp_reply_count_hidden',    $count );
+		register_meta( 'post', '_bbp_forum_subforum_count',  $count );
+
+		/* User ***************************************************************/
+
+		// Counts
+		register_meta( 'user', '_bbp_topic_count', $count );
+		register_meta( 'user', '_bbp_reply_count', $count );
 	}
 
 	/**

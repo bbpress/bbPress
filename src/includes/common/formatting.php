@@ -462,6 +462,35 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 /** Numbers *******************************************************************/
 
 /**
+ * Never let a numeric value be less than zero.
+ *
+ * @since 2.6.0 bbPress (r6300)
+ *
+ * @param int $number
+ */
+function bbp_number_not_negative( $number = 0 ) {
+
+	// Protect against formatted strings
+	if ( is_string( $number ) ) {
+		$number = strip_tags( $number );                    // No HTML
+		$number = preg_replace( '/[^0-9-]/', '', $number ); // No number-format
+
+	// Protect against objects, arrays, scalars, etc...
+	} elseif ( ! is_numeric( $number ) ) {
+		$number = 0;
+	}
+
+	// Make the number an integer
+	$int = intval( $number );
+
+	// Pick the maximum value, never less than zero
+	$not_less_than_zero = max( 0, $int );
+
+	// Filter & return
+	return apply_filters( 'bbp_number_not_negative', $not_less_than_zero, $int, $number );
+}
+
+/**
  * A bbPress specific method of formatting numeric values
  *
  * @since 2.0.0 bbPress (r2486)

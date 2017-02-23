@@ -877,8 +877,11 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
  * @return string reply revision count
  */
 function bbp_get_reply_revision_count( $reply_id = 0, $integer = false ) {
-	$count  = (int) count( bbp_get_reply_revisions( $reply_id ) );
-	$filter = ( true === $integer ) ? 'bbp_get_reply_revision_count_int' : 'bbp_get_reply_revision_count';
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$count    = bbp_number_not_negative( count( bbp_get_reply_revisions( $reply_id ) ) );
+	$filter   = ( true === $integer )
+		? 'bbp_get_reply_revision_count_int'
+		: 'bbp_get_reply_revision_count';
 
 	return apply_filters( $filter, $count, $reply_id );
 }
@@ -921,7 +924,10 @@ function bbp_reply_status( $reply_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_reply_published( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_public_status_id();
+	$reply_id     = bbp_get_reply_id( $reply_id );
+	$status       = bbp_get_public_status_id();
+	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+
 	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $reply_status, $reply_id );
 }
 
@@ -936,7 +942,10 @@ function bbp_is_reply_published( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_spam( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_spam_status_id();
+	$reply_id     = bbp_get_reply_id( $reply_id );
+	$status       = bbp_get_spam_status_id();
+	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+
 	return (bool) apply_filters( 'bbp_is_reply_spam', (bool) $reply_status, $reply_id );
 }
 
@@ -951,7 +960,10 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_trash( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_trash_status_id();
+	$reply_id     = bbp_get_reply_id( $reply_id );
+	$status       = bbp_get_trash_status_id();
+	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+
 	return (bool) apply_filters( 'bbp_is_reply_trash', (bool) $reply_status, $reply_id );
 }
 
@@ -967,7 +979,10 @@ function bbp_is_reply_trash( $reply_id = 0 ) {
  * @return bool True if pending, false if not.
  */
 function bbp_is_reply_pending( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_pending_status_id();
+	$reply_id     = bbp_get_reply_id( $reply_id );
+	$status       = bbp_get_pending_status_id();
+	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+
 	return (bool) apply_filters( 'bbp_is_reply_pending', (bool) $reply_status, $reply_id );
 }
 
@@ -983,7 +998,10 @@ function bbp_is_reply_pending( $reply_id = 0 ) {
  * @return bool True if private, false if not.
  */
 function bbp_is_reply_private( $reply_id = 0 ) {
-	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) ) === bbp_get_private_status_id();
+	$reply_id     = bbp_get_reply_id( $reply_id );
+	$status       = bbp_get_private_status_id();
+	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+
 	return (bool) apply_filters( 'bbp_is_reply_private', (bool) $reply_status, $reply_id );
 }
 
