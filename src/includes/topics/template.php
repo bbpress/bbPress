@@ -2206,7 +2206,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 
 		// First link never has view=all
 		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) ) ) . "'>$replies</a>";
+			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) ) ) . "'>" . esc_html( $replies ) . "</a>";
 		} else {
 			$retval .= $replies;
 		}
@@ -2218,7 +2218,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 		if ( ! empty( $deleted ) && current_user_can( 'edit_others_replies' ) ) {
 
 			// Extra text
-			$extra = ' ' . sprintf( _n( '(+ %d hidden)', '(+ %d hidden)', $deleted, 'bbpress' ), $deleted );
+			$extra = ' ' . sprintf( _n( '(%d hidden)', '(%d hidden)', $deleted, 'bbpress' ), $deleted );
 
 			// No link
 			if ( bbp_get_view_all() ) {
