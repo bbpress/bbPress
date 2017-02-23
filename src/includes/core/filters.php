@@ -186,9 +186,9 @@ add_filter( 'bbp_get_form_forum_visibility',  'esc_attr' );
 add_filter( 'bbp_get_form_forum_visibility',  'trim'     );
 add_filter( 'bbp_get_form_forum_moderators',  'esc_attr' );
 add_filter( 'bbp_get_form_forum_moderators',  'trim'     );
-add_filter( 'bbp_get_form_topic_forum',       'absint'   );
-add_filter( 'bbp_get_form_forum_parent',      'absint'   );
-add_filter( 'bbp_get_form_reply_to',          'absint'   );
+add_filter( 'bbp_get_form_topic_forum',       'intval'   );
+add_filter( 'bbp_get_form_forum_parent',      'intval'   );
+add_filter( 'bbp_get_form_reply_to',          'intval'   );
 
 // Add number format filter to functions requesting formatted values
 add_filter( 'bbp_get_user_topic_count',         'bbp_number_format', 10 );
@@ -206,19 +206,21 @@ add_filter( 'bbp_get_reply_revision_count',     'bbp_number_format', 10 );
 add_filter( 'bbp_get_forum_topic_count_hidden', 'bbp_number_format', 10 );
 add_filter( 'bbp_get_topic_reply_count_hidden', 'bbp_number_format', 10 );
 
-// Add absint filter to functions expecting absolute values
-add_filter( 'bbp_get_user_topic_count_int',         'absint', 10 );
-add_filter( 'bbp_get_user_reply_count_int',         'absint', 10 );
-add_filter( 'bbp_get_user_post_count_int',          'absint', 10 );
-add_filter( 'bbp_get_forum_subforum_count_int',     'absint', 10 );
-add_filter( 'bbp_get_forum_topic_count_int',        'absint', 10 );
-add_filter( 'bbp_get_forum_reply_count_int',        'absint', 10 );
-add_filter( 'bbp_get_forum_post_count_int',         'absint', 10 );
-add_filter( 'bbp_get_topic_voice_count_int',        'absint', 10 );
-add_filter( 'bbp_get_topic_reply_count_int',        'absint', 10 );
-add_filter( 'bbp_get_topic_post_count_int',         'absint', 10 );
-add_filter( 'bbp_get_forum_topic_count_hidden_int', 'absint', 10 );
-add_filter( 'bbp_get_topic_reply_count_hidden_int', 'absint', 10 );
+// Add intval filter to functions expecting absolute values
+add_filter( 'bbp_get_user_topic_count_int',         'intval', 10 );
+add_filter( 'bbp_get_user_reply_count_int',         'intval', 10 );
+add_filter( 'bbp_get_user_post_count_int',          'intval', 10 );
+add_filter( 'bbp_get_forum_subforum_count_int',     'intval', 10 );
+add_filter( 'bbp_get_forum_topic_count_int',        'intval', 10 );
+add_filter( 'bbp_get_forum_reply_count_int',        'intval', 10 );
+add_filter( 'bbp_get_forum_post_count_int',         'intval', 10 );
+add_filter( 'bbp_get_topic_voice_count_int',        'intval', 10 );
+add_filter( 'bbp_get_topic_reply_count_int',        'intval', 10 );
+add_filter( 'bbp_get_topic_post_count_int',         'intval', 10 );
+add_filter( 'bbp_get_forum_topic_count_hidden_int', 'intval', 10 );
+add_filter( 'bbp_get_topic_reply_count_hidden_int', 'intval', 10 );
+add_filter( 'bbp_get_topic_revision_count_int',     'intval', 10 );
+add_filter( 'bbp_get_reply_revision_count_int',     'intval', 10 );
 
 // Sanitize displayed user data
 add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field', 10, 3 );
