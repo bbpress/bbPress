@@ -848,17 +848,21 @@ function bbp_forum_subscription_link( $args = array() ) {
 	 */
 	function bbp_get_forum_subscription_link( $args = array() ) {
 
-		// No link
-		$retval = false;
+		// Defaults
+		$retval      = false;
+		$redirect_to = bbp_is_favorites()
+			? bbp_get_favorites_permalink()
+			: '';
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'forum_id'    => 0,
 			'user_id'     => 0,
+			'forum_id'    => 0,
 			'before'      => '',
 			'after'       => '',
 			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' )
+			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
+			'redirect_to' => $redirect_to
 		), 'get_forum_subscribe_link' );
 
 		// No link for categories until we support subscription hierarchy
