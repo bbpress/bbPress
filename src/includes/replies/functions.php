@@ -2288,7 +2288,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 	// Adjust the title based on context
 	if ( bbp_is_single_topic() ) {
-		$title = apply_filters( 'wp_title_rss', get_wp_title_rss() );
+		$title = get_wp_title_rss();
 	} elseif ( ! bbp_show_lead_topic() ) {
 		$title = get_bloginfo_rss( 'name' ) . ' &#187; ' .  __( 'All Posts',   'bbpress' );
 	} else {
