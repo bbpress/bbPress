@@ -535,8 +535,10 @@ function bbp_favorites_handler( $action = '' ) {
 	if ( true === $success ) {
 
 		// Redirect back from whence we came
-		if ( bbp_is_favorites() ) {
-			$redirect = bbp_get_favorites_permalink( $user_id );
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$redirect = $_REQUEST['redirect_to']; // Validated later
+		} elseif ( bbp_is_favorites() ) {
+			$redirect = bbp_get_favorites_permalink( $user_id, true );
 		} elseif ( bbp_is_single_user() ) {
 			$redirect = bbp_get_user_profile_url();
 		} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
@@ -1192,7 +1194,9 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 	if ( true === $success ) {
 
 		// Redirect back from whence we came
-		if ( bbp_is_subscriptions() ) {
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$redirect = $_REQUEST['redirect_to']; // Validated later
+		} elseif ( bbp_is_subscriptions() ) {
 			$redirect = bbp_get_subscriptions_permalink( $user_id );
 		} elseif ( bbp_is_single_user() ) {
 			$redirect = bbp_get_user_profile_url();
@@ -1297,7 +1301,9 @@ function bbp_subscriptions_handler( $action = '' ) {
 	if ( true === $success ) {
 
 		// Redirect back from whence we came
-		if ( bbp_is_subscriptions() ) {
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$redirect = $_REQUEST['redirect_to']; // Validated later
+		} elseif ( bbp_is_subscriptions() ) {
 			$redirect = bbp_get_subscriptions_permalink( $user_id );
 		} elseif ( bbp_is_single_user() ) {
 			$redirect = bbp_get_user_profile_url();
