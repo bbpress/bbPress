@@ -4089,8 +4089,8 @@ function bbp_topic_content_autoembed() {
  * @uses bbp_has_topics()
  * @uses bbp_topics()
  * @uses bbp_the_topic()
+ * @uses get_bloginfo_rss()
  * @uses get_option()
- * @uses bloginfo_rss()
  * @uses self_link()
  * @uses the_author()
  * @uses get_post_time()
@@ -4106,6 +4106,10 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	if ( bbp_is_single_forum() && ! bbp_user_can_view_forum( array( 'forum_id' => bbp_get_forum_id() ) ) ) {
 		return;
 	}
+
+	// Feed title
+	$title = get_bloginfo_rss( 'name' ) . ' &#187; ' . __( 'All Topics', 'bbpress' );
+	$title = apply_filters( 'wp_title_rss', $title );
 
 	// Display the feed
 	header( 'Content-Type: ' . feed_content_type( 'rss2' ) . '; charset=' . get_option( 'blog_charset' ), true );
@@ -4123,7 +4127,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 	<channel>
 
-		<title><?php bloginfo_rss( 'name' ); ?> &#187; <?php _e( 'All Topics', 'bbpress' ); ?></title>
+		<title><?php echo $title; ?></title>
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
