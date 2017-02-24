@@ -829,19 +829,40 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 			return $early_profile_url;
 		}
 
-		// Get user profile URL
+		// Get user profile URL & page
 		$profile_url = bbp_get_user_profile_url( $user_id );
+		$page        = (int)  bbpress()->topic_query->paged;
+		$paged       = (bool) bbpress()->topic_query->in_the_loop;
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
+
+			// Base URL
 			$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_slug();
+
+			// Add page
+			if ( true === $paged ) {
+				$url = trailingslashit( $url ) . bbp_get_paged_slug() . '/' . $page;
+			}
+
+			// Ensure correct trailing slash
 			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
+
+			// Base arguments
+			$args = array(
 				bbp_get_user_favorites_rewrite_id() => bbp_get_user_favorites_slug(),
-			), $profile_url );
+			);
+
+			// Add page
+			if ( true === $paged ) {
+				$args['page'] = $page;
+			}
+
+			// Add arguments
+			$url = add_query_arg( $args, $profile_url );
 		}
 
 		return apply_filters( 'bbp_get_favorites_permalink', $url, $user_id );
@@ -896,12 +917,13 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'favorite'  => __( 'Favorite',   'bbpress' ),
-			'favorited' => __( 'Unfavorite', 'bbpress' ),
-			'user_id'   => 0,
-			'topic_id'  => 0,
-			'before'    => '',
-			'after'     => ''
+			'favorite'    => __( 'Favorite',   'bbpress' ),
+			'favorited'   => __( 'Unfavorite', 'bbpress' ),
+			'user_id'     => 0,
+			'topic_id'    => 0,
+			'before'      => '',
+			'after'       => '',
+			'redirect_to' => ''
 		), 'get_user_favorites_link' );
 
 		// Validate user and topic ID's
@@ -924,6 +946,11 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		} else {
 			$text       = $r['favorite'];
 			$query_args = array( 'action' => 'bbp_favorite_add',    'topic_id' => $topic_id );
+		}
+
+		// Custom redirect
+		if ( ! empty( $r['redirect_to'] ) ) {
+			$query_args['redirect_to'] = esc_url( $r['redirect_to'] );
 		}
 
 		// Create the link based where the user is and if the topic is
@@ -989,17 +1016,38 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 
 		// Get user profile URL
 		$profile_url = bbp_get_user_profile_url( $user_id );
+		$page        = (int)  bbpress()->topic_query->paged;
+		$paged       = (bool) bbpress()->topic_query->in_the_loop;
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
+
+			// Base URL
 			$url = trailingslashit( $profile_url ) . bbp_get_user_subscriptions_slug();
+
+			// Add page
+			if ( true === $paged ) {
+				$url = trailingslashit( $url ) . bbp_get_paged_slug() . '/' . $page;
+			}
+
+			// Ensure correct trailing slash
 			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
+
+			// Base arguments
+			$args = array(
 				bbp_get_user_subscriptions_rewrite_id() => bbp_get_user_subscriptions_slug(),
-			), $profile_url );
+			);
+
+			// Add page
+			if ( true === $paged ) {
+				$args['page'] = $page;
+			}
+
+			// Add arguments
+			$url = add_query_arg( $args, $profile_url );
 		}
 
 		return apply_filters( 'bbp_get_subscriptions_permalink', $url, $user_id );
@@ -1061,7 +1109,8 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 			'topic_id'    => 0,
 			'forum_id'    => 0,
 			'before'      => '&nbsp;|&nbsp;',
-			'after'       => ''
+			'after'       => '',
+			'redirect_to' => ''
 		), 'get_user_subscribe_link' );
 
 		// Validate user and object ID's
@@ -1088,6 +1137,11 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 			} else {
 				$text       = $r['subscribe'];
 				$query_args = array( 'action' => 'bbp_subscribe',   'forum_id' => $forum_id );
+			}
+
+			// Custom redirect
+			if ( ! empty( $r['redirect_to'] ) ) {
+				$query_args['redirect_to'] = urlencode( $r['redirect_to'] );
 			}
 
 			// Create the link based where the user is and if the user is
@@ -1119,6 +1173,11 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 			} else {
 				$text       = $r['subscribe'];
 				$query_args = array( 'action' => 'bbp_subscribe',   'topic_id' => $topic_id );
+			}
+
+			// Custom redirect
+			if ( ! empty( $r['redirect_to'] ) ) {
+				$query_args['redirect_to'] = esc_url( $r['redirect_to'] );
 			}
 
 			// Create the link based where the user is and if the user is
