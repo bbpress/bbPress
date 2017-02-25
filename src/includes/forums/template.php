@@ -828,6 +828,7 @@ function bbp_list_forums( $args = array() ) {
  * Output the forum subscription link
  *
  * @since 2.5.0 bbPress (r5156)
+ * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
  *
  * @uses bbp_get_forum_subscription_link()
  */
@@ -841,6 +842,7 @@ function bbp_forum_subscription_link( $args = array() ) {
 	 * A custom wrapper for bbp_get_user_subscribe_link()
 	 *
 	 * @since 2.5.0 bbPress (r5156)
+	 * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
 	 *
 	 * @uses bbp_parse_args()
 	 * @uses bbp_get_user_subscribe_link()
@@ -850,8 +852,8 @@ function bbp_forum_subscription_link( $args = array() ) {
 
 		// Defaults
 		$retval      = false;
-		$redirect_to = bbp_is_favorites()
-			? bbp_get_favorites_permalink()
+		$redirect_to = bbp_is_subscriptions()
+			? bbp_get_subscriptions_permalink()
 			: '';
 
 		// Parse the arguments

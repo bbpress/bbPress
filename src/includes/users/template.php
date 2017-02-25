@@ -797,6 +797,7 @@ function bbp_author_url( $post_id = 0 ) {
  * Output the link to the user's favorites page (profile page)
  *
  * @since 2.0.0 bbPress (r2652)
+ * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_favorites_permalink() To get the favorites permalink
@@ -808,6 +809,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 	 * Return the link to the user's favorites page (profile page)
 	 *
 	 * @since 2.0.0 bbPress (r2652)
+	 * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
 	 *
 	 * @param int $user_id Optional. User id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
@@ -841,7 +843,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_user_favorites_slug();
 
 			// Add page
-			if ( true === $paged ) {
+			if ( ( true === $paged ) && ( $page > 1 ) ) {
 				$url = trailingslashit( $url ) . bbp_get_paged_slug() . '/' . $page;
 			}
 
@@ -857,7 +859,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 			);
 
 			// Add page
-			if ( true === $paged ) {
+			if ( ( true === $paged ) && ( $page > 1 ) ) {
 				$args['page'] = $page;
 			}
 
@@ -872,6 +874,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
  * Output the link to make a topic favorite/remove a topic from favorites
  *
  * @since 2.0.0 bbPress (r2652)
+ * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_favorites_link()}
  * @param int $user_id Optional. User id
@@ -888,6 +891,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 * favorites
 	 *
 	 * @since 2.0.0 bbPress (r2652)
+	 * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - subscribe: Favorite text
@@ -911,6 +915,8 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 * @return string User favorites link
 	 */
 	function bbp_get_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) {
+
+		// Bail if favorites are inactive
 		if ( ! bbp_is_favorites_active() ) {
 			return false;
 		}
@@ -950,7 +956,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 		// Custom redirect
 		if ( ! empty( $r['redirect_to'] ) ) {
-			$query_args['redirect_to'] = esc_url( $r['redirect_to'] );
+			$query_args['redirect_to'] = urlencode( $r['redirect_to'] );
 		}
 
 		// Create the link based where the user is and if the topic is
@@ -982,6 +988,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
  * Output the link to the user's subscriptions page (profile page)
  *
  * @since 2.0.0 bbPress (r2688)
+ * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_subscriptions_permalink() To get the subscriptions link
@@ -993,6 +1000,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 	 * Return the link to the user's subscriptions page (profile page)
 	 *
 	 * @since 2.0.0 bbPress (r2688)
+	 * @since 2.6.0 bbPress (r6308) Add pagination if in the loop
 	 *
 	 * @param int $user_id Optional. User id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
@@ -1016,9 +1024,19 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 
 		// Get user profile URL
 		$profile_url = bbp_get_user_profile_url( $user_id );
-		$page        = (int)  bbpress()->topic_query->paged;
-		$paged       = (bool) bbpress()->topic_query->in_the_loop;
+		$page        = 0;
+		$paged       = false;
 
+		// Get pagination data
+		if ( bbpress()->topic_query->in_the_loop ) {
+			$page  = (int)  bbpress()->topic_query->paged;
+			$paged = (bool) bbpress()->topic_query->in_the_loop;
+
+		} elseif ( bbpress()->forum_query->in_the_loop ) {
+			$page  = (int)  bbpress()->forum_query->paged;
+			$paged = (bool) bbpress()->forum_query->in_the_loop;
+		}
+		
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
 
@@ -1026,7 +1044,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 			$url = trailingslashit( $profile_url ) . bbp_get_user_subscriptions_slug();
 
 			// Add page
-			if ( true === $paged ) {
+			if ( ( true === $paged ) && ( $page > 1 ) ) {
 				$url = trailingslashit( $url ) . bbp_get_paged_slug() . '/' . $page;
 			}
 
@@ -1042,7 +1060,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 			);
 
 			// Add page
-			if ( true === $paged ) {
+			if ( ( true === $paged ) && ( $page > 1 ) ) {
 				$args['page'] = $page;
 			}
 
@@ -1057,6 +1075,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
  * Output the link to subscribe/unsubscribe from a topic
  *
  * @since 2.0.0 bbPress (r2668)
+ * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
  *
  * @param array $args See {@link bbp_get_user_subscribe_link()}
  * @param int $user_id Optional. User id
@@ -1070,6 +1089,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 * Return the link to subscribe/unsubscribe from a forum or topic
 	 *
 	 * @since 2.0.0 bbPress (r2668)
+	 * @since 2.6.0 bbPress (r6308) Add 'redirect_to' support
 	 *
 	 * @param array $args This function supports these arguments:
 	 *  - subscribe: Subscribe text
@@ -1097,6 +1117,8 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) {
+
+		// Bail if subscriptions are inactive
 		if ( ! bbp_is_subscriptions_active() ) {
 			return;
 		}
@@ -1177,7 +1199,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 			// Custom redirect
 			if ( ! empty( $r['redirect_to'] ) ) {
-				$query_args['redirect_to'] = esc_url( $r['redirect_to'] );
+				$query_args['redirect_to'] = urlencode( $r['redirect_to'] );
 			}
 
 			// Create the link based where the user is and if the user is
