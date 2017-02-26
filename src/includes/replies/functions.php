@@ -2315,7 +2315,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
-		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', current_time( 'mysql' ), false ); ?></pubDate>
+		<lastBuildDate><?php echo date( 'r' ); ?></lastBuildDate>
 		<generator>https://bbpress.org/?v=<?php bbp_version(); ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
 
