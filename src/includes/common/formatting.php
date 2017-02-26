@@ -303,9 +303,37 @@ function bbp_rel_nofollow( $text = '' ) {
  * @return string $text Link with rel=nofollow added
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
-	$text = $matches[1];
-	$text = str_replace( array( ' rel="nofollow"', " rel='nofollow'" ), '', $text );
-	return "<a $text rel=\"nofollow\">";
+	$text     = $matches[1];
+	$atts     = shortcode_parse_atts( $matches[1] );
+	$rel      = 'nofollow';
+	$home_url = home_url();
+
+	// Bail on links that match the current domain
+	if ( preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text ) ||
+	     preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
+	) {
+		return "<a {$text}>";
+	}
+
+	// Avoid collisions with existing "rel" attribute
+	if ( ! empty( $atts['rel'] ) ) {
+		$parts = array_map( 'trim', explode( ' ', $atts['rel'] ) );
+		if ( false === array_search( 'nofollow', $parts ) ) {
+			$parts[] = 'nofollow';
+		}
+
+		$rel = implode( ' ', $parts );
+		unset( $atts['rel'] );
+
+		$html = '';
+		foreach ( $atts as $name => $value ) {
+			$html .= "{$name}=\"{$value}\" ";
+		}
+
+		$text = trim( $html );
+	}
+
+	return "<a {$text} rel=\"{$rel}\">";
 }
 
 /** Make Clickable ************************************************************/
