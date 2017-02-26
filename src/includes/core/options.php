@@ -34,6 +34,7 @@ function bbp_get_default_options() {
 		'_bbp_throttle_time'          => 10,                         // Throttle post time to 10 seconds
 		'_bbp_enable_favorites'       => 1,                          // Favorites
 		'_bbp_enable_subscriptions'   => 1,                          // Subscriptions
+		'bbp_is_engagements_active'   => 1,                          // Engagements
 		'_bbp_allow_anonymous'        => 0,                          // Allow anonymous posting
 		'_bbp_allow_global_access'    => 1,                          // Users from all sites can post
 		'_bbp_allow_revisions'        => 1,                          // Allow revisions
