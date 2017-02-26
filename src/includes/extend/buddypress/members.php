@@ -68,9 +68,10 @@ class BBP_BuddyPress_Members {
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_filters() {
-		add_filter( 'bbp_pre_get_user_profile_url',    array( $this, 'user_profile_url'            )        );
-		add_filter( 'bbp_get_favorites_permalink',     array( $this, 'get_favorites_permalink'     ), 10, 2 );
-		add_filter( 'bbp_get_subscriptions_permalink', array( $this, 'get_subscriptions_permalink' ), 10, 2 );
+		add_filter( 'bbp_pre_get_user_profile_url',     array( $this, 'user_profile_url'            )        );
+		add_filter( 'bbp_pre_get_user_engagements_url', array( $this, 'get_engagements_permalink'   )        );
+		add_filter( 'bbp_get_favorites_permalink',      array( $this, 'get_favorites_permalink'     ), 10, 2 );
+		add_filter( 'bbp_get_subscriptions_permalink',  array( $this, 'get_subscriptions_permalink' ), 10, 2 );
 	}
 
 	/** Filters ***************************************************************/
@@ -179,7 +180,7 @@ class BBP_BuddyPress_Members {
 	 * @param int $user_id
 	 * @return string
 	 */
-	public function get_engagements_permalink( $url, $user_id ) {
+	public function get_engagements_permalink( $user_id ) {
 
 		// Do not filter if not on BuddyPress root blog
 		if ( ! bp_is_root_blog() ) {
@@ -216,6 +217,10 @@ class BBP_BuddyPress_Members {
 		// 'subscriptions' action
 		} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( bbp_get_user_subscriptions_slug() ) ) {
 			$wp_query->bbp_is_single_user_subs = true;
+
+		// 'engagements' action
+		} elseif ( bbp_is_engagements_active() && bp_is_current_action( bbp_get_user_engagements_slug() ) ) {
+			$wp_query->bbp_is_single_user_engagements = true;
 		}
 	}
 }

@@ -277,6 +277,7 @@ class BBP_Forums_Component extends BP_Component {
 				$my_account_link       = bbp_get_user_profile_url( $user_id );
 				$my_topics_link        = bbp_get_user_topics_created_url( $user_id );
 				$my_replies_link       = bbp_get_user_replies_created_url( $user_id );
+				$my_engagements_link   = bbp_get_user_engagements_url( $user_id );
 				$my_favorites_link     = bbp_get_favorites_permalink( $user_id );
 				$my_subscriptions_link = bbp_get_subscriptions_permalink( $user_id );
 			} else {
@@ -288,6 +289,7 @@ class BBP_Forums_Component extends BP_Component {
 				$my_account_link       = trailingslashit( $forums_link );
 				$my_topics_link        = trailingslashit( $forums_link . bbp_get_topic_archive_slug() );
 				$my_replies_link       = trailingslashit( $forums_link . bbp_get_reply_archive_slug() );
+				$my_engagements_link   = trailingslashit( $forums_link . bbp_get_user_engagements_slug() );
 				$my_favorites_link     = trailingslashit( $forums_link . bbp_get_user_favorites_slug() );
 				$my_subscriptions_link = trailingslashit( $forums_link . bbp_get_user_subscriptions_slug() );
 			}
@@ -316,21 +318,35 @@ class BBP_Forums_Component extends BP_Component {
 				'href'   => $my_replies_link
 			);
 
+			// Engagements
+			if ( bbp_is_engagements_active() ) {
+				$wp_admin_nav[] = array(
+					'parent' => 'my-account-' . $this->id,
+					'id'     => 'my-account-' . $this->id . '-engagements',
+					'title'  => __( 'Engagements', 'bbpress' ),
+					'href'   => $my_engagements_link
+				);
+			}
+
 			// Favorites
-			$wp_admin_nav[] = array(
-				'parent' => 'my-account-' . $this->id,
-				'id'     => 'my-account-' . $this->id . '-favorites',
-				'title'  => __( 'Favorite Topics', 'bbpress' ),
-				'href'   => $my_favorites_link
-			);
+			if ( bbp_is_favorites_active() ) {
+				$wp_admin_nav[] = array(
+					'parent' => 'my-account-' . $this->id,
+					'id'     => 'my-account-' . $this->id . '-favorites',
+					'title'  => __( 'Favorite Topics', 'bbpress' ),
+					'href'   => $my_favorites_link
+				);
+			}
 
 			// Subscriptions
-			$wp_admin_nav[] = array(
-				'parent' => 'my-account-' . $this->id,
-				'id'     => 'my-account-' . $this->id . '-subscriptions',
-				'title'  => __( 'Subscribed Topics', 'bbpress' ),
-				'href'   => $my_subscriptions_link
-			);
+			if ( bbp_is_subscriptions_active() ) {
+				$wp_admin_nav[] = array(
+					'parent' => 'my-account-' . $this->id,
+					'id'     => 'my-account-' . $this->id . '-subscriptions',
+					'title'  => __( 'Subscribed Topics', 'bbpress' ),
+					'href'   => $my_subscriptions_link
+				);
+			}
 		}
 
 		parent::setup_admin_bar( $wp_admin_nav );
