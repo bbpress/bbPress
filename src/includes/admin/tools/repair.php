@@ -232,7 +232,7 @@ function bbp_admin_repair_topic_voice_count() {
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `meta_key` = '_bbp_voice_count'";
+	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key IN ('_bbp_voice_count', '_bbp_engagement')";
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
@@ -243,19 +243,27 @@ function bbp_admin_repair_topic_voice_count() {
 	$pps = bbp_get_public_status_id();
 	$cps = bbp_get_closed_status_id();
 
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
-			SELECT `postmeta`.`meta_value`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value`
-				FROM `{$bbp_db->posts}` AS `posts`
-				LEFT JOIN `{$bbp_db->postmeta}` AS `postmeta`
-					ON `posts`.`ID` = `postmeta`.`post_id`
-					AND `postmeta`.`meta_key` = '_bbp_topic_id'
-				WHERE `posts`.`post_type` IN ( '{$tpt}', '{$rpt}' )
-					AND `posts`.`post_status` IN ( '{$pps}', '{$cps}' )
-					AND `posts`.`post_author` != '0'
-				GROUP BY `postmeta`.`meta_value`)";
+	$voice_id_sql = $bbp_db->prepare( "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
+		SELECT postmeta.meta_value, '_bbp_engagement', posts.post_author
+			FROM {$bbp_db->posts} AS posts
+			LEFT JOIN {$bbp_db->postmeta} AS postmeta
+				ON posts.ID = postmeta.post_id
+				AND postmeta.meta_key = '_bbp_topic_id'
+			WHERE posts.post_type IN (%s, %s)
+				AND posts.post_status IN (%s, %s))", $tpt, $rpt, $pps, $cps );
 
-	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
+	if ( is_wp_error( $bbp_db->query( $voice_id_sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
+	}
+
+	$voice_count_sql = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
+		SELECT post_id, '_bbp_voice_count', COUNT(DISTINCT meta_value)
+			FROM {$bbp_db->postmeta}
+			WHERE meta_key = '_bbp_engagement'
+			GROUP BY post_id ORDER BY post_id)";
+
+	if ( is_wp_error( $bbp_db->query( $voice_count_sql ) ) ) {
+		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'bbpress' ) ) );
@@ -694,6 +702,7 @@ function bbp_admin_repair_user_favorites() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	// Query for users with favorites
+	$key       = $bbp_db->prefix . '_bbp_favorites';
 	$users     = $bbp_db->get_results( "SELECT `user_id`, `meta_value` AS `favorites` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '{$key}'" );
 
 	if ( is_wp_error( $users ) ) {

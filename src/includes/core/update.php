@@ -326,6 +326,7 @@ function bbp_version_updater() {
 				bbp_admin_upgrade_user_favorites();
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();
+				bbp_admin_repair_topic_voice_count();
 			}
 		}
 	}

@@ -313,6 +313,9 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 		case bbp_get_user_subscriptions_rewrite_id() :
 			$name = esc_html__( 'Subscriptions', 'bbpress' );
 			break;
+		case bbp_get_user_engagements_rewrite_id() :
+			$name = esc_html__( 'Engagements', 'bbpress' );
+			break;
 		default :
 			$name = ucwords( $component );
 			break;

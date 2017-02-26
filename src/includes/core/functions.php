@@ -539,7 +539,7 @@ function bbp_get_user_replies_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user caps rewrite rules
+ * Return the unique ID for user favorites rewrite rules
  *
  * @since 2.2.0 bbPress (r4181)
  *
@@ -550,7 +550,7 @@ function bbp_get_user_favorites_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user caps rewrite rules
+ * Return the unique ID for user subscriptions rewrite rules
  *
  * @since 2.2.0 bbPress (r4181)
  *
@@ -558,6 +558,17 @@ function bbp_get_user_favorites_rewrite_id() {
  */
 function bbp_get_user_subscriptions_rewrite_id() {
 	return bbpress()->subs_id;
+}
+
+/**
+ * Return the unique ID for user engagement rewrite rules
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @return string
+ */
+function bbp_get_user_engagements_rewrite_id() {
+	return bbpress()->engagements_id;
 }
 
 /**

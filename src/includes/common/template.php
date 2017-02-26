@@ -614,12 +614,12 @@ function bbp_is_topics_created() {
 }
 
 /**
- * Check if current page shows the topics created by a bbPress user (profile
+ * Check if current page shows the replies created by a bbPress user (profile
  * page)
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return bool True if it's the topics created page, false if not
+ * @return bool True if it's the replies created page, false if not
  */
 function bbp_is_replies_created() {
 	global $wp_query;
@@ -791,6 +791,28 @@ function bbp_is_single_user_replies() {
 	}
 
 	return (bool) apply_filters( 'bbp_is_single_user_replies', $retval );
+}
+
+/**
+ * Check if current page is a user engagements page
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user_engagements is set to true
+ * @return bool True if it's a user's replies page, false if not
+ */
+function bbp_is_single_user_engagements() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( ! empty( $wp_query->bbp_is_single_user_engagements ) && ( true === $wp_query->bbp_is_single_user_engagements ) ) {
+		$retval = true;
+	}
+
+	return (bool) apply_filters( 'bbp_is_single_user_engagements', $retval );
 }
 
 /**

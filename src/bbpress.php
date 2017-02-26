@@ -246,15 +246,16 @@ final class bbPress {
 		$this->trash_status_id   = apply_filters( 'bbp_trash_post_status',   'trash'   );
 
 		// Other identifiers
-		$this->user_id           = apply_filters( 'bbp_user_id',   'bbp_user'   );
-		$this->tops_id           = apply_filters( 'bbp_tops_id',   'bbp_tops'   );
-		$this->reps_id           = apply_filters( 'bbp_reps_id',   'bbp_reps'   );
-		$this->favs_id           = apply_filters( 'bbp_favs_id',   'bbp_favs'   );
-		$this->subs_id           = apply_filters( 'bbp_subs_id',   'bbp_subs'   );
-		$this->view_id           = apply_filters( 'bbp_view_id',   'bbp_view'   );
-		$this->edit_id           = apply_filters( 'bbp_edit_id',   'edit'       );
-		$this->paged_id          = apply_filters( 'bbp_paged_id',  'paged'      );
-		$this->search_id         = apply_filters( 'bbp_search_id', 'bbp_search' );
+		$this->user_id           = apply_filters( 'bbp_user_id',        'bbp_user'        );
+		$this->tops_id           = apply_filters( 'bbp_tops_id',        'bbp_tops'        );
+		$this->reps_id           = apply_filters( 'bbp_reps_id',        'bbp_reps'        );
+		$this->favs_id           = apply_filters( 'bbp_favs_id',        'bbp_favs'        );
+		$this->subs_id           = apply_filters( 'bbp_subs_id',        'bbp_subs'        );
+		$this->view_id           = apply_filters( 'bbp_view_id',        'bbp_view'        );
+		$this->edit_id           = apply_filters( 'bbp_edit_id',        'edit'            );
+		$this->paged_id          = apply_filters( 'bbp_paged_id',       'paged'           );
+		$this->search_id         = apply_filters( 'bbp_search_id',      'bbp_search'      );
+		$this->engagements_id    = apply_filters( 'bbp_engagements_id', 'bbp_engagements' );
 
 		/** Queries ***********************************************************/
 
@@ -836,6 +837,7 @@ final class bbPress {
 		add_rewrite_tag( '%' . bbp_get_user_rewrite_id()               . '%', '([^/]+)'   ); // User Profile tag
 		add_rewrite_tag( '%' . bbp_get_user_favorites_rewrite_id()     . '%', '([1]{1,})' ); // User Favorites tag
 		add_rewrite_tag( '%' . bbp_get_user_subscriptions_rewrite_id() . '%', '([1]{1,})' ); // User Subscriptions tag
+		add_rewrite_tag( '%' . bbp_get_user_engagements_rewrite_id()   . '%', '([1]{1,})' ); // User Engagements tag
 		add_rewrite_tag( '%' . bbp_get_user_topics_rewrite_id()        . '%', '([1]{1,})' ); // User Topics Tag
 		add_rewrite_tag( '%' . bbp_get_user_replies_rewrite_id()       . '%', '([1]{1,})' ); // User Replies Tag
 	}
@@ -877,6 +879,7 @@ final class bbPress {
 		$paged_slug         = bbp_get_paged_slug();
 		$user_favs_slug     = bbp_get_user_favorites_slug();
 		$user_subs_slug     = bbp_get_user_subscriptions_slug();
+		$user_engs_slug     = bbp_get_user_engagements_slug();
 
 		// Unique rewrite ID's
 		$feed_id            = 'feed';
@@ -889,6 +892,7 @@ final class bbPress {
 		$user_subs_id       = bbp_get_user_subscriptions_rewrite_id();
 		$user_tops_id       = bbp_get_user_topics_rewrite_id();
 		$user_reps_id       = bbp_get_user_replies_rewrite_id();
+		$user_engs_id       = bbp_get_user_engagements_rewrite_id();
 
 		// Rewrite rule matches used repeatedly below
 		$root_rule    = '/([^/]+)/?$';
@@ -907,10 +911,12 @@ final class bbPress {
 		$reps_rule       = '/([^/]+)/' . $reply_archive_slug . '/?$';
 		$favs_rule       = '/([^/]+)/' . $user_favs_slug     . '/?$';
 		$subs_rule       = '/([^/]+)/' . $user_subs_slug     . '/?$';
+		$engs_rule       = '/([^/]+)/' . $user_engs_slug     . '/?$';
 		$tops_paged_rule = '/([^/]+)/' . $topic_archive_slug . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$reps_paged_rule = '/([^/]+)/' . $reply_archive_slug . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$favs_paged_rule = '/([^/]+)/' . $user_favs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 		$subs_paged_rule = '/([^/]+)/' . $user_subs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
+		$engs_paged_rule = '/([^/]+)/' . $user_engs_slug     . '/' . $paged_slug . '/?([0-9]{1,})/?$';
 
 		// Edit Forum|Topic|Reply|Topic-tag
 		add_rewrite_rule( $forum_slug . $edit_rule, 'index.php?' . bbp_get_forum_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
@@ -923,10 +929,12 @@ final class bbPress {
 		add_rewrite_rule( $user_slug . $reps_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_reps_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $favs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_favs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $subs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_subs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
+		add_rewrite_rule( $user_slug . $engs_paged_rule, 'index.php?' . $user_id  . '=$matches[1]&' . $user_engs_id . '=1&' . $paged_id . '=$matches[2]', $priority );
 		add_rewrite_rule( $user_slug . $tops_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_tops_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $reps_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_reps_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $favs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_favs_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $subs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_subs_id . '=1',                               $priority );
+		add_rewrite_rule( $user_slug . $engs_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $user_engs_id . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $edit_rule,       'index.php?' . $user_id  . '=$matches[1]&' . $edit_id      . '=1',                               $priority );
 		add_rewrite_rule( $user_slug . $root_rule,       'index.php?' . $user_id  . '=$matches[1]',                                                       $priority );
 

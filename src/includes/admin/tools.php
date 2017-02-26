@@ -243,7 +243,7 @@ function bbp_register_default_repair_tools() {
 		'description' => __( 'Recount voices in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_voice_count',
 		'priority'    => 65,
-		'overhead'    => 'medium',
+		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
 
@@ -357,13 +357,24 @@ function bbp_register_default_repair_tools() {
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
 
+	// Migrate topic engagements to post-meta
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-user-topic-engagements-move',
+		'type'        => 'upgrade',
+		'description' => __( 'Upgrade topic engagements', 'bbpress' ),
+		'callback'    => 'bbp_admin_upgrade_user_engagements',
+		'priority'    => 120,
+		'overhead'    => 'medium',
+		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_engagements_rewrite_id() )
+	) );
+
 	// Remove favorites from user-meta
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-user-favorites-delete',
 		'type'        => 'upgrade',
 		'description' => __( 'Remove favorites from user-meta', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_favorites_from_usermeta',
-		'priority'    => 120,
+		'priority'    => 125,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 	) );
@@ -374,7 +385,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Remove topic subscriptions from user-meta', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta',
-		'priority'    => 125,
+		'priority'    => 130,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -385,7 +396,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Remove forum subscriptions from user-meta', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta',
-		'priority'    => 130,
+		'priority'    => 135,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );

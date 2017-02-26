@@ -359,6 +359,10 @@ function bbp_has_topics( $args = array() ) {
 			if ( bbp_is_single_user_topics() ) {
 				$base = bbp_get_user_topics_created_url( bbp_get_displayed_user_id() );
 
+			// User's engagements
+			} elseif ( bbp_is_single_user_engagements() ) {
+				$base = bbp_get_user_engagements_url( bbp_get_displayed_user_id() );
+
 			// User's favorites
 			} elseif ( bbp_is_favorites() ) {
 				$base = bbp_get_favorites_permalink( bbp_get_displayed_user_id() );

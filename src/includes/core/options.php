@@ -626,6 +626,17 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
 }
 
 /**
+ * Return the single user engagements slug
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @return string
+ */
+function bbp_get_user_engagements_slug( $default = 'engagements' ) {
+	return apply_filters( 'bbp_get_user_engagements_slug', get_option( '_bbp_user_engagements_slug', $default ) );
+}
+
+/**
  * Return the topic view slug
  *
  * @since 2.1.0 bbPress (r3759)

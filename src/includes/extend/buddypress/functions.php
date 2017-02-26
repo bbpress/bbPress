@@ -175,6 +175,19 @@ function bbp_member_forums_screen_replies() {
 }
 
 /**
+ * Hook bbPress engagements template into plugins template
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @uses add_action() To add the content hook
+ * @uses bp_core_load_template() To load the plugins template
+ */
+function bbp_member_forums_screen_engagements() {
+	add_action( 'bp_template_content', 'bbp_member_forums_engagements_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_engagements', 'members/single/plugins' ) );
+}
+
+/**
  * Hook bbPress favorites template into plugins template
  *
  * @since 2.1.0 bbPress (r3552)
@@ -234,6 +247,25 @@ function bbp_member_forums_replies_content() {
 	<div id="bbpress-forums" class="bbpress-wrapper">
 
 		<?php bbp_get_template_part( 'user', 'replies-created' ); ?>
+
+	</div>
+
+<?php
+}
+
+/**
+ * Get the topic engagements template part
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @uses bbp_get_template_part()
+ */
+function bbp_member_forums_engagements_content() {
+?>
+
+	<div id="bbpress-forums" class="bbpress-wrapper">
+
+		<?php bbp_get_template_part( 'user', 'engagements' ); ?>
 
 	</div>
 

@@ -536,10 +536,11 @@ function bbp_parse_query( $posts_query ) {
 
 		/** User Exists *******************************************************/
 
-		$is_favs    = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
-		$is_subs    = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
-		$is_topics  = $posts_query->get( bbp_get_user_topics_rewrite_id()        );
-		$is_replies = $posts_query->get( bbp_get_user_replies_rewrite_id()       );
+		$is_favs        = $posts_query->get( bbp_get_user_favorites_rewrite_id()     );
+		$is_subs        = $posts_query->get( bbp_get_user_subscriptions_rewrite_id() );
+		$is_topics      = $posts_query->get( bbp_get_user_topics_rewrite_id()        );
+		$is_replies     = $posts_query->get( bbp_get_user_replies_rewrite_id()       );
+		$is_engagements = $posts_query->get( bbp_get_user_engagements_rewrite_id()   );
 
 		// View or edit?
 		if ( ! empty( $is_edit ) ) {
@@ -580,6 +581,10 @@ function bbp_parse_query( $posts_query ) {
 		// User topics
 		} elseif ( ! empty( $is_replies ) ) {
 			$posts_query->bbp_is_single_user_replies = true;
+
+		// User engagements
+		} elseif ( ! empty( $is_engagements ) ) {
+			$posts_query->bbp_is_single_user_engagements = true;
 
 		// User profile
 		} else {

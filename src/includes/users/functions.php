@@ -266,7 +266,7 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $m
 /**
  * Get the users who have engaged in a topic
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_users_for_object() To get user ids who engaged
@@ -284,7 +284,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
 /**
  * Get a user's topic engagements
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_has_topics() To get the topics
@@ -310,7 +310,7 @@ function bbp_get_user_engagements( $user_id = 0 ) {
 /**
  * Get a user's engaged topic ids
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
  * @uses bbp_get_user_id() To get the user id
@@ -339,7 +339,7 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 /**
  * Check if a user is engaged in a topic or not
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -385,7 +385,7 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
 /**
  * Add a topic to user's engagements
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
@@ -424,7 +424,7 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
 /**
  * Remove a topic from user's engagements
  *
- * @since 2.6.0 bbPress (r6310)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id

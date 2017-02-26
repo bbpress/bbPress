@@ -1036,7 +1036,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 			$page  = (int)  bbpress()->forum_query->paged;
 			$paged = (bool) bbpress()->forum_query->in_the_loop;
 		}
-		
+
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
 
@@ -1477,7 +1477,7 @@ function bbp_edit_user_contact_methods() {
  * @since 2.2.0 bbPress (r4225)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_favorites_permalink() To get the favorites permalink
+ * @uses bbp_get_user_topics_created_url() To get the favorites permalink
  */
 function bbp_user_topics_created_url( $user_id = 0 ) {
 	echo esc_url( bbp_get_user_topics_created_url( $user_id ) );
@@ -1489,7 +1489,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 	 *
 	 * @param int $user_id Optional. User id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
+	 * @uses apply_filters() Calls 'bbp_get_user_topics_created_url' with the
 	 *                        user profile url and user id
 	 * @return string Permanent link to user profile page
 	 */
@@ -1525,7 +1525,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 	}
 
-/** Topics Created ************************************************************/
+/** Replies Created ************************************************************/
 
 /**
  * Output the link to the user's replies
@@ -1533,7 +1533,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4225)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_favorites_permalink() To get the favorites permalink
+ * @uses bbp_get_user_replies_created_url() To get the favorites permalink
  */
 function bbp_user_replies_created_url( $user_id = 0 ) {
 	echo esc_url( bbp_get_user_replies_created_url( $user_id ) );
@@ -1545,7 +1545,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 	 *
 	 * @param int $user_id Optional. User id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
+	 * @uses apply_filters() Calls 'bbp_get_user_replies_created_url' with the
 	 *                        user profile url and user id
 	 * @return string Permanent link to user profile page
 	 */
@@ -1579,6 +1579,62 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 		}
 
 		return apply_filters( 'bbp_get_user_replies_created_url', $url, $user_id );
+	}
+
+/** Engagements ***************************************************************/
+
+/**
+ * Output the link to the user's engagements
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_user_engagements_url() To get the engagements permalink
+ */
+function bbp_user_engagements_url( $user_id = 0 ) {
+	echo esc_url( bbp_get_user_engagements_url( $user_id ) );
+}
+	/**
+	 * Return the link to the user's engagements
+	 *
+	 * @since 2.6.0 bbPress (r6320)
+	 *
+	 * @param int $user_id Optional. User id
+	 * @uses bbp_get_user_profile_url() To get the user profile url
+	 * @uses apply_filters() Calls 'bbp_get_user_engagements_url' with the
+	 *                        user profile url and user id
+	 * @return string Permanent link to user profile page
+	 */
+	function bbp_get_user_engagements_url( $user_id = 0 ) {
+
+		// Use displayed user ID if there is one, and one isn't requested
+		$user_id = bbp_get_user_id( $user_id );
+		if ( empty( $user_id ) ) {
+			return false;
+		}
+
+		// Allow early overriding of the profile URL to cut down on processing
+		$early_url = apply_filters( 'bbp_pre_get_user_engagements_url', $user_id );
+		if ( is_string( $early_url ) ) {
+			return $early_url;
+		}
+
+		// Get user profile URL
+		$profile_url = bbp_get_user_profile_url( $user_id );
+
+		// Pretty permalinks
+		if ( bbp_use_pretty_urls() ) {
+			$url = trailingslashit( $profile_url ) . bbp_get_user_engagements_slug();
+			$url = user_trailingslashit( $url );
+
+		// Unpretty permalinks
+		} else {
+			$url = add_query_arg( array(
+				bbp_get_user_engagements_rewrite_id() => '1',
+			), $profile_url );
+		}
+
+		return apply_filters( 'bbp_get_user_engagements_url', $url, $user_id );
 	}
 
 /** Login *********************************************************************/
