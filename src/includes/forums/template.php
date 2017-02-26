@@ -782,6 +782,7 @@ function bbp_list_forums( $args = array() ) {
 		// Total count (for separator)
 		$i          = 0;
 		$total_subs = count( $sub_forums );
+
 		foreach ( $sub_forums as $sub_forum ) {
 			$i++; // Separator count
 
@@ -808,8 +809,13 @@ function bbp_list_forums( $args = array() ) {
 				? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
 				: '';
 
+			// Subforum classes
+			$subforum_classes      = array( 'bbp-forum-link' );
+			$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
+			$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'esc_attr', $subforum_classes ) ) . '"';
+
 			// Build this sub forums link
-			$output .= $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" class="bbp-forum-link">' . $title . $counts . '</a>' . $show_sep . $r['link_after'];
+			$output .= $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $show_sep . $r['link_after'];
 		}
 	}
 
