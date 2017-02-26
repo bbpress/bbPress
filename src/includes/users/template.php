@@ -624,7 +624,7 @@ function bbp_author_ip( $args = array() ) {
 /** Anonymous Fields **********************************************************/
 
 /**
- * Output the author disylay-name of a topic or reply.
+ * Output the author display-name of a topic or reply.
  *
  * Convenience function to ensure proper template functions are called
  * and correct filters are executed. Used primarily to display topic
@@ -640,7 +640,7 @@ function bbp_author_display_name( $post_id = 0 ) {
 }
 
 	/**
-	 * Return the author name of a topic or reply.
+	 * Return the author display-name of a topic or reply.
 	 *
 	 * Convenience function to ensure proper template functions are called
 	 * and correct filters are executed. Used primarily to display topic
@@ -1453,11 +1453,11 @@ function bbp_edit_user_forums_role() {
 }
 
 /**
- * Return user contact methods Selectbox
+ * Return user contact methods select box
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @uses _wp_get_user_contactmethods() To get the contact methods
+ * @uses wp_get_user_contact_methods() To get the contact methods
  * @uses apply_filters() Calls 'bbp_edit_user_contact_methods' with the methods
  * @return string User contact methods
  */
