@@ -1018,13 +1018,11 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 				// See https://bbpress.trac.wordpress.org/ticket/2838
 				bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
 
-				// Counts
-				bbp_update_topic_voice_count( $ancestor );
-
 				// Only update reply count if we're deleting a reply, or in the dashboard.
 				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
 					bbp_update_topic_reply_count(        $ancestor );
 					bbp_update_topic_reply_count_hidden( $ancestor );
+					bbp_update_topic_voice_count(        $ancestor );
 				}
 
 			// Forum meta relating to most recent topic
