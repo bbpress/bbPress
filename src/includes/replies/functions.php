@@ -2538,14 +2538,18 @@ function bbp_thread_replies() {
  */
 function bbp_list_replies( $args = array() ) {
 
+	// Get bbPress
+	$bbp = bbpress();
+
 	// Reset the reply depth
-	bbpress()->reply_query->reply_depth = 0;
+	$bbp->reply_query->reply_depth = 0;
 
 	// In reply loop
-	bbpress()->reply_query->in_the_loop = true;
+	$bbp->reply_query->in_the_loop = true;
 
+	// Parse arguments
 	$r = bbp_parse_args( $args, array(
-		'walker'       => null,
+		'walker'       => new BBP_Walker_Reply,
 		'max_depth'    => bbp_thread_replies_depth(),
 		'style'        => 'ul',
 		'callback'     => null,
@@ -2555,11 +2559,10 @@ function bbp_list_replies( $args = array() ) {
 	), 'list_replies' );
 
 	// Get replies to loop through in $_replies
-	$walker = new BBP_Walker_Reply;
-	$walker->paged_walk( bbpress()->reply_query->posts, $r['max_depth'], $r['page'], $r['per_page'], $r );
+	echo '<ul>' . $r['walker']->paged_walk( $bbp->reply_query->posts, $r['max_depth'], $r['page'], $r['per_page'], $r ) . '</ul>';
 
-	bbpress()->max_num_pages            = $walker->max_pages;
-	bbpress()->reply_query->in_the_loop = false;
+	$bbp->max_num_pages            = $r['walker']->max_pages;
+	$bbp->reply_query->in_the_loop = false;
 }
 
 /**

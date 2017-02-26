@@ -325,11 +325,11 @@ class BBP_Walker_Reply extends Walker {
 			case 'div':
 				break;
 			case 'ol':
-				echo "<ol class='bbp-threaded-replies'>\n";
+				$output .= "<ol class='bbp-threaded-replies'>\n";
 				break;
 			case 'ul':
 			default:
-				echo "<ul class='bbp-threaded-replies'>\n";
+				$output .= "<ul class='bbp-threaded-replies'>\n";
 				break;
 		}
 	}
@@ -350,11 +350,11 @@ class BBP_Walker_Reply extends Walker {
 			case 'div':
 				break;
 			case 'ol':
-				echo "</ol>\n";
+				$output .= "</ol>\n";
 				break;
 			case 'ul':
 			default:
-				echo "</ul>\n";
+				$output .= "</ul>\n";
 				break;
 		}
 	}
@@ -400,18 +400,20 @@ class BBP_Walker_Reply extends Walker {
 
 		// Check for a callback and use it if specified
 		if ( ! empty( $args['callback'] ) ) {
+			ob_start();
 			call_user_func( $args['callback'], $object, $args, $depth );
+			$output .= ob_get_clean();
 			return;
 		}
 
 		// Style for div or list element
 		if ( ! empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
-			echo "<div>\n";
+			$output .= "<div>\n";
 		} else {
-			echo "<li>\n";
+			$output .= "<li>\n";
 		}
 
-		bbp_get_template_part( 'loop', 'single-reply' );
+		$output .= bbp_buffer_template_part( 'loop', 'single-reply', false );
 	}
 
 	/**
@@ -421,15 +423,17 @@ class BBP_Walker_Reply extends Walker {
 
 		// Check for a callback and use it if specified
 		if ( ! empty( $args['end-callback'] ) ) {
+			ob_start();
 			call_user_func( $args['end-callback'], $object, $args, $depth );
+			$output .= ob_get_clean();
 			return;
 		}
 
 		// Style for div or list element
 		if ( ! empty( $args['style'] ) && ( 'div' === $args['style'] ) ) {
-			echo "</div>\n";
+			$output .= "</div>\n";
 		} else {
-			echo "</li>\n";
+			$output .= "</li>\n";
 		}
 	}
 }
@@ -535,7 +539,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		ob_start(); ?>
 
 		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
-		
+
 		<?php
 
 		// Append the output buffer to the $output variable
