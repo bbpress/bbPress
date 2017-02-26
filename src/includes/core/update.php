@@ -182,25 +182,34 @@ function bbp_setup_updater() {
  */
 function bbp_create_initial_content( $args = array() ) {
 
+	// Current user ID
+	$user_id = bbp_get_current_user_id();
+
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
+		'forum_author'  => $user_id,
 		'forum_parent'  => 0,
 		'forum_status'  => 'publish',
-		'forum_title'   => __( 'General',                                  'bbpress' ),
-		'forum_content' => __( 'General chit-chat',                        'bbpress' ),
+		'forum_title'   => __( 'General',           'bbpress' ),
+		'forum_content' => __( 'General chit-chat', 'bbpress' ),
+
+		'topic_author'  => $user_id,
 		'topic_title'   => __( 'Hello World!',                             'bbpress' ),
 		'topic_content' => __( 'I am the first topic in your new forums.', 'bbpress' ),
+
+		'reply_author'  => $user_id,
 		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
 	), 'create_initial_content' );
 
 	// Use the same time for each post
 	$current_time = time();
-	$forum_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 80 );
-	$topic_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 60 );
-	$reply_time = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 40 );
+	$forum_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 80 );
+	$topic_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 60 );
+	$reply_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 40 );
 
 	// Create the initial forum
 	$forum_id = bbp_insert_forum( array(
+		'post_author'  => $r['forum_author'],
 		'post_parent'  => $r['forum_parent'],
 		'post_status'  => $r['forum_status'],
 		'post_title'   => $r['forum_title'],
@@ -211,10 +220,11 @@ function bbp_create_initial_content( $args = array() ) {
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
 		array(
+			'post_author'  => $r['topic_author'],
 			'post_parent'  => $forum_id,
 			'post_title'   => $r['topic_title'],
 			'post_content' => $r['topic_content'],
-			'post_date'    => $topic_time
+			'post_date'    => $topic_time,
 		),
 		array(
 			'forum_id'     => $forum_id
@@ -224,6 +234,7 @@ function bbp_create_initial_content( $args = array() ) {
 	// Create the initial reply
 	$reply_id = bbp_insert_reply(
 		array(
+			'post_author'  => $r['reply_author'],
 			'post_parent'  => $topic_id,
 			'post_content' => $r['reply_content'],
 			'post_date'    => $reply_time
