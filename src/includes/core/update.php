@@ -318,15 +318,16 @@ function bbp_version_updater() {
 		if ( $raw_db_version < 260 ) {
 
 			/**
-			 * Upgrade user favorites and subscriptions
+			 * Upgrade user favorites, subscriptions, and engagements
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/2959
+			 * @link https://bbpress.trac.wordpress.org/ticket/3068
 			 */
 			if ( ! bbp_is_large_install() ) {
+				bbp_admin_upgrade_user_engagements();
 				bbp_admin_upgrade_user_favorites();
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();
-				bbp_admin_repair_topic_voice_count();
 			}
 		}
 	}
