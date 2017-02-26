@@ -15,23 +15,24 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_topic_new_reply_counts() {
 		remove_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10 );
 
-		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create( array(
+		$u  = $this->factory->user->create();
+		$u2 = $this->factory->user->create();
+		$f  = $this->factory->forum->create();
+		$t  = $this->factory->topic->create( array(
 			'post_parent' => $f,
-			'post_author' => bbp_get_current_user_id(),
+			'post_author' => $u,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
 		$r1 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => bbp_get_current_user_id(),
+			'post_author' => $u,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
 			),
 		) );
-		$u = $this->factory->user->create();
 
 		// Don't attempt to send an email. This is for speed and PHP errors.
 		remove_action( 'bbp_new_reply', 'bbp_notify_topic_subscribers', 11, 5 );
@@ -50,7 +51,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => $u,
+			'post_author' => $u2,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -58,7 +59,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		) );
 
 		// Simulate the 'bbp_new_topic' action.
-		do_action( 'bbp_new_reply', $r2, $t, $f, false, $u );
+		do_action( 'bbp_new_reply', $r2, $t, $f, false, $u2 );
 
 		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( 2, $count );
@@ -72,30 +73,30 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		// Re-add removed actions.
 		add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 2 );
 		add_action( 'bbp_new_reply',    'bbp_notify_topic_subscribers',   11, 5 );
-
 	}
 
 	/**
 	 * Generic function to test the topic counts on a deleted reply
 	 */
 	public function test_bbp_topic_deleted_reply_counts() {
-		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create( array(
+		$u  = $this->factory->user->create();
+		$u2 = $this->factory->user->create();
+		$f  = $this->factory->forum->create();
+		$t  = $this->factory->topic->create( array(
 			'post_parent' => $f,
-			'post_author' => bbp_get_current_user_id(),
+			'post_author' => $u,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
 		$r1 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => bbp_get_current_user_id(),
+			'post_author' => $u,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
 			),
 		) );
-		$u = $this->factory->user->create();
 
 		$count = bbp_update_topic_reply_count( $t );
 		$this->assertSame( 1, $count );
@@ -108,7 +109,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => $u,
+			'post_author' => $u2,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -142,16 +143,19 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	 * Generic function to test the topic counts on a trashed/untrashed reply
 	 */
 	public function test_bbp_topic_trashed_untrashed_reply_counts() {
-		$u = $this->factory->user->create();
-		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create( array(
+		$u  = $this->factory->user->create();
+		$u2 = $this->factory->user->create();
+		$f  = $this->factory->forum->create();
+		$t  = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_author' => $u,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
 		$r = $this->factory->reply->create_many( 2, array(
 			'post_parent' => $t,
+			'post_author' => $u,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -159,7 +163,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$r3 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => $u,
+			'post_author' => $u2,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -204,16 +208,19 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	 * Generic function to test the topic counts on a spammed/unspammed reply
 	 */
 	public function test_bbp_topic_spammed_unspammed_reply_counts() {
-		$u = $this->factory->user->create();
-		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create( array(
+		$u  = $this->factory->user->create();
+		$u2 = $this->factory->user->create();
+		$f  = $this->factory->forum->create();
+		$t  = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_author' => $u,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
 		$r = $this->factory->reply->create_many( 2, array(
 			'post_parent' => $t,
+			'post_author' => $u,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -221,7 +228,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$r3 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => $u,
+			'post_author' => $u2,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -264,16 +271,19 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	 * Generic function to test the topic counts on a approved/unapproved reply
 	 */
 	public function test_bbp_topic_approved_unapproved_reply_counts() {
-		$u = $this->factory->user->create();
-		$f = $this->factory->forum->create();
-		$t = $this->factory->topic->create( array(
+		$u  = $this->factory->user->create();
+		$u2 = $this->factory->user->create();
+		$f  = $this->factory->forum->create();
+		$t  = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_author' => $u,
 			'topic_meta' => array(
 				'forum_id' => $f,
 			),
 		) );
 		$r = $this->factory->reply->create_many( 2, array(
 			'post_parent' => $t,
+			'post_author' => $u,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -281,7 +291,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$r3 = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_author' => $u,
+			'post_author' => $u2,
 			'reply_meta' => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
@@ -542,8 +552,9 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$u = $this->factory->user->create_many( 2 );
 		$t = $this->factory->topic->create();
 
+		bbp_update_topic_voice_count( $t );
 		$count = bbp_get_topic_voice_count( $t );
-		$this->assertSame( '1', $count );
+		$this->assertSame( '0', $count );
 
 		$r = $this->factory->reply->create( array(
 			'post_author' => $u[0],
@@ -552,10 +563,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		bbp_update_topic_voice_count( $t );
 		$count = bbp_get_topic_voice_count( $t );
-		$this->assertSame( '2', $count );
-
-		$count = bbp_update_topic_voice_count( $t );
-		$this->assertSame( 2, $count );
+		$this->assertSame( '1', $count );
 
 		$r = $this->factory->reply->create( array(
 			'post_author' => $u[1],
@@ -564,7 +572,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		bbp_update_topic_voice_count( $t );
 		$count = bbp_get_topic_voice_count( $t );
-		$this->assertSame( '3', $count );
+		$this->assertSame( '2', $count );
 	}
 
 	/**

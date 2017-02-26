@@ -14,26 +14,28 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	 * @covers ::bbp_insert_topic
 	 */
 	public function test_bbp_insert_topic() {
-
+		$u = $this->factory->user->create_many( 2 );
 		$f = $this->factory->forum->create();
 
 		$now = time();
 		$post_date = date( 'Y-m-d H:i:s', $now - 60 * 60 * 100 );
 
 		$t = $this->factory->topic->create( array(
-			'post_title' => 'Topic 1',
+			'post_title'   => 'Topic 1',
 			'post_content' => 'Content for Topic 1',
-			'post_parent' => $f,
-			'post_date' => $post_date,
-			'topic_meta' => array(
+			'post_parent'  => $f,
+			'post_date'    => $post_date,
+			'post_author'  => $u[0],
+			'topic_meta'   => array(
 				'forum_id' => $f,
 			),
 		) );
 
 		$r = $this->factory->reply->create( array(
 			'post_parent' => $t,
-			'post_date' => $post_date,
-			'reply_meta' => array(
+			'post_date'   => $post_date,
+			'post_author'  => $u[1],
+			'reply_meta'  => array(
 				'forum_id' => $f,
 				'topic_id' => $t,
 			),
@@ -53,9 +55,9 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 		// Topic meta.
 		$this->assertSame( $f, bbp_get_topic_forum_id( $t ) );
-		$this->assertSame( 1, bbp_get_topic_reply_count( $t, true ) );
-		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $t, true ) );
-		$this->assertSame( 1, bbp_get_topic_voice_count( $t, true ) );
+		$this->assertSame( 1,  bbp_get_topic_reply_count( $t, true ) );
+		$this->assertSame( 0,  bbp_get_topic_reply_count_hidden( $t, true ) );
+		$this->assertSame( 2,  bbp_get_topic_voice_count( $t, true ) );
 		$this->assertSame( $r, bbp_get_topic_last_reply_id( $t ) );
 		$this->assertSame( $r, bbp_get_topic_last_active_id( $t ) );
 		$this->assertSame( '4 days, 4 hours ago', bbp_get_topic_last_active_time( $t ) );

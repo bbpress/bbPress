@@ -1281,24 +1281,27 @@ function bbp_merge_topic_handler( $action = '' ) {
 		) );
 	}
 
+	/** Engagements ***********************************************************/
+
+	// Get engagements from source topic
+	$engagements = bbp_get_topic_engagements( $source_topic->ID );
+
+	// Maybe migrate engagements
+	if ( ! empty( $engagements ) ) {
+		foreach ( $engagements as $engager ) {
+			bbp_add_user_engagement( $engager, $destination_topic->ID );
+		}
+	}
+
 	/** Subscriptions *********************************************************/
 
 	// Get subscribers from source topic
 	$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
 
-	// Remove the topic from everybody's subscriptions
-	if ( ! empty( $subscribers ) ) {
-
-		// Loop through each user
-		foreach ( (array) $subscribers as $subscriber ) {
-
-			// Shift the subscriber if told to
-			if ( ! empty( $_POST['bbp_topic_subscribers'] ) && ( "1" === $_POST['bbp_topic_subscribers'] ) && bbp_is_subscriptions_active() ) {
-				bbp_add_user_subscription( $subscriber, $destination_topic->ID );
-			}
-
-			// Remove old subscription
-			bbp_remove_user_subscription( $subscriber, $source_topic->ID );
+	// Maybe migrate subscriptions
+	if ( ! empty( $subscribers ) && ! empty( $_POST['bbp_topic_subscribers'] ) && ( '1' === $_POST['bbp_topic_subscribers'] ) ) {
+		foreach ( $subscribers as $subscriber ) {
+			bbp_add_user_subscription( $subscriber, $destination_topic->ID );
 		}
 	}
 
@@ -1307,19 +1310,10 @@ function bbp_merge_topic_handler( $action = '' ) {
 	// Get favoriters from source topic
 	$favoriters = bbp_get_topic_favoriters( $source_topic->ID );
 
-	// Remove the topic from everybody's favorites
-	if ( ! empty( $favoriters ) ) {
-
-		// Loop through each user
-		foreach ( (array) $favoriters as $favoriter ) {
-
-			// Shift the favoriter if told to
-			if ( ! empty( $_POST['bbp_topic_favoriters'] ) && "1" === $_POST['bbp_topic_favoriters'] ) {
-				bbp_add_user_favorite( $favoriter, $destination_topic->ID );
-			}
-
-			// Remove old favorite
-			bbp_remove_user_favorite( $favoriter, $source_topic->ID );
+	// Maybe migrate favorites
+	if ( ! empty( $favoriters ) && ! empty( $_POST['bbp_topic_favoriters'] ) && ( '1' === $_POST['bbp_topic_favoriters'] ) ) {
+		foreach ( $favoriters as $favoriter ) {
+			bbp_add_user_favorite( $favoriter, $destination_topic->ID );
 		}
 	}
 
@@ -1355,6 +1349,11 @@ function bbp_merge_topic_handler( $action = '' ) {
 	delete_post_meta( $source_topic->ID, '_bbp_voice_count'        );
 	delete_post_meta( $source_topic->ID, '_bbp_reply_count'        );
 	delete_post_meta( $source_topic->ID, '_bbp_reply_count_hidden' );
+
+	// Delete source topics user relationships
+	delete_post_meta( $source_topic->ID, '_bbp_favorite'     );
+	delete_post_meta( $source_topic->ID, '_bbp_subscription' );
+	delete_post_meta( $source_topic->ID, '_bbp_engagement'   );
 
 	// Get the replies of the source topic
 	$replies = (array) get_posts( array(
@@ -2965,15 +2964,32 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 		return;
 	}
 
+	// Delete all engagements
+	delete_post_meta( $topic_id, '_bbp_engagement' );
+
 	// Query the DB to get voices in this topic
-	$bbp_db = bbp_db();
-	$query  = $bbp_db->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s ) OR ( ID = %d AND post_type = %s )", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
-	$voices = (int) $bbp_db->get_var( $query );
+	$bbp_db  = bbp_db();
+	$sql     = "SELECT DISTINCT post_author FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s ) OR ( ID = %d AND post_type = %s )";
+	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$results = $bbp_db->get_col( $query );
+
+	// Parse results into voices
+	$voices  = ! is_wp_error( $results )
+		? wp_parse_id_list( array_filter( $results ) )
+		: array();
 
 	// Update the voice count for this topic id
-	update_post_meta( $topic_id, '_bbp_voice_count', $voices );
+	foreach ( $voices as $user_id ) {
+		bbp_add_user_engagement( $user_id, $topic_id );
+	}
 
-	return (int) apply_filters( 'bbp_update_topic_voice_count', $voices, $topic_id );
+	// Get the count
+	$count = count( $voices );
+
+	// Update the voice count for this topic id
+	update_post_meta( $topic_id, '_bbp_voice_count', $count );
+
+	return (int) apply_filters( 'bbp_update_topic_voice_count', $count, $topic_id );
 }
 
 /**

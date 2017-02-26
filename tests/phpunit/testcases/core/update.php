@@ -86,7 +86,14 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 			),
 		) );
 
-		bbp_create_initial_content( array( 'forum_parent' => $category_id ) );
+		$u = $this->factory->user->create();
+
+		bbp_create_initial_content( array(
+			'forum_parent' => $category_id,
+			'forum_author' => $u,
+			'topic_author' => $u,
+			'reply_author' => $u
+		) );
 
 		$forum_id = bbp_forum_query_subforum_ids( $category_id );
 		$forum_id = (int) $forum_id[0];

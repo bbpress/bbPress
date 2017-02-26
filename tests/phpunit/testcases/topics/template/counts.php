@@ -193,6 +193,7 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create();
 		$t = $this->factory->topic->create( array(
 			'post_parent' => $f,
+			'post_parent' => $u[0],
 			'topic_meta' => array(
 				'forum_id' => $f,
 			)
@@ -207,8 +208,8 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		$count = bbp_get_topic_voice_count( $t, true );
-		$this->assertSame( 2, $count );
+		$count = bbp_update_topic_voice_count( $t );
+		$this->assertSame( 1, $count );
 
 		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -220,12 +221,12 @@ class BBP_Tests_Topics_Template_Counts extends BBP_UnitTestCase {
 			)
 		) );
 
-		$count = bbp_get_topic_voice_count( $t, true );
-		$this->assertSame( 2, $count );
+		$count = bbp_update_topic_voice_count( $t );
+		$this->assertSame( 1, $count );
 
 		bbp_approve_reply( $r2 );
 
-		$count = bbp_get_topic_voice_count( $t, true );
-		$this->assertSame( 3, $count );
+		$count = bbp_update_topic_voice_count( $t );
+		$this->assertSame( 2, $count );
 	}
 }
