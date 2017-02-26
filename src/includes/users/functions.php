@@ -261,6 +261,200 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $m
 	return (bool) apply_filters( 'bbp_is_object_of_user', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
 }
 
+/** Engagements ***************************************************************/
+
+/**
+ * Get the users who have engaged in a topic
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_users_for_object() To get user ids who engaged
+ * @uses apply_filters() Calls 'bbp_get_topic_engagements' with the users and
+ *                        topic id
+ * @return array|bool Results if the topic has any engagements, otherwise false
+ */
+function bbp_get_topic_engagements( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$users    = bbp_get_users_for_object( $topic_id, '_bbp_engagement' );
+
+	return (array) apply_filters( 'bbp_get_topic_engagements', $users, $topic_id );
+}
+
+/**
+ * Get a user's topic engagements
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_has_topics() To get the topics
+ * @uses apply_filters() Calls 'bbp_get_user_engagements' with the topic query and
+ *                        user id
+ * @return array|bool Results if user has engaged, otherwise false
+ */
+function bbp_get_user_engagements( $user_id = 0 ) {
+	$user_id     = bbp_get_user_id( $user_id );
+	$engagements = bbp_has_topics( array(
+		'meta_query' => array(
+			array(
+				'key'     => '_bbp_engagement',
+				'value'   => $user_id,
+				'compare' => 'NUMERIC'
+			)
+		)
+	) );
+
+	return apply_filters( 'bbp_get_user_engagements', $engagements, $user_id );
+}
+
+/**
+ * Get a user's engaged topic ids
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses apply_filters() Calls 'bbp_get_user_engaged_topic_ids' with
+ *                        the engaged topics and user id
+ * @return array|bool Results if user has engaged, otherwise null
+ */
+function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
+	$user_id     = bbp_get_user_id( $user_id );
+	$engagements = new WP_Query( array(
+		'fields'        => 'ids',
+		'post_type'     => bbp_get_topic_post_type(),
+		'nopaging'      => true,
+		'no_found_rows' => true,
+		'meta_query'    => array( array(
+			'key'     => '_bbp_engagement',
+			'value'   => $user_id,
+			'compare' => 'NUMERIC'
+		) )
+	) );
+
+	return (array) apply_filters( 'bbp_get_user_engaged_topic_ids', $engagements->posts, $user_id );
+}
+
+/**
+ * Check if a user is engaged in a topic or not
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $user_id Optional. User id
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_get_user_engaged_topic_ids() To get the user engaged topics
+ * @uses bbp_get_topic() To get the topic
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_object_of_user() To check if the user has engaged
+ * @uses apply_filters() Calls 'bbp_is_user_engaged' with the bool, user id,
+ *                        topic id and engagements
+ * @return bool True if the topic is in user's engagements, otherwise false
+ */
+function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
+	$retval      = false;
+	$user_id     = bbp_get_user_id( $user_id, true, true );
+	$engagements = bbp_get_user_engaged_topic_ids( $user_id );
+
+	if ( ! empty( $engagements ) ) {
+
+		// Checking a specific topic id
+		if ( ! empty( $topic_id ) ) {
+			$topic    = bbp_get_topic( $topic_id );
+			$topic_id = ! empty( $topic ) ? $topic->ID : 0;
+
+		// Using the global topic id
+		} elseif ( bbp_get_topic_id() ) {
+			$topic_id = bbp_get_topic_id();
+
+		// Use the current post id
+		} elseif ( ! bbp_get_topic_id() ) {
+			$topic_id = get_the_ID();
+		}
+
+		// Is topic_id in the user's engagements
+		if ( ! empty( $topic_id ) ) {
+			$retval = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
+		}
+	}
+
+	return (bool) apply_filters( 'bbp_is_user_engaged', (bool) $retval, $user_id, $topic_id, $engagements );
+}
+
+/**
+ * Add a topic to user's engagements
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $user_id Optional. User id
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_is_user_engaged() To check if the user is engaged in a topic
+ * @uses do_action() Calls 'bbp_add_user_engagement' with the user id and topic id
+ * @return bool Always true
+ */
+function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
+
+	// Bail if not enough info
+	if ( empty( $user_id ) || empty( $topic_id ) ) {
+		return false;
+	}
+
+	// Bail if no topic
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) ) {
+		return false;
+	}
+
+	// Bail if already a engaged
+	if ( bbp_is_user_engaged( $user_id, $topic_id ) ) {
+		return false;
+	}
+
+	// Bail if add fails
+	if ( ! bbp_add_user_to_object( $topic_id, $user_id, '_bbp_engagement' ) ) {
+		return false;
+	}
+
+	do_action( 'bbp_add_user_engagement', $user_id, $topic_id );
+
+	return true;
+}
+
+/**
+ * Remove a topic from user's engagements
+ *
+ * @since 2.6.0 bbPress (r6310)
+ *
+ * @param int $user_id Optional. User id
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_is_user_engaged() To check if the user is engaged in a topic
+ * @uses do_action() Calls 'bbp_remove_user_engagement' with the user & topic id
+ * @return bool True if the topic was removed from user's engagements, otherwise
+ *               false
+ */
+function bbp_remove_user_engagement( $user_id, $topic_id ) {
+
+	// Bail if not enough info
+	if ( empty( $user_id ) || empty( $topic_id ) ) {
+		return false;
+	}
+
+	// Bail if not already engaged
+	if ( ! bbp_is_user_engaged( $user_id, $topic_id ) ) {
+		return false;
+	}
+
+	// Bail if remove fails
+	if ( ! bbp_remove_user_from_object( $topic_id, $user_id, '_bbp_engagement' ) ) {
+		return false;
+	}
+
+	do_action( 'bbp_remove_user_engagement', $user_id, $topic_id );
+
+	return true;
+}
+
 /** Favorites *****************************************************************/
 
 /**
@@ -317,7 +511,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
  *                        the favorites and user id
- * @return array|bool Results if user has favorites, otherwise false
+ * @return array|bool Results if user has favorites, otherwise null
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 	$user_id   = bbp_get_user_id( $user_id );
@@ -400,7 +594,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		return false;
 	}
 
-	// Bail if to topic
+	// Bail if no topic
 	$topic = bbp_get_topic( $topic_id );
 	if ( empty( $topic ) ) {
 		return false;
@@ -674,7 +868,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses apply_filters() Calls 'bbp_get_user_subscribed_forum_ids' with
  *                        the subscriptions and user id
- * @return array|bool Results if user has subscriptions, otherwise false
+ * @return array|bool Results if user has subscriptions, otherwise null
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 	$user_id       = bbp_get_user_id( $user_id );
@@ -703,7 +897,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_get_user_subscribed_topic_ids' with
  *                        the subscriptions and user id
- * @return array|bool Results if user has subscriptions, otherwise false
+ * @return array|bool Results if user has subscriptions, otherwise null
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	$user_id       = bbp_get_user_id( $user_id );
@@ -788,7 +982,7 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
  * @uses bbp_get_forum() To get the forum
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_object_of_user() To check if the user has a subscription
- * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
+ * @uses apply_filters() Calls 'bbp_is_user_subscribed_to_forum' with the bool, user id,
  *                        forum id and subsriptions
  * @return bool True if the forum is in user's subscriptions, otherwise false
  */
@@ -845,7 +1039,7 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
  * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_object_of_user() To check if the user is subscribed
- * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
+ * @uses apply_filters() Calls 'bbp_is_user_subscribed_to_topic' with the bool, user id,
  *                        topic id and subsriptions
  * @return bool True if the topic is in user's subscriptions, otherwise false
  */
