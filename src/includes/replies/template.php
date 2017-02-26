@@ -2692,9 +2692,14 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 			$post->reply_to = $_reply_to;
 		}
 
+		// Default "None" text
+		$show_none = ( 0 !== $reply_id )
+			? esc_attr_x( 'None', 'Default reply to dropdown text', 'bbpress' )
+			: sprintf( esc_attr__( '%1$s - %2$s', 'bbpress' ), $topic_id, bbp_get_topic_title( $topic_id ) );
+
 		// Get the dropdown and return it
 		$retval = bbp_get_dropdown( array(
-			'show_none'    => sprintf( esc_attr__( '%1$s - %2$s', 'bbpress' ), $topic_id, bbp_get_topic_title( $topic_id ) ),
+			'show_none'    => $show_none,
 			'select_id'    => 'bbp_reply_to',
 			'select_class' => 'bbp_dropdown',
 			'exclude'      => $reply_id,
