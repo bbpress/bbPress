@@ -917,9 +917,17 @@ class BBP_Topics_Admin {
 
 		unset( $actions['inline hide-if-no-js'] );
 
+		// View link
+		$view_link = bbp_get_topic_permalink( $topic->ID );
+
+		// Maybe add view=all
+		if ( ! in_array( $topic->post_status, array( bbp_get_closed_status_id(), bbp_get_public_status_id() ), true ) ) {
+			$view_link = bbp_add_view_all( $view_link, true );
+		}
+
 		// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 		if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() === $topic->post_status ) && current_user_can( 'view_trash' ) ) {
-			$actions['view'] = '<a href="' . esc_url( bbp_get_topic_permalink( $topic->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+			$actions['view'] = '<a href="' . esc_url( $view_link ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 		}
 
 		// Only show the actions if the user is capable of viewing them :)
@@ -932,7 +940,7 @@ class BBP_Topics_Admin {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this topic', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove Topic', 'bbpress' ) . '</a>';
 			} elseif ( ! bbp_is_topic_private( $topic->ID ) ) {
 				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this topic',   'bbpress' ) . '">' . _x( 'Approve',   'Approve Topic',   'bbpress' ) . '</a>';
-				$actions['view']       = '<a href="' . esc_url( bbp_get_topic_permalink( $topic->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+				$actions['view']       = '<a href="' . esc_url( $view_link   ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 			}
 
 			// Close

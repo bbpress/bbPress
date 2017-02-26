@@ -763,11 +763,19 @@ class BBP_Replies_Admin {
 
 		unset( $actions['inline hide-if-no-js'] );
 
+		// View link
+		$view_link = bbp_get_reply_url( $reply->ID );
+
+		// Maybe add view=all
+		if ( ! in_array( $reply->post_status, array( bbp_get_closed_status_id(), bbp_get_public_status_id() ), true ) ) {
+			$view_link = bbp_add_view_all( $view_link, true );
+		}
+
 		// Reply view links to topic
-		$actions['view'] = '<a href="' . esc_url( bbp_get_reply_url( $reply->ID ) ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+		$actions['view'] = '<a href="' . esc_url( $view_link ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 
 		// User cannot view replies in trash
-		if ( ( bbp_get_trash_status_id() === $reply->post_status ) && !current_user_can( 'view_trash' ) ) {
+		if ( ( bbp_get_trash_status_id() === $reply->post_status ) && ! current_user_can( 'view_trash' ) ) {
 			unset( $actions['view'] );
 		}
 
@@ -783,7 +791,7 @@ class BBP_Replies_Admin {
 			}
 
 			// Show the 'spam' link on published and pending replies and 'not spam' on spammed replies
-			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ) ) ) {
+			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ), true ) ) {
 				$spam_uri  = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
 				if ( bbp_is_reply_spam( $reply->ID ) ) {
 					$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not spam', 'bbpress' ) . '</a>';
@@ -802,7 +810,7 @@ class BBP_Replies_Admin {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $reply->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
 			}
 
-			if ( bbp_get_trash_status_id() === $reply->post_status || !EMPTY_TRASH_DAYS ) {
+			if ( bbp_get_trash_status_id() === $reply->post_status || ! EMPTY_TRASH_DAYS ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $reply->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
 			} elseif ( bbp_get_spam_status_id() === $reply->post_status ) {
 				unset( $actions['trash'] );
