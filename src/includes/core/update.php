@@ -159,9 +159,8 @@ function bbp_version_bump() {
  *
  * @since 2.0.0 bbPress (r3419)
  *
+ * @uses bbp_is_update()
  * @uses bbp_version_updater()
- * @uses bbp_version_bump()
- * @uses flush_rewrite_rules()
  */
 function bbp_setup_updater() {
 
