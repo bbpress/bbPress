@@ -157,7 +157,7 @@ function bbp_admin_upgrade_page() {
 /**
  * Upgrade user engagements for bbPress 2.6 and higher
  *
- * @since 2.6.0 bbPress (r63010)
+ * @since 2.6.0 bbPress (r6320)
  *
  * @return array An array of the status code and the message
  */

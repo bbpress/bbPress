@@ -43,11 +43,13 @@ do_action( 'bbp_template_before_user_details' ); ?>
 				</span>
 			</li>
 
-			<li class="<?php if ( bbp_is_single_user_engagements() ) :?>current<?php endif; ?>">
-				<span class='bbp-user-engagements-created-link'>
-					<a href="<?php bbp_user_engagements_url(); ?>" title="<?php printf( esc_attr__( "%s's Engagements", 'bbpress' ), bbp_get_displayed_user_field( 'display_name' ) ); ?>"><?php esc_html_e( 'Engagements', 'bbpress' ); ?></a>
-				</span>
-			</li>
+			<?php if ( bbp_is_engagements_active() ) : ?>
+				<li class="<?php if ( bbp_is_single_user_engagements() ) :?>current<?php endif; ?>">
+					<span class='bbp-user-engagements-created-link'>
+						<a href="<?php bbp_user_engagements_url(); ?>" title="<?php printf( esc_attr__( "%s's Engagements", 'bbpress' ), bbp_get_displayed_user_field( 'display_name' ) ); ?>"><?php esc_html_e( 'Engagements', 'bbpress' ); ?></a>
+					</span>
+				</li>
+			<?php endif; ?>
 
 			<?php if ( bbp_is_favorites_active() ) : ?>
 				<li class="<?php if ( bbp_is_favorites() ) :?>current<?php endif; ?>">

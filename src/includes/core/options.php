@@ -231,6 +231,19 @@ function bbp_is_subscriptions_active( $default = 1 ) {
 }
 
 /**
+ * Checks if engagements feature is enabled.
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @param $default bool Optional.Default value true
+ * @uses get_option() To get the engagements option
+ * @return bool Is engagements enabled or not
+ */
+function bbp_is_engagements_active( $default = 1 ) {
+	return (bool) apply_filters( 'bbp_is_engagements_active', (bool) get_option( '_bbp_enable_engagements', $default ) );
+}
+
+/**
  * Are topic tags allowed
  *
  * @since 2.2.0 bbPress (r4097)

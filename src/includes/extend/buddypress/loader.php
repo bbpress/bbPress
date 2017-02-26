@@ -219,15 +219,17 @@ class BBP_Forums_Component extends BP_Component {
 		);
 
 		// Engagements
-		$sub_nav[] = array(
-			'name'            => __( 'Engagements', 'bbpress' ),
-			'slug'            => bbp_get_user_engagements_slug(),
-			'parent_url'      => $forums_link,
-			'parent_slug'     => $this->slug,
-			'screen_function' => 'bbp_member_forums_screen_engagements',
-			'position'        => 60,
-			'item_css_id'     => 'engagements'
-		);
+		if ( bbp_is_engagements_active() ) {
+			$sub_nav[] = array(
+				'name'            => __( 'Engagements', 'bbpress' ),
+				'slug'            => bbp_get_user_engagements_slug(),
+				'parent_url'      => $forums_link,
+				'parent_slug'     => $this->slug,
+				'screen_function' => 'bbp_member_forums_screen_engagements',
+				'position'        => 60,
+				'item_css_id'     => 'engagements'
+			);
+		}
 
 		// Favorite topics
 		if ( bbp_is_favorites_active() ){
