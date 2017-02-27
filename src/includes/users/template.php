@@ -10,6 +10,200 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/** User Loop *****************************************************************/
+
+/**
+ * Extension of WP_User_Query to allow easy looping
+ *
+ * @since 2.6.0 bbPress (r6330)
+ */
+class BBP_User_Query extends WP_User_Query {
+
+	/**
+	 * The amount of users for the current query.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 * @var int
+	 */
+	public $user_count = 0;
+
+	/**
+	 * Index of the current item in the loop.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 * @var int
+	 */
+	public $current_user = -1;
+
+	/**
+	 * Whether the loop has started and the caller is in the loop.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 * @var bool
+	 */
+	public $in_the_loop = false;
+
+	/**
+	 * The current user.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 * @var WP_User
+	 */
+	public $user;
+
+	/**
+	 * Set up the next user and iterate current user index.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 *
+	 * @return WP_User Next user.
+	 */
+	public function next_user() {
+
+		$this->current_user++;
+
+		$this->user = $this->users[ $this->current_user ];
+
+		return $this->user;
+	}
+
+	/**
+	 * Sets up the current user.
+	 *
+	 * Retrieves the next user, sets up the user, sets the 'in the loop'
+	 * property to true.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 *
+	 * @global WP_User $user
+	 */
+	public function the_user() {
+		$this->in_the_loop = true;
+
+		// loop has just started
+		if ( $this->current_user === -1 ) {
+			/**
+			 * Fires once the loop is started.
+			 *
+			 * @since 2.6.0 bbPress
+			 *
+			 * @param WP_Query &$this The WP_Query instance (passed by reference).
+			 */
+			do_action_ref_array( 'loop_start', array( &$this ) );
+		}
+
+		$this->user = $this->next_user();
+	}
+
+	/**
+	 * Determines whether there are more users available in the loop.
+	 *
+	 * Calls the {@see 'loop_end'} action when the loop is complete.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 *
+	 * @return bool True if users are available, false if end of loop.
+	 */
+	public function have_users() {
+		if ( ( $this->current_user + 1 ) < $this->user_count ) {
+			return true;
+		} elseif ( ( ( $this->current_user + 1 ) === $this->user_count ) && ( $this->user_count > 0 ) ) {
+
+			/**
+			 * Fires once the loop has ended.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param WP_Query &$this The WP_Query instance (passed by reference).
+			 */
+			do_action_ref_array( 'loop_end', array( &$this ) );
+
+			// Do some cleaning up after the loop
+			$this->rewind_users();
+		}
+
+		$this->in_the_loop = false;
+
+		return false;
+	}
+
+	/**
+	 * Rewind the users and reset user index.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 */
+	public function rewind_users() {
+		$this->current_user = -1;
+
+		if ( $this->user_count > 0 ) {
+			$this->user = $this->users[ 0 ];
+		}
+	}
+}
+
+/**
+ * The main user loop.
+ *
+ * @since 2.6.0 bbPress (r6330)
+ *
+ * @param array $args All the arguments supported by {@link WP_User_Query}
+ * @uses BBP_User_Query To make query and get the users
+ * @uses apply_filters() Calls 'bbp_has_users' with
+ *                        bbPress::user_query::have_users()
+ *                        and bbPress::user_query
+ * @return object Multidimensional array of user information
+ */
+function bbp_has_users( $args = array() ) {
+
+	// Parse arguments with default user query for most circumstances
+	$r = bbp_parse_args( $args, array(
+		'include'     => array(),
+		'orderby'     => 'login',
+		'order'       => 'ASC',
+		'count_total' => false,
+		'fields'      => 'all',
+	), 'has_users' );
+
+	// Run the query
+	$bbp             = bbpress();
+	$bbp->user_query = new BBP_User_Query( $r );
+
+	return apply_filters( 'bbp_has_users', $bbp->user_query->have_users(), $bbp->user_query );
+}
+
+/**
+ * Whether there are more users available in the loop
+ *
+ * @since 2.6.0 bbPress (r2464)
+ *
+ * @uses bbPress:user_query::have_users() To check if there are more users
+ *                                          available
+ * @return object User information
+ */
+function bbp_users() {
+	return bbpress()->user_query->have_users();;
+}
+
+/**
+ * Loads up the current user in the loop
+ *
+ * @since 2.6.0 bbPress (r2464)
+ *
+ * @uses bbPress:user_query::the_user() To get the current user
+ * @return object User information
+ */
+function bbp_the_user() {
+	return bbpress()->user_query->the_user();
+}
+
 /** Users *********************************************************************/
 
 /**

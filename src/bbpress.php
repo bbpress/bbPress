@@ -275,11 +275,11 @@ final class bbPress {
 		$this->current_topic_tag_id = 0; // Current topic tag id
 		$this->current_user_id      = 0; // Current topic tag id
 
-		$this->forum_query    = new WP_Query();      // Main forum query
-		$this->topic_query    = new WP_Query();      // Main topic query
-		$this->reply_query    = new WP_Query();      // Main reply query
-		$this->search_query   = new WP_Query();      // Main search query
-		$this->user_query     = new WP_User_Query(); // Main user query
+		$this->forum_query    = new WP_Query();       // Main forum query
+		$this->topic_query    = new WP_Query();       // Main topic query
+		$this->reply_query    = new WP_Query();       // Main reply query
+		$this->search_query   = new WP_Query();       // Main search query
+		$this->user_query     = new BBP_User_Query(); // Main user query
 
 		/** Theme Compat ******************************************************/
 
