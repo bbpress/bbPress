@@ -112,8 +112,9 @@ final class bbPress {
 		// Only run these methods if they haven't been ran previously
 		if ( null === $instance ) {
 			$instance = new bbPress;
-			$instance->setup_globals();
+			$instance->setup_environment();
 			$instance->includes();
+			$instance->setup_variables();
 			$instance->setup_actions();
 		}
 
@@ -189,8 +190,8 @@ final class bbPress {
 	/** Private Methods *******************************************************/
 
 	/**
-	 * Set some smart defaults to class variables. Allow some of them to be
-	 * filtered to allow for early overriding.
+	 * Setup the environment variables to allow the rest of bbPress to function
+	 * more easily.
 	 *
 	 * @since 2.0.0 bbPress (r2626)
 	 *
@@ -199,7 +200,7 @@ final class bbPress {
 	 * @uses plugin_dir_url() To generate bbPress plugin url
 	 * @uses apply_filters() Calls various filters
 	 */
-	private function setup_globals() {
+	private function setup_environment() {
 
 		/** Versions **********************************************************/
 
@@ -226,6 +227,14 @@ final class bbPress {
 		// Templates
 		$this->themes_dir   = apply_filters( 'bbp_themes_dir',   trailingslashit( $this->plugin_dir . 'templates' ) );
 		$this->themes_url   = apply_filters( 'bbp_themes_url',   trailingslashit( $this->plugin_url . 'templates' ) );
+	}
+
+	/**
+	 * Smart defaults to many bbPress specific class variables.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 */
+	private function setup_variables() {
 
 		/** Identifiers *******************************************************/
 
@@ -264,11 +273,13 @@ final class bbPress {
 		$this->current_topic_id     = 0; // Current topic id
 		$this->current_reply_id     = 0; // Current reply id
 		$this->current_topic_tag_id = 0; // Current topic tag id
+		$this->current_user_id      = 0; // Current topic tag id
 
-		$this->forum_query    = new WP_Query(); // Main forum query
-		$this->topic_query    = new WP_Query(); // Main topic query
-		$this->reply_query    = new WP_Query(); // Main reply query
-		$this->search_query   = new WP_Query(); // Main search query
+		$this->forum_query    = new WP_Query();      // Main forum query
+		$this->topic_query    = new WP_Query();      // Main topic query
+		$this->reply_query    = new WP_Query();      // Main reply query
+		$this->search_query   = new WP_Query();      // Main search query
+		$this->user_query     = new WP_User_Query(); // Main user query
 
 		/** Theme Compat ******************************************************/
 
