@@ -195,7 +195,7 @@ function bbp_admin_upgrade_user_engagements() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Loop through each user's favorites
+	// Loop through each user's engagements
 	foreach ( $engagements as $meta ) {
 
 		// Skip if already exists
