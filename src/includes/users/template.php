@@ -56,6 +56,21 @@ class BBP_User_Query extends WP_User_Query {
 	public $user;
 
 	/**
+	 * PHP5 constructor.
+	 *
+	 * @since 2.6.0 bbPress (r6330)
+	 * @access public
+	 *
+	 * @param null|string|array $query Optional. The query variables.
+	 */
+	public function __construct( $query = null ) {
+		if ( ! empty( $query ) ) {
+			parent::__construct( $query );
+			$this->user_count = count( $this->results );
+		}
+	}
+
+	/**
 	 * Set up the next user and iterate current user index.
 	 *
 	 * @since 2.6.0 bbPress (r6330)
@@ -64,10 +79,8 @@ class BBP_User_Query extends WP_User_Query {
 	 * @return WP_User Next user.
 	 */
 	public function next_user() {
-
 		$this->current_user++;
-
-		$this->user = $this->users[ $this->current_user ];
+		$this->user = $this->results[ $this->current_user ];
 
 		return $this->user;
 	}
@@ -88,17 +101,18 @@ class BBP_User_Query extends WP_User_Query {
 
 		// loop has just started
 		if ( $this->current_user === -1 ) {
+
 			/**
 			 * Fires once the loop is started.
 			 *
-			 * @since 2.6.0 bbPress
+			 * @since 2.6.0 bbPress (r6330)
 			 *
 			 * @param WP_Query &$this The WP_Query instance (passed by reference).
 			 */
 			do_action_ref_array( 'loop_start', array( &$this ) );
 		}
 
-		$this->user = $this->next_user();
+		$this->next_user();
 	}
 
 	/**
@@ -119,7 +133,7 @@ class BBP_User_Query extends WP_User_Query {
 			/**
 			 * Fires once the loop has ended.
 			 *
-			 * @since 2.0.0
+			 * @since 2.6.0 bbPress (r6330)
 			 *
 			 * @param WP_Query &$this The WP_Query instance (passed by reference).
 			 */
@@ -144,7 +158,7 @@ class BBP_User_Query extends WP_User_Query {
 		$this->current_user = -1;
 
 		if ( $this->user_count > 0 ) {
-			$this->user = $this->users[ 0 ];
+			$this->user = $this->results[ 0 ];
 		}
 	}
 }
@@ -189,7 +203,7 @@ function bbp_has_users( $args = array() ) {
  * @return object User information
  */
 function bbp_users() {
-	return bbpress()->user_query->have_users();;
+	return bbpress()->user_query->have_users();
 }
 
 /**
@@ -237,6 +251,10 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		// Easy empty checking
 		if ( ! empty( $user_id ) && is_numeric( $user_id ) ) {
 			$bbp_user_id = $user_id;
+
+		// Currently inside a user loop
+		} elseif ( ! empty( $bbp->user_query->in_the_loop ) && isset( $bbp->user_query->user->ID ) ) {
+			$bbp_user_id = $bbp->user_query->user->ID;
 
 		// Currently viewing or editing a user
 		} elseif ( ( true === $displayed_user_fallback ) && ! empty( $bbp->displayed_user->ID ) ) {

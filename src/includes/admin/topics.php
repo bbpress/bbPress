@@ -80,6 +80,7 @@ class BBP_Topics_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'    ) );
 		add_action( 'add_meta_boxes', array( $this, 'author_metabox'        ) );
 		add_action( 'add_meta_boxes', array( $this, 'replies_metabox'       ) );
+		add_action( 'add_meta_boxes', array( $this, 'engagements_metabox'   ) );
 		add_action( 'add_meta_boxes', array( $this, 'favorites_metabox'     ) );
 		add_action( 'add_meta_boxes', array( $this, 'subscriptions_metabox' ) );
 		add_action( 'add_meta_boxes', array( $this, 'comments_metabox'      ) );
@@ -407,6 +408,38 @@ class BBP_Topics_Admin {
 			$this->post_type,
 			'normal',
 			'high'
+		);
+	}
+
+	/**
+	 * Add the engagements meta-box
+	 *
+	 * Allows viewing of users who have engaged in a topic.
+	 *
+	 * @since 2.6.0 bbPress (r6333)
+	 *
+	 * @uses add_meta_box() To add the meta-box
+	 */
+	public function engagements_metabox() {
+
+		// Bail when creating a new topic
+		if ( empty( $_GET['action'] ) || ( 'edit' !== $_GET['action'] ) ) {
+			return;
+		}
+
+		// Bail if no engagements
+		if ( ! bbp_is_engagements_active() ) {
+			return;
+		}
+
+		// Add the meta-box
+		add_meta_box(
+			'bbp_topic_engagements_metabox',
+			__( 'Engagements', 'bbpress' ),
+			'bbp_topic_engagements_metabox',
+			$this->post_type,
+			'side',
+			'low'
 		);
 	}
 

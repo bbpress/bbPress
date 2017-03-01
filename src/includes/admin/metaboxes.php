@@ -668,9 +668,45 @@ function bbp_moderator_assignment_metabox( $post ) {
 }
 
 /**
+ * See who engaged with a topic
+ *
+ * @since 2.6.0 bbPress (r6333)
+ */
+function bbp_topic_engagements_metabox( $post ) {
+
+	// Get user IDs
+	$user_ids = bbp_get_topic_engagements( $post->ID );
+
+	// Output
+	?><p><?php
+
+		// Relationships
+		$args = array(
+			'include' => $user_ids
+		);
+
+		// Users were found
+		if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) :
+
+			while ( bbp_users() ) : bbp_the_user();
+				echo get_avatar( bbp_get_user_id(), 32 );
+			endwhile;
+
+		// No users
+		else :
+			esc_html_e( 'No users have engaged to this topic.', 'bbpress' );
+		endif;
+
+	?></p><?php
+
+	do_action( 'bbp_topic_engagements_metabox', $post );
+}
+
+/**
  * See who marked a topic as a favorite
  *
  * @since 2.6.0 bbPress (r6197)
+ * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
  */
 function bbp_topic_favorites_metabox( $post ) {
 
@@ -680,12 +716,17 @@ function bbp_topic_favorites_metabox( $post ) {
 	// Output
 	?><p><?php
 
-		// Users were found
-		if ( ! empty( $user_ids ) ) :
+		// Relationships
+		$args = array(
+			'include' => $user_ids
+		);
 
-			foreach ( $user_ids as $user_id ) :
-				echo get_avatar( $user_id, 32 );
-			endforeach;
+		// Users were found
+		if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) :
+
+			while ( bbp_users() ) : bbp_the_user();
+				echo get_avatar( bbp_get_user_id(), 32 );
+			endwhile;
 
 		// No users
 		else :
@@ -701,6 +742,7 @@ function bbp_topic_favorites_metabox( $post ) {
  * See who subscribed to a topic
  *
  * @since 2.6.0 bbPress (r6197)
+ * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
  */
 function bbp_topic_subscriptions_metabox( $post ) {
 
@@ -710,12 +752,17 @@ function bbp_topic_subscriptions_metabox( $post ) {
 	// Output
 	?><p><?php
 
-		// Users were found
-		if ( ! empty( $user_ids ) ) :
+		// Relationships
+		$args = array(
+			'include' => $user_ids
+		);
 
-			foreach ( $user_ids as $user_id ) :
-				echo get_avatar( $user_id, 32 );
-			endforeach;
+		// Users were found
+		if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) :
+
+			while ( bbp_users() ) : bbp_the_user();
+				echo get_avatar( bbp_get_user_id(), 32 );
+			endwhile;
 
 		// No users
 		else :
@@ -731,6 +778,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
  * See who subscribed to a forum
  *
  * @since 2.6.0 bbPress (r6197)
+ * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
  */
 function bbp_forum_subscriptions_metabox( $post ) {
 
@@ -740,12 +788,17 @@ function bbp_forum_subscriptions_metabox( $post ) {
 	// Output
 	?><p><?php
 
-		// Users were found
-		if ( ! empty( $user_ids ) ) :
+		// Relationships
+		$args = array(
+			'include' => $user_ids
+		);
 
-			foreach ( $user_ids as $user_id ) :
-				echo get_avatar( $user_id, 32 );
-			endforeach;
+		// Users were found
+		if ( ! empty( $user_ids ) && bbp_has_users( $args ) ) :
+
+			while ( bbp_users() ) : bbp_the_user();
+				echo get_avatar( bbp_get_user_id(), 32 );
+			endwhile;
 
 		// No users
 		else :
