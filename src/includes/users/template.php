@@ -2040,7 +2040,8 @@ function bbp_author_link( $args = array() ) {
 			'post_id'    => $post_id,
 			'link_title' => '',
 			'type'       => 'both',
-			'size'       => 80
+			'size'       => 80,
+			'sep'        => '&nbsp;'
 		), 'get_author_link' );
 
 		// Confirmed topic
@@ -2086,14 +2087,16 @@ function bbp_author_link( $args = array() ) {
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
 				$author_url = bbp_get_user_profile_url( $user_id );
+
 				foreach ( $author_links as $link_text ) {
 					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', esc_url( $author_url ), $link_title, $link_text );
 				}
-				$author_link = implode( '&nbsp;', $author_link );
+
+				$author_link = implode( $r['sep'], $author_link );
 
 			// No links if anonymous
 			} else {
-				$author_link = implode( '&nbsp;', $author_links );
+				$author_link = implode( $r['sep'], $author_links );
 			}
 
 		// No post so link is empty
