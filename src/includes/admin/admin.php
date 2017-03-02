@@ -888,7 +888,7 @@ class BBP_Admin {
 					<span class="title"><?php esc_html_e( 'Founding Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-johnjamesjacoby">
-					<a href="https://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/81ec16063d89b162d55efe72165c105f?s=60" class="gravatar" alt="John James Jacoby" /></a>
+					<a href="https://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/7a2644fb53ae2f7bfd7143b504af396c?s=60" class="gravatar" alt="John James Jacoby" /></a>
 					<a class="web" href="https://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
 					<span class="title"><?php esc_html_e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
