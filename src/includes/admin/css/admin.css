@@ -305,3 +305,11 @@ body.post-type-reply strong.label {
 #the-list .status-spam td {
 	color: #999;
 }
+
+/* User Relationships */
+
+#bbp_topic_engagements_metabox .avatar,
+#bbp_topic_favorites_metabox .avatar,
+#bbp_topic_subscriptions_metabox .avatar {
+	margin: 3px;
+}
