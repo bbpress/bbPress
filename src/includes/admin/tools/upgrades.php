@@ -167,7 +167,6 @@ function bbp_admin_upgrade_user_engagements() {
 	$bbp_db    = bbp_db();
 	$statement = __( 'Upgrading user engagements &hellip; %s', 'bbpress' );
 	$result    = __( 'No engagements to upgrade.',             'bbpress' );
-	$total     = 0;
 
 	// Delete previous engagements
 	$sql_delete = "DELETE FROM {$bbp_db->postmeta} WHERE meta_key = '_bbp_engagement'";
@@ -180,43 +179,25 @@ function bbp_admin_upgrade_user_engagements() {
 	$rpt = bbp_get_reply_post_type();
 	$pps = bbp_get_public_status_id();
 	$cps = bbp_get_closed_status_id();
-	$sql = $bbp_db->prepare( "SELECT postmeta.meta_value, '_bbp_engagement', posts.post_author
-			FROM {$bbp_db->posts} AS posts
-			LEFT JOIN {$bbp_db->postmeta} AS postmeta
-				ON posts.ID = postmeta.post_id
-				AND postmeta.meta_key = '_bbp_topic_id'
-			WHERE posts.post_type IN (%s, %s)
-				AND posts.post_status IN (%s, %s)", $tpt, $rpt, $pps, $cps );
+	$sql = $bbp_db->prepare( "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
+			SELECT postmeta.meta_value, '_bbp_engagement', posts.post_author
+				FROM {$bbp_db->posts} AS posts
+				LEFT JOIN {$bbp_db->postmeta} AS postmeta
+					ON posts.ID = postmeta.post_id
+					AND postmeta.meta_key = '_bbp_topic_id'
+				WHERE posts.post_type IN (%s, %s)
+					AND posts.post_status IN (%s, %s)
+				GROUP BY postmeta.meta_value, posts.post_author)", $tpt, $rpt, $pps, $cps );
 
-	$engagements = $bbp_db->get_results( $sql );
+	$engagements = $bbp_db->query( $sql );
 
 	// Bail if no closed topics found
 	if ( empty( $engagements ) || is_wp_error( $engagements ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Loop through each user's engagements
-	foreach ( $engagements as $meta ) {
-
-		// Skip if already exists
-		if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT * FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d LIMIT 1", $meta->meta_value, '_bbp_engagement', $meta->post_author ) ) ) {
-			continue;
-		}
-
-		// Add the post meta
-		$added = add_post_meta( $meta->meta_value, '_bbp_engagement', $meta->post_author, false );
-
-		// Bump counts if successfully added
-		if ( ! empty( $added ) ) {
-			++$total;
-		}
-	}
-
-	// Cleanup
-	unset( $engagements, $added );
-
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d engagements upgraded.', 'Complete! %d engagements upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d engagements upgraded.', 'Complete! %d engagements upgraded.', $engagements, 'bbpress' ), $engagements );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
