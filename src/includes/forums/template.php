@@ -45,22 +45,25 @@ function bbp_forum_post_type() {
  */
 function bbp_get_forum_post_type_labels() {
 	return apply_filters( 'bbp_get_forum_post_type_labels', array(
-		'name'               => __( 'Forums',                   'bbpress' ),
-		'menu_name'          => __( 'Forums',                   'bbpress' ),
-		'singular_name'      => __( 'Forum',                    'bbpress' ),
-		'all_items'          => __( 'All Forums',               'bbpress' ),
-		'add_new'            => __( 'Add New',                  'bbpress' ),
-		'add_new_item'       => __( 'Create New Forum',         'bbpress' ),
-		'edit'               => __( 'Edit',                     'bbpress' ),
-		'edit_item'          => __( 'Edit Forum',               'bbpress' ),
-		'new_item'           => __( 'New Forum',                'bbpress' ),
-		'view'               => __( 'View Forum',               'bbpress' ),
-		'view_item'          => __( 'View Forum',               'bbpress' ),
-		'view_items'         => __( 'View Forums',              'bbpress' ),
-		'search_items'       => __( 'Search Forums',            'bbpress' ),
-		'not_found'          => __( 'No forums found',          'bbpress' ),
-		'not_found_in_trash' => __( 'No forums found in Trash', 'bbpress' ),
-		'parent_item_colon'  => __( 'Parent Forum:',            'bbpress' )
+		'name'                  => __( 'Forums',                   'bbpress' ),
+		'menu_name'             => __( 'Forums',                   'bbpress' ),
+		'singular_name'         => __( 'Forum',                    'bbpress' ),
+		'all_items'             => __( 'All Forums',               'bbpress' ),
+		'add_new'               => __( 'Add New',                  'bbpress' ),
+		'add_new_item'          => __( 'Create New Forum',         'bbpress' ),
+		'edit'                  => __( 'Edit',                     'bbpress' ),
+		'edit_item'             => __( 'Edit Forum',               'bbpress' ),
+		'new_item'              => __( 'New Forum',                'bbpress' ),
+		'view'                  => __( 'View Forum',               'bbpress' ),
+		'view_item'             => __( 'View Forum',               'bbpress' ),
+		'view_items'            => __( 'View Forums',              'bbpress' ),
+		'search_items'          => __( 'Search Forums',            'bbpress' ),
+		'not_found'             => __( 'No forums found',          'bbpress' ),
+		'not_found_in_trash'    => __( 'No forums found in Trash', 'bbpress' ),
+		'filter_items_list'     => __( 'Filter forums list',       'bbpress' ),
+		'items_list'            => __( 'Forums list',              'bbpress' ),
+		'items_list_navigation' => __( 'Forums list navigation',   'bbpress' ),
+		'parent_item_colon'     => __( 'Parent Forum:',            'bbpress' )
 	) );
 }
 

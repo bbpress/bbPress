@@ -44,22 +44,25 @@ function bbp_topic_post_type() {
  */
 function bbp_get_topic_post_type_labels() {
 	return apply_filters( 'bbp_get_topic_post_type_labels', array(
-		'name'               => __( 'Topics',                   'bbpress' ),
-		'menu_name'          => __( 'Topics',                   'bbpress' ),
-		'singular_name'      => __( 'Topic',                    'bbpress' ),
-		'all_items'          => __( 'All Topics',               'bbpress' ),
-		'add_new'            => __( 'Add New',                  'bbpress' ),
-		'add_new_item'       => __( 'Create New Topic',         'bbpress' ),
-		'edit'               => __( 'Edit',                     'bbpress' ),
-		'edit_item'          => __( 'Edit Topic',               'bbpress' ),
-		'new_item'           => __( 'New Topic',                'bbpress' ),
-		'view'               => __( 'View Topic',               'bbpress' ),
-		'view_item'          => __( 'View Topic',               'bbpress' ),
-		'view_items'         => __( 'View Topics',              'bbpress' ),
-		'search_items'       => __( 'Search Topics',            'bbpress' ),
-		'not_found'          => __( 'No topics found',          'bbpress' ),
-		'not_found_in_trash' => __( 'No topics found in Trash', 'bbpress' ),
-		'parent_item_colon'  => __( 'Forum:',                   'bbpress' )
+		'name'                  => __( 'Topics',                   'bbpress' ),
+		'menu_name'             => __( 'Topics',                   'bbpress' ),
+		'singular_name'         => __( 'Topic',                    'bbpress' ),
+		'all_items'             => __( 'All Topics',               'bbpress' ),
+		'add_new'               => __( 'Add New',                  'bbpress' ),
+		'add_new_item'          => __( 'Create New Topic',         'bbpress' ),
+		'edit'                  => __( 'Edit',                     'bbpress' ),
+		'edit_item'             => __( 'Edit Topic',               'bbpress' ),
+		'new_item'              => __( 'New Topic',                'bbpress' ),
+		'view'                  => __( 'View Topic',               'bbpress' ),
+		'view_item'             => __( 'View Topic',               'bbpress' ),
+		'view_items'            => __( 'View Topics',              'bbpress' ),
+		'search_items'          => __( 'Search Topics',            'bbpress' ),
+		'not_found'             => __( 'No topics found',          'bbpress' ),
+		'not_found_in_trash'    => __( 'No topics found in Trash', 'bbpress' ),
+		'filter_items_list'     => __( 'Filter topics list',       'bbpress' ),
+		'items_list'            => __( 'Topics list',              'bbpress' ),
+		'items_list_navigation' => __( 'Topics list navigation',   'bbpress' ),
+		'parent_item_colon'     => __( 'Forum:',                   'bbpress' )
 	) );
 }
 
@@ -3597,6 +3600,8 @@ function bbp_get_topic_tag_tax_labels() {
 		'new_item_name'              => __( 'New Tag Name',                    'bbpress' ),
 		'view_item'                  => __( 'View Topic Tag',                  'bbpress' ),
 		'view_items'                 => __( 'View Topic Tags',                 'bbpress' ),
+		'items_list'                 => __( 'Topic tags list',                 'bbpress' ),
+		'items_list_navigation'      => __( 'Topic tags list navigation',      'bbpress' ),
 		'separate_items_with_commas' => __( 'Separate topic tags with commas', 'bbpress' )
 	) );
 }

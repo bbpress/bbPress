@@ -44,22 +44,25 @@ function bbp_reply_post_type() {
  */
 function bbp_get_reply_post_type_labels() {
 	return apply_filters( 'bbp_get_reply_post_type_labels', array(
-		'name'               => __( 'Replies',                   'bbpress' ),
-		'menu_name'          => __( 'Replies',                   'bbpress' ),
-		'singular_name'      => _x( 'Reply', 'noun',             'bbpress' ),
-		'all_items'          => __( 'All Replies',               'bbpress' ),
-		'add_new'            => __( 'Add New',                   'bbpress' ),
-		'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
-		'edit'               => __( 'Edit',                      'bbpress' ),
-		'edit_item'          => __( 'Edit Reply',                'bbpress' ),
-		'new_item'           => __( 'New Reply',                 'bbpress' ),
-		'view'               => __( 'View Reply',                'bbpress' ),
-		'view_item'          => __( 'View Reply',                'bbpress' ),
-		'view_items'         => __( 'View Replies',              'bbpress' ),
-		'search_items'       => __( 'Search Replies',            'bbpress' ),
-		'not_found'          => __( 'No replies found',          'bbpress' ),
-		'not_found_in_trash' => __( 'No replies found in Trash', 'bbpress' ),
-		'parent_item_colon'  => __( 'Topic:',                    'bbpress' )
+		'name'                  => __( 'Replies',                   'bbpress' ),
+		'menu_name'             => __( 'Replies',                   'bbpress' ),
+		'singular_name'         => _x( 'Reply', 'noun',             'bbpress' ),
+		'all_items'             => __( 'All Replies',               'bbpress' ),
+		'add_new'               => __( 'Add New',                   'bbpress' ),
+		'add_new_item'          => __( 'Create New Reply',          'bbpress' ),
+		'edit'                  => __( 'Edit',                      'bbpress' ),
+		'edit_item'             => __( 'Edit Reply',                'bbpress' ),
+		'new_item'              => __( 'New Reply',                 'bbpress' ),
+		'view'                  => __( 'View Reply',                'bbpress' ),
+		'view_item'             => __( 'View Reply',                'bbpress' ),
+		'view_items'            => __( 'View Replies',              'bbpress' ),
+		'search_items'          => __( 'Search Replies',            'bbpress' ),
+		'not_found'             => __( 'No replies found',          'bbpress' ),
+		'not_found_in_trash'    => __( 'No replies found in Trash', 'bbpress' ),
+		'filter_items_list'     => __( 'Filter replies list',       'bbpress' ),
+		'items_list'            => __( 'Replies list',              'bbpress' ),
+		'items_list_navigation' => __( 'Replies list navigation',   'bbpress' ),
+		'parent_item_colon'     => __( 'Topic:',                    'bbpress' )
 	) );
 }
 
