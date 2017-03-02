@@ -39,12 +39,12 @@ function bbp_check_post_lock( $post_id = 0 ) {
 		? $lock[1]
 		: get_post_meta( $post->ID, '_edit_last', true );
 
-	/** This filter is documented in wp-admin/includes/ajax-actions.php */
-	$time_window = apply_filters( 'wp_check_post_lock_window', 150 );
+	// Filter editing window duration
+	$time_window = apply_filters( 'bbp_check_post_lock_window', 3 * MINUTE_IN_SECONDS );
 
 	// Return user who is or last edited
-	if ( ! empty( $time ) && ( $time > ( time() - $time_window ) ) && ( $user !== get_current_user_id() ) ) {
-		return $user;
+	if ( ! empty( $time ) && ( $time > ( time() - $time_window ) ) && ( $user !== bbp_get_current_user_id() ) ) {
+		return (int) $user;
 	}
 
 	return false;

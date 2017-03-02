@@ -52,6 +52,8 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
+	<?php bbp_get_template_part( 'alert', 'topic-lock' ); ?>
+
 	<?php do_action( 'bbp_template_after_single_topic' ); ?>
 
 </div>

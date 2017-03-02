@@ -181,7 +181,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		}
 
 		// Topic-specific scripts
-		if ( bbp_is_single_topic() ) {
+		if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
 
 			// Topic favorite/unsubscribe
 			$scripts['bbpress-topic'] = array(

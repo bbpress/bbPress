@@ -24,6 +24,8 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 	<?php bbp_single_topic_description( array( 'topic_id' => bbp_get_topic_id() ) ); ?>
 
+	<?php bbp_get_template_part( 'alert', 'topic-lock' ); ?>
+
 <?php endif; ?>
 
 <?php if ( bbp_current_user_can_access_create_topic_form() ) : ?>

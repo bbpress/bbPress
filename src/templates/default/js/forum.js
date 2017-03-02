@@ -1,3 +1,4 @@
+/* global bbpForumJS */
 jQuery( document ).ready( function ( $ ) {
 
 	function bbp_ajax_call( action, forum_id, nonce, update_selector ) {

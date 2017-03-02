@@ -4245,3 +4245,71 @@ function bbp_is_topic_form_post_request() {
 
 	return false;
 }
+
+/** Warning *******************************************************************/
+
+/**
+ * Should the topic-lock alert appear?
+ *
+ * @since 2.6.0 bbPress (r6342)
+ *
+ * @return bool
+ */
+function bbp_show_topic_lock_alert() {
+
+	// Default to not showing the alert
+	$retval = false;
+
+	// Get the current topic ID
+	$topic_id = bbp_get_topic_id();
+
+	// Only show on single topic pages
+	if ( bbp_is_topic_edit() || bbp_is_single_topic() ) {
+
+		// Only show to moderators
+		if ( current_user_can( 'moderate', $topic_id ) ) {
+
+			// Locked?
+			$user_id = bbp_check_post_lock( $topic_id );
+
+			// Only show if not locked by the current user
+			if ( ! empty( $user_id ) && ( bbp_get_current_user_id() !== $user_id ) ) {
+				$retval = true;
+			}
+		}
+	}
+
+	return (bool) apply_filters( 'bbp_show_topic_lock_alert', $retval, $topic_id );
+}
+
+/**
+ * Output the topic lock description
+ *
+ * @since 2.6.0 bbPress (r6343)
+ *
+ * @param int $topic_id Optional. Topic id
+ */
+function bbp_topic_lock_description( $topic_id = 0 ) {
+	echo bbp_get_topic_lock_description( $topic_id );
+}
+	/**
+	 * Return the topic lock description
+	 *
+	 * @since 2.6.0 bbPress (r6343)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 */
+	function bbp_get_topic_lock_description( $topic_id = 0 ) {
+
+		// Check if topic is edit locked
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$user_id  = bbp_check_post_lock( $topic_id );
+		$person   = empty( $user_id )
+			? esc_html__( 'Nobody', 'bbpress' )
+			: bbp_get_user_profile_link( $user_id );
+
+		// Get the text
+		$text = sprintf( esc_html__( '%1$s is currently editing this topic.', 'bbpress' ), $person );
+
+		return apply_filters( 'bbp_get_topic_lock_description', $text, $user_id, $topic_id );
+	}

@@ -1183,6 +1183,44 @@ body.my-account #bbpress-forums {
 	visibility: visible;
 }
 
+/* =Alerts
+-------------------------------------------------------------- */
+
+.bbp-alert-outer {
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	position: fixed;
+	background-color: rgba(0,0,0,0.2);
+	z-index: 99999;
+}
+
+.bbp-alert-inner {
+	width: 350px;
+	text-align: center;
+	background: #fff;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -75px;
+	margin-left: -185px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #aaa;
+	padding: 15px 10px 10px
+}
+
+.bbp-alert-outer .bbp-alert-inner p {
+	margin: 10px 0;
+}
+
+.bbp-alert-actions a {
+	padding: 5px 20px;
+	text-decoration: none;
+}
+
 /*--------------------------------------------------------------
  Media Queries
 --------------------------------------------------------------*/
