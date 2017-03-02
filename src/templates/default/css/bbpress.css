@@ -1205,7 +1205,7 @@ body.my-account #bbpress-forums {
 	top: 0;
 	left: 0;
 	position: fixed;
-	background-color: rgba(0,0,0,0.2);
+	background-color: rgba(0, 0, 0, 0.2);
 	z-index: 99999;
 }
 
@@ -1222,7 +1222,7 @@ body.my-account #bbpress-forums {
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	border: 1px solid #aaa;
-	padding: 15px 10px 10px
+	padding: 15px 10px 10px;
 }
 
 .bbp-alert-outer .bbp-alert-inner p {
