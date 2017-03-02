@@ -240,6 +240,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Single forum
 		if ( bbp_is_single_forum() ) {
 			wp_localize_script( 'bbpress-forum', 'bbpForumJS', array(
+				'forum_id'           => get_the_ID(),
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
 				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
 				'is_user_logged_in'  => is_user_logged_in(),
@@ -249,6 +250,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Single topic
 		} elseif ( bbp_is_single_topic() ) {
 			wp_localize_script( 'bbpress-topic', 'bbpTopicJS', array(
+				'topic_id'           => get_the_ID(),
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
 				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
 				'is_user_logged_in'  => is_user_logged_in(),
