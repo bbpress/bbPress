@@ -383,8 +383,14 @@ function bbp_mention_filter( $content = '' ) {
 			continue;
 		}
 
+		// Link
+		$profile_url  = bbp_get_user_profile_url( $user->ID );
+		$profile_link = sprintf( '<a href="%1$s">@%2$s</a>', esc_url( $profile_url ), esc_html( $username ) );
+		$no_followed  = bbp_rel_nofollow( $profile_link );
+		$pattern      = "/(@{$username}\b)/";
+
 		// Replace name in content
-		$content = preg_replace( '/(@' . $username . '\b)/', sprintf( '<a href="%1$s" rel="nofollow">@%2$s</a>', bbp_get_user_profile_url( $user->ID ), $username ), $content );
+		$content = preg_replace( $pattern, $no_followed, $content );
 	}
 
 	// Return modified content
