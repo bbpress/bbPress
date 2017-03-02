@@ -646,7 +646,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			$new_content = bbp_buffer_template_part( 'form', 'topic-merge', false );
 
 		// Edit
-		} elseif ( bbp_is_topic_edit() ) {			
+		} elseif ( bbp_is_topic_edit() ) {
 			$new_content = $bbp_shortcodes->display_topic_form();
 
 			// Lock the topic from other edits
@@ -699,7 +699,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		} elseif ( bbp_is_reply_edit() ) {
 			$new_content = $bbp_shortcodes->display_reply_form();
 
-			// Lock the topic from other edits
+			// Lock the reply from other edits
 			bbp_set_post_lock( bbp_get_reply_id() );
 
 		// Single
