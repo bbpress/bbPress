@@ -704,6 +704,10 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		/** Revisions *********************************************************/
 
+		// Update locks
+		update_post_meta( $topic_id, '_edit_last', bbp_get_current_user_id() );
+		delete_post_meta( $topic_id, '_edit_lock' );
+
 		// Revision Reason
 		if ( ! empty( $_POST['bbp_topic_edit_reason'] ) ) {
 			$topic_edit_reason = sanitize_text_field( $_POST['bbp_topic_edit_reason'] );

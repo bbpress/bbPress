@@ -727,7 +727,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		remove_post_type_support( bbp_get_reply_post_type(), 'revisions' );
 	}
 
-	// Insert topic
+	// Insert reply
 	$reply_id = wp_update_post( $reply_data );
 
 	// Toggle revisions back on
@@ -749,32 +749,36 @@ function bbp_edit_reply_handler( $action = '' ) {
 		bbp_add_error( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
 	}
 
-	/** Revisions *************************************************************/
-
-	// Revision Reason
-	if ( ! empty( $_POST['bbp_reply_edit_reason'] ) ) {
-		$reply_edit_reason = sanitize_text_field( $_POST['bbp_reply_edit_reason'] );
-	}
-
-	// Update revision log
-	if ( ! empty( $_POST['bbp_log_reply_edit'] ) && ( "1" === $_POST['bbp_log_reply_edit'] ) ) {
-		$revision_id = wp_save_post_revision( $reply_id );
-		if ( ! empty( $revision_id ) ) {
-			bbp_update_reply_revision_log( array(
-				'reply_id'    => $reply_id,
-				'revision_id' => $revision_id,
-				'author_id'   => bbp_get_current_user_id(),
-				'reason'      => $reply_edit_reason
-			) );
-		}
-	}
-
 	/** No Errors *************************************************************/
 
 	if ( ! empty( $reply_id ) && ! is_wp_error( $reply_id ) ) {
 
 		// Update counts, etc...
 		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true, $reply_to );
+
+		/** Revisions *********************************************************/
+
+		// Update locks
+		update_post_meta( $reply_id, '_edit_last', bbp_get_current_user_id() );
+		delete_post_meta( $reply_id, '_edit_lock' );
+
+		// Revision Reason
+		if ( ! empty( $_POST['bbp_reply_edit_reason'] ) ) {
+			$reply_edit_reason = sanitize_text_field( $_POST['bbp_reply_edit_reason'] );
+		}
+
+		// Update revision log
+		if ( ! empty( $_POST['bbp_log_reply_edit'] ) && ( "1" === $_POST['bbp_log_reply_edit'] ) ) {
+			$revision_id = wp_save_post_revision( $reply_id );
+			if ( ! empty( $revision_id ) ) {
+				bbp_update_reply_revision_log( array(
+					'reply_id'    => $reply_id,
+					'revision_id' => $revision_id,
+					'author_id'   => bbp_get_current_user_id(),
+					'reason'      => $reply_edit_reason
+				) );
+			}
+		}
 
 		/** Additional Actions (After Save) ***********************************/
 

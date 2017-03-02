@@ -527,25 +527,6 @@ function bbp_edit_forum_handler( $action = '' ) {
 	// Insert forum
 	$forum_id = wp_update_post( $forum_data );
 
-	/** Revisions *************************************************************/
-
-	/**
-	 * @todo omitted for 2.1
-	// Revision Reason
-	if ( ! empty( $_POST['bbp_forum_edit_reason'] ) )
-		$forum_edit_reason = sanitize_text_field( $_POST['bbp_forum_edit_reason'] );
-
-	// Update revision log
-	if ( ! empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
-		bbp_update_forum_revision_log( array(
-			'forum_id'    => $forum_id,
-			'revision_id' => $revision_id,
-			'author_id'   => bbp_get_current_user_id(),
-			'reason'      => $forum_edit_reason
-		) );
-	}
-	 */
-
 	/** No Errors *************************************************************/
 
 	if ( ! empty( $forum_id ) && ! is_wp_error( $forum_id ) ) {
@@ -562,12 +543,37 @@ function bbp_edit_forum_handler( $action = '' ) {
 			'last_active_status' => bbp_get_public_status_id()
 		) );
 
+		/** Revisions *********************************************************/
+
+		// Update locks
+		update_post_meta( $forum_id, '_edit_last', bbp_get_current_user_id() );
+		delete_post_meta( $forum_id, '_edit_lock' );
+
+		/**
+		 * @todo omitted for now
+		// Revision Reason
+		if ( ! empty( $_POST['bbp_forum_edit_reason'] ) )
+			$forum_edit_reason = sanitize_text_field( $_POST['bbp_forum_edit_reason'] );
+
+		// Update revision log
+		if ( ! empty( $_POST['bbp_log_forum_edit'] ) && ( "1" === $_POST['bbp_log_forum_edit'] ) && ( $revision_id = wp_save_post_revision( $forum_id ) ) ) {
+			bbp_update_forum_revision_log( array(
+				'forum_id'    => $forum_id,
+				'revision_id' => $revision_id,
+				'author_id'   => bbp_get_current_user_id(),
+				'reason'      => $forum_edit_reason
+			) );
+		}
+
 		// If the new forum parent id is not equal to the old forum parent
 		// id, run the bbp_move_forum action and pass the forum's parent id
-		// as the first arg and new forum parent id as the second.
+		// as the first argument and new forum parent id as the second.
 		// @todo implement
-		//if ( $forum_id !== $forum->post_parent )
-		//	bbp_move_forum_handler( $forum_parent_id, $forum->post_parent, $forum_id );
+		if ( $forum_id !== $forum->post_parent ) {
+			bbp_move_forum_handler( $forum_parent_id, $forum->post_parent, $forum_id );
+		}
+
+		*/
 
 		/** Additional Actions (After Save) ***********************************/
 

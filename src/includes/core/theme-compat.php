@@ -577,6 +577,9 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'comment_status' => 'closed'
 		) );
 
+		// Lock the forum from other edits
+		bbp_set_post_lock( bbp_get_forum_id() );
+
 	} elseif ( bbp_is_single_forum() ) {
 
 		// Reset post
@@ -643,8 +646,11 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			$new_content = bbp_buffer_template_part( 'form', 'topic-merge', false );
 
 		// Edit
-		} elseif ( bbp_is_topic_edit() ) {
+		} elseif ( bbp_is_topic_edit() ) {			
 			$new_content = $bbp_shortcodes->display_topic_form();
+
+			// Lock the topic from other edits
+			bbp_set_post_lock( bbp_get_topic_id() );
 
 		// Single
 		} else {
@@ -692,6 +698,9 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		// Edit
 		} elseif ( bbp_is_reply_edit() ) {
 			$new_content = $bbp_shortcodes->display_reply_form();
+
+			// Lock the topic from other edits
+			bbp_set_post_lock( bbp_get_reply_id() );
 
 		// Single
 		} else {

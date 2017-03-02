@@ -333,6 +333,7 @@ final class bbPress {
 		require $this->includes_dir . 'common/functions.php';
 		require $this->includes_dir . 'common/formatting.php';
 		require $this->includes_dir . 'common/locale.php';
+		require $this->includes_dir . 'common/locks.php';
 		require $this->includes_dir . 'common/template.php';
 		require $this->includes_dir . 'common/widgets.php';
 		require $this->includes_dir . 'common/shortcodes.php';
