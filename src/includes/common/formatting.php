@@ -463,7 +463,7 @@ function bbp_make_mentions_clickable( $text = '' ) {
 }
 
 /**
- * Callback to convert mention matchs to HTML A tag.
+ * Callback to convert mention matches to HTML A tag.
  *
  * @since 2.6.0 (r6014)
  *
@@ -479,9 +479,16 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 		return $matches[0];
 	}
 
+	// Filter classes
+	$classes = apply_filters( 'bbp_make_mentions_clickable_classes', array(
+		'bbp-user-id-' . $user->ID,
+		'bbp-user-mention'
+	) );
+
 	// Create the link to the user's profile
 	$url    = bbp_get_user_profile_url( $user->ID );
-	$anchor = sprintf( '<a href="%1$s">@%2$s</a>', esc_url( $url ), esc_html( $user->user_nicename ) );
+	$clicky = '<a href="%1$s" class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">@%2$s</a>';
+	$anchor = sprintf( $clicky, esc_url( $url ), esc_html( $user->user_nicename ) );
 	$link   = bbp_rel_nofollow( $anchor );
 
 	return $matches[1] . $link;

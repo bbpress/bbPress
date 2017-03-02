@@ -309,6 +309,18 @@ span.bbp-author-ip {
 	padding: 0;
 }
 
+#bbpress-forums div.bbp-topic-content a.bbp-user-mention,
+#bbpress-forums div.bbp-reply-content a.bbp-user-mention {
+	background: none;
+	border: none;
+	text-decoration: none;
+	text-shadow: none;
+	display: inline;
+	font-weight: 600;
+	margin: 0;
+	padding: 0;
+}
+
 #bbpress-forums div.bbp-topic-content h1,
 #bbpress-forums div.bbp-reply-content h1,
 #bbpress-forums div.bbp-topic-content h2,
