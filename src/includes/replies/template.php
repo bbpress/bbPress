@@ -1773,12 +1773,15 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 			$text = __( 'Cancel', 'bbpress' );
 		}
 
-		$reply_to = isset( $_GET['bbp_reply_to'] ) ? (int) $_GET['bbp_reply_to'] : 0;
+		// Replying to...
+		$reply_to = isset( $_GET['bbp_reply_to'] )
+			? (int) $_GET['bbp_reply_to']
+			: 0;
 
 		// Set visibility
 		$style  = ! empty( $reply_to ) ? '' : ' style="display:none;"';
-		$link   = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . '#post-' . $reply_to;
-		$retval = '<a rel="nofollow" id="bbp-cancel-reply-to-link" href="' . esc_url( $link ) . '"' . $style . '>' . esc_html( $text ) . '</a>';
+		$link   = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . "#post-{$reply_to}";
+		$retval = sprintf( '<a href="%1$s" id="bbp-cancel-reply-to-link"%2$s>%3$s</a>', esc_url( $link ), $style, esc_html( $text ) );
 
 		return apply_filters( 'bbp_get_cancel_reply_to_link', $retval, $link, $text );
 	}

@@ -139,6 +139,8 @@ add_filter( 'bbp_get_user_profile_link',      'bbp_rel_nofollow' );
 add_filter( 'bbp_get_user_profile_link',      'wp_unslash'       );
 add_filter( 'bbp_get_user_profile_edit_link', 'bbp_rel_nofollow' );
 add_filter( 'bbp_get_user_profile_edit_link', 'wp_unslash'       );
+add_filter( 'bbp_get_cancel_reply_to_link',   'bbp_rel_nofollow' );
+add_filter( 'bbp_get_cancel_reply_to_link',   'wp_unslash'       );
 
 // Run filters on reply content
 add_filter( 'bbp_get_reply_content', 'bbp_make_clickable', 4    );
