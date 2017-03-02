@@ -481,8 +481,8 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 
 	// Create the link to the user's profile
 	$url    = bbp_get_user_profile_url( $user->ID );
-	$anchor = '<a href="%1$s" rel="nofollow">@%2$s</a>';
-	$link   = sprintf( $anchor, esc_url( $url ), esc_html( $user->user_nicename ) );
+	$anchor = sprintf( '<a href="%1$s">@%2$s</a>', esc_url( $url ), esc_html( $user->user_nicename ) );
+	$link   = bbp_rel_nofollow( $anchor );
 
 	return $matches[1] . $link;
 }
