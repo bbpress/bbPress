@@ -442,6 +442,7 @@ div.bbp-topic-tags {
 
 #bbpress-forums div.bbp-topic-tags {
 	float: right;
+	clear: both;
 }
 
 #bbp-topic-hot-tags {

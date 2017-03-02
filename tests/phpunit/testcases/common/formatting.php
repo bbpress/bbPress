@@ -18,10 +18,12 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 			'user_nicename' => 'foobarbaz',
 		) );
 
+		add_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
+
 		// Create the link to the user's profile
 		$user   = get_userdata( $u1 );
 		$url    = bbp_get_user_profile_url( $user->ID );
-		$anchor = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor = '<a href="%1$s" class="">@%2$s</a>';
 		$name   = $user->user_nicename;
 		$link   = sprintf( $anchor, esc_url( $url ), esc_html( $name ) );
 
@@ -63,6 +65,8 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		$at_name_between       = sprintf( "foo < %s > @%s", $name, $link );
 		$at_name_between_final = sprintf( "foo < %s > @%s", $name, $link );
 		$this->assertEquals( $at_name_between_final, bbp_make_clickable( $at_name_between ) );
+
+		remove_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
 	}
 
 	/**
@@ -76,10 +80,12 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 			'user_nicename' => 'foobarbaz',
 		) );
 
+		add_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
+
 		// Create the link to the user's profile
 		$user   = get_userdata( $u1 );
 		$url    = bbp_get_user_profile_url( $user->ID );
-		$anchor = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor = '<a href="%1$s" class="">@%2$s</a>';
 		$name   = $user->user_nicename;
 		$link   = sprintf( $anchor, esc_url( $url ), esc_html( $user->user_nicename ) );
 
@@ -131,6 +137,8 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		// Don"t link non-existent users
 		$text = "Don't link @non @existent @users";
 		$this->assertSame( $text, bbp_make_clickable( $text ) );
+
+		remove_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
 	}
 
 	/**
@@ -149,16 +157,18 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 			'user_nicename' => 'foo2',
 		) );
 
+		add_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
+
 		// Create the link to the user's profile
 		$user_1   = get_userdata( $u1 );
 		$url_1    = bbp_get_user_profile_url( $user_1->ID );
-		$anchor_1 = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor_1 = '<a href="%1$s" class="">@%2$s</a>';
 		$name_1   = $user_1->user_nicename;
 		$link_1   = sprintf( $anchor_1, esc_url( $url_1 ), esc_html( $name_1 ) );
 
 		$user_2   = get_userdata( $u2 );
 		$url_2    = bbp_get_user_profile_url( $user_2->ID );
-		$anchor_2 = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor_2 = '<a href="%1$s" class="">@%2$s</a>';
 		$name_2   = $user_2->user_nicename;
 		$link_2   = sprintf( $anchor_2, esc_url( $url_2 ), esc_html( $name_2 ) );
 
@@ -166,6 +176,8 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		$at_name_in_mailto       = sprintf( "Send messages to @%s, @%s.", $link_1, $link_2 );
 		$at_name_in_mailto_final = sprintf( "Send messages to @%s, @%s.", $link_1, $link_2 );
 		$this->assertEquals( $at_name_in_mailto_final, bbp_make_clickable( $at_name_in_mailto ) );
+
+		remove_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
 	}
 
 	/**
@@ -184,16 +196,18 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 			'user_nicename' => 'foo2',
 		) );
 
+		add_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
+
 		// Create the link to the user's profile
 		$user_1   = get_userdata( $u1 );
 		$url_1    = bbp_get_user_profile_url( $user_1->ID );
-		$anchor_1 = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor_1 = '<a href="%1$s" class="">@%2$s</a>';
 		$name_1   = $user_1->user_nicename;
 		$link_1   = sprintf( $anchor_1, esc_url( $url_1 ), esc_html( $name_1 ) );
 
 		$user_2   = get_userdata( $u2 );
 		$url_2    = bbp_get_user_profile_url( $user_2->ID );
-		$anchor_2 = '<a href="%1$s" rel="nofollow">@%2$s</a>';
+		$anchor_2 = '<a href="%1$s" class="">@%2$s</a>';
 		$name_2   = $user_2->user_nicename;
 		$link_2   = sprintf( $anchor_2, esc_url( $url_2 ), esc_html( $name_2 ) );
 
@@ -201,5 +215,7 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		$at_name_in_mailto       = sprintf( "Send messages to @%s, @non1, @%s, @non2.", $link_1, $link_2 );
 		$at_name_in_mailto_final = sprintf( "Send messages to @%s, @non1, @%s, @non2.", $link_1, $link_2 );
 		$this->assertEquals( $at_name_in_mailto_final, bbp_make_clickable( $at_name_in_mailto ) );
+
+		remove_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
 	}
 }

@@ -480,14 +480,19 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 	}
 
 	// Filter classes
-	$classes = apply_filters( 'bbp_make_mentions_clickable_classes', array(
+	$classes = (array) apply_filters( 'bbp_make_mentions_clickable_classes', array(
 		'bbp-user-id-' . $user->ID,
 		'bbp-user-mention'
 	) );
 
+	// Escape & implode if not empty, otherwise an empty string
+	$class_str = ! empty( $classes )
+		? implode( ' ', array_map( 'esc_attr', $classes ) )
+		: '';
+
 	// Create the link to the user's profile
 	$url    = bbp_get_user_profile_url( $user->ID );
-	$clicky = '<a href="%1$s" class="' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">@%2$s</a>';
+	$clicky = '<a href="%1$s" class="' . $class_str . '">@%2$s</a>';
 	$anchor = sprintf( $clicky, esc_url( $url ), esc_html( $user->user_nicename ) );
 	$link   = bbp_rel_nofollow( $anchor );
 
