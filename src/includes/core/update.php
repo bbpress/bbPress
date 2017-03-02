@@ -325,7 +325,7 @@ function bbp_version_updater() {
 		/** 2.6 Branch ********************************************************/
 
 		// 2.6.x
-		if ( $raw_db_version < 260 ) {
+		if ( $raw_db_version < 261 ) {
 
 			/**
 			 * Upgrade user favorites, subscriptions, and engagements
