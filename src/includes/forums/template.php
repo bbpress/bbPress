@@ -742,6 +742,8 @@ function bbp_forum_get_subforums( $args = array() ) {
 /**
  * Output a list of forums (can be used to list subforums)
  *
+ * @since 2.0.0 bbPress (r2708)
+ *
  * @param array $args The function supports these args:
  *  - before: To put before the output. Defaults to '<ul class="bbp-forums">'
  *  - after: To put after the output. Defaults to '</ul>'
