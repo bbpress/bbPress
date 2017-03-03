@@ -1268,9 +1268,8 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	 *
 	 * @param int $forum_id Optional. Topic id
 	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses bbp_get_forum() To get the forum
-	 * @uses bbp_get_forum_topic_count() To get the forum topic count
 	 * @uses bbp_get_forum_permalink() To get the forum permalink
+	 * @uses bbp_get_forum_topic_count() To get the forum topic count
 	 * @uses bbp_get_forum_topic_count_hidden() To get the forum hidden
 	 *                                           topic count
 	 * @uses current_user_can() To check if the current user can edit others
@@ -1279,35 +1278,29 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	 *                        topics link and forum id
 	 */
 	function bbp_get_forum_topics_link( $forum_id = 0 ) {
-		$forum    = bbp_get_forum( $forum_id );
-		$forum_id = $forum->ID;
-		$topics   = sprintf( _n( '%s topic', '%s topics', bbp_get_forum_topic_count( $forum_id, true, false ), 'bbpress' ), bbp_get_forum_topic_count( $forum_id ) );
-		$retval   = '';
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$link     = bbp_get_forum_permalink( $forum_id );
+		$topics   = sprintf( _n( '%s topic', '%s topics', bbp_get_forum_topic_count( $forum_id, true, true ), 'bbpress' ), bbp_get_forum_topic_count( $forum_id, true, false ) );
 
 		// First link never has view=all
-		if ( bbp_get_view_all( 'edit_others_topics' ) ) {
-			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_forum_permalink( $forum_id ) ) ) . "'>" . esc_html( $topics ) . "</a>";
-		} else {
-			$retval .= esc_html( $topics );
-		}
+		$retval = bbp_get_view_all( 'edit_others_topics' )
+			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $topics ) . "</a>"
+			: esc_html( $topics );
 
 		// Get deleted topics
-		$deleted = bbp_get_forum_topic_count_hidden( $forum_id );
+		$deleted_int = bbp_get_forum_topic_count_hidden( $forum_id, true  );
 
 		// This forum has hidden topics
-		if ( ! empty( $deleted ) && current_user_can( 'edit_others_topics' ) ) {
+		if ( ! empty( $deleted_int ) && current_user_can( 'edit_others_topics' ) ) {
 
-			// Extra text
-			$extra = ' ' . sprintf( _n( '(%d hidden)', '(%d hidden)', $deleted, 'bbpress' ), $deleted );
+			// Hidden text
+			$deleted_num = bbp_get_forum_topic_count_hidden( $forum_id, false );
+			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
-			// No link
-			if ( bbp_get_view_all() ) {
-				$retval .= " $extra";
-
-			// Link
-			} else {
-				$retval .= " <a href='" . esc_url( bbp_add_view_all( bbp_get_forum_permalink( $forum_id ), true ) ) . "'>" . esc_html( $extra ) . "</a>";
-			}
+			// Hidden link
+			$retval .= ! bbp_get_view_all()
+				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
+				: " {$extra}";
 		}
 
 		return apply_filters( 'bbp_get_forum_topics_link', $retval, $forum_id );

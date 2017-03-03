@@ -2210,9 +2210,8 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
+	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_topic_reply_count_hidden() To get the topic hidden
 	 *                                           reply count
 	 * @uses current_user_can() To check if the current user can edit others
@@ -2221,36 +2220,29 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 *                        replies link and topic id
 	 */
 	function bbp_get_topic_replies_link( $topic_id = 0 ) {
-
-		$topic    = bbp_get_topic( $topic_id );
-		$topic_id = $topic->ID;
-		$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id ) );
-		$retval   = '';
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$link     = bbp_get_topic_permalink( $topic_id );
+		$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id, false ) );
 
 		// First link never has view=all
-		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) ) ) . "'>" . esc_html( $replies ) . "</a>";
-		} else {
-			$retval .= $replies;
-		}
+		$retval = bbp_get_view_all( 'edit_others_replies' )
+			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $replies ) . "</a>"
+			: $replies;
 
 		// Any deleted replies?
-		$deleted = bbp_get_topic_reply_count_hidden( $topic_id );
+		$deleted_int = bbp_get_topic_reply_count_hidden( $topic_id, true  );
 
-		// This forum has hidden topics
-		if ( ! empty( $deleted ) && current_user_can( 'edit_others_replies' ) ) {
+		// This topic has hidden replies
+		if ( ! empty( $deleted_int ) && current_user_can( 'edit_others_replies' ) ) {
 
-			// Extra text
-			$extra = ' ' . sprintf( _n( '(%d hidden)', '(%d hidden)', $deleted, 'bbpress' ), $deleted );
+			// Hidden replies
+			$deleted_num = bbp_get_topic_reply_count_hidden( $topic_id, false );
+			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
-			// No link
-			if ( bbp_get_view_all() ) {
-				$retval .= " $extra";
-
-			// Link
-			} else {
-				$retval .= " <a href='" . esc_url( bbp_add_view_all( bbp_get_topic_permalink( $topic_id ), true ) ) . "'>" . esc_html( $extra ) . "</a>";
-			}
+			// Hidden link
+			$retval .= ! bbp_get_view_all()
+				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
+				: " {$extra}";
 		}
 
 		return apply_filters( 'bbp_get_topic_replies_link', $retval, $topic_id );
