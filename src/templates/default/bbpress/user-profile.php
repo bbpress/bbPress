@@ -18,7 +18,7 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 
 		<?php if ( bbp_get_displayed_user_field( 'description' ) ) : ?>
 
-			<p class="bbp-user-description"><?php bbp_displayed_user_field( 'description' ); ?></p>
+			<p class="bbp-user-description"><?php echo bbp_rel_nofollow( bbp_get_displayed_user_field( 'description' ) ); ?></p>
 
 		<?php endif; ?>
 
