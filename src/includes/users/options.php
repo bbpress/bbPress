@@ -353,7 +353,7 @@ function bbp_user_last_posted( $user_id = 0 ) {
 }
 
 	/**
-	 * Return the raw value of teh last posted time.
+	 * Return the raw value of the last posted time.
 	 *
 	 * @since 2.1.0 bbPress (r3910)
 	 *
