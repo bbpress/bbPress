@@ -1005,7 +1005,7 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
 	$post_type = get_post_type( $post_id );
 
 	// Default return value is what is passed in $open
-	$retval = $open;
+	$retval = (bool) $open;
 
 	// Only force for bbPress post types
 	switch ( $post_type ) {
@@ -1017,5 +1017,5 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
 	}
 
 	// Allow override of the override
-	return apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
+	return (bool) apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }

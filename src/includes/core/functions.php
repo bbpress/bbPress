@@ -78,14 +78,14 @@ function bbp_db_version_raw() {
 /** Post Meta *****************************************************************/
 
 /**
- * Update a posts' forum meta ID
+ * Update the forum meta ID of a post
  *
  * @since 2.0.0 bbPress (r3181)
  *
  * @param int $post_id  The post to update
  * @param int $forum_id The forum
  */
-function bbp_update_forum_id( $post_id, $forum_id ) {
+function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 
 	// Allow the forum ID to be updated 'just in time' before save
 	$forum_id = (int) apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );
@@ -97,14 +97,14 @@ function bbp_update_forum_id( $post_id, $forum_id ) {
 }
 
 /**
- * Update a posts' topic meta ID
+ * Update the topic meta ID of a post
  *
  * @since 2.0.0 bbPress (r3181)
  *
  * @param int $post_id  The post to update
  * @param int $topic_id The topic
  */
-function bbp_update_topic_id( $post_id, $topic_id ) {
+function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 
 	// Allow the topic ID to be updated 'just in time' before save
 	$topic_id = (int) apply_filters( 'bbp_update_topic_id', $topic_id, $post_id );
@@ -116,14 +116,14 @@ function bbp_update_topic_id( $post_id, $topic_id ) {
 }
 
 /**
- * Update a posts' reply meta ID
+ * Update the reply meta ID of a post
  *
  * @since 2.0.0 bbPress (r3181)
  *
  * @param int $post_id  The post to update
  * @param int $reply_id The reply
  */
-function bbp_update_reply_id( $post_id, $reply_id ) {
+function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 
 	// Allow the reply ID to be updated 'just in time' before save
 	$reply_id = (int) apply_filters( 'bbp_update_reply_id', $reply_id, $post_id );
@@ -135,14 +135,14 @@ function bbp_update_reply_id( $post_id, $reply_id ) {
 }
 
 /**
- * Update a posts' reply-to meta ID
+ * Update the reply-to meta ID of a post
  *
  * @since 2.6.0 bbPress (r5735)
  *
  * @param int $post_id  The post to update
  * @param int $reply_id The reply ID
  */
-function bbp_update_reply_to_id( $post_id, $reply_id ) {
+function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
 
 	// Allow the reply ID to be updated 'just in time' before save
 	$reply_id = (int) apply_filters( 'bbp_update_reply_to_id', $reply_id, $post_id );
@@ -237,7 +237,7 @@ function bbp_deregister_view( $view ) {
 }
 
 /**
- * Run the view's query
+ * Run the query of a topic-view
  *
  * @since 2.0.0 bbPress (r2789)
  *
@@ -251,6 +251,7 @@ function bbp_deregister_view( $view ) {
  */
 function bbp_view_query( $view = '', $new_args = '' ) {
 
+	// Get view, or bail
 	$view = bbp_get_view_id( $view );
 	if ( empty( $view ) ) {
 		return false;
@@ -267,7 +268,7 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 }
 
 /**
- * Return the view's query arguments
+ * Return the query arguments of a topic-view
  *
  * @since 2.0.0 bbPress (r2789)
  *
@@ -275,10 +276,11 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  * @uses bbp_get_view_id() To get the view id
  * @return array Query arguments
  */
-function bbp_get_view_query_args( $view ) {
+function bbp_get_view_query_args( $view = '' ) {
+	$bbp    = bbpress();
 	$view   = bbp_get_view_id( $view );
-	$retval = ! empty( $view )
-		? bbpress()->views[ $view ]['query']
+	$retval = ! empty( $view ) && ! empty( $bbp->views[ $view ] )
+		? $bbp->views[ $view ]['query']
 		: false;
 
 	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
@@ -313,9 +315,11 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  * @usese WP_Error::get_error_codes()
  */
 function bbp_has_errors() {
-	$has_errors = bbpress()->errors->get_error_codes() ? true : false;
+	$has_errors = bbpress()->errors->get_error_codes()
+		? true
+		: false;
 
-	return apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
+	return (bool) apply_filters( 'bbp_has_errors', $has_errors, bbpress()->errors );
 }
 
 /** Mentions ******************************************************************/
