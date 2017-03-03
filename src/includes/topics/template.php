@@ -2821,8 +2821,8 @@ function bbp_topic_close_link( $args = array() ) {
 			'link_before' => '',
 			'link_after'  => '',
 			'sep'         => ' | ',
-			'close_text'  => esc_html_x( 'Close', 'Topic Status', 'bbpress' ),
-			'open_text'   => esc_html_x( 'Open',  'Topic Status', 'bbpress' )
+			'close_text'  => esc_html_x( 'Close', 'Close the topic', 'bbpress' ),
+			'open_text'   => esc_html_x( 'Open',  'Open the topic', 'bbpress' )
 		), 'get_topic_close_link' );
 
 		$topic = bbp_get_topic( $r['id'] );
@@ -2882,8 +2882,8 @@ function bbp_topic_approve_link( $args = array() ) {
 			'link_before'    => '',
 			'link_after'     => '',
 			'sep'            => ' | ',
-			'approve_text'   => esc_html_x( 'Approve',   'Pending Status', 'bbpress' ),
-			'unapprove_text' => esc_html_x( 'Unapprove', 'Pending Status', 'bbpress' )
+			'approve_text'   => esc_html_x( 'Approve',   'Approve the topic', 'bbpress' ),
+			'unapprove_text' => esc_html_x( 'Unapprove', 'Unapprove the topic', 'bbpress' )
 		), 'get_topic_approve_link' );
 
 		$topic = bbp_get_topic( $r['id'] );
