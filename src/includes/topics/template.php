@@ -2685,8 +2685,9 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		// Remove view=all link from edit
 		$topic_link = bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) );
 
-		// Pretty permalinks
-		if ( bbp_use_pretty_urls() ) {
+		// Pretty permalinks, previously used `bbp_use_pretty_urls()`
+		// https://bbpress.trac.wordpress.org/ticket/3054
+		if ( false === strpos( $topic_link, '?' ) ) {
 			$url = trailingslashit( $topic_link ) . bbp_get_edit_rewrite_id();
 			$url = user_trailingslashit( $url );
 
