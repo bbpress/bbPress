@@ -49,7 +49,7 @@ if ( bbp_is_forum_edit() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>
-							<li><?php esc_html_e( 'This forum is closed to new content, however your account still allows you to do so.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'This forum is closed to new content, however your posting capabilities still allow you to post.', 'bbpress' ); ?></li>
 						</ul>
 					</div>
 

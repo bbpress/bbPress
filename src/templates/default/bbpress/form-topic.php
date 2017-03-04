@@ -57,7 +57,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>
-							<li><?php esc_html_e( 'This forum is marked as closed to new topics, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'This forum is marked as closed to new topics, however your posting capabilities still allow you to create a topic.', 'bbpress' ); ?></li>
 						</ul>
 					</div>
 

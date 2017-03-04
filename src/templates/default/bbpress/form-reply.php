@@ -35,7 +35,17 @@ if ( bbp_is_reply_edit() ) : ?>
 
 					<div class="bbp-template-notice">
 						<ul>
-							<li><?php esc_html_e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></li>
+							<li><?php esc_html_e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to reply.', 'bbpress' ); ?></li>
+						</ul>
+					</div>
+
+				<?php endif; ?>
+
+				<?php if ( ! bbp_is_reply_edit() && bbp_is_forum_closed() ) : ?>
+
+					<div class="bbp-template-notice">
+						<ul>
+							<li><?php esc_html_e( 'This forum is closed to new content, however your posting capabilities still allow you to post.', 'bbpress' ); ?></li>
 						</ul>
 					</div>
 
