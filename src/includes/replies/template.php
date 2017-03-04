@@ -2054,8 +2054,9 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 
 		$reply_link = bbp_remove_view_all( bbp_get_reply_permalink( $reply_id ) );
 
-		// Pretty permalinks
-		if ( bbp_use_pretty_urls() ) {
+		// Pretty permalinks, previously used `bbp_use_pretty_urls()`
+		// https://bbpress.trac.wordpress.org/ticket/3054
+		if ( false === strpos( $reply_link, '?' ) ) {
 			$url = trailingslashit( $reply_link ) . bbp_get_edit_rewrite_id();
 			$url = user_trailingslashit( $url );
 
