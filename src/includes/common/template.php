@@ -2634,7 +2634,7 @@ function bbp_logout_link( $redirect_to = '' ) {
  * @uses apply_filters() Calls 'bbp_raw_title' with the title
  * @uses apply_filters() Calls 'bbp_profile_page_wp_title' with the title,
  *                        separator and separator location
- * @return string The tite
+ * @return string The title
  */
 function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
