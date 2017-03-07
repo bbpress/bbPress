@@ -195,9 +195,53 @@ class BBP_BuddyPress_Activity {
 	 */
 	public function register_activity_actions() {
 
-		// Sitewide activity stream items
-		bp_activity_set_action( $this->component, $this->topic_create, esc_html__( 'New forum topic', 'bbpress' ) );
-		bp_activity_set_action( $this->component, $this->reply_create, esc_html__( 'New forum reply', 'bbpress' ) );
+		// Sitewide topic
+		bp_activity_set_action(
+			bbp_get_component_name(),
+			$this->topic_create,
+			esc_html__( 'New forum topic', 'bbpress' ),
+			'bbp_bp_format_activity_action_new_topic',
+			esc_html__( 'Topics', 'bbpress' ),
+			array( 'activity', 'member', 'member_groups', 'group' )
+		);
+
+		// Sitewide reply
+		bp_activity_set_action(
+			bbp_get_component_name(),
+			$this->reply_create,
+			esc_html__( 'New forum reply', 'bbpress' ),
+			'bbp_bp_format_activity_action_new_reply',
+			esc_html__( 'Replies', 'bbpress' ),
+			array( 'activity', 'member', 'member_groups', 'group' )
+		);
+
+		// Group forums
+		/**
+		 * An upstream improvement to BuddyPress is required to make these work,
+		 * but they are included here to make our lives easier later.
+		if ( bp_is_active( 'groups' ) ) {
+
+			// Topic
+			bp_activity_set_action(
+				buddypress()->groups->id,
+				$this->topic_create,
+				esc_html__( 'New forum topic', 'bbpress' ),
+				'bbp_bp_format_activity_action_new_topic',
+				esc_html__( 'Topics', 'bbpress' ),
+				array( 'activity', 'member', 'member_groups', 'group' )
+			);
+
+			// Reply
+			bp_activity_set_action(
+				buddypress()->groups->id,
+				$this->reply_create,
+				esc_html__( 'New forum reply', 'bbpress' ),
+				'bbp_bp_format_activity_action_new_reply',
+				esc_html__( 'Replies', 'bbpress' ),
+				array( 'activity', 'member', 'member_groups', 'group' )
+			);
+		}
+		*/
 	}
 
 	/**
