@@ -309,6 +309,18 @@ add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
 add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
 add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 3 );
 
+// Update topic voice counts.
+add_action( 'bbp_new_reply',        'bbp_update_topic_voice_count' );
+add_action( 'bbp_trashed_reply',    'bbp_update_topic_voice_count' );
+add_action( 'bbp_untrashed_reply',  'bbp_update_topic_voice_count' );
+add_action( 'bbp_spammed_reply',    'bbp_update_topic_voice_count' );
+add_action( 'bbp_unspammed_reply',  'bbp_update_topic_voice_count' );
+add_action( 'bbp_approved_reply',   'bbp_update_topic_voice_count' );
+add_action( 'bbp_unapproved_reply', 'bbp_update_topic_voice_count' );
+
+// Insert reply voice counts.
+add_action( 'bbp_insert_reply', 'bbp_update_topic_voice_count' );
+
 // Topic status transition helpers for replies
 add_action( 'bbp_trash_topic',   'bbp_trash_topic_replies'   );
 add_action( 'bbp_untrash_topic', 'bbp_untrash_topic_replies' );
