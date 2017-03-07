@@ -40,4 +40,5 @@ get_header(); ?>
 	<?php do_action( 'bbp_after_main_content' ); ?>
 
 <?php get_sidebar(); ?>
-<?php get_footer(); ?>
+<?php get_footer();
+
