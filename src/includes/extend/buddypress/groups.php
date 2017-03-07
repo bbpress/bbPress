@@ -108,7 +108,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	private function setup_filters() {
 
-		// Ensure bbp_is_single_topic() returns true on group forum topics.
+		// Ensure bbp_is_single_forum() returns true on group forums.
 		add_filter( 'bbp_is_single_forum',       array( $this, 'is_single_forum' ) );
 
 		// Ensure bbp_is_single_topic() returns true on group forum topics.
