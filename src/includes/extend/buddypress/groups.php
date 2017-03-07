@@ -109,6 +109,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	private function setup_filters() {
 
 		// Ensure bbp_is_single_topic() returns true on group forum topics.
+		add_filter( 'bbp_is_single_forum',       array( $this, 'is_single_forum' ) );
+
+		// Ensure bbp_is_single_topic() returns true on group forum topics.
 		add_filter( 'bbp_is_single_topic',       array( $this, 'is_single_topic' ) );
 
 		// Group forum pagination
@@ -147,6 +150,28 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
 			add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
 		}
+	}
+
+	/**
+	 * Ensure that bbp_is_single_forum() returns true on group forum pages.
+	 *
+	 * @see https://bbpress.trac.wordpress.org/ticket/2974
+	 *
+	 * @since 2.6.0 bbPress (r6366)
+	 *
+	 * @param  bool $retval Current boolean.
+	 * @return bool
+	 */
+	public function is_single_forum( $retval = false ) {
+
+		// Additional BuddyPress specific single-forum conditionals
+		if ( false === $retval ) {
+			if ( bp_is_group() && bp_is_action_variable( $this->forum_slug, 0 ) ) {
+				$retval = true;
+			}
+		}
+
+		return $retval;
 	}
 
 	/**
