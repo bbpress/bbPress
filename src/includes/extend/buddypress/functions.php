@@ -744,3 +744,153 @@ function bbp_group_is_creator() {
 	// Return the value
 	return (bool) $bbp->current_user->is_group_creator;
 }
+
+/* BuddyPress Activity Action Callbacks ***************************************/
+
+/**
+ * Return an array of allowed activity actions
+ *
+ * @since 2.6.0 bbPress (r6370)
+ *
+ * @return array
+ */
+function bbp_get_activity_actions() {
+	return apply_filters( 'bbp_get_activity_actions', array(
+		'topic' => __( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
+		'reply' => __( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
+	) );
+}
+
+/**
+ * Generic function to format the dynamic BuddyPress activity action for new
+ * topics/replies.
+ *
+ * @since 2.6.0 bbPress (r6370)
+ *
+ * @param string               $type     The type of post. Expects `topic` or `reply`.
+ * @param string               $action   The current action string.
+ * @param BP_Activity_Activity $activity The BuddyPress activity object.
+ *
+ * @return string The formatted activity action.
+ */
+function bbp_format_activity_action_new_post( $type = '', $action = '', $activity = false ) {
+
+	// Get actions
+	$actions = bbp_get_activity_actions();
+
+	// Bail early if we don't have a valid type
+	if ( ! in_array( $type, array_keys( $actions ), true ) ) {
+		return $action;
+	}
+
+	/**
+	 * Overrides the formatted activity action new activity string.
+	 *
+	 * @since 2.6.0 bbPress (r6370)
+	 *
+	 * @param string               $activity_action Activity action string value
+	 * @param string               $type            The type of post. Expects `topic` or `reply`.
+	 * @param string               $action          The current action string.
+	 * @param BP_Activity_Activity $activity        The BuddyPress activity object.
+	 */
+	if ( $pre = apply_filters( 'bbp_pre_format_activity_action_new_post', false, $type, $action, $activity ) ) {
+		return $pre;
+	}
+
+	// Groups component
+	if ( 'groups' === $activity->component ) {
+		if ( 'topic' === $type ) {
+			$topic_id = bbp_get_topic_id( $activity->secondary_item_id );
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+		} else {
+			$topic_id = bbp_get_reply_topic_id( $activity->secondary_item_id );
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+		}
+
+	// General component (bbpress/forums/other)
+	} else {
+		if ( 'topic' === $type ) {
+			$topic_id = bbp_get_topic_id( $activity->item_id );
+			$forum_id = bbp_get_forum_id( $activity->secondary_item_id );
+		} else {
+			$topic_id = bbp_get_topic_id( $activity->secondary_item_id );
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+		}
+	}
+
+	// User link for topic author
+	$user_link = bbp_get_user_profile_link( $activity->user_id );
+
+	// Topic link
+	$topic_permalink = bbp_get_topic_permalink( $topic_id );
+	$topic_title     = get_post_field( 'post_title', $topic_id, 'raw' );
+	$topic_link      = '<a href="' . esc_url( $topic_permalink ) . '">' . esc_html( $topic_title ) . '</a>';
+
+	// Forum link
+	$forum_permalink = bbp_get_forum_permalink( $forum_id );
+	$forum_title     = get_post_field( 'post_title', $forum_id, 'raw' );
+	$forum_link      = '<a href="' . esc_url( $forum_permalink ) . '">' . esc_html( $forum_title ) . '</a>';
+
+	// Format
+	$activity_action = sprintf( $actions[ $type ], $user_link, $topic_link, $forum_link );
+
+	/**
+	 * Filters the formatted activity action new activity string.
+	 *
+	 * @since 2.6.0 bbPress (r6370)
+	 *
+	 * @param string               $activity_action Activity action string value
+	 * @param string               $type            The type of post. Expects `topic` or `reply`.
+	 * @param string               $action          The current action string.
+	 * @param BP_Activity_Activity $activity        The BuddyPress activity object.
+	 */
+	return apply_filters( 'bbp_format_activity_action_new_post', $activity_action, $type, $action, $activity );
+}
+
+/**
+ * Formats the dynamic BuddyPress activity action for new topics.
+ *
+ * @since 2.6.0 bbPress (r6370)
+ *
+ * @param string $action   The current action string
+ * @param object $activity The BuddyPress activity object
+ *
+ * @return string The formatted activity action.
+ */
+function bbp_format_activity_action_new_topic( $action, $activity ) {
+	$action = bbp_format_activity_action_new_post( 'topic', $action, $activity );
+
+	/**
+	 * Filters the formatted activity action new topic string.
+	 *
+	 * @since 2.6.0 bbPress (r6370)
+	 *
+	 * @param string               $action   Activity action string value
+	 * @param BP_Activity_Activity $activity Activity item object
+	 */
+	return apply_filters( 'bbp_format_activity_action_new_topic', $action, $activity );
+}
+
+/**
+ * Formats the dynamic BuddyPress activity action for new replies.
+ *
+ * @since 2.6.0 bbPress (r6370)
+ *
+ * @param string $action   The current action string
+ * @param object $activity The BuddyPress activity object
+ *
+ * @return string The formatted activity action
+ */
+function bbp_format_activity_action_new_reply( $action, $activity ) {
+	$action = bbp_format_activity_action_new_post( 'reply', $action, $activity );
+
+	/**
+	 * Filters the formatted activity action new reply string.
+	 *
+	 * @since 2.6.0 bbPress (r6370)
+	 *
+	 * @param string               $action   Activity action string value
+	 * @param BP_Activity_Activity $activity Activity item object
+	 */
+	return apply_filters( 'bbp_format_activity_action_new_reply', $action, $activity );
+}
