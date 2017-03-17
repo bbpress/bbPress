@@ -1486,6 +1486,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function redirect_canonical() {
 
+		// Bail if on a RSS feed
+		if ( is_feed() ) {
+			return;
+		}
+
 		// Viewing a single forum
 		if ( bbp_is_single_forum() ) {
 			$forum_id  = get_the_ID();
