@@ -121,6 +121,16 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		$at_name_at_start_final = sprintf( '%s, hello', $link );
 		$this->assertEquals( $at_name_at_start_final, bbp_make_clickable( $at_name_at_start ) );
 
+		// mentions surrounded by square brackets
+		$at_name_square_brackets       = sprintf( '[@%s] hello', $name );
+		$at_name_square_brackets_final = sprintf( '[%s] hello', $link );
+		$this->assertEquals( $at_name_square_brackets_final, bbp_make_clickable( $at_name_square_brackets ) );
+
+		// mentions surrounded by round brackets
+		$at_name_round_brackets       = sprintf( '(@%s) hello', $name );
+		$at_name_round_brackets_final = sprintf( '(%s) hello', $link );
+		$this->assertEquals( $at_name_round_brackets_final, bbp_make_clickable( $at_name_round_brackets ) );
+
 		// mention is all text, should be replaced
 		$at_name_is_text       = sprintf( '@%s', $name );
 		$at_name_is_text_final = sprintf( '%s', $link );
