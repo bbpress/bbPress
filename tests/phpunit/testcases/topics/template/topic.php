@@ -91,6 +91,101 @@ class BBP_Tests_Topics_Template_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_topic_title
+	 * @covers ::bbp_get_topic_title
+	 * @group  bbp_xss
+	 */
+	public function test_bbp_get_topic_title_with_script_and_quotes() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_title'  => '<script src="https://bbpress.org">Script</script> Topic',
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( 'Script Topic', $topic_title );
+	}
+
+	/**
+	 * @covers ::bbp_topic_title
+	 * @covers ::bbp_get_topic_title
+	 * @group  bbp_xss
+	 */
+	public function test_bbp_get_topic_title_with_script_no_quotes() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_title'  => '<script src=https://bbpress.org>Script</script> Topic',
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( 'Script Topic', $topic_title );
+	}
+
+	/**
+	 * @covers ::bbp_topic_title
+	 * @covers ::bbp_get_topic_title
+	 * @group  bbp_xss
+	 */
+	public function test_bbp_get_topic_title_with_quotes() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_title'  => '"Quoted" Topic',
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( '&#8220;Quoted&#8221; Topic', $topic_title );
+	}
+
+	/**
+	 * @covers ::bbp_topic_title
+	 * @covers ::bbp_get_topic_title
+	 * @group  bbp_xss
+	 */
+	public function test_bbp_get_topic_title_with_js_as_img_src() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_title'  => '<img src="javascript:alert(\'Oh, bother!\');">Topic 1',
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( 'Topic 1', $topic_title );
+	}
+
+	/**
+	 * @covers ::bbp_topic_title
+	 * @covers ::bbp_get_topic_title
+	 * @group  bbp_xss
+	 */
+	public function test_bbp_get_topic_title_with_extra_open_brackets() {
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_title'  => '<<script>alert("XSS");//<</script>',
+			'post_parent' => $f,
+			'topic_meta'  => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		$topic_title = bbp_get_topic_title( $t );
+		$this->assertSame( '&lt;alert(&#8220;XSS&#8221;);//&lt;', $topic_title );
+	}
+
+	/**
 	 * @covers ::bbp_topic_archive_title
 	 * @covers ::bbp_get_topic_archive_title
 	 * @todo   Implement test_bbp_get_topic_archive_title().
