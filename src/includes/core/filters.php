@@ -162,6 +162,25 @@ add_filter( 'bbp_get_topic_content', 'bbp_make_clickable', 40 );
 add_filter( 'bbp_get_topic_content', 'wpautop',            50 );
 add_filter( 'bbp_get_topic_content', 'bbp_rel_nofollow',   60 );
 
+// Admin-only
+if ( is_admin() ) {
+
+	// Run wp_kses_data on topic/reply content in admin section
+	add_filter( 'bbp_get_reply_content', 'bbp_kses_data' );
+	add_filter( 'bbp_get_topic_content', 'bbp_kses_data' );
+
+// Filters outside of wp-admin
+} else {
+
+	// Responsive images
+	add_filter( 'bbp_get_reply_content', 'wp_make_content_images_responsive', 60 );
+	add_filter( 'bbp_get_topic_content', 'wp_make_content_images_responsive', 60 );
+
+	// Revisions
+	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  99,  2 );
+	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  99,  2 );
+}
+
 // Form textarea output - undo the code-trick done pre-save, and sanitize
 add_filter( 'bbp_get_form_forum_content', 'bbp_code_trick_reverse' );
 add_filter( 'bbp_get_form_forum_content', 'esc_textarea'           );
@@ -226,17 +245,6 @@ add_filter( 'bbp_get_reply_revision_count_int',     'bbp_number_not_negative', 1
 
 // Sanitize displayed user data
 add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field', 10, 3 );
-
-// Run wp_kses_data on topic/reply content in admin section
-if ( is_admin() ) {
-	add_filter( 'bbp_get_reply_content', 'bbp_kses_data' );
-	add_filter( 'bbp_get_topic_content', 'bbp_kses_data' );
-
-// Revisions (only when not in admin)
-} else {
-	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  99,  2 );
-	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  99,  2 );
-}
 
 // Suppress private forum details
 add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta',  10, 2 );
