@@ -459,7 +459,7 @@ function bbp_make_emails_clickable( $text = '' ) {
  * @return string
  */
 function bbp_make_mentions_clickable( $text = '' ) {
-	return preg_replace_callback( '#([\s>])@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
+	return preg_replace_callback( '#@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
 }
 
 /**
@@ -467,14 +467,14 @@ function bbp_make_mentions_clickable( $text = '' ) {
  *
  * @since 2.6.0 (r6014)
  *
- * @param array $matches Single Regex Match.
+ * @param array $matches Regular expression matches in the current text blob.
  *
- * @return string HTML A tag with link to user profile.
+ * @return string Original text if no user exists, or link to user profile.
  */
 function bbp_make_mentions_clickable_callback( $matches = array() ) {
 
 	// Get user; bail if not found
-	$user = get_user_by( 'slug', $matches[2] );
+	$user = get_user_by( 'slug', $matches[1] );
 	if ( empty( $user ) || bbp_is_user_inactive( $user->ID ) ) {
 		return $matches[0];
 	}
@@ -487,16 +487,16 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 
 	// Escape & implode if not empty, otherwise an empty string
 	$class_str = ! empty( $classes )
-		? implode( ' ', array_map( 'esc_attr', $classes ) )
+		? implode( ' ', array_map( 'sanitize_html_class', $classes ) )
 		: '';
 
 	// Create the link to the user's profile
 	$url    = bbp_get_user_profile_url( $user->ID );
-	$clicky = '<a href="%1$s" class="' . $class_str . '">@%2$s</a>';
-	$anchor = sprintf( $clicky, esc_url( $url ), esc_html( $user->user_nicename ) );
+	$clicky = '<a href="%1$s" class="' . esc_attr( $class_str ) . '">%2$s</a>';
+	$anchor = sprintf( $clicky, esc_url( $url ), esc_html( $matches[0] ) );
 	$link   = bbp_rel_nofollow( $anchor );
 
-	return $matches[1] . $link;
+	return $link;
 }
 
 /** Numbers *******************************************************************/
