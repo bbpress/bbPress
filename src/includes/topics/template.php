@@ -1177,7 +1177,7 @@ function bbp_topic_status( $topic_id = 0 ) {
  * @return array
  */
 function bbp_get_public_topic_statuses() {
-	$statuses = bbp_get_public_topic_statuses();
+	$statuses = array( bbp_get_public_status_id(), bbp_get_closed_status_id() );
 
 	return (array) apply_filters( 'bbp_get_public_topic_statuses', $statuses );
 }
