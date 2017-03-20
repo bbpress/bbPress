@@ -563,7 +563,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 	if ( ! empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 		$last_posted = get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' );
 
-		if ( ! empty( $last_posted ) && time() < $last_posted + $throttle_time ) {
+		if ( ! empty( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) ) {
 			return false;
 		}
 
@@ -572,7 +572,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 		$author_id   = (int) $author_id;
 		$last_posted = bbp_get_user_last_posted( $author_id );
 
-		if ( isset( $last_posted ) && time() < $last_posted + $throttle_time && !current_user_can( 'throttle' ) ) {
+		if ( isset( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) && ! user_can( $author_id, 'throttle' ) ) {
 			return false;
 		}
 	} else {
@@ -1774,7 +1774,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 								'feed'           => true,
 								'post_type'      => bbp_get_reply_post_type(),
 								'post_parent'    => 'any',
-								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'post_status'    => bbp_get_public_topic_statuses(),
 								'posts_per_page' => bbp_get_replies_per_rss_page(),
 								'order'          => 'DESC',
 								'meta_query'     => $meta_query
@@ -1792,7 +1792,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 								'feed'           => true,
 								'post_type'      => bbp_get_topic_post_type(),
 								'post_parent'    => bbp_get_forum_id(),
-								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'post_status'    => bbp_get_public_topic_statuses(),
 								'posts_per_page' => bbp_get_topics_per_rss_page(),
 								'order'          => 'DESC'
 							);
@@ -1814,7 +1814,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 								'feed'           => true,
 								'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
 								'post_parent'    => 'any',
-								'post_status'    => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+								'post_status'    => bbp_get_public_topic_statuses(),
 								'posts_per_page' => bbp_get_replies_per_rss_page(),
 								'order'          => 'DESC',
 								'meta_query'     => $meta_query

@@ -150,7 +150,7 @@ function bbp_has_replies( $args = array() ) {
 	}
 
 	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all() ) {
+	if ( bbp_get_view_all( 'edit_others_replies' ) ) {
 
 		// Default view=all statuses
 		$post_statuses = array(

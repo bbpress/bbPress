@@ -2152,11 +2152,11 @@ function bbp_user_can_view_forum( $args = array() ) {
 		$retval = true;
 
 	// Forum is private, and user can see it
-	} elseif ( bbp_is_forum_private( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_private_forums' ) ) {
+	} elseif ( bbp_is_forum_private( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_forum', $forum_id ) ) {
 		$retval = true;
 
 	// Forum is hidden, and user can see it
-	} elseif ( bbp_is_forum_hidden ( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_hidden_forums'  ) ) {
+	} elseif ( bbp_is_forum_hidden ( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_forum', $forum_id  ) ) {
 		$retval = true;
 	}
 

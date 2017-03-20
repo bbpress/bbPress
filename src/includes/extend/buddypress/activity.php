@@ -447,7 +447,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Validate activity data
-		$user_id  = (int) $topic_author_id;
+		$user_id  = bbp_get_user_id( $topic_author_id );
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );
 
@@ -547,7 +547,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Action based on new status
-		if ( in_array( $post->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
+		if ( bbp_is_topic_public( $post->ID ) ) {
 
 			// Validate topic data
 			$forum_id        = bbp_get_topic_forum_id( $topic_id );
@@ -596,7 +596,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Validate activity data
-		$user_id  = (int) $reply_author_id;
+		$user_id  = bbp_get_user_id( $reply_author_id );
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );

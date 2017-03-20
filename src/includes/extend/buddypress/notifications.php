@@ -195,7 +195,7 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 		bbp_add_error( 'bbp_notification_topic_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
-	} elseif ( !current_user_can( 'edit_user', $user_id ) ) {
+	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
 		bbp_add_error( 'bbp_notification_permission', __( '<strong>ERROR</strong>: You do not have permission to mark notifications for that user.', 'bbpress' ) );
 	}
 

@@ -745,7 +745,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_type'           => bbp_get_topic_post_type(),
 					'post_parent'         => $settings['parent_forum'],
 					'posts_per_page'      => (int) $settings['max_shown'],
-					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'post_status'         => bbp_get_public_topic_statuses(),
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
 					'meta_key'            => '_bbp_last_active_time',
@@ -761,7 +761,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_type'           => bbp_get_topic_post_type(),
 					'post_parent'         => $settings['parent_forum'],
 					'posts_per_page'      => (int) $settings['max_shown'],
-					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'post_status'         => bbp_get_public_topic_statuses(),
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
 					'meta_key'            => '_bbp_reply_count',
@@ -778,7 +778,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_type'           => bbp_get_topic_post_type(),
 					'post_parent'         => $settings['parent_forum'],
 					'posts_per_page'      => (int) $settings['max_shown'],
-					'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+					'post_status'         => bbp_get_public_topic_statuses(),
 					'ignore_sticky_posts' => true,
 					'no_found_rows'       => true,
 					'order'               => 'DESC'
@@ -1130,7 +1130,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		// bbp_pre_get_posts_normalize_forum_visibility action and function.
 		$widget_query = new WP_Query( array(
 			'post_type'           => bbp_get_reply_post_type(),
-			'post_status'         => array( bbp_get_public_status_id(), bbp_get_closed_status_id() ),
+			'post_status'         => bbp_get_public_topic_statuses(),
 			'posts_per_page'      => (int) $settings['max_shown'],
 			'ignore_sticky_posts' => true,
 			'no_found_rows'       => true,

@@ -425,7 +425,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Current user cannot edit this reply
-		if ( !current_user_can( 'edit_reply', $reply_id ) ) {
+		if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
 			return $reply_id;
 		}
 
@@ -486,7 +486,7 @@ class BBP_Replies_Admin {
 			}
 
 			// What is the user doing here?
-			if ( !current_user_can( 'moderate', $reply->ID ) ) {
+			if ( ! current_user_can( 'moderate', $reply->ID ) ) {
 				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
 			}
 

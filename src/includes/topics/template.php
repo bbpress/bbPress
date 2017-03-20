@@ -172,7 +172,7 @@ function bbp_has_topics( $args = array() ) {
 	}
 
 	// What are the default allowed statuses (based on user caps)
-	if ( bbp_get_view_all() ) {
+	if ( bbp_get_view_all( 'edit_others_topics' ) ) {
 
 		// Default view=all statuses
 		$post_statuses = array(
@@ -309,7 +309,7 @@ function bbp_has_topics( $args = array() ) {
 				}
 
 				// What are the default allowed statuses (based on user caps)
-				if ( bbp_get_view_all() ) {
+				if ( bbp_get_view_all( 'edit_others_topics' ) ) {
 					$sticky_query['post_status'] = $r['post_status'];
 
 				// Lean on the 'perm' query var value of 'readable' to provide statuses
@@ -899,6 +899,11 @@ function bbp_topic_pagination( $args = array() ) {
 			$total++;
 		}
 
+		// Maybe add view-all args
+		$add_args = bbp_get_view_all( 'edit_others_replies' )
+			? array( 'view' => 'all' )
+			: false;
+
 		// Add pagination to query object
 		$pagination_links = paginate_links( array(
 			'base'      => $base,
@@ -908,7 +913,7 @@ function bbp_topic_pagination( $args = array() ) {
 			'prev_next' => false,
 			'mid_size'  => 2,
 			'end_size'  => 3,
-			'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
+			'add_args'  => $add_args
 		) );
 
 		if ( ! empty( $pagination_links ) ) {
@@ -1162,6 +1167,22 @@ function bbp_topic_status( $topic_id = 0 ) {
 	}
 
 /**
+ * Return array of public topic statuses.
+ *
+ * @since 2.6.0 bbPress (r6383)
+ *
+ * @uses bbp_get_public_status_id()
+ * @uses bbp_get_closed_status_id()
+ *
+ * @return array
+ */
+function bbp_get_public_topic_statuses() {
+	$statuses = bbp_get_public_topic_statuses();
+
+	return (array) apply_filters( 'bbp_get_public_topic_statuses', $statuses );
+}
+
+/**
  * Is the topic closed to new replies?
  *
  * @since 2.0.0 bbPress (r2746)
@@ -1196,7 +1217,27 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 }
 
 /**
- * Is the topic not spam or deleted?
+ * Is the topic publicly viewable?
+ *
+ * @since 2.6.0 bbPress (r6383)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @uses apply_filters() Calls 'bbp_is_topic_public' with the topic id
+ * @return bool True if public, false if not.
+ */
+function bbp_is_topic_public( $topic_id = 0 ) {
+	$topic_id  = bbp_get_topic_id( $topic_id );
+	$status    = bbp_get_topic_status( $topic_id );
+	$public    = bbp_get_public_topic_statuses();
+	$is_public = in_array( $status, $public, true );
+
+	return (bool) apply_filters( 'bbp_is_topic_public', (bool) $is_public, $topic_id );
+}
+
+/**
+ * Does the topic have a published status?
  *
  * @since 2.0.0 bbPress (r3496)
  *
@@ -2240,7 +2281,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 			// Hidden link
-			$retval .= ! bbp_get_view_all()
+			$retval .= ! bbp_get_view_all( 'edit_others_replies' )
 				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
 				: " {$extra}";
 		}

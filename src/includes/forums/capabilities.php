@@ -84,7 +84,19 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					} elseif ( (int) $user_id === (int) $_post->post_author ) {
 						$caps = array( 'spectate' );
 
-					// Unknown so map to private posts
+					// Moderators can always read forum content
+					} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+						$caps = array( 'spectate' );
+
+					// Private
+					} elseif ( bbp_get_hidden_status_id() === $_post->post_status ) {
+						$caps = array( $post_type->cap->read_hidden_posts );
+
+					// Hidden
+					} elseif ( bbp_get_private_status_id() === $_post->post_status ) {
+						$caps = array( $post_type->cap->read_private_posts );
+
+					// Unknown, so map to private
 					} else {
 						$caps = array( $post_type->cap->read_private_posts );
 					}
@@ -130,19 +142,22 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
+					$caps = array( 'do_not_allow' );
 
 				// User is author so allow edit if not in admin
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
-					$caps[] = $post_type->cap->edit_posts;
+					$caps = array( $post_type->cap->edit_posts );
+
+				// Moderators can always read forum content
+				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+					$caps = array( 'spectate' );
 
 				// Unknown, so map to edit_others_posts
 				} else {
-					$caps[] = $post_type->cap->edit_others_posts;
+					$caps = array( $post_type->cap->edit_others_posts );
 				}
 			}
 
@@ -159,19 +174,18 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
+					$caps = array( 'do_not_allow' );
 
 				// User is author so allow to delete
 				} elseif ( (int) $user_id === (int) $_post->post_author ) {
-					$caps[] = $post_type->cap->delete_posts;
+					$caps = array( $post_type->cap->delete_posts );
 
 				// Unknown so map to delete_others_posts
 				} else {
-					$caps[] = $post_type->cap->delete_others_posts;
+					$caps = array( $post_type->cap->delete_others_posts );
 				}
 			}
 

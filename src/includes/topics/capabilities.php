@@ -95,6 +95,10 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 					} elseif ( (int) $user_id === (int) $_post->post_author ) {
 						$caps = array( 'spectate' );
 
+					// Moderators can always edit forum content
+					} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+						$caps = array( 'spectate' );
+
 					// Unknown so map to private posts
 					} else {
 						$caps = array( $post_type->cap->read_private_posts );
@@ -125,9 +129,18 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			if ( user_can( $user_id, 'moderate' ) ) {
 				$caps = array( $cap );
 
-			// Otherwise, block
+			// Otherwise, check forum
 			} else {
-				$caps = array( 'do_not_allow' );
+				$forum_id = bbp_get_forum_id();
+
+				// Moderators can always edit forum content
+				if ( user_can( $user_id, 'moderate', $forum_id ) ) {
+					$caps = array( 'spectate' );
+
+				// Fallback to do_not_allow
+				} else {
+					$caps = array( 'do_not_allow' );
+				}
 			}
 
 			break;
@@ -141,27 +154,22 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
+					$caps = array( 'do_not_allow' );
 
 				// User is author so allow edit if not in admin
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
-					$caps[] = $post_type->cap->edit_posts;
+					$caps = array( $post_type->cap->edit_posts );
+
+				// Moderators can always edit forum content
+				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+					$caps = array( 'spectate' );
 
 				// Unknown, so map to edit_others_posts
 				} else {
-
-					// If user is a per-forum moderator, make sure they can spectate.
-					if ( bbp_is_user_forum_moderator( $user_id, bbp_get_topic_forum_id( $_post->ID ) ) ) {
-						$caps = array( 'spectate' );
-
-					// Fallback to edit_others_posts.
-					} else {
-						$caps[] = $post_type->cap->edit_others_posts;
-					}
+					$caps = array( $post_type->cap->edit_others_posts );
 				}
 			}
 
@@ -177,23 +185,22 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
-				$caps      = array();
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps[] = 'do_not_allow';
+					$caps = array( 'do_not_allow' );
 
 				// Moderators can always edit forum content
-				} elseif ( user_can( $user_id, 'moderate' ) ) {
-					$caps[] = 'moderate';
+				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+					$caps = array( 'spectate' );
 
 				// User is author so allow delete if not in admin
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
-					$caps[] = $post_type->cap->delete_posts;
+					$caps = array( $post_type->cap->delete_posts );
 
 				// Unknown so map to delete_others_posts
 				} else {
-					$caps[] = $post_type->cap->delete_others_posts;
+					$caps = array( $post_type->cap->delete_others_posts );
 				}
 			}
 

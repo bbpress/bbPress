@@ -84,7 +84,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 					// Forum.
 					case bbp_get_forum_post_type() :
-						$forum_id = $_post->ID;
+						$forum_id = bbp_get_forum_id( $_post->ID );
 						break;
 
 					// Topic.

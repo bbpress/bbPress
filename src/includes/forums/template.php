@@ -693,7 +693,7 @@ function bbp_forum_get_subforums( $args = array() ) {
 
 	// Use passed integer as post_parent
 	if ( is_numeric( $args ) ) {
-		$args = array( 'post_parent' => $args );
+		$args = array( 'post_parent' => bbp_get_forum_id( $args ) );
 	}
 
 	// Setup post status array
@@ -728,13 +728,17 @@ function bbp_forum_get_subforums( $args = array() ) {
 		'ignore_sticky_posts' => true,
 		'no_found_rows'       => true
 	), 'forum_get_subforums' );
+
+	// Ensure post_parent is properly set
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
 	// Create a new query for the subforums
 	$get_posts = new WP_Query();
 
 	// No forum passed
-	$sub_forums = ! empty( $r['post_parent'] ) ? $get_posts->query( $r ) : array();
+	$sub_forums = ! empty( $r['post_parent'] )
+		? $get_posts->query( $r )
+		: array();
 
 	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $r, $args );
 }
@@ -1300,7 +1304,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 			// Hidden link
-			$retval .= ! bbp_get_view_all()
+			$retval .= ! bbp_get_view_all( 'edit_others_topics' )
 				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
 				: " {$extra}";
 		}
@@ -1943,7 +1947,7 @@ function bbp_forum_author_display_name( $forum_id = 0 ) {
  * @return string
  */
 function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
-	if ( bbp_is_forum_private( $forum_id, false ) && ! current_user_can( 'read_private_forums' ) ) {
+	if ( bbp_is_forum_private( $forum_id, false ) && ! current_user_can( 'read_forum', $forum_id ) ) {
 		$retval = '-';
 	}
 
@@ -1977,37 +1981,31 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 	if ( ! empty( $args['post_id'] ) && ! current_user_can( 'read_private_forums' ) ) {
 
 		// What post type are we looking at?
-		$post_type = get_post_field( 'post_type', $args['post_id'] );
-
-		switch ( $post_type ) {
+		switch ( get_post_type( $args['post_id'] ) ) {
 
 			// Topic
 			case bbp_get_topic_post_type() :
-				if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) ) {
-					$retval = '';
-				}
-
+				$forum_id = bbp_get_topic_forum_id( $args['post_id'] );
 				break;
 
 			// Reply
 			case bbp_get_reply_post_type() :
-				if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) ) {
-					$retval = '';
-				}
-
+				$forum_id = bbp_get_reply_forum_id( $args['post_id'] );
 				break;
 
 			// Post
 			default :
-				if ( bbp_is_forum_private( $args['post_id'] ) ) {
-					$retval = '';
-				}
-
+				$forum_id = bbp_get_forum_id( $args['post_id'] );
 				break;
+		}
+
+		// Hide if forum is private
+		if ( bbp_is_forum_private( $forum_id ) ) {
+			$retval = '';
 		}
 	}
 
-	return apply_filters( 'bbp_suppress_private_author_link', $retval );
+	return apply_filters( 'bbp_suppress_private_author_link', $retval, $author_link, $args );
 }
 
 /**

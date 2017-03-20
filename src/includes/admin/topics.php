@@ -549,7 +549,7 @@ class BBP_Topics_Admin {
 		}
 
 		// Bail if current user cannot edit this topic
-		if ( !current_user_can( 'edit_topic', $topic_id ) ) {
+		if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
 			return $topic_id;
 		}
 
@@ -616,7 +616,7 @@ class BBP_Topics_Admin {
 			}
 
 			// What is the user doing here?
-			if ( !current_user_can( 'moderate', $topic->ID ) ) {
+			if ( ! current_user_can( 'moderate', $topic->ID ) ) {
 				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
 			}
 
@@ -978,7 +978,7 @@ class BBP_Topics_Admin {
 
 			// Close
 			// Show the 'close' and 'open' link on published and closed posts only
-			if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
+			if ( bbp_is_topic_public( $topic->ID ) ) {
 				$close_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID );
 				if ( bbp_is_topic_open( $topic->ID ) ) {
 					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . _x( 'Close', 'Close a Topic', 'bbpress' ) . '</a>';

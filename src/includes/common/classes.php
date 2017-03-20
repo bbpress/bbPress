@@ -254,7 +254,7 @@ class BBP_Walker_Dropdown extends Walker {
 		if (	( true === $args['disable_categories'] )
 				&& ( bbp_get_forum_post_type() === $object->post_type )
 				&& ( bbp_is_forum_category( $object->ID )
-					|| ( !current_user_can( 'edit_forum', $object->ID ) && bbp_is_forum_closed( $object->ID )
+					|| ( ! current_user_can( 'edit_forum', $object->ID ) && bbp_is_forum_closed( $object->ID )
 				)
 			) ) {
 			$output .= ' disabled="disabled" value=""';
