@@ -1596,7 +1596,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 	$retval = isset( $post->$field ) ? $post->$field : '';
 	$retval = sanitize_post_field( $field, $retval, $post->ID, $context );
 
-	return apply_filters( 'bbp_get_global_post_field', $retval, $post );
+	return apply_filters( 'bbp_get_global_post_field', $retval, $post, $field, $context );
 }
 
 /** Nonces ********************************************************************/
