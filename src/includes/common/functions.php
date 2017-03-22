@@ -1585,16 +1585,17 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @since 2.1.0 bbPress (r3694)
  *
- * @global WP_Query $post
  * @param string $field Name of the key
  * @param string $context How to sanitize - raw|edit|db|display|attribute|js
  * @return string Field value
  */
 function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
-	global $post;
 
-	$retval = isset( $post->$field ) ? $post->$field : '';
-	$retval = sanitize_post_field( $field, $retval, $post->ID, $context );
+	// Get the post, and maybe get a field from it
+	$post   = get_post();
+	$retval = isset( $post->{$field} )
+		? sanitize_post_field( $field, $post->{$field}, $post->ID, $context )
+		: '';
 
 	return apply_filters( 'bbp_get_global_post_field', $retval, $post, $field, $context );
 }
