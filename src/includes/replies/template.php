@@ -1698,7 +1698,7 @@ function bbp_reply_to_link( $args = array() ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'reply_text'   => _x( 'Reply', 'verb', 'bbpress' ),
+			'reply_text'   => esc_html_x( 'Reply', 'verb', 'bbpress' ),
 			'depth'        => 0,
 			'add_below'    => 'post',
 			'respond_id'   => 'new-reply-' . bbp_get_topic_id(),
@@ -1739,7 +1739,7 @@ function bbp_reply_to_link( $args = array() ) {
 
 		// Add $uri to the array, to be passed through the filter
 		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
 	}

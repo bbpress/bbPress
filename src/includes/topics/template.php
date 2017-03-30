@@ -3175,11 +3175,9 @@ function bbp_topic_reply_link( $args = array() ) {
 			return;
 		}
 
-		$uri = '#new-post';
-
 		// Add $uri to the array, to be passed through the filter
-		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link">' . $r['reply_text'] . '</a>' . $r['link_after'];
+		$r['uri'] = '#new-post';
+		$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link">' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_topic_reply_link', $retval, $r, $args );
 	}
