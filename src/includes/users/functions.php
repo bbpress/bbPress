@@ -344,8 +344,6 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_user_engaged_topic_ids() To get the user engaged topics
- * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_object_of_user() To check if the user has engaged
  * @uses apply_filters() Calls 'bbp_is_user_engaged' with the bool, user id,
@@ -353,33 +351,11 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
  * @return bool True if the topic is in user's engagements, otherwise false
  */
 function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
-	$retval      = false;
-	$user_id     = bbp_get_user_id( $user_id, true, true );
-	$engagements = bbp_get_user_engaged_topic_ids( $user_id );
+	$user_id  = bbp_get_user_id( $user_id, true, true );
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$retval   = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
 
-	if ( ! empty( $engagements ) ) {
-
-		// Checking a specific topic id
-		if ( ! empty( $topic_id ) ) {
-			$topic    = bbp_get_topic( $topic_id );
-			$topic_id = ! empty( $topic ) ? $topic->ID : 0;
-
-		// Using the global topic id
-		} elseif ( bbp_get_topic_id() ) {
-			$topic_id = bbp_get_topic_id();
-
-		// Use the current post id
-		} elseif ( ! bbp_get_topic_id() ) {
-			$topic_id = get_the_ID();
-		}
-
-		// Is topic_id in the user's engagements
-		if ( ! empty( $topic_id ) ) {
-			$retval = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
-		}
-	}
-
-	return (bool) apply_filters( 'bbp_is_user_engaged', (bool) $retval, $user_id, $topic_id, $engagements );
+	return (bool) apply_filters( 'bbp_is_user_engaged', (bool) $retval, $user_id, $topic_id );
 }
 
 /**
