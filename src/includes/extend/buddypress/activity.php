@@ -197,20 +197,20 @@ class BBP_BuddyPress_Activity {
 
 		// Sitewide topic
 		bp_activity_set_action(
-			bbp_get_component_name(),
+			$this->component,
 			$this->topic_create,
 			esc_html__( 'New forum topic', 'bbpress' ),
-			'bbp_bp_format_activity_action_new_topic',
+			'bbp_format_activity_action_new_topic',
 			esc_html__( 'Topics', 'bbpress' ),
 			array( 'activity', 'member', 'member_groups', 'group' )
 		);
 
 		// Sitewide reply
 		bp_activity_set_action(
-			bbp_get_component_name(),
+			$this->component,
 			$this->reply_create,
 			esc_html__( 'New forum reply', 'bbpress' ),
-			'bbp_bp_format_activity_action_new_reply',
+			'bbp_format_activity_action_new_reply',
 			esc_html__( 'Replies', 'bbpress' ),
 			array( 'activity', 'member', 'member_groups', 'group' )
 		);
@@ -226,7 +226,7 @@ class BBP_BuddyPress_Activity {
 				buddypress()->groups->id,
 				$this->topic_create,
 				esc_html__( 'New forum topic', 'bbpress' ),
-				'bbp_bp_format_activity_action_new_topic',
+				'bbp_format_activity_action_new_topic',
 				esc_html__( 'Topics', 'bbpress' ),
 				array( 'activity', 'member', 'member_groups', 'group' )
 			);
@@ -236,7 +236,7 @@ class BBP_BuddyPress_Activity {
 				buddypress()->groups->id,
 				$this->reply_create,
 				esc_html__( 'New forum reply', 'bbpress' ),
-				'bbp_bp_format_activity_action_new_reply',
+				'bbp_format_activity_action_new_reply',
 				esc_html__( 'Replies', 'bbpress' ),
 				array( 'activity', 'member', 'member_groups', 'group' )
 			);
