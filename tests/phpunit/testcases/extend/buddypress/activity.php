@@ -140,6 +140,11 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	 * @ticket BBP2794
 	 */
 	public function test_bp_activity_actions_for_group_forum_topic() {
+
+		// See https://bbpress.trac.wordpress.org/ticket/2794.
+		// See https://bbpress.trac.wordpress.org/ticket/3089.
+		$this->markTestSkipped( 'Skipping dynamic group activity action tests.' );
+
 		$g = $this->bp_factory->group->create();
 		$group = groups_get_group( array( 'group_id' => $g ) );
 		$u = $group->creator_id;
@@ -201,6 +206,11 @@ class BBP_Tests_Extend_BuddyPress_Activity extends BBP_UnitTestCase {
 	 * @ticket BBP2794
 	 */
 	public function test_bp_activity_actions_for_reply_to_group_forum_topic() {
+
+		// See https://bbpress.trac.wordpress.org/ticket/2794.
+		// See https://bbpress.trac.wordpress.org/ticket/3089.
+		$this->markTestSkipped( 'Skipping dynamic group activity action tests.' );
+
 		$g = $this->bp_factory->group->create();
 		$group = groups_get_group( array( 'group_id' => $g ) );
 		$u = $group->creator_id;
