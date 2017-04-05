@@ -251,7 +251,7 @@ function bbp_register_default_repair_tools() {
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-topic-hidden-replies',
 		'type'        => 'repair',
-		'description' => __( 'Recount pending, spammed, & trashed replies in each topic', 'bbpress' ),
+		'description' => __( 'Recount pending, spammed, and trashed replies in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_hidden_reply_count',
 		'priority'    => 70,
 		'overhead'    => 'high',
