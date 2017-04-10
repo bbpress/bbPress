@@ -883,23 +883,19 @@ class BBP_Admin {
 			<h3 class="wp-people-group"><?php esc_html_e( 'Project Leaders', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-project-leaders">
 				<li class="wp-person" id="wp-person-matt">
-					<a href="https://profiles.wordpress.org/matt"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="Matt Mullenweg" /></a>
-					<a class="web" href="https://profiles.wordpress.org/matt">Matt Mullenweg</a>
+					<a href="https://profiles.wordpress.org/matt" class="web"><img  src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="" />Matt Mullenweg</a>
 					<span class="title"><?php esc_html_e( 'Founding Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-johnjamesjacoby">
-					<a href="https://profiles.wordpress.org/johnjamesjacoby"><img src="http://0.gravatar.com/avatar/7a2644fb53ae2f7bfd7143b504af396c?s=60" class="gravatar" alt="John James Jacoby" /></a>
-					<a class="web" href="https://profiles.wordpress.org/johnjamesjacoby">John James Jacoby</a>
+					<a href="https://profiles.wordpress.org/johnjamesjacoby" class="web"><img  src="http://0.gravatar.com/avatar/7a2644fb53ae2f7bfd7143b504af396c?s=60" class="gravatar" alt="" />John James Jacoby</a>
 					<span class="title"><?php esc_html_e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-jmdodd">
-					<a href="https://profiles.wordpress.org/jmdodd"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="Jennifer M. Dodd" /></a>
-					<a class="web" href="https://profiles.wordpress.org/jmdodd">Jennifer M. Dodd</a>
+					<a href="https://profiles.wordpress.org/jmdodd" class="web"><img  src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="" />Jennifer M. Dodd</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-netweb">
-					<a href="https://profiles.wordpress.org/netweb"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="Stephen Edgar" /></a>
-					<a class="web" href="https://profiles.wordpress.org/netweb">Stephen Edgar</a>
+					<a href="https://profiles.wordpress.org/netweb" class="web"><img  src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="" />Stephen Edgar</a>
 					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
 				</li>
 			</ul>
@@ -907,13 +903,11 @@ class BBP_Admin {
 			<h3 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-jaredatch">
-					<a href="https://profiles.wordpress.org/jaredatch"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="Jared Atchison" /></a>
-					<a class="web" href="https://profiles.wordpress.org/jaredatch">Jared Atchison</a>
+					<a href="https://profiles.wordpress.org/jaredatch" class="web"><img  src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="" />Jared Atchison</a>
 					<span class="title"><?php esc_html_e( 'Bug Testing', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-gautamgupta">
-					<a href="https://profiles.wordpress.org/gautamgupta"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="Gautam Gupta" /></a>
-					<a class="web" href="https://profiles.wordpress.org/gautamgupta">Gautam Gupta</a>
+					<a href="https://profiles.wordpress.org/gautamgupta" class="web"><img  src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="" />Gautam Gupta</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 			</ul>
