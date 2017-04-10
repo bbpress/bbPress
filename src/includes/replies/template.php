@@ -2700,7 +2700,7 @@ function bbp_reply_to_dropdown( $reply_id = 0 ) {
 		}
 
 		// Default "None" text
-		$show_none = ( 0 !== $reply_id )
+		$show_none = ( 0 === $reply_id )
 			? esc_attr_x( 'None', 'Default reply to dropdown text', 'bbpress' )
 			: sprintf( esc_attr__( '%1$s - %2$s', 'bbpress' ), $topic_id, bbp_get_topic_title( $topic_id ) );
 
