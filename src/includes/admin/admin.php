@@ -790,7 +790,7 @@ class BBP_Admin {
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is bundled up and ready to weather the storm of users in your community!', 'bbpress' ), $display_version ); ?></div>
+			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is sweet and savory, contains no artificial flavors or preservatives, is environmentally friendly, and is a great compliment to your site.', 'bbpress' ), $display_version ); ?></div>
 			<div class="bbp-badge"></div>
 
 			<h2 class="nav-tab-wrapper">
@@ -867,7 +867,7 @@ class BBP_Admin {
 
 		<div class="wrap about-wrap">
 			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is waxed, polished, and ready for you to take it for a lap or two around the block!', 'bbpress' ), $display_version ); ?></div>
+			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is sweet and savory, contains no artificial flavors or preservatives, is environmentally friendly, and is a great compliment to your site.', 'bbpress' ), $display_version ); ?></div>
 			<div class="bbp-badge"></div>
 
 			<h2 class="nav-tab-wrapper">
@@ -883,32 +883,44 @@ class BBP_Admin {
 			<h3 class="wp-people-group"><?php esc_html_e( 'Project Leaders', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-project-leaders">
 				<li class="wp-person" id="wp-person-matt">
-					<a href="https://profiles.wordpress.org/matt" class="web"><img  src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=60" class="gravatar" alt="" />Matt Mullenweg</a>
+					<a href="https://profiles.wordpress.org/matt" class="web"><img src="http://0.gravatar.com/avatar/767fc9c115a1b989744c755db47feb60?s=120" class="gravatar" alt="" />Matt Mullenweg</a>
 					<span class="title"><?php esc_html_e( 'Founding Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-johnjamesjacoby">
-					<a href="https://profiles.wordpress.org/johnjamesjacoby" class="web"><img  src="http://0.gravatar.com/avatar/7a2644fb53ae2f7bfd7143b504af396c?s=60" class="gravatar" alt="" />John James Jacoby</a>
+					<a href="https://profiles.wordpress.org/johnjamesjacoby" class="web"><img src="http://0.gravatar.com/avatar/7a2644fb53ae2f7bfd7143b504af396c?s=120" class="gravatar" alt="" />John James Jacoby</a>
 					<span class="title"><?php esc_html_e( 'Lead Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-jmdodd">
-					<a href="https://profiles.wordpress.org/jmdodd" class="web"><img  src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=60" class="gravatar" alt="" />Jennifer M. Dodd</a>
+					<a href="https://profiles.wordpress.org/jmdodd" class="web"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=120" class="gravatar" alt="" />Jennifer M. Dodd</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-netweb">
-					<a href="https://profiles.wordpress.org/netweb" class="web"><img  src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=60" class="gravatar" alt="" />Stephen Edgar</a>
+					<a href="https://profiles.wordpress.org/netweb" class="web"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=120" class="gravatar" alt="" />Stephen Edgar</a>
 					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
 			<h3 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
-				<li class="wp-person" id="wp-person-jaredatch">
-					<a href="https://profiles.wordpress.org/jaredatch" class="web"><img  src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=60" class="gravatar" alt="" />Jared Atchison</a>
-					<span class="title"><?php esc_html_e( 'Bug Testing', 'bbpress' ); ?></span>
+				<li class="wp-person" id="wp-person-sergeybiryukov">
+					<a href="https://profiles.wordpress.org/SergeyBiryukov" class="web"><img src="http://0.gravatar.com/avatar/750b7b0fcd855389264c2b1294d61bd6?s?s=120" class="gravatar" alt="" />Sergey Biryukov</a>
+					<span class="title"><?php esc_html_e( 'Core Developer', 'bbpress' ); ?></span>
 				</li>
+				<li class="wp-person" id="wp-person-thebrandonallen">
+					<a href="https://profiles.wordpress.org/thebrandonallen" class="web"><img src="http://0.gravatar.com/avatar/6d3f77bf3c9ca94c406dea401b566950?s?s=120" class="gravatar" alt="" />Brandon Allen</a>
+					<span class="title"><?php esc_html_e( 'Core Developer', 'bbpress' ); ?></span>
+				</li>
+			</ul>
+
+			<h3 class="wp-people-group"><?php esc_html_e( 'Project Emeriti', 'bbpress' ); ?></h3>
+			<ul class="wp-people-group " id="wp-people-group-project-emeriti">
 				<li class="wp-person" id="wp-person-gautamgupta">
-					<a href="https://profiles.wordpress.org/gautamgupta" class="web"><img  src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=60" class="gravatar" alt="" />Gautam Gupta</a>
+					<a href="https://profiles.wordpress.org/gautamgupta" class="web"><img src="http://0.gravatar.com/avatar/b0810422cbe6e4eead4def5ae7a90b34?s=120" class="gravatar" alt="" />Gautam Gupta</a>
 					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
+				</li>
+				<li class="wp-person" id="wp-person-jaredatch">
+					<a href="https://profiles.wordpress.org/jaredatch" class="web"><img src="http://0.gravatar.com/avatar/e341eca9e1a85dcae7127044301b4363?s=120" class="gravatar" alt="" />Jared Atchison</a>
+					<span class="title"><?php esc_html_e( 'Integration Testing', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
@@ -972,7 +984,7 @@ class BBP_Admin {
 				<a href="https://profiles.wordpress.org/tonyrix">tonyrix</a>,
 				<a href="https://profiles.wordpress.org/treyhunner">treyhunner</a>,
 				<a href="https://profiles.wordpress.org/tw2113">tw2113</a>,
-				<a href="https://profiles.wordpress.org/xknown">xknown</a>,
+				<a href="https://profiles.wordpress.org/xknown">xknown</a>
 			</p>
 
 			<div class="return-to-dashboard">
