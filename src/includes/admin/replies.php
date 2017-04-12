@@ -472,57 +472,81 @@ class BBP_Replies_Admin {
 	 */
 	public function toggle_reply() {
 
-		// Only proceed if GET is a reply toggle action
-		if ( bbp_is_get_request() && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam', 'bbp_toggle_reply_approve' ) ) && ! empty( $_GET['reply_id'] ) ) {
-			$action    = $_GET['action'];            // What action is taking place?
-			$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
-			$success   = false;                      // Flag
-			$post_data = array( 'ID' => $reply_id ); // Prelim array
-
-			// Get reply and die if empty
-			$reply = bbp_get_reply( $reply_id );
-			if ( empty( $reply ) ) {
-				wp_die( __( 'The reply was not found.', 'bbpress' ) );
-			}
-
-			// What is the user doing here?
-			if ( ! current_user_can( 'moderate', $reply->ID ) ) {
-				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
-			}
-
-			switch ( $action ) {
-				case 'bbp_toggle_reply_approve' :
-					check_admin_referer( 'approve-reply_' . $reply_id );
-
-					$is_approve = bbp_is_reply_pending( $reply_id );
-					$message    = $is_approve ? 'approved' : 'unapproved';
-					$success    = $is_approve ? bbp_approve_reply( $reply_id ) : bbp_unapprove_reply( $reply_id );
-
-					break;
-
-				case 'bbp_toggle_reply_spam' :
-					check_admin_referer( 'spam-reply_' . $reply_id );
-
-					$is_spam = bbp_is_reply_spam( $reply_id );
-					$message = $is_spam ? 'unspammed' : 'spammed';
-					$success = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
-
-					break;
-			}
-
-			$message = array( 'bbp_reply_toggle_notice' => $message, 'reply_id' => $reply->ID );
-
-			if ( false === $success || is_wp_error( $success ) ) {
-				$message['failed'] = '1';
-			}
-
-			// Do additional reply toggle actions (admin side)
-			do_action( 'bbp_toggle_reply_admin', $success, $post_data, $action, $message );
-
-			// Redirect back to the reply
-			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'reply_id' ) ) );
-			bbp_redirect( $redirect );
+		// Bail if not a topic toggle action
+		if ( ! bbp_is_get_request() || empty( $_GET['action'] ) || empty( $_GET['reply_id'] ) ) {
+			return;
 		}
+
+		// Bail if not an allowed action
+		$action = sanitize_key( $_GET['action'] );
+		if ( empty( $action ) || ! in_array( $action, $this->get_allowed_action_toggles(), true ) ) {
+			return;
+		}
+
+		// Get reply and die if empty
+		$reply_id = bbp_get_reply_id( $_GET['reply_id'] );
+		if ( ! bbp_get_reply( $reply_id ) ) {
+			wp_die( __( 'The reply was not found.', 'bbpress' ) );
+		}
+
+		// What is the user doing here?
+		if ( ! current_user_can( 'moderate', $reply_id ) ) {
+			wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
+		}
+
+		// Defaults
+		$post_data = array( 'ID' => $reply_id );
+		$message   = '';
+		$success   = false;
+
+		switch ( $action ) {
+			case 'bbp_toggle_reply_approve' :
+				check_admin_referer( 'approve-reply_' . $reply_id );
+
+				$is_approve = bbp_is_reply_pending( $reply_id );
+				$message    = ( true === $is_approve )
+					? 'approved'
+					: 'unapproved';
+				$success    = ( true === $is_approve )
+					? bbp_approve_reply( $reply_id )
+					: bbp_unapprove_reply( $reply_id );
+
+				break;
+
+			case 'bbp_toggle_reply_spam' :
+				check_admin_referer( 'spam-reply_' . $reply_id );
+
+				$is_spam = bbp_is_reply_spam( $reply_id );
+				$message = ( true === $is_spam )
+					? 'unspammed'
+					: 'spammed';
+				$success = ( true === $is_spam )
+					? bbp_unspam_reply( $reply_id )
+					: bbp_spam_reply( $reply_id );
+
+				break;
+		}
+
+		// Setup the message
+		$retval = array(
+			'bbp_reply_toggle_notice' => $message,
+			'reply_id'                => $reply_id
+		);
+
+		// Prepare for failure
+		if ( false === $success || is_wp_error( $success ) ) {
+			$retval['failed'] = '1';
+		}
+
+		// Filter all message args
+		$retval = apply_filters( 'bbp_toggle_reply_action_admin', $retval, $reply_id, $action );
+
+		// Do additional reply toggle actions (admin side)
+		do_action( 'bbp_toggle_reply_admin', $success, $post_data, $action, $retval );
+
+		// Redirect back to the reply
+		$redirect = add_query_arg( $retval, remove_query_arg( array( 'action', 'reply_id' ) ) );
+		bbp_redirect( $redirect );
 	}
 
 	/**
@@ -541,62 +565,102 @@ class BBP_Replies_Admin {
 	 */
 	public function toggle_reply_notice() {
 
-		// Only proceed if GET is a reply toggle action
-		if ( bbp_is_get_request() && ! empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed', 'approved', 'unapproved' ) ) && ! empty( $_GET['reply_id'] ) ) {
-			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
-			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
-			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
-
-			// Empty? No reply?
-			if ( empty( $notice ) || empty( $reply_id ) ) {
-				return;
-			}
-
-			// Get reply and bail if empty
-			$reply = bbp_get_reply( $reply_id );
-			if ( empty( $reply ) ) {
-				return;
-			}
-
-			$reply_title = bbp_get_reply_title( $reply->ID );
-
-			switch ( $notice ) {
-				case 'spammed' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
-						: sprintf( __( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
-					break;
-
-				case 'unspammed' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
-						: sprintf( __( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
-					break;
-
-				case 'approved' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
-						: sprintf( __( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
-					break;
-
-				case 'unapproved' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
-						: sprintf( __( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
-					break;
-			}
-
-			// Do additional reply toggle notice filters (admin side)
-			$message = apply_filters( 'bbp_toggle_reply_notice_admin', $message, $reply->ID, $notice, $is_failure );
-
-			?>
-
-			<div id="message" class="<?php echo $is_failure === true ? 'error' : 'updated'; ?> fade">
-				<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
-			</div>
-
-			<?php
+		// Bail if missing reply toggle action
+		if ( ! bbp_is_get_request() || empty( $_GET['reply_id'] ) || empty( $_GET['bbp_reply_toggle_notice'] ) ) {
+			return;
 		}
+
+		// Bail if not an allowed notice
+		$notice = sanitize_key( $_GET['bbp_reply_toggle_notice'] );
+		if ( empty( $notice ) || ! in_array( $notice, $this->get_allowed_notice_toggles(), true ) ) {
+			return;
+		}
+
+		// Bail if no reply_id or notice
+		$reply_id = bbp_get_reply_id( $_GET['reply_id'] );
+		if ( empty( $reply_id ) ) {
+			return;
+		}
+
+		// Bail if reply is missing
+		if ( ! bbp_get_reply( $reply_id ) ) {
+			return;
+		}
+
+		// Use the title in the responses
+		$reply_title = bbp_get_reply_title( $reply_id );
+		$is_failure  = ! empty( $_GET['failed'] );
+		$message     = '';
+
+		switch ( $notice ) {
+			case 'spammed' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					: sprintf( __( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
+				break;
+
+			case 'unspammed' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					: sprintf( __( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
+				break;
+
+			case 'approved' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
+					: sprintf( __( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
+				break;
+
+			case 'unapproved' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
+					: sprintf( __( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
+				break;
+		}
+
+		// Do additional reply toggle notice filters (admin side)
+		$message = apply_filters( 'bbp_toggle_reply_notice_admin', $message, $reply_id, $notice, $is_failure );
+		$class   = ( $is_failure === true )
+			? 'error'
+			: 'updated';
+
+		?>
+
+		<div id="message" class="<?php echo esc_html( $class ); ?> fade">
+			<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
+		</div>
+
+		<?php
+	}
+
+	/**
+	 * Returns an array of notice toggles
+	 *
+	 * @since 2.6.0 bbPress (r6396)
+	 *
+	 * @return array
+	 */
+	private function get_allowed_notice_toggles() {
+		return apply_filters( 'bbp_admin_replies_allowed_notice_toggles', array(
+			'spammed',
+			'unspammed',
+			'approved',
+			'unapproved'
+		) );
+	}
+
+	/**
+	 * Returns an array of notice toggles
+	 *
+	 * @since 2.6.0 bbPress (r6396)
+	 *
+	 * @return array
+	 */
+	private function get_allowed_action_toggles() {
+		return apply_filters( 'bbp_admin_replies_allowed_action_toggles', array(
+			'bbp_toggle_reply_spam',
+			'bbp_toggle_reply_approve'
+		) );
 	}
 
 	/**

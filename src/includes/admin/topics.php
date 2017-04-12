@@ -602,97 +602,113 @@ class BBP_Topics_Admin {
 	 */
 	public function toggle_topic() {
 
-		// Only proceed if GET is a topic toggle action
-		if ( bbp_is_get_request() && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_approve' ) ) && ! empty( $_GET['topic_id'] ) ) {
-			$action    = $_GET['action'];            // What action is taking place?
-			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
-			$success   = false;                      // Flag
-			$post_data = array( 'ID' => $topic_id ); // Prelim array
-			$topic     = bbp_get_topic( $topic_id ); // Verify the topic id
-
-			// Bail if topic is missing
-			if ( empty( $topic ) ) {
-				wp_die( __( 'The topic was not found.', 'bbpress' ) );
-			}
-
-			// What is the user doing here?
-			if ( ! current_user_can( 'moderate', $topic->ID ) ) {
-				wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
-			}
-
-			switch ( $action ) {
-				case 'bbp_toggle_topic_approve' :
-					check_admin_referer( 'approve-topic_' . $topic_id );
-
-					$is_approve = bbp_is_topic_pending( $topic_id );
-					$message    = ( true === $is_approve )
-						? 'approved'
-						: 'unapproved';
-					$success    = ( true === $is_approve )
-						? bbp_approve_topic( $topic_id )
-						: bbp_unapprove_topic( $topic_id );
-
-					break;
-
-				case 'bbp_toggle_topic_close' :
-					check_admin_referer( 'close-topic_' . $topic_id );
-
-					$is_open = bbp_is_topic_open( $topic_id );
-					$message = ( true === $is_open )
-						? 'closed'
-						: 'opened';
-					$success = ( true === $is_open )
-						? bbp_close_topic( $topic_id )
-						: bbp_open_topic( $topic_id );
-
-					break;
-
-				case 'bbp_toggle_topic_stick' :
-					check_admin_referer( 'stick-topic_' . $topic_id );
-
-					$is_sticky = bbp_is_topic_sticky( $topic_id );
-					$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] )
-						? true
-						: false;
-					$message   = ( true  === $is_sticky )
-						? 'unstuck'
-						: 'stuck';
-					$message   = ( true  === $is_super )
-						? 'super_sticky'
-						: $message;
-					$success   = ( true  === $is_sticky )
-						? bbp_unstick_topic( $topic_id )
-						: bbp_stick_topic( $topic_id, $is_super );
-
-					break;
-
-				case 'bbp_toggle_topic_spam'  :
-					check_admin_referer( 'spam-topic_' . $topic_id );
-
-					$is_spam = bbp_is_topic_spam( $topic_id );
-					$message = ( true === $is_spam )
-						? 'unspammed'
-						: 'spammed';
-					$success = ( true === $is_spam )
-						? bbp_unspam_topic( $topic_id )
-						: bbp_spam_topic( $topic_id );
-
-					break;
-			}
-
-			$message = array( 'bbp_topic_toggle_notice' => $message, 'topic_id' => $topic->ID );
-
-			if ( false === $success || is_wp_error( $success ) ) {
-				$message['failed'] = '1';
-			}
-
-			// Do additional topic toggle actions (admin side)
-			do_action( 'bbp_toggle_topic_admin', $success, $post_data, $action, $message );
-
-			// Redirect back to the topic
-			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'topic_id' ) ) );
-			bbp_redirect( $redirect );
+		// Bail if not a topic toggle action
+		if ( ! bbp_is_get_request() || empty( $_GET['action'] ) || empty( $_GET['topic_id'] ) ) {
+			return;
 		}
+
+		// Bail if not an allowed action
+		$action = sanitize_key( $_GET['action'] );
+		if ( empty( $action ) || ! in_array( $action, $this->get_allowed_action_toggles(), true ) ) {
+			return;
+		}
+
+		// Bail if topic is missing
+		$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
+		if ( ! bbp_get_topic( $topic_id ) ) {
+			wp_die( __( 'The topic was not found.', 'bbpress' ) );
+		}
+
+		// What is the user doing here?
+		if ( ! current_user_can( 'moderate', $topic_id ) ) {
+			wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
+		}
+
+		// Defaults
+		$post_data = array( 'ID' => $topic_id );
+		$message   = '';
+		$success   = false;
+
+		switch ( $action ) {
+			case 'bbp_toggle_topic_approve' :
+				check_admin_referer( 'approve-topic_' . $topic_id );
+
+				$is_approve = bbp_is_topic_pending( $topic_id );
+				$message    = ( true === $is_approve )
+					? 'approved'
+					: 'unapproved';
+				$success    = ( true === $is_approve )
+					? bbp_approve_topic( $topic_id )
+					: bbp_unapprove_topic( $topic_id );
+
+				break;
+
+			case 'bbp_toggle_topic_close' :
+				check_admin_referer( 'close-topic_' . $topic_id );
+
+				$is_open = bbp_is_topic_open( $topic_id );
+				$message = ( true === $is_open )
+					? 'closed'
+					: 'opened';
+				$success = ( true === $is_open )
+					? bbp_close_topic( $topic_id )
+					: bbp_open_topic( $topic_id );
+
+				break;
+
+			case 'bbp_toggle_topic_stick' :
+				check_admin_referer( 'stick-topic_' . $topic_id );
+
+				$is_sticky = bbp_is_topic_sticky( $topic_id );
+				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] )
+					? true
+					: false;
+				$message   = ( true  === $is_sticky )
+					? 'unstuck'
+					: 'stuck';
+				$message   = ( true  === $is_super )
+					? 'super_sticky'
+					: $message;
+				$success   = ( true  === $is_sticky )
+					? bbp_unstick_topic( $topic_id )
+					: bbp_stick_topic( $topic_id, $is_super );
+
+				break;
+
+			case 'bbp_toggle_topic_spam'  :
+				check_admin_referer( 'spam-topic_' . $topic_id );
+
+				$is_spam = bbp_is_topic_spam( $topic_id );
+				$message = ( true === $is_spam )
+					? 'unspammed'
+					: 'spammed';
+				$success = ( true === $is_spam )
+					? bbp_unspam_topic( $topic_id )
+					: bbp_spam_topic( $topic_id );
+
+				break;
+		}
+
+		// Setup the message
+		$retval = array(
+			'bbp_topic_toggle_notice' => $message,
+			'topic_id'                => $topic_id
+		);
+
+		// Prepare for failure
+		if ( ( false === $success ) || is_wp_error( $success ) ) {
+			$retval['failed'] = '1';
+		}
+
+		// Filter all message args
+		$retval = apply_filters( 'bbp_toggle_topic_action_admin', $retval, $topic_id, $action );
+
+		// Do additional topic toggle actions (admin side)
+		do_action( 'bbp_toggle_topic_admin', $success, $post_data, $action, $retval );
+
+		// Redirect back to the topic
+		$redirect = add_query_arg( $retval, remove_query_arg( array( 'action', 'topic_id' ) ) );
+		bbp_redirect( $redirect );
 	}
 
 	/**
@@ -711,92 +727,140 @@ class BBP_Topics_Admin {
 	 */
 	public function toggle_topic_notice() {
 
-		// Only proceed if GET is a topic toggle action
-		if ( bbp_is_get_request() && ! empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticky', 'stuck', 'unstuck', 'spammed', 'unspammed', 'approved', 'unapproved' ) ) && ! empty( $_GET['topic_id'] ) ) {
-			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
-			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
-			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
-
-			// Bais if no topic_id or notice
-			if ( empty( $notice ) || empty( $topic_id ) ) {
-				return;
-			}
-
-			// Bail if topic is missing
-			$topic = bbp_get_topic( $topic_id );
-			if ( empty( $topic ) ) {
-				return;
-			}
-
-			$topic_title = bbp_get_topic_title( $topic->ID );
-
-			switch ( $notice ) {
-				case 'opened'    :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
-					break;
-
-				case 'closed'    :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
-					break;
-
-				case 'super_sticky' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
-					break;
-
-				case 'stuck'   :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
-					break;
-
-				case 'unstuck' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
-					break;
-
-				case 'spammed'   :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
-					break;
-
-				case 'unspammed' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
-					break;
-
-				case 'approved'   :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
-					break;
-
-				case 'unapproved' :
-					$message = ( $is_failure === true )
-						? sprintf( __( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
-						: sprintf( __( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
-					break;
-			}
-
-			// Do additional topic toggle notice filters (admin side)
-			$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic->ID, $notice, $is_failure );
-
-			?>
-
-			<div id="message" class="<?php echo ( $is_failure === true ) ? 'error' : 'updated'; ?> fade">
-				<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
-			</div>
-
-			<?php
+		// Bail if missing topic toggle action
+		if ( ! bbp_is_get_request() || empty( $_GET['topic_id'] ) || empty( $_GET['bbp_topic_toggle_notice'] ) ) {
+			return;
 		}
+
+		// Bail if not an allowed notice
+		$notice = sanitize_key( $_GET['bbp_topic_toggle_notice'] );
+		if ( empty( $notice ) || ! in_array( $notice, $this->get_allowed_notice_toggles(), true ) ) {
+			return;
+		}
+
+		// Bail if no topic_id or notice
+		$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
+		if (  empty( $topic_id ) ) {
+			return;
+		}
+
+		// Bail if topic is missing
+		if ( ! bbp_get_topic( $topic_id ) ) {
+			return;
+		}
+
+		// Use the title in the responses
+		$topic_title = bbp_get_topic_title( $topic_id );
+		$is_failure  = ! empty( $_GET['failed'] );
+		$message     = '';
+
+		// Which notice?
+		switch ( $notice ) {
+			case 'opened'    :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
+				break;
+
+			case 'closed'    :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
+				break;
+
+			case 'super_sticky' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
+				break;
+
+			case 'stuck'   :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
+				break;
+
+			case 'unstuck' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
+				break;
+
+			case 'spammed'   :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
+				break;
+
+			case 'unspammed' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
+				break;
+
+			case 'approved'   :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
+				break;
+
+			case 'unapproved' :
+				$message = ( $is_failure === true )
+					? sprintf( __( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( __( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
+				break;
+		}
+
+		// Do additional topic toggle notice filters (admin side)
+		$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic_id, $notice, $is_failure );
+		$class   = ( $is_failure === true )
+			? 'error'
+			: 'updated';
+
+		?>
+
+		<div id="message" class="<?php echo esc_html( $class ); ?> fade">
+			<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
+		</div>
+
+		<?php
+	}
+
+	/**
+	 * Returns an array of notice toggles
+	 *
+	 * @since 2.6.0 bbPress (r6396)
+	 *
+	 * @return array
+	 */
+	private function get_allowed_notice_toggles() {
+		return apply_filters( 'bbp_admin_topics_allowed_notice_toggles', array(
+			'opened',
+			'closed',
+			'super_sticky',
+			'stuck',
+			'unstuck',
+			'spammed',
+			'unspammed',
+			'approved',
+			'unapproved'
+		) );
+	}
+
+	/**
+	 * Returns an array of notice toggles
+	 *
+	 * @since 2.6.0 bbPress (r6396)
+	 *
+	 * @return array
+	 */
+	private function get_allowed_action_toggles() {
+		return apply_filters( 'bbp_admin_topics_allowed_action_toggles', array(
+			'bbp_toggle_topic_close',
+			'bbp_toggle_topic_stick',
+			'bbp_toggle_topic_spam',
+			'bbp_toggle_topic_approve'
+		) );
 	}
 
 	/**
