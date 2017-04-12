@@ -534,7 +534,7 @@ class BBP_Replies_Admin {
 		);
 
 		// Prepare for failure
-		if ( false === $success || is_wp_error( $success ) ) {
+		if ( ( false === $success ) || is_wp_error( $success ) ) {
 			$retval['failed'] = '1';
 		}
 
