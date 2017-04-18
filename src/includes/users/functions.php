@@ -124,15 +124,21 @@ function bbp_current_anonymous_user_data( $key = '' ) {
  *                        Defaults to 30000000.
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
+
+	//  Bail if empty or not an array
 	if ( empty( $anonymous_data ) || ! is_array( $anonymous_data ) ) {
 		return;
 	}
 
-	$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+	// Setup cookie expiration
+	$lifetime = (int) apply_filters( 'comment_cookie_lifetime', 30000000 );
+	$expiry   = time() + $lifetime;
+	$secure   = ( 'https' === parse_url( home_url(), PHP_URL_SCHEME ) );
 
-	setcookie( 'comment_author_'       . COOKIEHASH, $anonymous_data['bbp_anonymous_name'],    time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-	setcookie( 'comment_author_email_' . COOKIEHASH, $anonymous_data['bbp_anonymous_email'],   time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-	setcookie( 'comment_author_url_'   . COOKIEHASH, $anonymous_data['bbp_anonymous_website'], time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+	// Set the cookies
+	setcookie( 'comment_author_'       . COOKIEHASH, $anonymous_data['bbp_anonymous_name'],    $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure );
+	setcookie( 'comment_author_email_' . COOKIEHASH, $anonymous_data['bbp_anonymous_email'],   $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure );
+	setcookie( 'comment_author_url_'   . COOKIEHASH, $anonymous_data['bbp_anonymous_website'], $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure );
 }
 
 /**
