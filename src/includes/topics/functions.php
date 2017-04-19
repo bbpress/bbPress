@@ -96,7 +96,6 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses current_user_can() To check if the current user can publish topic
  * @uses bbp_get_current_user_id() To get the current user id
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
- * @uses bbp_set_current_anonymous_user_data() To set the anonymous user cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
@@ -140,8 +139,9 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	// Define local variable(s)
 	$view_all = false;
-	$forum_id = $topic_author = $anonymous_data = 0;
+	$forum_id = $topic_author = 0;
 	$topic_title = $topic_content = '';
+	$anonymous_data = array();
 	$terms = array( bbp_get_topic_tag_tax_id() => array() );
 
 	/** Topic Author **********************************************************/
@@ -149,13 +149,11 @@ function bbp_new_topic_handler( $action = '' ) {
 	// User is anonymous
 	if ( bbp_is_anonymous() ) {
 
-		// Filter anonymous data
+		// Filter anonymous data (variable is used later)
 		$anonymous_data = bbp_filter_anonymous_post_data();
 
 		// Anonymous data checks out, so set cookies, etc...
-		if ( ! empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
-			bbp_set_current_anonymous_user_data( $anonymous_data );
-		}
+		bbp_set_current_anonymous_user_data( $anonymous_data );
 
 	// User is logged in
 	} else {
@@ -471,8 +469,9 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// Define local variable(s)
 	$revisions_removed = false;
-	$topic = $topic_id = $topic_author = $forum_id = $anonymous_data = 0;
+	$topic = $topic_id = $topic_author = $forum_id = 0;
 	$topic_title = $topic_content = $topic_edit_reason = '';
+	$anonymous_data = array();
 
 	/** Topic *****************************************************************/
 
@@ -510,7 +509,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		} else {
 
 			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data( array(), true );
+			$anonymous_data = bbp_filter_anonymous_post_data();
 		}
 	}
 
@@ -768,7 +767,9 @@ function bbp_edit_topic_handler( $action = '' ) {
  *
  * @param int $topic_id Optional. Topic id
  * @param int $forum_id Optional. Forum id
- * @param bool|array $anonymous_data Optional logged-out user data.
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @uses bbp_get_topic_id() To get the topic id
@@ -793,7 +794,7 @@ function bbp_edit_topic_handler( $action = '' ) {
  * @uses bbp_update_topic_voice_count() To update the topic voice count
  * @uses bbp_update_topic_walker() To udpate the topic's ancestors
  */
-function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
+function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false ) {
 
 	// Validate the ID's passed from 'bbp_new_topic' action
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -845,21 +846,10 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	}
 
 	// If anonymous post, store name, email, website and ip in post_meta.
-	// It expects anonymous_data to be sanitized.
-	// Check bbp_filter_anonymous_post_data() for sanitization.
-	if ( ! empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+	if ( ! empty( $anonymous_data ) ) {
 
-		// Parse arguments against default values
-		$r = bbp_parse_args( $anonymous_data, array(
-			'bbp_anonymous_name'    => '',
-			'bbp_anonymous_email'   => '',
-			'bbp_anonymous_website' => '',
-		), 'update_topic' );
-
-		// Update all anonymous metas
-		foreach ( $r as $anon_key => $anon_value ) {
-			update_post_meta( $topic_id, '_' . $anon_key, (string) $anon_value, false );
-		}
+		// Update anonymous meta data (not cookies)
+		bbp_update_anonymous_post_author( $topic_id, $anonymous_data, 'topic' );
 
 		// Set transient for throttle check (only on new, not edit)
 		if ( empty( $is_edit ) ) {

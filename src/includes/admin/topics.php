@@ -543,6 +543,11 @@ class BBP_Topics_Admin {
 			return $topic_id;
 		}
 
+		// Check action exists
+		if ( empty( $_POST['action'] ) ) {
+			return $topic_id;
+		}
+
 		// Nonce check
 		if ( empty( $_POST['bbp_topic_metabox'] ) || ! wp_verify_nonce( $_POST['bbp_topic_metabox'], 'bbp_topic_metabox_save' ) ) {
 			return $topic_id;

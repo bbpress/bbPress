@@ -424,7 +424,7 @@ class BBP_Replies_Admin {
 			return $reply_id;
 		}
 
-		// Current user cannot edit this reply
+		// Bail if current user cannot edit this reply
 		if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
 			return $reply_id;
 		}

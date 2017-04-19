@@ -97,8 +97,6 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
  * @uses current_user_can() To check if the current user can publish forum
  * @uses bbp_get_current_user_id() To get the current user id
- * @uses bbp_filter_anonymous_post_data() To filter anonymous data
- * @uses bbp_set_current_anonymous_user_data() To set the anonymous user cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
@@ -134,9 +132,10 @@ function bbp_new_forum_handler( $action = '' ) {
 	}
 
 	// Define local variable(s)
-	$view_all = $anonymous_data = false;
+	$view_all = false;
 	$forum_parent_id = $forum_author = 0;
 	$forum_title = $forum_content = '';
+	$anonymous_data = array();
 
 	/** Forum Author **********************************************************/
 
@@ -362,7 +361,6 @@ function bbp_new_forum_handler( $action = '' ) {
  * @uses bbp_verify_nonce_request() To verify the nonce and check the request
  * @uses bbp_is_forum_anonymous() To check if forum is by an anonymous user
  * @uses current_user_can() To check if the current user can edit the forum
- * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed

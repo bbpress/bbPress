@@ -88,6 +88,8 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 	 * @return string|array Cookie(s) for current poster
 	 */
 	function bbp_get_current_anonymous_user_data( $key = '' ) {
+
+		// Array of allowed cookie names
 		$cookie_names = array(
 			'name'  => 'comment_author',
 			'email' => 'comment_author_email',
@@ -99,14 +101,21 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 			'comment_author_url'   => 'comment_author_url',
 		);
 
+		// Sanitize core cookies
 		sanitize_comment_cookies();
 
+		// Get the current poster's info from the cookies
 		$bbp_current_poster = wp_get_current_commenter();
 
-		if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ) ) ) {
+		// Sanitize the cookie key being retrieved
+		$key = sanitize_key( $key );
+
+		// Maybe return a specific key
+		if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ), true ) ) {
 			return $bbp_current_poster[ $cookie_names[ $key ] ];
 		}
 
+		// Return all keys
 		return $bbp_current_poster;
 	}
 
@@ -115,17 +124,15 @@ function bbp_current_anonymous_user_data( $key = '' ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $anonymous_data With keys 'bbp_anonymous_name',
- *                               'bbp_anonymous_email', 'bbp_anonymous_website'.
- *                               Should be sanitized (see
- *                               {@link bbp_filter_anonymous_post_data()} for
- *                               sanitization)
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @uses apply_filters() Calls 'comment_cookie_lifetime' for cookie lifetime.
  *                        Defaults to 30000000.
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 
-	//  Bail if empty or not an array
+	// Bail if empty or not an array
 	if ( empty( $anonymous_data ) || ! is_array( $anonymous_data ) ) {
 		return;
 	}

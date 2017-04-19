@@ -127,7 +127,7 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
  * @param bool $is_edit Used to bail if this gets hooked to an edit action
  * @param int $reply_to
  */
-function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false, $reply_to = 0 ) {
+function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
 	// Bail if somehow this is hooked to an edit action
 	if ( ! empty( $is_edit ) ) {

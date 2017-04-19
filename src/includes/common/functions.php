@@ -431,31 +431,109 @@ function bbp_get_statistics( $args = array() ) {
 function bbp_filter_anonymous_post_data( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array (
+	$r = bbp_parse_args( $args, array(
 		'bbp_anonymous_name'    => ! empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
 		'bbp_anonymous_email'   => ! empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
 		'bbp_anonymous_website' => ! empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
 	), 'filter_anonymous_post_data' );
 
-	// Filter variables and add errors if necessary
-	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name',  $r['bbp_anonymous_name']  );
+	// Strip invalid characters
+	$r = bbp_sanitize_anonymous_post_author( $r );
+
+	// Filter name
+	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name', $r['bbp_anonymous_name'] );
 	if ( empty( $r['bbp_anonymous_name'] ) ) {
-		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name.',   'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name.', 'bbpress' ) );
 	}
 
+	// Filter email address
 	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
 	if ( empty( $r['bbp_anonymous_email'] ) ) {
 		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address.', 'bbpress' ) );
 	}
 
-	// Website is optional
+	// Website is optional (can be empty)
 	$r['bbp_anonymous_website'] = apply_filters( 'bbp_pre_anonymous_post_author_website', $r['bbp_anonymous_website'] );
 
-	// Return false if we have any errors
-	$retval = bbp_has_errors() ? false : $r;
+	// Finally, return filtered anonymous post data
+	return (array) apply_filters( 'bbp_filter_anonymous_post_data', $r, $args );
+}
 
-	// Finally, return sanitized data or false
-	return apply_filters( 'bbp_filter_anonymous_post_data', $retval, $r );
+/**
+ * Sanitize an array of anonymous post author data
+ *
+ * @since 2.6.0 bbPress (r6400)
+ *
+ * @param array $anonymous_data
+ * @return array
+ */
+function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
+
+	// Make sure anonymous data is an array
+	if ( ! is_array( $anonymous_data ) ) {
+		$anonymous_data = array();
+	}
+
+	// Map meta data to comment fields (as guides for stripping invalid text)
+	$fields = array(
+		'bbp_anonymous_name'    => 'comment_author',
+		'bbp_anonymous_email'   => 'comment_author_email',
+		'bbp_anonymous_website' => 'comment_author_url'
+	);
+
+	// Setup a new return array
+	$r = $anonymous_data;
+
+	// Get the database
+	$bbp_db = bbp_db();
+
+	// Strip invalid text from fields
+	foreach ( $fields as $bbp_field => $comment_field ) {
+		if ( ! empty( $r[ $bbp_field ] ) ) {
+			$r[ $bbp_field ] = $bbp_db->strip_invalid_text_for_column( $bbp_db->comments, $comment_field, $r[ $bbp_field ] );
+		}
+	}
+
+	// Filter and return
+	return (array) apply_filters( 'bbp_sanitize_anonymous_post_author', $r, $anonymous_data );
+}
+
+/**
+ * Update the relevant meta-data for an anonymous post author
+ *
+ * @since 2.6.0 bbPress (r6400)
+ *
+ * @param int    $post_id
+ * @param array  $anonymous_data
+ * @param string $post_type
+ */
+function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array(), $post_type = '' ) {
+
+	// Maybe look for anonymous
+	if ( empty( $anonymous_data ) ) {
+		$anonymous_data = bbp_filter_anonymous_post_data();
+	}
+
+	// Sanitize parameters
+	$post_id   = (int) $post_id;
+	$post_type = sanitize_key( $post_type );
+
+	// Bail if missing required data
+	if ( empty( $post_id ) || empty( $post_type ) || empty( $anonymous_data ) ) {
+		return;
+	}
+
+	// Parse arguments against default values
+	$r = bbp_parse_args( $anonymous_data, array(
+		'bbp_anonymous_name'    => '',
+		'bbp_anonymous_email'   => '',
+		'bbp_anonymous_website' => '',
+	), "update_{$post_type}" );
+
+	// Update all anonymous metas
+	foreach ( $r as $anon_key => $anon_value ) {
+		update_post_meta( $post_id, '_' . $anon_key, (string) $anon_value, false );
+	}
 }
 
 /**
@@ -490,23 +568,34 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 		'post_parent'    => 0,
 		'post_content'   => '',
 		'post_status'    => bbp_get_trash_status_id(),
-		'anonymous_data' => false
+		'anonymous_data' => array()
 	), 'check_for_duplicate' );
 
 	// Get the DB
 	$bbp_db = bbp_db();
 
+	// Default clauses
+	$join = $where = '';
+
 	// Check for anonymous post
 	if ( empty( $r['post_author'] ) && ( ! empty( $r['anonymous_data'] ) && ! empty( $r['anonymous_data']['bbp_anonymous_email'] ) ) ) {
-		$clauses = get_meta_sql( array( array(
-			'key'   => '_bbp_anonymous_email',
-			'value' => $r['anonymous_data']['bbp_anonymous_email']
-		) ), 'post', $bbp_db->posts, 'ID' );
 
-		$join    = $clauses['join'];
-		$where   = $clauses['where'];
-	} else {
-		$join    = $where = '';
+		// Sanitize the email address for querying
+		$email = sanitize_email( $r['anonymous_data']['bbp_anonymous_email'] );
+
+		// Only proceed
+		if ( ! empty( $email ) && is_email( $email ) ) {
+
+			// Get the meta SQL
+			$clauses = get_meta_sql( array( array(
+				'key'   => '_bbp_anonymous_email',
+				'value' => $email,
+			) ), 'post', $bbp_db->posts, 'ID' );
+
+			// Set clauses
+			$join  = $clauses['join'];
+			$where = $clauses['where'];
+		}
 	}
 
 	// Unslash $r to pass through DB->prepare()
@@ -537,12 +626,9 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param false|array $anonymous_data Optional - if it's an anonymous post. Do
- *                                     not supply if supplying $author_id.
- *                                     Should have key 'bbp_author_ip'.
- *                                     Should be sanitized (see
- *                                     {@link bbp_filter_anonymous_post_data()}
- *                                     for sanitization)
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Optional. Supply if it's a post by a logged in user.
  *                        Do not supply if supplying $anonymous_data.
  * @uses get_option() To get the throttle time
@@ -551,7 +637,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  * @uses current_user_can() To check if the current user can throttle
  * @return bool True if there is no flooding, false if there is
  */
-function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
+function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 
 	// Option disabled. No flood checks.
 	$throttle_time = get_option( '_bbp_throttle_time' );
@@ -560,7 +646,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 	}
 
 	// User is anonymous, so check a transient based on the IP
-	if ( ! empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+	if ( ! empty( $anonymous_data ) ) {
 		$last_posted = get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' );
 
 		if ( ! empty( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) ) {
@@ -572,7 +658,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 		$author_id   = (int) $author_id;
 		$last_posted = bbp_get_user_last_posted( $author_id );
 
-		if ( isset( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) && ! user_can( $author_id, 'throttle' ) ) {
+		if ( ! empty( $last_posted ) && ( time() < ( $last_posted + $throttle_time ) ) && ! user_can( $author_id, 'throttle' ) ) {
 			return false;
 		}
 	} else {
@@ -587,7 +673,9 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3581)
  *
- * @param array $anonymous_data Anonymous user data
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
@@ -596,7 +684,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  * @uses bbp_current_author_ua() To get current user agent
  * @return bool True if test is passed, false if fail
  */
-function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
+function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
 
 	// Allow for moderation check to be skipped
 	if ( apply_filters( 'bbp_bypass_check_for_moderation', false, $anonymous_data, $author_id, $title, $content ) ) {
@@ -723,7 +811,9 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
  *
  * @since 2.0.0 bbPress (r3446)
  *
- * @param array $anonymous_data Anonymous user data
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
@@ -732,7 +822,7 @@ function bbp_check_for_moderation( $anonymous_data = false, $author_id = 0, $tit
  * @uses bbp_current_author_ua() To get current user agent
  * @return bool True if test is passed, false if fail
  */
-function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
+function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
 
 	// Allow for blacklist check to be skipped
 	if ( apply_filters( 'bbp_bypass_check_for_blacklist', false, $anonymous_data, $author_id, $title, $content ) ) {
@@ -877,7 +967,9 @@ function bbp_get_do_not_reply_address() {
  * @param int $reply_id ID of the newly made reply
  * @param int $topic_id ID of the topic of the reply
  * @param int $forum_id ID of the forum of the reply
- * @param mixed $anonymous_data Array of anonymous user data
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $reply_author ID of the topic author ID
  *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
@@ -904,7 +996,7 @@ function bbp_get_do_not_reply_address() {
  *                    topic id and user id
  * @return bool True on success, false on failure
  */
-function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 
 	// Bail if subscriptions are turned off
 	if ( ! bbp_is_subscriptions_active() ) {
@@ -1047,7 +1139,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  *
  * @param int $topic_id ID of the newly made reply
  * @param int $forum_id ID of the forum for the topic
- * @param mixed $anonymous_data Array of anonymous user data
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $topic_author ID of the topic author ID
  *
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
@@ -1069,7 +1163,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  *                    id, forum id and user id
  * @return bool True on success, false on failure
  */
-function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $topic_author = 0 ) {
+function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
 
 	// Bail if subscriptions are turned off
 	if ( ! bbp_is_subscriptions_active() ) {
@@ -1207,12 +1301,14 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  * @param int $reply_id ID of the newly made reply
  * @param int $topic_id ID of the topic of the reply
  * @param int $forum_id ID of the forum of the reply
- * @param mixed $anonymous_data Array of anonymous user data
+ * @param array $anonymous_data Optional - if it's an anonymous post. Do not
+ *                              supply if supplying $author_id. Should be
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $reply_author ID of the topic author ID
  *
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
+function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 }
 
