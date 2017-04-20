@@ -810,16 +810,15 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 		$author_id = bbp_get_current_user_id();
 	}
 
-	// Check forum_id
-	if ( empty( $forum_id ) ) {
-		$forum_id = bbp_get_topic_forum_id( $topic_id );
-	}
+	// Forum/Topic meta (early, for use in downstream functions)
+	bbp_update_topic_forum_id( $topic_id, $forum_id );
+	bbp_update_topic_topic_id( $topic_id, $topic_id );
 
 	// Get the topic types
 	$topic_types = bbp_get_topic_types( $topic_id );
 
 	// Sticky check after 'bbp_new_topic' action so forum ID meta is set
-	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ) ) ) {
+	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ), true ) ) {
 
 		// What's the caps?
 		if ( current_user_can( 'moderate', $topic_id ) ) {
@@ -865,7 +864,9 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 	// Handle Subscription Checkbox
 	if ( bbp_is_subscriptions_active() && ! empty( $author_id ) ) {
 		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
-		$subscheck  = ( ! empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' === $_POST['bbp_topic_subscription'] ) ) ? true : false;
+		$subscheck  = ( ! empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' === $_POST['bbp_topic_subscription'] ) )
+			? true
+			: false;
 
 		// Subscribed and unsubscribing
 		if ( true === $subscribed && false === $subscheck ) {
@@ -876,10 +877,6 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 			bbp_add_user_subscription( $author_id, $topic_id );
 		}
 	}
-
-	// Forum topic meta
-	bbp_update_topic_forum_id( $topic_id, $forum_id );
-	bbp_update_topic_topic_id( $topic_id, $topic_id );
 
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
@@ -2080,10 +2077,19 @@ function bbp_get_topic_toggles( $topic_id = 0 ) {
  * @return array IDs of sticky topics of a forum or super stickies
  */
 function bbp_get_stickies( $forum_id = 0 ) {
-	$stickies = empty( $forum_id ) ? bbp_get_super_stickies() : get_post_meta( $forum_id, '_bbp_sticky_topics', true );
-	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) ) ? array() : $stickies;
 
-	return apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
+	// Get stickies (maybe super if empty)
+	$stickies = empty( $forum_id )
+		? bbp_get_super_stickies()
+		: get_post_meta( $forum_id, '_bbp_sticky_topics', true );
+
+	// Cast as array
+	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
+		? array()
+		: $stickies;
+
+	// Filter and return
+	return (array) apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
 }
 
 /**
@@ -2096,10 +2102,17 @@ function bbp_get_stickies( $forum_id = 0 ) {
  * @return array IDs of super sticky topics
  */
 function bbp_get_super_stickies() {
-	$stickies = get_option( '_bbp_super_sticky_topics', array() );
-	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) ) ? array() : $stickies;
 
-	return apply_filters( 'bbp_get_super_stickies', $stickies );
+	// Get super stickies
+	$stickies = get_option( '_bbp_super_sticky_topics', array() );
+
+	// Cast as array
+	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
+		? array()
+		: $stickies;
+
+	// Filter and return
+	return (array) apply_filters( 'bbp_get_super_stickies', $stickies );
 }
 
 /** Topics Actions ************************************************************/
