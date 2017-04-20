@@ -175,13 +175,7 @@ function bbp_has_topics( $args = array() ) {
 	if ( bbp_get_view_all( 'edit_others_topics' ) ) {
 
 		// Default view=all statuses
-		$post_statuses = array(
-			bbp_get_public_status_id(),
-			bbp_get_closed_status_id(),
-			bbp_get_spam_status_id(),
-			bbp_get_trash_status_id(),
-			bbp_get_pending_status_id()
-		);
+		$post_statuses = array_keys( bbp_get_topic_statuses() );
 
 		// Add support for private status
 		if ( current_user_can( 'read_private_topics' ) ) {
@@ -226,116 +220,8 @@ function bbp_has_topics( $args = array() ) {
 	/** Stickies **************************************************************/
 
 	// Put sticky posts at the top of the posts array
-	if ( ! empty( $r['show_stickies'] ) && $r['paged'] <= 1 ) {
-
-		// Get super stickies and stickies in this forum
-		$stickies = bbp_get_super_stickies();
-
-		// Get stickies for current forum
-		if ( ! empty( $r['post_parent'] ) ) {
-			$stickies = array_merge( $stickies, bbp_get_stickies( $r['post_parent'] ) );
-		}
-
-		// Remove any duplicate stickies
-		$stickies = array_unique( $stickies );
-
-		// We have stickies
-		if ( is_array( $stickies ) && ! empty( $stickies ) ) {
-
-			// Start the offset at -1 so first sticky is at correct 0 offset
-			$sticky_offset = -1;
-
-			// Loop over topics and relocate stickies to the front.
-			foreach ( $stickies as $sticky_index => $sticky_ID ) {
-
-				// Get the post offset from the posts array
-				$post_offsets = wp_filter_object_list( $bbp->topic_query->posts, array( 'ID' => $sticky_ID ), 'OR', 'ID' );
-
-				// Continue if no post offsets
-				if ( empty( $post_offsets ) ) {
-					continue;
-				}
-
-				// Loop over posts in current query and splice them into position
-				foreach ( array_keys( $post_offsets ) as $post_offset ) {
-					$sticky_offset++;
-
-					$sticky = $bbp->topic_query->posts[ $post_offset ];
-
-					// Remove sticky from current position
-					array_splice( $bbp->topic_query->posts, $post_offset, 1 );
-
-					// Move to front, after other stickies
-					array_splice( $bbp->topic_query->posts, $sticky_offset, 0, array( $sticky ) );
-
-					// Cleanup
-					unset( $stickies[ $sticky_index ] );
-					unset( $sticky );
-				}
-
-				// Cleanup
-				unset( $post_offsets );
-			}
-
-			// Cleanup
-			unset( $sticky_offset );
-
-			// If any posts have been excluded specifically, Ignore those that are sticky.
-			if ( ! empty( $stickies ) && ! empty( $r['post__not_in'] ) ) {
-				$stickies = array_diff( $stickies, $r['post__not_in'] );
-			}
-
-			// Fetch sticky posts that weren't in the query results
-			if ( ! empty( $stickies ) ) {
-
-				// Query to use in get_posts to get sticky posts
-				$sticky_query = array(
-					'post_type'   => bbp_get_topic_post_type(),
-					'post_parent' => 'any',
-					'meta_key'    => '_bbp_last_active_time',
-					'meta_type'   => 'DATETIME',
-					'orderby'     => 'meta_value',
-					'order'       => 'DESC',
-					'include'     => $stickies
-				);
-
-				// Cleanup
-				unset( $stickies );
-
-				// Conditionally exclude private/hidden forum ID's
-				$exclude_forum_ids = bbp_exclude_forum_ids( 'array' );
-				if ( ! empty( $exclude_forum_ids ) ) {
-					$sticky_query['post_parent__not_in'] = $exclude_forum_ids;
-				}
-
-				// What are the default allowed statuses (based on user caps)
-				if ( bbp_get_view_all( 'edit_others_topics' ) ) {
-					$sticky_query['post_status'] = $r['post_status'];
-
-				// Lean on the 'perm' query var value of 'readable' to provide statuses
-				} else {
-					$sticky_query['post_status'] = $r['perm'];
-				}
-
-				// Get all stickies
-				$sticky_posts = get_posts( $sticky_query );
-				if ( ! empty( $sticky_posts ) ) {
-
-					// Get a count of the visible stickies
-					$sticky_count = count( $sticky_posts );
-
-					// Merge the stickies topics with the query topics .
-					$bbp->topic_query->posts       = array_merge( $sticky_posts, $bbp->topic_query->posts );
-
-					// Adjust loop and counts for new sticky positions
-					$bbp->topic_query->found_posts = (int) $bbp->topic_query->found_posts + (int) $sticky_count;
-					$bbp->topic_query->post_count  = (int) $bbp->topic_query->post_count  + (int) $sticky_count;
-
-					// Cleanup
-					unset( $sticky_posts );
-				}
-			}
-		}
+	if ( ! empty( $r['show_stickies'] ) && ( $r['paged'] <= 1 ) ) {
+		bbp_add_sticky_topics( $bbp->topic_query, $r );
 	}
 
 	// If no limit to posts per page, set it to the current post_count
@@ -344,78 +230,27 @@ function bbp_has_topics( $args = array() ) {
 	}
 
 	// Add pagination values to query object
-	$bbp->topic_query->posts_per_page = $r['posts_per_page'];
-	$bbp->topic_query->paged          = $r['paged'];
+	$bbp->topic_query->posts_per_page = (int) $r['posts_per_page'];
+	$bbp->topic_query->paged          = (int) $r['paged'];
 
 	// Only add pagination if query returned results
 	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
 		// Limit the number of topics shown based on maximum allowed pages
-		if ( ( ! empty( $r['max_num_pages'] ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count ) {
+		if ( ( ! empty( $r['max_num_pages'] ) ) && ( $bbp->topic_query->found_posts > ( $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count ) ) ) {
 			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
 		}
 
-		// If pretty permalinks are enabled, make our pagination pretty
-		if ( bbp_use_pretty_urls() ) {
-
-			// User's topics
-			if ( bbp_is_single_user_topics() ) {
-				$base = bbp_get_user_topics_created_url( bbp_get_displayed_user_id() );
-
-			// User's engagements
-			} elseif ( bbp_is_single_user_engagements() ) {
-				$base = bbp_get_user_engagements_url( bbp_get_displayed_user_id() );
-
-			// User's favorites
-			} elseif ( bbp_is_favorites() ) {
-				$base = bbp_get_favorites_permalink( bbp_get_displayed_user_id() );
-
-			// User's subscriptions
-			} elseif ( bbp_is_subscriptions() ) {
-				$base = bbp_get_subscriptions_permalink( bbp_get_displayed_user_id() );
-
-			// Root profile page
-			} elseif ( bbp_is_single_user() ) {
-				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
-
-			// View
-			} elseif ( bbp_is_single_view() ) {
-				$base = bbp_get_view_url();
-
-			// Topic tag
-			} elseif ( bbp_is_topic_tag() ) {
-				$base = bbp_get_topic_tag_link();
-
-			// Page or single post
-			} elseif ( is_page() || is_single() ) {
-				$base = get_permalink();
-
-			// Forum archive
-			} elseif ( bbp_is_forum_archive() ) {
-				$base = bbp_get_forums_url();
-
-			// Topic archive
-			} elseif ( bbp_is_topic_archive() ) {
-				$base = bbp_get_topics_url();
-
-			// Default
-			} else {
-				$base = get_permalink( (int) $r['post_parent'] );
-			}
-
-			// Use pagination base
-			$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
-
-		// Unpretty pagination
-		} else {
-			$base = add_query_arg( 'paged', '%#%' );
-		}
+		// Total topics for pagination boundaries
+		$total = ( $r['posts_per_page'] === $bbp->topic_query->found_posts )
+			? 1
+			: ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] );
 
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array(
-			'base'      => $base,
+			'base'      => bbp_get_topics_pagination_base( $r['post_parent'] ),
 			'format'    => '',
-			'total'     => $r['posts_per_page'] === $bbp->topic_query->found_posts ? 1 : ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] ),
+			'total'     => (int) $total,
 			'current'   => (int) $bbp->topic_query->paged,
 			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
 			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
@@ -464,6 +299,142 @@ function bbp_topics() {
  */
 function bbp_the_topic() {
 	return bbpress()->topic_query->the_post();
+}
+
+/**
+ * Add sticky topics to a topics query object
+ *
+ * @since 2.6.0 bbPress (r6402)
+ *
+ * @param WP_Query $query
+ * @param array    $args
+ */
+function bbp_add_sticky_topics( &$query, $args = array() ) {
+
+	// Bail if overloaded
+	if ( null !== apply_filters( 'bbp_pre_add_stick_topics', null, $query, $args ) ) {
+		return;
+	}
+
+	// Parse arguments against what gets used locally
+	$r = bbp_parse_args( $args, array(
+		'post_parent'         => 0,
+		'post_parent__not_in' => array(),
+		'post__not_in'        => array(),
+		'post_status'         => '',
+		'perm'                => ''
+	), 'add_sticky_topics' );
+
+	// Get super stickies and stickies in this forum
+	$super_stickies = bbp_get_super_stickies();
+	$forum_stickies = ! empty( $r['post_parent'] )
+		? bbp_get_stickies( $r['post_parent'] )
+		: array();
+
+	// Merge stickies (supers first) and remove duplicates
+	$stickies = array_filter( array_unique( array_merge( $super_stickies, $forum_stickies ) ) );
+
+	// Bail if no stickies
+	if ( empty( $stickies ) ) {
+		return;
+	}
+
+	// If any posts have been excluded specifically, Ignore those that are sticky.
+	if ( ! empty( $r['post__not_in'] ) ) {
+		$stickies = array_diff( $stickies, $r['post__not_in'] );
+	}
+
+	// Default sticky posts array
+	$sticky_topics = array();
+
+	// Loop through posts
+	foreach ( $query->posts as $key => $post ) {
+
+		// Looking for stickies in this query loop, and stash & unset them
+		if ( in_array( $post->ID, $stickies, true ) ) {
+			$sticky_topics[] = $post;
+			unset( $query->posts[ $key ] );
+		}
+	}
+
+	// Remove queried stickies from stickies array
+	if ( ! empty( $sticky_topics ) ) {
+		$stickies = array_diff( $stickies, wp_list_pluck( $sticky_topics, 'ID' ) );
+	}
+
+	// Fetch all stickies that were not in the query
+	if ( ! empty( $stickies ) ) {
+
+		// Query to use in get_posts to get sticky posts
+		$sticky_query = array(
+			'post_type'   => bbp_get_topic_post_type(),
+			'post_parent' => 'any',
+			'meta_key'    => '_bbp_last_active_time',
+			'meta_type'   => 'DATETIME',
+			'orderby'     => 'meta_value',
+			'order'       => 'DESC',
+			'include'     => $stickies
+		);
+
+		// Conditionally exclude private/hidden forum ID's
+		$exclude_forum_ids = bbp_exclude_forum_ids( 'array' );
+
+		// Maybe remove the current forum from excluded forum IDs
+		if ( ! empty( $r['post_parent' ] ) ) {
+			unset( $exclude_forum_ids[ $r['post_parent' ] ] );
+		}
+
+		// Maybe exclude specific forums
+		if ( ! empty( $exclude_forum_ids ) ) {
+			$sticky_query['post_parent__not_in'] = $exclude_forum_ids;
+		}
+
+		// Allowed statuses, or lean on the 'perm' argument (probably 'readable')
+		$sticky_query['post_status'] = bbp_get_view_all( 'edit_others_topics' )
+			? $r['post_status']
+			: $r['perm'];
+
+		// Get unqueried stickies
+		$_posts = get_posts( $sticky_query );
+		if ( ! empty( $_posts ) ) {
+
+			// Merge the stickies topics with the query topics .
+			$sticky_topics = array_merge( $sticky_topics, $_posts );
+
+			// Get a count of the visible stickies
+			$sticky_count = count( $_posts );
+
+			// Adjust loop and counts for new sticky positions
+			$query->found_posts = (int) $query->found_posts + (int) $sticky_count;
+			$query->post_count  = (int) $query->post_count  + (int) $sticky_count;
+		}
+	}
+
+	// Bail if no sticky topics empty or not an array
+	if ( empty( $sticky_topics ) || ! is_array( $sticky_topics ) ) {
+		return;
+	}
+
+	// Default ordered stickies array
+	$ordered_stickies = array(
+		'supers' => array(),
+		'forums' => array()
+	);
+
+	// Separate supers from forums
+	foreach ( $sticky_topics as $post ) {
+		if ( in_array( $post->ID, $super_stickies, true ) ) {
+			$ordered_stickies['supers'][] = $post;
+		} elseif ( in_array( $post->ID, $forum_stickies, true ) ) {
+			$ordered_stickies['forums'][] = $post;
+		}
+	}
+
+	// Merge supers and forums, supers first
+	$sticky_topics = array_merge( $ordered_stickies['supers'], $ordered_stickies['forums'] );
+
+	// Update queried posts
+	$query->posts = array_merge( $sticky_topics, array_values( $query->posts ) );
 }
 
 /**
@@ -3183,6 +3154,75 @@ function bbp_topic_reply_link( $args = array() ) {
 	}
 
 /** Topic Pagination **********************************************************/
+
+/**
+ * Return the base URL used inside of pagination links
+ *
+ * @since 2.6.0 bbPress (r6402)
+ *
+ * @param int $forum_id
+ * @return string
+ */
+function bbp_get_topics_pagination_base( $forum_id = 0 ) {
+
+	// If pretty permalinks are enabled, make our pagination pretty
+	if ( bbp_use_pretty_urls() ) {
+
+		// User's topics
+		if ( bbp_is_single_user_topics() ) {
+			$base = bbp_get_user_topics_created_url( bbp_get_displayed_user_id() );
+
+		// User's engagements
+		} elseif ( bbp_is_single_user_engagements() ) {
+			$base = bbp_get_user_engagements_url( bbp_get_displayed_user_id() );
+
+		// User's favorites
+		} elseif ( bbp_is_favorites() ) {
+			$base = bbp_get_favorites_permalink( bbp_get_displayed_user_id() );
+
+		// User's subscriptions
+		} elseif ( bbp_is_subscriptions() ) {
+			$base = bbp_get_subscriptions_permalink( bbp_get_displayed_user_id() );
+
+		// Root profile page
+		} elseif ( bbp_is_single_user() ) {
+			$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
+
+		// View
+		} elseif ( bbp_is_single_view() ) {
+			$base = bbp_get_view_url();
+
+		// Topic tag
+		} elseif ( bbp_is_topic_tag() ) {
+			$base = bbp_get_topic_tag_link();
+
+		// Page or single post
+		} elseif ( is_page() || is_single() ) {
+			$base = get_permalink();
+
+		// Forum archive
+		} elseif ( bbp_is_forum_archive() ) {
+			$base = bbp_get_forums_url();
+
+		// Topic archive
+		} elseif ( bbp_is_topic_archive() ) {
+			$base = bbp_get_topics_url();
+
+		// Default
+		} else {
+			$base = get_permalink( $forum_id );
+		}
+
+		// Use pagination base
+		$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+
+	// Unpretty pagination
+	} else {
+		$base = add_query_arg( 'paged', '%#%' );
+	}
+
+	return apply_filters( 'bbp_get_topics_pagination_base', $base );
+}
 
 /**
  * Output the pagination count
