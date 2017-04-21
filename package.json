@@ -22,11 +22,12 @@
     "grunt-postcss": "~0.8.0",
     "grunt-rtlcss": "~2.0.1",
     "grunt-sass": "~2.0.0",
-    "grunt-stylelint": "~0.6.0",
+    "grunt-stylelint": "~0.7.0",
     "grunt-wp-i18n": "~0.5.2",
     "matchdep": "~1.0.1",
     "postcss-scss": "~0.4.0",
-    "stylelint": "~7.7.1"
+    "stylelint": "^7.10.1",
+    "stylelint-config-wordpress": "^10.0.1"
   },
   "engines": {
     "node": ">=4.2.1"
