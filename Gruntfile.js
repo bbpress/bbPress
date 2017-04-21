@@ -47,7 +47,7 @@ module.exports = function( grunt ) {
 
 		// PostCSS
 		autoprefixer = require('autoprefixer'),
-		configCss    = require('stylelint-config-wordpress/index.js');
+		configCss    = require('stylelint-config-wordpress/index.js'),
 		configScss   = require('stylelint-config-wordpress/scss.js');
 
 	// Load tasks.
