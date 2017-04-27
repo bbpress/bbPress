@@ -196,7 +196,6 @@ function bbp_current_author_ua() {
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type
  *
- * @uses bbp_is_object_of_user() To check if the term has already been set
  * @uses add_post_meta() To set the term on the object
  * @uses apply_filters() Calls 'bbp_add_user_to_object' with the object id, user
  *                        id, and taxonomy
@@ -219,7 +218,6 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type
  *
- * @uses bbp_is_object_of_user() To check if the term is set
  * @uses delete_post_meta() To remove the term from the object
  * @uses apply_filters() Calls 'bbp_remove_user_from_object' with the object
  *                        id, user id, and taxonomy

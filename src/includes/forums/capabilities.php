@@ -238,32 +238,22 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  * @param int $forum_id Forum id.
  * @uses bbp_get_user_id()
  * @uses bbp_get_forum_id()
- * @uses bbp_get_moderator_forum_ids()
+ * @uses bbp_is_object_of_user()
  * @uses apply_filters() Calls 'bbp_is_user_forum_moderator' with the forums
  *
  * @return bool Return true if user is moderator of forum
  */
 function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 
-	// Assume user cannot moderate the forum.
-	$retval    = false;
-
 	// Validate user ID - fallback to current user if no ID passed.
-	$user_id   = bbp_get_user_id( $user_id, false, ! empty( $user_id ) );
-	$forum_id  = bbp_get_forum_id( $forum_id );
-	$forum_ids = array();
+	$user_id  = bbp_get_user_id( $user_id, false, ! empty( $user_id ) );
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Only check if per-forum moderation is enabled
-	if ( bbp_allow_forum_mods() ) {
+	// Check if per-forum moderation is enabled, or assume false
+	$retval = bbp_allow_forum_mods()
+		? bbp_is_object_of_user( $forum_id, $user_id, '_bbp_moderator_id' )
+		: false;
 
-		// Get users who can moderate this forum.
-		$user_ids = bbp_get_moderator_ids( $forum_id );
-
-		// Is this user ID in the users array?
-		if ( ! empty( $user_ids ) ) {
-			$retval = in_array( $user_id, $user_ids, true );
-		}
-	}
-
-	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id, $forum_ids );
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id );
 }
