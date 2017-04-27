@@ -256,12 +256,12 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 	// Only check if per-forum moderation is enabled
 	if ( bbp_allow_forum_mods() ) {
 
-		// Get forums the user can moderate.
-		$forum_ids = bbp_get_moderator_forum_ids( $user_id );
+		// Get users who can moderate this forum.
+		$user_ids = bbp_get_moderator_ids( $forum_id );
 
-		// Is this forum ID in the users array of forum IDs?
-		if ( ! empty( $forum_ids ) ) {
-			$retval = in_array( $forum_id, $forum_ids );
+		// Is this user ID in the users array?
+		if ( ! empty( $user_ids ) ) {
+			$retval = in_array( $user_id, $user_ids, true );
 		}
 	}
 
