@@ -136,7 +136,7 @@ body.reply-edit .reply {
 
 #bbpress-forums li.bbp-footer p {
 	margin: 0;
-	line-height: 1em;
+	line-height: 1;
 }
 
 li.bbp-forum-info,
@@ -180,7 +180,7 @@ li.bbp-topic-freshness {
 	background: none;
 	border: none;
 	font-size: 16px;
-	line-height: 1em;
+	line-height: 1;
 	margin: 8px 0;
 	padding: 0;
 	text-transform: none;
@@ -334,7 +334,7 @@ span.bbp-author-ip {
 #bbpress-forums div.bbp-topic-content h6,
 #bbpress-forums div.bbp-reply-content h6 {
 	clear: none;
-	line-height: 1em;
+	line-height: 1;
 	margin: 24px 0;
 	padding: 0;
 }
@@ -771,14 +771,14 @@ p.form-allowed-tags {
 	padding: 0;
 	margin: 0;
 	width: auto;
-	line-height: 1em;
+	line-height: 1;
 }
 
 #bbpress-forums div.bbp-the-content-wrapper input {
 	font-size: 12px;
 	padding: 5px;
 	margin: 0 2px 0 0;
-	line-height: 1em;
+	line-height: 1;
 }
 
 #bbpress-forums div.bbp-the-content-wrapper div.quicktags-toolbar {
@@ -955,7 +955,7 @@ div.bbp-template-notice li {
 	margin: 0.5em 0 6px !important;
 	padding: 2px;
 	font-size: 12px;
-	line-height: 140%;
+	line-height: 1.4;
 }
 
 /* =Stickies
@@ -1081,7 +1081,7 @@ fieldset div.avatar {
 #bbpress-forums h1 {
 	clear: none;
 	font-size: 1.8em;
-	line-height: 1em;
+	line-height: 1;
 	padding-bottom: 10px;
 }
 
