@@ -8,7 +8,8 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
-.entry-content .bbpress-wrapper a {
+.entry-content .bbpress-wrapper a,
+.entry-content .bbpress-wrapper a:hover {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 }
@@ -1049,6 +1050,11 @@ div.bbp-template-notice li {
 
 /* =Avatars
 -------------------------------------------------------------- */
+
+#bbpress-forums img.avatar {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
 
 #bbpress-forums p.bbp-topic-meta img.avatar,
 #bbpress-forums ul.bbp-reply-revision-log img.avatar,
