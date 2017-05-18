@@ -1433,6 +1433,8 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
  *
  * @since bbPress (r2996)
  *
+ * @deprecated bbPress (r5820)
+ *
  * @global DB $wpdb
  * @global WP $wp
  * @param string $where
