@@ -94,7 +94,7 @@ class BBP_Users_Admin {
 			unset( $dynamic_roles[ bbp_get_keymaster_role() ] );
 		} ?>
 
-		<h3><?php esc_html_e( 'Forums', 'bbpress' ); ?></h3>
+		<h2><?php esc_html_e( 'Forums', 'bbpress' ); ?></h2>
 
 		<table class="form-table">
 			<tbody>
