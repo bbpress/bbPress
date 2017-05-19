@@ -80,7 +80,7 @@ var $pat_main;
 var $pat_comment;
 var $pat_comment2;
 var $pat_wiki;
-function BBCodeLexer($string, $tagmarker = '[') {
+function __construct($string, $tagmarker = '[') {
 $regex_beginmarkers = Array( '[' => '\[', '<' => '<', '{' => '\{', '(' => '\(' );
 $regex_endmarkers = Array( '[' => '\]', '<' => '>', '{' => '\}', '(' => '\)' );
 $endmarkers = Array( '[' => ']', '<' => '>', '{' => '}', '(' => ')' );
@@ -113,6 +113,9 @@ $this->verbatim = false;
 $this->token = BBCODE_EOI;
 $this->tag = false;
 $this->text = "";
+}
+function BBCodeLexer($string, $tagmarker = '[') {
+$this->__construct($string, $tagmarker);
 }
 function GuessTextLength() {
 $length = 0;
@@ -1146,11 +1149,17 @@ return preg_replace("/\\x0A|\\x0D|\\x0A\\x0D|\\x0D\\x0A/", "<br />\n", $string);
 function UnHTMLEncode($string) {
 if (function_exists("html_entity_decode"))
 return html_entity_decode($string);
-$string = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $string);
-$string = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $string);
+$string = preg_replace_callback('~&#x([0-9a-f]+);~i', array( $this, '_UnHTMLEncode_chr_callback'), $string);
+$string = preg_replace_callback('~&#([0-9]+);~', array($this, '_UnHTMLEncode_chr_hexdec_callback'), $string); 
 $trans_tbl = get_html_translation_table(HTML_ENTITIES);
 $trans_tbl = array_flip($trans_tbl);
 return strtr($string, $trans_tbl);
+}
+function _UnHTMLEncode_chr_callback($match) {
+return chr(hexdec($match[1]));
+}
+function _UnHTMLEncode_chr_hexdec_callback($match) {
+return chr(hexdec($match[1]));
 }
 function Wikify($string) {
 return rawurlencode(str_replace(" ", "_",
@@ -1383,7 +1392,7 @@ if (isset($insert_array[$matches[1]]))
 $value = @$insert_array[$matches[1]];
 else $value = @$default_array[$matches[1]];
 if (strlen(@$matches[2])) {
-foreach (split(".", substr($matches[2], 1)) as $index) {
+foreach (explode(".", substr($matches[2], 1)) as $index) { 
 if (is_array($value))
 $value = @$value[$index];
 else if (is_object($value)) {
