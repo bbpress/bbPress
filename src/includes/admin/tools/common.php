@@ -190,7 +190,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 
 	foreach ( $plucked as $components ) {
 		foreach ( $components as $component ) {
-			if ( in_array( $component, $retval ) ) {
+			if ( in_array( $component, $retval, true ) ) {
 				continue;
 			}
 			$retval[] = $component;
@@ -353,7 +353,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 
 		// Component filter
 		if ( ! empty( $component ) ) {
-			if ( ! in_array( $component, $tool['components'] ) ) {
+			if ( ! in_array( $component, $tool['components'], true ) ) {
 				continue;
 			}
 		}

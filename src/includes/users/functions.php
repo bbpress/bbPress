@@ -674,7 +674,7 @@ function bbp_favorites_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions, true ) ) {
 		return;
 	}
 
@@ -1333,7 +1333,7 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions, true ) ) {
 		return;
 	}
 
@@ -1440,7 +1440,7 @@ function bbp_subscriptions_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions, true ) ) {
 		return;
 	}
 
@@ -2320,7 +2320,7 @@ function bbp_forum_enforce_blocked() {
 function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context = 'display' ) {
 
 	// Bail if not editing or displaying (maybe we'll do more here later)
-	if ( ! in_array( $context, array( 'edit', 'display' ) ) ) {
+	if ( ! in_array( $context, array( 'edit', 'display' ), true ) ) {
 		return $value;
 	}
 

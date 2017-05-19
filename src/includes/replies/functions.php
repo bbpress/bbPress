@@ -1212,7 +1212,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 				$grampy_id = bbp_get_reply_to( $ancestor->ID );
 
 				// Loop detection: If the ancestor has been seen before, break.
-				if ( empty( $ancestor->post_parent ) || ( $grampy_id === $reply_id ) || in_array( $grampy_id, $ancestors ) ) {
+				if ( empty( $ancestor->post_parent ) || ( $grampy_id === $reply_id ) || in_array( $grampy_id, $ancestors, true ) ) {
 					break;
 				}
 
@@ -1351,7 +1351,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	}
 
 	// Invalid move option
-	if ( empty( $move_option ) || ! in_array( $move_option, array( 'existing', 'topic' ) ) ) {
+	if ( empty( $move_option ) || ! in_array( $move_option, array( 'existing', 'topic' ), true ) ) {
 		bbp_add_error( 'bbp_move_reply_option', __( '<strong>ERROR</strong>: You need to choose a valid move option.', 'bbpress' ) );
 
 	// Valid move option

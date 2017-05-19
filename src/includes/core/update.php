@@ -67,7 +67,7 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Bail if not activating
-	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected' ) ) ) {
+	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected', true ) ) ) {
 		return false;
 	}
 
@@ -89,7 +89,7 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Is bbPress being activated?
-	return in_array( $basename, $plugins );
+	return in_array( $basename, $plugins, true );
 }
 
 /**
@@ -117,7 +117,7 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// Bail if not deactivating
-	if ( empty( $action ) || ! in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) ) {
+	if ( empty( $action ) || ! in_array( $action, array( 'deactivate', 'deactivate-selected' ), true ) ) {
 		return false;
 	}
 
@@ -139,7 +139,7 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// Is bbPress being deactivated?
-	return in_array( $basename, $plugins );
+	return in_array( $basename, $plugins, true );
 }
 
 /**

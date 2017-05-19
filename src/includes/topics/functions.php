@@ -295,7 +295,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		$topic_status = bbp_get_pending_status_id();
 
 	// Check a whitelist of possible topic status ID's
-	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ) ) ) {
+	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ), true ) ) {
 		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
 
 	// Default to published if nothing else
@@ -614,7 +614,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		}
 
 	// Check a whitelist of possible topic status ID's
-	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ) ) ) {
+	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ), true ) ) {
 		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
 
 	// Use existing post_status
@@ -1121,7 +1121,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	/** New forum_id **********************************************************/
 
 	// Make sure we're not walking twice
-	if ( ! in_array( $new_forum_id, $old_forum_ancestors ) ) {
+	if ( ! in_array( $new_forum_id, $old_forum_ancestors, true ) ) {
 
 		// Get topic ancestors
 		$new_forum_ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), (array) get_post_ancestors( $new_forum_id ) ) ) );
@@ -1532,7 +1532,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	}
 
 	// Invalid split option
-	if ( empty( $split_option ) || ! in_array( $split_option, array( 'existing', 'reply' ) ) ) {
+	if ( empty( $split_option ) || ! in_array( $split_option, array( 'existing', 'reply' ), true ) ) {
 		bbp_add_error( 'bbp_split_topic_option', __( '<strong>ERROR</strong>: You need to choose a valid split option.', 'bbpress' ) );
 
 	// Valid Split Option
@@ -1724,7 +1724,7 @@ function bbp_split_topic_handler( $action = '' ) {
 			$reply_to = bbp_get_reply_to( $reply->ID );
 
 			// Not a reply to a reply that moved over
-			if ( ! in_array( $reply_to, $reply_ids ) ) {
+			if ( ! in_array( $reply_to, $reply_ids, true ) ) {
 				bbp_update_reply_to( $reply->ID, 0 );
 			}
 
@@ -1851,7 +1851,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 	);
 
 	// Bail if actions aren't meant for this function
-	if ( ! in_array( $action, $possible_actions ) ) {
+	if ( ! in_array( $action, $possible_actions, true ) ) {
 		return;
 	}
 
@@ -2086,7 +2086,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
 	// Cast as array
 	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
 		? array()
-		: $stickies;
+		: wp_parse_id_list( $stickies );
 
 	// Filter and return
 	return (array) apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
@@ -2109,7 +2109,7 @@ function bbp_get_super_stickies() {
 	// Cast as array
 	$stickies = ( empty( $stickies ) || ! is_array( $stickies ) )
 		? array()
-		: $stickies;
+		: wp_parse_id_list( $stickies );
 
 	// Filter and return
 	return (array) apply_filters( 'bbp_get_super_stickies', $stickies );
@@ -3653,7 +3653,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 
 	if ( empty( $stickies ) ) {
 		$success = true;
-	} elseif ( ! in_array( $topic_id, $stickies ) ) {
+	} elseif ( ! in_array( $topic_id, $stickies, true ) ) {
 		$success = true;
 	} elseif ( false === $offset ) {
 		$success = true;

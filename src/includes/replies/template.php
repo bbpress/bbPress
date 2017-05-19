@@ -1936,7 +1936,7 @@ function bbp_reply_admin_links( $args = array() ) {
 
 		// See if links need to be unset
 		$reply_status = bbp_get_reply_status( $r['id'] );
-		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id() ) ) ) {
+		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id() ), true ) ) {
 
 			// Spam link shouldn't be visible on trashed topics
 			if ( bbp_get_trash_status_id() === $reply_status ) {

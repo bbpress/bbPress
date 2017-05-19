@@ -137,7 +137,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 	}
 
 	// Post is not a topic or reply, return
-	if ( ! in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) ) {
+	if ( ! in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
 		return $data;
 	}
 
@@ -1407,7 +1407,7 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 	global $wp;
 
 	// Noop if WP core supports this already
-	if ( in_array( 'post_parent__in', $wp->private_query_vars ) ) {
+	if ( in_array( 'post_parent__in', $wp->private_query_vars, true ) ) {
 		return $where;
 	}
 

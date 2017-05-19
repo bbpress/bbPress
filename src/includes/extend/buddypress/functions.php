@@ -340,14 +340,10 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 		$forum_ids = groups_get_groupmeta( $group_id, 'forum_id' );
 	}
 
-	// Make sure result is an array
-	if ( ! is_array( $forum_ids ) ) {
-		$forum_ids = (array) $forum_ids;
-	}
+	// Make sure result is an array of ints
+	$forum_ids = array_filter( wp_parse_id_list( $forum_ids ) );
 
-	// Trim out any empty array items
-	$forum_ids = array_filter( $forum_ids );
-
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_group_forum_ids', $forum_ids, $group_id );
 }
 
@@ -372,14 +368,10 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids', true );
 	}
 
-	// Make sure result is an array
-	if ( ! is_array( $group_ids ) ) {
-		$group_ids = (array) $group_ids;
-	}
+	// Make sure result is an array of ints
+	$group_ids = array_filter( wp_parse_id_list( $group_ids ) );
 
-	// Trim out any empty array items
-	$group_ids = array_filter( $group_ids );
-
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_forum_group_ids', $group_ids, $forum_id );
 }
 
@@ -397,7 +389,7 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 	}
 
 	// Trim out any empties
-	$forum_ids = array_filter( $forum_ids );
+	$forum_ids = array_filter( wp_parse_id_list( $forum_ids ) );
 
 	// Get the forums
 	return groups_update_groupmeta( $group_id, 'forum_id', $forum_ids );
@@ -413,7 +405,7 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Trim out any empties
-	$group_ids = array_filter( $group_ids );
+	$group_ids = array_filter( wp_parse_id_list( $group_ids ) );
 
 	// Get the forums
 	return update_post_meta( $forum_id, '_bbp_group_ids', $group_ids );
@@ -439,7 +431,7 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Maybe update the groups forums
-	if ( ! in_array( $group_id, $group_ids ) ) {
+	if ( ! in_array( $group_id, $group_ids, true ) ) {
 		$group_ids[] = $group_id;
 		return bbp_update_forum_group_ids( $forum_id, $group_ids );
 	}
@@ -465,7 +457,7 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 	// Maybe update the groups forums
-	if ( ! in_array( $forum_id, $forum_ids ) ) {
+	if ( ! in_array( $forum_id, $forum_ids, true ) ) {
 		$forum_ids[] = $forum_id;
 		return bbp_update_group_forum_ids( $group_id, $forum_ids );
 	}
@@ -491,7 +483,7 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Maybe update the groups forums
-	if ( in_array( $group_id, $group_ids ) ) {
+	if ( in_array( $group_id, $group_ids, true ) ) {
 		$group_ids = array_diff( array_values( $group_ids ), (array) $group_id );
 		return bbp_update_forum_group_ids( $forum_id, $group_ids );
 	}
@@ -517,7 +509,7 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 	// Maybe update the groups forums
-	if ( in_array( $forum_id, $forum_ids ) ) {
+	if ( in_array( $forum_id, $forum_ids, true ) ) {
 		$forum_ids = array_diff( array_values( $forum_ids ), (array) $forum_id );
 		return bbp_update_group_forum_ids( $group_id, $forum_ids );
 	}
@@ -540,7 +532,7 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 	$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 	// Loop through forums and remove this group from each one
-	foreach ( (array) $forum_ids as $forum_id ) {
+	foreach ( $forum_ids as $forum_id ) {
 		bbp_remove_group_id_from_forum( $group_id, $forum_id );
 	}
 }
@@ -558,7 +550,7 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 	$group_ids = bbp_get_forum_group_ids( $forum_id );
 
 	// Loop through groups and remove this forum from each one
-	foreach ( (array) $group_ids as $group_id ) {
+	foreach ( $group_ids as $group_id ) {
 		bbp_remove_forum_id_from_group( $forum_id, $group_id );
 	}
 }

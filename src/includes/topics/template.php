@@ -1080,7 +1080,7 @@ function bbp_is_topic_sticky( $topic_id = 0, $check_super = true ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 	$stickies = bbp_get_stickies( $forum_id );
-	$retval   = in_array( $topic_id, $stickies );
+	$retval   = in_array( $topic_id, $stickies, true );
 
 	// Maybe check super stickies
 	if ( ( false === $retval ) && ( true === $check_super ) ) {

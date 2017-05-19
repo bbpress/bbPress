@@ -444,7 +444,7 @@ function bbp_is_custom_post_type( $the_post = false ) {
 		bbp_get_forum_post_type(),
 		bbp_get_topic_post_type(),
 		bbp_get_reply_post_type()
-	) ) ) {
+	), true ) ) {
 		$retval = true;
 	}
 

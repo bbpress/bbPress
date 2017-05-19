@@ -440,7 +440,7 @@ class BBP_Akismet {
 		foreach ( $_SERVER as $key => $value ) {
 
 			// Key should not be ignored
-			if ( ! in_array( $key, $ignore ) && is_string( $value ) ) {
+			if ( ! in_array( $key, $ignore, true ) && is_string( $value ) ) {
 				$post_data[ $key ] = $value;
 
 			// Key should be ignored

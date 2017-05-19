@@ -642,7 +642,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Status **********************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
+	if ( ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ), true ) ) {
 		if ( 'closed' === $_POST['bbp_forum_status'] && ! bbp_is_forum_closed( $forum_id, false ) ) {
 			bbp_close_forum( $forum_id );
 		} elseif ( 'open' === $_POST['bbp_forum_status'] && bbp_is_forum_open( $forum_id, false ) ) {
@@ -654,7 +654,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Type ************************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
+	if ( ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ), true ) ) {
 		if ( 'category' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_categorize_forum( $forum_id );
 		} elseif ( 'forum' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
@@ -666,7 +666,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Visibility ******************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ) ) ) {
+	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ), true ) ) {
 
 		// Get forums current visibility
 		$old_visibility = bbp_get_forum_visibility( $forum_id );
@@ -859,7 +859,7 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	$private = bbp_get_private_forum_ids();
 
 	// Find this forum in the array
-	if ( in_array( $forum_id, $private ) ) {
+	if ( in_array( $forum_id, $private, true ) ) {
 
 		$offset = array_search( $forum_id, $private );
 
@@ -874,7 +874,7 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	$hidden = bbp_get_hidden_forum_ids();
 
 	// Find this forum in the array
-	if ( in_array( $forum_id, $hidden ) ) {
+	if ( in_array( $forum_id, $hidden, true ) ) {
 
 		$offset = array_search( $forum_id, $hidden );
 
@@ -920,7 +920,7 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		$hidden = bbp_get_hidden_forum_ids();
 
 		// Find this forum in the array
-		if ( in_array( $forum_id, $hidden ) ) {
+		if ( in_array( $forum_id, $hidden, true ) ) {
 
 			$offset = array_search( $forum_id, $hidden );
 
@@ -970,7 +970,7 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		$private = bbp_get_private_forum_ids();
 
 		// Find this forum in the array
-		if ( in_array( $forum_id, $private ) ) {
+		if ( in_array( $forum_id, $private, true ) ) {
 
 			$offset = array_search( $forum_id, $private );
 
@@ -2046,11 +2046,15 @@ function bbp_get_forum_visibilities( $forum_id = 0) {
  * @since 2.0.0 bbPress (r3007)
  *
  * @uses get_option() Returns the unserialized array of hidden forum ids
+ * @uses wp_parse_id_list() Make sure array items are ints
  * @uses apply_filters() Calls 'bbp_forum_query_topic_ids' with the topic ids
  *                        and forum id
  */
 function bbp_get_hidden_forum_ids() {
 	$forum_ids = get_option( '_bbp_hidden_forums', array() );
+	$forum_ids = ! empty( $forum_ids )
+		? wp_parse_id_list( $forum_ids )
+		: array();
 
 	return apply_filters( 'bbp_get_hidden_forum_ids', (array) $forum_ids );
 }
@@ -2063,11 +2067,15 @@ function bbp_get_hidden_forum_ids() {
  * @since 2.0.0 bbPress (r3007)
  *
  * @uses get_option() Returns the unserialized array of private forum ids
+ * @uses wp_parse_id_list() Make sure array items are ints
  * @uses apply_filters() Calls 'bbp_forum_query_topic_ids' with the topic ids
  *                        and forum id
  */
 function bbp_get_private_forum_ids() {
 	$forum_ids = get_option( '_bbp_private_forums', array() );
+	$forum_ids = ! empty( $forum_ids )
+		? wp_parse_id_list( $forum_ids )
+		: array();
 
 	return apply_filters( 'bbp_get_private_forum_ids', (array) $forum_ids );
 }

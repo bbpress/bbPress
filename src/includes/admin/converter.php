@@ -980,7 +980,7 @@ abstract class BBP_Converter_Base {
 				if ( ! empty( $from_tablename ) ) {
 
 					// Doing some joining
-					if ( ! in_array( $item['from_tablename'], $from_tables ) && in_array( $item['join_tablename'], $from_tables ) ) {
+					if ( ! in_array( $item['from_tablename'], $from_tables, true ) && in_array( $item['join_tablename'], $from_tables, true ) ) {
 						$from_tablename .= ' ' . $item['join_type'] . ' JOIN ' . $this->opdb->prefix . $item['from_tablename'] . ' AS ' . $item['from_tablename'] . ' ' . $item['join_expression'];
 					}
 
@@ -1040,7 +1040,7 @@ abstract class BBP_Converter_Base {
 
 							// This row has a destination that matches one of the
 							// columns in this table.
-							if ( in_array( $row['to_fieldname'], $tablefield_array ) ) {
+							if ( in_array( $row['to_fieldname'], $tablefield_array, true ) ) {
 
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {

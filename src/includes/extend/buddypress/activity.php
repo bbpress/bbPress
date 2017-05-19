@@ -365,7 +365,7 @@ class BBP_BuddyPress_Activity {
 			);
 
 			// Check if this activity stream action is disabled
-			if ( in_array( $action_name, $disabled_actions ) ) {
+			if ( in_array( $action_name, $disabled_actions, true ) ) {
 				$can_comment = false;
 			}
 		}
@@ -391,7 +391,7 @@ class BBP_BuddyPress_Activity {
 		);
 
 		// Check if this activity stream action is directly linked
-		if ( in_array( $activity_object->type, $disabled_actions ) ) {
+		if ( in_array( $activity_object->type, $disabled_actions, true ) ) {
 			$link = $activity_object->primary_link;
 		}
 

@@ -105,7 +105,7 @@ function bbp_admin_menu_order( $menu_order ) {
 			$bbp_menu_order[] = $second_sep;
 
 		// Skip our menu items
-		} elseif ( ! in_array( $item, $custom_menus ) ) {
+		} elseif ( ! in_array( $item, $custom_menus, true ) ) {
 			$bbp_menu_order[] = $item;
 		}
 	}
@@ -246,7 +246,7 @@ function bbp_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;
 
 	// This tweaks the Tools subnav menu to only show one bbPress menu item
-	if ( ! in_array( $plugin_page, array( 'bbp-settings' ) ) ) {
+	if ( ! in_array( $plugin_page, array( 'bbp-settings' ), true ) ) {
 		$submenu_file = 'bbp-repair';
 	}
 }

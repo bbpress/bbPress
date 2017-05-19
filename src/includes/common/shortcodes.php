@@ -278,7 +278,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @uses bbp_get_hidden_forum_ids()
 	 * @uses get_template_part()
 	 * @return string
 	 */

@@ -1575,7 +1575,7 @@ function bbp_edit_user_display_name() {
 	}
 
 	// Only add this if it isn't duplicated elsewhere
-	if ( ! in_array( $bbp->displayed_user->display_name, $public_display ) ) {
+	if ( ! in_array( $bbp->displayed_user->display_name, $public_display, true ) ) {
 		$public_display = array( 'display_displayname' => $bbp->displayed_user->display_name ) + $public_display;
 	}
 
@@ -1869,7 +1869,7 @@ function bbp_login_notices() {
 		bbp_add_error( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
 
 	// Prompt user to check their email
-	} elseif ( ! empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ) ) ) {
+	} elseif ( ! empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ), true ) ) {
 
 		switch ( $_GET['checkemail'] ) {
 
