@@ -792,7 +792,7 @@ function bbp_admin_setting_callback_subtheme_id() {
 	//
 	// @see bbPress::register_theme_packages()
 	foreach ( (array) bbpress()->theme_compat->packages as $id => $theme ) {
-		$theme_options .= '<option value="' . esc_attr( $id ) . '"' . selected( $theme->id, $current_package, false ) . '>' . sprintf( esc_html__( '%1$s - %2$s', 'bbpress' ), esc_html( $theme->name ), esc_html( str_replace( WP_CONTENT_DIR, '', $theme->dir ) ) )  . '</option>';
+		$theme_options .= '<option value="' . esc_attr( $id ) . '"' . selected( $theme->id, $current_package, false ) . '>' . esc_html( $theme->name ) . '</option>';
 	}
 
 	if ( ! empty( $theme_options ) ) : ?>
