@@ -390,7 +390,7 @@ function bbp_new_reply_handler( $action = '' ) {
 			if ( bbp_is_topic_trash( $topic_id ) ) {
 
 				// Get pre_trashed_replies for topic
-				$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
+				$pre_trashed_replies = (array) get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
 
 				// Add this reply to the end of the existing replies
 				$pre_trashed_replies[] = $reply_id;
@@ -409,7 +409,7 @@ function bbp_new_reply_handler( $action = '' ) {
 			if ( bbp_is_topic_spam( $topic_id ) ) {
 
 				// Get pre_spammed_replies for topic
-				$pre_spammed_replies = get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
+				$pre_spammed_replies = (array) get_post_meta( $topic_id, '_bbp_pre_spammed_replies', true );
 
 				// Add this reply to the end of the existing replies
 				$pre_spammed_replies[] = $reply_id;
