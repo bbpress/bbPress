@@ -180,9 +180,6 @@ class BBP_Admin {
 		// Map settings capabilities
 		add_filter( 'bbp_map_meta_caps',   array( $this, 'map_settings_meta_caps' ), 10, 4 );
 
-		// Hide the theme compat package selection
-		add_filter( 'bbp_admin_get_settings_sections', array( $this, 'hide_theme_compat_packages' ) );
-
 		// Allow keymasters to save forums settings
 		add_filter( 'option_page_capability_bbpress',  array( $this, 'option_page_capability_bbpress' ) );
 
@@ -246,7 +243,7 @@ class BBP_Admin {
 		);
 
 		// Are settings enabled?
-		if ( ! bbp_settings_integration() ) {
+		if ( 'basic' === bbp_settings_integration() ) {
 			add_options_page(
 				__( 'Forums',  'bbpress' ),
 				__( 'Forums',  'bbpress' ),
@@ -368,7 +365,7 @@ class BBP_Admin {
 			}
 
 			// Toggle the section if core integration is on
-			if ( ( true === $settings_integration ) && ! empty( $section['page'] ) ) {
+			if ( ( 'deep' === $settings_integration ) && ! empty( $section['page'] ) ) {
 				$page = $section['page'];
 			} else {
 				$page = 'bbpress';
@@ -667,22 +664,6 @@ class BBP_Admin {
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
 			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
 		);
-	}
-
-	/**
-	 * Hide theme compat package selection if only 1 package is registered
-	 *
-	 * @since 2.2.0 bbPress (r4315)
-	 *
-	 * @param array $sections Forums settings sections
-	 * @return array
-	 */
-	public function hide_theme_compat_packages( $sections = array() ) {
-		if ( count( bbpress()->theme_compat->packages ) <= 1 ) {
-			unset( $sections['bbp_settings_theme_compat'] );
-		}
-
-		return $sections;
 	}
 
 	/**

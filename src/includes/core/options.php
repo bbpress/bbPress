@@ -47,7 +47,7 @@ function bbp_get_default_options() {
 		'_bbp_use_autoembed'          => 0,                          // Allow oEmbed in topics and replies
 		'_bbp_theme_package_id'       => 'default',                  // The ID for the current theme package
 		'_bbp_default_role'           => bbp_get_participant_role(), // Default forums role
-		'_bbp_settings_integration'   => 0,                          // Put settings into existing admin pages
+		'_bbp_settings_integration'   => 'basic',                    // How to integrate into wp-admin
 
 		/** Per Page **********************************************************/
 
@@ -478,14 +478,36 @@ function bbp_is_akismet_active( $default = 1 ) {
 /**
  * Integrate settings into existing WordPress pages
  *
+ * There are 3 possible modes:
+ * - 'basic'   Traditional admin integration
+ * - 'compact' One "bbPress" top-level admin menu
+ * - 'deep'    Deeply integrate with the WordPress admin interface
+ *
  * @since 2.4.0 bbPress (r4932)
  *
  * @param $default bool Optional. Default value false
  * @uses get_option() To get the admin integration setting
  * @return bool To deeply integrate settings, or not
  */
-function bbp_settings_integration( $default = 0 ) {
-	return (bool) apply_filters( 'bbp_settings_integration', (bool) get_option( '_bbp_settings_integration', $default ) );
+function bbp_settings_integration( $default = 'basic' ) {
+
+	// Get the option value
+	$integration = get_option( '_bbp_settings_integration', $default );
+
+	// Back-compat for deep/basic (pre-2.6)
+	if ( is_numeric( $integration ) ) {
+		$integration = ( 1 === (int) $integration )
+			? 'deep'
+			: 'basic';
+	}
+
+	// Fallback to 'none' if invalid
+	if ( ! in_array( $integration, array( 'basic', 'deep', 'compact' ), true ) ) {
+		$integration = 'basic';
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_settings_integration', $integration, $default );
 }
 
 /** Slugs *********************************************************************/
