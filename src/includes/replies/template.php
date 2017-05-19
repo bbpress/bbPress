@@ -167,7 +167,7 @@ function bbp_has_replies( $args = array() ) {
 		}
 
 		// Join post statuses together
-		$default['post_status'] = implode( ',', $post_statuses );
+		$default['post_status'] = $post_statuses;
 
 	// Lean on the 'perm' query var value of 'readable' to provide statuses
 	} else {

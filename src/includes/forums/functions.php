@@ -2089,76 +2089,61 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 	static $types = array();
 
 	// Setup arrays
-	$private = $hidden = $meta_query = $forum_ids = array();
+	$forum_ids = array();
 
 	// Capability performance optimization
 	if ( ! empty( $types[ $type ] ) ) {
-		$retval = $types[ $type ];
+		$retval    = $types[ $type ];
+		$forum_ids = $types['array'];
 
-	// Populate forum exclude type
+	// Populate forum types
 	} else {
 
-		// Default return value
-		switch ( $type ) {
-			case 'string' :
-				$retval = '';
-				break;
-
-			case 'array'  :
-				$retval = array();
-				break;
-
-			case 'meta_query' :
-				$retval = array( array() ) ;
-				break;
-		}
+		// Types
+		$types = array(
+			'array'      => array(),
+			'string'     => '',
+			'meta_query' => array()
+		);
 
 		// Exclude for everyone but keymasters
 		if ( ! bbp_is_user_keymaster() ) {
 
 			// Private forums
-			if ( ! current_user_can( 'read_private_forums' ) ) {
-				$private = bbp_get_private_forum_ids();
-			}
+			$private = ! current_user_can( 'read_private_forums' )
+				? bbp_get_private_forum_ids()
+				: array();
 
 			// Hidden forums
-			if ( ! current_user_can( 'read_hidden_forums' ) ) {
-				$hidden  = bbp_get_hidden_forum_ids();
-			}
+			$hidden = ! current_user_can( 'read_hidden_forums' )
+				? bbp_get_hidden_forum_ids()
+				: array();
 
-			// Merge private and hidden forums together
-			$forum_ids = (array) array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) );
+			// Merge private and hidden forums together and remove any empties
+			$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
+				? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
+				: array();
 
-			// There are forums that need to be excluded
+			// Comparison
+			$compare = ( 1 < count( $forum_ids ) )
+				? 'NOT IN'
+				: '!=';
+
+			// Store return values in static types array
 			if ( ! empty( $forum_ids ) ) {
-
-				switch ( $type ) {
-
-					// Separate forum ID's into a comma separated string
-					case 'string' :
-						$retval = implode( ',', $forum_ids );
-						break;
-
-					// Use forum_ids array
-					case 'array'  :
-						$retval = $forum_ids;
-						break;
-
-					// Build a meta_query
-					case 'meta_query' :
-						$retval = array(
-							'key'     => '_bbp_forum_id',
-							'value'   => implode( ',', $forum_ids ),
-							'type'    => 'NUMERIC',
-							'compare' => ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!='
-						);
-						break;
-				}
+				$types['array']      = $forum_ids;
+				$types['string']     = implode( ',', $forum_ids );
+				$types['meta_query'] = array(
+					'key'     => '_bbp_forum_id',
+					'value'   => $forum_ids,
+					'type'    => 'NUMERIC',
+					'compare' => $compare
+				);
 			}
 		}
 
-		// Store return value in static types array
-		$types[ $type ] = $retval;
+		// There are forums that need to be excluded
+		$retval = $types[ $type ];
 	}
 
 	// Filter and return the results
@@ -2259,7 +2244,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
 
 		// Bail if no forums to exclude
-		if ( ! array_filter( $forum_ids ) ) {
+		if ( empty( $forum_ids ) ) {
 			return;
 		}
 
@@ -2569,11 +2554,11 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	}
 
 	// Allowed post statuses to pre-trash
-	$post_stati = implode( ',', array(
+	$post_stati = array(
 		bbp_get_public_status_id(),
 		bbp_get_closed_status_id(),
 		bbp_get_pending_status_id()
-	) );
+	);
 
 	// Forum is being trashed, so its topics and replies are trashed too
 	$topics = new WP_Query( array(

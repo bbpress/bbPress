@@ -180,11 +180,12 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 
 	// Loop through query types and clean caches
 	foreach ( $post_types as $post_type ) {
-		wp_cache_delete( 'bbp_parent_all_' . $post->ID . '_type_' . $post_type . '_child_ids', 'bbpress_posts' );
+		$key = 'bbp_parent_all_' . $post->ID . '_type_' . $post_type . '_child_ids';
+		wp_cache_delete( $key, 'bbpress_posts' );
 	}
 
 	/**
-	 * Fires immediately after the given post's cache is cleaned.
+	 * Fires immediately after the given post cache is cleaned.
 	 *
 	 * @since 2.1.0
 	 *
