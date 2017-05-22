@@ -359,6 +359,7 @@ final class bbPress {
 
 		// Users
 		require $this->includes_dir . 'users/capabilities.php';
+		require $this->includes_dir . 'users/engagements.php';
 		require $this->includes_dir . 'users/functions.php';
 		require $this->includes_dir . 'users/template.php';
 		require $this->includes_dir . 'users/options.php';
