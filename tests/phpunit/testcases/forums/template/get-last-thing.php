@@ -515,7 +515,6 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
-
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
@@ -532,7 +531,7 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 			),
 		) );
 
-		$this->factory->reply->create( array(
+		$r1 = $this->factory->reply->create( array(
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,
@@ -542,13 +541,13 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		// Get the forums last reply id.
 		$last_reply_id_f = bbp_get_forum_last_reply_id( $f );
-		$this->assertSame( $last_reply_id_f, bbp_forum_query_last_reply_id( $f ) );
+		$this->assertSame( $r1, $last_reply_id_f );
 
 		// Get the categories last reply id.
 		$last_reply_id_c = bbp_get_forum_last_reply_id( $c );
-		$this->assertSame( $last_reply_id_c, bbp_forum_query_last_reply_id( $c ) );
+		$this->assertSame( $r1, $last_reply_id_c );
 
-		$this->factory->reply->create( array(
+		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,
@@ -558,11 +557,11 @@ class BBP_Tests_Forums_Template_Forum_Last_Thing extends BBP_UnitTestCase {
 
 		// Get the forums last reply id.
 		$last_reply_id_f = bbp_get_forum_last_reply_id( $f );
-		$this->assertSame( $last_reply_id_f, bbp_forum_query_last_reply_id( $f ) );
+		$this->assertSame( $r2, $last_reply_id_f );
 
 		// Get the categories last reply id.
 		$last_reply_id_c = bbp_get_forum_last_reply_id( $c );
-		$this->assertSame( $last_reply_id_c, bbp_forum_query_last_reply_id( $c ) );
+		$this->assertSame( $r2, $last_reply_id_c );
 	}
 
 	/**
