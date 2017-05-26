@@ -1400,6 +1400,47 @@ function bbp_tab_index( $auto_increment = true ) {
 	}
 
 /**
+ * Output a "tabindex" attribute for an element, if an index was passed.
+ *
+ * This helper function is in use, but it is generally considered impolite to
+ * override the "tabindex" attribute beyond what the browser naturally assigns.
+ *
+ * Most internal usages pass `false` which results in no attribute being used.
+ *
+ * @since 2.6.0 bbPress (r6424)
+ *
+ * @param mixed $tab False to skip, any integer to use
+ */
+function bbp_tab_index_attribute( $tab = false ) {
+	echo bbp_get_tab_index_attribute( $tab );
+}
+
+	/**
+	 * Return a "tabindex" attribute for an element, if an index was passed.
+	 *
+	 * This helper function is in use, but it is generally considered impolite to
+	 * override the "tabindex" attribute beyond what the browser naturally assigns.
+	 *
+	 * Most internal usages pass `false` which results in no attribute being used.
+	 *
+	 * @since 2.6.0 bbPress (r6424)
+	 *
+	 * @param mixed $tab False to skip, any integer to use
+	 *
+	 * @return string
+	 */
+	function bbp_get_tab_index_attribute( $tab = false ) {
+
+		// Get attribute
+		$attr = is_numeric( $tab )
+			? ' tabindex="' . (int) $tab . '"'
+			: '';
+
+		// Filter & return
+		return apply_filters( 'bbp_get_tab_index_attribute', $attr, $tab );
+	}
+
+/**
  * Output a select box allowing to pick which forum/topic a new topic/reply
  * belongs in.
  *
@@ -1883,12 +1924,9 @@ function bbp_the_content( $args = array() ) {
 		 * Note that we do not use esc_textarea() here to prevent double
 		 * escaping the editable output, mucking up existing content.
 		 */
-		else :
+		else : ?>
 
-			// Setup the tab index attribute
-			$tab = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : ''; ?>
-
-			<textarea id="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" <?php echo $tab; ?>><?php echo $post_content; ?></textarea>
+			<textarea id="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="bbp_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" <?php bbp_tab_index_attribute( $r['tab'] ); ?>><?php echo $post_content; ?></textarea>
 
 		<?php endif;
 

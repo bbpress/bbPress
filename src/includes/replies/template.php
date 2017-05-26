@@ -1705,10 +1705,11 @@ function bbp_reply_to_link( $args = array() ) {
 		), 'get_reply_to_link' );
 
 		// Get the reply to use it's ID and post_parent
-		$reply = bbp_get_reply( $r['id'] );
+		$reply    = bbp_get_reply( $r['id'] );
+		$topic_id = bbp_get_reply_topic_id( $reply->ID );
 
 		// Bail if no reply or user cannot reply
-		if ( empty( $reply ) || ! bbp_current_user_can_access_create_reply_form() ) {
+		if ( empty( $reply ) || empty( $topic_id ) || bbp_is_single_reply() || ! bbp_current_user_can_access_create_reply_form() ) {
 			return;
 		}
 
@@ -1739,7 +1740,7 @@ function bbp_reply_to_link( $args = array() ) {
 
 		// Add $uri to the array, to be passed through the filter
 		$r['uri'] = $uri;
-		$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . esc_html( $r['reply_text'] ) . '</a>' . $r['link_after'];
+		$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-reply-to-link"' . $onclick . '>' . $r['reply_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'bbp_get_reply_to_link', $retval, $r, $args );
 	}
@@ -1773,7 +1774,7 @@ function bbp_cancel_reply_to_link( $text = '' ) {
 
 		// Set default text
 		if ( empty( $text ) ) {
-			$text = __( 'Cancel', 'bbpress' );
+			$text = esc_html__( 'Cancel', 'bbpress' );
 		}
 
 		// Replying to...
@@ -1996,6 +1997,7 @@ function bbp_reply_edit_link( $args = array() ) {
 			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
 		), 'get_reply_edit_link' );
 
+		// Get reply
 		$reply = bbp_get_reply( $r['id'] );
 
 		// Bypass check if user has caps
@@ -2047,6 +2049,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
 
+		// Bail if no reply
 		$reply = bbp_get_reply( $reply_id );
 		if ( empty( $reply ) ) {
 			return;
@@ -2126,21 +2129,28 @@ function bbp_reply_trash_link( $args = array() ) {
 			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
 		), 'get_reply_trash_link' );
 
+		// Get reply
 		$reply = bbp_get_reply( $r['id'] );
 
+		// Bail if no reply or current user cannot delete
 		if ( empty( $reply ) || ! current_user_can( 'delete_reply', $reply->ID ) ) {
 			return;
 		}
 
-		$actions = array();
+		$actions    = array();
+		$trash_days = bbp_get_trash_days( bbp_get_reply_post_type() );
 
+		// Trashed
 		if ( bbp_is_reply_trash( $reply->ID ) ) {
 			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-restore-link">' . $r['restore_text'] . '</a>';
-		} elseif ( EMPTY_TRASH_DAYS ) {
+
+		// Trash
+		} elseif ( ! empty( $trash_days ) ) {
 			$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash',   'reply_id' => $reply->ID ) ), 'trash-'   . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-trash-link">'   . $r['trash_text']   . '</a>';
 		}
 
-		if ( bbp_is_reply_trash( $reply->ID ) || !EMPTY_TRASH_DAYS ) {
+		// No trash
+		if ( bbp_is_reply_trash( $reply->ID ) || empty( $trash_days ) ) {
 			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete',  'reply_id' => $reply->ID ) ), 'delete-'  . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-reply-delete-link">' . $r['delete_text'] . '</a>';
 		}
 
@@ -2197,8 +2207,10 @@ function bbp_reply_spam_link( $args = array() ) {
 			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
 		), 'get_reply_spam_link' );
 
+		// Get reply
 		$reply = bbp_get_reply( $r['id'] );
 
+		// Bail if no reply or current user cannot moderate
 		if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
 			return;
 		}
@@ -2262,9 +2274,11 @@ function bbp_reply_move_link( $args = array() ) {
 			'split_title' => esc_attr__( 'Move this reply', 'bbpress' )
 		), 'get_reply_move_link' );
 
+		// Get IDs
 		$reply_id = bbp_get_reply_id( $r['id'] );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
+		// Bail if no reply ID or user cannot moderate
 		if ( empty( $reply_id ) || ! current_user_can( 'moderate', $topic_id ) ) {
 			return;
 		}
@@ -2330,10 +2344,12 @@ function bbp_topic_split_link( $args = array() ) {
 			'split_title' => esc_attr__( 'Split the topic from this reply', 'bbpress' )
 		), 'get_topic_split_link' );
 
+		// Get IDs
 		$reply_id = bbp_get_reply_id( $r['id'] );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-		if ( empty( $reply_id ) || ! current_user_can( 'moderate', $topic_id ) ) {
+		// Bail if no reply/topic ID, or user cannot moderate
+		if ( empty( $reply_id ) || empty( $topic_id ) || ! current_user_can( 'moderate', $topic_id ) ) {
 			return;
 		}
 
@@ -2394,8 +2410,10 @@ function bbp_reply_approve_link( $args = array() ) {
 			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
 		), 'get_reply_approve_link' );
 
+		// Get reply
 		$reply = bbp_get_reply( $r['id'] );
 
+		// Bail if no reply or current user cannot moderate
 		if ( empty( $reply ) || ! current_user_can( 'moderate', $reply->ID ) ) {
 			return;
 		}
@@ -2855,13 +2873,10 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 			}
 		}
 
-		// Used variables
-		$tab = ! empty( $r['tab'] ) ? ' tabindex="' . (int) $r['tab'] . '"' : '';
-
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php echo $tab; ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_reply_statuses( $r['reply_id'] ) as $key => $label ) : ?>
 
