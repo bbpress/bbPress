@@ -194,6 +194,30 @@ function bbp_past_edit_lock( $post_date_gmt ) {
 	return apply_filters( 'bbp_past_edit_lock', (bool) $retval, $cur_time, $lock_time, $post_date_gmt );
 }
 
+/**
+ * Get number of days something should remain trashed for before it is cleaned
+ * up by WordPress Cron. If set to 0, items will skip trash and be deleted
+ * immediately.
+ *
+ * @since 2.6.0 bbPress (r6424)
+ *
+ * @param string $context Provide context for additional filtering
+ * @return int Number of days items remain in trash
+ */
+function bbp_get_trash_days( $context = 'forum' ) {
+
+	// Sanitize the context
+	$context = sanitize_key( $context );
+
+	// Check the WordPress constant
+	$days    = defined( 'EMPTY_TRASH_DAYS' )
+		? (int) EMPTY_TRASH_DAYS
+		: 30;
+
+	// Filter & return
+	return (int) apply_filters( 'bbp_get_trash_days', $days, $context );
+}
+
 /** Statistics ****************************************************************/
 
 /**
