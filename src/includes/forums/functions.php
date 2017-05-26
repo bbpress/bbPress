@@ -1024,7 +1024,7 @@ function bbp_repair_forum_visibility() {
 	 */
 	remove_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
 
-	// Next, get all the private and hidden forums
+	// Query for private forums
 	$private_forums = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
@@ -1033,6 +1033,8 @@ function bbp_repair_forum_visibility() {
 		'post_status'      => bbp_get_private_status_id(),
 		'fields'           => 'ids'
 	) );
+
+	// Query for hidden forums
 	$hidden_forums = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
@@ -1048,14 +1050,15 @@ function bbp_repair_forum_visibility() {
 	// Reset the $post global
 	wp_reset_postdata();
 
-	// Bail if queries returned errors
-	if ( is_wp_error( $private_forums ) || is_wp_error( $hidden_forums ) ) {
-		return false;
+	// Private
+	if ( ! is_wp_error( $private_forums ) ) {
+		update_option( '_bbp_private_forums', $private_forums->posts );
 	}
 
-	// Update the private/hidden options
-	update_option( '_bbp_private_forums', $private_forums->posts ); // Private forums
-	update_option( '_bbp_hidden_forums',  $hidden_forums->posts  ); // Hidden forums
+	// Hidden forums
+	if ( ! is_wp_error( $hidden_forums ) ) {
+		update_option( '_bbp_hidden_forums',  $hidden_forums->posts  );
+	}
 
 	// Complete results
 	return true;
@@ -2104,7 +2107,7 @@ function bbp_get_excluded_forum_ids() {
 	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
 		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
 		: array();
-
+var_dump( $forum_ids ); die;
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
 }
@@ -2213,7 +2216,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 	// Forums
 	if ( bbp_get_forum_post_type() === implode( '', $post_types ) ) {
-
+die;
 		// Prevent accidental wp-admin post_row override
 		if ( is_admin() && isset( $_REQUEST['post_status'] ) ) {
 			return;
