@@ -2165,7 +2165,7 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 				$types['string']     = implode( ',', $forum_ids );
 				$types['meta_query'] = array(
 					'key'     => '_bbp_forum_id',
-					'value'   => $forum_ids,
+					'value'   => $types['string'],
 					'type'    => 'NUMERIC',
 					'compare' => $compare
 				);
@@ -2357,6 +2357,10 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		'post_parent__in' => $topic_ids,
 		'post_status'     => bbp_get_public_status_id(),
 		'post_type'       => bbp_get_reply_post_type(),
+		'orderby'         => array(
+			'post_date' => 'DESC',
+			'ID'        => 'DESC'
+		),
 
 		// Maybe change these later
 		'posts_per_page'         => 1,

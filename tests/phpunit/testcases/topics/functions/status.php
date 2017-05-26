@@ -147,7 +147,7 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 		$this->assertSame( bbp_get_spam_status_id(), $topic_spam_status );
 
 		$topic_meta_pre_spammed_replies = get_post_meta( $t, '_bbp_pre_spammed_replies', true );
-		$this->assertEquals( array( $r[1], $r[0] ), $topic_meta_pre_spammed_replies );
+		$this->assertEqualSets( array( $r[1], $r[0] ), $topic_meta_pre_spammed_replies );
 
 		$topic_spam_meta_status = get_post_meta( $t, '_bbp_spam_meta_status', true );
 		$this->assertSame( bbp_get_public_status_id(), $topic_spam_meta_status );
@@ -214,7 +214,7 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 		$this->assertSame( $topic_time, $last_active_time );
 
 		$topic_meta_pre_spammed_replies = get_post_meta( $t, '_bbp_pre_spammed_replies', true );
-		$this->assertEquals( array( $r[1], $r[0] ), $topic_meta_pre_spammed_replies );
+		$this->assertEqualSets( array( $r[1], $r[0] ), $topic_meta_pre_spammed_replies );
 
 		foreach ( $r as $reply ) {
 			$reply_status = get_post_status( $reply );

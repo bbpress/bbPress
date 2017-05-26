@@ -1499,6 +1499,10 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		'post_parent' => $parent_id,
 		'post_status' => $post_status,
 		'post_type'   => $post_type,
+		'orderby'     => array(
+			'post_date' => 'DESC',
+			'ID'        => 'DESC'
+		),
 
 		// Maybe change these later
 		'posts_per_page'         => 1,
