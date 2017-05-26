@@ -2107,7 +2107,7 @@ function bbp_get_excluded_forum_ids() {
 	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
 		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
 		: array();
-var_dump( $forum_ids ); die;
+
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
 }
