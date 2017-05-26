@@ -257,3 +257,43 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id );
 }
+
+/**
+ * Filter an array of forum IDs that are being excluded, and remove any forum
+ * IDs a user explicitly has access to.
+ *
+ * This typically means private or hidden forums the user has moderation rights
+ * to, but it can be filtered to mean just about anything.
+ *
+ * This function filters the return values of the following functions:
+ * - `bbp_get_private_forum_ids()`
+ * - `bbp_get_hidden_forum_ids()`
+ *
+ * @since 2.6.0 bbPress (r6422)
+ *
+ * @param array $forum_ids Forum IDs to check if the user ID is a moderator of
+ * @param int   $user_id   User ID to check if is a moderator of forums
+ *
+ * @return array
+ */
+function bbp_allow_forums_of_user( $forum_ids = array(), $user_id = 0 ) {
+
+	// Store the original forum IDs
+	$original_forum_ids = $forum_ids;
+
+	// Per-forum Moderators
+	if ( bbp_allow_forum_mods() ) {
+
+		// Loop through forum IDs
+		foreach ( $forum_ids as $key => $forum_id ) {
+
+			// Unset forum ID if user is a moderator
+			if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) ) {
+				unset( $forum_ids[ $key ] );
+			}
+		}
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_allow_forums_of_user', $forum_ids, $user_id, $original_forum_ids );
+}
