@@ -2081,6 +2081,35 @@ function bbp_get_private_forum_ids() {
 }
 
 /**
+ * Returns the forum IDs that should be excluded from various views & queries,
+ * based on the current user's capabilities.
+ *
+ * @since 2.6.0 bbPress (r6425)
+ *
+ * @return array Forum IDs to exclude, or an empty array
+ */
+function bbp_get_excluded_forum_ids() {
+
+	// Private forums
+	$private = ! current_user_can( 'read_private_forums' )
+		? bbp_get_private_forum_ids()
+		: array();
+
+	// Hidden forums
+	$hidden = ! current_user_can( 'read_hidden_forums' )
+		? bbp_get_hidden_forum_ids()
+		: array();
+
+	// Merge private & hidden forums together, and remove any empties
+	$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
+		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
+		: array();
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
+}
+
+/**
  * Returns a meta_query that either includes or excludes hidden forum IDs
  * from a query.
  *
@@ -2117,28 +2146,18 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 		// Exclude for everyone but keymasters
 		if ( ! bbp_is_user_keymaster() ) {
 
-			// Private forums
-			$private = ! current_user_can( 'read_private_forums' )
-				? bbp_get_private_forum_ids()
-				: array();
-
-			// Hidden forums
-			$hidden = ! current_user_can( 'read_hidden_forums' )
-				? bbp_get_hidden_forum_ids()
-				: array();
-
-			// Merge private and hidden forums together and remove any empties
-			$forum_ids = ( ! empty( $private ) || ! empty( $hidden ) )
-				? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
-				: array();
-
-			// Comparison
-			$compare = ( 1 < count( $forum_ids ) )
-				? 'NOT IN'
-				: '!=';
+			// Get forum IDs to exclude
+			$forum_ids = bbp_get_excluded_forum_ids();
 
 			// Store return values in static types array
 			if ( ! empty( $forum_ids ) ) {
+
+				// Comparison
+				$compare = ( 1 < count( $forum_ids ) )
+					? 'NOT IN'
+					: '!=';
+
+				// Setup types
 				$types['array']      = $forum_ids;
 				$types['string']     = implode( ',', $forum_ids );
 				$types['meta_query'] = array(

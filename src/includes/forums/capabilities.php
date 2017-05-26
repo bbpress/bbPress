@@ -269,7 +269,7 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
  * - `bbp_get_private_forum_ids()`
  * - `bbp_get_hidden_forum_ids()`
  *
- * @since 2.6.0 bbPress (r6422)
+ * @since 2.6.0 bbPress (r6426)
  *
  * @param array $forum_ids Forum IDs to check if the user ID is a moderator of
  * @param int   $user_id   User ID to check if is a moderator of forums
