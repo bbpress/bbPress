@@ -2402,7 +2402,7 @@ function bbp_current_user_can_access_create_reply_form() {
 	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
 		$retval = bbp_current_user_can_publish_replies();
 
-	// User can edit this topic
+	// User can edit this reply
 	} elseif ( bbp_is_reply_edit() ) {
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
 	}
