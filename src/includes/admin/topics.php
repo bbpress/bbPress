@@ -928,20 +928,21 @@ class BBP_Topics_Admin {
 			// Forum
 			case 'bbp_topic_forum' :
 
+				// Get title
+				$forum_title = ! empty( $forum_id )
+					? bbp_get_forum_title( $forum_id )
+					: '';
+
 				// Output forum name
-				if ( ! empty( $forum_id ) ) {
-
-					// Forum Title
-					$forum_title = bbp_get_forum_title( $forum_id );
-					if ( empty( $forum_title ) ) {
-						$forum_title = esc_html__( 'No Forum', 'bbpress' );
-					}
-
-					// Output the title
+				if ( ! empty( $forum_title ) ) {
 					echo $forum_title;
 
+				// Output dash
 				} else {
-					esc_html_e( '&mdash; No forum &mdash;', 'bbpress' );
+					?>
+					<span aria-hidden="true">&mdash;</span>
+					<span class="screen-reader-text"><?php esc_html_e( 'No forum', 'bbpress' ); ?></span>
+					<?php
 				}
 
 				break;
@@ -1079,14 +1080,16 @@ class BBP_Topics_Admin {
 
 		// Do not show trash links for spam topics, or spam links for trashed topics
 		if ( current_user_can( 'delete_topic', $topic->ID ) ) {
+			$trash_days = bbp_get_trash_days( bbp_get_topic_post_type() );
+
 			if ( bbp_get_trash_status_id() === $topic->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
 				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
-			} elseif ( EMPTY_TRASH_DAYS ) {
+			} elseif ( ! empty( $trash_days ) ) {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
 			}
 
-			if ( bbp_get_trash_status_id() === $topic->post_status || !EMPTY_TRASH_DAYS ) {
+			if ( ( bbp_get_trash_status_id() === $topic->post_status ) || empty( $trash_days ) ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
 			} elseif ( bbp_get_spam_status_id() === $topic->post_status ) {
 				unset( $actions['trash'] );
@@ -1127,7 +1130,7 @@ class BBP_Topics_Admin {
 		// Show the forums dropdown
 		bbp_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( 'In all forums', 'bbpress' )
+			'show_none' => esc_html__( 'In all forums', 'bbpress' )
 		) );
 	}
 

@@ -724,21 +724,21 @@ class BBP_Replies_Admin {
 			// Topic
 			case 'bbp_reply_topic' :
 
-				// Output forum name
-				if ( ! empty( $topic_id ) ) {
+				// Get title
+				$topic_title = ! empty( $topic_id )
+					? bbp_get_topic_title( $topic_id )
+					: '';
 
-					// Topic Title
-					$topic_title = bbp_get_topic_title( $topic_id );
-					if ( empty( $topic_title ) ) {
-						$topic_title = esc_html__( 'No Topic', 'bbpress' );
-					}
-
-					// Output the title
+				// Output topic name
+				if ( ! empty( $topic_title ) ) {
 					echo $topic_title;
 
-				// Reply has no topic
+				// Output dash
 				} else {
-					esc_html_e( 'No Topic', 'bbpress' );
+					?>
+					<span aria-hidden="true">&mdash;</span>
+					<span class="screen-reader-text"><?php esc_html_e( 'No topic', 'bbpress' ); ?></span>
+					<?php
 				}
 
 				break;
@@ -750,35 +750,35 @@ class BBP_Replies_Admin {
 				$reply_forum_id = bbp_get_reply_forum_id( $reply_id );
 				$topic_forum_id = bbp_get_topic_forum_id( $topic_id );
 
+				// Forum Title
+				$forum_title = ! empty( $reply_forum_id )
+					? bbp_get_forum_title( $reply_forum_id )
+					: '';
+
+				// Alert capable users of reply forum mismatch
+				if ( $reply_forum_id !== $topic_forum_id ) {
+					if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $reply_id ) ) {
+						$forum_title .= '<div class="attention">' . esc_html__( '(Mismatch)', 'bbpress' ) . '</div>';
+					}
+				}
+
 				// Output forum name
-				if ( ! empty( $reply_forum_id ) ) {
-
-					// Forum Title
-					$forum_title = bbp_get_forum_title( $reply_forum_id );
-					if ( empty( $forum_title ) ) {
-						$forum_title = esc_html__( 'No Forum', 'bbpress' );
-					}
-
-					// Alert capable users of reply forum mismatch
-					if ( $reply_forum_id !== $topic_forum_id ) {
-						if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate', $reply_id ) ) {
-							$forum_title .= '<div class="attention">' . esc_html__( '(Mismatch)', 'bbpress' ) . '</div>';
-						}
-					}
-
-					// Output the title
+				if ( ! empty( $forum_title ) ) {
 					echo $forum_title;
 
 				// Reply has no forum
 				} else {
-					_e( 'No Forum', 'bbpress' );
+					?>
+					<span aria-hidden="true">&mdash;</span>
+					<span class="screen-reader-text"><?php esc_html_e( 'No forum', 'bbpress' ); ?></span>
+					<?php
 				}
 
 				break;
 
 			// Author
 			case 'bbp_reply_author' :
-				bbp_reply_author_display_name ( $reply_id );
+				bbp_reply_author_display_name( $reply_id );
 				break;
 
 			// Freshness
@@ -867,14 +867,16 @@ class BBP_Replies_Admin {
 
 		// Trash
 		if ( current_user_can( 'delete_reply', $reply->ID ) ) {
+			$trash_days = bbp_get_trash_days( bbp_get_reply_post_type() );
+
 			if ( bbp_get_trash_status_id() === $reply->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_reply_post_type() );
 				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-post_' . $reply->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
-			} elseif ( EMPTY_TRASH_DAYS ) {
+			} elseif ( ! empty( $trash_days ) ) {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $reply->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
 			}
 
-			if ( bbp_get_trash_status_id() === $reply->post_status || ! EMPTY_TRASH_DAYS ) {
+			if ( ( bbp_get_trash_status_id() === $reply->post_status ) || empty( $trash_days ) ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $reply->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
 			} elseif ( bbp_get_spam_status_id() === $reply->post_status ) {
 				unset( $actions['trash'] );
@@ -915,7 +917,7 @@ class BBP_Replies_Admin {
 		// Show the forums dropdown
 		bbp_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( 'In all forums', 'bbpress' )
+			'show_none' => esc_html__( 'In all forums', 'bbpress' )
 		) );
 	}
 
