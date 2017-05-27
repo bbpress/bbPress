@@ -1001,7 +1001,17 @@ function bbp_admin_setting_callback_show_on_root() {
 
 	</select>
 
-<?php
+	<?php
+
+	// Look for theme support
+	$forum_archive = basename( bbp_get_forum_archive_template() );
+
+	// This setting doesn't work if the theme has an archive-forum.php template.
+	if ( ! empty( $forum_archive ) ) : ?>
+
+		<p class="description"><?php printf( esc_html__( 'This setting will be ignored because %s was found in your theme.', 'bbpress' ), '<code>' . $forum_archive . '</code>' ); ?></p>
+
+	<?php endif;
 }
 
 /** User Slug Section *********************************************************/
