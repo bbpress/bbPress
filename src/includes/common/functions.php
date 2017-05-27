@@ -1688,13 +1688,17 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		// Join post statuses together
 		$post_status = "'" . implode( "', '", $post_status ) . "'";
 		$bbp_db      = bbp_db();
+
+		// Note that we can't use WP_Query here thanks to post_status assumptions
 		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC", $parent_id, $post_type );
 		$child_ids   = (array) $bbp_db->get_col( $query );
 
+		// Always cache the results
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
-	} else {
-		$child_ids = (array) $child_ids;
 	}
+
+	// Make sure results are INTs
+	$child_ids = wp_parse_id_list( $child_ids );
 
 	// Filter and return
 	return (array) apply_filters( 'bbp_get_all_child_ids', $child_ids, $parent_id, $post_type );

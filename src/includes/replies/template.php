@@ -1828,7 +1828,11 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 		// Reply doesn't have a position so get the raw value
 		if ( empty( $reply_position ) ) {
-			$topic_id = ! empty( $topic_id ) ? bbp_get_topic_id( $topic_id ) : bbp_get_reply_topic_id( $reply_id );
+
+			// Get topic ID
+			$topic_id = ! empty( $topic_id )
+				? bbp_get_topic_id( $topic_id )
+				: bbp_get_reply_topic_id( $reply_id );
 
 			// Post is not the topic
 			if ( $reply_id !== $topic_id ) {
