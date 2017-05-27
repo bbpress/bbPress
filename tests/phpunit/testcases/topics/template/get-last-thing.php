@@ -156,7 +156,7 @@ class BBP_Tests_Topics_Template_Get_Topic_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
-		$topic_last_reply_permalink = bbp_get_topic_last_reply_permalink( $f );
+		$topic_last_reply_permalink = bbp_get_forum_last_topic_permalink( $f );
 		$this->assertSame( bbp_get_topic_permalink( $t ), $topic_last_reply_permalink );
 
 		$r = $this->factory->reply->create( array(
@@ -167,7 +167,7 @@ class BBP_Tests_Topics_Template_Get_Topic_Last_Thing extends BBP_UnitTestCase {
 			)
 		) );
 
-		$topic_last_reply_permalink = bbp_get_topic_last_reply_permalink( $f );
+		$topic_last_reply_permalink = bbp_get_topic_last_reply_permalink( $t );
 		$this->assertSame( bbp_get_reply_permalink( $r ), $topic_last_reply_permalink );
 	}
 
