@@ -18,7 +18,9 @@
  * @return array Topic capabilities
  */
 function bbp_get_topic_caps() {
-	return apply_filters( 'bbp_get_topic_caps', array (
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_caps', array (
 		'edit_posts'          => 'edit_topics',
 		'edit_others_posts'   => 'edit_others_topics',
 		'publish_posts'       => 'publish_topics',
@@ -38,7 +40,9 @@ function bbp_get_topic_caps() {
  * @return array Topic tag capabilities
  */
 function bbp_get_topic_tag_caps() {
-	return apply_filters( 'bbp_get_topic_tag_caps', array (
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_tag_caps', array (
 		'manage_terms' => 'manage_topic_tags',
 		'edit_terms'   => 'edit_topic_tags',
 		'delete_terms' => 'delete_topic_tags',
@@ -224,7 +228,8 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			break;
 	}
 
-	return apply_filters( 'bbp_map_topic_meta_caps', $caps, $cap, $user_id, $args );
+	// Filter & return
+	return (array) apply_filters( 'bbp_map_topic_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**
@@ -255,5 +260,6 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 			}
 	}
 
-	return apply_filters( 'bbp_map_topic_tag_meta_caps', $caps, $cap, $user_id, $args );
+	// Filter & return
+	return (array) apply_filters( 'bbp_map_topic_tag_meta_caps', $caps, $cap, $user_id, $args );
 }

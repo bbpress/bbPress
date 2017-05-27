@@ -31,6 +31,7 @@ defined( 'ABSPATH' ) || exit;
 function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_add_user_to_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
 }
 
@@ -53,6 +54,7 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
 function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$retval = delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_remove_user_from_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
 }
 
@@ -74,7 +76,8 @@ function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 
 	$meta   = get_metadata( $meta_type, $object_id, $meta_key, false );
 	$retval = wp_parse_id_list( $meta );
 
-	return (array) apply_filters( 'bbp_get_users_for_object', (array) $retval, $object_id, $meta_key, $meta_type );
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_users_for_object', $retval, $object_id, $meta_key, $meta_type );
 }
 
 /**
@@ -97,7 +100,8 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $m
 	$user_ids = bbp_get_users_for_object( $object_id, $meta_key, $meta_type );
 	$retval   = is_numeric( array_search( $user_id, $user_ids, true ) );
 
-	return (bool) apply_filters( 'bbp_is_object_of_user', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_object_of_user', $retval, $object_id, $user_id, $meta_key, $meta_type );
 }
 
 /** Engagements ***************************************************************/
@@ -117,6 +121,7 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$users    = bbp_get_users_for_object( $topic_id, '_bbp_engagement' );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_topic_engagements', $users, $topic_id );
 }
 
@@ -143,6 +148,7 @@ function bbp_get_user_engagements( $user_id = 0 ) {
 		)
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_engagements', $engagements, $user_id );
 }
 
@@ -172,6 +178,7 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 		) )
 	) );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_engaged_topic_ids', $engagements->posts, $user_id );
 }
 
@@ -194,6 +201,7 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$retval   = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_engaged', (bool) $retval, $user_id, $topic_id );
 }
 
@@ -287,6 +295,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$users    = bbp_get_users_for_object( $topic_id, '_bbp_favorite' );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_topic_favoriters', $users, $topic_id );
 }
 
@@ -313,6 +322,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 		)
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_favorites', $query, $user_id );
 }
 
@@ -342,6 +352,7 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 		) )
 	) );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites->posts, $user_id );
 }
 
@@ -388,6 +399,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_favorite', (bool) $retval, $user_id, $topic_id, $favorites );
 }
 
@@ -584,6 +596,7 @@ function bbp_get_forum_subscribers( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$users    = bbp_get_users_for_object( $forum_id, '_bbp_subscription' );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_forum_subscribers', $users, $forum_id );
 }
 
@@ -601,6 +614,7 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$users    = bbp_get_users_for_object( $topic_id, '_bbp_subscription' );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_topic_subscribers', $users, $topic_id );
 }
 
@@ -618,6 +632,8 @@ function bbp_get_topic_subscribers( $topic_id = 0 ) {
 function bbp_get_user_subscriptions( $user_id = 0 ) {
 	_deprecated_function( __FUNCTION__, 2.5, 'bbp_get_user_topic_subscriptions()' );
 	$query = bbp_get_user_topic_subscriptions( $user_id );
+
+	// Filter & return
 	return apply_filters( 'bbp_get_user_subscriptions', $query, $user_id );
 }
 
@@ -644,6 +660,7 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
 		)
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, $user_id );
 }
 
@@ -670,6 +687,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
 		)
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, $user_id );
 }
 
@@ -699,6 +717,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 		) )
 	) );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_subscribed_forum_ids', $subscriptions->posts, $user_id );
 }
 
@@ -728,6 +747,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 		) )
 	) );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_subscribed_topic_ids', $subscriptions->posts, $user_id );
 }
 
@@ -782,6 +802,7 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_subscribed', $retval, $user_id, $object_id, $subscribed_ids );
 }
 
@@ -839,6 +860,7 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
 		}
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_subscribed_to_forum', (bool) $retval, $user_id, $forum_id, $subscribed_ids );
 }
 
@@ -896,6 +918,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 		}
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_subscribed_to_topic', (bool) $retval, $user_id, $topic_id, $subscribed_ids );
 }
 

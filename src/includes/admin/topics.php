@@ -839,7 +839,9 @@ class BBP_Topics_Admin {
 	 * @return array
 	 */
 	private function get_allowed_notice_toggles() {
-		return apply_filters( 'bbp_admin_topics_allowed_notice_toggles', array(
+
+		// Filter & return
+		return (array) apply_filters( 'bbp_admin_topics_allowed_notice_toggles', array(
 			'opened',
 			'closed',
 			'super_sticky',
@@ -860,7 +862,9 @@ class BBP_Topics_Admin {
 	 * @return array
 	 */
 	private function get_allowed_action_toggles() {
-		return apply_filters( 'bbp_admin_topics_allowed_action_toggles', array(
+
+		// Filter & return
+		return (array) apply_filters( 'bbp_admin_topics_allowed_action_toggles', array(
 			'bbp_toggle_topic_close',
 			'bbp_toggle_topic_stick',
 			'bbp_toggle_topic_spam',
@@ -890,7 +894,8 @@ class BBP_Topics_Admin {
 			'bbp_topic_freshness'   => __( 'Last Post', 'bbpress' )
 		);
 
-		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
+		// Filter & return
+		return (array) apply_filters( 'bbp_admin_topics_column_headers', $columns );
 	}
 
 	/**

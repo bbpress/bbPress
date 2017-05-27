@@ -114,6 +114,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 		$template = bbp_set_template_included( $new_template );
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }
 

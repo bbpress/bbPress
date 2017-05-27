@@ -457,7 +457,9 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
  * @return array
  */
 function bbp_get_tools_admin_pages() {
-	return apply_filters( 'bbp_tools_admin_tabs', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_tools_admin_tabs', array(
 		array(
 			'page' => 'bbp-repair',
 			'func' => 'bbp_admin_repair_page',

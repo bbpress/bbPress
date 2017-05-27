@@ -102,6 +102,8 @@ function bbp_rewrite() {
  * @return string
  */
 function bbp_get_root_url() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_root_url', bbp_rewrite()->root );
 }
 
@@ -113,6 +115,8 @@ function bbp_get_root_url() {
  * @return string
  */
 function bbp_get_paged_slug() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_paged_slug', bbp_rewrite()->pagination_base );
 }
 

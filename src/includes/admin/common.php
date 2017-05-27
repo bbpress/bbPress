@@ -166,7 +166,7 @@ function bbp_sanitize_slug( $slug = '' ) {
 	$value = ltrim( $value, '/' );
 	$value = rtrim( $value, '/' );
 
-	// Filter the result and return
+	// Filter & return
 	return apply_filters( 'bbp_sanitize_slug', $value, $slug );
 }
 

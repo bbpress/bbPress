@@ -29,15 +29,12 @@ add_filter( 'bbp_is_user_home',     'bbp_filter_is_user_home',      10, 1 );
  */
 function bbp_get_component_name() {
 
-	// Use existing ID
-	if ( ! empty( bbpress()->extend->buddypress->id ) ) {
-		$retval = bbpress()->extend->buddypress->id;
+	// Use existing ID or default
+	$retval = ! empty( bbpress()->extend->buddypress->id )
+		? bbpress()->extend->buddypress->id
+		: 'forums';
 
-	// Use default
-	} else {
-		$retval = 'forums';
-	}
-
+	// Filter & return
 	return apply_filters( 'bbp_get_component_name', $retval );
 }
 
@@ -64,15 +61,13 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 	// Easy empty checking
 	if ( ! empty( $user_id ) && is_numeric( $user_id ) ) {
 		$bbp_user_id = $user_id;
-	}
 
 	// Currently viewing or editing a user
-	elseif ( ( true === $displayed_user_fallback ) && ! empty( $did ) ) {
+	} elseif ( ( true === $displayed_user_fallback ) && ! empty( $did ) ) {
 		$bbp_user_id = $did;
-	}
 
 	// Maybe fallback on the current_user ID
-	elseif ( ( true === $current_user_fallback ) && ! empty( $lid ) ) {
+	} elseif ( ( true === $current_user_fallback ) && ! empty( $lid ) ) {
 		$bbp_user_id = $lid;
 	}
 
@@ -80,7 +75,7 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 }
 
 /**
- * Filter the bbPress is_single_user function with BuddyPress eqivalent
+ * Filter the bbPress is_single_user function with BuddyPress equivalent
  *
  * @since 2.1.0 bbPress (r3552)
  *
@@ -96,7 +91,7 @@ function bbp_filter_is_single_user( $is = false ) {
 }
 
 /**
- * Filter the bbPress is_user_home function with BuddyPress eqivalent
+ * Filter the bbPress is_user_home function with BuddyPress equivalent
  *
  * @since 2.1.0 bbPress (r3552)
  *
@@ -577,6 +572,7 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 	// Check if the forum has groups
 	$retval    = (bool) ! empty( $group_ids );
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_forum_group_forum', $retval, $forum_id, $group_ids );
 }
 
@@ -747,7 +743,9 @@ function bbp_group_is_creator() {
  * @return array
  */
 function bbp_get_activity_actions() {
-	return apply_filters( 'bbp_get_activity_actions', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_activity_actions', array(
 		'topic' => __( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
 		'reply' => __( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
 	) );

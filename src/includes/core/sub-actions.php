@@ -467,6 +467,8 @@ function bbp_get_request() {
  * @param string $domain
  */
 function bbp_plugin_locale( $locale = '', $domain = '' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_plugin_locale', $locale, $domain );
 }
 
@@ -479,6 +481,8 @@ function bbp_plugin_locale( $locale = '', $domain = '' ) {
  * @return array
  */
 function bbp_request( $query_vars = array() ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_request', $query_vars );
 }
 
@@ -493,6 +497,8 @@ function bbp_request( $query_vars = array() ) {
  * @return string Template file to use
  */
 function bbp_template_include( $template = '' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_template_include', $template );
 }
 
@@ -515,9 +521,12 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  *
  * @since 2.0.0 bbPress (r2944)
  *
+ * @param array $themes
  * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
  */
 function bbp_allowed_themes( $themes ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_allowed_themes', $themes );
 }
 
@@ -532,5 +541,7 @@ function bbp_allowed_themes( $themes ) {
  * @param array $args Arguments
  */
 function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
 }

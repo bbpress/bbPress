@@ -21,22 +21,23 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 	echo esc_url( bbp_get_admin_repair_tool_run_url( $component ) );
 }
 
-/**
- * Return the URL to run a specific repair tool
- *
- * @since 2.6.0 bbPress (r5885)
- *
- * @param string $component
- */
-function bbp_get_admin_repair_tool_run_url( $component = array() ) {
-	$tools  = admin_url( 'tools.php' );
-	$page   = ( 'repair' === $component['type'] ) ? 'bbp-repair' : 'bbp-upgrade';
-	$args   = array( 'page' => $page, 'action' => 'run', 'checked' => array( $component['id'] ) );
-	$url    = add_query_arg( $args, $tools );
-	$nonced = wp_nonce_url( $url, 'bbpress-do-counts' );
+	/**
+	 * Return the URL to run a specific repair tool
+	 *
+	 * @since 2.6.0 bbPress (r5885)
+	 *
+	 * @param string $component
+	 */
+	function bbp_get_admin_repair_tool_run_url( $component = array() ) {
+		$tools  = admin_url( 'tools.php' );
+		$page   = ( 'repair' === $component['type'] ) ? 'bbp-repair' : 'bbp-upgrade';
+		$args   = array( 'page' => $page, 'action' => 'run', 'checked' => array( $component['id'] ) );
+		$url    = add_query_arg( $args, $tools );
+		$nonced = wp_nonce_url( $url, 'bbpress-do-counts' );
 
-	return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
-}
+		// Filter & return
+		return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
+	}
 
 /**
  * Assemble the admin notices
@@ -173,6 +174,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
 		$tools = wp_list_filter( bbpress()->admin->tools, array( 'type' => $type ) );
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_admin_repair_tools', $tools, $type );
 }
 
@@ -197,6 +199,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_admin_repair_tool_registered_components', $retval );
 }
 
@@ -379,6 +382,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 	// Sort
 	ksort( $repair_list );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_repair_list', $repair_list );
 }
 

@@ -117,7 +117,8 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			break;
 	}
 
-	return apply_filters( 'bbp_map_primary_meta_caps', $caps, $cap, $user_id, $args );
+	// Filter & return
+	return (array) apply_filters( 'bbp_map_primary_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**
@@ -166,6 +167,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 		$new_role = false;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_set_user_role', $new_role, $user_id, $user );
 }
 
@@ -204,6 +206,7 @@ function bbp_get_user_role( $user_id = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_role', $role, $user_id, $user );
 }
 
@@ -242,6 +245,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_blog_role', $role, $user_id, $user );
 }
 
@@ -392,7 +396,7 @@ function bbp_get_user_role_map() {
 	// Get the default role once here
 	$default_role = bbp_get_default_role();
 
-	// Return filtered results, forcing admins to keymasters.
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_user_role_map', array (
 		'administrator' => bbp_get_keymaster_role(),
 		'editor'        => $default_role,
@@ -439,6 +443,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 		$is_spammer = true;
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_core_is_user_spammer', $is_spammer );
 }
 
@@ -660,6 +665,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 		$is_deleted = true;
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_core_is_user_deleted', $is_deleted );
 }
 
@@ -743,7 +749,7 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
 	// Default to current user ID if none is passed
 	$_user_id = (int) ! empty( $user_id ) ? $user_id : bbp_get_current_user_id();
 
-	// Filter and return
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_keymaster', user_can( $_user_id, 'keep_gate' ), $_user_id, $user_id );
 }
 
@@ -782,7 +788,7 @@ function bbp_user_has_profile( $user_id = 0 ) {
 		$retval = false;
 	}
 
-	// Filter and return
+	// Filter & return
 	return (bool) apply_filters( 'bbp_show_user_profile', $retval, $user_id );
 }
 
@@ -854,5 +860,6 @@ function bbp_get_moderators( $object_id = 0 ) {
 		) );
 	}
 
-	return apply_filters( 'bbp_get_moderators', $users, $object_id );
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_moderators', $users, $object_id );
 }

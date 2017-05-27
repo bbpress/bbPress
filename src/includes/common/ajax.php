@@ -37,6 +37,7 @@ function bbp_ajax_url() {
 		$base_url = home_url( trailingslashit( $wp->request ), ( is_ssl() ? 'https' : 'http' ) );
 		$ajaxurl  = add_query_arg( array( 'bbp-ajax' => 'true' ), $base_url );
 
+		// Filter & return
 		return apply_filters( 'bbp_get_ajax_url', $ajaxurl );
 	}
 

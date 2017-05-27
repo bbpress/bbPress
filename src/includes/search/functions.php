@@ -49,8 +49,11 @@ function bbp_get_search_query_args() {
 
 	// Get search terms
 	$search_terms = bbp_get_search_terms();
-	$retval       = ! empty( $search_terms ) ? array( 's' => $search_terms ) : array();
+	$retval       = ! empty( $search_terms )
+		? array( 's' => $search_terms )
+		: array();
 
+	// Filter & return
 	return apply_filters( 'bbp_get_search_query_args', $retval );
 }
 

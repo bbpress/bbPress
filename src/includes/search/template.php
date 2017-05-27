@@ -159,7 +159,7 @@ function bbp_has_search_results( $args = array() ) {
 		}
 	}
 
-	// Return object
+	// Filter & return
 	return apply_filters( 'bbp_has_search_results', $bbp->search_query->have_posts(), $bbp->search_query );
 }
 
@@ -236,6 +236,7 @@ function bbp_search_title() {
 			$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_search_title', $title, $search_terms );
 	}
 
@@ -276,6 +277,7 @@ function bbp_search_url() {
 			), home_url( '/' ) );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_search_url', $url );
 	}
 
@@ -328,6 +330,7 @@ function bbp_search_results_url() {
 			), home_url( '/' ) );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_search_results_url', $url );
 	}
 
@@ -370,6 +373,7 @@ function bbp_search_terms( $search_terms = '' ) {
 		// Trim whitespace and decode, or set explicitly to false if empty
 		$search_terms = ! empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
 
+		// Filter & return
 		return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
 	}
 
@@ -422,7 +426,7 @@ function bbp_search_pagination_count() {
 			$retstr = sprintf( _n( 'Viewing %2$s results (of %4$s total)', 'Viewing %1$s results - %2$s through %3$s (of %4$s total)', $bbp->search_query->post_count, 'bbpress' ), $bbp->search_query->post_count, $from_num, $to_num, $total_num );
 		}
 
-		// Filter and return
+		// Filter & return
 		return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 	}
 
@@ -453,5 +457,6 @@ function bbp_search_pagination_links() {
 			return false;
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
 	}

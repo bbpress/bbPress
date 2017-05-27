@@ -76,7 +76,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	 */
 	do_action( 'bbp_insert_reply', (int) $reply_id, (int) $reply_meta['topic_id'], (int) $reply_meta['forum_id'] );
 
-	// Return new reply ID
+	// Return reply_id
 	return $reply_id;
 }
 
@@ -1088,6 +1088,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	// Update the forum ID
 	$forum_id = bbp_update_forum_id( $reply_id, $forum_id );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_reply_forum_id', $forum_id, $reply_id );
 }
 
@@ -1137,6 +1138,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	// Update the topic ID
 	$topic_id = bbp_update_topic_id( $reply_id, $topic_id );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_reply_topic_id', $topic_id, $reply_id );
 }
 
@@ -1172,6 +1174,7 @@ function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_reply_to', $reply_to, $reply_id );
 }
 
@@ -1221,6 +1224,7 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
 		}
 	}
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_reply_ancestors', $ancestors, $reply_id );
 }
 
@@ -1263,6 +1267,7 @@ function bbp_update_reply_revision_log( $args = array() ) {
 	// Finally, update
 	update_post_meta( $r['reply_id'], '_bbp_revision_log', $revision_log );
 
+	// Filter & return
 	return apply_filters( 'bbp_update_reply_revision_log', $revision_log, $r['reply_id'] );
 }
 
@@ -1764,7 +1769,9 @@ function bbp_toggle_reply( $args = array() ) {
  * @return array
  */
 function bbp_get_reply_statuses( $reply_id = 0 ) {
-	return apply_filters( 'bbp_get_reply_statuses', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_reply_statuses', array(
 		bbp_get_public_status_id()  => _x( 'Publish', 'Publish the reply',     'bbpress' ),
 		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the reply',        'bbpress' ),
 		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the reply',       'bbpress' ),
@@ -1782,7 +1789,9 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
  * @return array
  */
 function bbp_get_reply_toggles( $reply_id = 0 ) {
-	return apply_filters( 'bbp_get_toggle_reply_actions', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_toggle_reply_actions', array(
 		'bbp_toggle_reply_spam',
 		'bbp_toggle_reply_trash',
 		'bbp_toggle_reply_approve'
@@ -2114,7 +2123,7 @@ function bbp_get_replies_per_page( $default = 15 ) {
 		$retval = $default;
 	}
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_replies_per_page', $retval, $default );
 }
 
@@ -2138,7 +2147,7 @@ function bbp_get_replies_per_rss_page( $default = 25 ) {
 		$retval = $default;
 	}
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_replies_per_rss_page', $retval, $default );
 }
 
@@ -2512,6 +2521,7 @@ function bbp_thread_replies() {
 		$retval = (bool) ( ( $depth >= 2 ) && ( true === $allow ) );
 	}
 
+	// Filter & return
 	return (bool) apply_filters( 'bbp_thread_replies', $retval, $depth, $allow );
 }
 

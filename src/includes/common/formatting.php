@@ -22,7 +22,9 @@ defined( 'ABSPATH' ) || exit;
  * @return array Associative array of allowed tags and attributes
  */
 function bbp_kses_allowed_tags() {
-	return apply_filters( 'bbp_kses_allowed_tags', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_kses_allowed_tags', array(
 
 		// Links
 		'a' => array(
@@ -527,7 +529,7 @@ function bbp_number_not_negative( $number = 0 ) {
 	$not_less_than_zero = max( 0, $int );
 
 	// Filter & return
-	return apply_filters( 'bbp_number_not_negative', $not_less_than_zero, $int, $number );
+	return (int) apply_filters( 'bbp_number_not_negative', $not_less_than_zero, $int, $number );
 }
 
 /**
@@ -548,6 +550,7 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 		$number = 0;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
 }
 
@@ -569,6 +572,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 		$number = 0;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
 }
 
@@ -592,6 +596,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 	$new_time = mysql2date( $d, $time, $translate );
 
+	// Filter & return
 	return apply_filters( 'bbp_convert_date', $new_time, $d, $translate, $time );
 }
 
@@ -710,6 +715,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			$output = sprintf( $ago_text, $output );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
 	}
 

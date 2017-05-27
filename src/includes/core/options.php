@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_get_default_options() {
 
-	// Default options
+	// Filter & return
 	return apply_filters( 'bbp_get_default_options', array(
 
 		/** DB Version ********************************************************/
@@ -215,6 +215,8 @@ function bbp_pre_get_option( $value = '' ) {
  * @return bool Is favorites enabled or not
  */
 function bbp_is_favorites_active( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', $default ) );
 }
 
@@ -228,6 +230,8 @@ function bbp_is_favorites_active( $default = 1 ) {
  * @return bool Is subscription enabled or not
  */
 function bbp_is_subscriptions_active( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
 }
 
@@ -241,6 +245,8 @@ function bbp_is_subscriptions_active( $default = 1 ) {
  * @return bool Is engagements enabled or not
  */
 function bbp_is_engagements_active( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_engagements_active', (bool) get_option( '_bbp_enable_engagements', $default ) );
 }
 
@@ -254,6 +260,8 @@ function bbp_is_engagements_active( $default = 1 ) {
  * @return bool Are tags allowed?
  */
 function bbp_allow_topic_tags( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_topic_tags', (bool) get_option( '_bbp_allow_topic_tags', $default ) );
 }
 
@@ -268,6 +276,8 @@ function bbp_allow_topic_tags( $default = 1 ) {
  * @return bool Are per-forum moderators allowed?
  */
 function bbp_allow_forum_mods( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_forum_mods', (bool) get_option( '_bbp_allow_forum_mods', $default ) );
 }
 
@@ -281,6 +291,8 @@ function bbp_allow_forum_mods( $default = 1 ) {
  * @return bool Is forum-wide searching allowed?
  */
 function bbp_allow_search( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_search', (bool) get_option( '_bbp_allow_search', $default ) );
 }
 
@@ -294,6 +306,8 @@ function bbp_allow_search( $default = 1 ) {
  * @return bool Are threaded replies allowed?
  */
 function bbp_allow_threaded_replies( $default = 0 ) {
+
+	// Filter & return
 	return (bool) apply_filters( '_bbp_allow_threaded_replies', (bool) get_option( '_bbp_allow_threaded_replies', $default ) );
 }
 
@@ -309,6 +323,8 @@ function bbp_allow_threaded_replies( $default = 0 ) {
  * @return int Thread replies depth
  */
 function bbp_thread_replies_depth( $default = 2 ) {
+
+	// Filter & return
 	return (int) apply_filters( 'bbp_thread_replies_depth', (int) get_option( '_bbp_thread_replies_depth', $default ) );
 }
 
@@ -322,6 +338,8 @@ function bbp_thread_replies_depth( $default = 2 ) {
  * @return bool Are revisions allowed?
  */
 function bbp_allow_revisions( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_revisions', (bool) get_option( '_bbp_allow_revisions', $default ) );
 }
 
@@ -335,6 +353,8 @@ function bbp_allow_revisions( $default = 1 ) {
  * @return bool Is anonymous posting allowed?
  */
 function bbp_allow_anonymous( $default = 0 ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_allow_anonymous', (bool) get_option( '_bbp_allow_anonymous', $default ) );
 }
 
@@ -348,6 +368,8 @@ function bbp_allow_anonymous( $default = 0 ) {
  * @return bool Is global access allowed?
  */
 function bbp_allow_global_access( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
 }
 
@@ -361,6 +383,8 @@ function bbp_allow_global_access( $default = 1 ) {
  * @return string The default forums user role
  */
 function bbp_get_default_role( $default = 'bbp_participant' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_default_role', get_option( '_bbp_default_role', $default ) );
 }
 
@@ -374,6 +398,8 @@ function bbp_get_default_role( $default = 'bbp_participant' ) {
  * @return bool Use WP editor?
  */
 function bbp_use_wp_editor( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_use_wp_editor', (bool) get_option( '_bbp_use_wp_editor', $default ) );
 }
 
@@ -387,6 +413,8 @@ function bbp_use_wp_editor( $default = 1 ) {
  * @return bool Use oEmbed?
  */
 function bbp_use_autoembed( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_use_autoembed', (bool) get_option( '_bbp_use_autoembed', $default ) );
 }
 
@@ -400,6 +428,8 @@ function bbp_use_autoembed( $default = 1 ) {
  * @return string ID of the theme-package
  */
 function bbp_get_theme_package_id( $default = 'default' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_package_id', get_option( '_bbp_theme_package_id', $default ) );
 }
 
@@ -423,6 +453,8 @@ function bbp_title_max_length( $default = 80 ) {
 	 * @return int Is anonymous posting allowed?
 	 */
 	function bbp_get_title_max_length( $default = 80 ) {
+
+		// Filter & return
 		return (int) apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
 	}
 
@@ -446,6 +478,8 @@ function bbp_group_forums_root_id( $default = 0 ) {
 	 * @return int The post ID for the root forum
 	 */
 	function bbp_get_group_forums_root_id( $default = 0 ) {
+
+		// Filter & return
 		return (int) apply_filters( 'bbp_get_group_forums_root_id', (int) get_option( '_bbp_group_forums_root_id', $default ) );
 	}
 
@@ -459,6 +493,8 @@ function bbp_group_forums_root_id( $default = 0 ) {
  * @return bool Is group forums enabled or not
  */
 function bbp_is_group_forums_active( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_group_forums_active', (bool) get_option( '_bbp_enable_group_forums', $default ) );
 }
 
@@ -472,6 +508,8 @@ function bbp_is_group_forums_active( $default = 1 ) {
  * @return bool Is Akismet enabled or not
  */
 function bbp_is_akismet_active( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_is_akismet_active', (bool) get_option( '_bbp_enable_akismet', $default ) );
 }
 
@@ -520,6 +558,8 @@ function bbp_settings_integration( $default = 'basic' ) {
  * @return string
  */
 function bbp_get_root_slug( $default = 'forums' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_root_slug', get_option( '_bbp_root_slug', $default ) );
 }
 
@@ -531,6 +571,8 @@ function bbp_get_root_slug( $default = 'forums' ) {
  * @return bool
  */
 function bbp_include_root_slug( $default = 1 ) {
+
+	// Filter & return
 	return (bool) apply_filters( 'bbp_include_root_slug', (bool) get_option( '_bbp_include_root', $default ) );
 }
 
@@ -542,6 +584,8 @@ function bbp_include_root_slug( $default = 1 ) {
  * @return string
  */
 function bbp_show_on_root( $default = 'forums' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_show_on_root', get_option( '_bbp_show_on_root', $default ) );
 }
 
@@ -559,6 +603,7 @@ function bbp_maybe_get_root_slug() {
 		$retval = trailingslashit( bbp_get_root_slug() );
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_maybe_get_root_slug', $retval );
 }
 
@@ -570,6 +615,8 @@ function bbp_maybe_get_root_slug() {
  * @return string
  */
 function bbp_get_forum_slug( $default = 'forum' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_forum_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_forum_slug', $default ) );
 }
 
@@ -581,6 +628,8 @@ function bbp_get_forum_slug( $default = 'forum' ) {
  * @return string
  */
 function bbp_get_topic_archive_slug( $default = 'topics' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_topic_archive_slug', get_option( '_bbp_topic_archive_slug', $default ) );
 }
 
@@ -592,6 +641,8 @@ function bbp_get_topic_archive_slug( $default = 'topics' ) {
  * @return string
  */
 function bbp_get_reply_archive_slug( $default = 'replies' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_reply_archive_slug', get_option( '_bbp_reply_archive_slug', $default ) );
 }
 
@@ -603,6 +654,8 @@ function bbp_get_reply_archive_slug( $default = 'replies' ) {
  * @return string
  */
 function bbp_get_topic_slug( $default = 'topic' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_topic_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_slug', $default ) );
 }
 
@@ -614,6 +667,8 @@ function bbp_get_topic_slug( $default = 'topic' ) {
  * @return string
  */
 function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_topic_tag_tax_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_topic_tag_slug', $default ) );
 }
 
@@ -625,6 +680,8 @@ function bbp_get_topic_tag_tax_slug( $default = 'topic-tag' ) {
  * @return string
  */
 function bbp_get_reply_slug( $default = 'reply' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_reply_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_reply_slug', $default ) );
 }
 
@@ -636,6 +693,8 @@ function bbp_get_reply_slug( $default = 'reply' ) {
  * @return string
  */
 function bbp_get_user_slug( $default = 'users' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_user_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_user_slug', $default ) );
 }
 
@@ -647,6 +706,8 @@ function bbp_get_user_slug( $default = 'users' ) {
  * @return string
  */
 function bbp_get_user_favorites_slug( $default = 'favorites' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_user_favorites_slug', get_option( '_bbp_user_favs_slug', $default ) );
 }
 
@@ -658,6 +719,8 @@ function bbp_get_user_favorites_slug( $default = 'favorites' ) {
  * @return string
  */
 function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_user_subscriptions_slug', get_option( '_bbp_user_subs_slug', $default ) );
 }
 
@@ -669,6 +732,8 @@ function bbp_get_user_subscriptions_slug( $default = 'subscriptions' ) {
  * @return string
  */
 function bbp_get_user_engagements_slug( $default = 'engagements' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_user_engagements_slug', get_option( '_bbp_user_engagements_slug', $default ) );
 }
 
@@ -680,6 +745,8 @@ function bbp_get_user_engagements_slug( $default = 'engagements' ) {
  * @return string
  */
 function bbp_get_view_slug( $default = 'view' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_view_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_view_slug', $default ) );
 }
 
@@ -691,6 +758,8 @@ function bbp_get_view_slug( $default = 'view' ) {
  * @return string
  */
 function bbp_get_search_slug( $default = 'search' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
 }
 
@@ -706,5 +775,7 @@ function bbp_get_search_slug( $default = 'search' ) {
  * @return string The location of the bb-config.php file, if any
  */
 function bbp_get_config_location( $default = '' ) {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_config_location', get_option( 'bb-config-location', $default ) );
 }

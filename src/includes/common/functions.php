@@ -23,8 +23,13 @@ defined( 'ABSPATH' ) || exit;
  * @return string The URL to redirect to, if set
  */
 function bbp_get_redirect_to() {
-	$retval = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
+	// Check 'redirect_to' request parameter
+	$retval = ! empty( $_REQUEST['redirect_to'] )
+		? $_REQUEST['redirect_to']
+		: '';
+
+	// Filter & return
 	return apply_filters( 'bbp_get_redirect_to', $retval );
 }
 
@@ -43,12 +48,11 @@ function bbp_get_redirect_to() {
 function bbp_add_view_all( $original_link = '', $force = false ) {
 
 	// Are we appending the view=all vars?
-	if ( bbp_get_view_all() || ! empty( $force ) ) {
-		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
-	} else {
-		$link = $original_link;
-	}
+	$link = ( bbp_get_view_all() || ! empty( $force ) )
+		? add_query_arg( array( 'view' => 'all' ), $original_link )
+		: $original_link;
 
+	// Filter & return
 	return apply_filters( 'bbp_add_view_all', $link, $original_link );
 }
 
@@ -64,7 +68,12 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
  * @return string The link with 'view=all' appended if necessary
  */
 function bbp_remove_view_all( $original_link = '' ) {
-	return apply_filters( 'bbp_remove_view_all', remove_query_arg( 'view', $original_link ), $original_link );
+
+	// Remove `view' argument
+	$link = remove_query_arg( 'view', $original_link );
+
+	// Filter & return
+	return apply_filters( 'bbp_remove_view_all', $link, $original_link );
 }
 
 /**
@@ -78,6 +87,8 @@ function bbp_remove_view_all( $original_link = '' ) {
  */
 function bbp_get_view_all( $cap = 'moderate' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && current_user_can( $cap ) ) );
+
+	// Filter & return
 	return apply_filters( 'bbp_get_view_all', (bool) $retval );
 }
 
@@ -191,6 +202,7 @@ function bbp_past_edit_lock( $post_date_gmt ) {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_past_edit_lock', (bool) $retval, $cur_time, $lock_time, $post_date_gmt );
 }
 
@@ -423,6 +435,7 @@ function bbp_get_statistics( $args = array() ) {
 	$statistics['hidden_topic_title'] = isset( $hidden_topic_title ) ? $hidden_topic_title : '';
 	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
 
+	// Filter & return
 	return apply_filters( 'bbp_get_statistics', $statistics, $r );
 }
 
@@ -479,7 +492,7 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 	// Website is optional (can be empty)
 	$r['bbp_anonymous_website'] = apply_filters( 'bbp_pre_anonymous_post_author_website', $r['bbp_anonymous_website'] );
 
-	// Finally, return filtered anonymous post data
+	// Filter & return
 	return (array) apply_filters( 'bbp_filter_anonymous_post_data', $r, $args );
 }
 
@@ -518,7 +531,7 @@ function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
 		}
 	}
 
-	// Filter and return
+	// Filter & return
 	return (array) apply_filters( 'bbp_sanitize_anonymous_post_author', $r, $anonymous_data );
 }
 
@@ -971,6 +984,8 @@ function bbp_get_do_not_reply_address() {
 	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 		$sitename = substr( $sitename, 4 );
 	}
+
+	// Filter & return
 	return apply_filters( 'bbp_get_do_not_reply_address', 'noreply@' . $sitename );
 }
 
@@ -1364,7 +1379,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		$url         = add_query_arg( array( 'redirect_to' => urlencode( $redirect_to ) ), $url                    );
 	}
 
-	// Filter and return
+	// Filter & return
 	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
 }
 
@@ -1514,7 +1529,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	$child_id = array_shift( $query->posts );
 	unset( $query );
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_public_child_last_id', $child_id, $parent_id, $post_type );
 }
 
@@ -1565,7 +1580,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	$child_count = $query->post_count;
 	unset( $query );
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
 }
 
@@ -1616,7 +1631,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
 	unset( $query );
 
-	// Filter and return
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_public_child_ids', $child_ids, $parent_id, $post_type );
 }
 
@@ -1700,7 +1715,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Make sure results are INTs
 	$child_ids = wp_parse_id_list( $child_ids );
 
-	// Filter and return
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_all_child_ids', $child_ids, $parent_id, $post_type );
 }
 
@@ -1725,6 +1740,7 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 		? sanitize_post_field( $field, $post->{$field}, $post->ID, $context )
 		: '';
 
+	// Filter & return
 	return apply_filters( 'bbp_get_global_post_field', $retval, $post, $field, $context );
 }
 
@@ -2058,6 +2074,7 @@ function bbp_get_page_by_path( $path = '' ) {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_page_by_path', $retval, $path );
 }
 

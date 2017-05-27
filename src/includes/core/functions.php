@@ -283,6 +283,7 @@ function bbp_get_view_query_args( $view = '' ) {
 		? $bbp->views[ $view ]['query']
 		: false;
 
+	// Filter & return
 	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }
 
@@ -336,6 +337,8 @@ function bbp_has_errors() {
  * @return string Pattern to match usernames with
  */
 function bbp_find_mentions_pattern() {
+
+	// Filter & return
 	return apply_filters( 'bbp_find_mentions_pattern', '/[@]+([A-Za-z0-9-_\.@]+)\b/' );
 }
 
@@ -358,6 +361,7 @@ function bbp_find_mentions( $content = '' ) {
 		$usernames = false;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_find_mentions', $usernames, $pattern, $content );
 }
 

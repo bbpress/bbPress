@@ -39,6 +39,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 		$url = home_url();
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_redirect_login', $url, $raw_url, $user );
 }
 
@@ -54,13 +55,10 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
  *               anonymous is not allowed or user is logged in
  */
 function bbp_is_anonymous() {
-	if ( ! is_user_logged_in() && bbp_allow_anonymous() ) {
-		$is_anonymous = true;
-	} else {
-		$is_anonymous = false;
-	}
+	$is_anonymous = ( ! is_user_logged_in() && bbp_allow_anonymous() );
 
-	return apply_filters( 'bbp_is_anonymous', $is_anonymous );
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_anonymous', $is_anonymous );
 }
 
 /**
@@ -166,6 +164,7 @@ function bbp_current_author_ip() {
 	// Remove any unsavory bits
 	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $remote_address );
 
+	// Filter & return
 	return apply_filters( 'bbp_current_author_ip', $retval, $remote_address );
 }
 
@@ -181,6 +180,7 @@ function bbp_current_author_ua() {
 		? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 )
 		: '';
 
+	// Filter & return
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
 
@@ -552,6 +552,7 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 		'author' => $user_id
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_topics_started', $query, $user_id );
 }
 
@@ -580,6 +581,7 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
 		'author'    => $user_id
 	) );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id );
 }
 
@@ -594,7 +596,9 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
  */
 function bbp_get_total_users() {
 	$user_count = count_users();
-	return apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
+
+	// Filter & return
+	return (int) apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
 }
 
 /**
@@ -631,7 +635,8 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 		}
 	}
 
-	return apply_filters( 'bbp_get_user_ids_from_nicenames', $retval, $user_nicenames );
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_user_ids_from_nicenames', $retval, $user_nicenames );
 }
 
 /**
@@ -663,7 +668,8 @@ function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 		}
 	}
 
-	return apply_filters( 'bbp_get_user_nicenames_from_ids', $retval, $user_ids );
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_user_nicenames_from_ids', $retval, $user_ids );
 }
 
 /** Post Counts ***************************************************************/
@@ -692,6 +698,7 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 	// Manually add the user closed topic count, see #2978 and #WP12706
 	$count = $count + bbp_get_user_closed_topic_count( $user_id );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
 }
 
@@ -717,6 +724,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 
 	$count = count_user_posts( $user_id, bbp_get_reply_post_type(), false );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
 }
 
@@ -747,6 +755,7 @@ function bbp_get_user_closed_topic_count( $user_id = 0 ) {
 		$user_id
 	) );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_user_closed_topic_count', $count, $user_id );
 }
 

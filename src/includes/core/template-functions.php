@@ -352,6 +352,7 @@ function bbp_get_template_stack() {
 	// Remove empties and duplicates
 	$stack = array_unique( array_filter( $stack ) );
 
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_template_stack', $stack ) ;
 }
 
@@ -411,6 +412,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
 	$template  = bbp_locate_template( $templates );
 	$template  = bbp_set_theme_compat_template( $template );
 
+	// Filter & return
 	return apply_filters( "bbp_{$type}_template", $template );
 }
 
@@ -428,6 +430,8 @@ function bbp_get_template_locations( $templates = array() ) {
 		'forums',
 		''
 	);
+
+	// Filter & return
 	return apply_filters( 'bbp_get_template_locations', $locations, $templates );
 }
 
@@ -452,6 +456,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 		}
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
 }
 

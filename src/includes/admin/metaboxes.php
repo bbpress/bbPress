@@ -50,7 +50,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>';
 	}
 
-	// Filter and return
+	// Filter & return
 	return apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
 }
 

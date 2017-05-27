@@ -18,7 +18,9 @@
  * @return array Forum capabilities
  */
 function bbp_get_forum_caps() {
-	return apply_filters( 'bbp_get_forum_caps', array (
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_forum_caps', array (
 		'edit_posts'          => 'edit_forums',
 		'edit_others_posts'   => 'edit_others_forums',
 		'publish_posts'       => 'publish_forums',
@@ -199,7 +201,8 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			break;
 	}
 
-	return apply_filters( 'bbp_map_forum_meta_caps', $caps, $cap, $user_id, $args );
+	// Filter & return
+	return (array) apply_filters( 'bbp_map_forum_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**

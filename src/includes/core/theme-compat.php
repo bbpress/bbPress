@@ -125,6 +125,8 @@ function bbp_setup_theme_compat( $theme = '' ) {
  * @return string
  */
 function bbp_get_theme_compat_id() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_compat_id', bbpress()->theme_compat->theme->id );
 }
 
@@ -140,11 +142,13 @@ function bbp_get_theme_compat_id() {
  * @return string
  */
 function bbp_get_theme_compat_name() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_compat_name', bbpress()->theme_compat->theme->name );
 }
 
 /**
- * Gets the version of the bbPress compatable theme used, in the event the
+ * Gets the version of the bbPress compatible theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
@@ -155,11 +159,13 @@ function bbp_get_theme_compat_name() {
  * @return string
  */
 function bbp_get_theme_compat_version() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_compat_version', bbpress()->theme_compat->theme->version );
 }
 
 /**
- * Gets the bbPress compatable theme used in the event the currently active
+ * Gets the bbPress compatible theme used in the event the currently active
  * WordPress theme does not explicitly support bbPress. This can be filtered,
  * or set manually. Tricky theme authors can override the default and include
  * their own bbPress compatibility layers for their themes.
@@ -170,6 +176,8 @@ function bbp_get_theme_compat_version() {
  * @return string
  */
 function bbp_get_theme_compat_dir() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_compat_dir', bbpress()->theme_compat->theme->dir );
 }
 
@@ -185,6 +193,8 @@ function bbp_get_theme_compat_dir() {
  * @return string
  */
 function bbp_get_theme_compat_url() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_theme_compat_url', bbpress()->theme_compat->theme->url );
 }
 
@@ -822,6 +832,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		$template = bbp_get_theme_compat_templates();
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
 }
 
@@ -1016,6 +1027,6 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
 			break;
 	}
 
-	// Allow override of the override
+	// Filter & return
 	return (bool) apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }

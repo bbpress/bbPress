@@ -292,7 +292,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				break;
 		}
 
-		return apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
+		// Filter & return
+		return (array) apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
 	}
 
 	/**

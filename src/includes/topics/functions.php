@@ -80,7 +80,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	 */
 	do_action( 'bbp_insert_topic', (int) $topic_id, (int) $topic_meta['forum_id'] );
 
-	// Return new topic ID
+	// Return topic_id
 	return $topic_id;
 }
 
@@ -2018,7 +2018,9 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
  * @return array
  */
 function bbp_get_topic_statuses( $topic_id = 0 ) {
-	return apply_filters( 'bbp_get_topic_statuses', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_statuses', array(
 		bbp_get_public_status_id()  => _x( 'Open',    'Open the topic',        'bbpress' ),
 		bbp_get_closed_status_id()  => _x( 'Closed',  'Close the topic',       'bbpress' ),
 		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the topic',        'bbpress' ),
@@ -2037,7 +2039,9 @@ function bbp_get_topic_statuses( $topic_id = 0 ) {
  * @return array
  */
 function bbp_get_topic_types( $topic_id = 0 ) {
-	return apply_filters( 'bbp_get_topic_types', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_types', array(
 		'unstick' => _x( 'Normal',       'Unstick a topic',         'bbpress' ),
 		'stick'   => _x( 'Sticky',       'Make topic sticky',       'bbpress' ),
 		'super'   => _x( 'Super Sticky', 'Make topic super sticky', 'bbpress' )
@@ -2054,7 +2058,9 @@ function bbp_get_topic_types( $topic_id = 0 ) {
  * @return array
  */
 function bbp_get_topic_toggles( $topic_id = 0 ) {
-	return apply_filters( 'bbp_get_toggle_topic_actions', array(
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_toggle_topic_actions', array(
 		'bbp_toggle_topic_close',
 		'bbp_toggle_topic_stick',
 		'bbp_toggle_topic_spam',
@@ -2088,7 +2094,7 @@ function bbp_get_stickies( $forum_id = 0 ) {
 		? array()
 		: wp_parse_id_list( $stickies );
 
-	// Filter and return
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_stickies', $stickies, $forum_id );
 }
 
@@ -2111,7 +2117,7 @@ function bbp_get_super_stickies() {
 		? array()
 		: wp_parse_id_list( $stickies );
 
-	// Filter and return
+	// Filter & return
 	return (array) apply_filters( 'bbp_get_super_stickies', $stickies );
 }
 
@@ -2472,6 +2478,7 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 	// Update this topic id's reply count
 	update_post_meta( $topic_id, '_bbp_reply_count', $new_count );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_bump_topic_reply_count', $new_count, $topic_id, $difference );
 }
 
@@ -2571,6 +2578,7 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 	// Update this topic id's hidden reply count
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $new_count );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', $new_count, $topic_id, $difference );
 }
 
@@ -2694,6 +2702,7 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 
 	update_post_meta( $topic_id, '_bbp_forum_id', $forum_id );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_forum_id', $forum_id, $topic_id );
 }
 
@@ -2713,6 +2722,7 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 
 	update_post_meta( $topic_id, '_bbp_topic_id', $topic_id );
 
+	// Filter & return
 	return apply_filters( 'bbp_update_topic_topic_id', $topic_id );
 }
 
@@ -2751,6 +2761,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 
 	update_post_meta( $topic_id, '_bbp_reply_count', $reply_count );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_reply_count', $reply_count, $topic_id );
 }
 
@@ -2798,6 +2809,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $reply_count );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_reply_count_hidden', $reply_count, $topic_id );
 }
 
@@ -2844,6 +2856,7 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 		update_post_meta( $topic_id, '_bbp_last_active_id', $active_id );
 	}
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_last_active_id', $active_id, $topic_id );
 }
 
@@ -2882,6 +2895,7 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 		update_post_meta( $topic_id, '_bbp_last_active_time', $new_time );
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_update_topic_last_active_time', $new_time, $topic_id );
 }
 
@@ -2930,6 +2944,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 		update_post_meta( $topic_id, '_bbp_last_reply_id', $reply_id );
 	}
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_last_reply_id', $reply_id, $topic_id );
 }
 
@@ -2988,6 +3003,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	// Update the voice count for this topic id
 	update_post_meta( $topic_id, '_bbp_voice_count', $count );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_voice_count', $count, $topic_id );
 }
 
@@ -3028,6 +3044,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 
 	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', $replies );
 
+	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_anonymous_reply_count', $replies, $topic_id );
 }
 
@@ -3941,7 +3958,7 @@ function bbp_get_topics_per_page( $default = 15 ) {
 		$retval = $default;
 	}
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_topics_per_page', $retval, $default );
 }
 
@@ -3965,7 +3982,7 @@ function bbp_get_topics_per_rss_page( $default = 25 ) {
 		$retval = $default;
 	}
 
-	// Filter and return
+	// Filter & return
 	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $default );
 }
 
@@ -3985,6 +4002,7 @@ function bbp_get_topic_tags( $topic_id = 0 ) {
 	$terms      = (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
 	$topic_tags = array_filter( $terms );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_topic_tags', $topic_tags, $topic_id );
 }
 
@@ -4001,8 +4019,11 @@ function bbp_get_topic_tags( $topic_id = 0 ) {
 function bbp_get_topic_tag_names( $topic_id = 0, $sep = ', ' ) {
 	$topic_tags = bbp_get_topic_tags( $topic_id );
 	$pluck      = wp_list_pluck( $topic_tags, 'name' );
-	$terms      = ! empty( $pluck ) ? implode( $sep, $pluck ) : '';
+	$terms      = ! empty( $pluck )
+		? implode( $sep, $pluck )
+		: '';
 
+	// Filter & return
 	return apply_filters( 'bbp_get_topic_tag_names', $terms, $topic_id, $sep );
 }
 

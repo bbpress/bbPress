@@ -539,6 +539,8 @@ class BBP_Forums_Admin {
 	 * @return array
 	 */
 	private function get_allowed_notice_toggles() {
+
+		// Filter & return
 		return apply_filters( 'bbp_admin_forums_allowed_notice_toggles', array(
 			'opened',
 			'closed'
@@ -553,6 +555,8 @@ class BBP_Forums_Admin {
 	 * @return array
 	 */
 	private function get_allowed_action_toggles() {
+
+		// Filter & return
 		return apply_filters( 'bbp_admin_forums_allowed_action_toggles', array(
 			'bbp_toggle_forum_close'
 		) );
@@ -587,6 +591,7 @@ class BBP_Forums_Admin {
 			unset( $columns['bbp_forum_mods'] );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
 	}
 

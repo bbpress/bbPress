@@ -641,6 +641,8 @@ class BBP_Replies_Admin {
 	 * @return array
 	 */
 	private function get_allowed_notice_toggles() {
+
+		// Filter & return
 		return apply_filters( 'bbp_admin_replies_allowed_notice_toggles', array(
 			'spammed',
 			'unspammed',
@@ -657,6 +659,8 @@ class BBP_Replies_Admin {
 	 * @return array
 	 */
 	private function get_allowed_action_toggles() {
+
+		// Filter & return
 		return apply_filters( 'bbp_admin_replies_allowed_action_toggles', array(
 			'bbp_toggle_reply_spam',
 			'bbp_toggle_reply_approve'
@@ -683,6 +687,7 @@ class BBP_Replies_Admin {
 			'bbp_reply_created' => __( 'Created', 'bbpress' ),
 		);
 
+		// Filter & return
 		return apply_filters( 'bbp_admin_replies_column_headers', $columns );
 	}
 

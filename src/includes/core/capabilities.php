@@ -207,6 +207,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
 }
 
@@ -264,6 +265,7 @@ function bbp_get_blog_roles() {
 	$the_roles = isset( $wp_roles->roles ) ? $wp_roles->roles : false;
 	$all_roles = apply_filters( 'editable_roles', $the_roles );
 
+	// Filter & return
 	return apply_filters( 'bbp_get_blog_roles', $all_roles, $wp_roles );
 }
 
@@ -394,6 +396,7 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
 		? bbp_translate_user_role( $roles[ $role_id ]['name'] )
 		: '';
 
+	// Filter & return
 	return apply_filters( 'bbp_get_dynamic_role_name', $role, $role_id, $roles );
 }
 
@@ -435,6 +438,8 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
  * @return string
  */
 function bbp_get_keymaster_role() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_keymaster_role', 'bbp_keymaster' );
 }
 
@@ -447,6 +452,8 @@ function bbp_get_keymaster_role() {
  * @return string
  */
 function bbp_get_moderator_role() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_moderator_role', 'bbp_moderator' );
 }
 
@@ -459,6 +466,8 @@ function bbp_get_moderator_role() {
  * @return string
  */
 function bbp_get_participant_role() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_participant_role', 'bbp_participant' );
 }
 
@@ -471,6 +480,8 @@ function bbp_get_participant_role() {
  * @return string
  */
 function bbp_get_spectator_role() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_spectator_role', 'bbp_spectator' );
 }
 
@@ -483,6 +494,8 @@ function bbp_get_spectator_role() {
  * @return string
  */
 function bbp_get_blocked_role() {
+
+	// Filter & return
 	return apply_filters( 'bbp_get_blocked_role', 'bbp_blocked' );
 }
 

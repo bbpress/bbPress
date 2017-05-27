@@ -19,8 +19,8 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_get_default_user_options() {
 
-	// Default options
-	return apply_filters( 'bbp_get_default_user_options', array(
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_default_user_options', array(
 		'_bbp_last_posted' => '0', // For checking flooding
 		'_bbp_topic_count' => '0', // Total topics per site
 		'_bbp_reply_count' => '0'  // Total replies per site
@@ -224,6 +224,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 			? 'bbp_get_user_topic_count_int'
 			: 'bbp_get_user_topic_count';
 
+		// Filter & return
 		return apply_filters( $filter, $count, $user_id );
 	}
 
@@ -368,5 +369,6 @@ function bbp_user_last_posted( $user_id = 0 ) {
 
 		$time = get_user_option( '_bbp_last_posted', $user_id );
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_last_posted', $time, $user_id );
 	}

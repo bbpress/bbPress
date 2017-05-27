@@ -20,6 +20,8 @@ defined( 'ABSPATH' ) || exit;
  * @return array
  */
 function bbp_admin_get_settings_sections() {
+
+	// Filter & return
 	return (array) apply_filters( 'bbp_admin_get_settings_sections', array(
 		'bbp_settings_users' => array(
 			'title'    => esc_html__( 'Forum User Settings', 'bbpress' ),
@@ -82,6 +84,8 @@ function bbp_admin_get_settings_sections() {
  * @return type
  */
 function bbp_admin_get_settings_fields() {
+
+	// Filter & return
 	return (array) apply_filters( 'bbp_admin_get_settings_fields', array(
 
 		/** User Section ******************************************************/
@@ -1754,7 +1758,7 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 			$value = $default;
 		}
 
-		// Allow plugins to further filter the output
+		// Filter & return
 		return apply_filters( 'bbp_get_form_option', $value, $option );
 	}
 

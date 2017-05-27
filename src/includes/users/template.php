@@ -190,6 +190,7 @@ function bbp_has_users( $args = array() ) {
 	$bbp             = bbpress();
 	$bbp->user_query = new BBP_User_Query( $r );
 
+	// Filter & return
 	return apply_filters( 'bbp_has_users', $bbp->user_query->have_users(), $bbp->user_query );
 }
 
@@ -269,6 +270,7 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 			$bbp_user_id = 0;
 		}
 
+		// Filter & return
 		return (int) apply_filters( 'bbp_get_user_id', (int) $bbp_user_id, $displayed_user_fallback, $current_user_fallback );
 	}
 
@@ -292,7 +294,9 @@ function bbp_current_user_id() {
 	 * @return int Current user id
 	 */
 	function bbp_get_current_user_id() {
-		return apply_filters( 'bbp_get_current_user_id', bbp_get_user_id( 0, false, true ) );
+
+		// Filter & return
+		return (int) apply_filters( 'bbp_get_current_user_id', bbp_get_user_id( 0, false, true ) );
 	}
 
 /**
@@ -315,6 +319,8 @@ function bbp_displayed_user_id() {
 	 * @return int Displayed user id
 	 */
 	function bbp_get_displayed_user_id() {
+
+		// Filter & return
 		return apply_filters( 'bbp_get_displayed_user_id', bbp_get_user_id( 0, true, false ) );
 	}
 
@@ -367,7 +373,7 @@ function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
 		// Put back the user filter property that was previously juggled above.
 		$user->filter = $old_filter;
 
-		// Return empty
+		// Filter & return
 		return apply_filters( 'bbp_get_displayed_user_field', $value, $field, $filter );
 	}
 
@@ -393,8 +399,11 @@ function bbp_current_user_name() {
 	function bbp_get_current_user_name() {
 		global $user_identity;
 
-		$current_user_name = is_user_logged_in() ? $user_identity : __( 'Anonymous', 'bbpress' );
+		$current_user_name = is_user_logged_in()
+			? $user_identity
+			: esc_html__( 'Anonymous', 'bbpress' );
 
+		// Filter & return
 		return apply_filters( 'bbp_get_current_user_name', $current_user_name );
 	}
 
@@ -433,6 +442,7 @@ function bbp_current_user_avatar( $size = 40 ) {
 
 		$avatar = get_avatar( $user, $size );
 
+		// Filter & return
 		return apply_filters( 'bbp_get_current_user_avatar', $avatar, $size );
 	}
 
@@ -471,6 +481,7 @@ function bbp_user_profile_link( $user_id = 0 ) {
 		$user      = get_userdata( $user_id );
 		$user_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_profile_link', $user_link, $user_id );
 	}
 
@@ -523,7 +534,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		// Maybe wrap the nicename
 		$retval = ! empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
 
-		// Filter and return
+		// Filter & return
 		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r );
 	}
 
@@ -587,6 +598,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 			), home_url( '/' ) );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_profile_url', $url, $user_id, $user_nicename );
 	}
 
@@ -624,6 +636,8 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 
 		$user      = get_userdata( $user_id );
 		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_edit_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
+
+		// Filter & return
 		return apply_filters( 'bbp_get_user_profile_edit_link', $edit_link, $user_id );
 	}
 
@@ -683,8 +697,8 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 			), $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_edit_profile_url', $url, $user_id, $user_nicename );
-
 	}
 
 /**
@@ -735,6 +749,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 			$role = __( 'Member', 'bbpress' );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_display_role', $role, $user_id );
 	}
 
@@ -783,6 +798,7 @@ function bbp_admin_link( $args = array() ) {
 
 		$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
 
+		// Filter & return
 		return apply_filters( 'bbp_get_admin_link', $retval, $r );
 	}
 
@@ -830,6 +846,7 @@ function bbp_author_ip( $args = array() ) {
 			$author_ip = '';
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_author_ip', $author_ip, $r );
 	}
 
@@ -888,6 +905,7 @@ function bbp_author_display_name( $post_id = 0 ) {
 			$retval = bbp_current_anonymous_user_data( 'name' );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_author_display_name', $retval, $post_id );
 	}
 
@@ -944,6 +962,7 @@ function bbp_author_email( $post_id = 0 ) {
 			$retval = bbp_current_anonymous_user_data( 'email' );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_author_email', $retval, $post_id );
 	}
 
@@ -1000,6 +1019,7 @@ function bbp_author_url( $post_id = 0 ) {
 			$retval = bbp_current_anonymous_user_data( 'url' );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_author_url', $retval, $post_id );
 	}
 
@@ -1079,6 +1099,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 			$url = add_query_arg( $args, $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_favorites_permalink', $url, $user_id );
 	}
 
@@ -1190,7 +1211,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 			$html = '<span id="favorite-toggle">' . $html . '</span>';
 		}
 
-		// Return the link
+		// Filter & return
 		return apply_filters( 'bbp_get_user_favorites_link', $html, $r, $user_id, $topic_id );
 	}
 
@@ -1280,6 +1301,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 			$url = add_query_arg( $args, $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_subscriptions_permalink', $url, $user_id );
 	}
 
@@ -1434,7 +1456,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 			}
 		}
 
-		// Return the link
+		// Filter & return
 		return apply_filters( 'bbp_get_user_subscribe_link', $html, $r, $user_id, $topic_id );
 	}
 
@@ -1602,7 +1624,7 @@ function bbp_edit_user_display_name() {
  */
 function bbp_edit_user_blog_role() {
 
-	// Return if no user is being edited
+	// Bail if no user is being edited
 	if ( ! bbp_is_single_user_edit() ) {
 		return;
 	}
@@ -1634,7 +1656,7 @@ function bbp_edit_user_blog_role() {
  */
 function bbp_edit_user_forums_role() {
 
-	// Return if no user is being edited
+	// Bail if no user is being edited
 	if ( ! bbp_is_single_user_edit() ) {
 		return;
 	}
@@ -1678,7 +1700,8 @@ function bbp_edit_user_contact_methods() {
 	// Get the core WordPress contact methods
 	$contact_methods = wp_get_user_contact_methods( bbpress()->displayed_user );
 
-	return apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
+	// Filter & return
+	return (array) apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }
 
 /** Topics Created ************************************************************/
@@ -1734,6 +1757,7 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 			), $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_topics_created_url', $url, $user_id );
 	}
 
@@ -1790,6 +1814,7 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 			), $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_replies_created_url', $url, $user_id );
 	}
 
@@ -1846,6 +1871,7 @@ function bbp_user_engagements_url( $user_id = 0 ) {
 			), $profile_url );
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_user_engagements_url', $url, $user_id );
 	}
 
@@ -2104,6 +2130,7 @@ function bbp_author_link( $args = array() ) {
 			$author_link = '';
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_author_link', $author_link, $r );
 	}
 
@@ -2156,10 +2183,11 @@ function bbp_user_can_view_forum( $args = array() ) {
 		$retval = true;
 
 	// Forum is hidden, and user can see it
-	} elseif ( bbp_is_forum_hidden ( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_forum', $forum_id  ) ) {
+	} elseif ( bbp_is_forum_hidden( $forum_id, $r['check_ancestors'] ) && user_can( $user_id, 'read_forum', $forum_id  ) ) {
 		$retval = true;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
 }
 
@@ -2195,7 +2223,7 @@ function bbp_current_user_can_publish_topics() {
 		$retval = true;
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_publish_topics', $retval );
 }
 
@@ -2225,7 +2253,7 @@ function bbp_current_user_can_publish_forums() {
 		$retval = true;
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_publish_forums', $retval );
 }
 
@@ -2261,7 +2289,7 @@ function bbp_current_user_can_publish_replies() {
 		$retval = true;
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_publish_replies', $retval );
 }
 
@@ -2302,6 +2330,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 		$forums = false;
 	}
 
+	// Filter & return
 	return apply_filters( 'bbp_get_forums_for_current_user', $forums, $r, $args );
 }
 
@@ -2335,7 +2364,7 @@ function bbp_current_user_can_access_create_forum_form() {
 		$retval = current_user_can( 'edit_forum', bbp_get_forum_id() );
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_forum_form', (bool) $retval );
 }
 
@@ -2371,7 +2400,7 @@ function bbp_current_user_can_access_create_topic_form() {
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
 }
 
@@ -2407,7 +2436,7 @@ function bbp_current_user_can_access_create_reply_form() {
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
 }
 
@@ -2443,7 +2472,7 @@ function bbp_current_user_can_access_anonymous_user_form() {
 		$retval = true;
 	}
 
-	// Allow access to be filtered
+	// Filter & return
 	return (bool) apply_filters( 'bbp_current_user_can_access_anonymous_user_form', (bool) $retval );
 }
 
@@ -2507,5 +2536,6 @@ function bbp_moderator_list( $forum_id = 0, $args = array() ) {
 			$retval = $r['none'];
 		}
 
+		// Filter & return
 		return apply_filters( 'bbp_get_moderator_list', $retval );
 	}
