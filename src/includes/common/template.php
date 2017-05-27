@@ -1110,6 +1110,11 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 	} elseif ( bbp_is_search_results() ) {
 		$bbp_classes[] = 'bbp-search-results';
 		$bbp_classes[] = 'forum-search-results';
+
+	/** Shortcodes ************************************************************/
+
+	} elseif ( bbp_has_shortcode() ) {
+		$bbp_classes[] = 'bbp-shortcode';
 	}
 
 	/** Clean up **************************************************************/
@@ -1127,6 +1132,57 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
+}
+
+/**
+ * Check if text contains a bbPress shortcode.
+ *
+ * Loops through registered bbPress shortcodes and keeps track of which ones
+ * were used in a blob of text. If no text is passed, the current global post
+ * content is assumed.
+ *
+ * A preliminary strpos() is performed before looping through each shortcode, to
+ * prevent unnecessarily processing.
+ *
+ * @since 2.6.0
+ *
+ * @uses is_singular()
+ * @uses bbp_get_global_post_field()
+ * @uses has_shortcode();
+ *
+ * @param string $text
+ * @return bool
+ */
+function bbp_has_shortcode( $text = '' ) {
+
+	// Default return value
+	$retval = false;
+	$found  = array();
+
+	// Fallback to global post_content
+	if ( empty( $text ) && is_singular() ) {
+		$text = bbp_get_global_post_field( 'post_content', 'raw' );
+	}
+
+	// Skip if empty, or string doesn't contain the bbPress shortcode prefix
+	if ( ! empty( $text ) && ( false !== strpos( $text, '[bbp' ) ) ) {
+
+		// Get possible shortcodes
+		$codes = array_keys( bbpress()->shortcodes->codes );
+
+		// Loop through codes
+		foreach ( $codes as $code ) {
+
+			// Looking for shortcode in text
+			if ( has_shortcode( $text, $code ) ) {
+				$retval  = true;
+				$found[] = $code;
+			}
+		}
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_has_shortcode', $retval, $found, $text );
 }
 
 /**
@@ -1150,6 +1206,8 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
  * @uses bbp_is_favorites()
  * @uses bbp_is_topics_created()
  * @uses bbp_is_replies_created()
+ * @uses bbp_has_shortcode()
+ *
  * @return bool In a bbPress page
  */
 function is_bbpress() {
@@ -1235,10 +1293,16 @@ function is_bbpress() {
 
 	} elseif ( bbp_is_search_results() ) {
 		$retval = true;
+
+	/** Shortcodes ************************************************************/
+
+	} elseif ( bbp_has_shortcode() ) {
+		$retval = true;
 	}
 
 	/** Done ******************************************************************/
 
+	// Filter & return
 	return (bool) apply_filters( 'is_bbpress', $retval );
 }
 
