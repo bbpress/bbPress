@@ -208,6 +208,11 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
 /**
  * Add a topic to user's engagements
  *
+ * Note that both the User and Topic should be verified to exist before using
+ * this function. Originally both were validated, but because this function is
+ * frequently used within a loop, those verifications were moved upstream to
+ * improve performance on topics with many engaged users.
+ *
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
@@ -220,12 +225,6 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
 
 	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
-		return false;
-	}
-
-	// Bail if no topic
-	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
 		return false;
 	}
 
@@ -406,6 +405,11 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 /**
  * Add a topic to user's favorites
  *
+ * Note that both the User and Topic should be verified to exist before using
+ * this function. Originally both were validated, but because this function is
+ * frequently used within a loop, those verifications were moved upstream to
+ * improve performance on topics with many engaged users.
+ *
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
@@ -418,12 +422,6 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 
 	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
-		return false;
-	}
-
-	// Bail if no topic
-	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
 		return false;
 	}
 
@@ -1004,11 +1002,15 @@ function bbp_add_user_forum_subscription( $user_id = 0, $forum_id = 0 ) {
 /**
  * Add a topic to user's subscriptions
  *
+ * Note that both the User and Topic should be verified to exist before using
+ * this function. Originally both were validated, but because this function is
+ * frequently used within a loop, those verifications were moved upstream to
+ * improve performance on topics with many engaged users.
+ *
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_topic() To get the topic
  * @uses bbp_add_user_subscription() To add the subscription
  * @uses do_action() Calls 'bbp_add_user_subscription' with the user & topic id
  * @return bool Always true
@@ -1017,12 +1019,6 @@ function bbp_add_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
 
 	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
-		return false;
-	}
-
-	// Bail if no topic
-	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) ) {
 		return false;
 	}
 
