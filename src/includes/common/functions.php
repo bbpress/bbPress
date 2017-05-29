@@ -166,7 +166,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 }
 
 /**
- * Check the date against the _bbp_edit_lock setting.
+ * Check a date against the length of time something can be edited.
  *
  * @since 2.0.0 bbPress (r3133)
  *
@@ -178,21 +178,21 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  * @uses strtotime() Convert strings to time
  * @uses apply_filters() Allow output to be manipulated
  *
- * @return bool
+ * @return bool True if date is past, False if not
  */
 function bbp_past_edit_lock( $post_date_gmt = '' ) {
 
-	// Assume editing is allowed
+	// Default value
 	$retval = false;
 
 	// Check if date and editing is allowed
 	if ( ! empty( $post_date_gmt ) && bbp_allow_content_edit() ) {
 
 		// Get number of minutes to allow editing for
-		$minutes = get_option( '_bbp_edit_lock', '5' );
+		$minutes = (int) get_option( '_bbp_edit_lock', 5 );
 
 		// "0" minutes set, so allow forever
-		if ( 0 === (int) $minutes ) {
+		if ( 0 === $minutes ) {
 			$retval = true;
 
 		// Not "0" so compare
