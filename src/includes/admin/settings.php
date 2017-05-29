@@ -519,12 +519,12 @@ function bbp_admin_setting_callback_user_section() {
  */
 function bbp_admin_setting_callback_editlock() {
 
-	// Start the output buffer for the select dropdown
+	// Start the output buffer for the second option
 	ob_start(); ?>
 
 	</label>
 	<label for="_bbp_edit_lock">
-		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
+		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '0' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
 
 	<?php $select = ob_get_clean(); ?>
 
@@ -546,7 +546,7 @@ function bbp_admin_setting_callback_editlock() {
  */
 function bbp_admin_setting_callback_throttle() {
 
-	// Start the output buffer for the select dropdown
+	// Start the output buffer for the second option
 	ob_start(); ?>
 
 	</label>
@@ -676,7 +676,7 @@ function bbp_admin_setting_callback_engagements() {
 ?>
 
 	<input name="_bbp_enable_engagements" id="_bbp_enable_engagements" type="checkbox" value="1" <?php checked( bbp_is_engagements_active( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_enable_engagements' ); ?> />
-	<label for="_bbp_enable_engagements"><?php esc_html_e( 'Track topics each user engages in', 'bbpress' ); ?></label>
+	<label for="_bbp_enable_engagements"><?php esc_html_e( 'Allow tracking of topics each user engages in', 'bbpress' ); ?></label>
 
 <?php
 }
