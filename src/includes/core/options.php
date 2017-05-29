@@ -35,6 +35,8 @@ function bbp_get_default_options() {
 		'_bbp_enable_favorites'       => 1,                          // Favorites
 		'_bbp_enable_subscriptions'   => 1,                          // Subscriptions
 		'_bbp_enable_engagements'     => 1,                          // Engagements
+		'_bbp_allow_content_edit'     => 1,                          // Allow content edit
+		'_bbp_allow_content_throttle' => 1,                          // Allow content throttle
 		'_bbp_allow_anonymous'        => 0,                          // Allow anonymous posting
 		'_bbp_allow_global_access'    => 1,                          // Users from all sites can post
 		'_bbp_allow_revisions'        => 1,                          // Allow revisions
@@ -248,6 +250,36 @@ function bbp_is_engagements_active( $default = 1 ) {
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_engagements_active', (bool) get_option( '_bbp_enable_engagements', $default ) );
+}
+
+/**
+ * Is content editing available when posting new topics & replies?
+ *
+ * @since 2.6.0 bbPress (r6441)
+ *
+ * @param $default bool Optional. Default value false
+ * @uses get_option() To get the global content edit option
+ * @return bool Is content editing allowed?
+ */
+function bbp_allow_content_edit( $default = 1 ) {
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_allow_content_edit', (bool) get_option( '_bbp_allow_content_edit', $default ) );
+}
+
+/**
+ * Is content throttling engaged when posting new topics & replies?
+ *
+ * @since 2.6.0 bbPress (r6441)
+ *
+ * @param $default bool Optional. Default value false
+ * @uses get_option() To get the content throttle  option
+ * @return bool Is content throttling allowed?
+ */
+function bbp_allow_content_throttle( $default = 1 ) {
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_allow_content_throttle', (bool) get_option( '_bbp_allow_content_throttle', $default ) );
 }
 
 /**

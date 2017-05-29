@@ -172,6 +172,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  *
  * @param string $post_date_gmt
  *
+ * @uses bbp_allow_content_edit()() To make sure editing is allowed
  * @uses get_option() Get the edit lock time
  * @uses current_time() Get the current time
  * @uses strtotime() Convert strings to time
@@ -179,31 +180,42 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  *
  * @return bool
  */
-function bbp_past_edit_lock( $post_date_gmt ) {
+function bbp_past_edit_lock( $post_date_gmt = '' ) {
 
 	// Assume editing is allowed
 	$retval = false;
 
-	// Bail if empty date
-	if ( ! empty( $post_date_gmt ) ) {
+	// Check if date and editing is allowed
+	if ( ! empty( $post_date_gmt ) && bbp_allow_content_edit() ) {
 
-		// Period of time
-		$lockable  = '+' . get_option( '_bbp_edit_lock', '5' ) . ' minutes';
+		// Get number of minutes to allow editing for
+		$minutes = get_option( '_bbp_edit_lock', '5' );
 
-		// Now
-		$cur_time  = current_time( 'timestamp', true );
-
-		// Add lockable time to post time
-		$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
-
-		// Compare
-		if ( $cur_time >= $lock_time ) {
+		// "0" minutes set, so allow forever
+		if ( 0 === (int) $minutes ) {
 			$retval = true;
+
+		// Not "0" so compare
+		} else {
+
+			// Period of time
+			$lockable  = "+{$minutes} minutes";
+
+			// Now
+			$cur_time  = current_time( 'timestamp', true );
+
+			// Add lockable time to post time
+			$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
+
+			// Compare
+			if ( $cur_time >= $lock_time ) {
+				$retval = true;
+			}
 		}
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_past_edit_lock', (bool) $retval, $cur_time, $lock_time, $post_date_gmt );
+	return (bool) apply_filters( 'bbp_past_edit_lock', $retval, $cur_time, $lock_time, $post_date_gmt );
 }
 
 /**
@@ -668,17 +680,25 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Optional. Supply if it's a post by a logged in user.
  *                        Do not supply if supplying $anonymous_data.
+ *
+ * @suse bbp_allow_content_throttle() To make sure flood checking is enabled
  * @uses get_option() To get the throttle time
  * @uses get_transient() To get the last posted transient of the ip
  * @uses bbp_get_user_last_posted() To get the last posted time of the user
  * @uses current_user_can() To check if the current user can throttle
+ *
  * @return bool True if there is no flooding, false if there is
  */
 function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 
+	// Allow for flood check to be skipped
+	if ( apply_filters( 'bbp_bypass_check_for_flood', false, $anonymous_data, $author_id ) ) {
+		return true;
+	}
+
 	// Option disabled. No flood checks.
 	$throttle_time = get_option( '_bbp_throttle_time' );
-	if ( empty( $throttle_time ) ) {
+	if ( empty( $throttle_time ) || ! bbp_allow_content_throttle() ) {
 		return true;
 	}
 

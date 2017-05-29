@@ -92,41 +92,53 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_users' => array(
 
-			// Edit lock setting
-			'_bbp_edit_lock' => array(
-				'title'             => esc_html__( 'Disallow editing after', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_editlock',
-				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for' => '_bbp_edit_lock' )
-			),
-
-			// Throttle setting
-			'_bbp_throttle_time' => array(
-				'title'             => esc_html__( 'Throttle posting every', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_throttle',
-				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for' => '_bbp_throttle_time' )
-			),
-
-			// Allow anonymous posting setting
-			'_bbp_allow_anonymous' => array(
-				'title'             => esc_html__( 'Anonymous posting', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_anonymous',
-				'sanitize_callback' => 'intval',
+			// Allow global access
+			'_bbp_default_role' => array(
+				'sanitize_callback' => 'sanitize_text_field',
 				'args'              => array()
 			),
 
-			// Allow global access (on multisite)
+			// Allow global access
 			'_bbp_allow_global_access' => array(
-				'title'             => esc_html__( 'Auto role', 'bbpress' ),
+				'title'             => esc_html__( 'Roles', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_global_access',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
 
-			// Allow global access (on multisite)
-			'_bbp_default_role' => array(
-				'sanitize_callback' => 'sanitize_text_field',
+			// Allow content throttling
+			'_bbp_allow_content_throttle' => array(
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Throttle setting
+			'_bbp_throttle_time' => array(
+				'title'             => esc_html__( 'Flooding', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_throttle',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow content editing
+			'_bbp_allow_content_edit' => array(
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Edit lock setting
+			'_bbp_edit_lock' => array(
+				'title'             => esc_html__( 'Editing', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_editlock',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow anonymous posting setting
+			'_bbp_allow_anonymous' => array(
+				'title'             => esc_html__( 'Anonymous', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_anonymous',
+				'sanitize_callback' => 'intval',
 				'args'              => array()
 			)
 		),
@@ -506,10 +518,21 @@ function bbp_admin_setting_callback_user_section() {
  * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_editlock() {
-?>
 
-	<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
-	<?php esc_html_e( 'minutes', 'bbpress' ); ?>
+	// Start the output buffer for the select dropdown
+	ob_start(); ?>
+
+	</label>
+	<label for="_bbp_edit_lock">
+		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
+
+	<?php $select = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_content_edit">
+		<input name="_bbp_allow_content_edit" id="_bbp_allow_content_edit" type="checkbox" value="1" <?php checked( bbp_allow_content_edit( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_content_edit' ); ?> />
+		<?php printf( esc_html__( 'Allow users to edit their content for %s minutes after posting', 'bbpress' ), $select ); ?>
+	</label>
+	<p class="description"><?php esc_html_e( 'If checked, setting to "0 minutes" allows editing forever.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -522,10 +545,21 @@ function bbp_admin_setting_callback_editlock() {
  * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_throttle() {
-?>
 
-	<input name="_bbp_throttle_time" id="_bbp_throttle_time" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_throttle_time' ); ?> />
-	<?php esc_html_e( 'seconds', 'bbpress' ); ?>
+	// Start the output buffer for the select dropdown
+	ob_start(); ?>
+
+	</label>
+	<label for="_bbp_throttle_time">
+		<input name="_bbp_throttle_time" id="_bbp_throttle_time" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_throttle_time' ); ?> />
+
+	<?php $select = ob_get_clean(); ?>
+
+	<label for="_bbp_allow_content_throttle">
+		<input name="_bbp_allow_content_throttle" id="_bbp_allow_content_throttle" type="checkbox" value="1" <?php checked( bbp_allow_content_throttle( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_content_throttle' ); ?> />
+		<?php printf( esc_html__( 'Allow flood protection by throttling users for %s seconds after posting', 'bbpress' ), $select ); ?>
+	</label>
+	<p class="description"><?php esc_html_e( 'Use this to discourage users from spamming your forums.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -542,6 +576,7 @@ function bbp_admin_setting_callback_anonymous() {
 
 	<input name="_bbp_allow_anonymous" id="_bbp_allow_anonymous" type="checkbox" value="1" <?php checked( bbp_allow_anonymous( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_anonymous' ); ?> />
 	<label for="_bbp_allow_anonymous"><?php esc_html_e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'Works best on intranets or paired with antispam measures like Akismet.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -557,6 +592,7 @@ function bbp_admin_setting_callback_global_access() {
 
 	// Get the default role once rather than loop repeatedly below
 	$default_role = bbp_get_default_role();
+	$roles        = bbp_get_dynamic_roles();
 
 	// Start the output buffer for the select dropdown
 	ob_start(); ?>
@@ -564,7 +600,7 @@ function bbp_admin_setting_callback_global_access() {
 	</label>
 	<label for="_bbp_default_role">
 		<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
-		<?php foreach ( bbp_get_dynamic_roles() as $role => $details ) : ?>
+		<?php foreach ( $roles as $role => $details ) : ?>
 
 			<option <?php selected( $default_role, $role ); ?> value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 
@@ -577,6 +613,7 @@ function bbp_admin_setting_callback_global_access() {
 		<input name="_bbp_allow_global_access" id="_bbp_allow_global_access" type="checkbox" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
 		<?php printf( esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ), $select ); ?>
 	</label>
+	<p class="description"><?php esc_html_e( 'Uncheck this to manually assign all user access to your forums.', 'bbpress' ); ?></p>
 
 <?php
 }
