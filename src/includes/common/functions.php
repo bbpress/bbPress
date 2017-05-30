@@ -1092,7 +1092,6 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
-	$user_ids = array_filter( array_map( 'intval', $user_ids ) );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
@@ -1258,7 +1257,6 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
-	$user_ids = array_filter( array_map( 'intval', $user_ids ) );
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
