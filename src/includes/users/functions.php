@@ -624,8 +624,8 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 			? explode( ',', $user_nicenames )
 			: (array) $user_nicenames;
 
-		// Trim spaces off of nicenames
-		$user_nicenames = array_map( 'trim', $user_nicenames );
+		// Sanitize each nicename in the array
+		$user_nicenames = array_map( 'sanitize_title', $user_nicenames );
 
 		// Get users
 		$users = get_users( array(
