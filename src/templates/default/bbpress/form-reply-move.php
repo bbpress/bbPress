@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div id="move-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-move">
 
-			<form id="move_reply" name="move_reply" method="post" action="<?php the_permalink(); ?>">
+			<form id="move_reply" name="move_reply" method="post" action="<?php bbp_reply_permalink(); ?>">
 
 				<fieldset class="bbp-form">
 

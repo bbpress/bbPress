@@ -32,7 +32,7 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 	<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 
-		<form id="new-post" name="new-post" method="post" action="<?php the_permalink(); ?>">
+		<form id="new-post" name="new-post" method="post" action="<?php bbp_topic_permalink(); ?>">
 
 			<?php do_action( 'bbp_theme_before_topic_form' ); ?>
 

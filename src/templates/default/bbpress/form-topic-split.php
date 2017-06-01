@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div id="split-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-split">
 
-			<form id="split_topic" name="split_topic" method="post" action="<?php the_permalink(); ?>">
+			<form id="split_topic" name="split_topic" method="post" action="<?php bbp_topic_permalink(); ?>">
 
 				<fieldset class="bbp-form">
 

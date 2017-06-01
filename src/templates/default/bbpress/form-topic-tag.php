@@ -34,7 +34,7 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					</ul>
 				</div>
 
-				<form id="rename_tag" name="rename_tag" method="post" action="<?php the_permalink(); ?>">
+				<form id="rename_tag" name="rename_tag" method="post" action="<?php bbp_topic_tag_link(); ?>">
 
 					<div>
 						<label for="tag-name"><?php esc_html_e( 'Name:', 'bbpress' ); ?></label>
@@ -74,7 +74,7 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					</ul>
 				</div>
 
-				<form id="merge_tag" name="merge_tag" method="post" action="<?php the_permalink(); ?>">
+				<form id="merge_tag" name="merge_tag" method="post" action="<?php bbp_topic_tag_link(); ?>">
 
 					<div>
 						<label for="tag-existing-name"><?php esc_html_e( 'Existing tag:', 'bbpress' ); ?></label>
@@ -111,7 +111,7 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 						</ul>
 					</div>
 
-					<form id="delete_tag" name="delete_tag" method="post" action="<?php the_permalink(); ?>">
+					<form id="delete_tag" name="delete_tag" method="post" action="<?php bbp_topic_tag_link(); ?>">
 
 						<div class="bbp-submit-wrapper">
 							<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( esc_html__( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Delete', 'bbpress' ); ?></button>
