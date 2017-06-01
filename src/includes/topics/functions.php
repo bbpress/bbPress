@@ -2978,33 +2978,48 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 		return;
 	}
 
-	// Delete all engagements
-	delete_post_meta( $topic_id, '_bbp_engagement' );
-
 	// Query the DB to get voices in this topic
+	// See: https://bbpress.trac.wordpress.org/ticket/3083
 	$bbp_db  = bbp_db();
-	$sql     = "SELECT DISTINCT post_author FROM {$bbp_db->posts} WHERE ( post_parent = %d AND post_status = %s AND post_type = %s ) OR ( ID = %d AND post_type = %s )";
-	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() );
+	$sql     = "SELECT DISTINCT( post_author ) FROM (
+			        SELECT post_author FROM {$bbp_db->posts}
+			            WHERE ( ID = %d AND post_type = %s )
+			        UNION
+			        SELECT post_author FROM {$bbp_db->posts}
+				        WHERE ( post_parent = %d AND post_status = %s AND post_type = %s )
+			    ) as u1";
+	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type() );
 	$results = $bbp_db->get_col( $query );
 
 	// Parse results into voices
-	$voices  = ! is_wp_error( $results )
+	$new_voices  = ! is_wp_error( $results )
 		? wp_parse_id_list( array_filter( $results ) )
 		: array();
 
-	// Update the voice count for this topic id
-	foreach ( $voices as $user_id ) {
-		bbp_add_user_engagement( $user_id, $topic_id );
-	}
+	// Get the old voices
+	$old_voices = bbp_get_topic_engagements( $topic_id );
 
 	// Get the count
-	$count = count( $voices );
+	$new_count = count( $new_voices );
+	$old_count = count( $old_voices );
+
+	// Only recalculate if count is different
+	if ( $new_count !== $old_count ) {
+
+		// Delete all engagements
+		delete_post_meta( $topic_id, '_bbp_engagement' );
+
+		// Update the voice count for this topic id
+		foreach ( $new_voices as $user_id ) {
+			bbp_add_user_engagement( $user_id, $topic_id );
+		}
+	}
 
 	// Update the voice count for this topic id
-	update_post_meta( $topic_id, '_bbp_voice_count', $count );
+	update_post_meta( $topic_id, '_bbp_voice_count', $new_count );
 
 	// Filter & return
-	return (int) apply_filters( 'bbp_update_topic_voice_count', $count, $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_voice_count', $new_count, $topic_id );
 }
 
 /**
