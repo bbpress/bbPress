@@ -776,8 +776,7 @@ class phpBB extends BBP_Converter_Base {
 		 */
 		if ( floatval( phpversion() ) >= 5 ) {
 			$hash = md5( $salt . $password, true );
-			do
-			{
+			do {
 				$hash = md5( $hash . $password, true );
 			}
 			while ( --$count );

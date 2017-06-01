@@ -29,7 +29,7 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-	public function setup_globals()	{
+	public function setup_globals() {
 
 		/** Forum Section *****************************************************/
 
