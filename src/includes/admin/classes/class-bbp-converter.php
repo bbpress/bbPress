@@ -348,6 +348,7 @@ class BBP_Converter {
 						update_option( '_bbp_converter_step',  $step + 1 );
 						update_option( '_bbp_converter_start', 0         );
 						$this->sync_table( true );
+
 						if ( empty( $start ) ) {
 							$this->converter_output( esc_html__( 'No data to clean', 'bbpress' ) );
 						}
@@ -356,6 +357,7 @@ class BBP_Converter {
 						$this->converter_output( sprintf( esc_html__( 'Deleting previously converted data (%1$s - %2$s)', 'bbpress' ), $min, $max ) );
 					}
 				} else {
+					$this->sync_table( false );
 					update_option( '_bbp_converter_step',  $step + 1 );
 					update_option( '_bbp_converter_start', 0         );
 				}
@@ -631,11 +633,12 @@ class BBP_Converter {
 	public function sync_table( $drop = false ) {
 
 		// Setup DB
-		$bbp_db     = bbp_db();
-		$table_name = $bbp_db->prefix . 'bbp_converter_translator';
+		$bbp_db       = bbp_db();
+		$table_name   = $bbp_db->prefix . 'bbp_converter_translator';
+		$table_exists = $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name;
 
 		// Maybe drop the sync table
-		if ( ( true === $drop ) && $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
+		if ( ( true === $drop ) && ( true === $table_exists ) ) {
 			$bbp_db->query( "DROP TABLE {$table_name}" );
 		}
 

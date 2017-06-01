@@ -323,13 +323,6 @@ abstract class BBP_Converter_Base {
 	 */
 	public function convert_table( $to_type, $start ) {
 
-		// Are we usig a sync table, or postmeta?
-		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) === $this->sync_table_name ) {
-			$this->sync_table = true;
-		} else {
-			$this->sync_table = false;
-		}
-
 		// Set some defaults
 		$has_insert     = false;
 		$from_tablename = '';
@@ -645,9 +638,9 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * This method converts old forum heirarchy to new bbPress heirarchy.
+	 * This method converts old forum hierarchy to new bbPress hierarchy.
 	 */
-	public function convert_forum_parents( $start ) {
+	public function convert_forum_parents( $start = 1 ) {
 
 		$has_update = false;
 
@@ -679,7 +672,7 @@ abstract class BBP_Converter_Base {
 	 * @uses bbp_stick_topic() to set the imported topic as sticky
 	 *
 	 */
-	public function convert_topic_stickies( $start ) {
+	public function convert_topic_stickies( $start = 1 ) {
 
 		$has_update = false;
 
@@ -710,7 +703,7 @@ abstract class BBP_Converter_Base {
 	 * @uses bbp_stick_topic() to set the imported topic as super sticky
 	 *
 	 */
-	public function convert_topic_super_stickies( $start ) {
+	public function convert_topic_super_stickies( $start = 1 ) {
 
 		$has_update = false;
 
@@ -741,7 +734,7 @@ abstract class BBP_Converter_Base {
 	 * @uses bbp_close_topic() to close topics properly
 	 *
 	 */
-	public function convert_topic_closed_topics( $start ) {
+	public function convert_topic_closed_topics( $start = 1 ) {
 
 		$has_update = false;
 
@@ -768,7 +761,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @since 2.4.0 bbPress (r5093)
 	 */
-	public function convert_reply_to_parents( $start ) {
+	public function convert_reply_to_parents( $start = 1 ) {
 
 		$has_update = false;
 
@@ -798,7 +791,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @uses add_post_meta() To add _bbp_anonymous_name topic meta key
 	 */
-	public function convert_anonymous_topic_authors( $start ) {
+	public function convert_anonymous_topic_authors( $start = 1 ) {
 
 		$has_update = false;
 
@@ -844,7 +837,7 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @uses add_post_meta() To add _bbp_anonymous_name reply meta key
 	 */
-	public function convert_anonymous_reply_authors( $start ) {
+	public function convert_anonymous_reply_authors( $start = 1 ) {
 
 		$has_update = false;
 
@@ -885,12 +878,12 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method deletes data from the wp database.
 	 */
-	public function clean( $start ) {
+	public function clean( $start = 1 ) {
 
-		$start      = 0;
+		// Defaults
 		$has_delete = false;
 
-		/** Delete bbconverter topics/forums/posts ****************************/
+		/** Delete topics/forums/posts ****************************************/
 
 		if ( true === $this->sync_table ) {
 			$query = $this->wpdb->prepare( "SELECT value_id FROM {$this->sync_table_name} INNER JOIN {$this->wpdb->posts} ON(value_id = ID) WHERE meta_key LIKE '_bbp_%' AND value_type = %s GROUP BY value_id ORDER BY value_id DESC LIMIT {$this->max_rows}", 'post' );
@@ -909,7 +902,7 @@ abstract class BBP_Converter_Base {
 			$has_delete = true;
 		}
 
-		/** Delete bbconverter users ******************************************/
+		/** Delete users ******************************************************/
 
 		if ( true === $this->sync_table ) {
 			$query = $this->wpdb->prepare( "SELECT value_id FROM {$this->sync_table_name} INNER JOIN {$this->wpdb->users} ON(value_id = ID) WHERE meta_key = %s AND value_type = %s LIMIT {$this->max_rows}", '_bbp_old_user_id', 'user' );
@@ -939,20 +932,18 @@ abstract class BBP_Converter_Base {
 	 *
 	 * @param int Start row
 	 */
-	public function clean_passwords( $start ) {
+	public function clean_passwords( $start = 1 ) {
 
 		$has_delete = false;
+		$query      = $this->wpdb->prepare( "SELECT user_id, meta_value FROM {$this->wpdb->usermeta} WHERE meta_key = %s LIMIT {$start}, {$this->max_rows}", '_bbp_password' );
 
-		/** Delete bbconverter passwords **************************************/
-
-		$query       = $this->wpdb->prepare( "SELECT user_id, meta_value FROM {$this->wpdb->usermeta} WHERE meta_key = %s LIMIT {$start}, {$this->max_rows}", '_bbp_password' );
 		update_option( '_bbp_converter_query', $query );
 
-		$bbconverter = $this->wpdb->get_results( $query, ARRAY_A );
+		$converted = $this->wpdb->get_results( $query, ARRAY_A );
 
-		if ( ! empty( $bbconverter ) ) {
+		if ( ! empty( $converted ) ) {
 
-			foreach ( $bbconverter as $value ) {
+			foreach ( $converted as $value ) {
 				if ( is_serialized( $value['meta_value'] ) ) {
 					$this->wpdb->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = '' WHERE ID = %d", $value['user_id'] ) );
 				} else {
