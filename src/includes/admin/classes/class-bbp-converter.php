@@ -199,7 +199,7 @@ class BBP_Converter {
 					bbconverter_is_running = true;
 					jQuery('#bbp-converter-start').hide();
 					jQuery('#bbp-converter-stop').show();
-					jQuery('#bbp-converter-progress').show();
+
 					bbconverter_log( '<p class="loading"><?php esc_html_e( 'Starting Conversion', 'bbpress' ); ?></p>' );
 					bbconverter_run();
 				}
@@ -208,7 +208,7 @@ class BBP_Converter {
 			function bbconverter_run() {
 				jQuery.post(ajaxurl, bbconverter_grab_data(), function(response) {
 					if ( 'bbp_converter_db_connection_failed' === response ) {
-						bbconverter_db_error();
+						bbconverter_error_db();
 						return;
 					}
 
@@ -218,45 +218,78 @@ class BBP_Converter {
 				});
 			}
 
-			function bbconverter_db_error() {
-				jQuery('#bbp-converter-start').show();
+			function bbconverter_stop() {
+				jQuery('#bbp-converter-start')
+					.val( '<?php esc_html_e( 'Continue', 'bbpress' ); ?>' )
+					.show();
+
 				jQuery('#bbp-converter-stop').hide();
-				jQuery('#bbp-converter-progress').hide();
-				jQuery('#bbp-converter-message p').removeClass( 'loading' );
-				bbconverter_log( '<p><?php esc_html_e( 'Database Connection Failed', 'bbpress' ); ?></p>' );
+
+				bbconverter_log( '<p><?php esc_html_e( 'Conversion Stopped (by User)', 'bbpress' ); ?></p>' );
 				bbconverter_is_running = false;
+
 				clearTimeout( bbconverter_run_timer );
 			}
 
-			function bbconverter_stop() {
-				jQuery('#bbp-converter-start').show();
+			function bbconverter_error_db() {
+				jQuery('#bbp-converter-start')
+					.val( '<?php esc_html_e( 'Start', 'bbpress' ); ?>' )
+					.show();
+
 				jQuery('#bbp-converter-stop').hide();
-				jQuery('#bbp-converter-progress').hide();
-				jQuery('#bbp-converter-message p').removeClass( 'loading' );
-				bbconverter_log( '<p><?php esc_html_e( 'Conversion Stopped', 'bbpress' ); ?></p>' );
+
+				bbconverter_log( '<p><?php esc_html_e( 'Database Connection Failed', 'bbpress' ); ?></p>' );
 				bbconverter_is_running = false;
+
+				clearTimeout( bbconverter_run_timer );
+			}
+
+			function bbconverter_error_halt() {
+				jQuery('#bbp-converter-start')
+					.val( '<?php esc_html_e( 'Continue', 'bbpress' ); ?>' )
+					.show();
+
+				jQuery('#bbp-converter-stop').hide();
+
+				bbconverter_log( '<p><?php esc_html_e( 'Conversion Halted (Error)', 'bbpress' ); ?></p>' );
+				bbconverter_is_running = false;
+
 				clearTimeout( bbconverter_run_timer );
 			}
 
 			function bbconverter_success(response) {
 				bbconverter_log(response);
 
-				if ( response === '<p class="loading"><?php esc_html_e( 'Conversion Complete', 'bbpress' ); ?></p>' || response.indexOf('error') > -1 ) {
-					bbconverter_log('<p>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></p>');
-					bbconverter_stop();
+				if ( response === '<p class="loading"><?php esc_html_e( 'Conversion Complete', 'bbpress' ); ?></p>' ) {
+					bbconverter_success_complete();
+				} else if ( response.indexOf('error') > -1 ) {
+					bbconverter_error_halt();
 				} else if( bbconverter_is_running ) { // keep going
-					jQuery('#bbp-converter-progress').show();
 					clearTimeout( bbconverter_run_timer );
 					bbconverter_run_timer = setTimeout( 'bbconverter_run()', bbconverter_delay_time );
 				} else {
-					bbconverter_stop();
+					bbconverter_error_halt();
 				}
+			}
+
+			function bbconverter_success_complete() {
+				jQuery('#bbp-converter-start')
+					.val( '<?php esc_html_e( 'Start', 'bbpress' ); ?>' )
+					.show();
+
+				jQuery('#bbp-converter-stop').hide();
+
+				bbconverter_log('<p>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=bbp-repair">Continue</a></p>');
+				bbconverter_is_running = false;
+
+				clearTimeout( bbconverter_run_timer );
 			}
 
 			function bbconverter_log(text) {
 				if ( jQuery('#bbp-converter-message').css('display') === 'none' ) {
 					jQuery('#bbp-converter-message').show();
 				}
+
 				if ( text ) {
 					jQuery('#bbp-converter-message p').removeClass( 'loading' );
 					jQuery('#bbp-converter-message').prepend( text );
@@ -338,6 +371,9 @@ class BBP_Converter {
 
 		// Include the appropriate converter.
 		$converter = bbp_new_converter( $platform );
+		if ( empty( $converter ) ) {
+			return;
+		}
 
 		switch ( $step ) {
 

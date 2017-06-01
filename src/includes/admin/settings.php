@@ -1630,7 +1630,11 @@ function bbp_converter_setting_callback_convert_users() {
  * @uses do_settings_sections() To output the settings sections
  */
 function bbp_converter_settings_page() {
-?>
+
+	// Starting or continuing?
+	$start_text = get_option( '_bbp_converter_query', false )
+		? esc_html__( 'Continue', 'bbpress' )
+		: esc_html__( 'Start',    'bbpress' ); ?>
 
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
@@ -1643,9 +1647,8 @@ function bbp_converter_settings_page() {
 			<?php do_settings_sections( 'bbpress_converter' ); ?>
 
 			<p class="submit">
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php esc_attr_e( 'Start', 'bbpress' ); ?>" onclick="bbconverter_start();" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" onclick="bbconverter_start();" />
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop();" />
-				<img id="bbp-converter-progress" src="">
 			</p>
 
 			<div class="bbp-converter-updated" id="bbp-converter-message"></div>
