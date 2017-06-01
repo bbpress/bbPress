@@ -1434,42 +1434,16 @@ function bbp_converter_setting_callback_main_section() {
  */
 function bbp_converter_setting_callback_platform() {
 
-	// Bail if no directory was found (how did this happen?)
-	$curdir = opendir( bbpress()->admin->admin_dir . 'converters/' );
-	if ( empty( $curdir ) ) {
-		return;
-	}
-
-	// Default values
-	$platform_options = '';
-	$files            = array();
-
-	// Loop through files in the converters folder and assemble some options
-	while ( $file = readdir( $curdir ) ) {
-		if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
-
-			// Get the file name, without the extension
-			$name = preg_replace( '/.php/', '', $file );
-
-			// Skip the 'Example' converter is this list
-			if ( 'Example' !== $name ) {
-				$files[] = $name;
-			}
-		}
-	}
-
-	// Close the directory
-	closedir( $curdir );
-
-	// Resort files alphabetically
-	ksort( $files );
+	// Converters
+	$converters = bbp_get_converters();
+	$options    = '';
 
 	// Put options together
-	foreach ( $files as $file ) {
-		$platform_options .= '<option value="' . esc_attr( $file ) . '">' . esc_html( $file ) . '</option>';
+	foreach ( $converters as $name => $file ) {
+		$options .= '<option value="' . esc_attr( $name ) . '">' . esc_html( $name ) . '</option>';
 	} ?>
 
-	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $platform_options ?></select>
+	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $options ?></select>
 	<label for="_bbp_converter_platform"><?php esc_html_e( 'is the previous forum software', 'bbpress' ); ?></label>
 
 <?php
