@@ -713,13 +713,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 		if ( current_user_can( 'assign_moderators' ) && ! empty( $_POST['bbp_moderators'] ) ) {
 
 			// Escape tag input
-			$users = sanitize_text_field( $_POST['bbp_moderators'] );
-
-			// Explode by comma
-			$users = strstr( $users, ',' )
-				? explode( ',', $users )
-				: (array) $users;
-
+			$users    = sanitize_text_field( $_POST['bbp_moderators'] );
 			$user_ids = bbp_get_user_ids_from_nicenames( $users );
 
 			// Update forum moderators
