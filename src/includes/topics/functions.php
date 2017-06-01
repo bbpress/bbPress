@@ -1991,7 +1991,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// We don't have any other place to go other than home! Or we may die because of the 404 disease
-			$redirect = home_url();
+			$redirect = bbp_get_forums_url();
 
 			// Update counts, etc...
 			do_action( 'bbp_delete_topic_tag', $tag_id, $tag );
