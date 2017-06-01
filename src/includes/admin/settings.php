@@ -1434,23 +1434,40 @@ function bbp_converter_setting_callback_main_section() {
  */
 function bbp_converter_setting_callback_platform() {
 
-	$platform_options = '';
-	$curdir           = opendir( bbpress()->admin->admin_dir . 'converters/' );
-
 	// Bail if no directory was found (how did this happen?)
+	$curdir = opendir( bbpress()->admin->admin_dir . 'converters/' );
 	if ( empty( $curdir ) ) {
 		return;
 	}
 
+	// Default values
+	$platform_options = '';
+	$files            = array();
+
 	// Loop through files in the converters folder and assemble some options
 	while ( $file = readdir( $curdir ) ) {
 		if ( ( stristr( $file, '.php' ) ) && ( stristr( $file, 'index' ) === false ) ) {
-			$file              = preg_replace( '/.php/', '', $file );
-			$platform_options .= '<option value="' . esc_attr( $file ) . '">' . esc_html( $file ) . '</option>';
+
+			// Get the file name, without the extension
+			$name = preg_replace( '/.php/', '', $file );
+
+			// Skip the 'Example' converter is this list
+			if ( 'Example' !== $name ) {
+				$files[] = $name;
+			}
 		}
 	}
 
-	closedir( $curdir ); ?>
+	// Close the directory
+	closedir( $curdir );
+
+	// Resort files alphabetically
+	ksort( $files );
+
+	// Put options together
+	foreach ( $files as $file ) {
+		$platform_options .= '<option value="' . esc_attr( $file ) . '">' . esc_html( $file ) . '</option>';
+	} ?>
 
 	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $platform_options ?></select>
 	<label for="_bbp_converter_platform"><?php esc_html_e( 'is the previous forum software', 'bbpress' ); ?></label>
@@ -1466,8 +1483,8 @@ function bbp_converter_setting_callback_platform() {
 function bbp_converter_setting_callback_dbserver() {
 ?>
 
-	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_server"><?php esc_html_e( 'IP or hostname', 'bbpress' ); ?></label>
+	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_server"><?php esc_html_e( 'Use default "localhost" if on the same server, otherwise IP or hostname', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1480,8 +1497,8 @@ function bbp_converter_setting_callback_dbserver() {
 function bbp_converter_setting_callback_dbport() {
 ?>
 
-	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" class="small-text" />
-	<label for="_bbp_converter_db_port"><?php esc_html_e( 'Use default 3306 if unsure', 'bbpress' ); ?></label>
+	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" class="small-text" />
+	<label for="_bbp_converter_db_port"><?php esc_html_e( 'Use default "3306" if unsure', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1494,8 +1511,8 @@ function bbp_converter_setting_callback_dbport() {
 function bbp_converter_setting_callback_dbuser() {
 ?>
 
-	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" class="medium-text" />
-	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User for your database connection', 'bbpress' ); ?></label>
+	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" class="medium-text" />
+	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User to acces the database', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1508,8 +1525,8 @@ function bbp_converter_setting_callback_dbuser() {
 function bbp_converter_setting_callback_dbpass() {
 ?>
 
-	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" class="medium-text" autocomplete="off" />
-	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password to access the database', 'bbpress' ); ?></label>
+	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" class="medium-text" autocomplete="off" />
+	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password of the above database user', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1522,7 +1539,7 @@ function bbp_converter_setting_callback_dbpass() {
 function bbp_converter_setting_callback_dbname() {
 ?>
 
-	<input name="_bbp_converter_db_name" id="_bbp_converter_db_name" type="text" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_name" id="_bbp_converter_db_name" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_name"><?php esc_html_e( 'Name of the database with your old forum data', 'bbpress' ); ?></label>
 
 <?php
@@ -1549,7 +1566,7 @@ function bbp_converter_setting_callback_options_section() {
 function bbp_converter_setting_callback_dbprefix() {
 ?>
 
-	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" class="medium-text" />
 	<label for="_bbp_converter_db_prefix"><?php esc_html_e( '(If converting from BuddyPress Forums, use "wp_bb_" or your custom prefix)', 'bbpress' ); ?></label>
 
 <?php
@@ -1563,7 +1580,7 @@ function bbp_converter_setting_callback_dbprefix() {
 function bbp_converter_setting_callback_rows() {
 ?>
 
-	<input name="_bbp_converter_rows" id="_bbp_converter_rows" type="text" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" class="small-text" />
+	<input name="_bbp_converter_rows" id="_bbp_converter_rows" type="number" min="1" max="5000" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" class="small-text" />
 	<label for="_bbp_converter_rows"><?php esc_html_e( 'rows to process at a time', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this low if you experience out-of-memory issues.', 'bbpress' ); ?></p>
 
@@ -1578,7 +1595,7 @@ function bbp_converter_setting_callback_rows() {
 function bbp_converter_setting_callback_delay_time() {
 ?>
 
-	<input name="_bbp_converter_delay_time" id="_bbp_converter_delay_time" type="text" value="<?php bbp_form_option( '_bbp_converter_delay_time', '1' ); ?>" class="small-text" />
+	<input name="_bbp_converter_delay_time" id="_bbp_converter_delay_time" type="number" min="1" max="3600" value="<?php bbp_form_option( '_bbp_converter_delay_time', '1' ); ?>" class="small-text" />
 	<label for="_bbp_converter_delay_time"><?php esc_html_e( 'second(s) delay between each group of rows', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this high to prevent too-many-connection issues.', 'bbpress' ); ?></p>
 
