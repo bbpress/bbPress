@@ -100,7 +100,7 @@ class BBP_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		$bbp = bbpress();
+		$bbp              = bbpress();
 		$this->admin_dir  = trailingslashit( $bbp->includes_dir . 'admin'  ); // Admin path
 		$this->admin_url  = trailingslashit( $bbp->includes_url . 'admin'  ); // Admin url
 		$this->images_url = trailingslashit( $this->admin_url   . 'images' ); // Admin images URL
@@ -121,13 +121,13 @@ class BBP_Admin {
 		// Tools
 		require $this->admin_dir . 'tools.php';
 		require $this->admin_dir . 'tools/common.php';
+		require $this->admin_dir . 'tools/converter.php';
 		require $this->admin_dir . 'tools/repair.php';
 		require $this->admin_dir . 'tools/upgrades.php';
 		require $this->admin_dir . 'tools/reset.php';
 		require $this->admin_dir . 'tools/help.php';
 
 		// Components
-		require $this->admin_dir . 'converter.php';
 		require $this->admin_dir . 'settings.php';
 		require $this->admin_dir . 'common.php';
 		require $this->admin_dir . 'metaboxes.php';
@@ -135,6 +135,10 @@ class BBP_Admin {
 		require $this->admin_dir . 'topics.php';
 		require $this->admin_dir . 'replies.php';
 		require $this->admin_dir . 'users.php';
+
+		// Converter
+		require $this->admin_dir . 'classes/class-bbp-converter-base.php';
+		require $this->admin_dir . 'classes/class-bbp-converter.php';
 	}
 
 	/**
@@ -235,8 +239,8 @@ class BBP_Admin {
 
 		// Forums Tools Root
 		add_management_page(
-			__( 'Forums', 'bbpress' ),
-			__( 'Forums', 'bbpress' ),
+			esc_html__( 'Forums', 'bbpress' ),
+			esc_html__( 'Forums', 'bbpress' ),
 			'bbp_tools_page',
 			'bbp-repair',
 			'bbp_admin_repair_page'
@@ -245,8 +249,8 @@ class BBP_Admin {
 		// Are settings enabled?
 		if ( 'basic' === bbp_settings_integration() ) {
 			add_options_page(
-				__( 'Forums',  'bbpress' ),
-				__( 'Forums',  'bbpress' ),
+				esc_html__( 'Forums',  'bbpress' ),
+				esc_html__( 'Forums',  'bbpress' ),
 				'bbp_settings_page',
 				'bbpress',
 				'bbp_admin_settings'
@@ -258,8 +262,8 @@ class BBP_Admin {
 
 			// About
 			add_dashboard_page(
-				__( 'Welcome to bbPress',  'bbpress' ),
-				__( 'Welcome to bbPress',  'bbpress' ),
+				esc_html__( 'Welcome to bbPress',  'bbpress' ),
+				esc_html__( 'Welcome to bbPress',  'bbpress' ),
 				'bbp_about_page',
 				'bbp-about',
 				array( $this, 'about_screen' )
@@ -267,8 +271,8 @@ class BBP_Admin {
 
 			// Credits
 			add_dashboard_page(
-				__( 'Welcome to bbPress',  'bbpress' ),
-				__( 'Welcome to bbPress',  'bbpress' ),
+				esc_html__( 'Welcome to bbPress',  'bbpress' ),
+				esc_html__( 'Welcome to bbPress',  'bbpress' ),
 				'bbp_about_page',
 				'bbp-credits',
 				array( $this, 'credits_screen' )
@@ -282,8 +286,8 @@ class BBP_Admin {
 
 		add_submenu_page(
 			'index.php',
-			__( 'Update Forums', 'bbpress' ),
-			__( 'Update Forums', 'bbpress' ),
+			esc_html__( 'Update Forums', 'bbpress' ),
+			esc_html__( 'Update Forums', 'bbpress' ),
 			'manage_network',
 			'bbp-update',
 			array( $this, 'update_screen' )
@@ -306,8 +310,8 @@ class BBP_Admin {
 
 		add_submenu_page(
 			'upgrade.php',
-			__( 'Update Forums', 'bbpress' ),
-			__( 'Update Forums', 'bbpress' ),
+			esc_html__( 'Update Forums', 'bbpress' ),
+			esc_html__( 'Update Forums', 'bbpress' ),
 			'manage_network',
 			'bbpress-update',
 			array( $this, 'network_update_screen' )
@@ -1069,21 +1073,30 @@ class BBP_Admin {
 
 						<?php foreach ( (array) $blogs as $details ) :
 
-							$siteurl = get_blog_option( $details['blog_id'], 'siteurl' ); ?>
+							// Get site URLs
+							$site_url   = get_site_url( $details['blog_id'] );
+							$admin_url  = get_site_url( $details['blog_id'], 'wp-admin.php', 'admin' );
+							$remote_url = add_query_arg( array(
+								'page'   => 'bbp-update',
+								'action' => 'bbp-update'
+							), $admin_url ); ?>
 
-							<li><?php echo $siteurl; ?></li>
+							<li><?php echo esc_html( $site_url ); ?></li>
 
 							<?php
 
 							// Get the response of the bbPress update on this site
 							$response = wp_remote_get(
-								trailingslashit( $siteurl ) . 'wp-admin/index.php?page=bbp-update&action=bbp-update',
-								array( 'timeout' => 30, 'httpversion' => '1.1' )
+								$remote_url,
+								array(
+									'timeout'     => 30,
+									'httpversion' => '1.1'
+								)
 							);
 
 							// Site errored out, no response?
 							if ( is_wp_error( $response ) ) {
-								wp_die( sprintf( __( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ), $siteurl, '<em>' . $response->get_error_message() . '</em>' ) );
+								wp_die( sprintf( esc_html__( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ), $site_url, '<em>' . $response->get_error_message() . '</em>' ) );
 							}
 
 							// Switch to the new blog
