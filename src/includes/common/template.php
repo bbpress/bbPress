@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /** URLs **********************************************************************/
 
 /**
- * Ouput the forum URL
+ * Output the forum URL
  *
  * @since 2.1.0 bbPress (r3979)
  *
@@ -40,7 +40,7 @@ function bbp_forums_url( $path = '/' ) {
 	}
 
 /**
- * Ouput the forum URL
+ * Output the forum URL
  *
  * @since 2.1.0 bbPress (r3979)
  *
