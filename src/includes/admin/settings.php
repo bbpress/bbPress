@@ -1631,10 +1631,20 @@ function bbp_converter_setting_callback_convert_users() {
  */
 function bbp_converter_settings_page() {
 
+	// Status
+	$started = (bool) get_option( '_bbp_converter_query', false );
+	$step    = (int)  get_option( '_bbp_converter_step', 0 );
+	$max     = 17; // Filter?
+
 	// Starting or continuing?
-	$start_text = get_option( '_bbp_converter_query', false )
+	$start_text = ( true === $started )
 		? esc_html__( 'Continue', 'bbpress' )
-		: esc_html__( 'Start',    'bbpress' ); ?>
+		: esc_html__( 'Start',    'bbpress' );
+
+	// Starting or continuing?
+	$status_text = ( true === $started )
+		? sprintf( esc_html__( 'Stopped at step %d of %d', 'bbpress' ), $step, $max )
+		: esc_html__( 'Ready to go.', 'bbpress' ); ?>
 
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
@@ -1650,9 +1660,22 @@ function bbp_converter_settings_page() {
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" onclick="bbconverter_start();" />
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop();" />
 			</p>
-
-			<div class="bbp-converter-updated" id="bbp-converter-message"></div>
 		</form>
+
+		<div class="metabox-holder">
+			<div class="bbp-converter-monitor postbox">
+				<button type="button" class="handlediv" aria-expanded="true">
+					<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
+					<span class="toggle-indicator" aria-hidden="true"></span>
+				</button>
+				<h2 class="hndle ui-sortable-handle"><span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span></h2>
+				<div class="inside">
+					<div id="bbp-converter-message" class="bbp-converter-updated">
+						<p><?php echo esc_html( $status_text ); ?></p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 <?php
