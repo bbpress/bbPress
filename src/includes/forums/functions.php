@@ -864,7 +864,7 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Find this forum in the array
 	if ( in_array( $forum_id, $private, true ) ) {
 
-		$offset = array_search( $forum_id, $private );
+		$offset = array_search( $forum_id, $private, true );
 
 		// Splice around it
 		array_splice( $private, $offset, 1 );
@@ -879,7 +879,7 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	// Find this forum in the array
 	if ( in_array( $forum_id, $hidden, true ) ) {
 
-		$offset = array_search( $forum_id, $hidden );
+		$offset = array_search( $forum_id, $hidden, true );
 
 		// Splice around it
 		array_splice( $hidden, $offset, 1 );
@@ -925,7 +925,7 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		// Find this forum in the array
 		if ( in_array( $forum_id, $hidden, true ) ) {
 
-			$offset = array_search( $forum_id, $hidden );
+			$offset = array_search( $forum_id, $hidden, true );
 
 			// Splice around it
 			array_splice( $hidden, $offset, 1 );
@@ -975,7 +975,7 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		// Find this forum in the array
 		if ( in_array( $forum_id, $private, true ) ) {
 
-			$offset = array_search( $forum_id, $private );
+			$offset = array_search( $forum_id, $private, true );
 
 			// Splice around it
 			array_splice( $private, $offset, 1 );
@@ -2262,7 +2262,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 		// Remove bbp_get_private_status_id() if user is not capable
 		if ( ! current_user_can( 'read_private_forums' ) ) {
-			$key = array_search( bbp_get_private_status_id(), $post_stati );
+			$key = array_search( bbp_get_private_status_id(), $post_stati, true );
 			if ( ! empty( $key ) ) {
 				unset( $post_stati[ $key ] );
 			}
@@ -2276,7 +2276,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 
 		// Remove bbp_get_hidden_status_id() if user is not capable
 		if ( ! current_user_can( 'read_hidden_forums' ) ) {
-			$key = array_search( bbp_get_hidden_status_id(), $post_stati );
+			$key = array_search( bbp_get_hidden_status_id(), $post_stati, true );
 			if ( ! empty( $key ) ) {
 				unset( $post_stati[ $key ] );
 			}
