@@ -243,7 +243,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Allow group members to have advanced priviledges in group forum topics.
+	 * Allow group members to have advanced privileges in group forum topics.
 	 *
 	 * @since 2.2.0 bbPress (r4434)
 	 *
