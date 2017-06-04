@@ -2610,7 +2610,7 @@ function bbp_breadcrumb( $args = array() ) {
 		$trail  = ! empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
 
 		// Filter & return
-		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r );
+		return apply_filters( 'bbp_get_breadcrumb', $trail, $crumbs, $r, $args );
 	}
 
 /** Topic Tags ***************************************************************/

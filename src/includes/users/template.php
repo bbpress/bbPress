@@ -535,7 +535,7 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		$retval = ! empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
 
 		// Filter & return
-		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r );
+		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r, $args );
 	}
 
 /**
@@ -799,7 +799,7 @@ function bbp_admin_link( $args = array() ) {
 		$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
 
 		// Filter & return
-		return apply_filters( 'bbp_get_admin_link', $retval, $r );
+		return apply_filters( 'bbp_get_admin_link', $retval, $r, $args );
 	}
 
 /** User IP *******************************************************************/
@@ -847,7 +847,7 @@ function bbp_author_ip( $args = array() ) {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_author_ip', $author_ip, $r );
+		return apply_filters( 'bbp_get_author_ip', $author_ip, $r, $args );
 	}
 
 /** Anonymous Fields **********************************************************/

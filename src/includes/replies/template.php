@@ -1360,7 +1360,7 @@ function bbp_reply_author_link( $args = array() ) {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_reply_author_link', $author_link, $r );
+		return apply_filters( 'bbp_get_reply_author_link', $author_link, $r, $args );
 	}
 
 /**
@@ -1510,7 +1510,7 @@ function bbp_reply_author_role( $args = array() ) {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_reply_author_role', $author_role, $r );
+		return apply_filters( 'bbp_get_reply_author_role', $author_role, $r, $args );
 	}
 
 /**
@@ -2950,7 +2950,7 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 		<?php
 
 		// Filter & return
-		return apply_filters( 'bbp_get_form_reply_status_dropdown', ob_get_clean(), $r );
+		return apply_filters( 'bbp_get_form_reply_status_dropdown', ob_get_clean(), $r, $args );
 	}
 
 /**

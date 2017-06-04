@@ -461,7 +461,7 @@ function bbp_get_statistics( $args = array() ) {
 	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
 
 	// Filter & return
-	return apply_filters( 'bbp_get_statistics', $statistics, $r );
+	return apply_filters( 'bbp_get_statistics', $statistics, $r, $args );
 }
 
 /** New/edit topic/reply helpers **********************************************/
