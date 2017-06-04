@@ -886,11 +886,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					if ( bbp_forums() ) :
 
 						// Setup the forum
-						bbp_the_forum(); ?>
+						bbp_the_forum();
 
-						<h2><?php bbp_forum_title(); ?></h2>
+						// Only wrap title in H2 if not empty
+						$title = bbp_get_forum_title();
+						if ( ! empty( $title ) ) {
+							echo '<h2>' . $title . '</h2>';
+						}
 
-						<?php bbp_get_template_part( 'content', 'single-forum' );
+						// Output forum
+						bbp_get_template_part( 'content', 'single-forum' );
 
 					// No forums found
 					else : ?>
@@ -919,18 +924,27 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					// If no topic, 404
 					if ( ! bbp_topics() ) {
-						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
-						<h2><?php bbp_forum_title(); ?></h2>
-						<?php bbp_get_template_part( 'feedback', 'no-topics' );
+						bp_do_404( bbp_get_forum_permalink( $forum_id ) );
+
+						// Only wrap title in H2 if not empty
+						$title = bbp_get_forum_title();
+						if ( ! empty( $title ) ) {
+							echo '<h2>' . $title . '</h2>';
+						}
+
+						// No topics
+						bbp_get_template_part( 'feedback', 'no-topics' );
 						break;
 					}
 
 					// Setup the topic
-					bbp_the_topic(); ?>
+					bbp_the_topic();
 
-					<h2><?php bbp_topic_title(); ?></h2>
-
-					<?php
+					// Only wrap title in H2 if not empty
+					$title = bbp_get_topic_title();
+					if ( ! empty( $title ) ) {
+						echo '<h2>' . $title . '</h2>';
+					}
 
 					// Topic edit
 					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
@@ -981,18 +995,29 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 					// If no topic, 404
 					if ( ! bbp_replies() ) {
-						bp_do_404( bbp_get_forum_permalink( $forum_id ) ); ?>
-						<h2><?php bbp_forum_title(); ?></h2>
-						<?php bbp_get_template_part( 'feedback', 'no-replies' );
+						bp_do_404( bbp_get_forum_permalink( $forum_id ) );
+
+						// Only wrap title in H2 if not empty
+						$title = bbp_get_forum_title();
+						if ( ! empty( $title ) ) {
+							echo '<h2>' . $title . '</h2>';
+						}
+
+						// No replies
+						bbp_get_template_part( 'feedback', 'no-replies' );
 						break;
 					}
 
 					// Setup the reply
-					bbp_the_reply(); ?>
+					bbp_the_reply();
 
-					<h2><?php bbp_reply_title(); ?></h2>
+					// Only wrap title in H2 if not empty
+					$title = bbp_get_reply_title();
+					if ( ! empty( $title ) ) {
+						echo '<h2>' . $title . '</h2>';
+					}
 
-					<?php if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
+					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
 
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
