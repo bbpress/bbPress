@@ -309,8 +309,8 @@ add_filter( 'bbp_make_clickable', 'bbp_make_mentions_clickable',  8 ); // @jjj
  *
  * These filters were most likely replaced by bbp_parse_args(), which includes
  * both passive and aggressive filters anywhere parse_args is used to compare
- * default arguments to passed arguments, without needing to litter the
- * codebase with _before_ and _after_ filters everywhere.
+ * default arguments to passed arguments, without sprinkling the project with
+ * _before_ and _after_ filters everywhere.
  */
 
 /**
@@ -343,7 +343,7 @@ add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 1 );
 function _bbp_has_forums_query( $args = array() ) {
 
 	// Filter & return
-	return apply_filters( 'bbp_has_forums_query', $args );
+	return (array) apply_filters( 'bbp_has_forums_query', $args );
 }
 add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
 
@@ -358,7 +358,7 @@ add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
 function _bbp_has_topics_query( $args = array() ) {
 
 	// Filter & return
-	return apply_filters( 'bbp_has_topics_query', $args );
+	return (array) apply_filters( 'bbp_has_topics_query', $args );
 }
 add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
 
@@ -373,6 +373,6 @@ add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
 function _bbp_has_replies_query( $args = array() ) {
 
 	// Filter & return
-	return apply_filters( 'bbp_has_replies_query', $args );
+	return (array) apply_filters( 'bbp_has_replies_query', $args );
 }
 add_filter( 'bbp_after_has_replies_parse_args', '_bbp_has_replies_query' );
