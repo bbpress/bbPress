@@ -354,9 +354,9 @@ div.bbp-converter-log div code {
 
 div.bbp-converter-log .step {
 	text-align: right;
-	font-weight: bold;
+	font-weight: 600;
 }
 
 #bbp-converter-stop {
-	display:none;
+	display: none;
 }
