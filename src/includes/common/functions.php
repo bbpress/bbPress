@@ -124,6 +124,19 @@ function bbp_get_paged() {
 /** Misc **********************************************************************/
 
 /**
+ * Return the unique non-empty values of an array.
+ *
+ * @since 2.6.0 bbPress (r6481)
+ *
+ * @param array $array Array to get values of
+ *
+ * @return array
+ */
+function bbp_get_unique_array_values( $array = array() ) {
+	return array_unique( array_filter( array_values( $array ) ) );
+}
+
+/**
  * Fix post author id on post save
  *
  * When a logged in user changes the status of an anonymous reply or topic, or
