@@ -59,7 +59,14 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
 	// Insert reply meta
 	foreach ( $reply_meta as $meta_key => $meta_value ) {
-		update_post_meta( $reply_id, '_bbp_' . $meta_key, $meta_value );
+
+		// Prefix if not prefixed
+		if ( '_bbp_' !== substr( $meta_key, 0, 5 ) ) {
+			$meta_key = '_bbp_' . $meta_key;
+		}
+
+		// Update the meta
+		update_post_meta( $reply_id, $meta_key, $meta_value );
 	}
 
 	// Update the reply and hierarchy

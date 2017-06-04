@@ -38,7 +38,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'post_content'   => '',
 		'post_title'     => '',
 		'comment_status' => 'closed',
-		'menu_order'     => 0,
+		'menu_order'     => 0
 	), 'insert_topic' );
 
 	// Insert topic
@@ -59,12 +59,19 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 		'reply_count_hidden' => 0,
 		'last_reply_id'      => 0,
 		'last_active_id'     => $topic_id,
-		'last_active_time'   => get_post_field( 'post_date', $topic_id, 'db' ),
+		'last_active_time'   => get_post_field( 'post_date', $topic_id, 'db' )
 	), 'insert_topic_meta' );
 
 	// Insert topic meta
 	foreach ( $topic_meta as $meta_key => $meta_value ) {
-		update_post_meta( $topic_id, '_bbp_' . $meta_key, $meta_value );
+
+		// Prefix if not prefixed
+		if ( '_bbp_' !== substr( $meta_key, 0, 5 ) ) {
+			$meta_key = '_bbp_' . $meta_key;
+		}
+
+		// Update the meta
+		update_post_meta( $topic_id, $meta_key, $meta_value );
 	}
 
 	// Update the topic and hierarchy

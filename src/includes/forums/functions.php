@@ -65,7 +65,14 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Insert forum meta
 	foreach ( $forum_meta as $meta_key => $meta_value ) {
-		update_post_meta( $forum_id, '_bbp_' . $meta_key, $meta_value );
+
+		// Prefix if not prefixed
+		if ( '_bbp_' !== substr( $meta_key, 0, 5 ) ) {
+			$meta_key = '_bbp_' . $meta_key;
+		}
+
+		// Update the meta
+		update_post_meta( $forum_id, $meta_key, $meta_value );
 	}
 
 	// Update the forum and hierarchy
