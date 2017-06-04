@@ -719,13 +719,16 @@ class SMF extends BBP_Converter_Base {
 		// Replace '[/tt]' with '</tt>'
 		$SMF_markup = preg_replace( '/\[\/tt\]/', '</tt>', $SMF_markup );
 
-		// Replace '<br />' with ''
-		$SMF_markup = preg_replace( '/\<br \/\>/',   '<tt>',  $SMF_markup );
+		// Replace '<br />' with '<br>'
+		$SMF_markup = preg_replace( '/\<br \/\>/',   '<br>',  $SMF_markup );
 
 		// Replace '[size=$1]' with '<span style="font-size:$1%;">$3</span>'
 		$SMF_markup = preg_replace( '/\[size=(.*?)\]/', '<span style="font-size:$1">', $SMF_markup );
 		// Replace '[/size]' with '</span>'
 		$SMF_markup = preg_replace( '/\[\/size\]/',     '</span>',                     $SMF_markup );
+
+		// Replace non-break space '&nbsp;' with space ' '
+		$SMF_markup = preg_replace ( '/&nbsp;/', ' ', $SMF_markup );
 
 		// Now that SMF custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $SMF_markup;
