@@ -16,6 +16,10 @@ add_filter( 'bbp_get_user_id',      'bbp_filter_user_id',           10, 3 );
 add_filter( 'bbp_is_single_user',   'bbp_filter_is_single_user',    10, 1 );
 add_filter( 'bbp_is_user_home',     'bbp_filter_is_user_home',      10, 1 );
 
+// Group Forum Root
+add_action( 'load-settings_page_bbpress', 'bbp_maybe_create_group_forum_root' );
+add_action( 'bbp_delete_forum',           'bbp_maybe_delete_group_forum_root' );
+
 /** BuddyPress Helpers ********************************************************/
 
 /**
@@ -305,13 +309,88 @@ function bbp_member_forums_subscriptions_content() {
 <?php
 }
 
+/** Forum Group Root **********************************************************/
+
+/**
+ * Clean up the group root setting if the forum is being deleted
+ *
+ * @since 2.6.0 bbPress (r6479)
+ *
+ * @param int $forum_id The forum ID being deleted
+ */
+function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
+
+	// Bail if no forum ID
+	$forum_id = bbp_get_forum_id();
+	if ( empty( $forum_id ) ) {
+		return;
+	}
+
+	// Get the group root
+	$group_root = (int) get_option( '_bbp_group_forums_root_id', 0 );
+
+	// Delete the group root if the forum just got deleted
+	if ( $group_root === $forum_id ) {
+		delete_option( '_bbp_group_forums_root_id' );
+	}
+}
+
+/**
+ * Handle the new group forum root creation
+ *
+ * @since 2.6.0 bbPress (r6479)
+ *
+ * @return
+ */
+function bbp_maybe_create_group_forum_root() {
+
+	// Bail if no nonce
+	if ( empty( $_GET['_wpnonce'] ) || ( empty( $_GET['create'] ) || ( 'bbp-group-forum-root' !== $_GET['create'] ) ) ) {
+		return;
+	}
+
+	// Bail if user cannot publish forums
+	if ( ! current_user_can( 'publish_forums' ) ) {
+		return;
+	}
+
+	// Bail if nonce check fails
+	if ( ! wp_verify_nonce( $_GET['_wpnonce'], '_bbp_group_forums_root_id' ) ) {
+		return;
+	}
+
+	// Create new forum
+	$forum_id = bbp_insert_forum(
+
+		// Post
+		array( 'post_title' => esc_html__( 'Group Forums', 'bbpress' ) ),
+
+		// Meta
+		array( 'forum_type' => 'category' )
+	);
+
+	// Update & redirect
+	if ( ! empty( $forum_id ) ) {
+
+		// Create
+		update_option( '_bbp_group_forums_root_id', $forum_id );
+
+		// Redirect
+		wp_safe_redirect( add_query_arg( array(
+			'page'    => 'bbpress',
+			'updated' => true // Lame, but still supported
+		), admin_url( 'options-general.php' ) ) );
+		die;
+	}
+}
+
 /** Forum/Group Sync **********************************************************/
 
 /**
  * These functions are used to keep the many-to-many relationships between
- * groups and forums synchronized. Each forum and group stores ponters to each
+ * groups and forums synchronized. Each forum and group stores pointers to each
  * other in their respective meta. This way if a group or forum is deleted
- * their associattions can be updated without much effort.
+ * their associations can be updated without much effort.
  */
 
 /**
@@ -511,7 +590,7 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Remove a group from aall forums
+ * Remove a group from all forums
  *
  * @param type $group_id
  * @since 2.1.0 bbPress (r3653)

@@ -54,7 +54,7 @@ function bbp_admin_get_settings_sections() {
 			'page'     => 'permalink'
 		),
 		'bbp_settings_single_slugs' => array(
-			'title'    => esc_html__( 'Single Forum Slugs', 'bbpress' ),
+			'title'    => esc_html__( 'Forum Single Slugs', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_single_slug_section',
 			'page'     => 'permalink',
 		),
@@ -64,12 +64,12 @@ function bbp_admin_get_settings_sections() {
 			'page'     => 'permalink',
 		),
 		'bbp_settings_buddypress' => array(
-			'title'    => esc_html__( 'BuddyPress Integration', 'bbpress' ),
+			'title'    => esc_html__( 'Forum Integration for BuddyPress', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_buddypress_section',
 			'page'     => 'buddypress',
 		),
 		'bbp_settings_akismet' => array(
-			'title'    => esc_html__( 'Akismet Integration', 'bbpress' ),
+			'title'    => esc_html__( 'Forum Integration for Akismet', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_akismet_section',
 			'page'     => 'discussion'
 		)
@@ -430,7 +430,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Are group forums enabled?
 			'_bbp_enable_group_forums' => array(
-				'title'             => esc_html__( 'Enable Group Forums', 'bbpress' ),
+				'title'             => esc_html__( 'Group Forums', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -438,7 +438,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Group forums parent forum ID
 			'_bbp_group_forums_root_id' => array(
-				'title'             => esc_html__( 'Group Forums Parent', 'bbpress' ),
+				'title'             => esc_html__( 'Primary Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums_root_id',
 				'sanitize_callback' => 'intval',
 				'args'              => array( 'label_for'=>'_bbp_group_forums_root_id' )
@@ -1300,7 +1300,7 @@ function bbp_admin_setting_callback_search_slug() {
 function bbp_admin_setting_callback_buddypress_section() {
 ?>
 
-	<p><?php esc_html_e( 'Forum settings for BuddyPress', 'bbpress' ); ?></p>
+	<p><?php esc_html_e( 'Configure how Forum settings for BuddyPress', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1330,19 +1330,47 @@ function bbp_admin_setting_callback_group_forums() {
  */
 function bbp_admin_setting_callback_group_forums_root_id() {
 
+	// Group root ID
+	$group_root = bbp_get_group_forums_root_id();
+	if ( ! bbp_get_forum( $group_root ) ) {
+		delete_option( '_bbp_group_forums_root_id' );
+		$group_root = 0;
+	}
+
 	// Output the dropdown for all forums
-	bbp_dropdown( array(
-		'selected'           => bbp_get_group_forums_root_id(),
-		'show_none'          => esc_attr__( '&mdash; Forum root &mdash;', 'bbpress' ),
+	$select = bbp_get_dropdown( array(
+		'selected'           => $group_root,
+		'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
 		'orderby'            => 'title',
 		'order'              => 'ASC',
 		'select_id'          => '_bbp_group_forums_root_id',
 		'disable_categories' => false,
 		'disabled'           => '_bbp_group_forums_root_id'
-	) ); ?>
+	) );
 
-	<?php esc_html_e( 'is the parent for all group forums', 'bbpress' ); ?>
-	<p class="description"><?php esc_html_e( 'Using the Forum Root is not recommended. Changing this does not move existing forums.', 'bbpress' ); ?></p>
+	// Check cap one time
+	$can_add_new = current_user_can( 'publish_forums' );
+	$button = '';
+
+	// Text variations based on configuration
+	if ( empty( $group_root ) && ( true === $can_add_new ) ) {
+
+		// New URL
+		$new_url = wp_nonce_url( add_query_arg( array(
+			'page'   => 'bbpress',
+			'create' => 'bbp-group-forum-root'
+		), admin_url( 'options-general.php' ) ), '_bbp_group_forums_root_id' );
+
+		// Button & text
+		$button = '<a href="' . esc_url( $new_url ) . '">' . esc_html__( 'create a new one', 'bbpress' ) . '</a>';
+		$text   = esc_html__( 'Use %s to contain your group forums, or %s', 'bbpress' );
+	} else {
+		$text = esc_html__( 'Use %s to contain your group forums', 'bbpress' );
+	}
+
+	// Output
+	printf( $text, $select, $button ); ?>
+	<p class="description"><?php esc_html_e( 'Changing this will not move existing forums.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1443,7 +1471,7 @@ function bbp_converter_setting_callback_platform() {
 		$options .= '<option value="' . esc_attr( $name ) . '">' . esc_html( $name ) . '</option>';
 	} ?>
 
-	<select name="_bbp_converter_platform" id="_bbp_converter_platform" /><?php echo $options ?></select>
+	<select name="_bbp_converter_platform" id="_bbp_converter_platform"><?php echo $options ?></select>
 	<label for="_bbp_converter_platform"><?php esc_html_e( 'is the previous forum software', 'bbpress' ); ?></label>
 
 <?php
