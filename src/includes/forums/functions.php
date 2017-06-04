@@ -51,6 +51,8 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Forum meta
 	$forum_meta = bbp_parse_args( $forum_meta, array(
+		'forum_type'           => 'forum',
+		'status'               => 'open',
 		'reply_count'          => 0,
 		'topic_count'          => 0,
 		'topic_count_hidden'   => 0,
@@ -77,7 +79,7 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Update the forum and hierarchy
 	bbp_update_forum( array(
-		'forum_id' => $forum_id,
+		'forum_id' => $forum_id
 	) );
 
 	/**
