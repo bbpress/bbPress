@@ -316,7 +316,7 @@ body.post-type-reply strong.label {
 
 /* Converter */
 
-div.bbp-converter-monitor .inside {
+#bbp-converter-monitor .inside {
 	margin-bottom: 0;
 }
 

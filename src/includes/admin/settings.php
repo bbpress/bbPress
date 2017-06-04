@@ -1393,8 +1393,8 @@ function bbp_admin_settings() {
 ?>
 
 	<div class="wrap">
-
 		<h1><?php esc_html_e( 'Forums Settings', 'bbpress' ) ?></h1>
+		<hr class="wp-header-end">
 
 		<form action="options.php" method="post">
 
@@ -1648,6 +1648,7 @@ function bbp_converter_settings_page() {
 
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
+		<hr class="wp-header-end">
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Import Forums', 'bbpress' ) ); ?></h2>
 
 		<form action="#" method="post" id="bbp-converter-settings">
@@ -1662,22 +1663,27 @@ function bbp_converter_settings_page() {
 			</p>
 		</form>
 
-		<div class="metabox-holder">
-			<div class="bbp-converter-monitor postbox">
-				<button type="button" class="handlediv" aria-expanded="true">
-					<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
-					<span class="toggle-indicator" aria-hidden="true"></span>
-				</button>
-				<h2 class="hndle ui-sortable-handle"><span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span></h2>
-				<div class="inside">
-					<div id="bbp-converter-message" class="bbp-converter-log">
-						<p><?php echo esc_html( $status_text ); ?></p>
+		<div id="poststuff">
+			<div id="post-body" class="metabox-holder columns-1">
+				<div id="postbox-container-1" class="postbox-container">
+					<div id="normal-sortables" class="meta-box-sortables ui-sortable">
+						<div id="bbp-converter-monitor" class="postbox">
+							<button type="button" class="handlediv" aria-expanded="true">
+								<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
+								<span class="toggle-indicator" aria-hidden="true"></span>
+							</button>
+							<h2 class="hndle ui-sortable-handle"><span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span></h2>
+							<div class="inside">
+								<div id="bbp-converter-message" class="bbp-converter-log">
+									<p><?php echo esc_html( $status_text ); ?></p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-
 <?php
 }
 

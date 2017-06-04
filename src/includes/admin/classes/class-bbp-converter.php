@@ -156,7 +156,7 @@ class BBP_Converter {
 		// Enqueue scripts
 		wp_enqueue_script( 'postbox'   );
 		wp_enqueue_script( 'dashboard' );
-		wp_enqueue_script( 'bbp-converter', $bbp->admin->js_url . 'converter' . $suffix . '.js', array( 'jquery' ), $bbp->asset_version, true );
+		wp_enqueue_script( 'bbp-converter', $bbp->admin->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox' ), $bbp->asset_version );
 
 		// Localize JS
 		wp_localize_script( 'bbp-converter', 'BBP_Converter', array(
