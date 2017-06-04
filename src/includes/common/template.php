@@ -1623,13 +1623,14 @@ function bbp_dropdown( $args = array() ) {
 			'disabled'           => ''
 		), 'get_dropdown' );
 
+		// Fallback to our walker
 		if ( empty( $r['walker'] ) ) {
 			$r['walker']            = new BBP_Walker_Dropdown();
 			$r['walker']->tree_type = $r['post_type'];
 		}
 
 		// Force 0
-		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
+		if ( is_numeric( $r['selected'] ) && ( $r['selected'] < 0 ) ) {
 			$r['selected'] = 0;
 		}
 
@@ -1724,7 +1725,7 @@ function bbp_dropdown( $args = array() ) {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_dropdown', $retval, $r );
+		return apply_filters( 'bbp_get_dropdown', $retval, $r, $args );
 	}
 
 /**
