@@ -452,7 +452,7 @@ class BBP_Admin {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_map_settings_meta_caps', $caps, $cap, $user_id, $args );
+		return (array) apply_filters( 'bbp_map_settings_meta_caps', $caps, $cap, $user_id, $args );
 	}
 
 	/**
