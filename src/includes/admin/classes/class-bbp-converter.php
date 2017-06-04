@@ -146,200 +146,48 @@ class BBP_Converter {
 	 */
 	public function admin_head() {
 
-		// For Converter Status
-		wp_enqueue_script( 'postbox' );
+		// Variables
+		$bbp        = bbpress();
+		$suffix     = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$repair_url = add_query_arg( array(
+			'page' => 'bbp-repair'
+		), admin_url() );
+
+		// Enqueue scripts
+		wp_enqueue_script( 'postbox'   );
 		wp_enqueue_script( 'dashboard' );
+		wp_enqueue_script( 'bbp-converter', $bbp->admin->js_url . 'converter' . $suffix . '.js', array( 'jquery' ), $bbp->asset_version, true );
 
-		// Was a conversion started?
-		$started = (bool) get_option( '_bbp_converter_step', false );
-		$halt    = defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY; ?>
+		// Localize JS
+		wp_localize_script( 'bbp-converter', 'BBP_Converter', array(
 
-		<style type="text/css" media="screen">
-			/*<![CDATA[*/
+			// Vars
+			'ajax_nonce' => wp_create_nonce( 'bbp_converter_process' ),
+			'halt'       => (bool) defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY,
+			'started'    => (bool) get_option( '_bbp_converter_step', false ),
+			'running'    => false,
+			'complete'   => false,
+			'delay'      => 0,
 
-			div.bbp-converter-monitor .inside {
-				margin-bottom: 0;
-			}
+			// Strings
+			'strings'    => array(
 
-			div.bbp-converter-updated,
-			div.bbp-converter-warning {
-				padding: 5px 0 5px 5px;
-			}
+				// Button text
+				'button_start'    => esc_html__( 'Start',    'bbpress' ),
+				'button_continue' => esc_html__( 'Continue', 'bbpress' ),
 
-			div.bbp-converter-updated.started {
-				height: 300px;
-				overflow: auto;
-			}
+				// Start button clicked
+				'start_start'    => esc_html__( 'Starting Import',   'bbpress' ),
+				'start_continue' => esc_html__( 'Continuing Import', 'bbpress' ),
 
-			div.bbp-converter-updated p {
-				margin: 0;
-				padding: 2px;
-				float: left;
-				clear: left;
-			}
-
-			div.bbp-converter-updated p:only-child {
-				float: none;
-				margin-bottom: 0;
-			}
-
-			div.bbp-converter-updated p.loading {
-				padding: 2px 25px 2px 2px;
-				background-image: url('<?php echo admin_url(); ?>images/spinner.gif');
-				background-repeat: no-repeat;
-				background-position: center right;
-			}
-
-			#bbp-converter-stop {
-				display:none;
-			}
-
-			/*]]>*/
-		</style>
-
-		<script language="javascript">
-
-			var bbpconverter_halt_on_error = <?php echo ( true === $halt    ) ? 'true' : 'false'; ?>,
-				bbconverter_started        = <?php echo ( true === $started ) ? 'true' : 'false'; ?>,
-				bbconverter_is_running     = false,
-				bbconverter_delay_time     = 0,
-				bbconverter_run_timer;
-
-			function bbconverter_grab_data() {
-				var values = {};
-
-				jQuery.each(jQuery('#bbp-converter-settings').serializeArray(), function(i, field) {
-					values[field.name] = field.value;
-				});
-
-				if( values['_bbp_converter_restart'] ) {
-					jQuery('#_bbp_converter_restart').removeAttr("checked");
-				}
-
-				if( values['_bbp_converter_delay_time'] ) {
-					bbconverter_delay_time = values['_bbp_converter_delay_time'] * 1000;
-				}
-
-				values['action']      = 'bbp_converter_process';
-				values['_ajax_nonce'] = '<?php echo wp_create_nonce( 'bbp_converter_process' ); ?>';
-
-				return values;
-			}
-
-			function bbconverter_start() {
-				if ( false === bbconverter_is_running ) {
-					bbconverter_is_running = true;
-
-					jQuery('#bbp-converter-message').addClass('started');
-					jQuery('#bbp-converter-start').hide();
-					jQuery('#bbp-converter-stop').show();
-
-					if ( true === bbconverter_started ) {
-						bbconverter_log( '<p class="loading"><?php esc_html_e( 'Continuing Import', 'bbpress' ); ?></p>' );
-					} else {
-						bbconverter_log( '<p class="loading"><?php esc_html_e( 'Starting Import', 'bbpress' ); ?></p>' );
-					}
-
-					bbconverter_run();
-				}
-
-				bbconverter_started = true;
-			}
-
-			function bbconverter_run() {
-				jQuery.post(ajaxurl, bbconverter_grab_data(), function(response) {
-					if ( 'bbp_converter_db_connection_failed' === response ) {
-						bbconverter_error_db();
-						return;
-					}
-
-					var response_length = response.length - 1;
-					response = response.substring(0,response_length);
-					bbconverter_success(response);
-				});
-			}
-
-			function bbconverter_stop() {
-				jQuery('#bbp-converter-start')
-					.val( '<?php esc_html_e( 'Continue', 'bbpress' ); ?>' )
-					.show();
-
-				jQuery('#bbp-converter-stop').hide();
-
-				bbconverter_log( '<p><?php esc_html_e( 'Import Stopped (by User)', 'bbpress' ); ?></p>' );
-				bbconverter_is_running = false;
-
-				clearTimeout( bbconverter_run_timer );
-			}
-
-			function bbconverter_error_db() {
-				jQuery('#bbp-converter-start')
-					.val( '<?php esc_html_e( 'Start', 'bbpress' ); ?>' )
-					.show();
-
-				jQuery('#bbp-converter-stop').hide();
-
-				bbconverter_log( '<p><?php esc_html_e( 'Database Connection Failed', 'bbpress' ); ?></p>' );
-				bbconverter_is_running = false;
-
-				clearTimeout( bbconverter_run_timer );
-			}
-
-			function bbconverter_error_halt() {
-				jQuery('#bbp-converter-start')
-					.val( '<?php esc_html_e( 'Continue', 'bbpress' ); ?>' )
-					.show();
-
-				jQuery('#bbp-converter-stop').hide();
-
-				bbconverter_log( '<p><?php esc_html_e( 'Import Halted (Error)', 'bbpress' ); ?></p>' );
-				bbconverter_is_running = false;
-
-				clearTimeout( bbconverter_run_timer );
-			}
-
-			function bbconverter_success(response) {
-				bbconverter_log(response);
-
-				if ( response === '<p class="loading"><?php esc_html_e( 'Import Complete', 'bbpress' ); ?></p>' ) {
-					bbconverter_success_complete();
-
-				} else if ( bbconverter_is_running ) {
-					clearTimeout( bbconverter_run_timer );
-					bbconverter_run_timer = setTimeout( 'bbconverter_run()', bbconverter_delay_time );
-
-				} else if ( true === bbpconverter_halt_on_error ) {
-					if ( response.indexOf('error') > -1 ) {
-						bbconverter_error_halt();
-					} else {
-						bbconverter_error_halt();
-					}
-				}
-			}
-
-			function bbconverter_success_complete() {
-				jQuery('#bbp-converter-start')
-					.val( '<?php esc_html_e( 'Start', 'bbpress' ); ?>' )
-					.show();
-
-				jQuery('#bbp-converter-stop').hide();
-
-				bbconverter_log('<p><?php printf( esc_html__( 'Repair any missing information: %s', 'bbpress' ), '<a href="' . admin_url() . 'tools.php?page=bbp-repair">' . esc_html__( 'Continue', 'bbpress' ) . '</a>' ); ?></p>' );
-
-				bbconverter_is_running = false;
-				bbconverter_started    = false;
-
-				clearTimeout( bbconverter_run_timer );
-			}
-
-			function bbconverter_log(text) {
-				jQuery('#bbp-converter-message p').removeClass( 'loading' );
-				jQuery('#bbp-converter-message').prepend( text );
-			}
-
-		</script>
-
-		<?php
+				// Import
+				'import_success'      => sprintf( esc_html__( 'Repair any missing information: %s', 'bbpress' ), '<a href="' . esc_url( $repair_url ) . '">' . esc_html__( 'Continue', 'bbpress' ) . '</a>' ),
+				'import_complete'     => esc_html__( 'Import Complete',            'bbpress' ),
+				'import_stopped_user' => esc_html__( 'Import Stopped (by User)',   'bbpress' ),
+				'import_error_db'     => esc_html__( 'Database Connection Failed', 'bbpress' ),
+				'import_error_halt'   => esc_html__( 'Import Halted (Error)',      'bbpress' ),
+			)
+		) );
 	}
 
 	/**
@@ -370,23 +218,19 @@ class BBP_Converter {
 	 */
 	private function converter_output( $output = '' ) {
 
-		// Get the last query
-		$before = '<p class="loading">';
-		$after  = '</p>';
-
 		// Maybe include last query
-		$query  = get_option( '_bbp_converter_query' );
+		$query = get_option( '_bbp_converter_query' );
 		if ( ! empty( $query ) ) {
 			$output = $output . '<span class="query">' . esc_attr( $query ) . '</span>';
 		}
 
 		// Maybe prepend the step
 		$step = ! empty( $this->step )
-			? sprintf( '%s: ', $this->step )
+			? sprintf( '<span class="step">%s:</span> ', $this->step )
 			: '';
 
 		// Output
-		echo $before . $step . $output . $after;
+		echo $step . $output;
 	}
 
 	/**
@@ -781,6 +625,7 @@ class BBP_Converter {
 
 				break;
 
+			// Done
 			default :
 				$this->reset();
 				$this->converter_output( esc_html__( 'Import Complete', 'bbpress' ) );

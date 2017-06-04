@@ -1657,8 +1657,8 @@ function bbp_converter_settings_page() {
 			<?php do_settings_sections( 'bbpress_converter' ); ?>
 
 			<p class="submit">
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" onclick="bbconverter_start();" />
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" onclick="bbconverter_stop();" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" />
 			</p>
 		</form>
 
@@ -1670,7 +1670,7 @@ function bbp_converter_settings_page() {
 				</button>
 				<h2 class="hndle ui-sortable-handle"><span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span></h2>
 				<div class="inside">
-					<div id="bbp-converter-message" class="bbp-converter-updated">
+					<div id="bbp-converter-message" class="bbp-converter-log">
 						<p><?php echo esc_html( $status_text ); ?></p>
 					</div>
 				</div>
