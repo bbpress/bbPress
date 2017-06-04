@@ -523,11 +523,13 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
  *
  * @param array $themes
  * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
+ *
+ * @return array Array of allowed themes
  */
 function bbp_allowed_themes( $themes ) {
 
 	// Filter & return
-	return apply_filters( 'bbp_allowed_themes', $themes );
+	return (array) apply_filters( 'bbp_allowed_themes', $themes );
 }
 
 /**
@@ -539,9 +541,11 @@ function bbp_allowed_themes( $themes ) {
  * @param string $cap Capability name
  * @param int $user_id User id
  * @param array $args Arguments
+ *
+ * @return array Array of capabilities
  */
 function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// Filter & return
-	return apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
+	return (array) apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
 }
