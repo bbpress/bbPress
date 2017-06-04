@@ -6,19 +6,19 @@ module.exports = function( grunt ) {
 		BUILD_DIR = 'build/',
 
 		BBP_RTL_CSS = [
-			'includes/admin/css/admin-rtl.css',
+			'includes/admin/assets/css/admin-rtl.css',
 			'includes/admin/styles/*/colors-rtl.css',
 			'templates/default/css/bbpress-rtl.css'
 		],
 
 		BBP_LTR_CSS = [
-			'includes/admin/css/admin.css',
+			'includes/admin/assets/css/admin.css',
 			'includes/admin/styles/*/colors.css',
 			'templates/default/css/bbpress.css'
 		],
 
 		BBP_JS = [
-			'includes/admin/js/*.js',
+			'includes/admin/assets/js/*.js',
 			'templates/default/js/*.js'
 		],
 
