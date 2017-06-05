@@ -120,6 +120,10 @@ abstract class BBP_Converter_Base {
 			? sanitize_text_field( $_POST['_bbp_converter_db_name'] )
 			: DB_NAME;
 
+		$db_port = ! empty( $_POST['_bbp_converter_db_port'] )
+			? (int) sanitize_text_field( $_POST['_bbp_converter_db_port'] )
+			: '';
+
 		$db_server = ! empty( $_POST['_bbp_converter_db_server'] )
 			? sanitize_text_field( $_POST['_bbp_converter_db_server'] )
 			: DB_HOST;
@@ -131,6 +135,11 @@ abstract class BBP_Converter_Base {
 		$db_rows = ! empty( $_POST['_bbp_converter_rows'] )
 			? (int) $_POST['_bbp_converter_rows']
 			: 100;
+
+		// Maybe add port to server
+		if ( ! empty( $db_port ) && ! empty( $db_server ) && ! strstr( $db_server, ':' ) ) {
+			$db_server = $db_server . ':' . $db_port;
+		}
 
 		/** Get database connections ******************************************/
 
