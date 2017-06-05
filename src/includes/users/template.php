@@ -1498,7 +1498,7 @@ function bbp_notice_edit_user_success() {
  * @since 2.6.0 bbPress (r5660)
  *
  * @uses bbp_get_displayed_user_id()     To get the displayed user ID
- * @uses bbp_is_single_user_edit()       To check if it's the profile edit page
+ * @uses bbp_is_user_home_edit()         To check if it's the profile edit page
  * @uses bbp_get_user_profile_edit_url() To get the displayed user profile edit URL
  * @uses add_query_arg()                 To add dismiss query argument to URL
  * @uses wp_nonce_url()                  To add nonce to URL
@@ -1704,6 +1704,25 @@ function bbp_edit_user_contact_methods() {
 	return (array) apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }
 
+/**
+ * Output the language chooser (for user edit)
+ *
+ * @since 2.6.0 bbPress (r6488)
+ *
+ * @param array $args See wp_dropdown_languages()
+ * @return string
+ */
+function bbp_edit_user_language( $args = array() ) {
+
+	// Bail if no user is being edited
+	if ( ! bbp_is_single_user_edit() ) {
+		return;
+	}
+
+	// Output the dropdown
+	bbp_user_languages_dropdown( $args );
+}
+
 /** Topics Created ************************************************************/
 
 /**
@@ -1873,6 +1892,72 @@ function bbp_user_engagements_url( $user_id = 0 ) {
 
 		// Filter & return
 		return apply_filters( 'bbp_get_user_engagements_url', $url, $user_id );
+	}
+
+/** Language ******************************************************************/
+
+/**
+ * Output the select element used to save a user's language
+ *
+ * @since 2.6.0 bbPress (r6488)
+ *
+ * @param array $args See wp_dropdown_languages()
+ */
+function bbp_user_languages_dropdown( $args = array() ) {
+	echo bbp_get_user_languages_dropdown( $args );
+}
+
+	/**
+	 * Return the select element used to save a user's language.
+	 *
+	 * @since 2.6.0 bbPress (r6488)
+	 *
+	 * @param array $args See wp_dropdown_languages()
+	 * @return string
+	 */
+	function bbp_get_user_languages_dropdown( $args = array() ) {
+
+		// Get user language
+		$user_id = ! empty( $args['user_id'] )
+			? bbp_get_user_id( $args['user_id'], false, false )
+			: bbp_get_displayed_user_id();
+
+		// Get user locale
+		$user_locale = ! empty( $user_id )
+			? get_userdata( $user_id )->locale
+			: 'site-default';
+
+		// Get all languages
+		$languages = get_available_languages();
+
+		// No locale for English
+		if ( 'en_US' === $user_locale ) {
+			$user_locale = '';
+
+		// Fallback to site-default if there is a mismatch
+		} elseif ( '' === $user_locale || ! in_array( $user_locale, $languages, true ) ) {
+			$user_locale = 'site-default';
+		}
+
+		// Don't pass user ID in
+		unset( $args['user_id'] );
+
+		// Parse arguments
+		$r = bbp_parse_args( $args, array(
+			'name'                        => 'locale',
+			'id'                          => 'locale',
+			'selected'                    => $user_locale,
+			'languages'                   => $languages,
+			'echo'                        => false,
+			'show_available_translations' => false,
+			'show_option_site_default'    => true
+		), 'user_languages_dropdown' );
+
+		// Get the markup for the languages drop-down
+		$retval = wp_dropdown_languages( $r );
+
+		// Filter & return
+		return apply_filters( 'bbp_get_user_languages_dropdown', $retval, $r, $args );
 	}
 
 /** Login *********************************************************************/

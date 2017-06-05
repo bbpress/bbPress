@@ -127,6 +127,13 @@ defined( 'ABSPATH' ) || exit;
 			</fieldset>
 		</div>
 
+		<div>
+			<label for="url"><?php esc_html_e( 'Language', 'bbpress' ) ?></label>
+
+			<?php bbp_edit_user_language(); ?>
+
+		</div>
+
 		<?php do_action( 'bbp_user_edit_after_account' ); ?>
 
 	</fieldset>
