@@ -1660,18 +1660,17 @@ function bbp_converter_setting_callback_convert_users() {
 function bbp_converter_settings_page() {
 
 	// Status
-	$started = (bool) get_option( '_bbp_converter_query', false );
-	$step    = (int)  get_option( '_bbp_converter_step', 0 );
-	$max     = 17; // Filter?
+	$step = (int)  get_option( '_bbp_converter_step',  0     );
+	$max  = 17; // Filter?
 
 	// Starting or continuing?
-	$start_text = ( true === $started )
+	$start_text = ! empty( $step )
 		? esc_html__( 'Continue', 'bbpress' )
 		: esc_html__( 'Start',    'bbpress' );
 
 	// Starting or continuing?
-	$status_text = ( true === $started )
-		? sprintf( esc_html__( 'Stopped at step %d of %d', 'bbpress' ), $step, $max )
+	$status_text = ! empty( $step )
+		? sprintf( esc_html__( 'Previously stopped at step %d of %d', 'bbpress' ), $step, $max )
 		: esc_html__( 'Ready to go.', 'bbpress' ); ?>
 
 	<div class="wrap">

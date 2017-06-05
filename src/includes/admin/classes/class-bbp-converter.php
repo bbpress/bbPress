@@ -182,7 +182,7 @@ class BBP_Converter {
 
 				// Import
 				'import_success'      => sprintf( esc_html__( 'Repair any missing information: %s', 'bbpress' ), '<a href="' . esc_url( $repair_url ) . '">' . esc_html__( 'Continue', 'bbpress' ) . '</a>' ),
-				'import_complete'     => esc_html__( 'Import Complete',            'bbpress' ),
+				'import_complete'     => esc_html__( 'Import Finished',            'bbpress' ),
 				'import_stopped_user' => esc_html__( 'Import Stopped (by User)',   'bbpress' ),
 				'import_error_db'     => esc_html__( 'Database Connection Failed', 'bbpress' ),
 				'import_error_halt'   => esc_html__( 'Import Halted (Error)',      'bbpress' ),
@@ -256,7 +256,7 @@ class BBP_Converter {
 
 		// Save step and count so that it can be restarted.
 		if ( ! get_option( '_bbp_converter_step' ) || ! empty( $_POST['_bbp_converter_restart'] ) ) {
-			update_option( '_bbp_converter_step',  1 );
+			update_option( '_bbp_converter_step',  0 );
 			update_option( '_bbp_converter_start', 0 );
 
 			$this->step  = 0;
@@ -628,7 +628,7 @@ class BBP_Converter {
 			// Done
 			default :
 				$this->reset();
-				$this->converter_output( esc_html__( 'Import Complete', 'bbpress' ) );
+				$this->converter_output( esc_html__( 'Import Finished', 'bbpress' ) );
 
 				break;
 		}
