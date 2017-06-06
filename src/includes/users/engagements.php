@@ -488,19 +488,22 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * @uses do_action() Calls 'bbp_favorites_handler' with success, user id, topic
  *                    id and action
  * @uses bbp_is_favorites() To check if it's the favorites page
- * @uses bbp_get_favorites_link() To get the favorites page link
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses bbp_redirect() To redirect to the url
  */
 function bbp_favorites_handler( $action = '' ) {
 
+	// Default
+	$success = false;
+
+	// Bail if favorites not active
 	if ( ! bbp_is_favorites_active() ) {
-		return false;
+		return $success;
 	}
 
 	// Bail if no topic ID is passed
 	if ( empty( $_GET['topic_id'] ) ) {
-		return;
+		return $success;
 	}
 
 	// Setup possible get actions
@@ -511,11 +514,11 @@ function bbp_favorites_handler( $action = '' ) {
 
 	// Bail if actions aren't meant for this function
 	if ( ! in_array( $action, $possible_actions, true ) ) {
-		return;
+		return $success;
 	}
 
 	// What action is taking place?
-	$topic_id = intval( $_GET['topic_id'] );
+	$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
 	$user_id  = bbp_get_user_id( 0, true, true );
 
 	// Check for empty topic
@@ -533,17 +536,14 @@ function bbp_favorites_handler( $action = '' ) {
 
 	// Bail if errors
 	if ( bbp_has_errors() ) {
-		return;
+		return $success;
 	}
 
 	/** No errors *************************************************************/
 
-	$is_favorite = bbp_is_user_favorite( $user_id, $topic_id );
-	$success     = false;
-
-	if ( true === $is_favorite && 'bbp_favorite_remove' === $action ) {
+	if ( 'bbp_favorite_remove' === $action ) {
 		$success = bbp_remove_user_favorite( $user_id, $topic_id );
-	} elseif ( false === $is_favorite && 'bbp_favorite_add' === $action ) {
+	} elseif ( 'bbp_favorite_add' === $action ) {
 		$success = bbp_add_user_favorite( $user_id, $topic_id );
 	}
 
@@ -571,11 +571,13 @@ function bbp_favorites_handler( $action = '' ) {
 		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
-	} elseif ( true === $is_favorite && 'bbp_favorite_remove' === $action ) {
+	} elseif ( 'bbp_favorite_remove' === $action ) {
 		bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites.', 'bbpress' ) );
-	} elseif ( false === $is_favorite && 'bbp_favorite_add' === $action ) {
+	} elseif ( 'bbp_favorite_add' === $action ) {
 		bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic.', 'bbpress' ) );
 	}
+
+	return (bool) $success;
 }
 
 /** Subscriptions *************************************************************/
@@ -1162,13 +1164,17 @@ function bbp_remove_user_topic_subscription( $user_id = 0, $topic_id = 0 ) {
  */
 function bbp_forum_subscriptions_handler( $action = '' ) {
 
+	// Default
+	$success = false;
+
+	// Bail if subscriptions not active
 	if ( ! bbp_is_subscriptions_active() ) {
-		return false;
+		return $success;
 	}
 
 	// Bail if no forum ID is passed
 	if ( empty( $_GET['forum_id'] ) ) {
-		return;
+		return $success;
 	}
 
 	// Setup possible get actions
@@ -1179,12 +1185,12 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 
 	// Bail if actions aren't meant for this function
 	if ( ! in_array( $action, $possible_actions, true ) ) {
-		return;
+		return $success;
 	}
 
 	// Get required data
+	$forum_id = bbp_get_forum_id( $_GET['forum_id'] );
 	$user_id  = bbp_get_user_id( 0, true, true );
-	$forum_id = intval( $_GET['forum_id'] );
 
 	// Check for empty forum
 	if ( empty( $forum_id ) ) {
@@ -1201,17 +1207,14 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 
 	// Bail if we have errors
 	if ( bbp_has_errors() ) {
-		return;
+		return $success;
 	}
 
 	/** No errors *************************************************************/
 
-	$is_subscription = bbp_is_user_subscribed( $user_id, $forum_id );
-	$success         = false;
-
-	if ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
+	if ( 'bbp_unsubscribe' === $action ) {
 		$success = bbp_remove_user_subscription( $user_id, $forum_id );
-	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
+	} elseif ( 'bbp_subscribe' === $action ) {
 		$success = bbp_add_user_subscription( $user_id, $forum_id );
 	}
 
@@ -1239,11 +1242,13 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
 		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
-	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
+	} elseif ( 'bbp_unsubscribe' === $action ) {
 		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that forum.', 'bbpress' ) );
-	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
+	} elseif ( 'bbp_subscribe' === $action ) {
 		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that forum.', 'bbpress' ) );
 	}
+
+	return (bool) $success;
 }
 
 /**
@@ -1269,13 +1274,17 @@ function bbp_forum_subscriptions_handler( $action = '' ) {
  */
 function bbp_subscriptions_handler( $action = '' ) {
 
+	// Default
+	$success = false;
+
+	// Bail if subscriptions not active
 	if ( ! bbp_is_subscriptions_active() ) {
-		return false;
+		return $success;
 	}
 
 	// Bail if no topic ID is passed
 	if ( empty( $_GET['topic_id'] ) ) {
-		return;
+		return $success;
 	}
 
 	// Setup possible get actions
@@ -1286,12 +1295,12 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Bail if actions aren't meant for this function
 	if ( ! in_array( $action, $possible_actions, true ) ) {
-		return;
+		return $success;
 	}
 
 	// Get required data
+	$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
 	$user_id  = bbp_get_user_id( 0, true, true );
-	$topic_id = intval( $_GET['topic_id'] );
 
 	// Check for empty topic
 	if ( empty( $topic_id ) ) {
@@ -1308,17 +1317,14 @@ function bbp_subscriptions_handler( $action = '' ) {
 
 	// Bail if we have errors
 	if ( bbp_has_errors() ) {
-		return;
+		return $success;
 	}
 
 	/** No errors *************************************************************/
 
-	$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
-	$success         = false;
-
-	if ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
+	if ( 'bbp_unsubscribe' === $action ) {
 		$success = bbp_remove_user_subscription( $user_id, $topic_id );
-	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
+	} elseif ( 'bbp_subscribe' === $action ) {
 		$success = bbp_add_user_subscription( $user_id, $topic_id );
 	}
 
@@ -1346,9 +1352,11 @@ function bbp_subscriptions_handler( $action = '' ) {
 		bbp_redirect( $redirect );
 
 	// Fail! Handle errors
-	} elseif ( true === $is_subscription && 'bbp_unsubscribe' === $action ) {
+	} elseif ( 'bbp_unsubscribe' === $action ) {
 		bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic.', 'bbpress' ) );
-	} elseif ( false === $is_subscription && 'bbp_subscribe' === $action ) {
+	} elseif ( 'bbp_subscribe' === $action ) {
 		bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic.', 'bbpress' ) );
 	}
+
+	return (bool) $success;
 }
