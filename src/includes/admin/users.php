@@ -57,9 +57,9 @@ class BBP_Users_Admin {
 		if ( bbp_get_major_wp_version() < 4.6 ) {
 			add_action( 'restrict_manage_users',  array( __CLASS__, 'user_role_bulk_dropdown' )    );
 		} else {
-			add_action( 'restrict_manage_users',  array( $this, 'user_role_bulk_dropdown' )        );
+			add_action( 'restrict_manage_users',  array( $this, 'user_role_bulk_dropdown' ), 10, 1 );
 		}
-		add_filter( 'manage_users_columns',       array( $this, 'user_role_column'        )        );
+		add_filter( 'manage_users_columns',       array( $this, 'user_role_column'        ), 10, 1 );
 		add_filter( 'manage_users_custom_column', array( $this, 'user_role_row'           ), 10, 3 );
 
 		// Only list bbPress roles under Forum Role, remove from WordPress' > 4.4 Site Role list.
@@ -67,8 +67,9 @@ class BBP_Users_Admin {
 			add_filter( 'get_role_list',          array( $this, 'user_role_list_filter'   ), 10, 2 );
 		}
 
-		// Process bulk role change
-		add_action( 'load-users.php',             array( $this, 'user_role_bulk_change'   )        );
+		// User List Table
+		add_action( 'load-users.php',   array( $this, 'user_role_bulk_change' ), 10, 1 );
+		add_action( 'user_row_actions', array( $this, 'user_row_actions'      ), 10, 2 );
 	}
 
 	/**
@@ -247,6 +248,28 @@ class BBP_Users_Admin {
 				bbp_set_user_role( $user_id, $new_role );
 			}
 		}
+	}
+
+	/**
+	 * Add a "View" link for each user
+	 *
+	 * @since 2.6.0 bbPress (r6502)
+	 *
+	 * @param array   $actions
+	 * @param WP_User $user
+	 *
+	 * @return array Actions with 'view' link added to them
+	 */
+	public function user_row_actions( $actions = array(), $user = false ) {
+
+		// Reverse
+		$actions = array_reverse( $actions );
+
+		// Add the view action link
+		$actions['view'] = '<a href="' . esc_url( bbp_get_user_profile_url( $user->ID ) ) . '" class="bbp-user-profile-link">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+
+		// Re-reverse
+		return array_reverse( $actions );
 	}
 
 	/**
