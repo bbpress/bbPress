@@ -464,11 +464,16 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * Add checks for bbPress conditions to parse_query action
  *
  * If it's a user page, WP_Query::bbp_is_single_user is set to true.
+ *
  * If it's a user edit page, WP_Query::bbp_is_single_user_edit is set to true
  * and the the 'wp-admin/includes/user.php' file is included.
+ *
  * In addition, on user/user edit pages, WP_Query::home is set to false & query
- * vars 'bbp_user_id' with the displayed user id and 'author_name' with the
- * displayed user's nicename are added.
+ * vars 'bbp_user_id' with the displayed user id is added.
+ *
+ * In 2.6.0, the 'author_name' variable is no longer set when viewing a single
+ * user, because of is_author() weirdness. If this removal causes problems, it
+ * may come back in a future release.
  *
  * If it's a forum edit, WP_Query::bbp_is_forum_edit is set to true
  * If it's a topic edit, WP_Query::bbp_is_topic_edit is set to true
@@ -612,9 +617,6 @@ function bbp_parse_query( $posts_query ) {
 
 		// Set bbp_user_id for future reference
 		$posts_query->set( 'bbp_user_id', $the_user->ID );
-
-		// Set author_name as current user's nicename to get correct posts
-		$posts_query->set( 'author_name', $the_user->user_nicename );
 
 		// Set the displayed user global to this user
 		bbpress()->displayed_user = $the_user;
