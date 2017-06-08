@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.1.0 bbPress (r3764)
  *
  * @uses get_option()
- * @uses bbp_get_db_version() To get bbPress's database version
+ * @uses bbp_get_db_version() To get the database version
  * @return bool True if update, False if not
  */
 function bbp_is_install() {
@@ -29,7 +29,7 @@ function bbp_is_install() {
  * @since 2.0.0 bbPress (r3421)
  *
  * @uses get_option()
- * @uses bbp_get_db_version() To get bbPress's database version
+ * @uses bbp_get_db_version() To get the database version
  * @return bool True if update, False if not
  */
 function bbp_is_update() {
@@ -148,7 +148,7 @@ function bbp_is_deactivation( $basename = '' ) {
  * @since 2.0.0 bbPress (r3421)
  *
  * @uses update_option()
- * @uses bbp_get_db_version() To get bbPress's database version
+ * @uses bbp_get_db_version() To get the database version
  */
 function bbp_version_bump() {
 	update_option( '_bbp_db_version', bbp_get_db_version() );
@@ -253,7 +253,7 @@ function bbp_create_initial_content( $args = array() ) {
 }
 
 /**
- * bbPress's version updater looks at what the current database version is, and
+ * The version updater looks at what the current database version is, and
  * runs whatever other code is needed.
  *
  * This is most-often used when the data schema changes, but should also be used
@@ -352,7 +352,7 @@ function bbp_version_updater() {
 }
 
 /**
- * Redirect user to bbPress's What's New page on activation
+ * Redirect user to the "What's New" page on activation
  *
  * @since 2.2.0 bbPress (r4389)
  *

@@ -1808,8 +1808,7 @@ function bbp_admin_settings_help() {
 }
 
 /**
- * Disable a settings field if the value is forcibly set in bbPress's global
- * options array.
+ * Disable a settings field if it is forcibly set in the global options array.
  *
  * @since 2.2.0 bbPress (r4347)
  *

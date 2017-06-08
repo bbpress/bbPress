@@ -178,7 +178,7 @@ class BBP_Admin {
 
 		/** Filters ***********************************************************/
 
-		// Modify bbPress's admin links
+		// Modify admin links
 		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
 		// Map settings capabilities

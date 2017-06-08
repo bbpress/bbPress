@@ -435,7 +435,7 @@ function bbp_is_topic_tag_edit() {
 }
 
 /**
- * Check if the current post type is one of bbPress's
+ * Check if the current post type is one that comes with bbPress
  *
  * @since 2.0.0 bbPress (r3311)
  *

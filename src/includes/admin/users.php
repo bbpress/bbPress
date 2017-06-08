@@ -278,7 +278,7 @@ class BBP_Users_Admin {
 	 */
 	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
-		// Only looking for bbPress's user role column
+		// User role column
 		if ( 'bbp_user_role' === $column_name ) {
 
 			// Get the users role
@@ -299,8 +299,8 @@ class BBP_Users_Admin {
 	/**
 	 * Filter the list of roles included in the WordPress site role list
 	 *
-	 * This ensures bbPress' roles are only displayed under the Forum Role list
-	 * in the WordPress Users list table
+	 * Ensures forum roles are only displayed under the Forum Role list in the
+	 * WordPress Users list table
 	 *
 	 * @since 2.6.0 bbPress (r6051)
 	 *

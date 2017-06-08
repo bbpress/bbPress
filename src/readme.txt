@@ -33,7 +33,7 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 
 1. Visit 'Forums > Add New' and create some forums. (You can always delete these later.)
 2. If you have pretty permalinks enabled, visit example.com/forums/, or if you do not have pretty permalinks enabled, visit example.com?post_type=forum
-3. Visit 'Settings > Forums' and take a moment to match bbPress's settings to match your community.
+3. Visit 'Settings > Forums' and configure the settings to best match the needs of your community.
 4. Visit 'Tools > Forums > Import Forums' if you have an existing forum to convert to bbPress.
 
 = Once Configured =

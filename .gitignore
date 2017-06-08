@@ -9,7 +9,7 @@
 /node_modules
 /npm-debug.log
 
-# bbPress's output directory.
+# Output directory.
 /build
 
 # Operating system specific files

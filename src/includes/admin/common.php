@@ -191,7 +191,7 @@ function bbp_do_uninstall( $site_id = 0 ) {
 }
 
 /**
- * Redirect user to bbPress's What's New page on activation
+ * Redirect user to "What's New" page on activation
  *
  * @since 2.2.0 bbPress (r4389)
  *

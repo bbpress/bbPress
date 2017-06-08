@@ -3,9 +3,9 @@
 /**
  * bbPress BuddyPress Group Extension Class
  *
- * This file is responsible for connecting bbPress to BuddyPress's Groups
+ * This file is responsible for connecting bbPress to the BuddyPress Groups
  * Component. It's a great example of how to perform both simple and advanced
- * techniques to manipulate bbPress's default output.
+ * techniques to manipulate the default output provided by both.
  *
  * @package bbPress
  * @subpackage BuddyPress
@@ -817,7 +817,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			$this->disconnect_forum_from_group( $group_id );
 		}
 
-		// Update bbPress' internal private and forum ID variables
+		// Update internal private and forum ID variables
 		bbp_repair_forum_visibility();
 
 		// Return the group

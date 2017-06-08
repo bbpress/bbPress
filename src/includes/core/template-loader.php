@@ -109,7 +109,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	endif;
 
 	// A bbPress template file was located, so override the WordPress template
-	// and use it to switch off bbPress's theme compatibility.
+	// and use it to switch off theme compatibility.
 	if ( ! empty( $new_template ) ) {
 		$template = bbp_set_template_included( $new_template );
 	}

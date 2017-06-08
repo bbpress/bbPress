@@ -53,21 +53,21 @@ function bbp_is_ajax() {
 }
 
 /**
- * Hooked to the 'bbp_template_redirect' action, this is bbPress's custom
- * theme-side ajax handler.
+ * Hooked to the 'bbp_template_redirect' action, this is also the custom
+ * theme-side AJAX handler.
  *
  * @since 2.3.0 bbPress (r4543)
  *
- * @return If not a bbPress ajax request
+ * @return If not a bbPress AJAX request
  */
 function bbp_do_ajax() {
 
-	// Bail if not an ajax request
+	// Bail if not an AJAX request
 	if ( ! bbp_is_ajax() ) {
 		return;
 	}
 
-	// Set WordPress core ajax constant
+	// Set WordPress core AJAX constant
 	define( 'DOING_AJAX', true );
 
 	// Set the header content type
@@ -84,7 +84,7 @@ function bbp_do_ajax() {
 }
 
 /**
- * Helper method to return JSON response for the ajax calls
+ * Helper method to return JSON response for the AJAX calls
  *
  * @since 2.3.0 bbPress (r4542)
  *

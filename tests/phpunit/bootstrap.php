@@ -18,7 +18,7 @@ if ( ! file_exists( WP_TESTS_DIR . '/includes/functions.php' ) ) {
 }
 
 /**
- * Load bbPress's PHPUnit test suite loader
+ * Load the bbPress/PHPUnit test-suite loader
  */
 function _load_loader() {
 

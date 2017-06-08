@@ -246,7 +246,7 @@ function bbp_remove_caps() {
 }
 
 /**
- * Get the available roles minus bbPress's dynamic roles
+ * Get the available roles, minus the dynamic roles that come with bbPress
  *
  * @since 2.4.0 bbPress (r5064)
  *
@@ -281,7 +281,7 @@ function bbp_get_blog_roles() {
  *
  * @since 2.2.0 bbPress (r4290)
  *
- * @uses bbp_get_dynamic_roles() To get and add bbPress's roles to $wp_roles
+ * @uses bbp_get_dynamic_roles() To get and add forum roles to $wp_roles
  *
  * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized
  *

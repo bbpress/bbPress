@@ -811,7 +811,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		return $template;
 
 	/**
-	 * If we are relying on bbPress's built in theme compatibility to load
+	 * If we are relying on the built-in theme compatibility API to load
 	 * the proper content, we need to intercept the_content, replace the
 	 * output, and display ours instead.
 	 *

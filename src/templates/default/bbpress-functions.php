@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions of bbPress's Default theme
+ * Functions of the Default template-pack
  *
  * @package bbPress
  * @subpackage BBP_Theme_Compat

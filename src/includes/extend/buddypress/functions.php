@@ -23,7 +23,7 @@ add_action( 'bbp_delete_forum',           'bbp_maybe_delete_group_forum_root' );
 /** BuddyPress Helpers ********************************************************/
 
 /**
- * Return bbPress's component name/ID ('forums' by default)
+ * Return component name/ID ('forums' by default)
  *
  * This is used primarily for Notifications integration.
  *
