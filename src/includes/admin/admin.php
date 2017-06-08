@@ -123,7 +123,7 @@ class BBP_Admin {
 		require $this->admin_dir . 'tools/common.php';
 		require $this->admin_dir . 'tools/converter.php';
 		require $this->admin_dir . 'tools/repair.php';
-		require $this->admin_dir . 'tools/upgrades.php';
+		require $this->admin_dir . 'tools/upgrade.php';
 		require $this->admin_dir . 'tools/reset.php';
 		require $this->admin_dir . 'tools/help.php';
 
