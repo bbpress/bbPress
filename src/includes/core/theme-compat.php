@@ -114,7 +114,7 @@ function bbp_setup_theme_compat( $theme = '' ) {
 }
 
 /**
- * Gets the name of the bbPress compatable theme used, in the event the
+ * Gets the name of the bbPress compatible theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
@@ -131,7 +131,7 @@ function bbp_get_theme_compat_id() {
 }
 
 /**
- * Gets the name of the bbPress compatable theme used, in the event the
+ * Gets the name of the bbPress compatible theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
@@ -182,7 +182,7 @@ function bbp_get_theme_compat_dir() {
 }
 
 /**
- * Gets the bbPress compatable theme used in the event the currently active
+ * Gets the bbPress compatible theme used in the event the currently active
  * WordPress theme does not explicitly support bbPress. This can be filtered,
  * or set manually. Tricky theme authors can override the default and include
  * their own bbPress compatibility layers for their themes.
