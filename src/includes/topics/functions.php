@@ -1469,8 +1469,8 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @uses wp_get_post_terms() To get the source topic tags
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_results() To execute the sql query and get results
+ * @uses wpdb::prepare() To prepare our database query
+ * @uses wpdb::get_results() To execute the database query and get results
  * @uses wp_update_post() To update the replies
  * @uses bbp_update_reply_topic_id() To update the reply topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
@@ -2787,7 +2787,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @uses bbp_get_spam_status_id() To get the spam status id
  * @uses bbp_get_pending_status_id() To get the pending status id
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wpdb::prepare() To prepare our sql query
+ * @uses wpdb::prepare() To prepare our database query
  * @uses wpdb::get_var() To execute our query and get the var back
  * @uses update_post_meta() To update the topic hidden reply count meta
  * @uses apply_filters() Calls 'bbp_update_topic_reply_count_hidden' with the
@@ -2967,7 +2967,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
  * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses wpdb::prepare() To prepare our sql query
+ * @uses wpdb::prepare() To prepare our database query
  * @uses wpdb::get_var() To execute our query and get the column back
  * @uses update_post_meta() To update the topic voice count meta
  * @uses apply_filters() Calls 'bbp_update_topic_voice_count' with the voice
@@ -3041,7 +3041,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
  * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses wpdb::prepare() To prepare our sql query
+ * @uses wpdb::prepare() To prepare our database query
  * @uses wpdb::get_var() To execute our query and get the column back
  * @uses update_post_meta() To update the topic anonymous reply count meta
  * @uses apply_filters() Calls 'bbp_update_topic_anonymous_reply_count' with the

@@ -607,7 +607,7 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
  *
  * @param array $post_data Contains information about the comment
  * @uses current_user_can() To check if the current user can throttle
- * @uses get_meta_sql() To generate the meta sql for checking anonymous email
+ * @uses get_meta_sql() To generate the meta database for checking anonymous email
  * @uses apply_filters() Calls 'bbp_check_for_duplicate_query' with the
  *                        duplicate check query and post data
  * @uses wpdb::get_var() To execute our query and get the var back
