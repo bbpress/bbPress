@@ -170,24 +170,13 @@ function bbp_register_default_repair_tools() {
 		'components'  => array( bbp_get_reply_post_type() )
 	) );
 
-	// Sync all BuddyPress group forum relationships
-	bbp_register_repair_tool( array(
-		'id'          => 'bbp-group-forums',
-		'type'        => 'repair',
-		'description' => __( 'Repair BuddyPress Group Forum relationships', 'bbpress' ),
-		'callback'    => 'bbp_admin_repair_group_forum_relationship',
-		'priority'    => 35,
-		'overhead'    => 'low',
-		'components'  => array( bbp_get_forum_post_type() )
-	) );
-
 	// Update closed topic counts
 	bbp_register_repair_tool( array(
 		'id'          => 'bbp-sync-closed-topics',
 		'type'        => 'repair',
 		'description' => __( 'Repair closed topics', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_closed_topics',
-		'priority'    => 40,
+		'priority'    => 35,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type() )
 	) );
@@ -198,7 +187,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount topics in each forum', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_forum_topic_count',
-		'priority'    => 45,
+		'priority'    => 40,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_topic_post_type() )
 	) );
@@ -209,7 +198,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount topics in each topic-tag', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_tag_count',
-		'priority'    => 50,
+		'priority'    => 45,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_topic_tag_tax_id() )
 	) );
@@ -220,7 +209,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount replies in each forum', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_forum_reply_count',
-		'priority'    => 55,
+		'priority'    => 50,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_reply_post_type() )
 	) );
@@ -231,18 +220,18 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount replies in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_reply_count',
-		'priority'    => 60,
+		'priority'    => 55,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 	) );
 
-	// Count topic voices
+	// Count topic engagements
 	bbp_register_repair_tool( array(
-		'id'          => 'bbp-topic-voices',
+		'id'          => 'bbp-topic-engagements',
 		'type'        => 'repair',
-		'description' => __( 'Recount voices in each topic', 'bbpress' ),
+		'description' => __( 'Recount engagements in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_voice_count',
-		'priority'    => 65,
+		'priority'    => 60,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -253,7 +242,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount pending, spammed, and trashed replies in each topic', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_hidden_reply_count',
-		'priority'    => 70,
+		'priority'    => 65,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
 	) );
@@ -264,7 +253,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount topics for each user', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_topic_count',
-		'priority'    => 75,
+		'priority'    => 70,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -275,7 +264,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Recount replies for each user', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_reply_count',
-		'priority'    => 80,
+		'priority'    => 75,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_reply_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -286,7 +275,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Remove unpublished topics from user favorites', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_favorites',
-		'priority'    => 85,
+		'priority'    => 80,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -297,7 +286,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Remove unpublished topics from user subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_topic_subscriptions',
-		'priority'    => 90,
+		'priority'    => 85,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_topic_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -308,7 +297,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Remove unpublished forums from user subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_forum_subscriptions',
-		'priority'    => 95,
+		'priority'    => 90,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_forum_post_type(), bbp_get_user_rewrite_id() )
 	) );
@@ -319,7 +308,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'repair',
 		'description' => __( 'Remap existing users to default forum roles', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_user_roles',
-		'priority'    => 100,
+		'priority'    => 95,
 		'overhead'    => 'low',
 		'components'  => array( bbp_get_user_rewrite_id() )
 	) );
@@ -330,7 +319,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Upgrade user favorites', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_favorites',
-		'priority'    => 105,
+		'priority'    => 100,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 	) );
@@ -341,7 +330,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Upgrade user topic subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_topic_subscriptions',
-		'priority'    => 110,
+		'priority'    => 105,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -352,7 +341,7 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Upgrade user forum subscriptions', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_forum_subscriptions',
-		'priority'    => 115,
+		'priority'    => 110,
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -363,9 +352,20 @@ function bbp_register_default_repair_tools() {
 		'type'        => 'upgrade',
 		'description' => __( 'Upgrade topic engagements', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_engagements',
-		'priority'    => 120,
+		'priority'    => 115,
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_engagements_rewrite_id() )
+	) );
+
+	// Sync all BuddyPress group forum relationships
+	bbp_register_repair_tool( array(
+		'id'          => 'bbp-group-forums',
+		'type'        => 'upgrade',
+		'description' => __( 'Upgrade BuddyPress Group Forum relationships', 'bbpress' ),
+		'callback'    => 'bbp_admin_upgrade_group_forum_relationship',
+		'priority'    => 120,
+		'overhead'    => 'low',
+		'components'  => array( bbp_get_forum_post_type() )
 	) );
 
 	// Remove favorites from user-meta

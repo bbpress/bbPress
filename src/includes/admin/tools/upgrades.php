@@ -203,6 +203,145 @@ function bbp_admin_upgrade_user_engagements() {
 }
 
 /**
+ * Upgrade group forum ID mappings after a bbPress 1.x to bbPress 2.x conversion
+ *
+ * Previously named: bbp_admin_repair_group_forum_relationships()
+ *
+ * @since 2.6.0 bbPress (r4395)
+ *
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @return If a wp_error() occurs and no converted forums are found
+ */
+function bbp_admin_upgrade_group_forum_relationships() {
+
+	// Define variables
+	$bbp_db    = bbp_db();
+	$statement = __( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
+	$g_count   = 0;
+	$f_count   = 0;
+	$s_count   = 0;
+
+	// Copy the BuddyPress filter here, incase BuddyPress is not active
+	$prefix            = apply_filters( 'bp_core_get_table_prefix', $bbp_db->base_prefix );
+	$groups_table      = $prefix . 'bp_groups';
+	$groups_meta_table = $prefix . 'bp_groups_groupmeta';
+
+	// Get the converted forum IDs
+	$forum_ids = $bbp_db->query( "SELECT `forum`.`ID`, `forummeta`.`meta_value`
+								FROM `{$bbp_db->posts}` AS `forum`
+									LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
+										ON `forum`.`ID` = `forummeta`.`post_id`
+										AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
+								WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
+								GROUP BY `forum`.`ID`" );
+
+	// Bail if forum IDs returned an error
+	if ( is_wp_error( $forum_ids ) || empty( $bbp_db->last_result ) ) {
+		return array( 2, sprintf( $statement, __( 'Failed!', 'bbpress' ) ) );
+	}
+
+	// Stash the last results
+	$results = $bbp_db->last_result;
+
+	// Update each group forum
+	foreach ( $results as $group_forums ) {
+
+		// Only update if is a converted forum
+		if ( empty( $group_forums->meta_value ) ) {
+			continue;
+		}
+
+		// Attempt to update group meta
+		$updated = $bbp_db->query( "UPDATE `{$groups_meta_table}` SET `meta_value` = '{$group_forums->ID}' WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->meta_value}'" );
+
+		// Bump the count
+		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
+			++$g_count;
+		}
+
+		// Update group to forum relationship data
+		$group_id = (int) $bbp_db->get_var( "SELECT `group_id` FROM `{$groups_meta_table}` WHERE `meta_key` = 'forum_id' AND `meta_value` = '{$group_forums->ID}'" );
+		if ( ! empty( $group_id ) ) {
+
+			// Update the group to forum meta connection in forums
+			update_post_meta( $group_forums->ID, '_bbp_group_ids', array( $group_id ) );
+
+			// Get the group status
+			$group_status = $bbp_db->get_var( "SELECT `status` FROM `{$groups_table}` WHERE `id` = '{$group_id}'" );
+
+			// Sync up forum visibility based on group status
+			switch ( $group_status ) {
+
+				// Public groups have public forums
+				case 'public' :
+					bbp_publicize_forum( $group_forums->ID );
+
+					// Bump the count for output later
+					++$s_count;
+					break;
+
+				// Private/hidden groups have hidden forums
+				case 'private' :
+				case 'hidden'  :
+					bbp_hide_forum( $group_forums->ID );
+
+					// Bump the count for output later
+					++$s_count;
+					break;
+			}
+
+			// Bump the count for output later
+			++$f_count;
+		}
+	}
+
+	// Make some logical guesses at the old group root forum
+	if ( function_exists( 'bp_forums_parent_forum_id' ) ) {
+		$old_default_forum_id = bp_forums_parent_forum_id();
+	} elseif ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
+		$old_default_forum_id = (int) BP_FORUMS_PARENT_FORUM_ID;
+	} else {
+		$old_default_forum_id = 1;
+	}
+
+	// Try to get the group root forum
+	$posts = get_posts( array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'meta_key'    => '_bbp_old_forum_id',
+		'meta_type'   => 'NUMERIC',
+		'meta_value'  => $old_default_forum_id,
+		'numberposts' => 1
+	) );
+
+	// Found the group root forum
+	if ( ! empty( $posts ) ) {
+
+		// Rename 'Default Forum'  since it's now visible in sitewide forums
+		if ( 'Default Forum' === $posts[0]->post_title ) {
+			wp_update_post( array(
+				'ID'         => $posts[0]->ID,
+				'post_title' => __( 'Group Forums', 'bbpress' ),
+				'post_name'  => __( 'group-forums', 'bbpress' ),
+			) );
+		}
+
+		// Update the group forums root metadata
+		update_option( '_bbp_group_forums_root_id', $posts[0]->ID );
+	}
+
+	// Remove old bbPress 1.1 roles (BuddyPress)
+	remove_role( 'member'    );
+	remove_role( 'inactive'  );
+	remove_role( 'blocked'   );
+	remove_role( 'moderator' );
+	remove_role( 'keymaster' );
+
+	// Complete results
+	$result = sprintf( __( 'Complete! %s groups updated; %s forums updated; %s forum statuses synced.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ), bbp_number_format( $s_count ) );
+	return array( 0, sprintf( $statement, $result ) );
+}
+
+/**
  * Upgrade user favorites for bbPress 2.6 and higher
  *
  * @since 2.6.0 bbPress (r6174)
