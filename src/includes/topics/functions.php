@@ -42,7 +42,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	), 'insert_topic' );
 
 	// Insert topic
-	$topic_id = wp_insert_post( $topic_data );
+	$topic_id = wp_insert_post( $topic_data, false );
 
 	// Bail if no topic was added
 	if ( empty( $topic_id ) ) {
@@ -124,8 +124,6 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
  * @uses add_post_meta() To add spam status meta to spam topics
  * @uses do_action() Calls 'bbp_new_topic' with the topic id, forum id,
  *                    anonymous data and reply author
- * @uses bbp_stick_topic() To stick or super stick the topic
- * @uses bbp_unstick_topic() To unstick the topic
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses bbp_redirect() To redirect to the topic link
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
@@ -351,7 +349,7 @@ function bbp_new_topic_handler( $action = '' ) {
 	) );
 
 	// Insert topic
-	$topic_id = wp_insert_post( $topic_data );
+	$topic_id = wp_insert_post( $topic_data, true );
 
 	/** No Errors *************************************************************/
 
@@ -426,10 +424,15 @@ function bbp_new_topic_handler( $action = '' ) {
 		// Redirect back to new topic
 		bbp_redirect( $redirect_url );
 
-	// Errors
+	/** Errors ****************************************************************/
+
+	// WP_Error
+	} elseif ( is_wp_error( $topic_id ) ) {
+		bbp_add_error( 'bbp_topic_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) occurred: %s', 'bbpress' ), $topic_id->get_error_message() ) );
+
+	// Generic error
 	} else {
-		$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_topic_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your topic:' . $append_error, 'bbpress' ) );
+		bbp_add_error( 'bbp_topic_error', __( '<strong>ERROR</strong>: The topic was not created.', 'bbpress' ) );
 	}
 }
 

@@ -42,7 +42,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	), 'insert_reply' );
 
 	// Insert reply
-	$reply_id = wp_insert_post( $reply_data );
+	$reply_id = wp_insert_post( $reply_data, false );
 
 	// Bail if no reply was added
 	if ( empty( $reply_id ) ) {
@@ -403,7 +403,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	) );
 
 	// Insert reply
-	$reply_id = wp_insert_post( $reply_data );
+	$reply_id = wp_insert_post( $reply_data, true );
 
 	/** No Errors *************************************************************/
 
@@ -491,9 +491,13 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Errors ****************************************************************/
 
+	// WP_Error
+	} elseif ( is_wp_error( $reply_id ) ) {
+		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) occurred: %s', 'bbpress' ), $reply_id->get_error_message() ) );
+
+	// Generic error
 	} else {
-		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The reply was not created.', 'bbpress' ) );
 	}
 }
 

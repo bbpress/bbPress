@@ -595,7 +595,7 @@ abstract class BBP_Converter_Base {
 							/** Forum, Topic, Reply ***************************/
 
 							default:
-								$post_id = wp_insert_post( $insert_post );
+								$post_id = wp_insert_post( $insert_post, true );
 
 								if ( is_numeric( $post_id ) ) {
 
