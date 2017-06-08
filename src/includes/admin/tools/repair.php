@@ -352,7 +352,7 @@ function bbp_admin_repair_group_forum_relationship() {
 	foreach ( $results as $group_forums ) {
 
 		// Only update if is a converted forum
-		if ( ! isset( $group_forums->meta_value ) ) {
+		if ( empty( $group_forums->meta_value ) ) {
 			continue;
 		}
 
