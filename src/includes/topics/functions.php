@@ -2346,7 +2346,9 @@ function bbp_toggle_topic( $args = array() ) {
 					$retval['view_all']    = true;
 					$retval['status']      = wp_trash_post( $r['id'] );
 					$retval['message']     = __( '<strong>ERROR</strong>: There was a problem trashing the topic.', 'bbpress' );
-					$retval['redirect_to'] = bbp_get_topic_permalink( $r['id'] );
+					$retval['redirect_to'] = current_user_can( 'view_trash' )
+						? bbp_get_topic_permalink( $r['id'] )
+						: bbp_get_forum_permalink( bbp_get_topic_forum_id( $r['id'] ) );
 
 					break;
 
