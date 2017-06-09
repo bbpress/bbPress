@@ -220,6 +220,11 @@ function bbp_edit_user_handler( $action = '' ) {
 		return;
 	}
 
+	// Bail if in wp-admin
+	if ( is_admin() ) {
+		return;
+	}
+
 	// Get the displayed user ID
 	$user_id = bbp_get_displayed_user_id();
 
