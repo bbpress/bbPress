@@ -212,7 +212,7 @@ final class bbPress {
 		// Base name
 		$this->file       = __FILE__;
 		$this->basename   = apply_filters( 'bbp_plugin_basename', str_replace( array( 'build/', 'src/' ), '', plugin_basename( $this->file ) ) );
-		$this->base_dir   = apply_filters( 'bbp_plugin_base_dir', trailingslashit( dirname( $this->basename ) ) );
+		$this->basepath   = apply_filters( 'bbp_plugin_basepath', trailingslashit( dirname( $this->basename ) ) );
 
 		// Path and URL
 		$this->plugin_dir = apply_filters( 'bbp_plugin_dir_path', plugin_dir_path( $this->file ) );
@@ -223,7 +223,7 @@ final class bbPress {
 		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'includes'  ) );
 
 		// Languages
-		$this->lang_base    = apply_filters( 'bbp_lang_base',    trailingslashit( $this->base_dir   . 'languages' ) );
+		$this->lang_base    = apply_filters( 'bbp_lang_base',    trailingslashit( $this->basepath   . 'languages' ) );
 		$this->lang_dir     = apply_filters( 'bbp_lang_dir',     trailingslashit( $this->plugin_dir . 'languages' ) );
 
 		// Templates
