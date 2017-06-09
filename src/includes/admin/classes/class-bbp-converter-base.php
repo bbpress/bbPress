@@ -67,7 +67,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * @var str This is the charset for your wp database.
 	 */
-	public $charset;
+	public $charset = '';
 
 	/**
 	 * @var boolean Sync table available.
@@ -77,7 +77,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * @var str Sync table name.
 	 */
-	public $sync_table_name;
+	public $sync_table_name = '';
 
 	/**
 	 * @var bool Whether users should be converted or not. Default false.
@@ -102,56 +102,33 @@ abstract class BBP_Converter_Base {
 
 		/** Sanitize Options **************************************************/
 
-		$this->convert_users = ! empty( $_POST['_bbp_converter_convert_users'] )
-			? true
-			: false;
+		$this->convert_users = (bool) get_option( '_bbp_converter_convert_users', false );
+		$this->max_rows      = (int)  get_option( '_bbp_converter_rows',          100   );
 
 		/** Sanitize Connection ***********************************************/
 
-		$db_user = ! empty( $_POST['_bbp_converter_db_user'] )
-			? sanitize_text_field( $_POST['_bbp_converter_db_user'] )
-			: DB_USER;
-
-		$db_pass = ! empty( $_POST['_bbp_converter_db_pass'] )
-			? sanitize_text_field( $_POST['_bbp_converter_db_pass'] )
-			: DB_PASSWORD;
-
-		$db_name = ! empty( $_POST['_bbp_converter_db_name'] )
-			? sanitize_text_field( $_POST['_bbp_converter_db_name'] )
-			: DB_NAME;
-
-		$db_port = ! empty( $_POST['_bbp_converter_db_port'] )
-			? (int) sanitize_text_field( $_POST['_bbp_converter_db_port'] )
-			: '';
-
-		$db_server = ! empty( $_POST['_bbp_converter_db_server'] )
-			? sanitize_text_field( $_POST['_bbp_converter_db_server'] )
-			: DB_HOST;
-
-		$db_prefix = ! empty( $_POST['_bbp_converter_db_prefix'] )
-			? sanitize_text_field( $_POST['_bbp_converter_db_prefix'] )
-			: '';
-
-		$db_rows = ! empty( $_POST['_bbp_converter_rows'] )
-			? (int) $_POST['_bbp_converter_rows']
-			: 100;
+		$db_user   = get_option( '_bbp_converter_db_user',   DB_USER     );
+		$db_pass   = get_option( '_bbp_converter_db_pass',   DB_PASSWORD );
+		$db_name   = get_option( '_bbp_converter_db_name',   DB_NAME     );
+		$db_host   = get_option( '_bbp_converter_db_server', DB_HOST     );
+		$db_port   = get_option( '_bbp_converter_db_port',   ''          );
+		$db_prefix = get_option( '_bbp_converter_db_prefix', ''          );
 
 		// Maybe add port to server
-		if ( ! empty( $db_port ) && ! empty( $db_server ) && ! strstr( $db_server, ':' ) ) {
-			$db_server = $db_server . ':' . $db_port;
+		if ( ! empty( $db_port ) && ! empty( $db_host ) && ! strstr( $db_host, ':' ) ) {
+			$db_host = $db_host . ':' . $db_port;
 		}
 
 		/** Get database connections ******************************************/
 
 		// Setup WordPress Database
-		$this->wpdb     = bbp_db();
-		$this->max_rows = $db_rows;
+		$this->wpdb = bbp_db();
 
 		// Control WPDB db_connect() bailing
 		define( 'WP_SETUP_CONFIG', true );
 
 		// Setup old forum Database
-		$this->opdb = new wpdb( $db_user, $db_pass, $db_name, $db_server );
+		$this->opdb = new wpdb( $db_user, $db_pass, $db_name, $db_host );
 
 		// Connection failed
 		if ( ! $this->opdb->db_connect( false ) ) {
@@ -171,20 +148,16 @@ abstract class BBP_Converter_Base {
 		 * Syncing
 		 */
 		$this->sync_table_name = $this->wpdb->prefix . 'bbp_converter_translator';
-		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) === $this->sync_table_name ) {
-			$this->sync_table = true;
-		} else {
-			$this->sync_table = false;
-		}
+		$this->sync_table      = $this->sync_table_name === $this->wpdb->get_var( "SHOW TABLES LIKE '{$this->sync_table_name}'" )
+			? true
+			: false;
 
 		/**
 		 * Character set
 		 */
-		if ( empty( $this->wpdb->charset ) ) {
-			$this->charset = 'UTF8';
-		} else {
-			$this->charset = $this->wpdb->charset;
-		}
+		$this->charset = ! empty( $this->wpdb->charset )
+			? $this->wpdb->charset
+			: 'UTF8';
 
 		/**
 		 * Default mapping.

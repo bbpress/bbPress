@@ -23,6 +23,8 @@ function bbp_admin_get_settings_sections() {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_admin_get_settings_sections', array(
+
+		// Settings
 		'bbp_settings_users' => array(
 			'title'    => esc_html__( 'Forum User Settings', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_user_section',
@@ -63,6 +65,8 @@ function bbp_admin_get_settings_sections() {
 			'callback' => 'bbp_admin_setting_callback_user_slug_section',
 			'page'     => 'permalink',
 		),
+
+		// Extend
 		'bbp_settings_buddypress' => array(
 			'title'    => esc_html__( 'Forum Integration for BuddyPress', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_buddypress_section',
@@ -72,6 +76,18 @@ function bbp_admin_get_settings_sections() {
 			'title'    => esc_html__( 'Forum Integration for Akismet', 'bbpress' ),
 			'callback' => 'bbp_admin_setting_callback_akismet_section',
 			'page'     => 'discussion'
+		),
+
+		// Converter
+		'bbp_converter_connection' => array(
+			'title'    => esc_html__( 'Database Settings', 'bbpress' ),
+			'callback' => 'bbp_converter_setting_callback_main_section',
+			'page'     => 'converter'
+		),
+		'bbp_converter_options' => array(
+			'title'    => esc_html__( 'Options', 'bbpress' ),
+			'callback' => 'bbp_converter_setting_callback_options_section',
+			'page'     => 'converter'
 		)
 	) );
 }
@@ -453,6 +469,112 @@ function bbp_admin_get_settings_fields() {
 			'_bbp_enable_akismet' => array(
 				'title'             => esc_html__( 'Use Akismet', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_akismet',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			)
+		),
+
+		/** Converter Page ****************************************************/
+
+		// Connection
+		'bbp_converter_connection' => array(
+
+			// System Select
+			'_bbp_converter_platform' => array(
+				'title'             => esc_html__( 'Select Platform', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_platform',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Database Server
+			'_bbp_converter_db_server' => array(
+				'title'             => esc_html__( 'Database Server', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbserver',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Database Server Port
+			'_bbp_converter_db_port' => array(
+				'title'             => esc_html__( 'Database Port', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbport',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Database Name
+			'_bbp_converter_db_name' => array(
+				'title'             => esc_html__( 'Database Name', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbname',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Database User
+			'_bbp_converter_db_user' => array(
+				'title'             => esc_html__( 'Database User', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbuser',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Database User
+			'_bbp_converter_db_pass' => array(
+				'title'             => esc_html__( 'Database Password', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbpass',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			),
+
+			// Database User
+			'_bbp_converter_db_prefix' => array(
+				'title'             => esc_html__( 'Table Prefix', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_dbprefix',
+				'sanitize_callback' => 'sanitize_text_field',
+				'args'              => array()
+			)
+		),
+
+		// Options
+		'bbp_converter_options' => array(
+
+			// Rows Limit
+			'_bbp_converter_rows' => array(
+				'title'             => esc_html__( 'Rows Limit', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_rows',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Delay Time
+			'_bbp_converter_delay_time' => array(
+				'title'             => esc_html__( 'Delay Time', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_delay_time',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Convert Users
+			'_bbp_converter_convert_users' => array(
+				'title'             => esc_html__( 'Convert Users', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_convert_users',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Restart
+			'_bbp_converter_restart' => array(
+				'title'             => esc_html__( 'Start Over', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_restart',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Clean
+			'_bbp_converter_clean' => array(
+				'title'             => esc_html__( 'Purge Previous Import', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_clean',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			)
@@ -1315,7 +1437,7 @@ function bbp_admin_setting_callback_buddypress_section() {
 function bbp_admin_setting_callback_group_forums() {
 ?>
 
-	<input name="_bbp_enable_group_forums" id="_bbp_enable_group_forums" type="checkbox" value="1" <?php checked( bbp_is_group_forums_active( true ) );  bbp_maybe_admin_setting_disabled( '_bbp_enable_group_forums' ); ?> />
+	<input name="_bbp_enable_group_forums" id="_bbp_enable_group_forums" type="checkbox" value="1" <?php checked( bbp_is_group_forums_active( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_enable_group_forums' ); ?> />
 	<label for="_bbp_enable_group_forums"><?php esc_html_e( 'Allow BuddyPress Groups to have their own forums', 'bbpress' ); ?></label>
 
 <?php
@@ -1401,7 +1523,7 @@ function bbp_admin_setting_callback_akismet_section() {
 function bbp_admin_setting_callback_akismet() {
 ?>
 
-	<input name="_bbp_enable_akismet" id="_bbp_enable_akismet" type="checkbox" value="1" <?php checked( bbp_is_akismet_active( true ) );  bbp_maybe_admin_setting_disabled( '_bbp_enable_akismet' ); ?> />
+	<input name="_bbp_enable_akismet" id="_bbp_enable_akismet" type="checkbox" value="1" <?php checked( bbp_is_akismet_active( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_enable_akismet' ); ?> />
 	<label for="_bbp_enable_akismet"><?php esc_html_e( 'Allow Akismet to actively prevent forum spam.', 'bbpress' ); ?></label>
 
 <?php
@@ -1463,12 +1585,13 @@ function bbp_converter_setting_callback_main_section() {
 function bbp_converter_setting_callback_platform() {
 
 	// Converters
+	$current    = get_option( '_bbp_converter_platform' );
 	$converters = bbp_get_converters();
 	$options    = '';
 
 	// Put options together
 	foreach ( $converters as $name => $file ) {
-		$options .= '<option value="' . esc_attr( $name ) . '">' . esc_html( $name ) . '</option>';
+		$options .= '<option value="' . esc_attr( $name ) . '"' . selected( $name, $current, false ) . '>' . esc_html( $name ) . '</option>';
 	} ?>
 
 	<select name="_bbp_converter_platform" id="_bbp_converter_platform"><?php echo $options ?></select>
@@ -1485,7 +1608,7 @@ function bbp_converter_setting_callback_platform() {
 function bbp_converter_setting_callback_dbserver() {
 ?>
 
-	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_server' ); ?> />
 	<label for="_bbp_converter_db_server"><?php esc_html_e( 'Use default "localhost" if on the same server, otherwise IP or hostname', 'bbpress' ); ?></label>
 
 <?php
@@ -1499,7 +1622,7 @@ function bbp_converter_setting_callback_dbserver() {
 function bbp_converter_setting_callback_dbport() {
 ?>
 
-	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" class="small-text" />
+	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_port' ); ?> />
 	<label for="_bbp_converter_db_port"><?php esc_html_e( 'Use default "3306" if unsure', 'bbpress' ); ?></label>
 
 <?php
@@ -1513,7 +1636,7 @@ function bbp_converter_setting_callback_dbport() {
 function bbp_converter_setting_callback_dbuser() {
 ?>
 
-	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_user' ); ?> />
 	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User to acces the database', 'bbpress' ); ?></label>
 
 <?php
@@ -1527,7 +1650,7 @@ function bbp_converter_setting_callback_dbuser() {
 function bbp_converter_setting_callback_dbpass() {
 ?>
 
-	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" class="medium-text" autocomplete="off" />
+	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
 	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password of the above database user', 'bbpress' ); ?></label>
 
 <?php
@@ -1541,7 +1664,7 @@ function bbp_converter_setting_callback_dbpass() {
 function bbp_converter_setting_callback_dbname() {
 ?>
 
-	<input name="_bbp_converter_db_name" id="_bbp_converter_db_name" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_name" id="_bbp_converter_db_name" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_name' ); ?> />
 	<label for="_bbp_converter_db_name"><?php esc_html_e( 'Name of the database with your old forum data', 'bbpress' ); ?></label>
 
 <?php
@@ -1568,7 +1691,7 @@ function bbp_converter_setting_callback_options_section() {
 function bbp_converter_setting_callback_dbprefix() {
 ?>
 
-	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" class="medium-text" />
+	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_prefix' ); ?> />
 	<label for="_bbp_converter_db_prefix"><?php esc_html_e( '(If converting from BuddyPress Forums, use "wp_bb_" or your custom prefix)', 'bbpress' ); ?></label>
 
 <?php
@@ -1582,7 +1705,7 @@ function bbp_converter_setting_callback_dbprefix() {
 function bbp_converter_setting_callback_rows() {
 ?>
 
-	<input name="_bbp_converter_rows" id="_bbp_converter_rows" type="number" min="1" max="5000" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" class="small-text" />
+	<input name="_bbp_converter_rows" id="_bbp_converter_rows" type="number" min="1" max="5000" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_rows' ); ?> />
 	<label for="_bbp_converter_rows"><?php esc_html_e( 'rows to process at a time', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this low if you experience out-of-memory issues.', 'bbpress' ); ?></p>
 
@@ -1597,7 +1720,7 @@ function bbp_converter_setting_callback_rows() {
 function bbp_converter_setting_callback_delay_time() {
 ?>
 
-	<input name="_bbp_converter_delay_time" id="_bbp_converter_delay_time" type="number" min="1" max="3600" value="<?php bbp_form_option( '_bbp_converter_delay_time', '1' ); ?>" class="small-text" />
+	<input name="_bbp_converter_delay_time" id="_bbp_converter_delay_time" type="number" min="2" max="3600" value="<?php bbp_form_option( '_bbp_converter_delay_time', '2' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_delay_time' ); ?> />
 	<label for="_bbp_converter_delay_time"><?php esc_html_e( 'second(s) delay between each group of rows', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this high to prevent too-many-connection issues.', 'bbpress' ); ?></p>
 
@@ -1642,7 +1765,7 @@ function bbp_converter_setting_callback_clean() {
 function bbp_converter_setting_callback_convert_users() {
 ?>
 
-	<input name="_bbp_converter_convert_users" id="_bbp_converter_convert_users" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> />
+	<input name="_bbp_converter_convert_users" id="_bbp_converter_convert_users" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_convert_users' ); ?> />
 	<label for="_bbp_converter_convert_users"><?php esc_html_e( 'Attempt to import user accounts from previous forums', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Non-bbPress passwords cannot be automatically converted. They will be converted as each user logs in.', 'bbpress' ); ?></p>
 
@@ -1654,14 +1777,16 @@ function bbp_converter_setting_callback_convert_users() {
 /**
  * The main settings page
  *
+ * @since 2.1.0 bbPress (r3186)
+ *
  * @uses settings_fields() To output the hidden fields for the form
  * @uses do_settings_sections() To output the settings sections
  */
 function bbp_converter_settings_page() {
 
 	// Status
-	$step = (int)  get_option( '_bbp_converter_step',  0     );
-	$max  = 17; // Filter?
+	$step = (int) get_option( '_bbp_converter_step', 0 );
+	$max  = (int) bbpress()->admin->converter->max_steps;
 
 	// Starting or continuing?
 	$start_text = ! empty( $step )
@@ -1678,11 +1803,15 @@ function bbp_converter_settings_page() {
 		<hr class="wp-header-end">
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Import Forums', 'bbpress' ) ); ?></h2>
 
-		<form action="#" method="post" id="bbp-converter-settings">
+		<form action="#" method="post" id="bbp-converter-settings"><?php
 
-			<?php settings_fields( 'bbpress_converter' ); ?>
+			// Fields
+			settings_fields( 'converter' );
 
-			<?php do_settings_sections( 'bbpress_converter' ); ?>
+			// Sections
+			do_settings_sections( 'converter' );
+
+			?>
 
 			<p class="submit">
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" />
@@ -1699,8 +1828,11 @@ function bbp_converter_settings_page() {
 								<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
 								<span class="toggle-indicator" aria-hidden="true"></span>
 							</button>
-							<h2 class="hndle ui-sortable-handle"><span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span></h2>
+							<h2 class="hndle ui-sortable-handle">
+								<span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span>
+							</h2>
 							<div class="inside">
+								<div id="bbp-converter-timer"><?php esc_html_e( 'Timer: Stopped', 'bbpress' ); ?></div>
 								<div id="bbp-converter-message" class="bbp-converter-log">
 									<p><?php echo esc_html( $status_text ); ?></p>
 								</div>

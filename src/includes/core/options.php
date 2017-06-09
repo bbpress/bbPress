@@ -110,8 +110,25 @@ function bbp_get_default_options() {
 
 		/** Akismet ***********************************************************/
 
-		'_bbp_enable_akismet'       => 1            // Users from all sites can post
+		'_bbp_enable_akismet'       => 1,           // Users from all sites can post
+		
+		/** Converter *********************************************************/
 
+		// Connection
+		'_bbp_converter_db_user'    => '',          // Database User
+		'_bbp_converter_db_pass'    => '',          // Database Password
+		'_bbp_converter_db_name'    => '',          // Database Name
+		'_bbp_converter_db_port'    => 3306,        // Database Port
+		'_bbp_converter_db_server'  => 'localhost', // Database Server/IP
+		'_bbp_converter_db_prefix'  => '',          // Database table prefix
+
+		// Options
+		'_bbp_converter_rows'       => 100,         // Number of rows to query
+		'_bbp_converter_delay_time' => 2,           // Seconds to wait between queries
+		'_bbp_converter_step'       => 1,           // Current converter step
+		'_bbp_converter_start'      => 1,           // Step to start at
+		'_bbp_converter_platform'   => '',          // Which platform to use
+		'_bbp_converter_query'      => ''           // Last query
 	) );
 }
 

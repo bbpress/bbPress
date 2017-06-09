@@ -368,8 +368,8 @@ class BBP_Admin {
 				continue;
 			}
 
-			// Toggle the section if core integration is on
-			if ( ( 'deep' === $settings_integration ) && ! empty( $section['page'] ) ) {
+			// Overload the converter page
+			if ( ! empty( $section['page'] ) && ( ( 'converter' === $section['page'] ) || ( 'deep' === $settings_integration ) ) ) {
 				$page = $section['page'];
 			} else {
 				$page = 'bbpress';
@@ -411,27 +411,7 @@ class BBP_Admin {
 		// What capability is being checked?
 		switch ( $cap ) {
 
-			// BuddyPress
-			case 'bbp_settings_buddypress' :
-				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && bp_is_root_blog() ) && is_super_admin() ) {
-					$caps = array( bbpress()->admin->minimum_capability );
-				} else {
-					$caps = array( 'do_not_allow' );
-				}
-
-				break;
-
-			// Akismet
-			case 'bbp_settings_akismet' :
-				if ( ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin() ) {
-					$caps = array( bbpress()->admin->minimum_capability );
-				} else {
-					$caps = array( 'do_not_allow' );
-				}
-
-				break;
-
-			// bbPress
+			// Pages
 			case 'bbp_about_page'            : // About and Credits
 			case 'bbp_tools_page'            : // Tools Page
 			case 'bbp_tools_repair_page'     : // Tools - Repair Page
@@ -439,6 +419,12 @@ class BBP_Admin {
 			case 'bbp_tools_import_page'     : // Tools - Import Page
 			case 'bbp_tools_reset_page'      : // Tools - Reset Page
 			case 'bbp_settings_page'         : // Settings Page
+
+			// Converter Sections
+			case 'bbp_converter_connection'  : // Converter - Connection
+			case 'bbp_converter_options'     : // Converter - Options
+
+			// Settings Sections
 			case 'bbp_settings_users'        : // Settings - Users
 			case 'bbp_settings_features'     : // Settings - Features
 			case 'bbp_settings_theme_compat' : // Settings - Theme compat
@@ -448,6 +434,26 @@ class BBP_Admin {
 			case 'bbp_settings_per_page'     : // Settings - Per page
 			case 'bbp_settings_per_rss_page' : // Settings - Per RSS page
 				$caps = array( bbpress()->admin->minimum_capability );
+				break;
+
+			// Extend - BuddyPress
+			case 'bbp_settings_buddypress' :
+				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && bp_is_root_blog() ) && is_super_admin() ) {
+					$caps = array( bbpress()->admin->minimum_capability );
+				} else {
+					$caps = array( 'do_not_allow' );
+				}
+
+				break;
+
+			// Extend - Akismet
+			case 'bbp_settings_akismet' :
+				if ( ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin() ) {
+					$caps = array( bbpress()->admin->minimum_capability );
+				} else {
+					$caps = array( 'do_not_allow' );
+				}
+
 				break;
 		}
 
@@ -563,7 +569,7 @@ class BBP_Admin {
 	 */
 	public function enqueue_scripts() {
 
-		// Enqueue suggest for forum/topic/reply autocmopletes
+		// Enqueue suggest for forum/topic/reply autocompletes
 		wp_enqueue_script( 'suggest' );
 
 		// Minified

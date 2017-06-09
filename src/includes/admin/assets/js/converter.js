@@ -8,7 +8,11 @@ jQuery( document ).ready( function ( $ ) {
 		stop     = $( '#bbp-converter-stop'     ),
 		start    = $( '#bbp-converter-start'    ),
 		restart  = $( '#_bbp_converter_restart' ),
-		settings = $( '#bbp-converter-settings' );
+		timer    = $( '#bbp-converter-timer'    ),
+		settings = $( '#bbp-converter-settings' ),
+
+		// Prefetch the settings
+		options  = bbp_converter_settings();
 
 	/**
 	 * Start button click
@@ -183,7 +187,10 @@ jQuery( document ).ready( function ( $ ) {
 			return;
 		}
 
-		$.post( ajaxurl, bbp_converter_settings(), function( response ) {
+		// Check if the settings have changed
+		options = bbp_converter_settings();
+
+		$.post( ajaxurl, options, function( response ) {
 
 			if ( 'bbp_converter_db_connection_failed' === response ) {
 				bbp_converter_error_db();
@@ -202,6 +209,8 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_next() {
+		bbp_converter_timer();
+
 		clearTimeout( BBP_Converter.running );
 
 		BBP_Converter.running = setTimeout( function() {
@@ -222,6 +231,7 @@ jQuery( document ).ready( function ( $ ) {
 	function bbp_converter_stop( button, log ) {
 		start.val( button ).show();
 		stop.hide();
+		timer.text( BBP_Converter.strings.timer_stopped );
 
 		if ( log ) {
 			bbp_converter_log( log );
@@ -230,6 +240,31 @@ jQuery( document ).ready( function ( $ ) {
 		clearTimeout( BBP_Converter.running );
 
 		BBP_Converter.running = false;
+	}
+
+	/**
+	 * Update the timer
+	 *
+	 * @since 2.6.0 bbPress (r6513)
+	 *
+	 * @returns {void}
+	 */
+	function bbp_converter_timer() {
+		var remaining = BBP_Converter.delay / 1000;
+
+		timer.text( BBP_Converter.strings.timer_counting.replace( '%s', remaining ) );
+
+		clearInterval( BBP_Converter.timer );
+
+		BBP_Converter.timer = setInterval( function() {
+			remaining--;
+			timer.text( BBP_Converter.strings.timer_counting.replace( '%s', remaining ) );
+
+			if ( remaining <= 0 ) {
+				clearInterval( BBP_Converter.timer );
+				timer.text( BBP_Converter.strings.timer_waiting );
+			}
+		}, 1000 );
 	}
 
 	/**

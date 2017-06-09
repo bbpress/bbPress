@@ -360,3 +360,12 @@ div.bbp-converter-log .step {
 #bbp-converter-stop {
 	display: none;
 }
+
+#bbp-converter-timer {
+	position: absolute;
+	right: 10px;
+	top: 4px;
+	padding: 5px;
+	border: 1px solid #ddd;
+	background-color: #fafafa;
+}
