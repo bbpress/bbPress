@@ -212,6 +212,7 @@ final class bbPress {
 		// Base name
 		$this->file       = __FILE__;
 		$this->basename   = apply_filters( 'bbp_plugin_basename', str_replace( array( 'build/', 'src/' ), '', plugin_basename( $this->file ) ) );
+		$this->base_dir   = apply_filters( 'bbp_plugin_base_dir', trailingslashit( dirname( $this->basename ) ) );
 
 		// Path and URL
 		$this->plugin_dir = apply_filters( 'bbp_plugin_dir_path', plugin_dir_path( $this->file ) );
@@ -222,6 +223,7 @@ final class bbPress {
 		$this->includes_url = apply_filters( 'bbp_includes_url', trailingslashit( $this->plugin_url . 'includes'  ) );
 
 		// Languages
+		$this->lang_base    = apply_filters( 'bbp_lang_base',    trailingslashit( $this->base_dir   . 'languages' ) );
 		$this->lang_dir     = apply_filters( 'bbp_lang_dir',     trailingslashit( $this->plugin_dir . 'languages' ) );
 
 		// Templates
@@ -485,22 +487,23 @@ final class bbPress {
 	 */
 	public function load_textdomain() {
 
-		// Traditional WordPress plugin locale filter
-		$locale        = apply_filters( 'plugin_locale', get_locale(), $this->domain );
-		$mofile        = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
+		// Define the old directory
+		$old_dir = WP_LANG_DIR . '/bbpress/';
 
-		// Setup paths to current locale file
-		$mofile_local  = $this->lang_dir . $mofile;
-		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
+		// Old location, deprecated in 2.6.0
+		if ( is_dir( $old_dir ) ) {
 
-		// Look in global /wp-content/languages/bbpress folder
-		load_textdomain( $this->domain, $mofile_global );
+			// Get locale & file-name
+			$type   = is_admin() ? get_user_locale() : get_locale();
+			$locale = apply_filters( 'plugin_locale', $type, $this->domain );
+			$mofile = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
 
-		// Look in local /wp-content/plugins/bbpress/languages/ folder
-		load_textdomain( $this->domain, $mofile_local );
+			// Look in global /wp-content/languages/bbpress/ folder
+			load_textdomain( $this->domain, $old_dir . $mofile );
+		}
 
 		// Look in global /wp-content/languages/plugins/
-		load_plugin_textdomain( $this->domain );
+		load_plugin_textdomain( $this->domain, false, $this->lang_base );
 	}
 
 	/**
