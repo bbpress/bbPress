@@ -613,9 +613,9 @@ function bbp_filter_anonymous_post_data( $args = '' ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array (
-		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
-		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
-		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
+		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? sanitize_text_field( $_POST['bbp_anonymous_name']    ) : false,
+		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? sanitize_email(      $_POST['bbp_anonymous_email']   ) : false,
+		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? sanitize_text_field( $_POST['bbp_anonymous_website'] ) : false,
 	), 'filter_anonymous_post_data' );
 
 	// Filter variables and add errors if necessary
@@ -678,7 +678,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	if ( empty( $r['post_author'] ) && ( !empty( $r['anonymous_data'] ) && !empty( $r['anonymous_data']['bbp_anonymous_email'] ) ) ) {
 		$clauses = get_meta_sql( array( array(
 			'key'   => '_bbp_anonymous_email',
-			'value' => $r['anonymous_data']['bbp_anonymous_email']
+			'value' => sanitize_email( $r['anonymous_data']['bbp_anonymous_email'] )
 		) ), 'post', $wpdb->posts, 'ID' );
 
 		$join    = $clauses['join'];
