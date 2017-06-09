@@ -17,7 +17,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author:      The bbPress Contributors
  * Author URI:  https://bbpress.org
- * Version:     2.6-beta-3
+ * Version:     2.6-rc-3
  * Text Domain: bbpress
  * Domain Path: /languages/
  * License:     GPLv2 or later (license.txt)
@@ -204,19 +204,19 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-beta-6338';
+		$this->version    = '2.6-rc-6509';
 		$this->db_version = '261';
 
 		/** Paths *************************************************************/
 
-		// Base name
-		$this->file       = __FILE__;
-		$this->basename   = apply_filters( 'bbp_plugin_basename', str_replace( array( 'build/', 'src/' ), '', plugin_basename( $this->file ) ) );
-		$this->basepath   = apply_filters( 'bbp_plugin_basepath', trailingslashit( dirname( $this->basename ) ) );
+		// File & base
+		$this->file         = __FILE__;
+		$this->basename     = apply_filters( 'bbp_plugin_basename', str_replace( array( 'build/', 'src/' ), '', plugin_basename( $this->file ) ) );
+		$this->basepath     = apply_filters( 'bbp_plugin_basepath', trailingslashit( dirname( $this->basename ) ) );
 
 		// Path and URL
-		$this->plugin_dir = apply_filters( 'bbp_plugin_dir_path', plugin_dir_path( $this->file ) );
-		$this->plugin_url = apply_filters( 'bbp_plugin_dir_url',  plugin_dir_url ( $this->file ) );
+		$this->plugin_dir   = apply_filters( 'bbp_plugin_dir_path', plugin_dir_path( $this->file ) );
+		$this->plugin_url   = apply_filters( 'bbp_plugin_dir_url',  plugin_dir_url ( $this->file ) );
 
 		// Includes
 		$this->includes_dir = apply_filters( 'bbp_includes_dir', trailingslashit( $this->plugin_dir . 'includes'  ) );
