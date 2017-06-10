@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $meta_type The relationship type (usually 'post')
  * @param bool   $unique    Whether metadata should be unique to the object
  *
- * @uses add_post_meta() To add the user to an object
+ * @uses add_metadata() To add the user to an object
  *
  * @return bool Returns true on success, false on failure
  */
