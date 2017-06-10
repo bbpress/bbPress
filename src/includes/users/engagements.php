@@ -59,6 +59,29 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = 
 }
 
 /**
+ * Remove a user id from all objects
+ *
+ * @since 2.6.0 bbPress (r6109)
+ *
+ * @param int    $object_id The post id
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type
+ *
+ * @uses delete_post_meta() To remove the term from the object
+ * @uses apply_filters() Calls 'bbp_remove_user_from_object' with the object
+ *                        id, user id, and taxonomy
+ * @return bool Returns true is the user taxonomy term is removed from the object,
+ *               otherwise false
+ */
+function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$retval = delete_metadata( $meta_type, null, $meta_key, $user_id, true );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_remove_user_from_all_objects', (bool) $retval, $user_id, $meta_key, $meta_type );
+}
+
+/**
  * Get user taxonomy terms for an object
  *
  * @since 2.6.0 bbPress (r6109)
