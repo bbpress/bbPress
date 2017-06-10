@@ -202,7 +202,7 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
 	$retval   = bbp_is_object_of_user( $topic_id, $user_id, '_bbp_engagement' );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_user_engaged', (bool) $retval, $user_id, $topic_id );
+	return (bool) apply_filters( 'bbp_is_user_engaged', $retval, $user_id, $topic_id );
 }
 
 /**
@@ -399,7 +399,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	}
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_user_favorite', (bool) $retval, $user_id, $topic_id, $favorites );
+	return (bool) apply_filters( 'bbp_is_user_favorite', $retval, $user_id, $topic_id, $favorites );
 }
 
 /**
@@ -764,7 +764,7 @@ function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
- *                        forum/topic id and subsriptions
+ *                        forum/topic id and subscriptions
  * @return bool True if the forum or topic is in user's subscriptions, otherwise false
  */
 function bbp_is_user_subscribed( $user_id = 0, $object_id = 0 ) {
@@ -861,7 +861,7 @@ function bbp_is_user_subscribed_to_forum( $user_id = 0, $forum_id = 0, $subscrib
 	}
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_user_subscribed_to_forum', (bool) $retval, $user_id, $forum_id, $subscribed_ids );
+	return (bool) apply_filters( 'bbp_is_user_subscribed_to_forum', $retval, $user_id, $forum_id, $subscribed_ids );
 }
 
 /**
@@ -919,7 +919,7 @@ function bbp_is_user_subscribed_to_topic( $user_id = 0, $topic_id = 0, $subscrib
 	}
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_user_subscribed_to_topic', (bool) $retval, $user_id, $topic_id, $subscribed_ids );
+	return (bool) apply_filters( 'bbp_is_user_subscribed_to_topic', $retval, $user_id, $topic_id, $subscribed_ids );
 }
 
 /**
