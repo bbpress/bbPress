@@ -20,12 +20,12 @@ defined( 'ABSPATH' ) || exit;
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type
+ * @param string $meta_type The relationship type (usually 'post')
  * @param bool   $unique    Whether metadata should be unique to the object
  *
- * @uses add_post_meta() To set the term on the object
- * @uses apply_filters() Calls 'bbp_add_user_to_object' with the return value & parameters
- * @return bool Returns true if the user is added to the object, otherwise false
+ * @uses add_post_meta() To add the user to an object
+ *
+ * @return bool Returns true on success, false on failure
  */
 function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = true ) {
 	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
@@ -39,16 +39,14 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param int    $object_id The post id
+ * @param int    $object_id The object id
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type
+ * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses delete_post_meta() To remove the term from the object
- * @uses apply_filters() Calls 'bbp_remove_user_from_object' with the object
- *                        id, user id, and taxonomy
- * @return bool Returns true is the user taxonomy term is removed from the object,
- *               otherwise false
+ * @uses delete_metadata() To remove a user from an objects
+ *
+ * @return bool Returns true on success, false on failure
  */
 function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$retval = delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
@@ -58,20 +56,38 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = 
 }
 
 /**
+ * Remove all users from an object
+ *
+ * @since 2.6.0 bbPress (r6109)
+ *
+ * @param int    $object_id The object id
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type (usually 'post')
+ *
+ * @uses delete_metadata() To remove all user from an object
+ *
+ * @return bool Returns true on success, false on failure
+ */
+function bbp_remove_all_users_from_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+	$retval = delete_metadata( $meta_type, $object_id, $meta_key, null, false );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_remove_all_users_from_object', (bool) $retval, $object_id, $meta_key, $meta_type );
+}
+
+/**
  * Remove a user id from all objects
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param int    $object_id The post id
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type
+ * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses delete_post_meta() To remove the term from the object
- * @uses apply_filters() Calls 'bbp_remove_user_from_object' with the object
- *                        id, user id, and taxonomy
- * @return bool Returns true is the user taxonomy term is removed from the object,
- *               otherwise false
+ * @uses delete_metadata() To remove user from all objects
+ *
+ * @return bool Returns true on success, false on failure
  */
 function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$retval = delete_metadata( $meta_type, null, $meta_key, $user_id, true );
@@ -81,7 +97,26 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_t
 }
 
 /**
- * Get user taxonomy terms for an object
+ * Remove all users from all objects
+ *
+ * @since 2.6.0 bbPress (r6109)
+ *
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type (usually 'post')
+ *
+ * @uses delete_metadata() To remove users from objects
+ *
+ * @return bool Returns true on success, false on failure
+ */
+function bbp_remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
+	$retval = delete_metadata( $meta_type, null, $meta_key, null, true );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_remove_all_users_from_all_objects', (bool) $retval, $meta_key, $meta_type );
+}
+
+/**
+ * Get users of an object
  *
  * @since 2.6.0 bbPress (r6109)
  *
@@ -89,10 +124,9 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_t
  * @param string $meta_key  The key used to index this relationship
  * @param string $meta_type The type of meta to look in
  *
- * @uses get_post_meta() To get the user taxonomy terms
- * @uses apply_filters() Calls 'bbp_get_users_for_object' with the user
- *                        taxonomy terms, object id, and taxonomy
- * @return array Returns the user taxonomy terms of the object
+ * @uses get_metadata() To get the users of an object
+ *
+ * @return array Returns ids of users
  */
 function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$meta   = get_metadata( $meta_type, $object_id, $meta_key, false );
@@ -103,20 +137,18 @@ function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 
 }
 
 /**
- * Check if the user id is set on an object
+ * Check if an object has a specific user
  *
  * @since 2.6.0 bbPress (r6109)
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type
+ * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses get_post_meta() To check if the user id is set on the object
- * @uses apply_filters() Calls 'bbp_is_object_of_user' with the object id,
- *                        user id, and taxonomy
- * @return bool Returns true if the user id is set on the object for the
- *               taxonomy, otherwise false
+ * @uses bbp_get_users_for_object() To get all users of an object
+ *
+ * @return bool Returns true if object has a user, false if not
  */
 function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 	$user_ids = bbp_get_users_for_object( $object_id, $meta_key, $meta_type );
