@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /** User Relationships ********************************************************/
 
 /**
- * Set a user id on an object
+ * Add a user id to an object
  *
  * @since 2.6.0 bbPress (r6109)
  *
@@ -21,18 +21,17 @@ defined( 'ABSPATH' ) || exit;
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type
+ * @param bool   $unique    Whether metadata should be unique to the object
  *
  * @uses add_post_meta() To set the term on the object
- * @uses apply_filters() Calls 'bbp_add_user_to_object' with the object id, user
- *                        id, and taxonomy
- * @return bool Returns true if the user taxonomy term is added to the object,
- *               otherwise false
+ * @uses apply_filters() Calls 'bbp_add_user_to_object' with the return value & parameters
+ * @return bool Returns true if the user is added to the object, otherwise false
  */
-function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = true ) {
+	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_add_user_to_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_add_user_to_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type, $unique );
 }
 
 /**
