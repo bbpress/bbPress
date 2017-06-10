@@ -797,55 +797,59 @@ function bbp_user_has_profile( $user_id = 0 ) {
 /**
  * Add a moderator to an object
  *
- * @since 2.6.0 bbPRess
+ * @since 2.6.0 bbPress (r6056)
  *
- * @param int $object_id Traditionally a forum ID, but could be useful
- * @param int $user_id
+ * @param int    $object_id   Traditionally a post ID
+ * @param int    $user_id     User ID
+ * @param string $object_type Type of meta (post,term,user,comment)
  *
- * @return @mixed
+ * @return bool
  */
-function bbp_add_moderator( $object_id = 0, $user_id = 0 ) {
-	return bbp_add_user_to_object( $object_id, $user_id, '_bbp_moderator_id' );
+function bbp_add_moderator( $object_id = 0, $user_id = 0, $object_type = 'post' ) {
+	return bbp_add_user_to_object( $object_id, $user_id, '_bbp_moderator_id', $object_type );
 }
 
 /**
  * Remove a moderator user ID from an object
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6056)
  *
- * @param int $object_id
- * @param int $user_id
+ * @param int    $object_id   Traditionally a post ID
+ * @param int    $user_id     User ID
+ * @param string $object_type Type of meta (post,term,user,comment)
  *
  * @return bool
  */
-function bbp_remove_moderator( $object_id = 0, $user_id = 0 ) {
-	return bbp_remove_user_from_object( $object_id, $user_id, '_bbp_moderator_id' );
+function bbp_remove_moderator( $object_id = 0, $user_id = 0, $object_type = 'post' ) {
+	return bbp_remove_user_from_object( $object_id, $user_id, '_bbp_moderator_id', $object_type );
 }
 
 /**
  * Get user IDs of moderators for an object
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6056)
  *
- * @param int $object_id
+ * @param int    $object_id   Traditionally a post ID
+ * @param string $object_type Type of meta (post,term,user,comment)
  *
- * @return mixed
+ * @return array
  */
-function bbp_get_moderator_ids( $object_id = 0 ) {
-	return bbp_get_users_for_object( $object_id, '_bbp_moderator_id' );
+function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
+	return bbp_get_users_for_object( $object_id, '_bbp_moderator_id', $object_type );
 }
 
 /**
  * Get moderators for a specific object ID. Will return global moderators when
  * object ID is empty.
  *
- * @since 2.6.0 bbPress
+ * @since 2.6.0 bbPress (r6056)
  *
- * @param int $object_id
+ * @param int    $object_id   Traditionally a post ID
+ * @param string $object_type Type of meta (post,term,user,comment)
  *
  * @return array
  */
-function bbp_get_moderators( $object_id = 0 ) {
+function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 
 	// Get global moderators
 	if ( empty( $object_id ) ) {
@@ -856,10 +860,10 @@ function bbp_get_moderators( $object_id = 0 ) {
 	// Get object moderators
 	} else {
 		$users = get_users( array(
-			'include' => bbp_get_moderator_ids( $object_id ),
+			'include' => bbp_get_moderator_ids( $object_id, $object_type ),
 		) );
 	}
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_moderators', $users, $object_id );
+	return (array) apply_filters( 'bbp_get_moderators', $users, $object_id, $object_type );
 }
