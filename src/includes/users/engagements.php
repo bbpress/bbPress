@@ -180,6 +180,47 @@ function bbp_get_topic_engagements( $topic_id = 0 ) {
 }
 
 /**
+ * Return the users who have engaged in a topic, directly with a database query
+ *
+ * See: https://bbpress.trac.wordpress.org/ticket/3083
+ *
+ * @since 2.6.0 bbPress (r6522)
+ *
+ * @param int $topic_id
+ *
+ * @return array
+ */
+function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
+
+	// Default variables
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$bbp_db   = bbp_db();
+	$statii   = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
+
+	// A cool UNION query!
+	$sql = "
+SELECT DISTINCT( post_author ) FROM (
+	SELECT post_author FROM {$bbp_db->posts}
+		WHERE ( ID = %d AND post_status IN ({$statii}) AND post_type = %s )
+UNION
+	SELECT post_author FROM {$bbp_db->posts}
+		WHERE ( post_parent = %d AND post_status = %s AND post_type = %s )
+) as u1";
+
+	// Prepare & get results
+	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type() );
+	$results = $bbp_db->get_col( $query );
+
+	// Parse results into voices
+	$engagements = ! is_wp_error( $results )
+		? wp_parse_id_list( array_filter( $results ) )
+		: array();
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_topic_engagements_raw', $engagements, $topic_id );
+}
+
+/**
  * Get a user's topic engagements
  *
  * @since 2.6.0 bbPress (r6320)
@@ -216,7 +257,7 @@ function bbp_get_user_engagements( $user_id = 0 ) {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses apply_filters() Calls 'bbp_get_user_engaged_topic_ids' with
  *                        the engaged topics and user id
- * @return array|bool Results if user has engaged, otherwise null
+ * @return array Topic ids if user has engaged, otherwise empty array
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 	$user_id     = bbp_get_user_id( $user_id );
@@ -309,7 +350,7 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
  * @return bool True if the topic was removed from user's engagements, otherwise
  *               false
  */
-function bbp_remove_user_engagement( $user_id, $topic_id ) {
+function bbp_remove_user_engagement( $user_id = 0, $topic_id = 0 ) {
 
 	// Bail if not enough info
 	if ( empty( $user_id ) || empty( $topic_id ) ) {
@@ -329,6 +370,43 @@ function bbp_remove_user_engagement( $user_id, $topic_id ) {
 	do_action( 'bbp_remove_user_engagement', $user_id, $topic_id );
 
 	return true;
+}
+
+/**
+ * Recalculate all of the users who have engaged in a topic.
+ *
+ * You may need to do this when deleting a reply
+ *
+ * @since 2.6.0 bbPress (r6522)
+ *
+ * @param int $topic_id
+ *
+ * @return boolean True if any engagements are added, false otherwise
+ */
+function bbp_recalculate_topic_engagements( $topic_id = 0 ) {
+
+	// Default return value
+	$retval = false;
+
+	// Bail if not enough info
+	$topic_id = bbp_get_topic_id( $topic_id );
+	if ( empty( $topic_id ) ) {
+		return $retval;
+	}
+
+	// Query for engagements
+	$engagements = bbp_get_topic_engagements_raw( $topic_id );
+
+	// Delete all engagements
+	bbp_remove_all_users_from_object( $topic_id, '_bbp_engagement' );
+
+	// Update the voice count for this topic id
+	foreach ( $engagements as $user_id ) {
+		$retval = bbp_add_user_engagement( $user_id, $topic_id );
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_recalculate_user_engagements', $retval, $topic_id );
 }
 
 /** Favorites *****************************************************************/
