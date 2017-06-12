@@ -2517,7 +2517,7 @@ function bbp_increase_topic_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 		// If this is a new, unpublished, reply, update hidden count and bail.
-		if ( 'bbp_new_reply' === current_filter() && ! bbp_is_reply_published( $reply_id ) ) {
+		if ( ! bbp_is_reply_published( $reply_id ) ) {
 			bbp_increase_topic_reply_count_hidden( $topic_id );
 			return;
 		}
@@ -2663,7 +2663,7 @@ function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
 function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
 
 	// If the topic is public, update the forum topic counts.
-	if ( bbp_get_topic_status( $topic_id ) === bbp_get_public_status_id() ) {
+	if ( bbp_is_topic_public( $topic_id ) ) {
 		bbp_increase_forum_topic_count( $forum_id );
 
 	// If the topic isn't public only update the forum topic hidden count.
@@ -2694,12 +2694,11 @@ function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
 function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} else {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
+	// Forum ID fallback
 	if ( empty( $forum_id ) ) {
 		$forum_id = get_post_field( 'post_parent', $topic_id );
 	}
@@ -2752,11 +2751,9 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} else {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic if not passed
 	if ( empty( $reply_count ) ) {
@@ -2796,11 +2793,9 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} else {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic
 	if ( empty( $reply_count ) ) {
@@ -2840,12 +2835,11 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} else {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
+	// Get last public active id if not passed
 	if ( empty( $active_id ) ) {
 		$active_id = bbp_get_public_child_last_id( $topic_id, bbp_get_reply_post_type() );
 	}
@@ -2885,11 +2879,9 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} else {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
 	// Check time and use current if empty
 	if ( empty( $new_time ) ) {
@@ -3018,13 +3010,9 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	} elseif ( bbp_is_topic( $topic_id ) ) {
-		$topic_id = bbp_get_topic_id( $topic_id );
-	} else {
-		return;
-	}
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
 
 	// Query the DB to get anonymous replies in this topic
 	$bbp_db  = bbp_db();
@@ -3451,7 +3439,7 @@ function bbp_unspam_topic_replies( $topic_id = 0 ) {
 }
 
 /**
- * Retreive tags to a topic from post meta before it's unmarked as spam so they.
+ * Retrieve tags to a topic from post meta before it's unmarked as spam so they.
  *
  * Usually you'll want to do this before the topic itself is unmarked as spam.
  *

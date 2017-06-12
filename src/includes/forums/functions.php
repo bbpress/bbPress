@@ -1204,8 +1204,8 @@ function bbp_increase_forum_topic_count( $forum_id = 0 ) {
 		$topic_id = $forum_id;
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-		// If this is a new, unpublished, topic, increase hidden count and bail.
-		if ( 'bbp_new_topic' === current_filter() && ( ! bbp_is_topic_published( $topic_id ) && ! bbp_is_topic_closed( $topic_id ) ) ) {
+		// Bail if not public.
+		if ( ! bbp_is_topic_public( $topic_id ) ) {
 			bbp_increase_forum_topic_count_hidden( $forum_id );
 			return;
 		}
@@ -1418,13 +1418,7 @@ function bbp_increase_forum_reply_count( $forum_id = 0 ) {
 
 	// If it's a reply, get the forum id.
 	if ( bbp_is_reply( $forum_id ) ) {
-		$reply_id = $forum_id;
-		$forum_id = bbp_get_reply_forum_id( $reply_id );
-
-		// Don't update if this is a new, unpublished, reply.
-		if ( 'bbp_new_reply' === current_filter() && ! bbp_is_reply_published( $reply_id ) ) {
-			return;
-		}
+		$forum_id = bbp_get_reply_forum_id( $forum_id );
 	}
 
 	bbp_bump_forum_reply_count( $forum_id );

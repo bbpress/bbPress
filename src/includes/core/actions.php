@@ -257,21 +257,21 @@ add_action( 'bbp_new_reply',        'bbp_increase_forum_reply_count'        );
 add_action( 'bbp_new_topic',        'bbp_increase_forum_topic_count'        );
 add_action( 'bbp_trashed_reply',    'bbp_decrease_forum_reply_count'        );
 add_action( 'bbp_trashed_topic',    'bbp_decrease_forum_topic_count'        );
-add_action( 'bbp_trashed_topic',    'bbp_increase_forum_topic_count_hidden' );
 add_action( 'bbp_untrashed_reply',  'bbp_increase_forum_reply_count'        );
 add_action( 'bbp_untrashed_topic',  'bbp_increase_forum_topic_count'        );
-add_action( 'bbp_untrashed_topic',  'bbp_decrease_forum_topic_count_hidden' );
 add_action( 'bbp_spammed_reply',    'bbp_decrease_forum_reply_count'        );
 add_action( 'bbp_spammed_topic',    'bbp_decrease_forum_topic_count'        );
-add_action( 'bbp_spammed_topic',    'bbp_increase_forum_topic_count_hidden' );
 add_action( 'bbp_unspammed_reply',  'bbp_increase_forum_reply_count'        );
 add_action( 'bbp_unspammed_topic',  'bbp_increase_forum_topic_count'        );
-add_action( 'bbp_unspammed_topic',  'bbp_decrease_forum_topic_count_hidden' );
 add_action( 'bbp_approved_reply',   'bbp_increase_forum_reply_count'        );
 add_action( 'bbp_approved_topic',   'bbp_increase_forum_topic_count'        );
-add_action( 'bbp_approved_topic',   'bbp_decrease_forum_topic_count_hidden' );
 add_action( 'bbp_unapproved_reply', 'bbp_decrease_forum_reply_count'        );
 add_action( 'bbp_unapproved_topic', 'bbp_decrease_forum_topic_count'        );
+add_action( 'bbp_trashed_topic',    'bbp_increase_forum_topic_count_hidden' );
+add_action( 'bbp_untrashed_topic',  'bbp_decrease_forum_topic_count_hidden' );
+add_action( 'bbp_spammed_topic',    'bbp_increase_forum_topic_count_hidden' );
+add_action( 'bbp_unspammed_topic',  'bbp_decrease_forum_topic_count_hidden' );
+add_action( 'bbp_approved_topic',   'bbp_decrease_forum_topic_count_hidden' );
 add_action( 'bbp_unapproved_topic', 'bbp_increase_forum_topic_count_hidden' );
 
 // Update forum reply counts for approved/unapproved topics.
@@ -281,16 +281,16 @@ add_action( 'bbp_unapproved_topic', 'bbp_approved_unapproved_topic_update_forum_
 // Update topic reply counts.
 add_action( 'bbp_new_reply',        'bbp_increase_topic_reply_count'        );
 add_action( 'bbp_trashed_reply',    'bbp_decrease_topic_reply_count'        );
-add_action( 'bbp_trashed_reply',    'bbp_increase_topic_reply_count_hidden' );
 add_action( 'bbp_untrashed_reply',  'bbp_increase_topic_reply_count'        );
-add_action( 'bbp_untrashed_reply',  'bbp_decrease_topic_reply_count_hidden' );
 add_action( 'bbp_spammed_reply',    'bbp_decrease_topic_reply_count'        );
-add_action( 'bbp_spammed_reply',    'bbp_increase_topic_reply_count_hidden' );
 add_action( 'bbp_unspammed_reply',  'bbp_increase_topic_reply_count'        );
-add_action( 'bbp_unspammed_reply',  'bbp_decrease_topic_reply_count_hidden' );
 add_action( 'bbp_approved_reply',   'bbp_increase_topic_reply_count'        );
-add_action( 'bbp_approved_reply',   'bbp_decrease_topic_reply_count_hidden' );
 add_action( 'bbp_unapproved_reply', 'bbp_decrease_topic_reply_count'        );
+add_action( 'bbp_trashed_reply',    'bbp_increase_topic_reply_count_hidden' );
+add_action( 'bbp_untrashed_reply',  'bbp_decrease_topic_reply_count_hidden' );
+add_action( 'bbp_spammed_reply',    'bbp_increase_topic_reply_count_hidden' );
+add_action( 'bbp_unspammed_reply',  'bbp_decrease_topic_reply_count_hidden' );
+add_action( 'bbp_approved_reply',   'bbp_decrease_topic_reply_count_hidden' );
 add_action( 'bbp_unapproved_reply', 'bbp_increase_topic_reply_count_hidden' );
 add_action( 'bbp_deleted_reply',    'bbp_decrease_topic_reply_count_hidden' );
 
@@ -306,41 +306,63 @@ add_action( 'bbp_trash_reply',   'bbp_decrease_user_reply_count' );
 add_action( 'bbp_spam_topic',    'bbp_decrease_user_topic_count' );
 add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
 
-// Insert topic/reply engagements.
-add_action( 'bbp_insert_topic', 'bbp_update_topic_engagements' );
-add_action( 'bbp_insert_reply', 'bbp_update_topic_engagements' );
-
-// Insert topic/reply counts.
-add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
-add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 3 );
-
-// Update engagements.
-add_action( 'bbp_new_topic', 'bbp_update_topic_engagements' );
-add_action( 'bbp_new_reply', 'bbp_update_topic_engagements' );
-
-// Recalculate engagements.
-add_action( 'bbp_deleted_topic', 'bbp_recalculate_topic_engagements' );
-add_action( 'bbp_deleted_reply', 'bbp_recalculate_topic_engagements' );
-
-// Update engagement counts.
-add_action( 'bbp_new_reply',        'bbp_update_topic_voice_count' );
-add_action( 'bbp_trashed_reply',    'bbp_update_topic_voice_count' );
-add_action( 'bbp_untrashed_reply',  'bbp_update_topic_voice_count' );
-add_action( 'bbp_spammed_reply',    'bbp_update_topic_voice_count' );
-add_action( 'bbp_unspammed_reply',  'bbp_update_topic_voice_count' );
-add_action( 'bbp_approved_reply',   'bbp_update_topic_voice_count' );
-add_action( 'bbp_unapproved_reply', 'bbp_update_topic_voice_count' );
-add_action( 'bbp_deleted_reply',    'bbp_update_topic_voice_count' );
-
-// Insert reply voice counts.
-add_action( 'bbp_insert_reply', 'bbp_update_topic_voice_count' );
-
 // Topic status transition helpers for replies
 add_action( 'bbp_trash_topic',   'bbp_trash_topic_replies'   );
 add_action( 'bbp_untrash_topic', 'bbp_untrash_topic_replies' );
 add_action( 'bbp_delete_topic',  'bbp_delete_topic_replies'  );
 add_action( 'bbp_spam_topic',    'bbp_spam_topic_replies'    );
 add_action( 'bbp_unspam_topic',  'bbp_unspam_topic_replies'  );
+
+// Topic engagements on user creation.
+add_action( 'bbp_new_topic', 'bbp_update_topic_engagements', 20 );
+add_action( 'bbp_new_reply', 'bbp_update_topic_engagements', 20 );
+
+add_action( 'bbp_new_reply', 'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_new_topic', 'bbp_update_topic_voice_count', 30 );
+
+// Topic/reply counts on code insert (unit tests)
+add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
+add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 3 );
+
+// Topic engagements on code insert (unit tests)
+add_action( 'bbp_insert_topic', 'bbp_update_topic_engagements', 20 );
+add_action( 'bbp_insert_reply', 'bbp_update_topic_engagements', 20 );
+
+// Topic engagement counts on code insert (unit tests)
+add_action( 'bbp_insert_topic', 'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_insert_reply', 'bbp_update_topic_voice_count', 30 );
+
+// Recalculate engagements.
+add_action( 'bbp_trashed_reply',    'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_untrashed_reply',  'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_spammed_reply',    'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_unspammed_reply',  'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_approved_reply',   'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_unapproved_reply', 'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_deleted_reply',    'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_trashed_topic',    'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_untrashed_topic',  'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_spammed_topic',    'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_unspammed_topic',  'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_approved_topic',   'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_unapproved_topic', 'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_deleted_topic',    'bbp_recalculate_topic_engagements' );
+
+// Update engagement counts.
+add_action( 'bbp_trashed_reply',    'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_untrashed_reply',  'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_spammed_reply',    'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_unspammed_reply',  'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_approved_reply',   'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_unapproved_reply', 'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_deleted_reply',    'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_trashed_topic',    'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_untrashed_topic',  'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_spammed_topic',    'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_unspammed_topic',  'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_approved_topic',   'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_unapproved_topic', 'bbp_update_topic_voice_count', 30 );
+add_action( 'bbp_deleted_topic',    'bbp_update_topic_voice_count', 30 );
 
 // User status
 // @todo make these sub-actions

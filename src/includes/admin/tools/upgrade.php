@@ -177,6 +177,8 @@ function bbp_admin_upgrade_user_engagements() {
 	// Post types and statuses
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
+	$pps = bbp_get_public_status_id();
+	$cps = bbp_get_closed_status_id();
 	$sql = "INSERT INTO {$bbp_db->postmeta} (post_id, meta_key, meta_value) (
 			SELECT postmeta.meta_value, '_bbp_engagement', posts.post_author
 				FROM {$bbp_db->posts} AS posts
@@ -184,10 +186,11 @@ function bbp_admin_upgrade_user_engagements() {
 					ON posts.ID = postmeta.post_id
 					AND postmeta.meta_key = '_bbp_topic_id'
 				WHERE posts.post_type IN (%s, %s)
+					AND posts.post_status IN (%s, %s)
 				GROUP BY postmeta.meta_value, posts.post_author)";
 
 	// Run the big query
-	$prepare     = $bbp_db->prepare( $sql, $tpt, $rpt );
+	$prepare     = $bbp_db->prepare( $sql, $tpt, $rpt, $pps, $cps );
 	$engagements = $bbp_db->query( $prepare );
 
 	// Bail if no closed topics found

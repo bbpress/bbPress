@@ -108,9 +108,9 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
 
 	// If the reply is public, update the forum/topic reply counts.
-	if ( bbp_get_reply_status( $reply_id ) === bbp_get_public_status_id() ) {
+	if ( bbp_is_reply_published( $reply_id ) ) {
 		bbp_increase_topic_reply_count( $topic_id );
-		bbp_increase_forum_reply_count( $forum_id );
+		bbp_increase_forum_reply_count( $reply_id );
 
 	// If the reply isn't public only update the topic reply hidden count.
 	} else {

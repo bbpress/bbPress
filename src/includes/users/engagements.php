@@ -195,19 +195,20 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 	// Default variables
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$bbp_db   = bbp_db();
+	$statii   = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
 
 	// A cool UNION query!
 	$sql = "
 SELECT DISTINCT( post_author ) FROM (
 	SELECT post_author FROM {$bbp_db->posts}
-		WHERE ( ID = %d AND post_type = %s )
+		WHERE ( ID = %d AND post_status IN ({$statii}) AND post_type = %s )
 UNION
 	SELECT post_author FROM {$bbp_db->posts}
-		WHERE ( post_parent = %d AND post_type = %s )
+		WHERE ( post_parent = %d AND post_status = %s AND post_type = %s )
 ) as u1";
 
 	// Prepare & get results
-	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_reply_post_type() );
+	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type() );
 	$results = $bbp_db->get_col( $query );
 
 	// Parse results into voices
@@ -438,14 +439,29 @@ function bbp_recalculate_topic_engagements( $topic_id = 0, $force = false ) {
  */
 function bbp_update_topic_engagements( $topic_id = 0 ) {
 
-	// Check post type
+	// Is a reply
 	if ( bbp_is_reply( $topic_id ) ) {
+
+		// Bail if reply isn't published
+		if ( ! bbp_is_reply_published( $topic_id ) ) {
+			return;
+		}
+
 		$author_id = bbp_get_reply_author_id( $topic_id );
 		$topic_id  = bbp_get_reply_topic_id( $topic_id );
+
+	// Is a topic
 	} elseif ( bbp_is_topic( $topic_id ) ) {
 		$author_id = bbp_get_topic_author_id( $topic_id );
 		$topic_id  = bbp_get_topic_id( $topic_id );
+
+	// Is unknown
 	} else {
+		return;
+	}
+
+	// Bail if topic is not public
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
 		return;
 	}
 
