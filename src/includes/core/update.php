@@ -328,16 +328,26 @@ function bbp_version_updater() {
 		if ( $raw_db_version < 261 ) {
 
 			/**
-			 * Upgrade user favorites, subscriptions, and engagements
+			 * Upgrade user favorites and subscriptions
 			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/2959
+			 */
+			if ( ! bbp_is_large_install() ) {
+				bbp_admin_upgrade_user_favorites();
+				bbp_admin_upgrade_user_topic_subscriptions();
+				bbp_admin_upgrade_user_forum_subscriptions();
+			}
+		}
+
+		if ( $raw_db_version < 262 ) {
+
+			/**
+			 * Upgrade user engagements
+			 *
 			 * @link https://bbpress.trac.wordpress.org/ticket/3068
 			 */
 			if ( ! bbp_is_large_install() ) {
 				bbp_admin_upgrade_user_engagements();
-				bbp_admin_upgrade_user_favorites();
-				bbp_admin_upgrade_user_topic_subscriptions();
-				bbp_admin_upgrade_user_forum_subscriptions();
 			}
 		}
 	}
