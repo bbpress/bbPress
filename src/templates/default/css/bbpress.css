@@ -257,7 +257,7 @@ div.bbp-forum-header,
 div.bbp-topic-header,
 div.bbp-reply-header,
 li.bbp-body div.hentry {
-	margin-bottom: 0;
+	margin: 0;
 	overflow: hidden;
 	padding: 8px;
 }
@@ -1054,6 +1054,7 @@ div.bbp-template-notice li {
 #bbpress-forums img.avatar {
 	-webkit-box-shadow: none;
 	box-shadow: none;
+	display: inline-block;
 }
 
 #bbpress-forums p.bbp-topic-meta img.avatar,
@@ -1063,7 +1064,7 @@ div.bbp-template-notice li {
 #bbpress-forums .widget_display_topics img.avatar,
 #bbpress-forums .widget_display_replies img.avatar {
 	float: none;
-	margin-bottom: -7px;
+	vertical-align: middle;
 	border: 3px double #ddd;
 }
 
