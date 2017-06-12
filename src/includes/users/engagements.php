@@ -195,20 +195,19 @@ function bbp_get_topic_engagements_raw( $topic_id = 0 ) {
 	// Default variables
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$bbp_db   = bbp_db();
-	$statii   = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
 
 	// A cool UNION query!
 	$sql = "
 SELECT DISTINCT( post_author ) FROM (
 	SELECT post_author FROM {$bbp_db->posts}
-		WHERE ( ID = %d AND post_status IN ({$statii}) AND post_type = %s )
+		WHERE ( ID = %d AND post_type = %s )
 UNION
 	SELECT post_author FROM {$bbp_db->posts}
-		WHERE ( post_parent = %d AND post_status = %s AND post_type = %s )
+		WHERE ( post_parent = %d AND post_type = %s )
 ) as u1";
 
 	// Prepare & get results
-	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type() );
+	$query   = $bbp_db->prepare( $sql, $topic_id, bbp_get_topic_post_type(), $topic_id, bbp_get_reply_post_type() );
 	$results = $bbp_db->get_col( $query );
 
 	// Parse results into voices
