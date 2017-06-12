@@ -1570,21 +1570,21 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 * @return int The topic id of the reply
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
-
-		// Assume there is no topic id
-		$topic_id = 0;
-
-		// Check that reply_id is valid
 		$reply_id = bbp_get_reply_id( $reply_id );
-		if ( ! empty( $reply_id ) ) {
+		$topic_id = get_post_field( 'post_parent', $reply_id );
+
+		// Meta-data fallback
+		if ( empty( $topic_id ) ) {
 			$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
-			if ( ! empty( $topic_id ) ) {
-				$topic_id = bbp_get_topic_id( $topic_id );
-			}
+		}
+
+		// Filter
+		if ( ! empty( $topic_id ) ) {
+			$topic_id = bbp_get_topic_id( $topic_id );
 		}
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
 	}
 
 /**
@@ -1611,17 +1611,17 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 * @return int The forum id of the reply
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
-
-		// Assume there is no forum
-		$forum_id = 0;
-
-		// Check that reply_id is valid
 		$reply_id = bbp_get_reply_id( $reply_id );
-		if ( ! empty( $reply_id ) ) {
+		$forum_id = get_post_field( 'post_parent', bbp_get_reply_topic_id( $reply_id ) );
+
+		// Meta-data fallback
+		if ( empty( $forum_id ) ) {
 			$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
-			if ( ! empty( $forum_id ) ) {
-				$forum_id = bbp_get_forum_id( $forum_id );
-			}
+		}
+
+		// Filter
+		if ( ! empty( $forum_id ) ) {
+			$forum_id = bbp_get_forum_id( $forum_id );
 		}
 
 		// Filter & return

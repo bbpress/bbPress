@@ -1880,7 +1880,17 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
+		$forum_id = get_post_field( 'post_parent', $topic_id );
+
+		// Meta-data fallback
+		if ( empty( $forum_id ) ) {
+			$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
+		}
+
+		// Filter
+		if ( ! empty( $forum_id ) ) {
+			$forum_id = bbp_get_forum_id( $forum_id );
+		}
 
 		// Filter & return
 		return (int) apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
@@ -3675,15 +3685,15 @@ function bbp_single_topic_description( $args = array() ) {
 		// Singular/Plural
 		$voice_count = sprintf( _n( '%s voice', '%s voices', $vc_int, 'bbpress' ), $voice_count );
 
-		// Topic has replies
-		$last_reply = bbp_get_topic_last_reply_id( $topic_id );
-		if ( ! empty( $last_reply ) ) {
-			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $r['size'] ) );
-			$retstr          = sprintf( esc_html__( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
+		// Topic has activity (could be from reply or topic author)
+		$last_active = bbp_get_topic_last_active_id( $topic_id );
+		if ( ! empty( $last_active ) ) {
+			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
+			$retstr          = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
 
 		// Topic has no replies
 		} elseif ( ! empty( $voice_count ) && ! empty( $reply_count ) ) {
-			$retstr = sprintf( esc_html__( 'This topic contains %1$s and has %2$s.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( esc_html__( 'This topic has %1$s and %2$s.', 'bbpress' ), $voice_count, $reply_count );
 
 		// Topic has no replies and no voices
 		} elseif ( empty( $voice_count ) && empty( $reply_count ) ) {
@@ -4111,7 +4121,7 @@ function bbp_form_topic_content() {
 	}
 
 /**
- * Allow topic rows to have adminstrative actions
+ * Allow topic rows to have administrative actions
  *
  * @since 2.1.0 bbPress (r3653)
  *

@@ -663,6 +663,16 @@ function bbp_forum_parent_id( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
 		$parent_id = get_post_field( 'post_parent', $forum_id );
 
+		// Meta-data fallback
+		if ( empty( $parent_id ) ) {
+			$parent_id = get_post_meta( $forum_id, '_bbp_forum_id', true );
+		}
+
+		// Filter
+		if ( ! empty( $parent_id ) ) {
+			$parent_id = bbp_get_forum_id( $parent_id );
+		}
+
 		// Filter & return
 		return (int) apply_filters( 'bbp_get_forum_parent_id', (int) $parent_id, $forum_id );
 	}
@@ -2186,52 +2196,35 @@ function bbp_single_forum_description( $args = array() ) {
 		// Forum has active data
 		if ( ! empty( $last_active ) ) {
 
+			// Has replies
 			if ( ! empty( $reply_count ) ) {
+				$retstr = bbp_is_forum_category( $forum_id )
+					? sprintf( esc_html__( 'This category has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $topic_text, $reply_text, $time_since, $last_updated_by )
+					: sprintf( esc_html__( 'This forum has %1$s, %2$s, and was last updated %3$s by %4$s.',    'bbpress' ), $topic_text, $reply_text, $time_since, $last_updated_by );
 
-				if ( bbp_is_forum_category( $forum_id ) ) {
-					$retstr = sprintf( esc_html__( 'This category contains %1$s and %2$s, and was last updated by %3$s %4$s.', 'bbpress' ), $topic_text, $reply_text, $last_updated_by, $time_since );
-				} else {
-					$retstr = sprintf( esc_html__( 'This forum contains %1$s and %2$s, and was last updated by %3$s %4$s.',    'bbpress' ), $topic_text, $reply_text, $last_updated_by, $time_since );
-				}
-
+			// Only has topics
 			} else {
-
-				if ( bbp_is_forum_category( $forum_id ) ) {
-					$retstr = sprintf( esc_html__( 'This category contains %1$s, and was last updated by %2$s %3$s.', 'bbpress' ), $topic_text, $last_updated_by, $time_since );
-				} else {
-					$retstr = sprintf( esc_html__( 'This forum contains %1$s, and was last updated by %2$s %3$s.',    'bbpress' ), $topic_text, $last_updated_by, $time_since );
-				}
+				$retstr = bbp_is_forum_category( $forum_id )
+					? sprintf( esc_html__( 'This category has %1$s, and was last updated %2$s by %3$s.', 'bbpress' ), $topic_text, $time_since, $last_updated_by )
+					: sprintf( esc_html__( 'This forum has %1$s, and was last updated %2$s by %3$s.',    'bbpress' ), $topic_text, $time_since, $last_updated_by );
 			}
 
-		// Forum has no last active data
+		// Forum has no last active data (but does have topics & replies)
+		} elseif ( ! empty( $reply_count ) ) {
+			$retstr = bbp_is_forum_category( $forum_id )
+				? sprintf( esc_html__( 'This category has %1$s and %2$s.', 'bbpress' ), $topic_text, $reply_text )
+				: sprintf( esc_html__( 'This forum has %1$s and %2$s.',    'bbpress' ), $topic_text, $reply_text );
+
+		// Forum has no last active data or replies (but does have topics)
+		} elseif ( ! empty( $topic_count ) ) {
+			$retstr = bbp_is_forum_category( $forum_id )
+				? sprintf( esc_html__( 'This category has %1$s.', 'bbpress' ), $topic_text )
+				: sprintf( esc_html__( 'This forum has %1$s.',    'bbpress' ), $topic_text );
+
+		// Forum is empty
 		} else {
-
-			if ( ! empty( $reply_count ) ) {
-
-				if ( bbp_is_forum_category( $forum_id ) ) {
-					$retstr = sprintf( esc_html__( 'This category contains %1$s and %2$s.', 'bbpress' ), $topic_text, $reply_text );
-				} else {
-					$retstr = sprintf( esc_html__( 'This forum contains %1$s and %2$s.',    'bbpress' ), $topic_text, $reply_text );
-				}
-
-			} else {
-
-				if ( ! empty( $topic_count ) ) {
-
-					if ( bbp_is_forum_category( $forum_id ) ) {
-						$retstr = sprintf( esc_html__( 'This category contains %1$s.', 'bbpress' ), $topic_text );
-					} else {
-						$retstr = sprintf( esc_html__( 'This forum contains %1$s.',    'bbpress' ), $topic_text );
-					}
-
-				} else {
-					$retstr = esc_html__( 'This forum is empty.', 'bbpress' );
-				}
-			}
+			$retstr = esc_html__( 'This forum is empty.', 'bbpress' );
 		}
-
-		// Add feeds
-		//$feed_links = ( ! empty( $r['feed'] ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
 
 		// Add the 'view all' filter back
 		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
