@@ -18,7 +18,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		if ( ! function_exists( 'bbp_admin_repair_page' ) ) {
 			require_once BBP_PLUGIN_DIR . 'includes/admin/tools/repair.php';
-			require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrades.php';
+			require_once BBP_PLUGIN_DIR . 'includes/admin/tools/upgrade.php';
 		}
 	}
 
