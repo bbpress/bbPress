@@ -306,6 +306,10 @@ add_action( 'bbp_trash_reply',   'bbp_decrease_user_reply_count' );
 add_action( 'bbp_spam_topic',    'bbp_decrease_user_topic_count' );
 add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
 
+// Insert topic/reply engagements.
+add_action( 'bbp_insert_topic', 'bbp_update_topic_engagements' );
+add_action( 'bbp_insert_reply', 'bbp_update_topic_engagements' );
+
 // Insert topic/reply counts.
 add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
 add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 3 );
