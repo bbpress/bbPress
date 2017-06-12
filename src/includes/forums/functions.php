@@ -1989,7 +1989,7 @@ function bbp_update_forum( $args = array() ) {
 	bbp_update_forum_subforum_count( $r['forum_id'] );
 
 	// Only update topic count if we're deleting a topic, or in the dashboard.
-	if ( in_array( current_filter(), array( 'bbp_deleted_topic', 'save_post' ), true ) ) {
+	if ( in_array( current_filter(), array( 'bbp_delete_topic', 'save_post' ), true ) ) {
 		bbp_update_forum_reply_count(        $r['forum_id'] );
 		bbp_update_forum_topic_count(        $r['forum_id'] );
 		bbp_update_forum_topic_count_hidden( $r['forum_id'] );
@@ -2770,7 +2770,11 @@ function bbp_untrash_forum( $forum_id = 0 ) {
 /**
  * Called after deleting a forum
  *
+ * Try not to use this action. All meta & taxonomy terms have already been
+ * deleted, making them impossible to use.
+ *
  * @since 2.1.0 bbPress (r3668)
+ * @since 2.6.0 bbPress (r6526) Not recommend for usage
  *
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_is_forum() To check if the passed id is a forum

@@ -154,10 +154,10 @@ add_action( 'bbp_template_notices', 'bbp_notice_edit_user_pending_email'     );
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2 );
 
 // Before Delete/Trash/Untrash Forum
-add_action( 'wp_trash_post', 'bbp_trash_forum'   );
-add_action( 'trash_post',    'bbp_trash_forum'   );
-add_action( 'untrash_post',  'bbp_untrash_forum' );
-add_action( 'delete_post',   'bbp_delete_forum'  );
+add_action( 'wp_trash_post',      'bbp_trash_forum'   );
+add_action( 'trash_post',         'bbp_trash_forum'   );
+add_action( 'untrash_post',       'bbp_untrash_forum' );
+add_action( 'before_delete_post', 'bbp_delete_forum'  );
 
 // After Deleted/Trashed/Untrashed Forum
 add_action( 'trashed_post',   'bbp_trashed_forum'   );
@@ -183,10 +183,10 @@ add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 7 );
 add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 7 );
 
 // Before Delete/Trash/Untrash Reply
-add_action( 'wp_trash_post', 'bbp_trash_reply'   );
-add_action( 'trash_post',    'bbp_trash_reply'   );
-add_action( 'untrash_post',  'bbp_untrash_reply' );
-add_action( 'delete_post',   'bbp_delete_reply'  );
+add_action( 'wp_trash_post',      'bbp_trash_reply'   );
+add_action( 'trash_post',         'bbp_trash_reply'   );
+add_action( 'untrash_post',       'bbp_untrash_reply' );
+add_action( 'before_delete_post', 'bbp_delete_reply'  );
 
 // After Deleted/Trashed/Untrashed Reply
 add_action( 'trashed_post',   'bbp_trashed_reply'   );
@@ -205,10 +205,10 @@ add_action( 'bbp_post_split_topic', 'bbp_split_topic_count', 1, 3 );
 add_action( 'bbp_post_move_reply', 'bbp_move_reply_count', 1, 3 );
 
 // Before Delete/Trash/Untrash Topic
-add_action( 'wp_trash_post', 'bbp_trash_topic'   );
-add_action( 'trash_post',    'bbp_trash_topic'   );
-add_action( 'untrash_post',  'bbp_untrash_topic' );
-add_action( 'delete_post',   'bbp_delete_topic'  );
+add_action( 'wp_trash_post',      'bbp_trash_topic'   );
+add_action( 'trash_post',         'bbp_trash_topic'   );
+add_action( 'untrash_post',       'bbp_untrash_topic' );
+add_action( 'before_delete_post', 'bbp_delete_topic'  );
 
 // After Deleted/Trashed/Untrashed Topic
 add_action( 'trashed_post',   'bbp_trashed_topic'   );
@@ -292,6 +292,7 @@ add_action( 'bbp_approved_reply',   'bbp_increase_topic_reply_count'        );
 add_action( 'bbp_approved_reply',   'bbp_decrease_topic_reply_count_hidden' );
 add_action( 'bbp_unapproved_reply', 'bbp_decrease_topic_reply_count'        );
 add_action( 'bbp_unapproved_reply', 'bbp_increase_topic_reply_count_hidden' );
+add_action( 'bbp_deleted_reply',    'bbp_decrease_topic_reply_count_hidden' );
 
 // Users topic & reply counts.
 add_action( 'bbp_new_topic',     'bbp_increase_user_topic_count' );
@@ -309,7 +310,15 @@ add_action( 'bbp_spam_reply',    'bbp_decrease_user_reply_count' );
 add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
 add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 3 );
 
-// Update topic voice counts.
+// Update engagements.
+add_action( 'bbp_new_topic', 'bbp_update_topic_engagements' );
+add_action( 'bbp_new_reply', 'bbp_update_topic_engagements' );
+
+// Recalculate engagements.
+add_action( 'bbp_deleted_topic', 'bbp_recalculate_topic_engagements' );
+add_action( 'bbp_deleted_reply', 'bbp_recalculate_topic_engagements' );
+
+// Update engagement counts.
 add_action( 'bbp_new_reply',        'bbp_update_topic_voice_count' );
 add_action( 'bbp_trashed_reply',    'bbp_update_topic_voice_count' );
 add_action( 'bbp_untrashed_reply',  'bbp_update_topic_voice_count' );
@@ -317,6 +326,7 @@ add_action( 'bbp_spammed_reply',    'bbp_update_topic_voice_count' );
 add_action( 'bbp_unspammed_reply',  'bbp_update_topic_voice_count' );
 add_action( 'bbp_approved_reply',   'bbp_update_topic_voice_count' );
 add_action( 'bbp_unapproved_reply', 'bbp_update_topic_voice_count' );
+add_action( 'bbp_deleted_reply',    'bbp_update_topic_voice_count' );
 
 // Insert reply voice counts.
 add_action( 'bbp_insert_reply', 'bbp_update_topic_voice_count' );

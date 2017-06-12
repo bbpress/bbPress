@@ -943,12 +943,6 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 		// Get the forum ID if none was passed
 		if ( empty( $forum_id )  ) {
 			$forum_id = bbp_get_topic_forum_id( $topic_id );
-
-			// Make every effort to get forum id
-			// https://bbpress.trac.wordpress.org/ticket/2529
-			if ( empty( $forum_id ) && ( current_filter() === 'bbp_deleted_topic' ) ) {
-				$forum_id = get_post_field( 'post_parent', $topic_id );
-			}
 		}
 
 		// Set the active_id based on topic_id/reply_id
@@ -2982,7 +2976,17 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
  */
 function bbp_update_topic_voice_count( $topic_id = 0 ) {
 
-	// Get the old voices
+	// If it's a reply, then get the parent (topic id)
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
+
+	// Bail if no topic ID
+	if ( empty( $topic_id ) ) {
+		return;
+	}
+
+	// Count the engagements
 	$count = count( bbp_get_topic_engagements( $topic_id ) );
 
 	// Update the voice count for this topic id
@@ -3873,6 +3877,8 @@ function bbp_untrash_topic_replies( $topic_id = 0 ) {
 /**
  * Called after deleting a topic
  *
+ * @since 2.0.0 bbPress (r2993)
+ *
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
  * @uses do_action() Calls 'bbp_deleted_topic' with the topic id
@@ -3890,6 +3896,8 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 /**
  * Called after trashing a topic
  *
+ * @since 2.0.0 bbPress (r2993)
+ *
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
  * @uses do_action() Calls 'bbp_trashed_topic' with the topic id
@@ -3906,6 +3914,8 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 
 /**
  * Called after untrashing a topic
+ *
+ * @since 2.0.0 bbPress (r2993)
  *
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic

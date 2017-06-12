@@ -21,13 +21,13 @@ defined( 'ABSPATH' ) || exit;
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
- * @param bool   $unique    Whether metadata should be unique to the object
+ * @param bool   $unique    Whether meta key should be unique to the object
  *
  * @uses add_metadata() To add the user to an object
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = true ) {
+function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
 	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
 
 	// Filter & return
@@ -374,38 +374,83 @@ function bbp_remove_user_engagement( $user_id = 0, $topic_id = 0 ) {
 /**
  * Recalculate all of the users who have engaged in a topic.
  *
- * You may need to do this when deleting a reply
+ * This happens when permanently deleting a reply, because that reply author may
+ * have authored other replies to that same topic, or the topic itself.
+ *
+ * You may need to do this manually on heavily active forums where engagement
+ * count accuracy is important.
  *
  * @since 2.6.0 bbPress (r6522)
  *
- * @param int $topic_id
+ * @param int  $topic_id
+ * @param bool $force
  *
  * @return boolean True if any engagements are added, false otherwise
  */
-function bbp_recalculate_topic_engagements( $topic_id = 0 ) {
+function bbp_recalculate_topic_engagements( $topic_id = 0, $force = false ) {
 
 	// Default return value
 	$retval = false;
 
-	// Bail if not enough info
-	$topic_id = bbp_get_topic_id( $topic_id );
+	// Check post type
+	$topic_id = bbp_is_reply( $topic_id )
+		? bbp_get_reply_topic_id( $topic_id )
+		: bbp_get_topic_id( $topic_id );
+
+	// Bail if no topic ID
 	if ( empty( $topic_id ) ) {
 		return $retval;
 	}
 
 	// Query for engagements
-	$engagements = bbp_get_topic_engagements_raw( $topic_id );
+	$old_engagements = bbp_get_topic_engagements( $topic_id );
+	$new_engagements = bbp_get_topic_engagements_raw( $topic_id );
 
-	// Delete all engagements
-	bbp_remove_all_users_from_object( $topic_id, '_bbp_engagement' );
+	// Sort arrays
+	sort( $old_engagements, SORT_NUMERIC );
+	sort( $new_engagements, SORT_NUMERIC );
 
-	// Update the voice count for this topic id
-	foreach ( $engagements as $user_id ) {
-		$retval = bbp_add_user_engagement( $user_id, $topic_id );
+	// Only recalculate on change
+	if ( ( true === $force ) || ( $old_engagements !== $new_engagements ) ) {
+
+		// Delete all engagements
+		bbp_remove_all_users_from_object( $topic_id, '_bbp_engagement' );
+
+		// Update the voice count for this topic id
+		foreach ( $new_engagements as $user_id ) {
+			$retval = bbp_add_user_engagement( $user_id, $topic_id );
+		}
 	}
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_recalculate_user_engagements', $retval, $topic_id );
+}
+
+/**
+ * Update the engagements of a topic.
+ *
+ * Hooked to 'bbp_new_topic' and 'bbp_new_reply', this gets the post author and
+ * if not anonymous, passes it into bbp_add_user_engagement().
+ *
+ * @since 2.6.0 bbPress (r6526)
+ *
+ * @param int $topic_id
+ */
+function bbp_update_topic_engagements( $topic_id = 0 ) {
+
+	// Check post type
+	if ( bbp_is_reply( $topic_id ) ) {
+		$author_id = bbp_get_reply_author_id( $topic_id );
+		$topic_id  = bbp_get_reply_topic_id( $topic_id );
+	} elseif ( bbp_is_topic( $topic_id ) ) {
+		$author_id = bbp_get_topic_author_id( $topic_id );
+		$topic_id  = bbp_get_topic_id( $topic_id );
+	} else {
+		return;
+	}
+
+	// Return whether engagement was added
+	return bbp_add_user_engagement( $author_id, $topic_id );
 }
 
 /** Favorites *****************************************************************/

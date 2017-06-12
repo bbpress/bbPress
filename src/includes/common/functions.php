@@ -77,7 +77,7 @@ function bbp_remove_view_all( $original_link = '' ) {
 }
 
 /**
- * If current user can and is vewing all topics/replies
+ * If current user can and is viewing all topics/replies
  *
  * @since 2.0.0 bbPress (r3325)
  *

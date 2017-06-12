@@ -963,12 +963,6 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		// Get the topic ID if none was passed
 		if ( empty( $topic_id ) ) {
 			$topic_id = bbp_get_reply_topic_id( $reply_id );
-
-			// Make every effort to get topic id
-			// https://bbpress.trac.wordpress.org/ticket/2529
-			if ( empty( $topic_id ) && ( current_filter() === 'bbp_deleted_reply' ) ) {
-				$topic_id = get_post_field( 'post_parent', $reply_id );
-			}
 		}
 
 		// Get the forum ID if none was passed
@@ -2064,6 +2058,8 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 /**
  * Called after deleting a reply
  *
+ * @since 2.0.0 bbPress (r2993)
+ *
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_is_reply() To check if the passed id is a reply
  * @uses do_action() Calls 'bbp_deleted_reply' with the reply id
@@ -2081,6 +2077,8 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 /**
  * Called after trashing a reply
  *
+ * @since 2.0.0 bbPress (r2993)
+ *
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_is_reply() To check if the passed id is a reply
  * @uses do_action() Calls 'bbp_trashed_reply' with the reply id
@@ -2097,6 +2095,8 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 
 /**
  * Called after untrashing (restoring) a reply
+ *
+ * @since 2.0.0 bbPress (r2993)
  *
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_is_reply() To check if the passed id is a reply
