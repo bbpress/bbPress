@@ -172,7 +172,10 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
 		$located = str_replace( $content_dir, content_url(), $located );
 
 		// Enqueue the style
-		wp_enqueue_style( $handle, $located, $deps, $ver, $media );
+		wp_register_style( $handle, $located, $deps, $ver, $media );
+
+		// Register the style
+		wp_enqueue_style( $handle );
 	}
 
 	return $located;
@@ -239,8 +242,11 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
  		// Make path to file relative to site URL
 		$located = str_replace( $content_dir, content_url(), $located );
 
+		// Register the style
+		wp_register_script( $handle, $located, $deps, $ver, $in_footer );
+
 		// Enqueue the style
-		wp_enqueue_script( $handle, $located, $deps, $ver, $in_footer );
+		wp_enqueue_script( $handle );
 	}
 
 	return $located;
