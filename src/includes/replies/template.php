@@ -1168,7 +1168,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 	 * @uses get_post_meta() To get the anonymous poster's name
 	 * @uses apply_filters() Calls 'bbp_get_reply_author_display_name' with
 	 *                        the author display name and reply id
-	 * @return string Reply's author's display name
+	 * @return string The display name of the author of the reply
 	 */
 	function bbp_get_reply_author_display_name( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
@@ -1535,7 +1535,7 @@ function bbp_reply_topic_title( $reply_id = 0 ) {
 	 * @uses bbp_get_topic_title() To get the reply topic title
 	 * @uses apply_filters() Calls 'bbp_get_reply_topic_title' with the
 	 *                        topic title and reply id
-	 * @return string Reply's topic's title
+	 * @return string The topic title of the reply
 	 */
 	function bbp_get_reply_topic_title( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
@@ -1567,7 +1567,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the topic
 	 *                        id and reply id
-	 * @return int Reply's topic id
+	 * @return int The topic id of the reply
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
 
@@ -1608,7 +1608,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 * @uses get_post_meta() To get the reply forum id
 	 * @uses apply_filters() Calls 'bbp_get_reply_forum_id' with the forum
 	 *                        id and reply id
-	 * @return int Reply's forum id
+	 * @return int The forum id of the reply
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
 
@@ -1629,18 +1629,18 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	}
 
 /**
- * Output the reply's ancestor reply id
+ * Output the ancestor reply id of a reply
  *
  * @since 2.4.0 bbPress (r4944)
  *
  * @param int $reply_id Optional. Reply id
- * @uses bbp_get_reply_ancestor_id() To get the reply's ancestor id
+ * @uses bbp_get_reply_ancestor_id() To get the ancestor id of the reply
  */
 function bbp_reply_ancestor_id( $reply_id = 0 ) {
 	echo bbp_get_reply_ancestor_id( $reply_id );
 }
 	/**
-	 * Return the reply's ancestor reply id
+	 * Return the ancestor reply id of a reply
 	 *
 	 * @since 2.4.0 bbPress (r4944)
 	 *
@@ -1688,7 +1688,7 @@ function bbp_reply_to( $reply_id = 0 ) {
 	 * @uses get_post_meta() To get the reply to id
 	 * @uses apply_filters() Calls 'bbp_get_reply_to' with the reply to id and
 	 *                        reply id
-	 * @return int Reply's reply to id
+	 * @return int The parent reply id of the reply
 	 */
 	function bbp_get_reply_to( $reply_id = 0 ) {
 
@@ -2502,8 +2502,8 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 	 * @param int $reply_id Optional. Reply ID
 	 * @param array Extra classes you can pass when calling this function
 	 * @uses bbp_get_reply_id() To validate the reply id
-	 * @uses bbp_get_reply_forum_id() To get the reply's forum id
-	 * @uses bbp_get_reply_topic_id() To get the reply's topic id
+	 * @uses bbp_get_reply_forum_id() To get the forum id of the reply
+	 * @uses bbp_get_reply_topic_id() To get the topic id of the reply
 	 * @uses get_post_class() To get all the classes including ours
 	 * @uses apply_filters() Calls 'bbp_get_reply_class' with the classes
 	 * @return string Row class of the reply
