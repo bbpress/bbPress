@@ -224,15 +224,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @uses bbp_is_single_forum() To check if it's the forum page
 	 * @uses bbp_is_single_topic() To check if it's the topic page
-	 * @uses is_user_logged_in() To check if user is logged in
-	 * @uses bbp_get_current_user_id() To get the current user id
-	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_get_favorites_permalink() To get the favorites permalink
-	 * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
-	 * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
-	 * @uses bbp_is_user_subscribed() To check if the user is subscribed to topic
-	 * @uses bbp_get_topic_permalink() To get the topic permalink
 	 * @uses wp_localize_script() To localize the script
 	 */
 	public function localize_topic_script() {
@@ -243,8 +234,6 @@ class BBP_Default extends BBP_Theme_Compat {
 				'forum_id'           => get_the_ID(),
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
 				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
-				'is_user_logged_in'  => is_user_logged_in(),
-				'subs_nonce'         => wp_create_nonce( 'toggle-subscription_' . get_the_ID() )
 			) );
 
 		// Single topic
@@ -253,9 +242,6 @@ class BBP_Default extends BBP_Theme_Compat {
 				'topic_id'           => get_the_ID(),
 				'bbp_ajaxurl'        => bbp_get_ajax_url(),
 				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
-				'is_user_logged_in'  => is_user_logged_in(),
-				'fav_nonce'          => wp_create_nonce( 'toggle-favorite_' .     get_the_ID() ),
-				'subs_nonce'         => wp_create_nonce( 'toggle-subscription_' . get_the_ID() )
 			) );
 		}
 	}
