@@ -21,18 +21,14 @@ jQuery( document ).ready( function ( $ ) {
 	}
 
 	$( '#favorite-toggle' ).on( 'click', 'span a.favorite-toggle', function( e ) {
-		var nonce = ( bbpTopicJS.topic_id === 0 )
-			? $( this ).data( 'bbp-nonce' )
-			: bbpTopicJS.fav_nonce;
+		var nonce = ( bbpTopicJS.topic_id === 0 ) ? $( this ).data( 'bbp-nonce' ) : bbpTopicJS.fav_nonce;
 
 		e.preventDefault();
 		bbp_ajax_call( 'favorite', $( this ).attr( 'data-topic' ), nonce, '#favorite-toggle' );
 	} );
 
 	$( '#subscription-toggle' ).on( 'click', 'span a.subscription-toggle', function( e ) {
-		var nonce = ( bbpTopicJS.topic_id === 0 )
-			? $( this ).data( 'bbp-nonce' )
-			: bbpTopicJS.subs_nonce;
+		var nonce = ( bbpTopicJS.topic_id === 0 ) ? $( this ).data( 'bbp-nonce' ) : bbpTopicJS.subs_nonce;
 
 		e.preventDefault();
 		bbp_ajax_call( 'subscription', $( this ).attr( 'data-topic' ), nonce, '#subscription-toggle' );
