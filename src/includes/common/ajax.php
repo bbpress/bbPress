@@ -76,8 +76,11 @@ function bbp_do_ajax() {
 	// Disable content sniffing in browsers that support it
 	send_nosniff_header();
 
+	// Everything is 200 OK.
+	status_header( 200 );
+
 	// Perform custom bbPress ajax
-	do_action( 'bbp_ajax_' . $_REQUEST['action'] );
+	do_action( 'bbp_ajax_' . sanitize_key( $_REQUEST['action'] ) );
 
 	// All done
 	die( '0' );

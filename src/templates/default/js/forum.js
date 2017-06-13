@@ -21,7 +21,11 @@ jQuery( document ).ready( function ( $ ) {
 	}
 
 	$( '#subscription-toggle' ).on( 'click', 'span a.subscription-toggle', function( e ) {
+		var nonce = ( bbpForumJS.forum_id === 0 )
+			? $( this ).data( 'bbp-nonce' )
+			: bbpForumJS.subs_nonce;
+
 		e.preventDefault();
-		bbp_ajax_call( 'forum_subscription', $( this ).attr( 'data-forum' ), bbpForumJS.subs_nonce, '#subscription-toggle' );
+		bbp_ajax_call( 'forum_subscription', $( this ).attr( 'data-forum' ), nonce, '#subscription-toggle' );
 	} );
 } );

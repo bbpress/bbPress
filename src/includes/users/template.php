@@ -1204,7 +1204,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 		$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-favorite_' . $topic_id ) );
 		$sub  = $is_fav ? ' class="is-favorite"' : '';
-		$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
+		$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-topic="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, wp_create_nonce( 'toggle-favorite_' . $topic_id ), $text, $r['after'] );
 
 		// Initial output is wrapped in a span, ajax output is hooked to this
 		if ( ! empty( $wrap ) ) {
@@ -1412,7 +1412,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 			$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $forum_id ) );
 			$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
-			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-forum="%d">%s</a></span>%s', $r['before'], $forum_id, $sub, $url, $forum_id, $text, $r['after'] );
+			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-forum="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $forum_id, $sub, $url, $forum_id, wp_create_nonce( 'toggle-subscription_' . $forum_id ), $text, $r['after'] );
 
 			// Initial output is wrapped in a span, ajax output is hooked to this
 			if ( ! empty( $wrap ) ) {
@@ -1448,7 +1448,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 			$url  = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
 			$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
-			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, $text, $r['after'] );
+			$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-topic="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $topic_id, $sub, $url, $topic_id, wp_create_nonce( 'toggle-subscription_' . $topic_id ), $text, $r['after'] );
 
 			// Initial output is wrapped in a span, ajax output is hooked to this
 			if ( ! empty( $wrap ) ) {
