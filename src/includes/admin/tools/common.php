@@ -29,11 +29,21 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 	 * @param string $component
 	 */
 	function bbp_get_admin_repair_tool_run_url( $component = array() ) {
-		$tools  = admin_url( 'tools.php' );
-		$page   = ( 'repair' === $component['type'] ) ? 'bbp-repair' : 'bbp-upgrade';
-		$args   = array( 'page' => $page, 'action' => 'run', 'checked' => array( $component['id'] ) );
-		$url    = add_query_arg( $args, $tools );
-		$nonced = wp_nonce_url( $url, 'bbpress-do-counts' );
+
+		// Page
+		$page = ( 'repair' === $component['type'] )
+			? 'bbp-repair'
+			: 'bbp-upgrade';
+
+		// Arguments
+		$args = array(
+			'page'    => $page,
+			'action'  => 'run',
+			'checked' => array( $component['id']
+		) );
+
+		// Url
+		$nonced = wp_nonce_url( add_query_arg( $args, admin_url( 'tools.php' ) ), 'bbpress-do-counts' );
 
 		// Filter & return
 		return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
@@ -175,7 +185,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tools', $tools, $type );
+	return (array) apply_filters( 'bbp_get_admin_repair_tools', $tools, $type );
 }
 
 /**
@@ -200,7 +210,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tool_registered_components', $retval );
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_registered_components', $retval );
 }
 
 /**
@@ -363,7 +373,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 
 		// Search
 		if ( ! empty( $search ) ) {
-			if ( ! strstr( strtolower( $tool['description'] ), strtolower( $search ) ) ) {
+			if ( ! strstr( strtolower( $tool['title'] ), strtolower( $search ) ) ) {
 				continue;
 			}
 		}
@@ -372,6 +382,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 		$repair_list[ $tool['priority'] ] = array(
 			'id'          => sanitize_key( $id ),
 			'type'        => $tool['type'],
+			'title'       => $tool['title'],
 			'description' => $tool['description'],
 			'callback'    => $tool['callback'],
 			'overhead'    => $tool['overhead'],
@@ -411,7 +422,7 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tool_components', $links, $item );
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_components', $links, $item );
 }
 
 /**
@@ -459,7 +470,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	$overheads = $links = array();
 
 	// Loop through tools and count overheads
-	foreach ( $tools as $id => $tool ) {
+	foreach ( $tools as $tool ) {
 
 		// Get the overhead level
 		$overhead = $tool['overhead'];
@@ -480,6 +491,9 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	// Default ticker
 	$i = 0;
 
+	// Sort
+	ksort( $overheads );
+
 	// Loop through overheads and build filter
 	foreach ( $overheads as $overhead => $count ) {
 
@@ -492,7 +506,9 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 		$filter_url = add_query_arg( $args, $tools_url );
 
 		// Figure out separator and active class
-		$current  = ! empty( $_GET['overhead'] ) && ( sanitize_key( $_GET['overhead'] ) === $key ) ? 'current' : '';
+		$current  = ! empty( $_GET['overhead'] ) && ( sanitize_key( $_GET['overhead'] ) === $key )
+			? 'current'
+			: '';
 
 		// Counts to show
 		if ( ! empty( $count ) ) {
@@ -536,5 +552,5 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tool_overhead', $links, $item );
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_overhead', $links, $item );
 }

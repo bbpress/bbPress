@@ -578,22 +578,29 @@ class BBP_Admin {
 		// Get the version to use for JS
 		$version = bbp_get_version();
 
+		// Register the JS
+		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
+		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
+
 		// Post type checker (only topics and replies)
 		if ( 'post' === get_current_screen()->base ) {
-			switch( get_current_screen()->post_type ) {
+
+			switch ( get_current_screen()->post_type ) {
 				case bbp_get_reply_post_type() :
 				case bbp_get_topic_post_type() :
 
 					// Enqueue the common JS
-					wp_enqueue_script( 'bbp-admin-common-js', $this->js_url . 'common' . $suffix . '.js', array( 'jquery', 'suggest' ), $version );
+					wp_enqueue_script( 'bbp-admin-common-js' );
 
 					// Topics admin
 					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-topics-js', $this->js_url . 'topics' . $suffix . '.js', array( 'jquery' ), $version );
+						wp_enqueue_script( 'bbp-admin-topics-js' );
 
 					// Replies admin
 					} elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) {
-						wp_enqueue_script( 'bbp-admin-replies-js', $this->js_url . 'replies' . $suffix . '.js', array( 'jquery', 'suggest' ), $version );
+						wp_enqueue_script( 'bbp-admin-replies-js' );
 					}
 
 					break;
@@ -612,8 +619,11 @@ class BBP_Admin {
 		$suffix  = is_rtl() ? '-rtl' : '';
 		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		// Enqueue admin CSS with dashicons dependency
-		wp_enqueue_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), bbp_get_version() );
+		// Register admin CSS with dashicons dependency
+		wp_register_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), bbp_get_version() );
+
+		// Enqueue
+		wp_enqueue_style( 'bbp-admin-css' );
 	}
 
 	/**
@@ -786,9 +796,9 @@ class BBP_Admin {
 			<div class="bbp-badge"></div>
 
 			<h2 class="nav-tab-wrapper">
-				<a class="nav-tab nav-tab-active" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>">
+				<a class="nav-tab nav-tab-active" href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) ); ?>">
 					<?php esc_html_e( 'What&#8217;s New', 'bbpress' ); ?>
-				</a><a class="nav-tab" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>">
+				</a><a class="nav-tab" href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-credits' ), admin_url( 'index.php' ) ) ); ?>">
 					<?php esc_html_e( 'Credits', 'bbpress' ); ?>
 				</a>
 			</h2>
@@ -837,7 +847,7 @@ class BBP_Admin {
 			</div>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Go to Forum Settings', 'bbpress' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Go to Forum Settings', 'bbpress' ); ?></a>
 			</div>
 
 		</div>
@@ -848,7 +858,7 @@ class BBP_Admin {
 	/**
 	 * Output the credits screen
 	 *
-	 * Hardcoding this in here is pretty janky. It's fine for 2.2, but we'll
+	 * Hardcoding this in here is pretty janky. It's fine for now, but we'll
 	 * want to leverage api.wordpress.org eventually.
 	 *
 	 * @since 2.2.0 bbPress (r4159)
@@ -863,9 +873,9 @@ class BBP_Admin {
 			<div class="bbp-badge"></div>
 
 			<h2 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-about' ), 'index.php' ) ) ); ?>" class="nav-tab">
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) ); ?>" class="nav-tab">
 					<?php esc_html_e( 'What&#8217;s New', 'bbpress' ); ?>
-				</a><a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbp-credits' ), 'index.php' ) ) ); ?>" class="nav-tab nav-tab-active">
+				</a><a href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-credits' ), admin_url( 'index.php' ) ) ); ?>" class="nav-tab nav-tab-active">
 					<?php esc_html_e( 'Credits', 'bbpress' ); ?>
 				</a>
 			</h2>
@@ -884,11 +894,11 @@ class BBP_Admin {
 				</li>
 				<li class="wp-person" id="wp-person-jmdodd">
 					<a href="https://profiles.wordpress.org/jmdodd" class="web"><img src="http://0.gravatar.com/avatar/6a7c997edea340616bcc6d0fe03f65dd?s=120" class="gravatar" alt="" />Jennifer M. Dodd</a>
-					<span class="title"><?php esc_html_e( 'Feature Developer', 'bbpress' ); ?></span>
+					<span class="title"><?php esc_html_e( 'Feature Virtuoso', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-netweb">
 					<a href="https://profiles.wordpress.org/netweb" class="web"><img src="http://0.gravatar.com/avatar/97e1620b501da675315ba7cfb740e80f?s=120" class="gravatar" alt="" />Stephen Edgar</a>
-					<span class="title"><?php esc_html_e( 'Converter Specialist', 'bbpress' ); ?></span>
+					<span class="title"><?php esc_html_e( 'Tool Maven', 'bbpress' ); ?></span>
 				</li>
 			</ul>
 
@@ -916,7 +926,7 @@ class BBP_Admin {
 				</li>
 			</ul>
 
-			<h3 class="wp-people-group"><?php esc_html_e( 'Core Contributors to bbPress 2.6', 'bbpress' ); ?></h3>
+			<h3 class="wp-people-group"><?php esc_html_e( 'Contributors to bbPress 2.6', 'bbpress' ); ?></h3>
 			<p class="wp-credits-list">
 				<a href="https://profiles.wordpress.org/alex-ye">alex-ye</a>,
 				<a href="https://profiles.wordpress.org/ankit-k-gupta">ankit-k-gupta</a>,
@@ -980,7 +990,7 @@ class BBP_Admin {
 			</p>
 
 			<div class="return-to-dashboard">
-				<a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'bbpress' ), 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Go to Forum Settings', 'bbpress' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Go to Forum Settings', 'bbpress' ); ?></a>
 			</div>
 
 		</div>

@@ -82,17 +82,8 @@ class BBP_Converter {
 	 */
 	public function admin_head() {
 
-		// Variables
-		$bbp        = bbpress();
-		$suffix     = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		$repair_url = add_query_arg( array(
-			'page' => 'bbp-repair'
-		), admin_url() );
-
 		// Enqueue scripts
-		wp_enqueue_script( 'postbox'   );
-		wp_enqueue_script( 'dashboard' );
-		wp_enqueue_script( 'bbp-converter', $bbp->admin->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox' ), $bbp->version );
+		wp_enqueue_script( 'bbp-converter' );
 
 		// Localize JS
 		wp_localize_script( 'bbp-converter', 'BBP_Converter', array(
@@ -118,7 +109,6 @@ class BBP_Converter {
 				'start_continue' => esc_html__( 'Continuing Import', 'bbpress' ),
 
 				// Import
-				'import_success'      => sprintf( esc_html__( 'Repair any missing information: %s', 'bbpress' ), '<a href="' . esc_url( $repair_url ) . '">' . esc_html__( 'Continue', 'bbpress' ) . '</a>' ),
 				'import_complete'     => esc_html__( 'Import Finished',            'bbpress' ),
 				'import_stopped_user' => esc_html__( 'Import Stopped (by User)',   'bbpress' ),
 				'import_error_db'     => esc_html__( 'Database Connection Failed', 'bbpress' ),

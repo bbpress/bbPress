@@ -369,3 +369,9 @@ div.bbp-converter-log .step {
 	border: 1px solid #ddd;
 	background-color: #fafafa;
 }
+
+/* Tools */
+
+td.bbp-tool-title strong {
+	display: block;
+}
