@@ -24,7 +24,7 @@
 			<arguments>
 				<array>
 					<element key="slowThreshold">
-						<integer>100</integer>
+						<integer>250</integer>
 					</element>
 				</array>
 			</arguments>
