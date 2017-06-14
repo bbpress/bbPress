@@ -146,9 +146,10 @@ function bbp_has_forums( $args = array() ) {
 		'post_parent'         => $default_post_parent,
 		'post_status'         => bbp_get_public_status_id(),
 		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
-		'ignore_sticky_posts' => true,
 		'orderby'             => 'menu_order title',
-		'order'               => 'ASC'
+		'order'               => 'ASC',
+		'no_found_rows'       => true,
+		'ignore_sticky_posts' => true
 	), 'has_forums' );
 
 	// Run the query
@@ -471,7 +472,7 @@ function bbp_forum_content( $forum_id = 0 ) {
 	}
 
 /**
- * Allow forum rows to have adminstrative actions
+ * Allow forum rows to have administrative actions
  *
  * @since 2.1.0 bbPress (r3653)
  *
