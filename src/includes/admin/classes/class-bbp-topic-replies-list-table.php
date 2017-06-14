@@ -299,5 +299,38 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 		<?php
 	}
+
+	/**
+	 * Generates content for a single row of the table
+	 *
+	 * @since 2.6.0
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 */
+	public function single_row( $item ) {
+
+		// Author
+		$classes = 'author-' . ( get_current_user_id() == $item->post_author ? 'self' : 'other' );
+
+		// Locked
+		if ( wp_check_post_lock( $item->ID ) ) {
+			$classes .= ' wp-locked';
+		}
+
+		// Hierarchy
+		if ( ! empty( $item->post_parent ) ) {
+		    $count    = count( get_post_ancestors( $item->ID ) );
+		    $classes .= ' level-'. $count;
+		} else {
+		    $classes .= ' level-0';
+		} ?>
+
+		<tr id="post-<?php echo esc_attr( $item->ID ); ?>" class="<?php echo implode( ' ', get_post_class( $classes, $item->ID ) ); ?>">
+			<?php $this->single_row_columns( $item ); ?>
+		</tr>
+
+		<?php
+	}
 }
 endif;
