@@ -38,7 +38,7 @@ function bbp_search_query( $new_args = array() ) {
 }
 
 /**
- * Return the search's query args
+ * Return the search query args
  *
  * @since 2.3.0 bbPress (r4579)
  *

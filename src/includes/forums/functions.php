@@ -1072,7 +1072,7 @@ function bbp_repair_forum_visibility() {
 /** Subscriptions *************************************************************/
 
 /**
- * Remove a deleted forum from all users' subscriptions
+ * Remove a deleted forum from all user subscriptions
  *
  * @since 2.5.0 bbPress (r5156)
  *
@@ -1089,26 +1089,14 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
 		return;
 	}
 
-	$forum_id = bbp_get_forum_id( $forum_id );
-
 	// Bail if no forum
+	$forum_id = bbp_get_forum_id( $forum_id );
 	if ( empty( $forum_id ) ) {
 		return;
 	}
 
-	// Get users
-	$users = (array) bbp_get_forum_subscribers( $forum_id );
-
-	// Users exist
-	if ( ! empty( $users ) ) {
-
-		// Loop through users
-		foreach ( $users as $user ) {
-
-			// Remove each user
-			bbp_remove_user_subscription( $user, $forum_id );
-		}
-	}
+	// Remove forum from all subscriptions
+	return bbp_remove_object_from_all_users( $forum_id, '_bbp_subscription', 'post' );
 }
 
 /** Count Bumpers *************************************************************/

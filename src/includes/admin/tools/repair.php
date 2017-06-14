@@ -625,7 +625,7 @@ function bbp_admin_repair_user_favorites() {
 }
 
 /**
- * Clean the users' topic subscriptions
+ * Clean the user topic subscriptions
  *
  * @since 2.0.0 bbPress (r2668)
  *
@@ -694,7 +694,7 @@ function bbp_admin_repair_user_topic_subscriptions() {
 }
 
 /**
- * Clean the users' forum subscriptions
+ * Clean the user forum subscriptions
  *
  * @since 2.5.0 bbPress (r5155)
  *

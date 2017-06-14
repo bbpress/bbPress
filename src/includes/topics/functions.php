@@ -2380,7 +2380,7 @@ function bbp_toggle_topic( $args = array() ) {
 /** Favorites & Subscriptions *************************************************/
 
 /**
- * Remove a deleted topic from all users' favorites
+ * Remove a deleted topic from all user favorites
  *
  * @since 2.0.0 bbPress (r2652)
  *
@@ -2413,7 +2413,7 @@ function bbp_remove_topic_from_all_favorites( $topic_id = 0 ) {
 }
 
 /**
- * Remove a deleted topic from all users' subscriptions
+ * Remove a deleted topic from all user subscriptions
  *
  * @since 2.0.0 bbPress (r2652)
  *
@@ -2430,26 +2430,14 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 		return;
 	}
 
-	$topic_id = bbp_get_topic_id( $topic_id );
-
 	// Bail if no topic
+	$topic_id = bbp_get_topic_id( $topic_id );
 	if ( empty( $topic_id ) ) {
 		return;
 	}
 
-	// Get users
-	$users = (array) bbp_get_topic_subscribers( $topic_id );
-
-	// Users exist
-	if ( ! empty( $users ) ) {
-
-		// Loop through users
-		foreach ( $users as $user ) {
-
-			// Remove each user
-			bbp_remove_user_subscription( $user, $topic_id );
-		}
-	}
+	// Remove all users
+	return bbp_remove_object_from_all_users( $topic_id, '_bbp_subscription', 'post' );
 }
 
 /** Count Bumpers *************************************************************/

@@ -67,7 +67,8 @@ add_action( 'bbp_loaded', 'bbp_includes',                  6  );
 add_action( 'bbp_loaded', 'bbp_setup_globals',             8  );
 add_action( 'bbp_loaded', 'bbp_setup_option_filters',      10 );
 add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
-add_action( 'bbp_loaded', 'bbp_register_theme_packages',   14 );
+add_action( 'bbp_loaded', 'bbp_pre_load_options',          14 );
+add_action( 'bbp_loaded', 'bbp_register_theme_packages',   16 );
 
 /**
  * bbp_init - Attached to 'init' above
@@ -426,7 +427,6 @@ add_action( 'bbp_get_request', 'bbp_toggle_reply_handler',        1  );
 add_action( 'bbp_get_request', 'bbp_favorites_handler',           1  );
 add_action( 'bbp_get_request', 'bbp_subscriptions_handler',       1  );
 add_action( 'bbp_get_request', 'bbp_user_email_change_handler',   1  );
-add_action( 'bbp_get_request', 'bbp_forum_subscriptions_handler', 1  );
 add_action( 'bbp_get_request', 'bbp_search_results_redirect',     10 );
 
 // Maybe convert the users password

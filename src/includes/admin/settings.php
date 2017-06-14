@@ -432,11 +432,11 @@ function bbp_admin_get_settings_fields() {
 			),
 
 			// Engagements slug setting
-			'_bbp_user_engagements_slug' => array(
+			'_bbp_user_engs_slug' => array(
 				'title'             => esc_html__( 'Engagements', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_engagements_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_user_engagements_slug' )
+				'args'              => array( 'label_for'=>'_bbp_user_engs_slug' )
 			)
 		),
 
@@ -1287,11 +1287,11 @@ function bbp_admin_setting_callback_user_subs_slug() {
 function bbp_admin_setting_callback_user_engagements_slug() {
 ?>
 
-	<input name="_bbp_user_engagements_slug" id="_bbp_user_engagements_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_engagements_slug', 'engagements', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_user_engagements_slug' ); ?> />
+	<input name="_bbp_user_engs_slug" id="_bbp_user_engs_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_engs_slug', 'engagements', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_user_engs_slug' ); ?> />
 
 <?php
 	// Slug Check
-	bbp_form_slug_conflict_check( '_bbp_user_engagements_slug', 'engagements' );
+	bbp_form_slug_conflict_check( '_bbp_user_engs_slug', 'engagements' );
 }
 
 /** Single Slugs **************************************************************/

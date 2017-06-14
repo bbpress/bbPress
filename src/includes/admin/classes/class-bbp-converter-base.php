@@ -517,7 +517,7 @@ abstract class BBP_Converter_Base {
 
 										// Add user ID to forums subscribed users
 										foreach ( $value as $fav ) {
-											bbp_add_user_forum_subscription( $user_id, $this->callback_forumid( $fav ) );
+											bbp_add_user_subscription( $user_id, $this->callback_forumid( $fav ) );
 										}
 									}
 								}
@@ -538,7 +538,7 @@ abstract class BBP_Converter_Base {
 
 										// Add user ID to topics subscribed users
 										foreach ( $value as $fav ) {
-											bbp_add_user_topic_subscription( $user_id, $this->callback_topicid( $fav ) );
+											bbp_add_user_subscription( $user_id, $this->callback_topicid( $fav ) );
 										}
 									}
 								}
