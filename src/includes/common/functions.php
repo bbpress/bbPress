@@ -481,6 +481,9 @@ function bbp_get_statistics( $args = array() ) {
 		'empty_topic_tag_count'
 	) ) );
 
+	// Define return value
+	$statistics = array();
+
 	// Loop through and store the integer and i18n formatted counts.
 	foreach ( $counts as $key => $count ) {
 		$statistics[ $key ]         = bbp_number_format_i18n( $count );
