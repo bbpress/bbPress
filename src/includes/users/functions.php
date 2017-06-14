@@ -591,22 +591,6 @@ function bbp_get_user_replies_created( $user_id = 0 ) {
 }
 
 /**
- * Get the total number of users on the forums
- *
- * @since 2.0.0 bbPress (r2769)
- *
- * @uses count_users() To execute our query and get the var back
- * @uses apply_filters() Calls 'bbp_get_total_users' with number of users
- * @return int Total number of users
- */
-function bbp_get_total_users() {
-	$user_count = count_users();
-
-	// Filter & return
-	return (int) apply_filters( 'bbp_get_total_users', (int) $user_count['total_users'] );
-}
-
-/**
  * Get user IDs from nicenames
  *
  * This function is primarily used when saving object moderators

@@ -168,17 +168,27 @@ function bbp_get_major_wp_version() {
  */
 function bbp_is_large_install() {
 
-	// Default to false
-	$retval = false;
-
 	// Multisite has a function specifically for this
-	if ( function_exists( 'wp_is_large_network' ) ) {
-		$retval = wp_is_large_network( 'users' );
-	} else {
-		$bbp_db = bbp_db();
-		$count  = $bbp_db->get_var( "SELECT COUNT(ID) as c FROM {$bbp_db->users} WHERE user_status = '0'" );
-		$retval = apply_filters( 'wp_is_large_network', ( $count > 10000 ), 'users', $count );
-	}
+	$retval = function_exists( 'wp_is_large_network' )
+		? wp_is_large_network( 'users' )
+		: ( bbp_get_total_users() > 10000 );
 
-	return (bool) $retval;
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_large_install', $retval );
+}
+
+/**
+ * Get the total number of users on the forums
+ *
+ * @since 2.0.0 bbPress (r2769)
+ *
+ * @uses apply_filters() Calls 'bbp_get_total_users' with number of users
+ * @return int Total number of users
+ */
+function bbp_get_total_users() {
+	$bbp_db = bbp_db();
+	$count  = $bbp_db->get_var( "SELECT COUNT(ID) as c FROM {$bbp_db->users} WHERE user_status = '0'" );
+
+	// Filter & return
+	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
 }

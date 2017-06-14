@@ -322,24 +322,19 @@ function bbp_get_statistics( $args = array() ) {
 	), 'get_statistics' );
 
 	// Defaults
-	$user_count            = 0;
-	$forum_count           = 0;
-	$topic_count           = 0;
-	$topic_count_hidden    = 0;
-	$reply_count           = 0;
-	$reply_count_hidden    = 0;
-	$topic_tag_count       = 0;
-	$empty_topic_tag_count = 0;
+	$topic_count     = $topic_count_hidden    = 0;
+	$reply_count     = $reply_count_hidden    = 0;
+	$topic_tag_count = $empty_topic_tag_count = 0;
 
 	// Users
-	if ( ! empty( $r['count_users'] ) ) {
-		$user_count = bbp_get_total_users();
-	}
+	$user_count = ! empty( $r['count_users'] )
+		? bbp_get_total_users()
+		: 0;
 
 	// Forums
-	if ( ! empty( $r['count_forums'] ) ) {
-		$forum_count = wp_count_posts( bbp_get_forum_post_type() )->publish;
-	}
+	$forum_count = ! empty( $r['count_forums'] )
+		? wp_count_posts( bbp_get_forum_post_type() )->publish
+		: 0;
 
 	// Post statuses
 	$pending = bbp_get_pending_status_id();
@@ -361,25 +356,44 @@ function bbp_get_statistics( $args = array() ) {
 			$topics = $topic_titles = array();
 
 			// Pending
-			$topics['pending'] = ( ! empty( $r['count_pending_topics'] ) && current_user_can( 'edit_others_topics' ) ) ? (int) $all_topics->{$pending} : 0;
+			$topics['pending'] = ( ! empty( $r['count_pending_topics'] ) && current_user_can( 'edit_others_topics' ) )
+				? (int) $all_topics->{$pending}
+				: 0;
 
 			// Private
-			$topics['private'] = ( ! empty( $r['count_private_topics'] ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->{$private} : 0;
+			$topics['private'] = ( ! empty( $r['count_private_topics'] ) && current_user_can( 'read_private_topics' ) )
+				? (int) $all_topics->{$private}
+				: 0;
 
 			// Spam
-			$topics['spammed'] = ( ! empty( $r['count_spammed_topics'] ) && current_user_can( 'edit_others_topics'  ) ) ? (int) $all_topics->{$spam}    : 0;
+			$topics['spammed'] = ( ! empty( $r['count_spammed_topics'] ) && current_user_can( 'edit_others_topics'  ) )
+				? (int) $all_topics->{$spam}
+				: 0;
 
 			// Trash
-			$topics['trashed'] = ( ! empty( $r['count_trashed_topics'] ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$trash}   : 0;
+			$topics['trashed'] = ( ! empty( $r['count_trashed_topics'] ) && current_user_can( 'view_trash' ) )
+				? (int) $all_topics->{$trash}
+				: 0;
 
 			// Total hidden (pending + private + spam + trash)
 			$topic_count_hidden = $topics['pending'] + $topics['private'] + $topics['spammed'] + $topics['trashed'];
 
 			// Generate the hidden topic count's title attribute
-			$topic_titles[] = ! empty( $topics['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $topics['pending'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $topics['private'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['spammed'] ) ) : '';
-			$topic_titles[] = ! empty( $topics['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['trashed'] ) ) : '';
+			$topic_titles[] = ! empty( $topics['pending'] )
+				? sprintf( esc_html__( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $topics['pending'] ) )
+				: '';
+
+			$topic_titles[] = ! empty( $topics['private'] )
+				? sprintf( esc_html__( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $topics['private'] ) )
+				: '';
+
+			$topic_titles[] = ! empty( $topics['spammed'] )
+				? sprintf( esc_html__( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['spammed'] ) )
+				: '';
+
+			$topic_titles[] = ! empty( $topics['trashed'] )
+				? sprintf( esc_html__( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $topics['trashed'] ) )
+				: '';
 
 			// Compile the hidden topic title
 			$hidden_topic_title = implode( ' | ', array_filter( $topic_titles ) );
@@ -400,25 +414,43 @@ function bbp_get_statistics( $args = array() ) {
 			$replies = $reply_titles = array();
 
 			// Pending
-			$replies['pending'] = ( ! empty( $r['count_pending_replies'] ) && current_user_can( 'edit_others_replies' ) ) ? (int) $all_replies->{$pending} : 0;
+			$replies['pending'] = ( ! empty( $r['count_pending_replies'] ) && current_user_can( 'edit_others_replies' ) )
+				? (int) $all_replies->{$pending}
+				: 0;
 
 			// Private
-			$replies['private'] = ( ! empty( $r['count_private_replies'] ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->{$private} : 0;
+			$replies['private'] = ( ! empty( $r['count_private_replies'] ) && current_user_can( 'read_private_replies' ) )
+				? (int) $all_replies->{$private}
+				: 0;
 
 			// Spam
-			$replies['spammed'] = ( ! empty( $r['count_spammed_replies'] ) && current_user_can( 'edit_others_replies'  ) ) ? (int) $all_replies->{$spam}    : 0;
+			$replies['spammed'] = ( ! empty( $r['count_spammed_replies'] ) && current_user_can( 'edit_others_replies'  ) )
+				? (int) $all_replies->{$spam}
+				: 0;
 
 			// Trash
-			$replies['trashed'] = ( ! empty( $r['count_trashed_replies'] ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$trash}   : 0;
+			$replies['trashed'] = ( ! empty( $r['count_trashed_replies'] ) && current_user_can( 'view_trash' ) )
+				? (int) $all_replies->{$trash}
+				: 0;
 
 			// Total hidden (pending + private + spam + trash)
 			$reply_count_hidden = $replies['pending'] + $replies['private'] + $replies['spammed'] + $replies['trashed'];
 
 			// Generate the hidden topic count's title attribute
-			$reply_titles[] = ! empty( $replies['pending'] ) ? sprintf( __( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $replies['pending'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $replies['private'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['spammed'] ) ) : '';
-			$reply_titles[] = ! empty( $replies['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['trashed'] ) ) : '';
+			$reply_titles[] = ! empty( $replies['pending'] )
+				? sprintf( esc_html__( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $replies['pending'] ) )
+				: '';
+			$reply_titles[] = ! empty( $replies['private'] )
+				? sprintf( esc_html__( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $replies['private'] ) )
+				: '';
+
+			$reply_titles[] = ! empty( $replies['spammed'] )
+				? sprintf( esc_html__( 'Spammed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['spammed'] ) )
+				: '';
+
+			$reply_titles[] = ! empty( $replies['trashed'] )
+				? sprintf( esc_html__( 'Trashed: %s', 'bbpress' ), bbp_number_format_i18n( $replies['trashed'] ) )
+				: '';
 
 			// Compile the hidden replies title
 			$hidden_reply_title = implode( ' | ', array_filter( $reply_titles ) );
@@ -438,7 +470,7 @@ function bbp_get_statistics( $args = array() ) {
 	}
 
 	// Tally the tallies
-	$counts = array_map( 'absint', compact(
+	$counts = array_filter( array_map( 'absint', compact(
 		'user_count',
 		'forum_count',
 		'topic_count',
@@ -447,7 +479,7 @@ function bbp_get_statistics( $args = array() ) {
 		'reply_count_hidden',
 		'topic_tag_count',
 		'empty_topic_tag_count'
-	) );
+	) ) );
 
 	// Loop through and store the integer and i18n formatted counts.
 	foreach ( $counts as $key => $count ) {
@@ -461,7 +493,7 @@ function bbp_get_statistics( $args = array() ) {
 	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
 
 	// Filter & return
-	return apply_filters( 'bbp_get_statistics', $statistics, $r, $args );
+	return (array) apply_filters( 'bbp_get_statistics', $statistics, $r, $args );
 }
 
 /** New/edit topic/reply helpers **********************************************/
@@ -505,13 +537,13 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 	// Filter name
 	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name', $r['bbp_anonymous_name'] );
 	if ( empty( $r['bbp_anonymous_name'] ) ) {
-		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name.', 'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_name',  esc_html__( '<strong>ERROR</strong>: Invalid author name.', 'bbpress' ) );
 	}
 
 	// Filter email address
 	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
 	if ( empty( $r['bbp_anonymous_email'] ) ) {
-		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address.', 'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_email', esc_html__( '<strong>ERROR</strong>: Invalid email address.', 'bbpress' ) );
 	}
 
 	// Website is optional (can be empty)
@@ -1134,7 +1166,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 	// For plugins to filter messages per reply/topic/user
-	$message = sprintf( __( '%1$s wrote:
+	$message = sprintf( esc_html__( '%1$s wrote:
 
 %2$s
 
@@ -1299,7 +1331,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 	// For plugins to filter messages per reply/topic/user
-	$message = sprintf( __( '%1$s wrote:
+	$message = sprintf( esc_html__( '%1$s wrote:
 
 %2$s
 
@@ -2123,7 +2155,7 @@ function bbp_set_404() {
 	global $wp_query;
 
 	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'bbpress' ), '3.1' );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'bbpress' ), '3.1' );
 		return false;
 	}
 

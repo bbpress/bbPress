@@ -54,6 +54,10 @@ th .bbp_replies_column:before,
 	content: "\f323";
 }
 
+#dashboard_right_now a.bbp-glance-users:before {
+	content: "\f110";
+}
+
 th .bbp_forums_column,
 th .bbp_topics_column,
 th .bbp_replies_column {

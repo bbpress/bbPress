@@ -19,35 +19,67 @@
  */
 function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
+	// Bail if user cannot spectate
+	if ( ! current_user_can( 'spectate' ) ) {
+		return $elements;
+	}
+
 	// Get the statistics
-	$r = bbp_get_statistics();
+	$r = bbp_get_statistics( array(
+		'count_pending_topics'  => false,
+		'count_private_topics'  => false,
+		'count_spammed_topics'  => false,
+		'count_trashed_topics'  => false,
+		'count_pending_replies' => false,
+		'count_private_replies' => false,
+		'count_spammed_replies' => false,
+		'count_trashed_replies' => false,
+		'count_empty_tags'      => false
+	));
+
+	// Users
+	if ( isset( $r['user_count'] ) ) {
+		$link       = admin_url( 'users.php' );
+		$text       = sprintf( _n( '%s User', '%s Users', $r['user_count_int'], 'bbpress' ), $r['user_count'] );
+		$elements[] = current_user_can( 'edit_users' )
+			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-users">' . esc_html( $text ) . '</a>'
+			: esc_html( $text );
+	}
 
 	// Forums
-	if ( current_user_can( 'publish_forums' ) ) {
-		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
+	if ( isset( $r['forum_count'] ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
 		$text       = sprintf( _n( '%s Forum', '%s Forums', $r['forum_count_int'], 'bbpress' ), $r['forum_count'] );
-		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>';
+		$elements[] = current_user_can( 'publish_forums' )
+			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>'
+			: esc_html( $text );
 	}
 
 	// Topics
-	if ( current_user_can( 'publish_topics' ) ) {
-		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
+	if ( isset( $r['topic_count'] ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 		$text       = sprintf( _n( '%s Topic', '%s Topics', $r['topic_count_int'], 'bbpress' ), $r['topic_count'] );
-		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>';
+		$elements[] = current_user_can( 'publish_topics' )
+			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>'
+			: esc_html( $text );
 	}
 
 	// Replies
-	if ( current_user_can( 'publish_replies' ) ) {
-		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
+	if ( isset( $r['reply_count'] ) ) {
+		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 		$text       = sprintf( _n( '%s Reply', '%s Replies', $r['reply_count_int'], 'bbpress' ), $r['reply_count'] );
-		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>';
+		$elements[] = current_user_can( 'publish_replies' )
+			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>'
+			: esc_html( $text );
 	}
 
 	// Topic Tags
-	if ( bbp_allow_topic_tags() && current_user_can( 'manage_topic_tags' ) ) {
-		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+	if ( bbp_allow_topic_tags() && isset( $r['topic_tag_count'] ) ) {
+		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
 		$text       = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
-		$elements[] = '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>';
+		$elements[] = current_user_can( 'manage_topic_tags' )
+			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>'
+			: esc_html( $text );
 	}
 
 	// Filter & return
@@ -96,7 +128,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['forum_count'];
 					$text = _n( 'Forum', 'Forums', $r['forum_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
@@ -113,7 +145,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['topic_count'];
 					$text = _n( 'Topic', 'Topics', $r['topic_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
@@ -130,7 +162,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['reply_count'];
 					$text = _n( 'Reply', 'Replies', $r['reply_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
@@ -149,7 +181,7 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['topic_tag_count'];
 						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count_int'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
-							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
 							$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 							$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 						}
@@ -181,7 +213,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['user_count'];
 					$text = _n( 'User', 'Users', $r['user_count_int'], 'bbpress' );
 					if ( current_user_can( 'edit_users' ) ) {
-						$link = get_admin_url( null, 'users.php' );
+						$link = admin_url( 'users.php' );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -199,7 +231,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $r['topic_count_hidden'];
 						$text = _n( 'Hidden Topic', 'Hidden Topics', $r['topic_count_hidden_int'], 'bbpress' );
-						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
@@ -221,7 +253,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $r['reply_count_hidden'];
 						$text = _n( 'Hidden Reply', 'Hidden Replies', $r['reply_count_hidden_int'], 'bbpress' );
-						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
 							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
@@ -243,7 +275,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $r['empty_topic_tag_count'];
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count_int'], 'bbpress' );
-						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '">' . $text . '</a>';
 					?>
