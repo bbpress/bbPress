@@ -617,10 +617,11 @@ final class bbPress {
 		register_post_status(
 			bbp_get_closed_status_id(),
 			apply_filters( 'bbp_register_closed_post_status', array(
-				'label'             => _x( 'Closed', 'post', 'bbpress' ),
-				'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'bbpress' ),
-				'public'            => true,
-				'show_in_admin_all' => true
+				'label'                     => _x( 'Closed', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'bbpress' ),
+				'public'                    => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => true
 			) )
 		);
 
