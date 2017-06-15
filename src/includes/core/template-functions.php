@@ -407,19 +407,25 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
 function bbp_get_query_template( $type, $templates = array() ) {
 	$type = preg_replace( '|[^a-z0-9-]+|', '', $type );
 
+	// Fallback template
 	if ( empty( $templates ) ) {
 		$templates = array( "{$type}.php" );
 	}
 
-	// Filter possible templates, try to match one, and set any bbPress theme
-	// compat properties so they can be cross-checked later.
+	// Filter possible templates
 	$templates = apply_filters( "bbp_get_{$type}_template", $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-	$template  = bbp_locate_template( $templates );
-	$template  = bbp_set_theme_compat_template( $template );
+
+	// Stash the possible templates for this query, for later use
+	bbp_set_theme_compat_templates( $templates );
+
+	// Try to locate a template in the stack
+	$template = bbp_locate_template( $templates );
+
+	// Stash the located template for this query, for later use
+	bbp_set_theme_compat_template( $template );
 
 	// Filter & return
-	return apply_filters( "bbp_{$type}_template", $template );
+	return apply_filters( "bbp_{$type}_template", $template, $templates );
 }
 
 /**
@@ -428,7 +434,7 @@ function bbp_get_query_template( $type, $templates = array() ) {
  * @since 2.1.0 bbPress (r3738)
  *
  * @param array $templates Templates we are looking for
- * @return array Possible subfolders to look in
+ * @return array Possible subdirectories to look in
  */
 function bbp_get_template_locations( $templates = array() ) {
 	$locations = array(
@@ -463,7 +469,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
+	return (array) apply_filters( 'bbp_add_template_stack_locations', array_unique( $retval ), $stacks );
 }
 
 /**
