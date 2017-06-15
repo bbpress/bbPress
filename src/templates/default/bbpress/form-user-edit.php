@@ -119,7 +119,7 @@ defined( 'ABSPATH' ) || exit;
 				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="new-password" />
 
 				<input type="password" name="pass2" id="pass2" size="16" value="" autocomplete="new-password" />
-				<span class="description"><?php esc_html_e( 'To update your password, simply type a new two times here. Otherwise leave this blank.', 'bbpress' ); ?></span>
+				<span class="description"><?php esc_html_e( 'To update your password, type a new one twice here. (Leave them blank otherwise.)', 'bbpress' ); ?></span>
 
 				<div id="pass-strength-result"></div>
 				<span class="description indicator-hint"><?php esc_html_e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>
