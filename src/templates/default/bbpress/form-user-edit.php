@@ -58,7 +58,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div>
 			<label for="url"><?php esc_html_e( 'Website', 'bbpress' ) ?></label>
-			<input type="text" name="url" id="url" value="<?php bbp_displayed_user_field( 'user_url', 'edit' ); ?>" class="regular-text code" />
+			<input type="text" name="url" id="url" value="<?php bbp_displayed_user_field( 'user_url', 'edit' ); ?>" maxlength="200" class="regular-text code" />
 		</div>
 
 		<?php foreach ( bbp_edit_user_contact_methods() as $name => $desc ) : ?>
@@ -105,12 +105,12 @@ defined( 'ABSPATH' ) || exit;
 
 		<div>
 			<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?></label>
-			<input type="text" name="user_login" id="user_login" value="<?php bbp_displayed_user_field( 'user_login', 'edit' ); ?>" disabled="disabled" class="regular-text" />
+			<input type="text" name="user_login" id="user_login" value="<?php bbp_displayed_user_field( 'user_login', 'edit' ); ?>" maxlength="100" disabled="disabled" class="regular-text" />
 		</div>
 
 		<div>
 			<label for="email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" class="regular-text" autocomplete="off" />
+			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" maxlength="100" class="regular-text" autocomplete="off" />
 		</div>
 
 		<div id="password">

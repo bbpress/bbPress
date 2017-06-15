@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 		<div class="bbp-username">
 			<p>
 				<label for="user_login" class="hide"><?php esc_html_e( 'Username or Email', 'bbpress' ); ?>: </label>
-				<input type="text" name="user_login" value="" size="20" id="user_login" autocomplete="off" />
+				<input type="text" name="user_login" value="" size="20" id="user_login" maxlength="100" autocomplete="off" />
 			</p>
 		</div>
 
