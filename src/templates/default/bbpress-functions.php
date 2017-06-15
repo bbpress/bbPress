@@ -293,7 +293,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_favorite( $user_id, $object->ID )
 			? bbp_remove_user_favorite( $user_id, $object->ID )
-			: bbp_add_user_favorite( $user_id, $object->ID );
+			:    bbp_add_user_favorite( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -302,8 +302,9 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Put subscription attributes in convenient array
 		$attrs = array(
-			'object_id' => $object->ID,
-			'user_id'   => $user_id
+			'object_id'   => $object->ID,
+			'object_type' => $type,
+			'user_id'     => $user_id
 		);
 
 		// Action succeeded
@@ -366,7 +367,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_subscribed( $user_id, $object->ID )
 			? bbp_remove_user_subscription( $user_id, $object->ID )
-			: bbp_add_user_subscription( $user_id, $object->ID );
+			:    bbp_add_user_subscription( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -375,8 +376,9 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Put subscription attributes in convenient array
 		$attrs = array(
-			'object_id' => $object->ID,
-			'user_id'   => $user_id
+			'object_id'   => $object->ID,
+			'object_type' => $type,
+			'user_id'     => $user_id
 		);
 
 		// Add separator to topic if favorites is active
