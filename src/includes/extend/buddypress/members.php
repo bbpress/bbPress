@@ -49,14 +49,14 @@ class BBP_BuddyPress_Members {
 		/** Favorites *********************************************************/
 
 		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
-		remove_action( 'template_redirect', 'bbp_favorites_handler', 1 );
-		add_action(    'bp_actions',        'bbp_favorites_handler', 1 );
+		remove_action( 'bbp_get_request', 'bbp_favorites_handler', 1 );
+		add_action(    'bp_actions',      'bbp_favorites_handler', 1 );
 
 		/** Subscriptions *****************************************************/
 
 		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
-		remove_action( 'template_redirect', 'bbp_subscriptions_handler', 1 );
-		add_action(    'bp_actions',        'bbp_subscriptions_handler', 1 );
+		remove_action( 'bbp_get_request', 'bbp_subscriptions_handler', 1 );
+		add_action(    'bp_actions',      'bbp_subscriptions_handler', 1 );
 	}
 
 	/**
