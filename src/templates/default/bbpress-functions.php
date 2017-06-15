@@ -199,10 +199,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// User Profile edit
 		if ( bbp_is_single_user_edit() ) {
-			$scripts['bbpress-user'] = array(
-				'file'         => 'js/user' . $suffix . '.js',
-				'dependencies' => array()
-			);
+			wp_enqueue_script( 'user-profile' );
 		}
 
 		// Filter the scripts

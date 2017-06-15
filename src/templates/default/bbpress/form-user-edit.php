@@ -113,18 +113,7 @@ defined( 'ABSPATH' ) || exit;
 			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" maxlength="100" class="regular-text" autocomplete="off" />
 		</div>
 
-		<div id="password">
-			<label for="pass1"><?php esc_html_e( 'New Password', 'bbpress' ); ?></label>
-			<fieldset class="bbp-form password">
-				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="new-password" />
-
-				<input type="password" name="pass2" id="pass2" size="16" value="" autocomplete="new-password" />
-				<span class="description"><?php esc_html_e( 'To update your password, type a new one twice here. (Leave them blank otherwise.)', 'bbpress' ); ?></span>
-
-				<div id="pass-strength-result"></div>
-				<span class="description indicator-hint"><?php esc_html_e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>
-			</fieldset>
-		</div>
+		<?php bbp_get_template_part( 'form', 'user-passwords' ); ?>
 
 		<div>
 			<label for="url"><?php esc_html_e( 'Language', 'bbpress' ) ?></label>
