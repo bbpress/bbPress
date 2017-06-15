@@ -110,17 +110,16 @@ defined( 'ABSPATH' ) || exit;
 
 		<div>
 			<label for="email"><?php esc_html_e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" class="regular-text" />
+			<input type="text" name="email" id="email" value="<?php bbp_displayed_user_field( 'user_email', 'edit' ); ?>" class="regular-text" autocomplete="off" />
 		</div>
 
 		<div id="password">
 			<label for="pass1"><?php esc_html_e( 'New Password', 'bbpress' ); ?></label>
 			<fieldset class="bbp-form password">
-				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="off" />
-				<span class="description"><?php esc_html_e( 'If you would like to change the password type a new one. Otherwise leave this blank.', 'bbpress' ); ?></span>
+				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="new-password" />
 
-				<input type="password" name="pass2" id="pass2" size="16" value="" autocomplete="off" />
-				<span class="description"><?php esc_html_e( 'Type your new password again.', 'bbpress' ); ?></span><br />
+				<input type="password" name="pass2" id="pass2" size="16" value="" autocomplete="new-password" />
+				<span class="description"><?php esc_html_e( 'To update your password, simply type a new two times here. Otherwise leave this blank.', 'bbpress' ); ?></span>
 
 				<div id="pass-strength-result"></div>
 				<span class="description indicator-hint"><?php esc_html_e( 'Your password should be at least ten characters long. Use upper and lower case letters, numbers, and symbols to make it even stronger.', 'bbpress' ); ?></span>

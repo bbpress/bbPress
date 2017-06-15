@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="bbp-username">
 			<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?>: </label>
-			<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" />
+			<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" autocomplete="off" />
 		</div>
 
 		<div class="bbp-password">

@@ -27,12 +27,12 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="bbp-username">
 			<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?>: </label>
-			<input type="text" name="user_login" value="<?php bbp_sanitize_val( 'user_login' ); ?>" size="20" id="user_login" />
+			<input type="text" name="user_login" value="<?php bbp_sanitize_val( 'user_login' ); ?>" size="20" id="user_login" autocomplete="off" />
 		</div>
 
 		<div class="bbp-email">
 			<label for="user_email"><?php esc_html_e( 'Email', 'bbpress' ); ?>: </label>
-			<input type="text" name="user_email" value="<?php bbp_sanitize_val( 'user_email' ); ?>" size="20" id="user_email" />
+			<input type="text" name="user_email" value="<?php bbp_sanitize_val( 'user_email' ); ?>" size="20" id="user_email" autocomplete="off" />
 		</div>
 
 		<?php do_action( 'register_form' ); ?>
