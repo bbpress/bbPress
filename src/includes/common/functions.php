@@ -2164,3 +2164,12 @@ function bbp_set_404() {
 
 	$wp_query->set_404();
 }
+
+/**
+ * Maybe avoid default 404 handling for some bbPress pages
+ *
+ * @since 2.6.0 bbPress (r6555)
+ */
+function bbp_pre_handle_404( $override = false, $wp_query = false ) {
+	return $override;
+}
