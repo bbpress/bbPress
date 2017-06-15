@@ -209,7 +209,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-rc-6541';
+		$this->version    = '2.6-rc-6550';
 		$this->db_version = '262';
 
 		/** Paths *************************************************************/
@@ -445,19 +445,18 @@ final class bbPress {
 	 */
 	public function register_theme_packages() {
 
+		// Register the basic theme stack. This is really dope.
+		bbp_register_template_stack( 'get_stylesheet_directory', 6 );
+		bbp_register_template_stack( 'get_template_directory',   8 );
+
 		// Register the default theme compatibility package
 		bbp_register_theme_package( array(
 			'id'      => 'default',
-			'name'    => __( 'bbPress Default', 'bbpress' ),
+			'name'    => 'bbPress Default',
 			'version' => bbp_get_version(),
 			'dir'     => trailingslashit( $this->themes_dir . 'default' ),
 			'url'     => trailingslashit( $this->themes_url . 'default' )
 		) );
-
-		// Register the basic theme stack. This is really dope.
-		bbp_register_template_stack( 'get_stylesheet_directory', 10 );
-		bbp_register_template_stack( 'get_template_directory',   12 );
-		bbp_register_template_stack( 'bbp_get_theme_compat_dir', 14 );
 	}
 
 	/**
@@ -466,13 +465,6 @@ final class bbPress {
 	 * @since 2.1.0 bbPress (r3778)
 	 */
 	public function setup_theme() {
-
-		// Bail if something already has this under control
-		if ( ! empty( $this->theme_compat->theme ) ) {
-			return;
-		}
-
-		// Setup the theme package to use for compatibility
 		bbp_setup_theme_compat( bbp_get_theme_package_id() );
 	}
 

@@ -28,8 +28,7 @@ defined( 'ABSPATH' ) || exit;
  * Theme Compatibility base class
  *
  * This is only intended to be extended, and is included here as a basic guide
- * for future Theme Packs to use. @link BBP_Twenty_Ten is a good example of
- * extending this class, as is @link bbp_setup_theme_compat()
+ * for future Template Packs to use. @link bbp_setup_theme_compat()
  *
  * @since 2.0.0 bbPress (r3506)
  */
@@ -87,34 +86,71 @@ class BBP_Theme_Compat {
 			? $this->_data[ $property ]
 			: '';
 	}
+
+	/**
+	 * Return the template directory.
+	 *
+	 * @since 2.6.0 bbPress (r6548)
+	 *
+	 * @return string
+	 */
+	public function get_dir() {
+		return $this->dir;
+	}
 }
 
 /** Functions *****************************************************************/
 
 /**
- * Setup the default theme compat theme
+ * Setup the active template pack and register it's directory in the stack.
  *
  * @since 2.0.0 bbPress (r3311)
  *
  * @param BBP_Theme_Compat $theme
  */
-function bbp_setup_theme_compat( $theme = '' ) {
+function bbp_setup_theme_compat( $theme = 'default' ) {
 	$bbp = bbpress();
 
-	// Make sure theme package is available, set to default if not
-	if ( ! isset( $bbp->theme_compat->packages[ $theme ] ) || ! is_a( $bbp->theme_compat->packages[ $theme ], 'BBP_Theme_Compat' ) ) {
+	// Bail if something already has this under control
+	if ( ! empty( $bbp->theme_compat->theme ) ) {
+		return;
+	}
+
+	// Fallback for empty theme
+	if ( empty( $theme ) ) {
 		$theme = 'default';
 	}
 
-	// Try to set the active theme compat theme. If it's not in the registered
-	// packages array, it doesn't exist, so do nothing with it.
+	// If the theme is registered, use it and add it to the stack
 	if ( isset( $bbp->theme_compat->packages[ $theme ] ) ) {
 		$bbp->theme_compat->theme = $bbp->theme_compat->packages[ $theme ];
+
+		// Setup the template stack for the active template pack
+		bbp_register_template_stack( array( $bbp->theme_compat->theme, 'get_dir' ) );
 	}
 }
 
 /**
- * Gets the name of the bbPress compatible theme used, in the event the
+ * Get the current template pack package.
+ *
+ * @since 2.6.0 bbPress (r6548)
+ *
+ * @return BBP_Theme_Compat
+ */
+function bbp_get_current_template_pack() {
+	$bbp = bbpress();
+
+	// Theme was not setup, so fallback to an empty object
+	if ( empty( $bbp->theme_compat->theme ) ) {
+		$bbp->theme_compat->theme = new BBP_Theme_Compat();
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_current_template_pack', $bbp->theme_compat->theme );
+}
+
+/**
+ * Gets the id of the bbPress compatible theme used, in the event the
  * currently active WordPress theme does not explicitly support bbPress.
  * This can be filtered or set manually. Tricky theme authors can override the
  * default and include their own bbPress compatibility layers for their themes.
@@ -127,7 +163,7 @@ function bbp_setup_theme_compat( $theme = '' ) {
 function bbp_get_theme_compat_id() {
 
 	// Filter & return
-	return apply_filters( 'bbp_get_theme_compat_id', bbpress()->theme_compat->theme->id );
+	return apply_filters( 'bbp_get_theme_compat_id', bbp_get_current_template_pack()->id );
 }
 
 /**
@@ -144,7 +180,7 @@ function bbp_get_theme_compat_id() {
 function bbp_get_theme_compat_name() {
 
 	// Filter & return
-	return apply_filters( 'bbp_get_theme_compat_name', bbpress()->theme_compat->theme->name );
+	return apply_filters( 'bbp_get_theme_compat_name', bbp_get_current_template_pack()->name );
 }
 
 /**
@@ -161,7 +197,7 @@ function bbp_get_theme_compat_name() {
 function bbp_get_theme_compat_version() {
 
 	// Filter & return
-	return apply_filters( 'bbp_get_theme_compat_version', bbpress()->theme_compat->theme->version );
+	return apply_filters( 'bbp_get_theme_compat_version', bbp_get_current_template_pack()->version );
 }
 
 /**
@@ -178,7 +214,7 @@ function bbp_get_theme_compat_version() {
 function bbp_get_theme_compat_dir() {
 
 	// Filter & return
-	return apply_filters( 'bbp_get_theme_compat_dir', bbpress()->theme_compat->theme->dir );
+	return apply_filters( 'bbp_get_theme_compat_dir', bbp_get_current_template_pack()->dir );
 }
 
 /**
@@ -195,7 +231,7 @@ function bbp_get_theme_compat_dir() {
 function bbp_get_theme_compat_url() {
 
 	// Filter & return
-	return apply_filters( 'bbp_get_theme_compat_url', bbpress()->theme_compat->theme->url );
+	return apply_filters( 'bbp_get_theme_compat_url', bbp_get_current_template_pack()->url );
 }
 
 /**
@@ -272,7 +308,7 @@ function bbp_set_theme_compat_original_template( $template = '' ) {
 }
 
 /**
- * Set the theme compat original_template global
+ * Is a template the original_template global
  *
  * Stash the original template file for the current query. Useful for checking
  * if bbPress was able to find a more appropriate template.
@@ -282,6 +318,7 @@ function bbp_set_theme_compat_original_template( $template = '' ) {
 function bbp_is_theme_compat_original_template( $template = '' ) {
 	$bbp = bbpress();
 
+	// Bail if no original template
 	if ( empty( $bbp->theme_compat->original_template ) ) {
 		return false;
 	}
@@ -316,6 +353,7 @@ function bbp_register_theme_package( $theme = array(), $override = true ) {
 		$bbp->theme_compat->packages[ $theme->id ] = $theme;
 	}
 }
+
 /**
  * This fun little function fills up some WordPress globals with dummy data to
  * stop your average page template from complaining about it missing.

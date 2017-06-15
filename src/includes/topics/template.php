@@ -1992,7 +1992,7 @@ function bbp_topic_subscription_link( $args = array() ) {
 }
 
 	/**
-	 * Get the forum subscription link
+	 * Get the topic subscription link
 	 *
 	 * A custom wrapper for bbp_get_user_subscribe_link()
 	 *
@@ -2015,8 +2015,9 @@ function bbp_topic_subscription_link( $args = array() ) {
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'user_id'     => 0,
-			'topic_id'    => 0,
+			'user_id'     => bbp_get_current_user_id(),
+			'object_id'   => bbp_get_topic_id(),
+			'object_type' => 'post',
 			'before'      => '&nbsp;|&nbsp;',
 			'after'       => '',
 			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
@@ -2069,8 +2070,9 @@ function bbp_topic_favorite_link( $args = array() ) {
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'user_id'     => 0,
-			'topic_id'    => 0,
+			'user_id'     => bbp_get_current_user_id(),
+			'object_id'   => bbp_get_topic_id(),
+			'object_type' => 'post',
 			'before'      => '',
 			'after'       => '',
 			'favorite'    => esc_html__( 'Favorite',   'bbpress' ),

@@ -1,19 +1,20 @@
-/* global bbpTopicJS */
+/* global bbpEngagementJS */
 jQuery( document ).ready( function ( $ ) {
 
-	function bbp_ajax_call( action, topic_id, nonce, update_selector ) {
+	function bbp_ajax_call( action, object, type, nonce, update_selector ) {
 		var $data = {
 			action : action,
-			id     : topic_id,
+			id     : object,
+			type   : type,
 			nonce  : nonce
 		};
 
-		$.post( bbpTopicJS.bbp_ajaxurl, $data, function ( response ) {
+		$.post( bbpEngagementJS.bbp_ajaxurl, $data, function ( response ) {
 			if ( response.success ) {
 				$( update_selector ).html( response.content );
 			} else {
 				if ( !response.content ) {
-					response.content = bbpTopicJS.generic_ajax_error;
+					response.content = bbpEngagementJS.generic_ajax_error;
 				}
 				window.alert( response.content );
 			}
@@ -22,12 +23,24 @@ jQuery( document ).ready( function ( $ ) {
 
 	$( '#favorite-toggle' ).on( 'click', 'span a.favorite-toggle', function( e ) {
 		e.preventDefault();
-		bbp_ajax_call( 'favorite', $( this ).attr( 'data-topic' ), $( this ).data( 'bbp-nonce' ), '#favorite-toggle' );
+		bbp_ajax_call(
+			'favorite',
+			$( this ).data( 'bbp-object-id'   ),
+			$( this ).data( 'bbp-object-type' ),
+			$( this ).data( 'bbp-nonce'       ),
+			'#favorite-toggle'
+		);
 	} );
 
 	$( '#subscription-toggle' ).on( 'click', 'span a.subscription-toggle', function( e ) {
 		e.preventDefault();
-		bbp_ajax_call( 'subscription', $( this ).attr( 'data-topic' ), $( this ).data( 'bbp-nonce' ), '#subscription-toggle' );
+		bbp_ajax_call(
+			'subscription',
+			$( this ).data( 'bbp-object-id'   ),
+			$( this ).data( 'bbp-object-type' ),
+			$( this ).data( 'bbp-nonce'       ),
+			'#subscription-toggle'
+		);
 	} );
 
 	$( '.bbp-alert-outer' ).on( 'click', '.bbp-alert-close', function( e ) {

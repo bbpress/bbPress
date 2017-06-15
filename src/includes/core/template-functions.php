@@ -283,7 +283,7 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
  *
  * @param string $location_callback Callback function that returns the
  * @param int $priority
- * @see bbp_register_template_stack()
+ * @return bool Whether stack was removed
  */
 function bbp_deregister_template_stack( $location_callback = '', $priority = 10 ) {
 
@@ -299,8 +299,6 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
 /**
  * Call the functions added to the 'bbp_template_stack' filter hook, and return
  * an array of the template locations.
- *
- * @see bbp_register_template_stack()
  *
  * @since 2.2.0 bbPress (r4323)
  * @since 2.6.0 bbPress (r5944) Added support for `WP_Hook`

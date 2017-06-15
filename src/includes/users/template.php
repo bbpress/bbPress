@@ -1159,18 +1159,32 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 			'favorite'    => __( 'Favorite',   'bbpress' ),
 			'favorited'   => __( 'Unfavorite', 'bbpress' ),
 			'user_id'     => 0,
-			'topic_id'    => 0,
+			'object_id'   => 0,
+			'object_type' => 'post',
 			'before'      => '',
 			'after'       => '',
-			'redirect_to' => ''
+			'redirect_to' => '',
+
+			// Deprecated. Use object_id.
+			'forum_id'    => 0,
+			'topic_id'    => 0
 		), 'get_user_favorites_link' );
 
-		// Validate user and topic ID's
-		$user_id   = bbp_get_user_id( $r['user_id'], true, true );
-		$object_id = bbp_get_topic_id( $r['topic_id'] );
+		// Validate user and object ID's
+		$user_id     = bbp_get_user_id( $r['user_id'], true, true );
+		$object_type = sanitize_key( $r['object_type'] );
+
+		// Back-compat for deprecated arguments
+		if ( ! empty( $r['topic_id'] ) ) {
+			$object_id = absint( $r['topic_id'] );
+		} elseif ( ! empty( $r['forum_id'] ) ) {
+			$object_id = absint( $r['forum_id'] );
+		} else {
+			$object_id = absint( $r['object_id'] );
+		}
 
 		// Bail if empty
-		if ( empty( $user_id ) || empty( $object_id ) ) {
+		if ( empty( $user_id ) || empty( $object_id ) || empty( $object_type ) ) {
 			return false;
 		}
 
@@ -1183,10 +1197,16 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		$is_fav = bbp_is_user_favorite( $user_id, $object_id );
 		if ( ! empty( $is_fav ) ) {
 			$text   = $r['favorited'];
-			$q_args = array( 'action' => 'bbp_favorite_remove', 'object_id' => $object_id );
+			$q_args = array(
+				'action'    => 'bbp_favorite_remove',
+				'object_id' => $object_id
+			);
 		} else {
 			$text   = $r['favorite'];
-			$q_args = array( 'action' => 'bbp_favorite_add',    'object_id' => $object_id );
+			$q_args = array(
+				'action'    => 'bbp_favorite_add',
+				'object_id' => $object_id
+			);
 		}
 
 		// Custom redirect
@@ -1197,7 +1217,7 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		// URL
 		$url  = esc_url( wp_nonce_url( add_query_arg( $q_args ), 'toggle-favorite_' . $object_id ) );
 		$sub  = $is_fav ? ' class="is-favorite"' : '';
-		$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-object-id="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, wp_create_nonce( 'toggle-favorite_' . $object_id ), $text, $r['after'] );
+		$html = sprintf( '%s<span id="favorite-%d"  %s><a href="%s" class="favorite-toggle" data-bbp-object-id="%d" data-bbp-object-type="%s" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( 'toggle-favorite_' . $object_id ), $text, $r['after'] );
 
 		// Initial output is wrapped in a span, ajax output is hooked to this
 		if ( ! empty( $wrap ) ) {
@@ -1351,23 +1371,35 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'subscribe'   => __( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
+			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
 			'user_id'     => 0,
-			'topic_id'    => 0,
-			'forum_id'    => 0,
-			'before'      => '&nbsp;|&nbsp;',
+			'object_id'   => 0,
+			'object_type' => 'post',
+			'before'      => '',
 			'after'       => '',
-			'redirect_to' => ''
+			'redirect_to' => '',
+
+			// Deprecated. Use object_id.
+			'forum_id'    => 0,
+			'topic_id'    => 0
 		), 'get_user_subscribe_link' );
 
-		// Validate user and object ID's
-		$user_id  = bbp_get_user_id( $r['user_id'], true, true );
-		$topic_id = bbp_get_topic_id( $r['topic_id'] );
-		$forum_id = bbp_get_forum_id( $r['forum_id'] );
+		// Validate user
+		$user_id     = bbp_get_user_id( $r['user_id'], true, true );
+		$object_type = sanitize_key( $r['object_type'] );
+
+		// Back-compat for deprecated arguments
+		if ( ! empty( $r['topic_id'] ) ) {
+			$object_id = absint( $r['topic_id'] );
+		} elseif ( ! empty( $r['forum_id'] ) ) {
+			$object_id = absint( $r['forum_id'] );
+		} else {
+			$object_id = absint( $r['object_id'] );
+		}
 
 		// Bail if anything is missing
-		if ( empty( $user_id ) || ( empty( $topic_id ) && empty( $forum_id ) ) ) {
+		if ( empty( $user_id ) || empty( $object_id ) || empty( $object_type ) ) {
 			return false;
 		}
 
@@ -1376,21 +1408,22 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 			return false;
 		}
 
-		// Check if viewing forum or topic (more to do later)
-		if ( ! empty( $forum_id ) ) {
-			$object_id = $forum_id;
-		} elseif ( ! empty( $topic_id ) ) {
-			$object_id = $topic_id;
-		}
-
 		// Decide which link to show
 		$is_subscribed = bbp_is_user_subscribed( $user_id, $object_id );
 		if ( ! empty( $is_subscribed ) ) {
 			$text   = $r['unsubscribe'];
-			$q_args = array( 'action' => 'bbp_unsubscribe', 'object_id' => $object_id );
+			$q_args = array(
+				'action'      => 'bbp_unsubscribe',
+				'object_id'   => $object_id,
+				'object_type' => $object_type
+			);
 		} else {
 			$text   = $r['subscribe'];
-			$q_args = array( 'action' => 'bbp_subscribe',   'object_id' => $object_id );
+			$q_args = array(
+				'action'      => 'bbp_subscribe',
+				'object_id'   => $object_id,
+				'object_type' => $object_type
+			);
 		}
 
 		// Custom redirect
@@ -1401,7 +1434,7 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 		// URL
 		$url  = esc_url( wp_nonce_url( add_query_arg( $q_args ), 'toggle-subscription_' . $object_id ) );
 		$sub  = $is_subscribed ? ' class="is-subscribed"' : '';
-		$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, wp_create_nonce( 'toggle-subscription_' . $object_id ), $text, $r['after'] );
+		$html = sprintf( '%s<span id="subscribe-%d"  %s><a href="%s" class="subscription-toggle" data-bbp-object-id="%d" data-bbp-object-type="%d" data-bbp-nonce="%s">%s</a></span>%s', $r['before'], $object_id, $sub, $url, $object_id, $object_type, wp_create_nonce( 'toggle-subscription_' . $object_id ), $text, $r['after'] );
 
 		// Initial output is wrapped in a span, ajax output is hooked to this
 		if ( ! empty( $wrap ) ) {

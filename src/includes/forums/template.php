@@ -905,8 +905,9 @@ function bbp_forum_subscription_link( $args = array() ) {
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'user_id'     => 0,
-			'forum_id'    => 0,
+			'user_id'     => bbp_get_current_user_id(),
+			'object_id'   => bbp_get_forum_id(),
+			'object_type' => 'post',
 			'before'      => '',
 			'after'       => '',
 			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
