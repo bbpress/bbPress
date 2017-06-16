@@ -119,6 +119,22 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			}
 
 			break;
+
+		/** Super Moderators **************************************************/
+
+		case 'edit_user'  :
+		case 'edit_users' :
+
+			// Moderators can edit users if super moderators is enabled
+			if ( bbp_allow_super_mods() ) {
+
+				// Users can always edit themselves, so only map for others
+				if ( bbp_get_current_user_id() !== $user_id ) {
+					$caps = array( 'moderate' );
+				}
+			}
+
+			break;
 	}
 
 	// Filter & return
