@@ -211,6 +211,14 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Allow moderators to edit users
+			'_bbp_allow_super_mods' => array(
+				'title'             => esc_html__( 'Super Moderators', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_super_mods',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Allow topic tags
 			'_bbp_allow_search' => array(
 				'title'             => esc_html__( 'Search', 'bbpress' ),
@@ -831,6 +839,22 @@ function bbp_admin_setting_callback_forum_mods() {
 
 	<input name="_bbp_allow_forum_mods" id="_bbp_allow_forum_mods" type="checkbox" value="1" <?php checked( bbp_allow_forum_mods( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_forum_mods' ); ?> />
 	<label for="_bbp_allow_forum_mods"><?php esc_html_e( 'Allow forums to have dedicated moderators', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow super-mods setting field
+ *
+ * @since 2.6.0 bbPress (r6562)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_super_mods() {
+?>
+
+	<input name="_bbp_allow_super_mods" id="_bbp_allow_super_mods" type="checkbox" value="1" <?php checked( bbp_allow_super_mods( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_super_mods' ); ?> />
+	<label for="_bbp_allow_super_mods"><?php esc_html_e( 'Allow moderators to edit other users', 'bbpress' ); ?></label>
 
 <?php
 }

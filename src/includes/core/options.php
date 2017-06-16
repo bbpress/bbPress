@@ -42,6 +42,7 @@ function bbp_get_default_options() {
 		'_bbp_allow_revisions'        => 1,                          // Allow revisions
 		'_bbp_allow_topic_tags'       => 1,                          // Allow topic tagging
 		'_bbp_allow_forum_mods'       => 1,                          // Allow per-forum moderation
+		'_bbp_allow_super_mods'       => 0,                          // Allow mods to edit users
 		'_bbp_allow_threaded_replies' => 0,                          // Allow threaded replies
 		'_bbp_allow_search'           => 1,                          // Allow forum-wide search
 		'_bbp_thread_replies_depth'   => 2,                          // Thread replies depth
@@ -408,7 +409,7 @@ function bbp_allow_topic_tags( $default = 1 ) {
  * @since 2.6.0 bbPress (r5834)
  *
  * @param bool $default Optional. Default value true.
- * @uses get_option() To get the allow per-forum moderators
+ * @uses get_option() To get the allow per-forum moderators setting
  *
  * @return bool Are per-forum moderators allowed?
  */
@@ -416,6 +417,22 @@ function bbp_allow_forum_mods( $default = 1 ) {
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_allow_forum_mods', (bool) get_option( '_bbp_allow_forum_mods', $default ) );
+}
+
+/**
+ * Are moderators allowed to edit users
+ *
+ * @since 2.6.0 bbPress (r6562)
+ *
+ * @param bool $default Optional. Default value true.
+ * @uses get_option() To get the allow super moderators setting
+ *
+ * @return bool Are moderators allowed to edit users?
+ */
+function bbp_allow_super_mods( $default = 0 ) {
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_allow_super_mods', (bool) get_option( '_bbp_allow_super_mods', $default ) );
 }
 
 /**
