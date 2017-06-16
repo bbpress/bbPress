@@ -693,7 +693,7 @@ class BBP_Admin {
 	 * @since 2.3.0 bbPress (r4678)
 	 *
 	 * @param string $capability
-	 * @return string Return 'keep_gate' capability
+	 * @return string Return minimum capability
 	 */
 	public function option_page_capability_bbpress( $capability = 'manage_options' ) {
 		$capability = $this->minimum_capability;

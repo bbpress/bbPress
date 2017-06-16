@@ -264,10 +264,11 @@ class BBP_Topics_Admin {
 	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
+		$bulk_messages['topic']['updated'] = _n( '%s topic updated.', '%s topics updated.', $bulk_counts['updated'], 'bbpress' );
+		$bulk_messages['topic']['locked']  = ( 1 === $bulk_counts['locked'] )
+			? __( '1 topic not updated, somebody is editing it.', 'bbpress' )
+			: _n( '%s topic not updated, somebody is editing it.', '%s topics not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress' );
 
-		$bulk_messages['topic']['updated'] = _n( '%s topic updated.', '%s topics updated.', $bulk_counts['updated'], 'bbpress'  );
-		$bulk_messages['topic']['locked']  = ( 1 === $bulk_counts['locked'] ) ? __( '1 topic not updated, somebody is editing it.', 'bbpress'  ) :
-		                                          _n( '%s topic not updated, somebody is editing it.', '%s topics not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress'  );
 		return $bulk_messages;
 	}
 

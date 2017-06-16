@@ -259,10 +259,11 @@ class BBP_Replies_Admin {
 	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
+		$bulk_messages['reply']['updated'] = _n( '%s reply updated.', '%s replies updated.', $bulk_counts['updated'], 'bbpress');
+		$bulk_messages['reply']['locked']  = ( 1 === $bulk_counts['locked'] )
+			? __( '1 reply not updated, somebody is editing it.', 'bbpress' )
+			: _n( '%s reply not updated, somebody is editing it.', '%s replies not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress' );
 
-		$bulk_messages['reply']['updated'] = _n( '%s reply updated.', '%s replies updated.', $bulk_counts['updated'], 'bbpress' );
-		$bulk_messages['reply']['locked']  = ( 1 === $bulk_counts['locked'] ) ? __( '1 reply not updated, somebody is editing it.', 'bbpress' ) :
-		                                          _n( '%s reply not updated, somebody is editing it.', '%s replies not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress' );
 		return $bulk_messages;
 	}
 
