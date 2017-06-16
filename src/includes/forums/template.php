@@ -626,37 +626,18 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  */
 function bbp_forum_get_subforums( $args = array() ) {
 
+	// Default return value
+	$retval = array();
+
 	// Use passed integer as post_parent
 	if ( is_numeric( $args ) ) {
 		$args = array( 'post_parent' => bbp_get_forum_id( $args ) );
-	}
-
-	// Setup post status array
-	$post_stati = array( bbp_get_public_status_id() );
-
-	// Super admin get whitelisted post statuses
-	if ( bbp_is_user_keymaster() ) {
-		$post_stati = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
-
-	// Not a keymaster, so check caps
-	} else {
-
-		// Check if user can read private forums
-		if ( current_user_can( 'read_private_forums' ) ) {
-			$post_stati[] = bbp_get_private_status_id();
-		}
-
-		// Check if user can read hidden forums
-		if ( current_user_can( 'read_hidden_forums' ) ) {
-			$post_stati[] = bbp_get_hidden_status_id();
-		}
 	}
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'post_parent'         => 0,
 		'post_type'           => bbp_get_forum_post_type(),
-		'post_status'         => $post_stati,
 		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
 		'orderby'             => 'menu_order title',
 		'order'               => 'ASC',
@@ -667,16 +648,14 @@ function bbp_forum_get_subforums( $args = array() ) {
 	// Ensure post_parent is properly set
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
-	// Create a new query for the subforums
-	$get_posts = new WP_Query();
-
-	// No forum passed
-	$sub_forums = ! empty( $r['post_parent'] )
-		? $get_posts->query( $r )
-		: array();
+	// Query if post_parent has subforums
+	if ( ! empty( $r['post_parent'] ) && bbp_get_forum_subforum_count( $r['post_parent'], true ) ) {
+		$get_posts = new WP_Query();
+		$retval    = $get_posts->query( $r );
+	}
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_forum_get_subforums', $sub_forums, $r, $args );
+	return (array) apply_filters( 'bbp_forum_get_subforums', $retval, $r, $args );
 }
 
 /**
