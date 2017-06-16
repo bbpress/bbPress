@@ -385,23 +385,24 @@ function bbp_displayed_user_field( $field = '', $filter = 'display' ) {
  * @uses bbp_get_current_user_name() To get the current user name
  */
 function bbp_current_user_name() {
-	echo bbp_get_current_user_name();
+	echo esc_attr( bbp_get_current_user_name() );
 }
 	/**
 	 * Return name of current user
 	 *
 	 * @since 2.0.0 bbPress (r2574)
 	 *
-	 * @uses apply_filters() Calls 'bbp_get_current_user_name' with the
-	 *                        current user name
 	 * @return string
 	 */
 	function bbp_get_current_user_name() {
-		global $user_identity;
 
+		// Default current user name
+		$default = bbp_get_fallback_display_name();
+
+		// Check the $user_identity global
 		$current_user_name = is_user_logged_in()
-			? $user_identity
-			: esc_html__( 'Anonymous', 'bbpress' );
+			? bbp_get_global_object( 'user_identity', false, $default )
+			: $default;
 
 		// Filter & return
 		return apply_filters( 'bbp_get_current_user_name', $current_user_name );
@@ -532,7 +533,9 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		}
 
 		// Maybe wrap the nicename
-		$retval = ! empty( $nicename ) ? ( $r['before'] . $nicename . $r['after'] ) : '';
+		$retval = ! empty( $nicename )
+			? $r['before'] . esc_html( $nicename ) . $r['after']
+			: '';
 
 		// Filter & return
 		return (string) apply_filters( 'bbp_get_user_nicename', $retval, $user_id, $r, $args );
@@ -710,7 +713,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
  * @uses bbp_get_user_display_role To get the user display role
  */
 function bbp_user_display_role( $user_id = 0 ) {
-	echo bbp_get_user_display_role( $user_id );
+	echo esc_attr( bbp_get_user_display_role( $user_id ) );
 }
 	/**
 	 * Return a user's main role for display
@@ -721,8 +724,6 @@ function bbp_user_display_role( $user_id = 0 ) {
 	 * @uses bbp_get_user_id() to verify the user ID
 	 * @uses bbp_is_user_inactive() to check if user is inactive
 	 * @uses user_can() to check if user has special capabilities
-	 * @uses apply_filters() Calls 'bbp_get_user_display_role' with the
-	 *                        display role, user id, and user role
 	 * @return string
 	 */
 	function bbp_get_user_display_role( $user_id = 0 ) {
@@ -732,11 +733,11 @@ function bbp_user_display_role( $user_id = 0 ) {
 
 		// User is not registered
 		if ( empty( $user_id ) ) {
-			$role = __( 'Guest', 'bbpress' );
+			$role = esc_html__( 'Guest', 'bbpress' );
 
 		// User is not active
 		} elseif ( bbp_is_user_inactive( $user_id ) ) {
-			$role = __( 'Inactive', 'bbpress' );
+			$role = esc_html__( 'Inactive', 'bbpress' );
 
 		// User have a role
 		} else {
@@ -746,7 +747,7 @@ function bbp_user_display_role( $user_id = 0 ) {
 
 		// No role found so default to generic "Member"
 		if ( empty( $role ) ) {
-			$role = __( 'Member', 'bbpress' );
+			$role = esc_html__( 'Member', 'bbpress' );
 		}
 
 		// Filter & return
@@ -838,19 +839,34 @@ function bbp_author_ip( $args = array() ) {
 
 		// Get the author IP meta value
 		$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
-		if ( ! empty( $author_ip ) ) {
-			$author_ip = $r['before'] . $author_ip . $r['after'];
-
-		// No IP address
-		} else {
-			$author_ip = '';
-		}
+		$author_ip = ! empty( $author_ip )
+			? $r['before'] . esc_html( $author_ip ) . $r['after']
+			: '';
 
 		// Filter & return
 		return apply_filters( 'bbp_get_author_ip', $author_ip, $r, $args );
 	}
 
 /** Anonymous Fields **********************************************************/
+
+/**
+ * Get the default name that's displayed when a user cannot be identified.
+ *
+ * This might happen if a user was deleted but their content was retained, or
+ * if something went wrong during saving anonymous user data to the database.
+ *
+ * @since 2.6.0 bbPress (r6561)
+ *
+ * @param int $object_id For additional context only, usually a post ID
+ *
+ * @return string
+ */
+function bbp_get_fallback_display_name( $object_id = 0 ) {
+	$name = esc_html__( 'Anonymous', 'bbpress' );
+
+	// Filter & return
+	return apply_filters( 'bbp_get_anonymous_name', $name, $object_id );
+}
 
 /**
  * Output the author display-name of a topic or reply.
@@ -979,7 +995,7 @@ function bbp_author_email( $post_id = 0 ) {
  * @uses bbp_get_author_url() to get the author url
  */
 function bbp_author_url( $post_id = 0 ) {
-	echo bbp_get_author_url( $post_id );
+	echo esc_attr( bbp_get_author_url( $post_id ) );
 }
 
 	/**
