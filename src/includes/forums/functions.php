@@ -82,6 +82,19 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 		'forum_id' => $forum_id
 	) );
 
+	// Maybe make private
+	if ( bbp_is_forum_private( $forum_id, false ) ) {
+		bbp_privatize_forum( $forum_id );
+
+	// Maybe make hidden
+	} elseif ( bbp_is_forum_hidden( $forum_id, false ) ) {
+		bbp_hide_forum( $forum_id );
+
+	// Publicize
+	} else {
+		bbp_publicize_forum( $forum_id );
+	}
+
 	/**
 	 * Fires after forum has been inserted via `bbp_insert_forum`.
 	 *
@@ -2132,55 +2145,45 @@ function bbp_get_excluded_forum_ids() {
  * @uses apply_filters()
  */
 function bbp_exclude_forum_ids( $type = 'string' ) {
-	static $types = array();
 
 	// Setup arrays
 	$forum_ids = array();
 
-	// Capability performance optimization
-	if ( ! empty( $types[ $type ] ) ) {
-		$retval    = $types[ $type ];
-		$forum_ids = $types['array'];
+	// Types
+	$types = array(
+		'array'      => array(),
+		'string'     => '',
+		'meta_query' => array()
+	);
 
-	// Populate forum types
-	} else {
+	// Exclude for everyone but keymasters
+	if ( ! bbp_is_user_keymaster() ) {
 
-		// Types
-		$types = array(
-			'array'      => array(),
-			'string'     => '',
-			'meta_query' => array()
-		);
+		// Get forum IDs to exclude
+		$forum_ids = bbp_get_excluded_forum_ids();
 
-		// Exclude for everyone but keymasters
-		if ( ! bbp_is_user_keymaster() ) {
+		// Store return values in static types array
+		if ( ! empty( $forum_ids ) ) {
 
-			// Get forum IDs to exclude
-			$forum_ids = bbp_get_excluded_forum_ids();
+			// Comparison
+			$compare = ( 1 < count( $forum_ids ) )
+				? 'NOT IN'
+				: '!=';
 
-			// Store return values in static types array
-			if ( ! empty( $forum_ids ) ) {
-
-				// Comparison
-				$compare = ( 1 < count( $forum_ids ) )
-					? 'NOT IN'
-					: '!=';
-
-				// Setup types
-				$types['array']      = $forum_ids;
-				$types['string']     = implode( ',', $forum_ids );
-				$types['meta_query'] = array(
-					'key'     => '_bbp_forum_id',
-					'value'   => $types['string'],
-					'type'    => 'NUMERIC',
-					'compare' => $compare
-				);
-			}
+			// Setup types
+			$types['array']      = $forum_ids;
+			$types['string']     = implode( ',', $forum_ids );
+			$types['meta_query'] = array(
+				'key'     => '_bbp_forum_id',
+				'value'   => $types['string'],
+				'type'    => 'NUMERIC',
+				'compare' => $compare
+			);
 		}
-
-		// There are forums that need to be excluded
-		$retval = $types[ $type ];
 	}
+
+	// There are forums that need to be excluded
+	$retval = $types[ $type ];
 
 	// Filter & return
 	return apply_filters( 'bbp_exclude_forum_ids', $retval, $forum_ids, $type );
@@ -2229,49 +2232,29 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		}
 
 		/** Default ***********************************************************/
+global $jjj;
+		// Add all supported forum visibilities
+		$posts_query->set( 'post_status', array_keys( bbp_get_forum_visibilities() ) );
 
-		// Get any existing post status
-		$post_stati = $posts_query->get( 'post_status' );
+		// Get forums to exclude
+		$hidden_ids = bbp_exclude_forum_ids( 'array' );
 
-		// Default to public status
-		if ( empty( $post_stati ) ) {
-			$post_stati = array( bbp_get_public_status_id() );
-
-		// Split the status string
-		} elseif ( is_string( $post_stati ) ) {
-			$post_stati = explode( ',', $post_stati );
+		// Bail if no forums to exclude
+		if ( empty( $hidden_ids ) ) {
+			return;
 		}
 
-		/** Private ***********************************************************/
+if ( true === $jjj ) {
+	var_dump( bbp_get_private_forum_ids() ); die;
+}
+		// Get any existing meta queries
+		$not_in = $posts_query->get( 'post__not_in', array() );
 
-		// Remove bbp_get_private_status_id() if user is not capable
-		if ( ! current_user_can( 'read_private_forums' ) ) {
-			$key = array_search( bbp_get_private_status_id(), $post_stati, true );
-			if ( ! empty( $key ) ) {
-				unset( $post_stati[ $key ] );
-			}
+		// Add our meta query to existing
+		$not_in = array_unique( array_merge( $not_in, $hidden_ids ) );
 
-		// ...or add it if they are
-		} else {
-			$post_stati[] = bbp_get_private_status_id();
-		}
-
-		/** Hidden ************************************************************/
-
-		// Remove bbp_get_hidden_status_id() if user is not capable
-		if ( ! current_user_can( 'read_hidden_forums' ) ) {
-			$key = array_search( bbp_get_hidden_status_id(), $post_stati, true );
-			if ( ! empty( $key ) ) {
-				unset( $post_stati[ $key ] );
-			}
-
-		// ...or add it if they are
-		} else {
-			$post_stati[] = bbp_get_hidden_status_id();
-		}
-
-		// Add the statuses
-		$posts_query->set( 'post_status', array_unique( array_filter( $post_stati ) ) );
+		// Set the meta_query var
+		$posts_query->set( 'post__not_in', $not_in );
 
 	// Some other post type besides Forums, Topics, or Replies
 	} elseif ( ! array_diff( $post_types, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) ) {
