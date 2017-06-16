@@ -64,6 +64,10 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			if ( bbp_is_user_inactive( $user_id ) ) {
 				$caps = array( 'do_not_allow' );
 
+			// Keymasters can always moderate
+			} elseif ( bbp_is_user_keymaster( $user_id ) ) {
+				$caps = array( 'spectate' );
+
 			// Default to the current cap.
 			} else {
 				$caps = array( $cap );
@@ -684,12 +688,8 @@ function bbp_is_user_deleted( $user_id = 0 ) {
  */
 function bbp_is_user_active( $user_id = 0 ) {
 
-	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() ) {
-		$user_id = bbp_get_current_user_id();
-	}
-
 	// No user to check
+	$user_id = bbp_get_user_id( $user_id, false, true );
 	if ( empty( $user_id ) ) {
 		return false;
 	}
@@ -731,11 +731,7 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  * @return bool True if keymaster, false if not
  */
 function bbp_is_user_keymaster( $user_id = 0 ) {
-
-	// Default to current user ID if none is passed
 	$_user_id = bbp_get_user_id( $user_id, false, true );
-
-	// Check the 'keep_gate' capability
 	$retval   = user_can( $_user_id, 'keep_gate' );
 
 	// Filter & return

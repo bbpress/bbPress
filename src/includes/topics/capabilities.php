@@ -62,8 +62,7 @@ function bbp_get_topic_tag_caps() {
  * @uses get_post() To get the post
  * @uses get_post_type_object() To get the post type object
  * @uses bbp_get_public_status_id() To get the  public status id
- * @uses bbp_is_user_forum_moderator() To check if the user is a forum moderator
- * @uses bbp_get_topic_forum_id() To get the opic forum id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses apply_filters() Filter capability map results
  *
  * @return array Actual capabilities for meta capability
@@ -224,7 +223,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		/** Admin *************************************************************/
 
 		case 'bbp_topics_admin' :
-			$caps = array( 'moderate' );
+			$caps = array( 'edit_topics' );
 			break;
 	}
 

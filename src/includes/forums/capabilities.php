@@ -107,6 +107,22 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			break;
 
+		/** Moderating ********************************************************/
+
+		case 'moderate_forum' :
+
+			// Get the post
+			$_post = get_post( $args[0] );
+			if ( ! empty( $_post ) && bbp_allow_forum_mods() ) {
+
+				// Make sure feature is enabled & user is mod on this forum
+				if ( bbp_is_object_of_user( $_post->ID, $user_id, '_bbp_moderator_id' ) ) {
+					$caps = array( 'spectate' );
+				}
+			}
+
+			break;
+
 		/** Publishing ********************************************************/
 
 		case 'publish_forums'  :
@@ -125,8 +141,8 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		case 'edit_others_forums'  :
 
 			// Moderators can always edit
-			if ( user_can( $user_id, 'keep_gate' ) ) {
-				$caps = array( 'keep_gate' );
+			if ( bbp_is_user_keymaster( $user_id ) ) {
+				$caps = array( 'spectate' );
 
 			// Otherwise, block
 			} else {
@@ -149,13 +165,13 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps = array( 'do_not_allow' );
 
-				// User is author so allow edit if not in admin
-				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
-					$caps = array( $post_type->cap->edit_posts );
-
 				// Moderators can always read forum content
 				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
 					$caps = array( 'spectate' );
+
+				// User is author so allow edit if not in admin
+				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
+					$caps = array( $post_type->cap->edit_posts );
 
 				// Unknown, so map to edit_others_posts
 				} else {
@@ -197,7 +213,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 		// Forum admin area.
 		case 'bbp_forums_admin' :
-			$caps = array( 'keep_gate' );
+			$caps = array( 'edit_forums' );
 			break;
 	}
 
@@ -247,15 +263,9 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  * @return bool Return true if user is moderator of forum
  */
 function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
-
-	// Validate user ID - fallback to current user if no ID passed.
-	$user_id  = bbp_get_user_id( $user_id, false, ! empty( $user_id ) );
+	$user_id  = bbp_get_user_id( $user_id, false, empty( $user_id ) );
 	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// Check if per-forum moderation is enabled, or assume false
-	$retval = bbp_allow_forum_mods()
-		? bbp_is_object_of_user( $forum_id, $user_id, '_bbp_moderator_id' )
-		: false;
+	$retval   = user_can( $user_id, 'moderate_forum', $forum_id );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_user_forum_moderator', $retval, $user_id, $forum_id );
