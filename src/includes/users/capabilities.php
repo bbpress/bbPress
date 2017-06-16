@@ -120,8 +120,12 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			if ( bbp_allow_super_mods() ) {
 
 				// Users can always edit themselves, so only map for others
-				if ( bbp_get_current_user_id() !== $user_id ) {
-					$caps = array( 'moderate' );
+				if ( ! empty( $args[0] ) && ( $args[0] !== $user_id ) ) {
+
+					// Super moderators cannot edit keymasters
+					if ( ! bbp_is_user_keymaster( $args[0] ) ) {
+						$caps = array( 'moderate' );
+					}
 				}
 			}
 
