@@ -713,26 +713,12 @@ function bbp_is_user_active( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r3502)
  *
- * @uses is_user_logged_in() To check if user is logged in
- * @uses bbp_get_displayed_user_id() To get current user ID
  * @uses bbp_is_user_active() To check if user is active
  *
  * @param int $user_id The user ID to check. Defaults to current user ID
  * @return bool True if inactive, false if active
  */
 function bbp_is_user_inactive( $user_id = 0 ) {
-
-	// Default to current user
-	if ( empty( $user_id ) && is_user_logged_in() ) {
-		$user_id = bbp_get_current_user_id();
-	}
-
-	// No user to check
-	if ( empty( $user_id ) ) {
-		return false;
-	}
-
-	// Return the inverse of active
 	return ! bbp_is_user_active( $user_id );
 }
 
@@ -747,10 +733,13 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 function bbp_is_user_keymaster( $user_id = 0 ) {
 
 	// Default to current user ID if none is passed
-	$_user_id = (int) ! empty( $user_id ) ? $user_id : bbp_get_current_user_id();
+	$_user_id = bbp_get_user_id( $user_id, false, true );
+
+	// Check the 'keep_gate' capability
+	$retval   = user_can( $_user_id, 'keep_gate' );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_user_keymaster', user_can( $_user_id, 'keep_gate' ), $_user_id, $user_id );
+	return (bool) apply_filters( 'bbp_is_user_keymaster', $retval, $_user_id, $user_id );
 }
 
 /**
