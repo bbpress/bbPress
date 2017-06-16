@@ -696,7 +696,7 @@ class BBP_Admin {
 	 * @return string Return 'keep_gate' capability
 	 */
 	public function option_page_capability_bbpress( $capability = 'manage_options' ) {
-		$capability = 'keep_gate';
+		$capability = $this->minimum_capability;
 		return $capability;
 	}
 
