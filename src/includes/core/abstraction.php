@@ -29,15 +29,15 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 
-	// Bail if no name passed
+	// If no name passed
 	if ( empty( $name ) ) {
 		$retval = $default;
 
-	// Bail if no global exists
+	// If no global exists
 	} elseif ( ! isset( $GLOBALS[ $name ] ) ) {
 		$retval = $default;
 
-	// Bail if not the correct type of global
+	// If not the correct type of global
 	} elseif ( ! empty( $type ) && ! is_a( $GLOBALS[ $name ], $type ) ) {
 		$retval = $default;
 
