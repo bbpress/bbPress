@@ -2441,13 +2441,13 @@ function bbp_current_user_can_access_create_forum_form() {
 	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
+	// User can edit this forum
+	} elseif ( bbp_is_forum_edit() ) {
+		$retval = current_user_can( 'edit_forum', bbp_get_forum_id() );
+
 	// Looking at a single forum & forum is open
 	} elseif ( ( is_page() || is_single() ) && bbp_is_forum_open() ) {
 		$retval = bbp_current_user_can_publish_forums();
-
-	// User can edit this topic
-	} elseif ( bbp_is_forum_edit() ) {
-		$retval = current_user_can( 'edit_forum', bbp_get_forum_id() );
 	}
 
 	// Filter & return
@@ -2477,13 +2477,13 @@ function bbp_current_user_can_access_create_topic_form() {
 	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
-	// Looking at a single forum & forum is open
-	} elseif ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() ) {
-		$retval = bbp_current_user_can_publish_topics();
-
 	// User can edit this topic
 	} elseif ( bbp_is_topic_edit() ) {
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
+
+	// Looking at a single forum & forum is open
+	} elseif ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() ) {
+		$retval = bbp_current_user_can_publish_topics();
 	}
 
 	// Filter & return
@@ -2513,13 +2513,13 @@ function bbp_current_user_can_access_create_reply_form() {
 	if ( bbp_is_user_keymaster() ) {
 		$retval = true;
 
-	// Looking at a single topic, topic is open, and forum is open
-	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
-		$retval = bbp_current_user_can_publish_replies();
-
 	// User can edit this reply
 	} elseif ( bbp_is_reply_edit() ) {
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
+
+	// Looking at a single topic, topic is open, and forum is open
+	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
+		$retval = bbp_current_user_can_publish_replies();
 	}
 
 	// Filter & return
