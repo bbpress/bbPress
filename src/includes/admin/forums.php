@@ -413,7 +413,7 @@ class BBP_Forums_Admin {
 		}
 
 		// What is the user doing here?
-		if ( ! current_user_can( 'keep_gate', $forum_id ) ) {
+		if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
 			wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
 		}
 
@@ -679,7 +679,7 @@ class BBP_Forums_Admin {
 		unset( $actions['inline hide-if-no-js'] );
 
 		// Only show the actions if the user is capable of viewing them :)
-		if ( current_user_can( 'keep_gate', $forum->ID ) ) {
+		if ( current_user_can( 'edit_forum', $forum->ID ) ) {
 
 			// Show the 'close' and 'open' link on published, private, hidden and closed posts only
 			if ( in_array( $forum->post_status, array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id(), bbp_get_closed_status_id() ), true ) ) {
