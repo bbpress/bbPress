@@ -18,24 +18,6 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.3.0 bbPress (r4579)
  *
  * @param array $args All the arguments supported by {@link WP_Query}
- * @uses bbp_get_view_all() Are we showing all results?
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses bbp_get_spam_status_id() To get the spam status id
- * @uses bbp_get_trash_status_id() To get the trash status id
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_replies_per_page() To get the replies per page option
- * @uses bbp_get_paged() To get the current page value
- * @uses bbp_get_search_terms() To get the search terms
- * @uses WP_Query To make query and get the search results
- * @uses bbp_use_pretty_urls() To check if the site is using pretty URLs
- * @uses bbp_get_search_url() To get the forum search url
- * @uses paginate_links() To paginate search results
- * @uses apply_filters() Calls 'bbp_has_search_results' with
- *                        bbPress::search_query::have_posts()
- *                        and bbPress::reply_query
  * @return object Multidimensional array of search information
  */
 function bbp_has_search_results( $args = array() ) {
@@ -168,8 +150,6 @@ function bbp_has_search_results( $args = array() ) {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @uses WP_Query bbPress::search_query::have_posts() To check if there are more
- *                                                     search results available
  * @return object Search information
  */
 function bbp_search_results() {
@@ -190,7 +170,6 @@ function bbp_search_results() {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @uses WP_Query bbPress::search_query::the_post() To get the current search result
  * @return object Search information
  */
 function bbp_the_search_result() {
@@ -208,8 +187,6 @@ function bbp_the_search_result() {
  * Output the search page title
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses bbp_get_search_title()
  */
 function bbp_search_title() {
 	echo bbp_get_search_title();
@@ -219,8 +196,6 @@ function bbp_search_title() {
 	 * Get the search page title
 	 *
 	 * @since 2.3.0 bbPress (r4579)
-	 *
-	 * @uses bbp_get_search_terms()
 	 */
 	function bbp_get_search_title() {
 
@@ -244,8 +219,6 @@ function bbp_search_title() {
  * Output the search url
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses bbp_get_search_url() To get the search url
  */
 function bbp_search_url() {
 	echo esc_url( bbp_get_search_url() );
@@ -255,11 +228,6 @@ function bbp_search_url() {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @uses user_trailingslashit() To fix slashes
-	 * @uses trailingslashit() To fix slashes
-	 * @uses bbp_get_forums_url() To get the root forums url
-	 * @uses bbp_get_search_slug() To get the search slug
-	 * @uses add_query_arg() To help make unpretty permalinks
 	 * @return string Search url
 	 */
 	function bbp_get_search_url() {
@@ -285,8 +253,6 @@ function bbp_search_url() {
  * Output the search results url
  *
  * @since 2.4.0 bbPress (r4928)
- *
- * @uses bbp_get_search_url() To get the search url
  */
 function bbp_search_results_url() {
 	echo esc_url( bbp_get_search_results_url() );
@@ -296,11 +262,6 @@ function bbp_search_results_url() {
 	 *
 	 * @since 2.4.0 bbPress (r4928)
 	 *
-	 * @uses user_trailingslashit() To fix slashes
-	 * @uses trailingslashit() To fix slashes
-	 * @uses bbp_get_forums_url() To get the root forums url
-	 * @uses bbp_get_search_slug() To get the search slug
-	 * @uses add_query_arg() To help make unpretty permalinks
 	 * @return string Search url
 	 */
 	function bbp_get_search_results_url() {
@@ -340,7 +301,6 @@ function bbp_search_results_url() {
  * @since 2.3.0 bbPress (r4579)
  *
  * @param string $search_terms Optional. Search terms
- * @uses bbp_get_search_terms() To get the search terms
  */
 function bbp_search_terms( $search_terms = '' ) {
 	echo bbp_get_search_terms( $search_terms );
@@ -355,8 +315,6 @@ function bbp_search_terms( $search_terms = '' ) {
 	 * search rewrite id query var.
 	 *
 	 * @param string $passed_terms Optional. Search terms
-	 * @uses sanitize_title() To sanitize the search terms
-	 * @uses get_query_var() To get the search terms from query variable
 	 * @return bool|string Search terms on success, false on failure
 	 */
 	function bbp_get_search_terms( $passed_terms = '' ) {
@@ -381,8 +339,6 @@ function bbp_search_terms( $search_terms = '' ) {
  * Output the search result pagination count
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses bbp_get_search_pagination_count() To get the search result pagination count
  */
 function bbp_search_pagination_count() {
 	echo bbp_get_search_pagination_count();
@@ -393,9 +349,6 @@ function bbp_search_pagination_count() {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @uses bbp_number_format() To format the number value
-	 * @uses apply_filters() Calls 'bbp_get_search_pagination_count' with the
-	 *                        pagination count
 	 * @return string Search pagination count
 	 */
 	function bbp_get_search_pagination_count() {
@@ -434,8 +387,6 @@ function bbp_search_pagination_count() {
  * Output search pagination links
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses bbp_get_search_pagination_links() To get the search pagination links
  */
 function bbp_search_pagination_links() {
 	echo bbp_get_search_pagination_links();
@@ -446,8 +397,6 @@ function bbp_search_pagination_links() {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @uses apply_filters() Calls 'bbp_get_search_pagination_links' with the
-	 *                        pagination links
 	 * @return string Search pagination links
 	 */
 	function bbp_get_search_pagination_links() {

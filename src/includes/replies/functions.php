@@ -18,11 +18,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @uses bbp_parse_args()
- * @uses bbp_get_reply_post_type()
- * @uses wp_insert_post()
- * @uses update_post_meta()
- *
  * @param array $reply_data Forum post data
  * @param arrap $reply_meta Forum meta data
  */
@@ -96,13 +91,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @param int $topic_id The topic id.
  * @param int $forum_id The forum id.
  *
- * @uses bbp_get_reply_status() To get the reply status
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_increase_topic_reply_count() To bump the topics reply count by 1
- * @uses bbp_increase_forum_reply_count() To bump the forums reply count by 1
- * @uses bbp_increase_topic_reply_count_hidden() To bump the topics hidden reply
- *                                               count by 1
- *
  * @return void
  */
 function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
@@ -126,28 +114,8 @@ function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id
  * @since 2.0.0 bbPress (r2574)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_add_error() To add an error message
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses bbp_is_anonymous() To check if an anonymous post is being made
- * @uses current_user_can() To check if the current user can publish replies
- * @uses bbp_get_current_user_id() To get the current user id
- * @uses bbp_filter_anonymous_post_data() To filter anonymous data
- * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses remove_filter() To remove kses filters if needed
- * @uses bbp_check_for_flood() To check for flooding
- * @uses bbp_check_for_duplicate() To check for duplicates
- * @uses apply_filters() Calls 'bbp_new_reply_pre_title' with the title
- * @uses apply_filters() Calls 'bbp_new_reply_pre_content' with the content
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wp_set_post_terms() To set the topic tags
- * @uses wp_insert_post() To insert the reply
- * @uses do_action() Calls 'bbp_new_reply' with the reply id, topic id, forum
  *                    id, anonymous data, reply author, edit (false), and
  *                    the reply to id
- * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses bbp_redirect() To redirect to the reply url
- * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
- *                                              message
  */
 function bbp_new_reply_handler( $action = '' ) {
 
@@ -505,31 +473,8 @@ function bbp_new_reply_handler( $action = '' ) {
  * Handles the front end edit reply submission
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_add_error() To add an error message
- * @uses bbp_get_reply() To get the reply
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses bbp_is_reply_anonymous() To check if the reply was by an anonymous user
- * @uses current_user_can() To check if the current user can edit that reply
- * @uses bbp_filter_anonymous_post_data() To filter anonymous data
- * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses remove_filter() To remove kses filters if needed
- * @uses apply_filters() Calls 'bbp_edit_reply_pre_title' with the title and id
- * @uses apply_filters() Calls 'bbp_edit_reply_pre_content' with the content id
- * @uses wp_set_post_terms() To set the topic tags
- * @uses bbp_has_errors() To get the {@link WP_Error} errors
- * @uses wp_save_post_revision() To save a reply revision
- * @uses bbp_update_reply_revision_log() To update the reply revision log
- * @uses wp_update_post() To update the reply
- * @uses bbp_get_reply_topic_id() To get the reply topic id
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses bbp_get_reply_to() To get the reply to id
- * @uses do_action() Calls 'bbp_edit_reply' with the reply id, topic id, forum
  *                    id, anonymous data, reply author, bool true (for edit),
  *                    and the reply to id
- * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses bbp_redirect() To redirect to the reply url
- * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
- *                                             message
  */
 function bbp_edit_reply_handler( $action = '' ) {
 
@@ -820,24 +765,6 @@ function bbp_edit_reply_handler( $action = '' ) {
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @param int $reply_to Optional. Reply to id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_current_user_id() To get the current user id
- * @uses bbp_get_reply_topic_id() To get the reply topic id
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses update_post_meta() To update the reply metas
- * @uses set_transient() To update the flood check transient for the ip
- * @uses bbp_update_user_last_posted() To update the users last posted time
- * @uses bbp_is_subscriptions_active() To check if the subscriptions feature is
- *                                      activated or not
- * @uses bbp_is_user_subscribed() To check if the user is subscribed
- * @uses bbp_remove_user_subscription() To remove the user's subscription
- * @uses bbp_add_user_subscription() To add the user's subscription
- * @uses bbp_update_reply_forum_id() To update the reply forum id
- * @uses bbp_update_reply_topic_id() To update the reply topic id
- * @uses bbp_update_reply_to() To update the reply to id
- * @uses bbp_update_reply_walker() To update the ancestor counts of a reply
  */
 function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $author_id = 0, $is_edit = false, $reply_to = 0 ) {
 
@@ -929,28 +856,6 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  * @param int $topic_id Optional. Topic id
  * @param bool $refresh If set to true, unsets all the previous parameters.
  *                       Defaults to true
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_reply_topic_id() To get the reply topic id
- * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses get_post_ancestors() To get the ancestors of the reply
- * @uses bbp_is_reply() To check if the ancestor is a reply
- * @uses bbp_is_topic() To check if the ancestor is a topic
- * @uses bbp_update_topic_last_reply_id() To update the topic last reply id
- * @uses bbp_update_topic_last_active_id() To update the topic last active id
- * @uses bbp_get_topic_last_active_id() To get the topic last active id
- * @uses get_post_field() To get the post date of the last active id
- * @uses bbp_update_topic_last_active_time() To update the last active topic meta
- * @uses bbp_update_topic_voice_count() To update the topic voice count
- * @uses bbp_update_topic_reply_count() To update the topic reply count
- * @uses bbp_update_topic_reply_count_hidden() To update the topic hidden reply
- *                                              count
- * @uses bbp_is_forum() To check if the ancestor is a forum
- * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
- * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
- * @uses bbp_update_forum_last_active_id() To update the forum last active id
- * @uses bbp_get_forum_last_active_id() To get the forum last active id
- * @uses bbp_update_forum_last_active_time() To update the forum last active time
- * @uses bbp_update_forum_reply_count() To update the forum reply count
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
@@ -1054,13 +959,6 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
  *
  * @param int $reply_id Optional. Reply id to update
  * @param int $forum_id Optional. Forum id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_forum_id() To get the forum id
- * @uses get_post_ancestors() To get the ancestors of a reply
- * @uses get_post_field() To get the post type of the post
- * @uses update_post_meta() To update the reply forum id meta
- * @uses apply_filters() Calls 'bbp_update_reply_forum_id' with the forum id
- *                        and reply id
  * @return bool The forum id of the reply
  */
 function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
@@ -1104,13 +1002,6 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
  *
  * @param int $reply_id Optional. Reply id to update
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses get_post_ancestors() To get the ancestors of a reply
- * @uses get_post_field() To get the post type of the post
- * @uses update_post_meta() To update the reply topic id meta
- * @uses apply_filters() Calls 'bbp_update_reply_topic_id' with the topic id
- *                        and reply id
  * @return bool The topic id of the reply
  */
 function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
@@ -1154,10 +1045,6 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
  *
  * @param int $reply_id Reply id to update
  * @param int $reply_to Optional. Reply to id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses update_post_meta() To update the reply to meta
- * @uses apply_filters() Calls 'bbp_update_reply_to' with the reply id and
- *                        and reply to id
  * @return bool The parent reply id of the reply
  */
 function bbp_update_reply_to( $reply_id = 0, $reply_to = 0 ) {
@@ -1243,10 +1130,6 @@ function bbp_get_reply_ancestors( $reply_id = 0 ) {
  *  - author_id: Author id
  *  - reason: Reason for editing
  *  - revision_id: Revision id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_format_revision_reason() To format the reason
- * @uses bbp_get_reply_raw_revision_log() To get the raw reply revision log
- * @uses update_post_meta() To update the reply revision log meta
  * @return mixed False on failure, true on success
  */
 function bbp_update_reply_revision_log( $args = array() ) {
@@ -1284,28 +1167,6 @@ function bbp_update_reply_revision_log( $args = array() ) {
  * @since 2.3.0 bbPress (r4521)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_add_error() To add an error message
- * @uses bbp_get_reply() To get the reply
- * @uses bbp_get_topic() To get the topics
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses current_user_can() To check if the current user can edit the reply and topics
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
- * @uses do_action() Calls 'bbp_pre_move_reply' with the from reply id, source
- *                    and destination topic ids
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wp_update_post() To update the replies
- * @uses bbp_update_reply_topic_id() To update the reply topic id
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses bbp_update_reply_forum_id() To update the reply forum id
- * @uses do_action() Calls 'bbp_split_topic_reply' with the reply id and
- *                    destination topic id
- * @uses bbp_update_topic_last_reply_id() To update the topic last reply id
- * @uses bbp_update_topic_last_active_time() To update the topic last active meta
- * @uses do_action() Calls 'bbp_post_split_topic' with the destination and
- *                    source topic ids and source topic's forum id
- * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses bbp_redirect() To redirect to the topic link
  */
 function bbp_move_reply_handler( $action = '' ) {
 
@@ -1542,14 +1403,6 @@ function bbp_move_reply_handler( $action = '' ) {
  * @param int $move_reply_id Move reply id
  * @param int $source_topic_id Source topic id
  * @param int $destination_topic_id Destination topic id
- * @uses bbp_update_forum_topic_count() To update the forum topic counts
- * @uses bbp_update_forum_reply_count() To update the forum reply counts
- * @uses bbp_update_topic_reply_count() To update the topic reply counts
- * @uses bbp_update_topic_voice_count() To update the topic voice counts
- * @uses bbp_update_topic_reply_count_hidden() To update the topic hidden reply
- *                                              count
- * @uses do_action() Calls 'bbp_move_reply_count' with the move reply id,
- *                    source topic id & destination topic id
  */
 function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_topic_id ) {
 
@@ -1583,22 +1436,6 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
  * @since 2.0.0 bbPress (r2740)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_get_reply() To get the reply
- * @uses current_user_can() To check if the user is capable of editing or
- *                           deleting the reply
- * @uses check_ajax_referer() To verify the nonce and check the referer
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_is_reply_spam() To check if the reply is marked as spam
- * @uses bbp_spam_reply() To make the reply as spam
- * @uses bbp_unspam_reply() To unmark the reply as spam
- * @uses wp_trash_post() To trash the reply
- * @uses wp_untrash_post() To untrash the reply
- * @uses wp_delete_post() To delete the reply
- * @uses do_action() Calls 'bbp_toggle_reply_handler' with success, post data
- *                    and action
- * @uses bbp_get_reply_url() To get the reply url
- * @uses bbp_redirect() To redirect to the reply
- * @uses bbPress::errors:add() To log the error messages
  */
 function bbp_toggle_reply_handler( $action = '' ) {
 
@@ -1811,11 +1648,6 @@ function bbp_get_reply_toggles( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses bbp_get_reply() To get the reply
- * @uses do_action() Calls 'bbp_spam_reply' with the reply ID
- * @uses add_post_meta() To add the previous status to a meta
- * @uses wp_update_post() To insert the updated post
- * @uses do_action() Calls 'bbp_spammed_reply' with the reply ID
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_spam_reply( $reply_id = 0 ) {
@@ -1859,12 +1691,6 @@ function bbp_spam_reply( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r2740)
  *
  * @param int $reply_id Reply id
- * @uses bbp_get_reply() To get the reply
- * @uses do_action() Calls 'bbp_unspam_reply' with the reply ID
- * @uses get_post_meta() To get the previous status meta
- * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_update_post() To insert the updated post
- * @uses do_action() Calls 'bbp_unspammed_reply' with the reply ID
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_unspam_reply( $reply_id = 0 ) {
@@ -1913,13 +1739,6 @@ function bbp_unspam_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id
- * @uses bbp_get_reply() To get the reply
- * @uses bbp_get_pending_status_id() To get the pending status id
- * @uses do_action() Calls 'bbp_approve_reply' with the reply id
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses remove_action() To remove the auto save post revision action
- * @uses wp_update_post() To update the reply with the new status
- * @uses do_action() Calls 'bbp_approved_reply' with the reply id
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_approve_reply( $reply_id = 0 ) {
@@ -1960,12 +1779,6 @@ function bbp_approve_reply( $reply_id = 0 ) {
  * @since 2.6.0 bbPress (r5506)
  *
  * @param int $reply_id Reply id
- * @uses bbp_get_reply() To get the reply
- * @uses bbp_get_pending_status_id() To get the pending status id
- * @uses do_action() Calls 'bbp_unapprove_reply' with the reply id
- * @uses remove_action() To remove the auto save post revision action
- * @uses wp_update_post() To update the reply with the new status
- * @uses do_action() Calls 'bbp_unapproved_reply' with the reply id
  * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
 function bbp_unapprove_reply( $reply_id = 0 ) {
@@ -2004,10 +1817,6 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
 
 /**
  * Called before deleting a reply
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_delete_reply' with the reply id
  */
 function bbp_delete_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2021,10 +1830,6 @@ function bbp_delete_reply( $reply_id = 0 ) {
 
 /**
  * Called before trashing a reply
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_trash_reply' with the reply id
  */
 function bbp_trash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2038,10 +1843,6 @@ function bbp_trash_reply( $reply_id = 0 ) {
 
 /**
  * Called before untrashing (restoring) a reply
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_unstrash_reply' with the reply id
  */
 function bbp_untrash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2059,10 +1860,6 @@ function bbp_untrash_reply( $reply_id = 0 ) {
  * Called after deleting a reply
  *
  * @since 2.0.0 bbPress (r2993)
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_deleted_reply' with the reply id
  */
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2078,10 +1875,6 @@ function bbp_deleted_reply( $reply_id = 0 ) {
  * Called after trashing a reply
  *
  * @since 2.0.0 bbPress (r2993)
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_trashed_reply' with the reply id
  */
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2097,10 +1890,6 @@ function bbp_trashed_reply( $reply_id = 0 ) {
  * Called after untrashing (restoring) a reply
  *
  * @since 2.0.0 bbPress (r2993)
- *
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_is_reply() To check if the passed id is a reply
- * @uses do_action() Calls 'bbp_untrashed_reply' with the reply id
  */
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2120,8 +1909,6 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
  * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (15)
- * @uses get_option() To get the setting
- * @uses apply_filters() To allow the return value to be manipulated
  * @return int
  */
 function bbp_get_replies_per_page( $default = 15 ) {
@@ -2144,8 +1931,6 @@ function bbp_get_replies_per_page( $default = 15 ) {
  * @since 2.0.0 bbPress (r3540)
  *
  * @param int $default Default replies per page (25)
- * @uses get_option() To get the setting
- * @uses apply_filters() To allow the return value to be manipulated
  * @return int
  */
 function bbp_get_replies_per_rss_page( $default = 25 ) {
@@ -2253,31 +2038,6 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
  * Output an RSS2 feed of replies, based on the query passed.
  *
  * @since 2.0.0 bbPress (r3171)
- *
- * @uses bbp_version()
- * @uses bbp_is_single_topic()
- * @uses bbp_user_can_view_forum()
- * @uses bbp_get_topic_forum_id()
- * @uses bbp_show_lead_topic()
- * @uses bbp_topic_permalink()
- * @uses bbp_topic_title()
- * @uses bbp_get_topic_reply_count()
- * @uses bbp_topic_content()
- * @uses bbp_has_replies()
- * @uses bbp_replies()
- * @uses bbp_the_reply()
- * @uses bbp_reply_url()
- * @uses bbp_reply_title()
- * @uses bbp_reply_content()
- * @uses get_wp_title_rss()
- * @uses get_bloginfo_rss()
- * @uses get_option()
- * @uses self_link()
- * @uses the_author()
- * @uses get_post_time()
- * @uses rss_enclosure()
- * @uses do_action()
- * @uses apply_filters()
  *
  * @param array $replies_query
  */
@@ -2392,15 +2152,9 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 /** Permissions ***************************************************************/
 
 /**
- * Redirect if unathorized user is attempting to edit a reply
+ * Redirect if unauthorized user is attempting to edit a reply
  *
  * @since 2.1.0 bbPress (r3605)
- *
- * @uses bbp_is_reply_edit()
- * @uses current_user_can()
- * @uses bbp_get_topic_id()
- * @uses bbp_redirect()
- * @uses bbp_get_topic_permalink()
  */
 function bbp_check_reply_edit() {
 
@@ -2515,9 +2269,7 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6245) Always false on user profile reply pages
  *
  * @param bool $default Optional. Default value true
- * @uses apply_filters() Calls 'bbp_thread_replies' with the calculated value and
- *                        the thread replies depth
- * @uses get_option() To get thread replies option
+ *
  * @return bool Are replies threaded?
  */
 function bbp_thread_replies() {

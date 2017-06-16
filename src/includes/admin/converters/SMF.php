@@ -19,7 +19,6 @@ class SMF extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses SMF::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

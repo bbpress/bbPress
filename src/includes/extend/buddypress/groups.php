@@ -313,8 +313,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.1.0 bbPress (r3563)
 	 *
 	 * @param object $group (the group to edit if in Group Admin UI)
-	 * @uses is_admin() To check if we're in the Group Admin UI
-	 * @uses bbp_get_template_part()
 	 */
 	public function edit_screen( $group = false ) {
 		$forum_id  = 0;
@@ -379,8 +377,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.0.0 bbPress (r3465)
 	 *
 	 * @param int $group_id (to handle Group Admin UI hook bp_group_admin_edit_after )
-	 * @uses bbp_new_forum_handler() To check for forum creation
-	 * @uses bbp_edit_forum_handler() To check for forum edit
 	 */
 	public function edit_screen_save( $group_id = 0 ) {
 
@@ -488,9 +484,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Adds a meta-box to BuddyPress Group Admin UI
 	 *
 	 * @since 2.3.0 bbPress (r4814)
-	 *
-	 * @uses add_meta_box
-	 * @uses BBP_Forums_Group_Extension::group_admin_ui_display_metabox() To display the edit screen
 	 */
 	public function group_admin_ui_edit_screen() {
 		add_meta_box(
@@ -509,8 +502,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4814)
 	 *
 	 * @param object $item (group object)
-	 * @uses add_meta_box
-	 * @uses BBP_Forums_Group_Extension::edit_screen() To get the html
 	 */
 	public function group_admin_ui_display_metabox( $item ) {
 		$this->edit_screen( $item );
@@ -659,10 +650,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.1.0 bbPress (r3653)
 	 *
 	 * @param type $forum_args
-	 * @uses bbp_get_forum_id()
-	 * @uses bp_get_current_group_id()
-	 * @uses bbp_add_forum_id_to_group()
-	 * @uses bbp_add_group_id_to_forum()
 	 * @return if no forum_id is available
 	 */
 	public function new_forum( $forum_args = array() ) {
@@ -686,10 +673,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.1.0 bbPress (r3653)
 	 *
 	 * @param type $forum_args
-	 * @uses bbp_get_forum_id()
-	 * @uses bp_get_current_group_id()
-	 * @uses bbp_add_forum_id_to_group()
-	 * @uses bbp_add_group_id_to_forum()
 	 * @return if no forum_id is available
 	 */
 	public function remove_forum( $forum_args = array() ) {
@@ -713,8 +696,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4815)
 	 *
 	 * @param int $group_id The group ID
-	 * @uses bbp_get_group_forum_ids()
-	 * @uses BBP_Forums_Group_Extension::remove_forum()
 	 */
 	public function disconnect_forum_from_group( $group_id = 0 ) {
 
@@ -793,7 +774,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param int $group_id The group to toggle
 	 * @param bool $enabled True for on, false for off
-	 * @uses groups_get_group() To get the group to toggle
 	 * @return False if group is not found, otherwise return the group
 	 */
 	public function toggle_group_forum( $group_id = 0, $enabled = false ) {
@@ -833,11 +813,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * In the future, many-to-many should be allowed.
 	 *
 	 * @since 2.1.0 bbPress (r3653)
-	 *
-	 * @uses bp_get_current_group_id()
-	 * @uses bbp_get_group_forum_ids()
-	 * @uses bbp_has_forums()
-	 * @uses bbp_get_template_part()
 	 */
 	public function display_forums( $offset = 0 ) {
 		global $wp_query;
@@ -1158,12 +1133,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Redirect to the group admin forum edit screen
 	 *
 	 * @since 2.1.0 bbPress (r3653)
-	 *
-	 * @uses groups_get_current_group()
-	 * @uses bp_is_group_admin_screen()
-	 * @uses trailingslashit()
-	 * @uses bp_get_root_domain()
-	 * @uses bp_get_groups_root_slug()
 	 */
 	public function edit_redirect_to( $redirect_url = '' ) {
 
@@ -1185,7 +1154,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 */
-
 	public function forum_parent() {
 	?>
 
@@ -1198,10 +1166,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * Prevent Topic Parent from appearing
 	 *
 	 * @since 2.1.0 bbPress (r3746)
-	 *
-	 * @uses bbp_get_group_forum_ids() to get BuddyPress group forums
-	 * @uses bbp_dropdown() To show a dropdown of the forums for forum parent
-	 *
 	 */
 	public function topic_parent() {
 
@@ -1221,11 +1185,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.3.0 bbPress (r4608)
 	 *
 	 * @param bool $retval Are we allowed to view the reply form?
-	 * @uses bp_is_group() To determine if we're on a group page
-	 * @uses is_user_logged_in() To determine if a user is logged in.
-	 * @uses bbp_is_user_keymaster() Is the current user a keymaster?
-	 * @uses bbp_group_is_member() Is the current user a member of the group?
-	 * @uses bbp_group_is_user_banned() Is the current user banned from the group?
 	 *
 	 * @return bool
 	 */
@@ -1288,18 +1247,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.2.0 bbPress (r4266)
 	 *
 	 * @param int $post_id
-	 * @uses get_post()
-	 * @uses bbp_is_reply()
-	 * @uses bbp_get_reply_topic_id()
-	 * @uses bbp_get_reply_forum_id()
-	 * @uses bbp_is_topic()
-	 * @uses bbp_get_topic_forum_id()
-	 * @uses bbp_is_forum()
-	 * @uses get_post_field()
-	 * @uses bbp_get_forum_group_ids()
-	 * @uses groups_get_group()
-	 * @uses bp_get_group_admin_permalink()
-	 * @uses bp_get_group_permalink()
 	 * @return Bail early if not a group forum post
 	 * @return string
 	 */
@@ -1360,7 +1307,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param string $url
 	 * @param int $forum_id
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_forum_permalink_to_group( $url, $forum_id ) {
@@ -1374,7 +1320,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param string $url
 	 * @param int $topic_id
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_topic_permalink_to_group( $url, $topic_id ) {
@@ -1388,7 +1333,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param string $url
 	 * @param int $reply_id
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_reply_permalink_to_group( $url, $reply_id ) {
@@ -1402,7 +1346,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @param string $url
 	 * @param int $reply_id
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function map_reply_edit_url_to_group( $url, $reply_id ) {
@@ -1423,7 +1366,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param string $url
 	 * @param obj $post
 	 * @param boolean $leavename
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function post_link( $url, $post ) {
@@ -1438,7 +1380,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param string $url
 	 * @param int $post_id
 	 * @param $sample
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function page_link( $url, $post_id ) {
@@ -1454,7 +1395,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param obj $post
 	 * @param $leavename
 	 * @param $sample
-	 * @uses maybe_map_permalink_to_group()
 	 * @return string
 	 */
 	public function post_type_link( $url, $post ) {
@@ -1467,8 +1407,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.2.0 bbPress (r4266)
 	 *
 	 * @param array $args
-	 * @uses bbp_get_forum_id()
-	 * @uses maybe_map_permalink_to_group
 	 * @return array
 	 */
 	public function topic_pagination( $args ) {
@@ -1489,8 +1427,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.2.0 bbPress (r4266)
 	 *
 	 * @param array $args
-	 * @uses bbp_get_topic_id()
-	 * @uses maybe_map_permalink_to_group
 	 * @return array
 	 */
 	public function replies_pagination( $args ) {
@@ -1561,7 +1497,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.2.0 bbPress (r4396)
 	 *
 	 * @param array $args Arguments from BBP_BuddyPress_Activity::record_activity()
-	 * @uses groups_get_current_group() To see if we're posting from a BP group
 	 *
 	 * @return array
 	 */

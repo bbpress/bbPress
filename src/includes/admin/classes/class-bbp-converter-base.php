@@ -649,10 +649,6 @@ abstract class BBP_Converter_Base {
 	 * This method converts old topic stickies to new bbPress stickies.
 	 *
 	 * @since 2.5.0 bbPress (r5170)
-	 *
-	 * @uses WPDB $wpdb
-	 * @uses bbp_stick_topic() to set the imported topic as sticky
-	 *
 	 */
 	public function convert_topic_stickies( $start = 1 ) {
 
@@ -680,10 +676,6 @@ abstract class BBP_Converter_Base {
 	 * This method converts old topic super stickies to new bbPress super stickies.
 	 *
 	 * @since 2.5.0 bbPress (r5170)
-	 *
-	 * @uses WPDB $wpdb
-	 * @uses bbp_stick_topic() to set the imported topic as super sticky
-	 *
 	 */
 	public function convert_topic_super_stickies( $start = 1 ) {
 
@@ -712,9 +704,6 @@ abstract class BBP_Converter_Base {
 	 * This method converts old closed topics to bbPress closed topics.
 	 *
 	 * @since 2.6.0 bbPress (r5425)
-	 *
-	 * @uses bbp_close_topic() to close topics properly
-	 *
 	 */
 	public function convert_topic_closed_topics( $start = 1 ) {
 
@@ -770,8 +759,6 @@ abstract class BBP_Converter_Base {
 	 * This method converts anonymous topics.
 	 *
 	 * @since 2.6.0 bbPress (r5538)
-	 *
-	 * @uses add_post_meta() To add _bbp_anonymous_name topic meta key
 	 */
 	public function convert_anonymous_topic_authors( $start = 1 ) {
 
@@ -816,8 +803,6 @@ abstract class BBP_Converter_Base {
 	 * This method converts anonymous replies.
 	 *
 	 * @since 2.6.0 bbPress (r5538)
-	 *
-	 * @uses add_post_meta() To add _bbp_anonymous_name reply meta key
 	 */
 	public function convert_anonymous_reply_authors( $start = 1 ) {
 

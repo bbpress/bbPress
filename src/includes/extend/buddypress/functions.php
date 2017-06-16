@@ -151,9 +151,6 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
  * Hook bbPress topics template into plugins template
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses add_action() To add the content hook
- * @uses bp_core_load_template() To load the plugins template
  */
 function bbp_member_forums_screen_topics() {
 	add_action( 'bp_template_content', 'bbp_member_forums_topics_content' );
@@ -164,9 +161,6 @@ function bbp_member_forums_screen_topics() {
  * Hook bbPress replies template into plugins template
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses add_action() To add the content hook
- * @uses bp_core_load_template() To load the plugins template
  */
 function bbp_member_forums_screen_replies() {
 	add_action( 'bp_template_content', 'bbp_member_forums_replies_content' );
@@ -177,9 +171,6 @@ function bbp_member_forums_screen_replies() {
  * Hook bbPress engagements template into plugins template
  *
  * @since 2.6.0 bbPress (r6320)
- *
- * @uses add_action() To add the content hook
- * @uses bp_core_load_template() To load the plugins template
  */
 function bbp_member_forums_screen_engagements() {
 	add_action( 'bp_template_content', 'bbp_member_forums_engagements_content' );
@@ -190,9 +181,6 @@ function bbp_member_forums_screen_engagements() {
  * Hook bbPress favorites template into plugins template
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses add_action() To add the content hook
- * @uses bp_core_load_template() To load the plugins template
  */
 function bbp_member_forums_screen_favorites() {
 	add_action( 'bp_template_content', 'bbp_member_forums_favorites_content' );
@@ -203,9 +191,6 @@ function bbp_member_forums_screen_favorites() {
  * Hook bbPress subscriptions template into plugins template
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses add_action() To add the content hook
- * @uses bp_core_load_template() To load the plugins template
  */
 function bbp_member_forums_screen_subscriptions() {
 	add_action( 'bp_template_content', 'bbp_member_forums_subscriptions_content' );
@@ -218,8 +203,6 @@ function bbp_member_forums_screen_subscriptions() {
  * Get the topics created template part
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses bbp_get_template_part()s
  */
 function bbp_member_forums_topics_content() {
 ?>
@@ -237,8 +220,6 @@ function bbp_member_forums_topics_content() {
  * Get the topics replied to template part
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses bbp_get_template_part()
  */
 function bbp_member_forums_replies_content() {
 ?>
@@ -256,8 +237,6 @@ function bbp_member_forums_replies_content() {
  * Get the topic engagements template part
  *
  * @since 2.6.0 bbPress (r6320)
- *
- * @uses bbp_get_template_part()
  */
 function bbp_member_forums_engagements_content() {
 ?>
@@ -275,8 +254,6 @@ function bbp_member_forums_engagements_content() {
  * Get the topics favorited template part
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses bbp_get_template_part()
  */
 function bbp_member_forums_favorites_content() {
 ?>
@@ -294,8 +271,6 @@ function bbp_member_forums_favorites_content() {
  * Get the topics subscribed template part
  *
  * @since 2.1.0 bbPress (r3552)
- *
- * @uses bbp_get_template_part()
  */
 function bbp_member_forums_subscriptions_content() {
 ?>
@@ -635,9 +610,6 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
  * @since 2.3.0 bbPress (r4571)
  *
  * @param int $forum_id
- * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_forum_group_ids() To get the forum's group ids
- * @uses apply_filters() Calls 'bbp_forum_is_group_forum' with the forum id
  * @return bool True if it is a group forum, false if not
  */
 function bbp_is_forum_group_forum( $forum_id = 0 ) {
@@ -662,12 +634,6 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @uses is_user_logged_in()
- * @uses bp_is_group()
- * @uses bbpress()
- * @uses bp_loggedin_user_id()
- * @uses bp_get_current_group_id()
- * @uses groups_is_user_admin()
  * @return bool If current user is an admin of the current group
  */
 function bbp_group_is_admin() {
@@ -693,12 +659,6 @@ function bbp_group_is_admin() {
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @uses is_user_logged_in()
- * @uses bp_is_group()
- * @uses bbpress()
- * @uses bp_loggedin_user_id()
- * @uses bp_get_current_group_id()
- * @uses groups_is_user_admin()
  * @return bool If current user is a moderator of the current group
  */
 function bbp_group_is_mod() {
@@ -724,12 +684,6 @@ function bbp_group_is_mod() {
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @uses is_user_logged_in()
- * @uses bp_is_group()
- * @uses bbpress()
- * @uses bp_loggedin_user_id()
- * @uses bp_get_current_group_id()
- * @uses groups_is_user_admin()
  * @return bool If current user is a member of the current group
  */
 function bbp_group_is_member() {
@@ -755,12 +709,6 @@ function bbp_group_is_member() {
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @uses is_user_logged_in()
- * @uses bp_is_group()
- * @uses bbpress()
- * @uses bp_loggedin_user_id()
- * @uses bp_get_current_group_id()
- * @uses groups_is_user_admin()
  * @return bool If current user is banned from the current group
  */
 function bbp_group_is_banned() {
@@ -786,12 +734,6 @@ function bbp_group_is_banned() {
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @uses is_user_logged_in()
- * @uses bp_is_group()
- * @uses bbpress()
- * @uses bp_loggedin_user_id()
- * @uses bp_get_current_group_id()
- * @uses groups_is_user_admin()
  * @return bool If current user the creator of the current group
  */
 function bbp_group_is_creator() {

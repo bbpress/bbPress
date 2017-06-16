@@ -116,8 +116,6 @@ class BBP_Forums_Component extends BP_Component {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 * @link https://bbpress.trac.wordpress.org/ticket/2176
 	 */
 	public function setup_actions() {

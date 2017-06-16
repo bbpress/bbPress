@@ -14,7 +14,6 @@
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @uses apply_filters() Calls 'bbp_get_forum_caps' with the capabilities
  * @return array Forum capabilities
  */
 function bbp_get_forum_caps() {
@@ -40,9 +39,6 @@ function bbp_get_forum_caps() {
  * @param string $cap Capability name
  * @param int $user_id User id
  * @param array $args Arguments
- * @uses get_post() To get the post
- * @uses get_post_type_object() To get the post type object
- * @uses apply_filters() Filter capability map results
  * @return array Actual capabilities for meta capability
  */
 function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
@@ -255,10 +251,6 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id User id.
  * @param int $forum_id Forum id.
- * @uses bbp_get_user_id()
- * @uses bbp_get_forum_id()
- * @uses bbp_is_object_of_user()
- * @uses apply_filters() Calls 'bbp_is_user_forum_moderator' with the forums
  *
  * @return bool Return true if user is moderator of forum
  */

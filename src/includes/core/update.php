@@ -15,8 +15,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.1.0 bbPress (r3764)
  *
- * @uses get_option()
- * @uses bbp_get_db_version() To get the database version
  * @return bool True if update, False if not
  */
 function bbp_is_install() {
@@ -28,8 +26,6 @@ function bbp_is_install() {
  *
  * @since 2.0.0 bbPress (r3421)
  *
- * @uses get_option()
- * @uses bbp_get_db_version() To get the database version
  * @return bool True if update, False if not
  */
 function bbp_is_update() {
@@ -146,9 +142,6 @@ function bbp_is_deactivation( $basename = '' ) {
  * Update the DB to the latest version
  *
  * @since 2.0.0 bbPress (r3421)
- *
- * @uses update_option()
- * @uses bbp_get_db_version() To get the database version
  */
 function bbp_version_bump() {
 	update_option( '_bbp_db_version', bbp_get_db_version() );
@@ -158,9 +151,6 @@ function bbp_version_bump() {
  * Setup the bbPress updater
  *
  * @since 2.0.0 bbPress (r3419)
- *
- * @uses bbp_is_update()
- * @uses bbp_version_updater()
  */
 function bbp_setup_updater() {
 
@@ -368,9 +358,6 @@ function bbp_version_updater() {
  *
  * @internal Used internally to redirect bbPress to the about page on activation
  *
- * @uses is_network_admin() To bail if being network activated
- * @uses set_transient() To drop the activation transient for 30 seconds
- *
  * @return If network admin or bulk activation
  */
 function bbp_add_activation_redirect() {
@@ -392,13 +379,6 @@ function bbp_add_activation_redirect() {
  * @since 2.4.0 bbPress (r4910)
  *
  * @internal Used to internally make the current user a keymaster on activation
- *
- * @uses current_user_can() to bail if user cannot activate plugins
- * @uses get_current_user_id() to get the current user ID
- * @uses get_current_blog_id() to get the current blog ID
- * @uses is_user_member_of_blog() to bail if the current user does not have a role
- * @uses bbp_is_user_keymaster() to bail if the user is already a keymaster
- * @uses bbp_set_user_role() to make the current user a keymaster
  *
  * @return If user can't activate plugins or is already a keymaster
  */

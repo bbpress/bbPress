@@ -33,10 +33,6 @@ class BBP_Replies_Admin {
 	 * The main bbPress admin loader
 	 *
 	 * @since 2.0.0 bbPress (r2515)
-	 *
-	 * @uses BBP_Replies_Admin::setup_globals() Setup the globals needed
-	 * @uses BBP_Replies_Admin::setup_actions() Setup the hooks and actions
-	 * @uses BBP_Replies_Admin::setup_actions() Setup the help text
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -50,12 +46,6 @@ class BBP_Replies_Admin {
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses add_filter() To add various filters
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
 	private function setup_actions() {
 
@@ -113,8 +103,6 @@ class BBP_Replies_Admin {
 	 * Contextual help for bbPress reply edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
 
@@ -177,8 +165,6 @@ class BBP_Replies_Admin {
 	 * Contextual help for bbPress reply edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function new_help() {
 
@@ -332,10 +318,6 @@ class BBP_Replies_Admin {
 	 * Add the reply attributes meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2746)
-	 *
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses add_meta_box() To add the meta-box
-	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -354,12 +336,6 @@ class BBP_Replies_Admin {
 	 * Allows editing of information about an author
 	 *
 	 * @since 2.0.0 bbPress (r2828)
-	 *
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses bbp_get_reply() To get the reply
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function author_metabox() {
 
@@ -397,10 +373,6 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @param int $reply_id Reply id
-	 * @uses current_user_can() To check if the current user is capable of
-	 *                           editing the reply
-	 * @uses do_action() Calls 'bbp_reply_attributes_metabox_save' with the
-	 *                    reply id and parent id
 	 * @return int Parent id
 	 */
 	public function save_meta_boxes( $reply_id ) {
@@ -456,20 +428,6 @@ class BBP_Replies_Admin {
 	 * Handles the admin-side spamming/unspamming of replies
 	 *
 	 * @since 2.0.0 bbPress (r2740)
-	 *
-	 * @uses bbp_get_reply() To get the reply
-	 * @uses current_user_can() To check if the user is capable of editing
-	 *                           the reply
-	 * @uses wp_die() To die if the user isn't capable or the post wasn't
-	 *                 found
-	 * @uses check_admin_referer() To verify the nonce and check referer
-	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
-	 * @uses bbp_unspam_reply() To unmark the reply as spam
-	 * @uses bbp_spam_reply() To mark the reply as spam
-	 * @uses do_action() Calls 'bbp_toggle_reply_admin' with success, post
-	 *                    data, action and message
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses bbp_redirect() Redirect the page to custom url
 	 */
 	public function toggle_reply() {
 
@@ -557,12 +515,6 @@ class BBP_Replies_Admin {
 	 * {@link BBP_Admin::toggle_reply()}
 	 *
 	 * @since 2.0.0 bbPress (r2740)
-	 *
-	 * @uses bbp_get_reply() To get the reply
-	 * @uses bbp_get_reply_title() To get the reply title of the reply
-	 * @uses esc_html() To sanitize the reply title
-	 * @uses apply_filters() Calls 'bbp_toggle_reply_notice_admin' with
-	 *                        message, reply id, notice and is it a failure
 	 */
 	public function toggle_reply_notice() {
 
@@ -674,8 +626,7 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r2577)
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'bbp_admin_replies_column_headers' with
-	 *                        the columns
+	 *
 	 * @return array $columns bbPress reply columns
 	 */
 	public function column_headers( $columns ) {
@@ -699,25 +650,6 @@ class BBP_Replies_Admin {
 	 *
 	 * @param string $column Column
 	 * @param int $reply_id reply id
-	 * @uses bbp_get_reply_topic_id() To get the topic id of the reply
-	 * @uses bbp_topic_title() To output the reply's topic title
-	 * @uses apply_filters() Calls 'reply_topic_row_actions' with an array
-	 *                        of reply topic actions
-	 * @uses bbp_get_topic_permalink() To get the topic permalink
-	 * @uses bbp_get_topic_forum_id() To get the forum id of the topic of
-	 *                                 the reply
-	 * @uses bbp_get_forum_permalink() To get the forum permalink
-	 * @uses admin_url() To get the admin url of post.php
-	 * @uses apply_filters() Calls 'reply_topic_forum_row_actions' with an
-	 *                        array of reply topic forum actions
-	 * @uses bbp_reply_author_display_name() To output the reply author name
-	 * @uses get_the_date() Get the reply creation date
-	 * @uses get_the_time() Get the reply creation time
-	 * @uses esc_attr() To sanitize the reply creation time
-	 * @uses bbp_get_reply_last_active_time() To get the time when the reply was
-	 *                                    last active
-	 * @uses do_action() Calls 'bbp_admin_replies_column_data' with the
-	 *                    column and reply id
 	 */
 	public function column_data( $column, $reply_id ) {
 
@@ -815,18 +747,7 @@ class BBP_Replies_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $reply Reply object
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses bbp_reply_content() To output reply content
-	 * @uses bbp_get_reply_url() To get the reply link
-	 * @uses bbp_get_reply_title() To get the reply title
-	 * @uses current_user_can() To check if the current user can edit or
-	 *                           delete the reply
-	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
-	 * @uses get_post_type_object() To get the reply post type object
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses remove_query_arg() To remove custom args from the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses get_delete_post_link() To get the delete post link of the reply
+	 *
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $reply ) {
@@ -897,9 +818,6 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_dropdown() To generate a forum dropdown
 	 * @return bool False. If post type is not topic or reply
 	 */
 	public function filter_dropdown() {
@@ -933,9 +851,6 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r2991)
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @uses is_admin() To check if it's the admin section
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @return array Processed Query Vars
 	 */
 	public function filter_post_rows( $query_vars ) {
@@ -957,10 +872,6 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses bbp_get_topic_permalink()
-	 * @uses wp_post_revision_title()
-	 * @uses esc_url()
-	 * @uses add_query_arg()
 	 *
 	 * @param array $messages
 	 *
@@ -1056,7 +967,6 @@ endif; // class_exists check
  * @since 2.0.0 bbPress (r2596)
  *
  * @param WP_Screen $current_screen Current screen object
- * @uses BBP_Replies_Admin
  */
 function bbp_admin_replies( $current_screen ) {
 

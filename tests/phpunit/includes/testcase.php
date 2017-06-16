@@ -144,8 +144,6 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	 *
 	 * @global WP_Rewrite $wp_rewrite
 	 *
-	 * @uses WP_UnitTestCase::set_permalink_structure()
-	 *
 	 * @param string $structure Optional. Permalink structure to set. Default empty.
 	 */
 	public function set_permalink_structure( $structure = '' ) {

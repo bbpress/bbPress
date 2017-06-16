@@ -19,7 +19,6 @@ class PHPFox3 extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses PHPFox3::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

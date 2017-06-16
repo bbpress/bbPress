@@ -18,11 +18,6 @@ defined( 'ABSPATH' ) || exit;
  * @param string $url The url
  * @param string $raw_url Raw url
  * @param object $user User object
- * @uses is_wp_error() To check if the user param is a {@link WP_Error}
- * @uses admin_url() To get the admin url
- * @uses home_url() To get the home url
- * @uses esc_url() To escape the url
- * @uses bbp_redirect() To redirect
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 
@@ -48,9 +43,6 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @uses is_user_logged_in() Is the user logged in?
- * @uses bbp_allow_anonymous() Is anonymous posting allowed?
- * @uses apply_filters() Calls 'bbp_is_anonymous' with the return value
  * @return bool True if anonymous is allowed and user is not logged in, false if
  *               anonymous is not allowed or user is logged in
  */
@@ -67,8 +59,6 @@ function bbp_is_anonymous() {
  * @since 2.0.0 bbPress (r2734)
  *
  * @param string $key Which value to echo?
- * @uses bbp_get_current_anonymous_user_data() To get the current anonymous user
- *                                              data
  */
 function bbp_current_anonymous_user_data( $key = '' ) {
 	echo bbp_get_current_anonymous_user_data( $key );
@@ -81,8 +71,6 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 	 *
 	 * @param string $key Optional. Which value to get? If not given, then
 	 *                     an array is returned.
-	 * @uses sanitize_comment_cookies() To sanitize the current poster data
-	 * @uses wp_get_current_commenter() To get the current poster data	 *
 	 * @return string|array Cookie(s) for current poster
 	 */
 	function bbp_get_current_anonymous_user_data( $key = '' ) {
@@ -125,8 +113,6 @@ function bbp_current_anonymous_user_data( $key = '' ) {
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @uses apply_filters() Calls 'comment_cookie_lifetime' for cookie lifetime.
- *                        Defaults to 30000000.
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 
@@ -192,26 +178,6 @@ function bbp_current_author_ua() {
  * @since 2.0.0 bbPress (r2790)
  *
  * @param string $action The requested action to compare this function to
- * @uses is_multisite() To check if it's a multisite
- * @uses bbp_is_user_home() To check if the user is at home (the display page
- *                           is the one of the logged in user)
- * @uses get_option() To get the displayed user's new email id option
- * @uses wp_update_user() To update the user
- * @uses delete_option() To delete the displayed user's email id option
- * @uses bbp_get_user_profile_edit_url() To get the edit profile url
- * @uses bbp_redirect() To redirect to the url
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses current_user_can() To check if the current user can edit the user
- * @uses do_action() Calls 'personal_options_update' or
- *                   'edit_user_options_update' (based on if it's the user home)
- *                   with the displayed user id
- * @uses edit_user() To edit the user based on the post data
- * @uses get_userdata() To get the user data
- * @uses is_email() To check if the string is an email id or not
- * @uses is_network_admin() To check if the user is the network admin
- * @uses revoke_super_admin() To revoke super admin privileges
- * @uses grant_super_admin() To grant super admin privileges
- * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  */
 function bbp_edit_user_handler( $action = '' ) {
 
@@ -331,16 +297,6 @@ function bbp_edit_user_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r5660)
  *
  * @param string $action
- *
- * @uses bbp_is_user_home_edit()         To check if on the current users profile edit page
- * @uses bbp_get_displayed_user_id()     To get the ID of the user being edited
- * @uses bbp_get_user_profile_edit_url() To get the URL of the user being edited
- * @uses bbp_redirect()                  To redirect away from the current page
- * @uses hash_equals()                   To compare email hash to saved option hash
- * @uses email_exists()                  To check if user has email address already
- * @uses bbp_add_error()                 To add user feedback
- * @uses wp_update_user()                To update the user with their new email address
- * @uses bbp_verify_nonce_request()      To verify the intent of the user
  */
 function bbp_user_email_change_handler( $action = '' ) {
 
@@ -441,13 +397,6 @@ function bbp_user_email_change_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r5660)
  *
  * @see send_confirmation_on_profile_email()
- *
- * @uses bbp_parse_args()                To parse the option arguments
- * @uses bbp_add_error()                 To provide feedback to user
- * @uses bbp_get_displayed_user_field()  To get the user_login
- * @uses bbp_get_user_profile_edit_url() To get the user profile edit link
- * @uses add_query_arg()                 To add arguments the link
- * @uses wp_mail()                       To send the notification
  */
 function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) {
 
@@ -521,10 +470,6 @@ The %4$s Team
  * also avoids needing to pollute the templates with additional logic and actions.
  *
  * @since 2.2.0 bbPress (r4273)
- *
- * @uses bbp_is_user_home_edit() To switch the action fired
- * @uses get_userdata() To get the current user's data
- * @uses bbp_get_displayed_user_id() To get the currently displayed user ID
  */
 function bbp_user_edit_after() {
 	$action = bbp_is_user_home_edit() ? 'show_user_profile' : 'edit_user_profile';
@@ -540,8 +485,7 @@ function bbp_user_edit_after() {
  * @since 2.0.0 bbPress (r2660)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the topic id
- * @uses bbp_has_topics() To get the topics created by the user
+ *
  * @return array|bool Results if the user has created topics, otherwise false
  */
 function bbp_get_user_topics_started( $user_id = 0 ) {
@@ -567,8 +511,7 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4225)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the topic id
- * @uses bbp_has_replies() To get the topics created by the user
+ *
  * @return array|bool Results if the user has created topics, otherwise false
  */
 function bbp_get_user_replies_created( $user_id = 0 ) {
@@ -673,11 +616,6 @@ function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
  *
  * @param int $user_id User ID to get count for
  *
- * @uses bbp_get_user_id()
- * @uses get_posts_by_author_sql()
- * @uses bbp_get_topic_post_type()
- * @uses apply_filters()
- *
  * @return int Raw DB count of topics
  */
 function bbp_get_user_topic_count_raw( $user_id = 0 ) {
@@ -700,11 +638,6 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
  * @since 2.1.0 bbPress (r3633)
  *
  * @param int $user_id User ID to get count for
- *
- * @uses bbp_get_user_id()
- * @uses get_posts_by_author_sql()
- * @uses bbp_get_reply_post_type()
- * @uses apply_filters()
  *
  * @return int Raw DB count of replies
  */
@@ -758,8 +691,6 @@ function bbp_get_user_closed_topic_count( $user_id = 0 ) {
  *
  * @param int $user_id
  * @param int $difference
- * @uses bbp_get_user_topic_count() To get the users current topic count
- * @uses bbp_set_user_topic_count() To set the users new topic count
  */
 function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 
@@ -796,8 +727,6 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  *
  * @param int $user_id
  * @param int $difference
- * @uses bbp_get_user_reply_count() To get the users current reply count
- * @uses bbp_set_user_reply_count() To set the users new reply count
  */
 function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 
@@ -899,12 +828,6 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
  * earn the ability to access this template.
  *
  * @since 2.1.0 bbPress (r3605)
- *
- * @uses bbp_is_single_user_edit()
- * @uses current_user_can()
- * @uses bbp_get_displayed_user_id()
- * @uses bbp_redirect()
- * @uses bbp_get_user_profile_url()
  */
 function bbp_check_user_edit() {
 
@@ -950,12 +873,6 @@ function bbp_check_user_edit() {
  * Check if a user is blocked, or cannot spectate the forums.
  *
  * @since 2.0.0 bbPress (r2996)
- *
- * @uses is_user_logged_in() To check if user is logged in
- * @uses bbp_is_user_keymaster() To check if user is a keymaster
- * @uses current_user_can() To check if the current user can spectate
- * @uses is_bbpress() To check if in a bbPress section of the site
- * @uses bbp_set_404() To set a 404 status
  */
 function bbp_forum_enforce_blocked() {
 

@@ -25,8 +25,6 @@ class BBP_Akismet {
 	 * The main bbPress Akismet loader
 	 *
 	 * @since 2.0.0 bbPress (r3277)
-	 *
-	 * @uses add_filter()
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -38,9 +36,6 @@ class BBP_Akismet {
 	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @access private
-	 *
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 
@@ -85,16 +80,6 @@ class BBP_Akismet {
 	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param string $post_data
-	 *
-	 * @uses get_userdata() To get the user data
-	 * @uses bbp_filter_anonymous_user_data() To get anonymous user data
-	 * @uses bbp_get_topic_permalink() To get the permalink of the topic
-	 * @uses bbp_get_reply_url() To get the permalink of the reply
-	 * @uses bbp_current_author_ip() To get the IP address of the current user
-	 * @uses BBP_Akismet::maybe_spam() To check if post is spam
-	 * @uses BBP_Akismet::get_user_roles() To get the role(s) of the current user
-	 * @uses do_action() To call the 'bbp_akismet_spam_caught' hook
-	 * @uses add_filter() To call the 'bbp_new_reply_pre_set_terms' hook
 	 *
 	 * @return array Array of post data
 	 */
@@ -229,18 +214,6 @@ class BBP_Akismet {
 	 * @global string $akismet_api_port
 	 * @global object $current_user
 	 * @global object $current_site
-	 *
-	 * @uses current_filter() To get the reply_id
-	 * @uses get_post() To get the post object
-	 * @uses get_the_author_meta() To get the author meta
-	 * @uses get_post_meta() To get the post meta
-	 * @uses bbp_get_user_profile_url() To get a user's profile url
-	 * @uses get_permalink() To get the permalink of the post_parent
-	 * @uses BBP_Akismet::get_user_roles() To get the role(s) of the post_author
-	 * @uses bbp_current_author_ip() To get the IP address of the current user
-	 * @uses BBP_Akismet::maybe_spam() To submit the post as ham or spam
-	 * @uses update_post_meta() To update the post meta with some Akismet data
-	 * @uses do_action() To call the 'bbp_akismet_submit_spam_post' and 'bbp_akismet_submit_ham_post' hooks
 	 *
 	 * @return array Array of existing topic terms
 	 */
@@ -408,9 +381,6 @@ class BBP_Akismet {
 	 * @global string $akismet_api_host
 	 * @global string $akismet_api_port
 	 *
-	 * @uses akismet_test_mode() To determine if Akismet is in test mode
-	 * @uses akismet_http_post() To send data to the mothership for processing
-	 *
 	 * @return array Array of post data
 	 */
 	private function maybe_spam( $post_data, $check = 'check', $spam = 'spam' ) {
@@ -484,12 +454,6 @@ class BBP_Akismet {
 	 * @param object $_post
 	 *
 	 * @global object $this->last_post
-	 *
-	 * @uses get_post() To get the post object
-	 * @uses get_userdata() To get the user data
-	 * @uses bbp_filter_anonymous_user_data() To get anonymous user data
-	 * @uses update_post_meta() To update post meta with Akismet data
-	 * @uses BBP_Akismet::update_post_history() To update post Akismet history
 	 */
 	public function update_post_meta( $post_id = 0, $_post = false ) {
 
@@ -566,16 +530,13 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Update a post's Akismet history
+	 * Update Akismet history of a Post
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 * @param string $message
 	 * @param string $event
-	 *
-	 * @uses wp_get_current_user() To get the current_user object
-	 * @uses add_post_meta() Add Akismet post history
 	 */
 	private function update_post_history( $post_id = 0, $message = null, $event = null ) {
 
@@ -607,16 +568,13 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Get a post's Akismet history
+	 * Get the Akismet history of a Post
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 *
-	 * @uses wp_get_current_user() To get the current_user object
-	 * @uses get_post_meta() Get a post's Akismet history
-	 *
-	 * @return array Array of a post's Akismet history
+	 * @return array Array of Akismet history
 	 */
 	public function get_post_history( $post_id = 0 ) {
 
@@ -637,11 +595,6 @@ class BBP_Akismet {
 	 * @param string $terms Comma-separated list of terms
 	 * @param int $topic_id
 	 * @param int $reply_id
-	 *
-	 * @uses bbp_get_reply_id() To get the reply_id
-	 * @uses bbp_get_topic_id() To get the topic_id
-	 * @uses bbp_get_topic_tag_names() To a post's current terms
-	 * @uses update_post_meta() To add spam terms to post meta
 	 *
 	 * @return array Array of existing topic terms
 	 */
@@ -676,7 +629,6 @@ class BBP_Akismet {
 	 * @param string $path The path from the host
 	 * @param string $port The port to use
 	 * @param string $ip Optional Override $host with an IP address
-	 * @uses bbp_get_version() To get the current bbPress version
 	 * @return mixed WP_Error on error, array on success, empty on failure
 	 */
 	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
@@ -789,10 +741,6 @@ class BBP_Akismet {
 	 * Output for Akismet History meta-box
 	 *
 	 * @since 2.4.0 bbPress (r5049)
-	 *
-	 * @uses get_post_history() To get the Akismet history for the post
-	 * @uses get_the_ID() To get the post ID
-	 * @uses bbp_time_since() To get the human readable time
 	 */
 	public function history_metabox() {
 

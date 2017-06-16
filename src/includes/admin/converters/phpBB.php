@@ -19,7 +19,6 @@ class phpBB extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses phpBB::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

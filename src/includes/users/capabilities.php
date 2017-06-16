@@ -18,15 +18,6 @@
  * @param string $cap Capability name.
  * @param int    $user_id User id.
  * @param array  $args Arguments.
- * @uses bbp_is_user_inactive() To check if user is spammer or deleted
- * @uses get_post() To get the post
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses bbp_is_user_forum_moderator() To check if the user is a forum moderator
- * @uses apply_filters() Filter mapped results
  *
  * @return array Actual capabilities for meta capability
  */
@@ -147,9 +138,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
  * @since 2.1.0 bbPress (r3860)
  *
  * @param int $user_id
- * @uses bbp_get_user_id() To get the user id
- * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_set_user_role' with the role and user id
+ *
  * @return string
  */
 function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
@@ -197,9 +186,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
  * @since 2.1.0 bbPress (r3860)
  *
  * @param int $user_id
- * @uses bbp_get_user_id() To get the user id
- * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_get_user_role' with the role and user id
+ *
  * @return string
  */
 function bbp_get_user_role( $user_id = 0 ) {
@@ -236,9 +223,7 @@ function bbp_get_user_role( $user_id = 0 ) {
  * @since 2.3.0 bbPress (r4446)
  *
  * @param int $user_id
- * @uses bbp_get_user_id() To get the user id
- * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_get_user_blog_role' with the role and user id
+ *
  * @return string
  */
 function bbp_get_user_blog_role( $user_id = 0 ) {
@@ -276,8 +261,6 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4235)
  *
  * @param int $user_id
- * @uses bbp_reset_user_caps() to reset caps
- * @usse bbp_save_user_caps() to save caps
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
@@ -321,14 +304,6 @@ function bbp_profile_update_role( $user_id = 0 ) {
  * installation of WordPress, or if the user is marked as spam or deleted.
  *
  * @since 2.0.0 bbPress (r3380)
- *
- * @uses is_user_logged_in() To bail if user is not logged in
- * @uses bbp_get_user_role() To bail if user already has a role
- * @uses bbp_is_user_inactive() To bail if user is inactive
- * @uses bbp_allow_global_access() To know whether to save role to database
- * @uses bbp_get_user_role_map() To get the WP to BBP role map array
- * @uses bbp_get_default_role() To get the site's default forums role
- * @uses get_option()
  *
  * @return If not multisite, not global, or user is deleted/spammed
  */
@@ -474,20 +449,6 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User ID to spam. Defaults to displayed user.
  *
- * @uses bbp_is_single_user()
- * @uses bbp_is_user_home()
- * @uses bbp_get_displayed_user_id()
- * @uses bbp_is_user_keymaster()
- * @uses get_blogs_of_user()
- * @uses get_current_blog_id()
- * @uses bbp_get_topic_post_type()
- * @uses bbp_get_reply_post_type()
- * @uses switch_to_blog()
- * @uses get_post_type()
- * @uses bbp_spam_topic()
- * @uses bbp_spam_reply()
- * @uses restore_current_blog()
- *
  * @return bool If no user ID passed.
  */
 function bbp_make_spam_user( $user_id = 0 ) {
@@ -565,19 +526,6 @@ function bbp_make_spam_user( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r3405)
  *
  * @param int $user_id Optional. User ID to unspam. Defaults to displayed user.
- *
- * @uses bbp_is_single_user()
- * @uses bbp_is_user_home()
- * @uses bbp_get_displayed_user_id()
- * @uses bbp_is_user_keymaster()
- * @uses get_blogs_of_user()
- * @uses bbp_get_topic_post_type()
- * @uses bbp_get_reply_post_type()
- * @uses switch_to_blog()
- * @uses get_post_type()
- * @uses bbp_unspam_topic()
- * @uses bbp_unspam_reply()
- * @uses restore_current_blog()
  *
  * @return bool If no user ID passed.
  */
@@ -694,11 +642,6 @@ function bbp_is_user_deleted( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r3502)
  *
- * @uses is_user_logged_in() To check if user is logged in
- * @uses bbp_get_displayed_user_id() To get current user ID
- * @uses bbp_is_user_spammer() To check if user is spammer
- * @uses bbp_is_user_deleted() To check if user is deleted
- *
  * @param int $user_id The user ID to check
  * @return bool True if public, false if not
  */
@@ -729,8 +672,6 @@ function bbp_is_user_active( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r3502)
  *
- * @uses bbp_is_user_active() To check if user is active
- *
  * @param int $user_id The user ID to check. Defaults to current user ID
  * @return bool True if inactive, false if active
  */
@@ -760,12 +701,6 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
  * @since 2.2.0 bbPress (r4362)
  *
  * @param int $user_id User ID to check
- *
- * @uses bbp_get_user_id() To verify the user ID
- * @uses get_userdata() To get the user's data
- * @uses bbp_is_user_keymaster() To determine if user can see inactive users
- * @uses bbp_is_user_inactive() To check if user is spammer or deleted
- * @uses apply_filters() To allow override of this functions result
  *
  * @return bool Whether or not the user has a profile on this blog_id.
  */

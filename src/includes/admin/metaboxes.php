@@ -94,22 +94,6 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
  * @since 2.0.0 bbPress (r2770)
  *
  * @deprecated 2.6.0 bbPress (r5268)
- *
- * @uses bbp_get_version() To get the current bbPress version
- * @uses bbp_get_statistics() To get the forum statistics
- * @uses current_user_can() To check if the user is capable of doing things
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses get_admin_url() To get the administration url
- * @uses add_query_arg() To add custom args to the url
- * @uses do_action() Calls 'bbp_dashboard_widget_right_now_content_table_end'
- *                    below the content table
- * @uses do_action() Calls 'bbp_dashboard_widget_right_now_table_end'
- *                    below the discussion table
- * @uses do_action() Calls 'bbp_dashboard_widget_right_now_discussion_table_end'
- *                    below the discussion table
- * @uses do_action() Calls 'bbp_dashboard_widget_right_now_end' below the widget
  */
 function bbp_dashboard_widget_right_now() {
 
@@ -318,12 +302,6 @@ function bbp_dashboard_widget_right_now() {
  * The meta-box that holds all of the additional forum information
  *
  * @since 2.0.0 bbPress (r2744)
- *
- * @uses bbp_is_forum_closed() To check if a forum is closed or not
- * @uses bbp_is_forum_category() To check if a forum is a category or not
- * @uses bbp_is_forum_private() To check if a forum is private or not
- * @uses bbp_dropdown() To show a dropdown of the forums for forum parent
- * @uses do_action() Calls 'bbp_forum_metabox'
  */
 function bbp_forum_metabox( $post ) {
 
@@ -415,9 +393,6 @@ function bbp_forum_metabox( $post ) {
  * The meta-box that holds all of the additional topic information
  *
  * @since 2.0.0 bbPress (r2464)
- *
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses do_action() Calls 'bbp_topic_metabox'
  */
 function bbp_topic_metabox( $post ) {
 
@@ -488,9 +463,6 @@ function bbp_topic_metabox( $post ) {
  * The meta-box that holds all of the additional reply information
  *
  * @since 2.0.0 bbPress (r2464)
- *
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses do_action() Calls 'bbp_reply_metabox'
  */
 function bbp_reply_metabox( $post ) {
 
@@ -625,9 +597,6 @@ function bbp_topic_replies_metabox( $topic = false ) {
  * @since 2.0.0 bbPress (r2828)
  *
  * @param WP_Post $post The current post object
- * @uses bbp_is_reply_anonymous() To check if reply is anonymous
- * @uses bbp_is_topic_anonymous() To check if topic is anonymous
- * @uses get_post_meta() To get the author user information
  */
 function bbp_author_metabox( $post ) {
 
@@ -677,9 +646,6 @@ function bbp_author_metabox( $post ) {
  * Moderator assignment meta-box
  *
  * @since 2.6.0 bbPress (r2828)
- *
- * @uses get_the_ID() To get the global post ID
- * @uses get_post_meta() To get the author user information
  */
 function bbp_moderator_assignment_metabox( $post ) {
 

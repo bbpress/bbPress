@@ -14,7 +14,6 @@
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @uses apply_filters() Calls 'bbp_get_topic_caps' with the capabilities
  * @return array Topic capabilities
  */
 function bbp_get_topic_caps() {
@@ -36,7 +35,7 @@ function bbp_get_topic_caps() {
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @uses apply_filters() Calls 'bbp_get_topic_tag_caps' with the capabilities
+ *
  * @return array Topic tag capabilities
  */
 function bbp_get_topic_tag_caps() {
@@ -59,11 +58,6 @@ function bbp_get_topic_tag_caps() {
  * @param string $cap Capability name
  * @param int $user_id User id
  * @param array $args Arguments
- * @uses get_post() To get the post
- * @uses get_post_type_object() To get the post type object
- * @uses bbp_get_public_status_id() To get the  public status id
- * @uses bbp_get_topic_forum_id() To get the topic forum id
- * @uses apply_filters() Filter capability map results
  *
  * @return array Actual capabilities for meta capability
  */
@@ -240,7 +234,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * @param string $cap Capability name
  * @param int $user_id User id
  * @param array $args Arguments
- * @uses apply_filters() Filter capability map results
+ *
  * @return array Actual capabilities for meta capability
  */
 function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {

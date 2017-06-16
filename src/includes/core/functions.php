@@ -16,8 +16,6 @@ defined( 'ABSPATH' ) || exit;
  * Output the bbPress version
  *
  * @since 2.0.0 bbPress (r3468)
- *
- * @uses bbp_get_version() To get the bbPress version
  */
 function bbp_version() {
 	echo bbp_get_version();
@@ -37,8 +35,6 @@ function bbp_version() {
  * Output the bbPress database version
  *
  * @since 2.0.0 bbPress (r3468)
- *
- * @uses bbp_get_version() To get the bbPress version
  */
 function bbp_db_version() {
 	echo bbp_get_db_version();
@@ -58,8 +54,6 @@ function bbp_db_version() {
  * Output the bbPress database version directly from the database
  *
  * @since 2.0.0 bbPress (r3468)
- *
- * @uses bbp_get_version() To get the current bbPress version
  */
 function bbp_db_version_raw() {
 	echo bbp_get_db_version_raw();
@@ -179,8 +173,6 @@ function bbp_get_views() {
  * @param bool $feed Have a feed for the view? Defaults to true.
  * @param string $capability Capability that the current user must have
  *
- * @uses sanitize_title() To sanitize the view name
- * @uses esc_html() To sanitize the view title
  * @return array The just registered (but processed) view
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
@@ -220,7 +212,6 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view View name
- * @uses sanitize_title() To sanitize the view name
  * @return bool False if the view doesn't exist, true on success
  */
 function bbp_deregister_view( $view ) {
@@ -243,10 +234,6 @@ function bbp_deregister_view( $view ) {
  *
  * @param string $view Optional. View id
  * @param mixed $new_args New arguments. See {@link bbp_has_topics()}
- * @uses bbp_get_view_id() To get the view id
- * @uses bbp_get_view_query_args() To get the view query args
- * @uses sanitize_title() To sanitize the view name
- * @uses bbp_has_topics() To make the topics query
  * @return bool False if the view doesn't exist, otherwise if topics are there
  */
 function bbp_view_query( $view = '', $new_args = '' ) {
@@ -273,7 +260,6 @@ function bbp_view_query( $view = '', $new_args = '' ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view View name
- * @uses bbp_get_view_id() To get the view id
  * @return array Query arguments
  */
 function bbp_get_view_query_args( $view = '' ) {
@@ -295,7 +281,6 @@ function bbp_get_view_query_args( $view = '' ) {
  * @since 2.0.0 bbPress (r3381)
  *
  * @see WP_Error()
- * @uses WP_Error::add();
  *
  * @param string $code Unique code for the error message
  * @param string $message Translated error message
@@ -311,9 +296,6 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  * @since 2.0.0 bbPress (r3381)
  *
  * @see WP_Error()
- *
- * @uses is_wp_error()
- * @usese WP_Error::get_error_codes()
  */
 function bbp_has_errors() {
 	$has_errors = bbpress()->errors->get_error_codes()
@@ -371,7 +353,6 @@ function bbp_find_mentions( $content = '' ) {
  * @since 2.2.0 bbPress (r4323)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
- * @uses bbp_find_mentions() To get usernames in content areas
  * @return string $content Content filtered for mentions
  */
 function bbp_mention_filter( $content = '' ) {
@@ -655,8 +636,6 @@ function bbp_is_get_request() {
  *
  * @since 2.6.0 bbPress (r5658)
  *
- * @uses wp_safe_redirect()
- * @uses bbp_get_forums_url()
  * @see  bbp_redirect_to_field()
  *
  * @param string $location The URL to redirect the user to.

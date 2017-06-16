@@ -19,7 +19,6 @@ class Invision extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses Invision::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

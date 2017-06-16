@@ -33,10 +33,6 @@ function bbp_get_default_user_options() {
  * This is destructive, so existing bbPress user options will be overridden.
  *
  * @since 2.1.0 bbPress (r3910)
- *
- * @uses bbp_get_default_user_options() To get default options
- * @uses update_user_option() Adds default options
- * @uses do_action() Calls 'bbp_add_user_options'
  */
 function bbp_add_user_options( $user_id = 0 ) {
 
@@ -62,10 +58,6 @@ function bbp_add_user_options( $user_id = 0 ) {
  * This is destructive, so existing bbPress user options will be destroyed.
  *
  * @since 2.1.0 bbPress (r3910)
- *
- * @uses bbp_get_default_user_options() To get default options
- * @uses delete_user_option() Removes default options
- * @uses do_action() Calls 'bbp_delete_options'
  */
 function bbp_delete_user_options( $user_id = 0 ) {
 
@@ -89,10 +81,6 @@ function bbp_delete_user_options( $user_id = 0 ) {
  * inside the $bbp->options array.
  *
  * @since 2.1.0 bbPress (r3910)
- *
- * @uses bbp_get_default_user_options() To get default options
- * @uses add_filter() To add filters to 'pre_option_{$key}'
- * @uses do_action() Calls 'bbp_add_option_filters'
  */
 function bbp_setup_user_option_filters() {
 
@@ -193,7 +181,7 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false ) {
  *
  * @param int $user_id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses bbp_get_user_topic_count()
+ *
  * @return string
  */
 function bbp_user_topic_count( $user_id = 0, $integer = false ) {
@@ -206,9 +194,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 	 *
 	 * @param int $user_id
 	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses bbp_get_user_id()
-	 * @uses get_user_option()
-	 * @uses apply_filters()
+	 *
 	 * @return string
 	 */
 	function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
@@ -235,7 +221,7 @@ function bbp_user_topic_count( $user_id = 0, $integer = false ) {
  *
  * @param int $user_id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses bbp_get_user_reply_count()
+ *
  * @return string
  */
 function bbp_user_reply_count( $user_id = 0, $integer = false ) {
@@ -248,9 +234,7 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 	 *
 	 * @param int $user_id
 	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses bbp_get_user_id()
-	 * @uses get_user_option()
-	 * @uses apply_filters()
+	 *
 	 * @return string
 	 */
 	function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
@@ -276,7 +260,7 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
  *
  * @param int $user_id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses bbp_get_user_post_count()
+ *
  * @return string
  */
 function bbp_user_post_count( $user_id = 0, $integer = false ) {
@@ -289,9 +273,7 @@ function bbp_user_post_count( $user_id = 0, $integer = false ) {
 	 *
 	 * @param int $user_id
 	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses bbp_get_user_id()
-	 * @uses get_user_option()
-	 * @uses apply_filters()
+	 *
 	 * @return string
 	 */
 	function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
@@ -345,7 +327,6 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
  * @since 2.1.0 bbPress (r3910)
  *
  * @param int $user_id User ID to retrieve value for
- * @uses bbp_get_user_last_posted() To output the last posted time
  */
 function bbp_user_last_posted( $user_id = 0 ) {
 	echo bbp_get_user_last_posted( $user_id );

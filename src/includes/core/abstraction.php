@@ -182,7 +182,6 @@ function bbp_is_large_install() {
  *
  * @since 2.0.0 bbPress (r2769)
  *
- * @uses apply_filters() Calls 'bbp_get_total_users' with number of users
  * @return int Total number of users
  */
 function bbp_get_total_users() {

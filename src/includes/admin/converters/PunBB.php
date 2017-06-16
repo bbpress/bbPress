@@ -19,7 +19,6 @@ class PunBB extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses PunBB::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

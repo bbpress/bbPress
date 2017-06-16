@@ -81,10 +81,6 @@ class BBP_Admin {
 	 * The main bbPress admin loader
 	 *
 	 * @since 2.0.0 bbPress (r2515)
-	 *
-	 * @uses BBP_Admin::setup_globals() Setup the globals needed
-	 * @uses BBP_Admin::includes() Include the required files
-	 * @uses BBP_Admin::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -147,9 +143,6 @@ class BBP_Admin {
 	 * @since 2.0.0 bbPress (r2646)
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses add_filter() To add various filters
 	 */
 	private function setup_actions() {
 
@@ -202,10 +195,6 @@ class BBP_Admin {
 	 * Add the admin menus
 	 *
 	 * @since 2.0.0 bbPress (r2646)
-	 *
-	 * @uses add_management_page() To add the Recount page in Tools section
-	 * @uses add_options_page() To add the Forums settings page in Settings
-	 *                           section
 	 */
 	public function admin_menus() {
 
@@ -298,8 +287,6 @@ class BBP_Admin {
 	 * Add the network admin menus
 	 *
 	 * @since 2.1.0 bbPress (r3689)
-	 *
-	 * @uses add_submenu_page() To add the Update Forums page in Updates
 	 */
 	public function network_admin_menus() {
 
@@ -338,9 +325,6 @@ class BBP_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2737)
 	 *
-	 * @uses add_settings_section() To add our own settings section
-	 * @uses add_settings_field() To add various settings fields
-	 * @uses register_setting() To register various settings
 	 * @todo Put fields into multidimensional array
 	 */
 	public static function register_admin_settings() {
@@ -401,9 +385,7 @@ class BBP_Admin {
 	 * @param string $cap Capability name
 	 * @param int $user_id User id
 	 * @param array $args Arguments
-	 * @uses get_post() To get the post
-	 * @uses apply_filters() Calls 'bbp_map_meta_caps' with caps, cap, user id and
-	 *                        args
+	 *
 	 * @return array Actual capabilities for meta capability
 	 */
 	public static function map_settings_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
@@ -465,9 +447,6 @@ class BBP_Admin {
 	 * Register the importers
 	 *
 	 * @since 2.0.0 bbPress (r2737)
-	 *
-	 * @uses apply_filters() Calls 'bbp_importer_path' filter to allow plugins
-	 *                        to customize the importer script locations.
 	 */
 	public function register_importers() {
 
@@ -504,8 +483,6 @@ class BBP_Admin {
 	 * Shows a nag message in admin area about the theme not supporting bbPress
 	 *
 	 * @since 2.0.0 bbPress (r2743)
-	 *
-	 * @uses current_user_can() To check notice should be displayed.
 	 */
 	public function activation_notice() {
 		// @todo - something fun
@@ -631,8 +608,6 @@ class BBP_Admin {
 	 * They are grouped together by h2 tabs
 	 *
 	 * @since 2.0.0 bbPress (r2464)
-	 *
-	 * @uses remove_submenu_page() To remove menu items with alternate navigation
 	 */
 	public function admin_head() {
 
@@ -654,8 +629,6 @@ class BBP_Admin {
 	 * We are including the two most common configurations here, just in case.
 	 *
 	 * @since 2.0.0 bbPress (r2521)
-	 *
-	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	public function register_admin_style() {
 
@@ -706,11 +679,6 @@ class BBP_Admin {
 	 * Ajax action for facilitating the forum auto-suggest
 	 *
 	 * @since 2.2.0 bbPress (r4261)
-	 *
-	 * @uses get_posts()
-	 * @uses bbp_get_topic_post_type()
-	 * @uses bbp_get_topic_id()
-	 * @uses bbp_get_topic_title()
 	 */
 	public function suggest_topic() {
 
@@ -1004,9 +972,6 @@ class BBP_Admin {
 	 * Update all bbPress forums across all sites
 	 *
 	 * @since 2.1.0 bbPress (r3689)
-	 *
-	 * @uses get_blog_option()
-	 * @uses wp_remote_get()
 	 */
 	public static function update_screen() {
 
@@ -1049,9 +1014,6 @@ class BBP_Admin {
 	 * Update all bbPress forums across all sites
 	 *
 	 * @since 2.1.0 bbPress (r3689)
-	 *
-	 * @uses get_blog_option()
-	 * @uses wp_remote_get()
 	 */
 	public static function network_update_screen() {
 		$bbp_db = bbp_db();
@@ -1172,8 +1134,6 @@ endif; // class_exists check
  * Setup bbPress Admin
  *
  * @since 2.0.0 bbPress (r2596)
- *
- * @uses BBP_Admin
  */
 function bbp_admin() {
 	bbpress()->admin = new BBP_Admin();

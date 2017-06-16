@@ -41,8 +41,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses BBP_Default::setup_globals()
-	 * @uses BBP_Default::setup_actions()
 	 */
 	public function __construct( $properties = array() ) {
 
@@ -64,8 +62,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @access private
 	 *
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 
@@ -122,7 +118,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses wp_enqueue_style() To enqueue the styles
 	 */
 	public function enqueue_styles() {
 
@@ -149,11 +144,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses bbp_is_single_forum() To check if it's the forum page
-	 * @uses bbp_is_single_topic() To check if it's the topic page
-	 * @uses bbp_thread_replies() To check if threaded replies are enabled
-	 * @uses bbp_is_single_user_edit() To check if it's the profile edit page
-	 * @uses wp_enqueue_script() To enqueue the scripts
 	 */
 	public function enqueue_scripts() {
 
@@ -218,9 +208,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses bbp_is_single_forum() To check if it's the forum page
-	 * @uses bbp_is_single_topic() To check if it's the topic page
-	 * @uses wp_localize_script() To localize the script
 	 */
 	public function localize_topic_script() {
 
@@ -239,16 +226,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses bbp_is_favorites_active() To check if favorites are active
-	 * @uses bbp_is_user_logged_in() To check if user is logged in
-	 * @uses bbp_get_current_user_id() To get the current user id
-	 * @uses current_user_can() To check if the current user can edit the user
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses wp_verify_nonce() To verify the nonce & check the referer
-	 * @uses bbp_is_user_favorite() To check if the topic is user's favorite
-	 * @uses bbp_remove_user_favorite() To remove the topic from user's favorites
-	 * @uses bbp_add_user_favorite() To add the topic from user's favorites
-	 * @uses bbp_ajax_response() To return JSON
 	 */
 	public function ajax_favorite() {
 
@@ -313,16 +290,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
-	 * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
-	 * @uses bbp_is_user_logged_in() To check if user is logged in
-	 * @uses bbp_get_current_user_id() To get the current user id
-	 * @uses current_user_can() To check if the current user can edit the user
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses wp_verify_nonce() To verify the nonce
-	 * @uses bbp_is_user_subscribed() To check if the topic is in user's subscriptions
-	 * @uses bbp_remove_user_subscriptions() To remove the topic from user's subscriptions
-	 * @uses bbp_add_user_subscriptions() To add the topic from user's subscriptions
-	 * @uses bbp_ajax_response() To return JSON
 	 */
 	public function ajax_subscription() {
 

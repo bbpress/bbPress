@@ -157,7 +157,6 @@ function bbp_get_current_template_pack() {
  *
  * @since 2.0.0 bbPress (r3506)
  *
- * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_id() {
@@ -174,7 +173,6 @@ function bbp_get_theme_compat_id() {
  *
  * @since 2.0.0 bbPress (r3506)
  *
- * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_name() {
@@ -191,7 +189,6 @@ function bbp_get_theme_compat_name() {
  *
  * @since 2.0.0 bbPress (r3506)
  *
- * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_version() {
@@ -208,7 +205,6 @@ function bbp_get_theme_compat_version() {
  *
  * @since 2.0.0 bbPress (r3032)
  *
- * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_dir() {
@@ -225,7 +221,6 @@ function bbp_get_theme_compat_dir() {
  *
  * @since 2.0.0 bbPress (r3032)
  *
- * @uses apply_filters()
  * @return string
  */
 function bbp_get_theme_compat_url() {
@@ -483,27 +478,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @since 2.0.0 bbPress (r3032)
  *
  * @param string $template
- * @uses bbp_is_single_user() To check if page is single user
- * @uses bbp_get_single_user_template() To get user template
- * @uses bbp_is_single_user_edit() To check if page is single user edit
- * @uses bbp_get_single_user_edit_template() To get user edit template
- * @uses bbp_is_single_view() To check if page is single view
- * @uses bbp_get_single_view_template() To get view template
- * @uses bbp_is_search() To check if page is search
- * @uses bbp_get_search_template() To get search template
- * @uses bbp_is_forum_edit() To check if page is forum edit
- * @uses bbp_get_forum_edit_template() To get forum edit template
- * @uses bbp_is_topic_merge() To check if page is topic merge
- * @uses bbp_get_topic_merge_template() To get topic merge template
- * @uses bbp_is_topic_split() To check if page is topic split
- * @uses bbp_get_topic_split_template() To get topic split template
- * @uses bbp_is_topic_edit() To check if page is topic edit
- * @uses bbp_get_topic_edit_template() To get topic edit template
- * @uses bbp_is_reply_move() To check if page is reply move
- * @uses bbp_get_reply_move_template() To get reply move template
- * @uses bbp_is_reply_edit() To check if page is reply edit
- * @uses bbp_get_reply_edit_template() To get reply edit template
- * @uses bbp_set_theme_compat_template() To set the global theme compat template
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
@@ -883,10 +857,6 @@ function bbp_template_include_theme_compat( $template = '' ) {
  * @since 2.0.0 bbPress (r2628)
  *
  * @param string $redirect_url Redirect url
- * @uses bbp_use_pretty_urls() To check if the blog is using permalinks
- * @uses bbp_get_paged() To get the current page number
- * @uses bbp_is_single_topic() To check if it's a topic page
- * @uses bbp_is_single_forum() To check if it's a forum page
  *
  * @return bool|string False if it's a topic/forum and their first page,
  *                      otherwise the redirect url

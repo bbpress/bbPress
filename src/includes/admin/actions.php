@@ -196,8 +196,6 @@ function bbp_filter_column_headers( $columns = array() ) {
  * Piggy back admin_init action
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_init'
  */
 function bbp_admin_init() {
 	do_action( 'bbp_admin_init' );
@@ -207,8 +205,6 @@ function bbp_admin_init() {
  * Piggy back admin_menu action
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_menu'
  */
 function bbp_admin_menu() {
 	do_action( 'bbp_admin_menu' );
@@ -218,8 +214,6 @@ function bbp_admin_menu() {
  * Piggy back admin_head action
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_head'
  */
 function bbp_admin_head() {
 	do_action( 'bbp_admin_head' );
@@ -229,8 +223,6 @@ function bbp_admin_head() {
  * Piggy back admin_notices action
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_admin_notices() {
 	do_action( 'bbp_admin_notices' );
@@ -240,8 +232,6 @@ function bbp_admin_notices() {
  * Dedicated action to register bbPress importers
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_register_importers() {
 	do_action( 'bbp_register_importers' );
@@ -251,8 +241,6 @@ function bbp_register_importers() {
  * Dedicated action to register admin styles
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_admin_notices'
  */
 function bbp_register_admin_style() {
 	do_action( 'bbp_register_admin_style' );
@@ -262,8 +250,6 @@ function bbp_register_admin_style() {
  * Dedicated action to register admin settings
  *
  * @since 2.1.0 bbPress (r3766)
- *
- * @uses do_action() Calls 'bbp_register_admin_settings'
  */
 function bbp_register_admin_settings() {
 	do_action( 'bbp_register_admin_settings' );
@@ -273,8 +259,6 @@ function bbp_register_admin_settings() {
  * Dedicated action to output admin tools.php sections
  *
  * @since 2.6.0 bbPress (r6273)
- *
- * @uses do_action() Calls 'bbp_admin_tool_box'
  */
 function bbp_admin_tool_box() {
 	do_action( 'bbp_admin_tool_box' );
@@ -286,7 +270,6 @@ function bbp_admin_tool_box() {
  * @since 2.6.0 bbPress (r6185)
  *
  * @param WP_Screen $current_screen
- * @uses do_action() Calls 'bbp_current_screen'
  */
 function bbp_current_screen( $current_screen = '' ) {
 	do_action( 'bbp_current_screen', $current_screen );

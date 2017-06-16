@@ -107,7 +107,7 @@ function bbp_kses_data( $data = '' ) {
  * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
- * @return string Partially encodedd content
+ * @return string Partially encoded content
  */
 function bbp_code_trick( $content = '' ) {
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
@@ -124,7 +124,7 @@ function bbp_code_trick( $content = '' ) {
  * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
- * @return string Partially encodedd content
+ * @return string Partially encoded content
  */
 function bbp_code_trick_reverse( $content = '' ) {
 
@@ -148,7 +148,7 @@ function bbp_code_trick_reverse( $content = '' ) {
  * @since 2.3.0 bbPress (r4641)
  *
  * @param string $content Topic and reply content
- * @return string Partially encodedd content
+ * @return string Partially encoded content
  */
 function bbp_encode_bad( $content = '' ) {
 
@@ -539,8 +539,7 @@ function bbp_number_not_negative( $number = 0 ) {
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
- * @uses apply_filters() Calls 'bbp_number_format' with the formatted values,
- *                        number and display decimals bool
+ *
  * @return string Formatted string
  */
 function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
@@ -561,8 +560,7 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
- * @uses apply_filters() Calls 'bbp_number_format' with the formatted values,
- *                        number and display decimals bool
+ *
  * @return string Formatted string
  */
 function bbp_number_format_i18n( $number = 0, $decimals = false ) {
@@ -587,10 +585,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
  * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
  *                             format
  * @param bool $translate Optional. Default is false. Whether to translate the
- *                                   result
- * @uses mysql2date() To convert the format
- * @uses apply_filters() Calls 'bbp_convert_date' with the time, date format
- *                        and translate bool
+ *
  * @return string Returns timestamp
  */
 function bbp_convert_date( $time, $d = 'U', $translate = false ) {
@@ -609,7 +604,6 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string $newer_date Optional. Unix timestamp from which the
  *                            difference ends. False for current time.
  * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
- * @uses bbp_get_time_since() To get the formatted time
  */
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
@@ -623,10 +617,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	 * @param string $newer_date Optional. Unix timestamp from which the
 	 *                            difference ends. False for current time.
 	 * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
-	 * @uses current_time() To get the current time in mysql format
-	 * @uses human_time_diff() To get the time differene in since format
-	 * @uses apply_filters() Calls 'bbp_get_time_since' with the time
-	 *                        difference and time
+	 *
 	 * @return string Formatted time
 	 */
 	function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {

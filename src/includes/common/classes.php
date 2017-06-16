@@ -66,9 +66,6 @@ class BBP_Component {
 	 *  - slug: Unique slug (used in query string and permalinks)
 	 *  - query: The loop for this component (WP_Query)
 	 *  - current_id: The current ID of the queried object
-	 * @uses BBP_Component::setup_globals() Setup the globals needed
-	 * @uses BBP_Component::includes() Include the required files
-	 * @uses BBP_Component::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct( $args = array() ) {
 		if ( empty( $args ) ) {
@@ -86,9 +83,6 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @access private
-	 *
-	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_id'
-	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_slug'
 	 */
 	private function setup_globals( $args = array() ) {
 		$this->name = $args['name'];
@@ -102,8 +96,6 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @access private
-	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}includes'
 	 */
 	private function includes() {
 		do_action( 'bbp_' . $this->name . 'includes' );
@@ -115,10 +107,6 @@ class BBP_Component {
 	 * @since 2.0.0 bbPress (r2700)
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses do_action() Calls
-	 *                    'bbp_{@link BBP_Component::name}setup_actions'
 	 */
 	private function setup_actions() {
 		add_action( 'bbp_register_post_types',    array( $this, 'register_post_types'    ), 10, 2 ); // Register post types
@@ -134,8 +122,6 @@ class BBP_Component {
 	 * Setup the component post types
 	 *
 	 * @since 2.0.0 bbPress (r2700)
-	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_post_types'
 	 */
 	public function register_post_types() {
 		do_action( 'bbp_' . $this->name . '_register_post_types' );
@@ -145,8 +131,6 @@ class BBP_Component {
 	 * Register component specific taxonomies
 	 *
 	 * @since 2.0.0 bbPress (r2700)
-	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_taxonomies'
 	 */
 	public function register_taxonomies() {
 		do_action( 'bbp_' . $this->name . '_register_taxonomies' );
@@ -156,8 +140,6 @@ class BBP_Component {
 	 * Add any additional rewrite tags
 	 *
 	 * @since 2.0.0 bbPress (r2700)
-	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_add_rewrite_tags'
 	 */
 	public function add_rewrite_tags() {
 		do_action( 'bbp_' . $this->name . '_add_rewrite_tags' );
@@ -167,8 +149,6 @@ class BBP_Component {
 	 * Generate any additional rewrite rules
 	 *
 	 * @since 2.0.0 bbPress (r2700)
-	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_generate_rewrite_rules'
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
 		do_action_ref_array( 'bbp_' . $this->name . '_generate_rewrite_rules', $wp_rewrite );
@@ -184,8 +164,6 @@ if ( class_exists( 'Walker' ) ) :
  * @subpackage Classes
  *
  * @since 2.0.0 bbPress (r2746)
- *
- * @uses Walker
  */
 class BBP_Walker_Dropdown extends Walker {
 
@@ -234,13 +212,6 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @param array  $args   Uses 'selected' argument for selected post to set
 	 *                       selected HTML attribute for option element.
 	 * @param int    $current_object_id
-	 *
-	 * @uses bbp_is_forum_category() To check if the forum is a category
-	 * @uses current_user_can() To check if the current user can post in
-	 *                           closed forums
-	 * @uses bbp_is_forum_closed() To check if the forum is closed
-	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
-	 *                        title, output, post, depth and args
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		$pad     = str_repeat( '&nbsp;', (int) $depth * 3 );
@@ -445,8 +416,6 @@ class BBP_Walker_Reply extends Walker {
  * @subpackage Classes
  *
  * @since 2.6.0 bbPress (r5389)
- *
- * @uses Walker
  */
 class BBP_Walker_Reply_Dropdown extends Walker {
 
@@ -499,13 +468,6 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	 *                       selected HTML attribute for option element.
 	 *
 	 * @param int    $current_object_id Not Used
-	 *
-	 * @uses bbp_is_forum_category() To check if the forum is a category
-	 * @uses current_user_can() To check if the current user can post in
-	 *                           closed forums
-	 * @uses bbp_is_forum_closed() To check if the forum is closed
-	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
-	 *                        title, output, post, depth and args
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 

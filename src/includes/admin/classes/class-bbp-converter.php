@@ -51,9 +51,6 @@ class BBP_Converter {
 	 * The main bbPress Converter loader
 	 *
 	 * @since 2.1.0 bbPress (r3813)
-	 *
-	 * @uses BBP_Converter::includes() Include the required files
-	 * @uses BBP_Converter::setup_actions() Setup the actions
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -63,8 +60,6 @@ class BBP_Converter {
 	 * Setup the default actions
 	 *
 	 * @since 2.1.0 bbPress (r3813)
-	 *
-	 * @uses add_action() To add various actions
 	 */
 	public function setup_actions() {
 

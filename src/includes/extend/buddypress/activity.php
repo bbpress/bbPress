@@ -99,7 +99,6 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @access private
-	 * @uses apply_filters() Calls various filters
 	 */
 	private function setup_globals() {
 
@@ -126,8 +125,6 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 
@@ -162,8 +159,6 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_filters() {
 
@@ -190,8 +185,6 @@ class BBP_BuddyPress_Activity {
 	 * Register our activity actions with BuddyPress
 	 *
 	 * @since 2.0.0 bbPress (r3395)
-	 *
-	 * @uses bp_activity_set_action()
 	 */
 	public function register_activity_actions() {
 
@@ -250,11 +243,6 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @param type $args Array of arguments for bp_activity_add()
-	 * @uses bbp_get_current_user_id()
-	 * @uses bp_core_current_time()
-	 * @uses bbp_parse_args()
-	 * @uses aplly_filters()
-	 * @uses bp_activity_add()
 	 * @return type Activity ID if successful, false if not
 	 */
 	private function record_activity( $args = array() ) {
@@ -284,11 +272,6 @@ class BBP_BuddyPress_Activity {
 	 * @since 2.0.0 bbPress (r3395)
 	 *
 	 * @param type $args Array of arguments for bp_activity_add()
-	 * @uses bbp_get_current_user_id()
-	 * @uses bp_core_current_time()
-	 * @uses bbp_parse_args()
-	 * @uses aplly_filters()
-	 * @uses bp_activity_add()
 	 * @return type Activity ID if successful, false if not
 	 */
 	public function delete_activity( $args = array() ) {
@@ -310,8 +293,6 @@ class BBP_BuddyPress_Activity {
 	 * Check for an existing activity stream entry for a given post_id
 	 *
 	 * @param int $post_id ID of the topic or reply
-	 * @uses get_post_meta()
-	 * @uses bp_activity_get_specific()
 	 * @return int if an activity id is verified, false if not
 	 */
 	private static function get_activity_id( $post_id = 0 ) {
@@ -341,7 +322,6 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @global BP_Activity_Template $activities_template
 	 * @param boolean $can_comment
-	 * @uses bp_get_activity_action_name()
 	 * @return boolean
 	 */
 	public function activity_can_comment( $can_comment = true ) {
@@ -423,15 +403,6 @@ class BBP_BuddyPress_Activity {
 	 * @param int $forum_id
 	 * @param array $anonymous_data
 	 * @param int $topic_author_id
-	 * @uses bbp_get_topic_id()
-	 * @uses bbp_get_forum_id()
-	 * @uses bbp_get_user_profile_link()
-	 * @uses bbp_get_topic_permalink()
-	 * @uses bbp_get_topic_title()
-	 * @uses bbp_get_topic_content()
-	 * @uses bbp_get_forum_permalink()
-	 * @uses bbp_get_forum_title()
-	 * @uses apply_filters()
 	 * @return Bail early if topic is by anonymous user
 	 */
 	public function topic_create( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author_id = 0 ) {
@@ -504,7 +475,6 @@ class BBP_BuddyPress_Activity {
 	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted
 	 *
 	 * @param int $topic_id
-	 * @uses bp_activity_delete()
 	 */
 	public function topic_delete( $topic_id = 0 ) {
 
@@ -522,14 +492,6 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @param int $topic_id
 	 * @param obj $post
-	 * @uses get_post_type()
-	 * @uses bbp_get_topic_post_type()
-	 * @uses bbp_get_topic_id()
-	 * @uses bbp_is_topic_anonymous()
-	 * @uses bbp_get_public_status_id()
-	 * @uses bbp_get_closed_status_id()
-	 * @uses bbp_get_topic_forum_id()
-	 * @uses bbp_get_topic_author_id()
 	 * @return Bail early if not a topic, or topic is by anonymous user
 	 */
 	public function topic_update( $topic_id = 0, $post = null ) {
@@ -570,17 +532,6 @@ class BBP_BuddyPress_Activity {
 	 * @param int $forum_id
 	 * @param array $anonymous_data
 	 * @param int $topic_author_id
-	 * @uses bbp_get_reply_id()
-	 * @uses bbp_get_topic_id()
-	 * @uses bbp_get_forum_id()
-	 * @uses bbp_get_user_profile_link()
-	 * @uses bbp_get_reply_url()
-	 * @uses bbp_get_reply_content()
-	 * @uses bbp_get_topic_permalink()
-	 * @uses bbp_get_topic_title()
-	 * @uses bbp_get_forum_permalink()
-	 * @uses bbp_get_forum_title()
-	 * @uses apply_filters()
 	 * @return Bail early if topic is by anonymous user
 	 */
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
@@ -657,8 +608,6 @@ class BBP_BuddyPress_Activity {
 	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted
 	 *
 	 * @param int $reply_id
-	 * @uses get_post_meta()
-	 * @uses bp_activity_delete()
 	 */
 	public function reply_delete( $reply_id ) {
 
@@ -676,15 +625,6 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @param int $reply_id
 	 * @param obj $post
-	 * @uses get_post_type()
-	 * @uses bbp_get_reply_post_type()
-	 * @uses bbp_get_reply_id()
-	 * @uses bbp_is_reply_anonymous()
-	 * @uses bbp_get_public_status_id()
-	 * @uses bbp_get_closed_status_id()
-	 * @uses bbp_get_reply_topic_id()
-	 * @uses bbp_get_reply_forum_id()
-	 * @uses bbp_get_reply_author_id()
 	 * @return Bail early if not a reply, or reply is by anonymous user
 	 */
 	public function reply_update( $reply_id, $post ) {

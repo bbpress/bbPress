@@ -33,10 +33,6 @@ class BBP_Topics_Admin {
 	 * The main bbPress topics admin loader
 	 *
 	 * @since 2.0.0 bbPress (r2515)
-	 *
-	 * @uses BBP_Topics_Admin::setup_globals() Setup the globals needed
-	 * @uses BBP_Topics_Admin::setup_actions() Setup the hooks and actions
-	 * @uses BBP_Topics_Admin::setup_help() Setup the help text
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -50,12 +46,6 @@ class BBP_Topics_Admin {
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses add_filter() To add various filters
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
 	private function setup_actions() {
 
@@ -117,8 +107,6 @@ class BBP_Topics_Admin {
 	 * Contextual help for bbPress topic edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
 
@@ -183,8 +171,6 @@ class BBP_Topics_Admin {
 	 * Contextual help for bbPress topic edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function new_help() {
 
@@ -337,10 +323,6 @@ class BBP_Topics_Admin {
 	 * Add the topic attributes meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2744)
-	 *
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses add_meta_box() To add the meta-box
-	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -357,8 +339,6 @@ class BBP_Topics_Admin {
 	 * Add the author info meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2828)
-	 *
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function author_metabox() {
 
@@ -385,14 +365,6 @@ class BBP_Topics_Admin {
 	 * comments are visible on a blog post.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
-	 *
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses bbp_get_reply() To get the reply
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses add_meta_box() To add the meta-box
-	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
-	 *                    id
 	 */
 	public function replies_metabox() {
 
@@ -418,8 +390,6 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have engaged in a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6333)
-	 *
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function engagements_metabox() {
 
@@ -450,8 +420,6 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have favorited a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
-	 *
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function favorites_metabox() {
 
@@ -482,8 +450,6 @@ class BBP_Topics_Admin {
 	 * Allows viewing of users who have subscribed to a topic.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
-	 *
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function subscriptions_metabox() {
 
@@ -526,10 +492,6 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @param int $topic_id Topic id
-	 * @uses current_user_can() To check if the current user is capable of
-	 *                           editing the topic
-	 * @uses do_action() Calls 'bbp_topic_attributes_metabox_save' with the
-	 *                    topic id and parent id
 	 * @return int Parent id
 	 */
 	public function save_meta_boxes( $topic_id ) {
@@ -584,27 +546,6 @@ class BBP_Topics_Admin {
 	 * spamming/unspamming of topics
 	 *
 	 * @since 2.0.0 bbPress (r2727)
-	 *
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses current_user_can() To check if the user is capable of editing
-	 *                           the topic
-	 * @uses wp_die() To die if the user isn't capable or the post wasn't
-	 *                 found
-	 * @uses check_admin_referer() To verify the nonce and check referer
-	 * @uses bbp_is_topic_open() To check if the topic is open
-	 * @uses bbp_close_topic() To close the topic
-	 * @uses bbp_open_topic() To open the topic
-	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky or
-	 *                              super sticky
-	 * @uses bbp_unstick_topic() To unstick the topic
-	 * @uses bbp_stick_topic() To stick the topic
-	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
-	 * @uses bbp_unspam_topic() To unmark the topic as spam
-	 * @uses bbp_spam_topic() To mark the topic as spam
-	 * @uses do_action() Calls 'bbp_toggle_topic_admin' with success, post
-	 *                    data, action and message
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses bbp_redirect() Redirect the page to custom url
 	 */
 	public function toggle_topic() {
 
@@ -724,12 +665,6 @@ class BBP_Topics_Admin {
 	 * {@link BBP_Admin::toggle_topic()}
 	 *
 	 * @since 2.0.0 bbPress (r2727)
-	 *
-	 * @uses bbp_get_topic() To get the topic
-	 * @uses bbp_get_topic_title() To get the topic title of the topic
-	 * @uses esc_html() To sanitize the topic title
-	 * @uses apply_filters() Calls 'bbp_toggle_topic_notice_admin' with
-	 *                        message, topic id, notice and is it a failure
 	 */
 	public function toggle_topic_notice() {
 
@@ -879,8 +814,7 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r2485)
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'bbp_admin_topics_column_headers' with
-	 *                        the columns
+	 *
 	 * @return array $columns bbPress topic columns
 	 */
 	public function column_headers( $columns ) {
@@ -906,22 +840,6 @@ class BBP_Topics_Admin {
 	 *
 	 * @param string $column Column
 	 * @param int $topic_id Topic id
-	 * @uses bbp_get_topic_forum_id() To get the forum id of the topic
-	 * @uses bbp_forum_title() To output the topic's forum title
-	 * @uses apply_filters() Calls 'topic_forum_row_actions' with an array
-	 *                        of topic forum actions
-	 * @uses bbp_get_forum_permalink() To get the forum permalink
-	 * @uses admin_url() To get the admin url of post.php
-	 * @uses bbp_topic_reply_count() To output the topic reply count
-	 * @uses bbp_topic_voice_count() To output the topic voice count
-	 * @uses bbp_topic_author_display_name() To output the topic author name
-	 * @uses get_the_date() Get the topic creation date
-	 * @uses get_the_time() Get the topic creation time
-	 * @uses esc_attr() To sanitize the topic creation time
-	 * @uses bbp_get_topic_last_active_time() To get the time when the topic was
-	 *                                    last active
-	 * @uses do_action() Calls 'bbp_admin_topics_column_data' with the
-	 *                    column and topic id
 	 */
 	public function column_data( $column, $topic_id ) {
 
@@ -1005,21 +923,6 @@ class BBP_Topics_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $topic Topic object
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_topic_content() To output topic content
-	 * @uses bbp_get_topic_permalink() To get the topic link
-	 * @uses bbp_get_topic_title() To get the topic title
-	 * @uses current_user_can() To check if the current user can edit or
-	 *                           delete the topic
-	 * @uses bbp_is_topic_open() To check if the topic is open
-	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
-	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky or a
-	 *                              super sticky
-	 * @uses get_post_type_object() To get the topic post type object
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses remove_query_arg() To remove custom args from the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses get_delete_post_link() To get the delete post link of the topic
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $topic ) {
@@ -1110,9 +1013,6 @@ class BBP_Topics_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_dropdown() To generate a forum dropdown
 	 * @return bool False. If post type is not topic or reply
 	 */
 	public function filter_dropdown() {
@@ -1146,9 +1046,6 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r2991)
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @uses is_admin() To check if it's the admin section
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @return array Processed Query Vars
 	 */
 	function filter_post_rows( $query_vars ) {
@@ -1170,10 +1067,6 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses bbp_get_topic_permalink()
-	 * @uses wp_post_revision_title()
-	 * @uses esc_url()
-	 * @uses add_query_arg()
 	 *
 	 * @param array $messages
 	 *
@@ -1269,7 +1162,6 @@ endif; // class_exists check
  * @since 2.0.0 bbPress (r2596)
  *
  * @param WP_Screen $current_screen Current screen object
- * @uses BBP_Forums_Admin
  */
 function bbp_admin_topics( $current_screen ) {
 

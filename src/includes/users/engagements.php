@@ -23,8 +23,6 @@ defined( 'ABSPATH' ) || exit;
  * @param string $meta_type The relationship type (usually 'post')
  * @param bool   $unique    Whether meta key should be unique to the object
  *
- * @uses add_metadata() To add the user to an object
- *
  * @return bool Returns true on success, false on failure
  */
 function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
@@ -44,8 +42,6 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses delete_metadata() To remove a user from an objects
- *
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
@@ -63,8 +59,6 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = 
  * @param int    $user_id   The user id
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
- *
- * @uses delete_metadata() To remove user from all objects
  *
  * @return bool Returns true on success, false on failure
  */
@@ -85,8 +79,6 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_t
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses delete_metadata() To remove all user from an object
- *
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
@@ -103,8 +95,6 @@ function bbp_remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta
  *
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
- *
- * @uses delete_metadata() To remove users from objects
  *
  * @return bool Returns true on success, false on failure
  */
@@ -123,8 +113,6 @@ function bbp_remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'po
  * @param int    $object_id The object id
  * @param string $meta_key  The key used to index this relationship
  * @param string $meta_type The type of meta to look in
- *
- * @uses get_metadata() To get the users of an object
  *
  * @return array Returns ids of users
  */
@@ -146,8 +134,6 @@ function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 
  * @param string $meta_key  The relationship key
  * @param string $meta_type The relationship type (usually 'post')
  *
- * @uses bbp_get_users_for_object() To get all users of an object
- *
  * @return bool Returns true if object has a user, false if not
  */
 function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
@@ -166,9 +152,7 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $m
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_users_for_object() To get user ids who engaged
- * @uses apply_filters() Calls 'bbp_get_topic_engagements' with the users and
- *                        topic id
+ *
  * @return array|bool Results if the topic has any engagements, otherwise false
  */
 function bbp_get_topic_engagements( $topic_id = 0 ) {
@@ -226,9 +210,7 @@ UNION
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_has_topics() To get the topics
- * @uses apply_filters() Calls 'bbp_get_user_engagements' with the topic query and
- *                        user id
+ *
  * @return array|bool Results if user has engaged, otherwise false
  */
 function bbp_get_user_engagements( $user_id = 0 ) {
@@ -253,10 +235,7 @@ function bbp_get_user_engagements( $user_id = 0 ) {
  * @since 2.6.0 bbPress (r6320)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses apply_filters() Calls 'bbp_get_user_engaged_topic_ids' with
- *                        the engaged topics and user id
+ *
  * @return array Topic ids if user has engaged, otherwise empty array
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
@@ -284,11 +263,7 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_is_object_of_user() To check if the user has engaged
- * @uses apply_filters() Calls 'bbp_is_user_engaged' with the bool, user id,
- *                        topic id and engagements
+ *
  * @return bool True if the topic is in user's engagements, otherwise false
  */
 function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
@@ -312,8 +287,7 @@ function bbp_is_user_engaged( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_is_user_engaged() To check if the user is engaged in a topic
- * @uses do_action() Calls 'bbp_add_user_engagement' with the user id and topic id
+ *
  * @return bool Always true
  */
 function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
@@ -345,8 +319,7 @@ function bbp_add_user_engagement( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_is_user_engaged() To check if the user is engaged in a topic
- * @uses do_action() Calls 'bbp_remove_user_engagement' with the user & topic id
+ *
  * @return bool True if the topic was removed from user's engagements, otherwise
  *               false
  */
@@ -477,9 +450,7 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2658)
  *
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_users_for_object() To get user IDs who favorited
- * @uses apply_filters() Calls 'bbp_get_topic_favoriters' with the users and
- *                        topic id
+ *
  * @return array|bool Results if the topic has any favoriters, otherwise false
  */
 function bbp_get_topic_favoriters( $topic_id = 0 ) {
@@ -496,9 +467,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_has_topics() To get the topics
- * @uses apply_filters() Calls 'bbp_get_user_favorites' with the topic query and
- *                        user id
+ *
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites( $user_id = 0 ) {
@@ -524,12 +493,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_topic() To get the topic
- * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_is_object_of_user() To check if the user has a favorite
- * @uses apply_filters() Calls 'bbp_is_user_favorite' with the bool, user id,
- *                        topic id and favorites
+ *
  * @return bool True if the topic is in user's favorites, otherwise false
  */
 function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
@@ -551,8 +515,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_is_user_favorite() To check if the topic is a user favorite
- * @uses do_action() Calls 'bbp_add_user_favorite' with the user id and topic id
+ *
  * @return bool Always true
  */
 function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
@@ -586,10 +549,8 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
- * @uses bbp_is_user_favorite() To check if the topic is a user favorite
- * @uses do_action() Calls 'bbp_remove_user_favorite' with the user & topic id
- * @return bool True if the topic was removed from user's favorites, otherwise
- *               false
+ *
+ * @return bool True if the topic was removed from user's favorites, or false
  */
 function bbp_remove_user_favorite( $user_id, $topic_id ) {
 	$user_id  = bbp_get_user_id( $user_id, false, false );
@@ -619,18 +580,6 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  * Handles the front end adding and removing of favorite topics
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses current_user_can() To check if the current user can edit the user
- * @uses bbPress:errors:add() To log the error messages
- * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
- * @uses bbp_remove_user_favorite() To remove the user favorite
- * @uses bbp_add_user_favorite() To add the user favorite
- * @uses do_action() Calls 'bbp_favorites_handler' with success, user id, topic
- *                    id and action
- * @uses bbp_is_favorites() To check if it's the favorites page
- * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses bbp_redirect() To redirect to the url
  */
 function bbp_favorites_handler( $action = '' ) {
 
@@ -729,9 +678,6 @@ function bbp_favorites_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r5156)
  *
  * @param int $object_id Optional. ID of forum, topic, or something else
- * @uses bbp_get_users_for_object() To get the subscribers
- * @uses apply_filters() Calls 'bbp_get_subscribers' with the subscribers
- * @return array|bool Results if subscribers, otherwise false
  */
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
@@ -746,9 +692,7 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_has_topics() To get the topics
- * @uses apply_filters() Calls 'bbp_get_user_subscriptions' with the topic query
- *                        and user id
+ *
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
@@ -773,9 +717,7 @@ function bbp_get_user_topic_subscriptions( $user_id = 0 ) {
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_has_forums() To get the forums
- * @uses apply_filters() Calls 'bbp_get_user_forum_subscriptions' with the forum
- *                        query and user id
+ *
  * @return array|bool Results if user has subscriptions, otherwise false
  */
 function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
@@ -801,13 +743,7 @@ function bbp_get_user_forum_subscriptions( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  * @param int $object_id Optional. Topic id
- * @uses get_post() To get the post object
- * @uses bbp_get_user_subscribed_forum_ids() To get the user's forum subscriptions
- * @uses bbp_get_user_subscribed_topic_ids() To get the user's topic subscriptions
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
- *                        forum/topic id and subscriptions
+ *
  * @return bool True if the forum or topic is in user's subscriptions, otherwise false
  */
 function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) {
@@ -827,7 +763,6 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) 
  * @param int    $object_id Optional. Topic id
  * @param string $type      Optional. Type of object being subscribed to
  *
- * @uses do_action() Calls 'bbp_add_user_subscription' with the user & object id
  * @return bool Always true
  */
 function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post' ) {
@@ -862,9 +797,6 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post'
  * @param int    $object_id Optional. Topic id
  * @param string $type      Optional. Type of object being subscribed to
  *
- * @uses bbp_is_user_subscribed() To check if the user is already subscribed
- * @uses do_action() Calls 'bbp_remove_user_subscription' with the user id and
- *                    topic id
  * @return bool True if the topic was removed from user's subscriptions,
  *               otherwise false
  */
@@ -897,19 +829,6 @@ function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'po
  * @since 2.6.l bbPress (r6543)
  *
  * @param string $action The requested action to compare this function to
- * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_verify_nonce_request() To verify the nonce and check the request
- * @uses current_user_can() To check if the current user can edit the user
- * @uses bbPress:errors:add() To log the error messages
- * @uses bbp_is_user_subscribed() To check if the object is in user's
- *                                 subscriptions
- * @uses bbp_remove_user_subscription() To remove the user subscription
- * @uses bbp_add_user_subscription() To add the user subscription
- * @uses do_action() Calls 'bbp_subscriptions_handler' with success, user id,
- *                    object id and action
- * @uses bbp_is_subscription() To check if it's the subscription page
- * @uses bbp_redirect() To redirect to the url
  */
 function bbp_subscriptions_handler( $action = '' ) {
 
@@ -1013,10 +932,7 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses apply_filters() Calls 'bbp_get_user_favorites_topic_ids' with
- *                        the favorites and user id
+ *
  * @return array|bool Results if user has favorites, otherwise null
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
@@ -1044,10 +960,7 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses apply_filters() Calls 'bbp_get_user_subscribed_forum_ids' with
- *                        the subscriptions and user id
+ *
  * @return array|bool Results if user has subscriptions, otherwise null
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
@@ -1074,10 +987,7 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  * @since 2.0.0 bbPress (r2668)
  *
  * @param int $user_id Optional. User id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses apply_filters() Calls 'bbp_get_user_subscribed_topic_ids' with
- *                        the subscriptions and user id
+ *
  * @return array|bool Results if user has subscriptions, otherwise null
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {

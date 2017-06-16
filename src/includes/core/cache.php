@@ -113,8 +113,6 @@ class BBP_Skip_Children {
 	 * Restore the cache invalidation to its previous value.
 	 *
 	 * @since 2.1.0 bbPress (r4011)
-	 *
-	 * @uses wp_suspend_cache_invalidation()
 	 */
 	public function restore_cache_invalidation() {
 		wp_suspend_cache_invalidation( $this->original_cache_invalidation );
@@ -130,20 +128,10 @@ new BBP_Skip_Children();
  * Will call to clean the term object cache associated with the post ID.
  *
  * @since 2.1.0 bbPress (r4040)
- *
- * @uses do_action() Calls 'bbp_clean_post_cache' on $id
  * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  *
  * @param int     $post_id The post id.
  * @param WP_Post $post    The WP_Post object.
- *
- * @uses get_post() To get the post object.
- * @uses bbp_get_forum_post_type() To get the forum post type.
- * @uses bbp_get_topic_post_type() To get the topic post type.
- * @uses bbp_get_reply_post_type() To get the reply post type.
- * @uses wp_cache_delete() To delete the cache item.
- * @uses clean_object_term_cache() To clean the term cache.
- * @uses bbp_clean_post_cache() Recursion.
  */
 function bbp_clean_post_cache( $post_id = null, $post = null ) {
 

@@ -19,7 +19,6 @@ class Mingle extends BBP_Converter_Base {
 	/**
 	 * Main constructor
 	 *
-	 * @uses Mingle::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

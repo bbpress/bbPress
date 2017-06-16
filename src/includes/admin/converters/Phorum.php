@@ -19,7 +19,6 @@ class Phorum extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses Phorum::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

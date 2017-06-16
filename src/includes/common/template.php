@@ -20,7 +20,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @uses bbp_get_forums_url() To get the forums URL
  * @param string $path Additional path with leading slash
  */
 function bbp_forums_url( $path = '/' ) {
@@ -31,8 +30,6 @@ function bbp_forums_url( $path = '/' ) {
 	 *
 	 * @since 2.1.0 bbPress (r3979)
 	 *
-	 * @uses home_url() To get the home URL
-	 * @uses bbp_get_root_slug() To get the forum root location
 	 * @param string $path Additional path with leading slash
 	 */
 	function bbp_get_forums_url( $path = '/' ) {
@@ -44,7 +41,6 @@ function bbp_forums_url( $path = '/' ) {
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @uses bbp_get_topics_url() To get the topics URL
  * @param string $path Additional path with leading slash
  */
 function bbp_topics_url( $path = '/' ) {
@@ -55,8 +51,6 @@ function bbp_topics_url( $path = '/' ) {
 	 *
 	 * @since 2.1.0 bbPress (r3979)
 	 *
-	 * @uses home_url() To get the home URL
-	 * @uses bbp_get_topic_archive_slug() To get the topics archive location
 	 * @param string $path Additional path with leading slash
 	 * @return The URL to the topics archive
 	 */
@@ -70,9 +64,7 @@ function bbp_topics_url( $path = '/' ) {
  * Add our custom head action to wp_head
  *
  * @since 2.0.0 bbPress (r2464)
- *
- * @uses do_action() Calls 'bbp_head'
-*/
+ */
 function bbp_head() {
 	do_action( 'bbp_head' );
 }
@@ -81,8 +73,6 @@ function bbp_head() {
  * Add our custom head action to wp_head
  *
  * @since 2.0.0 bbPress (r2464)
- *
- * @uses do_action() Calls 'bbp_footer'
  */
 function bbp_footer() {
 	do_action( 'bbp_footer' );
@@ -96,9 +86,6 @@ function bbp_footer() {
  * @since 2.0.0 bbPress (r3398)
  *
  * @param int $site_id
- * @uses get_current_blog_id()
- * @uses get_blog_option()
- * @uses apply_filters()
  * @return bool True if site is public, false if private
  */
 function bbp_is_site_public( $site_id = 0 ) {
@@ -121,7 +108,6 @@ function bbp_is_site_public( $site_id = 0 ) {
  * @since 2.0.0 bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- * @uses bbp_get_forum_post_type() To get the forum post type
  * @return bool True if it's a forum page, false if not
  */
 function bbp_is_forum( $post_id = 0 ) {
@@ -142,9 +128,6 @@ function bbp_is_forum( $post_id = 0 ) {
  * Check if we are viewing a forum archive.
  *
  * @since 2.0.0 bbPress (r3251)
- *
- * @uses is_post_type_archive() To check if we are looking at the forum archive
- * @uses bbp_get_forum_post_type() To get the forum post type ID
  *
  * @return bool
  */
@@ -167,11 +150,6 @@ function bbp_is_forum_archive() {
  * Viewing a single forum
  *
  * @since 2.0.0 bbPress (r3338)
- *
- * @uses is_single()
- * @uses bbp_get_forum_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
  *
  * @return bool
  */
@@ -199,7 +177,6 @@ function bbp_is_single_forum() {
  *
  * @since 2.1.0 bbPress (r3553)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_forum_edit is true
  * @return bool True if it's the forum edit page, false if not
  */
 function bbp_is_forum_edit() {
@@ -227,8 +204,6 @@ function bbp_is_forum_edit() {
  * @since 2.0.0 bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses get_post_type() To get the post type of the post id
  * @return bool True if it's a topic page, false if not
  */
 function bbp_is_topic( $post_id = 0 ) {
@@ -249,11 +224,6 @@ function bbp_is_topic( $post_id = 0 ) {
  * Viewing a single topic
  *
  * @since 2.0.0 bbPress (r3338)
- *
- * @uses is_single()
- * @uses bbp_get_topic_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
  *
  * @return bool
  */
@@ -281,9 +251,6 @@ function bbp_is_single_topic() {
  *
  * @since 2.0.0 bbPress (r3251)
  *
- * @uses is_post_type_archive() To check if we are looking at the topic archive
- * @uses bbp_get_topic_post_type() To get the topic post type ID
- *
  * @return bool
  */
 function bbp_is_topic_archive() {
@@ -305,7 +272,6 @@ function bbp_is_topic_archive() {
  *
  * @since 2.0.0 bbPress (r2753)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_topic_edit is true
  * @return bool True if it's the topic edit page, false if not
  */
 function bbp_is_topic_edit() {
@@ -332,7 +298,6 @@ function bbp_is_topic_edit() {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @uses bbp_is_topic_edit() To check if it's a topic edit page
  * @return bool True if it's the topic merge page, false if not
  */
 function bbp_is_topic_merge() {
@@ -354,7 +319,6 @@ function bbp_is_topic_merge() {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @uses bbp_is_topic_edit() To check if it's a topic edit page
  * @return bool True if it's the topic split page, false if not
  */
 function bbp_is_topic_split() {
@@ -407,7 +371,6 @@ function bbp_is_topic_tag() {
  *
  * @since 2.0.0 bbPress (r3346)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_topic_tag_edit is true
  * @return bool True if editing a topic tag, false if not
  */
 function bbp_is_topic_tag_edit() {
@@ -440,10 +403,6 @@ function bbp_is_topic_tag_edit() {
  * @since 2.0.0 bbPress (r3311)
  *
  * @param mixed $the_post Optional. Post object or post ID.
- * @uses get_post_type()
- * @uses bbp_get_forum_post_type()
- * @uses bbp_get_topic_post_type()
- * @uses bbp_get_reply_post_type()
  *
  * @return bool
  */
@@ -471,8 +430,6 @@ function bbp_is_custom_post_type( $the_post = false ) {
  * @since 2.0.0 bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses get_post_type() To get the post type of the post id
  * @return bool True if it's a reply page, false if not
  */
 function bbp_is_reply( $post_id = 0 ) {
@@ -494,7 +451,6 @@ function bbp_is_reply( $post_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2753)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_reply_edit is true
  * @return bool True if it's the reply edit page, false if not
  */
 function bbp_is_reply_edit() {
@@ -519,7 +475,6 @@ function bbp_is_reply_edit() {
 /**
  * Check if current page is a reply move page
  *
- * @uses bbp_is_reply_move() To check if it's a reply move page
  * @return bool True if it's the reply move page, false if not
  */
 function bbp_is_reply_move() {
@@ -540,11 +495,6 @@ function bbp_is_reply_move() {
  * Viewing a single reply
  *
  * @since 2.0.0 bbPress (r3344)
- *
- * @uses is_single()
- * @uses bbp_get_reply_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
  *
  * @return bool
  */
@@ -662,10 +612,6 @@ function bbp_is_replies_created() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @uses bbp_is_single_user() Check query variable
- * @uses is_user_logged_in() Must be logged in to be home
- * @uses bbp_get_displayed_user_id()
- * @uses bbp_get_current_user_id()
  * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home() {
@@ -688,10 +634,6 @@ function bbp_is_user_home() {
  *
  * @since 2.1.0 bbPress (r3918)
  *
- * @uses bbp_is_single_user_edit() Check query variable
- * @uses is_user_logged_in() Must be logged in to be home
- * @uses bbp_get_displayed_user_id()
- * @uses bbp_get_current_user_id()
  * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home_edit() {
@@ -712,7 +654,6 @@ function bbp_is_user_home_edit() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user is set to true
  * @return bool True if it's a user's profile page, false if not
  */
 function bbp_is_single_user() {
@@ -735,7 +676,6 @@ function bbp_is_single_user() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user_edit is set to true
  * @return bool True if it's a user's profile edit page, false if not
  */
 function bbp_is_single_user_edit() {
@@ -758,7 +698,6 @@ function bbp_is_single_user_edit() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user_profile is set to true
  * @return bool True if it's a user's profile page, false if not
  */
 function bbp_is_single_user_profile() {
@@ -781,7 +720,6 @@ function bbp_is_single_user_profile() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user_topics is set to true
  * @return bool True if it's a user's topics page, false if not
  */
 function bbp_is_single_user_topics() {
@@ -804,7 +742,6 @@ function bbp_is_single_user_topics() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user_replies is set to true
  * @return bool True if it's a user's replies page, false if not
  */
 function bbp_is_single_user_replies() {
@@ -827,7 +764,6 @@ function bbp_is_single_user_replies() {
  *
  * @since 2.6.0 bbPress (r6320)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_single_user_engagements is set to true
  * @return bool True if it's a user's replies page, false if not
  */
 function bbp_is_single_user_engagements() {
@@ -851,7 +787,6 @@ function bbp_is_single_user_engagements() {
  * @since 2.0.0 bbPress (r2789)
  *
  * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true
- * @uses bbp_is_query_name() To get the query name
  * @return bool Is it a view page?
  */
 function bbp_is_single_view() {
@@ -880,7 +815,6 @@ function bbp_is_single_view() {
  * @since 2.3.0 bbPress (r4579)
  *
  * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true
- * @uses bbp_is_query_name() To get the query name
  * @return bool Is it a search page?
  */
 function bbp_is_search() {
@@ -919,7 +853,6 @@ function bbp_is_search() {
  * @since 2.4.0 bbPress (r4919)
  *
  * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true
- * @uses bbp_is_query_name() To get the query name
  * @return bool Is it a search page?
  */
 function bbp_is_search_results() {
@@ -957,7 +890,6 @@ function bbp_is_search_results() {
  *
  * @since 2.1.0 bbPress (r3585)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_edit is true
  * @return bool True if it's the edit page, false if not
  */
 function bbp_is_edit() {
@@ -982,29 +914,6 @@ function bbp_is_edit() {
  *
  * @param array $wp_classes
  * @param array $custom_classes
- * @uses bbp_is_single_forum()
- * @uses bbp_is_single_topic()
- * @uses bbp_is_topic_edit()
- * @uses bbp_is_topic_merge()
- * @uses bbp_is_topic_split()
- * @uses bbp_is_single_reply()
- * @uses bbp_is_reply_edit()
- * @uses bbp_is_reply_move()
- * @uses bbp_is_single_view()
- * @uses bbp_is_single_user_edit()
- * @uses bbp_is_single_user()
- * @uses bbp_is_user_home()
- * @uses bbp_is_subscriptions()
- * @uses bbp_is_favorites()
- * @uses bbp_is_topics_created()
- * @uses bbp_is_replies_created()
- * @uses bbp_is_forum_archive()
- * @uses bbp_is_topic_archive()
- * @uses bbp_is_topic_tag()
- * @uses bbp_is_topic_tag_edit()
- * @uses bbp_get_topic_tag_tax_id()
- * @uses bbp_get_topic_tag_slug()
- * @uses bbp_get_topic_tag_id()
  * @return array Body Classes
  */
 function bbp_body_class( $wp_classes, $custom_classes = false ) {
@@ -1146,10 +1055,6 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
  *
  * @since 2.6.0
  *
- * @uses is_singular()
- * @uses bbp_get_global_post_field()
- * @uses has_shortcode();
- *
  * @param string $text
  * @return bool
  */
@@ -1189,24 +1094,6 @@ function bbp_has_shortcode( $text = '' ) {
  * Use the above is_() functions to return if in any bbPress page
  *
  * @since 2.0.0 bbPress (r3344)
- *
- * @uses bbp_is_single_forum()
- * @uses bbp_is_single_topic()
- * @uses bbp_is_topic_edit()
- * @uses bbp_is_topic_merge()
- * @uses bbp_is_topic_split()
- * @uses bbp_is_single_reply()
- * @uses bbp_is_reply_edit()
- * @uses bbp_is_reply_move()
- * @uses bbp_is_single_view()
- * @uses bbp_is_single_user_edit()
- * @uses bbp_is_single_user()
- * @uses bbp_is_user_home()
- * @uses bbp_is_subscriptions()
- * @uses bbp_is_favorites()
- * @uses bbp_is_topics_created()
- * @uses bbp_is_replies_created()
- * @uses bbp_has_shortcode()
  *
  * @return bool In a bbPress page
  */
@@ -1316,9 +1203,6 @@ function is_bbpress() {
  * @param array $args This function supports these arguments:
  *  - action: The action being taken
  *  - context: The context the action is being taken from
- * @uses add_query_arg() To add a arg to the url
- * @uses site_url() Toget the site url
- * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
  */
 function bbp_wp_login_action( $args = array() ) {
 	echo esc_url( bbp_get_wp_login_action( $args ) );
@@ -1332,9 +1216,6 @@ function bbp_wp_login_action( $args = array() ) {
 	 * @param array $args This function supports these arguments:
 	 *  - action: The action being taken
 	 *  - context: The context the action is being taken from
-	 * @uses add_query_arg() To add a arg to the url
-	 * @uses site_url() Toget the site url
-	 * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
 	 */
 	function bbp_get_wp_login_action( $args = array() ) {
 
@@ -1365,10 +1246,6 @@ function bbp_wp_login_action( $args = array() ) {
  * @since 2.0.0 bbPress (r2815)
  *
  * @param string $redirect_to Pass a URL to redirect to
- *
- * @uses wp_get_referer() To get the referer
- * @uses esc_attr() To escape the url
- * @uses apply_filters() Calls 'bbp_redirect_to_field', passes field and to
  */
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
@@ -1400,7 +1277,6 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
  * @param string $request Name of $_REQUEST to look for
  * @param string $input_type Type of input. Default: text. Accepts:
  *                            textarea|password|select|radio|checkbox
- * @uses bbp_get_sanitize_val() To sanitize the value.
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );
@@ -1416,9 +1292,7 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	 * @param string $request Name of $_REQUEST to look for
 	 * @param string $input_type Type of input. Default: text. Accepts:
 	 *                            textarea|password|select|radio|checkbox
-	 * @uses esc_attr() To escape the string
-	 * @uses apply_filters() Calls 'bbp_get_sanitize_val' with the sanitized
-	 *                        value, request and input type
+	 *
 	 * @return string Sanitized value ready for screen display
 	 */
 	function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
@@ -1482,7 +1356,6 @@ function bbp_tab_index( $auto_increment = true ) {
 	 * @deprecated 2.6.0 bbPress (r5561)
 	 *
 	 * @link https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
-	 * @uses apply_filters Allows return value to be filtered
 	 * @param int $auto_increment Optional. Default true. Set to false to
 	 *                             prevent the increment
 	 * @return int $bbp->tab_index The global tab index
@@ -1580,17 +1453,6 @@ function bbp_dropdown( $args = array() ) {
 	 *  - show_none: Boolean or String __( '&mdash; No Forum &mdash;', 'bbpress' )
 	 *  - disable_categories: Disable forum categories and closed forums?
 	 *                         Defaults to true. Only for forums and when
-	 *                         the category option is displayed.
-	 * @uses BBP_Walker_Dropdown() As the default walker to generate the
-	 *                              dropdown
-	 * @uses current_user_can() To check if the current user can read
-	 *                           private forums
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses walk_page_dropdown_tree() To generate the dropdown using the
-	 *                                  walker
-	 * @uses apply_filters() Calls 'bbp_get_dropdown' with the dropdown
-	 *                        and args
 	 * @return string The dropdown
 	 */
 	function bbp_get_dropdown( $args = array() ) {
@@ -1732,12 +1594,6 @@ function bbp_dropdown( $args = array() ) {
  * Output the required hidden fields when creating/editing a forum
  *
  * @since 2.1.0 bbPress (r3553)
- *
- * @uses bbp_is_forum_edit() To check if it's the forum edit page
- * @uses wp_nonce_field() To generate hidden nonce fields
- * @uses bbp_forum_id() To output the forum id
- * @uses bbp_is_single_forum() To check if it's a forum page
- * @uses bbp_forum_id() To output the forum id
  */
 function bbp_forum_form_fields() {
 
@@ -1775,12 +1631,6 @@ function bbp_forum_form_fields() {
  * Output the required hidden fields when creating/editing a topic
  *
  * @since 2.0.0 bbPress (r2753)
- *
- * @uses bbp_is_topic_edit() To check if it's the topic edit page
- * @uses wp_nonce_field() To generate hidden nonce fields
- * @uses bbp_topic_id() To output the topic id
- * @uses bbp_is_single_forum() To check if it's a forum page
- * @uses bbp_forum_id() To output the forum id
  */
 function bbp_topic_form_fields() {
 
@@ -1818,12 +1668,6 @@ function bbp_topic_form_fields() {
  * Output the required hidden fields when creating/editing a reply
  *
  * @since 2.0.0 bbPress (r2753)
- *
- * @uses bbp_is_reply_edit() To check if it's the reply edit page
- * @uses wp_nonce_field() To generate hidden nonce fields
- * @uses bbp_reply_id() To output the reply id
- * @uses bbp_topic_id() To output the topic id
- * @uses bbp_forum_id() To output the forum id
  */
 function bbp_reply_form_fields() {
 
@@ -1861,9 +1705,6 @@ function bbp_reply_form_fields() {
  * Output the required hidden fields when editing a user
  *
  * @since 2.0.0 bbPress (r2690)
- *
- * @uses bbp_displayed_user_id() To output the displayed user id
- * @uses wp_nonce_field() To generate a hidden referer field
  */
 function bbp_edit_user_form_fields() {
 ?>
@@ -1880,9 +1721,6 @@ function bbp_edit_user_form_fields() {
  * Output the required hidden fields when merging a topic
  *
  * @since 2.0.0 bbPress (r2756)
- *
- * @uses wp_nonce_field() To generate a hidden nonce field
- * @uses bbp_topic_id() To output the topic id
  */
 function bbp_merge_topic_form_fields() {
 ?>
@@ -1899,8 +1737,6 @@ function bbp_merge_topic_form_fields() {
  * Output the required hidden fields when splitting a topic
  *
  * @since 2.0.0 bbPress (r2756)
- *
- * @uses wp_nonce_field() To generate a hidden nonce field
  */
 function bbp_split_topic_form_fields() {
 ?>
@@ -1915,8 +1751,6 @@ function bbp_split_topic_form_fields() {
  * Move reply form fields
  *
  * Output the required hidden fields when moving a reply
- *
- * @uses wp_nonce_field() To generate a hidden nonce field
  */
 function bbp_move_reply_form_fields() {
 ?>
@@ -1933,7 +1767,6 @@ function bbp_move_reply_form_fields() {
  * @since 2.1.0 bbPress (r3586)
  *
  * @param array $args
- * @uses bbp_get_the_content() To return the content to output
  */
 function bbp_the_content( $args = array() ) {
 	echo bbp_get_the_content( $args );
@@ -1944,12 +1777,6 @@ function bbp_the_content( $args = array() ) {
 	 * @since 2.1.0 bbPress (r3586)
 	 *
 	 * @param array $args
-	 *
-	 * @uses apply_filter() To filter args and output
-	 * @uses wp_parse_pargs() To compare args
-	 * @uses bbp_use_wp_editor() To see if WP editor is in use
-	 * @uses bbp_is_edit() To see if we are editing something
-	 * @uses wp_editor() To output the WordPress editor
 	 *
 	 * @return string HTML from output buffer
 	 */
@@ -2131,7 +1958,6 @@ function bbp_get_quicktags_settings( $settings = array() ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view Optional. View id
- * @uses bbp_get_view_id() To get the view id
  */
 function bbp_view_id( $view = '' ) {
 	echo bbp_get_view_id( $view );
@@ -2145,9 +1971,6 @@ function bbp_view_id( $view = '' ) {
 	 * @since 2.0.0 bbPress (r2789)
 	 *
 	 * @param string $view Optional. View id.
-	 * @uses sanitize_title() To sanitize the view id
-	 * @uses get_query_var() To get the view id query variable
-	 * @uses bbp_get_view_rewrite_id() To get the view rewrite ID
 	 * @return bool|string ID on success, false on failure
 	 */
 	function bbp_get_view_id( $view = '' ) {
@@ -2174,7 +1997,6 @@ function bbp_view_id( $view = '' ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view Optional. View id
- * @uses bbp_get_view_title() To get the view title
  */
 function bbp_view_title( $view = '' ) {
 	echo bbp_get_view_title( $view );
@@ -2189,7 +2011,6 @@ function bbp_view_title( $view = '' ) {
 	 * @since 2.0.0 bbPress (r2789)
 	 *
 	 * @param string $view Optional. View id
-	 * @uses bbp_get_view_id() To get the view id
 	 * @return bool|string Title on success, false on failure
 	 */
 	function bbp_get_view_title( $view = '' ) {
@@ -2209,7 +2030,6 @@ function bbp_view_title( $view = '' ) {
  * @since 2.0.0 bbPress (r2789)
  *
  * @param string $view Optional. View id
- * @uses bbp_get_view_url() To get the view url
  */
 function bbp_view_url( $view = false ) {
 	echo esc_url( bbp_get_view_url( $view ) );
@@ -2220,10 +2040,6 @@ function bbp_view_url( $view = false ) {
 	 * @since 2.0.0 bbPress (r2789)
 	 *
 	 * @param string $view Optional. View id
-	 * @uses sanitize_title() To sanitize the view id
-	 * @uses home_url() To get blog home url
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses apply_filters() Calls 'bbp_get_view_url' with the view url,
 	 *                        used view id
 	 * @return string View url (or home url if the view was not found)
 	 */
@@ -2258,7 +2074,6 @@ function bbp_view_url( $view = false ) {
  *
  * @since 2.0.0 bbPress (r2980)
  *
- * @uses bbp_get_query_name() Get the query var '_bbp_query_name'
  * @return bool True if match, false if not
  */
 function bbp_is_query_name( $name = '' )  {
@@ -2270,7 +2085,6 @@ function bbp_is_query_name( $name = '' )  {
  *
  * @since 2.0.0 bbPress (r2695)
  *
- * @uses get_query_var() To get the query var '_bbp_query_name'
  * @return string To return the query var value
  */
 function bbp_get_query_name()  {
@@ -2283,7 +2097,6 @@ function bbp_get_query_name()  {
  * @since 2.0.0 bbPress (r2692)
  *
  * @param string $name What to set the query var to
- * @uses set_query_var() To set the query var '_bbp_query_name'
  */
 function bbp_set_query_name( $name = '' )  {
 	set_query_var( '_bbp_query_name', $name );
@@ -2294,7 +2107,6 @@ function bbp_set_query_name( $name = '' )  {
  *
  * @since 2.0.0 bbPress (r2692)
  *
- * @uses bbp_set_query_name() To set the query var '_bbp_query_name' value to ''
  */
 function bbp_reset_query_name() {
 	bbp_set_query_name();
@@ -2310,7 +2122,6 @@ function bbp_reset_query_name() {
  * @param string $sep Separator. Defaults to '&larr;'
  * @param bool $current_page Include the current item
  * @param bool $root Include the root page if one exists
- * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
 function bbp_title_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2324,7 +2135,6 @@ function bbp_title_breadcrumb( $args = array() ) {
  * @param string $sep Separator. Defaults to '&larr;'
  * @param bool $current_page Include the current item
  * @param bool $root Include the root page if one exists
- * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
 function bbp_breadcrumb( $args = array() ) {
 	echo bbp_get_breadcrumb( $args );
@@ -2338,19 +2148,6 @@ function bbp_breadcrumb( $args = array() ) {
 	 * @param bool $current_page Include the current item
 	 * @param bool $root Include the root page if one exists
 	 *
-	 * @uses get_post() To get the post
-	 * @uses bbp_get_forum_permalink() To get the forum link
-	 * @uses bbp_get_topic_permalink() To get the topic link
-	 * @uses bbp_get_reply_permalink() To get the reply link
-	 * @uses get_permalink() To get the permalink
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
-	 * @uses bbp_get_forum_title() To get the forum title
-	 * @uses bbp_get_topic_title() To get the topic title
-	 * @uses bbp_get_reply_title() To get the reply title
-	 * @uses get_the_title() To get the title
-	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
 	 * @return string Breadcrumbs
 	 */
 	function bbp_get_breadcrumb( $args = array() ) {
@@ -2622,8 +2419,6 @@ function bbp_breadcrumb( $args = array() ) {
  * attributes are supported. As well as any plugins which want to display it.
  *
  * @since 2.0.0 bbPress (r2780)
- *
- * @uses bbp_get_allowed_tags()
  */
 function bbp_allowed_tags() {
 	echo bbp_get_allowed_tags();
@@ -2636,8 +2431,6 @@ function bbp_allowed_tags() {
 	 *
 	 * @since 2.0.0 bbPress (r2780)
 	 *
-	 * @uses bbp_kses_allowed_tags() To get the allowed tags
-	 * @uses apply_filters() Calls 'bbp_allowed_tags' with the tags
 	 * @return string HTML allowed tags entity encoded.
 	 */
 	function bbp_get_allowed_tags() {
@@ -2664,12 +2457,6 @@ function bbp_allowed_tags() {
  * Display possible errors & messages inside a template file
  *
  * @since 2.0.0 bbPress (r2688)
- *
- * @uses WP_Error bbPress::errors::get_error_codes() To get the error codes
- * @uses WP_Error bbPress::errors::get_error_data() To get the error data
- * @uses WP_Error bbPress::errors::get_error_messages() To get the error
- *                                                       messages
- * @uses is_wp_error() To check if it's a {@link WP_Error}
  */
 function bbp_template_notices() {
 
@@ -2731,7 +2518,6 @@ function bbp_template_notices() {
  * @since 2.0.0 bbPress (r2827)
  *
  * @param string $redirect_to Redirect to url
- * @uses bbp_get_logout_link() To get the logout link
  */
 function bbp_logout_link( $redirect_to = '' ) {
 	echo bbp_get_logout_link( $redirect_to );
@@ -2742,8 +2528,6 @@ function bbp_logout_link( $redirect_to = '' ) {
 	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param string $redirect_to Redirect to url
-	 * @uses wp_logout_url() To get the logout url
-	 * @uses apply_filters() Calls 'bbp_get_logout_link' with the logout link and
 	 *                        redirect to url
 	 * @return string The logout link
 	 */
@@ -2767,23 +2551,6 @@ function bbp_logout_link( $redirect_to = '' ) {
  * @param string $sep Optional, default is '&raquo;'. How to separate the
  *                     various items within the page title.
  * @param string $seplocation Optional. Direction to display title, 'right'.
- * @uses bbp_is_single_user() To check if it's a user profile page
- * @uses bbp_is_single_user_edit() To check if it's a user profile edit page
- * @uses bbp_is_user_home() To check if the profile page is of the current user
- * @uses get_query_var() To get the user id
- * @uses get_userdata() To get the user data
- * @uses bbp_is_single_forum() To check if it's a forum
- * @uses bbp_get_forum_title() To get the forum title
- * @uses bbp_is_single_topic() To check if it's a topic
- * @uses bbp_get_topic_title() To get the topic title
- * @uses bbp_is_single_reply() To check if it's a reply
- * @uses bbp_get_reply_title() To get the reply title
- * @uses is_tax() To check if it's the tag page
- * @uses get_queried_object() To get the queried object
- * @uses bbp_is_single_view() To check if it's a view
- * @uses bbp_get_view_title() To get the view title
- * @uses apply_filters() Calls 'bbp_raw_title' with the title
- * @uses apply_filters() Calls 'bbp_profile_page_wp_title' with the title,
  *                        separator and separator location
  * @return string The title
  */

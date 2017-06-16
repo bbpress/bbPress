@@ -32,8 +32,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @uses setup_globals()
-	 * @uses add_shortcodes()
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -46,8 +44,6 @@ class BBP_Shortcodes {
 	 * @since 2.0.0 bbPress (r3143)
 	 *
 	 * @access private
-	 *
-	 * @uses apply_filters()
 	 */
 	private function setup_globals() {
 
@@ -101,9 +97,6 @@ class BBP_Shortcodes {
 	 * Register the bbPress shortcodes
 	 *
 	 * @since 2.0.0 bbPress (r3031)
-	 *
-	 * @uses add_shortcode()
-	 * @uses do_action()
 	 */
 	private function add_shortcodes() {
 		foreach ( (array) $this->codes as $code => $function ) {
@@ -148,9 +141,6 @@ class BBP_Shortcodes {
 	 * @since 2.0.0 bbPress (r3079)
 	 *
 	 * @param string $query_name
-	 *
-	 * @uses bbp_set_query_name()
-	 * @uses ob_start()
 	 */
 	private function start( $query_name = '' ) {
 
@@ -166,7 +156,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3079)
 	 *
-	 * @uses BBP_Shortcodes::unset_globals() Cleans up global values
 	 * @return string Contents of output buffer.
 	 */
 	private function end() {
@@ -195,8 +184,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @uses bbp_has_forums()
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_forum_index() {
@@ -221,8 +208,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
-	 * @uses bbp_single_forum_description()
 	 * @return string
 	 */
 	public function display_forum( $attr, $content = '' ) {
@@ -261,8 +246,6 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.1.0 bbPress (r3566)
-	 *
-	 * @uses get_template_part()
 	 */
 	public function display_forum_form() {
 
@@ -284,7 +267,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 *
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topic_index() {
@@ -315,7 +297,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topic( $attr, $content = '' ) {
@@ -381,7 +362,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topic_form( $attr = array(), $content = '' ) {
@@ -436,7 +416,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_reply( $attr, $content = '' ) {
@@ -495,8 +474,6 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.0.0 bbPress (r3031)
-	 *
-	 * @uses get_template_part()
 	 */
 	public function display_reply_form() {
 
@@ -548,7 +525,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
@@ -585,7 +561,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since 2.0.0 bbPress (r3346)
 	 *
-	 * @uses get_template_part()
 	 * @return string
 	 */
 	public function display_topic_tag_form() {
@@ -613,8 +588,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses get_template_part()
-	 * @uses bbp_single_forum_description()
 	 * @return string
 	 */
 	public function display_view( $attr, $content = '' ) {
@@ -653,8 +626,6 @@ class BBP_Shortcodes {
 	 * post/page contents are displayed first.
 	 *
 	 * @since 2.3.0 bbPress (r4585)
-	 *
-	 * @uses get_template_part()
 	 */
 	public function display_search_form() {
 
@@ -681,8 +652,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses bbp_search_query()
-	 * @uses get_template_part()
 	 */
 	public function display_search( $attr, $content = '' ) {
 

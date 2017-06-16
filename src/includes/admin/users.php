@@ -24,9 +24,6 @@ class BBP_Users_Admin {
 	 * The bbPress users admin loader
 	 *
 	 * @since 2.0.0 bbPress (r2515)
-	 *
-	 * @uses BBP_Users_Admin::setup_globals() Setup the globals needed
-	 * @uses BBP_Users_Admin::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -38,8 +35,6 @@ class BBP_Users_Admin {
 	 * @since 2.0.0 bbPress (r2646)
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
 	 */
 	function setup_actions() {
 
@@ -183,10 +178,6 @@ class BBP_Users_Admin {
 	 *
 	 * @since 2.2.0 bbPress (r4365)
 	 *
-	 * @uses current_user_can() to check for 'promote users' capability
-	 * @uses bbp_get_dynamic_roles() to get forum roles
-	 * @uses bbp_get_user_role() to get a user's current forums role
-	 * @uses bbp_set_user_role() to set the user's new forums role
 	 * @return bool Always false
 	 */
 	public function user_role_bulk_change() {

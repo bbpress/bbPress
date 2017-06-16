@@ -56,8 +56,6 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  *
  * @param string|WP_Error $message A message to be displayed or {@link WP_Error}
  * @param string $class Optional. A class to be added to the message div
- * @uses WP_Error::get_error_messages() To get the error messages of $message
- * @uses add_action() Adds the admin notice action with the message HTML
  * @return string The message HTML
  */
 function bbp_admin_tools_feedback( $message, $class = false ) {
@@ -108,10 +106,6 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses bbp_admin_repair_list() To get the recount list
- * @uses check_admin_referer() To verify the nonce and the referer
- * @uses wp_cache_flush() To flush the cache
- * @uses do_action() Calls 'admin_notices' to display the notices
  */
 function bbp_admin_repair_handler() {
 
@@ -342,7 +336,6 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses apply_filters() Calls 'bbp_repair_list' with the list array
  * @return array Repair list of options
  */
 function bbp_admin_repair_list( $type = 'repair' ) {

@@ -33,10 +33,6 @@ class BBP_Forums_Admin {
 	 * The main bbPress forums admin loader
 	 *
 	 * @since 2.0.0 bbPress (r2515)
-	 *
-	 * @uses BBP_Forums_Admin::setup_globals() Setup the globals needed
-	 * @uses BBP_Forums_Admin::setup_actions() Setup the hooks and actions
-	 * @uses BBP_Forums_Admin::setup_help() Setup the help text
 	 */
 	public function __construct() {
 		$this->setup_globals();
@@ -49,12 +45,6 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r2646)
 	 *
 	 * @access private
-	 *
-	 * @uses add_action() To add various actions
-	 * @uses add_filter() To add various filters
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
 	private function setup_actions() {
 
@@ -102,8 +92,6 @@ class BBP_Forums_Admin {
 	 * Contextual help for bbPress forum edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
 
@@ -162,8 +150,6 @@ class BBP_Forums_Admin {
 	 * Contextual help for bbPress forum edit page
 	 *
 	 * @since 2.0.0 bbPress (r3119)
-	 *
-	 * @uses get_current_screen()
 	 */
 	public function new_help() {
 
@@ -220,10 +206,6 @@ class BBP_Forums_Admin {
 	 * Add the forum attributes meta-box
 	 *
 	 * @since 2.0.0 bbPress (r2746)
-	 *
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses add_meta_box() To add the meta-box
-	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function attributes_metabox() {
 		add_meta_box(
@@ -240,10 +222,6 @@ class BBP_Forums_Admin {
 	 * Add the forum moderators meta-box
 	 *
 	 * @since 2.6.0 bbPress
-	 *
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses add_meta_box() To add the meta-box
-	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	public function moderators_metabox() {
 
@@ -269,8 +247,6 @@ class BBP_Forums_Admin {
 	 * Allows viewing of users who have subscribed to a forum.
 	 *
 	 * @since 2.6.0 bbPress (r6197)
-	 *
-	 * @uses add_meta_box() To add the meta-box
 	 */
 	public function subscriptions_metabox() {
 
@@ -313,20 +289,6 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r2746)
 	 *
 	 * @param int $forum_id Forum id
-	 * @uses current_user_can() To check if the current user is capable of
-	 *                           editing the forum
-	 * @uses bbp_get_forum() To get the forum
-	 * @uses bbp_is_forum_closed() To check if the forum is closed
-	 * @uses bbp_is_forum_category() To check if the forum is a category
-	 * @uses bbp_is_forum_private() To check if the forum is private
-	 * @uses bbp_close_forum() To close the forum
-	 * @uses bbp_open_forum() To open the forum
-	 * @uses bbp_categorize_forum() To make the forum a category
-	 * @uses bbp_normalize_forum() To make the forum normal (not category)
-	 * @uses bbp_privatize_forum() To mark the forum as private
-	 * @uses bbp_publicize_forum() To mark the forum as public
-	 * @uses do_action() Calls 'bbp_forum_attributes_metabox_save' with the
-	 *                    forum id
 	 * @return int Forum id
 	 */
 	public function save_meta_boxes( $forum_id ) {
@@ -378,20 +340,6 @@ class BBP_Forums_Admin {
 	 * Handles the admin-side opening/closing of forums
 	 *
 	 * @since 2.6.0 bbPress (r5254)
-	 *
-	 * @uses bbp_get_forum() To get the forum
-	 * @uses current_user_can() To check if the user is capable of editing
-	 *                           the forum
-	 * @uses wp_die() To die if the user isn't capable or the post wasn't
-	 *                 found
-	 * @uses check_admin_referer() To verify the nonce and check referer
-	 * @uses bbp_is_forum_open() To check if the forum is open
-	 * @uses bbp_close_forum() To close the forum
-	 * @uses bbp_open_forum() To open the forum
-	 * @uses do_action() Calls 'bbp_toggle_forum_admin' with success, post
-	 *                    data, action and message
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses bbp_redirect() Redirect the page to custom url
 	 */
 	public function toggle_forum() {
 
@@ -466,12 +414,6 @@ class BBP_Forums_Admin {
 	 * {@link BBP_Admin::toggle_forum()}
 	 *
 	 * @since 2.6.0 bbPress (r5254)
-	 *
-	 * @uses bbp_get_forum() To get the forum
-	 * @uses bbp_get_forum_title() To get the forum title of the forum
-	 * @uses esc_html() To sanitize the forum title
-	 * @uses apply_filters() Calls 'bbp_toggle_forum_notice_admin' with
-	 *                        message, forum id, notice and is it a failure
 	 */
 	public function toggle_forum_notice() {
 
@@ -568,8 +510,7 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r2485)
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'bbp_admin_forums_column_headers' with
-	 *                        the columns
+	 *
 	 * @return array $columns bbPress forum columns
 	 */
 	public function column_headers( $columns ) {
@@ -602,15 +543,6 @@ class BBP_Forums_Admin {
 	 *
 	 * @param string $column Column
 	 * @param int $forum_id Forum id
-	 * @uses bbp_forum_topic_count() To output the forum topic count
-	 * @uses bbp_forum_reply_count() To output the forum reply count
-	 * @uses get_the_date() Get the forum creation date
-	 * @uses get_the_time() Get the forum creation time
-	 * @uses esc_attr() To sanitize the forum creation time
-	 * @uses bbp_get_forum_last_active_time() To get the time when the forum was
-	 *                                    last active
-	 * @uses do_action() Calls 'bbp_admin_forums_column_data' with the
-	 *                    column and forum id
 	 */
 	public function column_data( $column, $forum_id ) {
 
@@ -665,13 +597,6 @@ class BBP_Forums_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $forum Forum object
-	 * @uses bbp_get_public_status_id() To get the published forum id's
-	 * @uses bbp_get_private_status_id() To get the private forum id's
-	 * @uses bbp_get_hidden_status_id() To get the hidden forum id's
-	 * @uses bbp_get_closed_status_id() To get the closed forum id's
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses bbp_is_forum_open() To check if a forum is open
-	 * @uses bbp_forum_content() To output forum description
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $forum ) {
@@ -704,10 +629,6 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r3080)
 	 *
 	 * @global int $post_ID
-	 * @uses bbp_get_forum_permalink()
-	 * @uses wp_post_revision_title()
-	 * @uses esc_url()
-	 * @uses add_query_arg()
 	 *
 	 * @param array $messages
 	 *
@@ -803,7 +724,6 @@ endif; // class_exists check
  * @since 2.0.0 bbPress (r2596)
  *
  * @param WP_Screen $current_screen Current screen object
- * @uses BBP_Forums_Admin
  */
 function bbp_admin_forums( $current_screen ) {
 

@@ -19,7 +19,6 @@ class SimplePress5 extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses SimplePress5::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

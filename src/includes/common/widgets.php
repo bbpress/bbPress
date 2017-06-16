@@ -18,8 +18,6 @@ defined( 'ABSPATH' ) || exit;
  * Adds a widget which displays the login form
  *
  * @since 2.0.0 bbPress (r2827)
- *
- * @uses WP_Widget
  */
 class BBP_Login_Widget extends WP_Widget {
 
@@ -29,9 +27,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 * Registers the login widget
 	 *
 	 * @since 2.0.0 bbPress (r2827)
-	 *
-	 * @uses apply_filters() Calls 'bbp_login_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_login_widget_options', array(
@@ -46,8 +41,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.0.0 bbPress (r3389)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Login_Widget' );
@@ -60,8 +53,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
-	 * @uses apply_filters() Calls 'bbp_login_widget_title' with the title
-	 * @uses get_template_part() To get the login/logged in form
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -173,8 +164,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2827)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Login_Widget::get_field_id() To output the field id
-	 * @uses BBP_Login_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance = array() ) {
 
@@ -205,7 +194,6 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -222,8 +210,6 @@ class BBP_Login_Widget extends WP_Widget {
  * Adds a widget which displays the view list
  *
  * @since 2.0.0 bbPress (r3020)
- *
- * @uses WP_Widget
  */
 class BBP_Views_Widget extends WP_Widget {
 
@@ -233,9 +219,6 @@ class BBP_Views_Widget extends WP_Widget {
 	 * Registers the view widget
 	 *
 	 * @since 2.0.0 bbPress (r3020)
-	 *
-	 * @uses apply_filters() Calls 'bbp_views_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_views_widget_options', array(
@@ -250,8 +233,6 @@ class BBP_Views_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.0.0 bbPress (r3389)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Views_Widget' );
@@ -264,10 +245,6 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
-	 * @uses apply_filters() Calls 'bbp_view_widget_title' with the title
-	 * @uses bbp_get_views() To get the views
-	 * @uses bbp_view_url() To output the view url
-	 * @uses bbp_view_title() To output the view title
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -331,8 +308,6 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r3020)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Views_Widget::get_field_id() To output the field id
-	 * @uses BBP_Views_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance = array() ) {
 
@@ -354,7 +329,6 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -369,8 +343,6 @@ class BBP_Views_Widget extends WP_Widget {
  * Adds a widget which displays the forum search form
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses WP_Widget
  */
 class BBP_Search_Widget extends WP_Widget {
 
@@ -380,9 +352,6 @@ class BBP_Search_Widget extends WP_Widget {
 	 * Registers the search widget
 	 *
 	 * @since 2.3.0 bbPress (r4579)
-	 *
-	 * @uses apply_filters() Calls 'bbp_search_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_search_widget_options', array(
@@ -397,8 +366,6 @@ class BBP_Search_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.3.0 bbPress (r4579)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Search_Widget' );
@@ -408,9 +375,6 @@ class BBP_Search_Widget extends WP_Widget {
 	 * Displays the output, the search form
 	 *
 	 * @since 2.3.0 bbPress (r4579)
-	 *
-	 * @uses apply_filters() Calls 'bbp_search_widget_title' with the title
-	 * @uses get_template_part() To get the search form
 	 */
 	public function widget( $args, $instance ) {
 
@@ -460,8 +424,6 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4579)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Search_Widget::get_field_id() To output the field id
-	 * @uses BBP_Search_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance ) {
 
@@ -483,7 +445,6 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -498,8 +459,6 @@ class BBP_Search_Widget extends WP_Widget {
  * Adds a widget which displays the forum list
  *
  * @since 2.0.0 bbPress (r2653)
- *
- * @uses WP_Widget
  */
 class BBP_Forums_Widget extends WP_Widget {
 
@@ -509,9 +468,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * Registers the forum widget
 	 *
 	 * @since 2.0.0 bbPress (r2653)
-	 *
-	 * @uses apply_filters() Calls 'bbp_forums_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_forums_widget_options', array(
@@ -526,8 +482,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.0.0 bbPress (r3389)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Forums_Widget' );
@@ -540,16 +494,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @param array $args Arguments
 	 * @param array $instance Instance
-	 * @uses apply_filters() Calls 'bbp_forum_widget_title' with the title
-	 * @uses get_option() To get the forums per page option
-	 * @uses current_user_can() To check if the current user can read
-	 *                           private() To resety name
-	 * @uses bbp_has_forums() The main forum loop
-	 * @uses bbp_forums() To check whether there are more forums available
-	 *                     in the loop
-	 * @uses bbp_the_forum() Loads up the current forum in the loop
-	 * @uses bbp_forum_permalink() To display the forum permalink
-	 * @uses bbp_forum_title() To display the forum title
 	 */
 	public function widget( $args, $instance ) {
 
@@ -642,8 +586,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Forums_Widget::get_field_id() To output the field id
-	 * @uses BBP_Forums_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance ) {
 
@@ -675,7 +617,6 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -691,8 +632,6 @@ class BBP_Forums_Widget extends WP_Widget {
  * Adds a widget which displays the topic list
  *
  * @since 2.0.0 bbPress (r2653)
- *
- * @uses WP_Widget
  */
 class BBP_Topics_Widget extends WP_Widget {
 
@@ -702,9 +641,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * Registers the topic widget
 	 *
 	 * @since 2.0.0 bbPress (r2653)
-	 *
-	 * @uses apply_filters() Calls 'bbp_topics_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_topics_widget_options', array(
@@ -719,8 +655,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.0.0 bbPress (r3389)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Topics_Widget' );
@@ -733,12 +667,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @param array $args
 	 * @param array $instance
-	 * @uses apply_filters() Calls 'bbp_topic_widget_title' with the title
-	 * @uses bbp_topic_permalink() To display the topic permalink
-	 * @uses bbp_topic_title() To display the topic title
-	 * @uses bbp_get_topic_last_active_time() To get the topic last active
-	 *                                         time
-	 * @uses bbp_get_topic_id() To get the topic id
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -925,8 +853,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Topics_Widget::get_field_id() To output the field id
-	 * @uses BBP_Topics_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance = array() ) {
 
@@ -967,7 +893,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget options into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -987,8 +912,6 @@ class BBP_Topics_Widget extends WP_Widget {
  * Adds a widget which displays the forum statistics
  *
  * @since 2.3.0 bbPress (r4509)
- *
- * @uses WP_Widget
  */
 class BBP_Stats_Widget extends WP_Widget {
 
@@ -998,9 +921,6 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * Registers the statistics widget
 	 *
 	 * @since 2.3.0 bbPress (r4509)
-	 *
-	 * @uses  apply_filters() Calls 'bbp_stats_widget_options' with the
-	 *        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_stats_widget_options', array(
@@ -1015,8 +935,6 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.3.0 bbPress (r4509)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Stats_Widget' );
@@ -1029,9 +947,6 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @param array $args     Arguments
 	 * @param array $instance Instance
-	 *
-	 * @uses apply_filters() Calls 'bbp_stats_widget_title' with the title
-	 * @uses bbp_get_template_part() To get the content-forum-statistics template
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -1101,7 +1016,6 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(
@@ -1116,8 +1030,6 @@ class BBP_Stats_Widget extends WP_Widget {
  * Adds a widget which displays the replies list
  *
  * @since 2.0.0 bbPress (r2653)
- *
- * @uses WP_Widget
  */
 class BBP_Replies_Widget extends WP_Widget {
 
@@ -1127,9 +1039,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * Registers the replies widget
 	 *
 	 * @since 2.0.0 bbPress (r2653)
-	 *
-	 * @uses apply_filters() Calls 'bbp_replies_widget_options' with the
-	 *                        widget options
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_replies_widget_options', array(
@@ -1144,8 +1053,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * Register the widget
 	 *
 	 * @since 2.0.0 bbPress (r3389)
-	 *
-	 * @uses register_widget()
 	 */
 	public static function register_widget() {
 		register_widget( 'BBP_Replies_Widget' );
@@ -1158,14 +1065,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @param array $args
 	 * @param array $instance
-	 * @uses apply_filters() Calls 'bbp_reply_widget_title' with the title
-	 * @uses bbp_get_reply_author_link() To get the reply author link
-	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses bbp_get_reply_url() To get the reply url
-	 * @uses bbp_get_reply_excerpt() To get the reply excerpt
-	 * @uses bbp_get_reply_topic_title() To get the reply topic title
-	 * @uses get_the_date() To get the date of the reply
-	 * @uses get_the_time() To get the time of the reply
 	 */
 	public function widget( $args, $instance ) {
 
@@ -1295,8 +1194,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 *
 	 * @param $instance Instance
-	 * @uses BBP_Replies_Widget::get_field_id() To output the field id
-	 * @uses BBP_Replies_Widget::get_field_name() To output the field name
 	 */
 	public function form( $instance = array() ) {
 
@@ -1317,7 +1214,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4802)
 	 *
 	 * @param $instance Instance
-	 * @uses bbp_parse_args() To merge widget settings into defaults
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args( $instance, array(

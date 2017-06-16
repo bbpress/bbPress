@@ -644,8 +644,6 @@ function bbp_admin_setting_callback_user_section() {
  * Edit lock setting field
  *
  * @since 2.0.0 bbPress (r2737)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_editlock() {
 
@@ -671,8 +669,6 @@ function bbp_admin_setting_callback_editlock() {
  * Throttle setting field
  *
  * @since 2.0.0 bbPress (r2737)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_throttle() {
 
@@ -698,8 +694,6 @@ function bbp_admin_setting_callback_throttle() {
  * Allow anonymous posting setting field
  *
  * @since 2.0.0 bbPress (r2737)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_anonymous() {
 ?>
@@ -715,8 +709,6 @@ function bbp_admin_setting_callback_anonymous() {
  * Allow global access setting field
  *
  * @since 2.0.0 bbPress (r3378)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_global_access() {
 
@@ -767,8 +759,6 @@ function bbp_admin_setting_callback_features_section() {
  * Allow favorites setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_favorites() {
 ?>
@@ -783,8 +773,6 @@ function bbp_admin_setting_callback_favorites() {
  * Allow subscriptions setting field
  *
  * @since 2.0.0 bbPress (r2737)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_subscriptions() {
 ?>
@@ -799,8 +787,6 @@ function bbp_admin_setting_callback_subscriptions() {
  * Allow engagements setting field
  *
  * @since 2.0.0 bbPress (r2737)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_engagements() {
 ?>
@@ -815,8 +801,6 @@ function bbp_admin_setting_callback_engagements() {
  * Allow topic tags setting field
  *
  * @since 2.4.0 bbPress (r4944)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_topic_tags() {
 ?>
@@ -831,8 +815,6 @@ function bbp_admin_setting_callback_topic_tags() {
  * Allow forum-mods setting field
  *
  * @since 2.6.0 bbPress (r5834)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_forum_mods() {
 ?>
@@ -847,8 +829,6 @@ function bbp_admin_setting_callback_forum_mods() {
  * Allow super-mods setting field
  *
  * @since 2.6.0 bbPress (r6562)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_super_mods() {
 ?>
@@ -863,8 +843,6 @@ function bbp_admin_setting_callback_super_mods() {
  * Allow forum wide search
  *
  * @since 2.4.0 bbPress (r4970)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_search() {
 ?>
@@ -881,10 +859,6 @@ function bbp_admin_setting_callback_search() {
  * Replies will be threaded if depth is 2 or greater
  *
  * @since 2.4.0 bbPress (r4944)
- *
- * @uses apply_filters() Calls 'bbp_thread_replies_depth_max' to set a
- *                        maximum displayed level
- * @uses selected() To display the selected attribute
  */
 function bbp_admin_setting_callback_thread_replies_depth() {
 
@@ -919,8 +893,6 @@ function bbp_admin_setting_callback_thread_replies_depth() {
  * Allow topic and reply revisions
  *
  * @since 2.0.0 bbPress (r3412)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_revisions() {
 ?>
@@ -935,8 +907,6 @@ function bbp_admin_setting_callback_revisions() {
  * Use the WordPress editor setting field
  *
  * @since 2.1.0 bbPress (r3586)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_use_wp_editor() {
 ?>
@@ -964,8 +934,6 @@ function bbp_admin_setting_callback_subtheme_section() {
  * Use the WordPress editor setting field
  *
  * @since 2.1.0 bbPress (r3586)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_subtheme_id() {
 
@@ -998,8 +966,6 @@ function bbp_admin_setting_callback_subtheme_id() {
  * Allow oEmbed in replies
  *
  * @since 2.1.0 bbPress (r3752)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_use_autoembed() {
 ?>
@@ -1029,8 +995,6 @@ function bbp_admin_setting_callback_per_page_section() {
  * Topics per page setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topics_per_page() {
 ?>
@@ -1045,8 +1009,6 @@ function bbp_admin_setting_callback_topics_per_page() {
  * Replies per page setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_replies_per_page() {
 ?>
@@ -1076,8 +1038,6 @@ function bbp_admin_setting_callback_per_rss_page_section() {
  * Topics per RSS page setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topics_per_rss_page() {
 ?>
@@ -1092,8 +1052,6 @@ function bbp_admin_setting_callback_topics_per_rss_page() {
  * Replies per RSS page setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_replies_per_rss_page() {
 ?>
@@ -1127,8 +1085,6 @@ function bbp_admin_setting_callback_root_slug_section() {
  * Root slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_root_slug() {
 ?>
@@ -1144,8 +1100,6 @@ function bbp_admin_setting_callback_root_slug() {
  * Include root slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_include_root() {
 ?>
@@ -1160,8 +1114,6 @@ function bbp_admin_setting_callback_include_root() {
  * Include root slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_show_on_root() {
 
@@ -1220,8 +1172,6 @@ function bbp_admin_setting_callback_user_slug_section() {
  * User slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_user_slug() {
 ?>
@@ -1237,8 +1187,6 @@ function bbp_admin_setting_callback_user_slug() {
  * Topic archive slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_archive_slug() {
 ?>
@@ -1254,8 +1202,6 @@ function bbp_admin_setting_callback_topic_archive_slug() {
  * Reply archive slug setting field
  *
  * @since 2.4.0 bbPress (r4932)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_reply_archive_slug() {
 ?>
@@ -1271,8 +1217,6 @@ function bbp_admin_setting_callback_reply_archive_slug() {
  * Favorites slug setting field
  *
  * @since 2.4.0 bbPress (r4932)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_user_favs_slug() {
 ?>
@@ -1288,8 +1232,6 @@ function bbp_admin_setting_callback_user_favs_slug() {
  * Subscriptions slug setting field
  *
  * @since 2.4.0 bbPress (r4932)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_user_subs_slug() {
 ?>
@@ -1305,8 +1247,6 @@ function bbp_admin_setting_callback_user_subs_slug() {
  * Engagements slug setting field
  *
  * @since 2.6.0 bbPress (r6320)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_user_engagements_slug() {
 ?>
@@ -1337,8 +1277,6 @@ function bbp_admin_setting_callback_single_slug_section() {
  * Forum slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_forum_slug() {
 ?>
@@ -1354,8 +1292,6 @@ function bbp_admin_setting_callback_forum_slug() {
  * Topic slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_slug() {
 ?>
@@ -1371,8 +1307,6 @@ function bbp_admin_setting_callback_topic_slug() {
  * Reply slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_reply_slug() {
 ?>
@@ -1388,8 +1322,6 @@ function bbp_admin_setting_callback_reply_slug() {
  * Topic tag slug setting field
  *
  * @since 2.0.0 bbPress (r2786)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
@@ -1406,8 +1338,6 @@ function bbp_admin_setting_callback_topic_tag_slug() {
  * View slug setting field
  *
  * @since 2.0.0 bbPress (r2789)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_view_slug() {
 ?>
@@ -1423,8 +1353,6 @@ function bbp_admin_setting_callback_view_slug() {
  * Search slug setting field
  *
  * @since 2.3.0 bbPress (r4579)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_search_slug() {
 ?>
@@ -1455,8 +1383,6 @@ function bbp_admin_setting_callback_buddypress_section() {
  * Allow BuddyPress group forums setting field
  *
  * @since 2.1.0 bbPress (r3575)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_group_forums() {
 ?>
@@ -1471,8 +1397,6 @@ function bbp_admin_setting_callback_group_forums() {
  * Replies per page setting field
  *
  * @since 2.1.0 bbPress (r3575)
- *
- * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_group_forums_root_id() {
 
@@ -1541,8 +1465,6 @@ function bbp_admin_setting_callback_akismet_section() {
  * Allow Akismet setting field
  *
  * @since 2.1.0 bbPress (r3575)
- *
- * @uses checked() To display the checked attribute
  */
 function bbp_admin_setting_callback_akismet() {
 ?>
@@ -1559,9 +1481,6 @@ function bbp_admin_setting_callback_akismet() {
  * The main settings page
  *
  * @since 2.0.0 bbPress (r2643)
- *
- * @uses settings_fields() To output the hidden fields for the form
- * @uses do_settings_sections() To output the settings sections
  */
 function bbp_admin_settings() {
 ?>
@@ -1584,7 +1503,6 @@ function bbp_admin_settings() {
 
 <?php
 }
-
 
 /** Converter Section *********************************************************/
 
@@ -1802,9 +1720,6 @@ function bbp_converter_setting_callback_convert_users() {
  * The main settings page
  *
  * @since 2.1.0 bbPress (r3186)
- *
- * @uses settings_fields() To output the hidden fields for the form
- * @uses do_settings_sections() To output the settings sections
  */
 function bbp_converter_settings_page() {
 
@@ -1876,8 +1791,6 @@ function bbp_converter_settings_page() {
  * Contextual help for Forums settings page
  *
  * @since 2.0.0 bbPress (r3119)
- *
- * @uses get_current_screen()
  */
 function bbp_admin_settings_help() {
 
@@ -1979,8 +1892,6 @@ function bbp_maybe_admin_setting_disabled( $option_key = '' ) {
  *
  * @since 2.0.0 bbPress (r3203)
  *
- * @uses bbp_get_bbp_form_option()
- *
  * @param string $option
  * @param string $default
  * @param bool $slug
@@ -1992,10 +1903,6 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 	 * Return settings API option
 	 *
 	 * @since 2.0.0 bbPress (r3203)
-	 *
-	 * @uses get_option()
-	 * @uses esc_attr()
-	 * @uses apply_filters()
 	 *
 	 * @param string $option
 	 * @param string $default
@@ -2031,8 +1938,6 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
  *
  * @param string $slug
  * @param string $default
- *
- * @uses bbp_get_form_option() To get a sanitized slug string
  */
 function bbp_form_slug_conflict_check( $slug, $default ) {
 

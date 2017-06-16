@@ -18,8 +18,6 @@ class AEF extends BBP_Converter_Base {
 
 	/**
 	 * Main Constructor
-	 *
-	 * @uses AEF::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

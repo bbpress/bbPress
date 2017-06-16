@@ -18,9 +18,6 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.3.0 bbPress (r4579)
  *
  * @param mixed $new_args New arguments
- * @uses bbp_get_search_query_args() To get the search query args
- * @uses bbp_parse_args() To parse the args
- * @uses bbp_has_search_results() To make the search query
  * @return bool False if no results, otherwise if search results are there
  */
 function bbp_search_query( $new_args = array() ) {
@@ -42,7 +39,6 @@ function bbp_search_query( $new_args = array() ) {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @uses bbp_get_search_terms() To get the search terms
  * @return array Query arguments
  */
 function bbp_get_search_query_args() {

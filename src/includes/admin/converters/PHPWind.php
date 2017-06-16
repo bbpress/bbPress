@@ -19,7 +19,6 @@ class PHPWind extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses PHPWind::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

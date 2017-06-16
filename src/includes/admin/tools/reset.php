@@ -15,9 +15,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses check_admin_referer() To verify the nonce and the referer
- * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_reset_page() {
 ?>
@@ -82,12 +79,6 @@ function bbp_admin_reset_page() {
  * Handle the processing and feedback of the admin tools page
  *
  * @since 2.0.0 bbPress (r2613)
- *
- * @uses check_admin_referer() To verify the nonce and the referer
- * @uses wp_cache_flush() To flush the cache
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
  */
 function bbp_admin_reset_handler() {
 

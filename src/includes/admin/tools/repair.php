@@ -18,11 +18,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @todo Use a real list table
  *
- * @uses bbp_admin_repair_list() To get the recount list
- * @uses check_admin_referer() To verify the nonce and the referer
- * @uses wp_cache_flush() To flush the cache
- * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_repair_page() {
 
@@ -168,12 +163,6 @@ function bbp_admin_repair_page() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_closed_status_id() To get the closed status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_reply_count() {
@@ -223,12 +212,6 @@ function bbp_admin_repair_topic_reply_count() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_closed_status_id() To get the closed status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_voice_count() {
@@ -281,12 +264,6 @@ function bbp_admin_repair_topic_voice_count() {
  *
  * @since 2.0.0 bbPress (r2747)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_trash_status_id() To get the trash status id
- * @uses bbp_get_spam_status_id() To get the spam status id
- * @uses bbp_get_pending_status_id() To get the pending status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_hidden_reply_count() {
@@ -320,11 +297,6 @@ function bbp_admin_repair_topic_hidden_reply_count() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses get_posts() To get the forums
- * @uses bbp_update_forum_topic_count() To update the forum topic count
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_topic_count() {
@@ -357,13 +329,6 @@ function bbp_admin_repair_forum_topic_count() {
  *
  * @since 2.6.0 bbPress (r6256)
  *
- * @uses bbp_get_topic_tag_tax_id() To get the topic-tag taxonomy
- * @uses get_terms() To get the terms
- * @uses wp_list_pluck() To get term taxonomy IDs
- * @uses get_taxonomy() To get term taxonomy object
- * @uses _update_post_term_count() To update generic counts
- * @uses bbp_update_topic_tag_count() To update topic-tag counts
- * @uses clean_term_cache() To bust the terms cache
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_tag_count() {
@@ -408,11 +373,6 @@ function bbp_admin_repair_topic_tag_count() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses get_posts() To get the forums
- * @uses bbp_update_forum_reply_count() To update the forum reply count
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_reply_count() {
@@ -454,10 +414,6 @@ function bbp_admin_repair_forum_reply_count() {
  *
  * @since 2.1.0 bbPress (r3889)
  *
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_topic_count() {
@@ -506,10 +462,6 @@ function bbp_admin_repair_user_topic_count() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_reply_count() {
@@ -558,10 +510,6 @@ function bbp_admin_repair_user_reply_count() {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_favorites() {
@@ -629,10 +577,6 @@ function bbp_admin_repair_user_favorites() {
  *
  * @since 2.0.0 bbPress (r2668)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_topic_subscriptions() {
@@ -698,10 +642,6 @@ function bbp_admin_repair_user_topic_subscriptions() {
  *
  * @since 2.5.0 bbPress (r5155)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_public_status_id() To get the public status id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_user_forum_subscriptions() {
@@ -768,12 +708,6 @@ function bbp_admin_repair_user_forum_subscriptions() {
  * will be the default role defined in Settings > Forums (Participant).
  *
  * @since 2.2.0 bbPress (r4340)
- *
- * @uses bbp_get_user_role_map() To get the map of user roles
- * @uses bbp_get_default_role() To get the default bbPress user role
- * @uses bbp_get_blog_roles() To get the current WordPress roles
- * @uses get_users() To get the users of each role (limited to ID field)
- * @uses bbp_set_user_role() To set each user's forums role
  */
 function bbp_admin_repair_user_roles() {
 
@@ -826,14 +760,6 @@ function bbp_admin_repair_user_roles() {
  *
  * @since 2.0.0 bbPress (r3040)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_is_forum_category() To check if the forum is a category
- * @uses bbp_update_forum() To update the forums forum id
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_freshness() {
@@ -955,13 +881,6 @@ function bbp_admin_repair_freshness() {
  *
  * @since 2.3.0 bbPress (r4695)
  *
- * @uses wpdb::get_col() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses get_post_meta() To get the sticky topics
- * @uses bbp_is_topic_super_sticky() To check if the topic is super sticky
- * @uses bbp_get_topic_forum_id() To get the topics forum id
- * @uses update_post_meta To update the topics sticky post meta
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_sticky() {
@@ -1027,11 +946,6 @@ function bbp_admin_repair_sticky() {
  *
  * @since 2.6.0 bbPress (r5668)
  *
- * @uses wpdb::get_col() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses get_post_meta() To get the closed topic status meta
- * @uses update_post_meta To update the topics closed status post meta
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_closed_topics() {
@@ -1079,7 +993,6 @@ function bbp_admin_repair_closed_topics() {
  *
  * @since 2.2.0 bbPress (r4104)
  *
- * @uses bbp_repair_forum_visibility() To update private and hidden forum ids
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_visibility() {
@@ -1100,10 +1013,6 @@ function bbp_admin_repair_forum_visibility() {
  *
  * @since 2.1.0 bbPress (r3876)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_forum_meta() {
@@ -1155,10 +1064,6 @@ function bbp_admin_repair_forum_meta() {
  *
  * @since 2.1.0 bbPress (r3876)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_topic_meta() {
@@ -1210,10 +1115,6 @@ function bbp_admin_repair_topic_meta() {
  *
  * @since 2.5.4 bbPress (r5367)
  *
- * @uses wpdb::query() To run our recount database queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_update_reply_position() To update the reply position
  * @return array An array of the status code and the message
  */
 function bbp_admin_repair_reply_menu_order() {

@@ -24,7 +24,6 @@ defined( 'ABSPATH' ) || exit;
  * @todo Map all of these and deprecate
  *
  * @param string $role Optional. Defaults to The role to load caps for
- * @uses apply_filters() Allow return value to be filtered
  *
  * @return array Capabilities for $role
  */
@@ -250,7 +249,6 @@ function bbp_remove_caps() {
  *
  * @since 2.4.0 bbPress (r5064)
  *
- * @uses bbp_get_wp_roles() To load and get the $wp_roles global
  * @return array
  */
 function bbp_get_blog_roles() {
@@ -280,8 +278,6 @@ function bbp_get_blog_roles() {
  * that may already exist in the $wp_roles array.
  *
  * @since 2.2.0 bbPress (r4290)
- *
- * @uses bbp_get_dynamic_roles() To get and add forum roles to $wp_roles
  *
  * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized
  *
@@ -434,7 +430,6 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
  *
  * @since 2.2.0 bbPress (r4284)
  *
- * @uses apply_filters() Allow override of hardcoded keymaster role
  * @return string
  */
 function bbp_get_keymaster_role() {
@@ -448,7 +443,6 @@ function bbp_get_keymaster_role() {
  *
  * @since 2.0.0 bbPress (r3410)
  *
- * @uses apply_filters() Allow override of hardcoded moderator role
  * @return string
  */
 function bbp_get_moderator_role() {
@@ -462,7 +456,6 @@ function bbp_get_moderator_role() {
  *
  * @since 2.0.0 bbPress (r3410)
  *
- * @uses apply_filters() Allow override of hardcoded participant role
  * @return string
  */
 function bbp_get_participant_role() {
@@ -476,7 +469,6 @@ function bbp_get_participant_role() {
  *
  * @since 2.1.0 bbPress (r3860)
  *
- * @uses apply_filters() Allow override of hardcoded spectator role
  * @return string
  */
 function bbp_get_spectator_role() {
@@ -490,7 +482,6 @@ function bbp_get_spectator_role() {
  *
  * @since 2.2.0 bbPress (r4284)
  *
- * @uses apply_filters() Allow override of hardcoded blocked role
  * @return string
  */
 function bbp_get_blocked_role() {

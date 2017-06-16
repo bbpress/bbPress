@@ -38,8 +38,6 @@ class BBP_BuddyPress_Members {
 	 * @since 2.2.0 bbPress (r4395)
 	 *
 	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 
@@ -66,8 +64,6 @@ class BBP_BuddyPress_Members {
 	 * @since 2.6.0 bbPress (r6320) Add engagements support
 	 *
 	 * @access private
-	 * @uses add_filter() To add various filters
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_filters() {
 		add_filter( 'bbp_pre_get_user_profile_url',     array( $this, 'user_profile_url'            )        );

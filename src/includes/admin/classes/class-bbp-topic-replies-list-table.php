@@ -175,13 +175,6 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * Prepare the list-table items for display
 	 *
 	 * @since 2.6.0 bbPress (r5886)
-	 *
-	 * @uses $this->_column_headers
-	 * @uses $this->items
-	 * @uses $this->get_columns()
-	 * @uses $this->get_sortable_columns()
-	 * @uses $this->get_pagenum()
-	 * @uses $this->set_pagination_args()
 	 */
 	public function prepare_items( $topic_id = 0 ) {
 

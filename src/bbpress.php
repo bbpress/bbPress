@@ -103,9 +103,6 @@ final class bbPress {
 	 * @since 2.1.0 bbPress (r3757)
 	 *
 	 * @staticvar object $instance
-	 * @uses bbPress::setup_globals() Setup the globals needed
-	 * @uses bbPress::includes() Include the required files
-	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 * @see bbpress()
 	 * @return bbPress The one true bbPress
 	 */
@@ -201,9 +198,6 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r2626)
 	 *
 	 * @access private
-	 * @uses plugin_dir_path() To generate bbPress plugin path
-	 * @uses plugin_dir_url() To generate bbPress plugin url
-	 * @uses apply_filters() Calls various filters
 	 */
 	private function setup_environment() {
 
@@ -315,7 +309,6 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r2626)
 	 *
 	 * @access private
-	 * @uses is_admin() If in WordPress admin, load additional file
 	 */
 	private function includes() {
 
@@ -392,7 +385,6 @@ final class bbPress {
 	 * @since 2.0.0 bbPress (r2644)
 	 *
 	 * @access private
-	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 
@@ -478,9 +470,6 @@ final class bbPress {
 	 * translation files, please use the global language folder.
 	 *
 	 * @since 2.0.0 bbPress (r2596)
-	 *
-	 * @uses apply_filters() Calls 'plugin_locale' with {@link get_locale()} value
-	 * @uses load_textdomain() To load the textdomain
 	 */
 	public function load_textdomain() {
 
@@ -507,10 +496,6 @@ final class bbPress {
 	 * Setup the post types for forums, topics and replies
 	 *
 	 * @since 2.0.0 bbPress (r2597)
-	 *
-	 * @uses register_post_type() To register the post types
-	 * @uses apply_filters() Calls various filters to modify the arguments
-	 *                        sent to register_post_type()
 	 */
 	public static function register_post_types() {
 
@@ -597,11 +582,6 @@ final class bbPress {
 	 * replies can be viewed from within the theme.
 	 *
 	 * @since 2.0.0 bbPress (r2727)
-	 *
-	 * @uses register_post_status() To register post statuses
-	 * @uses $wp_post_statuses To modify trash and private statuses
-	 * @uses current_user_can() To check if the current user is capable &
-	 *                           modify $wp_post_statuses accordingly
 	 */
 	public static function register_post_statuses() {
 
@@ -684,16 +664,6 @@ final class bbPress {
 	 * Register the topic tag and forum moderator taxonomies
 	 *
 	 * @since 2.0.0 bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
-	 *
-	 * @uses register_taxonomy() To register the taxonomy
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_topic_tag_tax_labels() To get the topic tag taxonomy labels
-	 * @uses bbp_get_topic_tag_tax_rewrite() To get the topic tag taxonomy slug
-	 * @uses bbp_get_topic_tag_caps() To get topic tag capabilities
-	 * @uses bbp_allow_topic_tags() To check if topic tags are allowed
-	 * @uses current_user_can() To check if the current user can edit/delete tags
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses current_user_can() To check if the current user can edit/delete forums
 	 */
 	public static function register_taxonomies() {
 
@@ -720,8 +690,6 @@ final class bbPress {
 	 * Register the bbPress views
 	 *
 	 * @since 2.0.0 bbPress (r2789)
-	 *
-	 * @uses bbp_register_view() To register the views
 	 */
 	public static function register_views() {
 
@@ -757,8 +725,6 @@ final class bbPress {
 	 * Register the bbPress shortcodes
 	 *
 	 * @since 2.0.0 bbPress (r3031)
-	 *
-	 * @uses BBP_Shortcodes
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
@@ -806,8 +772,6 @@ final class bbPress {
 	 * Setup the currently logged-in user
 	 *
 	 * @since 2.0.0 bbPress (r2697)
-	 *
-	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
 		$this->current_user = wp_get_current_user();
@@ -841,8 +805,6 @@ final class bbPress {
 	 * Add the bbPress-specific rewrite tags
 	 *
 	 * @since 2.0.0 bbPress (r2753)
-	 *
-	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public static function add_rewrite_tags() {
 		add_rewrite_tag( '%' . bbp_get_view_rewrite_id()               . '%', '([^/]+)'   ); // View Page tag

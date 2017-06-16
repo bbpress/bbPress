@@ -14,7 +14,6 @@
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @uses apply_filters() Calls 'bbp_get_reply_caps' with the capabilities
  * @return array Reply capabilities
  */
 function bbp_get_reply_caps() {
@@ -39,11 +38,6 @@ function bbp_get_reply_caps() {
  * @param string $cap Capability name
  * @param int $user_id User id
  * @param array $args Arguments
- * @uses get_post() To get the post
- * @uses get_post_type_object() To get the post type object
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses apply_filters() Filter mapped results
  *
  * @return array Actual capabilities for meta capability
  */

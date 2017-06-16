@@ -21,9 +21,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $slug
  * @param string $name Optional. Default null
- * @uses bbp_locate_template()
- * @uses load_template()
- * @uses get_template_part()
  */
 function bbp_get_template_part( $slug, $name = null ) {
 
@@ -397,9 +394,6 @@ function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
  *
  * @param string $type Filename without extension.
  * @param array $templates An optional list of template candidates
- * @uses bbp_set_theme_compat_templates()
- * @uses bbp_locate_template()
- * @uses bbp_set_theme_compat_template()
  * @return string Full path to file.
  */
 function bbp_get_query_template( $type, $templates = array() ) {
@@ -495,19 +489,6 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @param WP_Query $posts_query
- *
- * @uses get_query_var() To get {@link WP_Query} query var
- * @uses get_user_by() To try to get the user by nicename or id
- * @uses get_userdata() to get the user data
- * @uses current_user_can() To check if the current user can edit the user
- * @uses is_user_member_of_blog() To check if user profile page exists
- * @uses WP_Query::set_404() To set a 404 status
- * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
- * @uses bbp_get_view_query_args() To get the view query args
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_parse_query( $posts_query ) {
 

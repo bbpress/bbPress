@@ -15,11 +15,6 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6278)
  *
- * @uses bbp_admin_repair_list() To get the recount list
- * @uses check_admin_referer() To verify the nonce and the referer
- * @uses wp_cache_flush() To flush the cache
- * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_upgrade_page() {
 
@@ -217,7 +212,6 @@ function bbp_admin_upgrade_user_engagements() {
  *
  * @since 2.6.0 bbPress (r4395)
  *
- * @uses bbp_get_forum_post_type() To get the forum post type
  * @return If a wp_error() occurs and no converted forums are found
  */
 function bbp_admin_upgrade_group_forum_relationships() {

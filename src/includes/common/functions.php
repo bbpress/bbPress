@@ -40,9 +40,6 @@ function bbp_get_redirect_to() {
  *
  * @param string $original_link Original Link to be modified
  * @param bool $force Override bbp_get_view_all() check
- * @uses current_user_can() To check if the current user can moderate
- * @uses add_query_arg() To add 'view' arg to the url
- * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
 function bbp_add_view_all( $original_link = '', $force = false ) {
@@ -62,9 +59,6 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
  * @since 2.0.0 bbPress (r3325)
  *
  * @param string $original_link Original Link to be modified
- * @uses current_user_can() To check if the current user can moderate
- * @uses remove_query_arg() To remove 'view' arg from the url
- * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
 function bbp_remove_view_all( $original_link = '' ) {
@@ -81,8 +75,6 @@ function bbp_remove_view_all( $original_link = '' ) {
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @uses current_user_can() To check if the current user can moderate
- * @uses apply_filters() Calls 'bbp_get_view_all' with the link and original link
  * @return bool Whether current user can and is viewing all
  */
 function bbp_get_view_all( $cap = 'moderate' ) {
@@ -97,7 +89,6 @@ function bbp_get_view_all( $cap = 'moderate' ) {
  *
  * @since 2.0.0 bbPress (r2628)
  *
- * @uses get_query_var() To get the 'paged' value
  * @return int Current page number
  */
 function bbp_get_paged() {
@@ -147,10 +138,6 @@ function bbp_get_unique_array_values( $array = array() ) {
  *
  * @param array $data Post data
  * @param array $postarr Original post array (includes post id)
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_is_topic_anonymous() To check if the topic is by an anonymous user
- * @uses bbp_is_reply_anonymous() To check if the reply is by an anonymous user
  * @return array Data
  */
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
@@ -184,12 +171,6 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  * @since 2.0.0 bbPress (r3133)
  *
  * @param string $post_date_gmt
- *
- * @uses bbp_allow_content_edit()() To make sure editing is allowed
- * @uses get_option() Get the edit lock time
- * @uses current_time() Get the current time
- * @uses strtotime() Convert strings to time
- * @uses apply_filters() Allow output to be manipulated
  *
  * @return bool True if date is past, False if not
  */
@@ -290,15 +271,6 @@ function bbp_get_trash_days( $context = 'forum' ) {
  *                           user has view_trash cap)
  *  - count_tags: Count tags? If set to false, empty tags are also not counted
  *  - count_empty_tags: Count empty tags?
- * @uses bbp_get_total_users() To count the number of registered users
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wp_count_posts() To count the number of forums, topics and replies
- * @uses wp_count_terms() To count the number of topic tags
- * @uses current_user_can() To check if the user is capable of doing things
- * @uses bbp_number_format_i18n() To format the number
- * @uses apply_filters() Calls 'bbp_get_statistics' with the statistics and args
  * @return object Walked forum tree
  */
 function bbp_get_statistics( $args = array() ) {
@@ -516,13 +488,6 @@ function bbp_get_statistics( $args = array() ) {
  * @since 2.0.0 bbPress (r2734)
  *
  * @param array $args Optional. If no args are there, then $_POST values are
- *                     used.
- * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_name' with the
- *                        anonymous user name
- * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_email' with the
- *                        anonymous user email
- * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_website' with the
- *                        anonymous user website
  * @return bool|array False on errors, values in an array on success
  */
 function bbp_filter_anonymous_post_data( $args = array() ) {
@@ -641,14 +606,6 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
  * @since 2.0.0 bbPress (r2763)
  *
  * @param array $post_data Contains information about the comment
- * @uses current_user_can() To check if the current user can throttle
- * @uses get_meta_sql() To generate the meta database for checking anonymous email
- * @uses apply_filters() Calls 'bbp_check_for_duplicate_query' with the
- *                        duplicate check query and post data
- * @uses wpdb::get_var() To execute our query and get the var back
- * @uses get_post_meta() To get the anonymous user email post meta
- * @uses do_action() Calls 'bbp_post_duplicate_trigger' with the post data when
- *                    it is found that it is a duplicate
  * @return bool True if it is not a duplicate, false if it is
  */
 function bbp_check_for_duplicate( $post_data = array() ) {
@@ -728,13 +685,6 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $author_id Optional. Supply if it's a post by a logged in user.
  *                        Do not supply if supplying $anonymous_data.
- *
- * @suse bbp_allow_content_throttle() To make sure flood checking is enabled
- * @uses get_option() To get the throttle time
- * @uses get_transient() To get the last posted transient of the ip
- * @uses bbp_get_user_last_posted() To get the last posted time of the user
- * @uses current_user_can() To check if the current user can throttle
- *
  * @return bool True if there is no flooding, false if there is
  */
 function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
@@ -784,9 +734,6 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
- * @uses bbp_is_user_keymaster() Allow keymasters to bypass blacklist
- * @uses bbp_current_author_ip() To get current user IP address
- * @uses bbp_current_author_ua() To get current user agent
  * @return bool True if test is passed, false if fail
  */
 function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
@@ -922,9 +869,6 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
- * @uses bbp_is_user_keymaster() Allow keymasters to bypass blacklist
- * @uses bbp_current_author_ip() To get current user IP address
- * @uses bbp_current_author_ua() To get current user agent
  * @return bool True if test is passed, false if fail
  */
 function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
@@ -1078,29 +1022,6 @@ function bbp_get_do_not_reply_address() {
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $reply_author ID of the topic author ID
- *
- * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
- * @uses bbp_get_reply_id() To validate the reply ID
- * @uses bbp_get_topic_id() To validate the topic ID
- * @uses bbp_get_forum_id() To validate the forum ID
- * @uses bbp_get_reply() To get the reply
- * @uses bbp_is_reply_published() To make sure the reply is published
- * @uses bbp_get_topic_id() To validate the topic ID
- * @uses bbp_get_topic() To get the reply's topic
- * @uses bbp_is_topic_published() To make sure the topic is published
- * @uses bbp_get_reply_author_display_name() To get the reply author's display name
- * @uses do_action() Calls 'bbp_pre_notify_subscribers' with the reply id,
- *                    topic id and user id
- * @uses bbp_get_topic_subscribers() To get the topic subscribers
- * @uses apply_filters() Calls 'bbp_subscription_mail_message' with the
- *                    message, reply id, topic id and user id
- * @uses apply_filters() Calls 'bbp_subscription_mail_title' with the
- *                    topic title, reply id, topic id and user id
- * @uses apply_filters() Calls 'bbp_subscription_mail_headers'
- * @uses get_userdata() To get the user data
- * @uses wp_mail() To send the mail
- * @uses do_action() Calls 'bbp_post_notify_subscribers' with the reply id,
- *                    topic id and user id
  * @return bool True on success, false on failure
  */
 function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
@@ -1249,24 +1170,6 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
  * @param int $topic_author ID of the topic author ID
- *
- * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
- * @uses bbp_get_topic_id() To validate the topic ID
- * @uses bbp_get_forum_id() To validate the forum ID
- * @uses bbp_is_topic_published() To make sure the topic is published
- * @uses bbp_get_forum_subscribers() To get the forum subscribers
- * @uses bbp_get_topic_author_display_name() To get the topic author's display name
- * @uses do_action() Calls 'bbp_pre_notify_forum_subscribers' with the topic id,
- *                    forum id and user id
- * @uses apply_filters() Calls 'bbp_forum_subscription_mail_message' with the
- *                    message, topic id, forum id and user id
- * @uses apply_filters() Calls 'bbp_forum_subscription_mail_title' with the
- *                    topic title, topic id, forum id and user id
- * @uses apply_filters() Calls 'bbp_forum_subscription_mail_headers'
- * @uses get_userdata() To get the user data
- * @uses wp_mail() To send the mail
- * @uses do_action() Calls 'bbp_post_notify_forum_subscribers' with the topic,
- *                    id, forum id and user id
  * @return bool True on success, false on failure
  */
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
@@ -1424,8 +1327,6 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
  *
  * @param string $url URL
  * @param string $redirect_to Where to redirect to?
- * @uses add_query_arg() To add args to the url
- * @uses apply_filters() Calls 'bbp_logout_url' with the url and redirect to
  * @return string The url
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
@@ -1552,12 +1453,6 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses WP_Query To get get the posts
- * @uses apply_filters() Calls 'bbp_get_public_child_last_id' with the child
- *                        id, parent id and post type
  * @return int The last active post_id
  */
 function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
@@ -1607,12 +1502,6 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses WP_Query To get get the posts
- * @uses apply_filters() Calls 'bbp_get_public_child_count' with the child
- *                        count, parent id and post type
  * @return int The number of children
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
@@ -1658,12 +1547,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses WP_Query To get get the posts
- * @uses apply_filters() Calls 'bbp_get_public_child_ids' with the child ids,
- *                        parent id and post type
+ *
  * @return array The array of children
  */
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
@@ -1708,22 +1592,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int $parent_id  Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses wp_cache_get() To check if there is a cache of the children
- * @uses bbp_get_public_status_id() To get the public status id
- * @uses bbp_get_private_status_id() To get the private status id
- * @uses bbp_get_hidden_status_id() To get the hidden status id
- * @uses bbp_get_pending_status_id() To get the pending status id
- * @uses bbp_get_closed_status_id() To get the closed status id
- * @uses bbp_get_trash_status_id() To get the trash status id
- * @uses bbp_get_spam_status_id() To get the spam status id
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses wpdb::prepare() To prepare the query
- * @uses wpdb::get_col() To get the result of the query in an array
- * @uses wp_cache_set() To set the cache for future use
- * @uses apply_filters() Calls 'bbp_get_all_child_ids' with the child ids,
- *                        parent id and post type
+ *
  * @return array The array of children
  */
 function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
@@ -1819,7 +1688,6 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * @since 2.1.0 bbPress (r4022)
  *
- * @uses do_action() Calls 'bbp_check_referer' on $action.
  * @param string $action Action nonce
  * @param string $query_arg where to look for nonce in $_REQUEST
  */
@@ -2120,9 +1988,6 @@ function bbp_request_feed_trap( $query_vars = array() ) {
  *
  * @since 2.0.0 bbPress (r3304)
  *
- * @uses get_option() To see if pretty permalinks are enabled
- * @uses get_page_by_path() To see if page exists at path
- *
  * @param string $path
  * @return mixed False if no page, Page object if true
  */
@@ -2152,7 +2017,6 @@ function bbp_get_page_by_path( $path = '' ) {
  * @since 2.0.0 bbPress (r3051)
  *
  * @global WP_Query $wp_query
- * @uses WP_Query::set_404()
  */
 function bbp_set_404() {
 	global $wp_query;

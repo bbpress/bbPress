@@ -19,7 +19,6 @@ class Kunena2 extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 *
-	 * @uses Kunena2::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

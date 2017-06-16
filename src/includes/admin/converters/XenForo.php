@@ -19,7 +19,6 @@ class XenForo extends BBP_Converter_Base {
 	/**
 	 * Main constructor
 	 *
-	 * @uses XenForo::setup_globals()
 	 */
 	function __construct() {
 		parent::__construct();

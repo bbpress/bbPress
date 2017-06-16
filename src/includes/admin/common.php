@@ -66,7 +66,6 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
  * @since 2.0.0 bbPress (r2957)
  *
  * @param array $menu_order Menu Order
- * @uses bbp_get_forum_post_type() To get the forum post type
  * @return array Modified menu order
  */
 function bbp_admin_menu_order( $menu_order ) {
@@ -123,9 +122,6 @@ function bbp_admin_menu_order( $menu_order ) {
  * @param object $_post Post data object
  * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
  * @param bool $sample Optional, defaults to false. Is it a sample permalink.
- *
- * @uses is_admin() To make sure we're on an admin page
- * @uses bbp_is_custom_post_type() To get the forum post type
  *
  * @return string The custom post type permalink
  */
@@ -196,13 +192,6 @@ function bbp_do_uninstall( $site_id = 0 ) {
  * @since 2.2.0 bbPress (r4389)
  *
  * @internal Used internally to redirect bbPress to the about page on activation
- *
- * @uses get_transient() To see if transient to redirect exists
- * @uses delete_transient() To delete the transient if it exists
- * @uses is_network_admin() To bail if being network activated
- * @uses bbp_redirect() To redirect
- * @uses add_query_arg() To help build the URL to redirect to
- * @uses admin_url() To get the admin URL to index.php
  *
  * @return If no transient, or in network admin, or is bulk activation
  */
