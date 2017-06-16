@@ -19,9 +19,11 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 		$forum = bbp_get_forum_visibility( $f, bbp_get_public_status_id(), false );
 		$this->assertSame( 'publish', $forum );
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_status' => bbp_get_private_status_id()
+		) );
 
-		bbp_privatize_forum( $f );
+		//bbp_privatize_forum( $f );
 		$forum = bbp_get_forum_visibility( $f, bbp_get_private_status_id(), false );
 		$this->assertSame( 'private', $forum );
 
@@ -38,14 +40,13 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	public function test_bbp_is_forum_visibility() {
 		$f = $this->factory->forum->create();
 
-		bbp_normalize_forum( $f );
-
 		$forum = bbp_is_forum_visibility( $f, bbp_get_public_status_id(), false );
 		$this->assertTrue( $forum );
 
-		$f = $this->factory->forum->create();
+		$f = $this->factory->forum->create( array(
+			'post_status' => bbp_get_private_status_id()
+		) );
 
-		bbp_privatize_forum( $f );
 		$forum = bbp_is_forum_visibility( $f, bbp_get_private_status_id(), false );
 		$this->assertTrue( $forum );
 
