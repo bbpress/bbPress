@@ -1193,9 +1193,9 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 			$author_name = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 		}
 
-		// If nothing could be found anywhere, use Anonymous
+		// Fallback if nothing could be found
 		if ( empty( $author_name ) ) {
-			$author_name = __( 'Anonymous', 'bbpress' );
+			$author_name = bbp_get_fallback_display_name( $reply_id );
 		}
 
 		// Encode possible UTF8 display names
