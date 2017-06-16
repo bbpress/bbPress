@@ -119,11 +119,16 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			// Moderators can edit users if super moderators is enabled
 			if ( bbp_allow_super_mods() ) {
 
+				// Get the user ID
+				$_user_id = ! empty( $args[0] )
+					? (int) $args[0]
+					: bbp_get_displayed_user_id();
+
 				// Users can always edit themselves, so only map for others
-				if ( ! empty( $args[0] ) && ( $args[0] !== $user_id ) ) {
+				if ( ! empty( $_user_id ) && ( $_user_id !== $user_id ) ) {
 
 					// Super moderators cannot edit keymasters
-					if ( ! bbp_is_user_keymaster( $args[0] ) ) {
+					if ( ! bbp_is_user_keymaster( $_user_id ) ) {
 						$caps = array( 'moderate' );
 					}
 				}

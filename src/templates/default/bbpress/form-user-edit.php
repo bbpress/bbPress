@@ -126,7 +126,7 @@ defined( 'ABSPATH' ) || exit;
 
 	</fieldset>
 
-	<?php if ( current_user_can( 'edit_users' ) && ! bbp_is_user_home_edit() ) : ?>
+	<?php if ( ! bbp_is_user_home_edit() && current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) : ?>
 
 		<h2 class="entry-title"><?php esc_html_e( 'User Role', 'bbpress' ) ?></h2>
 

@@ -14,7 +14,7 @@ do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 <?php if ( bbp_is_subscriptions_active() ) : ?>
 
-	<?php if ( bbp_is_user_home() || current_user_can( 'edit_users' ) ) : ?>
+	<?php if ( bbp_is_user_home() || current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) : ?>
 
 		<div id="bbp-user-subscriptions" class="bbp-user-subscriptions">
 			<h2 class="entry-title"><?php esc_html_e( 'Subscribed Forums', 'bbpress' ); ?></h2>
