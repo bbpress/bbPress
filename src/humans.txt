@@ -45,6 +45,7 @@ Twitter: jmdodd
 Name: Stephen Edgar
 Title: Core Contributor
 Twitter: netweb
+Favorite Food: Tacos 🌮
 
 /* THANKS */
 Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, cnorris23, anointed, andy, nacin
