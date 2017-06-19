@@ -329,7 +329,7 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
  * @param int $user_id User ID to retrieve value for
  */
 function bbp_user_last_posted( $user_id = 0 ) {
-	echo bbp_get_user_last_posted( $user_id );
+	echo esc_html( bbp_get_user_last_posted( $user_id ) );
 }
 
 	/**
