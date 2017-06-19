@@ -7,7 +7,6 @@
 class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 
 	/**
-	 * @group jjj
 	 * @covers ::bbp_clean_post_cache
 	 */
 	public function test_bbp_clean_post_cache() {
