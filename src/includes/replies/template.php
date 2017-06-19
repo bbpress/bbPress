@@ -326,9 +326,8 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @return int The reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
-		global $wp_query;
-
-		$bbp = bbpress();
+		$bbp      = bbpress();
+		$wp_query = bbp_get_global_object( 'wp_query', 'WP_Query' );
 
 		// Easy empty checking
 		if ( ! empty( $reply_id ) && is_numeric( $reply_id ) ) {

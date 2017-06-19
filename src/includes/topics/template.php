@@ -440,9 +440,8 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @return int The topic id
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
-		global $wp_query;
-
-		$bbp = bbpress();
+		$bbp      = bbpress();
+		$wp_query = bbp_get_global_object( 'wp_query', 'WP_Query' );
 
 		// Easy empty checking
 		if ( ! empty( $topic_id ) && is_numeric( $topic_id ) ) {
