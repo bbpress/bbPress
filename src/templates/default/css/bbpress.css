@@ -798,6 +798,7 @@ p.form-allowed-tags {
 	border: 1px solid transparent;
 	background-color: transparent;
 	box-shadow: none;
+	text-shadow: none;
 	border-radius: 0;
 	text-transform: uppercase;
 	font-size: 11px;
