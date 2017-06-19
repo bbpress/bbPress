@@ -52,7 +52,7 @@ do_action( 'bbp_template_before_lead_topic' ); ?>
 
 				<?php do_action( 'bbp_theme_before_topic_author_details' ); ?>
 
-				<?php bbp_topic_author_link( array( 'sep' => '<br />', 'show_role' => true ) ); ?>
+				<?php bbp_topic_author_link( array( 'show_role' => true ) ); ?>
 
 				<?php if ( current_user_can( 'moderate', bbp_get_reply_id() ) ) : ?>
 
