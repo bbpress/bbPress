@@ -135,18 +135,6 @@ new BBP_Skip_Children();
  */
 function bbp_clean_post_cache( $post_id = null, $post = null ) {
 
-	// Get the post object.
-	if ( null !== $post ) {
-		$post = get_post( $post );
-	} else {
-		$post = get_post( $post_id );
-	}
-
-	// Bail if no post
-	if ( empty( $post ) ) {
-		return;
-	}
-
 	// Child query types to clean
 	$post_types = array(
 		bbp_get_forum_post_type(),
@@ -158,16 +146,6 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 	if ( ! in_array( $post->post_type, $post_types, true ) ) {
 		return;
 	}
-
-	// Be sure we haven't recached the post data
-	wp_cache_delete( $post->ID, 'posts'     );
-	wp_cache_delete( $post->ID, 'post_meta' );
-
-	// Clean the term cache for the given post
-	clean_object_term_cache( $post->ID, $post->post_type );
-
-	// Bump the last_changed cache
-	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 
 	/**
 	 * Fires immediately after the given post cache is cleaned.
@@ -181,6 +159,10 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 
 	// Invalidate parent caches
 	if ( ! empty( $post->post_parent ) ) {
-		bbp_clean_post_cache( $post->post_parent );
+		clean_post_cache( $post->post_parent );
+
+	// Only bump `last_changed` when forum-root is reached
+	} else {
+		wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 	}
 }

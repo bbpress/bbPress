@@ -126,7 +126,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$this->assertSame( 2, $count );
 
 		// ToDo: Update this to use bbp_delete_reply().
-		bbp_clean_post_cache( $t );
+		clean_post_cache( $t );
 		wp_delete_post( $r2, true );
 
 		$count = bbp_get_topic_reply_count( $t, true );

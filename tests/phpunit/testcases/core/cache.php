@@ -48,7 +48,7 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 		$this->assertEquals( array( $r ), wp_cache_get( $t_key, 'bbpress_posts' ) );
 
 		// Clean the cache.
-		bbp_clean_post_cache( $r );
+		clean_post_cache( $r );
 
 		// Setup
 		$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );

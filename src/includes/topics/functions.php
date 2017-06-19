@@ -910,8 +910,8 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 
 	// Clean old and new forum caches before proceeding, to ensure subsequent
 	// calls to forum objects are using updated data.
-	bbp_clean_post_cache( $old_forum_id );
-	bbp_clean_post_cache( $new_forum_id );
+	clean_post_cache( $old_forum_id );
+	clean_post_cache( $new_forum_id );
 
 	// Update topic forum's ID
 	bbp_update_topic_forum_id( $topic_id, $new_forum_id );

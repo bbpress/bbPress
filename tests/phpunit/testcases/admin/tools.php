@@ -160,7 +160,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Repair the topic voice count meta.
 		bbp_admin_repair_topic_voice_count();
 
-		bbp_clean_post_cache( $t );
+		clean_post_cache( $t );
 
 		$count = bbp_get_topic_voice_count( $t );
 		$this->assertSame( '3', $count );
@@ -214,7 +214,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Repair the topic hidden reply count meta.
 		bbp_admin_repair_topic_hidden_reply_count();
 
-		bbp_clean_post_cache( $t );
+		clean_post_cache( $t );
 
 		$count = bbp_get_topic_reply_count_hidden( $t, true );
 		$this->assertSame( 2, $count );
@@ -661,9 +661,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Repair the forum meta
 		bbp_admin_repair_forum_meta();
 
-		bbp_clean_post_cache( $f );
-		bbp_clean_post_cache( $t );
-		bbp_clean_post_cache( $r );
+		clean_post_cache( $f );
+		clean_post_cache( $t );
+		clean_post_cache( $r );
 
 		// Forums should NOT have a _bbp_forum_id meta key
 		$this->assertEquals( array(), get_post_meta( $f, '_bbp_forum_id', false ) );

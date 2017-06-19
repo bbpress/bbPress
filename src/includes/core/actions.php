@@ -384,15 +384,6 @@ add_action( 'bbp_profile_update', 'bbp_profile_update_role' );
 // Hook WordPress admin actions to bbPress profiles on save
 add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
 
-// New forum/topic/reply caches
-// @todo Investigate why clearing is necessary on both pre & post hooks
-add_action( 'bbp_new_forum_pre_extras',  'bbp_clean_post_cache' );
-add_action( 'bbp_new_forum_post_extras', 'bbp_clean_post_cache' );
-add_action( 'bbp_new_topic_pre_extras',  'bbp_clean_post_cache' );
-add_action( 'bbp_new_topic_post_extras', 'bbp_clean_post_cache' );
-add_action( 'bbp_new_reply_pre_extras',  'bbp_clean_post_cache' );
-add_action( 'bbp_new_reply_post_extras', 'bbp_clean_post_cache' );
-
 // Clean bbPress post caches when WordPress's is cleaned
 add_action( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
 
