@@ -797,7 +797,7 @@ p.form-allowed-tags {
 #bbpress-forums div.bbp-the-content-wrapper input[type="button"] {
 	padding: 5px 7px;
 	margin: 0 -1px 0 0;
-	line-height: 1rem;
+	line-height: 1;
 	border: 1px solid transparent;
 	background-color: transparent;
 	box-shadow: none;
@@ -807,12 +807,8 @@ p.form-allowed-tags {
 }
 
 #bbpress-forums div.bbp-the-content-wrapper input[type="button"]:hover {
-	border-color: rgba(0,0,0,0.1);
-	background-color: rgba(255,255,255,0.5);
-}
-
-#bbpress-forums div.bbp-the-content-wrapper input[type="button"]:focus {
-	
+	border-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(255, 255, 255, 0.5);
 }
 
 #bbpress-forums div.bbp-the-content-wrapper div.quicktags-toolbar {
