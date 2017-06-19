@@ -81,7 +81,7 @@ function bbp_do_ajax() {
 	do_action( 'bbp_ajax_' . sanitize_key( $_REQUEST['action'] ) );
 
 	// All done
-	die( '0' );
+	wp_die( '0' );
 }
 
 /**
