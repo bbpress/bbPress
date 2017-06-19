@@ -1004,14 +1004,14 @@ function bbp_get_do_not_reply_address() {
 /**
  * Sends notification emails for new replies to subscribed topics
  *
- * Gets new post's ID and check if there are subscribed users to that topic, and
+ * Gets new post ID and check if there are subscribed users to that topic, and
  * if there are, send notifications
  *
  * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
  * with everyone BCC'd. This may have negative repercussions for email services
  * that limit the number of addresses in a BCC field (often to around 500.) In
  * those cases, we recommend unhooking this function and creating your own
- * custom emailer script.
+ * custom email script.
  *
  * @since 2.6.0 bbPress (r5413)
  *
@@ -1153,14 +1153,14 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 /**
  * Sends notification emails for new topics to subscribed forums
  *
- * Gets new post's ID and check if there are subscribed users to that forum, and
+ * Gets new post ID and check if there are subscribed users to that forum, and
  * if there are, send notifications
  *
  * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
  * with everyone BCC'd. This may have negative repercussions for email services
  * that limit the number of addresses in a BCC field (often to around 500.) In
  * those cases, we recommend unhooking this function and creating your own
- * custom emailer script.
+ * custom email script.
  *
  * @since 2.5.0 bbPress (r5156)
  *
@@ -2092,7 +2092,7 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
 function bbp_posts_pre_query( $posts = null, $wp_query = false ) {
 
 	// Custom 404 handler is set, so set posts to empty array to avoid 2 queries
-	if ( isset( $wp_query->bbp_is_404 ) ) {
+	if ( ! empty( $wp_query->bbp_is_404 ) ) {
 		$posts = array();
 	}
 
