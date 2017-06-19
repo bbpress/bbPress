@@ -166,11 +166,8 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 	// Clean the term cache for the given post
 	clean_object_term_cache( $post->ID, $post->post_type );
 
-	// Loop through query types and clean caches
-	foreach ( $post_types as $post_type ) {
-		$key = 'bbp_parent_all_' . $post->ID . '_type_' . $post_type . '_child_ids';
-		wp_cache_delete( $key, 'bbpress_posts' );
-	}
+	// Bump the last_changed cache
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 
 	/**
 	 * Fires immediately after the given post cache is cleaned.

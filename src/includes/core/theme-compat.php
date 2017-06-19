@@ -394,7 +394,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'is_page'               => false,
 			'is_single'             => false,
 			'is_archive'            => false,
-			'is_tax'                => false,
+			'is_tax'                => false
 		), 'theme_compat_reset_post' );
 	} else {
 		$dummy = bbp_parse_args( $args, array(
@@ -427,7 +427,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'is_page'               => false,
 			'is_single'             => false,
 			'is_archive'            => false,
-			'is_tax'                => false,
+			'is_tax'                => false
 		), 'theme_compat_reset_post' );
 	}
 
@@ -457,15 +457,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 
 	// Clean up the dummy post
 	unset( $dummy );
-
-	/**
-	 * Force the header back to 200 status if not a deliberate 404
-	 *
-	 * @see https://bbpress.trac.wordpress.org/ticket/1973
-	 */
-	if ( ! $wp_query->is_404() ) {
-		status_header( 200 );
-	}
 
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active( true );

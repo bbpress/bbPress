@@ -441,7 +441,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
 		$bbp      = bbpress();
-		$wp_query = bbp_get_global_object( 'wp_query', 'WP_Query' );
+		$wp_query = bbp_get_wp_query();
 
 		// Easy empty checking
 		if ( ! empty( $topic_id ) && is_numeric( $topic_id ) ) {

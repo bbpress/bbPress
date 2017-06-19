@@ -531,7 +531,7 @@ function bbp_parse_query( $posts_query ) {
 
 		// 404 and bail if user does not have a profile
 		if ( empty( $the_user->ID ) || ! bbp_user_has_profile( $the_user->ID ) ) {
-			$posts_query->set_404();
+			$posts_query->bbp_is_404 = true;
 			return;
 		}
 
@@ -592,14 +592,17 @@ function bbp_parse_query( $posts_query ) {
 			$posts_query->bbp_is_single_user_profile = true;
 		}
 
-		// Looking at a single user
-		$posts_query->bbp_is_single_user = true;
-
 		// Make sure 404 is not set
 		$posts_query->is_404  = false;
 
 		// Correct is_home variable
 		$posts_query->is_home = false;
+
+		// Looking at a single user
+		$posts_query->bbp_is_single_user = true;
+
+		// User found so don't 404 yet
+		$posts_query->bbp_is_404 = false;
 
 		// User is looking at their own profile
 		if ( bbp_get_current_user_id() === $the_user->ID ) {
@@ -620,7 +623,7 @@ function bbp_parse_query( $posts_query ) {
 
 		// Bail if view args is false (view isn't registered)
 		if ( false === $view_args ) {
-			$posts_query->set_404();
+			$posts_query->bbp_is_404 = true;
 			return;
 		}
 
@@ -629,6 +632,9 @@ function bbp_parse_query( $posts_query ) {
 
 		// We are in a custom topic view
 		$posts_query->bbp_is_view = true;
+
+		// No 404 because views are all (currently) public
+		$posts_query->bbp_is_404 = false;
 
 	// Search Page
 	} elseif ( isset( $posts_query->query_vars[ bbp_get_search_rewrite_id() ] ) ) {
@@ -645,6 +651,9 @@ function bbp_parse_query( $posts_query ) {
 		// We are in a search query
 		$posts_query->bbp_is_search = true;
 
+		// No 404 because search is always public
+		$posts_query->bbp_is_404 = false;
+
 	// Forum/Topic/Reply Edit Page
 	} elseif ( ! empty( $is_edit ) ) {
 
@@ -653,24 +662,27 @@ function bbp_parse_query( $posts_query ) {
 
 		// Check which post_type we are editing, if any
 		if ( ! empty( $post_type ) ) {
-			switch( $post_type ) {
+			switch ( $post_type ) {
 
 				// We are editing a forum
 				case bbp_get_forum_post_type() :
-					$posts_query->bbp_is_forum_edit = true;
-					$posts_query->bbp_is_edit       = true;
+					$posts_query->bbp_is_forum_edit  = true;
+					$posts_query->bbp_is_edit        = true;
+					$posts_query->bbp_is_404         = false;
 					break;
 
 				// We are editing a topic
 				case bbp_get_topic_post_type() :
-					$posts_query->bbp_is_topic_edit = true;
-					$posts_query->bbp_is_edit       = true;
+					$posts_query->bbp_is_topic_edit  = true;
+					$posts_query->bbp_is_edit        = true;
+					$posts_query->bbp_is_404         = false;
 					break;
 
 				// We are editing a reply
 				case bbp_get_reply_post_type() :
-					$posts_query->bbp_is_reply_edit = true;
-					$posts_query->bbp_is_edit       = true;
+					$posts_query->bbp_is_reply_edit  = true;
+					$posts_query->bbp_is_edit        = true;
+					$posts_query->bbp_is_404         = false;
 					break;
 			}
 
@@ -678,6 +690,7 @@ function bbp_parse_query( $posts_query ) {
 		} elseif ( bbp_is_topic_tag() ) {
 			$posts_query->bbp_is_topic_tag_edit = true;
 			$posts_query->bbp_is_edit           = true;
+			$posts_query->bbp_is_404            = false;
 		}
 
 		// We save post revisions on our own

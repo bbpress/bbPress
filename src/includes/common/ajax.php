@@ -75,7 +75,7 @@ function bbp_do_ajax() {
 	send_nosniff_header();
 
 	// Everything is 200 OK.
-	status_header( 200 );
+	bbp_set_200();
 
 	// Perform custom bbPress ajax
 	do_action( 'bbp_ajax_' . sanitize_key( $_REQUEST['action'] ) );

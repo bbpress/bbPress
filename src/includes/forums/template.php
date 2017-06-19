@@ -201,7 +201,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_id( $forum_id = 0 ) {
 		$bbp      = bbpress();
-		$wp_query = bbp_get_global_object( 'wp_query', 'WP_Query' );
+		$wp_query = bbp_get_wp_query();
 
 		// Easy empty checking
 		if ( ! empty( $forum_id ) && is_numeric( $forum_id ) ) {

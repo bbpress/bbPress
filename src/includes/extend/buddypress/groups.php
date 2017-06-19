@@ -815,7 +815,6 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @since 2.1.0 bbPress (r3653)
 	 */
 	public function display_forums( $offset = 0 ) {
-		global $wp_query;
 
 		// Allow actions immediately before group forum output
 		do_action( 'bbp_before_group_forum_display' );
@@ -927,6 +926,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						// Unset the super sticky link on edit topic template
 						add_filter( 'bbp_get_topic_types', array( $this, 'unset_super_sticky' ), 10, 1 );
 
+						// Get the main query object
+						$wp_query = bbp_get_wp_query();
+
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;
 						$wp_query->bbp_is_topic_edit = true;
@@ -993,6 +995,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					}
 
 					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
+
+						// Get the main query object
+						$wp_query = bbp_get_wp_query();
 
 						// Set the edit switches
 						$wp_query->bbp_is_edit       = true;

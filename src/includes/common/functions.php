@@ -92,7 +92,7 @@ function bbp_get_view_all( $cap = 'moderate' ) {
  * @return int Current page number
  */
 function bbp_get_paged() {
-	global $wp_query;
+	$wp_query = bbp_get_wp_query();
 
 	// Check the query var
 	if ( get_query_var( 'paged' ) ) {
@@ -1566,17 +1566,19 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	$query = new WP_Query( array(
-		'fields'      => 'ids',
-		'post_parent' => $parent_id,
-		'post_status' => $post_status,
-		'post_type'   => $post_type,
+		'fields'           => 'ids',
+		'suppress_filters' => true,
+		'post_parent'      => $parent_id,
+		'post_status'      => $post_status,
+		'post_type'        => $post_type,
+		'posts_per_page'   => -1,
 
 		// Maybe change these later
-		'posts_per_page'         => -1,
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
+		'no_found_rows'          => true,
+		'nopaging'               => true
 	) );
 	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
 	unset( $query );
@@ -1602,11 +1604,13 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return array();
 	}
 
-	// The ID of the cached query
-	$cache_id  = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	// Check cache key
+	$key          = md5( serialize( array( 'parent_id' => $parent_id, 'post_type' => $post_type ) ) );
+	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
+	$cache_key    = "bbp_child_ids:{$key}:{$last_changed}";
 
 	// Check for cache and set if needed
-	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
+	$child_ids = wp_cache_get( $cache_key, 'bbpress_posts' );
 	if ( false === $child_ids ) {
 		$post_status = array( bbp_get_public_status_id() );
 
@@ -1644,7 +1648,7 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		$child_ids   = (array) $bbp_db->get_col( $query );
 
 		// Always cache the results
-		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
+		wp_cache_set( $cache_key, $child_ids, 'bbpress_posts' );
 	}
 
 	// Make sure results are INTs
@@ -2015,25 +2019,83 @@ function bbp_get_page_by_path( $path = '' ) {
  * Used primarily with topics/replies inside hidden forums.
  *
  * @since 2.0.0 bbPress (r3051)
+ * @since 2.6.0 bbPress (r6583) Use status_header() & nocache_headers()
  *
- * @global WP_Query $wp_query
+ * @param WP_Query $query  The query being checked
+ *
+ * @return bool Always returns true
  */
-function bbp_set_404() {
-	global $wp_query;
+function bbp_set_404( $query = null ) {
 
-	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'bbpress' ), '3.1' );
-		return false;
+	// Global fallback
+	if ( empty( $query ) ) {
+		$query = bbp_get_wp_query();
 	}
 
-	$wp_query->set_404();
+	// Setup environment
+	$query->set_404();
+
+	// Setup request
+	status_header( 404 );
+	nocache_headers();
 }
 
 /**
- * Maybe avoid default 404 handling for some bbPress pages
+ * Sets the 200 status header.
+ *
+ * @since 2.6.0 bbPress (r6583)
+ */
+function bbp_set_200() {
+	status_header( 200 );
+}
+
+/**
+ * Maybe handle the default 404 handling for some bbPress conditions
+ *
+ * Some conditions (like private/hidden forums and edits) have their own checks
+ * on `bbp_template_redirect` and are not currently 404s.
  *
  * @since 2.6.0 bbPress (r6555)
+ *
+ * @param bool $override Whether to override the default handler
+ * @param WP_Query $wp_query The posts query being referenced
+ *
+ * @return bool False to leave alone, true to override
  */
 function bbp_pre_handle_404( $override = false, $wp_query = false ) {
+
+	// Handle a bbPress 404 condition
+	if ( isset( $wp_query->bbp_is_404 ) ) {
+
+		// Either force a 404 when 200, or a 200 when 404
+		$override = ( true === $wp_query->bbp_is_404 )
+			? bbp_set_404( $wp_query )
+			: bbp_set_200();
+	}
+
 	return $override;
+}
+
+/**
+ * Maybe pre-assign the posts that are returned from a WP_Query.
+ *
+ * This effectively short-circuits the default query for posts, which is
+ * currently only used to avoid calling the main query when it's not necessary.
+ *
+ * @since 2.6.0 bbPress (r6580)
+ *
+ * @param mixed $posts Default null. Array of posts (possibly empty)
+ * @param WP_Query $wp_query
+ *
+ * @return mixed Null if no override. Array if overridden.
+ */
+function bbp_posts_pre_query( $posts = null, $wp_query = false ) {
+
+	// Custom 404 handler is set, so set posts to empty array to avoid 2 queries
+	if ( isset( $wp_query->bbp_is_404 ) ) {
+		$posts = array();
+	}
+
+	// Return, maybe overridden
+	return $posts;
 }

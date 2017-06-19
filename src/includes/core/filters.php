@@ -60,8 +60,9 @@ add_filter( 'editable_roles', 'bbp_filter_blog_editable_roles' );
 // Reply title fallback
 add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 
-// Avoid 404ing
-add_filter( 'pre_handle_404', 'bbp_pre_handle_404', 10, 2 );
+// Avoid queries & 404s
+add_filter( 'pre_handle_404',  'bbp_pre_handle_404',  10, 2 );
+add_action( 'posts_pre_query', 'bbp_posts_pre_query', 10, 2 );
 
 /**
  * Feeds

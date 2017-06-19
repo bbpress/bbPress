@@ -208,7 +208,8 @@ class BBP_BuddyPress_Members {
 			return;
 		}
 
-		global $wp_query;
+		// Get the main query object
+		$wp_query = bbp_get_wp_query();
 
 		// 'favorites' action
 		if ( bbp_is_favorites_active() && bp_is_current_action( bbp_get_user_favorites_slug() ) ) {

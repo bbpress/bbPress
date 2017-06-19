@@ -51,6 +51,17 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 }
 
 /**
+ * Get the `$wp_query` global without needing to declare it everywhere
+ *
+ * @since 2.6.0 bbPress (r6582)
+ *
+ * @return WP_Roles
+ */
+function bbp_get_wp_query() {
+	return bbp_get_global_object( 'wp_query', 'WP_Query' );
+}
+
+/**
  * Get the `$wp_roles` global without needing to declare it everywhere
  *
  * @since 2.2.0 bbPress (r4293)
