@@ -820,7 +820,7 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
 /** Permissions ***************************************************************/
 
 /**
- * Redirect if unathorized user is attempting to edit another user
+ * Redirect if unauthorized user is attempting to edit another user
  *
  * This is hooked to 'bbp_template_redirect' and controls the conditions under
  * which a user can edit another user (or themselves.) If these conditions are
@@ -893,7 +893,7 @@ function bbp_forum_enforce_blocked() {
  * Sanitize displayed user data, when viewing and editing any user.
  *
  * This somewhat monolithic function handles the escaping and sanitization of
- * user data for a bbPress profile. There are two reasons this all happers here:
+ * user data for a bbPress profile. There are two reasons this all happens here:
  *
  * 1. bbPress took a similar approach to WordPress, and funnels all user profile
  *    data through a central helper. This eventually calls sanitize_user_field()
