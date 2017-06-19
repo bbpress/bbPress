@@ -549,23 +549,12 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	delete_metadata( 'user', false, $meta_key, false, true );
-
-	// Loop through each user's favorites
-	foreach ( $favs as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$total     = $total + count( $post_ids );
-
-		delete_metadata_by_mid( 'user', $meta->umeta_id );
-	}
-
-	// Cleanup
-	unset( $favs, $post_ids );
+	// Delete all user-meta with this key
+	delete_metadata( 'user', false, $key, false, true );
+	$total = count( $favs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d favorites upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d favorites deleted.', 'Complete! %d favorites deleted.', $total, 'bbpress' ), $total );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -596,21 +585,12 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Loop through each user's favorites
-	foreach ( $subs as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$total     = $total + count( $post_ids );
-
-		delete_metadata_by_mid( 'user', $meta->umeta_id );
-	}
-
-	// Cleanup
-	unset( $subs, $post_ids );
+	// Delete all user-meta with this key
+	delete_metadata( 'user', false, $key, false, true );
+	$total = count( $subs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d topic subscription deleted.', 'Complete! %d topic subscriptions deleted.', $total, 'bbpress' ), $total );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -641,21 +621,12 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	// Loop through each user's favorites
-	foreach ( $subs as $meta ) {
-
-		// Get post IDs
-		$post_ids  = explode( ',', $meta->meta_value );
-		$total     = $total + count( $post_ids );
-
-		delete_metadata_by_mid( 'user', $meta->umeta_id );
-	}
-
-	// Cleanup
-	unset( $subs, $post_ids );
+	// Delete all user-meta with this key
+	delete_metadata( 'user', false, $key, false, true );
+	$total = count( $subs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d forum subscription deleted.', 'Complete! %d forum subscriptions deleted.', $total, 'bbpress' ), $total );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
