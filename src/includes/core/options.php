@@ -127,8 +127,8 @@ function bbp_get_default_options() {
 		// Options
 		'_bbp_converter_rows'       => 100,         // Number of rows to query
 		'_bbp_converter_delay_time' => 2,           // Seconds to wait between queries
-		'_bbp_converter_step'       => 1,           // Current converter step
-		'_bbp_converter_start'      => 1,           // Step to start at
+		'_bbp_converter_step'       => 0,           // Current converter step
+		'_bbp_converter_start'      => 0,           // Step to start at
 		'_bbp_converter_platform'   => '',          // Which platform to use
 		'_bbp_converter_query'      => ''           // Last query
 	) );
