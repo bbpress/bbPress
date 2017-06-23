@@ -571,6 +571,14 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Halt
+			'_bbp_converter_halt' => array(
+				'title'             => esc_html__( 'Stop on Error', 'bbpress' ),
+				'callback'          => 'bbp_converter_setting_callback_halt',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Restart
 			'_bbp_converter_restart' => array(
 				'title'             => esc_html__( 'Start Over', 'bbpress' ),
@@ -1670,6 +1678,22 @@ function bbp_converter_setting_callback_delay_time() {
 }
 
 /**
+ * Edit Halt setting field
+ *
+ * @since 2.6.0 bbPress (r6599)
+ */
+function bbp_converter_setting_callback_halt() {
+?>
+
+	<input name="_bbp_converter_halt" id="_bbp_converter_halt" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_halt', false ) ); ?> />
+	<label for="_bbp_converter_halt"><?php esc_html_e( 'Halt the conversion if an error occurs', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'This is helpful for when you want to debug problems.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+
+/**
  * Edit Restart setting field
  *
  * @since 2.1.0 bbPress (r3813)
@@ -1728,12 +1752,17 @@ function bbp_converter_settings_page() {
 	$max  = (int) bbpress()->admin->converter->max_steps;
 
 	// Starting or continuing?
+	$status_text = ! empty( $step )
+		? sprintf( esc_html__( 'Up next: step %s', 'bbpress' ), $step )
+		: esc_html__( 'Ready', 'bbpress' );
+
+	// Starting or continuing?
 	$start_text = ! empty( $step )
 		? esc_html__( 'Continue', 'bbpress' )
 		: esc_html__( 'Start',    'bbpress' );
 
 	// Starting or continuing?
-	$status_text = ! empty( $step )
+	$progress_text = ! empty( $step )
 		? sprintf( esc_html__( 'Previously stopped at step %d of %d', 'bbpress' ), $step, $max )
 		: esc_html__( 'Ready to go.', 'bbpress' ); ?>
 
@@ -1769,11 +1798,11 @@ function bbp_converter_settings_page() {
 							</button>
 							<h2 class="hndle ui-sortable-handle">
 								<span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span>
+								<span id="bbp-converter-status"><?php echo esc_html( $status_text ); ?></span>
 							</h2>
 							<div class="inside">
-								<div id="bbp-converter-timer"><?php esc_html_e( 'Timer: Stopped', 'bbpress' ); ?></div>
 								<div id="bbp-converter-message" class="bbp-converter-log">
-									<p><?php echo esc_html( $status_text ); ?></p>
+									<p><?php echo esc_html( $progress_text ); ?></p>
 								</div>
 							</div>
 						</div>

@@ -129,6 +129,7 @@ function bbp_get_default_options() {
 		'_bbp_converter_delay_time' => 2,           // Seconds to wait between queries
 		'_bbp_converter_step'       => 0,           // Current converter step
 		'_bbp_converter_start'      => 0,           // Step to start at
+		'_bbp_converter_halt'       => 0,           // Halt on errors
 		'_bbp_converter_platform'   => '',          // Which platform to use
 		'_bbp_converter_query'      => ''           // Last query
 	) );
