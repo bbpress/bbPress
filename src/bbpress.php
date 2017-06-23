@@ -203,7 +203,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-rc-6595';
+		$this->version    = '2.6-rc-6601';
 		$this->db_version = '262';
 
 		/** Paths *************************************************************/
@@ -374,7 +374,6 @@ final class bbPress {
 
 		// Quick admin check and load if needed
 		if ( is_admin() ) {
-			require $this->includes_dir . 'admin/admin.php';
 			require $this->includes_dir . 'admin/actions.php';
 		}
 	}

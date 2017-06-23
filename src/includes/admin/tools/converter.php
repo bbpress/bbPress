@@ -23,7 +23,7 @@ function bbp_get_converters() {
 
 	// Default
 	$files  = array();
-	$path   = bbpress()->admin->admin_dir . 'converters/';
+	$path   = bbp_setup_converter()->converters_dir;
 	$curdir = opendir( $path );
 
 	// Look for the converter file in the converters directory
@@ -66,8 +66,12 @@ function bbp_new_converter( $platform ) {
 
 	// Create a new converter object if it's found
 	if ( isset( $converters[ $platform ] ) ) {
+
+		// Include & create the converter
 		require_once $converters[ $platform ];
-		return new $platform;
+		if ( class_exists( $platform ) ) {
+			return new $platform;
+		}
 	}
 
 	// Return null if no converter was found

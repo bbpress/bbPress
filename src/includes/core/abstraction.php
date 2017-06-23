@@ -17,6 +17,63 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Setup Admin
+ *
+ * This exists outside of "/includes/admin/" because the converter may need to
+ * be setup to convert the passwords of users that were migrated from another
+ * forum platform.
+ *
+ * @since 2.6.0 bbPress (r2596)
+ */
+function bbp_setup_admin() {
+	$bbp = bbpress();
+
+	// Skip if already setup
+	if ( empty( $bbp->admin ) ) {
+
+		// Require the admin class
+		require_once $bbp->includes_dir . 'admin/classes/class-bbp-admin.php';
+
+		// Setup
+		$bbp->admin = class_exists( 'BBP_Admin' )
+			? new BBP_Admin()
+			: new stdClass();
+	}
+
+	// Return the admin object
+	return $bbp->admin;
+}
+
+/**
+ * Setup Converter
+ *
+ * This exists outside of "/includes/admin/" because the converter may need to
+ * be setup to convert the passwords of users that were migrated from another
+ * forum platform.
+ *
+ * @since 2.6.0 bbPress (r2596)
+ */
+function bbp_setup_converter() {
+	$bbp_admin = bbp_setup_admin();
+
+	// Skip if already setup
+	if ( empty( $bbp_admin->converter ) ) {
+
+		// Require the converter classes
+		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter-base.php';
+		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter.php';
+
+		// Setup
+		$bbp_admin->converter = class_exists( 'BBP_Converter' )
+			? new BBP_Converter()
+			: new stdClass();
+	}
+
+	// Return the converter
+	return $bbp_admin->converter;
+}
+
+/**
  * Lookup and return a global variable
  *
  * @since 2.5.8 bbPress (r5814)

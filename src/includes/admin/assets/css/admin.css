@@ -365,13 +365,12 @@ div.bbp-converter-log .step {
 	display: none;
 }
 
-#bbp-converter-timer {
-	position: absolute;
-	right: 10px;
-	top: 4px;
-	padding: 5px;
-	border: 1px solid #ddd;
-	background-color: #fafafa;
+#bbp-converter-status {
+	font-weight: 400;
+	font-size: 12px;
+	color: #aaa;
+	display: block;
+	margin-top: 2px;
 }
 
 /* Tools */

@@ -131,10 +131,6 @@ class BBP_Admin {
 		require $this->admin_dir . 'topics.php';
 		require $this->admin_dir . 'replies.php';
 		require $this->admin_dir . 'users.php';
-
-		// Converter
-		require $this->admin_dir . 'classes/class-bbp-converter-base.php';
-		require $this->admin_dir . 'classes/class-bbp-converter.php';
 	}
 
 	/**
@@ -1129,14 +1125,3 @@ class BBP_Admin {
 	}
 }
 endif; // class_exists check
-
-/**
- * Setup bbPress Admin
- *
- * @since 2.0.0 bbPress (r2596)
- */
-function bbp_admin() {
-	bbpress()->admin = new BBP_Admin();
-
-	bbpress()->admin->converter = new BBP_Converter();
-}

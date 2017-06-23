@@ -8,11 +8,8 @@ jQuery( document ).ready( function ( $ ) {
 		stop     = $( '#bbp-converter-stop'     ),
 		start    = $( '#bbp-converter-start'    ),
 		restart  = $( '#_bbp_converter_restart' ),
-		timer    = $( '#bbp-converter-timer'    ),
-		settings = $( '#bbp-converter-settings' ),
-
-		// Prefetch the settings
-		options  = bbp_converter_settings();
+		status   = $( '#bbp-converter-status'   ),
+		settings = $( '#bbp-converter-settings' );
 
 	/**
 	 * Start button click
@@ -23,7 +20,6 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	start.on( 'click', function( e ) {
 		bbp_converter_user_start();
-
 		e.preventDefault();
 	} );
 
@@ -36,7 +32,6 @@ jQuery( document ).ready( function ( $ ) {
 	 */
 	$( stop ).on( 'click', function( e ) {
 		bbp_converter_user_stop();
-
 		e.preventDefault();
 	} );
 
@@ -48,21 +43,7 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_user_start() {
-		if ( ! BBP_Converter.running ) {
-			message.addClass( 'started' );
-			start.hide();
-			stop.show();
-
-			if ( BBP_Converter.started ) {
-				bbp_converter_log( BBP_Converter.strings.start_continue );
-			} else {
-				bbp_converter_log( BBP_Converter.strings.start_start );
-			}
-
-			bbp_converter_next();
-		}
-
-		BBP_Converter.started = true;
+		bbp_converter_start();
 	}
 
 	/**
@@ -77,73 +58,6 @@ jQuery( document ).ready( function ( $ ) {
 			BBP_Converter.strings.button_continue,
 			BBP_Converter.strings.import_stopped_user
 		);
-	}
-
-	/**
-	 * Database error
-	 *
-	 * @since 2.6.0 bbPress (r6470)
-	 *
-	 * @returns {void}
-	 */
-	function bbp_converter_error_db() {
-		bbp_converter_stop(
-			BBP_Converter.strings.button_start,
-			BBP_Converter.strings.import_error_db
-		);
-	}
-
-	/**
-	 * Converter error
-	 *
-	 * @since 2.6.0 bbPress (r6470)
-	 *
-	 * @returns {void}
-	 */
-	function bbp_converter_halt() {
-		bbp_converter_stop(
-			BBP_Converter.strings.button_continue,
-			BBP_Converter.strings.import_error_halt
-		);
-	}
-
-	/**
-	 * Converter complete
-	 *
-	 * @since 2.6.0 bbPress (r6470)
-	 *
-	 * @returns {void}
-	 */
-	function bbp_converter_complete() {
-		bbp_converter_stop(
-			BBP_Converter.strings.button_start,
-			BBP_Converter.strings.import_comelete
-		);
-
-		BBP_Converter.started = false;
-	}
-
-	/**
-	 * Handle successful ajax response
-	 *
-	 * @since 2.6.0 bbPress (r6470)
-	 *
-	 * @param {object} response Ajax response
-	 *
-	 * @returns {void}
-	 */
-	function bbp_converter_process( response ) {
-		bbp_converter_log( response );
-
-		if ( response === BBP_Converter.strings.import_complete ) {
-			bbp_converter_complete();
-
-		} else if ( BBP_Converter.running ) {
-			bbp_converter_next();
-
-		} else if ( BBP_Converter.halt ) {
-			bbp_converter_halt();
-		}
 	}
 
 	/**
@@ -165,7 +79,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		if ( values['_bbp_converter_delay_time'] ) {
-			BBP_Converter.delay = values['_bbp_converter_delay_time'] * 1000;
+			BBP_Converter.delay = parseInt( values['_bbp_converter_delay_time'], 10 ) * 1000;
 		}
 
 		values['action']      = 'bbp_converter_process';
@@ -181,41 +95,108 @@ jQuery( document ).ready( function ( $ ) {
 	 *
 	 * @returns {void}
 	 */
-	function bbp_converter_step() {
+	function bbp_converter_post() {
+		$.post( ajaxurl, bbp_converter_settings(), function( response ) {
 
+			// Parse the json response
+			try {
+				var data = response.data;
+
+				// Success
+				if ( true === response.success ) {
+					bbp_converter_step( data );
+
+				// Failure
+				} else {
+					bbp_converter_stop();
+				}
+
+			} catch( e ) {
+				bbp_converter_stop();
+			}
+		}, 'json' );
+	}
+
+	/**
+	 * Process the next step
+	 *
+	 * @since 2.6.0 bbPress (r6600)
+	 *
+	 * @param {object} data
+	 * @returns {void}
+	 */
+	function bbp_converter_step( data ) {
+
+		// Bail if not running
 		if ( ! BBP_Converter.running ) {
 			return;
 		}
 
-		// Check if the settings have changed
-		options = bbp_converter_settings();
+		// Do the step
+		bbp_converter_log( data.progress );
+		bbp_converter_status( data );
+		bbp_converter_wait();
 
-		$.post( ajaxurl, options, function( response ) {
-
-			if ( 'bbp_converter_db_connection_failed' === response ) {
-				bbp_converter_error_db();
-				return;
-			}
-
-			bbp_converter_process( response.substring( 0, response.length - 1 ) );
-		} );
+		// Done
+		if ( data.current_step === data.final_step ) {
+			bbp_converter_stop(
+				BBP_Converter.strings.button_start,
+				BBP_Converter.strings.import_complete
+			);
+		}
 	}
 
 	/**
-	 * Proceed to the next converter step
+	 * Wait to do the next AJAX request
 	 *
-	 * @since 2.6.0 bbPress (r6470)
+	 * @since 2.6.0 bbPress (r6600)
 	 *
 	 * @returns {void}
 	 */
-	function bbp_converter_next() {
-		bbp_converter_timer();
-
+	function bbp_converter_wait() {
 		clearTimeout( BBP_Converter.running );
 
+		// Bail if not running
+		if ( ! BBP_Converter.running ) {
+			return;
+		}
+
+		// Wait, then POST
 		BBP_Converter.running = setTimeout( function() {
-			bbp_converter_step();
-		}, BBP_Converter.delay );
+			bbp_converter_post();
+		}, parseInt( BBP_Converter.delay, 10 ) );
+	}
+
+	/**
+	 * Start the converter and set the various flags
+	 *
+	 * @since 2.6.0 bbPress (r6600)
+	 *
+	 * @returns {void}
+	 */
+	function bbp_converter_start() {
+		clearTimeout( BBP_Converter.running );
+		clearInterval( BBP_Converter.status );
+
+		BBP_Converter.running = true;
+
+		var log = BBP_Converter.strings.start_continue;
+		if ( BBP_Converter.started ) {
+			log = BBP_Converter.strings.start_start;
+			BBP_Converter.started = true;
+		}
+
+		bbp_converter_update(
+			BBP_Converter.strings.button_continue,
+			log,
+			BBP_Converter.strings.status_starting
+		);
+
+		message.addClass( 'started' );
+		start.hide();
+		stop.show();
+
+		bbp_converter_post();
 	}
 
 	/**
@@ -229,40 +210,73 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_stop( button, log ) {
-		start.val( button ).show();
-		stop.hide();
-		timer.text( BBP_Converter.strings.timer_stopped );
-
-		if ( log ) {
-			bbp_converter_log( log );
-		}
-
 		clearTimeout( BBP_Converter.running );
+		clearInterval( BBP_Converter.status );
 
 		BBP_Converter.running = false;
+		BBP_Converter.status  = false;
+
+		if ( ! button ) {
+			button = BBP_Converter.strings.button_continue;
+		}
+
+		if ( ! log ) {
+			log = BBP_Converter.strings.status_stopped;
+		}
+
+		bbp_converter_update(
+			button,
+			log,
+			BBP_Converter.strings.status_stopped
+		);
+
+		start.show();
+		stop.hide();
 	}
 
 	/**
-	 * Update the timer
+	 * Update the various screen texts
+	 *
+	 * @since 2.6.0 bbPress (r6600)
+	 *
+	 * @param {string} b_text
+	 * @param {string} p_text
+	 * @param {string} s_text
+	 *
+	 * @returns {void}
+	 */
+	function bbp_converter_update( b_text, p_text, s_text ) {
+		start.val( b_text );
+		bbp_converter_log( p_text );
+		status.text( s_text );
+	}
+
+	/**
+	 * Update the status
 	 *
 	 * @since 2.6.0 bbPress (r6513)
 	 *
 	 * @returns {void}
 	 */
-	function bbp_converter_timer() {
-		var remaining = BBP_Converter.delay / 1000;
+	function bbp_converter_status( data ) {
+		var remaining = parseInt( BBP_Converter.delay, 10 ) / 1000,
+			step      = parseInt( data.current_step,   10 ) + 1;
 
-		timer.text( BBP_Converter.strings.timer_counting.replace( '%s', remaining ) );
+		status.text( BBP_Converter.strings.status_counting.replace( '%s', remaining ) );
+		clearInterval( BBP_Converter.status );
 
-		clearInterval( BBP_Converter.timer );
-
-		BBP_Converter.timer = setInterval( function() {
+		BBP_Converter.status = setInterval( function() {
 			remaining--;
-			timer.text( BBP_Converter.strings.timer_counting.replace( '%s', remaining ) );
+			status.text( BBP_Converter.strings.status_counting.replace( '%s', remaining ) );
 
 			if ( remaining <= 0 ) {
-				clearInterval( BBP_Converter.timer );
-				timer.text( BBP_Converter.strings.timer_waiting );
+				clearInterval( BBP_Converter.status );
+
+				if ( parseInt( data.current_step, 10 ) < parseInt( data.final_step, 10 ) ) {
+					status.text( BBP_Converter.strings.status_up_next.replace( '%s', step ) );
+				} else {
+					status.text( BBP_Converter.strings.status_complete );
+				}
 			}
 		}, 1000 );
 	}
@@ -277,10 +291,7 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_log( text ) {
-
-		if ( '<div' !== text.substring( 0, 3 ) ) {
-			text = '<p>' + text + '</p>';
-		}
+		text = '<p>' + text + '</p>';
 
 		message.prepend( text );
 	}

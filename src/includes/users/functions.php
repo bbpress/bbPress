@@ -983,17 +983,7 @@ function bbp_user_maybe_convert_pass() {
 		return;
 	}
 
-	// Setup admin (to include converter)
-	require_once bbpress()->includes_dir . 'admin/admin.php';
-
-	// Create the admin object
-	bbp_admin();
-
-	// Convert password
-	require_once bbpress()->admin->admin_dir . 'converter.php';
-	require_once bbpress()->admin->admin_dir . 'converters/' . sanitize_key( $row->meta_value ) . '.php';
-
-	// Create the converter
+	// Try to convert the old password for this user
 	$converter = bbp_new_converter( $row->meta_value );
 
 	// Try to call the conversion method

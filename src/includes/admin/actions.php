@@ -10,7 +10,7 @@
  * There are a few common places that additional actions can currently be found
  *
  *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
- *  - Admin: More in {@link BBP_Admin::setup_actions()} in admin.php
+ *  - Admin: More in {@link BBP_Admin::setup_actions()} in class-bbp-admin.php
  *
  * @package bbPress
  * @subpackage Administration
@@ -61,7 +61,7 @@ add_action( 'bbp_current_screen', 'bbp_admin_topics'  );
 add_action( 'bbp_current_screen', 'bbp_admin_replies' );
 
 // Initialize the admin area
-add_action( 'bbp_init', 'bbp_admin' );
+add_action( 'bbp_init', 'bbp_setup_admin' );
 
 // Reset the menu order
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
@@ -104,6 +104,20 @@ add_filter( 'dashboard_glance_items', 'bbp_filter_dashboard_glance_items', -99 )
 add_filter( 'bbp_admin_forums_column_headers',  'bbp_filter_column_headers' );
 add_filter( 'bbp_admin_topics_column_headers',  'bbp_filter_column_headers' );
 add_filter( 'bbp_admin_replies_column_headers', 'bbp_filter_column_headers' );
+
+// Load the converter early (page and AJAX)
+add_action( 'load-tools_page_bbp-converter', 'bbp_setup_converter', 2 );
+add_action( 'wp_ajax_bbp_converter_process', 'bbp_setup_converter', 2 );
+
+/**
+ * Setup bbPress admin
+ *
+ * @since 2.0.0 bbPress (r1000)
+ * @since 2.6.0 bbPress (r6598) Moved to actions.php
+ */
+function bbp_admin() {
+	return bbp_setup_admin();
+}
 
 /**
  * When a new site is created in a multisite installation, run the activation
