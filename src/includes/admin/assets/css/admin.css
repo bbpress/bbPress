@@ -13,16 +13,35 @@
 	font: 400 150px/1 dashicons !important;
 	color: #000;
 	display: inline-block;
+	transform-origin: center center;
 }
 
 .bbp-badge:before {
 	content: "\f451";
 }
 
+@keyframes buzz {
+	0%   { right: -2px; top: -1px; }
+	25%  { right:  1px; top:  2px; }
+	50%  { right: -3px; top: -1px; }
+	75%  { right:  2px; top:  1px; }
+	0%   { right: -2px; top: -1px; }
+}
+
+@keyframes swoop {
+  0%   { transform: rotate( -9deg ); }
+  25%  { transform: rotate( 3deg  ); }
+  50%  { transform: rotate( -3deg ); }
+  75%  { transform: rotate( 9deg  ); }
+  100% { transform: rotate( -9deg ); }
+}
+
 .about-wrap .bbp-badge {
 	position: absolute;
 	top: 0;
 	right: 0;
+	-webkit-animation: buzz 0.3s infinite ease-in, swoop 5s infinite ease-in-out;
+	animation: buzz 0.3s infinite ease-in, swoop 5s infinite ease-in-out;
 }
 
 body.rtl .about-wrap .bbp-badge {
