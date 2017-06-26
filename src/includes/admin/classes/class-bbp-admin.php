@@ -532,7 +532,10 @@ class BBP_Admin {
 		// Get the version to use for JS
 		$version = bbp_get_version();
 
-		// Register the JS
+		// Footer JS
+		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge' . $suffix . '.js', array(), $version, true );
+
+		// Header JS
 		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
 		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
 		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
@@ -540,7 +543,6 @@ class BBP_Admin {
 
 		// Post type checker (only topics and replies)
 		if ( 'post' === get_current_screen()->base ) {
-
 			switch ( get_current_screen()->post_type ) {
 				case bbp_get_reply_post_type() :
 				case bbp_get_topic_post_type() :
@@ -559,6 +561,10 @@ class BBP_Admin {
 
 					break;
 			}
+
+		// Enqueue the badge JS
+		} elseif ( in_array( get_current_screen()->id, array( 'dashboard_page_bbp-about', 'dashboard_page_bbp-credits' ), true ) ) {
+			wp_enqueue_script( 'bbp-admin-badge-js' );
 		}
 	}
 
@@ -727,18 +733,39 @@ class BBP_Admin {
 	/** About *****************************************************************/
 
 	/**
+	 * Output the shared screen header for about_screen() & credits_screen()
+	 *
+	 * Contains title, subtitle, and badge area
+	 *
+	 * @since 2.6.0 bbPress (r6604)
+	 */
+	private function screen_header() {
+		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
+
+		<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
+		<div class="about-text"><?php printf( esc_html__( 'bbPress is fun to use, contains no artificial colors or preservatives, and is absolutely wonderful in every environment. Your community is going to love using it.', 'bbpress' ), $display_version ); ?></div>
+
+		<span class="bbp-hive" id="bbp-hive"></span>
+		<div class="bbp-badge" id="bbp-badge">
+			<span class="bbp-bee" id="bbp-bee"></span>
+		</div>
+
+		<?php
+	}
+
+	/**
 	 * Output the about screen
 	 *
 	 * @since 2.2.0 bbPress (r4159)
+	 *
+	 * @todo Host this remotely.
 	 */
 	public function about_screen() {
-
-		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
+		?>
 
 		<div class="wrap about-wrap">
-			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is sweet and savory, contains no artificial flavors or preservatives, is environmentally friendly, and is a great compliment to your site.', 'bbpress' ), $display_version ); ?></div>
-			<div class="bbp-badge"></div>
+
+			<?php $this->screen_header(); ?>
 
 			<h2 class="nav-tab-wrapper">
 				<a class="nav-tab nav-tab-active" href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) ); ?>">
@@ -803,19 +830,16 @@ class BBP_Admin {
 	/**
 	 * Output the credits screen
 	 *
-	 * Hardcoding this in here is pretty janky. It's fine for now, but we'll
-	 * want to leverage api.wordpress.org eventually.
-	 *
 	 * @since 2.2.0 bbPress (r4159)
+	 *
+	 * @todo Host this remotely.
 	 */
 	public function credits_screen() {
-
-		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
+		?>
 
 		<div class="wrap about-wrap">
-			<h1><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
-			<div class="about-text"><?php printf( esc_html__( 'Thank you for updating! bbPress %s is sweet and savory, contains no artificial flavors or preservatives, is environmentally friendly, and is a great compliment to your site.', 'bbpress' ), $display_version ); ?></div>
-			<div class="bbp-badge"></div>
+
+			<?php $this->screen_header(); ?>
 
 			<h2 class="nav-tab-wrapper">
 				<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) ); ?>" class="nav-tab">

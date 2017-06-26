@@ -10,14 +10,36 @@
 /* Version Badge */
 
 .bbp-badge {
-	font: 400 150px/1 dashicons !important;
-	color: #000;
-	display: inline-block;
-	transform-origin: center center;
+	transform-origin: top left;
+	-webkit-animation: swoop 16s infinite linear;
+	animation: swoop 16s infinite linear;
 }
 
-.bbp-badge:before {
+.bbp-bee {
+	font: 400 80px/1 dashicons !important;
+	color: #000;
+	position: absolute;
+	height: 60px;
+	width: 60px;
+}
+
+.bbp-hive {
+	font: 400 150px/1 dashicons !important;
+	color: #ccc;
+	position: absolute;
+	height: 150px;
+	width: 150px;
+	top: 0;
+	right: 0;
+	display: block;
+}
+
+.bbp-bee:before {
 	content: "\f451";
+}
+
+.bbp-hive:before {
+	content: "\f449";
 }
 
 @keyframes buzz {
@@ -29,24 +51,21 @@
 }
 
 @keyframes swoop {
-  0%   { transform: rotate( -9deg ); }
-  25%  { transform: rotate( 3deg  ); }
-  50%  { transform: rotate( -3deg ); }
-  75%  { transform: rotate( 9deg  ); }
-  100% { transform: rotate( -9deg ); }
+  0%   { transform: rotate( 95deg  ); }
+  100% { transform: rotate( 455deg ); }
 }
 
 .about-wrap .bbp-badge {
 	position: absolute;
-	top: 0;
-	right: 0;
-	-webkit-animation: buzz 0.3s infinite ease-in, swoop 5s infinite ease-in-out;
-	animation: buzz 0.3s infinite ease-in, swoop 5s infinite ease-in-out;
+	right: 50px;
+	top: 50px;
+	height: 25px;
+	width: 25px;
 }
 
 body.rtl .about-wrap .bbp-badge {
 	right: auto;
-	left: 0;
+	left: 50px;
 }
 
 /* Dashicons */
