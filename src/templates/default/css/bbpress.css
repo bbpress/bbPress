@@ -28,22 +28,22 @@
 	word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
 }
 
-.entry-content .bbpress-wrapper a,
-.entry-content .bbpress-wrapper a:hover {
-	box-shadow: none;
-	border: none;
-}
-
-#bbpress-forums hr {
-	margin: 0 0 24px;
-}
-
 #bbpress-forums {
 	background: transparent;
 	clear: both;
 	margin-bottom: 20px;
 	overflow: hidden;
 	font-size: 12px;
+}
+
+#bbpress-forums a,
+#bbpress-forums a:hover {
+	box-shadow: none;
+	border: none;
+}
+
+#bbpress-forums hr {
+	margin: 0 0 24px;
 }
 
 #bbpress-forums div.even,
