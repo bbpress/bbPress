@@ -29,8 +29,8 @@
 		x = variance * Math.sin( progress * 2 * Math.PI );
 		y = Math.cos( progress * 2 * Math.PI );
 
-		bee.style.left            = max_x / 2 + ( canvas * x ) + "px";
-		bee.style.bottom          = max_y / 2 + ( canvas * y ) + "px";
+		bee.style.left            = max_x / 2 + ( canvas * x ) + 'px';
+		bee.style.bottom          = max_y / 2 + ( canvas * y ) + 'px';
 		bee.style.transform       = 'rotate(' + angle + 'deg)';
 		bee.style.webkitTransform = 'rotate(' + angle + 'deg)';
 
