@@ -1471,17 +1471,18 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	$query = new WP_Query( array(
-		'fields'      => 'ids',
-		'post_parent' => $parent_id,
-		'post_status' => $post_status,
-		'post_type'   => $post_type,
-		'orderby'     => array(
+		'fields'         => 'ids',
+		'post_parent'    => $parent_id,
+		'post_status'    => $post_status,
+		'post_type'      => $post_type,
+		'posts_per_page' => 1,
+		'orderby'        => array(
 			'post_date' => 'DESC',
 			'ID'        => 'DESC'
 		),
 
-		// Maybe change these later
-		'posts_per_page'         => 1,
+		// Performance
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
@@ -1507,7 +1508,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) ) {
+	if ( empty( $parent_id ) || empty( $post_type ) ) {
 		return false;
 	}
 
@@ -1520,13 +1521,15 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	$query = new WP_Query( array(
-		'fields'      => 'ids',
-		'post_parent' => $parent_id,
-		'post_status' => $post_status,
-		'post_type'   => $post_type,
+		'fields'         => 'ids',
+		'post_parent'    => $parent_id,
+		'post_status'    => $post_status,
+		'post_type'      => $post_type,
+		'posts_per_page' => -1,
 
-		// Maybe change these later
-		'posts_per_page'         => -1,
+		// Performance
+		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
@@ -1566,19 +1569,23 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	$query = new WP_Query( array(
-		'fields'           => 'ids',
-		'suppress_filters' => true,
-		'post_parent'      => $parent_id,
-		'post_status'      => $post_status,
-		'post_type'        => $post_type,
-		'posts_per_page'   => -1,
+		'fields'         => 'ids',
+		'post_parent'    => $parent_id,
+		'post_status'    => $post_status,
+		'post_type'      => $post_type,
+		'posts_per_page' => -1,
+		'orderby'        => array(
+			'post_date' => 'DESC',
+			'ID'        => 'DESC'
+		),
 
-		// Maybe change these later
+		// Performance
+		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
-		'nopaging'               => true
+		'no_found_rows'          => true
 	) );
 	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
 	unset( $query );

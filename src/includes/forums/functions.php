@@ -962,18 +962,18 @@ function bbp_repair_forum_visibility() {
 
 	// Query for private forums
 	$private_forums = new WP_Query( array(
-		'fields'           => 'ids',
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_forum_post_type(),
-		'post_status'      => bbp_get_private_status_id(),
-		'posts_per_page'   => -1,
+		'fields'         => 'ids',
+		'post_type'      => bbp_get_forum_post_type(),
+		'post_status'    => bbp_get_private_status_id(),
+		'posts_per_page' => -1,
 
 		// Performance
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
 		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	// Query for hidden forums
@@ -985,11 +985,12 @@ function bbp_repair_forum_visibility() {
 		'posts_per_page'   => -1,
 
 		// Performance
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
 		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	// Enable forum visibilty normalization
@@ -1602,7 +1603,6 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
  * @param bool $total_count Optional. To return the total count or normal count?
- 
  * @return int Forum topic count
  */
 function bbp_update_forum_topic_count( $forum_id = 0 ) {
@@ -1661,19 +1661,19 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 		// Get topics of forum
 		if ( empty( $topic_count ) ) {
 			$query = new WP_Query( array(
-				'fields'           => 'ids',
-				'suppress_filters' => true,
-				'post_parent'      => $forum_id,
-				'post_status'      => array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ),
-				'post_type'        => bbp_get_topic_post_type(),
-				'posts_per_page'   => -1,
+				'fields'         => 'ids',
+				'post_parent'    => $forum_id,
+				'post_status'    => array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ),
+				'post_type'      => bbp_get_topic_post_type(),
+				'posts_per_page' => -1,
 
 				// Performance
+				'nopaging'               => true,
+				'suppress_filters'       => true,
 				'update_post_term_cache' => false,
 				'update_post_meta_cache' => false,
 				'ignore_sticky_posts'    => true,
-				'no_found_rows'          => true,
-				'nopaging'               => true
+				'no_found_rows'          => true
 			) );
 			$topic_count = $query->post_count;
 			unset( $query );
@@ -1719,19 +1719,19 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$topic_ids   = bbp_forum_query_topic_ids( $forum_id );
 	if ( ! empty( $topic_ids ) ) {
 		$query = new WP_Query( array(
-			'fields'           => 'ids',
-			'suppress_filters' => true,
-			'post_parent__in'  => $topic_ids,
-			'post_status'      => bbp_get_public_status_id(),
-			'post_type'        => bbp_get_reply_post_type(),
-			'posts_per_page'   => -1,
+			'fields'          => 'ids',
+			'post_parent__in' => $topic_ids,
+			'post_status'     => bbp_get_public_status_id(),
+			'post_type'       => bbp_get_reply_post_type(),
+			'posts_per_page'  => -1,
 
 			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
 			'update_post_term_cache' => false,
 			'update_post_meta_cache' => false,
 			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true,
-			'nopaging'               => true
+			'no_found_rows'          => true
 		) );
 		$reply_count = ! empty( $query->posts ) ? count( $query->posts ) : 0;
 		unset( $query );
@@ -2136,8 +2136,7 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		'update_post_term_cache' => false,
 		'update_post_meta_cache' => false,
 		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
-		'nopaging'               => true
+		'no_found_rows'          => true
 	) );
 	$reply_id = array_shift( $query->posts );
 	unset( $query );
@@ -2272,21 +2271,19 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 	// Forum is being permanently deleted, so its content has go too
 	// Note that we get all post statuses here
 	$topics = new WP_Query( array(
-		'fields'           => 'id=>parent',
-		'suppress_filters' => true,
-
-		// What and how
-		'post_type'        => bbp_get_topic_post_type(),
-		'post_parent'      => $forum_id,
-		'post_status'      => array_keys( get_post_stati() ),
-		'posts_per_page'   => -1,
+		'fields'         => 'id=>parent',
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_parent'    => $forum_id,
+		'post_status'    => array_keys( get_post_stati() ),
+		'posts_per_page' => -1,
 
 		// Performance
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
 		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	// Loop through and delete child topics. Topic replies will get deleted by
@@ -2329,19 +2326,19 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 
 	// Forum is being trashed, so its topics (and replies) are trashed too
 	$topics = new WP_Query( array(
-		'fields'           => 'id=>parent',
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_topic_post_type(),
-		'post_parent'      => $forum_id,
-		'post_status'      => $post_stati,
-		'posts_per_page'   => -1,
+		'fields'         => 'id=>parent',
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_parent'    => $forum_id,
+		'post_status'    => $post_stati,
+		'posts_per_page' => -1,
 
 		// Performance
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true,
 		'nopaging'               => true,
+		'suppress_filters'       => true,
 		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	// Loop through and trash child topics. Topic replies will get trashed by

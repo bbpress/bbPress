@@ -230,33 +230,6 @@ function bbp_get_user_engagements( $user_id = 0 ) {
 }
 
 /**
- * Get a user's engaged topic ids
- *
- * @since 2.6.0 bbPress (r6320)
- *
- * @param int $user_id Optional. User id
- *
- * @return array Topic ids if user has engaged, otherwise empty array
- */
-function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
-	$user_id     = bbp_get_user_id( $user_id );
-	$engagements = new WP_Query( array(
-		'fields'        => 'ids',
-		'post_type'     => bbp_get_topic_post_type(),
-		'nopaging'      => true,
-		'no_found_rows' => true,
-		'meta_query'    => array( array(
-			'key'     => '_bbp_engagement',
-			'value'   => $user_id,
-			'compare' => 'NUMERIC'
-		) )
-	) );
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_engaged_topic_ids', $engagements->posts, $user_id );
-}
-
-/**
  * Check if a user is engaged in a topic or not
  *
  * @since 2.6.0 bbPress (r6320)
@@ -927,32 +900,128 @@ function bbp_subscriptions_handler( $action = '' ) {
 /** Query Helpers *************************************************************/
 
 /**
+ * Get a user's object IDs
+ *
+ * For the most part, you should not need to use this function, and may even
+ * want to come up with a more efficient way to get IDs on your own. Nevertheless,
+ * it is available here for your convenience, using the most efficient query
+ * parameters available inside of the various query APIs.
+ *
+ * @since 2.6.0 bbPress (r6606)
+ *
+ * @param int    $user_id   The user id
+ * @param string $meta_key  The relationship key
+ * @param string $meta_type The relationship type (usually 'post')
+ * @param array  $args      The arguments to override defaults
+ *
+ * @return array|bool Results if user has objects, otherwise null
+ */
+function bbp_get_user_object_ids( $args = array() ) {
+	$object_ids = $defaults = array();
+
+	// Parse arguments
+	$r = bbp_parse_args( $args, array(
+		'user_id'     => 0,
+		'object_type' => bbp_get_topic_post_type(),
+		'meta_key'    => '',
+		'meta_type'   => 'post',
+		'filter'      => 'user_object_ids',
+		'args'        => array()
+	), 'get_user_object_ids' );
+
+	// Sanitize arguments
+	$r['user_id']     = bbp_get_user_id( $r['user_id'] );
+	$r['meta_key']    = sanitize_key( $r['meta_key'] );
+	$r['meta_type']   = sanitize_key( $r['meta_type'] );
+	$r['object_type'] = sanitize_key( $r['object_type'] );
+	$r['filter']      = sanitize_key( $r['filter'] );
+
+	// Defaults
+	if ( 'post' === $r['meta_type'] ) {
+		$defaults = array(
+			'fields'         => 'ids',
+			'post_type'      => $r['object_type'],
+			'posts_per_page' => -1,
+			'meta_query'     => array( array(
+				'key'     => $r['meta_key'],
+				'value'   => $r['user_id'],
+				'compare' => 'NUMERIC'
+			),
+
+			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		) );
+	}
+
+	// Parse arguments
+	$r = bbp_parse_args( $r['args'], $defaults, "get_{$r['filter']}_args" );
+
+	// Queries
+	if ( 'post' === $r['meta_type'] ) {
+		$query      = new WP_Query( $r );
+		$object_ids = $query->posts;
+	}
+
+	// Filter & return
+	return (array) apply_filters( "bbp_get_{$r['filter']}", $object_ids, $r, $args );
+}
+
+/**
+ * Get array of forum IDs that a user can moderate
+ *
+ * @since 2.6.0 bbPress (r5834)
+ *
+ * @param int $user_id User id.
+ *
+ * @return array Return array of forum ids, or empty array
+ */
+function bbp_get_moderator_forum_ids( $user_id = 0 ) {
+	return bbp_get_user_object_ids( array(
+		'user_id'   => $user_id,
+		'meta_key'  => '_bbp_moderator_id',
+		'post_type' => bbp_get_forum_post_type(),
+		'filter'    => 'moderator_forum_ids'
+	) );
+}
+
+/**
+ * Get a user's engaged topic ids
+ *
+ * @since 2.6.0 bbPress (r6320)
+ *
+ * @param int $user_id Optional. User id
+ *
+ * @return array Return array of topic ids, or empty array
+ */
+function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
+	return bbp_get_user_object_ids( array(
+		'user_id'  => $user_id,
+		'meta_key' => '_bbp_engagement',
+		'filter'   => 'user_engaged_topic_ids'
+	) );
+}
+
+/**
  * Get a user's favorite topic ids
  *
  * @since 2.0.0 bbPress (r2652)
  *
  * @param int $user_id Optional. User id
  *
- * @return array|bool Results if user has favorites, otherwise null
+ * @return array Return array of favorited ids, or empty array
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
-	$user_id   = bbp_get_user_id( $user_id );
-	$favorites = new WP_Query( array(
-		'fields'        => 'ids',
-		'post_type'     => bbp_get_topic_post_type(),
-		'nopaging'      => true,
-		'no_found_rows' => true,
-		'meta_query'    => array( array(
-			'key'     => '_bbp_favorite',
-			'value'   => $user_id,
-			'compare' => 'NUMERIC'
-		) )
+	return bbp_get_user_object_ids( array(
+		'user_id'  => $user_id,
+		'meta_key' => '_bbp_favorite',
+		'filter'   => 'user_favorites_topic_ids'
 	) );
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_favorites_topic_ids', $favorites->posts, $user_id );
 }
-
 
 /**
  * Get a user's subscribed forum ids
@@ -961,24 +1030,15 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  *
- * @return array|bool Results if user has subscriptions, otherwise null
+ * @return array Return array of subscribed ids, or empty array
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
-	$user_id       = bbp_get_user_id( $user_id );
-	$subscriptions = new WP_Query( array(
-		'fields'        => 'ids',
-		'post_type'     => bbp_get_forum_post_type(),
-		'nopaging'      => true,
-		'no_found_rows' => true,
-		'meta_query'    => array( array(
-			'key'     => '_bbp_subscription',
-			'value'   => $user_id,
-			'compare' => 'NUMERIC'
-		) )
+	return bbp_get_user_object_ids( array(
+		'user_id'   => $user_id,
+		'meta_key'  => '_bbp_subscription',
+		'post_type' => bbp_get_forum_post_type(),
+		'filter'    => 'user_subscribed_forum_ids'
 	) );
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_subscribed_forum_ids', $subscriptions->posts, $user_id );
 }
 
 /**
@@ -988,24 +1048,14 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  *
- * @return array|bool Results if user has subscriptions, otherwise null
+ * @return array Return array of subscribed ids, or empty array
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
-	$user_id       = bbp_get_user_id( $user_id );
-	$subscriptions = new WP_Query( array(
-		'fields'        => 'ids',
-		'post_type'     => bbp_get_topic_post_type(),
-		'nopaging'      => true,
-		'no_found_rows' => true,
-		'meta_query' => array( array(
-			'key'     => '_bbp_subscription',
-			'value'   => $user_id,
-			'compare' => 'NUMERIC'
-		) )
+	return bbp_get_user_object_ids( array(
+		'user_id'  => $user_id,
+		'meta_key' => '_bbp_subscription',
+		'filter'   => 'user_subscribed_topic_ids'
 	) );
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_subscribed_topic_ids', $subscriptions->posts, $user_id );
 }
 
 /** Deprecated ****************************************************************/

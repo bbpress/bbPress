@@ -2881,14 +2881,19 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 
 	// Topic is being spammed, so its replies are trashed
 	$replies = new WP_Query( array(
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_reply_post_type(),
-		'post_status'      => bbp_get_public_status_id(),
-		'post_parent'      => $topic_id,
-		'posts_per_page'   => -1,
-		'nopaging'         => true,
-		'no_found_rows'    => true,
-		'fields'           => 'id=>parent'
+		'fields'         => 'id=>parent',
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_status'    => bbp_get_public_status_id(),
+		'post_parent'    => $topic_id,
+		'posts_per_page' => -1,
+
+		// Performance
+		'nopaging'               => true,
+		'suppress_filters'       => true,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	if ( ! empty( $replies->posts ) ) {
@@ -2914,7 +2919,7 @@ function bbp_spam_topic_replies( $topic_id = 0 ) {
 
 /**
  * Store the tags to a topic in post meta before it's marked as spam so they
- * can be retreived and unspammed later.
+ * can be retrieved and unspammed later.
  *
  * Usually you'll want to do this before the topic itself is marked as spam.
  *
@@ -3272,14 +3277,19 @@ function bbp_delete_topic_replies( $topic_id = 0 ) {
 	// Topic is being permanently deleted, so its replies gotta go too
 	// Note that we get all post statuses here
 	$replies = new WP_Query( array(
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_reply_post_type(),
-		'post_status'      => array_keys( get_post_stati() ),
-		'post_parent'      => $topic_id,
-		'posts_per_page'   => -1,
-		'nopaging'         => true,
-		'no_found_rows'    => true,
-		'fields'           => 'id=>parent'
+		'fields'         => 'id=>parent',
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_status'    => array_keys( get_post_stati() ),
+		'post_parent'    => $topic_id,
+		'posts_per_page' => -1,
+
+		// Performance
+		'nopaging'               => true,
+		'suppress_filters'       => true,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	// Loop through and delete child replies
@@ -3328,14 +3338,19 @@ function bbp_trash_topic_replies( $topic_id = 0 ) {
 
 	// Topic is being trashed, so its replies are trashed too
 	$replies = new WP_Query( array(
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_reply_post_type(),
-		'post_status'      => bbp_get_public_status_id(),
-		'post_parent'      => $topic_id,
-		'posts_per_page'   => -1,
-		'nopaging'         => true,
-		'no_found_rows'    => true,
-		'fields'           => 'id=>parent'
+		'fields'         => 'id=>parent',
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_status'    => bbp_get_public_status_id(),
+		'post_parent'    => $topic_id,
+		'posts_per_page' => -1,
+
+		// Performance
+		'nopaging'               => true,
+		'suppress_filters'       => true,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'ignore_sticky_posts'    => true,
+		'no_found_rows'          => true
 	) );
 
 	if ( ! empty( $replies->posts ) ) {

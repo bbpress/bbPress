@@ -218,33 +218,6 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 }
 
 /**
- * Get array of forum IDs that a user can moderate
- *
- * @since 2.6.0 bbPress (r5834)
- *
- * @param int $user_id User id.
- *
- * @return boolean|array Return false on error or empty, or array of forum ids
- */
-function bbp_get_moderator_forum_ids( $user_id = 0 ) {
-	$user_id = bbp_get_user_id( $user_id );
-	$forums  = new WP_Query( array(
-		'fields'        => 'ids',
-		'post_type'     => bbp_get_forum_post_type(),
-		'nopaging'      => true,
-		'no_found_rows' => true,
-		'meta_query'    => array( array(
-			'key'     => '_bbp_moderator_id',
-			'value'   => $user_id,
-			'compare' => 'NUMERIC'
-		) )
-	) );
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_moderator_forum_ids', $forums->posts, $user_id, $forums );
-}
-
-/**
  * Can a user moderate a forum?
  *
  * @since 2.6.0 bbPress (r5834)
