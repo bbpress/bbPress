@@ -523,7 +523,6 @@ class BBP_Forums_Widget extends WP_Widget {
 			// Performance
 			'ignore_sticky_posts'    => true,
 			'no_found_rows'          => true,
-			'nopaging'               => true,
 			'update_post_term_cache' => false,
 			'update_post_meta_cache' => false
 		) );
@@ -703,7 +702,6 @@ class BBP_Topics_Widget extends WP_Widget {
 					// Performance
 					'ignore_sticky_posts'    => true,
 					'no_found_rows'          => true,
-					'nopaging'               => true,
 					'update_post_term_cache' => false,
 					'update_post_meta_cache' => false
 				);
@@ -730,7 +728,6 @@ class BBP_Topics_Widget extends WP_Widget {
 					// Performance
 					'ignore_sticky_posts'    => true,
 					'no_found_rows'          => true,
-					'nopaging'               => true,
 					'update_post_term_cache' => false,
 					'update_post_meta_cache' => false
 				);
@@ -754,7 +751,6 @@ class BBP_Topics_Widget extends WP_Widget {
 					// Performance
 					'ignore_sticky_posts'    => true,
 					'no_found_rows'          => true,
-					'nopaging'               => true,
 					'update_post_term_cache' => false,
 					'update_post_meta_cache' => false
 				);
@@ -1089,7 +1085,6 @@ class BBP_Replies_Widget extends WP_Widget {
 			// Performance
 			'ignore_sticky_posts'    => true,
 			'no_found_rows'          => true,
-			'nopaging'               => true,
 			'update_post_term_cache' => false,
 			'update_post_meta_cache' => false
 		) );
