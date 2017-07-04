@@ -651,7 +651,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 			FROM {$bbp_db->posts}
 			WHERE post_author = %d
 				AND post_type = %s
-				AND post_status %s";
+				AND post_status = %s";
 
 	$query   = $bbp_db->prepare( $sql, $user_id, bbp_get_reply_post_type(), bbp_get_public_status_id() );
 	$count   = (int) $bbp_db->get_var( $query );
