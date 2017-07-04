@@ -647,13 +647,14 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id );
 	$bbp_db  = bbp_db();
+	$statii  = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
 	$sql     = "SELECT COUNT(*)
 			FROM {$bbp_db->posts}
 			WHERE post_author = %d
 				AND post_type = %s
-				AND post_status = %s";
+				AND post_status IN ({$statii})";
 
-	$query   = $bbp_db->prepare( $sql, $user_id, bbp_get_reply_post_type(), bbp_get_public_status_id() );
+	$query   = $bbp_db->prepare( $sql, $user_id, bbp_get_reply_post_type() );
 	$count   = (int) $bbp_db->get_var( $query );
 
 	// Filter & return

@@ -959,11 +959,11 @@ function bbp_get_user_object_ids( $args = array() ) {
 	}
 
 	// Parse arguments
-	$r = bbp_parse_args( $r['args'], $defaults, "get_{$r['filter']}_args" );
+	$query_args = bbp_parse_args( $r['args'], $defaults, "get_{$r['filter']}_args" );
 
 	// Queries
 	if ( 'post' === $r['meta_type'] ) {
-		$query      = new WP_Query( $r );
+		$query      = new WP_Query( $query_args );
 		$object_ids = $query->posts;
 	}
 
@@ -982,10 +982,10 @@ function bbp_get_user_object_ids( $args = array() ) {
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
-		'user_id'   => $user_id,
-		'meta_key'  => '_bbp_moderator_id',
-		'post_type' => bbp_get_forum_post_type(),
-		'filter'    => 'moderator_forum_ids'
+		'user_id'     => $user_id,
+		'meta_key'    => '_bbp_moderator_id',
+		'object_type' => bbp_get_forum_post_type(),
+		'filter'      => 'moderator_forum_ids'
 	) );
 }
 
@@ -1034,10 +1034,10 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
-		'user_id'   => $user_id,
-		'meta_key'  => '_bbp_subscription',
-		'post_type' => bbp_get_forum_post_type(),
-		'filter'    => 'user_subscribed_forum_ids'
+		'user_id'     => $user_id,
+		'meta_key'    => '_bbp_subscription',
+		'object_type' => bbp_get_forum_post_type(),
+		'filter'      => 'user_subscribed_forum_ids'
 	) );
 }
 
