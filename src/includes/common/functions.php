@@ -1082,12 +1082,13 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
 	remove_all_filters( 'bbp_get_reply_content' );
 	remove_all_filters( 'bbp_get_topic_title'   );
+	remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
-	$reply_content = strip_tags( bbp_get_reply_content( $reply_id ) );
-	$reply_url     = bbp_get_reply_url( $reply_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$topic_title   = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
+	$reply_content = wp_specialchars_decode( strip_tags( bbp_get_reply_content( $reply_id ) ), ENT_QUOTES );
+	$reply_url     = bbp_get_reply_url( $reply_id );
 
 	// For plugins to filter messages per reply/topic/user
 	$message = sprintf( esc_html__( '%1$s wrote:
@@ -1229,12 +1230,13 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
 	remove_all_filters( 'bbp_get_topic_content' );
 	remove_all_filters( 'bbp_get_topic_title'   );
+	remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$topic_title   = strip_tags( bbp_get_topic_title( $topic_id ) );
-	$topic_content = strip_tags( bbp_get_topic_content( $topic_id ) );
-	$topic_url     = get_permalink( $topic_id );
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$topic_title   = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
+	$topic_content = wp_specialchars_decode( strip_tags( bbp_get_topic_content( $topic_id ) ), ENT_QUOTES );
+	$topic_url     = get_permalink( $topic_id );
 
 	// For plugins to filter messages per reply/topic/user
 	$message = sprintf( esc_html__( '%1$s wrote:
