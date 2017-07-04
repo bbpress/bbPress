@@ -1139,7 +1139,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	/** Subscriptions *********************************************************/
 
 	// Get subscribers from source topic
-	$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
+	$subscribers = bbp_get_subscribers( $source_topic->ID );
 
 	// Maybe migrate subscriptions
 	if ( ! empty( $subscribers ) && ! empty( $_POST['bbp_topic_subscribers'] ) && ( '1' === $_POST['bbp_topic_subscribers'] ) ) {
@@ -1465,7 +1465,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	if ( ! empty( $_POST['bbp_topic_subscribers'] ) && "1" === $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() ) {
 
 		// Get the subscribers
-		$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
+		$subscribers = bbp_get_subscribers( $source_topic->ID );
 
 		if ( ! empty( $subscribers ) ) {
 

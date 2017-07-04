@@ -1039,8 +1039,8 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	/** Topic *****************************************************************/
 
-	// Bail if topic is not published
-	if ( ! bbp_is_topic_published( $topic_id ) ) {
+	// Bail if topic is not public (includes closed)
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
 		return false;
 	}
 
@@ -1057,7 +1057,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	/** Users *****************************************************************/
 
 	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
+	$user_ids = bbp_get_subscribers( $topic_id );
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
@@ -1199,8 +1199,8 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	/** Topic *****************************************************************/
 
-	// Bail if topic is not published
-	if ( ! bbp_is_topic_published( $topic_id ) ) {
+	// Bail if topic is not public (includes closed)
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
 		return false;
 	}
 
@@ -1210,7 +1210,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	/** Users *****************************************************************/
 
 	// Get topic subscribers and bail if empty
-	$user_ids = bbp_get_forum_subscribers( $forum_id, true );
+	$user_ids = bbp_get_subscribers( $forum_id );
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );

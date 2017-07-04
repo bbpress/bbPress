@@ -656,7 +656,7 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_subscribers', $users, $object_id, $type );
+	return (array) apply_filters( 'bbp_get_subscribers', $users, $object_id, $type );
 }
 
 /**

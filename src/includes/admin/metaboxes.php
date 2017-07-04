@@ -745,7 +745,7 @@ function bbp_topic_favorites_metabox( $post ) {
 function bbp_topic_subscriptions_metabox( $post ) {
 
 	// Get user IDs
-	$user_ids = bbp_get_topic_subscribers( $post->ID );
+	$user_ids = bbp_get_subscribers( $post->ID );
 
 	// Output
 	?><p><?php
@@ -781,7 +781,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
 function bbp_forum_subscriptions_metabox( $post ) {
 
 	// Get user IDs
-	$user_ids = bbp_get_forum_subscribers( $post->ID );
+	$user_ids = bbp_get_subscribers( $post->ID );
 
 	// Output
 	?><p><?php
