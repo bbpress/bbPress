@@ -1080,9 +1080,9 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	// Remove filters from reply content and topic title to prevent content
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
-	remove_all_filters( 'bbp_get_reply_content' );
-	remove_all_filters( 'bbp_get_topic_title'   );
-	remove_all_filters( 'the_title'             );
+	bbp_remove_all_filters( 'bbp_get_reply_content' );
+	bbp_remove_all_filters( 'bbp_get_topic_title'   );
+	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
@@ -1147,6 +1147,11 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	wp_mail( $to_email, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
+
+	// Restore previously removed filters
+	bbp_restore_all_filters( 'bbp_get_topic_content' );
+	bbp_restore_all_filters( 'bbp_get_topic_title'   );
+	bbp_restore_all_filters( 'the_title'             );
 
 	return true;
 }
@@ -1228,9 +1233,9 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Remove filters from reply content and topic title to prevent content
 	// from being encoded with HTML entities, wrapped in paragraph tags, etc...
-	remove_all_filters( 'bbp_get_topic_content' );
-	remove_all_filters( 'bbp_get_topic_title'   );
-	remove_all_filters( 'the_title'             );
+	bbp_remove_all_filters( 'bbp_get_topic_content' );
+	bbp_remove_all_filters( 'bbp_get_topic_title'   );
+	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
 	$blog_name     = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
@@ -1295,6 +1300,11 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	wp_mail( $to_email, $subject, $message, $headers );
 
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
+
+	// Restore previously removed filters
+	bbp_restore_all_filters( 'bbp_get_topic_content' );
+	bbp_restore_all_filters( 'bbp_get_topic_title'   );
+	bbp_restore_all_filters( 'the_title'             );
 
 	return true;
 }
