@@ -140,7 +140,7 @@ class BBP_Default extends BBP_Theme_Compat {
 	}
 
 	/**
-	 * Enqueue the required Javascript files
+	 * Enqueue the required JavaScript files
 	 *
 	 * @since 2.1.0 bbPress (r3732)
 	 *
@@ -153,8 +153,9 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Minified
 		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-		// Always pull in jQuery for TinyMCE shortcode usage
-		if ( bbp_use_wp_editor() ) {
+		// Editor scripts
+		// @see https://bbpress.trac.wordpress.org/ticket/2930
+		if ( bbp_use_wp_editor() && is_bbpress() ) {
 			$scripts['bbpress-editor'] = array(
 				'file'         => 'js/editor' . $suffix . '.js',
 				'dependencies' => array( 'jquery' )
