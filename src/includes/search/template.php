@@ -297,7 +297,7 @@ function bbp_search_results_url() {
  * @param string $search_terms Optional. Search terms
  */
 function bbp_search_terms( $search_terms = '' ) {
-	echo bbp_get_search_terms( $search_terms );
+	echo esc_attr( bbp_get_search_terms( $search_terms ) );
 }
 
 	/**
@@ -319,11 +319,25 @@ function bbp_search_terms( $search_terms = '' ) {
 
 		// Use query variable if not
 		} else {
-			$search_terms = get_query_var( bbp_get_search_rewrite_id() );
+
+			// Global
+			if ( get_query_var( bbp_get_search_rewrite_id() ) ) {
+				$search_terms = get_query_var( bbp_get_search_rewrite_id() );
+
+			// Topic search
+			} elseif ( ! empty( $_REQUEST['ts'] ) ) {
+				$search_terms = sanitize_title( $_REQUEST['ts'] );
+
+			// Reply search
+			} elseif ( ! empty( $_REQUEST['rs'] ) ) {
+				$search_terms = sanitize_title( $_REQUEST['ts'] );
+			}
 		}
 
 		// Trim whitespace and decode, or set explicitly to false if empty
-		$search_terms = ! empty( $search_terms ) ? urldecode( trim( $search_terms ) ) : false;
+		$search_terms = ! empty( $search_terms )
+			? urldecode( trim( $search_terms ) )
+			: false;
 
 		// Filter & return
 		return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
