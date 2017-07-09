@@ -483,54 +483,74 @@ function bbp_user_edit_after() {
  * Get the topics that a user created
  *
  * @since 2.0.0 bbPress (r2660)
+ * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param int $user_id Optional. User id
+ * @param array $args    Optional. Arguments to pass into bbp_has_topics()
  *
- * @return array|bool Results if the user has created topics, otherwise false
+ * @return bool True if user has started topics, otherwise false
  */
-function bbp_get_user_topics_started( $user_id = 0 ) {
+function bbp_get_user_topics_started( $args = array() ) {
 
-	// Validate user
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
+	// Backwards compat for pre-2.6.0
+	if ( is_numeric( $args ) ) {
+		$args = array(
+			'author' => bbp_get_user_id( $args, false, false )
+		);
 	}
 
-	// Try to get the topics
-	$query = bbp_has_topics( array(
-		'author' => $user_id
-	) );
+	// Default arguments
+	$defaults = array(
+		'author' => bbp_get_displayed_user_id()
+	);
+
+	// Parse arguments
+	$r = bbp_parse_args( $args, $defaults, 'get_user_topics_started' );
+
+	// Get the topics
+	$query   = bbp_has_topics( $r );
+	$user_id = $r['author'];
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_topics_started', $query, $user_id );
+	return apply_filters( 'bbp_get_user_topics_started', $query, $user_id, $r, $args );
 }
 
 /**
  * Get the replies that a user created
  *
  * @since 2.2.0 bbPress (r4225)
+ * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param int $user_id Optional. User id
+ * @param array $args Optional. Arguments to pass into bbp_has_replies()
  *
- * @return array|bool Results if the user has created topics, otherwise false
+ * @return bool True if user has created replies, otherwise false
  */
-function bbp_get_user_replies_created( $user_id = 0 ) {
+function bbp_get_user_replies_created( $args = array() ) {
 
-	// Validate user
-	$user_id = bbp_get_user_id( $user_id );
-	if ( empty( $user_id ) ) {
-		return false;
+	// Backwards compat for pre-2.6.0
+	if ( is_numeric( $args ) ) {
+		$args = array(
+			'author' => bbp_get_user_id( $args, false, false ),
+			'post_type' => bbp_get_reply_post_type(),
+			'order'     => 'DESC'
+		);
 	}
 
-	// Try to get the topics
-	$query = bbp_has_replies( array(
+	// Default arguments
+	$defaults = array(
+		'author'    => bbp_get_displayed_user_id(),
 		'post_type' => bbp_get_reply_post_type(),
-		'order'     => 'DESC',
-		'author'    => $user_id
-	) );
+		'order'     => 'DESC'
+	);
+
+	// Parse arguments
+	$r = bbp_parse_args( $args, $defaults, 'get_user_replies_created' );
+
+	// Get the replies
+	$query   = bbp_has_replies( $r );
+	$user_id = $r['author'];
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id );
+	return apply_filters( 'bbp_get_user_replies_created', $query, $user_id, $r, $args );
 }
 
 /**
