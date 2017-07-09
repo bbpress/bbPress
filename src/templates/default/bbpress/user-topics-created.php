@@ -27,8 +27,8 @@ do_action( 'bbp_template_before_user_topics_created' ); ?>
 		<?php else : ?>
 
 			<p><?php bbp_is_user_home()
-				? esc_html_e( 'You have not created any topics.',      'bbpress' )
-				: esc_html_e( 'This user has not created any topics.', 'bbpress' );
+				? esc_html_e( 'You have not started any topics.',      'bbpress' )
+				: esc_html_e( 'This user has not started any topics.', 'bbpress' );
 			?></p>
 
 		<?php endif; ?>
