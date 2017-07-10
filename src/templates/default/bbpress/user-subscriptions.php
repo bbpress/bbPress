@@ -17,6 +17,17 @@ do_action( 'bbp_template_before_user_subscriptions' ); ?>
 	<?php if ( bbp_is_user_home() || current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) : ?>
 
 		<div id="bbp-user-subscriptions" class="bbp-user-subscriptions">
+
+			<?php if ( bbp_allow_search() ) : ?>
+
+				<div class="bbp-search-form">
+
+					<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
+
+				</div>
+
+			<?php endif; ?>
+
 			<h2 class="entry-title"><?php esc_html_e( 'Subscribed Forums', 'bbpress' ); ?></h2>
 			<div class="bbp-user-section">
 
@@ -48,10 +59,7 @@ do_action( 'bbp_template_before_user_subscriptions' ); ?>
 
 				<?php else : ?>
 
-					<p><?php bbp_is_user_home()
-						? esc_html_e( 'You are not currently subscribed to any topics.',      'bbpress' )
-						: esc_html_e( 'This user is not currently subscribed to any topics.', 'bbpress' );
-					?></p>
+					<?php bbp_get_template_part( 'feedback', 'no-topics' ); ?>
 
 				<?php endif; ?>
 

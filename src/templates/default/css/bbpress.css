@@ -1214,6 +1214,7 @@ fieldset div.avatar {
 
 #bbpress-forums .bbp-user-section {
 	overflow: auto;
+	clear: right;
 }
 
 #bbpress-forums #bbp-user-wrapper h2.entry-title {

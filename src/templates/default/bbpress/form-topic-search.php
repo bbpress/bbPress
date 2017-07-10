@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 
-<form role="search" method="get" id="bbp-search-form">
+<form role="search" method="get" id="bbp-topic-search-form">
 	<div>
 		<label class="screen-reader-text hidden" for="ts"><?php esc_html_e( 'Search topics:', 'bbpress' ); ?></label>
 		<input type="text" value="<?php bbp_search_terms(); ?>" name="ts" id="ts" />

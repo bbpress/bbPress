@@ -13,6 +13,17 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'bbp_template_before_user_favorites' ); ?>
 
 <div id="bbp-user-favorites" class="bbp-user-favorites">
+
+	<?php if ( bbp_allow_search() ) : ?>
+
+		<div class="bbp-search-form">
+
+			<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
+
+		</div>
+
+	<?php endif; ?>
+
 	<h2 class="entry-title"><?php esc_html_e( 'Favorite Forum Topics', 'bbpress' ); ?></h2>
 	<div class="bbp-user-section">
 
@@ -26,10 +37,7 @@ do_action( 'bbp_template_before_user_favorites' ); ?>
 
 		<?php else : ?>
 
-			<p><?php bbp_is_user_home()
-				? esc_html_e( 'You currently have no favorite topics.', 'bbpress' )
-				: esc_html_e( 'This user has no favorite topics.',      'bbpress' );
-			?></p>
+			<?php bbp_get_template_part( 'feedback', 'no-topics' ); ?>
 
 		<?php endif; ?>
 
