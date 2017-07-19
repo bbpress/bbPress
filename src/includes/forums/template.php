@@ -249,38 +249,36 @@ function bbp_forum_id( $forum_id = 0 ) {
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 
-	// Use forum ID
+	// Maybe get ID from empty or int
 	if ( empty( $forum ) || is_numeric( $forum ) ) {
 		$forum = bbp_get_forum_id( $forum );
 	}
 
-	// Attempt to load the forum
+	// Bail if no post object
 	$forum = get_post( $forum, OBJECT, $filter );
 	if ( empty( $forum ) ) {
 		return $forum;
 	}
 
-	// Bail if post_type is not a forum
+	// Bail if not correct post type
 	if ( $forum->post_type !== bbp_get_forum_post_type() ) {
 		return null;
 	}
 
-	// Tweak the data type to return
-	if ( $output === OBJECT ) {
-		return $forum;
+	// Default return value is OBJECT
+	$retval = $forum;
 
-	} elseif ( $output === ARRAY_A ) {
-		$_forum = get_object_vars( $forum );
-		return $_forum;
+	// Array A
+	if ( $output === ARRAY_A ) {
+		$retval = get_object_vars( $forum );
 
+	// Array N
 	} elseif ( $output === ARRAY_N ) {
-		$_forum = array_values( get_object_vars( $forum ) );
-		return $_forum;
-
+		$retval = array_values( get_object_vars( $forum ) );
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_forum', $forum, $output, $filter );
+	return apply_filters( 'bbp_get_forum', $retval, $forum, $output, $filter );
 }
 
 /**

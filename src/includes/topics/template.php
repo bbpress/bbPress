@@ -485,37 +485,36 @@ function bbp_topic_id( $topic_id = 0) {
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
-	// Use topic ID
+	// Maybe get ID from empty or int
 	if ( empty( $topic ) || is_numeric( $topic ) ) {
 		$topic = bbp_get_topic_id( $topic );
 	}
 
-	// Attempt to load the topic
+	// Bail if no post object
 	$topic = get_post( $topic, OBJECT, $filter );
 	if ( empty( $topic ) ) {
 		return $topic;
 	}
 
-	// Bail if post_type is not a topic
+	// Bail if not correct post type
 	if ( $topic->post_type !== bbp_get_topic_post_type() ) {
 		return null;
 	}
 
-	// Tweak the data type to return
-	if ( $output === OBJECT ) {
-		return $topic;
+	// Default return value is OBJECT
+	$retval = $topic;
 
-	} elseif ( $output === ARRAY_A ) {
-		$_topic = get_object_vars( $topic );
-		return $_topic;
+	// Array A
+	if ( $output === ARRAY_A ) {
+		$retval = get_object_vars( $topic );
 
+	// Array N
 	} elseif ( $output === ARRAY_N ) {
-		$_topic = array_values( get_object_vars( $topic ) );
-		return $_topic;
+		$retval = array_values( get_object_vars( $topic ) );
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_topic', $topic, $output, $filter );
+	return apply_filters( 'bbp_get_topic', $retval, $topic, $output, $filter );
 }
 
 /**

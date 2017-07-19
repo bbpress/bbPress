@@ -370,33 +370,37 @@ function bbp_reply_id( $reply_id = 0 ) {
  * @return mixed Null if error or reply (in specified form) if success
  */
 function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
+
+	// Maybe get ID from empty or int
 	if ( empty( $reply ) || is_numeric( $reply ) ) {
 		$reply = bbp_get_reply_id( $reply );
 	}
 
+	// Bail if no post object
 	$reply = get_post( $reply, OBJECT, $filter );
 	if ( empty( $reply ) ) {
 		return $reply;
 	}
 
+	// Bail if not correct post type
 	if ( $reply->post_type !== bbp_get_reply_post_type() ) {
 		return null;
 	}
 
-	if ( $output === OBJECT ) {
-		return $reply;
+	// Default return value is OBJECT
+	$retval = $reply;
 
-	} elseif ( $output === ARRAY_A ) {
-		$_reply = get_object_vars( $reply );
-		return $_reply;
+	// Array A
+	if ( $output === ARRAY_A ) {
+		$retval = get_object_vars( $reply );
 
+	// Array N
 	} elseif ( $output === ARRAY_N ) {
-		$_reply = array_values( get_object_vars( $reply ) );
-		return $_reply;
+		$retval = array_values( get_object_vars( $reply ) );
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_reply', $reply, $output, $filter );
+	return apply_filters( 'bbp_get_reply', $retval, $reply, $output, $filter );
 }
 
 /**
