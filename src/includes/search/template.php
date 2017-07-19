@@ -330,7 +330,7 @@ function bbp_search_terms( $search_terms = '' ) {
 
 			// Reply search
 			} elseif ( ! empty( $_REQUEST['rs'] ) ) {
-				$search_terms = sanitize_title( $_REQUEST['ts'] );
+				$search_terms = sanitize_title( $_REQUEST['rs'] );
 			}
 		}
 
