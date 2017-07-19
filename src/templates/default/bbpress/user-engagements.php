@@ -14,15 +14,7 @@ do_action( 'bbp_template_before_user_engagements' ); ?>
 
 <div id="bbp-user-engagements" class="bbp-user-engagements">
 
-	<?php if ( bbp_allow_search() ) : ?>
-
-		<div class="bbp-search-form">
-
-			<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
-
-		</div>
-
-	<?php endif; ?>
+	<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
 
 	<h2 class="entry-title"><?php esc_html_e( 'Topics Engaged In', 'bbpress' ); ?></h2>
 	<div class="bbp-user-section">

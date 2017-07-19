@@ -14,15 +14,7 @@ do_action( 'bbp_template_before_user_replies' ); ?>
 
 <div id="bbp-user-replies-created" class="bbp-user-replies-created">
 
-	<?php if ( bbp_allow_search() ) : ?>
-
-		<div class="bbp-search-form">
-
-			<?php bbp_get_template_part( 'form', 'reply-search' ); ?>
-
-		</div>
-
-	<?php endif; ?>
+	<?php bbp_get_template_part( 'form', 'reply-search' ); ?>
 
 	<h2 class="entry-title"><?php esc_html_e( 'Forum Replies Created', 'bbpress' ); ?></h2>
 	<div class="bbp-user-section">

@@ -14,15 +14,7 @@ do_action( 'bbp_template_before_user_topics_created' ); ?>
 
 <div id="bbp-user-topics-started" class="bbp-user-topics-started">
 
-	<?php if ( bbp_allow_search() ) : ?>
-
-		<div class="bbp-search-form">
-
-			<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
-
-		</div>
-
-	<?php endif; ?>
+	<?php bbp_get_template_part( 'form', 'topic-search' ); ?>
 
 	<h2 class="entry-title"><?php esc_html_e( 'Forum Topics Started', 'bbpress' ); ?></h2>
 	<div class="bbp-user-section">
