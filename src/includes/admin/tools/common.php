@@ -441,14 +441,25 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Parse args
 	$r = bbp_parse_args( $args, array(
-		'before'            => '<ul class="subsubsub">',
-		'after'             => '</ul>',
-		'link_before'       => '<li>',
-		'link_after'        => '</li>',
-		'count_before'      => ' <span class="count">(',
-		'count_after'       => ')</span>',
-		'separator'         => ' | ',
+		'before'       => '<ul class="subsubsub">',
+		'after'        => '</ul>',
+		'link_before'  => '<li>',
+		'link_after'   => '</li>',
+		'count_before' => ' <span class="count">(',
+		'count_after'  => ')</span>',
+		'sep'          => ' | ',
+
+		// Retired, use 'sep' instead
+		'separator'    => false
 	), 'get_admin_repair_tool_overhead_filters' );
+
+	/**
+	 * Necessary for backwards compatibility
+	 * @see https://bbpress.trac.wordpress.org/ticket/2900
+	 */
+	if ( ! empty( $r['separator'] ) ) {
+		$r['sep'] = $r['separator'];
+	}
 
 	// Get page
 	$page = sanitize_key( $_GET['page'] );
@@ -479,19 +490,13 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Create the "All" link
 	$current = empty( $_GET['overhead'] ) ? 'current' : '';
-	$links[] = $r['link_before']. '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf( esc_html__( 'All %s', 'bbpress' ), $r['count_before'] . count( $tools ) . $r['count_after'] ) . '</a>' . $r['link_after'];
-
-	// Default ticker
-	$i = 0;
+	$links[] = $r['link_before'] . '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf( esc_html__( 'All %s', 'bbpress' ), $r['count_before'] . count( $tools ) . $r['count_after'] ) . '</a>' . $r['link_after'];
 
 	// Sort
 	ksort( $overheads );
 
 	// Loop through overheads and build filter
 	foreach ( $overheads as $overhead => $count ) {
-
-		// Separator count
-		$i++;
 
 		// Build the filter URL
 		$key        = sanitize_key( $overhead );
@@ -513,7 +518,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	}
 
 	// Surround output with before & after strings
-	$output = $r['before'] . implode( $r['separator'], $links ) . $r['after'];
+	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
 
 	// Filter & return
 	return apply_filters( 'bbp_get_admin_repair_tool_components', $output, $r, $args );

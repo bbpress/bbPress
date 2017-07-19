@@ -672,72 +672,72 @@ function bbp_forum_get_subforums( $args = array() ) {
  */
 function bbp_list_forums( $args = array() ) {
 
-	// Define used variables
-	$output = '';
-
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
-		'before'            => '<ul class="bbp-forums-list">',
-		'after'             => '</ul>',
-		'link_before'       => '<li class="bbp-forum">',
-		'link_after'        => '</li>',
-		'count_before'      => ' (',
-		'count_after'       => ')',
-		'count_sep'         => ', ',
-		'separator'         => ', ',
-		'forum_id'          => '',
-		'show_topic_count'  => true,
-		'show_reply_count'  => true,
+		'before'           => '<ul class="bbp-forums-list">',
+		'after'            => '</ul>',
+		'link_before'      => '<li class="bbp-forum">',
+		'link_after'       => '</li>',
+		'count_before'     => ' (',
+		'count_after'      => ')',
+		'count_sep'        => ', ',
+		'sep'              => ', ',
+		'forum_id'         => '',
+		'show_topic_count' => true,
+		'show_reply_count' => true,
+
+		// Retired, use 'sep' instead
+		'separator'        => false
 	), 'list_forums' );
+
+	/**
+	 * Necessary for backwards compatibility
+	 * @see https://bbpress.trac.wordpress.org/ticket/2900
+	 */
+	if ( ! empty( $r['separator'] ) ) {
+		$r['sep'] = $r['separator'];
+	}
+
+	// Define links
+	$links = array();
 
 	// Loop through forums and create a list
 	$sub_forums = bbp_forum_get_subforums( $r['forum_id'] );
-	if ( ! empty( $sub_forums ) ) {
+	foreach ( $sub_forums as $sub_forum ) {
 
-		// Total count (for separator)
-		$i          = 0;
-		$total_subs = count( $sub_forums );
+		// Get forum details
+		$count     = array();
+		$permalink = bbp_get_forum_permalink( $sub_forum->ID );
+		$title     = bbp_get_forum_title( $sub_forum->ID );
 
-		foreach ( $sub_forums as $sub_forum ) {
-			$i++; // Separator count
-
-			// Get forum details
-			$count     = array();
-			$permalink = bbp_get_forum_permalink( $sub_forum->ID );
-			$title     = bbp_get_forum_title( $sub_forum->ID );
-			$show_sep  = ( $total_subs > $i )
-				? $r['separator']
-				: '';
-
-			// Show topic count
-			if ( ! empty( $r['show_topic_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
-				$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
-			}
-
-			// Show reply count
-			if ( ! empty( $r['show_reply_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
-				$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
-			}
-
-			// Counts to show
-			$counts = ! empty( $count )
-				? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
-				: '';
-
-			// Subforum classes
-			$subforum_classes      = array( 'bbp-forum-link' );
-			$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
-			$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'esc_attr', $subforum_classes ) ) . '"';
-
-			// Build this sub forums link
-			$output .= $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $show_sep . $r['link_after'];
+		// Show topic count
+		if ( ! empty( $r['show_topic_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
+			$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
 		}
+
+		// Show reply count
+		if ( ! empty( $r['show_reply_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
+			$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
+		}
+
+		// Counts to show
+		$counts = ! empty( $count )
+			? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
+			: '';
+
+		// Subforum classes
+		$subforum_classes      = array( 'bbp-forum-link' );
+		$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
+		$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'esc_attr', $subforum_classes ) ) . '"';
+
+		// Build this sub forums link
+		$links[] = $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $r['link_after'];
 	}
 
 	// Maybe wrap output
-	if ( ! empty( $output ) ) {
-		$output = $r['before'] . $output . $r['after'];
-	}
+	$output = ! empty( $links )
+		? $r['before'] . implode( $r['sep'], $links ) . $r['after']
+		: '';
 
 	// Filter & output the forums list
 	echo apply_filters( 'bbp_list_forums', $output, $r, $args );
