@@ -256,11 +256,12 @@ jQuery( document ).ready( function ( $ ) {
 	 *
 	 * @since 2.6.0 bbPress (r6513)
 	 *
+	 * @param {object} data
+	 *
 	 * @returns {void}
 	 */
 	function bbp_converter_status( data ) {
-		var remaining = parseInt( BBP_Converter.delay, 10 ) / 1000,
-			step      = parseInt( data.current_step,   10 ) + 1;
+		var remaining = parseInt( BBP_Converter.delay, 10 ) / 1000;
 
 		status.text( BBP_Converter.strings.status_counting.replace( '%s', remaining ) );
 		clearInterval( BBP_Converter.status );
@@ -273,7 +274,7 @@ jQuery( document ).ready( function ( $ ) {
 				clearInterval( BBP_Converter.status );
 
 				if ( parseInt( data.current_step, 10 ) < parseInt( data.final_step, 10 ) ) {
-					status.text( BBP_Converter.strings.status_up_next.replace( '%s', step ) );
+					status.text( BBP_Converter.strings.status_up_next.replace( '%s', data.current_step ) );
 				} else {
 					status.text( BBP_Converter.strings.status_complete );
 				}
