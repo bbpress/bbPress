@@ -124,11 +124,11 @@ class BBP_Converter {
 				'import_error_db'     => esc_html__( 'Database Connection Failed.', 'bbpress' ),
 
 				// Status
-				'status_complete'     => esc_html__( 'Finished',            'bbpress' ),
-				'status_stopped'      => esc_html__( 'Stopped',             'bbpress' ),
-				'status_starting'     => esc_html__( 'Starting',            'bbpress' ),
-				'status_up_next'      => esc_html__( 'Up next: Step %s...', 'bbpress' ),
-				'status_counting'     => esc_html__( 'Next in %s...',       'bbpress' )
+				'status_complete'     => esc_html__( 'Finished',      'bbpress' ),
+				'status_stopped'      => esc_html__( 'Stopped',       'bbpress' ),
+				'status_starting'     => esc_html__( 'Starting',      'bbpress' ),
+				'status_up_next'      => esc_html__( 'In step %s...', 'bbpress' ),
+				'status_counting'     => esc_html__( 'Next in %s...', 'bbpress' )
 			)
 		) );
 	}
@@ -206,9 +206,6 @@ class BBP_Converter {
 
 	private function maybe_update_options() {
 
-		// Get the default options & values
-		$defaults = bbp_get_default_options();
-
 		// Default options
 		$options = array(
 
@@ -269,14 +266,7 @@ class BBP_Converter {
 
 		// Update/delete options
 		foreach ( $options as $key => $value ) {
-
-			// Default
-			$default = $defaults[ $key ];
-
-			// Update or save
-			! empty( $value ) && ( $default !== $value )
-				? update_option( $key, $value )
-				: delete_option( $key );
+			update_option( $key, $value );
 		}
 	}
 
@@ -327,12 +317,13 @@ class BBP_Converter {
 	 * @since 2.6.0 bbPress (r6460)
 	 */
 	private function reset() {
-		delete_option( '_bbp_converter_step'  );
-		delete_option( '_bbp_converter_start' );
-		delete_option( '_bbp_converter_query' );
-
 		$this->start = 0;
 		$this->step  = 0;
+		$this->min   = 0;
+
+		update_option( '_bbp_converter_step',  $this->step  );
+		update_option( '_bbp_converter_start', $this->start );
+		update_option( '_bbp_converter_query', '' );
 	}
 
 	/**
@@ -351,9 +342,7 @@ class BBP_Converter {
 			: 0;
 
 		// Update or delete
-		! empty( $step )
-			? update_option( '_bbp_converter_step', $step )
-			: delete_option( '_bbp_converter_step' );
+		update_option( '_bbp_converter_step', $step );
 	}
 
 	/**
