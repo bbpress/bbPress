@@ -1703,7 +1703,7 @@ function bbp_converter_setting_callback_restart() {
 
 	<input name="_bbp_converter_restart" id="_bbp_converter_restart" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
 	<label for="_bbp_converter_restart"><?php esc_html_e( 'Start a fresh conversion from the beginning', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'You should clean old conversion information before starting over.', 'bbpress' ); ?></p>
+	<p class="description"><?php esc_html_e( 'Purge all previous imports first to avoid duplicate data.', 'bbpress' ); ?></p>
 
 <?php
 }
