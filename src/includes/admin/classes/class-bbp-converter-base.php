@@ -483,6 +483,10 @@ abstract class BBP_Converter_Base {
 									$insert_post['user_email'] = 'imported_' . $insert_post['user_email'];
 								}
 
+								if ( empty( $insert_post['user_pass'] ) ) {
+									$insert_post['user_pass'] = '';
+								}
+
 								$post_id = wp_insert_user( $insert_post );
 
 								if ( is_numeric( $post_id ) ) {
@@ -961,6 +965,10 @@ abstract class BBP_Converter_Base {
 				if ( $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
 					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", wp_hash_password( $password ), $user->ID ) );
 					$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_password', $user->ID ) );
+
+					// Clean the cache for this user since their password was
+					// upgraded from the old platform to the new.
+					clean_user_cache( $user->ID );
 				}
 			}
 		}
