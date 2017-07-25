@@ -125,13 +125,14 @@ function bbp_get_default_options() {
 		'_bbp_converter_db_prefix'  => '',          // Database table prefix
 
 		// Options
-		'_bbp_converter_rows'       => 100,         // Number of rows to query
-		'_bbp_converter_delay_time' => 2,           // Seconds to wait between queries
-		'_bbp_converter_step'       => 0,           // Current converter step
-		'_bbp_converter_start'      => 0,           // Step to start at
-		'_bbp_converter_halt'       => 0,           // Halt on errors
-		'_bbp_converter_platform'   => '',          // Which platform to use
-		'_bbp_converter_query'      => ''           // Last query
+		'_bbp_converter_convert_users' => 0,        // Whether to convert users
+		'_bbp_converter_rows'          => 100,      // Number of rows to query
+		'_bbp_converter_delay_time'    => 2,        // Seconds to wait between queries
+		'_bbp_converter_step'          => 0,        // Current converter step
+		'_bbp_converter_start'         => 0,        // Step to start at
+		'_bbp_converter_halt'          => 0,        // Halt on errors
+		'_bbp_converter_platform'      => '',       // Which platform to use
+		'_bbp_converter_query'         => ''        // Last query
 	) );
 }
 
