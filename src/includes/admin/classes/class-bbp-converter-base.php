@@ -399,10 +399,12 @@ abstract class BBP_Converter_Base {
 			$field_list  = array_unique( $field_list );
 			$fields      = implode( ',', $field_list );
 			$forum_query = "SELECT {$fields} FROM {$this->opdb->prefix}{$from_tablename} LIMIT {$start}, {$this->max_rows}";
-			$forum_array = $this->opdb->get_results( $forum_query, ARRAY_A );
 
 			// Set this query as the last one ran
-			update_option( '_bbp_converter_query', $forum_query );
+			$this->update_query( $forum_query );
+
+			// Get results as an array
+			$forum_array = $this->opdb->get_results( $forum_query, ARRAY_A );
 
 			// Query returned some results
 			if ( ! empty( $forum_array ) ) {
@@ -920,7 +922,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $output
 	 */
 	private function get_row( $query = '' ) {
-		update_option( '_bbp_converter_query', $query );
+		$this->update_query( $query );
 
 		return $this->wpdb->get_row( $query );
 	}
@@ -932,7 +934,7 @@ abstract class BBP_Converter_Base {
 	 * @param string $output
 	 */
 	private function get_results( $query = '', $output = OBJECT ) {
-		update_option( '_bbp_converter_query', $query );
+		$this->update_query( $query );
 
 		return (array) $this->wpdb->get_results( $query, $output );
 	}
@@ -943,9 +945,21 @@ abstract class BBP_Converter_Base {
 	 * @param string $query
 	 */
 	private function query( $query = '' ) {
-		update_option( '_bbp_converter_query', $query );
+		$this->update_query( $query );
 
 		return $this->wpdb->query( $query );
+	}
+
+	/**
+	 * Update the last query ran
+	 *
+	 * @since 2.6.0 bbPress (r6637)
+	 *
+	 * @param string $query The literal MySQL query
+	 * @return bool
+	 */
+	private function update_query( $query = '' ) {
+		return update_option( '_bbp_converter_query', $query );
 	}
 
 	/** Callbacks *************************************************************/
