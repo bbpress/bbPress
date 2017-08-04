@@ -112,6 +112,7 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  * Registers the style if file provided (does NOT overwrite) and enqueues.
  *
  * @since 2.5.0 bbPress (r5180)
+ * @since 2.6.0 bbPress (r6640) Bail early if not a bbPress page/shortcode
  *
  * @param string      $handle Name of the stylesheet.
  * @param string|bool $file   Relative path to stylesheet. Example: '/css/mystyle.css'.
@@ -126,6 +127,11 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  * @return string The style filename if one is located.
  */
 function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = false, $media = 'all' ) {
+
+	// Bail if not on a bbPress page or shortcode
+	if ( ! is_bbpress() ) {
+		return;
+	}
 
 	// No file found yet
 	$located = false;
@@ -184,6 +190,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * Registers the style if file provided (does NOT overwrite) and enqueues.
  *
  * @since 2.5.0 bbPress (r5180)
+ * @since 2.6.0 bbPress (r6640) Bail early if not a bbPress page/shortcode
  *
  * @param string      $handle    Name of the script.
  * @param string|bool $file      Relative path to the script. Example: '/js/myscript.js'.
@@ -197,6 +204,11 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * @return string The script filename if one is located.
  */
 function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = false ) {
+
+	// Bail if not on a bbPress page or shortcode
+	if ( ! is_bbpress() ) {
+		return;
+	}
 
 	// No file found yet
 	$located = false;
