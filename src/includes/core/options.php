@@ -502,7 +502,8 @@ function bbp_allow_global_access( $default = 1 ) {
 }
 
 /**
- * Is this forum available to all users on all sites in this installation?
+ * Get the default forums role (issued to users on their first visit to the
+ * forums) by bbp_set_current_user_default_role() and repair tools
  *
  * @since 2.2.0 bbPress (r4294)
  *
