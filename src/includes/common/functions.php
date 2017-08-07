@@ -1607,7 +1607,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the DB and get a the child id's of all children
+ * Query the DB and get the child id's of all children
  *
  * @since 2.0.0 bbPress (r3325)
  *
@@ -1631,39 +1631,14 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_key, 'bbpress_posts' );
 	if ( false === $child_ids ) {
-		$post_status = array( bbp_get_public_status_id() );
 
-		// Extra post statuses based on post type
-		switch ( $post_type ) {
-
-			// Forum
-			case bbp_get_forum_post_type() :
-				$post_status[] = bbp_get_private_status_id();
-				$post_status[] = bbp_get_hidden_status_id();
-				break;
-
-			// Topic
-			case bbp_get_topic_post_type() :
-				$post_status[] = bbp_get_pending_status_id();
-				$post_status[] = bbp_get_closed_status_id();
-				$post_status[] = bbp_get_trash_status_id();
-				$post_status[] = bbp_get_spam_status_id();
-				break;
-
-			// Reply
-			case bbp_get_reply_post_type() :
-				$post_status[] = bbp_get_pending_status_id();
-				$post_status[] = bbp_get_trash_status_id();
-				$post_status[] = bbp_get_spam_status_id();
-				break;
-		}
-
-		// Join post statuses together
-		$post_status = "'" . implode( "', '", $post_status ) . "'";
+		// Join post statuses to specifically exclude together
+		$not_in      = array( 'draft', 'future' );
+		$post_status = "'" . implode( "', '", $not_in ) . "'";
 		$bbp_db      = bbp_db();
 
 		// Note that we can't use WP_Query here thanks to post_status assumptions
-		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC", $parent_id, $post_type );
+		$query       = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status NOT IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC", $parent_id, $post_type );
 		$child_ids   = (array) $bbp_db->get_col( $query );
 
 		// Always cache the results
