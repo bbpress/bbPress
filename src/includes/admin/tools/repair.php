@@ -280,11 +280,12 @@ function bbp_admin_repair_topic_hidden_reply_count() {
 
 	// Post types and status
 	$rpt = bbp_get_reply_post_type();
-	$tps = bbp_get_trash_status_id();
-	$sps = bbp_get_spam_status_id();
-	$pps = bbp_get_pending_status_id();
+	$sta = bbp_get_non_public_topic_statuses();
 
-	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ( '{$tps}', '{$sps}', '{$pps}' ) GROUP BY `post_parent`)";
+	// SQL
+	$sql_status = "'" . implode( "','", $sta ) . "'";
+
+	$sql = "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$bbp_db->posts}` WHERE `post_type` = '{$rpt}' AND `post_status` IN ({$sql_status}) GROUP BY `post_parent`)";
 	if ( is_wp_error( $bbp_db->query( $sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}

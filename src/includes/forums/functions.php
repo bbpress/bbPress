@@ -1663,7 +1663,7 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) 
 			$query = new WP_Query( array(
 				'fields'         => 'ids',
 				'post_parent'    => $forum_id,
-				'post_status'    => array( bbp_get_trash_status_id(), bbp_get_spam_status_id(), bbp_get_pending_status_id() ),
+				'post_status'    => bbp_get_non_public_topic_statuses(),
 				'post_type'      => bbp_get_topic_post_type(),
 				'posts_per_page' => -1,
 
