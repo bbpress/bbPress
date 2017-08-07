@@ -623,19 +623,19 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 		// Setup the strings
-		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   __( 'sometime',  'bbpress' ) );
-		$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', __( 'right now', 'bbpress' ) );
-		$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       __( '%s ago',    'bbpress' ) );
+		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
+		$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
+		$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
 
 		// array of time period chunks
 		$chunks = array(
-			array( 60 * 60 * 24 * 365 , __( 'year',   'bbpress' ), __( 'years',   'bbpress' ) ),
-			array( 60 * 60 * 24 * 30 ,  __( 'month',  'bbpress' ), __( 'months',  'bbpress' ) ),
-			array( 60 * 60 * 24 * 7,    __( 'week',   'bbpress' ), __( 'weeks',   'bbpress' ) ),
-			array( 60 * 60 * 24 ,       __( 'day',    'bbpress' ), __( 'days',    'bbpress' ) ),
-			array( 60 * 60 ,            __( 'hour',   'bbpress' ), __( 'hours',   'bbpress' ) ),
-			array( 60 ,                 __( 'minute', 'bbpress' ), __( 'minutes', 'bbpress' ) ),
-			array( 1,                   __( 'second', 'bbpress' ), __( 'seconds', 'bbpress' ) )
+			array( YEAR_IN_SECONDS,   '%s year',   '%s years',   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
+			array( MONTH_IN_SECONDS,  '%s month',  '%s months',  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
+			array( WEEK_IN_SECONDS,   '%s week',   '%s weeks',   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
+			array( DAY_IN_SECONDS,    '%s day',    '%s days',    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
+			array( HOUR_IN_SECONDS,   '%s hour',   '%s hours',   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
+			array( MINUTE_IN_SECONDS, '%s minute', '%s minutes', _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+			array( 1,                 '%s second', '%s seconds', _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
 		);
 
 		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
@@ -680,17 +680,17 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			} else {
 
 				// Set output var
-				$output = ( 1 == $count ) ? '1 '. $chunks[ $i ][1] : $count . ' ' . $chunks[ $i ][2];
+				$output = sprintf( _n( $chunks[ $i ][1], $chunks[ $i ][2], $count, 'bbppress' ), bbp_number_format_i18n( $count ) );
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
 					$seconds2 = $chunks[ $i + 1 ][0];
-					$name2    = $chunks[ $i + 1 ][1];
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
 					if ( 0 != $count2 ) {
-						$output .= ( 1 == $count2 ) ? _x( ',', 'Separator in time since', 'bbpress' ) . ' 1 '. $name2 : _x( ',', 'Separator in time since', 'bbpress' ) . ' ' . $count2 . ' ' . $chunks[ $i + 1 ][2];
+						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
+						$output .= sprintf( _n( $chunks[ $i + 1 ][1], $chunks[ $i + 1 ][2], $count2, 'bbppress' ), bbp_number_format_i18n( $count2 ) );
 					}
 				}
 
