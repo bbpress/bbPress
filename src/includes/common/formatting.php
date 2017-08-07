@@ -680,7 +680,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			} else {
 
 				// Set output var
-				$output = sprintf( _n( $chunks[ $i ][1], $chunks[ $i ][2], $count, 'bbppress' ), bbp_number_format_i18n( $count ) );
+				$output = sprintf( _n( $chunks[ $i ][1], $chunks[ $i ][2], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
@@ -690,7 +690,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					// Add to output var
 					if ( 0 != $count2 ) {
 						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
-						$output .= sprintf( _n( $chunks[ $i + 1 ][1], $chunks[ $i + 1 ][2], $count2, 'bbppress' ), bbp_number_format_i18n( $count2 ) );
+						$output .= sprintf( _n( $chunks[ $i + 1 ][1], $chunks[ $i + 1 ][2], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 					}
 				}
 
