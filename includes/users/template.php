@@ -1658,6 +1658,9 @@ function bbp_author_link( $args = '' ) {
 
 			$anonymous = bbp_is_reply_anonymous( $r['post_id'] );
 
+			// Declare empty array 
+			$author_links = array();
+
 			// Get avatar
 			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
 				$author_links[] = get_avatar( $user_id, $r['size'] );

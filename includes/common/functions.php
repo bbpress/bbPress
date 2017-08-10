@@ -496,6 +496,9 @@ function bbp_get_statistics( $args = '' ) {
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
+			// Declare empty arrays 
+			$topics = $topic_titles = array(); 
+
 			// Private
 			$topics['private'] = ( !empty( $r['count_private_topics'] ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->{$private} : 0;
 
@@ -527,6 +530,9 @@ function bbp_get_statistics( $args = '' ) {
 		$reply_count = $all_replies->publish;
 
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
+
+			// Declare empty arrays 
+			$replies = $reply_titles = array(); 
 
 			// Private
 			$replies['private'] = ( !empty( $r['count_private_replies'] ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->{$private} : 0;
