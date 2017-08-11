@@ -629,13 +629,13 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 		// array of time period chunks
 		$chunks = array(
-			array( YEAR_IN_SECONDS,   '%s year',   '%s years',   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
-			array( MONTH_IN_SECONDS,  '%s month',  '%s months',  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
-			array( WEEK_IN_SECONDS,   '%s week',   '%s weeks',   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
-			array( DAY_IN_SECONDS,    '%s day',    '%s days',    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
-			array( HOUR_IN_SECONDS,   '%s hour',   '%s hours',   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
-			array( MINUTE_IN_SECONDS, '%s minute', '%s minutes', _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
-			array( 1,                 '%s second', '%s seconds', _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
+			array( YEAR_IN_SECONDS,   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
+			array( MONTH_IN_SECONDS,  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
+			array( WEEK_IN_SECONDS,   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
+			array( DAY_IN_SECONDS,    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
+			array( HOUR_IN_SECONDS,   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
+			array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+			array( 1,                 _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
 		);
 
 		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
@@ -680,7 +680,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			} else {
 
 				// Set output var
-				$output = sprintf( _n( $chunks[ $i ][1], $chunks[ $i ][2], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
+				$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
 
 				// Step two: the second chunk
 				if ( $i + 2 < $j ) {
@@ -690,7 +690,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					// Add to output var
 					if ( 0 != $count2 ) {
 						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
-						$output .= sprintf( _n( $chunks[ $i + 1 ][1], $chunks[ $i + 1 ][2], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
+						$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 					}
 				}
 
