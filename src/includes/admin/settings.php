@@ -1587,7 +1587,7 @@ function bbp_converter_setting_callback_dbuser() {
 ?>
 
 	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_user' ); ?> />
-	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User to acces the database', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User to access the database', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -1601,7 +1601,7 @@ function bbp_converter_setting_callback_dbpass() {
 ?>
 
 	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
-	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password of the above database user', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password for the above database user', 'bbpress' ); ?></label>
 
 <?php
 }
