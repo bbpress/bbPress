@@ -79,7 +79,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		if ( values['_bbp_converter_delay_time'] ) {
-			BBP_Converter.delay = parseInt( values['_bbp_converter_delay_time'], 10 ) * 1000;
+			BBP_Converter.state.delay = parseInt( values['_bbp_converter_delay_time'], 10 ) * 1000;
 		}
 
 		values['action']      = 'bbp_converter_process';
@@ -128,7 +128,7 @@ jQuery( document ).ready( function ( $ ) {
 	function bbp_converter_step( data ) {
 
 		// Bail if not running
-		if ( ! BBP_Converter.running ) {
+		if ( ! BBP_Converter.state.running ) {
 			return;
 		}
 
@@ -154,17 +154,17 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_wait() {
-		clearTimeout( BBP_Converter.running );
+		clearTimeout( BBP_Converter.state.running );
 
 		// Bail if not running
-		if ( ! BBP_Converter.running ) {
+		if ( ! BBP_Converter.state.running ) {
 			return;
 		}
 
 		// Wait, then POST
-		BBP_Converter.running = setTimeout( function() {
+		BBP_Converter.state.running = setTimeout( function() {
 			bbp_converter_post();
-		}, parseInt( BBP_Converter.delay, 10 ) );
+		}, parseInt( BBP_Converter.state.delay, 10 ) );
 	}
 
 	/**
@@ -175,15 +175,15 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_start() {
-		clearTimeout( BBP_Converter.running );
-		clearInterval( BBP_Converter.status );
+		clearTimeout( BBP_Converter.state.running );
+		clearInterval( BBP_Converter.state.status );
 
-		BBP_Converter.running = true;
+		BBP_Converter.state.running = true;
 
 		var log = BBP_Converter.strings.start_continue;
-		if ( BBP_Converter.started ) {
+		if ( false === BBP_Converter.state.started ) {
 			log = BBP_Converter.strings.start_start;
-			BBP_Converter.started = true;
+			BBP_Converter.state.started = true;
 		}
 
 		bbp_converter_update(
@@ -210,11 +210,11 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_stop( button, log ) {
-		clearTimeout( BBP_Converter.running );
-		clearInterval( BBP_Converter.status );
+		clearTimeout( BBP_Converter.state.running );
+		clearInterval( BBP_Converter.state.status );
 
-		BBP_Converter.running = false;
-		BBP_Converter.status  = false;
+		BBP_Converter.state.running = false;
+		BBP_Converter.state.status  = false;
 
 		if ( ! button ) {
 			button = BBP_Converter.strings.button_continue;
@@ -261,17 +261,17 @@ jQuery( document ).ready( function ( $ ) {
 	 * @returns {void}
 	 */
 	function bbp_converter_status( data ) {
-		var remaining = parseInt( BBP_Converter.delay, 10 ) / 1000;
+		var remaining = parseInt( BBP_Converter.state.delay, 10 ) / 1000;
 
 		status.text( BBP_Converter.strings.status_counting.replace( '%s', remaining ) );
-		clearInterval( BBP_Converter.status );
+		clearInterval( BBP_Converter.state.status );
 
-		BBP_Converter.status = setInterval( function() {
+		BBP_Converter.state.status = setInterval( function() {
 			remaining--;
 			status.text( BBP_Converter.strings.status_counting.replace( '%s', remaining ) );
 
 			if ( remaining <= 0 ) {
-				clearInterval( BBP_Converter.status );
+				clearInterval( BBP_Converter.state.status );
 
 				if ( parseInt( data.current_step, 10 ) < parseInt( data.final_step, 10 ) ) {
 					status.text( BBP_Converter.strings.status_up_next.replace( '%s', data.current_step ) );

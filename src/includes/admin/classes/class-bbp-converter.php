@@ -127,15 +127,19 @@ class BBP_Converter {
 		// Localize JS
 		wp_localize_script( 'bbp-converter', 'BBP_Converter', array(
 
-			// Vars
+			// Nonce
 			'ajax_nonce' => wp_create_nonce( 'bbp_converter_process' ),
-			'delay'      => (int)  get_option( '_bbp_converter_delay_time', 2 ),
-			'running'    => false,
-			'status'     => false,
-			'started'    => (bool) get_option( '_bbp_converter_step', 0 ),
+
+			// UI State
+			'state' => array(
+				'delay'   => (int)  get_option( '_bbp_converter_delay_time', 2 ),
+				'started' => (bool) get_option( '_bbp_converter_step',       0 ),
+				'running' => false,
+				'status'  => false
+			),
 
 			// Strings
-			'strings'    => array(
+			'strings' => array(
 
 				// Button text
 				'button_start'        => esc_html__( 'Start',    'bbpress' ),
