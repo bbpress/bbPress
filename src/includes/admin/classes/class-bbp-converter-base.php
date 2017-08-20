@@ -820,7 +820,7 @@ abstract class BBP_Converter_Base {
 
 		$query = ! empty( $this->sync_table )
 			? $this->wpdb->prepare( "SELECT value_id FROM {$this->sync_table_name} INNER JOIN {$this->wpdb->posts} ON(value_id = ID) WHERE meta_key LIKE '_bbp_%' AND value_type = %s GROUP BY value_id ORDER BY value_id DESC LIMIT {$this->max_rows}", 'post' )
-			: $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key LIKE '_bbp_%' GROUP BY post_id ORDER BY post_id DESC LIMIT {$this->max_rows}" );
+			: $this->wpdb->prepare( "SELECT post_id AS value_id FROM {$this->wpdb->postmeta} WHERE meta_key LIKE %s GROUP BY post_id ORDER BY post_id DESC LIMIT {$this->max_rows}", $this->wpdb->esc_like( '_bbp_' ) . '%' );
 
 		$posts = $this->get_results( $query, ARRAY_A );
 
