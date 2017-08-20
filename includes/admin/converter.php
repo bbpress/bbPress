@@ -322,12 +322,12 @@ class BBP_Converter {
 
 		$step  = (int) get_option( '_bbp_converter_step',  1 );
 		$min   = (int) get_option( '_bbp_converter_start', 0 );
-		$count = (int) ! empty( $_POST['_bbp_converter_rows'] ) ? $_POST['_bbp_converter_rows'] : 100;
+		$count = ! empty( $_POST['_bbp_converter_rows'] ) ? min( max( (int) $_POST['_bbp_converter_rows'], 1 ), 5000 ) : 100;
 		$max   = ( $min + $count ) - 1;
 		$start = $min;
 
 		// Bail if platform did not get saved
-		$platform = !empty( $_POST['_bbp_converter_platform' ] ) ? $_POST['_bbp_converter_platform' ] : get_option( '_bbp_converter_platform' );
+		$platform = !empty( $_POST['_bbp_converter_platform' ] ) ? sanitize_text_field( $_POST['_bbp_converter_platform' ] ) : get_option( '_bbp_converter_platform' );
 		if ( empty( $platform ) )
 			return;
 
@@ -651,10 +651,19 @@ abstract class BBP_Converter_Base {
 
 		/** Get database connections ******************************************/
 
-		$this->wpdb         = $wpdb;
-		$this->max_rows     = (int) $_POST['_bbp_converter_rows'];
-		$this->opdb         = new wpdb( $_POST['_bbp_converter_db_user'], $_POST['_bbp_converter_db_pass'], $_POST['_bbp_converter_db_name'], $_POST['_bbp_converter_db_server'] );
-		$this->opdb->prefix = $_POST['_bbp_converter_db_prefix'];
+		$this->wpdb     = $wpdb;
+		$this->max_rows = ! empty( $_POST['_bbp_converter_rows'] )
+			? min( max( (int) $_POST['_bbp_converter_rows'], 1 ), 5000 )
+			: 100;
+
+		$this->opdb = new wpdb(
+			sanitize_text_field( $_POST['_bbp_converter_db_user']   ),
+			sanitize_text_field( $_POST['_bbp_converter_db_pass']   ),
+			sanitize_text_field( $_POST['_bbp_converter_db_name']   ),
+			sanitize_text_field( $_POST['_bbp_converter_db_server'] )
+		);
+
+		$this->opdb->prefix = sanitize_text_field( $_POST['_bbp_converter_db_prefix'] );
 
 		/**
 		 * Error Reporting
