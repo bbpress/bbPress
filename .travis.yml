@@ -27,6 +27,7 @@ php:
 # x.y mirrors the latest from the x.y branch
 env:
   - WP_VERSION=master
+  - WP_VERSION=4.8
   - WP_VERSION=4.7
 
 # Build matrix options
@@ -38,10 +39,16 @@ matrix:
       env: WP_VERSION=master
       dist: precise
     - php: 5.3
+      env: WP_VERSION=4.8
+      dist: precise
+    - php: 5.3
       env: WP_VERSION=4.7
       dist: precise
     - php: 5.2
       env: WP_VERSION=master
+      dist: precise
+    - php: 5.2
+      env: WP_VERSION=4.8
       dist: precise
     - php: 5.2
       env: WP_VERSION=4.7
