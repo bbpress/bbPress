@@ -81,6 +81,7 @@ before_install:
     - npm install -g grunt-cli
     - npm --version
     - phpenv versions
+    - echo $TRAVIS_PHP_VERSION
     - mysql --version
     - php --version
     - php -m
