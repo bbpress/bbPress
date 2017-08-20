@@ -769,8 +769,10 @@ class BBP_Converter {
 
 		// Defaults
 		$sql              = array();
-		$max_index_length = 191;
 		$charset_collate  = '';
+
+		// https://bbpress.trac.wordpress.org/ticket/3145
+		$max_index_length = 75;
 
 		// Maybe override the character set
 		if ( ! empty( $bbp_db->charset ) ) {
