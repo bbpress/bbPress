@@ -152,11 +152,11 @@ class BBP_Converter {
 				'import_error_db'     => esc_html__( 'Database Connection Failed.', 'bbpress' ),
 
 				// Status
-				'status_complete'     => esc_html__( 'Finished',         'bbpress' ),
-				'status_stopped'      => esc_html__( 'Stopped',          'bbpress' ),
-				'status_starting'     => esc_html__( 'Starting',         'bbpress' ),
-				'status_up_next'      => esc_html__( 'Doing step %s...', 'bbpress' ),
-				'status_counting'     => esc_html__( 'Next in %s...',    'bbpress' )
+				'status_complete'     => esc_html__( 'Finished',              'bbpress' ),
+				'status_stopped'      => esc_html__( 'Stopped',               'bbpress' ),
+				'status_starting'     => esc_html__( 'Starting',              'bbpress' ),
+				'status_up_next'      => esc_html__( 'Doing step %s...',      'bbpress' ),
+				'status_counting'     => esc_html__( 'Next in %s seconds...', 'bbpress' )
 			)
 		) );
 	}
