@@ -847,9 +847,17 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['title']        = strip_tags( $new_instance['title'] );
 		$instance['order_by']     = strip_tags( $new_instance['order_by'] );
 		$instance['parent_forum'] = sanitize_text_field( $new_instance['parent_forum'] );
-		$instance['show_date']    = (bool) $new_instance['show_date'];
-		$instance['show_user']    = (bool) $new_instance['show_user'];
 		$instance['max_shown']    = (int) $new_instance['max_shown'];
+
+		// Date
+		$instance['show_date'] = isset( $new_instance['show_date'] )
+			? (bool) $new_instance['show_date']
+			: false;
+
+		// Author
+		$instance['show_user'] = isset( $new_instance['show_user'] )
+			? (bool) $new_instance['show_user']
+			: false;
 
 		// Force to any
 		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
@@ -1210,9 +1218,17 @@ class BBP_Replies_Widget extends WP_Widget {
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance              = $old_instance;
 		$instance['title']     = strip_tags( $new_instance['title'] );
-		$instance['show_date'] = (bool) $new_instance['show_date'];
-		$instance['show_user'] = (bool) $new_instance['show_user'];
 		$instance['max_shown'] = (int) $new_instance['max_shown'];
+
+		// Date
+		$instance['show_date'] = isset( $new_instance['show_date'] )
+			? (bool) $new_instance['show_date']
+			: false;
+
+		// Author
+		$instance['show_user'] = isset( $new_instance['show_user'] )
+			? (bool) $new_instance['show_user']
+			: false;
 
 		return $instance;
 	}
