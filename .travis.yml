@@ -106,7 +106,8 @@ before_script:
       phpenv config-rm xdebug.ini
     else
       echo "xdebug.ini does not exist"
-    fi  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+    fi
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - |
     if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
       composer global require "phpunit/phpunit=5.7.*"
