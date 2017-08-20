@@ -252,9 +252,9 @@ class BBP_Converter {
 				? (int) $_POST['_bbp_converter_halt']
 				: 0,
 
-			// Rows
+			// Rows (bound between 1 and 5000)
 			'_bbp_converter_rows' => ! empty( $_POST['_bbp_converter_rows'] )
-				? (int) $_POST['_bbp_converter_rows']
+				? min( max( (int) $_POST['_bbp_converter_rows'], 1 ), 5000 )
 				: 0,
 
 			// Platform
