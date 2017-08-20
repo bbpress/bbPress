@@ -56,6 +56,11 @@ matrix:
     - php: 5.2
       env: WP_VERSION=4.7
       dist: precise
+  exclude:
+    - php: 7.2
+      env: WP_VERSION=4.8
+    - php: 7.2
+      env: WP_VERSION=4.7
   allow_failures:
     - php: nightly
 #  fast_finish: true
