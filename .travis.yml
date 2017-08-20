@@ -13,6 +13,9 @@ dist: trusty
 # Configure caches
 cache:
   apt: true
+  directories:
+  - vendor
+  - $HOME/.composer/cache
 
 # PHP version used in first build configuration.
 php:
