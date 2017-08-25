@@ -19,7 +19,7 @@
 function bbp_get_forum_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_caps', array (
+	return (array) apply_filters( 'bbp_get_forum_caps', array(
 		'edit_posts'          => 'edit_forums',
 		'edit_others_posts'   => 'edit_others_forums',
 		'publish_posts'       => 'publish_forums',

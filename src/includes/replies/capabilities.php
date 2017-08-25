@@ -19,7 +19,7 @@
 function bbp_get_reply_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_reply_caps', array (
+	return (array) apply_filters( 'bbp_get_reply_caps', array(
 		'edit_posts'          => 'edit_replies',
 		'edit_others_posts'   => 'edit_others_replies',
 		'publish_posts'       => 'publish_replies',

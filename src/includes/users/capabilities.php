@@ -364,14 +364,10 @@ function bbp_set_current_user_default_role() {
 
 	/** Forum Role ************************************************************/
 
-	// Use a mapped role
-	if ( isset( $role_map[ $user_role ] ) ) {
-		$new_role = $role_map[ $user_role ];
-
-	// Use the default role
-	} else {
-		$new_role = bbp_get_default_role();
-	}
+	// Use a mapped role or default role
+	$new_role = empty( $user_role ) || ! isset( $role_map[ $user_role ] )
+		? bbp_get_default_role()
+		: $role_map[ $user_role ];
 
 	/** Add or Map ************************************************************/
 
@@ -401,7 +397,7 @@ function bbp_get_user_role_map() {
 	$default_role = bbp_get_default_role();
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_role_map', array (
+	return (array) apply_filters( 'bbp_get_user_role_map', array(
 		'administrator' => bbp_get_keymaster_role(),
 		'editor'        => $default_role,
 		'author'        => $default_role,
