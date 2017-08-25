@@ -722,14 +722,19 @@ function bbp_admin_repair_user_roles() {
 		return array( 1, sprintf( $statement, esc_html__( 'Failed!', 'bbpress' ) ) );
 	}
 
+	// Get non-forum roles
+	$blog_roles = array_keys( bbp_get_blog_roles() );
+
 	// Iterate through each role...
-	foreach ( array_keys( bbp_get_blog_roles() ) as $role ) {
+	foreach ( $blog_roles as $role ) {
 
 		// Reset the offset
 		$offset = 0;
 
 		// If no role map exists, give the default forum role (bbp-participant)
-		$new_role = isset( $role_map[ $role ] ) ? $role_map[ $role ] : $default_role;
+		$new_role = isset( $role_map[ $role ] )
+			? $role_map[ $role ]
+			: $default_role;
 
 		// Get users of this site, limited to 1000
 		while ( $users = get_users( array(
@@ -742,6 +747,60 @@ function bbp_admin_repair_user_roles() {
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
 				if ( bbp_set_user_role( $user_id, $new_role ) ) {
+					++$changed; // Keep a count to display at the end
+				}
+			}
+
+			// Bump the offset for the next query iteration
+			$offset = $offset + 1000;
+		}
+	}
+
+	// Reset the offset
+	$offset  = 0;
+	$bbp_db  = bbp_db();
+	$cap_key = $bbp_db->get_blog_prefix() . 'capabilities';
+
+	// Users without roles should be granted the default role, but not on multi-
+	// site installations where not all users get a role by default.
+	if ( ! is_multisite() ) {
+
+		// Get users with missing capabilities on this site, limited to 1000
+		while ( $users = get_users( array(
+			'meta_key'     => $cap_key,
+			'meta_compare' => 'NOT EXISTS',
+			'fields'       => 'ID',
+			'number'       => 1000,
+			'offset'       => $offset
+		) ) ) {
+
+			// Iterate through each user of $role and try to set it
+			foreach ( (array) $users as $user_id ) {
+				if ( bbp_set_user_role( $user_id, $default_role ) ) {
+					++$changed; // Keep a count to display at the end
+				}
+			}
+
+			// Bump the offset for the next query iteration
+			$offset = $offset + 1000;
+		}
+
+	// On multisite, we'll look for users with an empty capabilities array.
+	// These are users who basically have malformed caps, and we can fix that.
+	} else {
+
+		// Get users with empty capabilities on this site, limited to 1000
+		while ( $users = get_users( array(
+			'meta_key'   => $cap_key,
+			'meta_value' => 'a:0:{}',
+			'fields'     => 'ID',
+			'number'     => 1000,
+			'offset'     => $offset
+		) ) ) {
+
+			// Iterate through each user of $role and try to set it
+			foreach ( (array) $users as $user_id ) {
+				if ( bbp_set_user_role( $user_id, $default_role ) ) {
 					++$changed; // Keep a count to display at the end
 				}
 			}
