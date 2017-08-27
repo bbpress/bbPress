@@ -20,9 +20,8 @@ class FluxBB extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -613,7 +612,7 @@ class FluxBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from FluxBB v1.5.3 numeric's to WordPress's strings.
+	 * Translate the post status from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
 	 * @param int $status FluxBB v1.5.3 numeric topic status
 	 * @return string WordPress safe
@@ -633,7 +632,7 @@ class FluxBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from FluxBB v1.5.3 numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from FluxBB v1.5.3 numerics to WordPress's strings.
 	 *
 	 * @param int $status FluxBB v1.5.3 numeric forum type
 	 * @return string WordPress safe

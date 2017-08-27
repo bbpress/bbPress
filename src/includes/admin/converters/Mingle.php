@@ -20,15 +20,20 @@ class Mingle extends BBP_Converter_Base {
 	 * Main constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals()	{
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section ******************************************************/
 
@@ -434,7 +439,7 @@ class Mingle extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic status from Mingle numeric's to WordPress's strings.
+	 * Translate the topic status from Mingle numerics to WordPress's strings.
 	 *
 	 * @param int $status Mingle v1.x numeric topic status
 	 * @return string WordPress safe
@@ -454,7 +459,7 @@ class Mingle extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from Mingle numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from Mingle numerics to WordPress's strings.
 	 *
 	 * @param int $status Mingle numeric forum type
 	 * @return string WordPress safe
@@ -471,16 +476,5 @@ class Mingle extends BBP_Converter_Base {
 				break;
 		}
 		return $status;
-	}
-
-	/**
-	 * This callback processes any custom BBCodes with parser.php
-	 */
-	protected function callback_html( $field ) {
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }

@@ -20,15 +20,20 @@ class bbPress1 extends BBP_Converter_Base {
 	 * Main constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -625,7 +630,7 @@ class bbPress1 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from bbPress 1's numeric's to WordPress's
+	 * Translate the post status from bbPress 1's numerics to WordPress's
 	 * strings.
 	 *
 	 * @param int $status bbPress 1.x numeric post status
@@ -650,7 +655,7 @@ class bbPress1 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum type from bbPress 1.x numeric's to WordPress's strings.
+	 * Translate the forum type from bbPress 1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status bbPress 1.x numeric forum type
 	 * @return string WordPress safe
@@ -665,7 +670,7 @@ class bbPress1 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic status from bbPress 1's numeric's to WordPress's
+	 * Translate the topic status from bbPress 1's numerics to WordPress's
 	 * strings.
 	 *
 	 * @param int $topic_status bbPress 1.x numeric status
@@ -686,7 +691,7 @@ class bbPress1 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from bbPress 1.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from bbPress 1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status bbPress 1.x numeric forum type
 	 * @return string WordPress safe
@@ -750,20 +755,5 @@ class bbPress1 extends BBP_Converter_Base {
 		// Replace 'topic-' with '' so that only the original topic ID remains
 		$field = absint( (int) preg_replace( '/(topic-)(\d+)/', '$2', $field ) );
 		return $field;
-	}
-
-	/**
-	 * This callback:
-	 *
-	 * - turns off smiley parsing
-	 * - processes any custom parser.php attributes
-	 * - decodes necessary HTML entities
-	 */
-	protected function callback_html( $field ) {
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }

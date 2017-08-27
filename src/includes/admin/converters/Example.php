@@ -19,9 +19,8 @@ class Example extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**

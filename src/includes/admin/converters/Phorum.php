@@ -20,9 +20,8 @@ class Phorum extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -539,7 +538,7 @@ class Phorum extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum type from Phorum v5.2.19 numeric's to WordPress's strings.
+	 * Translate the forum type from Phorum v5.2.19 numerics to WordPress's strings.
 	 *
 	 * @param int $status Phorum v5.2.19 numeric forum type
 	 * @return string WordPress safe
@@ -559,7 +558,7 @@ class Phorum extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Phorum v5.2.19 numeric's to WordPress's strings.
+	 * Translate the post status from Phorum v5.2.19 numerics to WordPress's strings.
 	 *
 	 * @param int $status Phorum v5.2.19 numeric topic status
 	 * @return string WordPress safe

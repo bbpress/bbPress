@@ -20,9 +20,8 @@ class MyBB extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -539,7 +538,7 @@ class MyBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from MyBB v1.6.10 numeric's to WordPress's strings.
+	 * Translate the post status from MyBB v1.6.10 numerics to WordPress's strings.
 	 *
 	 * @param int $status MyBB v1.6.10 numeric topic status
 	 * @return string WordPress safe
@@ -559,7 +558,7 @@ class MyBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from MyBB v1.6.10 numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from MyBB v1.6.10 numerics to WordPress's strings.
 	 *
 	 * @param int $status MyBB v1.6.10 numeric forum type
 	 * @return string WordPress safe

@@ -20,15 +20,20 @@ class Vanilla extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -520,7 +525,7 @@ class Vanilla extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic status from Vanilla v2.x numeric's to WordPress's strings.
+	 * Translate the topic status from Vanilla v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Vanilla v2.x numeric topic status
 	 * @return string WordPress safe
@@ -540,7 +545,7 @@ class Vanilla extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from Vanilla v2.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from Vanilla v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Vanilla v2.x numeric forum type
 	 * @return string WordPress safe
@@ -599,16 +604,5 @@ class Vanilla extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		return false;
-	}
-
-	/**
-	 * This callback processes any custom BBCodes with parser.php
-	 */
-	protected function callback_html( $field ) {
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 }

@@ -20,15 +20,20 @@ class SimplePress5 extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -521,7 +526,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Simple:Press v5.x numeric's to WordPress's strings.
+	 * Translate the post status from Simple:Press v5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Simple:Press numeric status
 	 * @return string WordPress safe
@@ -541,7 +546,7 @@ class SimplePress5 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from Simple:Press v5.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from Simple:Press v5.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Simple:Press v5.x numeric forum type
 	 * @return string WordPress safe
@@ -597,19 +602,15 @@ class SimplePress5 extends BBP_Converter_Base {
 		$simplepress_markup = preg_replace( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/' , '<code>$1</code>' , $simplepress_markup );
 
 		// Replace '<strong>username said </strong>' with '@username said:'
-		$simplepress_markup = preg_replace ( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );
 
 		// Replace '<p>&nbsp;</p>' with '<p>&nbsp;</p>'
-		$simplepress_markup = preg_replace ( '/\n(&nbsp;|[\s\p{Z}\xA0\x{00A0}]+)\r/', '<br>', $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\n(&nbsp;|[\s\p{Z}\xA0\x{00A0}]+)\r/', '<br>', $simplepress_markup );
 
 		// Now that SimplePress' custom HTML codes have been stripped put the cleaned HTML back in $field
 		$field = $simplepress_markup;
 
-		// Parse out any bbCodes with the BBCode 'parser.php'
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		// Parse out any bbCodes in $field with the BBCode 'parser.php'
+		return parent::callback_html( $field );
 	}
 }

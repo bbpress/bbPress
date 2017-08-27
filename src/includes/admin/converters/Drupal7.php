@@ -19,9 +19,8 @@ class Drupal7 extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -590,7 +589,7 @@ class Drupal7 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Drupal v7.x numeric's to WordPress's
+	 * Translate the post status from Drupal v7.x numerics to WordPress's
 	 * strings.
 	 *
 	 * @param int $status Drupal v7.x numeric post status
@@ -611,7 +610,7 @@ class Drupal7 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Drupal v7.x numeric's to WordPress's strings.
+	 * Translate the post status from Drupal v7.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Drupal v7.x numeric topic status
 	 * @return string WordPress safe
@@ -631,7 +630,7 @@ class Drupal7 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from Drupal v7.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from Drupal v7.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Drupal v7.x numeric forum type
 	 * @return string WordPress safe

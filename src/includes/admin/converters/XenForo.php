@@ -20,15 +20,20 @@ class XenForo extends BBP_Converter_Base {
 	 * Main constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -721,7 +726,7 @@ class XenForo extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum status from XenForo numeric's to WordPress's strings.
+	 * Translate the forum status from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric forum status
 	 * @return string WordPress safe
@@ -761,7 +766,7 @@ class XenForo extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic status from XenForo numeric's to WordPress's strings.
+	 * Translate the topic status from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric topic status
 	 * @return string WordPress safe
@@ -781,7 +786,7 @@ class XenForo extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from XenForo numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from XenForo numerics to WordPress's strings.
 	 *
 	 * @param int $status XenForo numeric forum type
 	 * @return string WordPress safe
@@ -840,10 +845,6 @@ class XenForo extends BBP_Converter_Base {
 		$field = $xenforo_markup;
 
 		// Parse out any bbCodes in $field with the BBCode 'parser.php'
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		return parent::callback_html( $field );
 	}
 }

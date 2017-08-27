@@ -90,6 +90,11 @@ abstract class BBP_Converter_Base {
 	 */
 	public $clean = false;
 
+	/**
+	 * @var array Custom BBCode class properties in a key => value format
+	 */
+	public $bbcode_parser_properties = array();
+
 	/** Methods ***************************************************************/
 
 	/**
@@ -97,6 +102,7 @@ abstract class BBP_Converter_Base {
 	 */
 	public function __construct() {
 		$this->init();
+		$this->setup_globals();
 	}
 
 	/**
@@ -105,6 +111,14 @@ abstract class BBP_Converter_Base {
 	 * @since 2.1.0
 	 */
 	private function init() {
+
+		/** BBCode Parse Properties *******************************************/
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => includes_url( 'images/smilies' ),
+			'smiley_dir' => '/' . WPINC . '/images/smilies'
+		);
 
 		/** Sanitize Options **************************************************/
 
@@ -249,6 +263,11 @@ abstract class BBP_Converter_Base {
 			'default'      => get_option( 'default_role' )
 		);
 	}
+
+	/**
+	 * Setup global values
+	 */
+	public function setup_globals() {}
 
 	/**
 	 * Convert Forums
@@ -1127,9 +1146,10 @@ abstract class BBP_Converter_Base {
 		// Setup the BBCode parser
 		$bbcode = BBCode::getInstance();
 
-		// Setup smiley URL & path
-		$bbcode->smiley_url = includes_url( 'images/smilies' );
-		$bbcode->smiley_dir = '/' . WPINC . '/images/smilies';
+		// Pass BBCode properties to the parser
+		foreach ( $this->bbcode_parser_properties as $prop => $value ) {
+			$bbcode->{$prop} = $value;
+		}
 
 		return html_entity_decode( $bbcode->Parse( $field ) );
 	}

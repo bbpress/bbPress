@@ -19,9 +19,8 @@ class AEF extends BBP_Converter_Base {
 	/**
 	 * Main Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -592,7 +591,7 @@ class AEF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum status from AEF v1.0.9 numeric's to WordPress's strings.
+	 * Translate the forum status from AEF v1.0.9 numerics to WordPress's strings.
 	 *
 	 * @param int $status AEF v1.0.9 numeric forum status
 	 * @return string WordPress safe
@@ -612,7 +611,7 @@ class AEF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from AEF v1.0.9 numeric's to WordPress's strings.
+	 * Translate the post status from AEF v1.0.9 numerics to WordPress's strings.
 	 *
 	 * @param int $status AEF v1.0.9 numeric topic status
 	 * @return string WordPress safe
@@ -632,7 +631,7 @@ class AEF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from AEF 1.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from AEF 1.x numerics to WordPress's strings.
 	 *
 	 * @param int $status AEF 1.x numeric forum type
 	 * @return string WordPress safe

@@ -20,9 +20,8 @@ class XMB extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -670,7 +669,7 @@ class XMB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from XMB v1.9.11.13 numeric's to WordPress's strings.
+	 * Translate the post status from XMB v1.9.11.13 numerics to WordPress's strings.
 	 *
 	 * @param int $status XMB v1.9.11.13 numeric topic status
 	 * @return string WordPress safe
@@ -690,7 +689,7 @@ class XMB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from XMB v1.9.11.13 numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from XMB v1.9.11.13 numerics to WordPress's strings.
 	 *
 	 * @param int $status XMB v1.9.11.13 numeric forum type
 	 * @return string WordPress safe

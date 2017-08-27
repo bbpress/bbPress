@@ -20,15 +20,20 @@ class SMF extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section ******************************************************/
 
@@ -675,7 +680,7 @@ class SMF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from SMF v2.0.4 numeric's to WordPress's strings.
+	 * Translate the post status from SMF v2.0.4 numerics to WordPress's strings.
 	 *
 	 * @param int $status SMF v2.0.4 numeric topic status
 	 * @return string WordPress safe
@@ -695,7 +700,7 @@ class SMF extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from SMF v2.0.4 numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from SMF v2.0.4 numerics to WordPress's strings.
 	 *
 	 * @param int $status SMF v2.0.4 numeric forum type
 	 * @return string WordPress safe
@@ -796,16 +801,12 @@ class SMF extends BBP_Converter_Base {
 		$SMF_markup = preg_replace( '/\[\/size\]/',     '</span>',                     $SMF_markup );
 
 		// Replace non-break space '&nbsp;' with space ' '
-		$SMF_markup = preg_replace ( '/&nbsp;/', ' ', $SMF_markup );
+		$SMF_markup = preg_replace( '/&nbsp;/', ' ', $SMF_markup );
 
 		// Now that SMF custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $SMF_markup;
 
 		// Parse out any bbCodes in $field with the BBCode 'parser.php'
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		return parent::callback_html( $field );
 	}
 }

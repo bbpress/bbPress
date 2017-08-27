@@ -20,15 +20,20 @@ class phpBB extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -831,7 +836,7 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum type from phpBB v3.x numeric's to WordPress's strings.
+	 * Translate the forum type from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric forum type
 	 * @return string WordPress safe
@@ -851,7 +856,7 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum status from phpBB v3.x numeric's to WordPress's strings.
+	 * Translate the forum status from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric forum status
 	 * @return string WordPress safe
@@ -871,7 +876,7 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic status from phpBB v3.x numeric's to WordPress's strings.
+	 * Translate the topic status from phpBB v3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB v3.x numeric topic status
 	 * @return string WordPress safe
@@ -891,7 +896,7 @@ class phpBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from phpBB 3.x numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from phpBB 3.x numerics to WordPress's strings.
 	 *
 	 * @param int $status phpBB 3.x numeric forum type
 	 * @return string WordPress safe
@@ -1017,10 +1022,6 @@ class phpBB extends BBP_Converter_Base {
 		$field = $phpbb_uid;
 
 		// Parse out any bbCodes in $field with the BBCode 'parser.php'
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		return parent::callback_html( $field );
 	}
 }

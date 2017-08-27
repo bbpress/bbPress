@@ -20,15 +20,20 @@ class Invision extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
+
+		// Setup smiley URL & path
+		$this->bbcode_parser_properties = array(
+			'smiley_url' => false,
+			'smiley_dir' => false
+		);
 
 		/** Forum Section *****************************************************/
 
@@ -471,7 +476,7 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum type from Invision numeric's to WordPress's strings.
+	 * Translate the forum type from Invision numerics to WordPress's strings.
 	 *
 	 * @param int $status Invision numeric forum type
 	 * @return string WordPress safe
@@ -486,7 +491,7 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from Invision numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from Invision numerics to WordPress's strings.
 	 *
 	 * @param int $status Invision numeric forum type
 	 * @return string WordPress safe
@@ -627,10 +632,7 @@ class Invision extends BBP_Converter_Base {
 		// Now that Invision custom HTML has been stripped put the cleaned HTML back in $field
 		$field = $invision_markup;
 
-		require_once bbpress()->admin->admin_dir . 'parser.php';
-		$bbcode = BBCode::getInstance();
-		$bbcode->enable_smileys = false;
-		$bbcode->smiley_regex   = false;
-		return html_entity_decode( $bbcode->Parse( $field ) );
+		// Parse out any bbCodes in $field with the BBCode 'parser.php'
+		return parent::callback_html( $field );
 	}
 }

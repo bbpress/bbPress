@@ -20,9 +20,8 @@ class PunBB extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -686,7 +685,7 @@ class PunBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from PunBB v1.4.2 numeric's to WordPress's strings.
+	 * Translate the post status from PunBB v1.4.2 numerics to WordPress's strings.
 	 *
 	 * @param int $status PunBB v1.4.2 numeric topic status
 	 * @return string WordPress safe
@@ -706,7 +705,7 @@ class PunBB extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the topic sticky status type from PunBB v1.4.2 numeric's to WordPress's strings.
+	 * Translate the topic sticky status type from PunBB v1.4.2 numerics to WordPress's strings.
 	 *
 	 * @param int $status PunBB v1.4.2 numeric forum type
 	 * @return string WordPress safe

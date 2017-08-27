@@ -20,9 +20,8 @@ class PHPWind extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -537,7 +536,7 @@ class PHPWind extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from PHPWind v9.x numeric's to WordPress's strings.
+	 * Translate the post status from PHPWind v9.x numerics to WordPress's strings.
 	 *
 	 * @param int $status PHPWind v9.x numeric topic status
 	 * @return string WordPress safe

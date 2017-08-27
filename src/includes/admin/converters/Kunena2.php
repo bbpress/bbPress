@@ -20,9 +20,8 @@ class Kunena2 extends BBP_Converter_Base {
 	 * Main Constructor
 	 *
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
-		$this->setup_globals();
 	}
 
 	/**
@@ -31,7 +30,6 @@ class Kunena2 extends BBP_Converter_Base {
 	public function setup_globals() {
 
 		/** Forum Section *****************************************************/
-
 
 		// Old forum id (Stored in postmeta)
 		$this->field_map[] = array(
@@ -499,7 +497,7 @@ class Kunena2 extends BBP_Converter_Base {
 		return ( $pass_array['hash'] == md5(md5($password) . $pass_array['salt']) );
 	}
 	/**
-	 * Translate the forum type from Kunena v2.x numeric's to WordPress's strings.
+	 * Translate the forum type from Kunena v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Kunena v2.x numeric forum type
 	 * @return string WordPress safe
@@ -514,7 +512,7 @@ class Kunena2 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the forum status from Kunena v2.x numeric's to WordPress's strings.
+	 * Translate the forum status from Kunena v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Kunena v2.x numeric forum status
 	 * @return string WordPress safe
@@ -534,7 +532,7 @@ class Kunena2 extends BBP_Converter_Base {
 	}
 
 	/**
-	 * Translate the post status from Kunena v2.x numeric's to WordPress's strings.
+	 * Translate the post status from Kunena v2.x numerics to WordPress's strings.
 	 *
 	 * @param int $status Kunena v2.x numeric topic status
 	 * @return string WordPress safe
