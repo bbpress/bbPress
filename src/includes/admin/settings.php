@@ -1758,8 +1758,8 @@ function bbp_converter_settings_page() {
 
 	// Starting or continuing?
 	$start_text = ! empty( $step )
-		? esc_html__( 'Continue', 'bbpress' )
-		: esc_html__( 'Start',    'bbpress' );
+		? esc_html__( 'Resume', 'bbpress' )
+		: esc_html__( 'Start',  'bbpress' );
 
 	// Starting or continuing?
 	$progress_text = ! empty( $step )
@@ -1783,7 +1783,7 @@ function bbp_converter_settings_page() {
 
 			<p class="submit">
 				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" />
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Stop', 'bbpress' ); ?>" />
+				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Pause', 'bbpress' ); ?>" />
 			</p>
 		</form>
 
