@@ -1123,7 +1123,14 @@ abstract class BBP_Converter_Base {
 
 	protected function callback_html( $field ) {
 		require_once bbpress()->admin->admin_dir . 'parser.php';
+
+		// Setup the BBCode parser
 		$bbcode = BBCode::getInstance();
+
+		// Setup smiley URL & path
+		$bbcode->smiley_url = includes_url( 'images/smilies' );
+		$bbcode->smiley_dir = '/' . WPINC . '/images/smilies';
+
 		return html_entity_decode( $bbcode->Parse( $field ) );
 	}
 
