@@ -2059,7 +2059,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		}
 
 		// Get any existing meta queries
-		$meta_query   = $posts_query->get( 'meta_query', array() );
+		$meta_query   = (array) $posts_query->get( 'meta_query', array() );
 
 		// Add our meta query to existing
 		$meta_query[] = $forum_ids;
