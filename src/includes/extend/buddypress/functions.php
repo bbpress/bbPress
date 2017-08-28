@@ -351,11 +351,10 @@ function bbp_maybe_create_group_forum_root() {
 		update_option( '_bbp_group_forums_root_id', $forum_id );
 
 		// Redirect
-		wp_safe_redirect( add_query_arg( array(
+		bbp_redirect( add_query_arg( array(
 			'page'    => 'bbpress',
-			'updated' => true // Lame, but still supported
+			'updated' => true
 		), admin_url( 'options-general.php' ) ) );
-		die;
 	}
 }
 
