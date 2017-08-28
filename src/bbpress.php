@@ -519,7 +519,8 @@ final class bbPress {
 				'can_export'          => true,
 				'hierarchical'        => true,
 				'query_var'           => true,
-				'menu_icon'           => ''
+				'menu_icon'           => '',
+				'source'              => 'bbpress',
 			) )
 		);
 
@@ -544,7 +545,8 @@ final class bbPress {
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
-				'menu_icon'           => ''
+				'menu_icon'           => '',
+				'source'              => 'bbpress',
 			)
 		) );
 
@@ -569,7 +571,8 @@ final class bbPress {
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
-				'menu_icon'           => ''
+				'menu_icon'           => '',
+				'source'              => 'bbpress',
 			) )
 		);
 	}
@@ -592,7 +595,8 @@ final class bbPress {
 				'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'bbpress' ),
 				'public'                    => true,
 				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => true
+				'show_in_admin_all_list'    => true,
+				'source'                    => 'bbpress'
 			) )
 		);
 
@@ -605,7 +609,8 @@ final class bbPress {
 				'protected'                 => true,
 				'exclude_from_search'       => true,
 				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false
+				'show_in_admin_all_list'    => false,
+				'source'                    => 'bbpress'
 			) )
 		 );
 
@@ -618,7 +623,8 @@ final class bbPress {
 				'protected'                 => true,
 				'exclude_from_search'       => true,
 				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false
+				'show_in_admin_all_list'    => false,
+				'source'                    => 'bbpress'
 			) )
 		);
 
@@ -631,7 +637,8 @@ final class bbPress {
 				'private'                   => true,
 				'exclude_from_search'       => true,
 				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => true
+				'show_in_admin_all_list'    => true,
+				'source'                    => 'bbpress'
 			) )
 		);
 
@@ -681,6 +688,7 @@ final class bbPress {
 				'show_in_nav_menus'     => false,
 				'public'                => true,
 				'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
+				'source'                => 'bbpress'
 			)
 		) );
 	}

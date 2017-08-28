@@ -25,11 +25,11 @@ function bbp_has_search_results( $args = array() ) {
 	/** Defaults **************************************************************/
 
 	$default_search_terms = bbp_get_search_terms();
-	$default_post_type    = array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$default_post_types   = get_post_types( array( 'source' => 'bbpress' ) );
 
 	// Default query args
 	$default = array(
-		'post_type'           => $default_post_type,         // Forums, topics, and replies
+		'post_type'           => $default_post_types,        // Forums, topics, and replies
 		'posts_per_page'      => bbp_get_replies_per_page(), // This many
 		'paged'               => bbp_get_paged(),            // On this page
 		'orderby'             => 'date',                     // Sorted by date

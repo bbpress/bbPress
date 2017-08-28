@@ -2048,7 +2048,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		$posts_query->set( 'post__not_in', $not_in );
 
 	// Some other post type besides Forums, Topics, or Replies
-	} elseif ( ! array_diff( $post_types, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) ) {
+	} elseif ( ! array_diff( $post_types, get_post_types( array( 'source' => 'bbpress' ) ) ) ) {
 
 		// Get forums to exclude
 		$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
