@@ -363,6 +363,7 @@ final class bbPress {
 		require $this->includes_dir . 'users/functions.php';
 		require $this->includes_dir . 'users/template.php';
 		require $this->includes_dir . 'users/options.php';
+		require $this->includes_dir . 'users/signups.php';
 
 		/** Hooks *************************************************************/
 

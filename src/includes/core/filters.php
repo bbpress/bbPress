@@ -64,6 +64,9 @@ add_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 add_filter( 'pre_handle_404',  'bbp_pre_handle_404',  10, 2 );
 add_action( 'posts_pre_query', 'bbp_posts_pre_query', 10, 2 );
 
+// User Creation
+add_filter( 'signup_user_meta', 'bbp_user_add_role_to_signup_meta', 10 );
+
 /**
  * Feeds
  *
