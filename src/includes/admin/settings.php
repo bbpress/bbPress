@@ -1600,7 +1600,13 @@ function bbp_converter_setting_callback_dbuser() {
 function bbp_converter_setting_callback_dbpass() {
 ?>
 
-	<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
+	<span class="bbp-converter-db-password-wrapper">
+		<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
+		<button type="button" class="bbp-db-pass-toggle password">
+			<span class="screen-reader-text"><?php esc_html_e( 'Toggle', 'bbpress' ); ?></span>
+			<span class="toggle-indicator" aria-hidden="true"></span>
+		</button>
+	</span>
 	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password for the above database user', 'bbpress' ); ?></label>
 
 <?php

@@ -481,6 +481,56 @@ div.bbp-converter-log .step {
 	margin-top: 2px;
 }
 
+.bbp-converter-db-password-wrapper {
+	display: inline-block;
+	position: relative;
+}
+
+#_bbp_converter_db_pass::-webkit-credentials-auto-fill-button {
+	display: none;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+button.bbp-db-pass-toggle {
+	border: none;
+	background: #fff;
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	color: #aaa;
+	height: 25px;
+	width: 25px;
+	font: 400 20px/1 dashicons !important;
+}
+
+button.bbp-db-pass-toggle:hover {
+	color: #888;
+}
+button.bbp-db-pass-toggle.text:after {
+	content: '\f530';
+}
+button.bbp-db-pass-toggle.password:after {
+	content: '\f177';
+}
+
+@media screen and ( max-width: 782px ) {
+	.bbp-converter-db-password-wrapper {
+		width: 100%;
+	}
+
+	button.bbp-db-pass-toggle {
+		height: 35px;
+		width: 35px;
+		font: 400 20px/1 dashicons !important;
+	}
+}
+
 /* Tools */
 
 td.bbp-tool-title strong {

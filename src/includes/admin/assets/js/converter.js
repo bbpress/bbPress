@@ -9,7 +9,28 @@ jQuery( document ).ready( function ( $ ) {
 		start    = $( '#bbp-converter-start'    ),
 		restart  = $( '#_bbp_converter_restart' ),
 		status   = $( '#bbp-converter-status'   ),
-		settings = $( '#bbp-converter-settings' );
+		settings = $( '#bbp-converter-settings' ),
+		password = $( '#_bbp_converter_db_pass' ),
+		toggle   = $( '.bbp-db-pass-toggle'     );
+
+	/**
+	 * Show/hide db password button toggle
+	 *
+	 * @since 2.6.0 bbPress (r6676)
+	 *
+	 * @param {element} e
+	 */
+	toggle.on( 'click', function( e ) {
+		password.attr( 'type' ) === 'password'
+			? password.attr( 'type', 'text' )
+			: password.attr( 'type', 'password' );
+
+		toggle
+			.toggleClass( 'password' )
+			.toggleClass( 'text' );
+
+		e.preventDefault();
+	});
 
 	/**
 	 * Start button click
