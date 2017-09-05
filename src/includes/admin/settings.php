@@ -589,7 +589,7 @@ function bbp_admin_get_settings_fields() {
 
 			// Clean
 			'_bbp_converter_clean' => array(
-				'title'             => esc_html__( 'Purge Previous Import', 'bbpress' ),
+				'title'             => esc_html__( 'Helper Data', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_clean',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -1662,7 +1662,7 @@ function bbp_converter_setting_callback_rows() {
 ?>
 
 	<input name="_bbp_converter_rows" id="_bbp_converter_rows" type="number" min="1" max="5000" value="<?php bbp_form_option( '_bbp_converter_rows', '100' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_rows' ); ?> />
-	<label for="_bbp_converter_rows"><?php esc_html_e( 'rows to process at a time', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_rows"><?php esc_html_e( 'entry maximum when querying for data to convert', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this low if you experience out-of-memory issues.', 'bbpress' ); ?></p>
 
 <?php
@@ -1677,7 +1677,7 @@ function bbp_converter_setting_callback_delay_time() {
 ?>
 
 	<input name="_bbp_converter_delay_time" id="_bbp_converter_delay_time" type="number" min="2" max="3600" value="<?php bbp_form_option( '_bbp_converter_delay_time', '2' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_delay_time' ); ?> />
-	<label for="_bbp_converter_delay_time"><?php esc_html_e( 'second(s) delay between each group of rows', 'bbpress' ); ?></label>
+	<label for="_bbp_converter_delay_time"><?php esc_html_e( 'second delay between each query of rows above', 'bbpress' ); ?></label>
 	<p class="description"><?php esc_html_e( 'Keep this high to prevent too-many-connection issues.', 'bbpress' ); ?></p>
 
 <?php
@@ -1693,7 +1693,7 @@ function bbp_converter_setting_callback_halt() {
 
 	<input name="_bbp_converter_halt" id="_bbp_converter_halt" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_halt', false ) ); ?> />
 	<label for="_bbp_converter_halt"><?php esc_html_e( 'Halt the conversion if an error occurs', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'This is helpful for when you want to debug problems.', 'bbpress' ); ?></p>
+	<p class="description"><?php esc_html_e( 'This is helpful if you want to debug problems.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1708,8 +1708,8 @@ function bbp_converter_setting_callback_restart() {
 ?>
 
 	<input name="_bbp_converter_restart" id="_bbp_converter_restart" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_restart', false ) ); ?> />
-	<label for="_bbp_converter_restart"><?php esc_html_e( 'Start a fresh conversion from the beginning', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'Purge all previous imports first to avoid duplicate data.', 'bbpress' ); ?></p>
+	<label for="_bbp_converter_restart"><?php esc_html_e( 'Restart the converter from the beginning', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'This forces all steps back to 0. Avoid duplicate data by purging or resetting first.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1723,8 +1723,8 @@ function bbp_converter_setting_callback_clean() {
 ?>
 
 	<input name="_bbp_converter_clean" id="_bbp_converter_clean" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_clean', false ) ); ?> />
-	<label for="_bbp_converter_clean"><?php esc_html_e( 'Purge all information from a previously attempted import', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'Use this if an import failed and you want to remove that incomplete data.', 'bbpress' ); ?></p>
+	<label for="_bbp_converter_clean"><?php esc_html_e( 'Purge all meta-data from a previous import', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'Use this if an import failed, or you just want to remove the relationship data.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1738,8 +1738,8 @@ function bbp_converter_setting_callback_convert_users() {
 ?>
 
 	<input name="_bbp_converter_convert_users" id="_bbp_converter_convert_users" type="checkbox" value="1" <?php checked( get_option( '_bbp_converter_convert_users', false ) ); ?> <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_convert_users' ); ?> />
-	<label for="_bbp_converter_convert_users"><?php esc_html_e( 'Attempt to import user accounts from previous forums', 'bbpress' ); ?></label>
-	<p class="description"><?php esc_html_e( 'Non-bbPress passwords cannot be automatically converted. They will be converted as each user logs in.', 'bbpress' ); ?></p>
+	<label for="_bbp_converter_convert_users"><?php esc_html_e( 'Import user accounts from previous forums', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'Passwords remain encrypted, and are converted as individual users log in.', 'bbpress' ); ?></p>
 
 <?php
 }
