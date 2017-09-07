@@ -845,9 +845,13 @@ abstract class BBP_Converter_Base {
 
 		if ( isset( $posts[0] ) && ! empty( $posts[0]['value_id'] ) ) {
 			foreach ( (array) $posts as $value ) {
-				wp_delete_post( $value['value_id'], true );
+				$deleted = wp_delete_post( $value['value_id'], true );
+
+				// Only flag if not empty or error
+				if ( ( false === $has_delete ) && ! empty( $deleted ) && ! is_wp_error( $deleted ) ) {
+					$has_delete = true;
+				}
 			}
-			$has_delete = true;
 		}
 
 		/** Delete users ******************************************************/
@@ -860,9 +864,13 @@ abstract class BBP_Converter_Base {
 
 		if ( ! empty( $users ) ) {
 			foreach ( $users as $value ) {
-				wp_delete_user( $value['value_id'] );
+				$deleted = wp_delete_user( $value['value_id'] );
+
+				// Only flag if not empty or error
+				if ( ( false === $has_delete ) && ! empty( $deleted ) && ! is_wp_error( $deleted ) ) {
+					$has_delete = true;
+				}
 			}
-			$has_delete = true;
 		}
 
 		unset( $posts );
