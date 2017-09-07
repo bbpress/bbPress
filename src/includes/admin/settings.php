@@ -1805,6 +1805,8 @@ function bbp_converter_settings_page() {
 							<h2 class="hndle ui-sortable-handle">
 								<span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span>
 								<span id="bbp-converter-status"><?php echo esc_html( $status_text ); ?></span>
+								<span id="bbp-converter-step-percentage" class="bbp-progress-bar"></span>
+								<span id="bbp-converter-total-percentage" class="bbp-progress-bar"></span>
 							</h2>
 							<div class="inside">
 								<div id="bbp-converter-message" class="bbp-converter-log">

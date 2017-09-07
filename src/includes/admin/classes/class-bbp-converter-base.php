@@ -414,6 +414,9 @@ abstract class BBP_Converter_Base {
 		// We have a $from_tablename, so we want to get some data to convert
 		if ( ! empty( $from_tablename ) ) {
 
+			// Update rows
+			$this->count_rows_by_table( "{$this->opdb->prefix}{$from_tablename}" );
+
 			// Get some data from the old forums
 			$field_list  = array_unique( $field_list );
 			$fields      = implode( ',', $field_list );
@@ -662,7 +665,7 @@ abstract class BBP_Converter_Base {
 			? $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value > 0 LIMIT {$start}, {$this->max_rows}", '_bbp_old_forum_parent_id' )
 			: $this->wpdb->prepare( "SELECT post_id AS value_id, meta_value FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value > 0 LIMIT {$start}, {$this->max_rows}", '_bbp_old_forum_parent_id' );
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			$parent_id = $this->callback_forumid( $row->meta_value );
 			$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->posts} SET post_parent = %d WHERE ID = %d LIMIT 1", $parent_id, $row->value_id ) );
 			$has_update = true;
@@ -682,7 +685,7 @@ abstract class BBP_Converter_Base {
 			? $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_sticky_status_id', 'sticky' )
 			: $this->wpdb->prepare( "SELECT post_id AS value_id, meta_value FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_sticky_status_id', 'sticky' );
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			bbp_stick_topic( $row->value_id );
 			$has_update = true;
 		}
@@ -701,7 +704,7 @@ abstract class BBP_Converter_Base {
 			? $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_sticky_status_id', 'super-sticky' )
 			: $this->wpdb->prepare( "SELECT post_id AS value_id, meta_value FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_sticky_status_id', 'super-sticky' );
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			$super = true;
 			bbp_stick_topic( $row->value_id, $super );
 			$has_update = true;
@@ -721,7 +724,7 @@ abstract class BBP_Converter_Base {
 			? $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_closed_status_id', 'closed' )
 			: $this->wpdb->prepare( "SELECT post_id AS value_id, meta_value FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT {$start}, {$this->max_rows}", '_bbp_old_closed_status_id', 'closed' );
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			bbp_close_topic( $row->value_id );
 			$has_update = true;
 		}
@@ -740,7 +743,7 @@ abstract class BBP_Converter_Base {
 			? $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value > 0 LIMIT {$start}, {$this->max_rows}", '_bbp_old_reply_to_id' )
 			: $this->wpdb->prepare( "SELECT post_id AS value_id, meta_value FROM {$this->wpdb->postmeta} WHERE meta_key = %s AND meta_value > 0 LIMIT {$start}, {$this->max_rows}", '_bbp_old_reply_to_id' );
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			$reply_to = $this->callback_reply_to( $row->meta_value );
 			$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->postmeta} SET meta_value = %s WHERE meta_key = %s AND post_id = %d LIMIT 1", $reply_to, '_bbp_reply_to', $row->value_id ) );
 			$has_update = true;
@@ -776,7 +779,7 @@ abstract class BBP_Converter_Base {
 							LIMIT {$start}, {$this->max_rows}", 'true', '_bbp_old_topic_author_name_id' );
 		}
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			$anonymous_topic_author_id = 0;
 			$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->posts} SET post_author = %d WHERE ID = %d LIMIT 1", $anonymous_topic_author_id, $row->topic_id ) );
 
@@ -815,7 +818,7 @@ abstract class BBP_Converter_Base {
 							LIMIT {$start}, {$this->max_rows}", 'true', '_bbp_old_reply_author_name_id' );
 		}
 
-		foreach ( $this->get_results( $query ) as $row ) {
+		foreach ( $this->count_rows_by_results( $query ) as $row ) {
 			$anonymous_reply_author_id = 0;
 			$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->posts} SET post_author = %d WHERE ID = %d LIMIT 1", $anonymous_reply_author_id, $row->reply_id ) );
 
@@ -890,7 +893,6 @@ abstract class BBP_Converter_Base {
 		$converted  = $this->get_results( $query, ARRAY_A );
 
 		if ( ! empty( $converted ) ) {
-
 			foreach ( $converted as $value ) {
 				if ( is_serialized( $value['meta_value'] ) ) {
 					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = '' WHERE ID = %d", $value['user_id'] ) );
@@ -987,6 +989,36 @@ abstract class BBP_Converter_Base {
 	 */
 	private function update_query( $query = '' ) {
 		return update_option( '_bbp_converter_query', $query );
+	}
+
+	/**
+	 * Update the number of rows in the current step
+	 *
+	 * @since 2.6.0 bbPress (r6637)
+	 *
+	 * @param string $query The literal MySQL query
+	 * @return bool
+	 */
+	private function count_rows_by_results( $query = '' ) {
+		$results = $this->get_results( $query );
+
+		update_option( '_bbp_converter_rows_in_step', count( $results ) );
+
+		return $results;
+	}
+
+	/**
+	 * Update the number of rows in the current step
+	 *
+	 * @since 2.6.0 bbPress (r6637)
+	 *
+	 * @param string $table_name The literal MySQL query
+	 * @return bool
+	 */
+	private function count_rows_by_table( $table_name = '' ) {
+		$count = (int) $this->opdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+
+		return update_option( '_bbp_converter_rows_in_step', $count );
 	}
 
 	/** Callbacks *************************************************************/

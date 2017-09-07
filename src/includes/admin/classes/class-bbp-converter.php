@@ -44,6 +44,21 @@ class BBP_Converter {
 	public $max_steps = 17;
 
 	/**
+	 * @var int Number of rows in the current step
+	 */
+	public $rows_in_step = 0;
+
+	/**
+	 * @var int Percent complete of current step
+	 */
+	public $step_percentage = 0;
+
+	/**
+	 * @var int Percent complete of all step
+	 */
+	public $total_percentage = 0;
+
+	/**
 	 * @var int Name of source forum platform
 	 */
 	public $platform = '';
@@ -132,10 +147,12 @@ class BBP_Converter {
 
 			// UI State
 			'state' => array(
-				'delay'   => (int)  get_option( '_bbp_converter_delay_time', 2 ),
-				'started' => (bool) get_option( '_bbp_converter_step',       0 ),
-				'running' => false,
-				'status'  => false
+				'delay'         => (int)  get_option( '_bbp_converter_delay_time', 2 ),
+				'started'       => (bool) get_option( '_bbp_converter_step',       0 ),
+				'running'       => false,
+				'status'        => false,
+				'step_percent'  => $this->step_percentage,
+				'total_percent' => $this->total_percentage
 			),
 
 			// Strings
@@ -194,17 +211,23 @@ class BBP_Converter {
 	 */
 	private function converter_response( $output = '' ) {
 
+		// Sanitize output
+		$output = wp_kses_data( $output );
+
 		// Maybe prepend the step
-		$output = ! empty( $this->step )
-			? sprintf( '<span class="step">%s:</span> %s', $this->step, $output )
+		$progress = ! empty( $this->step )
+			? sprintf( '<span class="step">%s.</span><span class="output">%s</span><span class="mini-step">%s</span>', $this->step, $output, $this->step_percentage . '%' )
 			: $output;
 
 		// Output
 		wp_send_json_success( array(
-			'query'        => get_option( '_bbp_converter_query', '' ),
-			'current_step' => $this->step,
-			'final_step'   => $this->max_steps,
-			'progress'     => $output
+			'query'         => get_option( '_bbp_converter_query', '' ),
+			'current_step'  => $this->step,
+			'final_step'    => $this->max_steps,
+			'rows_in_step'  => $this->rows_in_step,
+			'step_percent'  => $this->step_percentage,
+			'total_percent' => $this->total_percentage,
+			'progress'      => $progress
 		) );
 	}
 
@@ -231,8 +254,11 @@ class BBP_Converter {
 
 		// Save step and count so that it can be restarted.
 		if ( ! get_option( '_bbp_converter_step' ) || ! empty( $_POST['_bbp_converter_restart'] ) ) {
-			$this->step  = 1;
-			$this->start = 0;
+			$this->step             = 1;
+			$this->start            = 0;
+			$this->step_percentage  = 0;
+			$this->total_percentage = 0;
+			$this->rows_in_step     = 0;
 			$this->maybe_update_options();
 		}
 	}
@@ -248,8 +274,9 @@ class BBP_Converter {
 		$options = array(
 
 			// Step & Start
-			'_bbp_converter_step'  => $this->step,
-			'_bbp_converter_start' => $this->start,
+			'_bbp_converter_step'         => $this->step,
+			'_bbp_converter_start'        => $this->start,
+			'_bbp_converter_rows_in_step' => $this->rows_in_step,
 
 			// Halt
 			'_bbp_converter_halt' => ! empty( $_POST['_bbp_converter_halt'] )
@@ -316,15 +343,28 @@ class BBP_Converter {
 	private function setup_options() {
 
 		// Set starting point & rows
-		$this->step     = (int) get_option( '_bbp_converter_step',  1   );
-		$this->start    = (int) get_option( '_bbp_converter_start', 0   );
-		$this->rows     = (int) get_option( '_bbp_converter_rows',  100 );
+		$this->step         = (int) get_option( '_bbp_converter_step',         1   );
+		$this->start        = (int) get_option( '_bbp_converter_start',        0   );
+		$this->rows         = (int) get_option( '_bbp_converter_rows',         100 );
+		$this->rows_in_step = (int) get_option( '_bbp_converter_rows_in_step', 0   );
 
 		// Set boundaries
-		$this->max      = ( $this->start + $this->rows ) - 1;
+		$this->max          = ( $this->start + $this->rows ) - 1;
 
 		// Set platform
-		$this->platform = get_option( '_bbp_converter_platform' );
+		$this->platform     = get_option( '_bbp_converter_platform' );
+
+		// Total percentage
+		$this->total_percentage = round( ( $this->step / $this->max_steps ) * 100, 2 );
+
+		// Total mini steps
+		if ( $this->rows_in_step > 0 ) {
+			$total_mini_steps      = ceil( $this->rows_in_step / $this->rows );
+			$current_mini_step     = ceil( $this->start        / $this->rows );
+			$this->step_percentage = round( ( $current_mini_step / $total_mini_steps ) * 100, 2 );
+		} else {
+			$this->step_percentage = 0;
+		}
 
 		// Maybe include the appropriate converter.
 		if ( ! empty( $this->platform ) ) {
@@ -354,9 +394,10 @@ class BBP_Converter {
 	 * @since 2.6.0 bbPress (r6460)
 	 */
 	private function reset() {
-		update_option( '_bbp_converter_step',  0  );
-		update_option( '_bbp_converter_start', 0  );
-		update_option( '_bbp_converter_query', '' );
+		update_option( '_bbp_converter_step',         0  );
+		update_option( '_bbp_converter_start',        0  );
+		update_option( '_bbp_converter_rows_in_step', 0  );
+		update_option( '_bbp_converter_query',        '' );
 	}
 
 	/**
@@ -375,8 +416,9 @@ class BBP_Converter {
 			: 0;
 
 		// Update step and start at 0
-		update_option( '_bbp_converter_step',  $step );
-		update_option( '_bbp_converter_start', 0     );
+		update_option( '_bbp_converter_step',         $step );
+		update_option( '_bbp_converter_start',        0     );
+		update_option( '_bbp_converter_rows_in_step', 0     );
 	}
 
 	/**
@@ -424,7 +466,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'Sync-table ready',    'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf( esc_html__( 'Deleting previously converted data (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+				$this->converter_response( sprintf( esc_html__( 'Deleting previously converted data (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step) );
 			}
 
 			$this->converter->clean = false;
@@ -450,7 +492,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'All users imported', 'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf(  esc_html__( 'Converting users (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+				$this->converter_response( sprintf(  esc_html__( 'Converting users (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 			}
 		} else {
 			$this->bump_step();
@@ -473,7 +515,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'All passwords cleared', 'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf( esc_html__( 'Delete default WordPress user passwords (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+				$this->converter_response( sprintf( esc_html__( 'Delete default WordPress user passwords (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 			}
 		} else {
 			$this->bump_step();
@@ -495,7 +537,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All forums imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting forums (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting forums (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -513,7 +555,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All forum parents imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Calculating forum hierarchy (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Calculating forum hierarchy (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -531,7 +573,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All forum subscriptions imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting forum subscriptions (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting forum subscriptions (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -549,7 +591,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All topics imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting topics (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting topics (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -567,7 +609,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All anonymous topic authors imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting anonymous topic authors (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting anonymous topic authors (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -585,7 +627,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All stickies imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Calculating topic stickies (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Calculating topic stickies (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -603,7 +645,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All super stickies imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Calculating topic super stickies (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Calculating topic super stickies (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -621,7 +663,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All closed topics imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Calculating closed topics (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Calculating closed topics (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -639,7 +681,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All topic tags imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting topic tags (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting topic tags (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -657,7 +699,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All topic subscriptions imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting topic subscriptions (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting topic subscriptions (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -675,7 +717,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All favorites imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting favorites (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting favorites (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -693,7 +735,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All replies imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting replies (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting replies (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -711,7 +753,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All anonymous reply authors imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Converting anonymous reply authors (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Converting anonymous reply authors (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 
@@ -729,7 +771,7 @@ class BBP_Converter {
 				: $this->converter_response( esc_html__( 'All threaded replies imported', 'bbpress' ) );
 		} else {
 			$this->bump_start();
-			$this->converter_response( sprintf( esc_html__( 'Calculating threaded replies parents (%1$s - %2$s)', 'bbpress' ), $this->start, $this->max ) );
+			$this->converter_response( sprintf( esc_html__( 'Calculating threaded replies parents (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 		}
 	}
 

@@ -428,6 +428,10 @@ body.post-type-reply strong.label {
 
 /* Converter */
 
+#bbp-converter-monitor h2 {
+	position: relative;
+}
+
 #bbp-converter-monitor .inside {
 	margin-bottom: 0;
 }
@@ -467,6 +471,39 @@ div.bbp-converter-log div code {
 div.bbp-converter-log .step {
 	text-align: right;
 	font-weight: 600;
+}
+
+div.bbp-converter-log .output {
+	margin: 0 5px;
+}
+
+div.bbp-converter-log .mini-step {
+	padding: 3px 5px;
+	vertical-align: middle;
+	font-size: 8px;
+	font-weight: 600;
+	border-radius: 6px;
+	background-color: #aaa;
+	color: white;
+}
+
+#bbp-converter-monitor .bbp-progress-bar {
+	position: absolute;
+	left: 0;
+	height: 1px;
+	width: 0;
+	background-color: #00b9eb;
+	transition-property: width;
+	transition-timing-function: ease-out;
+	transition-duration: 1s;
+}
+
+#bbp-converter-monitor #bbp-converter-step-percentage {
+	bottom: 1px;
+}
+
+#bbp-converter-monitor #bbp-converter-total-percentage {
+	bottom: 0;
 }
 
 #bbp-converter-stop {
