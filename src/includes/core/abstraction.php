@@ -189,6 +189,80 @@ function bbp_get_paged_slug() {
 }
 
 /**
+ * Remove the first-page from a pagination links result set, ensuring that it
+ * points to the canonical first page URL.
+ *
+ * This is a bit of an SEO hack, to guarantee that the first page in a loop will
+ * never have pagination appended to the end of it, regardless of what the other
+ * functions have decided for us.
+ *
+ * @since 2.6.0 bbPress (r6678)
+ *
+ * @param string $pagination_links The HTML links used for pagination
+ *
+ * @return string
+ */
+function bbp_make_first_page_canonical( $pagination_links = '' ) {
+
+	// Default value
+	$retval = $pagination_links;
+
+	// Remove first page from pagination
+	if ( ! empty( $pagination_links ) ) {
+		$retval = bbp_use_pretty_urls()
+			? str_replace( bbp_get_paged_slug() . '/1/', '', $pagination_links )
+			: preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_make_first_page_canonical', $retval, $pagination_links );
+}
+
+/**
+ * A convenient wrapper for common calls to paginate_links(), complete with
+ * support for parameters that aren't used internally by bbPress.
+ *
+ * @since 2.6.0 bbPress (r6679)
+ *
+ * @param array $args
+ *
+ * @return string
+ */
+function bbp_paginate_links( $args = array() ) {
+
+	// Maybe add view-all args
+	$add_args = empty( $args['add_args'] ) && bbp_get_view_all()
+		? array( 'view' => 'all' )
+		: false;
+
+	// Pagination settings with filter
+	$r = bbp_parse_args( $args, array(
+
+		// Used by callers
+		'base'      => '',
+		'total'     => 1,
+		'current'   => bbp_get_paged(),
+		'prev_next' => true,
+		'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
+		'next_text' => is_rtl() ? '&larr;' : '&rarr;',
+		'mid_size'  => 1,
+		'end_size'  => 3,
+		'add_args'  => $add_args,
+
+		// Unused by callers
+		'show_all'           => false,
+		'type'               => 'plain',
+		'format'             => '',
+		'add_fragment'       => '',
+		'before_page_number' => '',
+		'after_page_number'  => ''
+	), 'paginate_links' );
+
+	// Return paginated links
+	return bbp_make_first_page_canonical( paginate_links( $r ) );
+}
+
+/**
  * Is the environment using pretty URLs?
  *
  * @since 2.5.8 bbPress (r5814)

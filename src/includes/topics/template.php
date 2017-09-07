@@ -202,7 +202,7 @@ function bbp_has_topics( $args = array() ) {
 
 	// Limited the number of pages shown
 	if ( ! empty( $r['max_num_pages'] ) ) {
-		$bbp->topic_query->max_num_pages = $r['max_num_pages'];
+		$bbp->topic_query->max_num_pages = (int) $r['max_num_pages'];
 	}
 
 	/** Stickies **************************************************************/
@@ -222,7 +222,7 @@ function bbp_has_topics( $args = array() ) {
 	$bbp->topic_query->paged          = (int) $r['paged'];
 
 	// Only add pagination if query returned results
-	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
+	if ( ( ! empty( $bbp->topic_query->post_count ) || ! empty( $bbp->topic_query->found_posts ) ) && ! empty( $bbp->topic_query->posts_per_page ) ) {
 
 		// Limit the number of topics shown based on maximum allowed pages
 		if ( ( ! empty( $r['max_num_pages'] ) ) && ( $bbp->topic_query->found_posts > ( $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count ) ) ) {
@@ -230,26 +230,29 @@ function bbp_has_topics( $args = array() ) {
 		}
 
 		// Total topics for pagination boundaries
-		$total = ( $r['posts_per_page'] === $bbp->topic_query->found_posts )
+		$total_pages = ( $bbp->topic_query->posts_per_page === $bbp->topic_query->found_posts )
 			? 1
-			: ceil( (int) $bbp->topic_query->found_posts / (int) $r['posts_per_page'] );
+			: ceil( $bbp->topic_query->found_posts / $bbp->topic_query->posts_per_page );
+
+		// Maybe add view-all args
+		$add_args = bbp_get_view_all()
+			? array( 'view' => 'all' )
+			: false;
 
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array(
 			'base'      => bbp_get_topics_pagination_base( $r['post_parent'] ),
 			'format'    => '',
-			'total'     => (int) $total,
-			'current'   => (int) $bbp->topic_query->paged,
+			'total'     => $total_pages,
+			'current'   => $bbp->topic_query->paged,
 			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
 			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
-			'mid_size'  => 1
+			'mid_size'  => 1,
+			'add_args'  => $add_args,
 		) );
 
 		// Add pagination to query object
-		$bbp->topic_query->pagination_links = paginate_links( $bbp_topic_pagination );
-
-		// Remove first page from pagination
-		$bbp->topic_query->pagination_links = str_replace( bbp_get_paged_slug() . "/1/'", "'", $bbp->topic_query->pagination_links );
+		$bbp->topic_query->pagination_links = bbp_paginate_links( $bbp_topic_pagination );
 	}
 
 	// Filter & return
@@ -780,11 +783,9 @@ function bbp_topic_pagination( $args = array() ) {
 		), 'get_topic_pagination' );
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( bbp_use_pretty_urls() ) {
-			$base = trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
-		} else {
-			$base = add_query_arg( 'paged', '%#%', get_permalink( $r['topic_id'] ) );
-		}
+		$base = bbp_use_pretty_urls()
+			? trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' )
+			: add_query_arg( 'paged', '%#%', get_permalink( $r['topic_id'] ) );
 
 		// Get total and add 1 if topic is included in the reply loop
 		$total = bbp_get_topic_reply_count( $r['topic_id'], true );
@@ -794,33 +795,30 @@ function bbp_topic_pagination( $args = array() ) {
 			$total++;
 		}
 
+		// Total for pagination boundaries
+		$total_pages = ceil( $total / bbp_get_replies_per_page() );
+
 		// Maybe add view-all args
 		$add_args = bbp_get_view_all( 'edit_others_replies' )
 			? array( 'view' => 'all' )
 			: false;
 
-		// Add pagination to query object
-		$pagination_links = paginate_links( array(
+		// Pagination settings with filter
+		$bbp_topic_pagination = apply_filters( 'bbp_get_topic_pagination', array(
 			'base'      => $base,
-			'format'    => '',
-			'total'     => ceil( (int) $total / (int) bbp_get_replies_per_page() ),
+			'total'     => $total_pages,
 			'current'   => 0,
 			'prev_next' => false,
 			'mid_size'  => 2,
-			'end_size'  => 3,
+			'end_size'  => 2,
 			'add_args'  => $add_args
 		) );
 
+		// Add pagination to query object
+		$pagination_links = bbp_paginate_links( $bbp_topic_pagination );
+
+		// Maybe add before and after to pagination links
 		if ( ! empty( $pagination_links ) ) {
-
-			// Remove first page from pagination
-			if ( bbp_use_pretty_urls() ) {
-				$pagination_links = str_replace( bbp_get_paged_slug() . '/1/', '', $pagination_links );
-			} else {
-				$pagination_links = preg_replace( '/&#038;paged=1(?=[^0-9])/m', '', $pagination_links );
-			}
-
-			// Add before and after to pagination links
 			$pagination_links = $r['before'] . $pagination_links . $r['after'];
 		}
 
@@ -2912,7 +2910,7 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 	}
 
 	// Filter & return
-	return apply_filters( 'bbp_get_topics_pagination_base', $base );
+	return apply_filters( 'bbp_get_topics_pagination_base', $base, $forum_id );
 }
 
 /**
