@@ -47,9 +47,13 @@ Title: Core Contributor
 Twitter: netweb
 Favorite Food: Tacos 🌮
 
+Name: Sergey Biryukov
+Title: Core Contributor
+Twitter: sergeybiryukov
+
 /* THANKS */
-Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, cnorris23, anointed, andy, nacin
+Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, Pippin Williamson, cnorris23, anointed, andy, nacin
 
 /* META */
-Updated: 2013/11/25
+Updated: 2017/09/09
 See: http://humanstxt.org/
