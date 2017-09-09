@@ -1505,6 +1505,8 @@ function bbp_topic_author_link( $args = '' ) {
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
 
+				$author_link = array();
+
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
@@ -3802,33 +3804,20 @@ function bbp_form_topic_tags() {
 					break;
 			}
 
+			$new_terms = array();
+
 			// Topic exists
 			if ( !empty( $topic_id ) ) {
 
 				// Topic is spammed so display pre-spam terms
 				if ( bbp_is_topic_spam( $topic_id ) ) {
-
-					// Get pre-spam terms
 					$new_terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
-
-					// If terms exist, explode them and compile the return value
-					if ( empty( $new_terms ) ) {
-						$new_terms = '';
-					}
 
 				// Topic is not spam so get real terms
 				} else {
-					$terms = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
-
-					// Loop through them
-					foreach ( $terms as $term ) {
-						$new_terms[] = $term->name;
-					}
+					$terms     = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
+					$new_terms = wp_list_pluck( $terms, 'name' );
 				}
-
-			// Define local variable(s)
-			} else {
-				$new_terms = '';
 			}
 
 			// Set the return value

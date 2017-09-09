@@ -1234,6 +1234,8 @@ function bbp_reply_author_link( $args = '' ) {
 			// Add links if not anonymous and existing user
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_reply_author_id( $reply_id ) ) ) {
 
+				$author_link = array();
+
 				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . $link . '"';

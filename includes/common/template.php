@@ -1819,6 +1819,8 @@ function bbp_the_content( $args = array() ) {
  */
 function bbp_get_tiny_mce_plugins( $plugins = array() ) {
 
+	$plugins = (array) $plugins;
+
 	// Unset fullscreen
 	foreach ( $plugins as $key => $value ) {
 		if ( 'fullscreen' === $value ) {
