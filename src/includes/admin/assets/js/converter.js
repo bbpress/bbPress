@@ -23,9 +23,9 @@ jQuery( document ).ready( function ( $ ) {
 	 * @param {element} e
 	 */
 	toggle.on( 'click', function( e ) {
-		password.attr( 'type' ) === 'password'
-			? password.attr( 'type', 'text' )
-			: password.attr( 'type', 'password' );
+		var type = ( password.attr( 'type' ) === 'password' ) ? 'text' : 'password';
+
+		password.attr( 'type', type );
 
 		toggle
 			.toggleClass( 'password' )
