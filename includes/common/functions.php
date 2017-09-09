@@ -496,8 +496,8 @@ function bbp_get_statistics( $args = '' ) {
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
-			// Declare empty arrays 
-			$topics = $topic_titles = array(); 
+			// Declare empty arrays
+			$topics = $topic_titles = array();
 
 			// Private
 			$topics['private'] = ( !empty( $r['count_private_topics'] ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->{$private} : 0;
@@ -531,8 +531,8 @@ function bbp_get_statistics( $args = '' ) {
 
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
 
-			// Declare empty arrays 
-			$replies = $reply_titles = array(); 
+			// Declare empty arrays
+			$replies = $reply_titles = array();
 
 			// Private
 			$replies['private'] = ( !empty( $r['count_private_replies'] ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->{$private} : 0;
@@ -1639,35 +1639,12 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'bbpress_posts' );
 	if ( false === $child_ids ) {
-		$post_status = array( bbp_get_public_status_id() );
 
-		// Extra post statuses based on post type
-		switch ( $post_type ) {
+		// Join post statuses to specifically exclude together
+		$not_in      = array( 'draft', 'future' );
+		$post_status = "'" . implode( "', '", $not_in ) . "'";
 
-			// Forum
-			case bbp_get_forum_post_type() :
-				$post_status[] = bbp_get_private_status_id();
-				$post_status[] = bbp_get_hidden_status_id();
-				break;
-
-			// Topic
-			case bbp_get_topic_post_type() :
-				$post_status[] = bbp_get_closed_status_id();
-				$post_status[] = bbp_get_trash_status_id();
-				$post_status[] = bbp_get_spam_status_id();
-				break;
-
-			// Reply
-			case bbp_get_reply_post_type() :
-				$post_status[] = bbp_get_trash_status_id();
-				$post_status[] = bbp_get_spam_status_id();
-				break;
-		}
-
-		// Join post statuses together
-		$post_status = "'" . implode( "', '", $post_status ) . "'";
-
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids   = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status NOT IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress_posts' );
 	}
 
