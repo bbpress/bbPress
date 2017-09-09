@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, jmdodd, netweb
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 2.5.12
+Stable tag: 2.5.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,14 @@ bbPress is spry & nimble, and allows for great add-on features through WordPress
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.5.14 =
+* Improved support for PHP 7.1 and higher
+* Improved pagination for non-public post statuses
+* Fix converter row-limit boundaries
+
+= 2.5.13 =
+* Improved support for `post_parent__in` type queries
 
 = 2.5.12 =
 * Bump minimum WordPress version to 4.7
