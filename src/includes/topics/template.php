@@ -2916,10 +2916,13 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 /**
  * Output the pagination count
  *
+ * The results are unescaped by design, to allow them to be filtered freely via
+ * the 'bbp_get_forum_pagination_count' filter.
+ *
  * @since 2.0.0 bbPress (r2519)
  */
 function bbp_forum_pagination_count() {
-	echo esc_html( bbp_get_forum_pagination_count() );
+	echo bbp_get_forum_pagination_count();
 }
 	/**
 	 * Return the pagination count
@@ -2931,24 +2934,38 @@ function bbp_forum_pagination_count() {
 	function bbp_get_forum_pagination_count() {
 		$bbp = bbpress();
 
-		if ( empty( $bbp->topic_query ) ) {
-			return false;
-		}
+		// Define local variable(s)
+		$retstr = '';
 
-		// Set pagination values
-		$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
-		$from_num  = bbp_number_format( $start_num );
-		$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $start_num + ( $bbp->topic_query->posts_per_page - 1 ) );
-		$total_int = (int) ! empty( $bbp->topic_query->found_posts ) ? $bbp->topic_query->found_posts : $bbp->topic_query->post_count;
-		$total     = bbp_number_format( $total_int );
+		// Topic query exists
+		if ( ! empty( $bbp->topic_query ) ) {
 
-		// Several topics in a forum with a single page
-		if ( empty( $to_num ) ) {
-			$retstr = sprintf( _n( 'Viewing %1$s topic', 'Viewing %1$s topics', $total_int, 'bbpress' ), $total );
+			// Set pagination values
+			$count_int = intval( $bbp->topic_query->post_count );
+			$start_num = intval( ( $bbp->topic_query->paged - 1 ) * $bbp->topic_query->posts_per_page ) + 1;
+			$total_int = ! empty( $bbp->topic_query->found_posts )
+				? (int) $bbp->topic_query->found_posts
+				: $count_int;
 
-		// Several topics in a forum with several pages
-		} else {
-			$retstr = sprintf( _n( 'Viewing topic %2$s (of %4$s total)', 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', $total_int, 'bbpress' ), $bbp->topic_query->post_count, $from_num, $to_num, $total );
+			// Format numbers for display
+			$count_num = bbp_number_format( $count_int );
+			$from_num  = bbp_number_format( $start_num );
+			$total     = bbp_number_format( $total_int );
+			$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts )
+				? $bbp->topic_query->found_posts
+				: $start_num + ( $bbp->topic_query->posts_per_page - 1 ) );
+
+			// Several topics in a forum with a single page
+			if ( empty( $to_num ) ) {
+				$retstr = sprintf( _n( 'Viewing %1$s topic', 'Viewing %1$s topics', $total_int, 'bbpress' ), $total );
+
+			// Several topics in a forum with several pages
+			} else {
+				$retstr = sprintf( _n( 'Viewing topic %2$s (of %4$s total)', 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', $total_int, 'bbpress' ), $count_num, $from_num, $to_num, $total );
+			}
+
+			// Escape results of _n()
+			$retstr = esc_html( $retstr );
 		}
 
 		// Filter & return

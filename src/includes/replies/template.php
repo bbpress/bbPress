@@ -2237,11 +2237,14 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 /**
  * Output the topic pagination count
  *
+ * The results are unescaped by design, to allow them to be filtered freely via
+ * the 'bbp_get_topic_pagination_count' filter.
+ *
  * @since 2.0.0 bbPress (r2519)
  *
  */
 function bbp_topic_pagination_count() {
-	echo esc_html( bbp_get_topic_pagination_count() );
+	echo bbp_get_topic_pagination_count();
 }
 	/**
 	 * Return the topic pagination count
@@ -2257,14 +2260,16 @@ function bbp_topic_pagination_count() {
 		$retstr = '';
 
 		// Set pagination values
+		$count_int = intval( $bbp->reply_query->post_count     );
 		$total_int = intval( $bbp->reply_query->found_posts    );
 		$ppp_int   = intval( $bbp->reply_query->posts_per_page );
 		$start_int = intval( ( $bbp->reply_query->paged - 1 ) * $ppp_int ) + 1;
 		$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
-				? $total_int
-				: $start_int + ( $ppp_int - 1 ) );
+			? $total_int
+			: $start_int + ( $ppp_int - 1 ) );
 
 		// Format numbers for display
+		$count_num = bbp_number_format( $count_int );
 		$total_num = bbp_number_format( $total_int );
 		$from_num  = bbp_number_format( $start_int );
 		$to_num    = bbp_number_format( $to_int    );
@@ -2284,7 +2289,7 @@ function bbp_topic_pagination_count() {
 
 			// Several replies in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total_num );
+				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );
 			}
 
 		// We are including the lead topic
@@ -2296,9 +2301,12 @@ function bbp_topic_pagination_count() {
 
 			// Several posts in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $bbp->reply_query->post_count, 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total_num );
+				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );
 			}
 		}
+
+		// Escape results of _n()
+		$retstr = esc_html( $retstr );
 
 		// Filter & return
 		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
