@@ -2175,20 +2175,33 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 	function bbp_get_reply_class( $reply_id = 0, $classes = array() ) {
 		$bbp       = bbpress();
 		$reply_id  = bbp_get_reply_id( $reply_id );
-		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
-		$classes   = (array) $classes;
-		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
-		$classes[] = 'bbp-parent-forum-'   . bbp_get_reply_forum_id( $reply_id );
-		$classes[] = 'bbp-parent-topic-'   . bbp_get_reply_topic_id( $reply_id );
-		$classes[] = 'bbp-reply-position-' . bbp_get_reply_position( $reply_id, true );
-		$classes[] = 'user-id-' . bbp_get_reply_author_id( $reply_id );
-		$classes[] = ( bbp_get_reply_author_id( $reply_id ) === bbp_get_topic_author_id( bbp_get_reply_topic_id( $reply_id ) ) ? 'topic-author' : '' );
-		$classes   = array_filter( $classes );
-		$classes   = get_post_class( $classes, $reply_id );
-		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );
-		$retval    = 'class="' . implode( ' ', $classes ) . '"';
+		$topic_id  = bbp_get_reply_topic_id( $reply_id );
+		$author_id = bbp_get_reply_author_id( $reply_id );
+		$classes   = array_filter( (array) $classes );
+		$count     = isset( $bbp->reply_query->current_post )
+			? (int) $bbp->reply_query->current_post
+			: 1;
 
-		return $retval;
+		// Get reply classes
+		$reply_classes = array(
+			'loop-item-' . $count,
+			( $count % 2                                        )   ? 'even'         : 'odd',
+			( $author_id === bbp_get_topic_author_id( $topic_id ) ) ? 'topic-author' : '',
+			'user-id-' . $author_id,
+			'bbp-parent-forum-'   . bbp_get_reply_forum_id( $reply_id ),
+			'bbp-parent-topic-'   . $topic_id,
+			'bbp-reply-position-' . bbp_get_reply_position( $reply_id, true )
+		);
+
+		// Run the topic classes through the post-class filters, which also
+		// handles the escaping of each individual class.
+		$post_classes = get_post_class( array_merge( $classes, $reply_classes ), $reply_id );
+
+		// Filter
+		$new_classes  = apply_filters( 'bbp_get_reply_class', $post_classes, $reply_id, $classes );
+
+		// Return
+		return 'class="' . implode( ' ', $new_classes ) . '"';
 	}
 
 /** Pagination ****************************************************************/

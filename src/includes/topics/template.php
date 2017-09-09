@@ -2253,21 +2253,32 @@ function bbp_topic_class( $topic_id = 0, $classes = array() ) {
 	 * @return string Row class of a topic
 	 */
 	function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
-		$bbp       = bbpress();
-		$topic_id  = bbp_get_topic_id( $topic_id );
-		$count     = isset( $bbp->topic_query->current_post ) ? $bbp->topic_query->current_post : 1;
-		$classes   = (array) $classes;
-		$classes[] = ( (int) $count % 2 )                    ? 'even'         : 'odd';
-		$classes[] = bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '';
-		$classes[] = bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '';
-		$classes[] = 'bbp-parent-forum-' . bbp_get_topic_forum_id( $topic_id );
-		$classes[] = 'user-id-' . bbp_get_topic_author_id( $topic_id );
-		$classes   = array_filter( $classes );
-		$classes   = get_post_class( $classes, $topic_id );
-		$classes   = apply_filters( 'bbp_get_topic_class', $classes, $topic_id );
-		$retval    = 'class="' . implode( ' ', $classes ) . '"';
+		$bbp      = bbpress();
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$classes  = array_filter( (array) $classes );
+		$count    = isset( $bbp->topic_query->current_post )
+			? (int) $bbp->topic_query->current_post
+			: 1;
 
-		return $retval;
+		// Get topic classes
+		$topic_classes = array(
+			'loop-item-' . $count,
+			( $count % 2 )                          ? 'even'         : 'odd',
+			bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '',
+			bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '',
+			'bbp-parent-forum-' . bbp_get_topic_forum_id( $topic_id ),
+			'user-id-' . bbp_get_topic_author_id( $topic_id )
+		);
+
+		// Run the topic classes through the post-class filters, which also
+		// handles the escaping of each individual class.
+		$post_classes = get_post_class( array_merge( $classes, $topic_classes ), $topic_id );
+
+		// Filter
+		$new_classes  = apply_filters( 'bbp_get_topic_class', $post_classes, $topic_id, $classes );
+
+		// Return
+		return 'class="' . implode( ' ', $new_classes ) . '"';
 	}
 
 /** Topic Admin Links *********************************************************/

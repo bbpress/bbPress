@@ -1796,27 +1796,32 @@ function bbp_forum_class( $forum_id = 0, $classes = array() ) {
 	function bbp_get_forum_class( $forum_id = 0, $classes = array() ) {
 		$bbp       = bbpress();
 		$forum_id  = bbp_get_forum_id( $forum_id );
-		$count     = isset( $bbp->forum_query->current_post ) ? $bbp->forum_query->current_post : 1;
-		$classes   = (array) $classes;
+		$parent_id = bbp_get_forum_parent_id( $forum_id );
+		$classes   = array_filter( (array) $classes );
+		$count     = isset( $bbp->forum_query->current_post )
+			? (int) $bbp->forum_query->current_post
+			: 1;
 
-		// Get some classes
-		$classes[] = 'loop-item-' . $count;
-		$classes[] = ( (int) $count % 2 )                      ? 'even'              : 'odd';
-		$classes[] = bbp_is_forum_category( $forum_id )        ? 'status-category'   : '';
-		$classes[] = bbp_get_forum_subforum_count( $forum_id ) ? 'bbp-has-subforums' : '';
-		$classes[] = bbp_get_forum_parent_id( $forum_id )      ? 'bbp-parent-forum-' . bbp_get_forum_parent_id( $forum_id ) : '';
-		$classes[] = 'bbp-forum-status-'     . bbp_get_forum_status( $forum_id );
-		$classes[] = 'bbp-forum-visibility-' . bbp_get_forum_visibility( $forum_id );
+		// Get forum classes
+		$forum_classes = array(
+			'loop-item-' . $count,
+			( $count % 2 )                            ? 'even'              : 'odd',
+			bbp_is_forum_category( $forum_id )        ? 'status-category'   : '',
+			bbp_get_forum_subforum_count( $forum_id ) ? 'bbp-has-subforums' : '',
+			! empty( $parent_id )                     ? 'bbp-parent-forum-' . $parent_id : '',
+			'bbp-forum-status-'     . bbp_get_forum_status( $forum_id ),
+			'bbp-forum-visibility-' . bbp_get_forum_visibility( $forum_id )
+		);
 
-		// Ditch the empties
-		$classes   = array_filter( $classes );
-		$classes   = get_post_class( $classes, $forum_id );
+		// Run the topic classes through the post-class filters, which also
+		// handles the escaping of each individual class.
+		$post_classes = get_post_class( array_merge( $classes, $forum_classes ), $forum_id );
 
-		// Filter the results
-		$classes   = apply_filters( 'bbp_get_forum_class', $classes, $forum_id );
-		$retval    = 'class="' . implode( ' ', $classes ) . '"';
+		// Filter
+		$new_classes  = apply_filters( 'bbp_get_forum_class', $post_classes, $forum_id, $classes );
 
-		return $retval;
+		// Return
+		return 'class="' . implode( ' ', $new_classes ) . '"';
 	}
 
 /** Single Forum **************************************************************/
