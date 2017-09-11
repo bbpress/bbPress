@@ -54,68 +54,98 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 
 == Changelog ==
 
-= [2.5.14]- 2017-09-09 =
+= 2.5.14 =
+* Released on September 9, 2016
+
 * Improved support for PHP 7.1 and higher
 * Improved pagination for non-public post statuses
 * Fixed converter row-limit boundaries
 
-= [2.5.13]- 2017-05-18 =
+= 2.5.13 =
+* Released on May 18, 2017
+
 * Improved support for `post_parent__in` type queries
 
-= [2.5.12]- 2016-12-08 =
+= 2.5.12 =
+* Released on December 8, 2016
+
 * Bump minimum WordPress version to 4.7
 * Use 'wp_roles_init' action for dynamic roles
 
-= [2.5.11]- 2016-11-09 =
+= 2.5.11 =
+* Released on September 9, 2016
+
 * Improved support for WordPress 4.7
 * Improved localization of role names
 * Increase minimum WordPress version to 4.2
 
-= [2.5.10]- 2016-07-13 =
+= 2.5.10 =
+* Released on July 13, 2016
+
 * Improved user display-name rendering
 
-= [2.5.9]- 2016-05-02 =
+= 2.5.9 =
+* Released on May 2, 2016
+
 * Improved user mentions
 
-= [2.5.8]- 2015-07-13 =
+= 2.5.8 =
+* Released on July 7, 2015
+
 * Improved ajax actions
 * Improved user query parsing
 * Fixed BuddyPress Groups notice
 
-= [2.5.7]- 2015-04-20 =
+= 2.5.7 =
+* Released on April 20, 2015
+
 * Improved output of certain URLs
 
-= [2.5.6]- 2015-03-16 =
+= 2.5.6 =
+* Released on March 16, 2015
+
 * Improved notification & subscription email sending
 
-= [2.5.5]- 2015-03-06 =
+= 2.5.5 =
+* Released on March 6, 2015
+
 * Improved bulk editing of users
 * Improved suggesting of topics & authors for moderators
 * Improved converter tool access
 
-= [2.5.4]- 2014-06-06 =
+= 2.5.4 =
+* Released on June 6, 2014
+
 * Fixed reply editing causing polluted hierarchy
 * Added tool for repairing reply positions within topics
 * Improved custom slug and displayed user field sanitization
 * Improved SSL support when relying on theme compatibility
 
-= [2.5.3]- 2014-01-11 =
+= 2.5.3 =
+* Released on January 11, 2014
+
 * WordPress 3.8 support (dashicons, new color schemes)
 * Fixed dropdown selects in settings pages
 * Fixed accidental topic subscription removal on reply form
 * Fixed poor grammar in profile title element
 * Fixed admin area SSL support
 
-= [2.5.2]- 2013-12-27 =
+= 2.5.2 =
+* Released on December 27, 2013
+
 * Fixed BuddyPress (1.9.1) Notification integration
 
-= [2.5.1]- 2013-12-03 =
+= 2.5.1 =
+* Released on December 3, 2013
+
 * Updated subscriptions setting description
 * Fixed forum subscriptions not appearing on profiles for some users
 * Allow links to have targets
 * Improved Windows compatibility
 
-= [2.5.0]- 2013-11-25 =
+= 2.5.0 =
+* Released on November 25, 2013
+
 * Added forum subscriptions
 * Added importers for AEF, Drupal, FluxBB, Kunena Forums (Joomla), MyBB, Phorum, PHPFox, PHPWind, PunBB, SMF, Xenforo and XMB
 * Added BuddyPress Notifications integration
@@ -126,7 +156,9 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Fixed inconsistent bbp_dropdown() results
 * Fixed topic and reply ping-status inconsistencies
 
-= [2.4.1]- 2013-10-10 =
+= 2.4.1 =
+* Released on October 10, 2013
+
 * Fixed forum status saving
 * Fixed widget settings saving
 * Fixed custom wp_title compatibility
@@ -134,7 +166,9 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Fixed custom user topics & replies pages
 * Fixed hierarchical reply handling in converter
 
-= [2.4.0]- 2013-08-24 =
+= 2.4.0 =
+* Released on August 24, 2013
+
 * Added hierarchical reply support
 * Added ability to disable forum search
 * Reorganized settings page
@@ -149,45 +183,61 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Audit WordPress core function usage
 * General code clean-up
 
-= [2.3.2]- 2013-05-06 =
+= 2.3.2 =
+* Released on May 6, 2013
+
 * Improved posting of preformatted code
 * Improved theme compatibility CSS
 * Improved BuddyPress Activity Streams integration
 
-= [2.3.1]- 2013-04-26 =
+= 2.3.1 =
+* Released on April 26, 2013
+
 * Improved posting of preformatted code
 * Fixed deleting of post cache group
 * Fixed moderators not having view_trash capability
 
-= [2.3.1]- 2013-04-13 =
+= 2.3.0 =
+* Released on April 13, 2013
+
 * Added forum search functionality
 * Improved BuddyPress Group Forums integration
 * Improved allowed tags in topics and replies
 * Added template stack support to theme compatability
 * Added more forum migration options
 
-= [2.2.4]- 2013-01-24 =
+= 2.2.4 =
+* Released on January 24, 2013
+
 * Prepare converter queries
 * Improved validation and sanitization of form values
 
-= [2.2.3]- 2012-12-11 =
+= 2.2.3 =
+* Released on December 11, 2012
+
 * Improved compatibility with some themes
 * Fixed integration with BuddyPress Group Forums
 * Fixed BuddyPress Activity Stream integration
 
-= [2.2.2]- 2012-11-23 =
+= 2.2.2 =
+* Released on November 23, 2012
+
 * RTL and i18n fixes
 * Improved user profile theme compatibility
 * Fixed incorrect link in credits page
 * Fixed admin area JS issues related to topic suggest
 * Fixed template part reference in extras user edit template
 
-= [2.2.1]- 2012-11-19 =
+= 2.2.1 =
+* Released on November 19, 2012
+
 * Fixed role mapping for non-WordPress roles
 * Fixed issue with private forums being blocked
 * Allow moderators to see hidden forums
 
-= [2.2.0]- 2012-11-09 =
+= 2.2.0 =
+* Released on November 9, 2012
+
 * Improved user roles and capabilities
 * Improved theme compatibility
 * Improved BuddyPress Group Forums integration
@@ -197,13 +247,17 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Added What's New and Credits pages
 * WordPress 3.5 and BuddyPress 1.7 ready
 
-= [2.1.2]- 2012-07-31 =
+= 2.1.2 =
+* Released on July 31, 2012
+
 * Fixed admin-side help verbiage
 * Fixed reply height CSS
 * Fixed password converter
 * Fixed child post trash and delete functions
 
-= [2.1.1]- 2012-07-23 =
+= 2.1.1 =
+* Released on July 23, 2012
+
 * Fixed Invision, phpBB, and vBulletin importers
 * Fixed private/hidden forum bugs
 * Fixed topic split meta values
@@ -212,7 +266,9 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Fixed missing function cruft
 * Fixed missing filter on displayed user fields
 
-= [2.1.0]- 2012-07-08 =
+= 2.1.0 =
+* Released on July 8, 2012
+
 * WordPress 3.4 compatibility
 * Deprecate $bbp global, use bbpress() singleton
 * Private forums now visible to registered users
@@ -240,13 +296,15 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Added fallback theme picker
 * Added tools for importing, resetting, and removing
 
-= [2.0.2]- 2011-11-28 =
-* Released on November 13, 2011
+= 2.0.2 =
+* Released on November 28, 2011
 
-= [2.0.1]- 2011-11-23 =
-* Released on November 13, 2011
+= 2.0.1 =
+* Released on November 23, 2011
 
-= [2.0.0]- 2011-09-21 =
+= 2.0.0 =
+* Released on September 21, 2011
+
 * Initial plugin release <3
 * BuddyPress @mention integration
 * BuddyPress activity action integration
