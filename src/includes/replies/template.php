@@ -2176,21 +2176,39 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 		$bbp       = bbpress();
 		$reply_id  = bbp_get_reply_id( $reply_id );
 		$topic_id  = bbp_get_reply_topic_id( $reply_id );
+		$forum_id  = bbp_get_reply_forum_id( $reply_id );
 		$author_id = bbp_get_reply_author_id( $reply_id );
+		$reply_pos = bbp_get_reply_position( $reply_id, true );
 		$classes   = array_filter( (array) $classes );
 		$count     = isset( $bbp->reply_query->current_post )
 			? (int) $bbp->reply_query->current_post
 			: 1;
 
+		//  Stripes
+		$even_odd = ( $count % 2 )
+			? 'even'
+			: 'odd';
+
+		// Forum moderator replied to topic
+		$forum_moderator = ( bbp_is_user_forum_moderator( $author_id, $forum_id ) === $author_id )
+			? 'forum-mod'
+			: '';
+
+		// Topic author replied to others
+		$topic_author = ( bbp_get_topic_author_id( $topic_id ) === $author_id )
+			? 'topic-author'
+			: '';
+
 		// Get reply classes
 		$reply_classes = array(
-			'loop-item-' . $count,
-			( $count % 2                                        )   ? 'even'         : 'odd',
-			( $author_id === bbp_get_topic_author_id( $topic_id ) ) ? 'topic-author' : '',
-			'user-id-' . $author_id,
-			'bbp-parent-forum-'   . bbp_get_reply_forum_id( $reply_id ),
+			'loop-item-'          . $count,
+			'user-id-'            . $author_id,
+			'bbp-parent-forum-'   . $forum_id,
 			'bbp-parent-topic-'   . $topic_id,
-			'bbp-reply-position-' . bbp_get_reply_position( $reply_id, true )
+			'bbp-reply-position-' . $reply_pos,
+			$even_odd,
+			$topic_author,
+			$forum_moderator
 		);
 
 		// Run the topic classes through the post-class filters, which also

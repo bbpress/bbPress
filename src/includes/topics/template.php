@@ -2253,21 +2253,44 @@ function bbp_topic_class( $topic_id = 0, $classes = array() ) {
 	 * @return string Row class of a topic
 	 */
 	function bbp_get_topic_class( $topic_id = 0, $classes = array() ) {
-		$bbp      = bbpress();
-		$topic_id = bbp_get_topic_id( $topic_id );
-		$classes  = array_filter( (array) $classes );
-		$count    = isset( $bbp->topic_query->current_post )
+		$bbp       = bbpress();
+		$topic_id  = bbp_get_topic_id( $topic_id );
+		$forum_id  = bbp_get_topic_forum_id( $topic_id );
+		$author_id = bbp_get_topic_author_id( $topic_id );
+		$classes   = array_filter( (array) $classes );
+		$count     = isset( $bbp->topic_query->current_post )
 			? (int) $bbp->topic_query->current_post
 			: 1;
 
+		//  Stripes
+		$even_odd = ( $count % 2 )
+			? 'even'
+			: 'odd';
+
+		// Forum moderator replied to topic
+		$forum_moderator = ( bbp_is_user_forum_moderator( $author_id, $forum_id ) === $author_id )
+			? 'forum-mod'
+			: '';
+
+		// Is this topic a sticky?
+		$sticky = bbp_is_topic_sticky( $topic_id, false )
+			? 'sticky'
+			: '';
+
+		// Is this topic a super-sticky?
+		$super_sticky = bbp_is_topic_super_sticky( $topic_id  )
+			? 'super-sticky'
+			: '';
+
 		// Get topic classes
 		$topic_classes = array(
-			'loop-item-' . $count,
-			( $count % 2 )                          ? 'even'         : 'odd',
-			bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '',
-			bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '',
-			'bbp-parent-forum-' . bbp_get_topic_forum_id( $topic_id ),
-			'user-id-' . bbp_get_topic_author_id( $topic_id )
+			'loop-item-'        . $count,
+			'user-id-'          . $author_id,
+			'bbp-parent-forum-' . $forum_id,
+			$even_odd,
+			$forum_moderator,
+			$sticky,
+			$super_sticky
 		);
 
 		// Run the topic classes through the post-class filters, which also
