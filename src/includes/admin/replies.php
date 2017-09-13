@@ -287,7 +287,11 @@ class BBP_Replies_Admin {
 				$updated++;
 			}
 
-			$sendback = add_query_arg( array( 'updated' => $updated, 'ids' => join( ',', $post_ids ), 'locked' => $locked ), $sendback );
+			$sendback = add_query_arg( array(
+				'updated' => $updated,
+				'ids'     => implode( ',', $post_ids ),
+				'locked'  => $locked
+			), $sendback );
 
 		} elseif ( 'unspam' === $doaction ) {
 
@@ -308,7 +312,11 @@ class BBP_Replies_Admin {
 				$updated++;
 			}
 
-			$sendback = add_query_arg( array( 'updated' => $updated, 'ids' => join( ',', $post_ids ), 'locked' => $locked ), $sendback );
+			$sendback = add_query_arg( array(
+				'updated' => $updated,
+				'ids'     => implode( ',', $post_ids ),
+				'locked'  => $locked
+			), $sendback );
 		}
 
 		return $sendback;
