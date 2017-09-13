@@ -31,28 +31,31 @@ function bbp_get_default_options() {
 
 		'_bbp_db_version'             => 0,         // Database version
 
-		/** Settings **********************************************************/
+		/** Features **********************************************************/
 
-		'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
-		'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
-		'_bbp_enable_favorites'       => 1,         // Favorites
-		'_bbp_enable_subscriptions'   => 1,         // Subscriptions
-		'_bbp_enable_engagements'     => 1,         // Engagements
+		'_bbp_enable_favorites'       => 1,         // Enable favorites
+		'_bbp_enable_subscriptions'   => 1,         // Enable subscriptions
+		'_bbp_enable_engagements'     => 1,         // Enable engagements
 		'_bbp_allow_content_edit'     => 1,         // Allow content edit
 		'_bbp_allow_content_throttle' => 1,         // Allow content throttle
-		'_bbp_allow_anonymous'        => 0,         // Allow anonymous posting
-		'_bbp_allow_global_access'    => 1,         // Users from all sites can post
 		'_bbp_allow_revisions'        => 1,         // Allow revisions
 		'_bbp_allow_topic_tags'       => 1,         // Allow topic tagging
+		'_bbp_allow_search'           => 1,         // Allow forum-wide search
 		'_bbp_allow_forum_mods'       => 1,         // Allow per-forum moderation
+		'_bbp_allow_global_access'    => 1,         // Allow users from all sites to post
+		'_bbp_allow_anonymous'        => 0,         // Allow anonymous posting
 		'_bbp_allow_super_mods'       => 0,         // Allow mods to edit users
 		'_bbp_allow_threaded_replies' => 0,         // Allow threaded replies
-		'_bbp_allow_search'           => 1,         // Allow forum-wide search
-		'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
 		'_bbp_use_wp_editor'          => 1,         // Use the WordPress editor if available
-		'_bbp_use_autoembed'          => 0,         // Allow oEmbed in topics and replies
-		'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
+		'_bbp_use_autoembed'          => 0,         // Use oEmbed in topics and replies
+
+		/** Settings **********************************************************/
+
 		'_bbp_default_role'           => $role,     // Default forums role
+		'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
+		'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
+		'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
+		'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
 		'_bbp_settings_integration'   => 'basic',   // How to integrate into wp-admin
 
 		/** Per Page **********************************************************/
