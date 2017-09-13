@@ -501,6 +501,11 @@ class BBP_BuddyPress_Activity {
 			return;
 		}
 
+		// Bail early if revisions are off
+		if ( ! bbp_allow_revisions() || ! post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
+			return;
+		}
+
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Bail early if topic is by anonymous user
@@ -631,6 +636,11 @@ class BBP_BuddyPress_Activity {
 
 		// Bail early if not a reply
 		if ( get_post_type( $post ) !== bbp_get_reply_post_type() ) {
+			return;
+		}
+
+		// Bail early if revisions are off
+		if ( ! bbp_allow_revisions() || ! post_type_supports( bbp_get_reply_post_type(), 'revisions' ) ) {
 			return;
 		}
 
