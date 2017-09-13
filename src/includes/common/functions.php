@@ -1652,6 +1652,60 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	return (array) apply_filters( 'bbp_get_all_child_ids', $child_ids, $parent_id, $post_type );
 }
 
+/**
+ * Prime last active post caches
+ *
+ * This function uses _prime_post_caches() to prepare the object cache for
+ * imminent requests to post objects that aren't naturally cached by the primary
+ * WP_Query calls themselves.
+ *
+ * This is triggered when a `prime_last_active_cache` argument is set to true.
+ *
+ * @since 2.6.0 bbPress (r6696)
+ *
+ * @param array $objects Array of objects, fresh from a query
+ *
+ * @return bool True if some IDs were cached
+ */
+function bbp_prime_last_active_post_caches( $objects = array() ) {
+
+	// Bail if no posts
+	if ( empty( $objects ) ) {
+		return false;
+	}
+
+	// Default value
+	$prime_last_active_ids = array();
+
+	// Filter the types of IDs to prime
+	$ids = apply_filters( 'bbp_prime_last_active_post_caches', array(
+		'_bbp_last_active_id',
+		'_bbp_last_reply_id',
+		'_bbp_last_topic_id'
+	), $objects );
+
+	// Get the last active IDs
+	foreach ( $objects as $object ) {
+		foreach ( $ids as $key ) {
+			$prime_last_active_ids[] = get_post_meta( $object->ID, $key, true );
+		}
+	}
+
+	// Unique, non-zero values
+	$prime_last_active_ids = bbp_get_unique_array_values( $prime_last_active_ids );
+
+	// Bail if no active IDs to prime
+	if ( empty( $prime_last_active_ids ) ) {
+		return false;
+	}
+
+	// Try to prime post caches
+	_prime_post_caches( $prime_last_active_ids, true, true );
+
+	// Return
+	return true;
+}
+
 /** Globals *******************************************************************/
 
 /**

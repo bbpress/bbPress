@@ -151,6 +151,9 @@ function bbp_has_topics( $args = array() ) {
 		'paged'          => bbp_get_paged(),           // Page Number
 		'show_stickies'  => $default_show_stickies,    // Ignore sticky topics?
 		'max_num_pages'  => false,                     // Maximum number of pages to show
+
+		// Conditionally prime the cache for last active posts
+		'prime_last_active_cache' => true
 	);
 
 	// Only add 's' arg if searching for topics
@@ -194,6 +197,11 @@ function bbp_has_topics( $args = array() ) {
 
 	// Call the query
 	$bbp->topic_query = new WP_Query( $r );
+
+	// Maybe prime last active posts
+	if ( ! empty( $r['prime_last_active_cache'] ) ) {
+		bbp_prime_last_active_post_caches( $bbp->topic_query->posts );
+	}
 
 	// Set post_parent back to 0 if originally set to 'any'
 	if ( 'any' === $r['post_parent'] ) {
