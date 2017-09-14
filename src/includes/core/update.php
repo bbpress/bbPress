@@ -314,7 +314,7 @@ function bbp_version_updater() {
 
 		/** 2.6 Branch ********************************************************/
 
-		// 2.6.x
+		// 2.6 Alpha
 		if ( $raw_db_version < 261 ) {
 
 			/**
@@ -326,9 +326,12 @@ function bbp_version_updater() {
 				bbp_admin_upgrade_user_favorites();
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();
+			} else {
+				update_option( '_bbp_db_upgrade_skipped', $raw_db_version );
 			}
 		}
 
+		// 2.6 Beta/RC/GM
 		if ( $raw_db_version < 262 ) {
 
 			/**
@@ -338,6 +341,8 @@ function bbp_version_updater() {
 			 */
 			if ( ! bbp_is_large_install() ) {
 				bbp_admin_upgrade_user_engagements();
+			} else {
+				update_option( '_bbp_db_upgrade_skipped', $raw_db_version );
 			}
 		}
 	}

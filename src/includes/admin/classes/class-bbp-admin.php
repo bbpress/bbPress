@@ -149,6 +149,8 @@ class BBP_Admin {
 
 		/** General Actions ***************************************************/
 
+		add_action( 'bbp_admin_init',              array( $this, 'setup_notices'           ) );
+		add_action( 'bbp_admin_init',              array( $this, 'hide_notices'            ) );
 		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) ); // Add menu item to settings menu
 		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) ); // Add some general styling to the admin area
 		add_action( 'bbp_admin_notices',           array( $this, 'activation_notice'       ) ); // Add notice if not using a bbPress theme
@@ -184,6 +186,61 @@ class BBP_Admin {
 
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'bbp_admin_loaded', array( &$this ) );
+	}
+
+	/**
+	 * Setup general admin area notices.
+	 *
+	 * @since 2.6.0 bbPress (r6701)
+	 */
+	public function setup_notices() {
+
+		// Database upgrade skipped?
+		$skipped = get_option( '_bbp_db_upgrade_skipped', 0 );
+
+		// Database upgrade skipped!
+		if ( ! empty( $skipped ) && ( $skipped < 260 ) && current_user_can( 'bbp_tools_upgrade_page' ) ) {
+
+			// Link to upgrade page
+			$upgrade_url  = add_query_arg( array( 'page' => 'bbp-upgrade' ), admin_url( 'tools.php' ) );
+			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-upgrade' ) ), 'bbp-hide-notice' );
+			$upgrade_link = '<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Go Upgrade',   'bbpress' ) . '</a>';
+			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide Forever', 'bbpress' ) . '</a>';
+			$bbp_dashicon = '<span class="bbpress-logo-icon"></span>';
+			$message      = $bbp_dashicon . sprintf(
+				esc_html__( 'bbPress requires a manual database upgrade. %s or %s', 'bbpress' ),
+				$upgrade_link,
+				$dismiss_link
+			);
+
+			// Add tools feedback
+			bbp_admin_tools_feedback( $message, 'notice-bbpress', false );
+		}
+	}
+
+	/**
+	 * Handle hiding of general admin area notices.
+	 *
+	 * @since 2.6.0 bbPress (r6701)
+	 */
+	public function hide_notices() {
+
+		// Bail if not hiding a notice
+		if ( empty( $_GET['bbp-hide-notice'] ) ) {
+			return;
+		}
+
+		// Check the admin referer
+		check_admin_referer( 'bbp-hide-notice' );
+
+		// Maybe delete notices
+		switch ( $_GET['bbp-hide-notice'] ) {
+
+			// Skipped upgrade notice
+			case 'bbp-skip-upgrade' :
+				delete_option( '_bbp_db_upgrade_skipped' );
+				break;
+		}
 	}
 
 	/**

@@ -43,6 +43,29 @@
 	content: "\f449";
 }
 
+.notice-bbpress {
+	border-left: 4px solid #78cd95;
+	padding-left: 36px;
+	background-color: rgb(235, 255, 235);
+	position: relative;
+}
+
+.notice-bbpress .bbpress-logo-icon {
+	position: absolute;
+	height: auto;
+	width: auto;
+	padding: 7px 9px;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	font: 400 24px/1 dashicons !important;
+}
+
+.notice-bbpress .bbpress-logo-icon:before {
+	content: "\f477";
+	color: #555;
+}
+
 @-webkit-keyframes buzz {
 
 	0% {

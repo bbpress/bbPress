@@ -30,6 +30,7 @@ function bbp_get_default_options() {
 		/** DB Version ********************************************************/
 
 		'_bbp_db_version'             => 0,         // Database version
+		'_bbp_db_upgrade_skipped'     => 0,         // Database upgrade skipped
 
 		/** Features **********************************************************/
 
