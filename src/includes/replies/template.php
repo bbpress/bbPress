@@ -131,7 +131,10 @@ function bbp_has_replies( $args = array() ) {
 		'order'                  => 'ASC',                      // Oldest to newest
 		'hierarchical'           => $default_thread_replies,    // Hierarchical replies
 		'ignore_sticky_posts'    => true,                       // Stickies not supported
-		'update_post_term_cache' => false                       // No terms to cache
+		'update_post_term_cache' => false,                      // No terms to cache
+
+		// Conditionally prime the cache for all related posts
+		'update_post_family_cache' => true
 	);
 
 	// Only add 's' arg if searching for replies
@@ -181,6 +184,11 @@ function bbp_has_replies( $args = array() ) {
 
 	// Call the query
 	$bbp->reply_query = new WP_Query( $r );
+
+	// Maybe prime the post author caches
+	if ( ! empty( $r['update_post_family_cache'] ) ) {
+		bbp_update_post_family_caches( $bbp->reply_query->posts );
+	}
 
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = (int) $replies_per_page;

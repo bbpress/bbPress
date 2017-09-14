@@ -140,7 +140,7 @@ function bbp_has_forums( $args = array() ) {
 		'ignore_sticky_posts' => true,
 
 		// Conditionally prime the cache for last active posts
-		'prime_last_active_cache' => true
+		'update_post_family_cache' => true
 	);
 
 	// Parse arguments with default forum query for most circumstances
@@ -151,8 +151,8 @@ function bbp_has_forums( $args = array() ) {
 	$bbp->forum_query = new WP_Query( $r );
 
 	// Maybe prime last active posts
-	if ( ! empty( $r['prime_last_active_cache'] ) ) {
-		bbp_prime_last_active_post_caches( $bbp->forum_query->posts );
+	if ( ! empty( $r['update_post_family_cache'] ) ) {
+		bbp_update_post_family_caches( $bbp->forum_query->posts );
 	}
 
 	// Filter & return

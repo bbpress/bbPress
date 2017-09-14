@@ -37,7 +37,7 @@ function bbp_has_search_results( $args = array() ) {
 		'ignore_sticky_posts' => true,                       // Stickies not supported,
 
 		// Conditionally prime the cache for last active posts
-		'prime_last_active_cache' => true
+		'update_post_family_cache' => true
 	);
 
 	// Only set 's' if search terms exist
@@ -79,8 +79,8 @@ function bbp_has_search_results( $args = array() ) {
 	}
 
 	// Maybe prime last active posts
-	if ( ! empty( $r['prime_last_active_cache'] ) ) {
-		bbp_prime_last_active_post_caches( $bbp->search_query->posts );
+	if ( ! empty( $r['update_post_family_cache'] ) ) {
+		bbp_update_post_family_caches( $bbp->search_query->posts );
 	}
 
 	// Add pagination values to query object
