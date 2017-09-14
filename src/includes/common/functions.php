@@ -1653,13 +1653,15 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Prime last active post caches
+ * Prime familial post caches.
  *
  * This function uses _prime_post_caches() to prepare the object cache for
  * imminent requests to post objects that aren't naturally cached by the primary
- * WP_Query calls themselves.
+ * WP_Query calls themselves. Post author caches are also primed.
  *
- * This is triggered when a `update_related_post_cache` argument is set to true.
+ * This is triggered when a `update_post_family_cache` argument is set to true.
+ *
+ * Also see: bbp_update_post_author_caches()
  *
  * @since 2.6.0 bbPress (r6699)
  *
@@ -1717,7 +1719,7 @@ function bbp_update_post_family_caches( $objects = array() ) {
 }
 
 /**
- * Prime post author caches
+ * Prime post author caches.
  *
  * This function uses cache_users() to prepare the object cache for
  * imminent requests to user objects that aren't naturally cached by the primary
