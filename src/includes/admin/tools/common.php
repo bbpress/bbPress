@@ -54,16 +54,18 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @param string|WP_Error $message A message to be displayed or {@link WP_Error}
- * @param string $class Optional. A class to be added to the message div
+ * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}
+ * @param string          $class          Optional. A class to be added to the message div
+ * @param bool            $is_dismissible Optional. True to dismiss, false to persist
+ *
  * @return string The message HTML
  */
-function bbp_admin_tools_feedback( $message, $class = false ) {
+function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = true ) {
 
 	// One message as string
 	if ( is_string( $message ) ) {
-		$message = '<p>' . $message . '</p>';
-		$class   = $class ? $class : 'updated';
+		$message       = '<p>' . $message . '</p>';
+		$default_class ='updated';
 
 	// Messages as objects
 	} elseif ( is_wp_error( $message ) ) {
@@ -82,13 +84,25 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
 				break;
 		}
 
-		$class = $class ? $class : 'is-error';
+		$default_class = 'is-error';
+
+	// Message is an unknown format, so bail
 	} else {
 		return false;
 	}
 
+	// CSS Classes
+	$classes = ! empty( $class )
+		? array( $class )
+		: array( $default_class );
+
+	// Add dismissible class
+	if ( ! empty( $is_dismissible ) ) {
+		array_push( $classes, 'is-dismissible' );
+	}
+
 	// Assemble the message
-	$message = '<div id="message" class="is-dismissible notice ' . esc_attr( $class ) . '">' . $message . '</div>';
+	$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $message . '</div>';
 	$message = str_replace( "'", "\'", $message );
 
 	// Ugh
