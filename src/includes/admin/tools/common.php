@@ -39,8 +39,8 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 		$args = array(
 			'page'    => $page,
 			'action'  => 'run',
-			'checked' => array( $component['id']
-		) );
+			'checked' => array( $component['id'] )
+		);
 
 		// Url
 		$nonced = wp_nonce_url( add_query_arg( $args, admin_url( 'tools.php' ) ), 'bbpress-do-counts' );
