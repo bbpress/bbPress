@@ -60,9 +60,6 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  */
 function bbp_admin_tools_feedback( $message, $class = false ) {
 
-	// Dismiss button
-	$dismiss = '<button type="button" class="notice-dismiss"><span class="screen-reader-text">' . __( 'Dismiss this notice.', 'bbpress' ) . '</span></button>';
-
 	// One message as string
 	if ( is_string( $message ) ) {
 		$message = '<p>' . $message . '</p>';
@@ -91,7 +88,7 @@ function bbp_admin_tools_feedback( $message, $class = false ) {
 	}
 
 	// Assemble the message
-	$message = '<div id="message" class="is-dismissible notice ' . esc_attr( $class ) . '">' . $message . $dismiss . '</div>';
+	$message = '<div id="message" class="is-dismissible notice ' . esc_attr( $class ) . '">' . $message . '</div>';
 	$message = str_replace( "'", "\'", $message );
 
 	// Ugh
