@@ -57,6 +57,7 @@
 	padding: 7px 9px;
 	top: 50%;
 	left: 0;
+	-webkit-transform: translateY(-50%);
 	transform: translateY(-50%);
 	font: 400 24px/1 dashicons !important;
 }
