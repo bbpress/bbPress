@@ -667,7 +667,7 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id );
 	$bbp_db  = bbp_db();
-	$statii  = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
+	$statii  = "'" . implode( "', '", bbp_get_public_reply_statuses() ) . "'";
 	$sql     = "SELECT COUNT(*)
 			FROM {$bbp_db->posts}
 			WHERE post_author = %d

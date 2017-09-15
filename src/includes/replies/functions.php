@@ -1622,6 +1622,22 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
 }
 
 /**
+ * Return array of public reply statuses.
+ *
+ * @since 2.6.0 bbPress (r6705)
+ *
+ * @return array
+ */
+function bbp_get_public_reply_statuses() {
+	$statuses = array(
+		bbp_get_public_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_public_reply_statuses', $statuses );
+}
+
+/**
  * Return array of available reply toggle actions
  *
  * @since 2.6.0 bbPress (r6133)

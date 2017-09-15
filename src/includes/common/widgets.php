@@ -1087,7 +1087,7 @@ class BBP_Replies_Widget extends WP_Widget {
 
 			// What and when
 			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_public_topic_statuses(),
+			'post_status'    => bbp_get_public_reply_statuses(),
 			'posts_per_page' => (int) $settings['max_shown'],
 
 			// Performance
