@@ -373,7 +373,7 @@ function bbp_set_current_user_default_role() {
 
 	// Add the user to the site
 	if ( true === $add_to_site ) {
-		$bbp->current_user->add_role( $new_role );
+		bbp_set_user_role( $user_id, $new_role );
 
 	// Don't add the user, but still give them the correct caps dynamically
 	} else {
