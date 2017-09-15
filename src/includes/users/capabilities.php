@@ -142,7 +142,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 }
 
 /**
- * Return a user's main role
+ * Set a user's role in the forums
  *
  * @since 2.1.0 bbPress (r3860)
  *
