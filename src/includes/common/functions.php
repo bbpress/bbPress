@@ -1691,6 +1691,11 @@ function bbp_update_post_family_caches( $objects = array() ) {
 	foreach ( $objects as $object ) {
 		$object = get_post( $object );
 
+		// Skip if post ID is empty.
+		if ( empty( $object->ID ) ) {
+			continue;
+		}
+
 		// Meta IDs
 		foreach ( $ids as $key ) {
 			$post_ids[] = get_post_meta( $object->ID, $key, true );
@@ -1743,10 +1748,17 @@ function bbp_update_post_author_caches( $objects = array() ) {
 	// Default value
 	$user_ids = array();
 
-	// Get the user IDs
+	// Get the user IDs (could use wp_list_pluck() if this is ever a bottleneck)
 	foreach ( $objects as $object ) {
-		$object     = get_post( $object );
-		$user_ids[] = get_post_field( 'post_author', $object->ID );
+		$object = get_post( $object );
+
+		// Skip if post does not have an author ID.
+		if ( empty( $object->post_author ) ) {
+			continue;
+		}
+
+		// If post exists, add post author to the array.
+		$user_ids[] = (int) $object->post_author;
 	}
 
 	// Unique, non-zero values
