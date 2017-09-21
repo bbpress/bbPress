@@ -3722,7 +3722,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 /** Permissions ***************************************************************/
 
 /**
- * Redirect if unathorized user is attempting to edit a topic
+ * Redirect if unauthorized user is attempting to edit a topic
  *
  * @since 2.1.0 bbPress (r3605)
  */
@@ -3740,7 +3740,7 @@ function bbp_check_topic_edit() {
 }
 
 /**
- * Redirect if unathorized user is attempting to edit a topic tag
+ * Redirect if unauthorized user is attempting to edit a topic tag
  *
  * @since 2.1.0 bbPress (r3605)
  */
