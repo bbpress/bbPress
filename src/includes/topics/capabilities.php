@@ -156,13 +156,17 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				if ( bbp_is_user_inactive( $user_id ) ) {
 					$caps = array( 'do_not_allow' );
 
-				// User is author so allow edit if not in admin
-				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
-					$caps = array( $post_type->cap->edit_posts );
-
 				// Moderators can always edit forum content
 				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
 					$caps = array( 'spectate' );
+
+				// User is author so allow edit if not in admin, unless it's past edit lock time
+				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
+
+					// Only allow if not past the edit-lock period
+					$caps = ! bbp_past_edit_lock( $_post->post_date_gmt )
+						? array( $post_type->cap->edit_posts )
+						: array( 'do_not_allow' );
 
 				// Unknown, so map to edit_others_posts
 				} else {
