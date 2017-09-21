@@ -245,16 +245,120 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
-		case 'manage_topic_tags'    :
-		case 'edit_topic_tags'      :
-		case 'delete_topic_tags'    :
-		case 'assign_topic_tags'    :
+
+		/** Assignment ********************************************************/
+
+		case 'assign_topic_tags' :
+
+			// Get post
+			$_post = get_post( $args[0] );
+			if ( ! empty( $_post ) ) {
+
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_inactive( $user_id ) ) {
+					$caps = array( 'do_not_allow' );
+
+				// Moderators can always assign
+				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
+					$caps = array( 'moderate' );
+
+				// Do not allow if topic tags are disabled
+				} elseif ( ! bbp_allow_topic_tags() ) {
+					$caps = array( 'do_not_allow' );
+				}
+			}
+
+			break;
+
+		/** Management ********************************************************/
+
+		case 'manage_topic_tags' :
+
+			// Moderators can always edit
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
+			}
+
+			break;
+
+		/** Editing ***********************************************************/
+
+		case 'edit_topic_tags' :
+
+			// Moderators can always edit
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
+			}
+
+			break;
+
+		case 'edit_topic_tag' :
+
+			// Get the term
+			$_tag = get_term( $args[0], bbp_get_topic_tag_tax_id() );
+			if ( ! empty( $_tag ) ) {
+
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_inactive( $user_id ) ) {
+					$caps = array( 'do_not_allow' );
+
+				// Moderators can always edit topic tags
+				} elseif ( user_can( $user_id, 'moderate', $_tag->term_id ) ) {
+					$caps = array( 'spectate' );
+
+				// Fallback to edit_terms.
+				} else {
+					$taxonomy = get_taxonomy( bbp_get_topic_tag_tax_id() );
+					$caps     = array( $taxonomy->cap->edit_terms );
+				}
+			}
+
+			break;
+
+		/** Deleting **********************************************************/
+
+		case 'delete_topic_tags' :
+
+			// Moderators can always edit
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
+			}
+
+			break;
+
+		case 'delete_topic_tag' :
+
+			// Get the term
+			$_tag = get_term( $args[0], bbp_get_topic_tag_tax_id() );
+			if ( ! empty( $_tag ) ) {
+
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_inactive( $user_id ) ) {
+					$caps = array( 'do_not_allow' );
+
+				// Moderators can always delete topic tags
+				} elseif ( user_can( $user_id, 'moderate', $_tag->term_id ) ) {
+					$caps = array( 'spectate' );
+
+				// Fallback to delete_terms.
+				} else {
+					$taxonomy = get_taxonomy( $_tag->post_type );
+					$caps     = array( $taxonomy->cap->delete_terms );
+				}
+			}
+
+			break;
+
+		/** Admin *************************************************************/
+
 		case 'bbp_topic_tags_admin' :
 
 			// Moderators can always edit
 			if ( user_can( $user_id, 'moderate' ) ) {
 				$caps = array( 'moderate' );
 			}
+
+			break;
 	}
 
 	// Filter & return

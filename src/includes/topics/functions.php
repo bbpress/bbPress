@@ -570,7 +570,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	/** Topic Tags ************************************************************/
 
 	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 
 		// Escape tag input
 		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
@@ -1680,7 +1680,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Can user edit topic tags?
-			if ( ! current_user_can( 'edit_topic_tags' ) ) {
+			if ( ! current_user_can( 'edit_topic_tag', $tag_id ) ) {
 				bbp_add_error( 'bbp_manage_topic_tag_update_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the topic tags.', 'bbpress' ) );
 				return;
 			}
@@ -1694,7 +1694,11 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			// Attempt to update the tag
 			$slug        = ! empty( $_POST['tag-slug']        ) ? $_POST['tag-slug']        : '';
 			$description = ! empty( $_POST['tag-description'] ) ? $_POST['tag-description'] : '';
-			$tag         = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'name' => $name, 'slug' => $slug, 'description' => $description ) );
+			$tag         = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array(
+				'name'        => $name,
+				'slug'        => $slug,
+				'description' => $description
+			) );
 
 			// Cannot update tag
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1752,7 +1756,10 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Delete the old term
-			$tag = wp_delete_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'default' => $to_tag, 'force_default' => true ) );
+			$tag = wp_delete_term( $tag_id, bbp_get_topic_tag_tax_id(), array(
+				'default'       => $to_tag,
+				'force_default' => true
+			) );
 
 			// Error merging the terms
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1778,7 +1785,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Can user delete topic tags?
-			if ( ! current_user_can( 'delete_topic_tags' ) ) {
+			if ( ! current_user_can( 'delete_topic_tag', $tag_id ) ) {
 				bbp_add_error( 'bbp_manage_topic_tag_delete_permission', __( '<strong>ERROR</strong>: You do not have permission to delete the topic tags.', 'bbpress' ) );
 				return;
 			}
@@ -3752,7 +3759,7 @@ function bbp_check_topic_tag_edit() {
 	}
 
 	// Bail if current user cannot edit topic tags
-	if ( ! current_user_can( 'edit_topic_tags', bbp_get_topic_tag_id() ) ) {
+	if ( ! current_user_can( 'edit_topic_tag', bbp_get_topic_tag_id() ) ) {
 		bbp_redirect( bbp_get_topic_tag_link() );
 	}
 }

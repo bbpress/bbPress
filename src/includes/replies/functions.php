@@ -334,7 +334,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Topic Tags ************************************************************/
 
 	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 	// ...or remove them.
@@ -631,7 +631,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Topic Tags ************************************************************/
 
 	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags' ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
+	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
 		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
 
 	// ...or remove them.
