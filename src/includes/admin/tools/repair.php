@@ -1013,12 +1013,12 @@ function bbp_admin_repair_closed_topics() {
 	// Define variables
 	$bbp_db        = bbp_db();
 	$statement     = esc_html__( 'Repairing closed topics&hellip; %s', 'bbpress' );
-	$result        = esc_html__( 'No closed topics to repair.', 'bbpress' );
+	$result        = esc_html__( 'No closed topics to repair.',        'bbpress' );
 	$changed       = 0;
 
 	// Results
-	$query         = "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = '%s' AND `post_status` = 'closed'";
-	$prepare       = $bbp_db->prepare( $query, bbp_get_topic_post_type() );
+	$query         = "SELECT ID FROM `{$bbp_db->posts}` WHERE `post_type` = %s AND `post_status` = %s";
+	$prepare       = $bbp_db->prepare( $query, bbp_get_topic_post_type(), bbp_get_closed_status_id() );
 	$closed_topics = $bbp_db->get_col( $prepare );
 
 	// Bail if no closed topics found
