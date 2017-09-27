@@ -1177,7 +1177,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	 */
 	function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
-		$forum_count = bbp_number_not_negative( get_post_meta( $forum_id, '_bbp_forum_subforum_count', true ) );
+		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
 		$filter      = ( true === $integer )
 			? 'bbp_get_forum_subforum_count_int'
 			: 'bbp_get_forum_subforum_count';
@@ -1211,7 +1211,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
 	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$meta_key = empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count';
-		$topics   = bbp_number_not_negative( get_post_meta( $forum_id, $meta_key, true ) );
+		$topics   = get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_topic_count_int'
 			: 'bbp_get_forum_topic_count';
@@ -1245,7 +1245,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
-		$replies  = bbp_number_not_negative( get_post_meta( $forum_id, $meta_key, true ) );
+		$replies  = get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_reply_count_int'
 			: 'bbp_get_forum_reply_count';
@@ -1280,10 +1280,10 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count, true );
 		$replies  = bbp_get_forum_reply_count( $forum_id, $total_count, true );
-		$retval   = bbp_number_not_negative( $replies + $topics );
+		$retval   = $replies + $topics;
 		$filter   = ( true === $integer )
-				? 'bbp_get_forum_post_count_int'
-				: 'bbp_get_forum_post_count';
+			? 'bbp_get_forum_post_count_int'
+			: 'bbp_get_forum_post_count';
 
 		return apply_filters( $filter, $retval, $forum_id );
 	}
@@ -1312,7 +1312,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 	 */
 	function bbp_get_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = bbp_number_not_negative( get_post_meta( $forum_id, '_bbp_topic_count_hidden', true ) );
+		$topics   = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_topic_count_hidden_int'
 			: 'bbp_get_forum_topic_count_hidden';

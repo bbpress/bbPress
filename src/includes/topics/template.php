@@ -964,7 +964,7 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
  */
 function bbp_get_topic_revision_count( $topic_id = 0, $integer = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$count    = bbp_number_not_negative( count( bbp_get_topic_revisions( $topic_id ) ) );
+	$count    = count( bbp_get_topic_revisions( $topic_id ) );
 	$filter   = ( true === $integer )
 		? 'bbp_get_topic_revision_count_int'
 		: 'bbp_get_topic_revision_count';
@@ -2076,7 +2076,7 @@ function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = bbp_number_not_negative( get_post_meta( $topic_id, '_bbp_reply_count', true ) );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_reply_count_int'
 			: 'bbp_get_topic_reply_count';
@@ -2106,7 +2106,7 @@ function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = bbp_number_not_negative( get_post_meta( $topic_id, '_bbp_reply_count', true ) + 1 );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true ) + 1;
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_post_count_int'
 			: 'bbp_get_topic_post_count';
@@ -2138,7 +2138,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = bbp_number_not_negative( get_post_meta( $topic_id, '_bbp_reply_count_hidden', true ) );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_reply_count_hidden_int'
 			: 'bbp_get_topic_reply_count_hidden';
@@ -2166,7 +2166,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$voices   = bbp_number_not_negative( get_post_meta( $topic_id, '_bbp_voice_count', true ) );
+		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_voice_count_int'
 			: 'bbp_get_topic_voice_count';
