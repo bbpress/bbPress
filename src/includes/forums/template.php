@@ -1910,10 +1910,10 @@ function bbp_single_forum_description( $args = array() ) {
 		remove_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 		// Get some forum data
-		$tc_int      = bbp_get_forum_topic_count( $forum_id, false );
-		$rc_int      = bbp_get_forum_reply_count( $forum_id, false );
-		$topic_count = bbp_get_forum_topic_count( $forum_id );
-		$reply_count = bbp_get_forum_reply_count( $forum_id );
+		$tc_int      = bbp_get_forum_topic_count( $forum_id, true, true  );
+		$rc_int      = bbp_get_forum_reply_count( $forum_id, true, true  );
+		$topic_count = bbp_get_forum_topic_count( $forum_id, true, false );
+		$reply_count = bbp_get_forum_reply_count( $forum_id, true, false );
 		$last_active = bbp_get_forum_last_active_id( $forum_id );
 
 		// Has replies
