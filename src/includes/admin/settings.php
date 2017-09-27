@@ -1601,7 +1601,7 @@ function bbp_converter_setting_callback_dbpass() {
 ?>
 
 	<span class="bbp-converter-db-password-wrapper">
-		<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" class="bbp-converter-db-pass" type="password" class="code" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
+		<input name="_bbp_converter_db_pass" id="_bbp_converter_db_pass" class="bbp-converter-db-pass code" type="password" value="<?php bbp_form_option( '_bbp_converter_db_pass' ); ?>" autocomplete="off" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_pass' ); ?> />
 		<button type="button" class="bbp-db-pass-toggle password">
 			<span class="screen-reader-text"><?php esc_html_e( 'Toggle', 'bbpress' ); ?></span>
 			<span class="toggle-indicator" aria-hidden="true"></span>
