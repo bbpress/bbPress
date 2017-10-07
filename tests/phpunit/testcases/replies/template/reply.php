@@ -529,10 +529,7 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		$this->assertSame( 4, $position );
 
 		// Force a reply's 'menu_order' to 0.
-		wp_update_post( array(
-			'ID'         => $r[3],
-			'menu_order' => 0,
-		) );
+		bbp_update_reply_position( $r[3], 0 );
 
 		$position = get_post_field( 'menu_order', $r[3] );
 		$this->assertSame( 0, $position );
@@ -559,10 +556,7 @@ class BBP_Tests_Replies_Template_Reply extends BBP_UnitTestCase {
 		$this->assertSame( 5, $position );
 
 		// Force a reply's 'menu_order' to 0.
-		wp_update_post( array(
-			'ID'         => $r[3],
-			'menu_order' => 0,
-		) );
+		bbp_update_reply_position( $r[3], 0 );
 
 		$position = get_post_field( 'menu_order', $r[3] );
 		$this->assertSame( 0, $position );

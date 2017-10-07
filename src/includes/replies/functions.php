@@ -2202,7 +2202,7 @@ function bbp_check_reply_edit() {
  *
  * @return mixed
  */
-function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
+function bbp_update_reply_position( $reply_id = 0, $reply_position = false ) {
 
 	// Bail if reply_id is empty
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -2210,10 +2210,10 @@ function bbp_update_reply_position( $reply_id = 0, $reply_position = 0 ) {
 		return false;
 	}
 
-	// If no position was passed, get it from the db and update the menu_order
-	if ( empty( $reply_position ) ) {
-		$reply_position = bbp_get_reply_position_raw( $reply_id, bbp_get_reply_topic_id( $reply_id ) );
-	}
+	// Prepare the reply position
+	$reply_position = is_numeric( $reply_position )
+		? (int) $reply_position
+		: bbp_get_reply_position_raw( $reply_id, bbp_get_reply_topic_id( $reply_id ) );
 
 	// Get the current reply position
 	$current_position = get_post_field( 'menu_order', $reply_id );
