@@ -251,21 +251,21 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'assign_topic_tags' :
 
 			// Get post
-			$_post = get_post( $args[0] );
-			if ( ! empty( $_post ) ) {
+			$post_id = ! empty( $args[0] )
+				? get_post( $args[0] )->ID
+				: 0;
 
-				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_inactive( $user_id ) ) {
-					$caps = array( 'do_not_allow' );
+			// Add 'do_not_allow' cap if user is spam or deleted
+			if ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
 
-				// Moderators can always assign
-				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
-					$caps = array( 'moderate' );
+			// Moderators can always assign
+			} elseif ( user_can( $user_id, 'moderate', $post_id ) ) {
+				$caps = array( 'moderate' );
 
-				// Do not allow if topic tags are disabled
-				} elseif ( ! bbp_allow_topic_tags() ) {
-					$caps = array( 'do_not_allow' );
-				}
+			// Do not allow if topic tags are disabled
+			} elseif ( ! bbp_allow_topic_tags() ) {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;
