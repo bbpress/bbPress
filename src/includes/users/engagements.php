@@ -19,17 +19,17 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  * @param bool   $unique    Whether meta key should be unique to the object
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
-	$retval = add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
+function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post', $unique = false ) {
+	$retval = bbp_user_engagements_interface()->add_user_to_object( $object_id, $user_id, $rel_key, $rel_type, $unique );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_add_user_to_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type, $unique );
+	return (bool) apply_filters( 'bbp_add_user_to_object', $retval, $object_id, $user_id, $rel_key, $rel_type, $unique );
 }
 
 /**
@@ -39,16 +39,16 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$retval = delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->remove_user_from_object( $object_id, $user_id, $rel_key, $rel_type );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_remove_user_from_object', (bool) $retval, $object_id, $user_id, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_remove_user_from_object', $retval, $object_id, $user_id, $rel_key, $rel_type );
 }
 
 /**
@@ -56,17 +56,17 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = 
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param int    $user_id  The user id
+ * @param string $rel_key  The relationship key
+ * @param string $rel_type The relationship type (usually 'post')
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$retval = delete_metadata( $meta_type, null, $meta_key, $user_id, true );
+function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->remove_user_from_all_objects( $user_id, $rel_key, $rel_type );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_remove_user_from_all_objects', (bool) $retval, $user_id, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_remove_user_from_all_objects', $retval, $user_id, $rel_key, $rel_type );
 }
 
 /**
@@ -76,16 +76,16 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_t
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$retval = delete_metadata( $meta_type, $object_id, $meta_key, null, false );
+function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->remove_object_from_all_users( $object_id, $rel_key, $rel_type );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_remove_object_from_all_users', (bool) $retval, $object_id, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_remove_object_from_all_users', $retval, $object_id, $rel_key, $rel_type );
 }
 
 /**
@@ -93,16 +93,16 @@ function bbp_remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta
  *
  * @since 2.6.0 bbPress (r6109)
  *
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key  The relationship key
+ * @param string $rel_type The relationship type (usually 'post')
  *
  * @return bool Returns true on success, false on failure
  */
-function bbp_remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-	$retval = delete_metadata( $meta_type, null, $meta_key, null, true );
+function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->remove_all_users_from_all_objects( $rel_key, $rel_type );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_remove_all_users_from_all_objects', (bool) $retval, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_remove_all_users_from_all_objects', $retval, $rel_key, $rel_type );
 }
 
 /**
@@ -111,17 +111,16 @@ function bbp_remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'po
  * @since 2.6.0 bbPress (r6109)
  *
  * @param int    $object_id The object id
- * @param string $meta_key  The key used to index this relationship
- * @param string $meta_type The type of meta to look in
+ * @param string $rel_key   The key used to index this relationship
+ * @param string $rel_type  The type of meta to look in
  *
  * @return array Returns ids of users
  */
-function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$meta   = get_metadata( $meta_type, $object_id, $meta_key, false );
-	$retval = wp_parse_id_list( $meta );
+function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->get_users_for_object( $object_id, $rel_key, $rel_type );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_users_for_object', $retval, $object_id, $meta_key, $meta_type );
+	return (array) apply_filters( 'bbp_get_users_for_object', $retval, $object_id, $rel_key, $rel_type );
 }
 
 /**
@@ -131,17 +130,17 @@ function bbp_get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 
  *
  * @param int    $object_id The object id
  * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  *
  * @return bool Returns true if object has a user, false if not
  */
-function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-	$user_ids = bbp_get_users_for_object( $object_id, $meta_key, $meta_type );
+function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
+	$user_ids = bbp_get_users_for_object( $object_id, $rel_key, $rel_type );
 	$retval   = is_numeric( array_search( $user_id, $user_ids, true ) );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_object_of_user', $retval, $object_id, $user_id, $meta_key, $meta_type );
+	return (bool) apply_filters( 'bbp_is_object_of_user', $retval, $object_id, $user_id, $rel_key, $rel_type );
 }
 
 /** Engagements ***************************************************************/
@@ -980,6 +979,12 @@ function bbp_subscriptions_handler( $action = '' ) {
 /** Query Helpers *************************************************************/
 
 /**
+ * These functions are no longer used in bbPress due to general performance
+ * concerns on large installations. They are provided here for convenience and
+ * backwards compatibility only.
+ */
+
+/**
  * Get a user's object IDs
  *
  * For the most part, you should not need to use this function, and may even
@@ -990,8 +995,8 @@ function bbp_subscriptions_handler( $action = '' ) {
  * @since 2.6.0 bbPress (r6606)
  *
  * @param int    $user_id   The user id
- * @param string $meta_key  The relationship key
- * @param string $meta_type The relationship type (usually 'post')
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  * @param array  $args      The arguments to override defaults
  *
  * @return array|bool Results if user has objects, otherwise null
@@ -1003,27 +1008,27 @@ function bbp_get_user_object_ids( $args = array() ) {
 	$r = bbp_parse_args( $args, array(
 		'user_id'     => 0,
 		'object_type' => bbp_get_topic_post_type(),
-		'meta_key'    => '',
-		'meta_type'   => 'post',
+		'rel_key'     => '',
+		'rel_type'    => 'post',
 		'filter'      => 'user_object_ids',
 		'args'        => array()
 	), 'get_user_object_ids' );
 
 	// Sanitize arguments
 	$r['user_id']     = bbp_get_user_id( $r['user_id'] );
-	$r['meta_key']    = sanitize_key( $r['meta_key'] );
-	$r['meta_type']   = sanitize_key( $r['meta_type'] );
+	$r['rel_key']     = sanitize_key( $r['rel_key'] );
+	$r['rel_type']    = sanitize_key( $r['rel_type'] );
 	$r['object_type'] = sanitize_key( $r['object_type'] );
 	$r['filter']      = sanitize_key( $r['filter'] );
 
 	// Defaults
-	if ( 'post' === $r['meta_type'] ) {
+	if ( 'post' === $r['rel_type'] ) {
 		$defaults = array(
 			'fields'         => 'ids',
 			'post_type'      => $r['object_type'],
 			'posts_per_page' => -1,
 			'meta_query'     => array( array(
-				'key'     => $r['meta_key'],
+				'key'     => $r['rel_key'],
 				'value'   => $r['user_id'],
 				'compare' => 'NUMERIC'
 			),
@@ -1042,7 +1047,7 @@ function bbp_get_user_object_ids( $args = array() ) {
 	$query_args = bbp_parse_args( $r['args'], $defaults, "get_{$r['filter']}_args" );
 
 	// Queries
-	if ( 'post' === $r['meta_type'] ) {
+	if ( 'post' === $r['rel_type'] ) {
 		$query      = new WP_Query( $query_args );
 		$object_ids = $query->posts;
 	}
@@ -1063,7 +1068,7 @@ function bbp_get_user_object_ids( $args = array() ) {
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
 		'user_id'     => $user_id,
-		'meta_key'    => '_bbp_moderator_id',
+		'rel_key'     => '_bbp_moderator_id',
 		'object_type' => bbp_get_forum_post_type(),
 		'filter'      => 'moderator_forum_ids'
 	) );
@@ -1080,9 +1085,9 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
-		'user_id'  => $user_id,
-		'meta_key' => '_bbp_engagement',
-		'filter'   => 'user_engaged_topic_ids'
+		'user_id' => $user_id,
+		'rel_key' => '_bbp_engagement',
+		'filter'  => 'user_engaged_topic_ids'
 	) );
 }
 
@@ -1093,13 +1098,13 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  *
- * @return array Return array of favorited ids, or empty array
+ * @return array Return array of favorite topic ids, or empty array
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
-		'user_id'  => $user_id,
-		'meta_key' => '_bbp_favorite',
-		'filter'   => 'user_favorites_topic_ids'
+		'user_id' => $user_id,
+		'rel_key' => '_bbp_favorite',
+		'filter'  => 'user_favorites_topic_ids'
 	) );
 }
 
@@ -1110,12 +1115,12 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  *
- * @return array Return array of subscribed ids, or empty array
+ * @return array Return array of subscribed forum ids, or empty array
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
 		'user_id'     => $user_id,
-		'meta_key'    => '_bbp_subscription',
+		'rel_key'     => '_bbp_subscription',
 		'object_type' => bbp_get_forum_post_type(),
 		'filter'      => 'user_subscribed_forum_ids'
 	) );
@@ -1128,13 +1133,13 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  *
  * @param int $user_id Optional. User id
  *
- * @return array Return array of subscribed ids, or empty array
+ * @return array Return array of subscribed topic ids, or empty array
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
 	return bbp_get_user_object_ids( array(
-		'user_id'  => $user_id,
-		'meta_key' => '_bbp_subscription',
-		'filter'   => 'user_subscribed_topic_ids'
+		'user_id' => $user_id,
+		'rel_key' => '_bbp_subscription',
+		'filter'  => 'user_subscribed_topic_ids'
 	) );
 }
 

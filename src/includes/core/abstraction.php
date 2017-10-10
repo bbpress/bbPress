@@ -333,3 +333,117 @@ function bbp_get_total_users() {
 	// Filter & return
 	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
 }
+
+/** Engagements ***************************************************************/
+
+/**
+ * Return the strategy used for storing user engagements
+ *
+ * @since 2.6.0 bbPress (r6722)
+ *
+ * @return string
+ */
+function bbp_user_engagements_interface() {
+	return apply_filters( 'bbp_user_engagements_interface', bbpress()->engagements );
+}
+
+/**
+ * Meta strategy for interfacing with User Engagements
+ *
+ * @since 2.6.0 bbPress (r6722)
+ */
+class BBP_User_Engagements_Meta {
+
+	/**
+	 * Add a user id to an object
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 * @param bool   $unique    Whether meta key should be unique to the object
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
+		return add_metadata( $meta_type, $object_id, $meta_key, $user_id, $unique );
+	}
+
+	/**
+	 * Remove a user id from an object
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		return delete_metadata( $meta_type, $object_id, $meta_key, $user_id, false );
+	}
+
+	/**
+	 * Remove a user id from all objects
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		return delete_metadata( $meta_type, null, $meta_key, $user_id, true );
+	}
+
+	/**
+	 * Remove an object from all users
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		return delete_metadata( $meta_type, $object_id, $meta_key, null, false );
+	}
+
+	/**
+	 * Remove all users from all objects
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
+		return delete_metadata( $meta_type, null, $meta_key, null, true );
+	}
+
+	/**
+	 * Get users of an object
+	 *
+	 * @since 2.6.0 bbPress (r6722)
+	 *
+	 * @param int    $object_id The object id
+	 * @param string $meta_key  The key used to index this relationship
+	 * @param string $meta_type The type of meta to look in
+	 *
+	 * @return array Returns ids of users
+	 */
+	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		return wp_parse_id_list( get_metadata( $meta_type, $object_id, $meta_key, false ) );
+	}
+}

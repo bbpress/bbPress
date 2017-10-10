@@ -298,6 +298,10 @@ final class bbPress {
 		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
 
+		/** Engagements *******************************************************/
+
+		$this->engagements    = new BBP_User_Engagements_Meta(); // Meta strategy interface
+
 		/** Deprecated ********************************************************/
 
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
