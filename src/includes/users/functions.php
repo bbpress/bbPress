@@ -163,7 +163,7 @@ function bbp_current_author_ip() {
  */
 function bbp_current_author_ua() {
 	$retval = ! empty( $_SERVER['HTTP_USER_AGENT'] )
-		? substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 )
+		? mb_substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 )
 		: '';
 
 	// Filter & return

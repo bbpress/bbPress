@@ -595,7 +595,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		}
 
 		if ( ! empty( $length ) && ( $excerpt_length > $length ) ) {
-			$excerpt  = substr( $excerpt, 0, $length - 1 );
+			$excerpt  = mb_substr( $excerpt, 0, $length - 1 );
 			$excerpt .= '&hellip;';
 		}
 

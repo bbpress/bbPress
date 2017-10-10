@@ -728,7 +728,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 function bbp_format_revision_reason( $reason = '' ) {
 	$reason = (string) $reason;
 
-	// Format reason for proper display
+	// Bail if reason is empty
 	if ( empty( $reason ) ) {
 		return $reason;
 	}
