@@ -1059,20 +1059,23 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_subscribers( $topic_id );
 
+	// Remove the reply author from the list.
+	$reply_author_key = array_search( (int) $reply_author, $user_ids, true );
+	if ( false !== $reply_author_key ) {
+		//unset( $user_ids[ $reply_author_key ] );
+	}
+
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
+
+	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
 		return false;
 	}
 
-	// Remove the reply author from the list.
-	$reply_author_key = array_search( (int) $reply_author, $user_ids, true );
-	if ( false !== $reply_author_key ) {
-		unset( $user_ids[ $reply_author_key ] );
-	}
-
-	// Bail of the reply author was the only one subscribed.
-	if ( empty( $user_ids ) ) {
+	// Get email addresses, bail if empty
+	$email_addresses = bbp_get_email_addresses_from_user_ids( $user_ids );
+	if ( empty( $email_addresses ) ) {
 		return false;
 	}
 
@@ -1130,9 +1133,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	// Setup the From header
 	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
-	// Loop through users
-	foreach ( (array) $user_ids as $user_id ) {
-		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
+	// Loop through addresses
+	foreach ( (array) $email_addresses as $address ) {
+		$headers[] = 'Bcc: ' . $address;
 	}
 
 	/** Send it ***************************************************************/
@@ -1212,20 +1215,23 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	// Get topic subscribers and bail if empty
 	$user_ids = bbp_get_subscribers( $forum_id );
 
-	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
-	if ( empty( $user_ids ) ) {
-		return false;
-	}
-
 	// Remove the topic author from the list.
 	$topic_author_key = array_search( (int) $topic_author, $user_ids, true );
 	if ( false !== $topic_author_key ) {
 		unset( $user_ids[ $topic_author_key ] );
 	}
 
-	// Bail of the topic author was the only one subscribed.
+	// Dedicated filter to manipulate user ID's to send emails to
+	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
+
+	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
+		return false;
+	}
+
+	// Get email addresses, bail if empty
+	$email_addresses = bbp_get_email_addresses_from_user_ids( $user_ids );
+	if ( empty( $email_addresses ) ) {
 		return false;
 	}
 
@@ -1283,9 +1289,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	// Setup the From header
 	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
 
-	// Loop through users
-	foreach ( (array) $user_ids as $user_id ) {
-		$headers[] = 'Bcc: ' . get_userdata( $user_id )->user_email;
+	// Loop through addresses
+	foreach ( (array) $email_addresses as $address ) {
+		$headers[] = 'Bcc: ' . $address;
 	}
 
 	/** Send it ***************************************************************/
@@ -1330,6 +1336,66 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
  */
 function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
+}
+
+/**
+ * Return an array of user email addresses from an array of user IDs
+ *
+ * @since 2.6.0 bbPress (r6722)
+ *
+ * @param array $user_ids
+ * @return array
+ */
+function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
+
+	// Default return value
+	$retval = array();
+
+	// Maximum number of users to get per database query
+	$limit = apply_filters( 'bbp_get_users_chunk_limit', 100 );
+
+	// Only do the work if there are user IDs to query for
+	if ( ! empty( $user_ids ) ) {
+
+		// Get total number of sets
+		$steps = ceil( count( $user_ids ) / $limit );
+
+		// Loop through users
+		foreach ( range( 1, $steps ) as $loop ) {
+
+			// Initial loop has no offset
+			$offset = ( 1 === $loop )
+				? 1
+				: $limit * $loop;
+
+			// Calculate user IDs to include
+			$loop_ids = array_slice( $user_ids, $offset, $limit );
+
+			// Call get_users() in a way that users are cached
+			$loop_users = get_users( array(
+				'blog_id' => 0,
+				'fields'  => 'all_with_meta',
+				'include' => $loop_ids
+			) );
+
+			// Pluck emails from users
+			$loop_emails = wp_list_pluck( $loop_users, 'user_email' );
+
+			// Clean-up memory, for big user sets
+			unset( $loop_users );
+
+			// Merge users into return value
+			if ( ! empty( $loop_emails ) ) {
+				$retval = array_merge( $retval, $loop_emails );
+			}
+		}
+
+		// No duplicates
+		$retval = bbp_get_unique_array_values( $retval );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_email_addresses_from_user_ids', $retval, $user_ids, $limit );
 }
 
 /** Login *********************************************************************/
