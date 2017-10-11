@@ -76,12 +76,12 @@ class BBP_Login_Widget extends WP_Widget {
 		if ( ! is_user_logged_in() ) : ?>
 
 			<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
-				<fieldset>
+				<fieldset class="bbp-form">
 					<legend><?php esc_html_e( 'Log In', 'bbpress' ); ?></legend>
 
 					<div class="bbp-username">
 						<label for="user_login"><?php esc_html_e( 'Username', 'bbpress' ); ?>: </label>
-						<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" />
+						<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" maxlength="100" id="user_login" autocomplete="off" />
 					</div>
 
 					<div class="bbp-password">
@@ -90,13 +90,13 @@ class BBP_Login_Widget extends WP_Widget {
 					</div>
 
 					<div class="bbp-remember-me">
-						<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ), true, true ); ?> id="rememberme" />
-						<label for="rememberme"><?php esc_html_e( 'Remember Me', 'bbpress' ); ?></label>
+						<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ) ); ?> id="rememberme" />
+						<label for="rememberme"><?php esc_html_e( 'Keep me signed in', 'bbpress' ); ?></label>
 					</div>
 
-					<div class="bbp-submit-wrapper">
+					<?php do_action( 'login_form' ); ?>
 
-						<?php do_action( 'login_form' ); ?>
+					<div class="bbp-submit-wrapper">
 
 						<button type="submit" name="user-submit" id="user-submit" class="button submit user-submit"><?php esc_html_e( 'Log In', 'bbpress' ); ?></button>
 

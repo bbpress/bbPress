@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="bbp-submit-wrapper">
 
-			<button type="submit" name="user-submit" class="button submit user-submit"><?php esc_html_e( 'Log In', 'bbpress' ); ?></button>
+			<button type="submit" name="user-submit" id="user-submit" class="button submit user-submit"><?php esc_html_e( 'Log In', 'bbpress' ); ?></button>
 
 			<?php bbp_user_login_fields(); ?>
 
