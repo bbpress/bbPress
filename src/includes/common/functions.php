@@ -1062,7 +1062,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	// Remove the reply author from the list.
 	$reply_author_key = array_search( (int) $reply_author, $user_ids, true );
 	if ( false !== $reply_author_key ) {
-		//unset( $user_ids[ $reply_author_key ] );
+		unset( $user_ids[ $reply_author_key ] );
 	}
 
 	// Dedicated filter to manipulate user ID's to send emails to
