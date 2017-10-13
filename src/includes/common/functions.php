@@ -1359,17 +1359,23 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 
 		// Get total number of sets
 		$steps = ceil( count( $user_ids ) / $limit );
+		$range = array_map( 'intval', range( 1, $steps ) );
 
 		// Loop through users
-		foreach ( range( 1, $steps ) as $loop ) {
+		foreach ( $range as $loop ) {
 
 			// Initial loop has no offset
 			$offset = ( 1 === $loop )
-				? 1
+				? 0
 				: $limit * $loop;
 
 			// Calculate user IDs to include
 			$loop_ids = array_slice( $user_ids, $offset, $limit );
+
+			// Skip if something went wrong
+			if ( empty( $loop_ids ) ) {
+				continue;
+			}
 
 			// Call get_users() in a way that users are cached
 			$loop_users = get_users( array(
