@@ -1696,7 +1696,8 @@ function bbp_reply_form_fields() {
 
 		// Show redirect field if not viewing a specific topic
 		if ( bbp_is_query_name( 'bbp_single_topic' ) ) :
-			bbp_redirect_to_field( get_permalink() );
+			$redirect_to = apply_filters( 'bbp_reply_form_redirect_to', get_permalink() );
+			bbp_redirect_to_field( $redirect_to );
 		endif;
 	endif;
 }
