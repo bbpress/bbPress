@@ -114,29 +114,6 @@ function bbp_admin_menu_order( $menu_order ) {
 }
 
 /**
- * Filter sample permalinks so that certain languages display properly.
- *
- * @since 2.0.0 bbPress (r3336)
- *
- * @param string $post_link Custom post type permalink
- * @param object $_post Post data object
- * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
- * @param bool $sample Optional, defaults to false. Is it a sample permalink.
- *
- * @return string The custom post type permalink
- */
-function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
-
-	// Bail if not on an admin page and not getting a sample permalink
-	if ( ! empty( $sample ) && is_admin() && bbp_is_custom_post_type() ) {
-		return urldecode( $post_link );
-	}
-
-	// Return post link
-	return $post_link;
-}
-
-/**
  * Sanitize permalink slugs when saving the settings page.
  *
  * @since 2.6.0 bbPress (r5364)
