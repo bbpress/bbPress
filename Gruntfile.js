@@ -399,8 +399,8 @@ module.exports = function( grunt ) {
 
 	// Build tasks.
 	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint', 'stylelint' ] );
-	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain' ] );
-	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'postcss:core', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain', 'postcss:core' ] );
+	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPUnit test task.
