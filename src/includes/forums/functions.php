@@ -2368,7 +2368,7 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 }
 
 /**
- * Trash all topics inside a forum
+ * Untrash all topics inside a forum
  *
  * @since 2.1.0 bbPress (r3668)
  *
