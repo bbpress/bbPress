@@ -491,8 +491,8 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	// Loop through blogs and remove their posts
 	foreach ( (array) array_keys( $blogs ) as $blog_id ) {
 
-		// Switch to the blog ID
-		switch_to_blog( $blog_id );
+		// Switch to the site ID
+		bbp_switch_to_site( $blog_id );
 
 		// Get topics and replies
 		$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status = %s AND post_type IN ( {$post_types} )", $user_id, bbp_get_public_status_id() );
@@ -517,8 +517,8 @@ function bbp_make_spam_user( $user_id = 0 ) {
 			}
 		}
 
-		// Switch back to current blog
-		restore_current_blog();
+		// Switch back to current site
+		bbp_restore_current_site();
 	}
 
 	// Success
@@ -569,8 +569,8 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	// Loop through blogs and remove their posts
 	foreach ( (array) array_keys( $blogs ) as $blog_id ) {
 
-		// Switch to the blog ID
-		switch_to_blog( $blog_id );
+		// Switch to the site ID
+		bbp_switch_to_site( $blog_id );
 
 		// Get topics and replies
 		$query = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} WHERE post_author = %d AND post_status = %s AND post_type IN ( {$post_types} )", $user_id, bbp_get_spam_status_id() );
@@ -595,8 +595,8 @@ function bbp_make_ham_user( $user_id = 0 ) {
 			}
 		}
 
-		// Switch back to current blog
-		restore_current_blog();
+		// Switch back to current site
+		bbp_restore_current_site();
 	}
 
 	// Success

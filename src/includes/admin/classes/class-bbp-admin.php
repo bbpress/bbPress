@@ -1135,8 +1135,8 @@ class BBP_Admin {
 								wp_die( sprintf( esc_html__( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ), $site_url, '<em>' . $response->get_error_message() . '</em>' ) );
 							}
 
-							// Switch to the new blog
-							switch_to_blog( $details[ 'blog_id' ] );
+							// Switch to the new site
+							bbp_switch_to_site( $details[ 'blog_id' ] );
 
 							$basename = bbpress()->basename;
 
@@ -1145,8 +1145,8 @@ class BBP_Admin {
 								bbp_version_updater();
 							}
 
-							// restore original blog
-							restore_current_blog();
+							// Restore original site
+							bbp_restore_current_site();
 
 							// Do some actions to allow plugins to do things too
 							do_action( 'after_bbpress_upgrade', $response             );

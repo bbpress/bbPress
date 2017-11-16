@@ -334,6 +334,38 @@ function bbp_get_total_users() {
 	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
 }
 
+/**
+ * Switch to a site in a multisite installation.
+ *
+ * If not a multisite installation, no switching will occur.
+ *
+ * @since 2.6.0 bbPress (r6733)
+ *
+ * @param int $site_id
+ */
+function bbp_switch_to_site( $site_id = 0 ) {
+
+	// Switch to a specific site
+	if ( is_multisite() ) {
+		switch_to_blog( $site_id );
+	}
+}
+
+/**
+ * Switch back to the original site in a multisite installation.
+ *
+ * If not a multisite installation, no switching will occur.
+ *
+ * @since 2.6.0 bbPress (r6733)
+ */
+function bbp_restore_current_site( ) {
+
+	// Switch back to the original site
+	if ( is_multisite() ) {
+		restore_current_blog();
+	}
+}
+
 /** Engagements ***************************************************************/
 
 /**

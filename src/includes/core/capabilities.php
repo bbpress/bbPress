@@ -325,8 +325,8 @@ function bbp_filter_user_roles_option() {
  * Also note that if using the $wp_user_roles global non-database approach,
  * bbPress does not have an intercept point to add its dynamic roles.
  *
- * @see switch_to_blog()
- * @see restore_current_blog()
+ * @see bbp_switch_to_site()
+ * @see bbp_restore_current_site()
  * @see WP_Roles::_init()
  *
  * @since 2.2.0 bbPress (r4363)

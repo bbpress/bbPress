@@ -155,12 +155,12 @@ function bbp_do_uninstall( $site_id = 0 ) {
 		$site_id = get_current_blog_id();
 	}
 
-	switch_to_blog( $site_id );
+	bbp_switch_to_site( $site_id );
 	bbp_delete_options();
 	bbp_remove_roles();
 	bbp_remove_caps();
 	flush_rewrite_rules();
-	restore_current_blog();
+	bbp_restore_current_site();
 }
 
 /**

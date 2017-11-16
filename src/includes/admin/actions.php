@@ -142,14 +142,14 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 		return;
 	}
 
-	// Switch to the new blog
-	switch_to_blog( $blog_id );
+	// Switch to the new site
+	bbp_switch_to_site( $blog_id );
 
 	// Do the bbPress activation routine
 	do_action( 'bbp_new_site', $blog_id, $user_id, $domain, $path, $site_id, $meta );
 
-	// restore original blog
-	restore_current_blog();
+	// Restore original site
+	bbp_restore_current_site();
 }
 
 /**
