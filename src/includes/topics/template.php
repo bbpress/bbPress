@@ -1480,27 +1480,26 @@ function bbp_topic_author_link( $args = array() ) {
 				$author_links['name'] = esc_html( bbp_get_topic_author_display_name( $topic_id ) );
 			}
 
-			// Add links if not anonymous
-			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {
+			// Empty array
+			$links  = array();
+			$sprint = empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) )
+				? '<a href="%1$s"%2$s%3$s>%4$s</a>'
+				: '<span %2$s%3$s>%4$s</span>';
 
-				// Empty array
-				$links = array();
-
-				// Assemble the links
-				foreach ( $author_links as $link => $link_text ) {
-					$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
-					$links[]    = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, $link_class, $link_text );
-				}
-
-				// Role is not linked
-				if ( true === $r['show_role'] ) {
-					$links[] = bbp_get_topic_author_role( array( 'topic_id' => $topic_id ) );
-				}
-
-				// Juggle
-				$author_links = $links;
-				unset( $links );
+			// Wrap each link
+			foreach ( $author_links as $link => $link_text ) {
+				$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
+				$links[]    = sprintf( $sprint, esc_url( $author_url ), $link_title, $link_class, $link_text );
 			}
+
+			// Role is not linked
+			if ( true === $r['show_role'] ) {
+				$links[] = bbp_get_topic_author_role( array( 'topic_id' => $topic_id ) );
+			}
+
+			// Juggle
+			$author_links = $links;
+			unset( $links );
 
 			// Filter sections
 			$sections    = apply_filters( 'bbp_get_topic_author_links', $author_links, $r, $args );

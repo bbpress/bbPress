@@ -2017,22 +2017,21 @@ function bbp_author_link( $args = array() ) {
 				$author_links['name'] = esc_html( get_the_author_meta( 'display_name', $user_id ) );
 			}
 
-			// Add links if not anonymous
-			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
+			// Empty array
+			$links  = array();
+			$sprint = empty( $anonymous ) && bbp_user_has_profile( $user_id )
+				? '<a href="%1$s"%2$s%3$s>%4$s</a>'
+				: '<span %2$s%3$s>%4$s</span>';
 
-				// Empty array
-				$links = array();
-
-				// Assemble the links
-				foreach ( $author_links as $link => $link_text ) {
-					$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
-					$links[]    = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, $link_class, $link_text );
-				}
-
-				// Juggle
-				$author_links = $links;
-				unset( $links );
+			// Wrap each link
+			foreach ( $author_links as $link => $link_text ) {
+				$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
+				$links[]    = sprintf( $sprint, esc_url( $author_url ), $link_title, $link_class, $link_text );
 			}
+
+			// Juggle
+			$author_links = $links;
+			unset( $links );
 
 			// Filter sections
 			$sections    = apply_filters( 'bbp_get_author_links', $author_links, $r, $args );
