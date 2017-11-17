@@ -61,7 +61,7 @@ function bbp_is_anonymous() {
  * @param string $key Which value to echo?
  */
 function bbp_current_anonymous_user_data( $key = '' ) {
-	echo bbp_get_current_anonymous_user_data( $key );
+	echo esc_attr( bbp_get_current_anonymous_user_data( $key ) );
 }
 
 	/**
@@ -86,9 +86,6 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 			'comment_author_email' => 'comment_author_email',
 			'comment_author_url'   => 'comment_author_url',
 		);
-
-		// Sanitize core cookies
-		sanitize_comment_cookies();
 
 		// Get the current poster's info from the cookies
 		$bbp_current_poster = wp_get_current_commenter();
