@@ -143,6 +143,25 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
 	return (bool) apply_filters( 'bbp_is_object_of_user', $retval, $object_id, $user_id, $rel_key, $rel_type );
 }
 
+/**
+ * Get the query part responsible for JOINing objects to user IDs
+ *
+ * @since 2.6.0 bbPress (r6747)
+ *
+ * @param array  $args
+ * @param string $context
+ * @param string $meta_key
+ * @param string $meta_type
+ *
+ * @return array
+ */
+function bbp_get_user_object_query( $args = array(), $context = '', $meta_key = '', $meta_type = 'post' ) {
+	$retval = bbp_user_engagements_interface()->get_query( $args, "get_user_{$context}", $meta_key, $meta_type );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $meta_key, $meta_type );
+}
+
 /** Engagements ***************************************************************/
 
 /**
@@ -214,38 +233,11 @@ UNION
  * @return bool True if user has engaged, otherwise false
  */
 function bbp_get_user_engagements( $args = array() ) {
-
-	// Backwards compat for pre-2.6.0
-	if ( is_numeric( $args ) ) {
-		$args = array(
-			'meta_query' => array( array(
-				'key'     => '_bbp_engagement',
-				'value'   => bbp_get_user_id( $args, false, false ),
-				'compare' => 'NUMERIC'
-			) )
-		);
-	}
-
-	// Default arguments
-	$defaults = array(
-		'meta_query' => array( array(
-			'key'     => '_bbp_engagement',
-			'value'   => bbp_get_displayed_user_id(),
-			'compare' => 'NUMERIC'
-		) )
-	);
-
-	// Parse arguments
-	$r = bbp_parse_args( $args, $defaults, 'get_user_engagements' );
-
-	// Get the topics
-	$query   = bbp_has_topics( $r );
-	$user_id = isset( $r['meta_query'][0]['value'] )
-		? $r['meta_query'][0]['value']
-		: 0;
+	$r     = bbp_get_user_object_query( $args, 'engagements', '_bbp_engagement' );
+	$query = bbp_has_topics( $r );
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_engagements', $query, $user_id, $r, $args );
+	return apply_filters( 'bbp_get_user_engagements', $query, 0, $r, $args );
 }
 
 /**
@@ -464,38 +456,11 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @return bool True if user has favorites, otherwise false
  */
 function bbp_get_user_favorites( $args = array() ) {
-
-	// Backwards compat for pre-2.6.0
-	if ( is_numeric( $args ) ) {
-		$args = array(
-			'meta_query' => array( array(
-				'key'     => '_bbp_favorite',
-				'value'   => bbp_get_user_id( $args, false, false ),
-				'compare' => 'NUMERIC'
-			) )
-		);
-	}
-
-	// Default arguments
-	$defaults = array(
-		'meta_query' => array( array(
-			'key'     => '_bbp_favorite',
-			'value'   => bbp_get_displayed_user_id(),
-			'compare' => 'NUMERIC'
-		) )
-	);
-
-	// Parse arguments
-	$r = bbp_parse_args( $args, $defaults, 'get_user_favorites' );
-
-	// Get the topics
-	$query   = bbp_has_topics( $r );
-		$user_id = isset( $r['meta_query'][0]['value'] )
-		? $r['meta_query'][0]['value']
-		: 0;
+	$r     = bbp_get_user_object_query( $args, 'favorites', '_bbp_favorite' );
+	$query = bbp_has_topics( $r );
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_favorites', $query, $user_id, $r, $args );
+	return apply_filters( 'bbp_get_user_favorites', $query, 0, $r, $args );
 }
 
 /**
@@ -604,7 +569,7 @@ function bbp_favorites_handler( $action = '' ) {
 	}
 
 	// Bail if no topic ID is passed
-	if ( empty( $_GET['topic_id'] ) ) {
+	if ( empty( $_GET['object_id'] ) ) {
 		return $success;
 	}
 
@@ -620,7 +585,7 @@ function bbp_favorites_handler( $action = '' ) {
 	}
 
 	// What action is taking place?
-	$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
+	$topic_id = bbp_get_topic_id( $_GET['object_id'] );
 	$user_id  = bbp_get_user_id( 0, true, true );
 
 	// Check for empty topic
@@ -709,38 +674,11 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
  * @return bool True if user has forum subscriptions, otherwise false
  */
 function bbp_get_user_topic_subscriptions( $args = array() ) {
-
-	// Backwards compat for pre-2.6.0
-	if ( is_numeric( $args ) ) {
-		$args = array(
-			'meta_query' => array( array(
-				'key'     => '_bbp_subscription',
-				'value'   => bbp_get_user_id( $args, false, false ),
-				'compare' => 'NUMERIC'
-			) )
-		);
-	}
-
-	// Default arguments
-	$defaults = array(
-		'meta_query' => array( array(
-			'key'     => '_bbp_subscription',
-			'value'   => bbp_get_displayed_user_id(),
-			'compare' => 'NUMERIC'
-		) )
-	);
-
-	// Parse arguments
-	$r = bbp_parse_args( $args, $defaults, 'get_user_topic_subscriptions' );
-
-	// Get the topics
-	$query   = bbp_has_topics( $r );
-	$user_id = isset( $r['meta_query'][0]['value'] )
-		? $r['meta_query'][0]['value']
-		: 0;
+	$r     = bbp_get_user_object_query( $args, 'topic_subscriptions', '_bbp_subscription' );
+	$query = bbp_has_topics( $r );
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, $user_id, $r, $args );
+	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, 0, $r, $args );
 }
 
 /**
@@ -754,38 +692,11 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
  * @return bool True if user has forum subscriptions, otherwise false
  */
 function bbp_get_user_forum_subscriptions( $args = array() ) {
-
-	// Backwards compat for pre-2.6.0
-	if ( is_numeric( $args ) ) {
-		$args = array(
-			'meta_query' => array( array(
-				'key'     => '_bbp_subscription',
-				'value'   => bbp_get_user_id( $args, false, false ),
-				'compare' => 'NUMERIC'
-			) )
-		);
-	}
-
-	// Default arguments
-	$defaults = array(
-		'meta_query' => array( array(
-			'key'     => '_bbp_subscription',
-			'value'   => bbp_get_displayed_user_id(),
-			'compare' => 'NUMERIC'
-		) )
-	);
-
-	// Parse arguments
-	$r = bbp_parse_args( $args, $defaults, 'get_user_forum_subscriptions' );
-
-	// Get the forums
-	$query   = bbp_has_forums( $r );
-	$user_id = isset( $r['meta_query'][0]['value'] )
-		? $r['meta_query'][0]['value']
-		: 0;
+	$r     = bbp_get_user_object_query( $args, 'forum_subscriptions', '_bbp_subscription' );
+	$query = bbp_has_forums( $r );
 
 	// Filter & return
-	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, $user_id, $r, $args );
+	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, 0, $r, $args );
 }
 
 /**
