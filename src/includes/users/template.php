@@ -814,7 +814,7 @@ function bbp_get_fallback_display_name( $object_id = 0 ) {
  * @param int $post_id
  */
 function bbp_author_display_name( $post_id = 0 ) {
-	echo bbp_get_author_display_name( $post_id );
+	echo esc_attr( bbp_get_author_display_name( $post_id ) );
 }
 
 	/**
@@ -864,7 +864,7 @@ function bbp_author_display_name( $post_id = 0 ) {
  * @param int $post_id
  */
 function bbp_author_email( $post_id = 0 ) {
-	echo bbp_get_author_email( $post_id );
+	echo esc_attr( bbp_get_author_email( $post_id ) );
 }
 
 	/**
@@ -895,7 +895,7 @@ function bbp_author_email( $post_id = 0 ) {
 
 		// Not an edit, so rely on current user cookie data
 		} else {
-			$retval = bbp_current_anonymous_user_data( 'email' );
+			$retval = bbp_get_current_anonymous_user_data( 'email' );
 		}
 
 		// Filter & return

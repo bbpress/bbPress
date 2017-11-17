@@ -648,7 +648,9 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 			// Set clauses
 			$join  = $clauses['join'];
-			$where = $clauses['where'];
+
+			// "%" and "$" are valid characters
+			$where = $bbp_db->remove_placeholder_escape( $clauses['where'] );
 		}
 	}
 
@@ -659,8 +661,12 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	$r = wp_unslash( $r );
 
 	// Prepare duplicate check query
-	$query  = $bbp_db->prepare( "SELECT ID FROM {$bbp_db->posts} {$join} WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s {$where}", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
-	$query .= ! empty( $r['post_parent'] ) ? $bbp_db->prepare( " AND post_parent = %d", $r['post_parent'] ) : '';
+	$query  = "SELECT ID FROM {$bbp_db->posts} {$join}";
+	$query  = $bbp_db->prepare( "WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= ! empty( $r['post_parent'] )
+		? $bbp_db->prepare( " AND post_parent = %d", $r['post_parent'] )
+		: '';
+	$query .= $where;
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
