@@ -1452,10 +1452,11 @@ function bbp_topic_author_link( $args = array() ) {
 
 			// Tweak link title if empty
 			if ( empty( $r['link_title'] ) ) {
-				$author     = bbp_get_topic_author_display_name( $topic_id );
-				$title      = empty( $anonymous )
-					? __( 'View %s\'s profile',  'bbpress' )
-					: __( 'Visit %s\'s website', 'bbpress' );
+				$author = bbp_get_topic_author_display_name( $topic_id );
+				$title  = empty( $anonymous )
+					? esc_attr__( "View %s's profile",  'bbpress' )
+					: esc_attr__( "Visit %s's website", 'bbpress' );
+
 				$link_title = sprintf( $title, $author );
 
 			// Use what was passed if not
@@ -1478,9 +1479,6 @@ function bbp_topic_author_link( $args = array() ) {
 			if ( ( 'name' === $r['type'] ) || ( 'both' === $r['type'] ) ) {
 				$author_links['name'] = esc_html( bbp_get_topic_author_display_name( $topic_id ) );
 			}
-
-			// Link class
-			$link_class = ' class="bbp-author-' . esc_attr( $r['type'] ) . '"';
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( bbp_get_topic_author_id( $topic_id ) ) ) {

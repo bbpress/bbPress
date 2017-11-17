@@ -1980,59 +1980,69 @@ function bbp_author_link( $args = array() ) {
 			return bbp_get_reply_author_link( $r );
 		}
 
-		// Get the post author and proceed
-		$user_id = get_post_field( 'post_author', $r['post_id'] );
+		// Default return value
+		$author_link = '';
 
 		// Neither a reply nor a topic, so could be a revision
 		if ( ! empty( $r['post_id'] ) ) {
 
+			// Get some useful reply information
+			$user_id    = get_post_field( 'post_author', $r['post_id'] );
+			$author_url = bbp_get_user_profile_url( $user_id );
+			$anonymous  = bbp_is_reply_anonymous( $r['post_id'] );
+
 			// Generate title with the display name of the author
 			if ( empty( $r['link_title'] ) ) {
-				$r['link_title'] = sprintf( ! bbp_is_reply_anonymous( $r['post_id'] ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
+				$author = get_the_author_meta( 'display_name', $user_id );
+				$title  = empty( $anonymous )
+					? esc_attr__( "View %s's profile",  'bbpress' )
+					: esc_attr__( "Visit %s's website", 'bbpress' );
+
+				$r['link_title'] = sprintf( $title, $author );
 			}
 
-			// Assemble some link bits
-			$link_title = ! empty( $r['link_title'] )
+			// Setup title and author_links array
+			$author_links = array();
+			$link_title   = ! empty( $r['link_title'] )
 				? ' title="' . esc_attr( $r['link_title'] ) . '"'
 				: '';
 
-			$anonymous = bbp_is_reply_anonymous( $r['post_id'] );
-
-			// Declare empty array
-			$author_links = array();
-
-			// Get avatar
-			if ( 'avatar' === $r['type'] || 'both' === $r['type'] ) {
-				$author_links[] = get_avatar( $user_id, $r['size'] );
+			// Get avatar (unescaped, because HTML)
+			if ( ( 'avatar' === $r['type'] ) || ( 'both' === $r['type'] ) ) {
+				$author_links['avatar'] = get_avatar( $user_id, $r['size'] );
 			}
 
-			// Get display name
-			if ( 'name' === $r['type'] || 'both' === $r['type'] ) {
-				$author_links[] = esc_html( get_the_author_meta( 'display_name', $user_id ) );
+			// Get display name (escaped, because never HTML)
+			if ( ( 'name' === $r['type'] ) || ( 'both' === $r['type'] ) ) {
+				$author_links['name'] = esc_html( get_the_author_meta( 'display_name', $user_id ) );
 			}
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
-				$author_url = bbp_get_user_profile_url( $user_id );
 
-				foreach ( $author_links as $link_text ) {
-					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', esc_url( $author_url ), $link_title, $link_text );
+				// Empty array
+				$links = array();
+
+				// Assemble the links
+				foreach ( $author_links as $link => $link_text ) {
+					$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
+					$links[]    = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, $link_class, $link_text );
 				}
 
-				$author_link = implode( $r['sep'], $author_link );
-
-			// No links if anonymous
-			} else {
-				$author_link = implode( $r['sep'], $author_links );
+				// Juggle
+				$author_links = $links;
+				unset( $links );
 			}
 
-		// No post so link is empty
-		} else {
-			$author_link = '';
+			// Filter sections
+			$sections    = apply_filters( 'bbp_get_reply_author_links', $author_links, $r, $args );
+
+			// Assemble sections into author link
+			$author_link = implode( $r['sep'], $sections );
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_author_link', $author_link, $r );
+		return apply_filters( 'bbp_get_author_link', $author_link, $r, $args );
 	}
 
 /** Capabilities **************************************************************/
