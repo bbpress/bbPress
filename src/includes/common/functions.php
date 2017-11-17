@@ -649,7 +649,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 			// Set clauses
 			$join  = $clauses['join'];
 
-			// "%" and "$" are valid characters
+			// "'", "%", "$" and are valid characters in email addresses
 			$where = $bbp_db->remove_placeholder_escape( $clauses['where'] );
 		}
 	}
@@ -662,7 +662,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// Prepare duplicate check query
 	$query  = "SELECT ID FROM {$bbp_db->posts} {$join}";
-	$query  = $bbp_db->prepare( "WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= $bbp_db->prepare( "WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
 	$query .= ! empty( $r['post_parent'] )
 		? $bbp_db->prepare( " AND post_parent = %d", $r['post_parent'] )
 		: '';
