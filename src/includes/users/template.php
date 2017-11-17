@@ -2035,7 +2035,7 @@ function bbp_author_link( $args = array() ) {
 			}
 
 			// Filter sections
-			$sections    = apply_filters( 'bbp_get_reply_author_links', $author_links, $r, $args );
+			$sections    = apply_filters( 'bbp_get_author_links', $author_links, $r, $args );
 
 			// Assemble sections into author link
 			$author_link = implode( $r['sep'], $sections );
