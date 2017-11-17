@@ -1464,7 +1464,7 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
 	// Passively filter the args before the parse
 	if ( ! empty( $filter_key ) ) {
-		$r = apply_filters( 'bbp_before_' . $filter_key . '_parse_args', $r );
+		$r = apply_filters( "bbp_before_{$filter_key}_parse_args", $r, $args, $defaults );
 	}
 
 	// Parse
@@ -1474,7 +1474,7 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 
 	// Aggressively filter the args after the parse
 	if ( ! empty( $filter_key ) ) {
-		$r = apply_filters( 'bbp_after_' . $filter_key . '_parse_args', $r );
+		$r = apply_filters( "bbp_after_{$filter_key}_parse_args", $r, $args, $defaults );
 	}
 
 	// Return the parsed results
