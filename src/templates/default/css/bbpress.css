@@ -621,6 +621,12 @@ td.bbp-topic-counts {
 	display: inline;
 }
 
+.bbp-pagination {
+	float: left;
+	width: 100%;
+	margin-bottom: 15px;
+}
+
 #bbpress-forums .bbp-pagination-links a,
 #bbpress-forums .bbp-pagination-links span.current {
 	display: block;
@@ -636,17 +642,11 @@ td.bbp-topic-counts {
 	text-decoration: none;
 }
 
-.bbp-pagination-links span.dots {
+#bbpress-forums .bbp-pagination-links span.dots {
 	display: block;
 	float: left;
 	padding: 1px 4px;
 	margin-left: 5px;
-}
-
-.bbp-pagination {
-	float: left;
-	width: 100%;
-	margin-bottom: 15px;
 }
 
 #bbpress-forums .bbp-topic-pagination {
