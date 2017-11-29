@@ -2053,6 +2053,8 @@ function bbp_view_url( $view = false ) {
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
+
+			// Run through home_url()
 			$url = trailingslashit( bbp_get_root_url() . bbp_get_view_slug() ) . $view;
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -2305,7 +2307,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Do we want to include a link to home?
 		if ( ! empty( $r['include_home'] ) || empty( $r['home_text'] ) ) {
-			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $r['home_text'] . '</a>';
+			$crumbs[] = '<a href="' . esc_url( home_url() ) . '" class="bbp-breadcrumb-home">' . $r['home_text'] . '</a>';
 		}
 
 		// Do we want to include a link to the forum root?

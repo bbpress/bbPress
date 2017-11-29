@@ -458,14 +458,15 @@ function bbp_reply_url( $reply_id = 0 ) {
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
-			$url = trailingslashit( $topic_url ) . $reply_hash;
+			$url = user_trailingslashit( $topic_url ) . $reply_hash;
 
 		// Include pagination
 		} else {
 
 			// Pretty permalinks
 			if ( bbp_use_pretty_urls() ) {
-				$url = trailingslashit( $topic_url ) . trailingslashit( bbp_get_paged_slug() ) . trailingslashit( $reply_page ) . $reply_hash;
+				$url = trailingslashit( $topic_url ) . trailingslashit( bbp_get_paged_slug() ) . $reply_page;
+				$url = user_trailingslashit( $url ) . $reply_hash;
 
 			// Yucky links
 			} else {

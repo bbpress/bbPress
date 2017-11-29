@@ -202,6 +202,8 @@ function bbp_search_url() {
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
+
+			// Run through home_url()
 			$url = bbp_get_root_url() . bbp_get_search_slug();
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
@@ -333,15 +335,15 @@ function bbp_get_search_pagination_base() {
 
 		// Shortcode territory
 		if ( is_page() || is_single() ) {
-			$base = trailingslashit( get_permalink() );
+			$base = get_permalink();
 
 		// Default search location
 		} else {
-			$base = trailingslashit( bbp_get_search_results_url() );
+			$base = bbp_get_search_results_url();
 		}
 
 		// Add pagination base
-		$base = $base . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
+		$base = trailingslashit( $base ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' );
 
 	// Unpretty permalinks
 	} else {

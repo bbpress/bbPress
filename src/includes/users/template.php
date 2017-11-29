@@ -548,6 +548,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 				$user_nicename = bbp_get_user_nicename( $user_id );
 			}
 
+			// Run through home_url()
 			$url = trailingslashit( bbp_get_root_url() . bbp_get_user_slug() ) . $user_nicename;
 			$url = user_trailingslashit( $url );
 			$url = home_url( $url );
