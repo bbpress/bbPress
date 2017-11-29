@@ -451,7 +451,7 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  * @since 2.0.0 bbPress (r2652)
  * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies()
+ * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
  * @return bool True if user has favorites, otherwise false
  */
@@ -493,7 +493,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  *
- * @return bool Always true
+ * @return bool True if the topic was added to user's favorites, otherwise false
  */
 function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	$user_id  = bbp_get_user_id( $user_id, false, false );
@@ -527,7 +527,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  *
- * @return bool True if the topic was removed from user's favorites, or false
+ * @return bool True if the topic was removed from user's favorites, otherwise false
  */
 function bbp_remove_user_favorite( $user_id, $topic_id ) {
 	$user_id  = bbp_get_user_id( $user_id, false, false );
