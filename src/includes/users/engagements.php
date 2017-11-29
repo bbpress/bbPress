@@ -654,7 +654,7 @@ function bbp_favorites_handler( $action = '' ) {
  *
  * @since 2.6.0 bbPress (r5156)
  *
- * @param int $object_id Optional. ID of forum, topic, or something else
+ * @param int $object_id Optional. ID of object (forum, topic, or something else)
  */
 function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
 	$users = bbp_get_users_for_object( $object_id, '_bbp_subscription', $type );
@@ -669,9 +669,9 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
  * @since 2.0.0 bbPress (r2668)
  * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies()
+ * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
- * @return bool True if user has forum subscriptions, otherwise false
+ * @return bool True if user has topic subscriptions, otherwise false
  */
 function bbp_get_user_topic_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'topic_subscriptions', '_bbp_subscription' );
@@ -687,7 +687,7 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
  * @since 2.5.0 bbPress (r5156)
  * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies()
+ * @param array $args Optional. Arguments to pass into bbp_has_forums()
  *
  * @return bool True if user has forum subscriptions, otherwise false
  */
@@ -700,14 +700,14 @@ function bbp_get_user_forum_subscriptions( $args = array() ) {
 }
 
 /**
- * Check if a topic or forum is in user's subscription list or not
+ * Check if an object (forum or topic) is in user's subscription list or not
  *
  * @since 2.5.0 bbPress (r5156)
  *
  * @param int $user_id Optional. User id
- * @param int $object_id Optional. Topic id
+ * @param int $object_id Optional. Object id
  *
- * @return bool True if the forum or topic is in user's subscriptions, otherwise false
+ * @return bool True if the object (forum or topic) is in user's subscriptions, otherwise false
  */
 function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) {
 	$retval = bbp_is_object_of_user( $object_id, $user_id, '_bbp_subscription', $type );
@@ -723,10 +723,10 @@ function bbp_is_user_subscribed( $user_id = 0, $object_id = 0, $type = 'post' ) 
  * @since 2.6.0 bbPress (r6544) Added $type parameter
  *
  * @param int    $user_id   Optional. User id
- * @param int    $object_id Optional. Topic id
+ * @param int    $object_id Optional. Object id
  * @param string $type      Optional. Type of object being subscribed to
  *
- * @return bool Always true
+ * @return bool True if the object was added to user subscriptions, otherwise false
  */
 function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post' ) {
 
@@ -757,11 +757,10 @@ function bbp_add_user_subscription( $user_id = 0, $object_id = 0, $type = 'post'
  * @since 2.6.0 bbPress (r6544) Added $type parameter
  *
  * @param int    $user_id   Optional. User id
- * @param int    $object_id Optional. Topic id
+ * @param int    $object_id Optional. Object id
  * @param string $type      Optional. Type of object being subscribed to
  *
- * @return bool True if the topic was removed from user's subscriptions,
- *               otherwise false
+ * @return bool True if the object was removed from user subscriptions, otherwise false
  */
 function bbp_remove_user_subscription( $user_id = 0, $object_id = 0, $type = 'post' ) {
 
