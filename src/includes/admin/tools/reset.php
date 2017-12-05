@@ -76,25 +76,37 @@ function bbp_admin_reset_page() {
 }
 
 /**
- * Handle the processing and feedback of the admin tools page
+ * Handle a bbPress admin area reset request.
  *
  * @since 2.0.0 bbPress (r2613)
  */
 function bbp_admin_reset_handler() {
 
-	// Bail if not resetting
+	// Bail if not resetting.
 	if ( ! bbp_is_post_request() || empty( $_POST['bbpress-are-you-sure'] ) ) {
 		return;
 	}
 
-	// Only keymasters can proceed
+	// Only keymasters can proceed.
 	if ( ! bbp_is_user_keymaster() ) {
 		return;
 	}
 
+	// Bail if not referred from resetter
 	check_admin_referer( 'bbpress-reset' );
 
-	// Stores messages
+	// Reset all of bbPress
+	bbp_admin_reset_database();
+}
+
+/**
+ * Perform a bbPress database reset.
+ *
+ * @since 2.6.0 bbPress
+ */
+function bbp_admin_reset_database() {
+
+	// Stores messages.
 	$messages = array();
 	$failed   = esc_html__( 'Failed!',  'bbpress' );
 	$success  = esc_html__( 'Success!', 'bbpress' );
@@ -104,12 +116,12 @@ function bbp_admin_reset_handler() {
 
 	/** Posts *****************************************************************/
 
-	// Post types and status
+	// Post types and status.
 	$fpt = bbp_get_forum_post_type();
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
 
-	// Define variables
+	// Define variables.
 	$bbp_db     = bbp_db();
 	$statement  = esc_html__( 'Deleting Posts&hellip; %s', 'bbpress' );
 
