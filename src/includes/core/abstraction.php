@@ -415,7 +415,7 @@ function bbp_default_intercept() {
  * @param bool $value
  */
 function bbp_is_intercepted( $value = '' ) {
-	return ( bbp_default_intercept() === $value );
+	return ( bbp_default_intercept() !== $value );
 }
 
 /**
