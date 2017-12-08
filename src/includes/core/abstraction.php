@@ -73,6 +73,8 @@ function bbp_setup_converter() {
 	return $bbp_admin->converter;
 }
 
+/** Globals *******************************************************************/
+
 /**
  * Lookup and return a global variable
  *
@@ -143,6 +145,8 @@ function bbp_get_wp_roles() {
 function bbp_db() {
 	return bbp_get_global_object( 'wpdb', 'WPDB' );
 }
+
+/** Pagination ****************************************************************/
 
 /**
  * Return the rewrite rules class being used to interact with URLs.
@@ -301,6 +305,8 @@ function bbp_get_major_wp_version() {
 	return (float) $wp_version;
 }
 
+/** Multisite *****************************************************************/
+
 /**
  * Is this a large bbPress installation?
  *
@@ -358,12 +364,85 @@ function bbp_switch_to_site( $site_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6733)
  */
-function bbp_restore_current_site( ) {
+function bbp_restore_current_site() {
 
 	// Switch back to the original site
 	if ( is_multisite() ) {
 		restore_current_blog();
 	}
+}
+
+/** Interception **************************************************************/
+
+/**
+ * Generate a default intercept value.
+ *
+ * @since 2.6.0
+ *
+ * @staticvar mixed $rand Null by default, random string on first call
+ *
+ * @return string
+ */
+function bbp_default_intercept() {
+	static $rand = null;
+
+	// Generate a new random and unique string
+	if ( null === $rand ) {
+
+		// If ext/hash is not present, compat.php's hash_hmac() does not support sha256.
+		$algo = function_exists( 'hash' )
+			? 'sha256'
+			: 'sha1';
+
+		// Old WP installs may not have AUTH_SALT defined.
+		$salt = defined( 'AUTH_SALT' ) && AUTH_SALT
+			? AUTH_SALT
+			: (string) wp_rand();
+
+		// Create unique ID
+		$rand = hash_hmac( $algo, uniqid( $salt, true ), $salt );
+	}
+
+	// Return random string (from locally static variable)
+	return $rand;
+}
+
+/**
+ * Whether a value has been intercepted
+ *
+ * @since 2.6.0
+ *
+ * @param bool $value
+ */
+function bbp_is_intercepted( $value = '' ) {
+	return ( bbp_default_intercept() === $value );
+}
+
+/**
+ * Allow interception of a method or function call.
+ *
+ * @since 2.6.0
+ *
+ * @param string $action Typically the name of the caller function
+ * @param array  $args   Typically the results of caller function func_get_args()
+ *
+ * @return mixed         Intercept results. Default bbp_default_intercept().
+ */
+function bbp_maybe_intercept( $action = '', $args = array() ) {
+
+	// Backwards compatibility juggle
+	$hook      = ( false === strpos( $action, 'pre_' ) )
+		? "pre_{$action}"
+		: $action;
+
+	// Sanitize the hook same
+	$key       = sanitize_key( $hook );
+
+	// Default return value
+	$default   = bbp_default_intercept();
+
+	// Filter and return
+	return apply_filters( $key, $default, extract( (array) $args ) );
 }
 
 /** Engagements ***************************************************************/

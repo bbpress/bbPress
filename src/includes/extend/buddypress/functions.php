@@ -793,18 +793,10 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 		return $action;
 	}
 
-	/**
-	 * Overrides the formatted activity action new activity string.
-	 *
-	 * @since 2.6.0 bbPress (r6370)
-	 *
-	 * @param string               $activity_action Activity action string value
-	 * @param string               $type            The type of post. Expects `topic` or `reply`.
-	 * @param string               $action          The current action string.
-	 * @param BP_Activity_Activity $activity        The BuddyPress activity object.
-	 */
-	if ( $pre = apply_filters( 'bbp_pre_format_activity_action_new_post', false, $type, $action, $activity ) ) {
-		return $pre;
+	// Bail if intercepted
+	$intercept = bbp_maybe_intercept( __FUNCTION__, func_get_args() );
+	if ( bbp_is_intercepted( $intercept ) ) {
+		return $intercept;
 	}
 
 	// Groups component

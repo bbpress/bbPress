@@ -534,10 +534,10 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_profile_url = apply_filters( 'bbp_pre_get_user_profile_url', $user_id );
-		if ( is_string( $early_profile_url ) ) {
-			return $early_profile_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_profile_url', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Pretty permalinks
@@ -624,10 +624,10 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile edit URL to cut down on processing
-		$early_profile_url = apply_filters( 'bbp_pre_get_user_profile_edit_url', $user_id );
-		if ( is_string( $early_profile_url ) ) {
-			return $early_profile_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_profile_edit_url', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL
@@ -983,10 +983,10 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_profile_url = apply_filters( 'bbp_pre_get_favorites_permalink', $user_id );
-		if ( is_string( $early_profile_url ) ) {
-			return $early_profile_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_favorites_permalink', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL & page
@@ -1174,10 +1174,10 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_profile_url = apply_filters( 'bbp_pre_get_subscriptions_permalink', $user_id );
-		if ( is_string( $early_profile_url ) ) {
-			return $early_profile_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_subscriptions_permalink', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL
@@ -1613,10 +1613,10 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_url = apply_filters( 'bbp_pre_get_user_topics_created_url', $user_id );
-		if ( is_string( $early_url ) ) {
-			return $early_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_topics_created_url', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL
@@ -1666,10 +1666,10 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_url = apply_filters( 'bbp_pre_get_user_replies_created_url', $user_id );
-		if ( is_string( $early_url ) ) {
-			return $early_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_replies_created_url', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL
@@ -1719,10 +1719,10 @@ function bbp_user_engagements_url( $user_id = 0 ) {
 			return false;
 		}
 
-		// Allow early overriding of the profile URL to cut down on processing
-		$early_url = apply_filters( 'bbp_pre_get_user_engagements_url', $user_id );
-		if ( is_string( $early_url ) ) {
-			return $early_url;
+		// Bail if intercepted
+		$intercept = bbp_maybe_intercept( 'bbp_pre_get_user_engagements_url', func_get_args() );
+		if ( bbp_is_intercepted( $intercept ) ) {
+			return $intercept;
 		}
 
 		// Get user profile URL

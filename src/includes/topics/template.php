@@ -320,9 +320,10 @@ function bbp_the_topic() {
  */
 function bbp_add_sticky_topics( &$query, $args = array() ) {
 
-	// Bail if overloaded
-	if ( null !== apply_filters( 'bbp_pre_add_stick_topics', null, $query, $args ) ) {
-		return;
+	// Bail if intercepted
+	$intercept = bbp_maybe_intercept( __FUNCTION__, func_get_args() );
+	if ( bbp_is_intercepted( $intercept ) ) {
+		return $intercept;
 	}
 
 	// Parse arguments against what gets used locally
