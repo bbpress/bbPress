@@ -610,11 +610,6 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
  */
 function bbp_check_for_duplicate( $post_data = array() ) {
 
-	// No duplicate checks for those who can throttle
-	if ( current_user_can( 'throttle' ) ) {
-		return true;
-	}
-
 	// Parse arguments against default values
 	$r = bbp_parse_args( $post_data, array(
 		'post_author'    => 0,
@@ -624,6 +619,11 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 		'post_status'    => bbp_get_trash_status_id(),
 		'anonymous_data' => array()
 	), 'check_for_duplicate' );
+
+	// No duplicate checks for those who can throttle
+	if ( user_can( (int) $r['post_author'], 'throttle' ) ) {
+		return true;
+	}
 
 	// Get the DB
 	$bbp_db = bbp_db();
@@ -670,11 +670,13 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 	$query .= " LIMIT 1";
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
+	// Dupe found
 	if ( $bbp_db->get_var( $dupe ) ) {
 		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
 		return false;
 	}
 
+	// Dupe not found
 	return true;
 }
 
