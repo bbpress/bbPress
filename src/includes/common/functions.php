@@ -771,7 +771,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 
 		// Allow for bumping the max to include the user's URL
 		if ( ! empty( $_post['url'] ) ) {
-			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'] );
+			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'], $content );
 		}
 
 		// Das ist zu viele links!
