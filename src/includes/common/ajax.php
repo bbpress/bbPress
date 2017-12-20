@@ -56,13 +56,18 @@ function bbp_is_ajax() {
  * Hooked to the 'bbp_template_redirect' action, this is also the custom
  * theme-side AJAX handler.
  *
+ * This is largely taken from admin-ajax.php, but adapted specifically for
+ * theme-side bbPress-only AJAX requests.
+ *
  * @since 2.3.0 bbPress (r4543)
+ *
+ * @param string $action Sanitized action from bbp_post_request/bbp_get_request
  *
  * @return If not a bbPress AJAX request
  */
-function bbp_do_ajax() {
+function bbp_do_ajax( $action = '' ) {
 
-	// Bail if not an AJAX request
+	// Bail if not a bbPress specific AJAX request
 	if ( ! bbp_is_ajax() ) {
 		return;
 	}
@@ -72,15 +77,32 @@ function bbp_do_ajax() {
 
 	// Set the header content type
 	@header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
+	@header( 'X-Robots-Tag: noindex' );
 
 	// Disable content sniffing in browsers that support it
 	send_nosniff_header();
 
+	// Disable browser caching for
+	nocache_headers();
+
+	// Compat for targeted action hooks (without $action param)
+	$action = empty( $action )
+		? sanitize_key( $_REQUEST['action'] )
+		: $action;
+
+	// Setup action key
+	$key = "bbp_ajax_{$action}";
+
+	// Bail if no action is registered
+	if ( empty( $action ) || ! has_action( $key ) ) {
+		wp_die( '0', 400 );
+	}
+
 	// Everything is 200 OK.
 	bbp_set_200();
 
-	// Perform custom bbPress ajax
-	do_action( 'bbp_ajax_' . sanitize_key( $_REQUEST['action'] ) );
+	// Execute custom bbPress AJAX action
+	do_action( $key );
 
 	// All done
 	wp_die( '0' );
