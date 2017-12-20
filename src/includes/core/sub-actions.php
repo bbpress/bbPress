@@ -353,6 +353,11 @@ function bbp_post_request() {
 	// Sanitize the POST action
 	$action = sanitize_key( $_POST['action'] );
 
+	// Bail if action was totally invalid
+	if ( empty( $action ) ) {
+		return;
+	}
+
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
 	do_action( 'bbp_post_request_' . $action );
@@ -380,6 +385,11 @@ function bbp_get_request() {
 
 	// Sanitize the GET action
 	$action = sanitize_key( $_GET['action'] );
+
+	// Bail if action was totally invalid
+	if ( empty( $action ) ) {
+		return;
+	}
 
 	// This dynamic action is probably the one you want to use. It narrows down
 	// the scope of the 'action' without needing to check it in your function.
