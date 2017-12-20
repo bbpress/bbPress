@@ -82,12 +82,12 @@ function bbp_do_ajax( $action = '' ) {
 	// Disable content sniffing in browsers that support it
 	send_nosniff_header();
 
-	// Disable browser caching for
+	// Disable browser caching for all AJAX requests
 	nocache_headers();
 
 	// Compat for targeted action hooks (without $action param)
 	$action = empty( $action )
-		? sanitize_key( $_REQUEST['action'] )
+		? sanitize_key( $_REQUEST['action'] ) // isset checked by bbp_is_ajax()
 		: $action;
 
 	// Setup action key
