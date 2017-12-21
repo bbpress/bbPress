@@ -194,8 +194,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		// Query parameters
 		$per_page     = 5;
 		$current_page = $this->get_pagenum();
-		$orderby      = ( ! empty( $_REQUEST['orderby'] ) ) ? sanitize_key( $_REQUEST['orderby'] ) : 'date';
-		$order        = ( ! empty( $_REQUEST['order']   ) ) ? sanitize_key( $_REQUEST['order']   ) : 'asc';
+		$orderby      = ! empty( $_REQUEST['orderby'] ) ? sanitize_key( $_REQUEST['orderby'] ) : 'date';
+		$order        = ! empty( $_REQUEST['order']   ) ? sanitize_key( $_REQUEST['order']   ) : 'asc';
 
 		// Query for replies
 		$reply_query  = new WP_Query( array(

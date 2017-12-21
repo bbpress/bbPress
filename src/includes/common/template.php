@@ -1252,7 +1252,7 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
 	// Make sure we are directing somewhere
 	if ( empty( $redirect_to ) ) {
 		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			$redirect_to = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		} else {
 			$redirect_to = wp_get_referer();
 		}

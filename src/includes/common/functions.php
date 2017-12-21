@@ -1431,7 +1431,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 			$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
 		}
 
-		$redirect_to = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 		// Sanitize $redirect_to and add it to full $url
 		$redirect_to = add_query_arg( array( 'loggedout'   => 'true'                    ), esc_url( $redirect_to ) );
@@ -1921,7 +1921,7 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	}
 
 	// Build the currently requested URL
-	$scheme        = is_ssl() ? 'https://' : 'http://';
+	$scheme        = bbp_get_url_scheme();
 	$requested_url = strtolower( $scheme . $request_host . $_SERVER['REQUEST_URI'] );
 
 	/** Look for match ********************************************************/
@@ -1938,7 +1938,9 @@ function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 	$matched_url = apply_filters( 'bbp_verify_nonce_request_url', $requested_url );
 
 	// Check the nonce
-	$result = isset( $_REQUEST[ $query_arg ] ) ? wp_verify_nonce( $_REQUEST[ $query_arg ], $action ) : false;
+	$result = isset( $_REQUEST[ $query_arg ] )
+		? wp_verify_nonce( $_REQUEST[ $query_arg ], $action )
+		: false;
 
 	// Nonce check failed
 	if ( empty( $result ) || empty( $action ) || ( strpos( $matched_url, $home_url ) !== 0 ) ) {
@@ -2271,6 +2273,7 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
 			: bbp_set_200();
 	}
 
+	// Return, maybe overridden
 	return $override;
 }
 
@@ -2296,4 +2299,17 @@ function bbp_posts_pre_query( $posts = null, $wp_query = false ) {
 
 	// Return, maybe overridden
 	return $posts;
+}
+
+/**
+ * Get scheme for a URL based on is_ssl() results.
+ *
+ * @since 2.6.0 bbPress (r6759)
+ *
+ * @return string https:// if is_ssl(), otherwise http://
+ */
+function bbp_get_url_scheme() {
+	return is_ssl()
+		? 'https://'
+		: 'http://';
 }
