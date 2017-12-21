@@ -100,18 +100,62 @@ function bbp_admin_reset_handler() {
 }
 
 /**
+ * Wrapper for determining admin reset query feedback presented to a user.
+ *
+ * @since 2.6.0 bbPress (r6758)
+ *
+ * @param array $args Array of query, message, and possible responses
+ *
+ * @return string
+ */
+function bbp_admin_reset_query_feedback( $args = array() ) {
+	static $defaults = null;
+
+	// Only set defaults one time to avoid hitting the GetText API repeatedly
+	if ( null === $defaults ) {
+		$defaults = array(
+			'query'     => '',
+			'message'   => esc_html__( 'Resetting&hellip;', 'bbpress' ),
+			'responses' => array(
+				'success' => esc_html__( 'Success!', 'bbpress' ),
+				'failure' => esc_html__( 'Failed!',  'bbpress' ),
+				'skipped' => esc_html__( 'Skipped.', 'bbpress' )
+			)
+		);
+	}
+
+	// Parse arguments
+	$r = bbp_parse_args( $args, $defaults, 'admin_reset_query_feedback' );
+
+	// Success/Failure based on query error
+	if ( ! empty( $r['query'] ) ) {
+		$query  = bbp_db()->query( $r['query'] );
+		$result = ! is_wp_error( $query )
+			? $r['responses']['success']
+			: $r['responses']['failure'];
+
+	// Skip if empty
+	} else {
+		$result = $r['responses']['skipped'];
+	}
+
+	// Return feedback
+	return sprintf( $r['message'], $result );
+}
+
+/**
  * Perform a bbPress database reset.
  *
  * @since 2.6.0 bbPress
  */
 function bbp_admin_reset_database() {
 
-	// Stores messages.
+	// Define variables.
 	$messages = array();
-	$failed   = esc_html__( 'Failed!',  'bbpress' );
-	$success  = esc_html__( 'Success!', 'bbpress' );
+	$sql_meta = array();
+	$bbp_db   = bbp_db();
 
-	// Flush the cache; things are about to get ugly.
+	// Flush the whole cache; things are about to get ugly.
 	wp_cache_flush();
 
 	/** Posts *****************************************************************/
@@ -121,109 +165,101 @@ function bbp_admin_reset_database() {
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
 
-	// Define variables.
-	$bbp_db     = bbp_db();
-	$statement  = esc_html__( 'Deleting Posts&hellip; %s', 'bbpress' );
-
-	$sql_posts  = $bbp_db->get_results( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')", OBJECT_K );
-	$sql_delete = "DELETE FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')";
-	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-	$messages[] = sprintf( $statement, $result );
-
-	/** Post Meta *************************************************************/
-
+	// Get post IDs
+	$sql_posts = $bbp_db->get_results( "SELECT `ID` FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')", OBJECT_K );
 	if ( ! empty( $sql_posts ) ) {
-		$sql_meta = array();
+
+		// Meta data
 		foreach ( $sql_posts as $key => $value ) {
 			$sql_meta[] = $key;
 		}
-		$statement  = esc_html__( 'Deleting Post Meta&hellip; %s', 'bbpress' );
-		$sql_meta   = implode( "', '", $sql_meta );
-		$sql_delete = "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')";
-		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-		$messages[] = sprintf( $statement, $result );
-	}
+		$sql_meta = implode( "', '", $sql_meta );
 
-	/** Post Revisions ********************************************************/
+		// Delete posts
+		$messages[] = bbp_admin_reset_query_feedback( array(
+			'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')",
+			'message' => esc_html__( 'Removing Forums, Topics, and Replies&hellip; %s', 'bbpress' )
+		) );
 
-	if ( ! empty( $sql_posts ) ) {
-		$sql_meta = array();
-		foreach ( $sql_posts as $key => $value ) {
-			$sql_meta[] = $key;
+		/** Post Meta *********************************************************/
+
+		if ( ! empty( $sql_posts ) ) {
+			$messages[] = bbp_admin_reset_query_feedback( array(
+				'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
+				'message' => esc_html__( 'Removing Forum, Topic, and Reply Meta Data&hellip; %s', 'bbpress' )
+			) );
 		}
-		$statement  = esc_html__( 'Deleting Post Revisions&hellip; %s', 'bbpress' );
-		$sql_meta   = implode( "', '", $sql_meta );
-		$sql_delete = "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'";
-		$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-		$messages[] = sprintf( $statement, $result );
+
+		/** Post Revisions ****************************************************/
+
+		if ( ! empty( $sql_posts ) ) {
+			$messages[] = bbp_admin_reset_query_feedback( array(
+				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
+				'message' => esc_html__( 'Removing Revision Data&hellip; %s', 'bbpress' )
+			) );
+		}
 	}
-
-	/** Forum moderators ******************************************************/
-
-	$statement  = esc_html__( 'Deleting Forum Moderators&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'forum-mod'";
-	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-	$messages[] = sprintf( $statement, $result );
 
 	/** Topic Tags ************************************************************/
 
-	$statement  = esc_html__( 'Deleting Topic Tags&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'";
-	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-	$messages[] = sprintf( $statement, $result );
+	$messages[] = bbp_admin_reset_query_feedback( array(
+		'query'   => "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'",
+		'message' => esc_html__( 'Deleting Topic Tags&hellip; %s', 'bbpress' )
+	) );
 
 	/** User ******************************************************************/
 
 	// First, if we're deleting previously imported users, delete them now
 	if ( ! empty( $_POST['bbpress-delete-imported-users'] ) ) {
-		$sql_users  = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'", OBJECT_K );
+		$sql_users = $bbp_db->get_results( "SELECT `user_id` FROM `{$bbp_db->usermeta}` WHERE `meta_key` = '_bbp_old_user_id'", OBJECT_K );
+
 		if ( ! empty( $sql_users ) ) {
 			$sql_meta = array();
 			foreach ( $sql_users as $key => $value ) {
 				$sql_meta[] = $key;
 			}
-			$statement  = esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' );
+
+			// Users
 			$sql_meta   = implode( "', '", $sql_meta );
-			$sql_delete = "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')";
-			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-			$messages[] = sprintf( $statement, $result );
-			$statement  = esc_html__( 'Deleting Imported User Meta&hellip; %s', 'bbpress' );
-			$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')";
-			$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-			$messages[] = sprintf( $statement, $result );
+			$messages[] = bbp_admin_reset_query_feedback( array(
+				'query'   => "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')",
+				'message' => esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' )
+			) );
+
+			// User meta
+			$messages[] = bbp_admin_reset_query_feedback( array(
+				'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')",
+				'message' => esc_html__( 'Deleting Imported User Meta&hellip; %s', 'bbpress' )
+			) );
 		}
 	}
 
 	// Next, if we still have users that were not imported delete that meta data
-	$statement  = esc_html__( 'Deleting User Meta&hellip; %s', 'bbpress' );
-	$sql_delete = "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'";
-	$result     = is_wp_error( $bbp_db->query( $sql_delete ) ) ? $failed : $success;
-	$messages[] = sprintf( $statement, $result );
+	$messages[] = bbp_admin_reset_query_feedback( array(
+		'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'",
+		'message' => esc_html__( 'Deleting bbPress Specific User Meta&hellip; %s', 'bbpress' )
+	) );
 
 	/** Converter *************************************************************/
 
-	$statement  = esc_html__( 'Deleting Conversion Table&hellip; %s', 'bbpress' );
 	$table_name = $bbp_db->prefix . 'bbp_converter_translator';
 	if ( $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
-		$bbp_db->query( "DROP TABLE {$table_name}" );
-		$result = $success;
-	} else {
-		$result = $failed;
+		$messages[] = bbp_admin_reset_query_feedback( array(
+			'query'   => "DROP TABLE {$table_name}",
+			'message' => esc_html__( 'Dropping Conversion Table&hellip; %s', 'bbpress' )
+		) );
 	}
-	$messages[] = sprintf( $statement, $result );
 
 	/** Options ***************************************************************/
 
-	$statement  = esc_html__( 'Deleting Settings&hellip; %s', 'bbpress' );
 	bbp_delete_options();
-	$messages[] = sprintf( $statement, $success );
+	$messages[] = esc_html__( 'Deleting Settings&hellip; Success!', 'bbpress' );
 
 	/** Roles *****************************************************************/
 
-	$statement  = esc_html__( 'Deleting Roles and Capabilities&hellip; %s', 'bbpress' );
 	bbp_remove_roles();
 	bbp_remove_caps();
-	$messages[] = sprintf( $statement, $success );
+	$messages[] = esc_html__( 'Removing Roles and Capabilities&hellip; Success!', 'bbpress' );
 
 	/** Output ****************************************************************/
 
