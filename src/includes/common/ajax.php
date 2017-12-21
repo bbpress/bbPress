@@ -75,15 +75,8 @@ function bbp_do_ajax( $action = '' ) {
 	// Set WordPress core AJAX constant
 	define( 'DOING_AJAX', true );
 
-	// Set the header content type
-	@header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
-	@header( 'X-Robots-Tag: noindex' );
-
-	// Disable content sniffing in browsers that support it
-	send_nosniff_header();
-
-	// Disable browser caching for all AJAX requests
-	nocache_headers();
+	// Setup AJAX headers
+	bbp_ajax_headers();
 
 	// Compat for targeted action hooks (without $action param)
 	$action = empty( $action )
@@ -109,7 +102,28 @@ function bbp_do_ajax( $action = '' ) {
 }
 
 /**
- * Helper method to return JSON response for the AJAX calls
+ * Send headers for AJAX specific requests
+ *
+ * This was abstracted from bbp_do_ajax() for use in custom theme-side AJAX
+ * implementations.
+ *
+ * @since 2.6.0 bbPress (r6757)
+ */
+function bbp_ajax_headers() {
+
+	// Set the header content type
+	@header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
+	@header( 'X-Robots-Tag: noindex' );
+
+	// Disable content sniffing in browsers that support it
+	send_nosniff_header();
+
+	// Disable browser caching for all AJAX requests
+	nocache_headers();
+}
+
+/**
+ * Helper method to return JSON response for bbPress AJAX calls
  *
  * @since 2.3.0 bbPress (r4542)
  *
