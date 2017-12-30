@@ -263,7 +263,8 @@ function bbp_pre_load_options() {
 	}
 
 	// Maybe intercept
-	$intercept = bbp_maybe_intercept( __FUNCTION__, 'notoptions' );
+	$strategy  = 'notoptions';
+	$intercept = bbp_maybe_intercept( __FUNCTION__, $strategy );
 	if ( bbp_is_intercepted( $intercept ) ) {
 		return $intercept;
 	}
@@ -296,12 +297,12 @@ function bbp_pre_load_options() {
 			$bbp->not_options[ $option ] = $value;
 
 			// Cache to notoptions
-			if ( 'notoptions' === $strategy ) {
+			if ( 'notoptions' === $intercept ) {
 				$not_options[ $option ] = true;
 				wp_cache_set( 'notoptions', $not_options, 'options' );
 
 			// Cache to option
-			} elseif ( 'option' === $strategy ) {
+			} elseif ( 'option' === $intercept ) {
 				wp_cache_set( $option, $value, 'options' );
 			}
 		}
