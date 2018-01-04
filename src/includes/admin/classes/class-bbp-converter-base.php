@@ -511,6 +511,8 @@ abstract class BBP_Converter_Base {
 									$insert_post['user_pass'] = '';
 								}
 
+								// Internally re-calls _exists() checks above.
+								// Also checks for existing nicename.
 								$post_id = wp_insert_user( $insert_post );
 
 								if ( is_numeric( $post_id ) ) {
