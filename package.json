@@ -41,7 +41,7 @@
     "support"
   ],
   "homepage": "https://bbpress.org",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0-or-later",
   "name": "bbpress",
   "repository": {
     "type": "svn",
