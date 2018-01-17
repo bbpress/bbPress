@@ -27,7 +27,7 @@ class vBulletin extends BBP_Converter_Base {
 	/**
 	 * Sets up the field mappings
 	 */
-	private function setup_globals() {
+	public function setup_globals() {
 
 		// Setup smiley URL & path
 		$this->bbcode_parser_properties = array(
