@@ -33,13 +33,16 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @since 2.6.0 bbPress (r5886)
 	 */
 	public function __construct( $args = array() ) {
-		$args = array(
+
+		// Parse arguments
+		$args = bbp_parse_args( $args, array(
 			'singular' => 'reply',
 			'plural'   => 'replies',
 			'ajax'     => false
-		);
-		parent::__construct( $args );
-	}
+		), 'topic_replies_list_table' );
+
+		// Construct the list table
+		parent::__construct( $args );	}
 
 	/**
 	 * Setup the list-table columns
