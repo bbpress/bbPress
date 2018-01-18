@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * @return bool Returns true on success, false on failure
  */
 function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post', $unique = false ) {
-	$retval = bbp_user_engagements_interface()->add_user_to_object( $object_id, $user_id, $rel_key, $rel_type, $unique );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->add_user_to_object( $object_id, $user_id, $rel_key, $rel_type, $unique );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_add_user_to_object', $retval, $object_id, $user_id, $rel_key, $rel_type, $unique );
@@ -45,7 +45,7 @@ function bbp_add_user_to_object( $object_id = 0, $user_id = 0, $rel_key = '', $r
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->remove_user_from_object( $object_id, $user_id, $rel_key, $rel_type );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_user_from_object( $object_id, $user_id, $rel_key, $rel_type );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_remove_user_from_object', $retval, $object_id, $user_id, $rel_key, $rel_type );
@@ -63,7 +63,7 @@ function bbp_remove_user_from_object( $object_id = 0, $user_id = 0, $rel_key = '
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->remove_user_from_all_objects( $user_id, $rel_key, $rel_type );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_user_from_all_objects( $user_id, $rel_key, $rel_type );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_remove_user_from_all_objects', $retval, $user_id, $rel_key, $rel_type );
@@ -82,7 +82,7 @@ function bbp_remove_user_from_all_objects( $user_id = 0, $rel_key = '', $rel_typ
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->remove_object_from_all_users( $object_id, $rel_key, $rel_type );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_object_from_all_users( $object_id, $rel_key, $rel_type );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_remove_object_from_all_users', $retval, $object_id, $rel_key, $rel_type );
@@ -99,7 +99,7 @@ function bbp_remove_object_from_all_users( $object_id = 0, $rel_key = '', $rel_t
  * @return bool Returns true on success, false on failure
  */
 function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->remove_all_users_from_all_objects( $rel_key, $rel_type );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->remove_all_users_from_all_objects( $rel_key, $rel_type );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_remove_all_users_from_all_objects', $retval, $rel_key, $rel_type );
@@ -117,7 +117,7 @@ function bbp_remove_all_users_from_all_objects( $rel_key = '', $rel_type = 'post
  * @return array Returns ids of users
  */
 function bbp_get_users_for_object( $object_id = 0, $rel_key = '', $rel_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->get_users_for_object( $object_id, $rel_key, $rel_type );
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->get_users_for_object( $object_id, $rel_key, $rel_type );
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_users_for_object', $retval, $object_id, $rel_key, $rel_type );
@@ -148,18 +148,18 @@ function bbp_is_object_of_user( $object_id = 0, $user_id = 0, $rel_key = '', $re
  *
  * @since 2.6.0 bbPress (r6747)
  *
- * @param array  $args
- * @param string $context
- * @param string $meta_key
- * @param string $meta_type
+ * @param array  $args      Default query arguments
+ * @param string $context   Additional context
+ * @param string $rel_key   The relationship key
+ * @param string $rel_type  The relationship type (usually 'post')
  *
  * @return array
  */
-function bbp_get_user_object_query( $args = array(), $context = '', $meta_key = '', $meta_type = 'post' ) {
-	$retval = bbp_user_engagements_interface()->get_query( $args, "get_user_{$context}", $meta_key, $meta_type );
+function bbp_get_user_object_query( $args = array(), $context = '', $rel_key = '', $rel_type = 'post' ) {
+	$retval = bbp_user_engagements_interface( $rel_key, $rel_type )->get_query( $args, "get_user_{$context}", $rel_key, $rel_type );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $meta_key, $meta_type );
+	return (array) apply_filters( 'bbp_get_user_object_query', $retval, $args, $context, $rel_key, $rel_type );
 }
 
 /** Engagements ***************************************************************/

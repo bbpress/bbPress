@@ -452,10 +452,13 @@ function bbp_maybe_intercept( $action = '', $args = array() ) {
  *
  * @since 2.6.0 bbPress (r6722)
  *
+ * @param string $rel_key  The key used to index this relationship
+ * @param string $rel_type The type of meta to look in
+ *
  * @return string
  */
-function bbp_user_engagements_interface() {
-	return apply_filters( 'bbp_user_engagements_interface', bbpress()->engagements );
+function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
+	return apply_filters( 'bbp_user_engagements_interface', bbpress()->engagements, $rel_key, $rel_type );
 }
 
 /**
