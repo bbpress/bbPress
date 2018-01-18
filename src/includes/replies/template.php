@@ -159,13 +159,7 @@ function bbp_has_replies( $args = array() ) {
 	if ( bbp_get_view_all( 'edit_others_replies' ) ) {
 
 		// Default view=all statuses
-		$post_statuses = array(
-			bbp_get_public_status_id(),
-			bbp_get_closed_status_id(),
-			bbp_get_spam_status_id(),
-			bbp_get_trash_status_id(),
-			bbp_get_pending_status_id()
-		);
+		$post_statuses = array_keys( bbp_get_topic_statuses() );
 
 		// Add support for private status
 		if ( current_user_can( 'read_private_replies' ) ) {

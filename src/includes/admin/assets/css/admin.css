@@ -421,11 +421,13 @@ body.post-type-reply strong.label {
 	background-color: #f0f0f0;
 }
 
-#the-list .status-spam {
+#the-list .status-spam,
+#bbp-reply-list .status-trash {
 	background-color: #fee;
 }
 
-#the-list .status-spam:nth-child(odd) {
+#the-list .status-spam:nth-child(odd),
+#bbp-reply-list .status-trash:nth-child(odd) {
 	background-color: #fdd;
 }
 
@@ -438,7 +440,8 @@ body.post-type-reply strong.label {
 }
 
 #the-list .status-closed td,
-#the-list .status-spam td {
+#the-list .status-spam td,
+#bbp-reply-list .status-trash td {
 	color: #999;
 }
 

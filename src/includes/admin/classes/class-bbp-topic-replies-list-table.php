@@ -199,17 +199,31 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		$current_page = $this->get_pagenum();
 		$orderby      = ! empty( $_REQUEST['orderby'] ) ? sanitize_key( $_REQUEST['orderby'] ) : 'date';
 		$order        = ! empty( $_REQUEST['order']   ) ? sanitize_key( $_REQUEST['order']   ) : 'asc';
+		$statuses     = bbp_get_public_reply_statuses();
+
+		// Maybe add private statuses to query
+		if ( current_user_can( 'edit_others_replies' ) ) {
+
+			// Default view=all statuses
+			$statuses = array_keys( bbp_get_topic_statuses() );
+
+			// Add support for private status
+			if ( current_user_can( 'read_private_replies' ) ) {
+				$statuses[] = bbp_get_private_status_id();
+			}
+		}
 
 		// Query for replies
 		$reply_query  = new WP_Query( array(
 			'post_type'           => bbp_get_reply_post_type(),
+			'post_status'         => $statuses,
 			'post_parent'         => $topic_id,
 			'posts_per_page'      => $per_page,
 			'paged'               => $current_page,
 			'orderby'             => $orderby,
 			'order'               => ucwords( $order ),
 			'hierarchical'        => false,
-			'ignore_sticky_posts' => true,
+			'ignore_sticky_posts' => true
 		) );
 
 		// Get the total number of replies, for pagination
@@ -248,7 +262,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		// Top
 		$this->display_tablenav( 'top' ); ?>
 
-		<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
+		<table id="bbp-reply-list" class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
 			<thead>
 				<tr>
 					<?php $this->print_column_headers(); ?>
