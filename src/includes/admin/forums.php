@@ -66,8 +66,8 @@ class BBP_Forums_Admin {
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
 
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
-		add_action( 'load-edit.php',  array( $this, 'toggle_forum'        ) );
-		add_action( 'admin_notices',  array( $this, 'toggle_forum_notice' ) );
+		add_action( 'load-edit.php',     array( $this, 'toggle_forum'        ) );
+		add_action( 'bbp_admin_notices', array( $this, 'toggle_forum_notice' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );

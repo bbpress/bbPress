@@ -61,55 +61,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
  * @return string The message HTML
  */
 function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = true ) {
-
-	// One message as string
-	if ( is_string( $message ) ) {
-		$message       = '<p>' . $message . '</p>';
-		$default_class ='updated';
-
-	// Messages as objects
-	} elseif ( is_wp_error( $message ) ) {
-		$errors  = $message->get_error_messages();
-
-		switch ( count( $errors ) ) {
-			case 0:
-				return false;
-
-			case 1:
-				$message = '<p>' . $errors[0] . '</p>';
-				break;
-
-			default:
-				$message = '<ul>' . "\n\t" . '<li>' . implode( '</li>' . "\n\t" . '<li>', $errors ) . '</li>' . "\n" . '</ul>';
-				break;
-		}
-
-		$default_class = 'is-error';
-
-	// Message is an unknown format, so bail
-	} else {
-		return false;
-	}
-
-	// CSS Classes
-	$classes = ! empty( $class )
-		? array( $class )
-		: array( $default_class );
-
-	// Add dismissible class
-	if ( ! empty( $is_dismissible ) ) {
-		array_push( $classes, 'is-dismissible' );
-	}
-
-	// Assemble the message
-	$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $message . '</div>';
-	$message = str_replace( "'", "\'", $message );
-
-	// Ugh
-	$lambda  = create_function( '', "echo '$message';" );
-	add_action( 'admin_notices', $lambda );
-
-	return $lambda;
+	return bbp_admin()->add_notice( $message, $class, $is_dismissible );
 }
 
 /**

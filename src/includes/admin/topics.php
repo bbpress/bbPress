@@ -77,8 +77,8 @@ class BBP_Topics_Admin {
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
-		add_action( 'load-edit.php',  array( $this, 'toggle_topic'        ) );
-		add_action( 'admin_notices',  array( $this, 'toggle_topic_notice' ) );
+		add_action( 'load-edit.php',     array( $this, 'toggle_topic'        ) );
+		add_action( 'bbp_admin_notices', array( $this, 'toggle_topic_notice' ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
