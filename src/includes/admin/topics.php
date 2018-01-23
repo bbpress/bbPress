@@ -954,7 +954,7 @@ class BBP_Topics_Admin {
 	 * @since 2.0.0 bbPress (r2485)
 	 *
 	 * @param array  $actions Actions
-	 * @param object $topic Topic object
+	 * @param object $topic   Topic object
 	 *
 	 * @return array $actions Actions
 	 */

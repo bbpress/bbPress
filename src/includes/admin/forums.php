@@ -417,7 +417,7 @@ class BBP_Forums_Admin {
 	 */
 	public function toggle_forum_notice() {
 
-		// Bail if missing topic toggle action
+		// Bail if missing forum toggle action
 		if ( ! bbp_is_get_request() || empty( $_GET['forum_id'] ) || empty( $_GET['bbp_forum_toggle_notice'] ) ) {
 			return;
 		}
@@ -616,7 +616,7 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r2577)
 	 *
 	 * @param array  $actions Actions
-	 * @param object $forum Topic object
+	 * @param object $forum   Forum object
 	 *
 	 * @return array $actions Actions
 	 */

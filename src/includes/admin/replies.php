@@ -776,7 +776,7 @@ class BBP_Replies_Admin {
 	 * @since 2.0.0 bbPress (r2577)
 	 *
 	 * @param array  $actions Actions
-	 * @param object $reply Topic object
+	 * @param object $reply   Reply object
 	 *
 	 * @return array $actions Actions
 	 */
