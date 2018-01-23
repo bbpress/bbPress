@@ -386,7 +386,7 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param type array
+ * @param array $args
  */
 function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 	echo bbp_get_admin_repair_tool_overhead_filters( $args );

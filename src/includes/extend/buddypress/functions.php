@@ -370,8 +370,9 @@ function bbp_maybe_create_group_forum_root() {
 /**
  * Get forum ID's for a group
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_get_group_forum_ids( $group_id = 0 ) {
 
@@ -398,8 +399,9 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 /**
  * Get group ID's for a forum
  *
- * @param type $forum_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $forum_id
  */
 function bbp_get_forum_group_ids( $forum_id = 0 ) {
 
@@ -426,8 +428,9 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 /**
  * Get forum ID's for a group
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 
@@ -446,8 +449,9 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 /**
  * Update group ID's for a forum
  *
- * @param type $forum_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $forum_id
  */
 function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -462,8 +466,9 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 /**
  * Add a group to a forum
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 
@@ -488,8 +493,9 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 /**
  * Remove a forum from a group
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 
@@ -514,8 +520,9 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 /**
  * Remove a group from a forum
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 
@@ -540,8 +547,9 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 /**
  * Remove a forum from a group
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 
@@ -566,8 +574,9 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 /**
  * Remove a group from all forums
  *
- * @param type $group_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $group_id
  */
 function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 
@@ -588,8 +597,9 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 /**
  * Remove a forum from all groups
  *
- * @param type $forum_id
  * @since 2.1.0 bbPress (r3653)
+ *
+ * @param int $forum_id
  */
 function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 

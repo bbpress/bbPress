@@ -2560,7 +2560,7 @@ function bbp_is_forum_form_post_request() {
  *
  * @since 2.0.0 bbPress (r3172)
  *
- * @param type $forum_id Optional. Forum ID.
+ * @param int $forum_id Optional. Forum ID.
  */
 function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 	echo bbp_get_forum_topics_feed_link( $forum_id );
@@ -2612,7 +2612,7 @@ function bbp_forum_topics_feed_link( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r3172)
  *
- * @param type $forum_id Optional. Forum ID.
+ * @param int $forum_id Optional. Forum ID.
  */
 function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 	echo bbp_get_forum_replies_feed_link( $forum_id );

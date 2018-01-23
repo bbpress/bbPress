@@ -680,7 +680,8 @@ class BBP_Akismet {
 	 *
 	 * @since 2.3.0 bbPress (r4812)
 	 *
-	 * @param type $user_id
+	 * @param int $user_id
+	 *
 	 * @return boolean
 	 */
 	private function get_user_roles( $user_id = 0 ) {

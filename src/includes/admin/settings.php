@@ -97,7 +97,7 @@ function bbp_admin_get_settings_sections() {
  *
  * @since 2.1.0 bbPress (r4001)
  *
- * @return type
+ * @return array
  */
 function bbp_admin_get_settings_fields() {
 

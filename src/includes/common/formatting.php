@@ -272,9 +272,10 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  * @since 2.3.0 bbPress (r4641)
  *
  * @internal Used by bbp_encode_bad()
- * @param type $content
- * @param type $key
- * @param type $preg
+ *
+ * @param string $content
+ * @param string $key
+ * @param string $preg
  */
 function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '') {
 	if ( strpos( $content, '`' ) !== 0 ) {

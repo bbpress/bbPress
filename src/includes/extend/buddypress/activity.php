@@ -242,8 +242,9 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
-	 * @param type $args Array of arguments for bp_activity_add()
-	 * @return type Activity ID if successful, false if not
+	 * @param  array $args Array of arguments for bp_activity_add()
+	 *
+	 * @return int   Activity ID if successful, false if not
 	 */
 	private function record_activity( $args = array() ) {
 
@@ -271,8 +272,9 @@ class BBP_BuddyPress_Activity {
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
-	 * @param type $args Array of arguments for bp_activity_add()
-	 * @return type Activity ID if successful, false if not
+	 * @param  array $args Array of arguments for bp_activity_add()
+	 *
+	 * @return int   Activity ID if successful, false if not
 	 */
 	public function delete_activity( $args = array() ) {
 

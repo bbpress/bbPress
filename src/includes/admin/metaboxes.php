@@ -555,9 +555,9 @@ function bbp_reply_metabox( $post ) {
  *
  * @since 2.6.0 bbPress (r5886)
  *
- * @param type $topic
+ * @param object $topic
  *
- * @return type
+ * @return void
  */
 function bbp_topic_replies_metabox( $topic = false ) {
 

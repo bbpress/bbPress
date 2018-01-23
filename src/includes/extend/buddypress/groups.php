@@ -644,8 +644,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 *
-	 * @param type $forum_args
-	 * @return if no forum_id is available
+	 * @param array $forum_args
+	 *
+	 * @return void if no forum_id is available
 	 */
 	public function new_forum( $forum_args = array() ) {
 
@@ -667,8 +668,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 *
-	 * @param type $forum_args
-	 * @return if no forum_id is available
+	 * @param array $forum_args
+	 *
+	 * @return void if no forum_id is available
 	 */
 	public function remove_forum( $forum_args = array() ) {
 

@@ -2185,8 +2185,9 @@ function bbp_current_user_can_publish_replies() {
  *
  * @since 2.0.0 bbPress (r3127)
  *
- * @param type $args
- * @return type
+ * @param array $args
+ *
+ * @return array
  */
 function bbp_get_forums_for_current_user( $args = array() ) {
 

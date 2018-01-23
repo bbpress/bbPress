@@ -148,7 +148,7 @@ function bbp_sanitize_slug( $slug = '' ) {
  *
  * @since 2.1.0 bbPress (r3765)
  *
- * @param type $site_id
+ * @param int $site_id
  */
 function bbp_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
