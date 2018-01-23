@@ -595,6 +595,28 @@ class BBP_Replies_Admin {
 	}
 
 	/**
+	 * Returns an array of keys used to sort row actions
+	 *
+	 * @since 2.6.0 bbPress (r6771)
+	 *
+	 * @return array
+	 */
+	private function get_row_action_sort_order() {
+
+		// Filter & return
+		return (array) apply_filters( 'bbp_admin_reply_row_action_sort_order', array(
+			'edit',
+			'approved',
+			'unapproved',
+			'spam',
+			'trash',
+			'untrash',
+			'delete',
+			'view'
+		) );
+	}
+
+	/**
 	 * Returns an array of notice toggles
 	 *
 	 * @since 2.6.0 bbPress (r6396)
@@ -753,13 +775,14 @@ class BBP_Replies_Admin {
 	 *
 	 * @since 2.0.0 bbPress (r2577)
 	 *
-	 * @param array $actions Actions
-	 * @param array $reply Reply object
+	 * @param array  $actions Actions
+	 * @param object $reply Topic object
 	 *
 	 * @return array $actions Actions
 	 */
-	public function row_actions( $actions, $reply ) {
+	public function row_actions( $actions = array(), $reply = false ) {
 
+		// Disable quick edit (too much to do here)
 		unset( $actions['inline hide-if-no-js'] );
 
 		// View link
@@ -818,7 +841,37 @@ class BBP_Replies_Admin {
 			}
 		}
 
-		return $actions;
+		// Sort & return
+		return $this->sort_row_actions( $actions );
+	}
+
+	/**
+	 * Sort row actions by key
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param array $actions
+	 *
+	 * @return array
+	 */
+	private function sort_row_actions( $actions = array() ) {
+
+		// Return value
+		$retval = array();
+
+		// Known row actions, in sort order
+		$known_actions = $this->get_row_action_sort_order();
+
+		// Sort known actions, and keep any unknown ones
+		foreach ( $known_actions as $key ) {
+			if ( isset( $actions[ $key ] ) ) {
+				$retval[ $key ] = $actions[ $key ];
+				unset( $actions[ $key ] );
+			}
+		}
+
+		// Combine & return
+		return $retval + $actions;
 	}
 
 	/**
