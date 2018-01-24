@@ -302,7 +302,7 @@ class BBP_Admin {
 
 		// One message as string
 		if ( is_string( $message ) ) {
-			$message       = '<p>' . $message . '</p>';
+			$message       = '<p>' . $this->esc_notice( $message ) . '</p>';
 			$default_class ='updated';
 
 		// Messages as objects
@@ -314,11 +314,12 @@ class BBP_Admin {
 					return false;
 
 				case 1:
-					$message = '<p>' . $errors[0] . '</p>';
+					$message = '<p>' . $this->esc_notice( $errors[0] ) . '</p>';
 					break;
 
 				default:
-					$message = '<ul>' . "\n\t" . '<li>' . implode( '</li>' . "\n\t" . '<li>', $errors ) . '</li>' . "\n" . '</ul>';
+					$escaped = array_map( array( $this, 'esc_notice' ), $errors );
+					$message = '<ul>' . "\n\t" . '<li>' . implode( '</li>' . "\n\t" . '<li>', $escaped ) . '</li>' . "\n" . '</ul>';
 					break;
 			}
 
@@ -340,7 +341,7 @@ class BBP_Admin {
 		}
 
 		// Assemble the message
-		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $this->esc_notice( $message ) . '</div>';
+		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $message . '</div>';
 		$message = str_replace( "'", "\'", $message );
 
 		// Avoid malformed notices variable
