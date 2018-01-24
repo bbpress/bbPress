@@ -150,9 +150,9 @@ add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Stats_Widget',   'register_widget' ), 10 );
 
 // Notices (loaded after bbp_init for translations)
-add_action( 'bbp_head',             'bbp_login_notices'    );
-add_action( 'bbp_head',             'bbp_topic_notices'    );
-add_action( 'bbp_template_notices', 'bbp_template_notices' );
+add_action( 'bbp_template_notices', 'bbp_login_notices'        );
+add_action( 'bbp_template_notices', 'bbp_topic_notices'        );
+add_action( 'bbp_template_notices', 'bbp_template_notices', 20 );
 
 // Always exclude private/hidden forums if needed
 add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );

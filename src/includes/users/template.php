@@ -1364,7 +1364,7 @@ function bbp_notice_edit_user_success() {
 		return;
 	} ?>
 
-	<div class="bbp-template-notice updated">
+	<div class="bbp-template-notice">
 		<ul>
 			<li><?php esc_html_e( 'User updated.', 'bbpress' ); ?></li>
 		</ul>
