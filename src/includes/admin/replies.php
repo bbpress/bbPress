@@ -73,8 +73,8 @@ class BBP_Replies_Admin {
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'    ) );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
-		add_action( 'load-edit.php',     array( $this, 'toggle_reply'        ) );
-		add_action( 'bbp_admin_notices', array( $this, 'toggle_reply_notice' ) );
+		add_action( 'load-edit.php', array( $this, 'toggle_reply'        ) );
+		add_action( 'load-edit.php', array( $this, 'toggle_reply_notice' ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -585,13 +585,8 @@ class BBP_Replies_Admin {
 			? 'error'
 			: 'updated';
 
-		?>
-
-		<div id="message" class="<?php echo esc_html( $class ); ?> fade">
-			<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
-		</div>
-
-		<?php
+		// Add the notice
+		bbp_admin()->add_notice( $message, $class, true );
 	}
 
 	/**

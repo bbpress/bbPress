@@ -66,8 +66,8 @@ class BBP_Forums_Admin {
 		add_action( 'save_post',      array( $this, 'save_meta_boxes'       ) );
 
 		// Check if there are any bbp_toggle_forum_* requests on admin_init, also have a message displayed
-		add_action( 'load-edit.php',     array( $this, 'toggle_forum'        ) );
-		add_action( 'bbp_admin_notices', array( $this, 'toggle_forum_notice' ) );
+		add_action( 'load-edit.php', array( $this, 'toggle_forum'        ) );
+		add_action( 'load-edit.php', array( $this, 'toggle_forum_notice' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
@@ -464,13 +464,8 @@ class BBP_Forums_Admin {
 			? 'error'
 			: 'updated';
 
-		?>
-
-		<div id="message" class="<?php echo esc_html( $class ); ?> fade">
-			<p style="line-height: 150%"><?php echo esc_html( $message ); ?></p>
-		</div>
-
-		<?php
+		// Add the notice
+		bbp_admin()->add_notice( $message, $class, true );
 	}
 
 	/**

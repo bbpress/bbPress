@@ -78,7 +78,7 @@ class BBP_Admin {
 	/** Notices ***************************************************************/
 
 	/**
-	 * @var array Array of notices to output on 'bbp_admin_notices' action
+	 * @var array Array of notices to output to the current user
 	 */
 	public $notices = array();
 
@@ -205,6 +205,11 @@ class BBP_Admin {
 	 */
 	public function setup_notices() {
 
+		// Avoid malformed notices variable
+		if ( ! is_array( $this->notices ) ) {
+			$this->notices = array();
+		}
+
 		// Database upgrade skipped?
 		$skipped = get_option( '_bbp_db_upgrade_skipped', 0 );
 
@@ -241,7 +246,7 @@ class BBP_Admin {
 		}
 
 		// Bail if user cannot visit upgrade page (cannot clear notice either!)
-		if ( current_user_can( 'bbp_tools_upgrade_page' ) ) {
+		if ( ! current_user_can( 'bbp_tools_upgrade_page' ) ) {
 			return;
 		}
 
@@ -335,7 +340,7 @@ class BBP_Admin {
 		}
 
 		// Assemble the message
-		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $message . '</div>';
+		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $this->esc_notice( $message ) . '</div>';
 		$message = str_replace( "'", "\'", $message );
 
 		// Avoid malformed notices variable
@@ -345,6 +350,22 @@ class BBP_Admin {
 
 		// Add notice to notices array
 		$this->notices[] = $message;
+	}
+
+	/**
+	 * Escape message string output
+	 *
+	 * @since 2.6.0 bbPress (r6775)
+	 *
+	 * @param string $message
+	 *
+	 * @return string
+	 */
+	private function esc_notice( $message = '' ) {
+		$tags = wp_kses_allowed_html();
+		$text = wp_kses( $message, $tags );
+
+		return $text;
 	}
 
 	/**
