@@ -149,18 +149,16 @@ add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Stats_Widget',   'register_widget' ), 10 );
 
-// Notices (loaded after bbp_init for translations)
-add_action( 'bbp_template_notices', 'bbp_login_notices'        );
-add_action( 'bbp_template_notices', 'bbp_topic_notices'        );
-add_action( 'bbp_template_notices', 'bbp_template_notices', 20 );
+// Notices
+add_action( 'bbp_template_notices', 'bbp_template_notices',                20 );
+add_action( 'bbp_template_notices', 'bbp_login_notices'                       );
+add_action( 'bbp_template_notices', 'bbp_topic_notices'                       );
+add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'            );
+add_action( 'bbp_template_notices', 'bbp_notice_edit_user_pending_email'      );
+add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2  );
 
 // Always exclude private/hidden forums if needed
 add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
-
-// Profile Page Messages
-add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );
-add_action( 'bbp_template_notices', 'bbp_notice_edit_user_pending_email'     );
-add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2 );
 
 // Before Delete/Trash/Untrash Forum
 add_action( 'wp_trash_post',      'bbp_trash_forum'   );
