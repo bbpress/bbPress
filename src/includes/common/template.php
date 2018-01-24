@@ -2179,7 +2179,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// Default to 'Home'
 			} else {
-				$pre_front_text = __( 'Home', 'bbpress' );
+				$pre_front_text = esc_html__( 'Home', 'bbpress' );
 			}
 		}
 
@@ -2253,11 +2253,11 @@ function bbp_breadcrumb( $args = array() ) {
 			}
 
 			// Implode the results of the tag data
-			$pre_current_text = sprintf( __( 'Topic Tag: %s', 'bbpress' ), implode( ' ', $tag_data ) );
+			$pre_current_text = sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), implode( ' ', $tag_data ) );
 
 		// Edit Topic Tag
 		} elseif ( bbp_is_topic_tag_edit() ) {
-			$pre_current_text = __( 'Edit', 'bbpress' );
+			$pre_current_text = esc_html__( 'Edit', 'bbpress' );
 
 		// Single
 		} else {
@@ -2368,7 +2368,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Edit topic tag
 		} elseif ( bbp_is_topic_tag_edit() ) {
-			$crumbs[] = '<a href="' . esc_url( get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
+			$crumbs[] = '<a href="' . esc_url( get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) ) . '" class="bbp-breadcrumb-topic-tag">' . sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
 
 		// Search
 		} elseif ( bbp_is_search() && bbp_get_search_terms() ) {

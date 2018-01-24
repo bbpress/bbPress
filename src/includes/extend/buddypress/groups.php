@@ -47,8 +47,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	private function setup_variables() {
 
 		// Component Name
-		$this->name          = __( 'Forum', 'bbpress' );
-		$this->nav_item_name = __( 'Forum', 'bbpress' );
+		$this->name          = esc_html__( 'Forum', 'bbpress' );
+		$this->nav_item_name = esc_html__( 'Forum', 'bbpress' );
 
 		// Component slugs (hardcoded to match bbPress 1.x functionality)
 		$this->slug          = 'forum';

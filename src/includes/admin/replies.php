@@ -227,9 +227,9 @@ class BBP_Replies_Admin {
 
 		if ( current_user_can( 'moderate' ) ) {
 			if ( bbp_get_spam_status_id() === get_query_var( 'post_status' ) ) {
-				$actions['unspam'] = __( 'Unspam', 'bbpress' );
+				$actions['unspam'] = esc_html__( 'Unspam', 'bbpress' );
 			} else {
-				$actions['spam'] = __( 'Spam', 'bbpress' );
+				$actions['spam'] = esc_html__( 'Spam', 'bbpress' );
 			}
 		}
 
@@ -272,7 +272,7 @@ class BBP_Replies_Admin {
 
 			foreach ( (array) $post_ids as $post_id ) {
 				if ( ! current_user_can( 'moderate', $post_id ) ) {
-					wp_die( __( 'Sorry, you are not allowed to spam this item.', 'bbpress' ) );
+					wp_die( esc_html__( 'Sorry, you are not allowed to spam this item.', 'bbpress' ) );
 				}
 
 				if ( wp_check_post_lock( $post_id ) ) {
@@ -281,7 +281,7 @@ class BBP_Replies_Admin {
 				}
 
 				if ( ! bbp_spam_reply( $post_id ) ) {
-					wp_die( __( 'Error in spamming reply.', 'bbpress' ) );
+					wp_die( esc_html__( 'Error in spamming reply.', 'bbpress' ) );
 				}
 
 				$updated++;
@@ -297,7 +297,7 @@ class BBP_Replies_Admin {
 
 			foreach ( (array) $post_ids as $post_id ) {
 				if ( ! current_user_can( 'moderate', $post_id ) ) {
-					wp_die( __( 'Sorry, you are not allowed to unspam this reply.', 'bbpress' ) );
+					wp_die( esc_html__( 'Sorry, you are not allowed to unspam this reply.', 'bbpress' ) );
 				}
 
 				if ( wp_check_post_lock( $post_id ) ) {
@@ -306,7 +306,7 @@ class BBP_Replies_Admin {
 				}
 
 				if ( ! bbp_unspam_reply( $post_id ) ) {
-					wp_die( __( 'Error in unspamming reply.', 'bbpress' ) );
+					wp_die( esc_html__( 'Error in unspamming reply.', 'bbpress' ) );
 				}
 
 				$updated++;
@@ -330,7 +330,7 @@ class BBP_Replies_Admin {
 	public function attributes_metabox() {
 		add_meta_box(
 			'bbp_reply_attributes',
-			__( 'Reply Attributes', 'bbpress' ),
+			esc_html__( 'Reply Attributes', 'bbpress' ),
 			'bbp_reply_metabox',
 			$this->post_type,
 			'side',
@@ -355,7 +355,7 @@ class BBP_Replies_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_author_metabox',
-			__( 'Author Information', 'bbpress' ),
+			esc_html__( 'Author Information', 'bbpress' ),
 			'bbp_author_metabox',
 			$this->post_type,
 			'side',
@@ -453,12 +453,12 @@ class BBP_Replies_Admin {
 		// Get reply and die if empty
 		$reply_id = bbp_get_reply_id( $_GET['reply_id'] );
 		if ( ! bbp_get_reply( $reply_id ) ) {
-			wp_die( __( 'The reply was not found.', 'bbpress' ) );
+			wp_die( esc_html__( 'The reply was not found.', 'bbpress' ) );
 		}
 
 		// What is the user doing here?
 		if ( ! current_user_can( 'moderate', $reply_id ) ) {
-			wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'bbpress' ) );
 		}
 
 		// Defaults
@@ -556,26 +556,26 @@ class BBP_Replies_Admin {
 		switch ( $notice ) {
 			case 'spammed' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
-					: sprintf( __( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
+					? sprintf( esc_html__( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					: sprintf( esc_html__( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unspammed' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
-					: sprintf( __( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
+					? sprintf( esc_html__( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					: sprintf( esc_html__( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'approved' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
-					: sprintf( __( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
+					? sprintf( esc_html__( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
+					: sprintf( esc_html__( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unapproved' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
-					: sprintf( __( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
+					? sprintf( esc_html__( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
+					: sprintf( esc_html__( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
 				break;
 		}
 
@@ -657,11 +657,11 @@ class BBP_Replies_Admin {
 	public function column_headers( $columns ) {
 		$columns = array(
 			'cb'                => '<input type="checkbox" />',
-			'title'             => __( 'Title',   'bbpress' ),
-			'bbp_reply_forum'   => __( 'Forum',   'bbpress' ),
-			'bbp_reply_topic'   => __( 'Topic',   'bbpress' ),
-			'bbp_reply_author'  => __( 'Author',  'bbpress' ),
-			'bbp_reply_created' => __( 'Created', 'bbpress' ),
+			'title'             => esc_html__( 'Title',   'bbpress' ),
+			'bbp_reply_forum'   => esc_html__( 'Forum',   'bbpress' ),
+			'bbp_reply_topic'   => esc_html__( 'Topic',   'bbpress' ),
+			'bbp_reply_author'  => esc_html__( 'Author',  'bbpress' ),
+			'bbp_reply_created' => esc_html__( 'Created', 'bbpress' ),
 		);
 
 		// Filter & return
@@ -949,63 +949,63 @@ class BBP_Replies_Admin {
 			// Updated
 			1 =>  sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
-				__( 'Reply updated.', 'bbpress' ),
+				esc_html__( 'Reply updated.', 'bbpress' ),
 				$topic_url,
-				__( 'View topic', 'bbpress' )
+				esc_html__( 'View topic', 'bbpress' )
 			),
 
 			// Custom field updated
-			2 => __( 'Custom field updated.', 'bbpress' ),
+			2 => esc_html__( 'Custom field updated.', 'bbpress' ),
 
 			// Custom field deleted
-			3 => __( 'Custom field deleted.', 'bbpress' ),
+			3 => esc_html__( 'Custom field deleted.', 'bbpress' ),
 
 			// Reply updated
-			4 => __( 'Reply updated.', 'bbpress' ),
+			4 => esc_html__( 'Reply updated.', 'bbpress' ),
 
 			// Restored from revision
 			// translators: %s: date and time of the revision
 			5 => isset( $_GET['revision'] )
-					? sprintf( __( 'Reply restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+					? sprintf( esc_html__( 'Reply restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
 					: false,
 
 			// Reply created
 			6 => sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
-				__( 'Reply created.', 'bbpress' ),
+				esc_html__( 'Reply created.', 'bbpress' ),
 				$topic_url,
-				__( 'View topic', 'bbpress' )
+				esc_html__( 'View topic', 'bbpress' )
 			),
 
 			// Reply saved
-			7 => __( 'Reply saved.', 'bbpress' ),
+			7 => esc_html__( 'Reply saved.', 'bbpress' ),
 
 			// Reply submitted
 			8 => sprintf(
 				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
-				__( 'Reply submitted.', 'bbpress' ),
+				esc_html__( 'Reply submitted.', 'bbpress' ),
 				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 
 			// Reply scheduled
 			9 => sprintf(
 				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
 				sprintf(
-					__( 'Reply scheduled for: %s.', 'bbpress' ),
+					esc_html__( 'Reply scheduled for: %s.', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
 					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
 				),
 				$topic_url,
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 
 			// Reply draft updated
 			10 => sprintf(
 				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
-				__( 'Reply draft updated.', 'bbpress' ),
+				esc_html__( 'Reply draft updated.', 'bbpress' ),
 				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 		);
 

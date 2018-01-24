@@ -524,7 +524,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 		$topic_title = bbp_get_reply_topic_title( $post_id );
 
 		// Get empty reply title fallback.
-		$reply_title = sprintf( __( 'Reply To: %s', 'bbpress' ), $topic_title );
+		$reply_title = sprintf( esc_html__( 'Reply To: %s', 'bbpress' ), $topic_title );
 
 		// Filter & return
 		return apply_filters( 'bbp_get_reply_title_fallback', $reply_title, $post_id, $topic_title );

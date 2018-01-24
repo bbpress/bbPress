@@ -180,15 +180,15 @@ function bbp_create_initial_content( $args = array() ) {
 		'forum_author'  => $user_id,
 		'forum_parent'  => 0,
 		'forum_status'  => 'publish',
-		'forum_title'   => __( 'General',           'bbpress' ),
-		'forum_content' => __( 'General chit-chat', 'bbpress' ),
+		'forum_title'   => esc_html__( 'General',           'bbpress' ),
+		'forum_content' => esc_html__( 'General chit-chat', 'bbpress' ),
 
 		'topic_author'  => $user_id,
-		'topic_title'   => __( 'Hello World!',                             'bbpress' ),
-		'topic_content' => __( 'I am the first topic in your new forums.', 'bbpress' ),
+		'topic_title'   => esc_html__( 'Hello World!',                             'bbpress' ),
+		'topic_content' => esc_html__( 'I am the first topic in your new forums.', 'bbpress' ),
 
 		'reply_author'  => $user_id,
-		'reply_content' => __( 'Oh, and this is what a reply looks like.', 'bbpress' ),
+		'reply_content' => esc_html__( 'Oh, and this is what a reply looks like.', 'bbpress' ),
 	), 'create_initial_content' );
 
 	// Use the same time for each post

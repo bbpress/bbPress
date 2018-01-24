@@ -3657,7 +3657,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	}
 
 	// Feed title
-	$title = get_bloginfo_rss( 'name' ) . ' &#187; ' . __( 'All Topics', 'bbpress' );
+	$title = get_bloginfo_rss( 'name' ) . ' &#187; ' . esc_html__( 'All Topics', 'bbpress' );
 	$title = apply_filters( 'wp_title_rss', $title );
 
 	// Display the feed

@@ -729,7 +729,7 @@ function bbp_admin_link( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'text'   => __( 'Admin', 'bbpress' ),
+			'text'   => esc_html__( 'Admin', 'bbpress' ),
 			'before' => '',
 			'after'  => ''
 		), 'get_admin_link' );
@@ -1072,8 +1072,8 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
-			'favorite'    => __( 'Favorite',   'bbpress' ),
-			'favorited'   => __( 'Unfavorite', 'bbpress' ),
+			'favorite'    => esc_html__( 'Favorite',   'bbpress' ),
+			'favorited'   => esc_html__( 'Unfavorite', 'bbpress' ),
 			'user_id'     => 0,
 			'object_id'   => 0,
 			'object_type' => 'post',
@@ -1410,7 +1410,7 @@ function bbp_notice_edit_user_pending_email() {
 
 	<div class="bbp-template-notice info">
 		<ul>
-			<li><?php printf( __( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ), $coded_email, $dismiss_link ); ?></li>
+			<li><?php printf( esc_html__( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ), $coded_email, $dismiss_link ); ?></li>
 		</ul>
 	</div>
 
@@ -1821,11 +1821,11 @@ function bbp_login_notices() {
 
 	// loggedout was passed
 	if ( ! empty( $_GET['loggedout'] ) && ( true === $_GET['loggedout'] ) ) {
-		bbp_add_error( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
+		bbp_add_error( 'loggedout', esc_html__( 'You are now logged out.', 'bbpress' ), 'message' );
 
 	// registration is disabled
 	} elseif ( ! empty( $_GET['registration'] ) && ( 'disabled' === $_GET['registration'] ) ) {
-		bbp_add_error( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
+		bbp_add_error( 'registerdisabled', esc_html__( 'New user registration is currently not allowed.', 'bbpress' ) );
 
 	// Prompt user to check their email
 	} elseif ( ! empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ), true ) ) {
@@ -1834,17 +1834,17 @@ function bbp_login_notices() {
 
 			// Email needs confirmation
 			case 'confirm' :
-				bbp_add_error( 'confirm',    __( 'Check your e-mail for the confirmation link.',     'bbpress' ), 'message' );
+				bbp_add_error( 'confirm',    esc_html__( 'Check your e-mail for the confirmation link.',     'bbpress' ), 'message' );
 				break;
 
 			// User requested a new password
 			case 'newpass' :
-				bbp_add_error( 'newpass',    __( 'Check your e-mail for your new password.',         'bbpress' ), 'message' );
+				bbp_add_error( 'newpass',    esc_html__( 'Check your e-mail for your new password.',         'bbpress' ), 'message' );
 				break;
 
 			// User is newly registered
 			case 'registered' :
-				bbp_add_error( 'registered', __( 'Registration complete. Please check your e-mail.', 'bbpress' ), 'message' );
+				bbp_add_error( 'registered', esc_html__( 'Registration complete. Please check your e-mail.', 'bbpress' ), 'message' );
 				break;
 		}
 	}

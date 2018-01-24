@@ -167,7 +167,7 @@ class BBP_Users_Admin {
 			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 				<option value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 			<?php endforeach; ?>
-		</select><?php submit_button( __( 'Change', 'bbpress' ), 'secondary', $button_id, false );
+		</select><?php submit_button( esc_html__( 'Change', 'bbpress' ), 'secondary', $button_id, false );
 
 		wp_nonce_field( 'bbp-bulk-users', 'bbp-bulk-users-nonce' );
 	}
@@ -273,8 +273,8 @@ class BBP_Users_Admin {
 	 * @return array $columns
 	 */
 	public static function user_role_column( $columns = array() ) {
-		$columns['role']          = __( 'Site Role',  'bbpress' );
-		$columns['bbp_user_role'] = __( 'Forum Role', 'bbpress' );
+		$columns['role']          = esc_html__( 'Site Role',  'bbpress' );
+		$columns['bbp_user_role'] = esc_html__( 'Forum Role', 'bbpress' );
 
 		return $columns;
 	}

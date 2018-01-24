@@ -921,9 +921,9 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 
 			$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
 			if ( ! empty( $reason ) ) {
-				$retval .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
+				$retval .= "\t\t" . sprintf( esc_html__( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
-				$retval .= "\t\t" . sprintf( __( 'This topic was modified %1$s by %2$s.',              'bbpress' ), esc_html( $since ), $author ) . "\n";
+				$retval .= "\t\t" . sprintf( esc_html__( 'This topic was modified %1$s by %2$s.',              'bbpress' ), esc_html( $since ), $author ) . "\n";
 			}
 			$retval .= "\t" . '</li>' . "\n";
 		}
@@ -2559,7 +2559,7 @@ function bbp_topic_trash_link( $args = array() ) {
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) || empty( $trash_days ) ) {
-			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete',  'topic_id' => $topic->ID ) ), 'delete-'  . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-topic-delete-link">' . $r['delete_text'] . '</a>';
+			$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete',  'topic_id' => $topic->ID ) ), 'delete-'  . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( esc_html__( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-topic-delete-link">' . $r['delete_text'] . '</a>';
 		}
 
 		// Process the admin links
@@ -3070,12 +3070,12 @@ function bbp_topic_notices() {
 
 		// Spam notice
 		case bbp_get_spam_status_id() :
-			$notice_text = __( 'This topic is marked as spam.', 'bbpress' );
+			$notice_text = esc_html__( 'This topic is marked as spam.', 'bbpress' );
 			break;
 
 		// Trashed notice
 		case bbp_get_trash_status_id() :
-			$notice_text = __( 'This topic is in the trash.',   'bbpress' );
+			$notice_text = esc_html__( 'This topic is in the trash.',   'bbpress' );
 			break;
 
 		// Standard status

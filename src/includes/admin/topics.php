@@ -232,9 +232,9 @@ class BBP_Topics_Admin {
 
 		if ( current_user_can( 'moderate' ) ) {
 			if ( bbp_get_spam_status_id() === get_query_var( 'post_status' ) ) {
-				$actions['unspam'] = __( 'Unspam', 'bbpress' );
+				$actions['unspam'] = esc_html__( 'Unspam', 'bbpress' );
 			} else {
-				$actions['spam'] = __( 'Spam', 'bbpress' );
+				$actions['spam'] = esc_html__( 'Spam', 'bbpress' );
 			}
 		}
 
@@ -277,7 +277,7 @@ class BBP_Topics_Admin {
 
 			foreach ( (array) $post_ids as $post_id ) {
 				if ( ! current_user_can( 'moderate', $post_id ) ) {
-					wp_die( __( 'Sorry, you are not allowed to spam this item.', 'bbpress' ) );
+					wp_die( esc_html__( 'Sorry, you are not allowed to spam this item.', 'bbpress' ) );
 				}
 
 				if ( wp_check_post_lock( $post_id ) ) {
@@ -286,7 +286,7 @@ class BBP_Topics_Admin {
 				}
 
 				if ( ! bbp_spam_topic( $post_id ) ) {
-					wp_die( __( 'Error in spamming topic.', 'bbpress' ) );
+					wp_die( esc_html__( 'Error in spamming topic.', 'bbpress' ) );
 				}
 
 				$updated++;
@@ -302,7 +302,7 @@ class BBP_Topics_Admin {
 
 			foreach ( (array) $post_ids as $post_id ) {
 				if ( ! current_user_can( 'moderate', $post_id ) ) {
-					wp_die( __( 'Sorry, you are not allowed to unspam this topic.', 'bbpress' ) );
+					wp_die( esc_html__( 'Sorry, you are not allowed to unspam this topic.', 'bbpress' ) );
 				}
 
 				if ( wp_check_post_lock( $post_id ) ) {
@@ -311,7 +311,7 @@ class BBP_Topics_Admin {
 				}
 
 				if ( ! bbp_unspam_topic( $post_id ) ) {
-					wp_die( __( 'Error in unspamming topic.', 'bbpress' ) );
+					wp_die( esc_html__( 'Error in unspamming topic.', 'bbpress' ) );
 				}
 
 				$updated++;
@@ -335,7 +335,7 @@ class BBP_Topics_Admin {
 	public function attributes_metabox() {
 		add_meta_box(
 			'bbp_topic_attributes',
-			__( 'Topic Attributes', 'bbpress' ),
+			esc_html__( 'Topic Attributes', 'bbpress' ),
 			'bbp_topic_metabox',
 			$this->post_type,
 			'side',
@@ -358,7 +358,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_author_metabox',
-			__( 'Author Information', 'bbpress' ),
+			esc_html__( 'Author Information', 'bbpress' ),
 			'bbp_author_metabox',
 			$this->post_type,
 			'side',
@@ -384,7 +384,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_replies_metabox',
-			__( 'Replies', 'bbpress' ),
+			esc_html__( 'Replies', 'bbpress' ),
 			'bbp_topic_replies_metabox',
 			$this->post_type,
 			'normal',
@@ -414,7 +414,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_engagements_metabox',
-			__( 'Engagements', 'bbpress' ),
+			esc_html__( 'Engagements', 'bbpress' ),
 			'bbp_topic_engagements_metabox',
 			$this->post_type,
 			'side',
@@ -444,7 +444,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_favorites_metabox',
-			__( 'Favorites', 'bbpress' ),
+			esc_html__( 'Favorites', 'bbpress' ),
 			'bbp_topic_favorites_metabox',
 			$this->post_type,
 			'normal',
@@ -474,7 +474,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_topic_subscriptions_metabox',
-			__( 'Subscriptions', 'bbpress' ),
+			esc_html__( 'Subscriptions', 'bbpress' ),
 			'bbp_topic_subscriptions_metabox',
 			$this->post_type,
 			'normal',
@@ -571,12 +571,12 @@ class BBP_Topics_Admin {
 		// Bail if topic is missing
 		$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
 		if ( ! bbp_get_topic( $topic_id ) ) {
-			wp_die( __( 'The topic was not found.', 'bbpress' ) );
+			wp_die( esc_html__( 'The topic was not found.', 'bbpress' ) );
 		}
 
 		// What is the user doing here?
 		if ( ! current_user_can( 'moderate', $topic_id ) ) {
-			wp_die( __( 'You do not have permission to do that.', 'bbpress' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'bbpress' ) );
 		}
 
 		// Defaults
@@ -707,56 +707,56 @@ class BBP_Topics_Admin {
 		switch ( $notice ) {
 			case 'opened'    :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'closed'    :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'super_sticky' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'stuck'   :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'unstuck' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'spammed'   :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unspammed' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'approved'   :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unapproved' :
 				$message = ( $is_failure === true )
-					? sprintf( __( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
-					: sprintf( __( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
+					? sprintf( esc_html__( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
+					: sprintf( esc_html__( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
 				break;
 		}
 
@@ -847,13 +847,13 @@ class BBP_Topics_Admin {
 	public function column_headers( $columns ) {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Topics',    'bbpress' ),
-			'bbp_topic_forum'       => __( 'Forum',     'bbpress' ),
-			'bbp_topic_reply_count' => __( 'Replies',   'bbpress' ),
-			'bbp_topic_voice_count' => __( 'Voices',    'bbpress' ),
-			'bbp_topic_author'      => __( 'Author',    'bbpress' ),
-			'bbp_topic_created'     => __( 'Created',   'bbpress' ),
-			'bbp_topic_freshness'   => __( 'Last Post', 'bbpress' )
+			'title'                 => esc_html__( 'Topics',    'bbpress' ),
+			'bbp_topic_forum'       => esc_html__( 'Forum',     'bbpress' ),
+			'bbp_topic_reply_count' => esc_html__( 'Replies',   'bbpress' ),
+			'bbp_topic_voice_count' => esc_html__( 'Voices',    'bbpress' ),
+			'bbp_topic_author'      => esc_html__( 'Author',    'bbpress' ),
+			'bbp_topic_created'     => esc_html__( 'Created',   'bbpress' ),
+			'bbp_topic_freshness'   => esc_html__( 'Last Post', 'bbpress' )
 		);
 
 		// Filter & return
@@ -1147,63 +1147,63 @@ class BBP_Topics_Admin {
 			// Updated
 			1 =>  sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
-				__( 'Topic updated.', 'bbpress' ),
+				esc_html__( 'Topic updated.', 'bbpress' ),
 				$topic_url,
-				__( 'View topic', 'bbpress' )
+				esc_html__( 'View topic', 'bbpress' )
 			),
 
 			// Custom field updated
-			2 => __( 'Custom field updated.', 'bbpress' ),
+			2 => esc_html__( 'Custom field updated.', 'bbpress' ),
 
 			// Custom field deleted
-			3 => __( 'Custom field deleted.', 'bbpress' ),
+			3 => esc_html__( 'Custom field deleted.', 'bbpress' ),
 
 			// Topic updated
-			4 => __( 'Topic updated.', 'bbpress' ),
+			4 => esc_html__( 'Topic updated.', 'bbpress' ),
 
 			// Restored from revision
 			// translators: %s: date and time of the revision
 			5 => isset( $_GET['revision'] )
-					? sprintf( __( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+					? sprintf( esc_html__( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
 					: false,
 
 			// Topic created
 			6 => sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
-				__( 'Topic created.', 'bbpress' ),
+				esc_html__( 'Topic created.', 'bbpress' ),
 				$topic_url,
-				__( 'View topic', 'bbpress' )
+				esc_html__( 'View topic', 'bbpress' )
 			),
 
 			// Topic saved
-			7 => __( 'Topic saved.', 'bbpress' ),
+			7 => esc_html__( 'Topic saved.', 'bbpress' ),
 
 			// Topic submitted
 			8 => sprintf(
 				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
-				__( 'Topic submitted.', 'bbpress' ),
+				esc_html__( 'Topic submitted.', 'bbpress' ),
 				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 
 			// Topic scheduled
 			9 => sprintf(
 				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
 				sprintf(
-					__( 'Topic scheduled for: %s.', 'bbpress' ),
+					esc_html__( 'Topic scheduled for: %s.', 'bbpress' ),
 					// translators: Publish box date format, see http://php.net/date
 					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
 				),
 				$topic_url,
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 
 			// Topic draft updated
 			10 => sprintf(
 				'%1$s <a href="%2$s" target="_blank">%3$s</a>',
-				__( 'Topic draft updated.', 'bbpress' ),
+				esc_html__( 'Topic draft updated.', 'bbpress' ),
 				esc_url( add_query_arg( 'preview', 'true', $topic_url ) ),
-				__( 'Preview topic', 'bbpress' )
+				esc_html__( 'Preview topic', 'bbpress' )
 			),
 		);
 

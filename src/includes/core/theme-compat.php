@@ -691,7 +691,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		// Reset post
 		bbp_theme_compat_reset_post( array(
 			'ID'             => 0,
-			'post_title'     => __( 'Replies', 'bbpress' ),
+			'post_title'     => esc_html__( 'Replies', 'bbpress' ),
 			'post_author'    => 0,
 			'post_date'      => 0,
 			'post_content'   => $bbp_shortcodes->display_reply_index(),
@@ -791,7 +791,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_date'      => 0,
 			'post_content'   => $new_content,
 			'post_type'      => '',
-			'post_title'     => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
+			'post_title'     => sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
 			'post_status'    => bbp_get_public_status_id(),
 			'is_tax'         => true,
 			'is_archive'     => true,

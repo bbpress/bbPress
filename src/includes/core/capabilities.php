@@ -498,7 +498,7 @@ function bbp_get_blocked_role() {
  * @deprecated 2.2.0 bbPress (r4164)
  */
 function bbp_add_roles() {
-	_doing_it_wrong( 'bbp_add_roles', __( 'Editable forum roles no longer exist.', 'bbpress' ), '2.2' );
+	_doing_it_wrong( 'bbp_add_roles', esc_html__( 'Editable forum roles no longer exist.', 'bbpress' ), '2.2' );
 }
 
 /**

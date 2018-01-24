@@ -776,8 +776,8 @@ function bbp_get_activity_actions() {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_activity_actions', array(
-		'topic' => __( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
-		'reply' => __( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
+		'topic' => esc_html__( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
+		'reply' => esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
 	) );
 }
 

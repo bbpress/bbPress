@@ -512,7 +512,7 @@ final class bbPress {
 				'labels'              => bbp_get_forum_post_type_labels(),
 				'rewrite'             => bbp_get_forum_post_type_rewrite(),
 				'supports'            => bbp_get_forum_post_type_supports(),
-				'description'         => __( 'bbPress Forums', 'bbpress' ),
+				'description'         => esc_html__( 'bbPress Forums', 'bbpress' ),
 				'capabilities'        => bbp_get_forum_caps(),
 				'capability_type'     => array( 'forum', 'forums' ),
 				'menu_position'       => 555555,
@@ -538,7 +538,7 @@ final class bbPress {
 				'labels'              => bbp_get_topic_post_type_labels(),
 				'rewrite'             => bbp_get_topic_post_type_rewrite(),
 				'supports'            => bbp_get_topic_post_type_supports(),
-				'description'         => __( 'bbPress Topics', 'bbpress' ),
+				'description'         => esc_html__( 'bbPress Topics', 'bbpress' ),
 				'capabilities'        => bbp_get_topic_caps(),
 				'capability_type'     => array( 'topic', 'topics' ),
 				'menu_position'       => 555555,
@@ -564,7 +564,7 @@ final class bbPress {
 				'labels'              => bbp_get_reply_post_type_labels(),
 				'rewrite'             => bbp_get_reply_post_type_rewrite(),
 				'supports'            => bbp_get_reply_post_type_supports(),
-				'description'         => __( 'bbPress Replies', 'bbpress' ),
+				'description'         => esc_html__( 'bbPress Replies', 'bbpress' ),
 				'capabilities'        => bbp_get_reply_caps(),
 				'capability_type'     => array( 'reply', 'replies' ),
 				'menu_position'       => 555555,
@@ -708,7 +708,7 @@ final class bbPress {
 		// Popular topics
 		bbp_register_view(
 			'popular',
-			__( 'Most popular topics', 'bbpress' ),
+			esc_html__( 'Most popular topics', 'bbpress' ),
 			apply_filters( 'bbp_register_view_popular', array(
 				'meta_key'      => '_bbp_reply_count',
 				'meta_type'     => 'NUMERIC',
@@ -721,7 +721,7 @@ final class bbPress {
 		// Topics with no replies
 		bbp_register_view(
 			'no-replies',
-			__( 'Topics with no replies', 'bbpress' ),
+			esc_html__( 'Topics with no replies', 'bbpress' ),
 			apply_filters( 'bbp_register_view_no_replies', array(
 				'meta_key'      => '_bbp_reply_count',
 				'meta_type'     => 'NUMERIC',

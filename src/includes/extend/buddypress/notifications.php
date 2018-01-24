@@ -86,14 +86,14 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	// Multiple
 	if ( $action_item_count > 1 ) {
 		$filter = 'bbp_multiple_new_subscription_notification';
-		$text   = sprintf( __( 'You have %d new replies', 'bbpress' ), $action_item_count );
+		$text   = sprintf( esc_html__( 'You have %d new replies', 'bbpress' ), $action_item_count );
 
 	// Single
 	} else {
 		$filter = 'bbp_single_new_subscription_notification';
 		$text   = ! empty( $secondary_item_id )
-			? sprintf( __( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
-			: sprintf( __( 'You have %d new reply to %s',             'bbpress' ), $action_item_count, $topic_title );
+			? sprintf( esc_html__( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
+			: sprintf( esc_html__( 'You have %d new reply to %s',             'bbpress' ), $action_item_count, $topic_title );
 	}
 
 	// WordPress Toolbar
