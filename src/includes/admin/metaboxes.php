@@ -568,7 +568,7 @@ function bbp_topic_replies_metabox( $topic = false ) {
 
 	// Pull in the list table class
 	if ( ! class_exists( 'BBP_Topic_Replies_List_Table' ) ) {
-		require_once bbpress()->admin->admin_dir . '/classes/class-bbp-topic-replies-list-table.php';
+		require_once bbp_admin()->admin_dir . '/classes/class-bbp-topic-replies-list-table.php';
 	}
 
 	// Look for pagination value

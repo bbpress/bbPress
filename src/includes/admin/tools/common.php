@@ -132,13 +132,13 @@ function bbp_admin_repair_handler() {
 function bbp_get_admin_repair_tools( $type = '' ) {
 
 	// Get tools array
-	$tools = ! empty( bbpress()->admin->tools )
-		? bbpress()->admin->tools
+	$tools = ! empty( bbp_admin()->tools )
+		? bbp_admin()->tools
 		: array();
 
 	// Maybe limit to type (otherwise return all tools)
 	if ( ! empty( $type ) ) {
-		$tools = wp_list_filter( bbpress()->admin->tools, array( 'type' => $type ) );
+		$tools = wp_list_filter( bbp_admin()->tools, array( 'type' => $type ) );
 	}
 
 	// Filter & return

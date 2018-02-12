@@ -53,7 +53,6 @@ add_action( 'bbp_admin_init', 'bbp_setup_updater',          999 );
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );
 add_action( 'bbp_admin_init', 'bbp_register_admin_style'        );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
-add_action( 'bbp_admin_init', 'bbp_do_activation_redirect', 1   );
 
 // Hook on to current_screen
 add_action( 'bbp_current_screen', 'bbp_admin_forums'  );
@@ -67,15 +66,18 @@ add_action( 'bbp_init', 'bbp_setup_admin' );
 add_action( 'bbp_admin_menu', 'bbp_admin_separator' );
 
 // Activation
-add_action( 'bbp_activation', 'bbp_delete_rewrite_rules'        );
-add_action( 'bbp_activation', 'bbp_make_current_user_keymaster' );
+add_action( 'bbp_activation',   'bbp_setup_new_site'              );
+add_action( 'bbp_activation',   'bbp_add_activation_redirect'     );
+add_action( 'bbp_activation',   'bbp_delete_rewrite_rules'        );
+add_action( 'bbp_activation',   'bbp_make_current_user_keymaster' );
+add_action( 'load-plugins.php', 'bbp_do_activation_redirect'      );
 
 // Deactivation
 add_action( 'bbp_deactivation', 'bbp_remove_caps'          );
 add_action( 'bbp_deactivation', 'bbp_delete_rewrite_rules' );
 
 // New Site
-add_action( 'bbp_new_site', 'bbp_create_initial_content', 8 );
+add_action( 'bbp_new_site', 'bbp_setup_new_site', 8 );
 
 // Load the default repair tools
 add_action( 'load-tools_page_bbp-repair',  'bbp_register_default_repair_tools' );

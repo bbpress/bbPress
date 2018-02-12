@@ -780,5 +780,5 @@ function bbp_admin_forums( $current_screen ) {
 	}
 
 	// Init the forums admin
-	bbpress()->admin->forums = new BBP_Forums_Admin();
+	bbp_admin()->forums = new BBP_Forums_Admin();
 }

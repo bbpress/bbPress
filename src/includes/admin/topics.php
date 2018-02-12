@@ -1230,5 +1230,5 @@ function bbp_admin_topics( $current_screen ) {
 	}
 
 	// Init the topics admin
-	bbpress()->admin->topics = new BBP_Topics_Admin();
+	bbp_admin()->topics = new BBP_Topics_Admin();
 }

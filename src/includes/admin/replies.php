@@ -1032,5 +1032,5 @@ function bbp_admin_replies( $current_screen ) {
 	}
 
 	// Init the replies admin
-	bbpress()->admin->replies = new BBP_Replies_Admin();
+	bbp_admin()->replies = new BBP_Replies_Admin();
 }

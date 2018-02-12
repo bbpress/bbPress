@@ -164,6 +164,16 @@ function bbp_setup_updater() {
 }
 
 /**
+ * Runs when a new site is created in a multisite network, and bbPress is active
+ * on that site (hooked to `bbp_new_site`)
+ *
+ * @since 2.6.0 bbPress (r6779)
+ */
+function bbp_setup_new_site() {
+	bbp_create_initial_content();
+}
+
+/**
  * Create a default forum, topic, and reply
  *
  * @since 2.1.0 bbPress (r3767)
@@ -172,23 +182,23 @@ function bbp_setup_updater() {
  */
 function bbp_create_initial_content( $args = array() ) {
 
-	// Current user ID
-	$user_id = bbp_get_current_user_id();
+	// Cannot use bbp_get_current_user_id() during activation process
+	$user_id = get_current_user_id();
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
 		'forum_author'  => $user_id,
 		'forum_parent'  => 0,
 		'forum_status'  => 'publish',
-		'forum_title'   => esc_html__( 'General',           'bbpress' ),
-		'forum_content' => esc_html__( 'General chit-chat', 'bbpress' ),
+		'forum_title'   => esc_html__( 'General',            'bbpress' ),
+		'forum_content' => esc_html__( 'General Discussion', 'bbpress' ),
 
 		'topic_author'  => $user_id,
-		'topic_title'   => esc_html__( 'Hello World!',                             'bbpress' ),
-		'topic_content' => esc_html__( 'I am the first topic in your new forums.', 'bbpress' ),
+		'topic_title'   => esc_html__( 'Hello World!',                                  'bbpress' ),
+		'topic_content' => esc_html__( 'This is the very first topic in these forums.', 'bbpress' ),
 
 		'reply_author'  => $user_id,
-		'reply_content' => esc_html__( 'Oh, and this is what a reply looks like.', 'bbpress' ),
+		'reply_content' => esc_html__( 'And this is the very first reply.', 'bbpress' ),
 	), 'create_initial_content' );
 
 	// Use the same time for each post
@@ -373,7 +383,40 @@ function bbp_add_activation_redirect() {
 	}
 
 	// Add the transient to redirect
-	set_transient( '_bbp_activation_redirect', true, 30 );
+	set_user_setting( '_bbp_activation_redirect', true );
+}
+
+/**
+ * Redirect user to "What's New" page on activation
+ *
+ * @since 2.2.0 bbPress (r4389)
+ *
+ * @internal Used internally to redirect bbPress to the about page on activation
+ *
+ * @return If no transient, or in network admin, or is bulk activation
+ */
+function bbp_do_activation_redirect() {
+
+	// Bail if no activation redirect
+	if ( ! get_user_setting( '_bbp_activation_redirect', false ) ) {
+		return;
+	}
+
+	// Delete the redirect transient
+	delete_user_setting( '_bbp_activation_redirect' );
+
+	// Bail if activating from network, or bulk
+	if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
+		return;
+	}
+
+	// Bail if the current user cannot see the about page
+	if ( ! current_user_can( 'bbp_about_page' ) ) {
+		return;
+	}
+
+	// Redirect to bbPress about page
+	bbp_redirect( add_query_arg( array( 'page' => 'bbp-about' ), admin_url( 'index.php' ) ) );
 }
 
 /**
@@ -389,12 +432,22 @@ function bbp_add_activation_redirect() {
  */
 function bbp_make_current_user_keymaster() {
 
+	// Catch all, to prevent premature user initialization
+	if ( ! did_action( 'set_current_user' ) ) {
+		return;
+	}
+
+	// Bail if not logged in or already a member of this site
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
 	// Bail if the current user can't activate plugins since previous pageload
 	if ( ! current_user_can( 'activate_plugins' ) ) {
 		return;
 	}
 
-	// Cannot use bbp_get_current_user_id() here, during activation process
+	// Cannot use bbp_get_current_user_id() during activation process
 	$user_id = get_current_user_id();
 
 	// Get the current blog ID, to know if they should be promoted here

@@ -84,7 +84,7 @@ function bbp_register_repair_tool( $args = array() ) {
 	}
 
 	// Add tool to the registered tools array
-	bbpress()->admin->tools[ $r['id'] ] = array(
+	bbp_admin()->tools[ $r['id'] ] = array(
 		'type'        => $r['type'],
 		'title'       => $r['title'],
 		'description' => $r['description'],

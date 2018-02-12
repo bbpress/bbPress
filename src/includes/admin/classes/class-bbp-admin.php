@@ -156,7 +156,6 @@ class BBP_Admin {
 
 		/** General Actions ***************************************************/
 
-		add_action( 'bbp_activation',              array( $this, 'new_install'             ) ); // Add menu item to settings menu
 		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) ); // Add menu item to settings menu
 		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) ); // Add general styling to the admin area
 		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'    ) ); // Add green admin style
@@ -484,23 +483,6 @@ class BBP_Admin {
 	}
 
 	/**
-	 * If this is a new installation, create some initial forum content.
-	 *
-	 * @since 2.1.0 bbPress (r3767)
-	 *
-	 * @return void
-	 */
-	public static function new_install() {
-
-		// Bail if not a new install
-		if ( ! bbp_is_install() ) {
-			return;
-		}
-
-		bbp_create_initial_content();
-	}
-
-	/**
 	 * Register the settings
 	 *
 	 * @since 2.0.0 bbPress (r2737)
@@ -595,13 +577,13 @@ class BBP_Admin {
 			case 'bbp_settings_user_slugs'   : // Settings - User slugs
 			case 'bbp_settings_per_page'     : // Settings - Per page
 			case 'bbp_settings_per_rss_page' : // Settings - Per RSS page
-				$caps = array( bbpress()->admin->minimum_capability );
+				$caps = array( bbp_admin()->minimum_capability );
 				break;
 
 			// Extend - BuddyPress
 			case 'bbp_settings_buddypress' :
 				if ( ( is_plugin_active( 'buddypress/bp-loader.php' ) && defined( 'BP_VERSION' ) && bp_is_root_blog() ) && is_super_admin() ) {
-					$caps = array( bbpress()->admin->minimum_capability );
+					$caps = array( bbp_admin()->minimum_capability );
 				} else {
 					$caps = array( 'do_not_allow' );
 				}
@@ -611,7 +593,7 @@ class BBP_Admin {
 			// Extend - Akismet
 			case 'bbp_settings_akismet' :
 				if ( ( is_plugin_active( 'akismet/akismet.php' ) && defined( 'AKISMET_VERSION' ) ) && is_super_admin() ) {
-					$caps = array( bbpress()->admin->minimum_capability );
+					$caps = array( bbp_admin()->minimum_capability );
 				} else {
 					$caps = array( 'do_not_allow' );
 				}
