@@ -179,32 +179,28 @@ function bbp_past_edit_lock( $post_date_gmt = '' ) {
 	// Default value
 	$retval = false;
 
+	// Get number of minutes to allow editing for
+	$minutes = (int) get_option( '_bbp_edit_lock', 5 );
+
+	// Now
+	$cur_time = current_time( 'timestamp', true );
+
+	// Period of time
+	$lockable  = "+{$minutes} minutes";
+
+	// Add lockable time to post time
+	$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
+
 	// Check if date and editing is allowed
 	if ( ! empty( $post_date_gmt ) && bbp_allow_content_edit() ) {
-
-		// Get number of minutes to allow editing for
-		$minutes = (int) get_option( '_bbp_edit_lock', 5 );
 
 		// "0" minutes set, so allow forever
 		if ( 0 === $minutes ) {
 			$retval = true;
 
 		// Not "0" so compare
-		} else {
-
-			// Period of time
-			$lockable  = "+{$minutes} minutes";
-
-			// Now
-			$cur_time  = current_time( 'timestamp', true );
-
-			// Add lockable time to post time
-			$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
-
-			// Compare
-			if ( $cur_time >= $lock_time ) {
-				$retval = true;
-			}
+		} elseif ( $cur_time >= $lock_time ) {
+			$retval = true;
 		}
 	}
 
