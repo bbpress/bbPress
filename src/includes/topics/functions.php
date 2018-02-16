@@ -158,6 +158,11 @@ function bbp_new_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 	}
 
+	// Title too long
+	if ( bbp_is_title_too_long( $topic_title ) ) {
+		bbp_add_error( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+	}
+
 	/** Topic Content *********************************************************/
 
 	if ( ! empty( $_POST['bbp_topic_content'] ) ) {
@@ -523,6 +528,11 @@ function bbp_edit_topic_handler( $action = '' ) {
 	// No topic title
 	if ( empty( $topic_title ) ) {
 		bbp_add_error( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
+	}
+
+	// Title too long
+	if ( bbp_is_title_too_long( $topic_title ) ) {
+		bbp_add_error( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
 	}
 
 	/** Topic Content *********************************************************/

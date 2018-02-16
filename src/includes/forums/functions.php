@@ -161,6 +161,11 @@ function bbp_new_forum_handler( $action = '' ) {
 		bbp_add_error( 'bbp_forum_title', __( '<strong>ERROR</strong>: Your forum needs a title.', 'bbpress' ) );
 	}
 
+	// Title too long
+	if ( bbp_is_title_too_long( $forum_title ) ) {
+		bbp_add_error( 'bbp_forum_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+	}
+
 	/** Forum Content *********************************************************/
 
 	if ( ! empty( $_POST['bbp_forum_content'] ) ) {
@@ -443,6 +448,11 @@ function bbp_edit_forum_handler( $action = '' ) {
 	// No forum title
 	if ( empty( $forum_title ) ) {
 		bbp_add_error( 'bbp_edit_forum_title', __( '<strong>ERROR</strong>: Your forum needs a title.', 'bbpress' ) );
+	}
+
+	// Title too long
+	if ( bbp_is_title_too_long( $forum_title ) ) {
+		bbp_add_error( 'bbp_forum_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
 	}
 
 	/** Forum Content *********************************************************/

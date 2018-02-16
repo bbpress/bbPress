@@ -2309,3 +2309,22 @@ function bbp_get_url_scheme() {
 		? 'https://'
 		: 'http://';
 }
+
+/** Titles ********************************************************************/
+
+/**
+ * Is a title longer that the maximum title length?
+ *
+ * @since 2.6.0 bbPress (r6783)
+ *
+ * @param string $title
+ * @return bool
+ */
+function bbp_is_title_too_long( $title = '' ) {
+	$max    = bbp_get_title_max_length();
+	$len    = mb_strlen( $title, '8bit' );
+	$result = ( $len > $max );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_title_too_long', $result, $title, $max, $len );
+}

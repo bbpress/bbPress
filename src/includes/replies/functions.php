@@ -274,6 +274,11 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Filter and sanitize
 	$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
 
+	// Title too long
+	if ( bbp_is_title_too_long( $reply_title ) ) {
+		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+	}
+
 	/** Reply Content *********************************************************/
 
 	if ( ! empty( $_POST['bbp_reply_content'] ) ) {
@@ -585,6 +590,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Filter and sanitize
 	$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
+
+	// Title too long
+	if ( bbp_is_title_too_long( $reply_title ) ) {
+		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+	}
 
 	/** Reply Content *********************************************************/
 

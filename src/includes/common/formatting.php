@@ -747,4 +747,3 @@ function bbp_format_revision_reason( $reason = '' ) {
 
 	return $reason;
 }
-
