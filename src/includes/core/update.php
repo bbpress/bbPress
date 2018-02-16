@@ -382,8 +382,8 @@ function bbp_add_activation_redirect() {
 		return;
 	}
 
-	// Add the transient to redirect
-	set_user_setting( '_bbp_activation_redirect', true );
+	// Add the redirect trigger
+	update_user_option( get_current_user_id(), '_bbp_activation_redirect', true );
 }
 
 /**
@@ -397,13 +397,13 @@ function bbp_add_activation_redirect() {
  */
 function bbp_do_activation_redirect() {
 
-	// Bail if no activation redirect
-	if ( ! get_user_setting( '_bbp_activation_redirect', false ) ) {
+	// Bail if no redirect trigger
+	if ( ! get_user_option( '_bbp_activation_redirect' ) ) {
 		return;
 	}
 
-	// Delete the redirect transient
-	delete_user_setting( '_bbp_activation_redirect' );
+	// Delete the redirect trigger
+	delete_user_option( get_current_user_id(), '_bbp_activation_redirect' );
 
 	// Bail if activating from network, or bulk
 	if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
