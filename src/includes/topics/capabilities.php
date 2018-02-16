@@ -54,10 +54,10 @@ function bbp_get_topic_tag_caps() {
  *
  * @since 2.2.0 bbPress (r4242)
  *
- * @param array $caps Capabilities for meta capability
- * @param string $cap Capability name
- * @param int $user_id User id
- * @param array $args Arguments
+ * @param array  $caps    Capabilities for meta capability.
+ * @param string $cap     Capability name.
+ * @param int    $user_id User id.
+ * @param array  $args    Arguments.
  *
  * @return array Actual capabilities for meta capability
  */
@@ -77,7 +77,12 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			// Do some post ID based logic
 			} else {
 
-				// Get the post
+				// Bail if no post ID
+				if ( empty( $args[0] ) ) {
+					return $caps;
+				}
+
+				// Get the post.
 				$_post = get_post( $args[0] );
 				if ( ! empty( $_post ) ) {
 
@@ -145,7 +150,12 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		// Used everywhere
 		case 'edit_topic' :
 
-			// Get the post
+			// Bail if no post ID
+			if ( empty( $args[0] ) ) {
+				return $caps;
+			}
+
+			// Get the post.
 			$_post = get_post( $args[0] );
 			if ( ! empty( $_post ) ) {
 
@@ -180,7 +190,12 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 		case 'delete_topic' :
 
-			// Get the post
+			// Bail if no post ID
+			if ( empty( $args[0] ) ) {
+				return $caps;
+			}
+
+			// Get the post.
 			$_post = get_post( $args[0] );
 			if ( ! empty( $_post ) ) {
 

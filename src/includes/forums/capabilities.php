@@ -67,7 +67,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 			// Do some post ID based logic
 			} else {
 
-				// Get the post
+				// Bail if no post ID
+				if ( empty( $args[0] ) ) {
+					return $caps;
+				}
+
+				// Get the post.
 				$_post = get_post( $args[0] );
 				if ( ! empty( $_post ) ) {
 
@@ -107,7 +112,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 		case 'moderate_forum' :
 
-			// Get the post
+			// Bail if no post ID
+			if ( empty( $args[0] ) ) {
+				return $caps;
+			}
+
+			// Get the post.
 			$_post = get_post( $args[0] );
 			if ( ! empty( $_post ) && bbp_allow_forum_mods() ) {
 
@@ -150,7 +160,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		// Used everywhere
 		case 'edit_forum' :
 
-			// Get the post
+			// Bail if no post ID
+			if ( empty( $args[0] ) ) {
+				return $caps;
+			}
+
+			// Get the post.
 			$_post = get_post( $args[0] );
 			if ( ! empty( $_post ) ) {
 
@@ -182,7 +197,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		// Allow forum authors to delete forums (for BuddyPress groups, etc)
 		case 'delete_forum' :
 
-			// Get the post
+			// Bail if no post ID
+			if ( empty( $args[0] ) ) {
+				return $caps;
+			}
+
+			// Get the post.
 			$_post = get_post( $args[0] );
 			if ( ! empty( $_post ) ) {
 
