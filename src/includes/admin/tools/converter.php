@@ -20,30 +20,34 @@ defined( 'ABSPATH' ) || exit;
  * @return array
  */
 function bbp_get_converters() {
+	static $files = array();
 
-	// Default
-	$files  = array();
-	$path   = bbp_setup_converter()->converters_dir;
-	$curdir = opendir( $path );
+	// Only hit the file system one time per page load
+	if ( empty( $files ) ) {
 
-	// Look for the converter file in the converters directory
-	if ( false !== $curdir ) {
-		while ( $file = readdir( $curdir ) ) {
-			if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === false ) {
-				$name = preg_replace( '/.php/', '', $file );
-				if ( 'Example' !== $name ) {
-					$files[ $name ] = $path . $file;
+		// Open the converter directory
+		$path   = bbp_setup_converter()->converters_dir;
+		$curdir = opendir( $path );
+
+		// Look for the converter file in the converters directory
+		if ( false !== $curdir ) {
+			while ( $file = readdir( $curdir ) ) {
+				if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === false ) {
+					$name = preg_replace( '/.php/', '', $file );
+					if ( 'Example' !== $name ) {
+						$files[ $name ] = $path . $file;
+					}
 				}
 			}
 		}
-	}
 
-	// Close the directory
-	closedir( $curdir );
+		// Close the directory
+		closedir( $curdir );
 
-	// Sort keys alphabetically, ignoring upper/lower casing
-	if ( ! empty( $files ) ) {
-		natcasesort( $files );
+		// Sort keys alphabetically, ignoring upper/lower casing
+		if ( ! empty( $files ) ) {
+			natcasesort( $files );
+		}
 	}
 
 	// Filter & return
@@ -59,18 +63,22 @@ function bbp_get_converters() {
  *
  * @param string $platform Name of valid platform class.
  */
-function bbp_new_converter( $platform ) {
+function bbp_new_converter( $platform = '' ) {
 
-	// Default value
-	$converters = bbp_get_converters();
+	// Bail if no platform
+	if ( ! empty( $platform ) ) {
 
-	// Create a new converter object if it's found
-	if ( isset( $converters[ $platform ] ) ) {
+		// Get the available converters
+		$converters = bbp_get_converters();
 
-		// Include & create the converter
-		require_once $converters[ $platform ];
-		if ( class_exists( $platform ) ) {
-			return new $platform;
+		// Create a new converter object if it's found
+		if ( isset( $converters[ $platform ] ) ) {
+
+			// Include & create the converter
+			require_once $converters[ $platform ];
+			if ( class_exists( $platform ) ) {
+				return new $platform;
+			}
 		}
 	}
 

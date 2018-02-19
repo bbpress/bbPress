@@ -59,9 +59,11 @@ function bbp_setup_converter() {
 	// Skip if already setup
 	if ( empty( $bbp_admin->converter ) ) {
 
-		// Require the converter classes
-		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter-base.php';
+		// Require the converter files
+		require_once $bbp_admin->admin_dir . 'tools/converter.php';
 		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter.php';
+		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter-db.php';
+		require_once $bbp_admin->admin_dir . 'classes/class-bbp-converter-base.php';
 
 		// Setup
 		$bbp_admin->converter = class_exists( 'BBP_Converter' )

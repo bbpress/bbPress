@@ -215,9 +215,21 @@ class BBP_Converter {
 		$output = wp_kses_data( $output );
 
 		// Maybe prepend the step
-		$progress = ! empty( $this->step )
-			? sprintf( '<span class="step">%s.</span><span class="output">%s</span><span class="mini-step">%s</span>', $this->step, $output, $this->step_percentage . '%' )
-			: $output;
+		if ( ! empty( $this->step ) ) {
+
+			// Include percentage
+			if ( ! empty( $this->rows_in_step ) ) {
+				$progress = sprintf( '<span class="step">%s.</span><span class="output">%s</span><span class="mini-step">%s</span>', $this->step, $output, $this->step_percentage . '%' );
+
+			// Don't include percentage
+			} else {
+				$progress = sprintf( '<span class="step">%s.</span><span class="output">%s</span>', $this->step, $output );
+			}
+
+		// Raw text
+		} else {
+			$progress = $output;
+		}
 
 		// Output
 		wp_send_json_success( array(
@@ -427,8 +439,28 @@ class BBP_Converter {
 	 * @since 2.6.0 bbPress (r6460)
 	 */
 	private function bump_start() {
+
+		// Set rows in step from option
+		$this->rows_in_step = get_option( '_bbp_converter_rows_in_step', 0 );
+
+		// Get rows to start from
 		$start = (int) ( $this->start + $this->rows );
 
+		// Enforce maximum if exists
+		if ( $this->rows_in_step > 0 ) {
+
+			// Start cannot be larger than total rows
+			if ( $start > $this->rows_in_step ) {
+				$start = $this->rows_in_step;
+			}
+
+			// Max can't be greater than total rows
+			if ( $this->max > $this->rows_in_step ) {
+				$this->max = $this->rows_in_step;
+			}
+		}
+
+		// Update the start option
 		update_option( '_bbp_converter_start', $start );
 	}
 
@@ -466,7 +498,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'Sync-table ready',    'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf( esc_html__( 'Deleting previously converted data (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step) );
+				$this->converter_response( sprintf( esc_html__( 'Deleting previously converted data (%1$s through %2$s)', 'bbpress' ), $this->start, $this->max ) );
 			}
 
 			$this->converter->clean = false;
@@ -492,7 +524,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'All users imported', 'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf(  esc_html__( 'Converting users (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
+				$this->converter_response( sprintf( esc_html__( 'Converting users (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
 			}
 		} else {
 			$this->bump_step();
@@ -515,7 +547,7 @@ class BBP_Converter {
 					: $this->converter_response( esc_html__( 'All passwords cleared', 'bbpress' ) );
 			} else {
 				$this->bump_start();
-				$this->converter_response( sprintf( esc_html__( 'Delete default WordPress user passwords (%1$s through %2$s of %3$s)', 'bbpress' ), $this->start, $this->max, $this->rows_in_step ) );
+				$this->converter_response( sprintf( esc_html__( 'Delete default WordPress user passwords (%1$s through %2$s)', 'bbpress' ), $this->start, $this->max ) );
 			}
 		} else {
 			$this->bump_step();
