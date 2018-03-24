@@ -273,26 +273,38 @@ function bbp_get_statistics( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
+
+		// Users
 		'count_users'           => true,
+
+		// Forums
 		'count_forums'          => true,
+
+		// Topics
 		'count_topics'          => true,
 		'count_pending_topics'  => true,
 		'count_private_topics'  => true,
 		'count_spammed_topics'  => true,
 		'count_trashed_topics'  => true,
+
+		// Replies
 		'count_replies'         => true,
 		'count_pending_replies' => true,
 		'count_private_replies' => true,
 		'count_spammed_replies' => true,
 		'count_trashed_replies' => true,
+
+		// Topic tags
 		'count_tags'            => true,
 		'count_empty_tags'      => true
+
 	), 'get_statistics' );
 
 	// Defaults
 	$topic_count     = $topic_count_hidden    = 0;
 	$reply_count     = $reply_count_hidden    = 0;
 	$topic_tag_count = $empty_topic_tag_count = 0;
+	$hidden_topic_title = $hidden_reply_title = '';
 
 	// Users
 	$user_count = ! empty( $r['count_users'] )
@@ -460,8 +472,8 @@ function bbp_get_statistics( $args = array() ) {
 
 	// Add the hidden (topic/reply) count title attribute strings because we
 	// don't need to run the math functions on these (see above)
-	$statistics['hidden_topic_title'] = isset( $hidden_topic_title ) ? $hidden_topic_title : '';
-	$statistics['hidden_reply_title'] = isset( $hidden_reply_title ) ? $hidden_reply_title : '';
+	$statistics['hidden_topic_title'] = $hidden_topic_title;
+	$statistics['hidden_reply_title'] = $hidden_reply_title;
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_statistics', $statistics, $r, $args );

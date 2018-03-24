@@ -35,7 +35,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 		'count_spammed_replies' => false,
 		'count_trashed_replies' => false,
 		'count_empty_tags'      => false
-	));
+	) );
 
 	// Users
 	if ( isset( $r['user_count'] ) ) {
