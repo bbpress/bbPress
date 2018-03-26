@@ -75,13 +75,15 @@ function bbp_remove_view_all( $original_link = '' ) {
  *
  * @since 2.0.0 bbPress (r3325)
  *
+ * @param string $cap Capability used to ensure user can view all
+ *
  * @return bool Whether current user can and is viewing all
  */
 function bbp_get_view_all( $cap = 'moderate' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && current_user_can( $cap ) ) );
 
 	// Filter & return
-	return apply_filters( 'bbp_get_view_all', (bool) $retval );
+	return (bool) apply_filters( 'bbp_get_view_all', (bool) $retval, $cap );
 }
 
 /**
