@@ -977,6 +977,9 @@ function bbp_user_maybe_convert_pass() {
 		return;
 	}
 
+	// Setup the converter
+	bbp_setup_converter();
+
 	// Try to convert the old password for this user
 	$converter = bbp_new_converter( $row->meta_value );
 
