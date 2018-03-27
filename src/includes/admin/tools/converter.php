@@ -62,26 +62,39 @@ function bbp_get_converters() {
  * @since 2.0.0
  *
  * @param string $platform Name of valid platform class.
+ *
+ * @return mixed Object if converter exists, null if not
  */
 function bbp_new_converter( $platform = '' ) {
 
+	// Default converter
+	$converter = null;
+
 	// Bail if no platform
-	if ( ! empty( $platform ) ) {
+	if ( empty( $platform ) ) {
+		return $converter;
+	}
 
-		// Get the available converters
-		$converters = bbp_get_converters();
+	// Get the available converters
+	$converters = bbp_get_converters();
 
-		// Create a new converter object if it's found
-		if ( isset( $converters[ $platform ] ) ) {
+	// Get the converter file form converters array
+	$converter_file = isset( $converters[ $platform ] )
+		? $converters[ $platform ]
+		: '';
 
-			// Include & create the converter
-			require_once $converters[ $platform ];
-			if ( class_exists( $platform ) ) {
-				return new $platform;
-			}
+	// Try to create a new converter object
+	if ( ! empty( $converter_file ) ) {
+
+		// Try to include the converter
+		@include_once $converter_file;
+
+		// Try to instantiate the converter object
+		if ( class_exists( $platform ) ) {
+			$converter = new $platform;
 		}
 	}
 
-	// Return null if no converter was found
-	return null;
+	// Filter & return
+	return apply_filters( 'bbp_new_converter', $converter, $platform );
 }
