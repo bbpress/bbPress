@@ -588,11 +588,11 @@ class BBP_Topics_Admin {
 			case 'bbp_toggle_topic_approve' :
 				check_admin_referer( 'approve-topic_' . $topic_id );
 
-				$is_approve = bbp_is_topic_pending( $topic_id );
-				$message    = ( true === $is_approve )
-					? 'approved'
-					: 'unapproved';
-				$success    = ( true === $is_approve )
+				$is_approve = bbp_is_topic_published( $topic_id );
+				$message    = ( false === $is_approve )
+					? 'unapproved'
+					: 'approved';
+				$success    = ( false === $is_approve )
 					? bbp_approve_topic( $topic_id )
 					: bbp_unapprove_topic( $topic_id );
 
@@ -787,6 +787,7 @@ class BBP_Topics_Admin {
 			'unapproved',
 			'closed',
 			'spam',
+			'unspam',
 			'trash',
 			'untrash',
 			'delete',
@@ -1010,7 +1011,7 @@ class BBP_Topics_Admin {
 			// Spam
 			$spam_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
 			if ( bbp_is_topic_spam( $topic->ID ) ) {
-				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . esc_html__( 'Not spam', 'bbpress' ) . '</a>';
+				$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
 			} else {
 				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
 			}

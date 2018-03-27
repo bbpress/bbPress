@@ -2852,8 +2852,11 @@ function bbp_spam_topic( $topic_id = 0 ) {
 		return $topic;
 	}
 
+	// Get new status
+	$status = bbp_get_spam_status_id();
+
 	// Bail if topic is spam
-	if ( bbp_get_spam_status_id() === $topic->post_status ) {
+	if ( $status === $topic->post_status ) {
 		return false;
 	}
 
@@ -2864,7 +2867,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	do_action( 'bbp_spam_topic', $topic_id );
 
 	// Set post status to spam
-	$topic->post_status = bbp_get_spam_status_id();
+	$topic->post_status = $status;
 
 	// Empty the topic of its tags
 	$topic->tax_input = bbp_spam_topic_tags( $topic_id );
@@ -3155,8 +3158,11 @@ function bbp_approve_topic( $topic_id = 0 ) {
 		return $topic;
 	}
 
+	// Get new status
+	$status = bbp_get_public_status_id();
+
 	// Bail if already approved
-	if ( bbp_get_pending_status_id() !== $topic->post_status ) {
+	if ( $status === $topic->post_status ) {
 		return false;
 	}
 
@@ -3195,8 +3201,11 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 		return $topic;
 	}
 
+	// Get new status
+	$status = bbp_get_pending_status_id();
+
 	// Bail if already pending
-	if ( bbp_get_pending_status_id() === $topic->post_status ) {
+	if ( $status === $topic->post_status ) {
 		return false;
 	}
 
@@ -3204,7 +3213,7 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 	do_action( 'bbp_unapprove_topic', $topic_id );
 
 	// Set pending status
-	$topic->post_status = bbp_get_pending_status_id();
+	$topic->post_status = $status;
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );

@@ -413,36 +413,61 @@ body.post-type-reply strong.label {
 	border-color: #ccc #fff #fff #ccc;
 }
 
-#the-list .status-closed {
+body.post-type-forum #the-list .status-closed,
+body.post-type-topic #the-list .status-closed,
+body.post-type-reply #the-list .status-closed {
 	background-color: #f5f5f5;
 }
 
-#the-list .status-closed:nth-child(odd) {
+body.post-type-forum #the-list .status-closed:nth-child(odd),
+body.post-type-topic #the-list .status-closed:nth-child(odd),
+body.post-type-reply #the-list .status-closed:nth-child(odd) {
 	background-color: #f0f0f0;
 }
 
-#the-list .status-spam,
+body.post-type-forum #the-list .status-spam,
+body.post-type-topic #the-list .status-spam,
+body.post-type-reply #the-list .status-spam,
 #bbp-reply-list .status-trash {
 	background-color: #fee;
 }
 
-#the-list .status-spam:nth-child(odd),
+body.post-type-forum #the-list .status-spam:nth-child(odd),
+body.post-type-topic #the-list .status-spam:nth-child(odd),
+body.post-type-reply #the-list .status-spam:nth-child(odd),
 #bbp-reply-list .status-trash:nth-child(odd) {
 	background-color: #fdd;
 }
 
-#the-list .status-pending {
+body.post-type-forum #the-list .status-pending,
+body.post-type-topic #the-list .status-pending,
+body.post-type-reply #the-list .status-pending {
 	background-color: #fff2e8;
 }
 
-#the-list .status-pending:nth-child(odd) {
+body.post-type-forum #the-list .status-pending:nth-child(odd),
+body.post-type-topic #the-list .status-pending:nth-child(odd),
+body.post-type-reply #the-list .status-pending:nth-child(odd) {
 	background-color: #fff7f1;
 }
 
-#the-list .status-closed td,
-#the-list .status-spam td,
+body.post-type-forum #the-list .status-closed td,
+body.post-type-topic #the-list .status-closed td,
+body.post-type-reply #the-list .status-closed td,
+body.post-type-forum #the-list .status-spam td,
+body.post-type-topic #the-list .status-spam td,
+body.post-type-reply #the-list .status-spam td,
 #bbp-reply-list .status-trash td {
 	color: #999;
+}
+
+body.post-type-forum #the-list .row-actions .unspam a,
+body.post-type-topic #the-list .row-actions .unspam a,
+body.post-type-reply #the-list .row-actions .unspam a,
+body.post-type-forum #the-list .row-actions .approved a,
+body.post-type-topic #the-list .row-actions .approved a,
+body.post-type-reply #the-list .row-actions .approved a {
+	color: #006505;
 }
 
 /* User Relationships */

@@ -470,10 +470,10 @@ class BBP_Replies_Admin {
 			case 'bbp_toggle_reply_approve' :
 				check_admin_referer( 'approve-reply_' . $reply_id );
 
-				$is_approve = bbp_is_reply_pending( $reply_id );
+				$is_approve = bbp_is_reply_published( $reply_id );
 				$message    = ( true === $is_approve )
-					? 'approved'
-					: 'unapproved';
+					? 'unpproved'
+					: 'approved';
 				$success    = ( true === $is_approve )
 					? bbp_approve_reply( $reply_id )
 					: bbp_unapprove_reply( $reply_id );
@@ -604,6 +604,7 @@ class BBP_Replies_Admin {
 			'approved',
 			'unapproved',
 			'spam',
+			'unspam',
 			'trash',
 			'untrash',
 			'delete',
@@ -811,7 +812,7 @@ class BBP_Replies_Admin {
 			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ), true ) ) {
 				$spam_uri  = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
 				if ( bbp_is_reply_spam( $reply->ID ) ) {
-					$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not spam', 'bbpress' ) . '</a>';
+					$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
 				} else {
 					$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
 				}
