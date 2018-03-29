@@ -53,6 +53,7 @@ add_action( 'wp_roles_init',            'bbp_roles_init',             10    );
 add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',        10    );
 add_action( 'wp_head',                  'bbp_head',                   10    );
 add_action( 'wp_footer',                'bbp_footer',                 10    );
+add_action( 'transition_post_status',   'bbp_transition_post_status', 10, 3 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above

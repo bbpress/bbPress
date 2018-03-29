@@ -256,6 +256,31 @@ function bbp_login_form_login() {
 	do_action( 'bbp_login_form_login' );
 }
 
+
+/**
+ * Add the bbPress-specific post status transition action
+ *
+ * @since 2.6.0 bbPress (r6792)
+ *
+ * @param string  $new_status New post status
+ * @param string  $old_status Old post status
+ * @param WP_Post $post       Post object
+ */
+function bbp_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
+
+	// Get bbPress post types
+	$post_type = get_post_type( $post );
+	$types     = get_post_types( array( 'source' => 'bbpress' ) );
+
+	// Bail if post is not a bbPress post type
+	if ( ! in_array( $post_type, $types, true ) ) {
+		return;
+	}
+
+	// Do the action
+	do_action( 'bbp_transition_post_status', $new_status, $old_status, $post );
+}
+
 /** User Actions **************************************************************/
 
 /**
