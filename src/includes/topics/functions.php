@@ -2735,15 +2735,16 @@ function bbp_close_topic( $topic_id = 0 ) {
 	}
 
 	// Get previous topic status meta
+	$status       = bbp_get_closed_status_id();
 	$topic_status = get_post_meta( $topic_id, '_bbp_status', true );
 
 	// Bail if already closed and topic status meta exists
-	if ( bbp_get_closed_status_id() === $topic->post_status && ! empty( $topic_status ) ) {
+	if ( $status === $topic->post_status && ! empty( $topic_status ) ) {
 		return false;
 	}
 
 	// Set status meta public
-	$topic_status = bbp_get_public_status_id();
+	$topic_status = $topic->post_status;
 
 	// Execute pre close code
 	do_action( 'bbp_close_topic', $topic_id );
@@ -2752,7 +2753,7 @@ function bbp_close_topic( $topic_id = 0 ) {
 	add_post_meta( $topic_id, '_bbp_status', $topic_status );
 
 	// Set closed status
-	$topic->post_status = bbp_get_closed_status_id();
+	$topic->post_status = $status;
 
 	// Toggle revisions off as we are not altering content
 	if ( post_type_supports( bbp_get_topic_post_type(), 'revisions' ) ) {
@@ -3170,7 +3171,7 @@ function bbp_approve_topic( $topic_id = 0 ) {
 	do_action( 'bbp_approve_topic', $topic_id );
 
 	// Set publish status
-	$topic->post_status = bbp_get_public_status_id();
+	$topic->post_status = $status;
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -3204,8 +3205,8 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
 	// Get new status
 	$status = bbp_get_pending_status_id();
 
-	// Bail if already pending
-	if ( $status === $topic->post_status ) {
+	// Bail if already unapproved
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
 		return false;
 	}
 

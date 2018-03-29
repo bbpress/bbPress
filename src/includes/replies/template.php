@@ -827,6 +827,60 @@ function bbp_reply_status( $reply_id = 0 ) {
 	}
 
 /**
+ * Return array of public reply statuses.
+ *
+ * @since 2.6.0 bbPress (r6705)
+ *
+ * @return array
+ */
+function bbp_get_public_reply_statuses() {
+	$statuses = array(
+		bbp_get_public_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_public_reply_statuses', $statuses );
+}
+
+/**
+ * Return array of non-public reply statuses.
+ *
+ * @since 2.6.0 bbPress (r6791)
+ *
+ * @return array
+ */
+function bbp_get_non_public_reply_statuses() {
+	$statuses = array(
+		bbp_get_trash_status_id(),
+		bbp_get_spam_status_id(),
+		bbp_get_pending_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_non_public_reply_statuses', $statuses );
+}
+
+/**
+ * Is the reply publicly viewable?
+ *
+ * See bbp_get_public_reply_statuses() for public statuses.
+ *
+ * @since 2.6.0 bbPress (r6391)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @return bool True if public, false if not.
+ */
+function bbp_is_reply_public( $reply_id = 0 ) {
+	$reply_id  = bbp_get_reply_id( $reply_id );
+	$status    = bbp_get_reply_status( $reply_id );
+	$public    = bbp_get_public_reply_statuses();
+	$is_public = in_array( $status, $public, true );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_reply_public', $is_public, $reply_id );
+}
+
+/**
  * Is the reply not spam or deleted?
  *
  * @since 2.0.0 bbPress (r3496)

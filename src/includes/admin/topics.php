@@ -84,6 +84,9 @@ class BBP_Topics_Admin {
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'bbp_request',           array( $this, 'filter_post_rows' ) );
 
+		// Empty spam
+		add_filter( 'manage_posts_extra_tablenav', array( $this, 'filter_empty_spam' ) );
+
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
 		add_action( 'load-post.php',     array( $this, 'new_help'  ) );
@@ -588,13 +591,13 @@ class BBP_Topics_Admin {
 			case 'bbp_toggle_topic_approve' :
 				check_admin_referer( 'approve-topic_' . $topic_id );
 
-				$is_approve = bbp_is_topic_published( $topic_id );
-				$message    = ( false === $is_approve )
+				$is_approve = bbp_is_topic_public( $topic_id );
+				$message    = ( true === $is_approve )
 					? 'unapproved'
 					: 'approved';
-				$success    = ( false === $is_approve )
-					? bbp_approve_topic( $topic_id )
-					: bbp_unapprove_topic( $topic_id );
+				$success    = ( true === $is_approve )
+					? bbp_unapprove_topic( $topic_id )
+					: bbp_approve_topic( $topic_id );
 
 				break;
 
@@ -978,11 +981,17 @@ class BBP_Topics_Admin {
 			// Pending
 			// Show the 'approve' and 'view' link on pending posts only and 'unapprove' on published posts only
 			$approve_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_approve' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
-			if ( bbp_is_topic_published( $topic->ID ) ) {
+			if ( bbp_is_topic_public( $topic->ID ) ) {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this topic', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove Topic', 'bbpress' ) . '</a>';
-			} elseif ( ! bbp_is_topic_private( $topic->ID ) ) {
-				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this topic',   'bbpress' ) . '">' . _x( 'Approve',   'Approve Topic',   'bbpress' ) . '</a>';
-				$actions['view']       = '<a href="' . esc_url( $view_link   ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+			} else {
+
+				// Do not show 'approve' if already public
+				if ( ! bbp_is_topic_public( $topic->ID ) ) {
+					$actions['approved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this topic',   'bbpress' ) . '">' . _x( 'Approve',   'Approve Topic',   'bbpress' ) . '</a>';
+				}
+
+				// Modify the view link
+				$actions['view'] = '<a href="' . esc_url( $view_link   ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 			}
 
 			// Close
@@ -997,7 +1006,7 @@ class BBP_Topics_Admin {
 			}
 
 			// Sticky
-			// Dont show sticky if topic links is spam, trash or pending
+			// Dont show sticky if topic is spam, trash or pending
 			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) ) {
 				$stick_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
@@ -1010,10 +1019,10 @@ class BBP_Topics_Admin {
 
 			// Spam
 			$spam_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
-			if ( bbp_is_topic_spam( $topic->ID ) ) {
-				$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
-			} else {
+			if ( ! bbp_is_topic_spam( $topic->ID ) ) {
 				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
+			} else {
+				$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
 			}
 		}
 
@@ -1030,8 +1039,6 @@ class BBP_Topics_Admin {
 
 			if ( ( bbp_get_trash_status_id() === $topic->post_status ) || empty( $trash_days ) ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
-			} elseif ( bbp_get_spam_status_id() === $topic->post_status ) {
-				unset( $actions['trash'] );
 			}
 		}
 
@@ -1077,17 +1084,6 @@ class BBP_Topics_Admin {
 	 */
 	public function filter_dropdown() {
 
-		// Add "Empty Spam" button for moderators
-		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
-			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
-			submit_button(
-				esc_attr__( 'Empty Spam', 'bbpress' ),
-				'button-secondary apply',
-				'delete_all',
-				false
-			);
-		}
-
 		// Get which forum is selected
 		$selected = ! empty( $_GET['bbp_forum_id'] )
 			? (int) $_GET['bbp_forum_id']
@@ -1098,6 +1094,34 @@ class BBP_Topics_Admin {
 			'selected'  => $selected,
 			'show_none' => esc_html__( 'In all forums', 'bbpress' )
 		) );
+	}
+
+	/**
+	 * Add "Empty Spam" button for moderators
+	 *
+	 * @since 2.6.0 bbPress (r6791)
+	 */
+	public function filter_empty_spam() {
+
+		// Bail if not viewing spam
+		if ( empty( $_GET['post_status'] ) || ( bbp_get_spam_status_id() !== $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+			return;
+		}
+
+		?>
+
+		<div class="alignleft actions"><?php
+
+			// Output the nonce & button
+			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
+			submit_button(
+				esc_attr__( 'Empty Spam', 'bbpress' ),
+				'button-secondary apply',
+				'delete_all',
+				false
+			);
+
+		?></div><?php
 	}
 
 	/**

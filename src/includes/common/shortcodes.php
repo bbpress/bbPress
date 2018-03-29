@@ -442,12 +442,12 @@ class BBP_Shortcodes {
 
 			$bbp = bbpress();
 
-			// Reset necessary forum_query attributes for replys loop to function
+			// Reset necessary forum_query attributes for reply loop to function
 			$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
 			$bbp->forum_query->in_the_loop             = true;
 			$bbp->forum_query->post                    = get_post( $forum_id );
 
-			// Reset necessary reply_query attributes for replys loop to function
+			// Reset necessary reply_query attributes for reply loop to function
 			$bbp->reply_query->query_vars['post_type'] = bbp_get_reply_post_type();
 			$bbp->reply_query->in_the_loop             = true;
 			$bbp->reply_query->post                    = get_post( $reply_id );

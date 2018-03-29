@@ -1627,24 +1627,8 @@ function bbp_get_reply_statuses( $reply_id = 0 ) {
 		bbp_get_public_status_id()  => _x( 'Publish', 'Publish the reply',     'bbpress' ),
 		bbp_get_spam_status_id()    => _x( 'Spam',    'Spam the reply',        'bbpress' ),
 		bbp_get_trash_status_id()   => _x( 'Trash',   'Trash the reply',       'bbpress' ),
-		bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' ),
+		bbp_get_pending_status_id() => _x( 'Pending', 'Mark reply as pending', 'bbpress' )
 	), $reply_id );
-}
-
-/**
- * Return array of public reply statuses.
- *
- * @since 2.6.0 bbPress (r6705)
- *
- * @return array
- */
-function bbp_get_public_reply_statuses() {
-	$statuses = array(
-		bbp_get_public_status_id()
-	);
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_public_reply_statuses', $statuses );
 }
 
 /**
@@ -1775,8 +1759,11 @@ function bbp_approve_reply( $reply_id = 0 ) {
 		return $reply;
 	}
 
+	// Get new status
+	$status = bbp_get_public_status_id();
+
 	// Bail if already approved
-	if ( bbp_get_pending_status_id() !== $reply->post_status ) {
+	if ( $status === $reply->post_status ) {
 		return false;
 	}
 
@@ -1784,7 +1771,7 @@ function bbp_approve_reply( $reply_id = 0 ) {
 	do_action( 'bbp_approve_reply', $reply_id );
 
 	// Set publish status
-	$reply->post_status = bbp_get_public_status_id();
+	$reply->post_status = $status;
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -1815,8 +1802,11 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
 		return $reply;
 	}
 
+	// Get new status
+	$status = bbp_get_pending_status_id();
+
 	// Bail if already pending
-	if ( bbp_get_pending_status_id() === $reply->post_status ) {
+	if ( $status === $reply->post_status ) {
 		return false;
 	}
 
@@ -1824,7 +1814,7 @@ function bbp_unapprove_reply( $reply_id = 0 ) {
 	do_action( 'bbp_unapprove_reply', $reply_id );
 
 	// Set pending status
-	$reply->post_status = bbp_get_pending_status_id();
+	$reply->post_status = $status;
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );

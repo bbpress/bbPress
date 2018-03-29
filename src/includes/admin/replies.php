@@ -80,6 +80,9 @@ class BBP_Replies_Admin {
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'bbp_request',           array( $this, 'filter_post_rows' ) );
 
+		// Empty spam
+		add_filter( 'manage_posts_extra_tablenav', array( $this, 'filter_empty_spam' ) );
+
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
 		add_action( 'load-post.php',     array( $this, 'new_help'  ) );
@@ -470,13 +473,13 @@ class BBP_Replies_Admin {
 			case 'bbp_toggle_reply_approve' :
 				check_admin_referer( 'approve-reply_' . $reply_id );
 
-				$is_approve = bbp_is_reply_published( $reply_id );
+				$is_approve = bbp_is_reply_public( $reply_id );
 				$message    = ( true === $is_approve )
 					? 'unpproved'
 					: 'approved';
 				$success    = ( true === $is_approve )
-					? bbp_approve_reply( $reply_id )
-					: bbp_unapprove_reply( $reply_id );
+					? bbp_unapprove_reply( $reply_id )
+					: bbp_approve_reply( $reply_id );
 
 				break;
 
@@ -800,21 +803,21 @@ class BBP_Replies_Admin {
 		// Only show the actions if the user is capable of viewing them
 		if ( current_user_can( 'moderate', $reply->ID ) ) {
 
-			// Show the 'approve' link on pending posts only and 'unapprove' on published posts only
+			// Show the 'approve' link on non-published posts only and 'unapprove' on published posts only
 			$approve_uri = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_approve' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'approve-reply_' . $reply->ID );
-			if ( bbp_is_reply_published( $reply->ID ) ) {
+			if ( bbp_is_reply_public( $reply->ID ) ) {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this reply', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove reply', 'bbpress' ) . '</a>';
-			} elseif ( ! bbp_is_reply_private( $reply->ID ) ) {
+			} else {
 				$actions['approved']   = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Approve this reply',   'bbpress' ) . '">' . _x( 'Approve',   'Approve reply',   'bbpress' ) . '</a>';
 			}
 
 			// Show the 'spam' link on published and pending replies and 'not spam' on spammed replies
-			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ), true ) ) {
+			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ), true ) ) {
 				$spam_uri  = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
-				if ( bbp_is_reply_spam( $reply->ID ) ) {
-					$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
-				} else {
+				if ( ! bbp_is_reply_spam( $reply->ID ) ) {
 					$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
+				} else {
+					$actions['unspam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . esc_html__( 'Not Spam', 'bbpress' ) . '</a>';
 				}
 			}
 		}
@@ -832,8 +835,6 @@ class BBP_Replies_Admin {
 
 			if ( ( bbp_get_trash_status_id() === $reply->post_status ) || empty( $trash_days ) ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $reply->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
-			} elseif ( bbp_get_spam_status_id() === $reply->post_status ) {
-				unset( $actions['trash'] );
 			}
 		}
 
@@ -879,17 +880,6 @@ class BBP_Replies_Admin {
 	 */
 	public function filter_dropdown() {
 
-		// Add "Empty Spam" button for moderators
-		if ( ! empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() === $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
-			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
-			submit_button(
-				esc_attr__( 'Empty Spam', 'bbpress' ),
-				'button-secondary apply',
-				'delete_all',
-				false
-			);
-		}
-
 		// Get which forum is selected
 		$selected = ! empty( $_GET['bbp_forum_id'] )
 			? (int) $_GET['bbp_forum_id']
@@ -900,6 +890,34 @@ class BBP_Replies_Admin {
 			'selected'  => $selected,
 			'show_none' => esc_html__( 'In all forums', 'bbpress' )
 		) );
+	}
+
+	/**
+	 * Add "Empty Spam" button for moderators
+	 *
+	 * @since 2.6.0 bbPress (r6791)
+	 */
+	public function filter_empty_spam() {
+
+		// Bail if not viewing spam
+		if ( empty( $_GET['post_status'] ) || ( bbp_get_spam_status_id() !== $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+			return;
+		}
+
+		?>
+
+		<div class="alignleft actions"><?php
+
+			// Output the nonce & button
+			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
+			submit_button(
+				esc_attr__( 'Empty Spam', 'bbpress' ),
+				'button-secondary apply',
+				'delete_all',
+				false
+			);
+
+		?></div><?php
 	}
 
 	/**
