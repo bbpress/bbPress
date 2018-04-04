@@ -2091,12 +2091,12 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 	<channel>
 
-		<title><?php echo $title; ?></title>
+		<title><?php echo $title; // Already escaped ?></title>
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
 		<lastBuildDate><?php echo date( 'r' ); ?></lastBuildDate>
-		<generator>https://bbpress.org/?v=<?php bbp_version(); ?></generator>
+		<generator><?php echo esc_url_raw( 'https://bbpress.org/?v=' . convert_chars( bbp_get_version() ) ) ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
 
 		<?php do_action( 'bbp_feed_head' ); ?>
