@@ -155,7 +155,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Editor scripts
 		// @see https://bbpress.trac.wordpress.org/ticket/2930
-		if ( bbp_use_wp_editor() ) {
+		if ( bbp_use_wp_editor() && is_bbpress() ) {
 			$scripts['bbpress-editor'] = array(
 				'file'         => 'js/editor' . $suffix . '.js',
 				'dependencies' => array( 'jquery' )
