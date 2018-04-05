@@ -5,7 +5,7 @@
 	},
 	"description": "Forum software with a twist from the creators of WordPress.",
 	"devDependencies": {
-		"autoprefixer": "~7.1.2",
+		"autoprefixer": "~8.2.0",
 		"grunt": "~1.0.1",
 		"grunt-check-dependencies": "~1.0.0",
 		"grunt-checktextdomain": "~1.0.1",

@@ -10,9 +10,7 @@
 /* Version Badge */
 
 .bbp-badge {
-	-webkit-transform-origin: top left;
 	transform-origin: top left;
-	-webkit-animation: swoop 16s infinite linear;
 	animation: swoop 16s infinite linear;
 }
 
@@ -57,7 +55,6 @@
 	padding: 7px 9px;
 	top: 50%;
 	left: 0;
-	-webkit-transform: translateY(-50%);
 	transform: translateY(-50%);
 	font: 400 24px/1 dashicons !important;
 }
@@ -65,34 +62,6 @@
 .notice-bbpress .bbpress-logo-icon:before {
 	content: "\f477";
 	color: #555;
-}
-
-@-webkit-keyframes buzz {
-
-	0% {
-		right: -2px;
-		top: -1px;
-	}
-
-	25% {
-		right: 1px;
-		top: 2px;
-	}
-
-	50% {
-		right: -3px;
-		top: -1px;
-	}
-
-	75% {
-		right: 2px;
-		top: 1px;
-	}
-
-	0% {
-		right: -2px;
-		top: -1px;
-	}
 }
 
 @keyframes buzz {
@@ -123,28 +92,13 @@
 	}
 }
 
-@-webkit-keyframes swoop {
-
-	0% {
-		-webkit-transform: rotate(95deg);
-		transform: rotate(95deg);
-	}
-
-	100% {
-		-webkit-transform: rotate(455deg);
-		transform: rotate(455deg);
-	}
-}
-
 @keyframes swoop {
 
 	0% {
-		-webkit-transform: rotate(95deg);
 		transform: rotate(95deg);
 	}
 
 	100% {
-		-webkit-transform: rotate(455deg);
 		transform: rotate(455deg);
 	}
 }
