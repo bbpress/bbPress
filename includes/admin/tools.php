@@ -21,15 +21,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses wp_cache_flush() To flush the cache
  * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses screen_icon() To display the screen icon
  * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_repair() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Repair Forums', 'bbpress' ) ); ?></h2>
 
@@ -500,7 +497,7 @@ function bbp_admin_repair_forum_reply_count() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) ) {
  		return array( 1, sprintf( $statement, $result ) );
 	}
- 
+
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
 	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
 	if ( !empty( $forums ) ) {
@@ -1149,7 +1146,7 @@ function bbp_admin_repair_reply_menu_order() {
 
 	// Delete cases where `_bbp_reply_to` was accidentally set to itself
 	if ( is_wp_error( $wpdb->query( "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_reply_to' AND `post_id` = `meta_value`;" ) ) ) {
-		return array( 1, sprintf( $statement, $result ) ); 
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Post type
@@ -1195,15 +1192,12 @@ function bbp_admin_repair_reply_menu_order() {
  *
  * @uses check_admin_referer() To verify the nonce and the referer
  * @uses do_action() Calls 'admin_notices' to display the notices
- * @uses screen_icon() To display the screen icon
  * @uses wp_nonce_field() To add a hidden nonce field
  */
 function bbp_admin_reset() {
 ?>
 
 	<div class="wrap">
-
-		<?php screen_icon( 'tools' ); ?>
 
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( __( 'Reset Forums', 'bbpress' ) ); ?></h2>
 		<p><?php esc_html_e( 'Revert your forums back to a brand new installation. This process cannot be undone.', 'bbpress' ); ?></p>
