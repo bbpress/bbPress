@@ -433,18 +433,22 @@ function bbp_is_intercepted( $value = '' ) {
 function bbp_maybe_intercept( $action = '', $args = array() ) {
 
 	// Backwards compatibility juggle
-	$hook      = ( false === strpos( $action, 'pre_' ) )
+	$hook     = ( false === strpos( $action, 'pre_' ) )
 		? "pre_{$action}"
 		: $action;
 
-	// Sanitize the hook same
-	$key       = sanitize_key( $hook );
+	// Parse args
+	$r        = bbp_parse_args( (array) $args, array(), 'maybe_intercept' );
+	$retval   = reset( $r );
 
-	// Default return value
-	$default   = bbp_default_intercept();
+	// Filter
+	$args     = array_merge( array( $hook ), $r );
+	$filtered = call_user_func_array( 'apply_filters', $args );
 
-	// Filter and return
-	return apply_filters( $key, $default, extract( (array) $args ) );
+	// Return filtered value, or default if not intercepted
+	return ( $filtered === $retval )
+		? bbp_default_intercept()
+		: $filtered;
 }
 
 /** Engagements ***************************************************************/
