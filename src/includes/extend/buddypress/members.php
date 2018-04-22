@@ -215,21 +215,16 @@ class BBP_BuddyPress_Members {
 		}
 
 		// Setup profile URL
-		$url = array(
-			bp_core_get_user_domain( $user_id ),
-			bbpress()->extend->buddypress->slug
-		);
+		$url = array( bp_core_get_user_domain( $user_id ) );
 
 		// Maybe push slug to end of URL array
 		if ( ! empty( $slug ) ) {
+			array_push( $url, bbpress()->extend->buddypress->slug );
 			array_push( $url, $slug );
 		}
 
-		// Slash it
-		$url = array_map( 'trailingslashit', $url );
-
 		// Return
-		return implode( '', $url );
+		return implode( '', array_map( 'trailingslashit', $url ) );
 	}
 }
 endif;
