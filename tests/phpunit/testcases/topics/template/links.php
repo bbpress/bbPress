@@ -71,7 +71,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">3 days, 8 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">3 days, 8 hours ago</a>', $link );
 
 		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -83,7 +83,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">2 days, 12 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">2 days, 12 hours ago</a>', $link );
 	}
 
 	/**
@@ -126,7 +126,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
 
 		$r2 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -138,12 +138,12 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">16 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">16 hours ago</a>', $link );
 
 		bbp_spam_reply( $r2 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
 
 		$r3 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -155,13 +155,13 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
 
 		// Todo: Use bbp_trash_reply() and not wp_trash_post()
 		wp_trash_post( $r3 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
 
 		$r4 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -173,28 +173,28 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r4 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">12 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r4 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">12 hours ago</a>', $link );
 
 		bbp_unapprove_reply( $r4 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r1 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">18 hours ago</a>', $link );
 
 		bbp_unspam_reply( $r2 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">16 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r2 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">16 hours ago</a>', $link );
 
 		// Todo: Use bbp_untrash_reply() and not wp_untrash_post()
 		wp_untrash_post( $r3 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r3 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">14 hours ago</a>', $link );
 
 		bbp_approve_reply( $r4 );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r4 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">12 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r4 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">12 hours ago</a>', $link );
 
 		$r5 = $this->factory->reply->create( array(
 			'post_parent' => $t,
@@ -206,7 +206,7 @@ class BBP_Tests_Topics_Template_Links extends BBP_UnitTestCase {
 		) );
 
 		$link = bbp_get_topic_freshness_link( $t );
-		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1/#post-' . bbp_get_reply_id( $r5 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">10 hours ago</a>', $link );
+		$this->assertSame( '<a href="http://' . WP_TESTS_DOMAIN . '/?topic=topic-1#post-' . bbp_get_reply_id( $r5 ) . '" title="Reply To: ' . bbp_get_topic_title( $t ) . '">10 hours ago</a>', $link );
 	}
 
 	/**
