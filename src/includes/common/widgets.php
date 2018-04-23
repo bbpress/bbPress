@@ -1128,7 +1128,9 @@ class BBP_Replies_Widget extends WP_Widget {
 
 					// Verify the reply ID
 					$reply_id   = bbp_get_reply_id( $widget_query->post->ID );
-					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . bbp_get_reply_topic_title( $reply_id ) . '</a>';
+					$reply_link = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url( $reply_id ) ) . '" title="' . esc_attr( bbp_get_reply_excerpt( $reply_id, 50 ) ) . '">' . esc_html( bbp_get_reply_topic_title( $reply_id ) ) . '</a>';
+					$time       = get_the_time( 'U', $reply_id );
+					$show_date  = '<time datetime="' . gmdate( 'Y-m-d H:i:s', $time ) . '">' . esc_html( bbp_get_time_since( $time ) ) . '</time>';
 
 					// Only query user if showing them
 					if ( ! empty( $settings['show_user'] ) ) :
@@ -1141,26 +1143,21 @@ class BBP_Replies_Widget extends WP_Widget {
 					if ( ! empty( $settings['show_date'] ) && ! empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link, 3: reply timestamp
-						printf( esc_html_x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>' );
+						printf( esc_html_x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, $show_date );
 
 					// Reply link and timestamp
 					elseif ( ! empty( $settings['show_date'] ) ) :
-
-						// translators: 1: reply link, 2: reply timestamp
-						printf( esc_html_x( '%1$s %2$s',         'widgets', 'bbpress' ), $reply_link,  '<div>' . bbp_get_time_since( get_the_time( 'U' ) ) . '</div>'              );
+						echo $reply_link . ' ' . $show_date;
 
 					// Reply author and title
 					elseif ( ! empty( $author_link ) ) :
 
 						// translators: 1: reply author, 2: reply link
-						printf( esc_html_x( '%1$s on %2$s',      'widgets', 'bbpress' ), $author_link, $reply_link                                                                 );
+						printf( esc_html_x( '%1$s on %2$s', 'widgets', 'bbpress' ), $author_link, $reply_link );
 
 					// Only the reply title
 					else :
-
-						// translators: 1: reply link
-						printf( esc_html_x( '%1$s',              'widgets', 'bbpress' ), $reply_link                                                                               );
-
+						echo $reply_link;
 					endif;
 
 					?>
