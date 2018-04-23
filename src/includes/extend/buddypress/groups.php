@@ -37,6 +37,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$this->setup_actions();
 		$this->setup_filters();
 		$this->maybe_unset_forum_menu();
+		$this->fully_loaded();
 	}
 
 	/**
@@ -150,6 +151,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
 			add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
 		}
+	}
+
+	/**
+	 * Allow the variables, actions, and filters to be modified by third party
+	 * plugins and themes.
+	 *
+	 * @since 2.6.0 bbPress (r6808)
+	 */
+	private function fully_loaded() {
+		do_action_ref_array( 'bbp_buddypress_groups_loaded', array( $this ) );
 	}
 
 	/**

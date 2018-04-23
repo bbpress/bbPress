@@ -30,6 +30,7 @@ class BBP_BuddyPress_Members {
 	public function __construct() {
 		$this->setup_actions();
 		$this->setup_filters();
+		$this->fully_loaded();
 	}
 
 	/**
@@ -72,6 +73,16 @@ class BBP_BuddyPress_Members {
 		add_filter( 'bbp_pre_get_user_engagements_url',     array( $this, 'get_engagements_permalink'   ) );
 		add_filter( 'bbp_pre_get_favorites_permalink',      array( $this, 'get_favorites_permalink'     ) );
 		add_filter( 'bbp_pre_get_subscriptions_permalink',  array( $this, 'get_subscriptions_permalink' ) );
+	}
+
+	/**
+	 * Allow the variables, actions, and filters to be modified by third party
+	 * plugins and themes.
+	 *
+	 * @since 2.6.0 bbPress (r6808)
+	 */
+	private function fully_loaded() {
+		do_action_ref_array( 'bbp_buddypress_members_loaded', array( $this ) );
 	}
 
 	/** Filters ***************************************************************/
