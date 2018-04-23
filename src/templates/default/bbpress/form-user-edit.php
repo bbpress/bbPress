@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 
-<form id="bbp-your-profile" action="<?php bbp_user_profile_edit_url( bbp_get_displayed_user_id() ); ?>" method="post" enctype="multipart/form-data">
+<form id="bbp-your-profile" method="post" enctype="multipart/form-data">
 
 	<h2 class="entry-title"><?php esc_html_e( 'Name', 'bbpress' ) ?></h2>
 

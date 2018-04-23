@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 if ( bbp_allow_search() ) : ?>
 
 	<div class="bbp-search-form">
-		<form role="search" method="get" id="bbp-search-form" action="<?php bbp_search_url(); ?>">
+		<form role="search" method="get" id="bbp-search-form">
 			<div>
 				<label class="screen-reader-text hidden" for="bbp_search"><?php esc_html_e( 'Search for:', 'bbpress' ); ?></label>
 				<input type="hidden" name="action" value="bbp-search-request" />

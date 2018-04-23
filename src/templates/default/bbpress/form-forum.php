@@ -24,7 +24,7 @@ if ( bbp_is_forum_edit() ) : ?>
 
 	<div id="new-forum-<?php bbp_forum_id(); ?>" class="bbp-forum-form">
 
-		<form id="new-post" name="new-post" method="post" action="<?php bbp_forum_permalink(); ?>">
+		<form id="new-post" name="new-post" method="post">
 
 			<?php do_action( 'bbp_theme_before_forum_form' ); ?>
 

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 		<div id="merge-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-merge">
 
-			<form id="merge_topic" name="merge_topic" method="post" action="<?php bbp_topic_permalink(); ?>">
+			<form id="merge_topic" name="merge_topic" method="post">
 
 				<fieldset class="bbp-form">
 
