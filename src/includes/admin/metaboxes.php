@@ -748,7 +748,9 @@ function bbp_topic_subscriptions_metabox( $post ) {
 	$user_ids = bbp_get_subscribers( $post->ID );
 
 	// Output
-	?><p><?php
+	?>
+	<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="hidden" value="bbp_subscribe" <?php bbp_form_topic_subscribed(); ?> />
+	<p><?php
 
 		// Relationships
 		$args = array(
