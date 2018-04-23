@@ -74,7 +74,19 @@ class BBP_Forums_Component extends BP_Component {
 			$includes[] = 'groups.php';
 		}
 
-		parent::includes( $includes );
+		// Require files if they exist
+		foreach ( $includes as $file ) {
+			if ( @is_file( $this->path . $file ) ) {
+				require $this->path . $file;
+			}
+		}
+
+		/**
+		 * Hook for plugins to include files, if necessary.
+		 *
+		 * @since 2.6.0 bbPress (r3552)
+		 */
+		do_action( "bp_{$this->id}_includes" );
 	}
 
 	/**
