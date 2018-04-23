@@ -13,6 +13,17 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Return array of bbPress registered post types
+ *
+ * @since 2.6.0 bbPress (r6813)
+ *
+ * @return array
+ */
+function bbp_get_post_types() {
+	return get_post_types( array( 'source' => 'bbpress' ) );
+}
+
 /** URLs **********************************************************************/
 
 /**

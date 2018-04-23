@@ -25,7 +25,7 @@ function bbp_has_search_results( $args = array() ) {
 	/** Defaults **************************************************************/
 
 	$default_search_terms = bbp_get_search_terms();
-	$default_post_types   = get_post_types( array( 'source' => 'bbpress' ) );
+	$default_post_types   = bbp_get_post_types();
 
 	// Default query args
 	$default = array(

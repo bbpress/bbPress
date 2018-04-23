@@ -270,7 +270,7 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 
 	// Get bbPress post types
 	$post_type = get_post_type( $post );
-	$types     = get_post_types( array( 'source' => 'bbpress' ) );
+	$types     = bbp_get_post_types();
 
 	// Bail if post is not a bbPress post type
 	if ( ! in_array( $post_type, $types, true ) ) {
