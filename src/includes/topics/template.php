@@ -1792,13 +1792,14 @@ function bbp_topic_subscription_link( $args = array() ) {
 
 		// Defaults
 		$retval      = false;
+		$user_id     = bbp_get_current_user_id();
 		$redirect_to = bbp_is_subscriptions()
-			? bbp_get_subscriptions_permalink()
+			? bbp_get_subscriptions_permalink( $user_id )
 			: '';
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'user_id'     => bbp_get_current_user_id(),
+			'user_id'     => $user_id,
 			'object_id'   => bbp_get_topic_id(),
 			'object_type' => 'post',
 			'before'      => '&nbsp;|&nbsp;',
@@ -1839,13 +1840,14 @@ function bbp_topic_favorite_link( $args = array() ) {
 
 		// No link
 		$retval      = false;
+		$user_id     = bbp_get_current_user_id();
 		$redirect_to = bbp_is_favorites()
-			? bbp_get_favorites_permalink()
+			? bbp_get_favorites_permalink( $user_id )
 			: '';
 
 		// Parse the arguments
 		$r = bbp_parse_args( $args, array(
-			'user_id'     => bbp_get_current_user_id(),
+			'user_id'     => $user_id,
 			'object_id'   => bbp_get_topic_id(),
 			'object_type' => 'post',
 			'before'      => '',
