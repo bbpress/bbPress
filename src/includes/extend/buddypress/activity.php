@@ -335,7 +335,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Check if blog & forum activity stream commenting is off
-		if ( ( false === $activities_template->disable_blogforum_replies ) || (int) $activities_template->disable_blogforum_replies ) {
+		if ( ! empty( $activities_template->disable_blogforum_replies ) ) {
 
 			// Get the current action name
 			$action_name = bp_get_activity_action_name();
