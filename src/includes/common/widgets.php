@@ -30,8 +30,9 @@ class BBP_Login_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_login_widget_options', array(
-			'classname'   => 'bbp_widget_login',
-			'description' => esc_html__( 'A simple login form with optional links to sign-up and lost password pages.', 'bbpress' )
+			'classname'                   => 'bbp_widget_login',
+			'description'                 => esc_html__( 'A simple login form with optional links to sign-up and lost password pages.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Login Widget', 'bbpress' ), $widget_ops );
@@ -222,8 +223,9 @@ class BBP_Views_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_views_widget_options', array(
-			'classname'   => 'widget_display_views',
-			'description' => esc_html__( 'A list of registered optional topic views.', 'bbpress' )
+			'classname'                   => 'widget_display_views',
+			'description'                 => esc_html__( 'A list of registered optional topic views.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Topic Views List', 'bbpress' ), $widget_ops );
@@ -355,8 +357,9 @@ class BBP_Search_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_search_widget_options', array(
-			'classname'   => 'widget_display_search',
-			'description' => esc_html__( 'The bbPress forum search form.', 'bbpress' )
+			'classname'                   => 'widget_display_search',
+			'description'                 => esc_html__( 'The bbPress forum search form.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Forum Search Form', 'bbpress' ), $widget_ops );
@@ -471,8 +474,9 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_forums_widget_options', array(
-			'classname'   => 'widget_display_forums',
-			'description' => esc_html__( 'A list of forums with an option to set the parent.', 'bbpress' )
+			'classname'                   => 'widget_display_forums',
+			'description'                 => esc_html__( 'A list of forums with an option to set the parent.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Forums List', 'bbpress' ), $widget_ops );
@@ -643,8 +647,9 @@ class BBP_Topics_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_topics_widget_options', array(
-			'classname'   => 'widget_display_topics',
-			'description' => esc_html__( 'A list of recent topics, sorted by: newness, popularity, or recent replies.', 'bbpress' )
+			'classname'                   => 'widget_display_topics',
+			'description'                 => esc_html__( 'A list of recent topics, sorted by: newness, popularity, or recent replies.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Recent Topics', 'bbpress' ), $widget_ops );
@@ -928,8 +933,9 @@ class BBP_Stats_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_stats_widget_options', array(
-			'classname'   => 'widget_display_stats',
-			'description' => esc_html__( 'Some statistics from your forum.', 'bbpress' )
+			'classname'                   => 'widget_display_stats',
+			'description'                 => esc_html__( 'Some statistics from your forum.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Statistics', 'bbpress' ), $widget_ops );
@@ -1046,8 +1052,9 @@ class BBP_Replies_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = apply_filters( 'bbp_replies_widget_options', array(
-			'classname'   => 'widget_display_replies',
-			'description' => esc_html__( 'A list of the most recent replies.', 'bbpress' )
+			'classname'                   => 'widget_display_replies',
+			'description'                 => esc_html__( 'A list of the most recent replies.', 'bbpress' ),
+			'customize_selective_refresh' => true
 		) );
 
 		parent::__construct( false, esc_html__( '(bbPress) Recent Replies', 'bbpress' ), $widget_ops );
