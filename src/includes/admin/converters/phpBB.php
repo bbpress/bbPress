@@ -715,13 +715,13 @@ class phpBB extends BBP_Converter_Base {
 
 	/**
 	 * This method is to save the salt and password together.  That
-	 * way when it is authenticate it we can get it out of the database
+	 * way when we authenticate it we can get it out of the database
 	 * as one value.
 	 */
 	public function callback_savepass( $field, $row ) {
 		return array(
 			'hash' => $field,
-			'salt' => $row['salt']
+			'salt' => $row['user_form_salt']
 		);
 	}
 
