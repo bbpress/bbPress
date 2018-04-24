@@ -340,6 +340,7 @@ body.post-type-reply strong.label {
 	width: 10% !important;
 }
 
+.column-bbp_user_role,
 .column-bbp_forum_created,
 .column-bbp_topic_created,
 .column-bbp_reply_created {

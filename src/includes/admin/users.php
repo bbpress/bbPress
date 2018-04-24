@@ -273,10 +273,22 @@ class BBP_Users_Admin {
 	 * @return array $columns
 	 */
 	public static function user_role_column( $columns = array() ) {
-		$columns['role']          = esc_html__( 'Site Role',  'bbpress' );
-		$columns['bbp_user_role'] = esc_html__( 'Forum Role', 'bbpress' );
 
-		return $columns;
+		// New title for old Role column
+		$columns['role'] = esc_html__( 'Site Role',  'bbpress' );
+
+		// New column
+		$bbp_user_role = array(
+			'bbp_user_role' => esc_html__( 'Forum Role', 'bbpress' )
+		);
+
+		// Make sure role columns are next to each other
+		$role_pos = array_search( 'role', array_keys( $columns ), true );
+		$result   = array_slice( $columns, 0, $role_pos + 1 );
+		$result   = array_merge( $result, $bbp_user_role );
+
+		// Merge and return
+		return array_merge( $result, array_slice( $columns, $role_pos ) );
 	}
 
 	/**
