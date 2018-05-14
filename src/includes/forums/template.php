@@ -753,7 +753,7 @@ function bbp_list_forums( $args = array() ) {
 		$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
 
 		// This could use bbp_get_forum_class() eventually...
-		$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'esc_attr', $subforum_classes ) ) . '"';
+		$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'sanitize_html_class', $subforum_classes ) ) . '"';
 
 		// Build this sub forums link
 		$links[] = $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $r['link_after'];

@@ -340,7 +340,7 @@ class BBP_Admin {
 		}
 
 		// Assemble the message
-		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'esc_attr', $classes ) ) . '">' . $message . '</div>';
+		$message = '<div id="message" class="notice ' . implode( ' ', array_map( 'sanitize_html_class', $classes ) ) . '">' . $message . '</div>';
 		$message = str_replace( "'", "\'", $message );
 
 		// Avoid malformed notices variable
