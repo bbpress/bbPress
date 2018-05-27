@@ -20,127 +20,137 @@ defined( 'ABSPATH' ) || exit;
  * @return array Filtered option names and values
  */
 function bbp_get_default_options() {
+	static $options = null;
 
-	// Use the participant role for the default-default role
-	$role = bbp_get_participant_role();
+	// Store these to avoid recreating them
+	if ( is_null( $options ) ) {
+
+		// Use the participant role for the default-default role
+		$role    = bbp_get_participant_role();
+		$options = array(
+
+			/** DB Version ********************************************************/
+
+			'_bbp_db_version'             => 0,         // Database version
+			'_bbp_db_upgrade_skipped'     => 0,         // Database upgrade skipped
+
+			/** Flags *************************************************************/
+
+			'_bbp_flag_initial_content'   => 1,         // Flag to indicate initial content was created
+
+			/** Features **********************************************************/
+
+			'_bbp_enable_favorites'       => 1,         // Enable favorites
+			'_bbp_enable_subscriptions'   => 1,         // Enable subscriptions
+			'_bbp_enable_engagements'     => 1,         // Enable engagements
+			'_bbp_allow_content_edit'     => 1,         // Allow content edit
+			'_bbp_allow_content_throttle' => 1,         // Allow content throttle
+			'_bbp_allow_revisions'        => 1,         // Allow revisions
+			'_bbp_allow_topic_tags'       => 1,         // Allow topic tagging
+			'_bbp_allow_search'           => 1,         // Allow forum-wide search
+			'_bbp_allow_forum_mods'       => 1,         // Allow per-forum moderation
+			'_bbp_allow_global_access'    => 1,         // Allow users from all sites to post
+			'_bbp_allow_anonymous'        => 0,         // Allow anonymous posting
+			'_bbp_allow_super_mods'       => 0,         // Allow mods to edit users
+			'_bbp_allow_threaded_replies' => 0,         // Allow threaded replies
+			'_bbp_use_wp_editor'          => 1,         // Use the WordPress editor if available
+			'_bbp_use_autoembed'          => 0,         // Use oEmbed in topics and replies
+
+			/** Settings **********************************************************/
+
+			'_bbp_default_role'           => $role,     // Default forums role
+			'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
+			'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
+			'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
+			'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
+			'_bbp_settings_integration'   => 'basic',   // How to integrate into wp-admin
+
+			/** Per Page **********************************************************/
+
+			'_bbp_topics_per_page'      => 15,          // Topics per page
+			'_bbp_replies_per_page'     => 15,          // Replies per page
+			'_bbp_forums_per_page'      => 50,          // Forums per page
+			'_bbp_topics_per_rss_page'  => 25,          // Topics per RSS page
+			'_bbp_replies_per_rss_page' => 25,          // Replies per RSS page
+
+			/** Page For **********************************************************/
+
+			'_bbp_page_for_forums'      => 0,           // Page for forums
+			'_bbp_page_for_topics'      => 0,           // Page for forums
+			'_bbp_page_for_login'       => 0,           // Page for login
+			'_bbp_page_for_register'    => 0,           // Page for register
+			'_bbp_page_for_lost_pass'   => 0,           // Page for lost-pass
+
+			/** Forum Root ********************************************************/
+
+			'_bbp_root_slug'            => 'forums',    // Forum archive slug
+			'_bbp_show_on_root'         => 'forums',    // What to show on root (forums|topics)
+			'_bbp_include_root'         => 1,           // Include forum-archive before single slugs
+
+			/** Single Slugs ******************************************************/
+
+			'_bbp_forum_slug'           => 'forum',     // Forum slug
+			'_bbp_topic_slug'           => 'topic',     // Topic slug
+			'_bbp_reply_slug'           => 'reply',     // Reply slug
+			'_bbp_topic_tag_slug'       => 'topic-tag', // Topic tag slug
+
+			/** User Slugs ********************************************************/
+
+			'_bbp_user_slug'            => 'users',         // User profile slug
+			'_bbp_user_engs_slug'       => 'engagements',   // User engagements slug
+			'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
+			'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
+			'_bbp_topic_archive_slug'   => 'topics',        // Topic archive slug
+			'_bbp_reply_archive_slug'   => 'replies',       // Reply archive slug
+
+			/** Other Slugs *******************************************************/
+
+			'_bbp_view_slug'            => 'view',      // View slug
+			'_bbp_search_slug'          => 'search',    // Search slug
+
+			/** Topics ************************************************************/
+
+			'_bbp_title_max_length'     => 80,          // Title Max Length
+			'_bbp_super_sticky_topics'  => '',          // Super stickies
+
+			/** Forums ************************************************************/
+
+			'_bbp_private_forums'       => '',          // Private forums
+			'_bbp_hidden_forums'        => '',          // Hidden forums
+
+			/** BuddyPress ********************************************************/
+
+			'_bbp_enable_group_forums'  => 1,           // Enable BuddyPress Group Extension
+			'_bbp_group_forums_root_id' => 0,           // Group Forums parent forum id
+
+			/** Akismet ***********************************************************/
+
+			'_bbp_enable_akismet'       => 1,           // Users from all sites can post
+
+			/** Converter *********************************************************/
+
+			// Connection
+			'_bbp_converter_db_user'    => '',          // Database User
+			'_bbp_converter_db_pass'    => '',          // Database Password
+			'_bbp_converter_db_name'    => '',          // Database Name
+			'_bbp_converter_db_port'    => 3306,        // Database Port
+			'_bbp_converter_db_server'  => 'localhost', // Database Server/IP
+			'_bbp_converter_db_prefix'  => '',          // Database table prefix
+
+			// Options
+			'_bbp_converter_rows'          => 100,      // Number of rows to query
+			'_bbp_converter_delay_time'    => 2,        // Seconds to wait between queries
+			'_bbp_converter_step'          => false,    // Current converter step
+			'_bbp_converter_start'         => false,    // Step to start at
+			'_bbp_converter_convert_users' => false,    // Whether to convert users
+			'_bbp_converter_halt'          => false,    // Halt on errors
+			'_bbp_converter_platform'      => false,    // Which platform to use
+			'_bbp_converter_query'         => false     // Last query
+		);
+	}
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_default_options', array(
-
-		/** DB Version ********************************************************/
-
-		'_bbp_db_version'             => 0,         // Database version
-		'_bbp_db_upgrade_skipped'     => 0,         // Database upgrade skipped
-
-		/** Features **********************************************************/
-
-		'_bbp_enable_favorites'       => 1,         // Enable favorites
-		'_bbp_enable_subscriptions'   => 1,         // Enable subscriptions
-		'_bbp_enable_engagements'     => 1,         // Enable engagements
-		'_bbp_allow_content_edit'     => 1,         // Allow content edit
-		'_bbp_allow_content_throttle' => 1,         // Allow content throttle
-		'_bbp_allow_revisions'        => 1,         // Allow revisions
-		'_bbp_allow_topic_tags'       => 1,         // Allow topic tagging
-		'_bbp_allow_search'           => 1,         // Allow forum-wide search
-		'_bbp_allow_forum_mods'       => 1,         // Allow per-forum moderation
-		'_bbp_allow_global_access'    => 1,         // Allow users from all sites to post
-		'_bbp_allow_anonymous'        => 0,         // Allow anonymous posting
-		'_bbp_allow_super_mods'       => 0,         // Allow mods to edit users
-		'_bbp_allow_threaded_replies' => 0,         // Allow threaded replies
-		'_bbp_use_wp_editor'          => 1,         // Use the WordPress editor if available
-		'_bbp_use_autoembed'          => 0,         // Use oEmbed in topics and replies
-
-		/** Settings **********************************************************/
-
-		'_bbp_default_role'           => $role,     // Default forums role
-		'_bbp_edit_lock'              => 5,         // Lock post editing after 5 minutes
-		'_bbp_throttle_time'          => 10,        // Throttle post time to 10 seconds
-		'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
-		'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
-		'_bbp_settings_integration'   => 'basic',   // How to integrate into wp-admin
-
-		/** Per Page **********************************************************/
-
-		'_bbp_topics_per_page'      => 15,          // Topics per page
-		'_bbp_replies_per_page'     => 15,          // Replies per page
-		'_bbp_forums_per_page'      => 50,          // Forums per page
-		'_bbp_topics_per_rss_page'  => 25,          // Topics per RSS page
-		'_bbp_replies_per_rss_page' => 25,          // Replies per RSS page
-
-		/** Page For **********************************************************/
-
-		'_bbp_page_for_forums'      => 0,           // Page for forums
-		'_bbp_page_for_topics'      => 0,           // Page for forums
-		'_bbp_page_for_login'       => 0,           // Page for login
-		'_bbp_page_for_register'    => 0,           // Page for register
-		'_bbp_page_for_lost_pass'   => 0,           // Page for lost-pass
-
-		/** Forum Root ********************************************************/
-
-		'_bbp_root_slug'            => 'forums',    // Forum archive slug
-		'_bbp_show_on_root'         => 'forums',    // What to show on root (forums|topics)
-		'_bbp_include_root'         => 1,           // Include forum-archive before single slugs
-
-		/** Single Slugs ******************************************************/
-
-		'_bbp_forum_slug'           => 'forum',     // Forum slug
-		'_bbp_topic_slug'           => 'topic',     // Topic slug
-		'_bbp_reply_slug'           => 'reply',     // Reply slug
-		'_bbp_topic_tag_slug'       => 'topic-tag', // Topic tag slug
-
-		/** User Slugs ********************************************************/
-
-		'_bbp_user_slug'            => 'users',         // User profile slug
-		'_bbp_user_engs_slug'       => 'engagements',   // User engagements slug
-		'_bbp_user_favs_slug'       => 'favorites',     // User favorites slug
-		'_bbp_user_subs_slug'       => 'subscriptions', // User subscriptions slug
-		'_bbp_topic_archive_slug'   => 'topics',        // Topic archive slug
-		'_bbp_reply_archive_slug'   => 'replies',       // Reply archive slug
-
-		/** Other Slugs *******************************************************/
-
-		'_bbp_view_slug'            => 'view',      // View slug
-		'_bbp_search_slug'          => 'search',    // Search slug
-
-		/** Topics ************************************************************/
-
-		'_bbp_title_max_length'     => 80,          // Title Max Length
-		'_bbp_super_sticky_topics'  => '',          // Super stickies
-
-		/** Forums ************************************************************/
-
-		'_bbp_private_forums'       => '',          // Private forums
-		'_bbp_hidden_forums'        => '',          // Hidden forums
-
-		/** BuddyPress ********************************************************/
-
-		'_bbp_enable_group_forums'  => 1,           // Enable BuddyPress Group Extension
-		'_bbp_group_forums_root_id' => 0,           // Group Forums parent forum id
-
-		/** Akismet ***********************************************************/
-
-		'_bbp_enable_akismet'       => 1,           // Users from all sites can post
-
-		/** Converter *********************************************************/
-
-		// Connection
-		'_bbp_converter_db_user'    => '',          // Database User
-		'_bbp_converter_db_pass'    => '',          // Database Password
-		'_bbp_converter_db_name'    => '',          // Database Name
-		'_bbp_converter_db_port'    => 3306,        // Database Port
-		'_bbp_converter_db_server'  => 'localhost', // Database Server/IP
-		'_bbp_converter_db_prefix'  => '',          // Database table prefix
-
-		// Options
-		'_bbp_converter_rows'          => 100,      // Number of rows to query
-		'_bbp_converter_delay_time'    => 2,        // Seconds to wait between queries
-		'_bbp_converter_step'          => false,    // Current converter step
-		'_bbp_converter_start'         => false,    // Step to start at
-		'_bbp_converter_convert_users' => false,    // Whether to convert users
-		'_bbp_converter_halt'          => false,    // Halt on errors
-		'_bbp_converter_platform'      => false,    // Which platform to use
-		'_bbp_converter_query'         => false     // Last query
-	) );
+	return (array) apply_filters( 'bbp_get_default_options', $options );
 }
 
 /**

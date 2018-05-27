@@ -169,8 +169,22 @@ function bbp_setup_updater() {
  *
  * @since 2.6.0 bbPress (r6779)
  */
-function bbp_setup_new_site() {
-	bbp_create_initial_content();
+function bbp_setup_new_site( $site_id = 0 ) {
+
+	// Look for initial content
+	$created = is_multisite()
+		? get_blog_option( $site_id, '_bbp_flag_initial_content', false )
+		: get_option( '_bbp_flag_initial_content', false );
+
+	// Maybe create the initial content
+	if ( ! empty( $created ) ) {
+		bbp_create_initial_content();
+
+		// Flag initial content as created
+		is_multisite()
+			? update_blog_option( $site_id, '_bbp_flag_initial_content', true )
+			: update_option( '_bbp_flag_initial_content', true );
+	}
 }
 
 /**
