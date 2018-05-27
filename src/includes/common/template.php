@@ -96,7 +96,9 @@ function bbp_is_site_public( $site_id = 0 ) {
 	}
 
 	// Get the site visibility setting
-	$public = get_blog_option( $site_id, 'blog_public', 1 );
+	$public = is_multisite()
+		? get_blog_option( $site_id, 'blog_public', 1 )
+		: get_option( 'blog_public', 1 );
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_site_public', $public, $site_id );
