@@ -143,13 +143,13 @@ class BBP_Topics_Admin {
 				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                            'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                  'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                              'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>View</strong> will take you to your live site to view the topic.',                                                                                        'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                                        'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the option to post new replies to the topic.',                            'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                                        'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the ability to post new replies to it.',                                  'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                              'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                  'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>View</strong> will take you to your live site to view the topic.',                                                                                        'bbpress' ) . '</li>' .
 				'</ul>'
 		) );
 
