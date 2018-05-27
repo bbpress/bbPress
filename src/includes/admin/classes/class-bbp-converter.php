@@ -249,11 +249,27 @@ class BBP_Converter {
 	 * @since 2.6.0 bbPress (r6460)
 	 */
 	private function maybe_set_memory() {
-		if ( ! ini_get( 'safe_mode' ) ) {
-			set_time_limit( 0 );
-			ini_set( 'memory_limit',   '256M' );
-			ini_set( 'implicit_flush', '1'    );
-			ignore_user_abort( true );
+
+		// Filter args
+		$r = apply_filters( 'bbp_converter_php_ini_overrides', array(
+			'implicit_flush'     => '1',
+			'memory_limit'       => '256M',
+			'max_execution_time' => HOUR_IN_SECONDS * 6
+		) );
+
+		// Get disabled PHP functions (to avoid using them)
+		$disabled = explode( ',', @ini_get( 'disable_functions' ) );
+
+		// Maybe avoid terminating when the client goes away (if function is not disabled)
+		if ( ! in_array( 'ignore_user_abort', $disabled, true ) ) {
+			@ignore_user_abort( true );
+		}
+
+		// Maybe set memory & time limits, and flush style (if function is not disabled)
+		if ( ! in_array( 'ini_set', $disabled, true ) ) {
+			foreach ( $r as $key => $value ) {
+				@ini_set( $key, $value );
+			}
 		}
 	}
 
