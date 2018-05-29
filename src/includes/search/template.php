@@ -310,8 +310,8 @@ function bbp_search_terms( $search_terms = '' ) {
 			}
 		}
 
-		// Trim whitespace and decode, or set explicitly to false if empty
-		$search_terms = ! empty( $search_terms )
+		// Trim whitespace & decode if non-empty string, or set to false
+		$search_terms = ! empty( $search_terms ) && is_string( $search_terms )
 			? urldecode( trim( $search_terms ) )
 			: false;
 
