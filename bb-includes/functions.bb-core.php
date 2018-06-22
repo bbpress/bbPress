@@ -493,7 +493,7 @@ define( 'BB_URI_CONTEXT_WP_HTTP_REQUEST',      16384 );
 //define( 'BB_URI_CONTEXT_*',                    32768 );  // Reserved for future definitions
 //define( 'BB_URI_CONTEXT_*',                    65536 );  // Reserved for future definitions
 //define( 'BB_URI_CONTEXT_*',                    131072 ); // Reserved for future definitions
-//define( 'BB_URI_CONTEXT_*',                    262144 ); // Reserved for future definitions
+define( 'BB_URI_CONTEXT_BB_INSTALLER',         262144 );
 define( 'BB_URI_CONTEXT_AKISMET',              524288 );
 
 /**
