@@ -634,8 +634,10 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Reply To **************************************************************/
 
 	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
-	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
+	if ( isset( $_REQUEST['bbp_reply_to'] ) && current_user_can( 'moderate', $reply_id ) ) {
 		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'], $reply_id );
+	} elseif ( bbp_thread_replies() ) {
+		$reply_to = bbp_get_reply_to( $reply_id );
 	}
 
 	/** Topic Tags ************************************************************/
