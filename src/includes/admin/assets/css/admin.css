@@ -435,12 +435,35 @@ body.post-type-reply #the-list .row-actions .approved a {
 
 /* Converter */
 
+.bbp-converter-settings-wrap {
+	float: left;
+	width: 55%;
+}
+
+#poststuff.bbp-converter-monitor-wrap {
+	float: right;
+	width: 43%;
+	margin-left: 2%;
+	min-width: 200px;
+}
+
 #bbp-converter-monitor h2 {
 	position: relative;
 }
 
 #bbp-converter-monitor .inside {
 	margin-bottom: 0;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+#bbp-converter-monitor div.actions {
+	padding: 10px;
+	background: #fafafa;
+	clear: both;
+}
+
+#bbp-converter-spinner {
+	margin: 4px 0;
 }
 
 div.bbp-converter-log,
@@ -540,7 +563,7 @@ div.bbp-converter-log .mini-step {
 
 button.bbp-db-pass-toggle {
 	border: none;
-	background: #fff;
+	background: transparent;
 	position: absolute;
 	right: 3px;
 	top: 3px;
@@ -569,6 +592,13 @@ button.bbp-db-pass-toggle.password:after {
 
 	.bbp-converter-db-password-wrapper {
 		width: 100%;
+	}
+
+	#poststuff.bbp-converter-monitor-wrap,
+	.bbp-converter-settings-wrap {
+		float: none;
+		width: 100%;
+		margin: 20px 0;
 	}
 
 	button.bbp-db-pass-toggle {

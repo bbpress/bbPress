@@ -9,11 +9,13 @@ jQuery( document ).ready( function ( $ ) {
 		start    = $( '#bbp-converter-start'    ),
 		restart  = $( '#_bbp_converter_restart' ),
 		status   = $( '#bbp-converter-status'   ),
+		spinner  = $( '#bbp-converter-spinner'  ),
 		settings = $( '#bbp-converter-settings' ),
 		password = $( '#_bbp_converter_db_pass' ),
 		toggle   = $( '.bbp-db-pass-toggle'     ),
 		step_p   = $( '#bbp-converter-step-percentage'  ),
-		total_p  = $( '#bbp-converter-total-percentage' );
+		total_p  = $( '#bbp-converter-total-percentage' ),
+		fields   = settings.find( 'table:first-of-type input, table:first-of-type select' );
 
 	/**
 	 * Show/hide db password button toggle
@@ -217,8 +219,12 @@ jQuery( document ).ready( function ( $ ) {
 		);
 
 		message.addClass( 'started' );
+
 		start.hide();
 		stop.show();
+console.log( fields );
+		spinner.css( 'visibility', 'visible' );
+		fields.prop( 'readonly', true );
 
 		bbp_converter_post();
 	}
@@ -256,6 +262,9 @@ jQuery( document ).ready( function ( $ ) {
 
 		start.show();
 		stop.hide();
+
+		spinner.css( 'visibility', 'hidden' );
+		fields.prop( 'readonly', false );
 	}
 
 	/**

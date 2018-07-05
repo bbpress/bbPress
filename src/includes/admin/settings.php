@@ -492,7 +492,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Select Platform', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_platform',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_platform' )
 			),
 
 			// Database Server
@@ -500,7 +500,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Server', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbserver',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_server' )
 			),
 
 			// Database Server Port
@@ -508,7 +508,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Port', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbport',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_port' )
 			),
 
 			// Database Name
@@ -516,7 +516,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Name', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbname',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_name' )
 			),
 
 			// Database User
@@ -524,7 +524,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database User', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbuser',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_user' )
 			),
 
 			// Database User
@@ -532,7 +532,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Password', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbpass',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_pass' )
 			),
 
 			// Database User
@@ -540,7 +540,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Table Prefix', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbprefix',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_db_prefix' )
 			)
 		),
 
@@ -552,7 +552,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Rows Limit', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_rows',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_rows' )
 			),
 
 			// Delay Time
@@ -560,7 +560,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Delay Time', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_delay_time',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_delay_time' )
 			),
 
 			// Convert Users
@@ -568,7 +568,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Convert Users', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_convert_users',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_convert_users' )
 			),
 
 			// Halt
@@ -576,7 +576,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Stop on Error', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_halt',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_halt' )
 			),
 
 			// Restart
@@ -584,7 +584,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Start Over', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_restart',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_restart' )
 			),
 
 			// Clean
@@ -592,7 +592,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Helper Data', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_clean',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
+				'args'              => array( 'label_for'=> '_bbp_converter_clean' )
 			)
 		)
 	) );
@@ -1522,7 +1522,7 @@ function bbp_admin_settings() {
 function bbp_converter_setting_callback_main_section() {
 ?>
 
-	<p><?php _e( 'Information about your previous forums database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'bbpress' ); ?></p>
+	<p><?php _e( 'Information about the database for your previous forums so they can be converted.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1545,7 +1545,7 @@ function bbp_converter_setting_callback_platform() {
 	} ?>
 
 	<select name="_bbp_converter_platform" id="_bbp_converter_platform"><?php echo $options ?></select>
-	<label for="_bbp_converter_platform"><?php esc_html_e( 'is the previous forum software', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'The previous forum software', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1559,7 +1559,7 @@ function bbp_converter_setting_callback_dbserver() {
 ?>
 
 	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_server' ); ?> />
-	<label for="_bbp_converter_db_server"><?php esc_html_e( 'Use default "localhost" if on the same server, otherwise IP or hostname', 'bbpress' ); ?></label>
+	<p class="description"><?php printf( esc_html__( 'Use default %s if same server, or IP or hostname', 'bbpress' ), '<code>localhost</code>' ); ?></p>
 
 <?php
 }
@@ -1573,7 +1573,7 @@ function bbp_converter_setting_callback_dbport() {
 ?>
 
 	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_port' ); ?> />
-	<label for="_bbp_converter_db_port"><?php esc_html_e( 'Use default "3306" if unsure', 'bbpress' ); ?></label>
+	<p class="description"><?php printf( esc_html__( 'Use default %s if unsure', 'bbpress' ), '<code>3306</code>' ); ?></p>
 
 <?php
 }
@@ -1587,7 +1587,7 @@ function bbp_converter_setting_callback_dbuser() {
 ?>
 
 	<input name="_bbp_converter_db_user" id="_bbp_converter_db_user" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_user' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_user' ); ?> />
-	<label for="_bbp_converter_db_user"><?php esc_html_e( 'User to access the database', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'User to access the database', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1607,7 +1607,7 @@ function bbp_converter_setting_callback_dbpass() {
 			<span class="toggle-indicator" aria-hidden="true"></span>
 		</button>
 	</span>
-	<label for="_bbp_converter_db_pass"><?php esc_html_e( 'Password for the above database user', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'Password for the above database user', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1621,7 +1621,7 @@ function bbp_converter_setting_callback_dbname() {
 ?>
 
 	<input name="_bbp_converter_db_name" id="_bbp_converter_db_name" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_name' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_name' ); ?> />
-	<label for="_bbp_converter_db_name"><?php esc_html_e( 'Name of the database with your old forum data', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'Name of the database with your old forum data', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -1648,7 +1648,7 @@ function bbp_converter_setting_callback_dbprefix() {
 ?>
 
 	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_prefix' ); ?> />
-	<label for="_bbp_converter_db_prefix"><?php esc_html_e( '(If converting from BuddyPress Forums, use "wp_bb_" or your custom prefix)', 'bbpress' ); ?></label>
+	<p class="description"><?php printf( esc_html__( 'Use %s if converting from BuddyPress Legacy', 'bbpress' ), '<code>wp_bb_</code>' ); ?></p>
 
 <?php
 }
@@ -1777,46 +1777,47 @@ function bbp_converter_settings_page() {
 		<hr class="wp-header-end">
 		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Import Forums', 'bbpress' ) ); ?></h2>
 
-		<form action="#" method="post" id="bbp-converter-settings"><?php
-
-			// Fields
-			settings_fields( 'converter' );
-
-			// Sections
-			do_settings_sections( 'converter' );
-
-			?>
-
-			<p class="submit">
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" />
-				<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Pause', 'bbpress' ); ?>" />
-			</p>
-		</form>
-
-		<div id="poststuff">
-			<div id="post-body" class="metabox-holder columns-1">
-				<div id="postbox-container-1" class="postbox-container">
-					<div id="normal-sortables" class="meta-box-sortables ui-sortable">
-						<div id="bbp-converter-monitor" class="postbox">
-							<button type="button" class="handlediv" aria-expanded="true">
-								<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
-								<span class="toggle-indicator" aria-hidden="true"></span>
-							</button>
-							<h2 class="hndle ui-sortable-handle">
-								<span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span>
-								<span id="bbp-converter-status"><?php echo esc_html( $status_text ); ?></span>
-								<span id="bbp-converter-step-percentage" class="bbp-progress-bar"></span>
-								<span id="bbp-converter-total-percentage" class="bbp-progress-bar"></span>
-							</h2>
-							<div class="inside">
-								<div id="bbp-converter-message" class="bbp-converter-log">
-									<p><?php echo esc_html( $progress_text ); ?></p>
+		<div class="bbp-converter-wrap">
+			<div id="poststuff" class="bbp-converter-monitor-wrap">
+				<div id="post-body" class="metabox-holder columns-1">
+					<div id="postbox-container-1" class="postbox-container">
+						<div id="normal-sortables" class="meta-box-sortables ui-sortable">
+							<div id="bbp-converter-monitor" class="postbox">
+								<button type="button" class="handlediv" aria-expanded="true">
+									<span class="screen-reader-text"><?php esc_html_e( 'Toggle panel: Import Status', 'bbpress' ); ?></span>
+									<span class="toggle-indicator" aria-hidden="true"></span>
+								</button>
+								<h2 class="hndle ui-sortable-handle">
+									<span><?php esc_html_e( 'Import Monitor', 'bbpress' ); ?></span>
+									<span id="bbp-converter-status"><?php echo esc_html( $status_text ); ?></span>
+									<span id="bbp-converter-step-percentage" class="bbp-progress-bar"></span>
+									<span id="bbp-converter-total-percentage" class="bbp-progress-bar"></span>
+								</h2>
+								<div class="inside">
+									<div id="bbp-converter-message" class="bbp-converter-log">
+										<p><?php echo esc_html( $progress_text ); ?></p>
+									</div>
+								</div>
+								<div class="actions">
+									<input type="button" name="submit" class="button-primary" id="bbp-converter-start" value="<?php echo esc_attr( $start_text ); ?>" />
+									<input type="button" name="submit" class="button-primary" id="bbp-converter-stop" value="<?php esc_attr_e( 'Pause', 'bbpress' ); ?>" />
+									<span class="spinner" id="bbp-converter-spinner"></span>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+
+			<form action="#" method="post" id="bbp-converter-settings" class="bbp-converter-settings-wrap"><?php
+
+				// Fields
+				settings_fields( 'converter' );
+
+				// Sections
+				do_settings_sections( 'converter' );
+
+			?></form>
 		</div>
 	</div>
 <?php
