@@ -505,7 +505,7 @@ class BBP_Converter {
 	 */
 	private function step_sync_table() {
 		if ( true === $this->converter->clean ) {
-			if ( $this->converter->clean( $this->start ) ) {
+			if ( $this->converter->clean() ) {
 				$this->bump_step();
 				$this->sync_table( true );
 
