@@ -1445,18 +1445,21 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
 
 	// Make sure we are directing somewhere
-	if ( empty( $redirect_to ) && !strstr( $url, 'redirect_to' ) ) {
+	if ( empty( $redirect_to ) && ! strstr( $url, 'redirect_to' ) ) {
 
 		// Rejig the $redirect_to
 		if ( ! isset( $_SERVER['REDIRECT_URL'] ) || ( $redirect_to !== home_url( $_SERVER['REDIRECT_URL'] ) ) ) {
-			$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
+			$redirect_to = isset( $_SERVER['HTTP_REFERER'] )
+				? $_SERVER['HTTP_REFERER']
+				: '';
 		}
 
+		// Rebuild a basic redirect URL
 		$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 		// Sanitize $redirect_to and add it to full $url
-		$redirect_to = add_query_arg( array( 'loggedout'   => 'true'                    ), esc_url( $redirect_to ) );
-		$url         = add_query_arg( array( 'redirect_to' => urlencode( $redirect_to ) ), $url                    );
+		$redirect_to = add_query_arg( array( 'loggedout'   => 'true'                    ), $redirect_to );
+		$url         = add_query_arg( array( 'redirect_to' => urlencode( $redirect_to ) ), $url         );
 	}
 
 	// Filter & return
