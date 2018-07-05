@@ -2470,11 +2470,9 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic if not passed
-	if ( empty( $reply_count ) ) {
-		$reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
-	}
-
-	$reply_count = (int) $reply_count;
+	$reply_count = empty( $reply_count )
+		? bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() )
+		: (int) $reply_count;
 
 	update_post_meta( $topic_id, '_bbp_reply_count', $reply_count );
 
@@ -2500,15 +2498,9 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic
-	if ( empty( $reply_count ) ) {
-		$statuses    = bbp_get_non_public_topic_statuses();
-		$post_status = "'" . implode( "','", $statuses ) . "'";
-		$bbp_db      = bbp_db();
-		$query       = $bbp_db->prepare( "SELECT COUNT(ID) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s", $topic_id, bbp_get_reply_post_type() );
-		$reply_count = $bbp_db->get_var( $query );
-	}
-
-	$reply_count = (int) $reply_count;
+	$reply_count = empty( $reply_count )
+		? bbp_get_non_public_child_count( $topic_id, 'reply' )
+		: (int) $reply_count;
 
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $reply_count );
 

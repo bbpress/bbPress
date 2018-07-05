@@ -1609,6 +1609,110 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
+ * Query the database for child counts, grouped by type & status
+ *
+ * @since 2.6.0 bbPress (r6826)
+ *
+ * @param int $parent_id
+ */
+function bbp_get_child_counts( $parent_id = 0 ) {
+
+	// Create cache key
+	$parent_id    = absint( $parent_id );
+	$key          = md5( serialize( array( 'parent_id' => $parent_id, 'post_type' => bbp_get_post_types() ) ) );
+	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
+	$cache_key    = "bbp_child_counts:{$key}:{$last_changed}";
+
+	// Check for cache and set if needed
+	$retval = wp_cache_get( $cache_key, 'bbpress_posts' );
+	if ( false === $retval ) {
+
+		// Setup the DB & query
+		$bbp_db = bbp_db();
+		$sql    = "SELECT
+						p.post_type AS type,
+						p.post_status AS status,
+						COUNT( * ) AS count
+					FROM {$bbp_db->posts} AS p
+						LEFT JOIN {$bbp_db->postmeta} AS pm
+							ON p.ID = pm.post_id
+							AND pm.meta_key = %s
+					WHERE pm.meta_value = %d
+					GROUP BY p.post_status, p.post_type";
+
+		// Get prepare vars
+		$post_type = get_post_type( $parent_id );
+		$meta_key  = "_bbp_{$post_type}_id";
+
+		// Prepare & get results
+		$query     = $bbp_db->prepare( $sql, $meta_key, $parent_id );
+		$results   = $bbp_db->get_results( $query, ARRAY_A );
+
+		// Setup return value
+		$retval    = wp_list_pluck( $results, 'type', 'type' );
+		$statuses  = get_post_stati();
+
+		// Loop through results
+		foreach ( $results as $row ) {
+
+			// Setup empties
+			if ( ! is_array( $retval[ $row['type'] ] ) ) {
+				$retval[ $row['type'] ] = array_fill_keys( $statuses, 0 );
+			}
+
+			// Set statuses
+			$retval[ $row['type'] ][ $row['status'] ] = bbp_number_not_negative( $row['count'] );
+		}
+
+		// Always cache the results
+		wp_cache_set( $cache_key, $retval, 'bbpress_posts' );
+	}
+
+	// Make sure results are INTs
+	return (array) apply_filters( 'bbp_get_child_counts', $retval, $parent_id );
+}
+
+/**
+ * Filter a list of child counts, from `bbp_get_child_counts()`
+ *
+ * @since 2.6.0 bbPress (r6826)
+ *
+ * @param int    $parent_id  ID of post to get child counts from
+ * @param array  $types      Optional. An array of post types to filter by
+ * @param array  $statuses   Optional. An array of post statuses to filter by
+ *
+ * @return array A list of objects or object fields.
+ */
+function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ), $statuses = array() ) {
+
+	// Setup local vars
+	$retval   = array();
+	$types    = array_flip( (array) $types    );
+	$statuses = array_flip( (array) $statuses );
+	$counts   = bbp_get_child_counts( $parent_id );
+
+	// Loop through counts by type
+	foreach ( $counts as $type => $type_counts ) {
+
+		// Skip if not this type
+		if ( ! isset( $types[ $type ] ) ) {
+			continue;
+		}
+
+		// Maybe filter statuses
+		if ( ! empty( $statuses ) ) {
+			$type_counts = array_intersect_key( $type_counts, $statuses );
+		}
+
+		// Add type counts to return array
+		$retval[ $type ] = $type_counts;
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_filter_child_counts_list', $retval, $parent_id, $types, $statuses );
+}
+
+/**
  * Query the DB and get a count of public children
  *
  * @since 2.0.0 bbPress (r2868)
@@ -1625,34 +1729,80 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 	}
 
-	// Check the public post status
-	$post_status = array( bbp_get_public_status_id() );
+	// Which statuses
+	switch ( $post_type ) {
 
-	// Add closed status if topic post type
-	if ( bbp_get_topic_post_type() === $post_type ) {
-		$post_status[] = bbp_get_closed_status_id();
+		// Forum
+		case bbp_get_forum_post_type() :
+			$post_status = array( bbp_get_public_status_id() );
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$post_status = bbp_get_public_topic_statuses();
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+		default :
+			$post_status = bbp_get_public_reply_statuses();
+			break;
 	}
 
-	$query = new WP_Query( array(
-		'fields'         => 'ids',
-		'post_parent'    => $parent_id,
-		'post_status'    => $post_status,
-		'post_type'      => $post_type,
-		'posts_per_page' => -1,
-
-		// Performance
-		'nopaging'               => true,
-		'suppress_filters'       => true,
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
-	$child_count = $query->post_count;
-	unset( $query );
+	// Get counts
+	$counts      = bbp_filter_child_counts_list( $parent_id, $post_type, $post_status );
+	$child_count = isset( $counts[ $post_type ] )
+		? bbp_number_not_negative( array_sum( array_values( $counts[ $post_type ] ) ) )
+		: 0;
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
+}
+/**
+ * Query the DB and get a count of public children
+ *
+ * @since 2.0.0 bbPress (r2868)
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
+ *
+ * @param int    $parent_id Parent id.
+ * @param string $post_type Post type. Defaults to 'post'.
+ * @return int The number of children
+ */
+function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
+
+	// Bail if nothing passed
+	if ( empty( $parent_id ) || empty( $post_type ) ) {
+		return false;
+	}
+
+	// Which statuses
+	switch ( $post_type ) {
+
+		// Forum
+		case bbp_get_forum_post_type() :
+			$post_status = array( bbp_get_private_status_id(), bbp_get_hidden_status_id() );
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$post_status = bbp_get_non_public_topic_statuses();
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+		default :
+			$post_status = bbp_get_non_public_reply_statuses();
+			break;
+	}
+
+	// Get counts
+	$counts      = bbp_filter_child_counts_list( $parent_id, $post_type, $post_status );
+	$child_count = isset( $counts[ $post_type ] )
+		? bbp_number_not_negative( array_sum( array_values( $counts[ $post_type ] ) ) )
+		: 0;
+
+	// Filter & return
+	return (int) apply_filters( 'bbp_get_non_public_child_count', $child_count, $parent_id, $post_type );
 }
 
 /**
