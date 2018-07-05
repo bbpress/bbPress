@@ -3845,32 +3845,21 @@ function bbp_form_topic_subscribed() {
 	 */
 	function bbp_get_form_topic_subscribed() {
 
+		// Default value
+		$topic_subscribed = false;
+
 		// Get _POST data
 		if ( bbp_is_topic_form_post_request() && isset( $_POST['bbp_topic_subscription'] ) ) {
 			$topic_subscribed = (bool) $_POST['bbp_topic_subscription'];
 
 		// Get edit data
 		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
-
-			// Get current posts author
-			$post_author = (int) bbp_get_global_post_field( 'post_author', 'raw' );
-
-			// Post author is not the current user
-			if ( bbp_get_current_user_id() !== $post_author ) {
-				$topic_subscribed = bbp_is_user_subscribed( $post_author, bbp_get_topic_id() );
-
-			// Post author is the current user
-			} else {
-				$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id(), bbp_get_topic_id() );
-			}
+			$post_author      = (int) bbp_get_global_post_field( 'post_author', 'raw' );
+			$topic_subscribed = bbp_is_user_subscribed( $post_author, bbp_get_topic_id() );
 
 		// Get current status
 		} elseif ( bbp_is_single_topic() ) {
 			$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id(), bbp_get_topic_id() );
-
-		// No data
-		} else {
-			$topic_subscribed = false;
 		}
 
 		// Get checked output
