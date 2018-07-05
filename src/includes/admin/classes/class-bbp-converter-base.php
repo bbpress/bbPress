@@ -43,27 +43,27 @@ abstract class BBP_Converter_Base {
 	/**
 	 * @var array() Map of topic to forum.  It is for optimization.
 	 */
-	private $map_topicid_to_forumid = array();
+	protected $map_topicid_to_forumid = array();
 
 	/**
 	 * @var array() Map of from old forum ids to new forum ids.  It is for optimization.
 	 */
-	private $map_forumid = array();
+	protected $map_forumid = array();
 
 	/**
 	 * @var array() Map of from old topic ids to new topic ids.  It is for optimization.
 	 */
-	private $map_topicid = array();
+	protected $map_topicid = array();
 
 	/**
 	 * @var array() Map of from old reply_to ids to new reply_to ids.  It is for optimization.
 	 */
-	private $map_reply_to = array();
+	protected $map_reply_to = array();
 
 	/**
 	 * @var array() Map of from old user ids to new user ids.  It is for optimization.
 	 */
-	private $map_userid = array();
+	protected $map_userid = array();
 
 	/**
 	 * @var str This is the charset for your wp database.
@@ -513,9 +513,7 @@ abstract class BBP_Converter_Base {
 								$post_id = wp_insert_user( $insert_post );
 
 								if ( is_numeric( $post_id ) ) {
-
 									foreach ( $insert_postmeta as $key => $value ) {
-
 										add_user_meta( $post_id, $key, $value, true );
 
 										if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
@@ -612,9 +610,7 @@ abstract class BBP_Converter_Base {
 								$post_id = wp_insert_post( $insert_post, true );
 
 								if ( is_numeric( $post_id ) ) {
-
 									foreach ( $insert_postmeta as $key => $value ) {
-
 										add_post_meta( $post_id, $key, $value, true );
 
 										/**
@@ -841,8 +837,10 @@ abstract class BBP_Converter_Base {
 
 	/**
 	 * This method deletes data from the wp database.
+	 *
+	 * @since 2.6.0 bbPress (r6456)
 	 */
-	public function clean( $start = 1 ) {
+	public function clean() {
 
 		// Defaults
 		$has_delete = false;
