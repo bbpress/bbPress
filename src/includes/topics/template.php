@@ -3853,7 +3853,7 @@ function bbp_form_topic_subscribed() {
 		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
 
 			// Get current posts author
-			$post_author = bbp_get_global_post_field( 'post_author', 'raw' );
+			$post_author = (int) bbp_get_global_post_field( 'post_author', 'raw' );
 
 			// Post author is not the current user
 			if ( bbp_get_current_user_id() !== $post_author ) {
