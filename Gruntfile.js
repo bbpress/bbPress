@@ -293,6 +293,7 @@ module.exports = function( grunt ) {
 				ext: '.css',
 				src: [ 'includes/admin/styles/*/colors.scss' ],
 				options: {
+					implementation: require('node-sass'),
 					outputStyle: 'expanded'
 				}
 			}
