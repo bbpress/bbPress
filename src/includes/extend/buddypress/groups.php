@@ -539,7 +539,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		<p><?php esc_html_e( 'Create a discussion forum to allow members of this group to communicate in a structured, bulletin-board style fashion.', 'bbpress' ); ?></p>
 
 		<div class="checkbox">
-			<label><input type="checkbox" name="bbp-create-group-forum" id="bbp-create-group-forum" value="1"<?php checked( $checked ); ?> /> <?php esc_html_e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
+			<label for="bbp-create-group-forum"><input type="checkbox" name="bbp-create-group-forum" id="bbp-create-group-forum" value="1"<?php checked( $checked ); ?> /> <?php esc_html_e( 'Yes. I want this group to have a forum.', 'bbpress' ); ?></label>
 		</div>
 
 		<?php
