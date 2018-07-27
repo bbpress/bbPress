@@ -2529,13 +2529,13 @@ function bbp_is_forum_form_post_request() {
 		return false;
 	}
 
-	// Creating a new topic
+	// Creating a new forum
 	if ( bbp_verify_nonce_request( 'bbp-new-forum' ) ) {
 		return true;
 	}
 
-	// Editing an existing topic
-	if ( bbp_verify_nonce_request( 'bbp-edit-forum' ) ) {
+	// Editing an existing forum
+	if ( bbp_verify_nonce_request( 'bbp-edit-forum_' . bbp_get_forum_id() ) ) {
 		return true;
 	}
 

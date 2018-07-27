@@ -3957,7 +3957,7 @@ function bbp_is_topic_form_post_request() {
 	}
 
 	// Editing an existing topic
-	if ( bbp_verify_nonce_request( 'bbp-edit-topic' ) ) {
+	if ( bbp_verify_nonce_request( 'bbp-edit-topic_' . bbp_get_topic_id() ) ) {
 		return true;
 	}
 
