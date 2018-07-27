@@ -526,13 +526,13 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 	// Filter name
 	$r['bbp_anonymous_name'] = apply_filters( 'bbp_pre_anonymous_post_author_name', $r['bbp_anonymous_name'] );
 	if ( empty( $r['bbp_anonymous_name'] ) ) {
-		bbp_add_error( 'bbp_anonymous_name',  esc_html__( '<strong>ERROR</strong>: Invalid author name.', 'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name.', 'bbpress' ) );
 	}
 
 	// Filter email address
 	$r['bbp_anonymous_email'] = apply_filters( 'bbp_pre_anonymous_post_author_email', $r['bbp_anonymous_email'] );
 	if ( empty( $r['bbp_anonymous_email'] ) ) {
-		bbp_add_error( 'bbp_anonymous_email', esc_html__( '<strong>ERROR</strong>: Invalid email address.', 'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address.', 'bbpress' ) );
 	}
 
 	// Website is optional (can be empty)
