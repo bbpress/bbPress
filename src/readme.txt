@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
 Tags: forums, discussion, support, theme, akismet, multisite
 Requires at least: 4.7
 Tested up to: 4.9
-Stable tag: 2.5.14
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,9 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 7. Single Forum - Default Theme
 
 == Changelog ==
+
+= 2.6.0 =
+* Released on August 6, 2018
 
 = 2.5.14 =
 * Released on September 9, 2016

@@ -17,7 +17,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author:      The bbPress Contributors
  * Author URI:  https://bbpress.org
- * Version:     2.6-rc-5
+ * Version:     2.6-rc-6
  * Text Domain: bbpress
  * Domain Path: /languages/
  * License:     GPLv2 or later (license.txt)
@@ -30,7 +30,7 @@ if ( ! class_exists( 'bbPress' ) ) :
 /**
  * Main bbPress Class
  *
- * "How doth the little busy bee, improve each shining hour..."
+ * "Word hard. Stay bumble."
  *
  * @since 2.0.0 bbPress (r2464)
  */
@@ -203,7 +203,7 @@ final class bbPress {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '2.6-rc-6831';
+		$this->version    = '2.6-rc-6838';
 		$this->db_version = '262';
 
 		/** Paths *************************************************************/
@@ -1000,6 +1000,8 @@ final class bbPress {
  * to declare the global.
  *
  * Example: <?php $bbp = bbpress(); ?>
+ *
+ * @since 2.0.0 bbPress (r2464)
  *
  * @return bbPress The one true bbPress Instance
  */

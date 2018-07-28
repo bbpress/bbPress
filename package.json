@@ -53,6 +53,6 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"node-sass": "^4.9.1"
+		"node-sass": "^4.9.2"
 	}
 }
