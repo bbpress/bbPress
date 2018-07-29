@@ -334,6 +334,7 @@ final class bbPress {
 		// Common
 		require $this->includes_dir . 'common/ajax.php';
 		require $this->includes_dir . 'common/classes.php';
+		require $this->includes_dir . 'common/engagements.php';
 		require $this->includes_dir . 'common/functions.php';
 		require $this->includes_dir . 'common/formatting.php';
 		require $this->includes_dir . 'common/locale.php';
