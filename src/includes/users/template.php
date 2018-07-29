@@ -846,7 +846,7 @@ function bbp_author_display_name( $post_id = 0 ) {
 
 		// Not an edit, so rely on current user cookie data
 		} else {
-			$retval = bbp_current_anonymous_user_data( 'name' );
+			$retval = bbp_get_current_anonymous_user_data( 'name' );
 		}
 
 		// Filter & return
@@ -946,7 +946,7 @@ function bbp_author_url( $post_id = 0 ) {
 
 		// Not an edit, so rely on current user cookie data
 		} else {
-			$retval = bbp_current_anonymous_user_data( 'url' );
+			$retval = bbp_get_current_anonymous_user_data( 'url' );
 		}
 
 		// Filter & return
