@@ -35,6 +35,7 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
 class BBP_User_Engagements_Base {
 
 	/**
+	 * Type of strategy being used.
 	 *
 	 * @since 2.6.0 bbPress (r6737)
 	 *
@@ -159,6 +160,7 @@ class BBP_User_Engagements_Base {
 class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 
 	/**
+	 * Type of strategy being used.
 	 *
 	 * @since 2.6.0 bbPress (r6737)
 	 *
@@ -305,7 +307,7 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 
 	/**
-	 * Term type
+	 * Type of strategy being used.
 	 *
 	 * @since 2.6.0 bbPress (r6737)
 	 *
@@ -314,7 +316,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	public $type = 'term';
 
 	/**
-	 * Register an engagement taxonomy just-in-time
+	 * Register an engagement taxonomy just-in-time for immediate use
 	 *
 	 * @since 2.6.0 bbPress (r6737)
 	 *
