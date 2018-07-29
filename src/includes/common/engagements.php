@@ -522,3 +522,262 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		return bbp_parse_args( $args, $defaults, $context_key );
 	}
 }
+
+/**
+ * Backwards compatibility strategy for interfacing with User Engagements
+ *
+ * @since 2.6.0 bbPress (r6844)
+ */
+class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
+
+	/**
+	 * Type of strategy being used.
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @var string
+	 */
+	public $type = 'compat';
+
+	/**
+	 * Private function to map 2.6 meta keys to 2.5 user-option keys.
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param string $meta_key
+	 *
+	 * @return string
+	 */
+	private function get_user_option_key( $meta_key = '', $object_id = 0 ) {
+		switch ( $meta_key ) {
+
+			// Favorites
+			case '_bbp_favorite' :
+				$key = '_bbp_favorites';
+				break;
+
+			// Subscriptions
+			case '_bbp_subscription' :
+
+				// Maybe guess at post type
+				$post_type = ! empty( $object_id )
+					? get_post_type( $object_id )
+					: bbp_get_topic_post_type();
+
+				// Forums & Topics used different keys :/
+				$key       = ( bbp_get_forum_post_type() === $post_type )
+					? '_bbp_forum_subscriptions'
+					: '_bbp_subscriptions';
+
+				break;
+
+			// Unknown, so pluralize
+			default :
+				$key = "{$meta_key}s";
+				break;
+		}
+
+		// Return the old (pluralized) user option key
+		return $key;
+	}
+
+	/**
+	 * Turn a comma-separated string into an array of integers
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param string $results
+	 * @return array
+	 */
+	private function format_results( $results = '' ) {
+		return wp_parse_id_list( array_filter( $results ) );
+	}
+
+	/**
+	 * Add a user id to an object
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 * @param bool   $unique    Whether meta key should be unique to the object
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
+		$retval     = false;
+		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$object_ids = $this->format_results( get_user_option( $option_key, $user_id ) );
+
+		// Not already added, so add it
+		if ( ! in_array( $object_id, $object_ids, true ) ) {
+			$object_ids[] = $object_id;
+			$object_ids   = implode( ',', $this->format_results( $object_ids ) );
+			$retval       = update_user_option( $user_id, $option_key, $object_ids );
+		}
+
+		// Return true if added, or false if not
+		return $retval;
+	}
+
+	/**
+	 * Remove a user id from an object
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		$retval     = false;
+		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$object_ids = $this->format_results( get_user_option( $option_key, $user_id ) );
+
+		// Exists, so remove it
+		if ( in_array( $object_id, $object_ids, true ) ) {
+			unset( $object_ids[ $object_id ] );
+
+			$object_ids = implode( ',', $this->format_results( $object_ids ) );
+			$retval     = update_user_option( $user_id, $option_key, $object_ids );
+		}
+
+		// Return true if removed, or false if not
+		return $retval;
+	}
+
+	/**
+	 * Remove a user id from all objects
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		$option_key = $this->get_user_option_key( $meta_key );
+		return delete_user_option( $user_id, $option_key );
+	}
+
+	/**
+	 * Remove an object from all users
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param int    $object_id The object id
+	 * @param int    $user_id   The user id
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+
+		// Query for users
+		$user_ids = $this->get_users_for_object( $object_id, $meta_key, $meta_type );
+		$u_count  = count( $user_ids );
+
+		// Count number of removals
+		$removed  = array();
+		$r_count  = 0;
+
+		// Users have engaged, so remove them
+		if ( ! empty( $u_count ) ) {
+
+			// Loop through users and remove them from the object
+			foreach ( $user_ids as $user_id ) {
+				$removed[] = $this->remove_user_from_object( $object_id, $user_id, $meta_key, $meta_type );
+			}
+
+			// Count the removed users
+			$r_count = count( $removed );
+		}
+
+		// Return true if successfully removed from all users
+		return ( $r_count === $u_count );
+	}
+
+	/**
+	 * Remove all users from all objects
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param string $meta_key  The relationship key
+	 * @param string $meta_type The relationship type (usually 'post')
+	 *
+	 * @return bool Returns true on success, false on failure
+	 */
+	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
+
+		// Query for users
+		$option_key = $this->get_user_option_key( $meta_key );
+		$bbp_db     = bbp_db();
+		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}'" );
+		$u_count    = count( $user_ids );
+
+		// Count number of removals
+		$removed    = array();
+		$r_count    = 0;
+
+		// Users have engaged, so remove them
+		if ( ! empty( $u_count ) ) {
+
+			// Loop through users and remove their user options
+			foreach ( $user_ids as $user_id ) {
+				$removed[] = delete_user_option( $user_id, $option_key );
+			}
+
+			// Count the removed users
+			$r_count = count( $removed );
+		}
+
+		// Return true if successfully removed from all users
+		return ( $r_count === $u_count );
+	}
+
+	/**
+	 * Get users of an object
+	 *
+	 * The database queries in this function were cached in bbPress versions
+	 * older than 2.6, but no longer are to avoid cache pollution.
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param int    $object_id The object id
+	 * @param string $meta_key  The key used to index this relationship
+	 * @param string $meta_type The type of meta to look in
+	 *
+	 * @return array Returns ids of users
+	 */
+	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
+		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$bbp_db     = bbp_db();
+		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}' and FIND_IN_SET('{$object_id}', meta_value) > 0" );
+
+		return wp_parse_id_list( $user_ids );
+	}
+
+	/**
+	 * Get the part of the query responsible for JOINing objects to relationships.
+	 *
+	 * @since 2.6.0 bbPress (r6844)
+	 *
+	 * @param array  $args
+	 * @param string $meta_key
+	 * @param string $meta_type
+	 *
+	 * @return array
+	 */
+	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
+		// TODO
+		return array();
+	}
+}
