@@ -134,7 +134,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 		return;
 	}
 
-	// Get autohr information
+	// Get author information
 	$topic_author_id   = bbp_get_topic_author_id( $topic_id );
 	$secondary_item_id = $author_id;
 
@@ -146,7 +146,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 	// Get some reply information
 	$args = array(
 		'user_id'          => $topic_author_id,
-		'item_id'          => $topic_id,
+		'item_id'          => $reply_id,
 		'component_name'   => bbp_get_component_name(),
 		'component_action' => 'bbp_new_reply',
 		'date_notified'    => get_post( $reply_id )->post_date,
