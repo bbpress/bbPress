@@ -7,13 +7,14 @@
 class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 
 	/**
+	 * @group counts
 	 * @covers ::bbp_clean_post_cache
 	 */
 	public function test_bbp_clean_post_cache() {
 
-		// Get the topic post type.
+		// Get the post types.
 		$tpt = bbp_get_topic_post_type();
-		$rpt = bbp_get_topic_post_type();
+		$rpt = bbp_get_reply_post_type();
 
 		// Set up a forum with 1 topic and 1 reply to that topic.
 		$f = $this->factory->forum->create();
@@ -23,7 +24,7 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 				'forum_id' => $f,
 			),
 		) );
-		$r = $this->factory->topic->create( array(
+		$r = $this->factory->reply->create( array(
 			'post_parent' => $t,
 			'reply_meta' => array(
 				'forum_id' => $f,
@@ -39,7 +40,7 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 		$f_key        = md5( serialize( array( 'parent_id' => $f, 'post_type' => $tpt ) ) );
 		$t_key        = md5( serialize( array( 'parent_id' => $t, 'post_type' => $rpt ) ) );
 		$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
-		
+
 		// Keys
 		$f_key = "bbp_child_ids:{$f_key}:{$last_changed}";
 		$t_key = "bbp_child_ids:{$t_key}:{$last_changed}";
@@ -47,12 +48,12 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 		$this->assertEquals( array( $t ), wp_cache_get( $f_key, 'bbpress_posts' ) );
 		$this->assertEquals( array( $r ), wp_cache_get( $t_key, 'bbpress_posts' ) );
 
-		// Clean the cache.
+		// Clean the reply cache.
 		clean_post_cache( $r );
 
 		// Setup
 		$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
-		
+
 		// Keys
 		$f_key = "bbp_child_ids:{$f_key}:{$last_changed}";
 		$t_key = "bbp_child_ids:{$t_key}:{$last_changed}";
