@@ -49,7 +49,7 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @group  jjj
+	 * @group  counts
 	 * @covers ::bbp_get_public_child_count
 	 */
 	public function test_bbp_get_public_child_count() {
