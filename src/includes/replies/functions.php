@@ -810,7 +810,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	if ( ! empty( $anonymous_data ) ) {
 
 		// Update anonymous meta data (not cookies)
-		bbp_update_anonymous_post_author( $reply_id, $anonymous_data, 'reply' );
+		bbp_update_anonymous_post_author( $reply_id, $anonymous_data, bbp_get_reply_post_type() );
 
 		// Set transient for throttle check (only on new, not edit)
 		if ( empty( $is_edit ) ) {

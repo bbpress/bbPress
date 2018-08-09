@@ -782,7 +782,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 	if ( ! empty( $anonymous_data ) ) {
 
 		// Update anonymous meta data (not cookies)
-		bbp_update_anonymous_post_author( $topic_id, $anonymous_data, 'topic' );
+		bbp_update_anonymous_post_author( $topic_id, $anonymous_data, bbp_get_topic_post_type() );
 
 		// Set transient for throttle check (only on new, not edit)
 		if ( empty( $is_edit ) ) {
@@ -2506,7 +2506,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	// Get replies of topic
 	$reply_count = empty( $reply_count )
-		? bbp_get_non_public_child_count( $topic_id, 'reply' )
+		? bbp_get_non_public_child_count( $topic_id, bbp_get_reply_post_type() )
 		: (int) $reply_count;
 
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $reply_count );

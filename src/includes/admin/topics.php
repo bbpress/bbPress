@@ -195,7 +195,7 @@ class BBP_Topics_Admin {
 
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your topic in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a topic or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a topic to be published in the future or backdate a topic.', 'bbpress' ) . '</p>';
 
-		if ( current_theme_supports( 'topic-thumbnails' ) && post_type_supports( 'topic', 'thumbnail' ) ) {
+		if ( current_theme_supports( 'topic-thumbnails' ) && post_type_supports( bbp_get_topic_post_type(), 'thumbnail' ) ) {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 

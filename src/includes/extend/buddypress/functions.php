@@ -870,7 +870,7 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
  * @return string The formatted activity action.
  */
 function bbp_format_activity_action_new_topic( $action, $activity ) {
-	$action = bbp_format_activity_action_new_post( 'topic', $action, $activity );
+	$action = bbp_format_activity_action_new_post( bbp_get_topic_post_type(), $action, $activity );
 
 	/**
 	 * Filters the formatted activity action new topic string.
@@ -894,7 +894,7 @@ function bbp_format_activity_action_new_topic( $action, $activity ) {
  * @return string The formatted activity action
  */
 function bbp_format_activity_action_new_reply( $action, $activity ) {
-	$action = bbp_format_activity_action_new_post( 'reply', $action, $activity );
+	$action = bbp_format_activity_action_new_post( bbp_get_reply_post_type(), $action, $activity );
 
 	/**
 	 * Filters the formatted activity action new reply string.
