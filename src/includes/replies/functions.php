@@ -98,7 +98,7 @@ function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id
 	// If the reply is public, update the forum/topic reply counts.
 	if ( bbp_is_reply_published( $reply_id ) ) {
 		bbp_increase_topic_reply_count( $topic_id );
-		bbp_increase_forum_reply_count( $reply_id );
+		bbp_increase_forum_reply_count( $forum_id );
 
 	// If the reply isn't public only update the topic reply hidden count.
 	} else {
@@ -855,6 +855,9 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		// Walk up ancestors and do the dirty work
 		bbp_update_reply_walker( $reply_id, $last_active_time, $forum_id, $topic_id, false );
 	}
+
+	// Bump the custom query cache
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 }
 
 /**
@@ -1001,10 +1004,10 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	}
 
 	// Update the forum ID
-	$forum_id = bbp_update_forum_id( $reply_id, $forum_id );
+	$retval = bbp_update_forum_id( $reply_id, $forum_id );
 
 	// Filter & return
-	return (int) apply_filters( 'bbp_update_reply_forum_id', $forum_id, $reply_id );
+	return (int) apply_filters( 'bbp_update_reply_forum_id', $retval, $reply_id, $forum_id );
 }
 
 /**
@@ -1044,10 +1047,10 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	}
 
 	// Update the topic ID
-	$topic_id = bbp_update_topic_id( $reply_id, $topic_id );
+	$retval = bbp_update_topic_id( $reply_id, $topic_id );
 
 	// Filter & return
-	return (int) apply_filters( 'bbp_update_reply_topic_id', $topic_id, $reply_id );
+	return (int) apply_filters( 'bbp_update_reply_topic_id', $retval, $reply_id, $topic_id );
 }
 
 /*

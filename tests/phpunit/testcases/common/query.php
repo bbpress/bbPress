@@ -49,13 +49,16 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @group  counts
+	 * @group  jjj
 	 * @covers ::bbp_get_public_child_count
 	 */
 	public function test_bbp_get_public_child_count() {
+
+		/* Empty Forum ********************************************************/
+
 		$f = $this->factory->forum->create();
 
-		// Test initial forum public child counts
+		// Test initial zero forum public child counts
 		$count = bbp_get_public_child_count( $f, bbp_get_forum_post_type() );
 		$this->assertSame( 0, $count );
 
@@ -64,10 +67,12 @@ class BBP_Tests_Common_Functions_Query extends BBP_UnitTestCase {
 
 		/* Sub-Forums *********************************************************/
 
+		// 3 public sub-forums
 		$this->factory->forum->create_many( 3, array(
 			'post_parent' => $f,
 		) );
 
+		// 1 private sub-forum
 		$this->factory->forum->create( array(
 			'post_parent' => $f,
 			'post_status' => bbp_get_private_status_id(),

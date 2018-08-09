@@ -1728,7 +1728,7 @@ function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ),
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 	// Bail if nothing passed
-	if ( empty( $parent_id ) || empty( $post_type ) ) {
+	if ( empty( $post_type ) ) {
 		return false;
 	}
 

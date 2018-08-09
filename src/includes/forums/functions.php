@@ -74,7 +74,8 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Update the forum and hierarchy
 	bbp_update_forum( array(
-		'forum_id' => $forum_id
+		'forum_id'    => $forum_id,
+		'post_parent' => $forum_data['post_parent']
 	) );
 
 	// Maybe make private
@@ -98,6 +99,9 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	 * @param int $forum_id The forum id.
 	 */
 	do_action( 'bbp_insert_forum', (int) $forum_id );
+
+	// Bump the last changed cache
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 
 	// Return forum_id
 	return $forum_id;
@@ -1366,8 +1370,7 @@ function bbp_approved_unapproved_topic_update_forum_reply_count( $topic_id = 0 )
 	}
 
 	// Get the topic's replies.
-	$replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
-	$count   = count( $replies );
+	$count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
 
 	// If we're unapproving, set count to negative.
 	if ( 'bbp_unapproved_topic' === current_filter() ) {
@@ -1592,8 +1595,9 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Maybe query for counts
 	if ( empty( $subforums ) ) {
-		$subforums = count( bbp_forum_query_subforum_ids( $forum_id ) );
+		$subforums = bbp_get_public_child_count( $forum_id, bbp_get_forum_post_type() );
 	}
 
 	$subforums = (int) $subforums;
@@ -1628,7 +1632,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	}
 
 	// Get total topics for this forum
-	$topics = (int) count( bbp_forum_query_topic_ids( $forum_id ) );
+	$topics = bbp_get_public_child_count( $forum_id, bbp_get_topic_post_type() );
 
 	// Calculate total topics in this forum
 	$total_topics = (int) ( $topics + $children_topic_count );
@@ -1728,23 +1732,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$reply_count = 0;
 	$topic_ids   = bbp_forum_query_topic_ids( $forum_id );
 	if ( ! empty( $topic_ids ) ) {
-		$query = new WP_Query( array(
-			'fields'          => 'ids',
-			'post_parent__in' => $topic_ids,
-			'post_status'     => bbp_get_public_status_id(),
-			'post_type'       => bbp_get_reply_post_type(),
-			'posts_per_page'  => -1,
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		) );
-		$reply_count = ! empty( $query->posts ) ? count( $query->posts ) : 0;
-		unset( $query );
+		$reply_count = bbp_get_public_child_count( $forum_id, bbp_get_reply_post_type() );
 	}
 
 	// Calculate total replies in this forum
@@ -1787,6 +1775,9 @@ function bbp_update_forum( $args = array() ) {
 		'last_active_status' => bbp_get_public_status_id()
 	), 'update_forum' );
 
+	// Update the forum parent
+	bbp_update_forum_id( $r['forum_id'], $r['post_parent'] );
+
 	// Last topic and reply ID's
 	bbp_update_forum_last_topic_id( $r['forum_id'], $r['last_topic_id'] );
 	bbp_update_forum_last_reply_id( $r['forum_id'], $r['last_reply_id'] );
@@ -1820,6 +1811,9 @@ function bbp_update_forum( $args = array() ) {
 			'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
 		) );
 	}
+
+	// Bump the custom query cache
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 }
 
 /** Helpers *******************************************************************/

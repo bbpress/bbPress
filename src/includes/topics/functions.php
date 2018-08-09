@@ -832,6 +832,9 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 		// Walk up ancestors and do the dirty work
 		bbp_update_topic_walker( $topic_id, $last_active, $forum_id, 0, false );
 	}
+
+	// Bump the custom query cache
+	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 }
 
 /**
@@ -887,9 +890,13 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 			// If ancestor is a forum, update counts
 			if ( bbp_is_forum( $ancestor ) ) {
 
+				// Get the forum
+				$forum = bbp_get_forum( $ancestor );
+
 				// Update the forum
 				bbp_update_forum( array(
-					'forum_id'           => $ancestor,
+					'forum_id'           => $forum->ID,
+					'post_parent'        => $forum->post_parent,
 					'last_topic_id'      => $topic_id,
 					'last_reply_id'      => $reply_id,
 					'last_active_id'     => $active_id,
@@ -983,7 +990,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	$old_forum_ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
 
 	// Get reply count.
-	$public_reply_count = count( bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() ) );
+	$public_reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
 
 	// Topic status.
 	$topic_status = get_post_field( 'post_status', $topic_id );

@@ -641,8 +641,8 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Forums should NOT have a _bbp_forum_id meta key
-		$this->assertEquals( array(), get_post_meta( $f, '_bbp_forum_id', false ) );
+		// Forums should have an empty _bbp_forum_id meta key
+		$this->assertEquals( array( 0 => '0' ), get_post_meta( $f, '_bbp_forum_id', false ) );
 
 		// Topics should have a _bbp_forum_id meta key
 		$this->assertSame( $f, bbp_get_topic_forum_id( $t ) );

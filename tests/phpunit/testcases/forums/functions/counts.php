@@ -414,12 +414,20 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_update_forum_subforum_count() {
 		$f1 = $this->factory->forum->create();
 
+		$count = bbp_get_forum_subforum_count( $f1, true );
+		$this->assertSame( 0, $count );
+
 		$f2 = $this->factory->forum->create_many( 3, array(
 			'post_parent' => $f1,
 		) );
 
 		$count = bbp_get_forum_subforum_count( $f1, true );
-		$this->assertSame( 0, $count );
+		$this->assertSame( 3, $count );
+
+		bbp_update_forum_subforum_count( $f1, 10 );
+
+		$count = bbp_get_forum_subforum_count( $f1, true );
+		$this->assertSame( 10, $count );
 
 		bbp_update_forum_subforum_count( $f1 );
 
