@@ -28,6 +28,7 @@ class BBP_UnitTest_Factory_For_Forum extends WP_UnitTest_Factory_For_Thing {
 
 	public function create_object( $args ) {
 		$forum_meta = isset( $args['forum_meta'] ) ? $args['forum_meta'] : array();
+		unset( $args['forum_meta'] );
 		$forum_data = bbp_insert_forum( $args, $forum_meta );
 		return $forum_data;
 	}
@@ -55,6 +56,7 @@ class BBP_UnitTest_Factory_For_Topic extends WP_UnitTest_Factory_For_Thing {
 
 	public function create_object( $args ) {
 		$topic_meta = isset( $args['topic_meta'] ) ? $args['topic_meta'] : array();
+		unset( $args['topic_meta'] );
 		$topic_data = bbp_insert_topic( $args, $topic_meta );
 		return $topic_data;
 	}
@@ -81,6 +83,7 @@ class BBP_UnitTest_Factory_For_Reply extends WP_UnitTest_Factory_For_Thing {
 
 	public function create_object( $args ) {
 		$reply_meta = isset( $args['reply_meta'] ) ? $args['reply_meta'] : array();
+		unset( $args['reply_meta'] );
 		$reply_data = bbp_insert_reply( $args, $reply_meta );
 		return $reply_data;
 	}
