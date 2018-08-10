@@ -38,15 +38,15 @@ defined( 'ABSPATH' ) || exit;
  *
  *           v--WordPress Actions       v--bbPress Sub-actions
  */
+add_action( 'wpmu_new_blog',           'bbp_new_site',               10, 6 );
+add_action( 'current_screen',          'bbp_current_screen'                );
+add_action( 'tool_box',                'bbp_admin_tool_box'                );
 add_action( 'admin_menu',              'bbp_admin_menu'                    );
 add_action( 'admin_init',              'bbp_admin_init'                    );
 add_action( 'admin_head',              'bbp_admin_head'                    );
 add_action( 'admin_notices',           'bbp_admin_notices'                 );
 add_action( 'menu_order',              'bbp_admin_menu_order'              );
-add_action( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
-add_action( 'current_screen',          'bbp_current_screen'                );
-add_action( 'wpmu_new_blog',           'bbp_new_site',               10, 6 );
-add_action( 'tool_box',                'bbp_admin_tool_box'                );
+add_filter( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
 
 // Hook on to admin_init
 add_action( 'bbp_admin_init', 'bbp_setup_updater',          999 );
