@@ -795,7 +795,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 
 	/** Max Links *************************************************************/
 
-	// Only check max_lisnks when not being strict
+	// Only check max_links when not being strict
 	if ( false === $strict ) {
 		$max_links = get_option( 'comment_max_links' );
 		if ( ! empty( $max_links ) ) {
@@ -902,11 +902,11 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 }
 
 /**
- * Deprecated version of bbp_check_for_blocklist()
+ * Deprecated. Use bbp_check_for_moderation() with strict flag set.
  *
  * @since 2.0.0 bbPress (r3446)
  * @since 2.6.0 bbPress (r6854)
- * @deprecated 2.6.0 Use bbp_check_for_blocklist()
+ * @deprecated 2.6.0 Use bbp_check_for_moderation() with strict flag set
  */
 function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
 	return bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, false );
