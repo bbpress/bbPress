@@ -406,7 +406,7 @@ class BBP_Akismet {
 		// Keys to ignore
 		$ignore = array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'PHP_AUTH_PW' );
 
-		// Loop through _SERVER args and remove whitelisted keys
+		// Loop through _SERVER args and remove allowed keys
 		foreach ( $_SERVER as $key => $value ) {
 
 			// Key should not be ignored
@@ -508,9 +508,6 @@ class BBP_Akismet {
 
 					// If post_status is the spam status, which isn't expected, leave a note
 					if ( bbp_get_spam_status_id() === $_post->post_status ) {
-
-						// @todo Use wp_blacklist_check()
-
 						$this->update_post_history( $post_id, sprintf( esc_html__( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
 					}
 

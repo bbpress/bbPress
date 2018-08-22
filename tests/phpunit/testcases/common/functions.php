@@ -886,9 +886,9 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_bbp_check_for_blacklist() {
+	public function test_bbp_check_for_moderation_strict() {
 		$anonymous_data = false;
 		$author_id      = 0;
 		$title          = 'Sting';
@@ -896,21 +896,21 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 
 		update_option( 'blacklist_keys',"foo\nbar" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_for_user_url_blacklist_check() {
+	public function test_should_return_false_for_user_url_strict_moderation_check() {
 		$u = $this->factory->user->create( array(
 			'user_url'   => 'http://example.net/banned',
 		) );
@@ -928,15 +928,15 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"http://example.net/banned\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_for_user_email_blacklist_check() {
+	public function test_should_return_false_for_user_email_strict_moderation_check() {
 		$u = $this->factory->user->create( array(
 			'user_email' => 'banned@example.net',
 		) );
@@ -954,15 +954,15 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"banned@example.net\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_for_user_ip_blacklist_check() {
+	public function test_should_return_false_for_user_ip_strict_moderation_check() {
 		$u = $this->factory->user->create();
 
 		$t = $this->factory->topic->create( array(
@@ -978,15 +978,15 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"127.0.0.1\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_for_moderators_to_bypass_blacklist_check() {
+	public function test_should_return_false_for_moderators_to_bypass_strict_moderation_check() {
 		// Create a moderator user.
 		$old_current_user = 0;
 		$this->old_current_user = get_current_user_id();
@@ -1007,7 +1007,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 
@@ -1016,9 +1016,9 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_true_for_keymasterss_to_bypass_blacklist_check() {
+	public function test_should_return_true_for_keymasterss_to_bypass_strict_moderation_check() {
 		// Create a keymaster user.
 		$old_current_user = 0;
 		$this->old_current_user = get_current_user_id();
@@ -1039,7 +1039,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertTrue( $result );
 
@@ -1048,9 +1048,9 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_when_link_matches_blacklist_keys() {
+	public function test_should_return_false_when_link_matches_strict_moderation_keys() {
 		$anonymous_data = false;
 		$author_id      = 0;
 		$title          = 'Sting';
@@ -1058,15 +1058,15 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * @covers ::bbp_check_for_blacklist
+	 * @covers ::bbp_check_for_moderation
 	 */
-	public function test_should_return_false_when_html_wrapped_content_matches_blacklist_keys() {
+	public function test_should_return_false_when_html_wrapped_content_matches_strict_moderation_keys() {
 		$u = $this->factory->user->create();
 
 		$t = $this->factory->topic->create( array(
@@ -1082,7 +1082,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
 		update_option( 'blacklist_keys',"hibernating\nfoo" );
 
-		$result = bbp_check_for_blacklist( $anonymous_data, $author_id, $title, $content );
+		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 	}

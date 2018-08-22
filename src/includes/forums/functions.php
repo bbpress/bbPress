@@ -234,10 +234,10 @@ function bbp_new_forum_handler( $action = '' ) {
 		bbp_add_error( 'bbp_forum_duplicate', __( '<strong>ERROR</strong>: This forum already exists.', 'bbpress' ) );
 	}
 
-	/** Forum Blacklist *******************************************************/
+	/** Forum Bad Words *******************************************************/
 
-	if ( ! bbp_check_for_blacklist( $anonymous_data, $forum_author, $forum_title, $forum_content ) ) {
-		bbp_add_error( 'bbp_forum_blacklist', __( '<strong>ERROR</strong>: Your forum cannot be created at this time.', 'bbpress' ) );
+	if ( ! bbp_check_for_moderation( $anonymous_data, $forum_author, $forum_title, $forum_content, true ) ) {
+		bbp_add_error( 'bbp_forum_moderation', __( '<strong>ERROR</strong>: Your forum cannot be created at this time.', 'bbpress' ) );
 	}
 
 	/** Forum Moderation ******************************************************/
@@ -473,10 +473,10 @@ function bbp_edit_forum_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_forum_content', __( '<strong>ERROR</strong>: Your forum description cannot be empty.', 'bbpress' ) );
 	}
 
-	/** Forum Blacklist *******************************************************/
+	/** Forum Bad Words *******************************************************/
 
-	if ( ! bbp_check_for_blacklist( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) ) {
-		bbp_add_error( 'bbp_forum_blacklist', __( '<strong>ERROR</strong>: Your forum cannot be edited at this time.', 'bbpress' ) );
+	if ( ! bbp_check_for_moderation( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content, true ) ) {
+		bbp_add_error( 'bbp_forum_moderation', __( '<strong>ERROR</strong>: Your forum cannot be edited at this time.', 'bbpress' ) );
 	}
 
 	/** Forum Moderation ******************************************************/

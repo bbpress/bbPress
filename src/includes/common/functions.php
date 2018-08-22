@@ -765,10 +765,21 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  * @param string $content The content being posted
  * @return bool True if test is passed, false if fail
  */
-function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
+function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '', $strict = false ) {
+
+	// Strict mode uses WordPress "blacklist" settings
+	if ( true === $strict ) {
+		$hook_name   = 'blacklist';
+		$option_name = 'blacklist_keys';
+
+	// Non-strict uses WordPress "moderation" settings
+	} else {
+		$hook_name   = 'moderation';
+		$option_name = 'moderation_keys';
+	}
 
 	// Allow for moderation check to be skipped
-	if ( apply_filters( 'bbp_bypass_check_for_moderation', false, $anonymous_data, $author_id, $title, $content ) ) {
+	if ( apply_filters( "bbp_bypass_check_for_{$hook_name}", false, $anonymous_data, $author_id, $title, $content, $strict ) ) {
 		return true;
 	}
 
@@ -784,20 +795,23 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 
 	/** Max Links *************************************************************/
 
-	$max_links = get_option( 'comment_max_links' );
-	if ( ! empty( $max_links ) ) {
+	// Only check max_lisnks when not being strict
+	if ( false === $strict ) {
+		$max_links = get_option( 'comment_max_links' );
+		if ( ! empty( $max_links ) ) {
 
-		// How many links?
-		$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
+			// How many links?
+			$num_links = preg_match_all( '/(http|ftp|https):\/\//i', $content, $match_out );
 
-		// Allow for bumping the max to include the user's URL
-		if ( ! empty( $_post['url'] ) ) {
-			$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'], $content );
-		}
+			// Allow for bumping the max to include the user's URL
+			if ( ! empty( $_post['url'] ) ) {
+				$num_links = apply_filters( 'comment_max_links_url', $num_links, $_post['url'], $content );
+			}
 
-		// Das ist zu viele links!
-		if ( $num_links >= $max_links ) {
-			return false;
+			// Das ist zu viele links!
+			if ( $num_links >= $max_links ) {
+				return false;
+			}
 		}
 	}
 
@@ -810,9 +824,9 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	 *
 	 * @param string $moderation List of moderation keys. One per new line.
 	 */
-	$moderation = apply_filters( 'bbp_moderation_keys', trim( get_option( 'moderation_keys' ) ) );
+	$moderation = apply_filters( "bbp_{$hook_name}_keys", trim( get_option( $option_name ) ) );
 
-	// Bail if blacklist is empty
+	// Bail if no words to look for
 	if ( empty( $moderation ) ) {
 		return true;
 	}
@@ -869,7 +883,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 		// Do some escaping magic so that '#' chars in the
 		// spam words don't break things:
 		$word    = preg_quote( $word, '#' );
-		$pattern = "#$word#i";
+		$pattern = "#{$word}#i";
 
 		// Loop through post data
 		foreach ( $_post as $post_data ) {
@@ -888,115 +902,14 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 }
 
 /**
- * Checks topics and replies against the discussion blacklist of blocked keys
+ * Deprecated version of bbp_check_for_blocklist()
  *
  * @since 2.0.0 bbPress (r3446)
- *
- * @param array $anonymous_data Optional - if it's an anonymous post. Do not
- *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $author_id Topic or reply author ID
- * @param string $title The title of the content
- * @param string $content The content being posted
- * @return bool True if test is passed, false if fail
+ * @since 2.6.0 bbPress (r6854)
+ * @deprecated 2.6.0 Use bbp_check_for_blocklist()
  */
 function bbp_check_for_blacklist( $anonymous_data = array(), $author_id = 0, $title = '', $content = '' ) {
-
-	// Allow for blacklist check to be skipped
-	if ( apply_filters( 'bbp_bypass_check_for_blacklist', false, $anonymous_data, $author_id, $title, $content ) ) {
-		return true;
-	}
-
-	// Bail if keymaster is author
-	if ( ! empty( $author_id ) && bbp_is_user_keymaster( $author_id ) ) {
-		return true;
-	}
-
-	/** Blacklist *************************************************************/
-
-	/**
-	 * Filters the bbPress blacklist keys.
-	 *
-	 * @since 2.6.0 bbPress (r6050)
-	 *
-	 * @param string $blacklist List of blacklist keys. One per new line.
-	 */
-	$blacklist = apply_filters( 'bbp_blacklist_keys', trim( get_option( 'blacklist_keys' ) ) );
-
-	// Bail if blacklist is empty
-	if ( empty( $blacklist ) ) {
-		return true;
-	}
-
-	/** User Data *************************************************************/
-
-	// Define local variable
-	$_post = array();
-
-	// Map anonymous user data
-	if ( ! empty( $anonymous_data ) ) {
-		$_post['author'] = $anonymous_data['bbp_anonymous_name'];
-		$_post['email']  = $anonymous_data['bbp_anonymous_email'];
-		$_post['url']    = $anonymous_data['bbp_anonymous_website'];
-
-	// Map current user data
-	} elseif ( ! empty( $author_id ) ) {
-
-		// Get author data
-		$user = get_userdata( $author_id );
-
-		// If data exists, map it
-		if ( ! empty( $user ) ) {
-			$_post['author'] = $user->display_name;
-			$_post['email']  = $user->user_email;
-			$_post['url']    = $user->user_url;
-		}
-	}
-
-	// Current user IP and user agent
-	$_post['user_ip'] = bbp_current_author_ip();
-	$_post['user_ua'] = bbp_current_author_ua();
-
-	// Post title and content
-	$_post['title']   = $title;
-	$_post['content'] = $content;
-
-	// Ensure HTML tags are not being used to bypass the blacklist.
-	$_post['comment_without_html'] = wp_strip_all_tags( $content );
-
-	/** Words *****************************************************************/
-
-	// Get words separated by new lines
-	$words = explode( "\n", $blacklist );
-
-	// Loop through words
-	foreach ( (array) $words as $word ) {
-
-		// Trim the whitespace from the word
-		$word = trim( $word );
-
-		// Skip empty lines
-		if ( empty( $word ) ) { continue; }
-
-		// Do some escaping magic so that '#' chars in the
-		// spam words don't break things:
-		$word    = preg_quote( $word, '#' );
-		$pattern = "#$word#i";
-
-		// Loop through post data
-		foreach ( $_post as $post_data ) {
-
-			// Check each user data for current word
-			if ( preg_match( $pattern, $post_data ) ) {
-
-				// Post does not pass
-				return false;
-			}
-		}
-	}
-
-	// Check passed successfully
-	return true;
+	return bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, false );
 }
 
 /** Subscriptions *************************************************************/

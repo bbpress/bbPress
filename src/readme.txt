@@ -55,7 +55,7 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 == Changelog ==
 
 = 2.6.0 =
-* Released on August 6, 2018
+* Released on September 4, 2018
 
 = 2.5.14 =
 * Released on September 9, 2016
@@ -319,7 +319,7 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * Green admin color scheme for WordPress 3.2
 * Audit usage of get strings for moderator level and above users
 * Normalize theme, shortcodes, and template parts
-* Added blacklist_keys support
+* Added strict moderation support
 * Added actions to topic/reply forms
 * Added Forum Participant role for multisite use
 * Added humans.txt

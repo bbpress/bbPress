@@ -305,10 +305,10 @@ function bbp_new_reply_handler( $action = '' ) {
 		bbp_add_error( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that.', 'bbpress' ) );
 	}
 
-	/** Reply Blacklist *******************************************************/
+	/** Reply Bad Words *******************************************************/
 
-	if ( ! bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
-		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
+	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content, true ) ) {
+		bbp_add_error( 'bbp_reply_moderation', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
 	}
 
 	/** Reply Status **********************************************************/
@@ -610,10 +610,10 @@ function bbp_edit_reply_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 	}
 
-	/** Reply Blacklist *******************************************************/
+	/** Reply Bad Words *******************************************************/
 
-	if ( ! bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
-		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
+	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content, true ) ) {
+		bbp_add_error( 'bbp_reply_moderation', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 	}
 
 	/** Reply Status **********************************************************/
