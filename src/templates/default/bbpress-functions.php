@@ -40,7 +40,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * The main bbPress (Default) Loader
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function __construct( $properties = array() ) {
 
@@ -61,7 +60,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * @since 2.1.0 bbPress (r3732)
 	 *
 	 * @access private
-	 *
 	 */
 	private function setup_actions() {
 
@@ -117,18 +115,16 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Load the theme CSS
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function enqueue_styles() {
 
 		// RTL and/or minified
 		$suffix  = is_rtl() ? '-rtl' : '';
-		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		// Get and filter the bbp-default style
 		$styles = apply_filters( 'bbp_default_styles', array(
 			'bbp-default' => array(
-				'file'         => 'css/bbpress' . $suffix . '.css',
+				'file'         => 'css/bbpress.css',
 				'dependencies' => array()
 			)
 		) );
@@ -143,21 +139,17 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * Enqueue the required JavaScript files
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function enqueue_scripts() {
 
 		// Setup scripts array
 		$scripts = array();
 
-		// Minified
-		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-
 		// Editor scripts
 		// @see https://bbpress.trac.wordpress.org/ticket/2930
 		if ( bbp_use_wp_editor() && is_bbpress() ) {
 			$scripts['bbpress-editor'] = array(
-				'file'         => 'js/editor' . $suffix . '.js',
+				'file'         => 'js/editor.js',
 				'dependencies' => array( 'jquery' )
 			);
 		}
@@ -165,7 +157,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Forum-specific scripts
 		if ( bbp_is_single_forum() ) {
 			$scripts['bbpress-engagements'] = array(
-				'file'         => 'js/engagements' . $suffix . '.js',
+				'file'         => 'js/engagements.js',
 				'dependencies' => array( 'jquery' )
 			);
 		}
@@ -175,14 +167,14 @@ class BBP_Default extends BBP_Theme_Compat {
 
 			// Engagements
 			$scripts['bbpress-engagements'] = array(
-				'file'         => 'js/engagements' . $suffix . '.js',
+				'file'         => 'js/engagements.js',
 				'dependencies' => array( 'jquery' )
 			);
 
 			// Hierarchical replies
 			if ( bbp_thread_replies() ) {
 				$scripts['bbpress-reply'] = array(
-					'file'         => 'js/reply' . $suffix . '.js',
+					'file'         => 'js/reply.js',
 					'dependencies' => array( 'jquery' )
 				);
 			}
@@ -208,7 +200,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * These localizations require information that may not be loaded even by init.
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function localize_topic_script() {
 
@@ -226,7 +217,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * AJAX handler to add or remove a topic from a user's favorites
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function ajax_favorite() {
 
@@ -290,7 +280,6 @@ class BBP_Default extends BBP_Theme_Compat {
 	 * AJAX handler to Subscribe/Unsubscribe a user from a topic
 	 *
 	 * @since 2.1.0 bbPress (r3732)
-	 *
 	 */
 	public function ajax_subscription() {
 

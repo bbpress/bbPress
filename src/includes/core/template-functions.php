@@ -107,6 +107,88 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 }
 
 /**
+ * Locate an enqueueable file on the server. Used before being enqueued.
+ *
+ * If SCRIPT_DEBUG is set and the file includes a .min suffix, this function
+ * will automatically attempt to locate a non-minified version of that file.
+ *
+ * If SCRIPT_DEBUG is not set and the file exclude a .min suffix, this function
+ * will automatically attempt to locate a minified version of that file.
+ *
+ * See: https://bbpress.trac.wordpress.org/ticket/3218
+ *
+ * @since 2.6.0
+ *
+ * @param string $file
+ *
+ * @return boolean
+ */
+function bbp_locate_enqueueable( $file = '' ) {
+
+	// Bail if no file to locate
+	if ( empty( $file ) ) {
+		return false;
+	}
+
+	// Add file to files array
+	$files = array( $file );
+
+	// Get the file variant (minified or not, but opposite of $file)
+	$file_is_min  = ( false !== strpos( $file, '.min' ) );
+	$file_variant = ( false === $file_is_min )
+		? str_replace( array( '.css', '.js' ), array( '.min.css', '.min.js' ), $file )
+		: str_replace( '.min', '', $file );
+
+	// Are we debugging?
+	$script_debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+
+	// Debugging, so prefer unminified files
+	if ( true === $script_debug ) {
+		if ( true === $file_is_min ) {
+			array_unshift( $files, $file_variant );
+		} else {
+			array_push( $files, $file_variant );
+		}
+
+	// Not debugging, so prefer minified files
+	} elseif ( false === $script_debug ) {
+		if ( true === $file_is_min ) {
+			array_push( $files, $file_variant );
+		} else {
+			array_unshift( $files, $file_variant );
+		}
+	}
+
+	// Return first found file location in the stack
+	return bbp_locate_template( $files, false, false );
+}
+
+/**
+ * Convert an enqueueable file path to a URL
+ *
+ * @since 2.6.0
+ * @param string $file
+ *
+ * @return string
+ */
+function bbp_urlize_enqueueable( $file = '' ) {
+
+	// Get DIR and URL
+	$content_dir = constant( 'WP_CONTENT_DIR' );
+	$content_url = content_url();
+
+	// IIS (Windows) here
+	// Replace back slashes with forward slash
+	if ( false !== strpos( $file, '\\' ) ) {
+		$file        = str_replace( '\\', '/', $file        );
+		$content_dir = str_replace( '\\', '/', $content_dir );
+	}
+
+	// Return path to file relative to site URL
+	return str_replace( $content_dir, $content_url, $file );
+}
+
+/**
  * Enqueue a script from the highest priority location in the template stack.
  *
  * Registers the style if file provided (does NOT overwrite) and enqueues.
@@ -123,50 +205,23 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
  *                            Default 'all'. Accepts 'all', 'aural', 'braille', 'handheld', 'projection', 'print',
  *                            'screen', 'tty', or 'tv'.
  *
- * @return string The style filename if one is located.
+ * @return mixed The style filename if one is located. False if not.
  */
 function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = false, $media = 'all' ) {
 
-	// No file found yet
-	$located = false;
-
-	// Trim off any slashes from the template name
-	$file = ltrim( $file, '/' );
-
-	// Make sure there is always a version
-	if ( empty( $ver ) ) {
-		$ver = bbp_get_version();
-	}
-
-	// Loop through template stack
-	foreach ( (array) bbp_get_template_stack() as $template_location ) {
-
-		// Continue if $template_location is empty
-		if ( empty( $template_location ) ) {
-			continue;
-		}
-
-		// Check child theme first
-		if ( file_exists( trailingslashit( $template_location ) . $file ) ) {
-			$located = trailingslashit( $template_location ) . $file;
-			break;
-		}
-	}
+	// Attempt to locate an enqueueable
+	$located = bbp_locate_enqueueable( $file );
 
 	// Enqueue if located
 	if ( ! empty( $located ) ) {
 
-		$content_dir = constant( 'WP_CONTENT_DIR' );
-
-		// IIS (Windows) here
-		// Replace back slashes with forward slash
-		if ( strpos( $located, '\\' ) !== false ) {
-			$located     = str_replace( '\\', '/', $located     );
-			$content_dir = str_replace( '\\', '/', $content_dir );
+		// Make sure there is always a version
+		if ( empty( $ver ) ) {
+			$ver = bbp_get_version();
 		}
 
- 		// Make path to file relative to site URL
-		$located = str_replace( $content_dir, content_url(), $located );
+		// Make path to file relative to site URL
+		$located = bbp_urlize_enqueueable( $located );
 
 		// Register the style
 		wp_register_style( $handle, $located, $deps, $ver, $media );
@@ -194,50 +249,23 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
  * @param bool        $in_footer Optional. Whether to enqueue the script before </head> or before </body>.
  *                               Default 'false'. Accepts 'false' or 'true'.
  *
- * @return string The script filename if one is located.
+ * @return mixed The script filename if one is located. False if not.
  */
 function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = false, $in_footer = false ) {
 
-	// No file found yet
-	$located = false;
-
-	// Trim off any slashes from the template name
-	$file = ltrim( $file, '/' );
-
-	// Make sure there is always a version
-	if ( empty( $ver ) ) {
-		$ver = bbp_get_version();
-	}
-
-	// Loop through template stack
-	foreach ( (array) bbp_get_template_stack() as $template_location ) {
-
-		// Continue if $template_location is empty
-		if ( empty( $template_location ) ) {
-			continue;
-		}
-
-		// Check child theme first
-		if ( file_exists( trailingslashit( $template_location ) . $file ) ) {
-			$located = trailingslashit( $template_location ) . $file;
-			break;
-		}
-	}
+	// Attempt to locate an enqueueable
+	$located = bbp_locate_enqueueable( $file );
 
 	// Enqueue if located
 	if ( ! empty( $located ) ) {
 
-		$content_dir = constant( 'WP_CONTENT_DIR' );
-
-		// IIS (Windows) here
-		// Replace back slashes with forward slash
-		if ( strpos( $located, '\\' ) !== false ) {
-			$located     = str_replace( '\\', '/', $located     );
-			$content_dir = str_replace( '\\', '/', $content_dir );
+		// Make sure there is always a version
+		if ( empty( $ver ) ) {
+			$ver = bbp_get_version();
 		}
 
- 		// Make path to file relative to site URL
-		$located = str_replace( $content_dir, content_url(), $located );
+		// Make path to file relative to site URL
+		$located = bbp_urlize_enqueueable( $located );
 
 		// Register the style
 		wp_register_script( $handle, $located, $deps, $ver, $in_footer );
