@@ -684,11 +684,14 @@ function bbp_forum_get_subforums( $args = array() ) {
  * @since 2.0.0 bbPress (r2708)
  *
  * @param array $args The function supports these args:
- *  - before: To put before the output. Defaults to '<ul class="bbp-forums">'
- *  - after: To put after the output. Defaults to '</ul>'
- *  - link_before: To put before every link. Defaults to '<li class="bbp-forum">'
- *  - link_after: To put after every link. Defaults to '</li>'
- *  - separator: Separator. Defaults to ', '
+ *  - before: To put before the output. Defaults to '<div class="bbp-forums-list">'
+ *  - after: To put after the output. Defaults to '</div>'
+ *  - link_before: To put before every link. Defaults to '<span class="bbp-forum">'
+ *  - link_after: To put after every link. Defaults to '</span>'
+ *  - sep: Separator. Defaults to ', '
+ *  - count_before: String before each count Defaults to ' ('
+ *  - count_after: String before each count Defaults to ')'
+ *  - count_sep: Count separator. Defaults to ', '
  *  - forum_id: Forum id. Defaults to ''
  *  - show_topic_count - To show forum topic count or not. Defaults to true
  *  - show_reply_count - To show forum reply count or not. Defaults to true
@@ -697,14 +700,14 @@ function bbp_list_forums( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
-		'before'           => '<ul class="bbp-forums-list">',
-		'after'            => '</ul>',
-		'link_before'      => '<li class="bbp-forum">',
-		'link_after'       => '</li>',
+		'before'           => '<div class="bbp-forums-list">',
+		'after'            => '</div>',
+		'link_before'      => '<span class="bbp-forum">',
+		'link_after'       => '</span>',
+		'sep'              => ', ',
 		'count_before'     => ' (',
 		'count_after'      => ')',
 		'count_sep'        => ', ',
-		'sep'              => ', ',
 		'forum_id'         => '',
 		'show_topic_count' => true,
 		'show_reply_count' => true,

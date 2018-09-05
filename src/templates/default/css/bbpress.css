@@ -149,12 +149,13 @@ body.reply-edit .reply {
 }
 
 #bbpress-forums .bbp-forums-list {
-	margin: 0 0 0 5px;
-	padding-left: 15px;
+	margin: 0 0 0 7px;
+	padding-left: 12px;
 	border-left: 1px solid #ddd;
 }
 
-#bbpress-forums .bbp-forums-list li {
+#bbpress-forums .bbp-forums-list li,
+#bbpress-forums .bbp-forums-list span {
 	display: inline;
 	font-size: 11px;
 }
@@ -309,6 +310,7 @@ span.bbp-author-ip {
 	margin-left: 130px;
 	padding: 12px 12px 12px 0;
 	text-align: left;
+	position: relative;
 }
 
 /* Clearing hack */
@@ -433,6 +435,11 @@ span.bbp-author-ip {
 	overflow-wrap: normal;
 	overflow: auto;
 	max-width: 100%;
+}
+
+#bbpress-forums div.bbp-topic-content iframe.wp-embedded-content,
+#bbpress-forums div.bbp-reply-content iframe.wp-embedded-content {
+	position: relative;
 }
 
 /* =Reply to
@@ -1406,7 +1413,8 @@ body.my-account #bbpress-forums {
 		float: left;
 	}
 
-	#bbpress-forums .bbp-forums-list li {
+	#bbpress-forums .bbp-forums-list li,
+	#bbpress-forums .bbp-forums-list span {
 		display: block;
 		font-size: 11px;
 	}
