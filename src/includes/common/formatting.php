@@ -639,19 +639,31 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 			array( 1,                 _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
 		);
 
+		// Attempt to parse non-numeric older date
 		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
 			$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
 			$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
 			$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
 		}
 
-		// $newer_date will equal false if we want to know the time elapsed
-		// between a date and the current time. $newer_date will have a value if
-		// we want to work out time elapsed between two known dates.
-		$newer_date = ( ! $newer_date ) ? strtotime( current_time( 'mysql', $gmt ) ) : $newer_date;
+		// Attempt to parse non-numeric newer date
+		if ( ! empty( $newer_date ) && ! is_numeric( $newer_date ) ) {
+			$time_chunks = explode( ':', str_replace( ' ', ':', $newer_date ) );
+			$date_chunks = explode( '-', str_replace( ' ', '-', $newer_date ) );
+			$newer_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+		}
+
+		// Set newer date to current time
+		if ( empty( $newer_date ) ) {
+			$newer_date = strtotime( current_time( 'mysql', $gmt ) );
+		}
+
+		// Cast both dates to ints to avoid notices & errors with invalid values
+		$newer_date = intval( $newer_date );
+		$older_date = intval( $older_date );
 
 		// Difference in seconds
-		$since = $newer_date - $older_date;
+		$since = intval( $newer_date - $older_date );
 
 		// Something went wrong with date calculation and we ended up with a negative date.
 		if ( 0 > $since ) {
