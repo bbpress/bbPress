@@ -790,7 +790,6 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_should_return_true_for_moderators_to_bypass_moderation_check() {
 		// Create a moderator user.
-		$old_current_user = 0;
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
 		$this->moderator_id = get_current_user_id();
@@ -988,7 +987,6 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_should_return_false_for_moderators_to_bypass_strict_moderation_check() {
 		// Create a moderator user.
-		$old_current_user = 0;
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
 		$this->moderator_id = get_current_user_id();
@@ -1020,7 +1018,6 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	 */
 	public function test_should_return_true_for_keymasterss_to_bypass_strict_moderation_check() {
 		// Create a keymaster user.
-		$old_current_user = 0;
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
 		$this->keymaster_id = get_current_user_id();
