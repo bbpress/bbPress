@@ -800,10 +800,18 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 		return true;
 	}
 
-	// Bail if user can moderate
-	// https://bbpress.trac.wordpress.org/ticket/2726
-	if ( ! empty( $author_id ) && user_can( $author_id, 'moderate' ) ) {
-		return true;
+	// Maybe perform some author-specific capability checks
+	if ( ! empty( $author_id ) ) {
+
+		// Bail if user is a keymaster
+		if ( bbp_is_user_keymaster( $author_id ) ) {
+			return true;
+
+		// Bail if user can moderate
+		// https://bbpress.trac.wordpress.org/ticket/2726
+		} elseif ( ( false === $strict ) && user_can( $author_id, 'moderate' ) ) {
+			return true;
+		}
 	}
 
 	// Define local variable(s)
