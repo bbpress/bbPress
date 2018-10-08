@@ -1376,28 +1376,48 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 /**
  * Return a clean and reliable logout URL
  *
- * @param string $url URL
+ * This function is used to filter `logout_url`. If no $redirect_to value is
+ * passed, it will default to the request uri, then the forum root.
+ *
+ * See: `wp_logout_url()`
+ *
+ * @since 2.1.0 bbPress (2815)
+ *
+ * @param string $url URL used to log out
  * @param string $redirect_to Where to redirect to?
+ *
  * @return string The url
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
 
-	// Make sure we are directing somewhere
-	if ( empty( $redirect_to ) && ! strstr( $url, 'redirect_to' ) ) {
+	// If there is no redirect in the URL, let's add one...
+	if ( ! strstr( $url, 'redirect_to' ) ) {
 
-		// Rejig the $redirect_to
-		if ( ! isset( $_SERVER['REDIRECT_URL'] ) || ( $redirect_to !== home_url( $_SERVER['REDIRECT_URL'] ) ) ) {
-			$redirect_to = isset( $_SERVER['HTTP_REFERER'] )
-				? $_SERVER['HTTP_REFERER']
-				: '';
+		// Get the forum root, to maybe use as a default
+		$forum_root = bbp_get_root_url();
+
+		// No redirect passed, so check referer and fallback to request uri
+		if ( empty( $redirect_to ) ) {
+
+			// Check for a valid referer
+			$redirect_to = wp_get_referer();
+
+			// Fallback to request uri if invalid referer
+			if ( false === $redirect_to ) {
+				$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			}
 		}
 
-		// Rebuild a basic redirect URL
-		$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		// Filter the $redirect_to destination
+		$filtered  = apply_filters( 'bbp_logout_url_redirect_to', $redirect_to );
 
-		// Sanitize $redirect_to and add it to full $url
-		$redirect_to = add_query_arg( array( 'loggedout'   => 'true'                    ), $redirect_to );
-		$url         = add_query_arg( array( 'redirect_to' => urlencode( $redirect_to ) ), $url         );
+		// Validate $redirect_to, default to root
+		$validated = wp_validate_redirect( $filtered, $forum_root );
+
+		// Assemble $redirect_to and add it (encoded) to full $url
+		$appended  = add_query_arg( array( 'loggedout'   => 'true'   ), $validated );
+		$encoded   = urlencode( $appended );
+		$url       = add_query_arg( array( 'redirect_to' => $encoded ), $url       );
 	}
 
 	// Filter & return
