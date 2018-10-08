@@ -2020,14 +2020,12 @@ function bbp_author_link( $args = array() ) {
 
 			// Empty array
 			$links  = array();
-			$sprint = empty( $anonymous ) && bbp_user_has_profile( $user_id )
-				? '<a href="%1$s"%2$s%3$s>%4$s</a>'
-				: '<span %2$s%3$s>%4$s</span>';
+			$sprint = '<span %1$s>%2$s</span>';
 
 			// Wrap each link
 			foreach ( $author_links as $link => $link_text ) {
 				$link_class = ' class="bbp-author-' . esc_attr( $link ) . '"';
-				$links[]    = sprintf( $sprint, esc_url( $author_url ), $link_title, $link_class, $link_text );
+				$links[]    = sprintf( $sprint, $link_class, $link_text );
 			}
 
 			// Juggle
@@ -2039,6 +2037,11 @@ function bbp_author_link( $args = array() ) {
 
 			// Assemble sections into author link
 			$author_link = implode( $r['sep'], $sections );
+
+			// Only wrap in link if profile exists
+			if ( empty( $anonymous ) && bbp_user_has_profile( $user_id ) ) {
+				$author_link = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', esc_url( $author_url ), $link_title, ' class="bbp-author-link"', $author_link );
+			}
 		}
 
 		// Filter & return
