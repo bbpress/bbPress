@@ -158,8 +158,8 @@ class BBP_Akismet {
 			'comment_last_active_gmt'        => $user_data['last_active'],
 			'comment_account_registered_gmt' => $user_data['registered'],
 			'permalink'                      => $post_permalink,
-			'referrer'                       => $_SERVER['HTTP_REFERER'],
-			'user_agent'                     => $_SERVER['HTTP_USER_AGENT'],
+			'referrer'                       => wp_get_raw_referer(),
+			'user_agent'                     => bbp_current_author_ua(),
 			'user_ID'                        => $post_data['post_author'],
 			'user_ip'                        => bbp_current_author_ip(),
 			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
@@ -393,8 +393,8 @@ class BBP_Akismet {
 		$post_data['blog']         = get_option( 'home' );
 		$post_data['blog_charset'] = get_option( 'blog_charset' );
 		$post_data['blog_lang']    = get_locale();
-		$post_data['referrer']     = $_SERVER['HTTP_REFERER'];
-		$post_data['user_agent']   = $_SERVER['HTTP_USER_AGENT'];
+		$post_data['referrer']     = wp_get_raw_referer();
+		$post_data['user_agent']   = bbp_current_author_ua();
 
 		// Loop through _POST args and rekey strings
 		foreach ( $_POST as $key => $value ) {
