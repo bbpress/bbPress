@@ -141,7 +141,7 @@ function bbp_current_author_ip() {
 
 	// Check for remote address
 	$remote_address = ! empty( $_SERVER['REMOTE_ADDR'] )
-		? $_SERVER['REMOTE_ADDR']
+		? wp_unslash( $_SERVER['REMOTE_ADDR'] )
 		: '127.0.0.1';
 
 	// Remove any unsavory bits
@@ -160,7 +160,7 @@ function bbp_current_author_ip() {
  */
 function bbp_current_author_ua() {
 	$retval = ! empty( $_SERVER['HTTP_USER_AGENT'] )
-		? mb_substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 )
+		? mb_substr( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 254 )
 		: '';
 
 	// Filter & return
