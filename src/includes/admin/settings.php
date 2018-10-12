@@ -660,7 +660,7 @@ function bbp_admin_setting_callback_editlock() {
 
 	</label>
 	<label for="_bbp_edit_lock">
-		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '0' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
+		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
 
 	<?php $select = ob_get_clean(); ?>
 
@@ -1944,15 +1944,17 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 	 *
 	 * @param string $option
 	 * @param string $default
-	 * @param bool $slug
+	 * @param bool   $is_slug
+	 *
+	 * @return mixed
 	 */
-	function bbp_get_form_option( $option, $default = '', $slug = false ) {
+	function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
 
 		// Get the option and sanitize it
 		$value = get_option( $option, $default );
 
 		// Slug?
-		if ( true === $slug ) {
+		if ( true === $is_slug ) {
 			$value = esc_attr( apply_filters( 'editable_slug', $value ) );
 
 		// Not a slug
@@ -1966,7 +1968,7 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 		}
 
 		// Filter & return
-		return apply_filters( 'bbp_get_form_option', $value, $option );
+		return apply_filters( 'bbp_get_form_option', $value, $option, $default, $is_slug );
 	}
 
 /**

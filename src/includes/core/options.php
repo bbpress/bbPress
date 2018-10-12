@@ -601,6 +601,31 @@ function bbp_title_max_length( $default = 80 ) {
 	}
 
 /**
+ * Output the number of minutes a topic or reply can be edited after it's
+ * published. Used by `bbp_past_edit_lock()`.
+ *
+ * @since 2.6.0 bbPress (r3246)
+ *
+ * @param bool $default Optional. Default value 5
+ */
+function bbp_edit_lock( $default = 5 ) {
+	echo bbp_get_edit_lock( $default );
+}
+	/**
+	 * Return the maximum length of a title
+	 *
+	 * @since 2.0.0 bbPress (r3246)
+	 *
+	 * @param bool $default Optional. Default value 5
+	 * @return int Is anonymous posting allowed?
+	 */
+	function bbp_get_edit_lock( $default = 5 ) {
+
+		// Filter & return
+		return (int) apply_filters( 'bbp_get_edit_lock', (int) get_option( '_bbp_edit_lock', $default ) );
+	}
+
+/**
  * Output the group forums root parent forum id
  *
  * @since 2.1.0 bbPress (r3575)

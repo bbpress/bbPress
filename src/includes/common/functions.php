@@ -190,44 +190,65 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 /**
  * Check a date against the length of time something can be edited.
  *
+ * It is recommended to leave $utc set to true and to work with UTC/GMT dates.
+ * Turning this off will use the WordPress offset which is likely undesirable.
+ *
  * @since 2.0.0 bbPress (r3133)
+ * @since 2.6.0 bbPress (r6868) Inverted some logic and added unit tests
  *
- * @param string $post_date_gmt
+ * @param string  $datetime Gets run through strtotime()
+ * @param boolean $utc      Default true. Is the timestamp in UTC?
  *
- * @return bool True if date is past, False if not
+ * @return bool True by default, if date is past, or editing is disabled.
  */
-function bbp_past_edit_lock( $post_date_gmt = '' ) {
+function bbp_past_edit_lock( $datetime = '', $utc = true ) {
 
 	// Default value
-	$retval = false;
-
-	// Get number of minutes to allow editing for
-	$minutes = (int) get_option( '_bbp_edit_lock', 5 );
-
-	// Now
-	$cur_time = current_time( 'timestamp', true );
-
-	// Period of time
-	$lockable  = "+{$minutes} minutes";
-
-	// Add lockable time to post time
-	$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
+	$retval = true;
 
 	// Check if date and editing is allowed
-	if ( ! empty( $post_date_gmt ) && bbp_allow_content_edit() ) {
+	if ( bbp_allow_content_edit() ) {
 
-		// "0" minutes set, so allow forever
+		// Get number of minutes to allow editing for
+		$minutes = bbp_get_edit_lock();
+
+		// 0 minutes means forever, so can never be past edit-lock time
 		if ( 0 === $minutes ) {
-			$retval = true;
+			$retval = false;
 
-		// Not "0" so compare
-		} elseif ( $cur_time >= $lock_time ) {
-			$retval = true;
+		// Checking against a specific datetime
+		} elseif ( ! empty( $datetime ) ) {
+
+			// Period of time
+			$lockable = "+{$minutes} minutes";
+			if ( true === $utc ) {
+				$lockable .= " UTC";
+			}
+
+			// Now
+			$cur_time  = current_time( 'timestamp', $utc );
+
+			// Get the duration in seconds
+			$duration  = strtotime( $lockable ) - $cur_time;
+
+			// Diff the times down to seconds
+			$lock_time = strtotime( $lockable, $cur_time );
+			$past_time = strtotime( $datetime, $cur_time );
+			$diff_time = ( $lock_time - $past_time ) - $duration;
+
+			// 0 minutes set, so allow editing forever
+			if ( 0 === $minutes ) {
+				$retval = false;
+
+			// Check if less than lock time
+			} elseif ( $diff_time < $duration ) {
+				$retval = false;
+			}
 		}
 	}
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_past_edit_lock', $retval, $cur_time, $lock_time, $post_date_gmt );
+	return (bool) apply_filters( 'bbp_past_edit_lock', $retval, $datetime, $utc );
 }
 
 /**

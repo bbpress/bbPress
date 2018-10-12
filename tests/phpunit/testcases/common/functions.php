@@ -633,14 +633,81 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @group  locking
 	 * @covers ::bbp_past_edit_lock
-	 * @todo   Implement test_bbp_past_edit_lock().
 	 */
-	public function test_bbp_past_edit_lock() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+	public function test_bbp_past_edit_lock_before_5_minutes() {
+		update_option( '_bbp_edit_lock', 5 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// Before
+		$result = bbp_past_edit_lock( '4 minutes 59 seconds ago UTC' );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @group  locking
+	 * @covers ::bbp_past_edit_lock
+	 */
+	public function test_bbp_past_edit_lock_on_5_minutes() {
+		update_option( '_bbp_edit_lock', 5 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// On
+		$result = bbp_past_edit_lock( '5 minutes ago UTC' );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @group  locking
+	 * @covers ::bbp_past_edit_lock
+	 */
+	public function test_bbp_past_edit_lock_after_5_minutes() {
+		update_option( '_bbp_edit_lock', 5 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// After
+		$result = bbp_past_edit_lock( '5 minutes 1 second ago UTC' );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @group  locking
+	 * @covers ::bbp_past_edit_lock
+	 */
+	public function test_bbp_past_edit_lock_before_0_minutes() {
+		update_option( '_bbp_edit_lock', 0 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// Before
+		$result = bbp_past_edit_lock( '4 minutes 59 seconds ago UTC' );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @group  locking
+	 * @covers ::bbp_past_edit_lock
+	 */
+	public function test_bbp_past_edit_lock_on_0_minutes() {
+		update_option( '_bbp_edit_lock', 0 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// On
+		$result = bbp_past_edit_lock( '5 minutes ago UTC' );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * @group  locking
+	 * @covers ::bbp_past_edit_lock
+	 */
+	public function test_bbp_past_edit_lock_after_0_minutes() {
+		update_option( '_bbp_edit_lock', 0 );
+		update_option( '_bbp_allow_content_edit', true );
+
+		// After
+		$result = bbp_past_edit_lock( '5 minutes 1 second ago UTC' );
+		$this->assertFalse( $result );
 	}
 
 	/**
