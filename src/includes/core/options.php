@@ -604,7 +604,7 @@ function bbp_title_max_length( $default = 80 ) {
  * Output the number of minutes a topic or reply can be edited after it's
  * published. Used by `bbp_past_edit_lock()`.
  *
- * @since 2.6.0 bbPress (r3246)
+ * @since 2.6.0 bbPress (r6868)
  *
  * @param bool $default Optional. Default value 5
  */
@@ -612,9 +612,10 @@ function bbp_edit_lock( $default = 5 ) {
 	echo bbp_get_edit_lock( $default );
 }
 	/**
-	 * Return the maximum length of a title
+	 * Return the number of minutes a topic or reply can be edited after it's
+	 * published. Used by `bbp_past_edit_lock()`.
 	 *
-	 * @since 2.0.0 bbPress (r3246)
+	 * @since 2.6.0 bbPress (r6868)
 	 *
 	 * @param bool $default Optional. Default value 5
 	 * @return int Is anonymous posting allowed?
