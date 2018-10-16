@@ -72,8 +72,10 @@ function bbp_do_ajax( $action = '' ) {
 		return;
 	}
 
-	// Set WordPress core AJAX constant
-	define( 'DOING_AJAX', true );
+	// Set WordPress core AJAX constant for back-compat
+	if ( ! defined( 'DOING_AJAX' ) ) {
+		define( 'DOING_AJAX', true );
+	}
 
 	// Setup AJAX headers
 	bbp_ajax_headers();
