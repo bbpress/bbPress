@@ -154,10 +154,13 @@ body.reply-edit .reply {
 	border-left: 1px solid #ddd;
 }
 
-#bbpress-forums .bbp-forums-list li,
-#bbpress-forums .bbp-forums-list span {
+#bbpress-forums .bbp-forums-list .bbp-forum {
 	display: inline;
 	font-size: 11px;
+}
+
+#bbpress-forums .bbp-forums-list .bbp-forum.css-sep:not(:last-child):after {
+	content: ', ';
 }
 
 #bbpress-forums li.bbp-footer p {

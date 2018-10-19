@@ -684,11 +684,11 @@ function bbp_forum_get_subforums( $args = array() ) {
  * @since 2.0.0 bbPress (r2708)
  *
  * @param array $args The function supports these args:
- *  - before: To put before the output. Defaults to '<div class="bbp-forums-list">'
- *  - after: To put after the output. Defaults to '</div>'
- *  - link_before: To put before every link. Defaults to '<span class="bbp-forum">'
- *  - link_after: To put after every link. Defaults to '</span>'
- *  - sep: Separator. Defaults to ', '
+ *  - before: To put before the output. Defaults to '<ul class="bbp-forums-list">'
+ *  - after: To put after the output. Defaults to '</ul>'
+ *  - link_before: To put before every link. Defaults to '<li class="bbp-forum">'
+ *  - link_after: To put after every link. Defaults to '</li>'
+ *  - sep: Separator. Defaults to ''. Make sure your markup is valid!
  *  - count_before: String before each count Defaults to ' ('
  *  - count_after: String before each count Defaults to ')'
  *  - count_sep: Count separator. Defaults to ', '
@@ -700,17 +700,18 @@ function bbp_list_forums( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
-		'before'           => '<div class="bbp-forums-list">',
-		'after'            => '</div>',
-		'link_before'      => '<span class="bbp-forum">',
-		'link_after'       => '</span>',
-		'sep'              => ', ',
+		'before'           => '<ul class="bbp-forums-list">',
+		'after'            => '</ul>',
+		'link_before'      => '<li class="bbp-forum css-sep">',
+		'link_after'       => '</li>',
+		'sep'              => '',
 		'count_before'     => ' (',
 		'count_after'      => ')',
 		'count_sep'        => ', ',
 		'forum_id'         => '',
 		'show_topic_count' => true,
 		'show_reply_count' => true,
+		'echo'             => true,
 
 		// Retired, use 'sep' instead
 		'separator'        => false
@@ -724,51 +725,61 @@ function bbp_list_forums( $args = array() ) {
 		$r['sep'] = $r['separator'];
 	}
 
-	// Define links
-	$links = array();
+	// Default values
+	$links  = array();
+	$output = '';
 
 	// Loop through forums and create a list
 	$sub_forums = bbp_forum_get_subforums( $r['forum_id'] );
-	foreach ( $sub_forums as $sub_forum ) {
+	if ( ! empty( $sub_forums ) ) {
+		foreach ( $sub_forums as $sub_forum ) {
 
-		// Get forum details
-		$count     = array();
-		$permalink = bbp_get_forum_permalink( $sub_forum->ID );
-		$title     = bbp_get_forum_title( $sub_forum->ID );
+			// Get forum details
+			$count     = array();
+			$permalink = bbp_get_forum_permalink( $sub_forum->ID );
+			$title     = bbp_get_forum_title( $sub_forum->ID );
 
-		// Show topic count
-		if ( ! empty( $r['show_topic_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
-			$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
+			// Show topic count
+			if ( ! empty( $r['show_topic_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
+				$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
+			}
+
+			// Show reply count
+			if ( ! empty( $r['show_reply_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
+				$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
+			}
+
+			// Counts to show
+			$counts = ! empty( $count )
+				? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
+				: '';
+
+			// Subforum classes
+			$subforum_classes      = array( 'bbp-forum-link' );
+			$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
+
+			// This could use bbp_get_forum_class() eventually...
+			$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'sanitize_html_class', $subforum_classes ) ) . '"';
+
+			// Build this sub forums link
+			$links[] = $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $r['link_after'];
 		}
 
-		// Show reply count
-		if ( ! empty( $r['show_reply_count'] ) && ! bbp_is_forum_category( $sub_forum->ID ) ) {
-			$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
-		}
-
-		// Counts to show
-		$counts = ! empty( $count )
-			? $r['count_before'] . implode( $r['count_sep'], $count ) . $r['count_after']
+		// Maybe wrap output
+		$output = ! empty( $links )
+			? $r['before'] . implode( $r['sep'], $links ) . $r['after']
 			: '';
-
-		// Subforum classes
-		$subforum_classes      = array( 'bbp-forum-link' );
-		$subforum_classes      = apply_filters( 'bbp_list_forums_subforum_classes', $subforum_classes, $sub_forum->ID );
-
-		// This could use bbp_get_forum_class() eventually...
-		$subforum_classes_attr = 'class="' . implode( ' ', array_map( 'sanitize_html_class', $subforum_classes ) ) . '"';
-
-		// Build this sub forums link
-		$links[] = $r['link_before'] . '<a href="' . esc_url( $permalink ) . '" ' . $subforum_classes_attr . '>' . $title . $counts . '</a>' . $r['link_after'];
 	}
 
-	// Maybe wrap output
-	$output = ! empty( $links )
-		? $r['before'] . implode( $r['sep'], $links ) . $r['after']
-		: '';
+	// Filter output
+	$the_list = apply_filters( 'bbp_list_forums', $output, $r, $args );
 
-	// Filter & output the forums list
-	echo apply_filters( 'bbp_list_forums', $output, $r, $args );
+	// Echo or return the forums list
+	if ( true === $r['echo'] ) {
+		echo $the_list;
+	} else {
+		return $the_list;
+	}
 }
 
 /** Forum Subscriptions *******************************************************/
