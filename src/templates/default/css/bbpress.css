@@ -160,7 +160,7 @@ body.reply-edit .reply {
 }
 
 #bbpress-forums .bbp-forums-list .bbp-forum.css-sep:not(:last-child):after {
-	content: ', ';
+	content: ", ";
 }
 
 #bbpress-forums li.bbp-footer p {
