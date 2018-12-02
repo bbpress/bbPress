@@ -146,8 +146,8 @@ class BBP_Akismet {
 		// Pass title & content together into comment content
 		$_post_content = trim( $post_data['post_title'] . "\n\n" . $post_data['post_content'] );
 
-		// Put post_data back into usable array
-		$_post = array(
+		// Check if the post data is spammy...
+		$_post = $this->maybe_spam( array(
 			'comment_author'                 => $user_data['name'],
 			'comment_author_email'           => $user_data['email'],
 			'comment_author_url'             => $user_data['website'],
@@ -163,43 +163,73 @@ class BBP_Akismet {
 			'user_ID'                        => $post_data['post_author'],
 			'user_ip'                        => bbp_current_author_ip(),
 			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
-		);
+		) );
 
-		// Check the post_data
-		$_post = $this->maybe_spam( $_post );
+		// Set the result (from maybe_spam() above)
+		$post_data['bbp_akismet_result'] = ! empty( $_post['bbp_akismet_result'] )
+			? $_post['bbp_akismet_result'] // raw
+			: esc_html__( 'No response', 'bbpress' );
 
-		// Get the result
-		$post_data['bbp_akismet_result'] = $_post['bbp_akismet_result'];
+		// Set the data-as-submitted value without the result (recursion avoidance)
 		unset( $_post['bbp_akismet_result'] );
-
-		// Store the data as submitted
 		$post_data['bbp_post_as_submitted'] = $_post;
+
+		// Cleanup to avoid touching this variable again below
+		unset( $_post );
 
 		// Allow post_data to be manipulated
 		do_action_ref_array( 'bbp_akismet_check_post', $post_data );
 
-		// Spam
+		// Parse and log the last response
+		$this->last_post = $this->parse_response( $post_data );
+
+		// Return the last response back to the filter
+		return $this->last_post;
+	}
+
+	/**
+	 * Parse the response from the Akismet service, and alter the post data as
+	 * necessary. For example, switch the status to `spam` if spammy.
+	 *
+	 * Note: this method also skiis responsible for allowing users who can moderate, to
+	 * never have their posts marked as spam. This is because they are "trusted"
+	 * users. However, their posts are still sent to Akismet to be checked.
+	 *
+	 * @since 2.6.0 bbPress (r6873)
+	 *
+	 * @param array $post_data
+	 *
+	 * @return array
+	 */
+	private function parse_response( $post_data = array() ) {
+
+		// Get the parent ID of the post as submitted
+		$parent_id = ! empty( $post_data['bbp_post_as_submitted']['comment_post_ID'] )
+			? absint( $post_data['bbp_post_as_submitted']['comment_post_ID'] )
+			: 0;
+
+		// Allow moderators to skip spam (includes per-forum moderators via $parent_id)
+		$skip_spam = current_user_can( 'moderate', $parent_id );
+
+		// Bail early if current user can skip spam enforcement
+		if ( apply_filters( 'bbp_bypass_spam_enforcement', $skip_spam, $post_data ) ) {
+			return $post_data;
+		}
+
+		// Result is spam, so set the status as such
 		if ( 'true' === $post_data['bbp_akismet_result'] ) {
 
 			// Let plugins do their thing
 			do_action( 'bbp_akismet_spam_caught' );
 
-			// This is spam
+			// Set post_status to spam
 			$post_data['post_status'] = bbp_get_spam_status_id();
 
-			// We don't want your spam tags here
+			// Filter spammy tags into meta data
 			add_filter( 'bbp_new_reply_pre_set_terms', array( $this, 'filter_post_terms' ), 1, 3 );
-
-			// @todo Spam counter?
 		}
 
-		// @todo Topic/reply moderation? No true/false response - 'pending' or 'draft'
-		// @todo Auto-delete old spam?
-
-		// Log the last post
-		$this->last_post = $post_data;
-
-		// Pass the data back to the filter
+		// Return the (potentially modified) post data
 		return $post_data;
 	}
 
@@ -432,7 +462,9 @@ class BBP_Akismet {
 		}
 
 		// Fire!
-		$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
+		$response = ! apply_filters( 'bbp_bypass_check_for_spam', false, $post_data )
+			? $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port )
+			: false;
 
 		// Check the high-speed cam
 		if ( ! empty( $response[1] ) ) {
@@ -441,7 +473,7 @@ class BBP_Akismet {
 			$post_data['bbp_akismet_result'] = esc_html__( 'No response', 'bbpress' );
 		}
 
-		// This is ham
+		// Return the post data, with the results of the external Akismet request
 		return $post_data;
 	}
 
