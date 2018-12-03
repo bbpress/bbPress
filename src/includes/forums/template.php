@@ -650,7 +650,7 @@ function bbp_forum_get_subforums( $args = array() ) {
 	$retval = array();
 
 	// Use passed integer as post_parent
-	if ( is_numeric( $args ) ) {
+	if ( is_numeric( $args ) && ! empty( $args ) ) {
 		$args = array( 'post_parent' => bbp_get_forum_id( $args ) );
 	}
 
@@ -729,8 +729,12 @@ function bbp_list_forums( $args = array() ) {
 	$links  = array();
 	$output = '';
 
+	// Query for subforums
+	$sub_forums = ! empty( $r['forum_id'] )
+		? bbp_forum_get_subforums( $r['forum_id'] )
+		: array();
+
 	// Loop through forums and create a list
-	$sub_forums = bbp_forum_get_subforums( $r['forum_id'] );
 	if ( ! empty( $sub_forums ) ) {
 		foreach ( $sub_forums as $sub_forum ) {
 
