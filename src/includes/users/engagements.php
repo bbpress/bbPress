@@ -460,11 +460,13 @@ function bbp_get_topic_favoriters( $topic_id = 0 ) {
  *
  * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
- * @return bool True if user has favorites, otherwise false
+ * @return array Array of topics if user has favorites, otherwise empty array
  */
 function bbp_get_user_favorites( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'favorites', '_bbp_favorite' );
-	$query = bbp_has_topics( $r );
+	$query = ! empty( $r )
+		? bbp_has_topics( $r )
+		: array();
 
 	// Filter & return
 	return apply_filters( 'bbp_get_user_favorites', $query, 0, $r, $args );
@@ -678,11 +680,13 @@ function bbp_get_subscribers( $object_id = 0, $type = 'post' ) {
  *
  * @param array $args Optional. Arguments to pass into bbp_has_topics()
  *
- * @return bool True if user has topic subscriptions, otherwise false
+ * @return array Array of topics if user has topic subscriptions, otherwise empty array
  */
 function bbp_get_user_topic_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'topic_subscriptions', '_bbp_subscription' );
-	$query = bbp_has_topics( $r );
+	$query = ! empty( $r )
+		? bbp_has_topics( $r )
+		: array();
 
 	// Filter & return
 	return apply_filters( 'bbp_get_user_topic_subscriptions', $query, 0, $r, $args );
@@ -696,11 +700,13 @@ function bbp_get_user_topic_subscriptions( $args = array() ) {
  *
  * @param array $args Optional. Arguments to pass into bbp_has_forums()
  *
- * @return bool True if user has forum subscriptions, otherwise false
+ * @return array Array of forums if user has forum subscriptions, otherwise empty array
  */
 function bbp_get_user_forum_subscriptions( $args = array() ) {
 	$r     = bbp_get_user_object_query( $args, 'forum_subscriptions', '_bbp_subscription' );
-	$query = bbp_has_forums( $r );
+	$query = ! empty( $r )
+		? bbp_has_forums( $r )
+		: array();
 
 	// Filter & return
 	return apply_filters( 'bbp_get_user_forum_subscriptions', $query, 0, $r, $args );

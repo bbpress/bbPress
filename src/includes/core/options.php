@@ -64,6 +64,7 @@ function bbp_get_default_options() {
 			'_bbp_thread_replies_depth'   => 2,         // Thread replies depth
 			'_bbp_theme_package_id'       => 'default', // The ID for the current theme package
 			'_bbp_settings_integration'   => 'basic',   // How to integrate into wp-admin
+			'_bbp_engagements_strategy'   => 'meta',    // How to interact with engagements
 
 			/** Per Page **********************************************************/
 
@@ -689,7 +690,7 @@ function bbp_is_akismet_active( $default = 1 ) {
  * @since 2.4.0 bbPress (r4932)
  *
  * @param bool $default Optional. Default value false
- * @return bool To deeply integrate settings, or not
+ * @return string How to integrate settings
  */
 function bbp_settings_integration( $default = 'basic' ) {
 
@@ -703,13 +704,40 @@ function bbp_settings_integration( $default = 'basic' ) {
 			: 'basic';
 	}
 
-	// Fallback to 'none' if invalid
+	// Fallback to 'basic' if invalid
 	if ( ! in_array( $integration, array( 'basic', 'deep', 'compact' ), true ) ) {
 		$integration = 'basic';
 	}
 
 	// Filter & return
 	return apply_filters( 'bbp_settings_integration', $integration, $default );
+}
+
+/**
+ * How to interact with engagements
+ *
+ * There are 3 possible strategies:
+ * - 'meta' 2.6 and higher. Uses multiple postmeta keys.
+ * - 'user' Pre-2.6. Uses comma-separated string of IDs in usermeta.
+ * - 'term' Alternate. Uses taxonomy term relationships.
+ *
+ * @since 2.6.0 bbPress (r6875)
+ *
+ * @param bool $default Optional. Default value false
+ * @return string How to interact with engagements
+ */
+function bbp_engagements_strategy( $default = 'meta' ) {
+
+	// Get the option value
+	$integration = get_option( '_bbp_engagements_strategy', $default );
+
+	// Fallback to 'meta' if invalid
+	if ( ! in_array( $integration, array( 'meta', 'user', 'term' ), true ) ) {
+		$integration = 'meta';
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_engagements_strategy', $integration, $default );
 }
 
 /** Slugs *********************************************************************/

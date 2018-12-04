@@ -28,7 +28,8 @@ function bbp_user_engagements_interface( $rel_key = '', $rel_type = 'post' ) {
 }
 
 /**
- * Meta strategy for interfacing with User Engagements
+ * Base strategy class for interfacing with User Engagements, which other
+ * classes will extend.
  *
  * @since 2.6.0 bbPress (r6722)
  */
@@ -524,11 +525,11 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 }
 
 /**
- * Backwards compatibility strategy for interfacing with User Engagements
+ * User strategy for interfacing with User Engagements
  *
  * @since 2.6.0 bbPress (r6844)
  */
-class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
+class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 	/**
 	 * Type of strategy being used.
@@ -537,7 +538,7 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	 *
 	 * @var string
 	 */
-	public $type = 'compat';
+	public $type = 'user';
 
 	/**
 	 * Private function to map 2.6 meta keys to 2.5 user-option keys.
@@ -545,10 +546,12 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	 * @since 2.6.0 bbPress (r6844)
 	 *
 	 * @param string $meta_key
+	 * @param int    $object_id
+	 * @param bool   $prefix
 	 *
 	 * @return string
 	 */
-	private function get_user_option_key( $meta_key = '', $object_id = 0 ) {
+	private function get_user_option_key( $meta_key = '', $object_id = 0, $prefix = false ) {
 		switch ( $meta_key ) {
 
 			// Favorites
@@ -577,6 +580,11 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 				break;
 		}
 
+		// Maybe prefix the key (for use in raw database queries)
+		if ( true === $prefix ) {
+			$key = bbp_db()->get_blog_prefix() . $key;
+		}
+
 		// Return the old (pluralized) user option key
 		return $key;
 	}
@@ -589,8 +597,8 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	 * @param string $results
 	 * @return array
 	 */
-	private function format_results( $results = '' ) {
-		return wp_parse_id_list( array_filter( $results ) );
+	private function parse_comma_list( $results = '' ) {
+		return array_filter( wp_parse_id_list( $results ) );
 	}
 
 	/**
@@ -609,12 +617,13 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
-		$object_ids = $this->format_results( get_user_option( $option_key, $user_id ) );
+		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
+		$exists     = array_search( $object_id, $object_ids );
 
 		// Not already added, so add it
-		if ( ! in_array( $object_id, $object_ids, true ) ) {
+		if ( false === $exists ) {
 			$object_ids[] = $object_id;
-			$object_ids   = implode( ',', $this->format_results( $object_ids ) );
+			$object_ids   = implode( ',', $this->parse_comma_list( $object_ids ) );
 			$retval       = update_user_option( $user_id, $option_key, $object_ids );
 		}
 
@@ -637,14 +646,17 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
-		$object_ids = $this->format_results( get_user_option( $option_key, $user_id ) );
+		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
+		$exists     = array_search( $object_id, $object_ids );
 
 		// Exists, so remove it
-		if ( in_array( $object_id, $object_ids, true ) ) {
-			unset( $object_ids[ $object_id ] );
+		if ( false !== $exists ) {
+			unset( $object_ids[ $exists ] );
 
-			$object_ids = implode( ',', $this->format_results( $object_ids ) );
-			$retval     = update_user_option( $user_id, $option_key, $object_ids );
+			$object_ids = implode( ',', $this->parse_comma_list( $object_ids ) );
+			$retval     = ! empty( $object_ids )
+				? update_user_option( $user_id, $option_key, $object_ids )
+				: delete_user_option( $user_id, $option_key );
 		}
 
 		// Return true if removed, or false if not
@@ -718,7 +730,7 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
 
 		// Query for users
-		$option_key = $this->get_user_option_key( $meta_key );
+		$option_key = $this->get_user_option_key( $meta_key, 0, true );
 		$bbp_db     = bbp_db();
 		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}'" );
 		$u_count    = count( $user_ids );
@@ -758,7 +770,7 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	 * @return array Returns ids of users
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		$option_key = $this->get_user_option_key( $meta_key, $object_id );
+		$option_key = $this->get_user_option_key( $meta_key, $object_id, true );
 		$bbp_db     = bbp_db();
 		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}' and FIND_IN_SET('{$object_id}', meta_value) > 0" );
 
@@ -777,7 +789,18 @@ class BBP_User_Engagements_Back_Compat extends BBP_User_Engagements_Base {
 	 * @return array
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
-		// TODO
-		return array();
+		$user_id    = bbp_get_user_id( $args, true, true );
+		$option_key = $this->get_user_option_key( $meta_key );
+		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
+
+		// Maybe include these post IDs
+		if ( ! empty( $object_ids ) ) {
+			$args = array(
+				'post__in' => $object_ids
+			);
+		}
+
+		// Parse arguments
+		return bbp_parse_args( $args, array(), $context_key );
 	}
 }

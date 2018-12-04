@@ -298,10 +298,6 @@ final class bbPress {
 		$this->extend         = new stdClass(); // Plugins add data here
 		$this->errors         = new WP_Error(); // Feedback
 
-		/** Engagements *******************************************************/
-
-		$this->engagements    = new BBP_User_Engagements_Meta(); // Meta strategy interface
-
 		/** Deprecated ********************************************************/
 
 		$this->tab_index      = apply_filters( 'bbp_default_tab_index', 100 );
@@ -406,6 +402,7 @@ final class bbPress {
 		$actions = array(
 			'setup_theme',              // Setup the default theme compat
 			'setup_current_user',       // Setup currently logged in user
+			'setup_engagements',        // Setup user engagements strategy
 			'roles_init',               // User roles init
 			'register_meta',            // Register meta (forum|topic|reply|user)
 			'register_post_types',      // Register post types (forum|topic|reply)
@@ -788,6 +785,26 @@ final class bbPress {
 	 */
 	public function setup_current_user() {
 		$this->current_user = wp_get_current_user();
+	}
+
+	/**
+	 * Setup the user engagements strategy
+	 *
+	 * @since 2.6.0 bbPress (r6875)
+	 */
+	public function setup_engagements() {
+
+		// Default (always exists)
+		$default    = "BBP_User_Engagements_Meta";
+
+		// Configured (Might not exist)
+		$strategy   = ucwords( bbp_engagements_strategy() );
+		$class_name = "BBP_User_Engagements_{$strategy}";
+
+		// Setup the engagements interface
+		$this->engagements = class_exists( $class_name )
+			? new $class_name
+			: new $default;
 	}
 
 	/**

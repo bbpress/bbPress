@@ -352,6 +352,9 @@ function bbp_version_updater() {
 				bbp_admin_upgrade_user_forum_subscriptions();
 			} else {
 				update_option( '_bbp_db_upgrade_skipped', $raw_db_version );
+
+				// Set strategy to pre-2.6 on large network
+				update_option( '_bbp_engagements_strategy', 'user' );
 			}
 		}
 
@@ -367,6 +370,9 @@ function bbp_version_updater() {
 				bbp_admin_upgrade_user_engagements();
 			} else {
 				update_option( '_bbp_db_upgrade_skipped', $raw_db_version );
+
+				// Set strategy to pre-2.6 on large network
+				update_option( '_bbp_engagements_strategy', 'user' );
 			}
 		}
 	}
