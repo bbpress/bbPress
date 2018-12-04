@@ -794,17 +794,12 @@ final class bbPress {
 	 */
 	public function setup_engagements() {
 
-		// Default (always exists)
-		$default    = "BBP_User_Engagements_Meta";
-
-		// Configured (Might not exist)
+		// Setup the class name
 		$strategy   = ucwords( bbp_engagements_strategy() );
 		$class_name = "BBP_User_Engagements_{$strategy}";
 
 		// Setup the engagements interface
-		$this->engagements = class_exists( $class_name )
-			? new $class_name
-			: new $default;
+		$this->engagements = new $class_name;
 	}
 
 	/**
