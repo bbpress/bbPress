@@ -1327,18 +1327,6 @@ body.my-account #bbpress-forums {
 	padding: 0;
 }
 
-/* =BuddyPress Group Forums
--------------------------------------------------------------- */
-
-#bbpress-forums div.row-actions {
-	font-size: 11px;
-	visibility: hidden;
-}
-
-#bbpress-forums li:hover > div.row-actions {
-	visibility: visible;
-}
-
 /* =Alerts
 -------------------------------------------------------------- */
 
