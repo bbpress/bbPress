@@ -2481,6 +2481,9 @@ function bbp_get_url_scheme() {
 /**
  * Is a title longer that the maximum title length?
  *
+ * Uses mb_strlen() in `8bit` mode to treat strings as raw. This matches the
+ * behavior present in Comments, PHPMailer, RandomCompat, and others.
+ *
  * @since 2.6.0 bbPress (r6783)
  *
  * @param string $title
