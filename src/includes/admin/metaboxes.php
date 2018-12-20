@@ -744,12 +744,17 @@ function bbp_topic_favorites_metabox( $post ) {
  */
 function bbp_topic_subscriptions_metabox( $post ) {
 
+	// Current user subscription
+	$input_value = bbp_is_user_subscribed( bbp_get_current_user_id(), $post->ID )
+		? 'bbp_subscribe' // maintain existing subscription
+		: '';             // do not add or remove subscription
+
 	// Get user IDs
 	$user_ids = bbp_get_subscribers( $post->ID );
 
 	// Output
 	?>
-	<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="hidden" value="bbp_subscribe" <?php bbp_form_topic_subscribed(); ?> />
+	<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="hidden" value="<?php echo esc_attr( $input_value ); ?>" />
 	<p><?php
 
 		// Relationships
