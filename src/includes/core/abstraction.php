@@ -164,7 +164,7 @@ function bbp_db() {
 function bbp_rewrite() {
 	return bbp_get_global_object( 'wp_rewrite', 'WP_Rewrite', (object) array(
 		'root'            => '',
-		'pagination_base' => '',
+		'pagination_base' => 'page',
 	) );
 }
 
@@ -177,8 +177,17 @@ function bbp_rewrite() {
  */
 function bbp_get_root_url() {
 
+	// Default
+	$retval  = '';
+	$rewrite = bbp_rewrite();
+
+	// Use $wp_rewrite->root if available
+	if ( property_exists( $rewrite, 'root' ) ) {
+		$retval = $rewrite->root;
+	}
+
 	// Filter & return
-	return apply_filters( 'bbp_get_root_url', bbp_rewrite()->root );
+	return apply_filters( 'bbp_get_root_url', $retval );
 }
 
 /**
@@ -190,8 +199,41 @@ function bbp_get_root_url() {
  */
 function bbp_get_paged_slug() {
 
+	// Default
+	$retval  = 'page';
+	$rewrite = bbp_rewrite();
+
+	// Use $wp_rewrite->pagination_base if available
+	if ( property_exists( $rewrite, 'pagination_base' ) ) {
+		$retval = $rewrite->pagination_base;
+	}
+
 	// Filter & return
-	return apply_filters( 'bbp_get_paged_slug', bbp_rewrite()->pagination_base );
+	return apply_filters( 'bbp_get_paged_slug', $retval );
+}
+
+/**
+ * Is the environment using pretty URLs?
+ *
+ * @since 2.5.8 bbPress (r5814)
+ *
+ * @global object $wp_rewrite The WP_Rewrite object
+ *
+ * @return bool
+ */
+function bbp_use_pretty_urls() {
+
+	// Default
+	$retval  = false;
+	$rewrite = bbp_rewrite();
+
+	// Use $wp_rewrite->using_permalinks() if available
+	if ( method_exists( $rewrite, 'using_permalinks' ) ) {
+		$retval = $rewrite->using_permalinks();
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_pretty_urls', $retval );
 }
 
 /**
@@ -266,30 +308,6 @@ function bbp_paginate_links( $args = array() ) {
 
 	// Return paginated links
 	return bbp_make_first_page_canonical( paginate_links( $r ) );
-}
-
-/**
- * Is the environment using pretty URLs?
- *
- * @since 2.5.8 bbPress (r5814)
- *
- * @global object $wp_rewrite The WP_Rewrite object
- *
- * @return bool
- */
-function bbp_use_pretty_urls() {
-
-	// Default
-	$retval  = false;
-	$rewrite = bbp_rewrite();
-
-	// Use $wp_rewrite->using_permalinks() if available
-	if ( method_exists( $rewrite, 'using_permalinks' ) ) {
-		$retval = $rewrite->using_permalinks();
-	}
-
-	// Filter & return
-	return apply_filters( 'bbp_pretty_urls', $retval );
 }
 
 /**
