@@ -71,6 +71,7 @@ function bbp_register_repair_tool( $args = array() ) {
 		'callback'    => '',
 		'priority'    => 0,
 		'overhead'    => 'low',
+		'version'     => '',
 		'components'  => array(),
 
 		// @todo
@@ -92,6 +93,7 @@ function bbp_register_repair_tool( $args = array() ) {
 		'callback'    => $r['callback'],
 		'overhead'    => $r['overhead'],
 		'components'  => $r['components'],
+		'version'     => $r['version'],
 
 		// @todo
 		'success'     => $r['success'],
