@@ -53,6 +53,7 @@ function bbp_admin_repair_page() {
 
 					<?php bbp_admin_repair_list_components_filter(); ?>
 
+					<input type="submit" name="filter_action" id="components-submit" class="button" value="<?php esc_html_e( 'Filter', 'bbpress' ); ?>">
 				</div>
 				<br class="clear">
 			</div>
@@ -1217,8 +1218,6 @@ function bbp_admin_repair_reply_menu_order() {
 	// Cleanup
 	unset( $replies, $reply );
 
-	// Flush the cache; things are about to get ugly.
-	wp_cache_flush();
-
+	// Complete results
 	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
 }
