@@ -11,6 +11,58 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Return the current admin repair tool page
+ *
+ * @since 2.6.0 (r6894)
+ *
+ * @return string
+ */
+function bbp_get_admin_repair_tool_page() {
+	return sanitize_key( $_GET['page'] );
+}
+
+/**
+ * Return the current admin repair tool page ID
+ *
+ * @since 2.6.0 (r6894)
+ *
+ * @return string
+ */
+function bbp_get_admin_repair_tool_page_id() {
+
+	// Get the page
+	$page = bbp_get_admin_repair_tool_page();
+
+	// Maybe trim prefix off of page
+	if ( ! empty( $page ) && ( 0 === strpos( $page, 'bbp-' ) ) ) {
+		$page = str_replace( 'bbp-', '', $page );
+	} else {
+		$page = '';
+	}
+
+	return $page;
+}
+
+/**
+ * Return a URL to the repair tool page
+ *
+ * @since 2.6.0 (r6894)
+ *
+ * @param array $args
+ *
+ * @return string
+ */
+function bbp_get_admin_repair_tool_page_url( $args = array() ) {
+
+	// Parse arguments
+	$r = wp_parse_args( $args, array(
+		'page' => bbp_get_admin_repair_tool_page()
+	) );
+
+	return add_query_arg( $r, admin_url( 'tools.php' ) );
+}
+
+/**
  * Output the URL to run a specific repair tool
  *
  * @since 2.6.0 bbPress (r5885)
@@ -43,7 +95,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 		);
 
 		// Url
-		$nonced = wp_nonce_url( add_query_arg( $args, admin_url( 'tools.php' ) ), 'bbpress-do-counts' );
+		$nonced = wp_nonce_url( bbp_get_admin_repair_tool_page_url( $args ), 'bbpress-do-counts' );
 
 		// Filter & return
 		return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
@@ -93,18 +145,23 @@ function bbp_admin_repair_handler() {
 
 	check_admin_referer( 'bbpress-do-counts' );
 
-	// Stores messages
-	$messages = array();
+	// Parse list of checked repairs
+	$checked = ! empty( $_GET['checked'] )
+		? array_map( 'sanitize_key', $_GET['checked'] )
+		: array();
 
-	// Kill all the caches, because we don't know what's where anymore
+	// Flush all caches before running tools
 	wp_cache_flush();
 
 	// Get the list
 	$list = bbp_get_admin_repair_tools();
 
+	// Stores messages
+	$messages = array();
+
 	// Run through checked repair tools
-	if ( ! empty( $_GET['checked'] ) ) {
-		foreach ( $_GET['checked'] as $item_id ) {
+	if ( count( $checked ) ) {
+		foreach ( $checked as $item_id ) {
 			if ( isset( $list[ $item_id ] ) && is_callable( $list[ $item_id ]['callback'] ) ) {
 				$messages[] = call_user_func( $list[ $item_id ]['callback'] );
 			}
@@ -118,7 +175,8 @@ function bbp_admin_repair_handler() {
 		}
 	}
 
-	// @todo Redirect away from here
+	// Flush all caches after running tools
+	wp_cache_flush();
 }
 
 /**
@@ -126,7 +184,7 @@ function bbp_admin_repair_handler() {
  *
  * @since 2.6.0 bbPress (r5885)
  *
- * @param string $type repair|upgrade The type of tools to get. Default to 'repair'
+ * @param string $type repair|upgrade The type of tools to get. Default empty for all tools.
  * @return array
  */
 function bbp_get_admin_repair_tools( $type = '' ) {
@@ -153,16 +211,31 @@ function bbp_get_admin_repair_tools( $type = '' ) {
  * @return array
  */
 function bbp_get_admin_repair_tool_registered_components() {
-	$tools   = bbp_get_admin_repair_tools( str_replace( 'bbp-', '', sanitize_key( $_GET['page'] ) ) );
-	$plucked = wp_list_pluck( $tools, 'components' );
-	$retval  = array();
 
-	foreach ( $plucked as $components ) {
-		foreach ( $components as $component ) {
-			if ( in_array( $component, $retval, true ) ) {
-				continue;
+	// Default return value
+	$retval = array();
+
+	// Get tools
+	$tools  = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+
+	// Loop through tools
+	if ( ! empty( $tools ) ) {
+		$plucked = wp_list_pluck( $tools, 'components' );
+
+		// Loop through components
+		if ( count( $plucked ) ) {
+			foreach ( $plucked as $components ) {
+				foreach ( $components as $component ) {
+
+					// Skip if already in array
+					if ( in_array( $component, $retval, true ) ) {
+						continue;
+					}
+
+					// Add component to the array
+					$retval[] = $component;
+				}
 			}
-			$retval[] = $component;
 		}
 	}
 
@@ -200,9 +273,14 @@ function bbp_admin_repair_list_components_filter() {
 		: '';
 
 	// Get registered components
-	$components = bbp_get_admin_repair_tool_registered_components(); ?>
+	$components = bbp_get_admin_repair_tool_registered_components();
 
-	<label class="screen-reader-text" for="cat"><?php esc_html_e( 'Filter by Component', 'bbpress' ); ?></label>
+	// Bail if no components
+	if ( empty( $components ) ) {
+		return;
+	} ?>
+
+	<label class="screen-reader-text" for="components"><?php esc_html_e( 'Filter by Component', 'bbpress' ); ?></label>
 	<select name="components" id="components" class="postform">
 		<option value="" <?php selected( $selected, false ); ?>><?php esc_html_e( 'All Components', 'bbpress' ); ?></option>
 
@@ -213,10 +291,97 @@ function bbp_admin_repair_list_components_filter() {
 		<?php endforeach; ?>
 
 	</select>
-	<input type="submit" name="filter_action" id="components-submit" class="button" value="<?php esc_html_e( 'Filter', 'bbpress' ); ?>">
 
 	<?php
 }
+
+/**
+ * Return array of versions from the array of registered tools
+ *
+ * @since 2.6.0 bbPress (r6894)
+ *
+ * @return array
+ */
+function bbp_get_admin_repair_tool_registered_versions() {
+
+	// Default return value
+	$retval = array();
+
+	// Get tools
+	$tools  = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+
+	// Loop through tools
+	if ( ! empty( $tools ) ) {
+		$plucked = wp_list_pluck( $tools, 'version' );
+
+		// Loop through components
+		if ( count( $plucked ) ) {
+			foreach ( $plucked as $versions ) {
+
+				// Skip if empty
+				if ( empty( $versions ) ) {
+					continue;
+
+				// Cast to array if string
+				} elseif ( is_string( $versions ) ) {
+					$versions = (array) $versions;
+				}
+
+				// Loop through versions
+				foreach ( $versions as $version ) {
+
+					// Skip if already in array
+					if ( in_array( $version, $retval, true ) ) {
+						continue;
+					}
+
+					// Add component to the array
+					$retval[] = $version;
+				}
+			}
+		}
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_registered_versions', $retval );
+}
+
+/**
+ * Output a select drop-down of versions to filter by
+ *
+ * @since 2.5.0 bbPress (r6894)
+ */
+function bbp_admin_repair_list_versions_filter() {
+
+	// Sanitize component value, if exists
+	$selected = ! empty( $_GET['version'] )
+		? sanitize_text_field( $_GET['version'] )
+		: '';
+
+	// Get registered components
+	$versions = bbp_get_admin_repair_tool_registered_versions();
+
+	// Bail if no components
+	if ( empty( $versions ) ) {
+		return;
+	} ?>
+
+	<label class="screen-reader-text" for="version"><?php esc_html_e( 'Filter by Version', 'bbpress' ); ?></label>
+	<select name="version" id="version" class="postform">
+		<option value="" <?php selected( $selected, false ); ?>><?php esc_html_e( 'All Versions', 'bbpress' ); ?></option>
+
+		<?php foreach ( $versions as $version ) : ?>
+
+			<option class="level-0" value="<?php echo esc_attr( $version ); ?>" <?php selected( $selected, $version ); ?>><?php echo esc_html( bbp_admin_repair_tool_translate_version( $version ) ); ?></option>
+
+		<?php endforeach; ?>
+
+	</select>
+
+	<?php
+}
+
+/** Translations **************************************************************/
 
 /**
  * Maybe translate a repair tool overhead name
@@ -295,7 +460,40 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 }
 
 /**
- * Get the array of the repair list
+ * Maybe translate a repair tool overhead name
+ *
+ * @since 2.6.0 bbPress (r6894)
+ *
+ * @param string $version
+ * @return string
+ */
+function bbp_admin_repair_tool_translate_version( $version = '' ) {
+
+	// Get the version
+	switch ( $version ) {
+		case '2.5' :
+		case '2.5.0' :
+			$name = esc_html__( '2.5.0', 'bbpress' );
+			break;
+		case '2.6' :
+		case '2.6.0' :
+			$name = esc_html__( '2.6.0', 'bbpress' );
+			break;
+		default :
+			$name = sanitize_text_field( $version );
+			break;
+	}
+
+	return $name;
+}
+
+/** Lists *********************************************************************/
+
+/**
+ * Get the array of the repairs to show in a list table.
+ *
+ * Uses known filters to reduce the registered results down to the most finite
+ * set of tools.
  *
  * @since 2.0.0 bbPress (r2613)
  *
@@ -308,42 +506,54 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 
 	// Get the available tools
 	$list      = bbp_get_admin_repair_tools( $type );
-	$search    = ! empty( $_GET['s']          ) ? stripslashes( $_GET['s']          ) : '';
-	$overhead  = ! empty( $_GET['overhead']   ) ? sanitize_key( $_GET['overhead']   ) : '';
-	$component = ! empty( $_GET['components'] ) ? sanitize_key( $_GET['components'] ) : '';
+	$search    = ! empty( $_GET['s']          ) ? stripslashes( $_GET['s']              ) : '';
+	$overhead  = ! empty( $_GET['overhead']   ) ? sanitize_key( $_GET['overhead']       ) : '';
+	$component = ! empty( $_GET['components'] ) ? sanitize_key( $_GET['components']     ) : '';
+	$version   = ! empty( $_GET['version']    ) ? sanitize_text_field( $_GET['version'] ) : '';
 
 	// Overhead filter
 	if ( ! empty( $overhead ) ) {
 		$list = wp_list_filter( $list, array( 'overhead' => $overhead ) );
 	}
 
-	// Loop through and key by priority for sorting
-	foreach ( $list as $id => $tool ) {
+	if ( count( $list ) ) {
 
-		// Component filter
-		if ( ! empty( $component ) ) {
-			if ( ! in_array( $component, $tool['components'], true ) ) {
-				continue;
+		// Loop through and key by priority for sorting
+		foreach ( $list as $id => $tool ) {
+
+			// Component filter
+			if ( ! empty( $component ) ) {
+				if ( ! in_array( $component, (array) $tool['components'], true ) ) {
+					continue;
+				}
 			}
-		}
 
-		// Search
-		if ( ! empty( $search ) ) {
-			if ( ! strstr( strtolower( $tool['title'] ), strtolower( $search ) ) ) {
-				continue;
+			// Version filter
+			if ( ! empty( $version ) ) {
+				if ( ! in_array( $version, (array) $tool['version'], true ) ) {
+					continue;
+				}
 			}
-		}
 
-		// Add to repair list
-		$repair_list[ $tool['priority'] ] = array(
-			'id'          => sanitize_key( $id ),
-			'type'        => $tool['type'],
-			'title'       => $tool['title'],
-			'description' => $tool['description'],
-			'callback'    => $tool['callback'],
-			'overhead'    => $tool['overhead'],
-			'components'  => $tool['components'],
-		);
+			// Search
+			if ( ! empty( $search ) ) {
+				if ( ! strstr( strtolower( $tool['title'] ), strtolower( $search ) ) ) {
+					continue;
+				}
+			}
+
+			// Add to repair list
+			$repair_list[ $tool['priority'] ] = array(
+				'id'          => sanitize_key( $id ),
+				'type'        => $tool['type'],
+				'title'       => $tool['title'],
+				'description' => $tool['description'],
+				'callback'    => $tool['callback'],
+				'overhead'    => $tool['overhead'],
+				'version'     => $tool['version'],
+				'components'  => $tool['components'],
+			);
+		}
 	}
 
 	// Sort
@@ -364,17 +574,26 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 function bbp_get_admin_repair_tool_components( $item = array() ) {
 
 	// Get the tools URL
-	$tools_url = add_query_arg( array( 'page' => sanitize_key( $_GET['page'] ) ), admin_url( 'tools.php' ) );
+	$tools_url = bbp_get_admin_repair_tool_page_url();
 
 	// Define links array
-	$links = array();
+	$links      = array();
+	$components = ! empty( $item['components'] )
+		? (array) $item['components']
+		: array();
 
 	// Loop through tool components and build links
-	foreach ( $item['components'] as $component ) {
-		$args       = array( 'components' => $component );
-		$filter_url = add_query_arg( $args, $tools_url );
-		$name       = bbp_admin_repair_tool_translate_component( $component );
-		$links[]    = '<a href="' . esc_url( $filter_url ) . '">' . esc_html( $name ) . '</a>';
+	if ( count( $components ) ) {
+		foreach ( $components as $component ) {
+			$args       = array( 'components' => $component );
+			$filter_url = add_query_arg( $args, $tools_url );
+			$name       = bbp_admin_repair_tool_translate_component( $component );
+			$links[]    = '<a href="' . esc_url( $filter_url ) . '">' . esc_html( $name ) . '</a>';
+		}
+
+	// No components, so return a dash
+	} else {
+		$links[] = '&mdash;';
 	}
 
 	// Filter & return
@@ -382,7 +601,83 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
 }
 
 /**
- * Output filter links for components for a specific admin repair tool
+ * Get filter links for versions for a specific admin repair tool
+ *
+ * @since 2.6.0 bbPress (r6894)
+ *
+ * @param array $item
+ * @return array
+ */
+function bbp_get_admin_repair_tool_version( $item = array() ) {
+
+	// Get the tools URL
+	$tools_url = bbp_get_admin_repair_tool_page_url();
+
+	// Define links array
+	$links    = array();
+	$versions = ! empty( $item['version'] )
+		? (array) $item['version']
+		: array();
+
+	// Loop through tool versions and build links
+	if ( count( $versions ) ) {
+		foreach ( $versions as $version ) {
+			$args       = array( 'version' => $version );
+			$filter_url = add_query_arg( $args, $tools_url );
+			$name       = bbp_admin_repair_tool_translate_version( $version );
+			$links[]    = '<a href="' . esc_url( $filter_url ) . '">' . esc_html( $name ) . '</a>';
+		}
+
+	// No versions, so return a dash
+	} else {
+		$links[] = '&mdash;';
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_version', $links, $item );
+}
+
+/**
+ * Get filter links for overhead for a specific admin repair tool
+ *
+ * @since 2.6.0 bbPress (r5885)
+ *
+ * @param array $item
+ * @return array
+ */
+function bbp_get_admin_repair_tool_overhead( $item = array() ) {
+
+	// Get the tools URL
+	$tools_url = bbp_get_admin_repair_tool_page_url();
+
+	// Define links array
+	$links     = array();
+	$overheads = ! empty( $item['overhead'] )
+		? (array) $item['overhead']
+		: array();
+
+	// Loop through tool overhead and build links
+	if ( count( $overheads ) ) {
+		foreach ( $overheads as $overhead ) {
+			$args       = array( 'overhead' => $overhead );
+			$filter_url = add_query_arg( $args, $tools_url );
+			$name       = bbp_admin_repair_tool_translate_overhead( $overhead );
+			$links[]    = '<a href="' . esc_url( $filter_url ) . '">' . esc_html( $name ) . '</a>';
+		}
+
+	// No overhead, so return a single dash
+	} else {
+		$links[] = '&mdash;';
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_admin_repair_tool_overhead', $links, $item );
+}
+
+/** Overhead ******************************************************************/
+
+/**
+ * Output filter links for overheads for a specific admin repair tool
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -393,7 +688,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 }
 
 /**
- * Get filter links for components for a specific admin repair tool
+ * Get filter links for overheads for a specific admin repair tool
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -424,60 +719,68 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 		$r['sep'] = $r['separator'];
 	}
 
-	// Get page
-	$page = sanitize_key( $_GET['page'] );
-
 	// Count the tools
-	$tools = bbp_get_admin_repair_tools( str_replace( 'bbp-', '', $page ) );
+	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
 
 	// Get the tools URL
-	$tools_url = add_query_arg( array( 'page' => $page ), admin_url( 'tools.php' ) );
+	$tools_url = bbp_get_admin_repair_tool_page_url();
 
 	// Define arrays
 	$overheads = $links = array();
 
 	// Loop through tools and count overheads
-	foreach ( $tools as $tool ) {
+	if ( count( $tools ) ) {
+		foreach ( $tools as $tool ) {
 
-		// Get the overhead level
-		$overhead = $tool['overhead'];
+			// Get the overhead level
+			$overhead = $tool['overhead'];
 
-		// Set an empty count
-		if ( empty( $overheads[ $overhead ] ) ) {
-			$overheads[ $overhead ] = 0;
+			// Set an empty count
+			if ( empty( $overheads[ $overhead ] ) ) {
+				$overheads[ $overhead ] = 0;
+			}
+
+			// Bump the overhead count
+			$overheads[ $overhead ]++;
 		}
-
-		// Bump the overhead count
-		$overheads[ $overhead ]++;
 	}
 
+	// Get the current overhead, if any
+	$selected = ! empty( $_GET['overhead'] )
+		? sanitize_key( $_GET['overhead'] )
+		: '';
+
 	// Create the "All" link
-	$current = empty( $_GET['overhead'] ) ? 'current' : '';
+	$current = empty( $selected ) ? 'current' : '';
 	$links[] = $r['link_before'] . '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf( esc_html__( 'All %s', 'bbpress' ), $r['count_before'] . count( $tools ) . $r['count_after'] ) . '</a>' . $r['link_after'];
 
-	// Sort
-	ksort( $overheads );
+	// Loop through overheads and created links
+	if ( count( $overheads ) ) {
 
-	// Loop through overheads and build filter
-	foreach ( $overheads as $overhead => $count ) {
+		// Sort
+		ksort( $overheads );
 
-		// Build the filter URL
-		$key        = sanitize_key( $overhead );
-		$args       = array( 'overhead' => $key );
-		$filter_url = add_query_arg( $args, $tools_url );
+		// Loop through overheads and build filter
+		foreach ( $overheads as $overhead => $count ) {
 
-		// Figure out separator and active class
-		$current  = ! empty( $_GET['overhead'] ) && ( sanitize_key( $_GET['overhead'] ) === $key )
-			? 'current'
-			: '';
+			// Build the filter URL
+			$key        = sanitize_key( $overhead );
+			$args       = array( 'overhead' => $key );
+			$filter_url = add_query_arg( $args, $tools_url );
 
-		// Counts to show
-		if ( ! empty( $count ) ) {
-			$overhead_count = $r['count_before'] . $count . $r['count_after'];
+			// Figure out separator and active class
+			$current  = ( $selected === $key )
+				? 'current'
+				: '';
+
+			// Counts to show
+			if ( ! empty( $count ) ) {
+				$overhead_count = $r['count_before'] . $count . $r['count_after'];
+			}
+
+			// Build the link
+			$links[] = $r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $current ) . '">' . bbp_admin_repair_tool_translate_overhead( $overhead ) . $overhead_count . '</a>' . $r['link_after'];
 		}
-
-		// Build the link
-		$links[] = $r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $current ) . '">' . bbp_admin_repair_tool_translate_overhead( $overhead ) . $overhead_count . '</a>' . $r['link_after'];
 	}
 
 	// Surround output with before & after strings
@@ -485,33 +788,4 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_admin_repair_tool_components', $output, $r, $args );
-}
-
-/**
- * Get filter links for overhead for a specific admin repair tool
- *
- * @since 2.6.0 bbPress (r5885)
- *
- * @param array $item
- * @return array
- */
-function bbp_get_admin_repair_tool_overhead( $item = array() ) {
-
-	// Get the tools URL
-	$tools_url = add_query_arg( array( 'page' => sanitize_key( $_GET['page'] ) ), admin_url( 'tools.php' ) );
-
-	// Define links array
-	$links     = array();
-	$overheads = array( $item['overhead'] );
-
-	// Loop through tool overhead and build links
-	foreach ( $overheads as $overhead ) {
-		$args       = array( 'overhead' => $overhead );
-		$filter_url = add_query_arg( $args, $tools_url );
-		$name       = bbp_admin_repair_tool_translate_overhead( $overhead );
-		$links[]    = '<a href="' . esc_url( $filter_url ) . '">' . esc_html( $name ) . '</a>';
-	}
-
-	// Filter & return
-	return (array) apply_filters( 'bbp_get_admin_repair_tool_overhead', $links, $item );
 }
