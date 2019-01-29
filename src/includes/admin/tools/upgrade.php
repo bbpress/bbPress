@@ -50,6 +50,9 @@ function bbp_admin_upgrade_page() {
 
 					<?php bbp_admin_repair_list_components_filter(); ?>
 
+					<?php bbp_admin_repair_list_versions_filter(); ?>
+
+					<input type="submit" name="filter_action" id="components-submit" class="button" value="<?php esc_html_e( 'Filter', 'bbpress' ); ?>">
 				</div>
 				<br class="clear">
 			</div>
@@ -63,6 +66,7 @@ function bbp_admin_upgrade_page() {
 							<input id="cb-select-all-1" type="checkbox">
 						</td>
 						<th scope="col" id="description" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
+						<th scope="col" id="version" class="manage-column column-version"><?php esc_html_e( 'Version', 'bbpress' ); ?></th>
 						<th scope="col" id="components" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
 						<th scope="col" id="overhead" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
 					</tr>
@@ -96,8 +100,15 @@ function bbp_admin_upgrade_page() {
 										<span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'bbpress' ); ?></span>
 									</button>
 								</td>
+								<td class="column-version desc" data-colname="<?php esc_html_e( 'Version', 'bbpress' ); ?>">
+									<div class="bbp-tool-version">
+
+										<?php echo implode( ', ', bbp_get_admin_repair_tool_version( $item ) ); ?>
+
+									</div>
+								</td>
 								<td class="column-components desc" data-colname="<?php esc_html_e( 'Components', 'bbpress' ); ?>">
-									<div class="bbp-tool-overhead">
+									<div class="bbp-tool-components">
 
 										<?php echo implode( ', ', bbp_get_admin_repair_tool_components( $item ) ); ?>
 
@@ -134,6 +145,7 @@ function bbp_admin_upgrade_page() {
 							<input id="cb-select-all-2" type="checkbox">
 						</td>
 						<th scope="col" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
+						<th scope="col" class="manage-column column-version"><?php esc_html_e( 'Version', 'bbpress' ); ?></th>
 						<th scope="col" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
 						<th scope="col" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
 					</tr>
