@@ -341,9 +341,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topic-engagements-move',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Upgrade user topic engagements', 'bbpress' ),
-		'description' => esc_html__( 'Run this if you just upgraded to 2.6.', 'bbpress' ),
+		'description' => esc_html__( 'Copies engagements from user meta to topic meta.', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_engagements',
 		'priority'    => 100,
+		'version'     => '2.6.0',
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_engagements_rewrite_id() )
 	) );
@@ -353,9 +354,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-favorites-move',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Upgrade user topic favorites', 'bbpress' ),
-		'description' => esc_html__( 'Run this if you just upgraded to 2.6.', 'bbpress' ),
+		'description' => esc_html__( 'Copies favorites from user meta to topic meta.', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_favorites',
 		'priority'    => 105,
+		'version'     => '2.6.0',
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 	) );
@@ -365,9 +367,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topic-subscriptions-move',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Upgrade user topic subscriptions', 'bbpress' ),
-		'description' => esc_html__( 'Run this if you just upgraded to 2.6.', 'bbpress' ),
+		'description' => esc_html__( 'Copies topic subscriptions from user meta to topic meta.', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_topic_subscriptions',
 		'priority'    => 110,
+		'version'     => '2.6.0',
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -377,9 +380,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-forum-subscriptions-move',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Upgrade user forum subscriptions', 'bbpress' ),
-		'description' => esc_html__( 'Run this if you just upgraded to 2.6.', 'bbpress' ),
+		'description' => esc_html__( 'Copies forum subscriptions from user meta to forum meta.', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_user_forum_subscriptions',
 		'priority'    => 115,
+		'version'     => '2.6.0',
 		'overhead'    => 'high',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -389,9 +393,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-favorites-delete',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Remove favorites from user-meta', 'bbpress' ),
-		'description' => esc_html__( 'Run this to delete old data, after confirming successful favorites upgrade above.', 'bbpress' ),
+		'description' => esc_html__( 'Run this to delete old data (after confirming successful favorites upgrade)', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_favorites_from_usermeta',
 		'priority'    => 120,
+		'version'     => '2.6.1',
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_favorites_rewrite_id() )
 	) );
@@ -401,9 +406,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-topic-subscriptions-delete',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Remove topic subscriptions from user-meta', 'bbpress' ),
-		'description' => esc_html__( 'Run this to delete old data, after confirming successful topic subscriptions upgrade above.', 'bbpress' ),
+		'description' => esc_html__( 'Run this to delete old data (after confirming successful topic subscriptions upgrade)', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta',
 		'priority'    => 125,
+		'version'     => '2.6.1',
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
@@ -413,9 +419,10 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-user-forum-subscriptions-delete',
 		'type'        => 'upgrade',
 		'title'       => esc_html__( 'Remove forum subscriptions from user-meta', 'bbpress' ),
-		'description' => esc_html__( 'Run this to delete old data, after confirming successful forum subscriptions upgrade above.', 'bbpress' ),
+		'description' => esc_html__( 'Run this to delete old data (after confirming successful forum subscriptions upgrade)', 'bbpress' ),
 		'callback'    => 'bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta',
 		'priority'    => 130,
+		'version'     => '2.6.1',
 		'overhead'    => 'medium',
 		'components'  => array( bbp_get_user_rewrite_id(), bbp_get_user_subscriptions_rewrite_id() )
 	) );
