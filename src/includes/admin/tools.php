@@ -480,7 +480,9 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 			$is_current = (bool) ( $tab['page'] === $active_tab );
 			$tab_class  = $is_current ? $active_class : $idle_class;
 			$tab_url    = add_query_arg( array( 'page' => $tab['page'] ), admin_url( 'tools.php' ) );
-			$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . esc_html( $tab['name'] ) . '</a>';
+
+			// Tab name is not escaped - may contain HTML
+			$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . $tab['name'] . '</a>';
 		}
 
 		// Output the tabs
@@ -514,7 +516,7 @@ function bbp_get_tools_admin_pages() {
 			'page' => 'bbp-upgrade',
 			'func' => 'bbp_admin_upgrade_page',
 			'cap'  => 'bbp_tools_upgrade_page',
-			'name' => esc_html__( 'Upgrade Forums', 'bbpress' ),
+			'name' => bbp_maybe_append_pending_upgrade_count( esc_html__( 'Upgrade Forums', 'bbpress' ) ),
 
 			// Deprecated 2.6.0
 			'href' => add_query_arg( array( 'page' => 'bbp-upgrade' ), $tools_url )

@@ -169,6 +169,10 @@ class BBP_Admin {
 		add_action( 'bbp_admin_init',    array( $this, 'hide_notices'   ) );
 		add_action( 'bbp_admin_notices', array( $this, 'output_notices' ) );
 
+		/** Upgrades **********************************************************/
+
+		add_action( 'bbp_admin_init', array( $this, 'add_upgrade_count' ) );
+
 		/** Ajax **************************************************************/
 
 		// No _nopriv_ equivalent - users must be logged in
@@ -386,6 +390,26 @@ class BBP_Admin {
 	}
 
 	/**
+	 * Maybe append the pending upgrade count to the "Tools" menu.
+	 *
+	 * @since 2.6.0 bbPress (r6896)
+	 *
+	 * @global menu $menu
+	 */
+	public function add_upgrade_count() {
+		global $menu;
+
+		foreach ( $menu as $menu_index => $menu_item ) {
+			$found = array_search( 'tools.php', $menu_item, true );
+
+			if ( false !== $found ) {
+				$menu[ $menu_index ][ 0 ] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][ 0 ] );
+				continue;
+			}
+		}
+	}
+
+	/**
 	 * Add the admin menus
 	 *
 	 * @since 2.0.0 bbPress (r2646)
@@ -423,7 +447,7 @@ class BBP_Admin {
 		// Forums Tools Root
 		add_management_page(
 			esc_html__( 'Forums', 'bbpress' ),
-			esc_html__( 'Forums', 'bbpress' ),
+			bbp_maybe_append_pending_upgrade_count( esc_html__( 'Forums', 'bbpress' ) ),
 			'bbp_tools_page',
 			'bbp-repair',
 			'bbp_admin_repair_page'

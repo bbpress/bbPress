@@ -530,7 +530,7 @@ function bbp_add_pending_upgrade( $upgrade_id = '' ) {
 	$pending = bbp_get_pending_upgrades();
 
 	// Maybe add upgrade ID to end of pending array
-	if ( ! isset( $pending[ $upgrade_id ] ) ) {
+	if ( false === array_search( $upgrade_id, $pending, true ) ) {
 		array_push( $pending, $upgrade_id );
 	}
 
@@ -566,4 +566,28 @@ function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
  */
 function bbp_clear_pending_upgrades() {
 	return delete_option( '_bbp_db_pending_upgrades' );
+}
+
+/**
+ * Maybe append an upgrade count to a string
+ *
+ * @since 2.6.0 bbPress (r6896)
+ *
+ * @param string $string
+ *
+ * @return string
+ */
+function bbp_maybe_append_pending_upgrade_count( $string = '' ) {
+
+	// Look for an upgrade count
+	$count = bbp_get_pending_upgrade_count();
+
+	// Append the count to the string
+	if ( ! empty( $count ) ) {
+		$suffix = ' <span class="awaiting-mod count-' . absint( $count ) . '"><span class="pending-count">' . bbp_number_format( $count ) . '</span></span>';
+		$string = "{$string}{$suffix}";
+	}
+
+	// Return the string, maybe with a count
+	return $string;
 }
