@@ -477,7 +477,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 			}
 
 			// Setup tab HTML
-			$is_current = (bool) ( $tab['name'] == $active_tab );
+			$is_current = (bool) ( $tab['page'] === $active_tab );
 			$tab_class  = $is_current ? $active_class : $idle_class;
 			$tab_url    = add_query_arg( array( 'page' => $tab['page'] ), admin_url( 'tools.php' ) );
 			$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . esc_html( $tab['name'] ) . '</a>';

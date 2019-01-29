@@ -20,8 +20,9 @@ function bbp_admin_reset_page() {
 ?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Reset Forums', 'bbpress' ) ); ?></h2>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
+		<hr class="wp-header-end">
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( 'bbp-reset' ); ?></h2>
 		<p><?php esc_html_e( 'Revert your forums back to a brand new installation, as if bbPress were never installed. This process cannot be undone.', 'bbpress' ); ?></p>
 
 		<form class="settings" method="post" action="">

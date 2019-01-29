@@ -22,8 +22,9 @@ function bbp_admin_upgrade_page() {
 	$tools = bbp_admin_repair_list( 'upgrade' ); ?>
 
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
-		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( esc_html__( 'Upgrade Forums', 'bbpress' ) ); ?></h2>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
+		<hr class="wp-header-end">
+		<h2 class="nav-tab-wrapper"><?php bbp_tools_admin_tabs( 'bbp-upgrade' ); ?></h2>
 
 		<p><?php esc_html_e( 'As bbPress improves, occasionally database upgrades are required but some forums are too large to upgrade automatically. Use the tools below to manually run upgrade routines.', 'bbpress' ); ?></p>
 		<p class="description"><?php esc_html_e( 'Some of these tools create substantial database overhead. Use caution when running more than 1 upgrade at a time.', 'bbpress' ); ?></p>
