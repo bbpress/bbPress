@@ -613,3 +613,12 @@ button.bbp-db-pass-toggle.password:after {
 td.bbp-tool-title strong {
 	display: block;
 }
+
+.manage-column.column-components {
+	width: 20%
+}
+
+.manage-column.column-version,
+.manage-column.column-overhead {
+	width: 10%;
+}
