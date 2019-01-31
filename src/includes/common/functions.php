@@ -1028,6 +1028,11 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 		return false;
 	}
 
+	// Bail if importing
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+		return false;
+	}
+
 	/** Validation ************************************************************/
 
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -1182,6 +1187,11 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Bail if subscriptions are turned off
 	if ( ! bbp_is_subscriptions_active() ) {
+		return false;
+	}
+
+	// Bail if importing
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 		return false;
 	}
 
