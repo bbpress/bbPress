@@ -275,7 +275,7 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_per_page' => array(
 
-			// Replies per page setting
+			// Topics per page setting
 			'_bbp_topics_per_page' => array(
 				'title'             => esc_html__( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_page',
