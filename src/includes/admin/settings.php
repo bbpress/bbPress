@@ -108,7 +108,7 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_users' => array(
 
-			// Allow global access
+			// Default role setting
 			'_bbp_default_role' => array(
 				'sanitize_callback' => 'sanitize_text_field',
 				'args'              => array()
@@ -296,7 +296,7 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_per_rss_page' => array(
 
-			// Replies per page setting
+			// Topics per page setting
 			'_bbp_topics_per_rss_page' => array(
 				'title'             => esc_html__( 'Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topics_per_rss_page',
@@ -527,7 +527,7 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array( 'label_for'=> '_bbp_converter_db_user' )
 			),
 
-			// Database User
+			// Database Password
 			'_bbp_converter_db_pass' => array(
 				'title'             => esc_html__( 'Database Password', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbpass',
@@ -535,7 +535,7 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array( 'label_for'=> '_bbp_converter_db_pass' )
 			),
 
-			// Database User
+			// Database Prefix
 			'_bbp_converter_db_prefix' => array(
 				'title'             => esc_html__( 'Table Prefix', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbprefix',
