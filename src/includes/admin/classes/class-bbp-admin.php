@@ -399,6 +399,12 @@ class BBP_Admin {
 	public function add_upgrade_count() {
 		global $menu;
 
+		// Skip if no menu (AJAX, shortinit, etc...)
+		if ( empty( $menu ) ) {
+			return;
+		}
+
+		// Loop through menus, and maybe add the upgrade count
 		foreach ( $menu as $menu_index => $menu_item ) {
 			$found = array_search( 'tools.php', $menu_item, true );
 
@@ -416,32 +422,37 @@ class BBP_Admin {
 	 */
 	public function admin_menus() {
 
+		// Default hooks array
 		$hooks = array();
 
 		// Get the tools pages
 		$tools = bbp_get_tools_admin_pages();
 
 		// Loop through tools and check
-		foreach ( $tools as $tool ) {
+		if ( ! empty( $tools ) ) {
+			foreach ( $tools as $tool ) {
 
-			// Try to add the admin page
-			$page = add_management_page(
-				$tool['name'],
-				$tool['name'],
-				$tool['cap'],
-				$tool['page'],
-				$tool['func']
-			);
+				// Try to add the admin page
+				$page = add_management_page(
+					$tool['name'],
+					$tool['name'],
+					$tool['cap'],
+					$tool['page'],
+					$tool['func']
+				);
 
-			// Add page to hook if user can view it
-			if ( false !== $page ) {
-				$hooks[] = $page;
+				// Add page to hook if user can view it
+				if ( false !== $page ) {
+					$hooks[] = $page;
+				}
 			}
-		}
 
-		// Fudge the highlighted subnav item when on a bbPress admin page
-		foreach ( $hooks as $hook ) {
-			add_action( "admin_head-{$hook}", 'bbp_tools_modify_menu_highlight' );
+			// Fudge the highlighted subnav item when on a bbPress admin page
+			if ( ! empty( $hooks ) ) {
+				foreach ( $hooks as $hook ) {
+					add_action( "admin_head-{$hook}", 'bbp_tools_modify_menu_highlight' );
+				}
+			}
 		}
 
 		// Forums Tools Root
