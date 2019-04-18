@@ -148,7 +148,7 @@ function bbp_has_topics( $args = array() ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_topic_search  = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
+	$default_topic_search  = bbp_sanitize_search_request( 'ts' );
 	$default_show_stickies = (bool) ( bbp_is_single_forum() || bbp_is_topic_archive() ) && ( false === $default_topic_search );
 	$default_post_parent   = bbp_is_single_forum() ? bbp_get_forum_id() : 'any';
 

@@ -300,13 +300,30 @@ function bbp_search_terms( $search_terms = '' ) {
 			if ( get_query_var( bbp_get_search_rewrite_id() ) ) {
 				$search_terms = get_query_var( bbp_get_search_rewrite_id() );
 
-			// Topic search
-			} elseif ( ! empty( $_REQUEST['ts'] ) ) {
-				$search_terms = sanitize_title( $_REQUEST['ts'] );
+			// Other searches
+			} else {
 
-			// Reply search
-			} elseif ( ! empty( $_REQUEST['rs'] ) ) {
-				$search_terms = sanitize_title( $_REQUEST['rs'] );
+				// Get known search type IDs
+				$types = bbp_get_search_type_ids();
+
+				// Filterable, so make sure types exist
+				if ( ! empty( $types ) ) {
+
+					// Loop through types
+					foreach ( $types as $type ) {
+
+						// Look for search terms
+						$terms = bbp_sanitize_search_request( $type );
+
+						// Skip if no terms
+						if ( empty( $terms ) ) {
+							continue;
+						}
+
+						// Set terms if not empty
+						$search_terms = $terms;
+					}
+				}
 			}
 		}
 

@@ -129,7 +129,7 @@ function bbp_has_replies( $args = array() ) {
 	/** Defaults **************************************************************/
 
 	// Other defaults
-	$default_reply_search   = ! empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
+	$default_reply_search   = bbp_sanitize_search_request( 'rs' );
 	$default_post_parent    = ( bbp_is_single_topic() ) ? bbp_get_topic_id() : 'any';
 	$default_post_type      = ( bbp_is_single_topic() && bbp_show_lead_topic() ) ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$default_thread_replies = (bool) ( bbp_is_single_topic() && bbp_thread_replies() );

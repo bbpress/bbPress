@@ -141,6 +141,8 @@ function bbp_has_forums( $args = array() ) {
 		$default_post_parent = bbp_get_forum_id();
 	}
 
+	$default_forum_search = bbp_sanitize_search_request( 'fs' );
+
 	// Default argument array
 	$default = array(
 		'post_type'           => bbp_get_forum_post_type(),
@@ -155,6 +157,12 @@ function bbp_has_forums( $args = array() ) {
 		// Conditionally prime the cache for last active posts
 		'update_post_family_cache' => true
 	);
+
+	// Only add 's' arg if searching for forums
+	// See https://bbpress.trac.wordpress.org/ticket/2607
+	if ( ! empty( $default_forum_search ) ) {
+		$default['s'] = $default_forum_search;
+	}
 
 	// Parse arguments with default forum query for most circumstances
 	$r = bbp_parse_args( $args, $default, 'has_forums' );
