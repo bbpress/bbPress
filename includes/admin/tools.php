@@ -637,7 +637,7 @@ function bbp_admin_repair_user_favorites() {
 			continue;
 
 		$favorites_joined = implode( ',', $favorites );
-		$values[]         = "('{$user->user_id}', '{$key}, '{$favorites_joined}')";
+		$values[]         = "('{$user->user_id}', '{$key}', '{$favorites_joined}')";
 
 		// Cleanup
 		unset( $favorites, $favorites_joined );
