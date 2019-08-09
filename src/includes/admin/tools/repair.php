@@ -862,7 +862,7 @@ function bbp_admin_repair_freshness() {
 
 	// Now we give all the forums with topics the ID their last topic.
 	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
+			( SELECT `forum`.`ID`, '_bbp_last_topic_id', MAX( `topic`.`ID` )
 			FROM `{$bbp_db->posts}` AS `forum` INNER JOIN `{$bbp_db->posts}` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
 			WHERE `topic`.`post_status` = '{$pps}' AND `forum`.`post_type` = '{$fpt}' AND `topic`.`post_type` = '{$tpt}'
 			GROUP BY `forum`.`ID` )" ) ) ) {
