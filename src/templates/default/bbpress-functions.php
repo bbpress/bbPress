@@ -124,7 +124,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Get and filter the bbp-default style
 		$styles = apply_filters( 'bbp_default_styles', array(
 			'bbp-default' => array(
-				'file'         => 'css/bbpress.css',
+				'file'         => 'css/bbpress' . $suffix . '.css',
 				'dependencies' => array()
 			)
 		) );
