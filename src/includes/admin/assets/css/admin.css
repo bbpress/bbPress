@@ -33,11 +33,11 @@
 	display: block;
 }
 
-.bbp-bee:before {
+.bbp-bee::before {
 	content: "\f451";
 }
 
-.bbp-hive:before {
+.bbp-hive::before {
 	content: "\f449";
 }
 
@@ -59,7 +59,7 @@
 	font: 400 24px/1 dashicons !important;
 }
 
-.notice-bbpress .bbpress-logo-icon:before {
+.notice-bbpress .bbpress-logo-icon::before {
 	content: "\f477";
 	color: #555;
 }
@@ -118,29 +118,29 @@ body.rtl .about-wrap .bbp-badge {
 
 /* Dashicons */
 
-th .bbp_forums_column:before,
-#dashboard_right_now a.bbp-glance-forums:before,
-#adminmenu #menu-posts-forum .wp-menu-image:before {
+th .bbp_forums_column::before,
+#dashboard_right_now a.bbp-glance-forums::before,
+#adminmenu #menu-posts-forum .wp-menu-image::before {
 	content: "\f449";
 }
 
-th .bbp_topics_column:before,
-#dashboard_right_now a.bbp-glance-topics:before,
-#adminmenu #menu-posts-topic .wp-menu-image:before {
+th .bbp_topics_column::before,
+#dashboard_right_now a.bbp-glance-topics::before,
+#adminmenu #menu-posts-topic .wp-menu-image::before {
 	content: "\f450";
 }
 
-th .bbp_replies_column:before,
-#dashboard_right_now a.bbp-glance-replies:before,
-#adminmenu #menu-posts-reply .wp-menu-image:before {
+th .bbp_replies_column::before,
+#dashboard_right_now a.bbp-glance-replies::before,
+#adminmenu #menu-posts-reply .wp-menu-image::before {
 	content: "\f451";
 }
 
-#dashboard_right_now a.bbp-glance-topic-tags:before {
+#dashboard_right_now a.bbp-glance-topic-tags::before {
 	content: "\f323";
 }
 
-#dashboard_right_now a.bbp-glance-users:before {
+#dashboard_right_now a.bbp-glance-users::before {
 	content: "\f110";
 }
 
@@ -151,9 +151,9 @@ th .bbp_replies_column {
 	width: 16px;
 }
 
-th .bbp_forums_column:before,
-th .bbp_topics_column:before,
-th .bbp_replies_column:before {
+th .bbp_forums_column::before,
+th .bbp_topics_column::before,
+th .bbp_replies_column::before {
 	font: 400 20px/0.5 dashicons;
 	speak: none;
 	display: inline-block;
@@ -580,11 +580,11 @@ button.bbp-db-pass-toggle:hover {
 	color: #888;
 }
 
-button.bbp-db-pass-toggle.text:after {
+button.bbp-db-pass-toggle.text::after {
 	content: "\f530";
 }
 
-button.bbp-db-pass-toggle.password:after {
+button.bbp-db-pass-toggle.password::after {
 	content: "\f177";
 }
 
