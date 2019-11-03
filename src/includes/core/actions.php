@@ -239,9 +239,11 @@ add_action( 'bbp_new_reply',    'bbp_notify_topic_subscribers',           11, 5 
 add_action( 'bbp_new_topic',    'bbp_notify_forum_subscribers',           11, 4 );
 
 // Sticky
-add_action( 'bbp_spam_topic',   'bbp_unstick_topic' );
-add_action( 'bbp_trash_topic',  'bbp_unstick_topic' );
-add_action( 'bbp_delete_topic', 'bbp_unstick_topic' );
+add_action( 'bbp_stick_topic',     'bbp_unstick_topic' );
+add_action( 'bbp_unapprove_topic', 'bbp_unstick_topic' );
+add_action( 'bbp_spam_topic',      'bbp_unstick_topic' );
+add_action( 'bbp_trash_topic',     'bbp_unstick_topic' );
+add_action( 'bbp_delete_topic',    'bbp_unstick_topic' );
 
 // Update topic branch
 add_action( 'bbp_trashed_topic',    'bbp_update_topic_walker' );

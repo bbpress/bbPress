@@ -3108,20 +3108,18 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 		return false;
 	}
 
-	// We may have a super sticky to which we want to convert into a normal
-	// sticky and vice versa; unstick the topic first to avoid any possible error.
-	bbp_unstick_topic( $topic_id );
-
-	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
-	$stickies = bbp_get_stickies( $forum_id );
-
 	do_action( 'bbp_stick_topic', $topic_id, $super );
 
-	if ( ! is_array( $stickies ) ) {
-		$stickies   = array( $topic_id );
-	} else {
-		$stickies[] = $topic_id;
-	}
+	// Maybe get the forum ID if not getting supers
+	$forum_id = empty( $super )
+		? bbp_get_topic_forum_id( $topic_id )
+		: 0;
+
+	// Get the stickies, maybe from the forum ID
+	$stickies = bbp_get_stickies( $forum_id );
+
+	// Add the topic to the stickies
+	$stickies[] = $topic_id;
 
 	// Pull out duplicates and empties
 	$stickies = array_unique( array_filter( $stickies ) );
@@ -3135,7 +3133,11 @@ function bbp_stick_topic( $topic_id = 0, $super = false ) {
 
 	// Reset keys
 	$stickies = array_values( $stickies );
-	$success  = ! empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+
+	// Update
+	$success  = ! empty( $super )
+		? update_option( '_bbp_super_sticky_topics', $stickies )
+		: update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
 
 	do_action( 'bbp_stuck_topic', $topic_id, $super, $success );
 
@@ -3237,6 +3239,8 @@ function bbp_unapprove_topic( $topic_id = 0 ) {
  * @return bool Always true.
  */
 function bbp_unstick_topic( $topic_id = 0 ) {
+
+	// Get topic sticky status
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$super    = bbp_is_topic_super_sticky( $topic_id );
 	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
@@ -3245,18 +3249,30 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 
 	do_action( 'bbp_unstick_topic', $topic_id );
 
+	// Nothing to unstick
 	if ( empty( $stickies ) ) {
 		$success = true;
+
+	// Topic not in stickies
 	} elseif ( ! in_array( $topic_id, $stickies, true ) ) {
 		$success = true;
+
+	// Topic not in stickies
 	} elseif ( false === $offset ) {
 		$success = true;
+
+	// Splice out the offset
 	} else {
 		array_splice( $stickies, $offset, 1 );
+
 		if ( empty( $stickies ) ) {
-			$success = ! empty( $super ) ? delete_option( '_bbp_super_sticky_topics'            ) : delete_post_meta( $forum_id, '_bbp_sticky_topics'            );
+			$success = ! empty( $super )
+				? delete_option( '_bbp_super_sticky_topics' )
+				: delete_post_meta( $forum_id, '_bbp_sticky_topics' );
 		} else {
-			$success = ! empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+			$success = ! empty( $super )
+				? update_option( '_bbp_super_sticky_topics', $stickies )
+				: update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
 		}
 	}
 
