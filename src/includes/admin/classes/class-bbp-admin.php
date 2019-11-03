@@ -106,10 +106,14 @@ class BBP_Admin {
 		$bbp              = bbpress();
 		$this->admin_dir  = trailingslashit( $bbp->includes_dir . 'admin'      ); // Admin path
 		$this->admin_url  = trailingslashit( $bbp->includes_url . 'admin'      ); // Admin url
-		$this->images_url = trailingslashit( $this->admin_url   . 'images'     ); // Admin images URL
-		$this->styles_url = trailingslashit( $this->admin_url   . 'styles'     ); // Admin styles URL
+
+		// Assets
 		$this->css_url    = trailingslashit( $this->admin_url   . 'assets/css' ); // Admin css URL
 		$this->js_url     = trailingslashit( $this->admin_url   . 'assets/js'  ); // Admin js URL
+		$this->styles_url = trailingslashit( $this->admin_url   . 'styles'     ); // Admin styles URL
+
+		// Deprecated
+		$this->images_url = trailingslashit( $this->admin_url   . 'images'     ); // Admin images URL
 	}
 
 	/**
@@ -156,12 +160,15 @@ class BBP_Admin {
 
 		/** General Actions ***************************************************/
 
-		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) ); // Add menu item to settings menu
-		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) ); // Add general styling to the admin area
-		add_action( 'bbp_register_admin_style',    array( $this, 'register_admin_style'    ) ); // Add green admin style
-		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) ); // Add settings
-		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_styles'          ) ); // Add enqueued CSS
-		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'         ) ); // Add enqueued JS
+		add_action( 'bbp_admin_menu',              array( $this, 'admin_menus'             ) );
+		add_action( 'bbp_admin_head',              array( $this, 'admin_head'              ) );
+		add_action( 'bbp_register_admin_styles',   array( $this, 'register_admin_styles'   ) );
+		add_action( 'bbp_register_admin_scripts',  array( $this, 'register_admin_scripts'  ) );
+		add_action( 'bbp_register_admin_settings', array( $this, 'register_admin_settings' ) );
+
+		// Enqueue styles & scripts
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_styles'  ) );
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts' ) );
 
 		/** Notices ***********************************************************/
 
@@ -731,27 +738,15 @@ class BBP_Admin {
 	 */
 	public function enqueue_scripts() {
 
+		// Get the current screen
+		$current_screen = get_current_screen();
+
 		// Enqueue suggest for forum/topic/reply autocompletes
 		wp_enqueue_script( 'suggest' );
 
-		// Minified
-		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-
-		// Get the version to use for JS
-		$version = bbp_get_version();
-
-		// Footer JS
-		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge' . $suffix . '.js', array(), $version, true );
-
-		// Header JS
-		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
-		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
-		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
-		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
-
 		// Post type checker (only topics and replies)
-		if ( 'post' === get_current_screen()->base ) {
-			switch ( get_current_screen()->post_type ) {
+		if ( 'post' === $current_screen->base ) {
+			switch ( $current_screen->post_type ) {
 				case bbp_get_reply_post_type() :
 				case bbp_get_topic_post_type() :
 
@@ -759,11 +754,11 @@ class BBP_Admin {
 					wp_enqueue_script( 'bbp-admin-common-js' );
 
 					// Topics admin
-					if ( bbp_get_topic_post_type() === get_current_screen()->post_type ) {
+					if ( bbp_get_topic_post_type() === $current_screen->post_type ) {
 						wp_enqueue_script( 'bbp-admin-topics-js' );
 
 					// Replies admin
-					} elseif ( bbp_get_reply_post_type() === get_current_screen()->post_type ) {
+					} elseif ( bbp_get_reply_post_type() === $current_screen->post_type ) {
 						wp_enqueue_script( 'bbp-admin-replies-js' );
 					}
 
@@ -771,7 +766,7 @@ class BBP_Admin {
 			}
 
 		// Enqueue the badge JS
-		} elseif ( in_array( get_current_screen()->id, array( 'dashboard_page_bbp-about', 'dashboard_page_bbp-credits' ), true ) ) {
+		} elseif ( in_array( $current_screen->id, array( 'dashboard_page_bbp-about', 'dashboard_page_bbp-credits' ), true ) ) {
 			wp_enqueue_script( 'bbp-admin-badge-js' );
 		}
 	}
@@ -782,15 +777,6 @@ class BBP_Admin {
 	 * @since 2.6.0 bbPress (r5224)
 	 */
 	public function enqueue_styles() {
-
-		// RTL and/or minified
-		$suffix  = is_rtl() ? '-rtl' : '';
-		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-
-		// Register admin CSS with dashicons dependency
-		wp_register_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), bbp_get_version() );
-
-		// Enqueue
 		wp_enqueue_style( 'bbp-admin-css' );
 	}
 
@@ -813,24 +799,29 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Registers the bbPress admin color scheme
+	 * Registers the bbPress admin styling and color schemes
 	 *
-	 * Because wp-content can exist outside of the WordPress root there is no
-	 * way to be certain what the relative path of the admin images is.
-	 * We are including the two most common configurations here, just in case.
+	 * Because wp-content can exist outside of the WordPress root, there is no
+	 * way to be certain what the relative path of admin images is.
 	 *
-	 * @since 2.0.0 bbPress (r2521)
+	 * @since 2.6.0 bbPress (r2521)
 	 */
-	public function register_admin_style() {
+	public function register_admin_styles() {
+
+		// RTL and/or minified
+		$suffix  = is_rtl() ? '-rtl' : '';
+		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		// Get the version to use for JS
+		$version = bbp_get_version();
+
+		// Register admin CSS with dashicons dependency
+		wp_register_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), $version );
 
 		// Color schemes are not available when running out of src
 		if ( false !== strpos( plugin_basename( bbpress()->file ), 'src' ) ) {
 			return;
 		}
-
-		// RTL and/or minified
-		$suffix  = is_rtl() ? '-rtl' : '';
-		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		// Mint
 		wp_admin_css_color(
@@ -849,6 +840,33 @@ class BBP_Admin {
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
 			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
 		);
+	}
+
+	/**
+	 * Registers the bbPress admin color schemes
+	 *
+	 * Because wp-content can exist outside of the WordPress root there is no
+	 * way to be certain what the relative path of the admin images is.
+	 * We are including the two most common configurations here, just in case.
+	 *
+	 * @since 2.6.0 bbPress (r2521)
+	 */
+	public function register_admin_scripts() {
+
+		// Minified
+		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		// Get the version to use for JS
+		$version = bbp_get_version();
+
+		// Header JS
+		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
+		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
+
+		// Footer JS
+		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge' . $suffix . '.js', array(), $version, true );
 	}
 
 	/**

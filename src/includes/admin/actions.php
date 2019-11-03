@@ -51,7 +51,8 @@ add_filter( 'custom_menu_order',       'bbp_admin_custom_menu_order'       );
 // Hook on to admin_init
 add_action( 'bbp_admin_init', 'bbp_setup_updater',          999 );
 add_action( 'bbp_admin_init', 'bbp_register_importers'          );
-add_action( 'bbp_admin_init', 'bbp_register_admin_style'        );
+add_action( 'bbp_admin_init', 'bbp_register_admin_styles'       );
+add_action( 'bbp_admin_init', 'bbp_register_admin_scripts'      );
 add_action( 'bbp_admin_init', 'bbp_register_admin_settings'     );
 
 // Hook on to current_screen
@@ -282,10 +283,33 @@ function bbp_register_importers() {
 /**
  * Dedicated action to register admin styles
  *
- * @since 2.1.0 bbPress (r3766)
+ * @since 2.6.0 bbPress (r6912)
  */
-function bbp_register_admin_style() {
+function bbp_register_admin_styles() {
+
+	/**
+	 * Action used to register the admin styling
+	 *
+	 * @since 2.1.0
+	 * @deprecated 2.6.0
+	 */
 	do_action( 'bbp_register_admin_style' );
+
+	/**
+	 * Action used to register all admin styling
+	 *
+	 * @since 2.6.0
+	 */
+	do_action( 'bbp_register_admin_styles' );
+}
+
+/**
+ * Dedicated action to register admin scripts
+ *
+ * @since 2.6.0 bbPress (r6912)
+ */
+function bbp_register_admin_scripts() {
+	do_action( 'bbp_register_admin_scripts' );
 }
 
 /**
