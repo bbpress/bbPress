@@ -1068,7 +1068,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	}
 
 	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids );
+	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids, $reply_id, $topic_id );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -1230,7 +1230,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	}
 
 	// Dedicated filter to manipulate user ID's to send emails to
-	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids );
+	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids, $topic_id, $forum_id );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
