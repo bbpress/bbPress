@@ -645,7 +645,11 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
 
 	// Update all anonymous metas
 	foreach ( $r as $anon_key => $anon_value ) {
-		update_post_meta( $post_id, '_' . $anon_key, (string) $anon_value, false );
+
+		// Update, or delete if empty
+		! empty( $anon_value )
+			? update_post_meta( $post_id, '_' . $anon_key, (string) $anon_value, false )
+			: delete_post_meta( $post_id, '_' . $anon_key );
 	}
 }
 
