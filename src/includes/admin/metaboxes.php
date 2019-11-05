@@ -731,7 +731,7 @@ function bbp_topic_favorites_metabox( $post ) {
 }
 
 /**
- * See who subscribed to a topic
+ * See who is subscribed to a topic
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
@@ -771,7 +771,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
 }
 
 /**
- * See who subscribed to a forum
+ * See who is subscribed to a forum
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
