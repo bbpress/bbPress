@@ -236,12 +236,8 @@ function bbp_past_edit_lock( $datetime = '', $utc = true ) {
 			$past_time = strtotime( $datetime, $cur_time );
 			$diff_time = ( $lock_time - $past_time ) - $duration;
 
-			// 0 minutes set, so allow editing forever
-			if ( 0 === $minutes ) {
-				$retval = false;
-
 			// Check if less than lock time
-			} elseif ( $diff_time < $duration ) {
+			if ( $diff_time < $duration ) {
 				$retval = false;
 			}
 		}
