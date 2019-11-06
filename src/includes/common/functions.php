@@ -1131,6 +1131,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	/** Headers ***************************************************************/
 
+	// Default bbPress X-header
+	$headers    = array( bbp_get_email_header() );
+
 	// Get the noreply@ address
 	$no_reply   = bbp_get_do_not_reply_address();
 
@@ -1138,7 +1141,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
-	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
+	$headers[]  = 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>';
 
 	// Loop through addresses
 	foreach ( (array) $email_addresses as $address ) {
@@ -1151,11 +1154,13 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
  	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
 
+	// Before
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Send notification email
 	wp_mail( $to_email, $subject, $message, $headers );
 
+	// After
 	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id, $user_ids );
 
 	// Restore previously removed filters
@@ -1293,6 +1298,9 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	/** Headers ***************************************************************/
 
+	// Default bbPress X-header
+	$headers    = array( bbp_get_email_header() );
+
 	// Get the noreply@ address
 	$no_reply   = bbp_get_do_not_reply_address();
 
@@ -1300,7 +1308,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	$from_email = apply_filters( 'bbp_subscription_from_email', $no_reply );
 
 	// Setup the From header
-	$headers = array( 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>' );
+	$headers[] = 'From: ' . get_bloginfo( 'name' ) . ' <' . $from_email . '>';
 
 	// Loop through addresses
 	foreach ( (array) $email_addresses as $address ) {
@@ -1313,11 +1321,13 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
 	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
 
+	// Before
 	do_action( 'bbp_pre_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	// Send notification email
 	wp_mail( $to_email, $subject, $message, $headers );
 
+	// After
 	do_action( 'bbp_post_notify_forum_subscribers', $topic_id, $forum_id, $user_ids );
 
 	// Restore previously removed filters
@@ -1415,6 +1425,81 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 
 	// Filter & return
 	return apply_filters( 'bbp_get_email_addresses_from_user_ids', $retval, $user_ids, $limit );
+}
+
+/**
+ * Automatically splits bbPress emails with many Bcc recipients into chunks.
+ *
+ * This middleware is useful because topics and forums with many subscribers
+ * run into problems with Bcc limits, and many hosting companies & third-party
+ * services limit the size of a Bcc audience to prevent spamming.
+ *
+ * The default "chunk" size is 40 users per iteration, and can be filtered if
+ * desired. A future version of bbPress will introduce a setting to more easily
+ * tune this.
+ *
+ * @since 2.6.0 (r6918)
+ *
+ * @param array $args Original arguments passed to wp_mail().
+ * @return array
+ */
+function bbp_chunk_emails( $args = array() ) {
+
+	// Get the maximum number of Bcc's per chunk
+	$max_num = apply_filters( 'bbp_get_bcc_chunk_limit', 40, $args );
+
+	// Look for "bcc: " in a case-insensitive way, and split into 2 sets
+	$match       = '/^bcc: (\w+)/i';
+	$old_headers = preg_grep( $match, $args['headers'], PREG_GREP_INVERT );
+	$bcc_headers = preg_grep( $match, $args['headers'] );
+
+	// Bail if less than $max_num recipients
+	if ( empty( $bcc_headers ) || ( count( $bcc_headers ) < $max_num ) ) {
+		return $args;
+	}
+
+	// Reindex the headers arrays
+	$old_headers = array_values( $old_headers );
+	$bcc_headers = array_values( $bcc_headers );
+
+	// Break the Bcc emails into chunks
+	foreach ( array_chunk( $bcc_headers, $max_num ) as $i => $chunk ) {
+
+		// Skip the first chunk (it will get used in the original wp_mail() call)
+		if ( 0 === $i ) {
+			$first_chunk = $chunk;
+			continue;
+		}
+
+		// Send out the chunk
+		$chunk_headers = array_merge( $old_headers, $chunk );
+
+		// Recursion alert, but should be OK!
+		wp_mail(
+			$args['to'],
+			$args['subject'],
+			$args['message'],
+			$chunk_headers,
+			$args['attachments']
+		);
+	}
+
+	// Set headers to old headers + the $first_chunk of Bcc's
+	$args['headers'] = array_merge( $old_headers, $first_chunk );
+
+	// Return the reduced args, with the first chunk of Bcc's
+	return $args;
+}
+
+/**
+ * Return the string used for the bbPress specific X-header.
+ *
+ * @since 2.6.0 (r6919)
+ *
+ * @return string
+ */
+function bbp_get_email_header() {
+	return apply_filters( 'bbp_get_email_header', 'X-bbPress: ' . bbp_get_version() );
 }
 
 /** Login *********************************************************************/

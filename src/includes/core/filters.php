@@ -39,6 +39,7 @@ defined( 'ABSPATH' ) || exit;
  */
 add_filter( 'request',                 'bbp_request',            10    );
 add_filter( 'template_include',        'bbp_template_include',   10    );
+add_filter( 'wp_mail',                 'bbp_mail',               10, 3 );
 add_filter( 'wp_title',                'bbp_title',              10, 3 );
 add_filter( 'body_class',              'bbp_body_class',         10, 2 );
 add_filter( 'map_meta_cap',            'bbp_map_meta_caps',      10, 4 );
@@ -68,6 +69,16 @@ add_action( 'posts_pre_query', 'bbp_posts_pre_query', 10, 2 );
 add_filter( 'signup_user_meta', 'bbp_user_add_role_to_signup_meta', 10 );
 
 /**
+ * Emails
+ *
+ * bbPress sends emails for a few different reasons, largely related to user
+ * notifications or account changes. Because the `wp_mail` filter can be a
+ * crowded space, the `bbp_mail` subfilter should be used in conjunction with
+ * bbp_get_email_header() to narrow the results to only bbPress emails.
+ */
+add_filter( 'bbp_mail', 'bbp_chunk_emails' );
+
+/**
  * Feeds
  *
  * bbPress comes with a number of custom RSS2 feeds that get handled outside
@@ -83,11 +94,11 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
  * template hierarchy, start here by removing this filter, then look at how
  * bbp_template_include() works and do something similar. :)
  */
-add_filter( 'bbp_template_include',   'bbp_template_include_theme_supports', 2, 1 );
-add_filter( 'bbp_template_include',   'bbp_template_include_theme_compat',   4, 2 );
+add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
+add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
 
 // Filter bbPress template locations
-add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations'          );
+add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations' );
 
 // Links
 add_filter( 'paginate_links',          'bbp_add_view_all' );
@@ -96,12 +107,12 @@ add_filter( 'bbp_get_reply_permalink', 'bbp_add_view_all' );
 add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 // wp_filter_kses on new/edit forum/topic/reply title
-add_filter( 'bbp_new_forum_pre_title',  'wp_filter_kses'  );
-add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses'  );
-add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses'  );
-add_filter( 'bbp_edit_forum_pre_title', 'wp_filter_kses'  );
-add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses'  );
-add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses'  );
+add_filter( 'bbp_new_forum_pre_title',  'wp_filter_kses' );
+add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses' );
+add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses' );
+add_filter( 'bbp_edit_forum_pre_title', 'wp_filter_kses' );
+add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses' );
+add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses' );
 
 // Prevent posting malicious or malformed content on new/edit topic/reply
 add_filter( 'bbp_new_reply_pre_content',  'bbp_encode_bad',  10 );

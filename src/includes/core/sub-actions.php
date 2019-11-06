@@ -523,3 +523,32 @@ function bbp_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = ar
 	// Filter & return
 	return (array) apply_filters( 'bbp_map_meta_caps', $caps, $cap, $user_id, $args );
 }
+
+/**
+ * Filter the arguments used by wp_mail for bbPress specific emails
+ *
+ * @since 2.6.0 bbPress (r6918)
+ *
+ * @param array $args A compacted array of wp_mail() arguments, including the "to" email,
+ *                    subject, message, headers, and attachments values.
+ *
+ * @return array Array of capabilities
+ */
+function bbp_mail( $args = array() ) {
+
+	// Bail if headers are missing/malformed
+	if ( empty( $args['headers'] ) || ! is_array( $args['headers'] ) ) {
+		return $args;
+	}
+
+	// Header to search all headers for
+	$bbp_header = bbp_get_email_header();
+
+	// Bail if no bbPress header found
+	if ( false === array_search( $bbp_header, $args['headers'], true ) ) {
+		return $args;
+	}
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_mail', $args );
+}
