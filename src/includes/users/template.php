@@ -2289,7 +2289,7 @@ function bbp_current_user_can_access_create_reply_form() {
 		$retval = true;
 
 	// Looking at a single topic, topic is open, and forum is open
-	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
+	} elseif ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() && bbp_is_topic_published() ) {
 		$retval = bbp_current_user_can_publish_replies();
 
 	// User can edit this reply

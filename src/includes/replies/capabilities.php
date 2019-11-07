@@ -153,10 +153,18 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				// Allow author or mod to edit if not in admin, unless past edit lock time
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 
-					// Only allow if not past the edit-lock period
-					$caps = ! bbp_past_edit_lock( $_post->post_date_gmt )
-						? array( $post_type->cap->edit_posts )
-						: array( 'do_not_allow' );
+					// If editing...
+					if ( bbp_is_reply_edit() ) {
+
+						// Only allow if not past the edit-lock period
+						$caps = ! bbp_past_edit_lock( $_post->post_date_gmt )
+							? array( $post_type->cap->edit_posts )
+							: array( 'do_not_allow' );
+
+					// Otherwise...
+					} else {
+						$caps = array( $post_type->cap->edit_posts );
+					}
 
 				// Fallback to edit_others_posts.
 				} else {

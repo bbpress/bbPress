@@ -3081,7 +3081,12 @@ function bbp_topic_notices() {
 
 		// Trashed notice
 		case bbp_get_trash_status_id() :
-			$notice_text = esc_html__( 'This topic is in the trash.',   'bbpress' );
+			$notice_text = esc_html__( 'This topic is in the trash.', 'bbpress' );
+			break;
+
+		// Pending notice
+		case bbp_get_pending_status_id() :
+			$notice_text = esc_html__( 'This topic is pending moderation.', 'bbpress' );
 			break;
 
 		// Standard status
@@ -3335,17 +3340,25 @@ function bbp_single_topic_description( $args = array() ) {
 
 		// Topic has activity (could be from reply or topic author)
 		$last_active = bbp_get_topic_last_active_id( $topic_id );
-		if ( ! empty( $last_active ) ) {
+		if ( ! empty( $vc_int ) && ! empty( $last_active ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
 			$retstr          = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
 
 		// Topic has no replies
-		} elseif ( ! empty( $voice_count ) && ! empty( $reply_count ) ) {
+		} elseif ( ! empty( $vc_int ) && ! empty( $reply_count ) ) {
 			$retstr = sprintf( esc_html__( 'This topic has %1$s and %2$s.', 'bbpress' ), $voice_count, $reply_count );
 
 		// Topic has no replies and no voices
-		} elseif ( empty( $voice_count ) && empty( $reply_count ) ) {
-			$retstr = sprintf( esc_html__( 'This topic has no replies.', 'bbpress' ), $voice_count, $reply_count );
+		} elseif ( empty( $vc_int ) && empty( $reply_count ) ) {
+			$retstr = esc_html__( 'This topic has no replies.', 'bbpress' );
+
+		// Topic is pending
+		} elseif ( bbp_get_topic_status( $topic_id ) === bbp_get_pending_status_id() ) {
+			$retstr = esc_html__( 'This topic is pending moderation.', 'bbpress' );
+
+		// Fallback
+		} else {
+			$retstr = esc_html__( 'This topic is empty.', 'bbpress' );
 		}
 
 		// Add the 'view all' filter back
