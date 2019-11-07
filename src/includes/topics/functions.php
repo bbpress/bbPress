@@ -1899,6 +1899,41 @@ function bbp_get_topic_toggles( $topic_id = 0 ) {
 	), $topic_id );
 }
 
+/**
+ * Return array of public topic statuses.
+ *
+ * @since 2.6.0 bbPress (r6383)
+ *
+ * @return array
+ */
+function bbp_get_public_topic_statuses() {
+	$statuses = array(
+		bbp_get_public_status_id(),
+		bbp_get_closed_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_public_topic_statuses', $statuses );
+}
+
+/**
+ * Return array of non-public topic statuses.
+ *
+ * @since 2.6.0 bbPress (r6642)
+ *
+ * @return array
+ */
+function bbp_get_non_public_topic_statuses() {
+	$statuses = array(
+		bbp_get_trash_status_id(),
+		bbp_get_spam_status_id(),
+		bbp_get_pending_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_non_public_topic_statuses', $statuses );
+}
+
 /** Stickies ******************************************************************/
 
 /**
@@ -3634,10 +3669,7 @@ function bbp_update_topic_tag_count( $terms, $taxonomy ) {
 	}
 
 	// Statuses to count
-	$object_statuses = array(
-		bbp_get_public_status_id(),
-		bbp_get_closed_status_id()
-	);
+	$object_statuses = bbp_get_public_topic_statuses();
 
 	// Get database
 	$bbp_db = bbp_db();

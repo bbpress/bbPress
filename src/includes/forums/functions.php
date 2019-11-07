@@ -1821,6 +1821,9 @@ function bbp_update_forum( $args = array() ) {
 /**
  * Return an associative array of available topic statuses
  *
+ * Developers note: these statuses are actually stored as meta data, and
+ * Visibilities are stored in post_status.
+ *
  * @since 2.4.0 bbPress (r5059)
  *
  * @param int $forum_id   Optional. Forum id.
@@ -1857,6 +1860,9 @@ function bbp_get_forum_types( $forum_id = 0 ) {
 /**
  * Return an associative array of forum visibility
  *
+ * Developers note: these visibilities are actually stored in post_status, and
+ * Statuses are stored in meta data.
+ *
  * @since 2.4.0 bbPress (r5059)
  *
  * @param int $forum_id   Optional. Forum id.
@@ -1871,6 +1877,39 @@ function bbp_get_forum_visibilities( $forum_id = 0) {
 		bbp_get_private_status_id() => _x( 'Private', 'Make forum private', 'bbpress' ),
 		bbp_get_hidden_status_id()  => _x( 'Hidden',  'Make forum hidden',  'bbpress' )
 	), $forum_id );
+}
+
+/**
+ * Return array of public forum statuses.
+ *
+ * @since 2.6.0 bbPress (r6921)
+ *
+ * @return array
+ */
+function bbp_get_public_forum_statuses() {
+	$statuses = array(
+		bbp_get_public_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_public_forum_statuses', $statuses );
+}
+
+/**
+ * Return array of non-public forum statuses.
+ *
+ * @since 2.6.0 bbPress (r6921)
+ *
+ * @return array
+ */
+function bbp_get_non_public_forum_statuses() {
+	$statuses = array(
+		bbp_get_private_status_id(),
+		bbp_get_hidden_status_id()
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_non_public_forum_statuses', $statuses );
 }
 
 /** Queries *******************************************************************/
@@ -2142,7 +2181,9 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true
 	) );
+
 	$reply_id = array_shift( $query->posts );
+
 	unset( $query );
 
 	// Filter & return

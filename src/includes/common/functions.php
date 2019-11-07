@@ -1868,7 +1868,7 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$post_status = array( bbp_get_private_status_id(), bbp_get_hidden_status_id() );
+			$post_status = bbp_get_non_public_forum_statuses();
 			break;
 
 		// Topic
@@ -1878,8 +1878,12 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 		// Reply
 		case bbp_get_reply_post_type() :
-		default :
 			$post_status = bbp_get_non_public_reply_statuses();
+			break;
+
+		// Any
+		default :
+			$post_status = bbp_get_public_status_id();
 			break;
 	}
 
@@ -1911,12 +1915,24 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return array();
 	}
 
-	// Get the public post status
-	$post_status = array( bbp_get_public_status_id() );
+	// Which statuses
+	switch ( $post_type ) {
 
-	// Add closed status if topic post type
-	if ( bbp_get_topic_post_type() === $post_type ) {
-		$post_status[] = bbp_get_closed_status_id();
+		// Forum
+		case bbp_get_forum_post_type() :
+			$post_status = bbp_get_public_forum_statuses();
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$post_status = bbp_get_public_topic_statuses();
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+		default :
+			$post_status = bbp_get_public_reply_statuses();
+			break;
 	}
 
 	$query = new WP_Query( array(
@@ -1938,7 +1954,11 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		'ignore_sticky_posts'    => true,
 		'no_found_rows'          => true
 	) );
-	$child_ids = ! empty( $query->posts ) ? $query->posts : array();
+
+	$child_ids = ! empty( $query->posts )
+		? $query->posts
+		: array();
+
 	unset( $query );
 
 	// Filter & return
@@ -1962,17 +1982,25 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return array();
 	}
 
-	// Check cache key
-	$key          = md5( serialize( array( 'parent_id' => $parent_id, 'post_type' => $post_type ) ) );
+	// Make cache key
+	$not_in = array( 'draft', 'future' );
+	$key    = md5( serialize( array(
+		'parent_id'   => $parent_id,
+		'post_type'   => $post_type,
+		'post_status' => $not_in
+	) ) );
+
+	// Check last changed
 	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
 	$cache_key    = "bbp_child_ids:{$key}:{$last_changed}";
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_key, 'bbpress_posts' );
+
+	// Not already cached
 	if ( false === $child_ids ) {
 
 		// Join post statuses to specifically exclude together
-		$not_in      = array( 'draft', 'future' );
 		$post_status = "'" . implode( "', '", $not_in ) . "'";
 		$bbp_db      = bbp_db();
 
