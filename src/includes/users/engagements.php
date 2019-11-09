@@ -416,6 +416,12 @@ function bbp_update_topic_engagements( $topic_id = 0 ) {
 
 	// Is a topic
 	} elseif ( bbp_is_topic( $topic_id ) ) {
+
+		// Bail if topic isn't published
+		if ( ! bbp_is_topic_published( $topic_id ) ) {
+			return;
+		}
+
 		$author_id = bbp_get_topic_author_id( $topic_id );
 		$topic_id  = bbp_get_topic_id( $topic_id );
 

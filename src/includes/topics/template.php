@@ -804,8 +804,11 @@ function bbp_topic_pagination( $args = array() ) {
 			'after'    => '</span>',
 		), 'get_topic_pagination' );
 
+		// Slug must be checked for topics that have never been approved/published
+		$has_slug = bbp_get_topic( $r['topic_id'] )->post_name;
+
 		// If pretty permalinks are enabled, make our pagination pretty
-		$base = bbp_use_pretty_urls()
+		$base = ! empty( $has_slug ) && bbp_use_pretty_urls() && ! bbp_is_topic_pending( $r['topic_id'] )
 			? trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' )
 			: add_query_arg( 'paged', '%#%', get_permalink( $r['topic_id'] ) );
 
@@ -946,7 +949,9 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			$topic_id = bbp_get_topic_id( $topic_id );
 
 			$revision_log = get_post_meta( $topic_id, '_bbp_revision_log', true );
-			$revision_log = empty( $revision_log ) ? array() : $revision_log;
+			$revision_log = ! empty( $revision_log )
+				? $revision_log
+				: array();
 
 			// Filter & return
 			return apply_filters( 'bbp_get_topic_raw_revision_log', $revision_log, $topic_id );
@@ -1657,20 +1662,20 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$forum_id = get_post_field( 'post_parent', $topic_id );
+		$forum_id = (int) get_post_field( 'post_parent', $topic_id );
 
 		// Meta-data fallback
 		if ( empty( $forum_id ) ) {
-			$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
+			$forum_id = (int) get_post_meta( $topic_id, '_bbp_forum_id', true );
 		}
 
 		// Filter
 		if ( ! empty( $forum_id ) ) {
-			$forum_id = bbp_get_forum_id( $forum_id );
+			$forum_id = (int) bbp_get_forum_id( $forum_id );
 		}
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_forum_id', $forum_id, $topic_id );
 	}
 
 /**
@@ -1693,10 +1698,10 @@ function bbp_topic_last_active_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_last_active_id( $topic_id = 0 ) {
 		$topic_id  = bbp_get_topic_id( $topic_id );
-		$active_id = get_post_meta( $topic_id, '_bbp_last_active_id', true );
+		$active_id = (int) get_post_meta( $topic_id, '_bbp_last_active_id', true );
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_topic_last_active_id', (int) $active_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_last_active_id', $active_id, $topic_id );
 	}
 
 /**
@@ -1855,10 +1860,10 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$reply_id = get_post_meta( $topic_id, '_bbp_last_reply_id', true );
+		$reply_id = (int) get_post_meta( $topic_id, '_bbp_last_reply_id', true );
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_topic_last_reply_id', (int) $reply_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_last_reply_id', $reply_id, $topic_id );
 	}
 
 /**
@@ -2057,7 +2062,7 @@ function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_reply_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
+		$replies  = (int) get_post_meta( $topic_id, '_bbp_reply_count', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_reply_count_int'
 			: 'bbp_get_topic_reply_count';
@@ -2087,7 +2092,7 @@ function bbp_topic_post_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_post_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true ) + 1;
+		$replies  = ( (int) get_post_meta( $topic_id, '_bbp_reply_count', true ) ) + 1;
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_post_count_int'
 			: 'bbp_get_topic_post_count';
@@ -2119,7 +2124,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
+		$replies  = (int) get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_reply_count_hidden_int'
 			: 'bbp_get_topic_reply_count_hidden';
@@ -2147,7 +2152,7 @@ function bbp_topic_voice_count( $topic_id = 0, $integer = false ) {
 	 */
 	function bbp_get_topic_voice_count( $topic_id = 0, $integer = false ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
+		$voices   = (int) get_post_meta( $topic_id, '_bbp_voice_count', true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_topic_voice_count_int'
 			: 'bbp_get_topic_voice_count';
@@ -2342,7 +2347,7 @@ function bbp_topic_admin_links( $args = array() ) {
 
 		// See if links need to be unset
 		$topic_status = bbp_get_topic_status( $r['id'] );
-		if ( in_array( $topic_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id() ) ) ) {
+		if ( in_array( $topic_status, bbp_get_non_public_topic_statuses(), true ) ) {
 
 			// Close link shouldn't be visible on trashed/spammed/pending topics
 			unset( $r['links']['close'] );

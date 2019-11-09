@@ -435,8 +435,15 @@ function bbp_reply_url( $reply_id = 0 ) {
 	function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 
 		// Set needed variables
-		$reply_id   = bbp_get_reply_id      ( $reply_id );
-		$topic_id   = bbp_get_reply_topic_id( $reply_id );
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Juggle reply & topic IDs for unpretty URL formatting
+		if ( bbp_is_reply( $reply_id ) ) {
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
+		} elseif ( bbp_is_topic( $reply_id ) ) {
+			$topic_id = bbp_get_topic_id( $reply_id );
+			$reply_id = $topic_id;
+		}
 
 		// Hierarchical reply page
 		if ( bbp_thread_replies() ) {
@@ -447,23 +454,37 @@ function bbp_reply_url( $reply_id = 0 ) {
 			$reply_page = ceil( (int) bbp_get_reply_position( $reply_id, $topic_id ) / (int) bbp_get_replies_per_page() );
 		}
 
+		// Get links & URLS
 		$reply_hash = '#post-' . $reply_id;
 		$topic_link = bbp_get_topic_permalink( $topic_id, $redirect_to );
 		$topic_url  = remove_query_arg( 'view', $topic_link );
 
+		// Get vars needed to support pending topics with unpretty links
+		$has_slug   = bbp_get_topic( $topic_id )->post_name;
+		$pretty     = bbp_use_pretty_urls();
+		$published  = ! bbp_is_topic_pending( $topic_id );
+
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
-			$url = user_trailingslashit( $topic_url ) . $reply_hash;
+
+			// Pretty permalinks
+			if ( ! empty( $has_slug ) && ! empty( $pretty ) && ! empty( $published ) ) {
+				$url = user_trailingslashit( $topic_url ) . $reply_hash;
+
+			// Unpretty links
+			} else {
+				$url = $topic_url . $reply_hash;
+			}
 
 		// Include pagination
 		} else {
 
 			// Pretty permalinks
-			if ( bbp_use_pretty_urls() ) {
+			if ( ! empty( $has_slug ) && ! empty( $pretty ) && ! empty( $published ) ) {
 				$url = trailingslashit( $topic_url ) . trailingslashit( bbp_get_paged_slug() ) . $reply_page;
 				$url = user_trailingslashit( $url ) . $reply_hash;
 
-			// Yucky links
+			// Unpretty links
 			} else {
 				$url = add_query_arg( 'paged', $reply_page, $topic_url ) . $reply_hash;
 			}
@@ -761,7 +782,9 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
 			$reply_id     = bbp_get_reply_id( $reply_id );
 			$revision_log = get_post_meta( $reply_id, '_bbp_revision_log', true );
-			$revision_log = empty( $revision_log ) ? array() : $revision_log;
+			$revision_log = ! empty( $revision_log )
+				? $revision_log
+				: array();
 
 			// Filter & return
 			return apply_filters( 'bbp_get_reply_raw_revision_log', $revision_log, $reply_id );
@@ -851,17 +874,21 @@ function bbp_is_reply_public( $reply_id = 0 ) {
  * Is the reply not spam or deleted?
  *
  * @since 2.0.0 bbPress (r3496)
+ * @since 2.6.0 bbPress (r6922) Returns false if topic is also not published
  *
  * @param int $reply_id Optional. Topic id
  * @return bool True if published, false if not.
  */
 function bbp_is_reply_published( $reply_id = 0 ) {
 	$reply_id     = bbp_get_reply_id( $reply_id );
+	$topic_id     = bbp_get_reply_topic_id( $reply_id );
 	$status       = bbp_get_public_status_id();
-	$reply_status = bbp_get_reply_status( $reply_id ) === $status;
+	$topic_status = bbp_is_topic_published( $topic_id );
+	$reply_status = ( bbp_get_reply_status( $reply_id ) === $status );
+	$retval       = ( $reply_status && $topic_status );
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $reply_status, $reply_id );
+	return (bool) apply_filters( 'bbp_is_reply_published', (bool) $retval, $reply_id );
 }
 
 /**
@@ -1395,20 +1422,20 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		$topic_id = get_post_field( 'post_parent', $reply_id );
+		$topic_id = (int) get_post_field( 'post_parent', $reply_id );
 
 		// Meta-data fallback
 		if ( empty( $topic_id ) ) {
-			$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
+			$topic_id = (int) get_post_meta( $reply_id, '_bbp_topic_id', true );
 		}
 
 		// Filter
 		if ( ! empty( $topic_id ) ) {
-			$topic_id = bbp_get_topic_id( $topic_id );
+			$topic_id = (int) bbp_get_topic_id( $topic_id );
 		}
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
+		return (int) apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 	}
 
 /**
@@ -1432,16 +1459,17 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		$forum_id = get_post_field( 'post_parent', bbp_get_reply_topic_id( $reply_id ) );
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		$forum_id = (int) get_post_field( 'post_parent', $topic_id );
 
 		// Meta-data fallback
 		if ( empty( $forum_id ) ) {
-			$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
+			$forum_id = (int) get_post_meta( $reply_id, '_bbp_forum_id', true );
 		}
 
 		// Filter
 		if ( ! empty( $forum_id ) ) {
-			$forum_id = bbp_get_forum_id( $forum_id );
+			$forum_id = (int) bbp_get_forum_id( $forum_id );
 		}
 
 		// Filter & return
@@ -2271,7 +2299,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 
 	// If pretty permalinks are enabled, make our pagination pretty
-	if ( bbp_use_pretty_urls() ) {
+	if ( bbp_use_pretty_urls() && ! bbp_is_topic_pending( $topic_id )) {
 
 		// User's replies
 		if ( bbp_is_single_user_replies() ) {

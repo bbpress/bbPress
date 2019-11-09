@@ -262,7 +262,7 @@ function bbp_admin_repair_topic_voice_count() {
 }
 
 /**
- * Recount topic hidden replies (spammed/trashed)
+ * Recount non-public replies per topic (pending/spammed/trashed)
  *
  * @since 2.0.0 bbPress (r2747)
  *
@@ -404,6 +404,47 @@ function bbp_admin_repair_forum_reply_count() {
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
+		}
+	} else {
+		return array( 2, sprintf( $statement, $result ) );
+	}
+
+	return array( 0, sprintf( $statement, esc_html__( 'Complete!', 'bbpress' ) ) );
+}
+
+/**
+ * Recount non-public forum replies
+ *
+ * @since 2.6.0 bbPress (r6922)
+ *
+ * @return array An array of the status code and the message
+ */
+function bbp_admin_repair_forum_reply_count_hidden() {
+
+	// Define variables
+	$bbp_db    = bbp_db();
+	$statement = esc_html__( 'Counting the number of pending, spammed, and trashed replies in each forum&hellip; %s', 'bbpress' );
+	$result    = esc_html__( 'Failed!', 'bbpress' );
+
+	// Post type
+	$fpt = bbp_get_forum_post_type();
+
+	// Delete the meta keys _bbp_reply_count and _bbp_total_reply_count for each forum
+	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
+						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
+						WHERE `posts`.`post_type` = '{$fpt}'
+						AND `postmeta`.`meta_key` = '_bbp_reply_count_hidden'
+						OR `postmeta`.`meta_key` = '_bbp_total_reply_count_hidden'";
+
+	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
+ 		return array( 1, sprintf( $statement, $result ) );
+	}
+
+	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
+	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	if ( ! empty( $forums ) ) {
+		foreach ( $forums as $forum ) {
+			bbp_update_forum_reply_count_hidden( $forum->ID );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );

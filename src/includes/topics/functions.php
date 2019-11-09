@@ -843,7 +843,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 
 /**
  * Walks up the post_parent tree from the current topic_id, and updates the
- * counts of forums above it. This calls a few internal functions that all run
+ * meta data of forums above it. This calls several functions that all run
  * manual queries against the database to get their results. As such, this
  * function can be costly to run but is necessary to keep everything accurate.
  *
@@ -993,22 +993,16 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	// Get topic ancestors
 	$old_forum_ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), (array) get_post_ancestors( $old_forum_id ) ) ) );
 
-	// Get reply count.
-	$public_reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
-
-	// Topic status.
-	$topic_status = get_post_field( 'post_status', $topic_id );
-
-	// Update old/new forum counts.
-	if ( $topic_status === bbp_get_public_status_id() ) {
+	// Public counts
+	if ( bbp_is_topic_public( $topic_id ) ) {
 
 		// Update old forum counts.
 		bbp_decrease_forum_topic_count( $old_forum_id );
-		bbp_bump_forum_reply_count( $old_forum_id, -$public_reply_count );
 
 		// Update new forum counts.
 		bbp_increase_forum_topic_count( $new_forum_id );
-		bbp_bump_forum_reply_count( $new_forum_id, $public_reply_count );
+
+	// Non-public counts
 	} else {
 
 		// Update old forum counts.
@@ -1017,6 +1011,16 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 		// Update new forum counts.
 		bbp_increase_forum_topic_count_hidden( $new_forum_id );
 	}
+
+	// Get reply counts.
+	$public_reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
+	$hidden_reply_count = bbp_get_non_public_child_count( $topic_id, bbp_get_reply_post_type() );
+
+	// Bump reply counts.
+	bbp_bump_forum_reply_count( $old_forum_id, -$public_reply_count );
+	bbp_bump_forum_reply_count( $new_forum_id, $public_reply_count );
+	bbp_bump_forum_reply_count_hidden( $old_forum_id, -$hidden_reply_count );
+	bbp_bump_forum_reply_count_hidden( $new_forum_id, $hidden_reply_count );
 
 	// Loop through ancestors and update them
 	if ( ! empty( $old_forum_ancestors ) ) {
@@ -2318,13 +2322,14 @@ function bbp_increase_topic_reply_count( $topic_id = 0 ) {
 		$reply_id = $topic_id;
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-		// If this is a new, unpublished, reply, update hidden count and bail.
-		if ( ! bbp_is_reply_published( $reply_id ) ) {
+		// Update inverse based on item status
+		if ( ! bbp_is_reply_public( $reply_id ) ) {
 			bbp_increase_topic_reply_count_hidden( $topic_id );
 			return;
 		}
 	}
 
+	// Bump up
 	bbp_bump_topic_reply_count( $topic_id );
 }
 
@@ -2346,9 +2351,17 @@ function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
 
 	// If it's a reply, get the topic id.
 	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
+		$reply_id = $topic_id;
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// Update inverse based on item status
+		if ( ! bbp_is_reply_public( $reply_id ) ) {
+			bbp_decrease_topic_reply_count_hidden( $topic_id );
+			return;
+		}
 	}
 
+	// Bump down
 	bbp_bump_topic_reply_count( $topic_id, -1 );
 }
 
@@ -2399,9 +2412,17 @@ function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
 
 	// If it's a reply, get the topic id.
 	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
+		$reply_id = $topic_id;
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// Update inverse based on item status
+		if ( bbp_is_reply_public( $reply_id ) ) {
+			bbp_increase_topic_reply_count( $topic_id );
+			return;
+		}
 	}
 
+	// Bump up
 	bbp_bump_topic_reply_count_hidden( $topic_id );
 }
 
@@ -2423,9 +2444,17 @@ function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
 
 	// If it's a reply, get the topic id.
 	if ( bbp_is_reply( $topic_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
+		$reply_id = $topic_id;
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// Update inverse based on item status
+		if ( bbp_is_reply_public( $reply_id ) ) {
+			bbp_decrease_topic_reply_count( $topic_id );
+			return;
+		}
 	}
 
+	// Bump down
 	bbp_bump_topic_reply_count_hidden( $topic_id, -1 );
 }
 
@@ -2508,7 +2537,7 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
  * @param int $reply_count Optional. Set the reply count manually.
  * @return int Topic reply count
  */
-function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
+function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = false ) {
 
 	// If it's a reply, then get the parent (topic id)
 	$topic_id = bbp_is_reply( $topic_id )
@@ -2516,7 +2545,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic if not passed
-	$reply_count = empty( $reply_count )
+	$reply_count = ! is_int( $reply_count )
 		? bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() )
 		: (int) $reply_count;
 
@@ -2536,7 +2565,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @param int $reply_count Optional. Set the reply count manually
  * @return int Topic hidden reply count
  */
-function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) {
+function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = false ) {
 
 	// If it's a reply, then get the parent (topic id)
 	$topic_id = bbp_is_reply( $topic_id )
@@ -2544,7 +2573,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 		: bbp_get_topic_id( $topic_id );
 
 	// Get replies of topic
-	$reply_count = empty( $reply_count )
+	$reply_count = ! is_int( $reply_count )
 		? bbp_get_non_public_child_count( $topic_id, bbp_get_reply_post_type() )
 		: (int) $reply_count;
 
@@ -2583,9 +2612,7 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 	$active_id = (int) $active_id;
 
 	// Update only if published
-	if ( bbp_get_public_status_id() === get_post_status( $active_id ) ) {
-		update_post_meta( $topic_id, '_bbp_last_active_id', $active_id );
-	}
+	update_post_meta( $topic_id, '_bbp_last_active_id', $active_id );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_last_active_id', $active_id, $topic_id );
@@ -2653,9 +2680,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 	$reply_id = (int) $reply_id;
 
 	// Update if reply is published
-	if ( bbp_is_reply_published( $reply_id ) ) {
-		update_post_meta( $topic_id, '_bbp_last_reply_id', $reply_id );
-	}
+	update_post_meta( $topic_id, '_bbp_last_reply_id', $reply_id );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_last_reply_id', $reply_id, $topic_id );

@@ -26,7 +26,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 	// Parse arguments against default values
 	$reply_data = bbp_parse_args( $reply_data, array(
 		'post_parent'    => 0, // topic ID
-		'post_status'    => bbp_get_public_status_id(),
 		'post_type'      => bbp_get_reply_post_type(),
 		'post_author'    => bbp_get_current_user_id(),
 		'post_password'  => '',
@@ -35,6 +34,11 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		'menu_order'     => bbp_get_topic_reply_count( $reply_data['post_parent'], true ) + 1,
 		'comment_status' => 'closed'
 	), 'insert_reply' );
+
+	// Possibly override status based on parent topic
+	if ( ! empty( $reply_data['post_parent'] ) && empty( $reply_data['post_status'] ) ) {
+		$reply_data['post_status'] = bbp_get_topic_status( $reply_data['post_parent'] );
+	}
 
 	// Insert reply
 	$reply_id = wp_insert_post( $reply_data, false );
@@ -95,14 +99,15 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  */
 function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
 
-	// If the reply is public, update the forum/topic reply counts.
+	// If the reply is public, update the reply counts.
 	if ( bbp_is_reply_published( $reply_id ) ) {
 		bbp_increase_topic_reply_count( $topic_id );
 		bbp_increase_forum_reply_count( $forum_id );
 
-	// If the reply isn't public only update the topic reply hidden count.
+	// If the reply isn't public only update the reply hidden counts.
 	} else {
 		bbp_increase_topic_reply_count_hidden( $topic_id );
+		bbp_increase_forum_reply_count_hidden( $forum_id );
 	}
 }
 
@@ -314,7 +319,7 @@ function bbp_new_reply_handler( $action = '' ) {
 	/** Reply Status **********************************************************/
 
 	// Maybe put into moderation
-	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
+	if ( bbp_is_topic_pending( $topic_id ) || ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 		$reply_status = bbp_get_pending_status_id();
 
 	// Default
@@ -919,21 +924,23 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Topic meta relating to most recent reply
 			} elseif ( bbp_is_topic( $ancestor ) ) {
 
-				// Last reply and active ID's
-				bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
-				bbp_update_topic_last_active_id( $ancestor, $active_id );
+				// Only update if reply is published
+				if ( ! bbp_is_reply_pending( $reply_id ) ) {
 
-				// Get the last active time if none was passed
-				$topic_last_active_time = $last_active_time;
-				if ( empty( $last_active_time ) ) {
-					$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+					// Last reply and active ID's
+					bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
+					bbp_update_topic_last_active_id( $ancestor, $active_id );
+
+					// Get the last active time if none was passed
+					$topic_last_active_time = $last_active_time;
+					if ( empty( $last_active_time ) ) {
+						$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+					}
+
+					bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
 				}
 
-				// Update the topic last active time regardless of reply status.
-				// See https://bbpress.trac.wordpress.org/ticket/2838
-				bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
-
-				// Only update reply count if we're deleting a reply, or in the dashboard.
+				// Only update reply count if we've deleted a reply
 				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
 					bbp_update_topic_reply_count(        $ancestor );
 					bbp_update_topic_reply_count_hidden( $ancestor );
@@ -943,26 +950,26 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Forum meta relating to most recent topic
 			} elseif ( bbp_is_forum( $ancestor ) ) {
 
-				// Last topic and reply ID's
-				bbp_update_forum_last_topic_id( $ancestor, $topic_id );
-				bbp_update_forum_last_reply_id( $ancestor, $reply_id );
-
-				// Last Active
-				bbp_update_forum_last_active_id( $ancestor, $active_id );
-
-				// Get the last active time if none was passed
-				$forum_last_active_time = $last_active_time;
-				if ( empty( $last_active_time ) ) {
-					$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
-				}
-
 				// Only update if reply is published
-				if ( bbp_is_reply_published( $reply_id ) ) {
+				if ( bbp_is_reply_pending( $reply_id ) && ! bbp_is_topic_pending( $topic_id ) ) {
+
+					// Last topic and reply ID's
+					bbp_update_forum_last_topic_id( $ancestor, $topic_id );
+					bbp_update_forum_last_reply_id( $ancestor, $reply_id );
+
+					// Last Active
+					bbp_update_forum_last_active_id( $ancestor, $active_id );
+
+					// Get the last active time if none was passed
+					$forum_last_active_time = $last_active_time;
+					if ( empty( $last_active_time ) ) {
+						$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
+					}
+
 					bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
 				}
 
-				// Counts
-				// Only update reply count if we're deleting a reply, or in the dashboard.
+				// Only update reply count if we've deleted a reply
 				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
 					bbp_update_forum_reply_count( $ancestor );
 				}

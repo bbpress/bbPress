@@ -265,7 +265,6 @@ function bbp_login_form_login() {
 	do_action( 'bbp_login_form_login' );
 }
 
-
 /**
  * Add the bbPress-specific post status transition action
  *

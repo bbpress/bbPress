@@ -1663,12 +1663,24 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 	}
 
-	// Get the public posts status
-	$post_status = array( bbp_get_public_status_id() );
+	// Which statuses
+	switch ( $post_type ) {
 
-	// Add closed status if topic post type
-	if ( bbp_get_topic_post_type() === $post_type ) {
-		$post_status[] = bbp_get_closed_status_id();
+		// Forum
+		case bbp_get_forum_post_type() :
+			$post_status = bbp_get_public_forum_statuses();
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$post_status = bbp_get_public_topic_statuses();
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+		default :
+			$post_status = bbp_get_public_reply_statuses();
+			break;
 	}
 
 	$query = new WP_Query( array(
@@ -1822,7 +1834,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$post_status = array( bbp_get_public_status_id() );
+			$post_status = bbp_get_public_forum_statuses();
 			break;
 
 		// Topic

@@ -483,10 +483,10 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_active_id( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
-		$active_id = get_post_meta( $forum_id, '_bbp_last_active_id', true );
+		$active_id = (int) get_post_meta( $forum_id, '_bbp_last_active_id', true );
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_forum_last_active_id', (int) $active_id, $forum_id );
+		return (int) apply_filters( 'bbp_get_forum_last_active_id', $active_id, $forum_id );
 	}
 
 /**
@@ -605,20 +605,20 @@ function bbp_forum_parent_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_parent_id( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
-		$parent_id = get_post_field( 'post_parent', $forum_id );
+		$parent_id = (int) get_post_field( 'post_parent', $forum_id );
 
 		// Meta-data fallback
 		if ( empty( $parent_id ) ) {
-			$parent_id = get_post_meta( $forum_id, '_bbp_forum_id', true );
+			$parent_id = (int) get_post_meta( $forum_id, '_bbp_forum_id', true );
 		}
 
 		// Filter
 		if ( ! empty( $parent_id ) ) {
-			$parent_id = bbp_get_forum_id( $parent_id );
+			$parent_id = (int) bbp_get_forum_id( $parent_id );
 		}
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_forum_parent_id', (int) $parent_id, $forum_id );
+		return (int) apply_filters( 'bbp_get_forum_parent_id', $parent_id, $forum_id );
 	}
 
 /**
@@ -867,10 +867,10 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_topic_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topic_id = get_post_meta( $forum_id, '_bbp_last_topic_id', true );
+		$topic_id = (int) get_post_meta( $forum_id, '_bbp_last_topic_id', true );
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_forum_last_topic_id', (int) $topic_id, $forum_id );
+		return (int) apply_filters( 'bbp_get_forum_last_topic_id', $topic_id, $forum_id );
 	}
 
 /**
@@ -993,10 +993,10 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_reply_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
+		$reply_id = (int) get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 
 		// Filter & return
-		return (int) apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
+		return (int) apply_filters( 'bbp_get_forum_last_reply_id', $reply_id, $forum_id );
 	}
 
 /**
@@ -1175,13 +1175,13 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 			: esc_html( $topics );
 
 		// Get deleted topics
-		$deleted_int = bbp_get_forum_topic_count_hidden( $forum_id, true  );
+		$deleted_int = bbp_get_forum_topic_count_hidden( $forum_id, false, true );
 
 		// This forum has hidden topics
 		if ( ! empty( $deleted_int ) && current_user_can( 'edit_others_topics' ) ) {
 
 			// Hidden text
-			$deleted_num = bbp_get_forum_topic_count_hidden( $forum_id, false );
+			$deleted_num = bbp_get_forum_topic_count_hidden( $forum_id, false, false );
 			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 			// Hidden link
@@ -1216,7 +1216,7 @@ function bbp_forum_subforum_count( $forum_id = 0, $integer = false ) {
 	 */
 	function bbp_get_forum_subforum_count( $forum_id = 0, $integer = false ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
-		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
+		$forum_count = (int) get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
 		$filter      = ( true === $integer )
 			? 'bbp_get_forum_subforum_count_int'
 			: 'bbp_get_forum_subforum_count';
@@ -1250,7 +1250,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true, $integer = f
 	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$meta_key = empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count';
-		$topics   = get_post_meta( $forum_id, $meta_key, true );
+		$topics   = (int) get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_topic_count_int'
 			: 'bbp_get_forum_topic_count';
@@ -1284,7 +1284,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true, $integer = f
 	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true, $integer = false ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$meta_key = empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count';
-		$replies  = get_post_meta( $forum_id, $meta_key, true );
+		$replies  = (int) get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_reply_count_int'
 			: 'bbp_get_forum_reply_count';
@@ -1319,7 +1319,7 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count, true );
 		$replies  = bbp_get_forum_reply_count( $forum_id, $total_count, true );
-		$retval   = $replies + $topics;
+		$retval   = ( $replies + $topics );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_post_count_int'
 			: 'bbp_get_forum_post_count';
@@ -1332,31 +1332,72 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true, $integer = fa
  * and pending topics)
  *
  * @since 2.0.0 bbPress (r2883)
+ * @since 2.6.0 bbPress (r6922) Changed function signature to add total counts
  *
- * @param int $forum_id Optional. Topic id
+ * @param int $forum_id Optional. Forum id
+ * @param bool $total_count Optional. To get the total count or normal count?
  * @param boolean $integer Optional. Whether or not to format the result
  */
-function bbp_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
-	echo bbp_get_forum_topic_count_hidden( $forum_id, $integer );
+function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
+	echo bbp_get_forum_topic_count_hidden( $forum_id, $total_count, $integer );
 }
 	/**
 	 * Return total hidden topic count of a forum (hidden includes trashed,
 	 * spammed and pending topics)
 	 *
 	 * @since 2.0.0 bbPress (r2883)
+	 * @since 2.6.0 bbPress (r6922) Changed function signature to add total counts
 	 *
-	 * @param int $forum_id Optional. Topic id
+	 * @param int $forum_id Optional. Forum id
+	 * @param bool $total_count Optional. To get the total count or normal count?
 	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @return int Topic hidden topic count
 	 */
-	function bbp_get_forum_topic_count_hidden( $forum_id = 0, $integer = false ) {
+	function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
+		$meta_key = empty( $total_count ) ? '_bbp_topic_count_hidden' : '_bbp_topic_reply_count_hidden';
+		$topics   = (int) get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_topic_count_hidden_int'
 			: 'bbp_get_forum_topic_count_hidden';
 
 		return apply_filters( $filter, $topics, $forum_id );
+	}
+
+/**
+ * Output total hidden reply count of a forum (hidden includes trashed, spammed,
+ * and pending replies)
+ *
+ * @since 2.6.0 bbPress (r6922)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @param bool $total_count Optional. To get the total count or normal count?
+ * @param boolean $integer Optional. Whether or not to format the result
+ */
+function bbp_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
+	echo bbp_get_forum_reply_count_hidden( $forum_id, $total_count, $integer );
+}
+	/**
+	 * Return total hidden reply count of a forum (hidden includes trashed,
+	 * spammed and pending replies)
+	 *
+	 * @since 2.6.0 bbPress (r6922)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @param bool $total_count Optional. To get the total count or normal
+	 *                           count?
+	 * @param boolean $integer Optional. Whether or not to format the result
+	 * @return int Forum reply count
+	 */
+	function bbp_get_forum_reply_count_hidden( $forum_id = 0, $total_count = true, $integer = false ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$meta_key = empty( $total_count ) ? '_bbp_reply_count_hidden' : '_bbp_total_reply_count_hidden';
+		$replies  = (int) get_post_meta( $forum_id, $meta_key, true );
+		$filter   = ( true === $integer )
+			? 'bbp_get_forum_reply_count_hidden_int'
+			: 'bbp_get_forum_reply_count_hidden';
+
+		return apply_filters( $filter, $replies, $forum_id );
 	}
 
 /**
