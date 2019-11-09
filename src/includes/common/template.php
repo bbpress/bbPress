@@ -969,6 +969,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	} elseif ( bbp_is_single_view() ) {
 		$bbp_classes[] = 'bbp-view';
+		$bbp_classes[] = 'bbp-view-' . bbp_get_view_id();
 
 	/** User ******************************************************************/
 
@@ -1979,19 +1980,21 @@ function bbp_view_id( $view = '' ) {
 	function bbp_get_view_id( $view = '' ) {
 		$bbp = bbpress();
 
+		// User supplied string
 		if ( ! empty( $view ) ) {
-			$view = sanitize_title( $view );
+			$view_id = sanitize_key( $view );
+
+		// Current view ID
 		} elseif ( ! empty( $bbp->current_view_id ) ) {
-			$view = $bbp->current_view_id;
+			$view_id = $bbp->current_view_id;
+
+		// Querying for view
 		} else {
-			$view = get_query_var( bbp_get_view_rewrite_id() );
+			$view_id = get_query_var( bbp_get_view_rewrite_id() );
 		}
 
-		if ( array_key_exists( $view, $bbp->views ) ) {
-			return $view;
-		}
-
-		return false;
+		// Filter & return
+		return apply_filters( 'bbp_get_view_id', $view_id, $view );
 	}
 
 /**

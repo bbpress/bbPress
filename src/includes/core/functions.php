@@ -267,10 +267,10 @@ function bbp_get_view_query_args( $view = '' ) {
 	$view   = bbp_get_view_id( $view );
 	$retval = ! empty( $view ) && ! empty( $bbp->views[ $view ] )
 		? $bbp->views[ $view ]['query']
-		: false;
+		: array();
 
 	// Filter & return
-	return apply_filters( 'bbp_get_view_query_args', $retval, $view );
+	return (array) apply_filters( 'bbp_get_view_query_args', $retval, $view );
 }
 
 /** Errors ********************************************************************/
