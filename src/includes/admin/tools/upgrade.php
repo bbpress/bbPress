@@ -19,7 +19,22 @@ defined( 'ABSPATH' ) || exit;
 function bbp_admin_upgrade_page() {
 
 	// Get the registered upgrade tools
-	$tools = bbp_admin_repair_list( 'upgrade' ); ?>
+	$tools = bbp_admin_repair_list( 'upgrade' );
+
+	// Orderby
+	$orderby = ! empty( $_GET['orderby'] )
+		? sanitize_key( $_GET['orderby'] )
+		: 'priority';
+
+	// Order
+	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
+		? strtolower( $_GET['order'] )
+		: 'asc';
+
+	// New order
+	$new_order = ( 'desc' === $order )
+		? 'asc'
+		: 'desc'; ?>
 
 	<div class="wrap">
 		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forum Tools', 'bbpress' ); ?></h1>
@@ -66,10 +81,28 @@ function bbp_admin_upgrade_page() {
 							</label>
 							<input id="cb-select-all-1" type="checkbox">
 						</td>
-						<th scope="col" id="description" class="manage-column column-primary column-description"><?php esc_html_e( 'Description', 'bbpress' ); ?></th>
-						<th scope="col" id="version" class="manage-column column-version"><?php esc_html_e( 'Version', 'bbpress' ); ?></th>
+						<th scope="col" id="description" class="manage-column column-primary column-description sortable <?php echo ( 'priority' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
+							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
+									'orderby' => 'priority',
+									'order'   => $new_order
+								) ) ); ?>"><span><?php esc_html_e( 'Description', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+							</a>
+						</th>
+						<th scope="col" id="version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
+							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
+									'orderby' => 'version',
+									'order'   => $new_order
+								) ) ); ?>"><span><?php esc_html_e( 'Version', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+							</a>
+						</th>
 						<th scope="col" id="components" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
-						<th scope="col" id="overhead" class="manage-column column-overhead"><?php esc_html_e( 'Overhead', 'bbpress' ); ?></th>
+						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
+							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
+									'orderby' => 'overhead',
+									'order'   => $new_order
+								) ) ); ?>"><span><?php esc_html_e( 'Overhead', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+							</a>
+						</th>
 					</tr>
 				</thead>
 

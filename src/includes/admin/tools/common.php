@@ -505,11 +505,37 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 	$repair_list = array();
 
 	// Get the available tools
-	$list      = bbp_get_admin_repair_tools( $type );
-	$search    = ! empty( $_GET['s']          ) ? stripslashes( $_GET['s']              ) : '';
-	$overhead  = ! empty( $_GET['overhead']   ) ? sanitize_key( $_GET['overhead']       ) : '';
-	$component = ! empty( $_GET['components'] ) ? sanitize_key( $_GET['components']     ) : '';
-	$version   = ! empty( $_GET['version']    ) ? sanitize_text_field( $_GET['version'] ) : '';
+	$list = bbp_get_admin_repair_tools( $type );
+
+	// Search
+	$search = ! empty( $_GET['s'] )
+		? stripslashes( $_GET['s'] )
+		: '';
+
+	// Overhead
+	$overhead  = ! empty( $_GET['overhead'] )
+		? sanitize_key( $_GET['overhead'] )
+		: '';
+
+	// Component
+	$component = ! empty( $_GET['components'] )
+		? sanitize_key( $_GET['components'] )
+		: '';
+
+	// Version
+	$version = ! empty( $_GET['version'] )
+		? sanitize_text_field( $_GET['version'] )
+		: '';
+
+	// Orderby
+	$orderby = ! empty( $_GET['orderby'] )
+		? sanitize_key( $_GET['orderby'] )
+		: 'order';
+
+	// Order
+	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
+		? strtolower( $_GET['order'] )
+		: 'asc';
 
 	// Overhead filter
 	if ( ! empty( $overhead ) ) {
@@ -547,20 +573,21 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 				'id'          => sanitize_key( $id ),
 				'type'        => $tool['type'],
 				'title'       => $tool['title'],
+				'priority'    => $tool['priority'],
 				'description' => $tool['description'],
 				'callback'    => $tool['callback'],
 				'overhead'    => $tool['overhead'],
 				'version'     => $tool['version'],
-				'components'  => $tool['components'],
+				'components'  => $tool['components']
 			);
 		}
 	}
 
 	// Sort
-	ksort( $repair_list );
+	$retval = wp_list_sort( $repair_list, $orderby, $order, true );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_repair_list', $repair_list );
+	return (array) apply_filters( 'bbp_repair_list', $retval );
 }
 
 /**
