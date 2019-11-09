@@ -301,7 +301,7 @@ span.bbp-author-ip {
 	font-size: 11px;
 	font-weight: 700;
 	word-wrap: break-word;
-	color: #aaa;
+	color: #747474;
 }
 
 /* =Topic and reply content
@@ -518,7 +518,7 @@ span.bbp-admin-links {
 }
 
 span.bbp-admin-links a {
-	color: #bbb;
+	color: #707070;
 	font-weight: 400;
 	font-size: 10px;
 	text-transform: uppercase;
@@ -543,7 +543,7 @@ td.bbp-topic-counts {
 .bbp-reply-header a.bbp-reply-permalink {
 	float: right;
 	margin-left: 10px;
-	color: #ccc;
+	color: #707070;
 }
 
 /* =Toggles
