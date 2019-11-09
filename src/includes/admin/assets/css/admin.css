@@ -517,6 +517,11 @@ div.bbp-converter-log .mini-step {
 	color: #fff;
 }
 
+#bbp-converter-monitor .inside {
+	margin: 0;
+	padding: 5px;
+}
+
 #bbp-converter-monitor .bbp-progress-bar {
 	position: absolute;
 	left: 0;
