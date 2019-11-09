@@ -809,7 +809,7 @@ function bbp_forum_subscriptions_metabox( $post ) {
  * Developers Note: This function may change in a future release to include
  * additional actions, so do not use this function in any third party plugin.
  *
- * @since 2.6.0 (r6913)
+ * @since 2.6.0 bbPress (r6913)
  */
 function bbp_metabox_user_links() {
 

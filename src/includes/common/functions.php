@@ -1434,7 +1434,7 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
  * desired. A future version of bbPress will introduce a setting to more easily
  * tune this.
  *
- * @since 2.6.0 (r6918)
+ * @since 2.6.0 bbPress (r6918)
  *
  * @param array $args Original arguments passed to wp_mail().
  * @return array
@@ -1490,7 +1490,7 @@ function bbp_chunk_emails( $args = array() ) {
 /**
  * Return the string used for the bbPress specific X-header.
  *
- * @since 2.6.0 (r6919)
+ * @since 2.6.0 bbPress (r6919)
  *
  * @return string
  */

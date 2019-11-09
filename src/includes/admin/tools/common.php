@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return the current admin repair tool page
  *
- * @since 2.6.0 (r6894)
+ * @since 2.6.0 bbPress (r6894)
  *
  * @return string
  */
@@ -24,7 +24,7 @@ function bbp_get_admin_repair_tool_page() {
 /**
  * Return the current admin repair tool page ID
  *
- * @since 2.6.0 (r6894)
+ * @since 2.6.0 bbPress (r6894)
  *
  * @return string
  */
@@ -46,7 +46,7 @@ function bbp_get_admin_repair_tool_page_id() {
 /**
  * Return a URL to the repair tool page
  *
- * @since 2.6.0 (r6894)
+ * @since 2.6.0 bbPress (r6894)
  *
  * @param array $args
  *

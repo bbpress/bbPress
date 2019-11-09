@@ -468,7 +468,7 @@ function bbp_make_mentions_clickable( $text = '' ) {
 /**
  * Callback to convert mention matches to HTML A tag.
  *
- * @since 2.6.0 (r6014)
+ * @since 2.6.0 bbPress (r6014)
  *
  * @param array $matches Regular expression matches in the current text blob.
  *

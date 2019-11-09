@@ -504,7 +504,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 /**
  * Return possible tools pages
  *
- * @since 2.6.0 (r6273)
+ * @since 2.6.0 bbPress (r6273)
  *
  * @return array
  */
