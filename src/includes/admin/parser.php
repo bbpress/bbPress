@@ -1482,7 +1482,7 @@ $end = $this->Internal_CleanupWSByIteratingPointer(@$rule['before_endtag'], 0, $
 $this->Internal_CleanupWSByPoppingStack(@$rule['after_tag'], $output);
 $tag_body = $this->Internal_CollectTextReverse($output, count($output)-1, $end);
 $this->Internal_CleanupWSByPoppingStack(@$rule['before_tag'], $this->stack);
-@$this->Internal_UpdateParamsForMissingEndTag(@$token[BBCODE_STACK_TAG]);
+@$token[BBCODE_STACK_TAG]=@$this->Internal_UpdateParamsForMissingEndTag(@$token[BBCODE_STACK_TAG]);
 $tag_output = $this->DoTag(BBCODE_OUTPUT, $name,
 @$token[BBCODE_STACK_TAG]['_default'], @$token[BBCODE_STACK_TAG], $tag_body);
 $output = Array(Array(
@@ -1779,7 +1779,7 @@ $params['_content'] = $contents;
 $params['_defaultcontent'] = strlen(@$params['_default']) ? $params['_default'] : $contents;
 return $this->FillTemplate(@$tag_rule['template'], $params, @$tag_rule['default']);
 }
-function Internal_UpdateParamsForMissingEndTag(&$params) {
+function Internal_UpdateParamsForMissingEndTag($params) {
 switch ($this->tag_marker) {
 case '[': $tail_marker = ']'; break;
 case '<': $tail_marker = '>'; break;
@@ -1788,6 +1788,7 @@ case '(': $tail_marker = ')'; break;
 default: $tail_marker = $this->tag_marker; break;
 }
 $params['_endtag'] = $this->tag_marker . '/' . $params['_name'] . $tail_marker;
+return $params;
 }
 function Internal_ProcessIsolatedTag($tag_name, $tag_params, $tag_rule) {
 if (!$this->DoTag(BBCODE_CHECK, $tag_name, @$tag_params['_default'], $tag_params, "")) {
