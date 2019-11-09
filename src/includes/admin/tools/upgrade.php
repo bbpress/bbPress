@@ -122,7 +122,7 @@ function bbp_admin_upgrade_page() {
 
 										// Optional description
 										if ( ! empty( $item['description'] ) ) :
-											echo esc_html( $item['description'] );
+											echo '<p class="description">' . esc_html( $item['description'] ) . '</p>';
 										endif;
 
 									?><div class="row-actions hide-if-no-js">

@@ -614,6 +614,10 @@ td.bbp-tool-title strong {
 	display: block;
 }
 
+td.bbp-tool-title p {
+	margin: 0;
+}
+
 .manage-column.column-components {
 	width: 20%;
 }
