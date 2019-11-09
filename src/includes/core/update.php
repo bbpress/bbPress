@@ -550,9 +550,12 @@ function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
 	// Get the pending upgrades option
 	$pending = bbp_get_pending_upgrades();
 
+	// Look for this upgrade ID
+	$index = array_search( $upgrade_id, $pending, true );
+
 	// Maybe remove upgrade ID from pending array
-	if ( isset( $pending[ $upgrade_id ] ) ) {
-		unset( $pending[ $upgrade_id ] );
+	if ( false !== $index ) {
+		unset( $pending[ $index ] );
 	}
 
 	// Update and return

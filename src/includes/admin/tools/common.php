@@ -164,6 +164,9 @@ function bbp_admin_repair_handler() {
 		foreach ( $checked as $item_id ) {
 			if ( isset( $list[ $item_id ] ) && is_callable( $list[ $item_id ]['callback'] ) ) {
 				$messages[] = call_user_func( $list[ $item_id ]['callback'] );
+
+				// Remove from pending
+				bbp_remove_pending_upgrade( $item_id );
 			}
 		}
 	}
@@ -507,9 +510,17 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 	// Get the available tools
 	$list = bbp_get_admin_repair_tools( $type );
 
+	// Get pending upgrades
+	$pending = bbp_get_pending_upgrades();
+
 	// Search
 	$search = ! empty( $_GET['s'] )
 		? stripslashes( $_GET['s'] )
+		: '';
+
+	// Status
+	$status = ! empty( $_GET['status'] )
+		? sanitize_key( $_GET['status'] )
 		: '';
 
 	// Overhead
@@ -546,6 +557,13 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 
 		// Loop through and key by priority for sorting
 		foreach ( $list as $id => $tool ) {
+
+			// Status filter
+			if ( ! empty( $status ) && ( 'pending' === $status ) ) {
+				if ( ! in_array( $id, (array) $pending, true ) ) {
+					continue;
+				}
+			}
 
 			// Component filter
 			if ( ! empty( $component ) ) {
@@ -814,5 +832,99 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
 
 	// Filter & return
-	return apply_filters( 'bbp_get_admin_repair_tool_components', $output, $r, $args );
+	return apply_filters( 'bbp_get_admin_repair_tool_overhead_filters', $output, $r, $args );
+}
+
+/** Pending ******************************************************************/
+
+/**
+ * Output filter links for statuses
+ *
+ * @since 2.6.0 bbPress (r6925)
+ *
+ * @param array $args
+ */
+function bbp_admin_repair_tool_status_filters( $args = array() ) {
+	echo bbp_get_admin_repair_tool_status_filters( $args );
+}
+
+/**
+ * Get filter links for statuses
+ *
+ * @since 2.6.0 bbPress (r5885)
+ *
+ * @param array $args
+ * @return array
+ */
+function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
+
+	// Parse args
+	$r = bbp_parse_args( $args, array(
+		'before'       => '<ul class="subsubsub">',
+		'after'        => '</ul>',
+		'link_before'  => '<li>',
+		'link_after'   => '</li>',
+		'count_before' => ' <span class="count">(',
+		'count_after'  => ')</span>',
+		'sep'          => ' | ',
+
+		// Retired, use 'sep' instead
+		'separator'    => false
+	), 'get_admin_repair_tool_status_filters' );
+
+	/**
+	 * Necessary for backwards compatibility
+	 * @see https://bbpress.trac.wordpress.org/ticket/2900
+	 */
+	if ( ! empty( $r['separator'] ) ) {
+		$r['sep'] = $r['separator'];
+	}
+
+	// Count the tools
+	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+
+	// Get the tools URL
+	$tools_url = bbp_get_admin_repair_tool_page_url();
+
+	// Get pending upgrades
+	$pending = bbp_get_pending_upgrades();
+
+	// Get the current status, if any
+	$selected = ! empty( $_GET['status'] )
+		? sanitize_key( $_GET['status'] )
+		: '';
+
+	// Nothing is current?
+	$all_current = empty( $selected )
+		? 'current'
+		: '';
+
+	// Pending is current?
+	$pending_current = ( 'pending' === $selected )
+		? 'current'
+		: '';
+
+	// Sort
+	ksort( $pending );
+
+	// Build the filter URL
+	$filter_url = add_query_arg( array(
+		'status' => 'pending'
+	), $tools_url );
+
+	// Count HTML
+	$all_count     = $r['count_before'] . count( $tools   ) . $r['count_after'];
+	$pending_count = $r['count_before'] . count( $pending ) . $r['count_after'];
+
+	// Define links
+	$links = array(
+		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' . sprintf( esc_html__( 'All %s',     'bbpress' ), $all_count     ) . '</a>' . $r['link_after'],
+		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' . sprintf( esc_html__( 'Pending %s', 'bbpress' ), $pending_count ) . '</a>' . $r['link_after']
+	);
+
+	// Surround output with before & after strings
+	$output = $r['before'] . implode( $r['sep'], $links ) . $r['after'];
+
+	// Filter & return
+	return apply_filters( 'bbp_get_admin_repair_tool_status_filters', $output, $r, $args );
 }

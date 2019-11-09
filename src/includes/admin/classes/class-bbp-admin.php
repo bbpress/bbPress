@@ -229,7 +229,7 @@ class BBP_Admin {
 		if ( ( 'bbp-upgrade' !== $page ) && bbp_get_pending_upgrades() && current_user_can( 'bbp_tools_upgrade_page' ) ) {
 
 			// Link to upgrade page
-			$upgrade_url  = add_query_arg( array( 'page' => 'bbp-upgrade' ), admin_url( 'tools.php' ) );
+			$upgrade_url  = add_query_arg( array( 'page' => 'bbp-upgrade', 'status' => 'pending' ), admin_url( 'tools.php' ) );
 			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-upgrades' ) ), 'bbp-hide-notice' );
 			$upgrade_link = '<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Learn More',   'bbpress' ) . '</a>';
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';

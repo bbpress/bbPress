@@ -618,9 +618,12 @@ td.bbp-tool-title strong {
 	width: 20%;
 }
 
-.manage-column.column-version,
+.manage-column.column-version {
+	width: 11%;
+}
+
 .manage-column.column-overhead {
-	width: 10%;
+	width: 13%;
 }
 
 .nav-tab-wrapper a span.awaiting-mod {

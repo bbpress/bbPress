@@ -44,7 +44,7 @@ function bbp_admin_upgrade_page() {
 		<p><?php esc_html_e( 'As bbPress improves, occasionally database upgrades are required but some forums are too large to upgrade automatically. Use the tools below to manually run upgrade routines.', 'bbpress' ); ?></p>
 		<p class="description"><?php esc_html_e( 'Some of these tools create substantial database overhead. Use caution when running more than 1 upgrade at a time.', 'bbpress' ); ?></p>
 
-		<?php bbp_admin_repair_tool_overhead_filters(); ?>
+		<?php bbp_admin_repair_tool_status_filters(); ?>
 
 		<form class="settings" method="get" action="">
 
