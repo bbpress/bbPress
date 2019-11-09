@@ -440,8 +440,10 @@ function bbp_reply_url( $reply_id = 0 ) {
 		// Juggle reply & topic IDs for unpretty URL formatting
 		if ( bbp_is_reply( $reply_id ) ) {
 			$topic_id = bbp_get_reply_topic_id( $reply_id );
+			$topic    = bbp_get_topic( $topic_id );
 		} elseif ( bbp_is_topic( $reply_id ) ) {
 			$topic_id = bbp_get_topic_id( $reply_id );
+			$topic    = bbp_get_topic( $topic_id );
 			$reply_id = $topic_id;
 		}
 
@@ -460,7 +462,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$topic_url  = remove_query_arg( 'view', $topic_link );
 
 		// Get vars needed to support pending topics with unpretty links
-		$has_slug   = bbp_get_topic( $topic_id )->post_name;
+		$has_slug   = ! empty( $topic ) ? $topic->post_name : '';
 		$pretty     = bbp_use_pretty_urls();
 		$published  = ! bbp_is_topic_pending( $topic_id );
 
