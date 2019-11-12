@@ -338,19 +338,39 @@ function bbp_version_updater() {
 
 		/** 2.6 Branch ********************************************************/
 
-		// 2.6 Alpha
-		if ( $raw_db_version < 261 ) {
+		// Smaller installs run the upgrades directly
+		if ( ! bbp_is_large_install() ) {
 
 			/**
 			 * Upgrade user favorites and subscriptions
-			 *
-			 * @link https://bbpress.trac.wordpress.org/ticket/2959
 			 */
-			if ( ! bbp_is_large_install() ) {
+			if ( $raw_db_version < 261 ) {
 				bbp_admin_upgrade_user_favorites();
 				bbp_admin_upgrade_user_topic_subscriptions();
 				bbp_admin_upgrade_user_forum_subscriptions();
-			} else {
+			}
+
+			/**
+			 * Upgrade user engagements
+			 */
+			if ( $raw_db_version < 262 ) {
+				bbp_admin_upgrade_user_engagements();
+			}
+
+			/**
+			 * Repair forum hidden reply count
+			 */
+			if ( $raw_db_version < 263 ) {
+				bbp_admin_repair_forum_hidden_reply_count();
+			}
+
+		// Large installs require manual intervention
+		} else {
+
+			/**
+			 * Upgrade user favorites and subscriptions
+			 */
+			if ( $raw_db_version < 261 ) {
 				bbp_add_pending_upgrade( 'bbp-user-favorites-move' );
 				bbp_add_pending_upgrade( 'bbp-user-topic-subscriptions-move' );
 				bbp_add_pending_upgrade( 'bbp-user-forum-subscriptions-move' );
@@ -358,23 +378,22 @@ function bbp_version_updater() {
 				// Set strategy to pre-2.6 on large network
 				update_option( '_bbp_engagements_strategy', 'user' );
 			}
-		}
-
-		// 2.6 Beta/RC/GM
-		if ( $raw_db_version < 262 ) {
 
 			/**
 			 * Upgrade user engagements
-			 *
-			 * @link https://bbpress.trac.wordpress.org/ticket/3068
 			 */
-			if ( ! bbp_is_large_install() ) {
-				bbp_admin_upgrade_user_engagements();
-			} else {
+			if ( $raw_db_version < 262 ) {
 				bbp_add_pending_upgrade( 'bbp-user-topic-engagements-move' );
 
 				// Set strategy to pre-2.6 on large network
 				update_option( '_bbp_engagements_strategy', 'user' );
+			}
+
+			/**
+			 * Upgrade user engagements
+			 */
+			if ( $raw_db_version < 263 ) {
+				bbp_add_pending_upgrade( 'bbp-forum-hidden-replies' );
 			}
 		}
 	}
