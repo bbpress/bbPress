@@ -650,3 +650,8 @@ td.bbp-tool-title p {
 	text-align: center;
 	z-index: 26;
 }
+
+/* Retro TV corners for contributor avatars */
+.dashboard_page_bbp-credits .wp-person img {
+	border-radius: 20px;
+}
