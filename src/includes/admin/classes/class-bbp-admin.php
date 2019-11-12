@@ -1101,7 +1101,7 @@ class BBP_Admin {
 			<h3 class="wp-people-group"><?php esc_html_e( 'Contributing Developers', 'bbpress' ); ?></h3>
 			<ul class="wp-people-group " id="wp-people-group-contributing-developers">
 				<li class="wp-person" id="wp-person-sergeybiryukov">
-					<a href="https://profiles.wordpress.org/SergeyBiryukov" class="web"><img src="http://0.gravatar.com/avatar/750b7b0fcd855389264c2b1294d61bd6?s?s=120" class="gravatar" alt="" />Sergey Biryukov</a>
+					<a href="https://profiles.wordpress.org/SergeyBiryukov" class="web"><img src="http://0.gravatar.com/avatar/750b7b0fcd855389264c2b1294d61bd6?s=120" class="gravatar" alt="" />Sergey Biryukov</a>
 					<span class="title"><?php esc_html_e( 'Core Developer', 'bbpress' ); ?></span>
 				</li>
 				<li class="wp-person" id="wp-person-thebrandonallen">
