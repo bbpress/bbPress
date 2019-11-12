@@ -445,10 +445,11 @@ function bbp_admin_repair_forum_reply_count() {
  * Recount non-public forum replies
  *
  * @since 2.6.0 bbPress (r6922)
+ * @since 2.6.0 bbPress (r6932) Rename to match the topic reply recount function
  *
  * @return array An array of the status code and the message
  */
-function bbp_admin_repair_forum_reply_count_hidden() {
+function bbp_admin_repair_forum_hidden_reply_count() {
 
 	// Define variables
 	$bbp_db    = bbp_db();

@@ -541,7 +541,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 	// Orderby
 	$orderby = ! empty( $_GET['orderby'] )
 		? sanitize_key( $_GET['orderby'] )
-		: 'order';
+		: 'priority';
 
 	// Order
 	$order = ! empty( $_GET['order'] ) && in_array( strtolower( $_GET['order'] ), array( 'asc', 'desc' ), true )
