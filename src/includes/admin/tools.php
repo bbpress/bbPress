@@ -520,7 +520,7 @@ function bbp_get_tools_admin_pages() {
 			'page' => 'bbp-repair',
 			'func' => 'bbp_admin_repair_page',
 			'cap'  => 'bbp_tools_repair_page',
-			'name' => esc_html__( 'Repair Forums', 'bbpress' ),
+			'name' => bbp_maybe_append_pending_upgrade_count( esc_html__( 'Repair Forums', 'bbpress' ), 'repair' ),
 
 			// Deprecated 2.6.0
 			'href' => add_query_arg( array( 'page' => 'bbp-repair' ), $tools_url )
@@ -529,7 +529,7 @@ function bbp_get_tools_admin_pages() {
 			'page' => 'bbp-upgrade',
 			'func' => 'bbp_admin_upgrade_page',
 			'cap'  => 'bbp_tools_upgrade_page',
-			'name' => bbp_maybe_append_pending_upgrade_count( esc_html__( 'Upgrade Forums', 'bbpress' ) ),
+			'name' => bbp_maybe_append_pending_upgrade_count( esc_html__( 'Upgrade Forums', 'bbpress' ), 'upgrade' ),
 
 			// Deprecated 2.6.0
 			'href' => add_query_arg( array( 'page' => 'bbp-upgrade' ), $tools_url )

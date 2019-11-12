@@ -880,14 +880,17 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 		$r['sep'] = $r['separator'];
 	}
 
+	// Get the type of tool
+	$type = bbp_get_admin_repair_tool_page_id();
+
 	// Count the tools
-	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+	$tools = bbp_get_admin_repair_tools( $type );
 
 	// Get the tools URL
 	$tools_url = bbp_get_admin_repair_tool_page_url();
 
 	// Get pending upgrades
-	$pending = bbp_get_pending_upgrades();
+	$pending = bbp_get_pending_upgrades( $type );
 
 	// Get the current status, if any
 	$selected = ! empty( $_GET['status'] )

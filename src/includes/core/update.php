@@ -500,10 +500,12 @@ function bbp_make_current_user_keymaster() {
  *
  * @since 2.6.0 bbPress (r6895)
  *
+ * @param string $type Type of pending upgrades (upgrade|repair|empty)
+ *
  * @return int
  */
-function bbp_get_pending_upgrade_count() {
-	return count( (array) bbp_get_pending_upgrades() );
+function bbp_get_pending_upgrade_count( $type = '' ) {
+	return count( (array) bbp_get_pending_upgrades( $type ) );
 }
 
 /**
@@ -511,10 +513,23 @@ function bbp_get_pending_upgrade_count() {
  *
  * @since 2.6.0 bbPress (r6895)
  *
+ * @param string $type Type of pending upgrades (upgrade|repair|empty)
+ *
  * @return array
  */
-function bbp_get_pending_upgrades() {
-	return (array) get_option( '_bbp_db_pending_upgrades', array() );
+function bbp_get_pending_upgrades( $type = '' ) {
+
+	// Get the pending upgrades
+	$retval = (array) get_option( '_bbp_db_pending_upgrades', array() );
+
+	// Looking for a specific type?
+	if ( ! empty( $type ) ) {
+		$tools   = bbp_get_admin_repair_tools( $type );
+		$plucked = array_keys( wp_list_pluck( $tools, 'type' ) );
+		$retval  = array_intersect( $retval, $plucked );
+	}
+
+	return (array) $retval;
 }
 
 /**
@@ -576,14 +591,15 @@ function bbp_clear_pending_upgrades() {
  *
  * @since 2.6.0 bbPress (r6896)
  *
- * @param string $string
+ * @param string $string Text to append count to
+ * @param string $type   Type of pending upgrades (upgrade|repair|empty)
  *
  * @return string
  */
-function bbp_maybe_append_pending_upgrade_count( $string = '' ) {
+function bbp_maybe_append_pending_upgrade_count( $string = '', $type = '' ) {
 
 	// Look for an upgrade count
-	$count = bbp_get_pending_upgrade_count();
+	$count = bbp_get_pending_upgrade_count( $type );
 
 	// Append the count to the string
 	if ( ! empty( $count ) ) {
