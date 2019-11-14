@@ -1382,7 +1382,7 @@ function bbp_admin_setting_callback_search_slug() {
 function bbp_admin_setting_callback_buddypress_section() {
 ?>
 
-	<p><?php esc_html_e( 'Configure how Forum settings for BuddyPress', 'bbpress' ); ?></p>
+	<p><?php esc_html_e( 'Forum settings for BuddyPress', 'bbpress' ); ?></p>
 
 <?php
 }
