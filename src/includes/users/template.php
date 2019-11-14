@@ -1969,7 +1969,7 @@ function bbp_author_link( $args = array() ) {
 			'link_title' => '',
 			'type'       => 'both',
 			'size'       => 80,
-			'sep'        => '&nbsp;'
+			'sep'        => ''
 		), 'get_author_link' );
 
 		// Confirmed topic
