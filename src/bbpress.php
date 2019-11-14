@@ -751,11 +751,24 @@ final class bbPress {
 
 		// Define "count" meta-type array
 		$count = array(
+
+			// Counts are always integers
 			'type'              => 'integer',
+
+			// Generic count description
 			'description'       => esc_html__( 'bbPress Item Count', 'bbpress' ),
+
+			// Counts are single values
 			'single'            => true,
+
+			// Counts should be made available in REST
+			'show_in_rest'      => true,
+
+			// Never allow counts to go negative
 			'sanitize_callback' => 'bbp_number_not_negative',
-			'show_in_rest'      => true
+
+			 // All users may update count meta data
+			'auth_callback'     => '__return_true'
 		);
 
 		/** Post **************************************************************/
