@@ -1,6 +1,6 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
-Tags: forums, discussion, support, theme, akismet, multisite
+Tags: forum, forums, discussion, support
 Requires at least: 5.3
 Tested up to: 5.3
 Stable tag: 2.7.0-alpha-1
