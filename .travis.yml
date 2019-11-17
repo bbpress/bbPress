@@ -16,6 +16,7 @@ cache:
   directories:
   - vendor
   - $HOME/.composer/cache
+  - node_modules
 
 # PHP version used in first build configuration.
 php:
