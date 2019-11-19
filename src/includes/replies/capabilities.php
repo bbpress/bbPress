@@ -59,7 +59,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Bail if no post ID
 				if ( empty( $args[0] ) ) {
-					return $caps;
+					break;
 				}
 
 				// Get the post.
@@ -132,7 +132,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Bail if no post ID
 			if ( empty( $args[0] ) ) {
-				return $caps;
+				break;
 			}
 
 			// Get the post.
@@ -180,7 +180,7 @@ function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			// Bail if no post ID
 			if ( empty( $args[0] ) ) {
-				return $caps;
+				break;
 			}
 
 			// Get the post
