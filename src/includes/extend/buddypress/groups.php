@@ -929,7 +929,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					}
 
 					// Topic edit
-					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
+					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_slug() ) :
 
 						// Unset the super sticky link on edit topic template
 						add_filter( 'bbp_get_topic_types', array( $this, 'unset_super_sticky' ), 10, 1 );
@@ -1002,7 +1002,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						echo '<h2>' . $title . '</h2>';
 					}
 
-					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_rewrite_id() ) :
+					if ( bp_action_variable( $offset + 2 ) === bbp_get_edit_slug() ) :
 
 						// Get the main query object
 						$wp_query = bbp_get_wp_query();

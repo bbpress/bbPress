@@ -386,6 +386,14 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array( 'label_for'=>'_bbp_reply_slug' )
 			),
 
+			// Edit slug setting
+			'_bbp_edit_slug' => array(
+				'title'             => esc_html__( 'Edit', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_edit_slug',
+				'sanitize_callback' => 'bbp_sanitize_slug',
+				'args'              => array( 'label_for'=>'_bbp_edit_slug' )
+			),
+
 			// Search slug setting
 			'_bbp_search_slug' => array(
 				'title'             => esc_html__( 'Search', 'bbpress' ),
@@ -1276,7 +1284,7 @@ function bbp_admin_setting_callback_user_engagements_slug() {
 function bbp_admin_setting_callback_single_slug_section() {
 ?>
 
-	<p><?php printf( esc_html__( 'Custom slugs for single forums, topics, replies, tags, views, and search.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( esc_html__( 'Custom slugs for single forums, topics, replies, tags, views, edit, and search.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -1370,6 +1378,21 @@ function bbp_admin_setting_callback_search_slug() {
 <?php
 	// Slug Check
 	bbp_form_slug_conflict_check( '_bbp_search_slug', 'search' );
+}
+
+/**
+ * Edit slug setting field
+ *
+ * @since 2.6.2 bbPress (r6965)
+ */
+function bbp_admin_setting_callback_edit_slug() {
+?>
+
+	<input name="_bbp_edit_slug" id="_bbp_edit_slug" type="text" class="regular-text code" value="<?php bbp_form_option( '_bbp_edit_slug', 'edit', true ); ?>"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_slug' ); ?> />
+
+<?php
+	// Slug Check
+	bbp_form_slug_conflict_check( '_bbp_edit_slug', 'edit' );
 }
 
 /** BuddyPress ****************************************************************/
@@ -2023,6 +2046,9 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 
 			// Reply slug
 			'_bbp_reply_slug'         => array( 'name' => esc_html__( 'Reply slug',  'bbpress' ), 'default' => 'reply',  'context' => 'bbPress' ),
+
+			// Edit slug
+			'_bbp_edit_slug'          => array( 'name' => esc_html__( 'Edit slug',   'bbpress' ), 'default' => 'edit',   'context' => 'bbPress' ),
 
 			// User profile slug
 			'_bbp_user_slug'          => array( 'name' => esc_html__( 'User base',   'bbpress' ), 'default' => 'users',  'context' => 'bbPress' ),

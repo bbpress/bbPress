@@ -2460,7 +2460,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		// Pretty permalinks, previously used `bbp_use_pretty_urls()`
 		// https://bbpress.trac.wordpress.org/ticket/3054
 		if ( false === strpos( $topic_link, '?' ) ) {
-			$url = trailingslashit( $topic_link ) . bbp_get_edit_rewrite_id();
+			$url = trailingslashit( $topic_link ) . bbp_get_edit_slug();
 			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
@@ -3583,7 +3583,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 
 			// Pretty or ugly URL
 			$retval = bbp_use_pretty_urls()
-				? user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . bbp_get_edit_rewrite_id() )
+				? user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . bbp_get_edit_slug() )
 				: add_query_arg( array( bbp_get_edit_rewrite_id() => '1' ), bbp_get_topic_tag_link() );
 
 		// No link

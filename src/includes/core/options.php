@@ -973,6 +973,20 @@ function bbp_get_search_slug( $default = 'search' ) {
 	return apply_filters( 'bbp_get_search_slug', bbp_maybe_get_root_slug() . get_option( '_bbp_search_slug', $default ) );
 }
 
+/**
+ * Return the edit slug
+ *
+ * @since 2.6.2 bbPress (r6965)
+ *
+ * @param string $default Optional. Default value 'edit'
+ * @return string
+ */
+function bbp_get_edit_slug( $default = 'edit' ) {
+
+	// Filter & return
+	return apply_filters( 'bbp_get_edit_slug', get_option( '_bbp_edit_slug', $default ) );
+}
+
 /** Legacy ********************************************************************/
 
 /**
