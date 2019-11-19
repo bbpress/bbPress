@@ -889,7 +889,7 @@ final class bbPress {
 
 		// Tertiary Slugs
 		$feed_slug          = 'feed';
-		$edit_slug          = 'edit';
+		$edit_slug          = bbp_get_edit_slug();
 		$paged_slug         = bbp_get_paged_slug();
 		$user_favs_slug     = bbp_get_user_favorites_slug();
 		$user_subs_slug     = bbp_get_user_subscriptions_slug();

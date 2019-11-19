@@ -635,7 +635,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Pretty permalinks
 		if ( bbp_use_pretty_urls() ) {
-			$url = trailingslashit( $profile_url ) . 'edit';
+			$url = trailingslashit( $profile_url ) . bbp_get_edit_slug();
 			$url = user_trailingslashit( $url );
 
 		// Unpretty permalinks
