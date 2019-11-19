@@ -2182,6 +2182,13 @@ function bbp_get_private_forum_ids() {
  * Returns the forum IDs that should be excluded from various views & queries,
  * based on the current user's capabilities.
  *
+ * These results are automatically filtered by bbp_allow_forums_of_user(), to
+ * allow per-forum moderators to see forums that would otherwise be private or
+ * hidden to them.
+ *
+ * If you have a need to filter these results based on your own custom
+ * engagements API usages, please see: bbp_allow_forums_of_user()
+ *
  * @since 2.6.0 bbPress (r6425)
  *
  * @return array Forum IDs to exclude, or an empty array
