@@ -858,6 +858,10 @@ p.form-allowed-tags {
 	line-height: 16px;
 }
 
+#bbpress-forums .bbp-replies .bbp-reply-form {
+	margin: 0 10px 0 10px;
+}
+
 /* =Edit User
 -------------------------------------------------------------- */
 
