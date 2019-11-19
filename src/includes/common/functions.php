@@ -403,7 +403,7 @@ function bbp_get_statistics( $args = array() ) {
 				: '';
 
 			$topic_titles[] = ! empty( $topics['private'] )
-				? sprintf( esc_html__( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $topics['private'] ) )
+				? ''//sprintf( esc_html__( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $topics['private'] ) )
 				: '';
 
 			$topic_titles[] = ! empty( $topics['spammed'] )
@@ -459,6 +459,7 @@ function bbp_get_statistics( $args = array() ) {
 			$reply_titles[] = ! empty( $replies['pending'] )
 				? sprintf( esc_html__( 'Pending: %s', 'bbpress' ), bbp_number_format_i18n( $replies['pending'] ) )
 				: '';
+
 			$reply_titles[] = ! empty( $replies['private'] )
 				? sprintf( esc_html__( 'Private: %s', 'bbpress' ), bbp_number_format_i18n( $replies['private'] ) )
 				: '';
