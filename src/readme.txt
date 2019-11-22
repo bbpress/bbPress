@@ -2,8 +2,8 @@
 Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
 Tags: forum, forums, discussion, support
 Requires at least: 4.7
-Tested up to: 5.3
-Stable tag: 2.6.1
+Tested up to: 5.4
+Stable tag: 2.6.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
