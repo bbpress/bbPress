@@ -63,7 +63,7 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 
 	// Bail if not the notification action we are looking for
 	if ( 'bbp_new_reply' !== $component_action_name ) {
-		return $component_action_name;
+		return $content;
 	}
 
 	// New reply notifications
