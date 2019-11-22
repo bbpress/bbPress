@@ -318,7 +318,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Bail if topic cannot be found
 		if ( empty( $object ) ) {
-			bbp_ajax_response( false, esc_html__( 'Subcription failed.', 'bbpress' ), 303 );
+			bbp_ajax_response( false, esc_html__( 'Subscription failed.', 'bbpress' ), 303 );
 		}
 
 		// Bail if user did not take this action
