@@ -257,7 +257,7 @@ function bbp_register_default_repair_tools() {
 		'id'          => 'bbp-topic-replies',
 		'type'        => 'repair',
 		'title'       => esc_html__( 'Recount replies in each topic', 'bbpress' ),
-		'description' => esc_html__( 'Run this if the number of topics in any topics are incorrect.', 'bbpress' ),
+		'description' => esc_html__( 'Run this if the number of replies in any topics are incorrect.', 'bbpress' ),
 		'callback'    => 'bbp_admin_repair_topic_reply_count',
 		'priority'    => 65,
 		'overhead'    => 'high',
