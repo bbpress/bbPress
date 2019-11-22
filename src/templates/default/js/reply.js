@@ -102,7 +102,7 @@ addReply = {
 			elemRect    = form.getBoundingClientRect(),
 			position    = (window.pageYOffset || document.scrollTop)  - (document.clientTop || 0),
 			destination = ( position + elemRect.top ),
-			negative    = ( destination < position ),
+			negative    = ( destination < position ), // jshint ignore:line
 			adminbar    = t.getElement( 'wpadminbar'),
 			offset      = 0;
 
@@ -112,6 +112,7 @@ addReply = {
 		}
 
 		/* Compute the difference, depending on direction */
+		/* jshint ignore:start */
 		distance = ( true === negative )
 			? ( position - destination )
 			: ( destination - position );
@@ -160,6 +161,7 @@ addReply = {
 				timer++;
 			}
 		}
+		/* jshint ignore:end */
 	},
 
 	/**
