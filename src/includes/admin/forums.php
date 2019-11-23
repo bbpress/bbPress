@@ -124,7 +124,7 @@ class BBP_Forums_Admin {
 				'<p>' . __( 'Hovering over a row in the forums list will display action links that allow you to manage your forum. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that forum. You can also reach that screen by clicking on the forum title.',                                                          'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Close</strong> will mark the selected forum as &#8217;closed&#8217 and disable the ability to post new topics and replies in it.',                                                      'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Close</strong> will mark the selected forum as &#8217;closed&#8217; and disable the ability to post new topics and replies in it.',                                                      'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>Trash</strong> removes your forum from this list and places it in the trash, from which you can permanently delete it.',                                                                'bbpress' ) . '</li>' .
 					'<li>' . __( '<strong>View</strong> will either show you what your draft forum will look like if you publish it, or take you to your live site to view it. Which link depends on your forum&#8217;s status.', 'bbpress' ) . '</li>' .
 				'</ul>'
