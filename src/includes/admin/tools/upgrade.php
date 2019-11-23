@@ -246,7 +246,7 @@ function bbp_admin_upgrade_user_engagements() {
 	}
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d engagements upgraded.', 'Complete! %d engagements upgraded.', $engagements, 'bbpress' ), $engagements );
+	$result = sprintf( _n( 'Complete! %d engagement upgraded.', 'Complete! %d engagements upgraded.', $engagements, 'bbpress' ), bbp_number_format( $engagements ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -444,7 +444,7 @@ function bbp_admin_upgrade_user_favorites() {
 	unset( $favs, $added, $post_ids );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -504,7 +504,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 	unset( $subs, $added, $post_ids );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -564,7 +564,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 	unset( $subs, $added, $post_ids );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -600,7 +600,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 	$total = count( $favs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d favorites deleted.', 'Complete! %d favorites deleted.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d favorite deleted.', 'Complete! %d favorites deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -636,7 +636,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 	$total = count( $subs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d topic subscription deleted.', 'Complete! %d topic subscriptions deleted.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d topic subscription deleted.', 'Complete! %d topic subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
@@ -672,7 +672,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 	$total = count( $subs );
 
 	// Complete results
-	$result = sprintf( _n( 'Complete! %d forum subscription deleted.', 'Complete! %d forum subscriptions deleted.', $total, 'bbpress' ), $total );
+	$result = sprintf( _n( 'Complete! %d forum subscription deleted.', 'Complete! %d forum subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
 }
