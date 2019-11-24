@@ -949,6 +949,12 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$args = array(
 				'post__in' => $object_ids
 			);
+
+		// Or maybe include nothing
+		} else {
+			$args = array(
+				'post__in' => -1 // Tricks WP_Query into ".ID IN ()"
+			);
 		}
 
 		// Parse arguments
