@@ -40,15 +40,15 @@
 }
 
 /* Gently apply sans-serif styling by default */
-#bbpress-forums a,
-#bbpress-forums button,
+#bbpress-forums a:not(.dashicons),
+#bbpress-forums button:not(.dashicons),
+#bbpress-forums span:not(.dashicons),
+#bbpress-forums input:not(.dashicons),
 #bbpress-forums p,
 #bbpress-forums ul,
 #bbpress-forums ol,
 #bbpress-forums li,
 #bbpress-forums div,
-#bbpress-forums span,
-#bbpress-forums input,
 #bbpress-forums select,
 #bbpress-forums textarea {
 	font-family: sans-serif;
