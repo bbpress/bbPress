@@ -548,7 +548,7 @@ class Invision extends BBP_Converter_Base {
 				|| ( $j >= 48 && $j <= 57 ) ) {
 				$output .= $input{$i};
 			} else {
-				$output .= '&#' . ord( $input{$i} ) . '';
+				$output .= '&#' . ord( $input{$i} ) . ';';
 			}
 		}
 		return $output;
