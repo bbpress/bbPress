@@ -92,8 +92,8 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	} else {
 		$filter = 'bbp_single_new_subscription_notification';
 		$text   = ! empty( $secondary_item_id )
-			? sprintf( esc_html__( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
-			: sprintf( esc_html__( 'You have %d new reply to %s',             'bbpress' ), $action_item_count, $topic_title );
+			? sprintf( esc_html__( 'You have %1$d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
+			: sprintf( esc_html__( 'You have %1$d new reply to %2$s',             'bbpress' ), $action_item_count, $topic_title );
 	}
 
 	// WordPress Toolbar
@@ -154,7 +154,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 
 	// Notify the topic author if not the current reply author
 	if ( $author_id !== $topic_author_id ) {
-		$args['secondary_item_id'] = $secondary_item_id ;
+		$args['secondary_item_id'] = $secondary_item_id;
 
 		bp_notifications_add_notification( $args );
 	}

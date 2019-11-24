@@ -810,7 +810,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 		// Try to delete caches, but only if everything else succeeded
 		if ( ! empty( $retval ) && ! empty( $object_ids ) ) {
-			foreach( $object_ids as $object_id ) {
+			foreach ( $object_ids as $object_id ) {
 				$this->cache_delete( $meta_key, $object_id );
 			}
 		}

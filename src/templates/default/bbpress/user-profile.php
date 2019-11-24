@@ -16,7 +16,7 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 	<h2 class="entry-title">@<?php bbp_displayed_user_field( 'user_nicename' ); ?></h2>
 	<div class="bbp-user-section">
 		<h3><?php esc_html_e( 'Profile', 'bbpress' ); ?></h3>
-		<p class="bbp-user-forum-role"><?php  printf( esc_html__( 'Registered: %s', 'bbpress' ), bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ) ) ); ?></p>
+		<p class="bbp-user-forum-role"><?php printf( esc_html__( 'Registered: %s', 'bbpress' ), bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ) ) ); ?></p>
 
 		<?php if ( bbp_get_displayed_user_field( 'description' ) ) : ?>
 
@@ -26,7 +26,7 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 
 		<?php if ( bbp_get_displayed_user_field( 'user_url' ) ) : ?>
 
-			<p class="bbp-user-website"><?php  printf( esc_html__( 'Website: %s', 'bbpress' ), bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field( 'user_url' ) ) ) ); ?></p>
+			<p class="bbp-user-website"><?php printf( esc_html__( 'Website: %s', 'bbpress' ), bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field( 'user_url' ) ) ) ); ?></p>
 
 		<?php endif; ?>
 

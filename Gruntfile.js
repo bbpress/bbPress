@@ -221,6 +221,12 @@ module.exports = function( grunt ) {
 				tracUrl: 'bbpress.trac.wordpress.org'
 			}
 		},
+		phpcs: {
+			'default': {
+				cmd: 'phpcs',
+				args: [ '--standard=phpcs.xml.dist', '--report-summary', '--report-source', '--cache=.phpcscache' ]
+			}
+		},
 		phpunit: {
 			'default': {
 				cmd: 'phpunit',
@@ -388,6 +394,15 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain', 'postcss:core' ] );
 	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
+
+	// PHPCS test task.
+	grunt.registerMultiTask( 'phpcs', 'Runs PHPCS tests.', function() {
+		grunt.util.spawn( {
+			cmd:  this.data.cmd,
+			args: this.data.args,
+			opts: { stdio: 'inherit' }
+		}, this.async() );
+	} );
 
 	// PHPUnit test task.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the BuddyPress and multisite tests.', function() {

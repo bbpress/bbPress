@@ -1171,7 +1171,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 
 		// First link never has view=all
 		$retval = bbp_get_view_all( 'edit_others_topics' )
-			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $topics ) . "</a>"
+			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $topics ) . '</a>'
 			: esc_html( $topics );
 
 		// Get deleted topics
@@ -1186,7 +1186,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 
 			// Hidden link
 			$retval .= ! bbp_get_view_all( 'edit_others_topics' )
-				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
+				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . '</a>'
 				: " {$extra}";
 		}
 
@@ -1570,7 +1570,7 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 	if ( ! empty( $check_ancestors ) ) {
 
 		// Adjust the ancestor check based on the count
-		switch( $operator ) {
+		switch ( $operator ) {
 			default:
 			case 'AND':
 				$check_ancestors = ( $count > 0 );
@@ -2390,7 +2390,7 @@ function bbp_form_forum_type_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_forum_types( $r['forum_id'] ) as $key => $label ) : ?>
 
@@ -2476,7 +2476,7 @@ function bbp_form_forum_status_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_forum_statuses( $r['forum_id'] ) as $key => $label ) : ?>
 
@@ -2562,7 +2562,7 @@ function bbp_form_forum_visibility_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ) ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_forum_visibilities( $r['forum_id'] ) as $key => $label ) : ?>
 

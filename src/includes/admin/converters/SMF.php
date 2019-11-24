@@ -740,11 +740,11 @@ class SMF extends BBP_Converter_Base {
 		$SMF_markup = html_entity_decode( $SMF_markup );
 
 		// Replace '[quote]' with '<blockquote>'
-		$SMF_markup = preg_replace( '/\[quote\]/',        '<blockquote>',  $SMF_markup );
+		$SMF_markup = preg_replace( '/\[quote\]/',       '<blockquote>',  $SMF_markup );
 		// Replace '[quote ($1)]' with '<blockquote>"
-		$SMF_markup = preg_replace( '/\[quote (.*?)\]/' , '<blockquote>',  $SMF_markup );
+		$SMF_markup = preg_replace( '/\[quote (.*?)\]/', '<blockquote>',  $SMF_markup );
 		// Replace '[/quote]' with '</blockquote>'
-		$SMF_markup = preg_replace( '/\[\/quote\]/',      '</blockquote>', $SMF_markup );
+		$SMF_markup = preg_replace( '/\[\/quote\]/',     '</blockquote>', $SMF_markup );
 
 		// Replace '[glow]' with ''
 		$SMF_markup = preg_replace( '/\[glow\]/',   '',       $SMF_markup );

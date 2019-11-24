@@ -322,7 +322,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function edit_screen( $group = false ) {
 		$forum_id  = 0;
-		$group_id  = empty( $group->id ) ? bp_get_new_group_id() : $group->id ;
+		$group_id  = empty( $group->id ) ? bp_get_new_group_id() : $group->id;
 		$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 		// Get the first forum ID
@@ -399,7 +399,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		} elseif ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
 			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
- 		}
+		}
 
 		$edit_forum = ! empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
 		$forum_id   = 0;
@@ -962,7 +962,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						endif;
 
 					// Single Topic
-					else:
+					else :
 						bbp_set_query_name( 'bbp_single_topic' );
 						bbp_get_template_part( 'content', 'single-topic' );
 					endif;

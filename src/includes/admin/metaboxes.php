@@ -315,7 +315,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_type_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
@@ -327,7 +327,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_status_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
@@ -339,7 +339,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_visibility_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 

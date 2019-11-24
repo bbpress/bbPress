@@ -612,7 +612,7 @@ class e107v1 extends BBP_Converter_Base {
 		// Replace '[quote$1=$2]' with '<em>$2 wrote:</em><blockquote>"
 		$e107v1_markup = preg_replace( '/\[quote(.*?)=(.*?)\]/', '<em>@$2 wrote:</em><blockquote>', $e107v1_markup );
 		// Replace '[/quote$1]' with '</blockquote>"
-		$e107v1_markup = preg_replace( '/\[\/quote(.*?)\]/' ,    '</blockquote>',                   $e107v1_markup );
+		$e107v1_markup = preg_replace( '/\[\/quote(.*?)\]/',     '</blockquote>',                   $e107v1_markup );
 
 		// Remove '[justify]'
 		$e107v1_markup = preg_replace( '/\[justify\]/',   '', $e107v1_markup );

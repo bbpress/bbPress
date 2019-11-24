@@ -1528,7 +1528,7 @@ function bbp_reply_to( $reply_id = 0 ) {
 	/**
 	 * Return the reply to id of a reply
 	 *
- 	 * @since 2.4.0 bbPress (r4944)
+	 * @since 2.4.0 bbPress (r4944)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @return int The parent reply id of the reply
@@ -2386,7 +2386,7 @@ function bbp_topic_pagination_count() {
 
 			// Several replies in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );
+				$retstr = sprintf( _n( 'Viewing %2$s replies (of %4$s total)', 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );  //phpcs:ignore
 			}
 
 		// We are including the lead topic
@@ -2398,7 +2398,7 @@ function bbp_topic_pagination_count() {
 
 			// Several posts in a topic with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );
+				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $count_int, 'bbpress' ), $count_num, $from_num, $to_num, $total_num );  //phpcs:ignore
 			}
 		}
 
@@ -2711,7 +2711,7 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_reply_statuses( $r['reply_id'] ) as $key => $label ) : ?>
 

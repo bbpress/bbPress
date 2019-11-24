@@ -29,7 +29,7 @@ function bbp_admin_reset_page() {
 			<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><?php esc_html_e( 'The following data will be removed:', 'bbpress' ) ?></th>
+						<th scope="row"><?php esc_html_e( 'The following data will be removed:', 'bbpress' ); ?></th>
 						<td>
 							<?php esc_html_e( 'All Forums',           'bbpress' ); ?><br />
 							<?php esc_html_e( 'All Topics',           'bbpress' ); ?><br />

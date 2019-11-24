@@ -14,22 +14,22 @@ defined( 'ABSPATH' ) || exit;
 
 <form id="bbp-your-profile" method="post" enctype="multipart/form-data">
 
-	<h2 class="entry-title"><?php esc_html_e( 'Name', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Name', 'bbpress' ); ?></h2>
 
 	<?php do_action( 'bbp_user_edit_before' ); ?>
 
 	<fieldset class="bbp-form">
-		<legend><?php esc_html_e( 'Name', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Name', 'bbpress' ); ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_name' ); ?>
 
 		<div>
-			<label for="first_name"><?php esc_html_e( 'First Name', 'bbpress' ) ?></label>
+			<label for="first_name"><?php esc_html_e( 'First Name', 'bbpress' ); ?></label>
 			<input type="text" name="first_name" id="first_name" value="<?php bbp_displayed_user_field( 'first_name', 'edit' ); ?>" class="regular-text" />
 		</div>
 
 		<div>
-			<label for="last_name"><?php esc_html_e( 'Last Name', 'bbpress' ) ?></label>
+			<label for="last_name"><?php esc_html_e( 'Last Name', 'bbpress' ); ?></label>
 			<input type="text" name="last_name" id="last_name" value="<?php bbp_displayed_user_field( 'last_name', 'edit' ); ?>" class="regular-text" />
 		</div>
 
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div>
-			<label for="display_name"><?php esc_html_e( 'Display Name', 'bbpress' ) ?></label>
+			<label for="display_name"><?php esc_html_e( 'Display Name', 'bbpress' ); ?></label>
 
 			<?php bbp_edit_user_display_name(); ?>
 
@@ -49,15 +49,15 @@ defined( 'ABSPATH' ) || exit;
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php esc_html_e( 'Contact Info', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Contact Info', 'bbpress' ); ?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php esc_html_e( 'Contact Info', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Contact Info', 'bbpress' ); ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_contact' ); ?>
 
 		<div>
-			<label for="url"><?php esc_html_e( 'Website', 'bbpress' ) ?></label>
+			<label for="url"><?php esc_html_e( 'Website', 'bbpress' ); ?></label>
 			<input type="text" name="url" id="url" value="<?php bbp_displayed_user_field( 'user_url', 'edit' ); ?>" maxlength="200" class="regular-text code" />
 		</div>
 
@@ -96,10 +96,10 @@ defined( 'ABSPATH' ) || exit;
 
 	</fieldset>
 
-	<h2 class="entry-title"><?php esc_html_e( 'Account', 'bbpress' ) ?></h2>
+	<h2 class="entry-title"><?php esc_html_e( 'Account', 'bbpress' ); ?></h2>
 
 	<fieldset class="bbp-form">
-		<legend><?php esc_html_e( 'Account', 'bbpress' ) ?></legend>
+		<legend><?php esc_html_e( 'Account', 'bbpress' ); ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_account' ); ?>
 
@@ -116,7 +116,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php bbp_get_template_part( 'form', 'user-passwords' ); ?>
 
 		<div>
-			<label for="url"><?php esc_html_e( 'Language', 'bbpress' ) ?></label>
+			<label for="url"><?php esc_html_e( 'Language', 'bbpress' ); ?></label>
 
 			<?php bbp_edit_user_language(); ?>
 
@@ -128,7 +128,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php if ( ! bbp_is_user_home_edit() && current_user_can( 'promote_user', bbp_get_displayed_user_id() ) ) : ?>
 
-		<h2 class="entry-title"><?php esc_html_e( 'User Role', 'bbpress' ) ?></h2>
+		<h2 class="entry-title"><?php esc_html_e( 'User Role', 'bbpress' ); ?></h2>
 
 		<fieldset class="bbp-form">
 			<legend><?php esc_html_e( 'User Role', 'bbpress' ); ?></legend>

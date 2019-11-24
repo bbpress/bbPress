@@ -425,7 +425,7 @@ function bbp_admin_repair_forum_reply_count() {
 						OR `postmeta`.`meta_key` = '_bbp_total_reply_count'";
 
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
- 		return array( 1, sprintf( $statement, $result ) );
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
@@ -467,7 +467,7 @@ function bbp_admin_repair_forum_hidden_reply_count() {
 						OR `postmeta`.`meta_key` = '_bbp_total_reply_count_hidden'";
 
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
- 		return array( 1, sprintf( $statement, $result ) );
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
@@ -991,8 +991,8 @@ function bbp_admin_repair_freshness() {
 		return array( 10, sprintf( $statement, $result ) );
 	}
 
- 	// Loop through forums
- 	foreach ( $forums as $forum_id ) {
+	// Loop through forums
+	foreach ( $forums as $forum_id ) {
 		if ( ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_update_forum( array( 'forum_id' => $forum_id ) );
 		}
@@ -1106,7 +1106,7 @@ function bbp_admin_repair_closed_topics() {
 		$topic_status = get_post_meta( $closed_topic, '_bbp_status', true );
 
 		// If we don't have a postmeta _bbp_status value
-		if( empty( $topic_status ) ) {
+		if ( empty( $topic_status ) ) {
 			update_post_meta( $closed_topic, '_bbp_status', 'publish' );
 			++$changed; // Keep a count to display at the end
 		}

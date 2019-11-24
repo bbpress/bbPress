@@ -55,7 +55,7 @@ class BBP_Theme_Compat {
 	 *
 	 * @param array $properties
 	 */
-	public function __construct( Array $properties = array() ) {
+	public function __construct( array $properties = array() ) {
 		$this->_data = $properties;
 	}
 

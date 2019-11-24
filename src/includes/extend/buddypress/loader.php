@@ -242,7 +242,7 @@ class BBP_Forums_Component extends BP_Component {
 		}
 
 		// Favorite topics
-		if ( bbp_is_favorites_active() ){
+		if ( bbp_is_favorites_active() ) {
 			$sub_nav[] = array(
 				'name'            => esc_html__( 'Favorites', 'bbpress' ),
 				'slug'            => bbp_get_user_favorites_slug(),
@@ -379,7 +379,7 @@ class BBP_Forums_Component extends BP_Component {
 					'item_id' => bp_displayed_user_id(),
 					'type'    => 'thumb'
 				) );
-				$bp->bp_options_title = bp_get_displayed_user_fullname();
+				$bp->bp_options_title  = bp_get_displayed_user_fullname();
 			}
 		}
 

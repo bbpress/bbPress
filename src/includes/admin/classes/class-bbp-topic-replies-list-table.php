@@ -330,10 +330,10 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 		// Hierarchy
 		if ( ! empty( $item->post_parent ) ) {
-		    $count    = count( get_post_ancestors( $item->ID ) );
-		    $classes .= ' level-'. $count;
+			$count    = count( get_post_ancestors( $item->ID ) );
+			$classes .= ' level-'. $count;
 		} else {
-		    $classes .= ' level-0';
+			$classes .= ' level-0';
 		} ?>
 
 		<tr id="post-<?php echo esc_attr( $item->ID ); ?>" class="<?php echo implode( ' ', get_post_class( $classes, $item->ID ) ); ?>">

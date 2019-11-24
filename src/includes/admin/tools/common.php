@@ -219,7 +219,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 	$retval = array();
 
 	// Get tools
-	$tools  = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
 
 	// Loop through tools
 	if ( ! empty( $tools ) ) {
@@ -311,7 +311,7 @@ function bbp_get_admin_repair_tool_registered_versions() {
 	$retval = array();
 
 	// Get tools
-	$tools  = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
+	$tools = bbp_get_admin_repair_tools( bbp_get_admin_repair_tool_page_id() );
 
 	// Loop through tools
 	if ( ! empty( $tools ) ) {
@@ -524,7 +524,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 		: '';
 
 	// Overhead
-	$overhead  = ! empty( $_GET['overhead'] )
+	$overhead = ! empty( $_GET['overhead'] )
 		? sanitize_key( $_GET['overhead'] )
 		: '';
 

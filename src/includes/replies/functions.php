@@ -716,7 +716,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	if ( ! empty( $reply_id ) && ! is_wp_error( $reply_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true, $reply_to );
+		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, true, $reply_to );
 
 		/** Revisions *********************************************************/
 
@@ -730,7 +730,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 		}
 
 		// Update revision log
-		if ( ! empty( $_POST['bbp_log_reply_edit'] ) && ( "1" === $_POST['bbp_log_reply_edit'] ) ) {
+		if ( ! empty( $_POST['bbp_log_reply_edit'] ) && ( '1' === $_POST['bbp_log_reply_edit'] ) ) {
 			$revision_id = wp_save_post_revision( $reply_id );
 			if ( ! empty( $revision_id ) ) {
 				bbp_update_reply_revision_log( array(
@@ -821,7 +821,6 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		if ( empty( $is_edit ) ) {
 			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
 		}
-
 	} else {
 		if ( empty( $is_edit ) && ! current_user_can( 'throttle' ) ) {
 			bbp_update_user_last_posted( $author_id );
@@ -2079,14 +2078,14 @@ function _bbp_has_replies_where( $where = '', $query = false ) {
 
 	// The texts to search for
 	$search     = array(
-		"FROM {$table_name} " ,
+		"FROM {$table_name} ",
 		"WHERE 1=1  AND {$table_name}.post_parent = {$topic_id}",
 		") AND {$table_name}.post_parent = {$topic_id}"
 	);
 
 	// The texts to replace them with
 	$replace     = array(
-		$search[0] . "FORCE INDEX (PRIMARY, post_parent) " ,
+		$search[0] . 'FORCE INDEX (PRIMARY, post_parent) ',
 		"WHERE 1=1 AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})",
 		") AND ({$table_name}.ID = {$topic_id} OR {$table_name}.post_parent = {$topic_id})"
 	);
@@ -2146,7 +2145,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<title><?php echo $title; // Already escaped ?></title>
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
-		<description><?php //?></description>
+		<description><?php //?></description><?php // phpcs:ignore ?>
 		<lastBuildDate><?php echo date( 'r' ); ?></lastBuildDate>
 		<generator><?php echo esc_url_raw( 'https://bbpress.org/?v=' . convert_chars( bbp_get_version() ) ); ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
@@ -2189,7 +2188,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 					<title><![CDATA[<?php bbp_reply_title(); ?>]]></title>
 					<link><?php bbp_reply_url(); ?></link>
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
-					<dc:creator><?php the_author() ?></dc:creator>
+					<dc:creator><?php the_author(); ?></dc:creator>
 
 					<description>
 						<![CDATA[

@@ -298,7 +298,7 @@ class Kunena2 extends BBP_Converter_Base {
 		 * Kunena v2.x Forums do not support topic tags out of the box
 		 */
 
- 		/** Reply Section *****************************************************/
+		/** Reply Section *****************************************************/
 
 		// Old reply id (Stored in postmeta)
 		$this->field_map[] = array(

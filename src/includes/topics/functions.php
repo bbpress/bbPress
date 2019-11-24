@@ -646,7 +646,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	if ( ! empty( $topic_id ) && ! is_wp_error( $topic_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_author , true /* Is edit */ );
+		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_author, true /* Is edit */ );
 
 		/** Revisions *********************************************************/
 
@@ -660,7 +660,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 		}
 
 		// Update revision log
-		if ( ! empty( $_POST['bbp_log_topic_edit'] ) && ( "1" === $_POST['bbp_log_topic_edit'] ) )  {
+		if ( ! empty( $_POST['bbp_log_topic_edit'] ) && ( '1' === $_POST['bbp_log_topic_edit'] ) ) {
 			$revision_id = wp_save_post_revision( $topic_id );
 			if ( ! empty( $revision_id ) ) {
 				bbp_update_topic_revision_log( array(
@@ -789,6 +789,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
 		}
 
+	// If not anonymous, then
 	} else {
 		if ( empty( $is_edit ) && ! current_user_can( 'throttle' ) ) {
 			bbp_update_user_last_posted( $author_id );
@@ -867,7 +868,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	if ( ! empty( $topic_id ) ) {
 
 		// Get the forum ID if none was passed
-		if ( empty( $forum_id )  ) {
+		if ( empty( $forum_id ) ) {
 			$forum_id = bbp_get_topic_forum_id( $topic_id );
 		}
 
@@ -1194,7 +1195,7 @@ function bbp_merge_topic_handler( $action = '' ) {
 	if ( ! empty( $source_topic_tags ) && ! is_wp_error( $source_topic_tags ) ) {
 
 		// Shift the tags if told to
-		if ( ! empty( $_POST['bbp_topic_tags'] ) && ( "1" === $_POST['bbp_topic_tags'] ) ) {
+		if ( ! empty( $_POST['bbp_topic_tags'] ) && ( '1' === $_POST['bbp_topic_tags'] ) ) {
 			wp_set_post_terms( $destination_topic->ID, $source_topic_tags, bbp_get_topic_tag_tax_id(), true );
 		}
 
@@ -1487,7 +1488,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Subscriptions *********************************************************/
 
 	// Copy the subscribers
-	if ( ! empty( $_POST['bbp_topic_subscribers'] ) && "1" === $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() ) {
+	if ( ! empty( $_POST['bbp_topic_subscribers'] ) && '1' === $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() ) {
 
 		// Get the subscribers
 		$subscribers = bbp_get_subscribers( $source_topic->ID );
@@ -1504,7 +1505,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Favorites *************************************************************/
 
 	// Copy the favoriters if told to
-	if ( ! empty( $_POST['bbp_topic_favoriters'] ) && ( "1" === $_POST['bbp_topic_favoriters'] ) ) {
+	if ( ! empty( $_POST['bbp_topic_favoriters'] ) && ( '1' === $_POST['bbp_topic_favoriters'] ) ) {
 
 		// Get the favoriters
 		$favoriters = bbp_get_topic_favoriters( $source_topic->ID );
@@ -1521,7 +1522,7 @@ function bbp_split_topic_handler( $action = '' ) {
 	/** Tags ******************************************************************/
 
 	// Copy the tags if told to
-	if ( ! empty( $_POST['bbp_topic_tags'] ) && ( "1" === $_POST['bbp_topic_tags'] ) ) {
+	if ( ! empty( $_POST['bbp_topic_tags'] ) && ( '1' === $_POST['bbp_topic_tags'] ) ) {
 
 		// Get the source topic tags
 		$source_topic_tags = wp_get_post_terms( $source_topic->ID, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
@@ -2134,7 +2135,7 @@ function bbp_toggle_topic( $args = array() ) {
 			check_ajax_referer( "stick-{$nonce_suffix}" );
 
 			$is_sticky = bbp_is_topic_sticky( $r['id'] );
-			$is_super  = false === $is_sticky && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] ) ? true : false;
+			$is_super  = false === $is_sticky && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] ) ? true : false;
 
 			// Toggle
 			$retval['status'] = ( true === $is_sticky )
@@ -3775,7 +3776,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		<title><?php echo $title; // Already escaped ?></title>
 		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
 		<link><?php self_link(); ?></link>
-		<description><?php //?></description>
+		<description><?php //?></description><?php // phpcs:ignore ?>
 		<lastBuildDate><?php echo date( 'r' ); ?></lastBuildDate>
 		<generator><?php echo esc_url_raw( 'https://bbpress.org/?v=' . convert_chars( bbp_get_version() ) ); ?></generator>
 		<language><?php bloginfo_rss( 'language' ); ?></language>
@@ -3791,7 +3792,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 					<title><![CDATA[<?php bbp_topic_title(); ?>]]></title>
 					<link><?php bbp_topic_permalink(); ?></link>
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_meta( bbp_get_topic_id(), '_bbp_last_active_time', true ), false ); ?></pubDate>
-					<dc:creator><?php the_author() ?></dc:creator>
+					<dc:creator><?php the_author(); ?></dc:creator>
 
 					<?php if ( !post_password_required() ) : ?>
 

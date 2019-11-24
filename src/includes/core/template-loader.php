@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
 function bbp_template_include_theme_supports( $template = '' ) {
 
 	// Editing a user
-	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :
+	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :  //phpcs:ignore
 
 	// User favorites
 	elseif ( bbp_is_favorites()        && ( $new_template = bbp_get_favorites_template()        ) ) :

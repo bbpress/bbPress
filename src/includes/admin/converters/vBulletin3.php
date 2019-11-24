@@ -640,7 +640,7 @@ class vBulletin3 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array( 'hash'	 => $field, 'salt'	 => $row['salt'] );
+		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
 		return $pass_array;
 	}
 
@@ -736,7 +736,7 @@ class vBulletin3 extends BBP_Converter_Base {
 		// Replace '[QUOTE]' with '<blockquote>'
 		$vbulletin_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $vbulletin_markup );
 		// Replace '[QUOTE=User Name($1);PostID($2)]' with '<em>@$1 $2 wrote:</em><blockquote>"
-		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/' , '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
+		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/', '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
 		// Replace '[/QUOTE]' with '</blockquote>'
 		$vbulletin_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $vbulletin_markup );
 		// Replace '[MENTION=###($1)]User Name($2)[/MENTION]' with '@$2"

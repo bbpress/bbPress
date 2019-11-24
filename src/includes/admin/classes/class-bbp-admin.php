@@ -235,7 +235,7 @@ class BBP_Admin {
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
 			$bbp_dashicon = '<span class="bbpress-logo-icon"></span>';
 			$message      = $bbp_dashicon . sprintf(
-				esc_html__( 'bbPress requires a manual database upgrade. %s or %s.', 'bbpress' ),
+				esc_html__( 'bbPress requires a manual database upgrade. %1$s or %1$s.', 'bbpress' ),
 				$upgrade_link,
 				$dismiss_link
 			);
@@ -324,7 +324,7 @@ class BBP_Admin {
 
 		// Messages as objects
 		} elseif ( is_wp_error( $message ) ) {
-			$errors  = $message->get_error_messages();
+			$errors = $message->get_error_messages();
 
 			switch ( count( $errors ) ) {
 				case 0:
@@ -913,7 +913,7 @@ class BBP_Admin {
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
-				printf( esc_html__( '%s - %s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
+				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
 			}
 		}
 		die();
@@ -950,7 +950,7 @@ class BBP_Admin {
 		// If we found some users, loop through and display them
 		if ( ! empty( $users_query->results ) ) {
 			foreach ( (array) $users_query->results as $user ) {
-				printf( esc_html__( '%s - %s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
+				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
 			}
 		}
 		die();
@@ -1335,7 +1335,7 @@ class BBP_Admin {
 					<script type='text/javascript'>
 						<!--
 						function nextpage() {
-							location.href = 'update-core.php?page=bbpress-update&action=bbpress-update&n=<?php echo ( $n + 5 ) ?>';
+							location.href = 'update-core.php?page=bbpress-update&action=bbpress-update&n=<?php echo ( $n + 5 ); ?>';
 						}
 						setTimeout( 'nextpage()', 250 );
 						//-->

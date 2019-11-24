@@ -27,7 +27,7 @@ function bbp_admin_tools_box() {
 	$tools = bbp_get_tools_admin_pages(); ?>
 
 	<div class="card">
-		<h3 class="title"><?php esc_html_e( 'Forums', 'bbpress' ) ?></h3>
+		<h3 class="title"><?php esc_html_e( 'Forums', 'bbpress' ); ?></h3>
 		<p><?php esc_html_e( 'bbPress provides the following tools to help you manage your forums:', 'bbpress' ); ?></p>
 
 		<?php

@@ -637,8 +637,8 @@ function bbp_topic_archive_title( $title = '' ) {
 
 			// Default to topic post type name label
 			} else {
-				$tto    = get_post_type_object( bbp_get_topic_post_type() );
-				$title  = $tto->labels->name;
+				$tto   = get_post_type_object( bbp_get_topic_post_type() );
+				$title = $tto->labels->name;
 			}
 		}
 
@@ -1467,7 +1467,7 @@ function bbp_topic_author_link( $args = array() ) {
 			unset( $links );
 
 			// Filter sections
-			$sections    = apply_filters( 'bbp_get_topic_author_links', $author_links, $r, $args );
+			$sections = apply_filters( 'bbp_get_topic_author_links', $author_links, $r, $args );
 
 			// Assemble sections into author link
 			$author_link = implode( $r['sep'], $sections );
@@ -2017,7 +2017,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 
 		// First link never has view=all
 		$retval = bbp_get_view_all( 'edit_others_replies' )
-			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $replies ) . "</a>"
+			? "<a href='" . esc_url( bbp_remove_view_all( $link ) ) . "'>" . esc_html( $replies ) . '</a>'
 			: $replies;
 
 		// Any deleted replies?
@@ -2032,7 +2032,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 
 			// Hidden link
 			$retval .= ! bbp_get_view_all( 'edit_others_replies' )
-				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . "</a>"
+				? " <a href='" . esc_url( bbp_add_view_all( $link, true ) ) . "'>" . esc_html( $extra ) . '</a>'
 				: " {$extra}";
 		}
 
@@ -2989,7 +2989,7 @@ function bbp_forum_pagination_count() {
 
 			// Several topics in a forum with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing topic %2$s (of %4$s total)', 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', $total_int, 'bbpress' ), $count_num, $from_num, $to_num, $total );
+				$retstr = sprintf( _n( 'Viewing topic %2$s (of %4$s total)', 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', $total_int, 'bbpress' ), $count_num, $from_num, $to_num, $total );  //phpcs:ignore
 			}
 
 			// Escape results of _n()
@@ -3241,7 +3241,7 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
 		// Start an output buffer, we'll finish it after the select loop
 		ob_start(); ?>
 
-		<select name="<?php echo esc_attr( $r['select_id'] ) ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
+		<select name="<?php echo esc_attr( $r['select_id'] ); ?>" id="<?php echo esc_attr( $r['select_id'] ); ?>_select" class="<?php echo esc_attr( $r['select_class'] ); ?>"<?php bbp_tab_index_attribute( $r['tab'] ); ?>>
 
 			<?php foreach ( bbp_get_topic_statuses( $r['topic_id'] ) as $key => $label ) : ?>
 

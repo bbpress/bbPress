@@ -176,7 +176,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 
 	// Is the post by an anonymous user?
 	if ( ( bbp_get_topic_post_type() === $data['post_type'] && ! bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
-	     ( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $postarr['ID'] ) ) ) {
+		 ( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $postarr['ID'] ) ) ) {
 		return $data;
 	}
 
@@ -222,7 +222,7 @@ function bbp_past_edit_lock( $datetime = '', $utc = true ) {
 			// Period of time
 			$lockable = "+{$minutes} minutes";
 			if ( true === $utc ) {
-				$lockable .= " UTC";
+				$lockable .= ' UTC';
 			}
 
 			// Now
@@ -713,12 +713,12 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 
 	// Prepare duplicate check query
 	$query  = "SELECT ID FROM {$bbp_db->posts} {$join}";
-	$query .= $bbp_db->prepare( "WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s", $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
+	$query .= $bbp_db->prepare('WHERE post_type = %s AND post_status != %s AND post_author = %d AND post_content = %s', $r['post_type'], $r['post_status'], $r['post_author'], $r['post_content'] );
 	$query .= ! empty( $r['post_parent'] )
-		? $bbp_db->prepare( " AND post_parent = %d", $r['post_parent'] )
+		? $bbp_db->prepare( ' AND post_parent = %d', $r['post_parent'] )
 		: '';
 	$query .= $where;
-	$query .= " LIMIT 1";
+	$query .= ' LIMIT 1';
 	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $query, $r );
 
 	// Dupe found
@@ -1148,7 +1148,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 
 	// Custom headers
 	$headers  = apply_filters( 'bbp_subscription_mail_headers', $headers  );
- 	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
+	$to_email = apply_filters( 'bbp_subscription_to_email',     $no_reply );
 
 	// Before
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id, $user_ids );
@@ -2447,7 +2447,7 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 						// The query
 						$the_query = array(
 							'posts_per_page' => bbp_get_replies_per_rss_page(),
-							'meta_query'     => array( array( ) ),
+							'meta_query'     => array( array() ),
 							'feed'           => true
 						);
 

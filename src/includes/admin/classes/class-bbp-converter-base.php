@@ -391,12 +391,12 @@ abstract class BBP_Converter_Base {
 				if ( ! empty( $item['from_expression'] ) ) {
 
 					// No 'WHERE' in expression
-					if ( stripos( $from_tablename, "WHERE" ) === false ) {
+					if ( stripos( $from_tablename, 'WHERE' ) === false ) {
 						$from_tablename .= ' ' . $item['from_expression'];
 
 					// 'WHERE' in expression, so replace with 'AND'
 					} else {
-						$from_tablename .= ' ' . str_replace( "WHERE", "AND", $item['from_expression'] );
+						$from_tablename .= ' ' . str_replace( 'WHERE', 'AND', $item['from_expression'] );
 					}
 				}
 
@@ -532,7 +532,7 @@ abstract class BBP_Converter_Base {
 
 							case 'tags' :
 								$post_id = wp_set_object_terms( $insert_postmeta['objectid'], $insert_postmeta['name'], 'topic-tag', true );
-								$term = get_term_by( 'name', $insert_postmeta['name'], 'topic-tag');
+								$term    = get_term_by( 'name', $insert_postmeta['name'], 'topic-tag');
 								if ( false !== $term ) {
 									wp_update_term( $term->term_id, 'topic-tag', array(
 										'description' => $insert_postmeta['description'],

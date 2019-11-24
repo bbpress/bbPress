@@ -274,7 +274,7 @@ class BBP_Topics_Admin {
 	public function handle_bulk_actions( $sendback, $doaction, $post_ids ) {
 
 		$sendback = remove_query_arg( array( 'spam', 'unspam' ), $sendback );
-		$updated = $locked = 0;
+		$updated  = $locked = 0;
 
 		if ( 'spam' === $doaction ) {
 
@@ -618,7 +618,7 @@ class BBP_Topics_Admin {
 				check_admin_referer( 'stick-topic_' . $topic_id );
 
 				$is_sticky = bbp_is_topic_sticky( $topic_id );
-				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] )
+				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] )
 					? true
 					: false;
 				$message   = ( true  === $is_sticky )
@@ -692,7 +692,7 @@ class BBP_Topics_Admin {
 
 		// Bail if no topic_id or notice
 		$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
-		if (  empty( $topic_id ) ) {
+		if ( empty( $topic_id ) ) {
 			return;
 		}
 
@@ -1032,13 +1032,13 @@ class BBP_Topics_Admin {
 
 			if ( bbp_get_trash_status_id() === $topic->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . '</a>';
 			} elseif ( ! empty( $trash_days ) ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . '</a>';
 			}
 
 			if ( ( bbp_get_trash_status_id() === $topic->post_status ) || empty( $trash_days ) ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . '</a>';
 			}
 		}
 
@@ -1167,10 +1167,10 @@ class BBP_Topics_Admin {
 
 		// Messages array
 		$messages[ $this->post_type ] = array(
-			0 =>  '', // Left empty on purpose
+			0 => '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf(
+			1 => sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
 				esc_html__( 'Topic updated.', 'bbpress' ),
 				$topic_url,

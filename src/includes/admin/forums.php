@@ -539,7 +539,7 @@ class BBP_Forums_Admin {
 			'bbp_forum_reply_count' => esc_html__( 'Replies',    'bbpress' ),
 			'bbp_forum_mods'        => esc_html__( 'Moderators', 'bbpress' ),
 			'author'                => esc_html__( 'Creator',    'bbpress' ),
-			'bbp_forum_created'     => esc_html__( 'Created' ,   'bbpress' ),
+			'bbp_forum_created'     => esc_html__( 'Created',    'bbpress' ),
 			'bbp_forum_freshness'   => esc_html__( 'Last Post',  'bbpress' )
 		);
 
@@ -693,10 +693,10 @@ class BBP_Forums_Admin {
 
 		// Messages array
 		$messages[ $this->post_type ] = array(
-			0 =>  '', // Left empty on purpose
+			0 => '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf(
+			1 => sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
 				esc_html__( 'Forum updated.', 'bbpress' ),
 				$forum_url,

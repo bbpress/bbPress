@@ -1,0 +1,361 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Coding Standards">
+	<description>Apply WordPress Coding Standards to all Core files with scpecific bbPress exclusions</description>
+
+	<rule ref="WordPress-Core"/>
+
+	<arg name="extensions" value="php"/>
+
+	<!-- Strip the filepaths down to the relevant bit. -->
+	<arg name="basepath" value="./"/>
+
+	<!-- Check up to 20 files simultaneously. -->
+	<arg name="parallel" value="20"/>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="psv"/>
+
+	<file>.</file>
+
+	<!-- Test data and fixtures -->
+	<exclude-pattern>/tests/*</exclude-pattern>
+	<exclude-pattern>/tests/phpunit/build*</exclude-pattern>
+	<exclude-pattern>/tests/phpunit/data/*</exclude-pattern>
+
+	<!-- Directories and third party library exclusions -->
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+
+	<!-- Exclude the build folder in the current directory, as Travis puts the checkout in a build directory. -->
+	<exclude-pattern type="relative">^build/*</exclude-pattern>
+
+	<!-- Exclude the NBBC parser. See https://github.com/bbpress/nbbc -->
+	<exclude-pattern>/src/includes/admin/parser.php</exclude-pattern>
+
+	<!-- bbPress follows only a subset of the WordPress Coding Standards Rules -->
+
+
+	<!-- Rules that require further review, reviewed -->
+
+	<rule ref="Generic.Formatting.MultipleStatementAlignment.IncorrectWarning">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Formatting.MultipleStatementAlignment.NotSameWarning">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.WhiteSpace.ScopeIndent.Incorrect">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.WhiteSpace.ScopeIndent.IncorrectExact">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
+		<exclude-pattern>/src/bbpress.php</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/bbPress1.php</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/e107v1.php</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/phpBB.php</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/vBulletin.php</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/vBulletin3.php</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.ContentBeforeOpen">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.CommaAfterArrayItem.NoComma">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<!-- Rules that require further review, partially reviewed -->
+
+	<rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Formatting.SpaceAfterCast.TooMuchSpace">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie.ContentAfterBrace">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.Indent">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.EmptyLine">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BreakIndent">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<!-- Rules that require further review, not yet reviewed -->
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.MultipleArguments">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeOpenBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonDEFAULT">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterOpen">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.DisallowMultipleAssignments.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.ContentAfterEnd">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.ContentAfterOpen">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.MultipleStatements">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.EmbeddedPhp.SpacingAfterOpen">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.Strings.ConcatenationSpacing.PaddingFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.CloseBraceNewLine">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceAfterArrayOpener">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceBeforeArrayCloser">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.SpaceBeforeArrayCloser">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayIndentation.CloseBraceNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayIndentation.MultiLineArrayItemNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.NoSpacesAroundArrayKeys">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.CommaAfterArrayItem.SpaceAfterComma">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment.SpaceBeforeDoubleArrow">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.CodeAnalysis.AssignmentInCondition.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.CodeAnalysis.EmptyStatement">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.DB.PreparedSQL.NotPrepared">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.StrictComparisons.LooseComparison">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.StrictInArray.MissingTrueStrict">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterCloseParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterOpenParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceBeforeCloseParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.PrecisionAlignment.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n.LowLevelTranslationFunction">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n.MissingTranslatorsComment">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n.NonSingularStringLiteralText">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+</ruleset>

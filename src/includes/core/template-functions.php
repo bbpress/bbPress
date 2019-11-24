@@ -382,7 +382,7 @@ function bbp_get_template_stack() {
 	$stack = array_unique( array_filter( $stack ) );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_template_stack', $stack ) ;
+	return (array) apply_filters( 'bbp_get_template_stack', $stack );
 }
 
 /**

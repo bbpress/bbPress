@@ -169,7 +169,7 @@ final class bbPress {
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
-	public function __set( $key , $value ) { $this->data[ $key ] = $value; }
+	public function __set( $key, $value ) { $this->data[ $key ] = $value; }
 
 	/**
 	 * Magic method for unsetting bbPress variables
@@ -550,8 +550,8 @@ final class bbPress {
 				'query_var'           => true,
 				'menu_icon'           => '',
 				'source'              => 'bbpress',
-			)
-		) );
+			) )
+		);
 
 		/** Replies ***********************************************************/
 

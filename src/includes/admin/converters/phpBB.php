@@ -829,7 +829,7 @@ class phpBB extends BBP_Converter_Base {
 				break;
 			}
 
-			$output .= $itoa64[($value >> 18) & 0x3f];
+			$output .= $itoa64[( $value >> 18 ) & 0x3f];
 		} while ( $i < $count );
 
 		return $output;

@@ -485,8 +485,8 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	}
 
 	// Make array of post types to mark as spam
-	$post_types  = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$post_types  = "'" . implode( "', '", $post_types ) . "'";
+	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$post_types = "'" . implode( "', '", $post_types ) . "'";
 
 	// Loop through blogs and remove their posts
 	foreach ( (array) array_keys( $blogs ) as $blog_id ) {

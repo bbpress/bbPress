@@ -385,7 +385,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	remove_role( 'keymaster' );
 
 	// Complete results
-	$result = sprintf( esc_html__( 'Complete! %s groups updated; %s forums updated; %s forum statuses synced.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ), bbp_number_format( $s_count ) );
+	$result = sprintf( esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ), bbp_number_format( $s_count ) );
 	return array( 0, sprintf( $statement, $result ) );
 }
 

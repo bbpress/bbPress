@@ -161,9 +161,9 @@ class BBP_Users_Admin {
 		$button_id = 'bottom' === $which ? 'bbp-change-role2' : 'bbp-change-role';
 		?>
 
-		<label class="screen-reader-text" for="<?php echo $select_id; ?>"><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="<?php echo $select_id; ?>"><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ); ?></label>
 		<select name="<?php echo $select_id; ?>" id="<?php echo $select_id; ?>" style="display:inline-block; float:none;">
-			<option value=''><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ) ?></option>
+			<option value=''><?php esc_html_e( 'Change forum role to&hellip;', 'bbpress' ); ?></option>
 			<?php foreach ( $dynamic_roles as $role => $details ) : ?>
 				<option value="<?php echo esc_attr( $role ); ?>"><?php echo bbp_translate_user_role( $details['name'] ); ?></option>
 			<?php endforeach; ?>

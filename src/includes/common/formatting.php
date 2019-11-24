@@ -96,7 +96,7 @@ function bbp_filter_kses( $data = '' ) {
  * @return string Filtered content
  */
 function bbp_kses_data( $data = '' ) {
-	return wp_kses( $data , bbp_kses_allowed_tags() );
+	return wp_kses( $data, bbp_kses_allowed_tags() );
 }
 
 /** Formatting ****************************************************************/
@@ -111,7 +111,7 @@ function bbp_kses_data( $data = '' ) {
  */
 function bbp_code_trick( $content = '' ) {
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
-	$content = preg_replace_callback( "|(`)(.*?)`|",      'bbp_encode_callback', $content );
+	$content = preg_replace_callback('|(`)(.*?)`|',      'bbp_encode_callback', $content );
 	$content = preg_replace_callback( "!(^|\n)`(.*?)`!s", 'bbp_encode_callback', $content );
 
 	return $content;
@@ -130,7 +130,7 @@ function bbp_code_trick_reverse( $content = '' ) {
 
 	// Setup variables
 	$openers = array( '<p>', '<br />' );
-	$content = preg_replace_callback( "!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bbp_decode_callback', $content );
+	$content = preg_replace_callback( '!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s', 'bbp_decode_callback', $content );
 
 	// Do the do
 	$content = str_replace( $openers,       '',       $content );
@@ -196,7 +196,7 @@ function bbp_encode_bad( $content = '' ) {
 function bbp_encode_callback( $matches = array() ) {
 
 	// Trim inline code, not pre blocks (to prevent removing indentation)
-	if ( "`" === $matches[1] ) {
+	if ( '`' === $matches[1] ) {
 		$content = trim( $matches[2] );
 	} else {
 		$content = $matches[2];
@@ -214,7 +214,7 @@ function bbp_encode_callback( $matches = array() ) {
 	$content = '<code>' . $content . '</code>';
 
 	// Wrap blocks in pre tags
-	if ( "`" !== $matches[1] ) {
+	if ('`' !== $matches[1] ) {
 		$content = "\n<pre>" . $content . "</pre>\n";
 	}
 
@@ -234,8 +234,8 @@ function bbp_decode_callback( $matches = array() ) {
 
 	// Setup variables
 	$trans_table = array_flip( get_html_translation_table( HTML_ENTITIES ) );
-	$amps        = array( '&#38;','&#038;', '&amp;' );
-	$single      = array( '&#39;','&#039;'          );
+	$amps        = array( '&#38;', '&#038;', '&amp;' );
+	$single      = array( '&#39;', '&#039;'          );
 	$content     = $matches[2];
 	$content     = strtr( $content, $trans_table );
 
@@ -313,7 +313,7 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 
 	// Bail on links that match the current domain
 	if ( preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text ) ||
-	     preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
+		 preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
 	) {
 		return "<a {$text}>";
 	}
@@ -392,7 +392,7 @@ function bbp_make_clickable( $text = '' ) {
 	}
 
 	// Cleanup of accidental links within links
-	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', "$1$3$4</a>", $r );
+	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', '$1$3$4</a>', $r );
 }
 
 /**
