@@ -61,7 +61,9 @@
 	transition: none;
 }
 
-/* Uses ID & class together for increased target strength */
+/* Original UL styling */
+#bbpress-forums ul,
+/* Use ID & class together for increased target strength */
 #bbpress-forums.bbpress-wrapper ul {
 	background: none;
 	list-style: none;
