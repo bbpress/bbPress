@@ -944,18 +944,15 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$option_key = $this->get_user_option_key( $meta_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
-		// Maybe include these post IDs
-		if ( ! empty( $object_ids ) ) {
-			$args = array(
-				'post__in' => $object_ids
-			);
-
-		// Or maybe include nothing
-		} else {
-			$args = array(
-				'post__in' => -1 // Tricks WP_Query into ".ID IN ()"
-			);
+		// Maybe trick WP_Query into ".ID IN ()"
+		if ( empty( $object_ids ) ) {
+			$object_ids = array( 0 );
 		}
+
+		// Maybe include these post IDs
+		$args = array(
+			'post__in' => $object_ids
+		);
 
 		// Parse arguments
 		return bbp_parse_args( $args, array(), $context_key );
