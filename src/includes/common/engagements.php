@@ -527,6 +527,13 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 /**
  * User strategy for interfacing with User Engagements
  *
+ * This strategy largely exists for backwards compatibility with bbPress 2.5,
+ * or installations that have not upgraded their databases to 2.6 or above.
+ *
+ * Note: this strategy is going to be a bit less tidy than the others, because
+ * it needs to do weird things to maintain the 2.5 status-quo. Do not use this
+ * strategy as an example when building your own.
+ *
  * @since 2.6.0 bbPress (r6844)
  */
 class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
@@ -568,7 +575,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 					: bbp_get_topic_post_type();
 
 				// Forums & Topics used different keys :/
-				$key       = ( bbp_get_forum_post_type() === $post_type )
+				$key = ( bbp_get_forum_post_type() === $post_type )
 					? '_bbp_forum_subscriptions'
 					: '_bbp_subscriptions';
 
@@ -587,6 +594,112 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 		// Return the old (pluralized) user option key
 		return $key;
+	}
+
+	/**
+	 * Private function to get a 2.5 compatible cache key.
+	 *
+	 * This method exists to provide backwards compatibility with bbPress 2.5,
+	 * which had caching surrounding the FIND_IN_SET usermeta queries.
+	 *
+	 * @since 2.6.3 bbPress (r6991)
+	 *
+	 * @param string $meta_key
+	 * @param int    $object_id
+	 *
+	 * @return string
+	 */
+	private function get_cache_key( $meta_key = '', $object_id = 0 ) {
+
+		// Maybe guess at post type
+		$post_type = ! empty( $object_id )
+			? get_post_type( $object_id )
+			: bbp_get_topic_post_type();
+
+		switch ( $meta_key ) {
+
+			// Favorites
+			case '_bbp_favorite' :
+				$key = 'bbp_get_topic_favoriters_';
+				break;
+
+			// Subscriptions
+			case '_bbp_subscription' :
+
+				// Forums & Topics used different keys :/
+				$key = ( bbp_get_forum_post_type() === $post_type )
+					? 'bbp_get_forum_subscribers_'
+					: 'bbp_get_topic_subscribers_';
+
+				break;
+
+			// Unknown, so pluralize
+			default :
+				$nounize = rtrim( $meta_key, 'e' );
+				$key     = "bbp_get_{$post_type}_{$nounize}ers_";
+				break;
+		}
+
+		// Return the old (pluralized) user option key
+		return $key;
+	}
+
+	/**
+	 * Get the user engagement cache for a given meta key and object ID.
+	 *
+	 * This method exists to provide backwards compatibility with bbPress 2.5,
+	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
+	 *
+	 * @since 2.6.3 bbPress (r6991)
+	 *
+	 * @param string $meta_key
+	 * @param int    $object_id
+	 *
+	 * @return mixed Results from cache get
+	 */
+	private function cache_get( $meta_key = '', $object_id = 0 ) {
+		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+
+		return wp_cache_get( $cache_key, 'bbpress_users' );
+	}
+
+	/**
+	 * Set the user engagement cache for a given meta key and object ID.
+	 *
+	 * This method exists to provide backwards compatibility with bbPress 2.5,
+	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
+	 *
+	 * @since 2.6.3 bbPress (r6991)
+	 *
+	 * @param string $meta_key
+	 * @param int    $object_id
+	 *
+	 * @return mixed Results from cache set
+	 */
+	private function cache_set( $meta_key = '', $object_id = 0, $user_ids = array() ) {
+		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+		$user_ids  = $this->parse_comma_list( $user_ids );
+
+		return wp_cache_set( $cache_key, $user_ids, 'bbpress_users' );
+	}
+
+	/**
+	 * Delete the user engagement cache for a given meta key and object ID.
+	 *
+	 * This method exists to provide backwards compatibility with bbPress 2.5,
+	 * which had caching surrounding the FIND_IN_SET queries in usermeta.
+	 *
+	 * @since 2.6.3 bbPress (r6991)
+	 *
+	 * @param string $meta_key
+	 * @param int    $object_id
+	 *
+	 * @return mixed Results from cache delete
+	 */
+	private function cache_delete( $meta_key = '', $object_id = 0 ) {
+		$cache_key = $this->get_cache_key( $meta_key, $object_id );
+
+		return wp_cache_delete( $cache_key, 'bbpress_users' );
 	}
 
 	/**
@@ -625,6 +738,11 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$object_ids[] = $object_id;
 			$object_ids   = implode( ',', $this->parse_comma_list( $object_ids ) );
 			$retval       = update_user_option( $user_id, $option_key, $object_ids );
+
+			// Delete cache, if successful
+			if ( true === $retval ) {
+				$this->cache_delete( $meta_key, $object_id );
+			}
 		}
 
 		// Return true if added, or false if not
@@ -657,6 +775,11 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$retval     = ! empty( $object_ids )
 				? update_user_option( $user_id, $option_key, $object_ids )
 				: delete_user_option( $user_id, $option_key );
+
+			// Delete cache, if successful
+			if ( true === $retval ) {
+				$this->cache_delete( $meta_key, $object_id );
+			}
 		}
 
 		// Return true if removed, or false if not
@@ -675,8 +798,25 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
+
+		// Get the key
 		$option_key = $this->get_user_option_key( $meta_key );
-		return delete_user_option( $user_id, $option_key );
+
+		// Get the option
+		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
+
+		// Attempt to delete the
+		$retval = delete_user_option( $user_id, $option_key );
+
+		// Try to delete caches, but only if everything else succeeded
+		if ( ! empty( $retval ) && ! empty( $object_ids ) ) {
+			foreach( $object_ids as $object_id ) {
+				$this->cache_delete( $meta_key, $object_id );
+			}
+		}
+
+		// Return true if user was removed, or false if not
+		return $retval;
 	}
 
 	/**
@@ -744,7 +884,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 
 			// Loop through users and remove their user options
 			foreach ( $user_ids as $user_id ) {
-				$removed[] = delete_user_option( $user_id, $option_key );
+				$removed[] = $this->remove_user_from_all_objects( $user_id, $meta_key );
 			}
 
 			// Count the removed users
@@ -770,11 +910,22 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 * @return array Returns ids of users
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		$option_key = $this->get_user_option_key( $meta_key, $object_id, true );
-		$bbp_db     = bbp_db();
-		$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}' and FIND_IN_SET('{$object_id}', meta_value) > 0" );
 
-		return wp_parse_id_list( $user_ids );
+		// Try to get user IDs from cache
+		$user_ids = $this->cache_get( $meta_key, $object_id );
+
+		// Cache is empty, so hit the database
+		if ( false === $user_ids ) {
+			$option_key = $this->get_user_option_key( $meta_key, $object_id, true );
+			$bbp_db     = bbp_db();
+			$user_ids   = $bbp_db->get_col( "SELECT user_id FROM {$bbp_db->usermeta} WHERE meta_key = '{$option_key}' and FIND_IN_SET('{$object_id}', meta_value) > 0" );
+
+			// Always cache results (even if empty, to prevent multiple misses)
+			$this->cache_set( $meta_key, $object_id, $user_ids );
+		}
+
+		// Return parsed IDs
+		return $this->parse_comma_list( $user_ids );
 	}
 
 	/**
