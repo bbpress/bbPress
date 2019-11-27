@@ -522,7 +522,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			// Order
 			'orderby' => 'menu_order title',
-			'order'   => 'DESC',
+			'order'   => 'ASC',
 
 			// Performance
 			'ignore_sticky_posts'    => true,
