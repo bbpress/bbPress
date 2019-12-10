@@ -62,17 +62,17 @@ addReply = {
 		 * @returns {void}
 		 */
 		cancel.onclick = function () {
-			var t       = addReply,
-				temp    = t.getElement( 'bbp-temp-form-div' ),
-				respond = t.getElement( t.respondId );
+			var r       = addReply,
+				temp    = r.getElement( 'bbp-temp-form-div' ),
+				respond = r.getElement( r.respondId );
 
-			t.removeEditor();
+			r.removeEditor();
 
 			if ( ! temp || ! respond ) {
 				return;
 			}
 
-			t.getElement( 'bbp_reply_to' ).value = '0';
+			r.getElement( 'bbp_reply_to' ).value = '0';
 
 			temp.parentNode.insertBefore( respond, temp );
 			temp.parentNode.removeChild( temp );
@@ -80,10 +80,10 @@ addReply = {
 			this.style.display = 'none';
 			this.onclick       = null;
 
-			t.addEditor();
+			r.addEditor();
 		};
 
-		t.scrollToForm(t);
+		t.scrollToForm();
 
 		return false;
 	},
@@ -92,13 +92,13 @@ addReply = {
 	 * Scrolls to the top of the page.
 	 *
 	 * @since 2.6.2
-	 * @param {HTMLElement} t The HTML element.
 	 * @return {void}
 	 */
-	scrollToForm: function(t) {
+	scrollToForm: function() {
 
 		/* Get initial variables to start computing boundaries */
-		var form        = t.getElement( 'new-post' ),
+		var t           = this,
+			form        = t.getElement( 'new-post' ),
 			elemRect    = form.getBoundingClientRect(),
 			position    = (window.pageYOffset || document.scrollTop)  - (document.clientTop || 0),
 			destination = ( position + elemRect.top ),
@@ -184,7 +184,7 @@ addReply = {
 	removeEditor: function () {
 
 		/* Bail to avoid error */
-		if ( typeof (tinyMCE) === 'undefined' ) {
+		if ( typeof ( tinyMCE ) === 'undefined' ) {
 			return;
 		}
 
@@ -208,7 +208,7 @@ addReply = {
 	addEditor: function () {
 
 		/* Bail to avoid error */
-		if ( typeof (tinyMCE) === 'undefined' ) {
+		if ( typeof ( tinyMCE ) === 'undefined' ) {
 			return;
 		}
 
