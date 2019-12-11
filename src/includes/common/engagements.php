@@ -611,6 +611,9 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 */
 	private function get_cache_key( $meta_key = '', $object_id = 0 ) {
 
+		// No negative numbers in cache keys
+		$object_id = absint( $object_id );
+
 		// Maybe guess at post type
 		$post_type = ! empty( $object_id )
 			? get_post_type( $object_id )
@@ -640,8 +643,8 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 				break;
 		}
 
-		// Return the old (pluralized) user option key
-		return $key;
+		// Return the old (pluralized) user option key with object ID appended
+		return "{$key}{$object_id}";
 	}
 
 	/**
@@ -660,7 +663,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	private function cache_get( $meta_key = '', $object_id = 0 ) {
 		$cache_key = $this->get_cache_key( $meta_key, $object_id );
 
-		return wp_cache_get( $cache_key, 'bbpress_users' );
+		return wp_cache_get( $cache_key, 'bbpress_posts' );
 	}
 
 	/**
@@ -739,8 +742,8 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 			$object_ids   = implode( ',', $this->parse_comma_list( $object_ids ) );
 			$retval       = update_user_option( $user_id, $option_key, $object_ids );
 
-			// Delete cache, if successful
-			if ( true === $retval ) {
+			// Delete cache if successful (accounts for int & true)
+			if ( false !== $retval ) {
 				$this->cache_delete( $meta_key, $object_id );
 			}
 		}
@@ -776,8 +779,8 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 				? update_user_option( $user_id, $option_key, $object_ids )
 				: delete_user_option( $user_id, $option_key );
 
-			// Delete cache, if successful
-			if ( true === $retval ) {
+			// Delete cache if successful (accounts for int & true)
+			if ( false !== $retval ) {
 				$this->cache_delete( $meta_key, $object_id );
 			}
 		}
@@ -805,7 +808,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		// Get the option
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
-		// Attempt to delete the
+		// Attempt to delete the user option
 		$retval = delete_user_option( $user_id, $option_key );
 
 		// Try to delete caches, but only if everything else succeeded
@@ -944,7 +947,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$option_key = $this->get_user_option_key( $meta_key );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
 
-		// Maybe trick WP_Query into ".ID IN ()"
+		// Maybe trick WP_Query into ".ID IN (0)" to return no results
 		if ( empty( $object_ids ) ) {
 			$object_ids = array( 0 );
 		}
