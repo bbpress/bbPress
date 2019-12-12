@@ -611,7 +611,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	 */
 	private function get_cache_key( $meta_key = '', $object_id = 0 ) {
 
-		// No negative numbers in cache keys
+		// No negative numbers in cache keys (zero is weird, but not disallowed)
 		$object_id = absint( $object_id );
 
 		// Maybe guess at post type
@@ -663,7 +663,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	private function cache_get( $meta_key = '', $object_id = 0 ) {
 		$cache_key = $this->get_cache_key( $meta_key, $object_id );
 
-		return wp_cache_get( $cache_key, 'bbpress_posts' );
+		return wp_cache_get( $cache_key, 'bbpress_engagements' );
 	}
 
 	/**
@@ -683,7 +683,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$cache_key = $this->get_cache_key( $meta_key, $object_id );
 		$user_ids  = $this->parse_comma_list( $user_ids );
 
-		return wp_cache_set( $cache_key, $user_ids, 'bbpress_users' );
+		return wp_cache_set( $cache_key, $user_ids, 'bbpress_engagements' );
 	}
 
 	/**
@@ -702,7 +702,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 	private function cache_delete( $meta_key = '', $object_id = 0 ) {
 		$cache_key = $this->get_cache_key( $meta_key, $object_id );
 
-		return wp_cache_delete( $cache_key, 'bbpress_users' );
+		return wp_cache_delete( $cache_key, 'bbpress_engagements' );
 	}
 
 	/**
