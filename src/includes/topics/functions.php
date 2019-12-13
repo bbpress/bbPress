@@ -2016,13 +2016,13 @@ function bbp_toggle_topic_handler( $action = '' ) {
 	// Make sure topic exists
 	$topic = bbp_get_topic( $topic_id );
 	if ( empty( $topic ) ) {
-		bbp_add_error( 'bbp_toggle_topic_missing', __( '<strong>ERROR:</strong> This topic could not be found or no longer exists.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_topic_missing', __( '<strong>ERROR</strong>: This topic could not be found or no longer exists.', 'bbpress' ) );
 		return;
 	}
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' === $action && ! current_user_can( 'delete_topic', $topic_id ) ) ) {
-		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>ERROR:</strong> You do not have permission to do that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_topic_permission', __( '<strong>ERROR</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
 
