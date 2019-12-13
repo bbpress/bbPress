@@ -789,6 +789,16 @@ final class bbPress {
 		// Counts
 		register_meta( 'user', '_bbp_topic_count', $count );
 		register_meta( 'user', '_bbp_reply_count', $count );
+
+		// Activity
+		register_meta( 'user', '_bbp_last_posted', array(
+			'type'              => 'integer',
+			'description'       => esc_html__( 'bbPress User Activity', 'bbpress' ),
+			'single'            => true,
+			'show_in_rest'      => true,
+			'sanitize_callback' => 'bbp_number_not_negative',
+			'auth_callback'     => '__return_true'
+		) );
 	}
 
 	/**
