@@ -1125,6 +1125,13 @@ div.bbp-template-notice li {
 	line-height: 1.4;
 }
 
+#bbpress-forums div.bbp-template-notice code {
+	font-size: 11px;
+	padding: 2px 4px;
+	background: rgba(200,200,200,0.3);
+	border-radius: 3px;
+}
+
 /* =Stickies
 -------------------------------------------------------------- */
 

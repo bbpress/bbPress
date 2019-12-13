@@ -1387,8 +1387,8 @@ function bbp_notice_edit_user_pending_email() {
 
 	// Check for pending email address change
 	$user_id   = bbp_get_displayed_user_id();
-	$key       = $user_id . '_new_email';
-	$new_email = get_option( $key );
+	$key       = '_new_email';
+	$new_email = get_user_meta( $user_id, $key, true );
 
 	// Bail if no pending email address change
 	if ( empty( $new_email['newemail'] ) ) {
@@ -1397,10 +1397,10 @@ function bbp_notice_edit_user_pending_email() {
 
 	// Build the nonced URL to dismiss the pending change
 	$user_url = bbp_get_user_profile_edit_url( $user_id );
-	$nonce    = "dismiss-{$key}";
+	$nonce    = "dismiss-{$user_id}{$key}";
 	$args     = array(
 		'action'  => 'bbp-update-user-email',
-		'dismiss' => $key
+		'dismiss' => "{$user_id}{$key}"
 	);
 
 	// Build the variables to pass into printf()

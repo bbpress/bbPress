@@ -228,13 +228,11 @@ function bbp_edit_user_handler( $action = '' ) {
 		}
 
 		// Update the option
-		$key    = $user_id . '_new_email';
-		$hash   = md5( $_POST['email'] . time() . mt_rand() );
 		$option = array(
-			'hash'     => $hash,
-			'newemail' => $_POST['email']
+			'hash'     => md5( $_POST['email'] . time() . wp_rand() ),
+			'newemail' => $_POST['email'],
 		);
-		update_option( $key, $option );
+		update_user_meta( $user_id, '_new_email', $option );
 
 		// Attempt to notify the user of email address change
 		bbp_edit_user_email_send_notification( $user_id, $option );
@@ -314,14 +312,14 @@ function bbp_user_email_change_handler( $action = '' ) {
 
 	// Get the displayed user ID & option key
 	$user_id     = bbp_get_displayed_user_id();
-	$key         = $user_id . '_new_email';
+	$key         = '_new_email';
 	$redirect_to = bbp_get_user_profile_edit_url( $user_id );
 
 	// Execute confirmed email change.
 	if ( ! empty( $_GET['newuseremail'] ) ) {
 
 		// Check for email address change option
-		$new_email = get_option( $key );
+		$new_email = get_user_meta( $user_id, $key, true );
 
 		// Redirect if *no* email address change exists
 		if ( false === $new_email ) {
@@ -330,7 +328,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 
 		// Cleanup & redirect if *invalid* email address change exists
 		if ( empty( $new_email['hash'] ) || empty( $new_email['newemail'] ) ) {
-			delete_option( $key );
+			delete_user_meta( $user_id, $key );
 
 			bbp_redirect( $redirect_to );
 		}
@@ -340,7 +338,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 
 			// Does another user have this email address already?
 			if ( email_exists( $new_email['newemail'] ) ) {
-				delete_option( $key );
+				delete_user_meta( $user_id, $key );
 
 				bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
 
@@ -369,7 +367,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 						$bbp_db->query( $bbp_db->prepare( "UPDATE {$bbp_db->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login', 'raw' ) ) );
 					}
 
-					delete_option( $key );
+					delete_user_meta( $user_id, $key );
 
 					bbp_redirect( add_query_arg( array( 'updated' => 'true' ), $redirect_to ) );
 				}
@@ -377,13 +375,13 @@ function bbp_user_email_change_handler( $action = '' ) {
 		}
 
 	// Delete new email address from user options
-	} elseif ( ! empty( $_GET['dismiss'] ) && ( $key === $_GET['dismiss'] ) ) {
-		if ( ! bbp_verify_nonce_request( "dismiss-{$key}" ) ) {
+	} elseif ( ! empty( $_GET['dismiss'] ) && ( "{$user_id}{$key}" === $_GET['dismiss'] ) ) {
+		if ( ! bbp_verify_nonce_request( "dismiss-{$user_id}{$key}" ) ) {
 			bbp_add_error( 'bbp_dismiss_new_email_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
 		}
 
-		delete_option( $key );
+		delete_user_meta( $user_id, $key );
 		bbp_redirect( $redirect_to );
 	}
 }
