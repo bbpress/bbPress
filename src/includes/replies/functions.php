@@ -1487,13 +1487,13 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	// Make sure reply exists
 	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) ) {
-		bbp_add_error( 'bbp_toggle_reply_missing', __( '<strong>ERROR:</strong> This reply could not be found or no longer exists.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_reply_missing', __( '<strong>ERROR</strong>: This reply could not be found or no longer exists.', 'bbpress' ) );
 		return;
 	}
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) ) {
-		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have permission to do that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
 
