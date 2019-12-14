@@ -1,0 +1,20 @@
+{
+	"name": "bbpress/bbpress",
+	"license": "GPL-2.0-or-later",
+	"description": "bbPress is forum software with a twist from the creators of WordPress.",
+	"require-dev": {
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"wp-coding-standards/wpcs": "^2.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.5"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"scripts": {
+		"format": [
+			"@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+		],
+		"lint": [
+			"@php ./vendor/squizlabs/php_codesniffer/bin/phpcs"
+		]
+	}
+}

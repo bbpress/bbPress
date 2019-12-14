@@ -224,7 +224,7 @@ module.exports = function( grunt ) {
 		phpcs: {
 			'default': {
 				cmd: 'phpcs',
-				args: [ '--standard=phpcs.xml.dist', '--report-summary', '--report-source', '--cache=.phpcscache' ]
+				args: [ '--report-summary', '--report-source', '--cache=.phpcscache' ]
 			}
 		},
 		phpunit: {
