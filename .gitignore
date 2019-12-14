@@ -4,14 +4,17 @@
 .htaccess
 
 # Files and folders related to build/test tools
-/phpunit.xml
-/tests/phpunit/build
-/node_modules
+/node_modules/
+/tests/phpunit/build/
+/vendor/
+/.phpcscache
+/composer.lock
 /npm-debug.log
-.phpcscache
+/phpcs.xml
+/phpunit.xml
 
 # Output directory.
-/build
+/build/
 
 # Operating system specific files
 .DS_Store
