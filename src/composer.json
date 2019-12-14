@@ -10,7 +10,7 @@
 		"wordpress"
 	],
 	"homepage": "https://bbpress.org",
-	"license": "GPL-2.0+",
+	"license": "GPL-2.0-or-later",
 	"authors": [ {
 		"name": "bbPress Contributors",
 		"homepage": "https://bbpress.org/about/"
