@@ -137,7 +137,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
-   public function column_bbp_reply_content( $item = '' ) {
+	public function column_bbp_reply_content( $item = '' ) {
 
 		// Define actions array
 		$actions = array(
