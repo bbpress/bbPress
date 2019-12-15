@@ -22,15 +22,15 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php if ( bbp_has_search_results() ) : ?>
 
-		 <?php bbp_get_template_part( 'pagination', 'search' ); ?>
+		<?php bbp_get_template_part( 'pagination', 'search' ); ?>
 
-		 <?php bbp_get_template_part( 'loop',       'search' ); ?>
+		<?php bbp_get_template_part( 'loop',       'search' ); ?>
 
-		 <?php bbp_get_template_part( 'pagination', 'search' ); ?>
+		<?php bbp_get_template_part( 'pagination', 'search' ); ?>
 
 	<?php elseif ( bbp_get_search_terms() ) : ?>
 
-		 <?php bbp_get_template_part( 'feedback',   'no-search' ); ?>
+		<?php bbp_get_template_part( 'feedback',   'no-search' ); ?>
 
 	<?php else : ?>
 

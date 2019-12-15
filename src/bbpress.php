@@ -615,7 +615,7 @@ final class bbPress {
 				'show_in_admin_all_list'    => false,
 				'source'                    => 'bbpress'
 			) )
-		 );
+		);
 
 		// Orphan
 		register_post_status(
@@ -767,7 +767,7 @@ final class bbPress {
 			// Never allow counts to go negative
 			'sanitize_callback' => 'bbp_number_not_negative',
 
-			 // All users may update count meta data
+			// All users may update count meta data
 			'auth_callback'     => '__return_true'
 		);
 
