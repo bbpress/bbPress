@@ -2387,7 +2387,7 @@ function bbp_list_replies( $args = array() ) {
 
 	// Parse arguments
 	$r = bbp_parse_args( $args, array(
-		'walker'       => new BBP_Walker_Reply,
+		'walker'       => new BBP_Walker_Reply(),
 		'max_depth'    => bbp_thread_replies_depth(),
 		'style'        => 'ul',
 		'callback'     => null,

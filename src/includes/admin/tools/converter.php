@@ -91,7 +91,7 @@ function bbp_new_converter( $platform = '' ) {
 
 		// Try to instantiate the converter object
 		if ( class_exists( $platform ) ) {
-			$converter = new $platform;
+			$converter = new $platform();
 		}
 	}
 

@@ -235,7 +235,7 @@ function bbp_has_replies( $args = array() ) {
 
 		// Figure out total pages
 		if ( true === $r['hierarchical'] ) {
-			$walker      = new BBP_Walker_Reply;
+			$walker      = new BBP_Walker_Reply();
 			$total_pages = ceil( $walker->get_number_of_root_elements( $bbp->reply_query->posts ) / $bbp->reply_query->posts_per_page );
 		} else {
 
@@ -2373,7 +2373,7 @@ function bbp_topic_pagination_count() {
 
 		// We are threading replies
 		if ( bbp_thread_replies() ) {
-			$walker  = new BBP_Walker_Reply;
+			$walker  = new BBP_Walker_Reply();
 			$threads = absint( $walker->get_number_of_root_elements( $bbp->reply_query->posts ) - 1 );
 			$retstr  = sprintf( _n( 'Viewing %1$s reply thread', 'Viewing %1$s reply threads', $threads, 'bbpress' ), bbp_number_format( $threads ) );
 
