@@ -221,6 +221,12 @@ module.exports = function( grunt ) {
 				tracUrl: 'bbpress.trac.wordpress.org'
 			}
 		},
+		phpcs: {
+			'default': {
+				cmd: 'phpcs',
+				args: [ '--report-summary', '--report-source', '--cache=.phpcscache' ]
+			}
+		},
 		phpunit: {
 			'default': {
 				cmd: 'phpunit',
@@ -389,6 +395,15 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'uglify:core', 'jsvalidate:build', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
 
+	// PHPCS test task.
+	grunt.registerMultiTask( 'phpcs', 'Runs PHPCS tests.', function() {
+		grunt.util.spawn( {
+			cmd:  this.data.cmd,
+			args: this.data.args,
+			opts: { stdio: 'inherit' }
+		}, this.async() );
+	} );
+
 	// PHPUnit test task.
 	grunt.registerMultiTask( 'phpunit', 'Runs PHPUnit tests, including the BuddyPress and multisite tests.', function() {
 		grunt.util.spawn( {
@@ -398,15 +413,11 @@ module.exports = function( grunt ) {
 		}, this.async() );
 	} );
 
-	// PHPUnit test task.
-	grunt.registerTask( 'test:buddypress', 'Run the BuddyPress PHPUnit test tasks.', [ 'phpunit:buddypress' ] );
-	grunt.registerTask( 'test:wordpress', 'Run the single and multisite WordPress PHPUnit test tasks.', [ 'phpunit:default', 'phpunit:multisite' ] );
-
 	// JavaScript test task.
 	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate:src', 'jshint' ] );
 
 	// Travis CI Task
-	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'test:wordpress' ] );
+	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'phpunit' ] );
 
 	// Patch task.
 	grunt.renameTask( 'patch_wordpress', 'patch' );
