@@ -146,11 +146,11 @@ class BBP_Forums_Component extends BP_Component {
 	public function setup_components() {
 
 		// Always load the members component
-		bbpress()->extend->buddypress->members = new BBP_BuddyPress_Members;
+		bbpress()->extend->buddypress->members = new BBP_BuddyPress_Members();
 
 		// Create new activity class
 		if ( bp_is_active( 'activity' ) ) {
-			bbpress()->extend->buddypress->activity = new BBP_BuddyPress_Activity;
+			bbpress()->extend->buddypress->activity = new BBP_BuddyPress_Activity();
 		}
 
 		// Register the group extension only if groups are active
