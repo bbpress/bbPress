@@ -10,6 +10,7 @@
 /.phpcscache
 /composer.lock
 /npm-debug.log
+/.phpcs.xml
 /phpcs.xml
 /phpunit.xml
 
