@@ -1,18 +1,17 @@
 # Travis CI Configuration File
 
-# Use new Travis container-based infrastructure
-# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
-sudo: false
-
 # Tell Travis CI we're using PHP
 language: php
 
-# Tell Travis CI which distro to use
-dist: trusty
+# Tell Travis CI which operating system to use
+os: linux
+
+# Ensure MySQL is available
+services:
+  - mysql
 
 # Configure caches
 cache:
-  apt: true
   directories:
   - vendor
   - $HOME/.composer/cache
@@ -20,49 +19,28 @@ cache:
 
 # PHP version used in first build configuration.
 php:
+  - 7.4
+  - 7.3
   - 7.2
   - 7.1
   - 7.0
   - 5.6
-  - 5.5
-  - 5.4
 
 # WordPress comes from the Git mirror, where 'master' mirrors svn 'trunk' and
 # x.y mirrors the latest from the x.y branch
 env:
   - WP_VERSION=master
-  - WP_VERSION=4.9
-  - WP_VERSION=4.8
-  - WP_VERSION=4.7
+  - WP_VERSION=5.3
+  - WP_VERSION=5.2
 
 # Build matrix options
-matrix:
+jobs:
   include:
     - php: nightly
       env: WP_VERSION=master
-    - php: 5.3
-      env: WP_VERSION=master
-      dist: precise
-    - php: 5.3
-      env: WP_VERSION=4.8
-      dist: precise
-    - php: 5.3
-      env: WP_VERSION=4.7
-      dist: precise
-    - php: 5.2
-      env: WP_VERSION=master
-      dist: precise
-    - php: 5.2
-      env: WP_VERSION=4.8
-      dist: precise
-    - php: 5.2
-      env: WP_VERSION=4.7
-      dist: precise
   exclude:
-    - php: 7.2
-      env: WP_VERSION=4.8
-    - php: 7.2
-      env: WP_VERSION=4.7
+    - php: 7.4
+      env: WP_VERSION=5.2
   allow_failures:
     - php: nightly
 #  fast_finish: true
@@ -122,7 +100,7 @@ before_script:
     if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
       echo "Using latest PHPUnit 6.x branch"
       composer global require "phpunit/phpunit=^6"
-    elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+    elif [[ ${TRAVIS_PHP_VERSION:0:3} == "5.6" ]]; then
       echo "Using latest PHPUnit 4.x branch"
       composer global require "phpunit/phpunit=^4"
     fi
@@ -132,13 +110,6 @@ before_script:
 # Run tests
 script:
   - grunt travis
-  - if [ "$TRAVIS_PHP_VERSION" != "5.2" ]; then grunt test:buddypress; fi
 
 notifications:
     email: false
-    irc:
-      channels:
-        - secure: "eRufY5taFDAuASgf9kB8oIC58lK9jLCTGVZ9Dr4M3Xxnwsj6t42Z5U9ZJ5wWAa0+9rf3UwbXj32Nd4QVvKWQL+IYTolX+LHzIidjKjYhOoCNr9HoMgjNOrjozXezKqqXzYKkPdX6drxk7JkK+ftx8qvVtZgRU8BS9sjhYDWh1X4="
-      template:
-        - "Build %{build_number} (%{branch} - %{commit}): %{message} %{build_url}"
-

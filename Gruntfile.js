@@ -413,18 +413,11 @@ module.exports = function( grunt ) {
 		}, this.async() );
 	} );
 
-	// PHPUnit test task.
-	grunt.registerTask( 'test:buddypress', 'Run the BuddyPress PHPUnit test tasks.', [ 'phpunit:buddypress' ] );
-	grunt.registerTask( 'test:wordpress', 'Run the single and multisite WordPress PHPUnit test tasks.', [ 'phpunit:default', 'phpunit:multisite' ] );
-
-
-
-
 	// JavaScript test task.
 	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate:src', 'jshint' ] );
 
 	// Travis CI Task
-	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'test:wordpress' ] );
+	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'phpunit' ] );
 
 	// Patch task.
 	grunt.renameTask( 'patch_wordpress', 'patch' );
