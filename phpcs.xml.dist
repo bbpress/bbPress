@@ -1,19 +1,16 @@
 <?xml version="1.0"?>
-<ruleset name="WordPress Coding Standards">
-	<description>Apply WordPress Coding Standards to all Core files with scpecific bbPress exclusions</description>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	name="bbPress"
+	xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
-	<rule ref="WordPress-Core"/>
+	<description>Apply WordPress Coding Standards to all Core files with specific bbPress exclusions</description>
 
-	<arg name="extensions" value="php"/>
-
-	<!-- Strip the filepaths down to the relevant bit. -->
-	<arg name="basepath" value="./"/>
-
-	<!-- Check up to 20 files simultaneously. -->
-	<arg name="parallel" value="20"/>
-
-	<!-- Show sniff codes in all reports -->
-	<arg value="psv"/>
+	<!--
+	#############################################################################
+	COMMAND LINE ARGUMENTS
+	https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+	#############################################################################
+	-->
 
 	<file>.</file>
 
@@ -30,12 +27,97 @@
 	<exclude-pattern type="relative">^build/*</exclude-pattern>
 
 	<!-- Exclude the NBBC parser. See https://github.com/bbpress/nbbc -->
-	<exclude-pattern>/src/includes/admin/parser.php</exclude-pattern>
+	<exclude-pattern>/src/includes/admin/parser\.php$</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+
+	<!-- Strip the filepaths down to the relevant bit. -->
+	<arg name="basepath" value="./"/>
+
+	<!-- Check up to 20 files simultaneously. -->
+	<arg name="parallel" value="20"/>
+
+	<!-- Show progress, show the error codes for each message (source). -->
+	<arg value="ps"/>
+
+
+	<!--
+	#############################################################################
+	SET UP THE RULES TO USE
+	#############################################################################
+	-->
 
 	<!-- bbPress follows only a subset of the WordPress Coding Standards Rules -->
+	<rule ref="WordPress-Extra">
+		<!-- Set the minimum supported WP version for all sniff which use it in one go.
+			 Ref: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#minimum-wp-version-to-check-for-usage-of-deprecated-functions-classes-and-function-parameters
+		-->
+		<properties>
+			<property name="minimum_supported_version" value="5.3"/>
+		</properties>
+
+		<!-- Set the custom test class whitelist for all sniffs which use it in one go.
+			 Ref: https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#custom-unit-test-classes
+		-->
+		<property name="custom_test_class_whitelist" type="array">
+			<element value="BBP_UnitTestCase"/>
+		</property>
+
+	</rule>
+
+	<!-- Check the code for PHP cross-version compatibility. -->
+	<config name="testVersion" value="5.6-"/>
+	<rule ref="PHPCompatibilityWP"/>
 
 
-	<!-- Rules that require further review, reviewed -->
+	<!--
+	#############################################################################
+	SNIFF SPECIFIC CONFIGURATION
+	#############################################################################
+	-->
+
+	<!-- Verify that all gettext calls use the correct text domain. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="bbpress"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Verify that everything in the global namespace is prefixed. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array" extend="true">
+				<element value="bbp"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment">
+		<properties>
+			<!-- No need to adjust alignment of large arrays when the item with the largest key is removed. -->
+			<property name="exact" value="false"/>
+			<!-- Don't align multi-line items if ALL items in the array are multi-line. -->
+			<property name="alignMultilineItems" value="!=100"/>
+			<!-- Array Assignment operator should always be on the same line as the array key. -->
+			<property name="ignoreNewlines" value="false"/>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.PHP.NoSilencedErrors">
+		<properties>
+			<property name="use_default_whitelist" value="true"/>
+		</properties>
+	</rule>
+
+
+	<!--
+	#############################################################################
+	SELECTIVE EXCLUSIONS
+	Exclude specific files for specific sniffs and/or exclude sub-groups in sniffs.
+	#############################################################################
+	-->
 
 	<rule ref="Generic.Formatting.MultipleStatementAlignment.IncorrectWarning">
 		<exclude-pattern>/src/*</exclude-pattern>
@@ -58,12 +140,12 @@
 	</rule>
 
 	<rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
-		<exclude-pattern>/src/bbpress.php</exclude-pattern>
-		<exclude-pattern>/src/includes/admin/converters/bbPress1.php</exclude-pattern>
-		<exclude-pattern>/src/includes/admin/converters/e107v1.php</exclude-pattern>
-		<exclude-pattern>/src/includes/admin/converters/phpBB.php</exclude-pattern>
-		<exclude-pattern>/src/includes/admin/converters/vBulletin.php</exclude-pattern>
-		<exclude-pattern>/src/includes/admin/converters/vBulletin3.php</exclude-pattern>
+		<exclude-pattern>/src/bbpress\.php$</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/bbPress1\.php$</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/e107v1\.php$</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/phpBB\.php$</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/vBulletin\.php$</exclude-pattern>
+		<exclude-pattern>/src/includes/admin/converters/vBulletin3\.php$</exclude-pattern>
 	</rule>
 
 	<rule ref="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd">
@@ -78,11 +160,15 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<!-- Rules that require further review, partially reviewed -->
 
-	<rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
+	<!--
+	#############################################################################
+	TEMPORARY ADJUSTMENTS
+	Adjustments which should be removed once the associated issues have been reviewed and resolved.
+	#############################################################################
+	-->
+
+	<!-- Rules that require further review, partially reviewed -->
 
 	<rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
 		<exclude-pattern>/src/*</exclude-pattern>
@@ -114,11 +200,44 @@
 
 	<!-- Rules that require further review, not yet reviewed -->
 
+	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedElseif">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedIf">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Files.LineEndings.InvalidEOLChar">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Files.OneObjectStructurePerFile.MultipleFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Files.IncludingFile.UseRequire">
+		<exclude-pattern>/bbpress\.php$</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PEAR.Functions.FunctionCallSignature.FirstArgumentPosition">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -135,6 +254,30 @@
 	</rule>
 
 	<rule ref="PEAR.Functions.FunctionCallSignature.SpaceBeforeOpenBracket">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.Changed">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PHPCompatibility.Syntax.RemovedCurlyBraceArrayAccess.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.Classes.PropertyDeclaration.ScopeMissing">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="PSR2.Classes.PropertyDeclaration.VarUsed">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -158,6 +301,10 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -170,11 +317,19 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="Squiz.PHP.CommentedOutCode.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="Squiz.PHP.DisallowMultipleAssignments.Found">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops.Found">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -191,6 +346,14 @@
 	</rule>
 
 	<rule ref="Squiz.PHP.EmbeddedPhp.SpacingAfterOpen">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.PHP.NonExecutableCode.Unreachable">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.Scope.MethodScope.Missing">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -242,11 +405,19 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.TooMuchSpaceAfterKey">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.Arrays.CommaAfterArrayItem.SpaceAfterComma">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment.MultilineItemSpaceBeforeDoubleArrow">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -266,6 +437,14 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.DateTime.CurrentTimeTimestamp.Requested">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.DateTime.RestrictedFunctions.date_date">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -282,6 +461,30 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -290,7 +493,27 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.IniSet.Risky">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.PHP.PregQuoteDelimiter.Missing">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -303,6 +526,22 @@
 	</rule>
 
 	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Security.EscapeOutput.UnsafePrintingFunction">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Security.NonceVerification.Missing">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Security.NonceVerification.Recommended">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -343,6 +582,38 @@
 	</rule>
 
 	<rule ref="WordPress.WhiteSpace.PrecisionAlignment.Found">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.AlternativeFunctions.parse_url_parse_url">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.AlternativeFunctions.rand_mt_rand">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.AlternativeFunctions.strip_tags_strip_tags">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.DiscouragedFunctions.query_posts_query_posts">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.EnqueuedResourceParameters.NotInFooter">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.GlobalVariablesOverride.Prohibited">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 

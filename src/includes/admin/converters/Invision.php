@@ -541,7 +541,8 @@ class Invision extends BBP_Converter_Base {
 
 	private function to_char( $input ) {
 		$output = '';
-		for ( $i = 0; $i < strlen( $input ); $i++ ) {
+		$length = strlen( $input );
+		for ( $i = 0; $i < $length; $i++ ) {
 			$j = ord( $input[$i] );
 			if ( ( $j >= 65 && $j <= 90 )
 				|| ( $j >= 97 && $j <= 122 )
