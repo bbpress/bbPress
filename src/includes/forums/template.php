@@ -788,7 +788,7 @@ function bbp_list_forums( $args = array() ) {
 	$the_list = apply_filters( 'bbp_list_forums', $output, $r, $args );
 
 	// Echo or return the forums list
-	if ( true === $r['echo'] ) {
+	if ( ! empty( $r['echo'] ) ) {
 		echo $the_list;
 	} else {
 		return $the_list;
