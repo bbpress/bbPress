@@ -47,7 +47,7 @@ class BBP_Users_Admin {
 		add_action( 'edit_user_profile', array( $this, 'secondary_role_display' ) );
 
 		// WordPress user screen
-		// Remvove the bottom list table "change forum role" dropdown from WordPress < 4.6.
+		// Remove the bottom list table "change forum role" dropdown from WordPress < 4.6.
 		// See https://bbpress.trac.wordpress.org/ticket/2906.
 		if ( bbp_get_major_wp_version() < 4.6 ) {
 			add_action( 'restrict_manage_users',  array( __CLASS__, 'user_role_bulk_dropdown' )    );
