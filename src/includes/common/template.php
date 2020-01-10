@@ -1467,15 +1467,22 @@ function bbp_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
+
+			// Support for get_posts()
 			'post_type'          => bbp_get_forum_post_type(),
 			'post_parent'        => null,
 			'post_status'        => null,
 			'selected'           => 0,
+			'include'            => array(),
 			'exclude'            => array(),
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order title',
 			'order'              => 'ASC',
+
+			// Preloaded content
 			'posts'              => array(),
+
+			// Custom hierarchy walkers
 			'walker'             => '',
 
 			// Output-related
@@ -1500,6 +1507,11 @@ function bbp_dropdown( $args = array() ) {
 		}
 
 		// Force array
+		if ( ! empty( $r['include'] ) && ! is_array( $r['include'] ) ) {
+			$r['include'] = explode( ',', $r['include'] );
+		}
+
+		// Force array
 		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
 			$r['exclude'] = explode( ',', $r['exclude'] );
 		}
@@ -1516,6 +1528,7 @@ function bbp_dropdown( $args = array() ) {
 				'post_type'   => $r['post_type'],
 				'post_status' => $r['post_status'],
 				'post_parent' => $r['post_parent'],
+				'include'     => $r['include'],
 				'exclude'     => $r['exclude'],
 				'numberposts' => $r['numberposts'],
 				'orderby'     => $r['orderby'],
