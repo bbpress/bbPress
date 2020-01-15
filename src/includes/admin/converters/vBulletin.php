@@ -93,7 +93,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Forum slug (Clean name to avoid confilcts)
+		// Forum slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forum',
 			'from_fieldname'  => 'title_clean',

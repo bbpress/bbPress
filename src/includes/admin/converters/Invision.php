@@ -93,7 +93,7 @@ class Invision extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_title'
 		);
 
-		// Forum slug (Clean name to avoid confilcts)
+		// Forum slug (Clean name to avoid conflicts)
 		$this->field_map[] = array(
 			'from_tablename'  => 'forums',
 			'from_fieldname'  => 'name_seo',

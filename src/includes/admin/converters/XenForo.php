@@ -109,7 +109,7 @@ class XenForo extends BBP_Converter_Base {
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Forum slug (Clean name to avoid confilcts)
+		// Forum slug (Clean name to avoid conflicts)
 		// 'node_name' only has slug for explictly named forums
 		$this->field_map[] = array(
 			'from_tablename'  => 'node',

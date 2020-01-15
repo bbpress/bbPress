@@ -263,7 +263,7 @@ function bbp_edit_user_handler( $action = '' ) {
 	// Handle user edit
 	$edit_user = edit_user( $user_id );
 
-	// Error(s) editng the user, so copy them into the global
+	// Error(s) editing the user, so copy them into the global.
 	if ( is_wp_error( $edit_user ) ) {
 		bbpress()->errors = $edit_user;
 

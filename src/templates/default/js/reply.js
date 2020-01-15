@@ -56,7 +56,7 @@ addReply = {
 		t.addEditor();
 
 		/**
-		 * When cancelling a Reply.
+		 * When canceling a Reply.
 		 *
 		 * @since 2.6.2
 		 * @returns {void}

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress User Capabilites
+ * bbPress User Capabilities
  *
  * Used to map user capabilities to WordPress's existing capabilities.
  *
