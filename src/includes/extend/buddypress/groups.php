@@ -322,7 +322,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function edit_screen( $group = false ) {
 		$forum_id  = 0;
-		$group_id  = empty( $group->id ) ? bp_get_new_group_id() : $group->id ;
+		$group_id  = empty( $group->id ) ? bp_get_new_group_id() : $group->id;
 		$forum_ids = bbp_get_group_forum_ids( $group_id );
 
 		// Get the first forum ID
@@ -399,7 +399,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		} elseif ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
 			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
- 		}
+		}
 
 		$edit_forum = ! empty( $_POST['bbp-edit-group-forum'] ) ? true : false;
 		$forum_id   = 0;
@@ -715,7 +715,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Get the forums for the current group
 		$forum_ids = bbp_get_group_forum_ids( $group_id );
 
-		// Use the first forum ID
+		// Bail if no forum IDs available
 		if ( empty( $forum_ids ) ) {
 			return;
 		}
@@ -962,7 +962,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						endif;
 
 					// Single Topic
-					else:
+					else :
 						bbp_set_query_name( 'bbp_single_topic' );
 						bbp_get_template_part( 'content', 'single-topic' );
 					endif;
@@ -1163,7 +1163,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Form Helpers **********************************************************/
 
 	/**
-	 * Prevent Forum Parent from appearing
+	 * Make Forum Parent a hidden field instead of a selectable one.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 */
@@ -1176,17 +1176,45 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Prevent Topic Parent from appearing
+	 * Output a dropdown for picking which group forum this topic is for.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 */
 	public function topic_parent() {
 
-		$forum_ids = bbp_get_group_forum_ids( bp_get_current_group_id() ); ?>
+		// Get the group ID
+		$gid       = bp_get_current_group_id();
+
+		// Get the forum IDs for this group
+		$forum_ids = bbp_get_group_forum_ids( $gid );
+
+		// Attempt to get the current topic forum ID
+		$topic_id  = bbp_get_topic_id();
+		$forum_id  = bbp_get_topic_forum_id( $topic_id );
+
+		// Setup the query arguments - note that these may be overridden later
+		// by various bbPress visibility and capability filters.
+		$args = array(
+			'post_type'   => bbp_get_forum_post_type(),
+			'post_status' => bbp_get_public_status_id(),
+			'include'     => $forum_ids,
+			'numberposts' => -1,
+			'orderby'     => 'menu_order',
+			'order'       => 'ASC',
+		);
+
+		// Get the forum objects for these forum IDs
+		$forums = get_posts( $args );
+
+		// Setup the dropdown arguments
+		$dd_args = array(
+			'posts'    => $forums,
+			'selected' => $forum_id,
+		); ?>
 
 		<p>
 			<label for="bbp_forum_id"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></label><br />
-			<?php bbp_dropdown( array( 'include' => $forum_ids, 'selected' => bbp_get_form_topic_forum() ) ); ?>
+			<?php bbp_dropdown( $dd_args ); ?>
 		</p>
 
 	<?php
