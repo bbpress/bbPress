@@ -55,12 +55,12 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			if ( bbp_is_user_inactive( $user_id ) ) {
 				$caps = array( 'do_not_allow' );
 
-			// Keymasters can always moderate
+			// Keymasters can always moderate.
 			} elseif ( bbp_is_user_keymaster( $user_id ) ) {
 				$caps = array( 'spectate' );
 
-			// Default to the current cap.
-			} else {
+			// Check if user can moderate forum.
+			} elseif ( bbp_allow_forum_mods() ) {
 				$caps = array( $cap );
 
 				// Bail if no post to check.
@@ -103,8 +103,8 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 					break;
 				}
 
-				// If user is a per-forum moderator, make sure they can spectate.
-				if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) ) {
+				// User is mod of this forum
+				if ( bbp_is_object_of_user( $forum_id, $user_id, '_bbp_moderator_id' ) ) {
 					$caps = array( 'spectate' );
 				}
 			}
