@@ -86,6 +86,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Remove group forum cap map when view is done
 		add_action( 'bbp_after_group_forum_display',  array( $this, 'remove_group_forum_meta_cap_map' ) );
 
+		// Validate group forum IDs when editing topics & replies
+		add_action( 'bbp_edit_topic_pre_extras',      array( $this, 'validate_topic_forum_id' ) );
+		add_action( 'bbp_edit_reply_pre_extras',      array( $this, 'validate_reply_to_id'    ) );
+
 		// Check if group-forum status should be changed
 		add_action( 'groups_group_after_save',        array( $this, 'update_group_forum_visibility'   ) );
 
@@ -278,10 +282,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				break;
 
 			// If user is a group mod ar admin, map to participate cap.
-			case 'moderate'     :
-			case 'edit_topic'   :
-			case 'edit_reply'   :
-			case 'view_trash'   :
+			case 'moderate'            :
+			case 'edit_topic'          :
+			case 'edit_reply'          :
+			case 'view_trash'          :
 			case 'edit_others_replies' :
 			case 'edit_others_topics'  :
 				if ( bbp_group_is_mod() || bbp_group_is_admin() ) {
@@ -309,6 +313,133 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 */
 	public function remove_group_forum_meta_cap_map() {
 		remove_filter( 'bbp_map_meta_caps', array( $this, 'map_group_forum_meta_caps' ), 99, 4 );
+	}
+
+	/**
+	 * Validate the forum ID for a topic in a group forum.
+	 *
+	 * This method ensures that when a topic is saved, it is only allowed to be
+	 * saved to a forum that is either:
+	 *
+	 * - A forum in the current group
+	 * - A forum the current user can moderate outside of this group
+	 *
+	 * If all checks fail, an error gets added to prevent the topic from saving.
+	 *
+	 * @since 2.6.14
+	 *
+	 * @param int $topic_id
+	 */
+	public function validate_topic_forum_id( $topic_id = 0 ) {
+
+		// Bail if no topic
+		if ( empty( $topic_id ) ) {
+			return;
+		}
+
+		// Get current forum ID
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+		// Bail if not a group forum
+		if ( ! bbp_is_forum_group_forum( $forum_id ) ) {
+			return;
+		}
+
+		// Get current group ID
+		$group_id = bp_get_current_group_id();
+
+		// Bail if unknown group ID
+		if ( empty( $group_id ) ) {
+			return;
+		}
+
+		// Get group forum IDs
+		$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+		// Get posted forum ID
+		$new_forum_id = ! empty( $_POST['bbp_forum_id'] )
+			? absint( $_POST['bbp_forum_id'] )
+			: 0;
+
+		// Bail if new forum ID is a forum in this group
+		if ( in_array( $new_forum_id, $forum_ids, true ) ) {
+			return;
+		}
+
+		// Get the current user ID
+		$user_id = bbp_get_current_user_id();
+
+		// Bail if current user can moderate the new forum ID
+		if ( bbp_is_user_forum_moderator( $user_id, $new_forum_id ) ) {
+			return;
+		}
+
+		// If everything else has failed, then something is wrong and we need
+		// to add an error to prevent this topic from saving.
+		bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is invalid.', 'bbpress' ) );
+	}
+
+	/**
+	 * Validate the reply to for a reply in a group forum.
+	 *
+	 * This method ensures that when a reply to is saved, it is only allowed to
+	 * be saved to the current topic.
+	 *
+	 * If all checks fail, an error gets added to prevent the reply from saving.
+	 *
+	 * @since 2.6.14
+	 *
+	 * @param int $reply_id
+	 */
+	public function validate_reply_to_id( $reply_id = 0 ) {
+
+		// Bail if no reply
+		if ( empty( $reply_id ) ) {
+			return;
+		}
+
+		// Get posted reply to
+		$new_reply_to = ! empty( $_POST['bbp_reply_to'] )
+			? absint( $_POST['bbp_reply_to'] )
+			: 0;
+
+		// Bail if no reply to (assumes topic ID)
+		if ( empty( $new_reply_to ) ) {
+			return;
+		}
+
+		// Get current forum ID
+		$forum_id = bbp_get_reply_forum_id( $reply_id );
+
+		// Bail if not a group forum
+		if ( ! bbp_is_forum_group_forum( $forum_id ) ) {
+			return;
+		}
+
+		// Get current group ID
+		$group_id = bp_get_current_group_id();
+
+		// Bail if unknown group ID
+		if ( empty( $group_id ) ) {
+			return;
+		}
+
+		// Get current topic ID
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		// Get topic reply IDs
+		$reply_ids = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
+
+		// Avoid recursion
+		unset( $reply_ids[ $reply_id ] );
+
+		// Bail if new reply parent ID is in this topic
+		if ( in_array( $new_reply_to, $reply_ids, true ) ) {
+			return;
+		}
+
+		// Add an error to prevent this reply from saving.
+		bbp_add_error( 'bbp_reply_to_id', __( '<strong>ERROR</strong>: Reply To is invalid.', 'bbpress' ) );
 	}
 
 	/** Edit ******************************************************************/
