@@ -1102,8 +1102,14 @@ function bbp_has_shortcode( $text = '' ) {
  */
 function is_bbpress() {
 
-	// Defalt to false
+	// Default to false
 	$retval = false;
+
+	// Bail if main query has not been populated.
+	if ( ! bbp_get_wp_query() ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'bbpress' ), '2.7.0' );
+		return $retval;
+	}
 
 	/** Archives **************************************************************/
 
