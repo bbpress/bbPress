@@ -870,18 +870,21 @@ function bbp_is_search() {
 	// Get the main query global
 	$wp_query = bbp_get_wp_query();
 
+	// Get the rewrite ID (one time, to avoid repeated calls)
+	$rewrite_id = bbp_get_search_rewrite_id();
+
 	// Check query
 	if ( ! empty( $wp_query->bbp_is_search ) && ( true === $wp_query->bbp_is_search ) ) {
 		$retval = true;
 	}
 
 	// Check query name
-	if ( empty( $retval ) && bbp_is_query_name( bbp_get_search_rewrite_id() ) ) {
+	if ( empty( $retval ) && bbp_is_query_name( $rewrite_id ) ) {
 		$retval = true;
 	}
 
 	// Check $_GET
-	if ( empty( $retval ) && isset( $_REQUEST[ bbp_get_search_rewrite_id() ] ) && empty( $_REQUEST[ bbp_get_search_rewrite_id() ] ) ) {
+	if ( empty( $retval ) && isset( $_REQUEST[ $rewrite_id ] ) && empty( $_REQUEST[ $rewrite_id ] ) ) {
 		$retval = true;
 	}
 
