@@ -378,8 +378,8 @@ function bbp_post_request() {
 		return;
 	}
 
-	// Bail if no action
-	if ( empty( $_POST['action'] ) ) {
+	// Bail if no action, or if not a string (arrays not supported)
+	if ( empty( $_POST['action'] ) || ! is_string( $_POST['action'] ) ) {
 		return;
 	}
 
@@ -411,8 +411,8 @@ function bbp_get_request() {
 		return;
 	}
 
-	// Bail if no action
-	if ( empty( $_GET['action'] ) ) {
+	// Bail if no action, or if not a string (arrays not supported)
+	if ( empty( $_GET['action'] ) || ! is_string( $_GET['action'] ) ) {
 		return;
 	}
 
