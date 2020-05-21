@@ -462,7 +462,7 @@ function bbp_make_emails_clickable( $text = '' ) {
  * @return string
  */
 function bbp_make_mentions_clickable( $text = '' ) {
-	return preg_replace_callback( '#@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
+	return preg_replace_callback( '#([\s>])@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
 }
 
 /**
@@ -476,30 +476,49 @@ function bbp_make_mentions_clickable( $text = '' ) {
  */
 function bbp_make_mentions_clickable_callback( $matches = array() ) {
 
+	// Bail if the match is empty malformed
+	if ( empty( $matches[2] ) || ! is_string( $matches[2] ) ) {
+		return $matches[0];
+	}
+
 	// Get user; bail if not found
-	$user = get_user_by( 'slug', $matches[1] );
+	$user = get_user_by( 'slug', $matches[2] );
 	if ( empty( $user ) || bbp_is_user_inactive( $user->ID ) ) {
 		return $matches[0];
 	}
 
+	// Default anchor classes
+	$classes = array(
+		'bbp-user-mention',
+		'bbp-user-id-' . absint( $user->ID )
+	);
+
 	// Filter classes
-	$classes = (array) apply_filters( 'bbp_make_mentions_clickable_classes', array(
-		'bbp-user-id-' . $user->ID,
-		'bbp-user-mention'
-	) );
+	$classes = (array) apply_filters( 'bbp_make_mentions_clickable_classes', $classes, $user );
 
 	// Escape & implode if not empty, otherwise an empty string
 	$class_str = ! empty( $classes )
 		? implode( ' ', array_map( 'sanitize_html_class', $classes ) )
 		: '';
 
+	// Setup as a variable to avoid a potentially empty class attribute
+	$class = ! empty( $class_str )
+		? ' class="' . esc_attr( $class_str ) . '"'
+		: '';
+
 	// Create the link to the user's profile
+	$html   = '<a href="%1$s"' . $class . '">%2$s</a>';
 	$url    = bbp_get_user_profile_url( $user->ID );
-	$clicky = '<a href="%1$s" class="' . esc_attr( $class_str ) . '">%2$s</a>';
-	$anchor = sprintf( $clicky, esc_url( $url ), esc_html( $matches[0] ) );
+	$anchor = sprintf( $html, esc_url( $url ), esc_html( $matches[0] ) );
+
+	// Prevent this link from being followed by bots
 	$link   = bbp_rel_nofollow( $anchor );
 
-	return $link;
+	// Concatenate the matches into the return value
+	$retval = $matches[1] . $link;
+
+	// Return the link
+	return $retval;
 }
 
 /** Numbers *******************************************************************/
