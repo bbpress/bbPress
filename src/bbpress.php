@@ -21,7 +21,7 @@
  * Text Domain: bbpress
  * Domain Path: /languages/
  * License:     GPLv2 or later (license.txt)
- * Requires WP: 5.3
+ * Requires at least: 5.3
  * Requires PHP: 5.6.20
  */
 
