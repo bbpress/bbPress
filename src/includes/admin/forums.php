@@ -635,8 +635,17 @@ class BBP_Forums_Admin {
 			}
 		}
 
-		// simple hack to show the forum description under the title
-		bbp_forum_content( $forum->ID );
+		// Only show content if user can read it and there is no password
+		if ( current_user_can( 'read_forum', $forum->ID ) && ! post_password_required( $forum ) ) {
+
+			// Get the forum description
+			$content = bbp_get_forum_content( $forum->ID );
+
+			// Only proceed if there is a description
+			if ( ! empty( $content ) ) {
+				echo '<div class="bbp-escaped-content">' . esc_html( wp_trim_excerpt( $content, $forum ) ) . '</div>';
+			}
+		}
 
 		// Sort & return
 		return $this->sort_row_actions( $actions );
