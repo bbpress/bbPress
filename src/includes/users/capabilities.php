@@ -148,7 +148,7 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
  *
  * @param int $user_id
  *
- * @return string
+ * @return mixed False if no change. String of new role if changed.
  */
 function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 
@@ -159,15 +159,15 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 	// User exists
 	if ( ! empty( $user ) ) {
 
-		// Get users forum role
+		// Get user forum role
 		$role = bbp_get_user_role( $user_id );
 
 		// User already has this role so no new role is set
 		if ( $new_role === $role ) {
 			$new_role = false;
 
-		// Users role is different than the new role
-		} else {
+		// User role is different than the new (valid) role
+		} elseif ( bbp_is_valid_role( $new_role ) ) {
 
 			// Remove the old role
 			if ( ! empty( $role ) ) {
@@ -304,6 +304,38 @@ function bbp_profile_update_role( $user_id = 0 ) {
 
 	// Set the new forums role
 	bbp_set_user_role( $user_id, $new_role );
+}
+
+/**
+ * Check if a role string is valid
+ *
+ * @since 2.6.5
+ *
+ * @param string $role
+ *
+ * @return bool True if role is valid. False if role is not valid.
+ */
+function bbp_is_valid_role( $role = '' ) {
+
+	// Default return value
+	$retval = false;
+
+	// Skip if no role to check
+	if ( ! empty( $role ) && is_string( $role ) ) {
+
+		// Get the dynamic role IDs
+		$roles = array_keys( bbp_get_dynamic_roles() );
+
+		// Skip if no known role IDs
+		if ( ! empty( $roles ) ) {
+
+			// Is role in dynamic roles array?
+			$retval = in_array( $role, $roles, true );
+		}
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_valid_role', $retval, $role );
 }
 
 /**
