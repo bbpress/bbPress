@@ -19,7 +19,11 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.6.0 bbPress (r6674)
  */
 function bbp_add_user_form_role_field() {
-?>
+
+	// Bail if current user cannot promote users
+	if ( ! current_user_can( 'promote_users' ) ) {
+		return;
+	} ?>
 
 	<table class="form-table">
 		<tr class="form-field">
@@ -66,21 +70,26 @@ function bbp_add_user_form_role_field() {
  */
 function bbp_user_add_role_to_signup_meta( $meta = array() ) {
 
-	// Posted role
-	$forum_role = isset( $_POST['bbp-forums-role'] )
+	// Bail if already added
+	if ( ! empty( $meta['bbp_new_role'] ) ) {
+		return $meta;
+	}
+
+	// Role to validate
+	$to_validate = ! empty( $_POST['bbp-forums-role'] ) && is_string( $_POST['bbp-forums-role'] )
 		? sanitize_key( $_POST['bbp-forums-role'] )
-		: bbp_get_default_role();
+		: '';
 
-	// Role keys
-	$roles = array_keys( bbp_get_dynamic_roles() );
+	// Validate the signup role
+	$valid_role = bbp_validate_registration_role( $to_validate );
 
-	// Bail if posted role is not in dynamic roles
-	if ( empty( $forum_role ) || ! in_array( $forum_role, $roles, true ) ) {
+	// Bail if errors
+	if ( bbp_has_errors() ) {
 		return $meta;
 	}
 
 	// Add role to meta
-	$meta['bbp_new_role'] = $forum_role;
+	$meta['bbp_new_role'] = $valid_role;
 
 	// Return meta
 	return $meta;
@@ -94,19 +103,26 @@ function bbp_user_add_role_to_signup_meta( $meta = array() ) {
  * @param int    $user_id     The invited user's ID.
  * @param array  $role        The role of invited user.
  * @param string $newuser_key The key of the invitation.
+ *
+ * @return void
  */
 function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = '' ) {
 
-	// Posted role
-	$forum_role = isset( $_POST['bbp-forums-role'] )
+	// Role to validate
+	$to_validate = ! empty( $_POST['bbp-forums-role'] ) && is_string( $_POST['bbp-forums-role'] )
 		? sanitize_key( $_POST['bbp-forums-role'] )
-		: bbp_get_default_role();
+		: '';
 
-	// Role keys
-	$roles = array_keys( bbp_get_dynamic_roles() );
+	// Validate the signup role
+	$valid_role = bbp_validate_registration_role( $to_validate );
 
-	// Bail if posted role is not in dynamic roles
-	if ( empty( $forum_role ) || ! in_array( $forum_role, $roles, true ) ) {
+	// Bail if errors
+	if ( bbp_has_errors() ) {
+		return;
+	}
+
+	// Bail if malformed user key
+	if ( empty( $newuser_key ) || ! is_string( $newuser_key ) ) {
 		return;
 	}
 
@@ -117,7 +133,7 @@ function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = 
 	$user_option = get_option( $option_key, array() );
 
 	// Add the new role
-	$user_option['bbp_new_role'] = $forum_role;
+	$user_option['bbp_new_role'] = $valid_role;
 
 	// Update the invitation
 	update_option( $option_key, $user_option );
@@ -129,24 +145,26 @@ function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = 
  * @since 2.6.0 bbPress (r6674)
  *
  * @param int $user_id
+ *
+ * @return void
  */
 function bbp_user_add_role_on_register( $user_id = '' ) {
 
-	// Posted role
-	$forum_role = isset( $_POST['bbp-forums-role'] )
+	// Role to validate
+	$to_validate = ! empty( $_POST['bbp-forums-role'] ) && is_string( $_POST['bbp-forums-role'] )
 		? sanitize_key( $_POST['bbp-forums-role'] )
-		: bbp_get_default_role();
+		: '';
 
-	// Role keys
-	$roles = array_keys( bbp_get_dynamic_roles() );
+	// Validate the signup role
+	$valid_role = bbp_validate_registration_role( $to_validate );
 
-	// Bail if posted role is not in dynamic roles
-	if ( empty( $forum_role ) || ! in_array( $forum_role, $roles, true ) ) {
+	// Bail if errors
+	if ( bbp_has_errors() ) {
 		return;
 	}
 
 	// Set the user role
-	bbp_set_user_role( $user_id, $forum_role );
+	bbp_set_user_role( $user_id, $valid_role );
 }
 
 /**
@@ -154,23 +172,115 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
  *
  * @since 2.6.0 bbPress (r6674)
  *
- * @param int $user_id User ID.
+ * @param int    $user_id  User ID
+ * @param string $password User password
+ * @param array  $meta     Array of metadata
+ *
+ * @return void
  */
 function bbp_user_add_role_on_activate( $user_id = 0, $password = '', $meta = array() ) {
 
-	// Posted role
-	$forum_role = isset( $meta['bbp_new_role'] )
+	// Role to validate
+	$to_validate = ! empty( $meta['bbp_new_role'] ) && is_string( $meta['bbp_new_role'] )
 		? sanitize_key( $meta['bbp_new_role'] )
-		: bbp_get_default_role();
+		: '';
 
-	// Sanitize role
-	$roles = array_keys( bbp_get_dynamic_roles() );
+	// Validate the signup role
+	$valid_role = bbp_validate_activation_role( $to_validate );
 
-	// Bail if posted role is not in dynamic roles
-	if ( empty( $forum_role ) || ! in_array( $forum_role, $roles, true ) ) {
+	// Bail if errors
+	if ( bbp_has_errors() ) {
 		return;
 	}
 
 	// Set the user role
-	bbp_set_user_role( $user_id, $forum_role );
+	bbp_set_user_role( $user_id, $valid_role );
+}
+
+/** Validators ****************************************************************/
+
+/**
+ * Validate the Forum role during signup
+ *
+ * This helper function performs a number of generic checks, and encapsulates
+ * the logic used to validate if a Forum Role is valid, typically during new
+ * user registration, but also when adding an existing user to a site in
+ * Multisite installations.
+ *
+ * @since 2.6.5
+ *
+ * @param string $to_validate A role ID to validate
+ *
+ * @return string A valid role ID, or empty string on error
+ */
+function bbp_validate_signup_role( $to_validate = '' ) {
+
+	// Default return value
+	$retval = '';
+
+	// Add error if role is empty
+	if ( empty( $to_validate ) ) {
+		bbp_add_error( 'bbp_signup_role_empty', __( '<strong>ERROR</strong>: Empty role.', 'bbpress' ) );
+	}
+
+	// Add error if posted role is not a valid role
+	if ( ! bbp_is_valid_role( $to_validate ) ) {
+		bbp_add_error( 'bbp_signup_role_invalid', __( '<strong>ERROR</strong>: Invalid role.', 'bbpress' ) );
+	}
+
+	// If no errors, set return value to the role to validate
+	if ( ! bbp_has_errors() ) {
+		$retval = $to_validate;
+	}
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_validate_signup_role', $retval, $to_validate );
+}
+
+/**
+ * Validate the Forum role during the registration process
+ *
+ * @since 2.6.5
+ *
+ * @param string $to_validate A role ID to validate
+ *
+ * @return string A valid role ID, or empty string on error
+ */
+function bbp_validate_registration_role( $to_validate = '' ) {
+
+	// Default return value
+	$retval = bbp_get_default_role();
+
+	/**
+	 * Conditionally accept admin-area posted values for capable users. This is
+	 * to allow for Site/Network Admins to assign a default role when inviting
+	 * or creating a new User account.
+	 */
+	if ( is_admin() && current_user_can( 'create_users' ) ) {
+		$retval = $to_validate;
+	}
+
+	// Validate & return
+	return bbp_validate_signup_role( $retval );
+}
+
+/**
+ * Validate the Forum role during multisite activation
+ *
+ * This function exists simply for parity with registrations, and to maintain an
+ * intentional layer of abstraction from the more generic function it uses.
+ *
+ * Note: this will not fire inside of wp-activate.php unless it is hooked in
+ * during sunrise.php, and is considered an advanced use-case.
+ *
+ * @since 2.6.5
+ *
+ * @param string $to_validate A role ID to validate
+ *
+ * @return string A valid role ID, or empty string on error
+ */
+function bbp_validate_activation_role( $to_validate = '' ) {
+
+	// Validate & return
+	return bbp_validate_signup_role( $to_validate );
 }
