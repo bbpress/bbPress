@@ -586,6 +586,11 @@ class BBP_Admin {
 			// Loop through fields for this section
 			foreach ( (array) $fields as $field_id => $field ) {
 
+				// Skip field if user is not capable
+				if ( ! empty( $field['capability'] ) && ! current_user_can( $field['capability'] ) ) {
+					continue;
+				}
+
 				// Add the field
 				if ( ! empty( $field['callback'] ) && ! empty( $field['title'] ) ) {
 					add_settings_field( $field_id, $field['title'], $field['callback'], $page, $section_id, $field['args'] );
