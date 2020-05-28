@@ -163,6 +163,28 @@ function bbp_admin_get_settings_fields() {
 
 		'bbp_settings_features' => array(
 
+			// Allow auto embedding setting
+			'_bbp_use_autoembed' => array(
+				'title'             => esc_html__( 'Auto-embed links', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_use_autoembed',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Set reply threading level
+			'_bbp_thread_replies_depth' => array(
+				'title'             => esc_html__( 'Reply Threading', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_thread_replies_depth',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Allow threaded replies
+			'_bbp_allow_threaded_replies' => array(
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Allow topic and reply revisions
 			'_bbp_allow_revisions' => array(
 				'title'             => esc_html__( 'Revisions', 'bbpress' ),
@@ -203,22 +225,6 @@ function bbp_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
-			// Allow per-forum moderators
-			'_bbp_allow_forum_mods' => array(
-				'title'             => esc_html__( 'Forum Moderators', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_forum_mods',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Allow moderators to edit users
-			'_bbp_allow_super_mods' => array(
-				'title'             => esc_html__( 'Super Moderators', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_super_mods',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
 			// Allow topic tags
 			'_bbp_allow_search' => array(
 				'title'             => esc_html__( 'Search', 'bbpress' ),
@@ -235,25 +241,20 @@ function bbp_admin_get_settings_fields() {
 				'sanitize_callback' => 'intval'
 			),
 
-			// Allow auto embedding setting
-			'_bbp_use_autoembed' => array(
-				'title'             => esc_html__( 'Auto-embed links', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_use_autoembed',
+			// Allow per-forum moderators
+			'_bbp_allow_forum_mods' => array(
+				'title'             => esc_html__( 'Forum Moderators', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_forum_mods',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
 
-			// Set reply threading level
-			'_bbp_thread_replies_depth' => array(
-				'title'             => esc_html__( 'Reply Threading', 'bbpress' ),
-				'callback'          => 'bbp_admin_setting_callback_thread_replies_depth',
+			// Allow moderators to edit users
+			'_bbp_allow_super_mods' => array(
+				'title'             => esc_html__( 'Super Moderators', 'bbpress' ),
+				'callback'          => 'bbp_admin_setting_callback_super_mods',
 				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Allow threaded replies
-			'_bbp_allow_threaded_replies' => array(
-				'sanitize_callback' => 'intval',
+				'capability'        => 'edit_users',
 				'args'              => array()
 			)
 		),
@@ -837,6 +838,7 @@ function bbp_admin_setting_callback_forum_mods() {
 
 	<input name="_bbp_allow_forum_mods" id="_bbp_allow_forum_mods" type="checkbox" value="1" <?php checked( bbp_allow_forum_mods( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_forum_mods' ); ?> />
 	<label for="_bbp_allow_forum_mods"><?php esc_html_e( 'Allow forums to have dedicated moderators', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'This does not include the ability to edit users.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -850,7 +852,8 @@ function bbp_admin_setting_callback_super_mods() {
 ?>
 
 	<input name="_bbp_allow_super_mods" id="_bbp_allow_super_mods" type="checkbox" value="1" <?php checked( bbp_allow_super_mods( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_super_mods' ); ?> />
-	<label for="_bbp_allow_super_mods"><?php esc_html_e( 'Allow moderators to edit other users', 'bbpress' ); ?></label>
+	<label for="_bbp_allow_super_mods"><?php esc_html_e( 'Allow Moderators and Keymasters to edit users', 'bbpress' ); ?></label>
+	<p class="description"><?php esc_html_e( 'This includes roles, passwords, and email addresses.', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -968,7 +971,7 @@ function bbp_admin_setting_callback_subtheme_id() {
 
 	if ( ! empty( $theme_options ) ) : ?>
 
-		<select name="_bbp_theme_package_id" id="_bbp_theme_package_id" <?php bbp_maybe_admin_setting_disabled( '_bbp_theme_package_id' ); ?>><?php echo $theme_options ?></select>
+		<select name="_bbp_theme_package_id" id="_bbp_theme_package_id" <?php bbp_maybe_admin_setting_disabled( '_bbp_theme_package_id' ); ?>><?php echo $theme_options; ?></select>
 		<label for="_bbp_theme_package_id"><?php esc_html_e( 'will serve all bbPress templates', 'bbpress' ); ?></label>
 
 	<?php else : ?>
@@ -1464,7 +1467,7 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 
 		// Button & text
 		$button = '<a href="' . esc_url( $new_url ) . '">' . esc_html__( 'create a new one', 'bbpress' ) . '</a>';
-		$text   = esc_html__( 'Use %s to contain your group forums, or %s', 'bbpress' );
+		$text   = esc_html__( 'Use %s to contain your group forums, or %s', 'bbpress' ); //phpcs:ignore
 	} else {
 		$text = esc_html__( 'Use %s to contain your group forums', 'bbpress' );
 	}
@@ -1517,7 +1520,7 @@ function bbp_admin_settings() {
 ?>
 
 	<div class="wrap">
-		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forums Settings', 'bbpress' ) ?></h1>
+		<h1 class="wp-heading-inline"><?php esc_html_e( 'Forums Settings', 'bbpress' ); ?></h1>
 		<hr class="wp-header-end">
 
 		<form action="options.php" method="post">
@@ -1567,7 +1570,7 @@ function bbp_converter_setting_callback_platform() {
 		$options .= '<option value="' . esc_attr( $name ) . '"' . selected( $name, $current, false ) . '>' . esc_html( $name ) . '</option>';
 	} ?>
 
-	<select name="_bbp_converter_platform" id="_bbp_converter_platform"><?php echo $options ?></select>
+	<select name="_bbp_converter_platform" id="_bbp_converter_platform"><?php echo $options; ?></select>
 	<p class="description"><?php esc_html_e( 'The previous forum software', 'bbpress' ); ?></p>
 
 <?php
@@ -1792,7 +1795,7 @@ function bbp_converter_settings_page() {
 
 	// Starting or continuing?
 	$progress_text = ! empty( $step )
-		? sprintf( esc_html__( 'Previously stopped at step %d of %d', 'bbpress' ), $step, $max )
+		? sprintf( esc_html__( 'Previously stopped at step %1$d of %2$d', 'bbpress' ), $step, $max )
 		: esc_html__( 'Ready to go.', 'bbpress' ); ?>
 
 	<div class="wrap">
@@ -1957,7 +1960,7 @@ function bbp_maybe_admin_setting_disabled( $option_key = '' ) {
  * @param string $default
  * @param bool $slug
  */
-function bbp_form_option( $option, $default = '' , $slug = false ) {
+function bbp_form_option( $option, $default = '', $slug = false ) {
 	echo bbp_get_form_option( $option, $default, $slug );
 }
 	/**
