@@ -364,7 +364,9 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 
 	// Switch defaults if post is set
 	if ( isset( $wp_query->post ) ) {
-		$dummy = bbp_parse_args( $args, array(
+
+		// Use primarily Post attributes
+		$defaults = array(
 			'ID'                    => $wp_query->post->ID,
 			'post_status'           => $wp_query->post->post_status,
 			'post_author'           => $wp_query->post->post_author,
@@ -395,18 +397,23 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'is_single'             => false,
 			'is_archive'            => false,
 			'is_tax'                => false
-		), 'theme_compat_reset_post' );
+		);
 	} else {
-		$dummy = bbp_parse_args( $args, array(
+
+		// Get the default zero date value a single time
+		$zero_date = bbp_get_empty_datetime();
+
+		// Use primarily empty attributes
+		$defaults = array(
 			'ID'                    => -9999,
 			'post_status'           => bbp_get_public_status_id(),
 			'post_author'           => 0,
 			'post_parent'           => 0,
 			'post_type'             => 'page',
-			'post_date'             => 0,
-			'post_date_gmt'         => 0,
-			'post_modified'         => 0,
-			'post_modified_gmt'     => 0,
+			'post_date'             => $zero_date,
+			'post_date_gmt'         => $zero_date,
+			'post_modified'         => $zero_date,
+			'post_modified_gmt'     => $zero_date,
 			'post_content'          => '',
 			'post_title'            => '',
 			'post_excerpt'          => '',
@@ -428,8 +435,11 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'is_single'             => false,
 			'is_archive'            => false,
 			'is_tax'                => false
-		), 'theme_compat_reset_post' );
+		);
 	}
+
+	// Parse & filter
+	$dummy = bbp_parse_args( $args, $defaults, 'theme_compat_reset_post' );
 
 	// Bail if dummy post is empty
 	if ( empty( $dummy ) ) {
@@ -510,7 +520,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		bbp_theme_compat_reset_post( array(
 			'ID'             => 0,
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => bbp_buffer_template_part( 'content', 'single-user', false ),
 			'post_type'      => '',
 			'post_title'     => bbp_get_displayed_user_field( 'display_name' ),
@@ -566,7 +576,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => $new_title,
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => bbp_get_forum_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
@@ -582,7 +592,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => bbp_get_forum_id(),
 			'post_title'     => bbp_get_forum_title(),
 			'post_author'    => bbp_get_forum_author_id(),
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $bbp_shortcodes->display_forum_form(),
 			'post_type'      => bbp_get_forum_post_type(),
 			'post_status'    => bbp_get_forum_visibility(),
@@ -600,7 +610,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => bbp_get_forum_id(),
 			'post_title'     => bbp_get_forum_title(),
 			'post_author'    => bbp_get_forum_author_id(),
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $bbp_shortcodes->display_forum( array( 'id' => bbp_get_forum_id() ) ),
 			'post_type'      => bbp_get_forum_post_type(),
 			'post_status'    => bbp_get_forum_visibility(),
@@ -639,7 +649,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
 			'post_title'     => bbp_get_topic_archive_title(),
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => bbp_get_topic_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
@@ -675,7 +685,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => bbp_get_topic_id(),
 			'post_title'     => bbp_get_topic_title(),
 			'post_author'    => bbp_get_topic_author_id(),
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => bbp_get_topic_post_type(),
 			'post_status'    => bbp_get_topic_status(),
@@ -693,7 +703,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => 0,
 			'post_title'     => esc_html__( 'Replies', 'bbpress' ),
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $bbp_shortcodes->display_reply_index(),
 			'post_type'      => bbp_get_reply_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
@@ -725,7 +735,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => bbp_get_reply_id(),
 			'post_title'     => bbp_get_reply_title(),
 			'post_author'    => bbp_get_reply_author_id(),
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => bbp_get_reply_post_type(),
 			'post_status'    => bbp_get_reply_status(),
@@ -742,7 +752,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => 0,
 			'post_title'     => bbp_get_view_title(),
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( bbp_get_view_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
@@ -759,7 +769,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'ID'             => 0,
 			'post_title'     => bbp_get_search_title(),
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( bbp_get_search_rewrite_id() ) ) ),
 			'post_type'      => '',
 			'post_status'    => bbp_get_public_status_id(),
@@ -788,7 +798,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		bbp_theme_compat_reset_post( array(
 			'ID'             => 0,
 			'post_author'    => 0,
-			'post_date'      => 0,
+			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => '',
 			'post_title'     => sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ),
