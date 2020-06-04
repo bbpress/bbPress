@@ -952,7 +952,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			} elseif ( bbp_is_forum( $ancestor ) ) {
 
 				// Only update if reply is published
-				if ( bbp_is_reply_pending( $reply_id ) && ! bbp_is_topic_pending( $topic_id ) ) {
+				if ( ! bbp_is_reply_pending( $reply_id ) && ! bbp_is_topic_pending( $topic_id ) ) {
 
 					// Last topic and reply ID's
 					bbp_update_forum_last_topic_id( $ancestor, $topic_id );
