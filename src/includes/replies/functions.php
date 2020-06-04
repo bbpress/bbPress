@@ -131,7 +131,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-new-reply' ) ) {
-		bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_new_reply_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
@@ -156,7 +156,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// User cannot create replies
 		if ( ! current_user_can( 'publish_replies' ) ) {
-			bbp_add_error( 'bbp_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_permission', __( '<strong>Error</strong>: You do not have permission to reply.', 'bbpress' ) );
 		}
 
 		// Reply author is current user
@@ -167,11 +167,11 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Topic id was not passed
 	if ( empty( $_POST['bbp_topic_id'] ) ) {
-		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic ID is missing.', 'bbpress' ) );
 
 	// Topic id is not a number
 	} elseif ( ! is_numeric( $_POST['bbp_topic_id'] ) ) {
-		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID must be a number.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic ID must be a number.', 'bbpress' ) );
 
 	// Topic id might be valid
 	} else {
@@ -181,11 +181,11 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// Topic id is a negative number
 		if ( 0 > $posted_topic_id ) {
-			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID cannot be a negative number.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic ID cannot be a negative number.', 'bbpress' ) );
 
 		// Topic does not exist
 		} elseif ( ! bbp_get_topic( $posted_topic_id ) ) {
-			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic does not exist.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic does not exist.', 'bbpress' ) );
 
 		// Use the POST'ed topic id
 		} else {
@@ -204,11 +204,11 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// Empty Forum id was passed
 		if ( empty( $_POST['bbp_forum_id'] ) ) {
-			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
 
 		// Forum id is not a number
 		} elseif ( ! is_numeric( $_POST['bbp_forum_id'] ) ) {
-			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID must be a number.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum ID must be a number.', 'bbpress' ) );
 
 		// Forum id might be valid
 		} else {
@@ -218,15 +218,15 @@ function bbp_new_reply_handler( $action = '' ) {
 
 			// Forum id is empty
 			if ( 0 === $posted_forum_id ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
 
 			// Forum id is a negative number
 			} elseif ( 0 > $posted_forum_id ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
 
 			// Forum does not exist
 			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum does not exist.', 'bbpress' ) );
+				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
 
 			// Use the POST'ed forum id
 			} else {
@@ -240,23 +240,23 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_id ) ) {
-			bbp_add_error( 'bbp_new_reply_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No replies can be created in this forum.', 'bbpress' ) );
+			bbp_add_error( 'bbp_new_reply_forum_category', __( '<strong>Error</strong>: This forum is a category. No replies can be created in this forum.', 'bbpress' ) );
 
 		// Forum is not a category
 		} else {
 
 			// Forum is closed and user cannot access
 			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new replies.', 'bbpress' ) );
+				bbp_add_error( 'bbp_new_reply_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new replies.', 'bbpress' ) );
 			}
 
 			// Forum is private and user cannot access
 			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+				bbp_add_error( 'bbp_new_reply_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
 
 			// Forum is hidden and user cannot access
 			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+				bbp_add_error( 'bbp_new_reply_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
 			}
 		}
 	}
@@ -281,7 +281,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// Title too long
 	if ( bbp_is_title_too_long( $reply_title ) ) {
-		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
 	}
 
 	/** Reply Content *********************************************************/
@@ -295,25 +295,25 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// No reply content
 	if ( empty( $reply_content ) ) {
-		bbp_add_error( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_content', __( '<strong>Error</strong>: Your reply cannot be empty.', 'bbpress' ) );
 	}
 
 	/** Reply Flooding ********************************************************/
 
 	if ( ! bbp_check_for_flood( $anonymous_data, $reply_author ) ) {
-		bbp_add_error( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_flood', __( '<strong>Error</strong>: Slow down; you move too fast.', 'bbpress' ) );
 	}
 
 	/** Reply Duplicate *******************************************************/
 
 	if ( ! bbp_check_for_duplicate( array( 'post_type' => bbp_get_reply_post_type(), 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) ) {
-		bbp_add_error( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_duplicate', __( '<strong>Error</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that.', 'bbpress' ) );
 	}
 
 	/** Reply Bad Words *******************************************************/
 
 	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content, true ) ) {
-		bbp_add_error( 'bbp_reply_moderation', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_moderation', __( '<strong>Error</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
 	}
 
 	/** Reply Status **********************************************************/
@@ -338,7 +338,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// If topic is closed, moderators can still reply
 	if ( bbp_is_topic_closed( $topic_id ) && ! current_user_can( 'moderate', $topic_id ) ) {
-		bbp_add_error( 'bbp_reply_topic_closed', __( '<strong>ERROR</strong>: Topic is closed.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_topic_closed', __( '<strong>Error</strong>: Topic is closed.', 'bbpress' ) );
 	}
 
 	/** Topic Tags ************************************************************/
@@ -398,7 +398,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// Term error
 		if ( is_wp_error( $terms ) ) {
-			bbp_add_error( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
+			bbp_add_error( 'bbp_reply_tags', __( '<strong>Error</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
 		}
 
 		/** Trash Check *******************************************************/
@@ -471,11 +471,11 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// WP_Error
 	} elseif ( is_wp_error( $reply_id ) ) {
-		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) occurred: %s', 'bbpress' ), $reply_id->get_error_message() ) );
+		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) occurred: %s', 'bbpress' ), $reply_id->get_error_message() ) );
 
 	// Generic error
 	} else {
-		bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The reply was not created.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_error', __( '<strong>Error</strong>: The reply was not created.', 'bbpress' ) );
 	}
 }
 
@@ -503,7 +503,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Reply id was not passed
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found.', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_reply_id', __( '<strong>Error</strong>: Reply ID not found.', 'bbpress' ) );
 		return;
 
 	// Reply id was passed
@@ -514,13 +514,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'bbp-edit-reply_' . $reply_id ) ) {
-		bbp_add_error( 'bbp_edit_reply_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_reply_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
 	// Reply does not exist
 	if ( empty( $reply ) ) {
-		bbp_add_error( 'bbp_edit_reply_not_found', __( '<strong>ERROR</strong>: The reply you want to edit was not found.', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_reply_not_found', __( '<strong>Error</strong>: The reply you want to edit was not found.', 'bbpress' ) );
 		return;
 
 	// Reply exists
@@ -531,7 +531,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 			// User cannot edit this reply
 			if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
 				return;
 			}
 
@@ -566,23 +566,23 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_id ) ) {
-			bbp_add_error( 'bbp_edit_reply_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No replies can be created in this forum.', 'bbpress' ) );
+			bbp_add_error( 'bbp_edit_reply_forum_category', __( '<strong>Error</strong>: This forum is a category. No replies can be created in this forum.', 'bbpress' ) );
 
 		// Forum is not a category
 		} else {
 
 			// Forum is closed and user cannot access
 			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new replies.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_reply_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new replies.', 'bbpress' ) );
 			}
 
 			// Forum is private and user cannot access
 			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_reply_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
 
 			// Forum is hidden and user cannot access
 			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+				bbp_add_error( 'bbp_edit_reply_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
 			}
 		}
 	}
@@ -598,7 +598,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Title too long
 	if ( bbp_is_title_too_long( $reply_title ) ) {
-		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your title is too long.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_title', __( '<strong>Error</strong>: Your title is too long.', 'bbpress' ) );
 	}
 
 	/** Reply Content *********************************************************/
@@ -612,13 +612,13 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// No reply content
 	if ( empty( $reply_content ) ) {
-		bbp_add_error( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_reply_content', __( '<strong>Error</strong>: Your reply cannot be empty.', 'bbpress' ) );
 	}
 
 	/** Reply Bad Words *******************************************************/
 
 	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content, true ) ) {
-		bbp_add_error( 'bbp_reply_moderation', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_moderation', __( '<strong>Error</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 	}
 
 	/** Reply Status **********************************************************/
@@ -708,7 +708,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	// Term error
 	if ( is_wp_error( $terms ) ) {
-		bbp_add_error( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_tags', __( '<strong>Error</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
 	}
 
 	/** No Errors *************************************************************/
@@ -766,7 +766,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_error', __( '<strong>Error</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
 	}
 }
 
@@ -1212,7 +1212,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** Move Reply ***********************************************************/
 
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>ERROR</strong>: A reply ID is required', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required', 'bbpress' ) );
 	} else {
 		$move_reply_id = (int) $_POST['bbp_reply_id'];
 	}
@@ -1221,7 +1221,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 	// Reply exists
 	if ( empty( $move_reply ) ) {
-		bbp_add_error( 'bbp_mover_reply_r_not_found', __( '<strong>ERROR</strong>: The reply you want to move was not found.', 'bbpress' ) );
+		bbp_add_error( 'bbp_mover_reply_r_not_found', __( '<strong>Error</strong>: The reply you want to move was not found.', 'bbpress' ) );
 	}
 
 	/** Topic to Move From ***************************************************/
@@ -1231,18 +1231,18 @@ function bbp_move_reply_handler( $action = '' ) {
 
 	// No topic
 	if ( empty( $source_topic ) ) {
-		bbp_add_error( 'bbp_move_reply_source_not_found', __( '<strong>ERROR</strong>: The topic you want to move from was not found.', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_source_not_found', __( '<strong>Error</strong>: The topic you want to move from was not found.', 'bbpress' ) );
 	}
 
 	// Nonce check failed
 	if ( ! bbp_verify_nonce_request( 'bbp-move-reply_' . $move_reply->ID ) ) {
-		bbp_add_error( 'bbp_move_reply_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
 	// Use cannot edit topic
 	if ( ! current_user_can( 'edit_topic', $source_topic->ID ) ) {
-		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_source_permission', __( '<strong>Error</strong>: You do not have permission to edit the source topic.', 'bbpress' ) );
 	}
 
 	// How to move
@@ -1252,7 +1252,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 	// Invalid move option
 	if ( empty( $move_option ) || ! in_array( $move_option, array( 'existing', 'topic' ), true ) ) {
-		bbp_add_error( 'bbp_move_reply_option', __( '<strong>ERROR</strong>: You need to choose a valid move option.', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_option', __( '<strong>Error</strong>: You need to choose a valid move option.', 'bbpress' ) );
 
 	// Valid move option
 	} else {
@@ -1265,7 +1265,7 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// Get destination topic id
 				if ( empty( $_POST['bbp_destination_topic'] ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_id', __( '<strong>ERROR</strong>: A topic ID is required.', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_id', __( '<strong>Error</strong>: A topic ID is required.', 'bbpress' ) );
 				} else {
 					$destination_topic_id = (int) $_POST['bbp_destination_topic'];
 				}
@@ -1275,12 +1275,12 @@ function bbp_move_reply_handler( $action = '' ) {
 
 				// No destination topic
 				if ( empty( $destination_topic ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to move to was not found.', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_not_found', __( '<strong>Error</strong>: The topic you want to move to was not found.', 'bbpress' ) );
 				}
 
 				// User cannot edit the destination topic
 				if ( ! current_user_can( 'edit_topic', $destination_topic->ID ) ) {
-					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
 				// Bump the reply position
@@ -1334,12 +1334,12 @@ function bbp_move_reply_handler( $action = '' ) {
 
 					// Shouldn't happen
 					if ( false === $destination_topic_id || is_wp_error( $destination_topic_id ) || empty( $destination_topic ) ) {
-						bbp_add_error( 'bbp_move_reply_destination_reply', __( '<strong>ERROR</strong>: There was a problem converting the reply into the topic. Please try again.', 'bbpress' ) );
+						bbp_add_error( 'bbp_move_reply_destination_reply', __( '<strong>Error</strong>: There was a problem converting the reply into the topic. Please try again.', 'bbpress' ) );
 					}
 
 				// User cannot publish posts
 				} else {
-					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>ERROR</strong>: You do not have permission to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
+					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>Error</strong>: You do not have permission to create new topics. The reply could not be converted into a topic.', 'bbpress' ) );
 				}
 
 				break;
@@ -1487,13 +1487,13 @@ function bbp_toggle_reply_handler( $action = '' ) {
 	// Make sure reply exists
 	$reply = bbp_get_reply( $reply_id );
 	if ( empty( $reply ) ) {
-		bbp_add_error( 'bbp_toggle_reply_missing', __( '<strong>ERROR</strong>: This reply could not be found or no longer exists.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_reply_missing', __( '<strong>Error</strong>: This reply could not be found or no longer exists.', 'bbpress' ) );
 		return;
 	}
 
 	// What is the user doing here?
 	if ( ! current_user_can( 'edit_reply', $reply_id ) || ( 'bbp_toggle_reply_trash' === $action && ! current_user_can( 'delete_reply', $reply_id ) ) ) {
-		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR</strong>: You do not have permission to do that.', 'bbpress' ) );
+		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
 		return;
 	}
 
@@ -1569,7 +1569,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 			$is_approve         = bbp_is_reply_pending( $r['id'] );
 			$retval['status']   = $is_approve ? bbp_approve_reply( $r['id'] ) : bbp_unapprove_reply( $r['id'] );
-			$retval['message']  = $is_approve ? __( '<strong>ERROR</strong>: There was a problem approving the reply.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem unapproving the reply.', 'bbpress' );
+			$retval['message']  = $is_approve ? __( '<strong>Error</strong>: There was a problem approving the reply.', 'bbpress' ) : __( '<strong>Error</strong>: There was a problem unapproving the reply.', 'bbpress' );
 			$retval['view_all'] = ! $is_approve;
 
 			break;
@@ -1580,7 +1580,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 			$is_spam            = bbp_is_reply_spam( $r['id'] );
 			$retval['status']   = $is_spam ? bbp_unspam_reply( $r['id'] ) : bbp_spam_reply( $r['id'] );
-			$retval['message']  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam.', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam.', 'bbpress' );
+			$retval['message']  = $is_spam ? __( '<strong>Error</strong>: There was a problem unmarking the reply as spam.', 'bbpress' ) : __( '<strong>Error</strong>: There was a problem marking the reply as spam.', 'bbpress' );
 			$retval['view_all'] = ! $is_spam;
 
 			break;
@@ -1595,7 +1595,7 @@ function bbp_toggle_reply( $args = array() ) {
 
 					$retval['view_all'] = true;
 					$retval['status']   = wp_trash_post( $r['id'] );
-					$retval['message']  = __( '<strong>ERROR</strong>: There was a problem trashing the reply.', 'bbpress' );
+					$retval['message']  = __( '<strong>Error</strong>: There was a problem trashing the reply.', 'bbpress' );
 
 					break;
 
@@ -1603,7 +1603,7 @@ function bbp_toggle_reply( $args = array() ) {
 					check_ajax_referer( "untrash-{$nonce_suffix}" );
 
 					$retval['status']  = wp_untrash_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem untrashing the reply.', 'bbpress' );
+					$retval['message'] = __( '<strong>Error</strong>: There was a problem untrashing the reply.', 'bbpress' );
 
 					break;
 
@@ -1611,7 +1611,7 @@ function bbp_toggle_reply( $args = array() ) {
 					check_ajax_referer( "delete-{$nonce_suffix}" );
 
 					$retval['status']  = wp_delete_post( $r['id'] );
-					$retval['message'] = __( '<strong>ERROR</strong>: There was a problem deleting the reply.', 'bbpress' );
+					$retval['message'] = __( '<strong>Error</strong>: There was a problem deleting the reply.', 'bbpress' );
 
 					break;
 			}
