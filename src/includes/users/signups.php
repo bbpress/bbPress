@@ -206,12 +206,12 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 
 	// Add error if role is empty
 	if ( empty( $to_validate ) ) {
-		bbp_add_error( 'bbp_signup_role_empty', __( '<strong>ERROR</strong>: Empty role.', 'bbpress' ) );
+		bbp_add_error( 'bbp_signup_role_empty', __( '<strong>Error</strong>: Empty role.', 'bbpress' ) );
 	}
 
 	// Add error if posted role is not a valid role
 	if ( ! bbp_is_valid_role( $to_validate ) ) {
-		bbp_add_error( 'bbp_signup_role_invalid', __( '<strong>ERROR</strong>: Invalid role.', 'bbpress' ) );
+		bbp_add_error( 'bbp_signup_role_invalid', __( '<strong>Error</strong>: Invalid role.', 'bbpress' ) );
 	}
 
 	// If no errors, set return value to the role to validate

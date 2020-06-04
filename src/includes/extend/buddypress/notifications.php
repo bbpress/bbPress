@@ -193,11 +193,11 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 
 	// Check nonce
 	if ( ! bbp_verify_nonce_request( 'bbp_mark_topic_' . $topic_id ) ) {
-		bbp_add_error( 'bbp_notification_topic_id', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_notification_topic_id', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 
 	// Check current user's ability to edit the user
 	} elseif ( ! current_user_can( 'edit_user', $user_id ) ) {
-		bbp_add_error( 'bbp_notification_permission', __( '<strong>ERROR</strong>: You do not have permission to mark notifications for that user.', 'bbpress' ) );
+		bbp_add_error( 'bbp_notification_permission', __( '<strong>Error</strong>: You do not have permission to mark notifications for that user.', 'bbpress' ) );
 	}
 
 	// Bail if we have errors

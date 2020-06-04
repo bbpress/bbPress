@@ -193,19 +193,19 @@ function bbp_edit_user_handler( $action = '' ) {
 
 	// Nonce check
 	if ( ! bbp_verify_nonce_request( 'update-user_' . $user_id ) ) {
-		bbp_add_error( 'bbp_update_user_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_update_user_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
 	// Cap check
 	if ( ! current_user_can( 'edit_user', $user_id ) ) {
-		bbp_add_error( 'bbp_update_user_capability', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+		bbp_add_error( 'bbp_update_user_capability', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}
 
 	// Empty email check
 	if ( empty( $_POST['email'] ) ) {
-		bbp_add_error( 'bbp_user_email_empty', __( '<strong>ERROR</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+		bbp_add_error( 'bbp_user_email_empty', __( '<strong>Error</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 		return;
 	}
 
@@ -217,13 +217,13 @@ function bbp_edit_user_handler( $action = '' ) {
 
 		// Check that new email address is valid
 		if ( ! is_email( $_POST['email'] ) ) {
-			bbp_add_error( 'bbp_user_email_invalid', __( '<strong>ERROR</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+			bbp_add_error( 'bbp_user_email_invalid', __( '<strong>Error</strong>: That is not a valid email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 			return;
 		}
 
 		// Check if email address is already in use
 		if ( email_exists( $_POST['email'] ) ) {
-			bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
+			bbp_add_error( 'bbp_user_email_taken', __( '<strong>Error</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
 			return;
 		}
 
@@ -340,7 +340,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 			if ( email_exists( $new_email['newemail'] ) ) {
 				delete_user_meta( $user_id, $key );
 
-				bbp_add_error( 'bbp_user_email_taken', __( '<strong>ERROR</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
+				bbp_add_error( 'bbp_user_email_taken', __( '<strong>Error</strong>: That email address is already in use.', 'bbpress' ), array( 'form-field' => 'email' ) );
 
 			// Email address is good to change to
 			} else {
@@ -377,7 +377,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 	// Delete new email address from user options
 	} elseif ( ! empty( $_GET['dismiss'] ) && ( "{$user_id}{$key}" === $_GET['dismiss'] ) ) {
 		if ( ! bbp_verify_nonce_request( "dismiss-{$user_id}{$key}" ) ) {
-			bbp_add_error( 'bbp_dismiss_new_email_nonce', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			bbp_add_error( 'bbp_dismiss_new_email_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
 		}
 
@@ -403,7 +403,7 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) 
 
 	// Bail if any relevant parameters are empty
 	if ( empty( $user_id ) || empty( $r['hash'] ) || empty( $r['newemail'] ) ) {
-		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>ERROR</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
+		bbp_add_error( 'bbp_user_email_invalid_hash', __( '<strong>Error</strong>: An error occurred while updating your email address.', 'bbpress' ), array( 'form-field' => 'email' ) );
 		return;
 	}
 

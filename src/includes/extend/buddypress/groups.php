@@ -376,7 +376,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// If everything else has failed, then something is wrong and we need
 		// to add an error to prevent this topic from saving.
-		bbp_add_error( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is invalid.', 'bbpress' ) );
+		bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID is invalid.', 'bbpress' ) );
 	}
 
 	/**
@@ -439,7 +439,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Add an error to prevent this reply from saving.
-		bbp_add_error( 'bbp_reply_to_id', __( '<strong>ERROR</strong>: Reply To is invalid.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_to_id', __( '<strong>Error</strong>: Reply To is invalid.', 'bbpress' ) );
 	}
 
 	/** Edit ******************************************************************/
@@ -528,7 +528,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Theme-side Nonce check
 		} elseif ( ! bbp_verify_nonce_request( 'groups_edit_save_' . $this->slug ) ) {
-			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			bbp_add_error( 'bbp_edit_group_forum_screen_save', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
 		}
 
@@ -685,7 +685,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Nonce check
 		if ( ! bbp_verify_nonce_request( 'groups_create_save_' . $this->slug ) ) {
-			bbp_add_error( 'bbp_create_group_forum_screen_save', __( '<strong>ERROR</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
+			bbp_add_error( 'bbp_create_group_forum_screen_save', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 			return;
 		}
 
