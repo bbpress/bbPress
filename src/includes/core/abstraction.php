@@ -475,3 +475,24 @@ function bbp_maybe_intercept( $action = '', $args = array() ) {
 		? $default
 		: $filtered;
 }
+
+/** Date/Time *****************************************************************/
+
+/**
+ * Get an empty datetime value.
+ *
+ * @since 2.6.6 bbPress (r7094)
+ *
+ * @return string
+ */
+function bbp_get_empty_datetime() {
+
+	// Get the database version
+	$db_version = bbp_db()->db_version();
+
+	// Default return value
+	$retval = '0000-00-00 00:00:00';
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_get_default_zero_date', $retval, $db_version );
+}
