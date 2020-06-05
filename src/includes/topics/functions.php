@@ -786,13 +786,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 
 		// Set transient for throttle check (only on new, not edit)
 		if ( empty( $is_edit ) ) {
-			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
-		}
-
-	// If not anonymous, then
-	} else {
-		if ( empty( $is_edit ) && ! current_user_can( 'throttle' ) ) {
-			bbp_update_user_last_posted( $author_id );
+			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time(), HOUR_IN_SECONDS );
 		}
 	}
 
@@ -820,7 +814,10 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
 
-		// Update poster IP if not editing
+		// Update poster activity time
+		bbp_update_user_last_posted( $author_id );
+
+		// Update poster IP
 		update_post_meta( $topic_id, '_bbp_author_ip', bbp_current_author_ip(), false );
 
 		// Last active time
