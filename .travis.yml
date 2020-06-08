@@ -71,7 +71,7 @@ before_install:
     - cd $plugin_dir
     # setup NodeJS version using NVM
     - node --version
-    - nvm install 8
+    - nvm install 12
     - node --version
     - npm install -g grunt-cli
     - npm --version
