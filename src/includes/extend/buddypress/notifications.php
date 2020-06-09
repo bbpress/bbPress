@@ -92,8 +92,8 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	} else {
 		$filter = 'bbp_single_new_subscription_notification';
 		$text   = ! empty( $secondary_item_id )
-			? sprintf( esc_html__( 'You have %d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
-			: sprintf( esc_html__( 'You have %d new reply to %s',             'bbpress' ), $action_item_count, $topic_title );
+			? sprintf( esc_html__( 'You have %1$d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
+			: sprintf( esc_html__( 'You have %1$d new reply to %2$s',           'bbpress' ), $action_item_count, $topic_title );
 	}
 
 	// WordPress Toolbar
@@ -154,7 +154,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 
 	// Notify the topic author if not the current reply author
 	if ( $author_id !== $topic_author_id ) {
-		$args['secondary_item_id'] = $secondary_item_id ;
+		$args['secondary_item_id'] = $secondary_item_id;
 
 		bp_notifications_add_notification( $args );
 	}
@@ -189,7 +189,10 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 
 	// Get required data
 	$user_id  = bp_loggedin_user_id();
-	$topic_id = intval( $_GET['topic_id'] );
+	$topic_id = absint( $_GET['topic_id'] );
+
+	// By default, Redirect to this topic ID
+	$redirect_id = $topic_id;
 
 	// Check nonce
 	if ( ! bbp_verify_nonce_request( 'bbp_mark_topic_' . $topic_id ) ) {
@@ -203,15 +206,38 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 	// Bail if we have errors
 	if ( ! bbp_has_errors() ) {
 
-		// Attempt to clear notifications for the current user from this topic
-		$success = bp_notifications_mark_notifications_by_item_id( $user_id, $topic_id, bbp_get_component_name(), 'bbp_new_reply' );
+		// Get these once
+		$post_type = bbp_get_reply_post_type();
+		$component = bbp_get_component_name();
+
+		// Attempt to clear notifications for this topic
+		$marked    = bp_notifications_mark_notifications_by_item_id( $user_id, $topic_id, $component, 'bbp_new_reply' );
+
+		// Get all reply IDs for the topic
+		$replies   = bbp_get_all_child_ids( $topic_id, $post_type );
+
+		// If topic has replies
+		if ( ! empty( $replies ) ) {
+
+			// Loop through each reply and attempt to mark it
+			foreach ( $replies as $reply_id ) {
+
+				// Attempt to mark notification for this reply ID
+				$marked = bp_notifications_mark_notifications_by_item_id( $user_id, $reply_id, $component, 'bbp_new_reply' );
+
+				// If marked, redirect to this reply ID
+				if ( ! empty( $marked ) ) {
+					$redirect_id = $reply_id;
+				}
+			}
+		}
 
 		// Do additional subscriptions actions
-		do_action( 'bbp_notifications_handler', $success, $user_id, $topic_id, $action );
+		do_action( 'bbp_notifications_handler', $marked, $user_id, $topic_id, $action );
 	}
 
 	// Redirect to the topic
-	$redirect = bbp_get_reply_url( $topic_id );
+	$redirect = bbp_get_reply_url( $redirect_id );
 
 	// Redirect
 	bbp_redirect( $redirect );
