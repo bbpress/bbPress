@@ -10,8 +10,8 @@ if ( $q = stripslashes( $q ) ) {
 	$per_page = ceil( (int) bb_get_option( 'page_topics' ) / 2 );
 	
 	/* Recent */
-	add_filter( 'bb_recent_search_fields',   create_function( '$f', 'return $f . ", MAX(post_time) AS post_time";' ) );
-	add_filter( 'bb_recent_search_group_by', create_function( '', 'return "t.topic_id";' ) );
+	add_filter( 'bb_recent_search_fields',   function( $f ) { return $f . ", MAX(post_time) AS post_time"; } );
+	add_filter( 'bb_recent_search_group_by', function() { return "t.topic_id"; } );
 	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'count' => true, 'per_page' => $per_page, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
 	$recent = $bb_query_form->results;
 	$recent_count = $recent ? $bb_query_form->found_rows : 0;

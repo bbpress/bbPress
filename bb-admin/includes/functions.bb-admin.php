@@ -37,8 +37,7 @@ function bb_admin_notice( $message, $class = false )
 	}
 
 	$message = '<div id="message" class="' . esc_attr( $class ) . '">' . $message . '</div>';
-	$message = str_replace( "'", "\'", $message );
-	$lambda = create_function( '', "echo '$message';" );
+	$lambda = function() use( $message ) { echo $message; };
 	add_action( 'bb_admin_notices', $lambda );
 	return $lambda;
 }
@@ -152,7 +151,7 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 				}
 
 				// Get an array of all plugin added keys
-				$plugin_menu_keys = array_filter( $menu_keys, create_function( '$v', 'if ($v >= ' . $lower . ' && $v < ' . $upper . ') { return $v; }' ) );
+				$plugin_menu_keys = array_filter( $menu_keys, function( $v ) use ( $lower, $upper ) { if ( $v >= $lower && $v < $upper ) { return $v; } } );
 
 				// If there is an array of keys
 				if ( is_array( $plugin_menu_keys ) && count( $plugin_menu_keys ) ) {

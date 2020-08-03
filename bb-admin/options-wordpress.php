@@ -52,7 +52,7 @@ switch (@$_GET['updated']) {
 
 
 $bb_role_names[''] = _c( 'none|no bbPress role' );
-$bb_role_names = array_merge( $bb_role_names, array_map( create_function( '$a', 'return sprintf( _c( "bbPress %s|bbPress role" ), $a );' ), $wp_roles->get_names() ) );
+$bb_role_names = array_merge( $bb_role_names, array_map( function( $a ) { return sprintf( _c( "bbPress %s|bbPress role" ), $a ); }, $wp_roles->get_names() ) );
 
 $wpRoles = array(
 	'administrator' => __('WordPress Administrator'),

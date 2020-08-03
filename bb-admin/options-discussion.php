@@ -72,7 +72,7 @@ $general_options = array(
 	),
 );
 
-$bb_get_option_avatars_show = create_function( '$a', 'return 1;' );
+$bb_get_option_avatars_show = function( $a ) { return 1; };
 add_filter( 'bb_get_option_avatars_show', $bb_get_option_avatars_show );
 $avatar_options = array(
 	'avatars_show' => array(
