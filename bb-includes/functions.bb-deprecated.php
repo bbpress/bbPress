@@ -551,7 +551,7 @@ function bb_url_to_path( $url ) {
 
 function bb_convert_path_base( $path, $from_base, $to_base ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
-	$last_char = $path{strlen($path)-1};
+	$last_char = $path[strlen($path)-1];
 	if ( '/' != $last_char && '\\' != $last_char )
 		$last_char = '';
 

@@ -14,8 +14,8 @@ if ( !$topic )
 	bb_die(__('Topic not found.'));
 
 if ( $view_deleted ) {
-	add_filter('get_thread_where', create_function('', 'return "p.topic_id = ' . $topic_id . '";'));
-	add_filter('get_thread_post_ids', create_function('', 'return "p.topic_id = ' . $topic_id . '";'));
+	add_filter('get_thread_where', function() use ($topic_id) { return "p.topic_id = " . intval( $topic_id ); });
+	add_filter('get_thread_post_ids', function() use ($topic_id) { return "p.topic_id = " . intval( $topic_id ); });
 	add_filter('post_edit_uri', 'bb_make_link_view_all');
 }
 

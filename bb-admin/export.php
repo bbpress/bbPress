@@ -45,7 +45,7 @@ function _bb_export_object( $object, $properties = null, $tabs = 1 ) {
 			foreach ( $v as $mk => $mv )
 				$data .= str_repeat("\t", $tabs + 1) . "<meta key='$mk'><![CDATA[$mv]]></meta>\n";
 		} else {
-			if ( '!' == $k{0} ) {
+			if ( '!' == $k[0] ) {
 				$k = substr($k, 1);
 				$v = "<![CDATA[$v]]>";
 			}
@@ -65,7 +65,7 @@ function _bb_export_object( $object, $properties = null, $tabs = 1 ) {
 function _bb_translate_for_export( $translate, &$data ) {
 	$r = array();
 	foreach ( $translate as $prop => $export ) {
-		if ( '?' == $export{0} ) {
+		if ( '?' == $export[0] ) {
 			$export = substr($export, 1);
 			if ( !$data[$prop] ) {
 				unset($data[$prop]);

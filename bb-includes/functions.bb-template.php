@@ -3257,8 +3257,8 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 		return;
 
 	foreach ( (array) $tags as $tag ) {
-		$counts{$tag->raw_tag} = $tag->tag_count;
-		$taglinks{$tag->raw_tag} = bb_get_tag_link( $tag );
+		$counts[$tag->raw_tag] = $tag->tag_count;
+		$taglinks[$tag->raw_tag] = bb_get_tag_link( $tag );
 	}
 
 	$min_count = min($counts);
@@ -3275,7 +3275,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$a = array();
 
 	foreach ( $counts as $tag => $count ) {
-		$taglink = esc_attr($taglinks{$tag});
+		$taglink = esc_attr($taglinks[$tag]);
 		$tag = str_replace(' ', '&nbsp;', esc_html( $tag ));
 		$fontsize = round( $smallest + ( ( $count - $min_count ) * $fontstep ), 1 );
 		$a[] = "<a href='$taglink' title='" . esc_attr( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size:$fontsize$unit;'>$tag</a>";
