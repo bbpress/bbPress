@@ -20,12 +20,11 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_r
 
 	reset($_leaves);
 
-	while ( list($l, $leaf) = each($_leaves) ) {
+	foreach ( $_leaves as $l => $leaf ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
 			unset($_leaves[$l]);
 			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, false, true );
-			reset($_leaves);
 		}
 	}
 
