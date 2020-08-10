@@ -2047,8 +2047,8 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 		return;
 
 	foreach ( (array) $tags as $tag ) {
-		$counts{$tag->raw_tag} = $tag->tag_count;
-		$taglinks{$tag->raw_tag} = bb_get_tag_link( $tag->tag );
+		$counts[$tag->raw_tag] = $tag->tag_count;
+		$taglinks[$tag->raw_tag] = bb_get_tag_link( $tag->tag );
 	}
 
 	$min_count = min($counts);
@@ -2065,7 +2065,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$a = array();
 
 	foreach ( $counts as $tag => $count ) {
-		$taglink = attribute_escape($taglinks{$tag});
+		$taglink = attribute_escape($taglinks[$tag]);
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
 		$a[] = "<a href='$taglink' title='" . attribute_escape( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size: " .
 			( $smallest + ( ( $count - $min_count ) * $fontstep ) )

@@ -460,11 +460,13 @@ function wp_kses_bad_protocol_once2($string, $allowed_protocols)
 
   $allowed = false;
   foreach ($allowed_protocols as $one_protocol)
+  {
     if (strtolower($one_protocol) == $string2)
     {
       $allowed = true;
       break;
     }
+  }
 
   if ($allowed)
     return "$string2:";
