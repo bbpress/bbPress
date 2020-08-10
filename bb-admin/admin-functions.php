@@ -34,8 +34,7 @@ function bb_admin_notice( $message, $class = false ) {
 	}
 
 	$message = "<div class='$class'>$message</div>";
-	$message = str_replace("'", "\'", $message);
-	$lambda = create_function( '', "echo '$message';" );
+	$lambda = function () use ( $message ) { echo $message; };
 	add_action( 'bb_admin_notices', $lambda );
 	return $lambda;
 }
