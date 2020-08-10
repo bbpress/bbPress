@@ -999,7 +999,7 @@ class BB_Dir_Map {
 		while ( false !== ( $this->_current_file = $_dir->read() ) ) {
 			if ( in_array($this->_current_file, array('.', '..')) )
 				continue;
-			if ( !$this->dots && '.' == $this->_current_file{0} )
+			if ( !$this->dots && '.' == $this->_current_file[0] )
 				continue;
 
 			$item = $_dir->path . DIRECTORY_SEPARATOR . $this->_current_file;

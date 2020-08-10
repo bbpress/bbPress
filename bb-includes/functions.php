@@ -46,12 +46,11 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_r
 
 	reset($_leaves);
 
-	while ( list($l, $leaf) = each($_leaves) ) {
+	foreach ( $_leaves as $l => $leaf ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
 			unset($_leaves[$l]);
 			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, false, true );
-			reset($_leaves);
 		}
 	}
 
@@ -2426,9 +2425,10 @@ function no_where( $where ) {
 function bb_basename($file, $directories) {
 	if (strpos($file, '#') !== false)
 		return $file; // It's already a basename
-	foreach ($directories as $type => $directory)
+	foreach ($directories as $type => $directory) {
 		if (strpos($file, $directory) !== false)
 			break; // Keep the $file and $directory set and use them below, nifty huh?
+	}
 	$file = str_replace('\\','/',$file);
 	$file = preg_replace('|/+|','/', $file);
 	$file = preg_replace('|^.*' . preg_quote($directory, '|') . '|', $type . '#', $file);
@@ -2496,7 +2496,7 @@ function bb_get_themes() {
 	foreach ( $theme_roots as $theme_root_name => $theme_root )
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
-				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
+				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir[0] )
 					$r[$theme_root_name . '#' . $theme_dir] = $theme_root_name . '#' . $theme_dir;
 	ksort($r);
 	return $r;

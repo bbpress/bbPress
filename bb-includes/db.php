@@ -1,7 +1,7 @@
 <?php
-define('OBJECT', 'OBJECT', true);
-define('ARRAY_A', 'ARRAY_A', false);
-define('ARRAY_N', 'ARRAY_N', false);
+define('OBJECT', 'OBJECT');
+define('ARRAY_A', 'ARRAY_A');
+define('ARRAY_N', 'ARRAY_N');
 
 if ( !defined('SAVEQUERIES') )
 	define('SAVEQUERIES', false);
