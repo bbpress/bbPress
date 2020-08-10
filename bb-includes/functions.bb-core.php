@@ -53,7 +53,7 @@ function bb_global_sanitize( $array, $trim = true )
 		if ( is_array( $v ) ) {
 			$array[$k] = bb_global_sanitize( $v );
 		} else {
-			if ( !get_magic_quotes_gpc() ) {
+			if ( PHP_VERSION_ID > 50400 || !get_magic_quotes_gpc() ) {
 				$array[$k] = addslashes( $v );
 			}
 			if ( $trim ) {
