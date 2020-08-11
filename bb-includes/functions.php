@@ -1899,7 +1899,7 @@ function bb_current_time( $type = 'timestamp' ) {
 // GMT -> Local
 // in future versions this could eaily become a user option.
 function bb_offset_time( $time, $args = '' ) {
-	if ( 'since' == $args['format'] )
+	if ( isset( $args['format'] ) && 'since' == $args['format'] )
 		return $time;
 	if ( !is_numeric($time) ) {
 		if ( -1 !== $_time = bb_gmtstrtotime( $time ) )
