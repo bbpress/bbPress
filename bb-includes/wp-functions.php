@@ -892,18 +892,30 @@ function _wp_filter_build_unique_id($tag, $function, $priority = 10)
 	// Static Calling
 	if( is_string($function) )
 		return $function;
+
+    if ( is_object( $function ) ) {
+        // Closures are currently implemented as objects.
+        $function = array( $function, '' );
+    } else {
+        $function = (array) $function;
+    }
+
 	// Object Class Calling
-	else if(is_object($function[0]) )
+	if(is_object($function[0]) )
 	{
-		$obj_idx = get_class($function[0]).$function[1];
-		if( is_null($function[0]->wp_filter_id) ) {
-			$count = count((array)$wp_filter[$tag][$priority]);
-			$function[0]->wp_filter_id = $count;
-			$obj_idx .= $count;
-			unset($count);
-		} else
-			$obj_idx .= $function[0]->wp_filter_id;
-		return $obj_idx;
+		if ( function_exists('spl_object_hash') ) {
+			return spl_object_hash($function[0]) . $function[1];
+		} else {
+			$obj_idx = get_class($function[0]).$function[1];
+			if( is_null($function[0]->wp_filter_id) ) {
+				$count = count((array)$wp_filter[$tag][$priority]);
+				$function[0]->wp_filter_id = $count;
+				$obj_idx .= $count;
+				unset($count);
+			} else
+				$obj_idx .= $function[0]->wp_filter_id;
+			return $obj_idx;
+		}
 	}
 	else if( is_string($function[0]) )
 		return $function[0].$function[1];
