@@ -3236,6 +3236,9 @@ function bbp_approve_topic( $topic_id = 0 ) {
 	// Set publish status
 	$topic->post_status = $status;
 
+	// Set post date GMT - prevents post_date override in wp_update_post()
+	$topic->post_date_gmt = get_gmt_from_date( $topic->post_date );
+
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
