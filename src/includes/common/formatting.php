@@ -507,7 +507,7 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 		: '';
 
 	// Create the link to the user's profile
-	$html   = '<a href="%1$s"' . $class . '">%2$s</a>';
+	$html   = '<a href="%1$s"' . $class . '>%2$s</a>';
 	$url    = bbp_get_user_profile_url( $user->ID );
 	$anchor = sprintf( $html, esc_url( $url ), esc_html( $matches[0] ) );
 
