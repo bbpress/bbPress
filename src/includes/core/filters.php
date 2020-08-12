@@ -190,9 +190,20 @@ if ( is_admin() ) {
 // Filters outside of wp-admin
 } else {
 
-	// Responsive images
-	add_filter( 'bbp_get_reply_content', 'wp_make_content_images_responsive', 60 );
-	add_filter( 'bbp_get_topic_content', 'wp_make_content_images_responsive', 60 );
+	// WordPress 5.5.x and above
+	if ( function_exists( 'wp_filter_content_tags' ) ) {
+
+		// Responsive images
+		add_filter( 'bbp_get_reply_content', 'wp_filter_content_tags', 60 );
+		add_filter( 'bbp_get_topic_content', 'wp_filter_content_tags', 60 );
+
+	// WordPress 5.4.x and below
+	} else {
+
+		// Responsive images
+		add_filter( 'bbp_get_reply_content', 'wp_make_content_images_responsive', 60 );
+		add_filter( 'bbp_get_topic_content', 'wp_make_content_images_responsive', 60 );
+	}
 
 	// Revisions
 	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  99,  2 );
