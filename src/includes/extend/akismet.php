@@ -165,20 +165,28 @@ class BBP_Akismet {
 			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
 		) );
 
+		// Set the result headers (from maybe_spam() above)
+		$post_data['bbp_akismet_result_headers'] = ! empty( $_post['bbp_akismet_result_headers'] )
+			? $_post['bbp_akismet_result_headers'] // raw
+			: esc_html__( 'No response', 'bbpress' );
+
 		// Set the result (from maybe_spam() above)
 		$post_data['bbp_akismet_result'] = ! empty( $_post['bbp_akismet_result'] )
 			? $_post['bbp_akismet_result'] // raw
 			: esc_html__( 'No response', 'bbpress' );
 
-		// Set the data-as-submitted value without the result (recursion avoidance)
-		unset( $_post['bbp_akismet_result'] );
+		// Avoid recurrsion by unsetting results
+		unset(
+			$_post['bbp_akismet_result_headers'],
+			$_post['bbp_akismet_result']
+		);
 		$post_data['bbp_post_as_submitted'] = $_post;
 
 		// Cleanup to avoid touching this variable again below
 		unset( $_post );
 
 		// Allow post_data to be manipulated
-		do_action_ref_array( 'bbp_akismet_check_post', $post_data );
+		$post_data = apply_filters( 'bbp_akismet_check_post', $post_data );
 
 		// Parse and log the last response
 		$this->last_post = $this->parse_response( $post_data );
@@ -413,11 +421,16 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of post data
 	 */
-	private function maybe_spam( $post_data, $check = 'check', $spam = 'spam' ) {
+	private function maybe_spam( $post_data = array(), $check = 'check', $spam = 'spam' ) {
 		global $akismet_api_host, $akismet_api_port;
 
 		// Define variables
 		$query_string = $path = $response = '';
+
+		// Make sure post data is an array
+		if ( ! is_array( $post_data ) ) {
+			$post_data = array();
+		}
 
 		// Populate post data
 		$post_data['blog']         = get_option( 'home' );
@@ -427,51 +440,61 @@ class BBP_Akismet {
 		$post_data['user_agent']   = bbp_current_author_ua();
 
 		// Loop through _POST args and rekey strings
-		foreach ( $_POST as $key => $value ) {
-			if ( is_string( $value ) ) {
-				$post_data['POST_' . $key] = $value;
+		if ( ! empty( $_POST ) && is_countable( $_POST ) ) {
+			foreach ( $_POST as $key => $value ) {
+				if ( is_string( $value ) ) {
+					$post_data['POST_' . $key] = $value;
+				}
 			}
 		}
-
-		// Keys to ignore
-		$ignore = array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'PHP_AUTH_PW' );
 
 		// Loop through _SERVER args and remove allowed keys
-		foreach ( $_SERVER as $key => $value ) {
+		if ( ! empty( $_SERVER ) && is_countable( $_SERVER ) ) {
 
-			// Key should not be ignored
-			if ( ! in_array( $key, $ignore, true ) && is_string( $value ) ) {
-				$post_data[ $key ] = $value;
+			// Keys to ignore
+			$ignore = array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'PHP_AUTH_PW' );
 
-			// Key should be ignored
-			} else {
-				$post_data[ $key ] = '';
+			foreach ( $_SERVER as $key => $value ) {
+
+				// Key should not be ignored
+				if ( ! in_array( $key, $ignore, true ) && is_string( $value ) ) {
+					$post_data[ $key ] = $value;
+
+				// Key should be ignored
+				} else {
+					$post_data[ $key ] = '';
+				}
 			}
 		}
 
-		// Ready...
-		foreach ( $post_data as $key => $data ) {
-			$query_string .= $key . '=' . urlencode( wp_unslash( $data ) ) . '&';
+		// Encode post data
+		if ( ! empty( $post_data ) && is_countable( $post_data ) ) {
+			foreach ( $post_data as $key => $data ) {
+				$query_string .= $key . '=' . urlencode( wp_unslash( $data ) ) . '&';
+			}
 		}
 
-		// Aim...
+		// Setup the API route
 		if ( 'check' === $check ) {
 			$path = '/1.1/comment-check';
 		} elseif ( 'submit' === $check ) {
 			$path = '/1.1/submit-' . $spam;
 		}
 
-		// Fire!
+		// Send data to Akismet
 		$response = ! apply_filters( 'bbp_bypass_check_for_spam', false, $post_data )
 			? $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port )
 			: false;
 
-		// Check the high-speed cam
-		if ( ! empty( $response[1] ) ) {
-			$post_data['bbp_akismet_result'] = $response[1];
-		} else {
-			$post_data['bbp_akismet_result'] = esc_html__( 'No response', 'bbpress' );
-		}
+		// Set the result headers
+		$post_data['bbp_akismet_result_headers'] = ! empty( $response[0] )
+			? $response[0]
+			: esc_html__( 'No response', 'bbpress' );
+
+		// Set the result
+		$post_data['bbp_akismet_result'] = ! empty( $response[1] )
+			? $response[1]
+			: esc_html__( 'No response', 'bbpress' );
 
 		// Return the post data, with the results of the external Akismet request
 		return $post_data;
