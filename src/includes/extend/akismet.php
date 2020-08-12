@@ -79,11 +79,11 @@ class BBP_Akismet {
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 *
-	 * @param string $post_data
+	 * @param array $post_data
 	 *
 	 * @return array Array of post data
 	 */
-	public function check_post( $post_data ) {
+	public function check_post( $post_data = array() ) {
 
 		// Define local variables
 		$user_data = array();
@@ -110,7 +110,7 @@ class BBP_Akismet {
 		$anonymous_data = bbp_filter_anonymous_post_data();
 
 		// Author is anonymous
-		if ( ! empty( $anonymous_data ) ) {
+		if ( ! bbp_has_errors() ) {
 			$user_data['name']    = $anonymous_data['bbp_anonymous_name'];
 			$user_data['email']   = $anonymous_data['bbp_anonymous_email'];
 			$user_data['website'] = $anonymous_data['bbp_anonymous_website'];
@@ -524,7 +524,7 @@ class BBP_Akismet {
 		}
 
 		// Set up Akismet last post data
-		if ( ! empty( $this->last_post ) ) {
+		if ( ! empty( $this->last_post['bbp_post_as_submitted'] ) ) {
 			$as_submitted = $this->last_post['bbp_post_as_submitted'];
 		}
 
@@ -536,46 +536,100 @@ class BBP_Akismet {
 			$userdata       = get_userdata( $_post->post_author );
 			$anonymous_data = bbp_filter_anonymous_post_data();
 
+			// Which name?
+			$name = ! empty( $anonymous_data['bbp_anonymous_name'] )
+				? $anonymous_data['bbp_anonymous_name']
+				: $userdata->display_name;
+
+			// Which email?
+			$email = ! empty( $anonymous_data['bbp_anonymous_email'] )
+				? $anonymous_data['bbp_anonymous_email']
+				: $userdata->user_email;
+
 			// More checks
-			if (	intval( $as_submitted['comment_post_ID'] )    === intval( $_post->post_parent )
-					&&      $as_submitted['comment_author']       === ( $anonymous_data ? $anonymous_data['bbp_anonymous_name']  : $userdata->display_name )
-					&&      $as_submitted['comment_author_email'] === ( $anonymous_data ? $anonymous_data['bbp_anonymous_email'] : $userdata->user_email   )
-				) {
+			if (
+
+				// Post matches
+				( intval( $as_submitted['comment_post_ID'] ) === intval( $_post->post_parent ) )
+
+				&&
+
+				// Name matches
+				( $as_submitted['comment_author'] === $name )
+
+				&&
+
+				// Email matches
+				( $as_submitted['comment_author_email'] === $email )
+			) {
 
 				// Normal result: true
-				if ( $this->last_post['bbp_akismet_result'] === 'true' ) {
+				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'true' ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'true' );
-					$this->update_post_history( $post_id, esc_html__( 'Akismet caught this post as spam', 'bbpress' ), 'check-spam' );
+					$this->update_post_history(
+						$post_id,
+						esc_html__( 'Akismet caught this post as spam', 'bbpress' ),
+						'check-spam'
+					);
 
 					// If post_status isn't the spam status, as expected, leave a note
 					if ( bbp_get_spam_status_id() !== $_post->post_status ) {
-						$this->update_post_history( $post_id, sprintf( esc_html__( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
+						$this->update_post_history(
+							$post_id,
+							sprintf(
+								esc_html__( 'Post status was changed to %s', 'bbpress' ),
+								$_post->post_status
+							),
+							'status-changed-' . $_post->post_status
+						);
 					}
 
 				// Normal result: false
-				} elseif ( $this->last_post['bbp_akismet_result'] === 'false' ) {
+				} elseif ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'false' ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'false' );
-					$this->update_post_history( $post_id, esc_html__( 'Akismet cleared this post as not spam', 'bbpress' ), 'check-ham' );
+					$this->update_post_history(
+						$post_id,
+						esc_html__( 'Akismet cleared this post as not spam', 'bbpress' ),
+						'check-ham'
+					);
 
 					// If post_status is the spam status, which isn't expected, leave a note
 					if ( bbp_get_spam_status_id() === $_post->post_status ) {
-						$this->update_post_history( $post_id, sprintf( esc_html__( 'Post status was changed to %s', 'bbpress' ), $_post->post_status ), 'status-changed-' . $_post->post_status );
+						$this->update_post_history(
+							$post_id,
+							sprintf(
+								esc_html__( 'Post status was changed to %s', 'bbpress' ),
+								$_post->post_status
+							),
+							'status-changed-' . $_post->post_status
+						);
 					}
 
 				// Abnormal result: error
 				} else {
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_error', time() );
-					$this->update_post_history( $post_id, sprintf( esc_html__( 'Akismet was unable to check this post (response: %s), will automatically retry again later.', 'bbpress' ), $this->last_post['bbp_akismet_result'] ), 'check-error' );
+					$this->update_post_history(
+						$post_id,
+						sprintf(
+							esc_html__( 'Akismet was unable to check this post (response: %s), will automatically retry again later.', 'bbpress' ),
+							$this->last_post['bbp_akismet_result']
+						),
+						'check-error'
+					);
 				}
 
 				// Record the complete original data as submitted for checking
 				if ( isset( $this->last_post['bbp_post_as_submitted'] ) ) {
-					update_post_meta( $post_id, '_bbp_akismet_as_submitted', $this->last_post['bbp_post_as_submitted'] );
+					update_post_meta(
+						$post_id,
+						'_bbp_akismet_as_submitted',
+						$this->last_post['bbp_post_as_submitted']
+					);
 				}
 			}
 		}
