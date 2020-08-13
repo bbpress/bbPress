@@ -2493,7 +2493,7 @@ function bbp_form_reply_to() {
 		$reply_to = 0;
 
 		// Get $_REQUEST data
-		if ( bbp_is_reply_form_post_request() && isset( $_REQUEST['bbp_reply_to'] ) ) {
+		if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
 			$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 		}
 
