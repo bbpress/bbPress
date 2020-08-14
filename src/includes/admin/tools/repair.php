@@ -425,7 +425,7 @@ function bbp_admin_repair_forum_reply_count() {
 						OR `postmeta`.`meta_key` = '_bbp_total_reply_count'";
 
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
- 		return array( 1, sprintf( $statement, $result ) );
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
@@ -467,7 +467,7 @@ function bbp_admin_repair_forum_hidden_reply_count() {
 						OR `postmeta`.`meta_key` = '_bbp_total_reply_count_hidden'";
 
 	if ( is_wp_error( $bbp_db->query( $sql_delete ) ) ) {
- 		return array( 1, sprintf( $statement, $result ) );
+		return array( 1, sprintf( $statement, $result ) );
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
@@ -991,8 +991,8 @@ function bbp_admin_repair_freshness() {
 		return array( 10, sprintf( $statement, $result ) );
 	}
 
- 	// Loop through forums
- 	foreach ( $forums as $forum_id ) {
+	// Loop through forums
+	foreach ( $forums as $forum_id ) {
 		if ( ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_update_forum( array( 'forum_id' => $forum_id ) );
 		}
@@ -1106,7 +1106,7 @@ function bbp_admin_repair_closed_topics() {
 		$topic_status = get_post_meta( $closed_topic, '_bbp_status', true );
 
 		// If we don't have a postmeta _bbp_status value
-		if( empty( $topic_status ) ) {
+		if ( empty( $topic_status ) ) {
 			update_post_meta( $closed_topic, '_bbp_status', 'publish' );
 			++$changed; // Keep a count to display at the end
 		}
@@ -1163,6 +1163,7 @@ function bbp_admin_repair_forum_meta() {
 	// Post types and status
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
+	$fmt = bbp_get_forum_post_type();
 
 	// Next, give all the topics their parent forum id.
 	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
@@ -1171,6 +1172,16 @@ function bbp_admin_repair_forum_meta() {
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
 			GROUP BY `topic`.`ID` )" ) ) ) {
+		return array( 2, sprintf( $statement, $result ) );
+	}
+
+	// Next, give all the forums their parent forum id.
+	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
+			FROM `$bbp_db->posts`
+				AS `forum`
+			WHERE `forum`.`post_type` = '{$fmt}'
+			GROUP BY `forum`.`ID` )" ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
