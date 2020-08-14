@@ -2501,9 +2501,8 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 		$forum_id = get_post_field( 'post_parent', $topic_id );
 	}
 
-	$forum_id = (int) $forum_id;
-
-	update_post_meta( $topic_id, '_bbp_forum_id', $forum_id );
+	// Update the forum ID
+	$forum_id = bbp_update_forum_id( $topic_id, $forum_id );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_topic_forum_id', $forum_id, $topic_id );
@@ -2519,11 +2518,10 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
  */
 function bbp_update_topic_topic_id( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
-
-	update_post_meta( $topic_id, '_bbp_topic_id', $topic_id );
+	$topic_id = bbp_update_topic_id( $topic_id, $topic_id );
 
 	// Filter & return
-	return apply_filters( 'bbp_update_topic_topic_id', $topic_id );
+	return (int) apply_filters( 'bbp_update_topic_topic_id', $topic_id );
 }
 
 /**
