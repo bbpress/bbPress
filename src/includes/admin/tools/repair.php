@@ -1163,6 +1163,7 @@ function bbp_admin_repair_forum_meta() {
 	// Post types and status
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
+	$fmt = bbp_get_forum_post_type();
 
 	// Next, give all the topics their parent forum id.
 	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
@@ -1171,6 +1172,16 @@ function bbp_admin_repair_forum_meta() {
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
 			GROUP BY `topic`.`ID` )" ) ) ) {
+		return array( 2, sprintf( $statement, $result ) );
+	}
+
+	// Next, give all the forums their parent forum id.
+	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
+			FROM `$bbp_db->posts`
+				AS `forum`
+			WHERE `forum`.`post_type` = '{$fmt}'
+			GROUP BY `forum`.`ID` )" ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
