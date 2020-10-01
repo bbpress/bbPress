@@ -436,6 +436,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 
 		// Set needed variables
 		$reply_id = bbp_get_reply_id( $reply_id );
+		$topic_id = 0;
 
 		// Juggle reply & topic IDs for unpretty URL formatting
 		if ( bbp_is_reply( $reply_id ) ) {
