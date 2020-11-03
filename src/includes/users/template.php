@@ -487,14 +487,20 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 			'force'   => ''
 		), 'get_user_nicename' );
 
-		// Get the user data and nicename
-		if ( empty( $r['force'] ) ) {
-			$user     = get_userdata( $user_id );
-			$nicename = $user->user_nicename;
-
-		// Force the nicename to something else
-		} else {
+		// Force the nicename (likely from a previous user query)
+		if ( ! empty( $r['force'] ) ) {
 			$nicename = (string) $r['force'];
+
+		// Maybe fallback to getting the nicename from user data
+		} elseif ( ! empty( $r['user_id'] ) ) {
+			$user     = get_userdata( $r['user_id'] );
+			$nicename = ! empty( $user )
+				? $user->user_nicename
+				: '';
+
+		// Maybe fallback to empty string so filter still applies
+		} else {
+			$nicename = '';
 		}
 
 		// Maybe wrap the nicename
