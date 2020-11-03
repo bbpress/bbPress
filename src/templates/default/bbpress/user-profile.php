@@ -35,7 +35,7 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 
 		<?php if ( bbp_get_user_last_posted() ) : ?>
 
-			<p class="bbp-user-topic-count"><?php printf( esc_html__( 'Last Activity: %s',  'bbpress' ), bbp_get_time_since( bbp_get_user_last_posted(), false, true ) ); ?></p>
+			<p class="bbp-user-last-activity"><?php printf( esc_html__( 'Last Activity: %s',  'bbpress' ), bbp_get_time_since( bbp_get_user_last_posted(), false, true ) ); ?></p>
 
 		<?php endif; ?>
 
