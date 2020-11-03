@@ -425,7 +425,7 @@ function bbp_new_reply_handler( $action = '' ) {
 				$pre_trashed_replies[] = $reply_id;
 
 				// Update the pre_trashed_reply post meta
-				update_post_meta( $topic_id, '_bbp_pre_trashed_replies', array_filter( $pre_trashed_replies ) );
+				update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 			}
 
 		/** Spam Check ********************************************************/
