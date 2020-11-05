@@ -24,7 +24,7 @@ addReply = {
 		/* Remove the editor, if its already been moved */
 		t.removeEditor();
 
-		/* Bail to avoid errors */
+		/* Allow click to go through */
 		if ( ! reply || ! respond || ! cancel || ! parent ) {
 			return;
 		}
@@ -62,29 +62,46 @@ addReply = {
 		 * @returns {void}
 		 */
 		cancel.onclick = function () {
-			var r       = addReply,
-				temp    = r.getElement( 'bbp-temp-form-div' ),
-				respond = r.getElement( r.respondId );
-
-			r.removeEditor();
-
-			if ( ! temp || ! respond ) {
-				return;
-			}
-
-			r.getElement( 'bbp_reply_to' ).value = '0';
-
-			temp.parentNode.insertBefore( respond, temp );
-			temp.parentNode.removeChild( temp );
-
-			this.style.display = 'none';
-			this.onclick       = null;
-
-			r.addEditor();
+			t.cancelForm( this );
 		};
 
 		t.scrollToForm();
 
+		/* Prevent click from going through */
+		return false;
+	},
+
+	/**
+	 * Cancel the reply form.
+	 *
+	 * @since 2.6.6
+	 * @returns {void}
+	 */
+	cancelForm: function () {
+		var r       = addReply,
+			temp    = r.getElement( 'bbp-temp-form-div' ),
+			cancel  = r.getElement( 'bbp-cancel-reply-to-link' ),
+			respond = r.getElement( r.respondId );
+
+		r.removeEditor();
+
+		/* Allow click to go through */
+		if ( ! temp || ! respond ) {
+			return;
+		}
+
+		r.getElement( 'bbp_reply_to' ).value = '0';
+
+		temp.parentNode.insertBefore( respond, temp );
+		temp.parentNode.removeChild( temp );
+
+		cancel.style.display = 'none';
+		cancel.onclick       = null;
+
+		r.addEditor();
+		r.scrollToForm();
+
+		/* Prevent click from going through */
 		return false;
 	},
 
