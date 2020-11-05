@@ -770,9 +770,10 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 					bbp_stick_topic( $topic_id, true );
 					break;
 
-				// We can avoid this as it is a new topic
+				// Unsticky from everywhere
 				case 'unstick' :
 				default        :
+					bbp_unstick_topic( $topic_id );
 					break;
 			}
 		}
