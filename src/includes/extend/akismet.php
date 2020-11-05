@@ -308,7 +308,7 @@ class BBP_Akismet {
 			'comment_author_email' => $_post->post_author ? get_the_author_meta( 'email',        $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_email',   true ),
 			'comment_author_url'   => $_post->post_author ? bbp_get_user_profile_url(            $_post->post_author ) : get_post_meta( $post_id, '_bbp_anonymous_website', true ),
 			'comment_content'      => $_post_content,
-			'comment_date'         => $_post->post_date,
+			'comment_date_gmt'     => $_post->post_date_gmt,
 			'comment_ID'           => $post_id,
 			'comment_post_ID'      => $_post->post_parent,
 			'comment_type'         => $_post->post_type,
