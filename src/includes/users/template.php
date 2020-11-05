@@ -2299,8 +2299,12 @@ function bbp_current_user_can_access_create_reply_form() {
 		$retval = bbp_current_user_can_publish_replies();
 
 	// User can edit this reply
-	} else {
+	} elseif ( bbp_get_reply_id() ) {
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
+
+	// User can edit this topic
+	} elseif ( bbp_get_topic_id() ) {
+		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
 	}
 
 	// Filter & return
