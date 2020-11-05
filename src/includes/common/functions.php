@@ -1384,9 +1384,7 @@ function bbp_get_email_addresses_from_user_ids( $user_ids = array() ) {
 		foreach ( $range as $loop ) {
 
 			// Initial loop has no offset
-			$offset = ( 1 === $loop )
-				? 0
-				: $limit * $loop;
+			$offset = $limit * ( $loop - 1 );
 
 			// Calculate user IDs to include
 			$loop_ids = array_slice( $user_ids, $offset, $limit );
