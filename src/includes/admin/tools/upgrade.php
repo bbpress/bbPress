@@ -426,7 +426,7 @@ function bbp_admin_upgrade_user_favorites() {
 		foreach ( $post_ids as $post_id ) {
 
 			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $new_key, $meta->user_id ) ) ) {
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s", $post_id, $new_key, $meta->user_id ) ) ) {
 				continue;
 			}
 
@@ -486,7 +486,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 		foreach ( $post_ids as $post_id ) {
 
 			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $new_key, $meta->user_id ) ) ) {
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s", $post_id, $new_key, $meta->user_id ) ) ) {
 				continue;
 			}
 
@@ -546,7 +546,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 		foreach ( $post_ids as $post_id ) {
 
 			// Skip if already exists
-			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %d", $post_id, $new_key, $meta->user_id ) ) ) {
+			if ( $bbp_db->get_var( $bbp_db->prepare( "SELECT COUNT(*) FROM {$bbp_db->postmeta} WHERE post_id = %d AND meta_key = %s AND meta_value = %s", $post_id, $new_key, $meta->user_id ) ) ) {
 				continue;
 			}
 

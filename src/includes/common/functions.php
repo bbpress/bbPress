@@ -1737,7 +1737,7 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 						LEFT JOIN {$bbp_db->postmeta} AS pm
 							ON p.ID = pm.post_id
 							AND pm.meta_key = %s
-					WHERE pm.meta_value = %d
+					WHERE pm.meta_value = %s
 					GROUP BY p.post_status, p.post_type";
 
 		// Get prepare vars
