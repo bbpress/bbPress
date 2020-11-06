@@ -1,8 +1,8 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
 Tags: forum, forums, discussion, support
-Tested up to: 5.4
-Stable tag: 2.6.5
+Tested up to: 5.6
+Stable tag: 2.6.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP: 5.6.20
