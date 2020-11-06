@@ -694,6 +694,10 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		// so there's only two bits of calculation below:
 		} else {
 
+			// Default count values
+			$count  = 0;
+			$count2 = 0;
+
 			// Step one: the first chunk
 			for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
 				$seconds = $chunks[ $i ][0];
@@ -726,8 +730,8 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					}
 				}
 
-				// No output, so happened right now
-				if ( ! (int) trim( $output ) ) {
+				// Empty counts, so fallback to right now
+				if ( empty( $count ) && empty( $count2 ) ) {
 					$output = $right_now_text;
 				}
 			}
