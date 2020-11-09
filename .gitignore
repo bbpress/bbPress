@@ -13,6 +13,7 @@
 /.phpcs.xml
 /phpcs.xml
 /phpunit.xml
+/pnpm-lock.yaml
 
 # Output directory.
 /build/
