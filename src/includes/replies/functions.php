@@ -730,10 +730,6 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 		/** Revisions *********************************************************/
 
-		// Update locks
-		update_post_meta( $reply_id, '_edit_last', bbp_get_current_user_id() );
-		delete_post_meta( $reply_id, '_edit_lock' );
-
 		// Revision Reason
 		if ( ! empty( $_POST['bbp_reply_edit_reason'] ) ) {
 			$reply_edit_reason = sanitize_text_field( $_POST['bbp_reply_edit_reason'] );
@@ -801,25 +797,37 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
 
+	// Get the current user ID
+	$user_id  = bbp_get_current_user_id();
+
 	// Bail if there is no reply
 	if ( empty( $reply_id ) ) {
 		return;
 	}
 
-	// Check author_id
+	// Check author_id, fallback to current user ID
 	if ( empty( $author_id ) ) {
-		$author_id = bbp_get_current_user_id();
+		$author_id = $user_id;
 	}
 
-	// Check topic_id
+	// Check topic_id, fallback to post_parent or meta
 	if ( empty( $topic_id ) ) {
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	}
 
-	// Check forum_id
+	// Check forum_id, fallback to post_parent or meta
 	if ( ! empty( $topic_id ) && empty( $forum_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 	}
+
+	// Update locks
+	update_post_meta( $reply_id, '_edit_last', $user_id );
+	delete_post_meta( $reply_id, '_edit_lock' );
+
+	// Forum/Topic meta (early, for use in downstream functions)
+	bbp_update_reply_forum_id( $reply_id, $forum_id );
+	bbp_update_reply_topic_id( $reply_id, $topic_id );
+	bbp_update_reply_to      ( $reply_id, $reply_to );
 
 	// If anonymous post, store name, email, website and ip in post_meta.
 	if ( ! empty( $anonymous_data ) ) {
@@ -853,11 +861,6 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 			bbp_add_user_subscription( $author_id, $topic_id );
 		}
 	}
-
-	// Reply meta relating to reply position in tree
-	bbp_update_reply_forum_id( $reply_id, $forum_id );
-	bbp_update_reply_topic_id( $reply_id, $topic_id );
-	bbp_update_reply_to      ( $reply_id, $reply_to );
 
 	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {

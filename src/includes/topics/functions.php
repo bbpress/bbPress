@@ -650,10 +650,6 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 		/** Revisions *********************************************************/
 
-		// Update locks
-		update_post_meta( $topic_id, '_edit_last', bbp_get_current_user_id() );
-		delete_post_meta( $topic_id, '_edit_lock' );
-
 		// Revision Reason
 		if ( ! empty( $_POST['bbp_topic_edit_reason'] ) ) {
 			$topic_edit_reason = sanitize_text_field( $_POST['bbp_topic_edit_reason'] );
@@ -734,50 +730,31 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Get the current user ID
+	$user_id  = bbp_get_current_user_id();
+
 	// Bail if there is no topic
 	if ( empty( $topic_id ) ) {
 		return;
 	}
 
-	// Check author_id
+	// Check author_id, fallback to current user ID
 	if ( empty( $author_id ) ) {
-		$author_id = bbp_get_current_user_id();
+		$author_id = $user_id;
 	}
+
+	// Check forum_id, fallback to post_parent or meta
+	if ( empty( $forum_id ) ) {
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
+	}
+
+	// Update locks
+	update_post_meta( $topic_id, '_edit_last', $user_id );
+	delete_post_meta( $topic_id, '_edit_lock' );
 
 	// Forum/Topic meta (early, for use in downstream functions)
 	bbp_update_topic_forum_id( $topic_id, $forum_id );
 	bbp_update_topic_topic_id( $topic_id, $topic_id );
-
-	// Get the topic types
-	$topic_types = bbp_get_topic_types( $topic_id );
-
-	// Sticky check after 'bbp_new_topic' action so forum ID meta is set
-	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ), true ) ) {
-
-		// What's the caps?
-		if ( current_user_can( 'moderate', $topic_id ) ) {
-
-			// What's the haps?
-			switch ( $_POST['bbp_stick_topic'] ) {
-
-				// Sticky in this forum
-				case 'stick'   :
-					bbp_stick_topic( $topic_id );
-					break;
-
-				// Super sticky in all forums
-				case 'super'   :
-					bbp_stick_topic( $topic_id, true );
-					break;
-
-				// Unsticky from everywhere
-				case 'unstick' :
-				default        :
-					bbp_unstick_topic( $topic_id );
-					break;
-			}
-		}
-	}
 
 	// If anonymous post, store name, email, website and ip in post_meta.
 	if ( ! empty( $anonymous_data ) ) {
@@ -809,6 +786,37 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 		// Not subscribed and subscribing
 		} elseif ( ( false === $subscribed ) && ( true === $subscheck ) ) {
 			bbp_add_user_subscription( $author_id, $topic_id );
+		}
+	}
+
+	// Get the topic types
+	$topic_types = bbp_get_topic_types( $topic_id );
+
+	// Sticky check after 'bbp_new_topic' action so forum ID meta is set
+	if ( ! empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array_keys( $topic_types ), true ) ) {
+
+		// What's the caps?
+		if ( current_user_can( 'moderate', $topic_id ) ) {
+
+			// What's the haps?
+			switch ( $_POST['bbp_stick_topic'] ) {
+
+				// Sticky in this forum
+				case 'stick'   :
+					bbp_stick_topic( $topic_id );
+					break;
+
+				// Super sticky in all forums
+				case 'super'   :
+					bbp_stick_topic( $topic_id, true );
+					break;
+
+				// Unsticky from everywhere
+				case 'unstick' :
+				default        :
+					bbp_unstick_topic( $topic_id );
+					break;
+			}
 		}
 	}
 
