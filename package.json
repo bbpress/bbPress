@@ -27,6 +27,7 @@
 		"grunt-wp-i18n": "~1.0.3",
 		"matchdep": "~2.0.0",
 		"node-sass": "~4.14.1",
+		"parcel-bundler": "^1.10.1",
 		"postcss-scss": "~1.0.2",
 		"stylelint": "~13.6.1",
 		"stylelint-config-wordpress": "~15.0.0"
@@ -34,6 +35,9 @@
 	"engines": {
 		"node": ">=12.0.0",
 		"npm": ">=6.9.0"
+	},
+	"scripts": {
+		"blocks": "parcel build src/includes/admin/assets/js/blocks.jsx --out-dir src/includes/admin/assets/js --public-url ."
 	},
 	"keywords": [
 		"community",
