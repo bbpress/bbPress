@@ -50,6 +50,25 @@ registerBlockType( 'bbpress/forum-index', {
 
 // Replaces [bbp-forum-form] – Display the ‘New Forum’ form.
 
+registerBlockType( 'bbpress/forum-form', {
+	title: __( 'New Forum Form' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon="buddicons-forums"
+				label={ __( 'bbPress New Forum Form' ) }
+				instructions={ __( 'Display the ‘New Forum’ form.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
 
 // Replaces [bbp-single-forum id=$forum_id] – Display a single forums topics. eg. [bbp-single-forum id=32]
 registerBlockType( 'bbpress/forum', {

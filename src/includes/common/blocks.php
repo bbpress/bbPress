@@ -72,6 +72,12 @@ class BBP_Blocks {
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/forum-form', array(
+			'render_callback' => array( $this, 'display_forum_form' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/forum', array(
 			'render_callback' => array( $this, 'display_forum' ),
 			'editor_script'   => 'bbp-blocks',
@@ -109,6 +115,15 @@ class BBP_Blocks {
 	 */
 	public function display_forum_index() {
 		return $this->shortcodes->display_forum_index();
+	}
+
+	/**
+	 * Passthrough function for `display_forum_form` -- the new forum form.
+	 *
+	 * @return string The markup for the new forum form.
+	 */
+	public function display_forum_form() {
+		return $this->shortcodes->display_forum_form();
 	}
 
 	/**
