@@ -5,13 +5,14 @@ const {
 } = wp.blocks;
 
 const {
-	Placeholder,
-	SelectControl
+	Placeholder
 } = wp.components;
 
 const {
 	__
 } = wp.i18n;
+
+import ForumPicker from './components/forumPicker';
 
 /*
 buddicons-activity        activity
@@ -49,7 +50,6 @@ registerBlockType( 'bbpress/forum-index', {
 } );
 
 // Replaces [bbp-forum-form] – Display the ‘New Forum’ form.
-
 registerBlockType( 'bbpress/forum-form', {
 	title: __( 'New Forum Form' ),
 	icon: 'buddicons-bbpress-logo',
@@ -78,28 +78,22 @@ registerBlockType( 'bbpress/forum', {
 
 	attributes: {
 		id: {
-			type: 'integer',
+		//	type: 'number', // for some reason neither `number` nor `integer` works here.
 			default: 0,
 		}
 	},
 
 	edit: function( props ) {
-		function handleForumChange( id ) {
-			props.setAttributes({ id })
-		}
-
 		return (
 			<Placeholder
 				icon="buddicons-forums"
 				label={ __( 'bbPress Single Forum' ) }
 				instructions={ __( 'Display a single forum’s topics.' ) }
 			>
-				<SelectControl
-					label={ __( 'Forum' ) }
-					labelPosition="top"
+				<ForumPicker
 					value={ props.attributes.id }
 					options={ bbpBlocks.data.forums }
-					onChange={ handleForumChange }
+					onChange={ id => props.setAttributes( { id } ) }
 				/>
 			</Placeholder>
 		);
