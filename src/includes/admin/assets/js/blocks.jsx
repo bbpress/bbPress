@@ -130,8 +130,67 @@ registerBlockType( 'bbpress/forum', {
 
 // Account
 // Replaces [bbp-login] – Display the login screen.
+registerBlockType( 'bbpress/login', {
+	title: __( 'Login' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="admin-users" /> }
+				label={ __( 'Login Screen' ) }
+				instructions={ __( 'Display the login screen.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
+
 // Replaces [bbp-register] – Display the register screen.
+registerBlockType( 'bbpress/register', {
+	title: __( 'Register' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="admin-users" /> }
+				label={ __( 'Register Screen' ) }
+				instructions={ __( 'Display the register screen.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
+
 // Replaces [bbp-lost-pass] – Display the lost password screen.
+registerBlockType( 'bbpress/lost-pass', {
+	title: __( 'Lost Password Form' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="admin-users" /> }
+				label={ __( 'Lost Password Form' ) }
+				instructions={ __( 'Display the lost password screen.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
 
 // Statistics
 // Replaces [bbp-stats] – Display the forum statistics.

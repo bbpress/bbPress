@@ -84,6 +84,24 @@ class BBP_Blocks {
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/login', array(
+			'render_callback' => array( $this, 'display_login' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/register', array(
+			'render_callback' => array( $this, 'display_register' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/lost-pass', array(
+			'render_callback' => array( $this, 'display_lost_pass' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/stats', array(
 			'render_callback' => array( $this, 'display_stats' ),
 			'editor_script'   => 'bbp-blocks',
@@ -145,6 +163,16 @@ class BBP_Blocks {
 		}
 
 		return $this->shortcodes->display_forum( $attributes );
+	}
+
+	public function display_login() {
+		return $this->shortcodes->display_login();
+	}
+	public function display_register() {
+		return $this->shortcodes->display_register();
+	}
+	public function display_lost_pass() {
+		return $this->shortcodes->display_lost_pass();
 	}
 
 	public function display_stats() {
