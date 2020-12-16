@@ -130,7 +130,12 @@ class BBP_Blocks {
 					'post_status' => array( 'publish', 'private' ),
 				) );
 
-				$return = array( array( 'value' => 0, 'label' => __( '« Select a Forum »' ) ) );
+				$return = array(
+					array(
+						'value' => 0,
+						'label' => __( '« Select a Forum »', 'bbpress' )
+					)
+				);
 				foreach ( $forums as $forum ) {
 					$return[] = array(
 						'value' => (int) $forum->ID,
