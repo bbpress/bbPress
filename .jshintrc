@@ -18,5 +18,9 @@
 		"Backbone": false,
 		"jQuery": false,
 		"wp": false
-	}
+	},
+
+	"ignores": [
+		"src/includes/admin/assets/js/blocks.js"
+	]
 }
