@@ -40,6 +40,7 @@ registerBlockType( 'bbpress/forum-index', {
 			<Placeholder
 				icon="buddicons-forums"
 				label={ __( 'bbPress Forum Index' ) }
+				instructions={ __( 'This will display your entire forum index.' ) }
 			/>
 		);
 	},
@@ -72,6 +73,7 @@ registerBlockType( 'bbpress/forum', {
 			<Placeholder
 				icon="buddicons-forums"
 				label={ __( 'bbPress Single Forum' ) }
+				instructions={ __( 'Display a single forum’s topics.' ) }
 			>
 				<SelectControl
 					label={ __( 'Forum' ) }
