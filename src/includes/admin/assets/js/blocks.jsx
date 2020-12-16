@@ -27,8 +27,6 @@ buddicons-topics          topics
 buddicons-tracking        tracking
 */
 
-import '../css/blocks.scss';
-
 // Replaces [bbp-forum-index] – This will display your entire forum index.
 registerBlockType( 'bbpress/forum-index', {
 	title: __( 'Forums List' ),
