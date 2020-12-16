@@ -84,6 +84,30 @@ class BBP_Blocks {
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/topic-index', array(
+			'render_callback' => array( $this, 'display_topic_index' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/topic-form', array(
+			'render_callback' => array( $this, 'display_topic_form' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/topic-tags', array(
+			'render_callback' => array( $this, 'display_topic_tags' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/reply-form', array(
+			'render_callback' => array( $this, 'display_reply_form' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/search-form', array(
 			'render_callback' => array( $this, 'display_search_form' ),
 			'editor_script'   => 'bbp-blocks',
@@ -182,6 +206,20 @@ class BBP_Blocks {
 		return $this->shortcodes->display_forum( $attributes );
 	}
 
+	public function display_topic_index() {
+		return $this->shortcodes->display_topic_index();
+	}
+	public function display_topic_form( $attributes ) {
+		return $this->shortcodes->display_topic_form( $attributes );
+	}
+
+	public function display_topic_tags() {
+		return $this->shortcodes->display_topic_tags();
+	}
+
+	public function display_reply_form() {
+		return $this->shortcodes->display_reply_form();
+	}
 	public function display_search_form() {
 		return $this->shortcodes->display_search_form();
 	}
