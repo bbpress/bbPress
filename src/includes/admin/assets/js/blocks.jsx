@@ -5,7 +5,8 @@ const {
 } = wp.blocks;
 
 const {
-	Placeholder
+	Placeholder,
+	TextControl
 } = wp.components;
 
 const {
@@ -125,8 +126,57 @@ registerBlockType( 'bbpress/forum', {
 // Replaces [bbp-single-view] – Single view – Display topics associated with a specific view. Current included ‘views’ with bbPress are “popular” [bbp-single-view id=’popular’] and “No Replies” [bbp-single-view id=’no-replies’]
 
 // Search
-// Replaces [bbp-search] – Display the search input form.
+// Replaces [bbp-search] – Display the search results for a given term.
+registerBlockType( 'bbpress/search', {
+	title: __( 'Search Results' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {
+		search: {
+			default: ''
+		}
+	},
+
+	edit: function( props ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="search" /> }
+				label={ __( 'Search Results' ) }
+				instructions={ __( 'Display the search results for a given query.' ) }
+			>
+				<TextControl
+					label={ __( 'Search Term' ) }
+					value={ props.attributes.search }
+					onChange={ search => props.setAttributes( { search } ) }
+				/>
+			</Placeholder>
+		);
+	},
+
+	save: () => null
+} );
+
 // Replaces [bbp-search-form] – Display the search form template.
+registerBlockType( 'bbpress/search-form', {
+	title: __( 'Search Form' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="search" /> }
+				label={ __( 'Search Form' ) }
+				instructions={ __( 'Display the search form template.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
 
 // Account
 // Replaces [bbp-login] – Display the login screen.

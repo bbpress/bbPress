@@ -84,6 +84,18 @@ class BBP_Blocks {
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/search-form', array(
+			'render_callback' => array( $this, 'display_search_form' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/search', array(
+			'render_callback' => array( $this, 'display_search' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/login', array(
 			'render_callback' => array( $this, 'display_login' ),
 			'editor_script'   => 'bbp-blocks',
@@ -163,6 +175,13 @@ class BBP_Blocks {
 		}
 
 		return $this->shortcodes->display_forum( $attributes );
+	}
+
+	public function display_search_form() {
+		return $this->shortcodes->display_search_form();
+	}
+	public function display_search( $attributes ) {
+		return $this->shortcodes->display_search( $attributes );
 	}
 
 	public function display_login() {
