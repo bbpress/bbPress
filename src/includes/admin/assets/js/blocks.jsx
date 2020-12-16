@@ -9,6 +9,10 @@ const {
 } = wp.components;
 
 const {
+	BlockIcon
+} = wp.blockEditor;
+
+const {
 	__
 } = wp.i18n;
 
@@ -39,7 +43,7 @@ registerBlockType( 'bbpress/forum-index', {
 	edit: function() {
 		return (
 			<Placeholder
-				icon="buddicons-forums"
+				icon={ <BlockIcon icon="buddicons-forums" /> }
 				label={ __( 'bbPress Forum Index' ) }
 				instructions={ __( 'This will display your entire forum index.' ) }
 			/>
@@ -60,7 +64,7 @@ registerBlockType( 'bbpress/forum-form', {
 	edit: function() {
 		return (
 			<Placeholder
-				icon="buddicons-forums"
+				icon={ <BlockIcon icon="buddicons-forums" /> }
 				label={ __( 'bbPress New Forum Form' ) }
 				instructions={ __( 'Display the ‘New Forum’ form.' ) }
 			/>
@@ -86,7 +90,7 @@ registerBlockType( 'bbpress/forum', {
 	edit: function( props ) {
 		return (
 			<Placeholder
-				icon="buddicons-forums"
+				icon={ <BlockIcon icon="buddicons-forums" /> }
 				label={ __( 'bbPress Single Forum' ) }
 				instructions={ __( 'Display a single forum’s topics.' ) }
 			>
@@ -141,7 +145,7 @@ registerBlockType( 'bbpress/stats', {
 	edit: function() {
 		return (
 			<Placeholder
-				icon="chart-line"
+				icon={ <BlockIcon icon="chart-line" /> }
 				label={ __( 'bbPress Forum Statistics' ) }
 				instructions={ __( 'Display the forum statistics.' ) }
 			/>

@@ -52,7 +52,7 @@ class BBP_Blocks {
 				'wp-blocks',
 				'wp-components',
 				'wp-i18n',
-			//	'wp-icons',
+				'wp-block-editor',
 			),
 			filemtime( __DIR__ . '/../admin/assets/js/blocks.js' )
 		);
