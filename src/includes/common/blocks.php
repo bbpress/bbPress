@@ -83,6 +83,12 @@ class BBP_Blocks {
 			'editor_script'   => 'bbp-blocks',
 			'editor_style'    => 'bbp-blocks',
 		) );
+
+		register_block_type( 'bbpress/stats', array(
+			'render_callback' => array( $this, 'display_stats' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
 	}
 
 	public static function get_localize_script_data( $data ) {
@@ -140,6 +146,11 @@ class BBP_Blocks {
 
 		return $this->shortcodes->display_forum( $attributes );
 	}
+
+	public function display_stats() {
+		return $this->shortcodes->display_stats();
+	}
+
 
 }
 endif;

@@ -131,5 +131,24 @@ registerBlockType( 'bbpress/forum', {
 
 // Statistics
 // Replaces [bbp-stats] – Display the forum statistics.
+registerBlockType( 'bbpress/stats', {
+	title: __( 'Forum Statistics' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {},
+
+	edit: function() {
+		return (
+			<Placeholder
+				icon="chart-line"
+				label={ __( 'bbPress Forum Statistics' ) }
+				instructions={ __( 'Display the forum statistics.' ) }
+			/>
+		);
+	},
+
+	save: () => null
+} );
 
 
