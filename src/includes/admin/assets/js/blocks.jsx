@@ -17,9 +17,13 @@ const {
 	__
 } = wp.i18n;
 
-import ForumPicker from './components/forumPicker';
+import ForumPicker    from './components/forumPicker';
+import ReplyPicker    from './components/replyPicker';
+import TopicPicker    from './components/topicPicker';
+import TopicTagPicker from './components/topicTagPicker';
+import ViewPicker     from './components/viewPicker';
 
-/*
+/* Dashicons most relevant to us for use:
 buddicons-activity        activity
 buddicons-bbpress-logo    bbPress logo
 buddicons-buddypress-logo BuddyPress logo
@@ -163,9 +167,34 @@ registerBlockType( 'bbpress/topic-form', {
 } );
 
 // Replaces [bbp-single-topic id=$topic_id] – Display a single topic. eg. [bbp-single-topic id=4096]
-/**
- * TO DO -- NEEDS TOPIC PICKER COMPONENT
- */
+registerBlockType( 'bbpress/single-topic', {
+	title: __( 'Single Topic' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {
+		id: {
+			default: '',
+		}
+	},
+
+	edit: function( props ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="buddicons-topics" /> }
+				label={ __( 'bbPress Single Topic' ) }
+				instructions={ __( 'Display a single topic.' ) }
+			>
+				<TopicPicker
+					value={ props.attributes.id }
+					onChange={ id => props.setAttributes( { id } ) }
+				/>
+			</Placeholder>
+		);
+	},
+
+	save: () => null
+} );
 
 // Replies
 // Replaces [bbp-reply-form] – Display the ‘New Reply’ form.
@@ -191,9 +220,34 @@ registerBlockType( 'bbpress/reply-form', {
 } );
 
 // Replaces [bbp-single-reply id=$reply_id] – Display a single reply eg. [bbp-single-reply id=32768]
-/**
- * TO DO -- NEEDS REPLY PICKER COMPONENT
- */
+registerBlockType( 'bbpress/single-reply', {
+	title: __( 'Single Reply' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {
+		id: {
+			default: '',
+		}
+	},
+
+	edit: function( props ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="buddicons-replies" /> }
+				label={ __( 'bbPress Single Reply' ) }
+				instructions={ __( 'Display a single reply.' ) }
+			>
+				<ReplyPicker
+					value={ props.attributes.id }
+					onChange={ id => props.setAttributes( { id } ) }
+				/>
+			</Placeholder>
+		);
+	},
+
+	save: () => null
+} );
 
 // Topic Tags
 // Replaces [bbp-topic-tags] – Display a tag cloud of all topic tags.
@@ -218,15 +272,65 @@ registerBlockType( 'bbpress/topic-tags', {
 } );
 
 // Replaces [bbp-single-tag id=$tag_id] – Display a list of all topics associated with a specific tag. eg. [bbp-single-tag id=64]
-/**
- * TO DO -- NEEDS TAG PICKER COMPONENT
- */
+registerBlockType( 'bbpress/single-tag', {
+	title: __( 'Single Topic Tag' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {
+		id: {
+			default: '',
+		}
+	},
+
+	edit: function( props ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="tag" /> }
+				label={ __( 'bbPress Single Topic Tag' ) }
+				instructions={ __( 'Display a list of all topics associated with a specific topic tag.' ) }
+			>
+				<TopicTagPicker
+					value={ props.attributes.id }
+					onChange={ id => props.setAttributes( { id } ) }
+				/>
+			</Placeholder>
+		);
+	},
+
+	save: () => null
+} );
 
 // Views
 // Replaces [bbp-single-view] – Single view – Display topics associated with a specific view. Current included ‘views’ with bbPress are “popular” [bbp-single-view id=’popular’] and “No Replies” [bbp-single-view id=’no-replies’]
-/**
- * TO DO -- NEEDS VIEW PICKER COMPONENT
- */
+registerBlockType( 'bbpress/single-view', {
+	title: __( 'Single View' ),
+	icon: 'buddicons-bbpress-logo',
+	category: 'common',
+
+	attributes: {
+		id: {
+			default: '',
+		}
+	},
+
+	edit: function( props ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon="media-code" /> }
+				label={ __( 'bbPress Single View' ) }
+				instructions={ __( 'Display the contents of a specific bbPress view.' ) }
+			>
+				<ViewPicker
+					value={ props.attributes.id }
+					onChange={ id => props.setAttributes( { id } ) }
+				/>
+			</Placeholder>
+		);
+	},
+
+	save: () => null
+} );
 
 // Search
 // Replaces [bbp-search] – Display the search results for a given term.

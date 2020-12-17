@@ -8,7 +8,6 @@ const {
 } = wp.i18n;
 
 function ForumPicker( { value, options, onChange } ) {
-	console.log( { value, options, onChange } );
 	return (
 		<SelectControl
 			label={ __( 'Forum' ) }

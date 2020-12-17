@@ -96,14 +96,38 @@ class BBP_Blocks {
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/topic', array(
+			'render_callback' => array( $this, 'display_topic' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/topic-tags', array(
 			'render_callback' => array( $this, 'display_topic_tags' ),
 			'editor_script'   => 'bbp-blocks',
 			'editor_style'    => 'bbp-blocks',
 		) );
 
+		register_block_type( 'bbpress/topics-of-tag', array(
+			'render_callback' => array( $this, 'display_topics_of_tag' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
 		register_block_type( 'bbpress/reply-form', array(
 			'render_callback' => array( $this, 'display_reply_form' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/reply', array(
+			'render_callback' => array( $this, 'display_reply' ),
+			'editor_script'   => 'bbp-blocks',
+			'editor_style'    => 'bbp-blocks',
+		) );
+
+		register_block_type( 'bbpress/view', array(
+			'render_callback' => array( $this, 'display_view' ),
 			'editor_script'   => 'bbp-blocks',
 			'editor_style'    => 'bbp-blocks',
 		) );
@@ -212,14 +236,28 @@ class BBP_Blocks {
 	public function display_topic_form( $attributes ) {
 		return $this->shortcodes->display_topic_form( $attributes );
 	}
+	public function display_topic( $attributes ) {
+		return $this->shortcodes->display_topic( $attributes );
+	}
 
 	public function display_topic_tags() {
 		return $this->shortcodes->display_topic_tags();
+	}
+	public function display_topics_of_tag( $attributes ) {
+		return $this->shortcodes->display_topics_of_tag( $attributes );
 	}
 
 	public function display_reply_form() {
 		return $this->shortcodes->display_reply_form();
 	}
+	public function display_reply( $attributes ) {
+		return $this->shortcodes->display_reply( $attributes );
+	}
+
+	public function display_view( $attributes ) {
+		return $this->shortcodes->display_view( $attributes );
+	}
+
 	public function display_search_form() {
 		return $this->shortcodes->display_search_form();
 	}

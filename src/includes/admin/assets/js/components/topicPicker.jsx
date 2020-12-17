@@ -1,0 +1,20 @@
+
+const {
+	TextControl
+} = wp.components;
+
+const {
+	__
+} = wp.i18n;
+
+function TopicPicker( { value, onChange } ) {
+	return (
+		<TextControl
+			label={ __( 'Topic' ) }
+			value={ value }
+			onChange={ onChange }
+		/>
+	);
+}
+
+export default TopicPicker;
