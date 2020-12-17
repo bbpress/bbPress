@@ -10,7 +10,8 @@ const {
 function TopicPicker( { value, onChange } ) {
 	return (
 		<TextControl
-			label={ __( 'Topic' ) }
+			label={ __( 'Topic ID' ) }
+			type="number"
 			value={ value }
 			onChange={ onChange }
 		/>

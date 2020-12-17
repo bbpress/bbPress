@@ -10,7 +10,8 @@ const {
 function ReplyPicker( { value, onChange } ) {
 	return (
 		<TextControl
-			label={ __( 'Reply' ) }
+			label={ __( 'Reply ID' ) }
+			type="number"
 			value={ value }
 			onChange={ onChange }
 		/>
