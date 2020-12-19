@@ -91,7 +91,7 @@ function ForumPicker( { value, onChange } ) {
 		}
 		return {
 			// Ensure we always have the currently selected forum's data.
-			currentForum:  getEntityRecord( 'postType', postTypeSlug, value ),
+			currentForum: value ? getEntityRecord( 'postType', postTypeSlug, value ) : [],
 			selectOptions: getEntityRecords( 'postType', postTypeSlug, query ),
 		};
 	}, [ fieldValue ] ); // Update list whenever the fieldValue changes.
@@ -122,7 +122,7 @@ function ForumPicker( { value, onChange } ) {
 		// Ensure the current forum is in the options list.
 		const optsHasForum = find(
 			opts,
-			( item ) => item.value === currentForum.id
+			( item ) => item.value === currentForum?.id
 		);
 		if ( currentForum && ! optsHasForum ) {
 			opts.unshift( {

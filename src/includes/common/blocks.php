@@ -59,7 +59,7 @@ class BBP_Blocks {
 		wp_localize_script( 'bbp-blocks', 'bbpBlocks', array(
 			'data' => array(
 				'forum_post_type' => bbp_get_forum_post_type(),
-				'forum_count' => wp_count_posts( 'forums' ),
+				'forum_count' => wp_count_posts( 'forums' )->publish,
 				'forum_post_type' => bbp_get_forum_post_type(),
 			)
 		) );

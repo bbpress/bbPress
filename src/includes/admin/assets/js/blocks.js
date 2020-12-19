@@ -166,7 +166,7 @@ var _lodash = lodash,
     unescape = _lodash.unescape,
     debounce = _lodash.debounce,
     find = _lodash.find;
-var maxEntriesForSelect = 25; // Helper to build indent items based on tree structure.
+var maxEntriesForSelect = 25; // Helper to build an indented item list based on tree structure.
 
 var getOptionsFromTree = function getOptionsFromTree(tree) {
   var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -234,7 +234,7 @@ function ForumPicker(_ref) {
 
     return {
       // Ensure we always have the currently selected forum's data.
-      currentForum: getEntityRecord('postType', postTypeSlug, value),
+      currentForum: value ? getEntityRecord('postType', postTypeSlug, value) : [],
       selectOptions: getEntityRecords('postType', postTypeSlug, query)
     };
   }, [fieldValue]),
@@ -268,7 +268,7 @@ function ForumPicker(_ref) {
     var opts = getOptionsFromTree(tree); // Ensure the current forum is in the options list.
 
     var optsHasForum = find(opts, function (item) {
-      return item.value === currentForum.id;
+      return item.value === (currentForum === null || currentForum === void 0 ? void 0 : currentForum.id);
     });
 
     if (currentForum && !optsHasForum) {
@@ -488,8 +488,8 @@ registerBlockType('bbpress/forum', {
       icon: /*#__PURE__*/React.createElement(BlockIcon, {
         icon: "buddicons-forums"
       }),
-      label: __('bbPress Single Forum!'),
-      instructions: __('Display a single forum’s topics!')
+      label: __('bbPress Single Forum'),
+      instructions: __('Display a single forum’s topics.')
     }, /*#__PURE__*/React.createElement(_forumPicker.default, {
       value: props.attributes.id,
       options: bbpBlocks.data.forums,
@@ -877,7 +877,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57546" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65382" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
