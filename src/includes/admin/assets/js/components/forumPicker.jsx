@@ -28,7 +28,7 @@ const {
 
 const maxEntriesForSelect = 25;
 
-// Helper to build indent items based on tree structure.
+// Helper to build an indented item list based on tree structure.
 const getOptionsFromTree = ( tree, level = 0 ) => {
 	return flatMap( tree, ( treeNode ) => [
 		{
