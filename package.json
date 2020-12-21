@@ -37,7 +37,8 @@
 		"npm": ">=6.9.0"
 	},
 	"scripts": {
-		"blocks": "parcel build src/includes/admin/assets/js/blocks.jsx --out-dir src/includes/admin/assets/js --public-url ."
+		"blocks": "parcel build src/includes/admin/assets/js/blocks.jsx --out-dir src/includes/admin/assets/js --public-url .",
+		"watch": "parcel watch src/includes/admin/assets/js/blocks.jsx --out-dir src/includes/admin/assets/js --public-url ."
 	},
 	"keywords": [
 		"community",

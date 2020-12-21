@@ -59,7 +59,8 @@ class BBP_Blocks {
 		wp_localize_script( 'bbp-blocks', 'bbpBlocks', array(
 			'data' => array(
 				'forum_post_type' => bbp_get_forum_post_type(),
-				'forums' => self::get_localize_script_data( 'forums' ),
+				'forum_count' => wp_count_posts( 'forums' )->publish,
+				'forum_post_type' => bbp_get_forum_post_type(),
 			)
 		) );
 
@@ -169,33 +170,6 @@ class BBP_Blocks {
 		) );
 	}
 
-	public static function get_localize_script_data( $data ) {
-		switch( $data ) {
-			case 'forums':
-				$forums = get_pages( array(
-					'post_type'   => bbp_get_forum_post_type(),
-					'numberposts' => -1,
-					'post_status' => array( 'publish', 'private' ),
-				) );
-
-				$return = array(
-					array(
-						'value' => 0,
-						'label' => __( '« Select a Forum »', 'bbpress' )
-					)
-				);
-				foreach ( $forums as $forum ) {
-					$return[] = array(
-						'value' => (int) $forum->ID,
-						'label' => $forum->post_title,
-					);
-				}
-				return $return;
-				break;
-			default:
-				return null;
-		}
-	}
 
 	/**
 	 * Passthrough function for `display_forum_index` -- the forum list view.
