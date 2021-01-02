@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0 bbPress (r3349)
  *
  * @param array $forum_data Forum post data
- * @param arrap $forum_meta Forum meta data
+ * @param array $forum_meta Forum meta data
  */
 function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
