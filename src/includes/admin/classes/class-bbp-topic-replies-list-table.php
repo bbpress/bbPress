@@ -269,7 +269,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 				</tr>
 			</thead>
 
-			<tbody id="the-list" data-wp-lists='list:<?php echo $this->_args['singular']; ?>'>
+			<tbody data-wp-lists='list:<?php echo $this->_args['singular']; ?>'>
 				<?php $this->display_rows_or_placeholder(); ?>
 			</tbody>
 
