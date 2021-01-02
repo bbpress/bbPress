@@ -368,60 +368,60 @@ body.post-type-reply strong.label {
 	border-color: #ccc #fff #fff #ccc;
 }
 
-body.post-type-forum #the-list .status-closed,
-body.post-type-topic #the-list .status-closed,
-body.post-type-reply #the-list .status-closed {
+body.post-type-forum tbody .status-closed,
+body.post-type-topic tbody .status-closed,
+body.post-type-reply tbody .status-closed {
 	background-color: #f5f5f5;
 }
 
-body.post-type-forum #the-list .status-closed:nth-child(odd),
-body.post-type-topic #the-list .status-closed:nth-child(odd),
-body.post-type-reply #the-list .status-closed:nth-child(odd) {
+body.post-type-forum tbody .status-closed:nth-child(odd),
+body.post-type-topic tbody .status-closed:nth-child(odd),
+body.post-type-reply tbody .status-closed:nth-child(odd) {
 	background-color: #f0f0f0;
 }
 
-body.post-type-forum #the-list .status-spam,
-body.post-type-topic #the-list .status-spam,
-body.post-type-reply #the-list .status-spam,
+body.post-type-forum tbody .status-spam,
+body.post-type-topic tbody .status-spam,
+body.post-type-reply tbody .status-spam,
 #bbp-reply-list .status-trash {
 	background-color: #fee;
 }
 
-body.post-type-forum #the-list .status-spam:nth-child(odd),
-body.post-type-topic #the-list .status-spam:nth-child(odd),
-body.post-type-reply #the-list .status-spam:nth-child(odd),
+body.post-type-forum tbody .status-spam:nth-child(odd),
+body.post-type-topic tbody .status-spam:nth-child(odd),
+body.post-type-reply tbody .status-spam:nth-child(odd),
 #bbp-reply-list .status-trash:nth-child(odd) {
 	background-color: #fdd;
 }
 
-body.post-type-forum #the-list .status-pending,
-body.post-type-topic #the-list .status-pending,
-body.post-type-reply #the-list .status-pending {
+body.post-type-forum tbody .status-pending,
+body.post-type-topic tbody .status-pending,
+body.post-type-reply tbody .status-pending {
 	background-color: #fff2e8;
 }
 
-body.post-type-forum #the-list .status-pending:nth-child(odd),
-body.post-type-topic #the-list .status-pending:nth-child(odd),
-body.post-type-reply #the-list .status-pending:nth-child(odd) {
+body.post-type-forum tbody .status-pending:nth-child(odd),
+body.post-type-topic tbody .status-pending:nth-child(odd),
+body.post-type-reply tbody .status-pending:nth-child(odd) {
 	background-color: #fff7f1;
 }
 
-body.post-type-forum #the-list .status-closed td,
-body.post-type-topic #the-list .status-closed td,
-body.post-type-reply #the-list .status-closed td,
-body.post-type-forum #the-list .status-spam td,
-body.post-type-topic #the-list .status-spam td,
-body.post-type-reply #the-list .status-spam td,
+body.post-type-forum tbody .status-closed td,
+body.post-type-topic tbody .status-closed td,
+body.post-type-reply tbody .status-closed td,
+body.post-type-forum tbody .status-spam td,
+body.post-type-topic tbody .status-spam td,
+body.post-type-reply tbody .status-spam td,
 #bbp-reply-list .status-trash td {
 	color: #999;
 }
 
-body.post-type-forum #the-list .row-actions .unspam a,
-body.post-type-topic #the-list .row-actions .unspam a,
-body.post-type-reply #the-list .row-actions .unspam a,
-body.post-type-forum #the-list .row-actions .approved a,
-body.post-type-topic #the-list .row-actions .approved a,
-body.post-type-reply #the-list .row-actions .approved a {
+body.post-type-forum tbody .row-actions .unspam a,
+body.post-type-topic tbody .row-actions .unspam a,
+body.post-type-reply tbody .row-actions .unspam a,
+body.post-type-forum tbody .row-actions .approved a,
+body.post-type-topic tbody .row-actions .approved a,
+body.post-type-reply tbody .row-actions .approved a {
 	color: #006505;
 }
 
