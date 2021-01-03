@@ -124,7 +124,7 @@ addReply = {
 			offset      = 0;
 
 		/* Offset by the adminbar */
-		if ( typeof ( adminbar ) !== 'undefined' ) {
+		if ( adminbar && ( typeof ( adminbar ) !== 'undefined' ) ) {
 			offset = adminbar.scrollHeight;
 		}
 
