@@ -2911,6 +2911,10 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 		} elseif ( bbp_is_single_user() ) {
 			$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
 
+		// Any single post (for shortcodes, ahead of shortcodeables below)
+		} elseif ( is_singular() ) {
+			$base = get_permalink();
+
 		// View
 		} elseif ( bbp_is_single_view() ) {
 			$base = bbp_get_view_url();
@@ -2918,10 +2922,6 @@ function bbp_get_topics_pagination_base( $forum_id = 0 ) {
 		// Topic tag
 		} elseif ( bbp_is_topic_tag() ) {
 			$base = bbp_get_topic_tag_link();
-
-		// Page or single post
-		} elseif ( is_page() || is_single() ) {
-			$base = get_permalink();
 
 		// Forum archive
 		} elseif ( bbp_is_forum_archive() ) {

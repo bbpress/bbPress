@@ -2312,8 +2312,8 @@ function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 		} elseif ( bbp_is_single_user() ) {
 			$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
 
-		// Page or single post
-		} elseif ( is_page() || is_single() ) {
+		// Any single post (for shortcodes)
+		} elseif ( is_singular() ) {
 			$base = get_permalink();
 
 		// Single topic
