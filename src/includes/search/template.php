@@ -353,8 +353,8 @@ function bbp_get_search_pagination_base() {
 	// If pretty permalinks are enabled, make our pagination pretty
 	if ( bbp_use_pretty_urls() ) {
 
-		// Shortcode territory
-		if ( is_page() || is_single() ) {
+		// Any single post (for shortcodes)
+		if ( is_singular() ) {
 			$base = get_permalink();
 
 		// Default search location
