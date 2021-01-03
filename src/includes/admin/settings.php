@@ -1988,8 +1988,8 @@ function bbp_form_option( $option, $default = '', $slug = false ) {
 			$value = esc_attr( $value );
 		}
 
-		// Fallback to default
-		if ( empty( $value ) ) {
+		// Fallback to default, unless numeric (allow zero)
+		if ( empty( $value ) && ! is_numeric( $value ) ) {
 			$value = $default;
 		}
 
