@@ -116,7 +116,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php bbp_get_template_part( 'form', 'user-passwords' ); ?>
 
 		<div>
-			<label for="url"><?php esc_html_e( 'Language', 'bbpress' ) ?></label>
+			<label for="locale"><?php esc_html_e( 'Language', 'bbpress' ) ?></label>
 
 			<?php bbp_edit_user_language(); ?>
 
