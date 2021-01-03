@@ -1222,7 +1222,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** Move Reply ***********************************************************/
 
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required.', 'bbpress' ) );
 	} else {
 		$move_reply_id = (int) $_POST['bbp_reply_id'];
 	}
