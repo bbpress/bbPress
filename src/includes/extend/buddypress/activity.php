@@ -142,15 +142,6 @@ class BBP_BuddyPress_Activity {
 		// Hook into topic and reply deletion
 		add_action( 'bbp_delete_topic',                  array( $this, 'topic_delete'              ), 10, 1 );
 		add_action( 'bbp_delete_reply',                  array( $this, 'reply_delete'              ), 10, 1 );
-
-		// Append forum filters in site wide activity streams
-		add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
-
-		// Append forum filters in single member activity streams
-		add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
-
-		// Append forum filters in single group activity streams
-		add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
 	}
 
 	/**
@@ -207,34 +198,6 @@ class BBP_BuddyPress_Activity {
 			esc_html__( 'Replies', 'bbpress' ),
 			array( 'activity', 'member', 'member_groups', 'group' )
 		);
-
-		// Group forums
-		/**
-		 * An upstream improvement to BuddyPress is required to make these work,
-		 * but they are included here to make our lives easier later.
-		if ( bp_is_active( 'groups' ) ) {
-
-			// Topic
-			bp_activity_set_action(
-				buddypress()->groups->id,
-				$this->topic_create,
-				esc_html__( 'New forum topic', 'bbpress' ),
-				'bbp_format_activity_action_new_topic',
-				esc_html__( 'Topics', 'bbpress' ),
-				array( 'activity', 'member', 'member_groups', 'group' )
-			);
-
-			// Reply
-			bp_activity_set_action(
-				buddypress()->groups->id,
-				$this->reply_create,
-				esc_html__( 'New forum reply', 'bbpress' ),
-				'bbp_format_activity_action_new_reply',
-				esc_html__( 'Replies', 'bbpress' ),
-				array( 'activity', 'member', 'member_groups', 'group' )
-			);
-		}
-		*/
 	}
 
 	/**
@@ -378,20 +341,6 @@ class BBP_BuddyPress_Activity {
 		}
 
 		return $link;
-	}
-
-	/**
-	 * Append forum options to activity filter select box
-	 *
-	 * @since 2.1.0 bbPress (r3653)
-	 */
-	function activity_filter_options() {
-	?>
-
-		<option value="<?php echo $this->topic_create; ?>"><?php esc_html_e( 'Topics',  'bbpress' ); ?></option>
-		<option value="<?php echo $this->reply_create; ?>"><?php esc_html_e( 'Replies', 'bbpress' ); ?></option>
-
-	<?php
 	}
 
 	/** Topics ****************************************************************/
