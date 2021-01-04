@@ -1826,7 +1826,7 @@ function bbp_user_languages_dropdown( $args = array() ) {
 function bbp_login_notices() {
 
 	// loggedout was passed
-	if ( ! empty( $_GET['loggedout'] ) && ( true === $_GET['loggedout'] ) ) {
+	if ( ! empty( $_GET['loggedout'] ) && ( 'true' === $_GET['loggedout'] ) ) {
 		bbp_add_error( 'loggedout', esc_html__( 'You are now logged out.', 'bbpress' ), 'message' );
 
 	// registration is disabled
