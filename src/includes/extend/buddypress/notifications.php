@@ -62,7 +62,7 @@ function bbp_filter_notifications_get_registered_components( $component_names = 
 function bbp_format_buddypress_notifications( $content, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id ) {
 
 	// Bail if not the notification action we are looking for
-	if ( 'bbp_new_reply' !== $component_action_name ) {
+	if ( 0 !== strpos( $component_action_name, 'bbp_new_reply' ) ) {
 		return $content;
 	}
 
@@ -86,7 +86,7 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	// Multiple
 	if ( $action_item_count > 1 ) {
 		$filter = 'bbp_multiple_new_subscription_notification';
-		$text   = sprintf( esc_html__( 'You have %d new replies', 'bbpress' ), $action_item_count );
+		$text   = sprintf( esc_html__( 'You have %1$d new replies to %2$s', 'bbpress' ), $action_item_count, $topic_title );
 
 	// Single
 	} else {
@@ -148,7 +148,7 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 		'user_id'          => $topic_author_id,
 		'item_id'          => $reply_id,
 		'component_name'   => bbp_get_component_name(),
-		'component_action' => 'bbp_new_reply',
+		'component_action' => 'bbp_new_reply_' . $topic_id,
 		'date_notified'    => get_post( $reply_id )->post_date,
 	);
 
@@ -211,7 +211,7 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 		$component = bbp_get_component_name();
 
 		// Attempt to clear notifications for this topic
-		$marked    = bp_notifications_mark_notifications_by_item_id( $user_id, $topic_id, $component, 'bbp_new_reply' );
+		$marked    = bp_notifications_mark_notifications_by_type( $user_id, $component, 'bbp_new_reply_' . $topic_id );
 
 		// Get all reply IDs for the topic
 		$replies   = bbp_get_all_child_ids( $topic_id, $post_type );
