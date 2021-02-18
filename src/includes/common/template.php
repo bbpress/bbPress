@@ -967,7 +967,8 @@ function bbp_is_edit() {
  */
 function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
-	$bbp_classes = array();
+	// Default classes
+	$bbp_classes = array( 'no-js' );
 
 	/** Archives **************************************************************/
 

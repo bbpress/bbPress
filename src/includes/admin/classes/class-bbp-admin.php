@@ -815,10 +815,10 @@ class BBP_Admin {
 
 		// RTL and/or minified
 		$suffix  = is_rtl() ? '-rtl' : '';
-		$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix .= bbp_doing_script_debug() ? '' : '.min';
 
 		// Get the version to use for JS
-		$version = bbp_get_version();
+		$version = bbp_get_asset_version();
 
 		// Register admin CSS with dashicons dependency
 		wp_register_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), $version );
@@ -859,10 +859,10 @@ class BBP_Admin {
 	public function register_admin_scripts() {
 
 		// Minified
-		$suffix  = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix  = bbp_doing_script_debug() ? '' : '.min';
 
 		// Get the version to use for JS
-		$version = bbp_get_version();
+		$version = bbp_get_asset_version();
 
 		// Header JS
 		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );

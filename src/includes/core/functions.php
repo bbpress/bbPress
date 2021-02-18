@@ -32,6 +32,27 @@ function bbp_version() {
 	}
 
 /**
+ * Output the bbPress asset version
+ *
+ * @since 2.6.7 bbPress (r7188)
+ */
+function bbp_asset_version() {
+	echo bbp_get_asset_version();
+}
+	/**
+	 * Return the bbPress asset version
+	 *
+	 * @since 2.6.7 bbPress (r7188)
+	 *
+	 * @retrun string The bbPress asset version
+	 */
+	function bbp_get_asset_version() {
+		return bbp_doing_script_debug()
+			? (string) time()
+			: bbp_get_version();
+	}
+
+/**
  * Output the bbPress database version
  *
  * @since 2.0.0 bbPress (r3468)
@@ -654,4 +675,28 @@ function bbp_redirect( $location = '', $status = 302 ) {
 
 	// Exit so the redirect takes place immediately
 	exit();
+}
+
+/** Global Helpers ************************************************************/
+
+/**
+ * Return if debugging scripts or not
+ *
+ * @since 2.6.7 (r7188)
+ *
+ * @return bool True if debugging scripts. False if not debugging scripts.
+ */
+function bbp_doing_script_debug() {
+	return defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+}
+
+/**
+ * Return if auto-saving or not
+ *
+ * @since 2.6.7 (r7188)
+ *
+ * @return bool True if mid auto-save. False if not mid auto-save.
+ */
+function bbp_doing_autosave() {
+	return defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE;
 }

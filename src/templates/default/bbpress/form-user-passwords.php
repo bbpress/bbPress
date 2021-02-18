@@ -13,6 +13,10 @@ defined( 'ABSPATH' ) || exit;
 // Filters the display of the password fields
 if ( apply_filters( 'show_password_fields', true, bbpress()->displayed_user ) ) : ?>
 
+<script type="text/javascript">
+	document.body.className = document.body.className.replace( 'no-js', 'js' );
+</script>
+
 <div id="password" class="user-pass1-wrap">
 	<label for="user_login"><?php esc_html_e( 'Password', 'bbpress' ); ?></label>
 	<button type="button" class="button wp-generate-pw hide-if-no-js"><?php esc_html_e( 'Generate Password', 'bbpress' ); ?></button>
@@ -44,7 +48,7 @@ if ( apply_filters( 'show_password_fields', true, bbpress()->displayed_user ) ) 
 
 <div class="pw-weak">
 	<label for="pw_weak"><?php esc_html_e( 'Confirm', 'bbpress' ); ?></label>
-	<input type="checkbox" name="pw_weak" class="pw-checkbox checkbox" />
+	<input type="checkbox" name="pw_weak" id="pw_weak" class="pw-checkbox checkbox" />
 	<p class="description indicator-hint"><?php echo wp_get_password_hint(); ?></p>
 </div>
 
