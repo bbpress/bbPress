@@ -295,7 +295,7 @@ class BBP_Forums_Admin {
 	public function save_meta_boxes( $forum_id ) {
 
 		// Bail if doing an autosave
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		if ( bbp_doing_autosave() ) {
 			return $forum_id;
 		}
 

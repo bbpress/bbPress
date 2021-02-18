@@ -140,7 +140,7 @@ function bbp_locate_enqueueable( $file = '' ) {
 		: str_replace( '.min', '', $file );
 
 	// Are we debugging?
-	$script_debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+	$script_debug = bbp_doing_script_debug();
 
 	// Debugging, so prefer unminified files
 	if ( true === $script_debug ) {
@@ -217,7 +217,7 @@ function bbp_enqueue_style( $handle = '', $file = '', $deps = array(), $ver = fa
 
 		// Make sure there is always a version
 		if ( empty( $ver ) ) {
-			$ver = bbp_get_version();
+			$ver = bbp_get_asset_version();
 		}
 
 		// Make path to file relative to site URL
@@ -261,7 +261,7 @@ function bbp_enqueue_script( $handle = '', $file = '', $deps = array(), $ver = f
 
 		// Make sure there is always a version
 		if ( empty( $ver ) ) {
-			$ver = bbp_get_version();
+			$ver = bbp_get_asset_version();
 		}
 
 		// Make path to file relative to site URL

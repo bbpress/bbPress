@@ -46,7 +46,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		parent::__construct( bbp_parse_args( $properties, array(
 			'id'      => 'default',
 			'name'    => 'bbPress Default',
-			'version' => bbp_get_version(),
+			'version' => bbp_get_asset_version(),
 			'dir'     => trailingslashit( bbpress()->themes_dir . 'default' ),
 			'url'     => trailingslashit( bbpress()->themes_url . 'default' ),
 		), 'default_theme' ) );

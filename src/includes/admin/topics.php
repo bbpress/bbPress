@@ -508,7 +508,7 @@ class BBP_Topics_Admin {
 	public function save_meta_boxes( $topic_id ) {
 
 		// Bail if doing an autosave
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		if ( bbp_doing_autosave() ) {
 			return $topic_id;
 		}
 

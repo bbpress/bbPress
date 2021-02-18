@@ -389,7 +389,7 @@ class BBP_Replies_Admin {
 	public function save_meta_boxes( $reply_id ) {
 
 		// Bail if doing an autosave
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		if ( bbp_doing_autosave() ) {
 			return $reply_id;
 		}
 
