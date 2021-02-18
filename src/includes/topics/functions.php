@@ -264,17 +264,24 @@ function bbp_new_topic_handler( $action = '' ) {
 	// Get available topic statuses
 	$topic_statuses = bbp_get_topic_statuses();
 
-	// Maybe put into moderation
+	// Default to published
+	$topic_status = bbp_get_public_status_id();
+
+	// Maybe force into pending
 	if ( ! bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
 		$topic_status = bbp_get_pending_status_id();
 
-	// Check possible topic status ID's
+	// Check for possible posted topic status
 	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ), true ) ) {
-		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
 
-	// Default to published if nothing else
-	} else {
-		$topic_status = bbp_get_public_status_id();
+		// Allow capable users to explicitly override the status
+		if ( current_user_can( 'moderate', $forum_id ) ) {
+			$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
+
+		// Not capable
+		} else {
+			bbp_add_error( 'bbp_new_topic_status', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
+		}
 	}
 
 	/** Topic Tags ************************************************************/
@@ -560,21 +567,24 @@ function bbp_edit_topic_handler( $action = '' ) {
 	// Get available topic statuses
 	$topic_statuses = bbp_get_topic_statuses( $topic_id );
 
-	// Maybe put into moderation
-	if ( ! bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
-
-		// Set post status to pending if public or closed
-		if ( bbp_is_topic_public( $topic->ID ) ) {
-			$topic_status = bbp_get_pending_status_id();
-		}
-
-	// Check possible topic status ID's
-	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ), true ) ) {
-		$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
-
 	// Use existing post_status
-	} else {
-		$topic_status = $topic->post_status;
+	$topic_status = $topic->post_status;
+
+	// Maybe force into pending
+	if ( bbp_is_topic_public( $topic->ID ) && ! bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) ) {
+		$topic_status = bbp_get_pending_status_id();
+
+	// Check for possible posted topic status
+	} elseif ( ! empty( $_POST['bbp_topic_status'] ) && in_array( $_POST['bbp_topic_status'], array_keys( $topic_statuses ), true ) ) {
+
+		// Allow capable users to explicitly override the status
+		if ( current_user_can( 'moderate', $forum_id ) ) {
+			$topic_status = sanitize_key( $_POST['bbp_topic_status'] );
+
+		// Not capable
+		} else {
+			bbp_add_error( 'bbp_edit_topic_status', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
+		}
 	}
 
 	/** Topic Tags ************************************************************/
