@@ -210,6 +210,26 @@ class BBP_Akismet {
 			return $post_data;
 		}
 
+		// Discard obvious spam
+		if ( get_option( 'akismet_strictness' ) ) {
+
+			// Akismet is 100% confident this is spam
+			if (
+				! empty( $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+				&&
+				( 'discard' === $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+			) {
+
+				// URL to redirect to (current, or forum root)
+				$redirect_to = ( ! empty( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['REQUEST_URI'] ) )
+					? bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+					: bbp_get_root_url();
+
+				// Do the redirect (post data not saved!)
+				bbp_redirect( $redirect_to );
+			}
+		}
+
 		// Result is spam, so set the status as such
 		if ( 'true' === $post_data['bbp_akismet_result'] ) {
 
