@@ -89,11 +89,6 @@ class BBP_Akismet {
 		$user_data = array();
 		$post_permalink = '';
 
-		// Post is not published
-		if ( bbp_get_public_status_id() !== $post_data['post_status'] ) {
-			return $post_data;
-		}
-
 		// Cast the post_author to 0 if it's empty
 		if ( empty( $post_data['post_author'] ) ) {
 			$post_data['post_author'] = 0;
@@ -199,7 +194,7 @@ class BBP_Akismet {
 	 * Parse the response from the Akismet service, and alter the post data as
 	 * necessary. For example, switch the status to `spam` if spammy.
 	 *
-	 * Note: this method also skiis responsible for allowing users who can moderate, to
+	 * Note: this method also is responsible for allowing users who can moderate to
 	 * never have their posts marked as spam. This is because they are "trusted"
 	 * users. However, their posts are still sent to Akismet to be checked.
 	 *
@@ -774,7 +769,7 @@ class BBP_Akismet {
 
 		// Bail if the response is an error
 		if ( is_wp_error( $response ) ) {
-			return '';
+			return array( '', '' );
 		}
 
 		// No errors so return response
