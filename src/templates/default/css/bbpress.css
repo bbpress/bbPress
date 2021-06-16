@@ -9,6 +9,7 @@
 -------------------------------------------------------------- */
 
 .hidden,
+.no-js .hide-if-no-js,
 .js .hide-if-js {
 	display: none;
 }
@@ -733,7 +734,8 @@ td.bbp-topic-counts {
 
 /* Try to prevent untall selects & text boxes */
 #bbpress-forums fieldset.bbp-form select,
-#bbpress-forums fieldset.bbp-form input[type="text"] {
+#bbpress-forums fieldset.bbp-form input[type="text"],
+#bbpress-forums fieldset.bbp-form input[type="password"] {
 	min-height: 28px;
 	height: 28px;
 	padding: 5px;
@@ -970,7 +972,8 @@ p.form-allowed-tags {
 
 #bbpress-forums #bbp-your-profile fieldset fieldset.password {
 	width: 60%;
-	display: inline;
+	margin-left: 20%;
+	margin-top: 10px;
 }
 
 #bbpress-forums #bbp-your-profile fieldset fieldset.password .password-input-wrapper,
@@ -1041,7 +1044,7 @@ p.form-allowed-tags {
 	border-color: #e35b5b;
 }
 
-#bbpress-forums #password#pass1.bad,
+#bbpress-forums #password #pass1.bad,
 #bbpress-forums #password #pass1-text.bad {
 	border-color: #f78b53;
 }

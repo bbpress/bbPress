@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0 bbPress (r3349)
  *
  * @param array $reply_data Forum post data
- * @param arrap $reply_meta Forum meta data
+ * @param array $reply_meta Forum meta data
  */
 function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
@@ -318,13 +318,12 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Reply Status **********************************************************/
 
-	// Maybe put into moderation
+	// Default to published
+	$reply_status = bbp_get_public_status_id();
+
+	// Maybe force into pending
 	if ( bbp_is_topic_pending( $topic_id ) || ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 		$reply_status = bbp_get_pending_status_id();
-
-	// Default
-	} else {
-		$reply_status = bbp_get_public_status_id();
 	}
 
 	/** Reply To **************************************************************/
@@ -633,17 +632,12 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	/** Reply Status **********************************************************/
 
-	// Maybe put into moderation
-	if ( ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
-
-		// Set post status to pending if public
-		if ( bbp_get_public_status_id() === $reply->post_status ) {
-			$reply_status = bbp_get_pending_status_id();
-		}
-
 	// Use existing post_status
-	} else {
-		$reply_status = $reply->post_status;
+	$reply_status = $reply->post_status;
+
+	// Maybe force into pending
+	if ( bbp_is_reply_public( $reply_id ) && ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
+		$reply_status = bbp_get_pending_status_id();
 	}
 
 	/** Reply To **************************************************************/
@@ -1222,7 +1216,7 @@ function bbp_move_reply_handler( $action = '' ) {
 	/** Move Reply ***********************************************************/
 
 	if ( empty( $_POST['bbp_reply_id'] ) ) {
-		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required', 'bbpress' ) );
+		bbp_add_error( 'bbp_move_reply_reply_id', __( '<strong>Error</strong>: A reply ID is required.', 'bbpress' ) );
 	} else {
 		$move_reply_id = (int) $_POST['bbp_reply_id'];
 	}

@@ -89,11 +89,6 @@ class BBP_Akismet {
 		$user_data = array();
 		$post_permalink = '';
 
-		// Post is not published
-		if ( bbp_get_public_status_id() !== $post_data['post_status'] ) {
-			return $post_data;
-		}
-
 		// Cast the post_author to 0 if it's empty
 		if ( empty( $post_data['post_author'] ) ) {
 			$post_data['post_author'] = 0;
@@ -165,25 +160,16 @@ class BBP_Akismet {
 			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
 		) );
 
-		// Set the result headers (from maybe_spam() above)
-		$post_data['bbp_akismet_result_headers'] = ! empty( $_post['bbp_akismet_result_headers'] )
-			? $_post['bbp_akismet_result_headers'] // raw
-			: esc_html__( 'No response', 'bbpress' );
+		// Set the results (from maybe_spam() above)
+		$post_data['bbp_akismet_result_headers'] = $_post['bbp_akismet_result_headers'];
+		$post_data['bbp_akismet_result']         = $_post['bbp_akismet_result'];
+		$post_data['bbp_post_as_submitted']      = $_post;
 
-		// Set the result (from maybe_spam() above)
-		$post_data['bbp_akismet_result'] = ! empty( $_post['bbp_akismet_result'] )
-			? $_post['bbp_akismet_result'] // raw
-			: esc_html__( 'No response', 'bbpress' );
-
-		// Avoid recurrsion by unsetting results
+		// Avoid recursion by unsetting results from post-as-submitted
 		unset(
-			$_post['bbp_akismet_result_headers'],
-			$_post['bbp_akismet_result']
+			$post_data['bbp_post_as_submitted']['bbp_akismet_result_headers'],
+			$post_data['bbp_post_as_submitted']['bbp_akismet_result']
 		);
-		$post_data['bbp_post_as_submitted'] = $_post;
-
-		// Cleanup to avoid touching this variable again below
-		unset( $_post );
 
 		// Allow post_data to be manipulated
 		$post_data = apply_filters( 'bbp_akismet_check_post', $post_data );
@@ -199,7 +185,7 @@ class BBP_Akismet {
 	 * Parse the response from the Akismet service, and alter the post data as
 	 * necessary. For example, switch the status to `spam` if spammy.
 	 *
-	 * Note: this method also skiis responsible for allowing users who can moderate, to
+	 * Note: this method also is responsible for allowing users who can moderate to
 	 * never have their posts marked as spam. This is because they are "trusted"
 	 * users. However, their posts are still sent to Akismet to be checked.
 	 *
@@ -222,6 +208,26 @@ class BBP_Akismet {
 		// Bail early if current user can skip spam enforcement
 		if ( apply_filters( 'bbp_bypass_spam_enforcement', $skip_spam, $post_data ) ) {
 			return $post_data;
+		}
+
+		// Discard obvious spam
+		if ( get_option( 'akismet_strictness' ) ) {
+
+			// Akismet is 100% confident this is spam
+			if (
+				! empty( $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+				&&
+				( 'discard' === $post_data['bbp_akismet_result_headers']['x-akismet-pro-tip'] )
+			) {
+
+				// URL to redirect to (current, or forum root)
+				$redirect_to = ( ! empty( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['REQUEST_URI'] ) )
+					? bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+					: bbp_get_root_url();
+
+				// Do the redirect (post data not saved!)
+				bbp_redirect( $redirect_to );
+			}
 		}
 
 		// Result is spam, so set the status as such
@@ -425,7 +431,8 @@ class BBP_Akismet {
 		global $akismet_api_host, $akismet_api_port;
 
 		// Define variables
-		$query_string = $path = $response = '';
+		$query_string = $path = '';
+		$response = array( '', '' );
 
 		// Make sure post data is an array
 		if ( ! is_array( $post_data ) ) {
@@ -443,7 +450,7 @@ class BBP_Akismet {
 		if ( ! empty( $_POST ) && is_countable( $_POST ) ) {
 			foreach ( $_POST as $key => $value ) {
 				if ( is_string( $value ) ) {
-					$post_data['POST_' . $key] = $value;
+					$post_data[ 'POST_' . $key ] = $value;
 				}
 			}
 		}
@@ -474,6 +481,11 @@ class BBP_Akismet {
 			}
 		}
 
+		// Only accepts spam|ham
+		if ( ! in_array( $spam, array( 'spam', 'ham' ), true ) ) {
+			$spam = 'spam';
+		}
+
 		// Setup the API route
 		if ( 'check' === $check ) {
 			$path = '/1.1/comment-check';
@@ -482,18 +494,18 @@ class BBP_Akismet {
 		}
 
 		// Send data to Akismet
-		$response = ! apply_filters( 'bbp_bypass_check_for_spam', false, $post_data )
-			? $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port )
-			: false;
+		if ( ! apply_filters( 'bbp_bypass_check_for_spam', false, $post_data ) ) {
+			$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
+		}
 
 		// Set the result headers
 		$post_data['bbp_akismet_result_headers'] = ! empty( $response[0] )
-			? $response[0]
+			? $response[0] // raw
 			: esc_html__( 'No response', 'bbpress' );
 
 		// Set the result
 		$post_data['bbp_akismet_result'] = ! empty( $response[1] )
-			? $response[1]
+			? $response[1] // raw
 			: esc_html__( 'No response', 'bbpress' );
 
 		// Return the post data, with the results of the external Akismet request
@@ -741,13 +753,13 @@ class BBP_Akismet {
 
 		// Preload required variables
 		$bbp_version  = bbp_get_version();
+		$ak_version   = constant( 'AKISMET_VERSION' );
 		$http_host    = $host;
 		$blog_charset = get_option( 'blog_charset' );
-		$response     = '';
 
-		// Untque User Agent
-		$akismet_ua     = "bbPress/{$bbp_version} | ";
-		$akismet_ua    .= 'Akismet/' . constant( 'AKISMET_VERSION' );
+		// User Agent & Content Type
+		$akismet_ua   = "bbPress/{$bbp_version} | Akismet/{$ak_version}";
+		$content_type = 'application/x-www-form-urlencoded; charset=' . $blog_charset;
 
 		// Use specific IP (if provided)
 		if ( ! empty( $ip ) && long2ip( ip2long( $ip ) ) ) {
@@ -756,29 +768,83 @@ class BBP_Akismet {
 
 		// Setup the arguments
 		$http_args = array(
-			'body'             => $request,
-			'headers'          => array(
-				'Content-Type' => 'application/x-www-form-urlencoded; charset=' . $blog_charset,
+			'httpversion' => '1.0',
+			'timeout'     => 15,
+			'body'        => $request,
+			'headers'     => array(
+				'Content-Type' => $content_type,
 				'Host'         => $host,
 				'User-Agent'   => $akismet_ua
-			),
-			'httpversion'      => '1.0',
-			'timeout'          => 15
+			)
 		);
 
-		// Where we are sending our request
-		$akismet_url = 'http://' . $http_host . $path;
+		// Return the response
+		return $this->get_response( $http_host . $path, $http_args );
+	}
 
-		// Send the request
-		$response    = wp_remote_post( $akismet_url, $http_args );
+	/**
+	 * Handles the repeated calls to wp_remote_post(), including SSL support.
+	 *
+	 * @since 2.6.7 (bbPress r7194)
+	 *
+	 * @param string $host_and_path Scheme-less URL
+	 * @param array  $http_args     Array of arguments for wp_remote_post()
+	 * @return array
+	 */
+	private function get_response( $host_and_path = '', $http_args = array() ) {
 
-		// Bail if the response is an error
+		// Default variables
+		$akismet_url = $http_akismet_url = 'http://' . $host_and_path;
+		$is_ssl = $ssl_failed = false;
+		$now = time();
+
+		// Check if SSL requests were disabled fewer than 24 hours ago
+		$ssl_disabled_time = get_option( 'akismet_ssl_disabled' );
+
+		// Clean-up if 24 hours have passed
+		if ( ! empty( $ssl_disabled_time ) && ( $ssl_disabled_time < ( $now - DAY_IN_SECONDS ) ) ) {
+			delete_option( 'akismet_ssl_disabled' );
+			$ssl_disabled_time = false;
+		}
+
+		// Maybe HTTPS if not disabled
+		if ( empty( $ssl_disabled_time ) && ( $is_ssl = wp_http_supports( array( 'ssl' ) ) ) ) {
+			$akismet_url = set_url_scheme( $akismet_url, 'https' );
+		}
+
+		// Initial remote request
+		$response = wp_remote_post( $akismet_url, $http_args );
+
+		// Initial request produced an error, so retry...
+		if ( ! empty( $is_ssl ) && is_wp_error( $response ) ) {
+
+			// Intermittent connection problems may cause the first HTTPS
+			// request to fail and subsequent HTTP requests to succeed randomly.
+			// Retry the HTTPS request once before disabling SSL for a time.
+			$response = wp_remote_post( $akismet_url, $http_args );
+
+			// SSL request failed twice, so try again without it
+			if ( is_wp_error( $response ) ) {
+				$response   = wp_remote_post( $http_akismet_url, $http_args );
+				$ssl_failed = true;
+			}
+		}
+
+		// Bail if errored
 		if ( is_wp_error( $response ) ) {
-			return '';
+			return array( '', '' );
+		}
+
+		// Maybe disable SSL for future requests
+		if ( ! empty( $ssl_failed ) ) {
+			update_option( 'akismet_ssl_disabled', $now );
 		}
 
 		// No errors so return response
-		return array( $response['headers'], $response['body'] );
+		return array(
+			$response['headers'],
+			$response['body']
+		);
 	}
 
 	/**
