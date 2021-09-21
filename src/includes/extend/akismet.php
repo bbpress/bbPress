@@ -580,6 +580,11 @@ class BBP_Akismet {
 				( $as_submitted['comment_author_email'] === $email )
 			) {
 
+				// Delete old content daily
+				if ( ! wp_next_scheduled( 'akismet_scheduled_delete' ) ) {
+					wp_schedule_event( time(), 'daily', 'akismet_scheduled_delete' );
+				}
+
 				// Normal result: true
 				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'true' ) ) {
 
