@@ -249,7 +249,15 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	/** Topic Duplicate *******************************************************/
 
-	if ( ! bbp_check_for_duplicate( array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) ) {
+	$dupe_args = array(
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_author'    => $topic_author,
+		'post_content'   => $topic_content,
+		'post_parent'    => $forum_id,
+		'anonymous_data' => $anonymous_data
+	);
+
+	if ( ! bbp_check_for_duplicate( $dupe_args ) ) {
 		bbp_add_error( 'bbp_topic_duplicate', __( '<strong>Error</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that.', 'bbpress' ) );
 	}
 
