@@ -230,7 +230,15 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Forum Duplicate *******************************************************/
 
-	if ( ! bbp_check_for_duplicate( array( 'post_type' => bbp_get_forum_post_type(), 'post_author' => $forum_author, 'post_content' => $forum_content, 'anonymous_data' => $anonymous_data ) ) ) {
+	$dupe_args = array(
+		'post_type'      => bbp_get_forum_post_type(),
+		'post_author'    => $forum_author,
+		'post_content'   => $forum_content,
+		'post_parent'    => $forum_parent_id,
+		'anonymous_data' => $anonymous_data
+	);
+
+	if ( ! bbp_check_for_duplicate( $dupe_args ) ) {
 		bbp_add_error( 'bbp_forum_duplicate', __( '<strong>Error</strong>: This forum already exists.', 'bbpress' ) );
 	}
 
