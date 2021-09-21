@@ -90,8 +90,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		add_action( 'bbp_edit_topic_pre_extras',      array( $this, 'validate_topic_forum_id' ) );
 		add_action( 'bbp_edit_reply_pre_extras',      array( $this, 'validate_reply_to_id'    ) );
 
-		// Check if group-forum status should be changed
-		add_action( 'groups_group_after_save',        array( $this, 'update_group_forum_visibility'   ) );
+		// Check if group-forum attributes should be changed
+		add_action( 'groups_group_after_save',        array( $this, 'update_group_forum' ) );
 
 		// bbPress needs to listen to BuddyPress group deletion
 		add_action( 'groups_before_delete_group',     array( $this, 'disconnect_forum_from_group'     ) );
@@ -860,13 +860,15 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Set forums' status to match the privacy status of the associated group
+	 * Update forum attributes to match those of the associated group.
 	 *
 	 * Fired whenever a group is saved
 	 *
+	 * @since 2.6.7 bbPress (r7208)
+	 *
 	 * @param BP_Groups_Group $group Group object.
 	 */
-	public static function update_group_forum_visibility( BP_Groups_Group $group ) {
+	public static function update_group_forum( BP_Groups_Group $group ) {
 
 		// Get group forum IDs
 		$forum_ids = bbp_get_group_forum_ids( $group->id );
@@ -902,6 +904,39 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 						bbp_publicize_forum( $forum_id, $forum->post_status );
 						break;
 				}
+			}
+		}
+
+		// Maybe update the first group forum title, content, and slug
+		if ( ! empty( $forum_ids[0] ) ) {
+
+			// Get forum from ID
+			$forum = bbp_get_forum( $forum_ids[0] );
+
+			// Only update the forum if changes are being made
+			if (
+
+				// Title
+				( $forum->post_title !== $group->name )
+
+				||
+
+				// Content
+				( $forum->post_content !== $group->description )
+
+				||
+
+				// Slug
+				( $forum->post_name !== $group->slug )
+			) {
+				wp_update_post(
+					array(
+						'ID'           => $forum->ID,
+						'post_title'   => $group->name,
+						'post_content' => $group->description,
+						'post_name'    => $group->slug
+					)
+				);
 			}
 		}
 	}
