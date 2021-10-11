@@ -2048,8 +2048,8 @@ function bbp_view_id( $view = '' ) {
 		$bbp = bbpress();
 
 		// User supplied string
-		if ( ! empty( $view ) ) {
-			$view_id = sanitize_key( $view );
+		if ( ! empty( $view ) && is_string( $view ) ) {
+			$view_id = $view;
 
 		// Current view ID
 		} elseif ( ! empty( $bbp->current_view_id ) ) {
