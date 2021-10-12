@@ -384,7 +384,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// User link for topic author
-		$user_link = bbp_get_user_profile_link( $user_id  );
+		$user_link = bbp_get_user_profile_link( $user_id );
 
 		// Topic
 		$topic_permalink = bbp_get_topic_permalink( $topic_id );
@@ -519,7 +519,7 @@ class BBP_BuddyPress_Activity {
 		}
 
 		// Setup links for activity stream
-		$user_link = bbp_get_user_profile_link( $user_id  );
+		$user_link = bbp_get_user_profile_link( $user_id );
 
 		// Reply
 		$reply_url     = bbp_get_reply_url( $reply_id );

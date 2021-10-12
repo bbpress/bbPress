@@ -2151,7 +2151,7 @@ function bbp_view_url( $view = false ) {
  *
  * @return bool True if match, false if not
  */
-function bbp_is_query_name( $name = '' )  {
+function bbp_is_query_name( $name = '' ) {
 	return (bool) ( bbp_get_query_name() === $name );
 }
 
@@ -2162,7 +2162,7 @@ function bbp_is_query_name( $name = '' )  {
  *
  * @return string To return the query var value
  */
-function bbp_get_query_name()  {
+function bbp_get_query_name() {
 	return get_query_var( '_bbp_query_name' );
 }
 
@@ -2173,7 +2173,7 @@ function bbp_get_query_name()  {
  *
  * @param string $name What to set the query var to
  */
-function bbp_set_query_name( $name = '' )  {
+function bbp_set_query_name( $name = '' ) {
 	set_query_var( '_bbp_query_name', $name );
 }
 
