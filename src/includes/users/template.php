@@ -444,11 +444,27 @@ function bbp_user_profile_link( $user_id = 0 ) {
 			return false;
 		}
 
-		$user      = get_userdata( $user_id );
-		$user_link = '<a href="' . esc_url( bbp_get_user_profile_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
+		// Get the user
+		$user = get_userdata( $user_id );
+		if ( empty( $user ) ) {
+			return false;
+		}
+
+		// Display Name
+		$name = ! empty( $user->display_name )
+			? $user->display_name
+			: bbp_get_fallback_display_name();
+
+		// URL
+		$url = bbp_get_user_profile_url( $user_id );
+
+		// Link
+		$link = ! empty( $url )
+			? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
+			: esc_html( $name );
 
 		// Filter & return
-		return apply_filters( 'bbp_get_user_profile_link', $user_link, $user_id );
+		return (string) apply_filters( 'bbp_get_user_profile_link', $link, $user_id );
 	}
 
 /**
@@ -596,11 +612,27 @@ function bbp_user_profile_edit_link( $user_id = 0 ) {
 			return false;
 		}
 
-		$user      = get_userdata( $user_id );
-		$edit_link = '<a href="' . esc_url( bbp_get_user_profile_edit_url( $user_id ) ) . '">' . esc_html( $user->display_name ) . '</a>';
+		// Get the user
+		$user = get_userdata( $user_id );
+		if ( empty( $user ) ) {
+			return false;
+		}
+
+		// Display Name
+		$name = ! empty( $user->display_name )
+			? $user->display_name
+			: bbp_get_fallback_display_name();
+
+		// URL
+		$url = bbp_get_user_profile_edit_url( $user_id );
+
+		// Link
+		$link = ! empty( $url )
+			? '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>'
+			: esc_html( $name );
 
 		// Filter & return
-		return apply_filters( 'bbp_get_user_profile_edit_link', $edit_link, $user_id );
+		return (string) apply_filters( 'bbp_get_user_profile_edit_link', $link, $user_id );
 	}
 
 /**
