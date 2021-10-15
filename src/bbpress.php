@@ -340,6 +340,7 @@ final class bbPress {
 		require $this->includes_dir . 'common/template.php';
 		require $this->includes_dir . 'common/widgets.php';
 		require $this->includes_dir . 'common/shortcodes.php';
+		require $this->includes_dir . 'common/blocks.php';
 
 		// Forums
 		require $this->includes_dir . 'forums/capabilities.php';
@@ -521,6 +522,7 @@ final class bbPress {
 				'show_in_nav_menus'   => true,
 				'public'              => true,
 				'show_ui'             => current_user_can( 'bbp_forums_admin' ),
+				'show_in_rest'        => true,
 				'can_export'          => true,
 				'hierarchical'        => true,
 				'query_var'           => true,
@@ -734,12 +736,13 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the bbPress shortcodes
+	 * Register the bbPress shortcodes and blocks
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 */
 	public function register_shortcodes() {
 		$this->shortcodes = new BBP_Shortcodes();
+		$this->blocks = new BBP_Blocks( $this->shortcodes );
 	}
 
 	/**
