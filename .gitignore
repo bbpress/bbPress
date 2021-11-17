@@ -1,19 +1,42 @@
 # gitignore file for bbPress
 
-# Configuration files with possibly sensitive information
-.htaccess
+# Operating system
+.DS_Store
+.cache
+.idea
+Thumbs.db
 
-# Files and folders related to build/test tools
+# Build/test tools
+/build
+/phpcs.xml
 /phpunit.xml
 /tests/phpunit/build
 /node_modules
 /npm-debug.log
+/lib-cov
+/pids
+/logs
+/results
+/src/vendor
+/vendor
 
-# Output directory.
-/build
+# Patches/debugging
+*.rej
+*.orig
+*.diff
+*.patch
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.sql
+*.zip
 
-# Operating system specific files
-.DS_Store
-
-# Ignore other .gitignore files to allow for personal customizations
+# Customizations
+.htaccess
 .gitignore
+.wp-env.override.json
+wp-cli.local.yml
