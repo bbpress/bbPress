@@ -1,12 +1,15 @@
 === bbPress ===
-Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
-Tags: forum, forums, discussion, support
-Tested up to: 5.8
-Stable tag: 2.6.6
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Requires PHP: 5.6.20
-Requires at least: 5.3
+Contributors:      matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
+Author:            The bbPress Contributors
+Author URI:        https://bbpress.org
+Plugin URI:        https://bbpress.org
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+License:           GNU General Public License v2 or later
+Tags:              forum, forums, discussion, support
+Requires PHP:      5.6.20
+Requires at least: 5.5
+Tested up to:      5.9
+Stable tag:        2.6.7
 
 bbPress is forum software for WordPress.
 
