@@ -965,10 +965,10 @@ function bbp_is_edit() {
  * @param array $custom_classes
  * @return array Body Classes
  */
-function bbp_body_class( $wp_classes, $custom_classes = false ) {
+function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 
-	// Default classes
-	$bbp_classes = array( 'no-js' );
+	// Default to no classes
+	$bbp_classes = array();
 
 	/** Archives **************************************************************/
 
@@ -1077,12 +1077,15 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 		$bbp_classes[] = 'bbp-shortcode';
 	}
 
-	/** Clean up **************************************************************/
+	/** General ***************************************************************/
 
-	// Add bbPress class if we are within a bbPress page
+	// Any page with bbPress content
 	if ( ! empty( $bbp_classes ) ) {
 		$bbp_classes[] = 'bbpress';
+		$bbp_classes[] = 'no-js';
 	}
+
+	/** Clean up **************************************************************/
 
 	// Merge WP classes with bbPress classes and remove any duplicates
 	$classes = array_unique( array_merge( (array) $bbp_classes, (array) $wp_classes ) );
