@@ -9,7 +9,7 @@ Tags:              forum, forums, discussion, support
 Requires PHP:      5.6.20
 Requires at least: 5.5
 Tested up to:      5.9
-Stable tag:        2.6.7
+Stable tag:        2.6.8
 
 bbPress is forum software for WordPress.
 
