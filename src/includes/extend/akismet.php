@@ -966,8 +966,62 @@ class BBP_Akismet {
 	}
 
 	/**
+	 * Get the number of rows to delete in a single clean-up query.
+	 *
+	 * @since 2.6.9 bbPress (r7225)
+	 *
+	 * @param string $filter The name of the filter to run.
+	 * @return int
+	 */
+	public function get_delete_limit( $filter = '' ) {
+
+		// Default filter
+		if ( empty( $filter ) ) {
+			$filter = '_bbp_akismet_delete_spam_limit';
+		}
+
+		/**
+		 * Determines how many rows will be deleted in each batch.
+		 *
+		 * @param int The number of rows. Default 1000.
+		 */
+		$delete_limit = (int) apply_filters( $filter, 1000 );
+
+		// Validate and return the deletion limit
+		return max( 1, $delete_limit );
+	}
+
+	/**
+	 * Get the interval (in days) for spam to remain in the queue.
+	 *
+	 * @since 2.6.9 bbPress (r7225)
+	 *
+	 * @param string $filter The name of the filter to run.
+	 * @return int
+	 */
+	public function get_delete_interval( $filter = '' ) {
+
+		// Default filter
+		if ( empty( $filter ) ) {
+			$filter = '_bbp_akismet_delete_spam_interval';
+		}
+
+		/**
+		 * Determines how many days a piece of spam will be left in the Spam
+		 * queue before being deleted.
+		 *
+		 * @param int The number of days. Default 15.
+		 */
+		$delete_interval = (int) apply_filters( $filter, 15 );
+
+		// Validate and return the deletion interval
+		return max( 1, $delete_interval );
+	}
+
+	/**
 	 * Deletes old spam topics & replies from the queue after 15 days
-	 * (determined by `_bbp_akismet_delete_spam_interval` filter).
+	 * (determined by `_bbp_akismet_delete_spam_interval` filter)
+	 * since they are not useful in the long term.
 	 *
 	 * @since 2.6.7 bbPress (r7203)
 	 *
@@ -976,31 +1030,9 @@ class BBP_Akismet {
 	public function delete_old_spam() {
 		global $wpdb;
 
-		/**
-		 * Determines how many posts will be deleted in each batch.
-		 *
-		 * @param int The default as defined by AKISMET_DELETE_LIMIT (also used
-		 *            in Akismet WordPress plugin).
-		 */
-		$delete_limit = (int) apply_filters( '_bbp_akismet_delete_spam_limit',
-			defined( 'AKISMET_DELETE_LIMIT' )
-				? AKISMET_DELETE_LIMIT
-				: 10000
-		);
-
-		// Validate the deletion limit
-		$delete_limit = max( 1, intval( $delete_limit ) );
-
-		/**
-		 * Determines how many days a piece of spam will be left in the Spam
-		 * queue before being deleted.
-		 *
-		 * @param int The default number of days.
-		 */
-		$delete_interval = (int) apply_filters( '_bbp_akismet_delete_spam_interval', 15 );
-
-		// Validate the deletion interval
-		$delete_interval = max( 1, intval( $delete_interval ) );
+		// Get the deletion limit & interval
+		$delete_limit    = $this->get_delete_limit( '_bbp_akismet_delete_spam_limit' );
+		$delete_interval = $this->get_delete_interval( '_bbp_akismet_delete_spam_interval' );
 
 		// Setup the query
 		$sql = "SELECT id FROM {$wpdb->posts} WHERE post_type IN ('topic', 'reply') AND post_status = 'spam' AND DATE_SUB(NOW(), INTERVAL %d DAY) > post_date_gmt LIMIT %d";
@@ -1034,11 +1066,11 @@ class BBP_Akismet {
 
 			// Prepared as strings since id is an unsigned BIGINT, and using %
 			// will constrain the value to the maximum signed BIGINT.
-			$format_string = implode( ", ", array_fill( 0, count( $spam_ids ), '%s' ) );
+			$format_string = implode( ', ', array_fill( 0, count( $spam_ids ), '%s' ) );
 
 			// Run the delete queries
-			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->posts} WHERE post_id IN ( " . $format_string . " )", $spam_ids ) );
-			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( " . $format_string . " )", $spam_ids ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->posts} WHERE ID IN ( {$format_string} )", $spam_ids ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( {$format_string} )", $spam_ids ) );
 
 			// Clean the post cache for these topics & replies
 			clean_post_cache( $spam_ids );
@@ -1068,8 +1100,9 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Deletes `_bbp_akismet_as_submitted` meta keys after 15 days, since they
-	 * are large and not useful in the long term.
+	 * Deletes `_bbp_akismet_as_submitted` meta keys after 15 days
+	 * (determined by `_bbp_akismet_delete_spam_meta_interval` filter)
+	 * since they are large and not useful in the long term.
 	 *
 	 * @since 2.6.7 bbPress (r7203)
 	 *
@@ -1078,22 +1111,15 @@ class BBP_Akismet {
 	public function delete_old_spam_meta() {
 		global $wpdb;
 
-		/**
-		 * Determines how many days a piece of spam will be left in the Spam
-		 * queue before being deleted.
-		 *
-		 * @param int The default number of days.
-		 */
-		$interval = (int) apply_filters( '_bbp_akismet_delete_spam_meta_interval', 15 );
-
-		// Validate the deletion interval
-		$interval = max( 1, intval( $interval ) );
+		// Get the deletion limit & interval
+		$delete_limit    = $this->get_delete_limit( '_bbp_akismet_delete_spam_meta_limit' );
+		$delete_interval = $this->get_delete_interval( '_bbp_akismet_delete_spam_meta_interval' );
 
 		// Setup the query
-		$sql = "SELECT m.post_id FROM {$wpdb->postmeta} as m INNER JOIN {$wpdb->posts} as p ON m.post_id = p.id WHERE m.meta_key = '_bbp_akismet_as_submitted' AND DATE_SUB(NOW(), INTERVAL %d DAY) > p.post_date_gmt LIMIT 10000";
+		$sql = "SELECT m.post_id FROM {$wpdb->postmeta} as m INNER JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE m.meta_key = '_bbp_akismet_as_submitted' AND DATE_SUB(NOW(), INTERVAL %d DAY) > p.post_date_gmt LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $interval ) ) ) {
+		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) {
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_ids ) ) {
@@ -1134,7 +1160,9 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Clears post meta that no longer has corresponding posts in the database.
+	 * Clears post meta that no longer has corresponding posts in the database
+	 * (determined by `_bbp_akismet_delete_spam_orphaned_limit` filter)
+	 * since it is not useful in the long term.
 	 *
 	 * @since 2.6.7 bbPress (r7203)
 	 *
@@ -1143,6 +1171,10 @@ class BBP_Akismet {
 	public function delete_orphaned_spam_meta() {
 		global $wpdb;
 
+		// Get the deletion limit
+		$delete_limit = $this->get_delete_limit( '_bbp_akismet_delete_spam_orphaned_limit' );
+
+		// Default last meta ID
 		$last_meta_id = 0;
 
 		// Start time (float)
@@ -1154,10 +1186,10 @@ class BBP_Akismet {
 		$max_exec_time = (float) max( ini_get( 'max_execution_time' ) - 5, 3 );
 
 		// Setup the query
-		$sql = "SELECT m.meta_id, m.post_id, m.meta_key FROM {$wpdb->postmeta} as m LEFT JOIN {$wpdb->posts} as p ON m.post_id = p.id WHERE p.id IS NULL AND m.meta_id > %d ORDER BY m.meta_id LIMIT 1000";
+		$sql = "SELECT m.meta_id, m.post_id, m.meta_key FROM {$wpdb->postmeta} as m LEFT JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE p.ID IS NULL AND m.meta_id > %d ORDER BY m.meta_id LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id ) ) ) {
+		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) {
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_meta_results ) ) {
