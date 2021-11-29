@@ -2,7 +2,7 @@
 Contributors: matt, johnjamesjacoby, jmdodd, netweb, sergeybiryukov
 Tags: forum, forums, discussion, support
 Tested up to: 5.9
-Stable tag: 2.6.8
+Stable tag: 2.6.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP: 5.6.20
