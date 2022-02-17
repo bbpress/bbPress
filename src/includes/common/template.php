@@ -70,7 +70,7 @@ function bbp_head() {
 }
 
 /**
- * Add our custom head action to wp_head
+ * Add our custom footer action to wp_footer
  *
  * @since 2.0.0 bbPress (r2464)
  */
@@ -1082,7 +1082,7 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 	// Any page with bbPress content
 	if ( ! empty( $bbp_classes ) ) {
 		$bbp_classes[] = 'bbpress';
-		$bbp_classes[] = 'no-js';
+		$bbp_classes[] = 'bbp-no-js';
 	}
 
 	/** Clean up **************************************************************/
@@ -1095,6 +1095,32 @@ function bbp_body_class( $wp_classes = array(), $custom_classes = false ) {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
+}
+
+/**
+ * Output a small piece of JavaScript to replace the "bbp-no-js" body class
+ * with "bbp-js" to allow interactive & dynamic elements to work as intended.
+ *
+ * @since 2.6.10 bbPress (r7229)
+ */
+function bbp_swap_no_js_body_class() {
+	static $done = false;
+
+	// Bail if already done
+	if ( true === $done ) {
+		return;
+	}
+
+	// Mark as done
+	$done = true;
+
+?>
+
+<script type="text/javascript" id="bbp-swap-no-js-body-class">
+	document.body.className = document.body.className.replace( 'bbp-no-js', 'bbp-js' );
+</script>
+
+<?php
 }
 
 /**

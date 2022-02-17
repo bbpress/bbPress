@@ -8,13 +8,14 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
+/* Hide completely (including from screen readers) */
 .hidden,
-.no-js .hide-if-no-js,
-.js .hide-if-js {
+.bbp-no-js .hide-if-no-js,
+.bbp-js .hide-if-js {
 	display: none;
 }
 
-/* Hide visually but not from screen readers */
+/* Hide visually (but not from screen readers) */
 .screen-reader-text,
 .screen-reader-text span,
 .ui-helper-hidden-accessible {
