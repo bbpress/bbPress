@@ -13,10 +13,6 @@ defined( 'ABSPATH' ) || exit;
 // Filters the display of the password fields
 if ( apply_filters( 'show_password_fields', true, bbpress()->displayed_user ) ) : ?>
 
-<script type="text/javascript">
-	document.body.className = document.body.className.replace( 'no-js', 'js' );
-</script>
-
 <div id="password" class="user-pass1-wrap">
 	<label for="user_login"><?php esc_html_e( 'Password', 'bbpress' ); ?></label>
 	<button type="button" class="button wp-generate-pw hide-if-no-js"><?php esc_html_e( 'Generate Password', 'bbpress' ); ?></button>
