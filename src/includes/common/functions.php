@@ -188,6 +188,33 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 }
 
 /**
+ * Use the previous status when restoring a topic or reply.
+ *
+ * Fixes an issue since WordPress 5.6.0. See
+ * {@link https://bbpress.trac.wordpress.org/ticket/3433}.
+ *
+ * @since 2.6.10 bbPress (r7233)
+ *
+ * @param string $new_status      New status to use when untrashing. Default: 'draft'
+ * @param int    $post_id         Post ID
+ * @param string $previous_status Previous post status from '_wp_trash_meta_status' meta key. Default: 'pending'
+ */
+function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $previous_status = 'pending' ) {
+
+	// Bail if not Topic or Reply
+	if ( ! bbp_is_topic( $post_id ) && ! bbp_is_reply( $post_id ) ) {
+		return $new_status;
+	}
+
+	// Prefer the previous status, falling back to the new status
+	$retval = ! empty( $previous_status )
+		? $previous_status
+		: $new_status;
+
+	return $retval;
+}
+
+/**
  * Check a date against the length of time something can be edited.
  *
  * It is recommended to leave $utc set to true and to work with UTC/GMT dates.
