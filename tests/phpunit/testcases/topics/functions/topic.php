@@ -423,24 +423,51 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_untrash_topic
-	 * @todo   Implement test_bbp_untrash_topic().
 	 */
 	public function test_bbp_untrash_topic() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+
+		wp_trash_post( $t );
+
+		wp_untrash_post( $t );
+
+		$this->assertTrue( 'publish' === get_post_status( $t ) );
 	}
 
 	/**
 	 * @covers ::bbp_untrash_topic_replies
-	 * @todo   Implement test_bbp_untrash_topic_replies().
 	 */
 	public function test_bbp_untrash_topic_replies() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$f = $this->factory->forum->create();
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta' => array(
+				'forum_id' => $f,
+			),
+		) );
+		$r = $this->factory->reply->create_many( 2, array(
+			'post_parent' => $t,
+			'reply_meta' => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		wp_trash_post( $t );
+
+		wp_untrash_post( $t );
+
+		$expected = [];
+		$expected[] = get_post_status( $r[0] );
+		$expected[] = get_post_status( $r[1] );
+
+		$this->assertSame( [ 'publish', 'publish' ], $expected );
 	}
 
 	/**

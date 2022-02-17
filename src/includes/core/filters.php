@@ -52,6 +52,9 @@ add_filter( 'plugin_locale',           'bbp_plugin_locale',      10, 2 );
 // Fix post author id for anonymous posts (set it back to 0) when the post status is changed
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
 
+// Fix untrash post status after a topic or reply is re-instated
+add_filter( 'wp_untrash_post_status', 'bbp_fix_untrash_post_status', 10, 3 );
+
 // Force comments_status on bbPress post types
 add_filter( 'comments_open', 'bbp_force_comment_status' );
 
