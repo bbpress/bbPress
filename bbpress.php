@@ -17,12 +17,13 @@
  * Description:       bbPress is forum software with a twist from the creators of WordPress.
  * Author:            The bbPress Contributors
  * Author URI:        https://bbpress.org
- * Version:           2.7.0-alpha-2
+ * License:           GNU General Public License v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       bbpress
  * Domain Path:       /languages/
- * License:           GPLv2 or later (license.txt)
  * Requires PHP:      5.6.20
- * Requires at least: 4.7
+ * Requires at least: 5.0
+ * Version:           2.7.0-alpha-2
  */
 
 // Exit if accessed directly
