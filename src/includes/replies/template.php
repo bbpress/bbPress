@@ -1457,7 +1457,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 * @since 2.0.0 bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
-	 *                        id and reply id
+	 *
 	 * @return int The forum id of the reply
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {

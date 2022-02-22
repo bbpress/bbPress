@@ -1762,7 +1762,7 @@ function bbp_forum_author_id( $forum_id = 0 ) {
 	 * @since 2.1.0 bbPress (r3675)
 	 *
 	 * @param int $forum_id Optional. Forum id
-	 *                        id and forum id
+	 *
 	 * @return string Author of forum
 	 */
 	function bbp_get_forum_author_id( $forum_id = 0 ) {
