@@ -402,7 +402,7 @@ function bbp_reply_permalink( $reply_id = 0 ) {
 	 * @since 2.0.0 bbPress (r2553)
 	 *
 	 * @param int $reply_id Optional. Reply id
-	 *                        and reply id
+	 *
 	 * @return string Permanent link to reply
 	 */
 	function bbp_get_reply_permalink( $reply_id = 0 ) {
