@@ -2412,7 +2412,7 @@ function bbp_list_replies( $args = array() ) {
 	), 'list_replies' );
 
 	// Get replies to loop through in $_replies
-	echo '<ul>' . $r['walker']->paged_walk( $bbp->reply_query->posts, $r['max_depth'], $r['page'], $r['per_page'], $r ) . '</ul>';
+	echo "<{$r['style']}>" . $r['walker']->paged_walk( $bbp->reply_query->posts, $r['max_depth'], $r['page'], $r['per_page'], $r ) . "</{$r['style']}>";
 
 	$bbp->max_num_pages            = $r['walker']->max_pages;
 	$bbp->reply_query->in_the_loop = false;
