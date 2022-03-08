@@ -954,35 +954,59 @@ function bbp_sanitize_displayed_user_field( $value = '', $field = '', $context =
  * Convert passwords from previous platform encryption to WordPress encryption.
  *
  * @since 2.1.0 bbPress (r3813)
+ * @since 2.6.10 bbPress (r7244) Switched from direct query to get_user_by()
  */
 function bbp_user_maybe_convert_pass() {
 
-	// Sanitize username
-	$username = ! empty( $_POST['log'] )
-		? sanitize_user( $_POST['log'] )
+	// Sanitize login
+	$login = ! empty( $_POST['log'] )
+		? sanitize_user( wp_unslash( $_POST['log'] ) )
 		: '';
 
-	// Bail if no username
-	if ( empty( $username ) ) {
+	// Sanitize password
+	$pass = ! empty( $_POST['pwd'] )
+		? trim( $_POST['pwd'] )
+		: '';
+
+	// Bail if no username or password
+	if ( empty( $login ) || empty( $pass ) ) {
 		return;
 	}
 
-	// Bail if no user password to convert
-	$bbp_db = bbp_db();
-	$query  = $bbp_db->prepare( "SELECT * FROM {$bbp_db->users} INNER JOIN {$bbp_db->usermeta} ON user_id = ID WHERE meta_key = %s AND user_login = %s LIMIT 1", '_bbp_class', $username );
-	$row    = $bbp_db->get_row( $query );
-	if ( empty( $row ) || is_wp_error( $row ) ) {
+	// Get user by login...
+	$user = get_user_by( 'login', $login );
+
+	// ...or get user by email
+	if ( empty( $user ) && strpos( $login, '@' ) ) {
+		$user = get_user_by( 'email', $login );
+	}
+
+	// Bail if no user
+	if ( empty( $user ) ) {
+		return;
+	}
+
+	// Get converter class from usermeta
+	$class = get_user_meta( $user->ID, '_bbp_class', true );
+
+	// Bail if no converter class in meta
+	if ( empty( $class ) || ! is_string( $class ) ) {
 		return;
 	}
 
 	// Setup the converter
 	bbp_setup_converter();
 
-	// Try to convert the old password for this user
-	$converter = bbp_new_converter( $row->meta_value );
+	// Try to instantiate the converter class
+	$converter = bbp_new_converter( $class );
 
-	// Try to call the conversion method
+	// Bail if no converter
+	if ( empty( $converter ) ) {
+		return;
+	}
+
+	// Try to call the password conversion callback method
 	if ( ( $converter instanceof BBP_Converter_Base ) && method_exists( $converter, 'callback_pass' ) ) {
-		$converter->callback_pass( $username, $_POST['pwd'] );
+		$converter->callback_pass( $login, $pass );
 	}
 }
