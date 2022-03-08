@@ -1139,7 +1139,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$blog_name         = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$forum_title       = wp_specialchars_decode( strip_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES );
 	$topic_title       = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
 	$reply_author_name = wp_specialchars_decode( strip_tags( $reply_author_name ), ENT_QUOTES );
 	$reply_content     = wp_specialchars_decode( strip_tags( bbp_get_reply_content( $reply_id ) ), ENT_QUOTES );
@@ -1169,7 +1169,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	}
 
 	// For plugins to filter titles per reply/topic/user
-	$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $reply_id, $topic_id );
+	$subject = apply_filters( 'bbp_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $reply_id, $topic_id );
 	if ( empty( $subject ) ) {
 		return;
 	}
@@ -1306,7 +1306,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	bbp_remove_all_filters( 'the_title'             );
 
 	// Strip tags from text and setup mail data
-	$blog_name         = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+	$forum_title       = wp_specialchars_decode( strip_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES );
 	$topic_title       = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES );
 	$topic_author_name = wp_specialchars_decode( strip_tags( $topic_author_name ), ENT_QUOTES );
 	$topic_content     = wp_specialchars_decode( strip_tags( bbp_get_topic_content( $topic_id ) ), ENT_QUOTES );
@@ -1336,7 +1336,7 @@ Login and visit the topic to unsubscribe from these emails.', 'bbpress' ),
 	}
 
 	// For plugins to filter titles per reply/topic/user
-	$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $blog_name . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
+	$subject = apply_filters( 'bbp_forum_subscription_mail_title', '[' . $forum_title . '] ' . $topic_title, $topic_id, $forum_id, $user_id );
 	if ( empty( $subject ) ) {
 		return;
 	}
