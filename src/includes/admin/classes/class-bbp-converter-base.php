@@ -1046,22 +1046,39 @@ abstract class BBP_Converter_Base {
 	 * @param string $username
 	 * @param string $password
 	 */
-	public function callback_pass( $username, $password ) {
+	public function callback_pass( $username = '', $password = '' ) {
+
+		// Get user – Bail if not found
 		$user = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->users} WHERE user_login = %s AND user_pass = '' LIMIT 1", $username ) );
-		if ( ! empty( $user ) ) {
-			$usermeta = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d LIMIT 1", '_bbp_password', $user->ID ) );
-
-			if ( ! empty( $usermeta ) ) {
-				if ( $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
-					$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", wp_hash_password( $password ), $user->ID ) );
-					$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_password', $user->ID ) );
-
-					// Clean the cache for this user since their password was
-					// upgraded from the old platform to the new.
-					clean_user_cache( $user->ID );
-				}
-			}
+		if ( empty( $user ) ) {
+			return;
 		}
+
+		// Get usermeta – Bail if not found
+		$usermeta = $this->get_row( $this->wpdb->prepare( "SELECT * FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d LIMIT 1", '_bbp_password', $user->ID ) );
+		if ( empty( $usermeta ) ) {
+			return;
+		}
+
+		// Bail if auth fails
+		if ( ! $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
+			return;
+		}
+
+		// Hash the password
+		$new_pass = wp_hash_password( $password );
+
+		// Update
+		$this->query( $this->wpdb->prepare( "UPDATE {$this->wpdb->users} SET user_pass = %s WHERE ID = %d", $new_pass, $user->ID ) );
+
+		// Clean up
+		unset( $new_pass );
+		$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_password', $user->ID ) );
+		$this->query( $this->wpdb->prepare( "DELETE FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND user_id = %d", '_bbp_class',    $user->ID ) );
+
+		// Clean the cache for this user since their password was
+		// upgraded from the old platform to the new.
+		clean_user_cache( $user->ID );
 	}
 
 	/**
