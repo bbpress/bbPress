@@ -808,7 +808,7 @@ function bbp_topic_pagination( $args = array() ) {
 		$has_slug = bbp_get_topic( $r['topic_id'] )->post_name;
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		$base = ! empty( $has_slug ) && bbp_use_pretty_urls() && ! bbp_is_topic_pending( $r['topic_id'] )
+		$base = ! empty( $has_slug ) && bbp_use_pretty_urls() && bbp_is_topic_public( $r['topic_id'] )
 			? trailingslashit( get_permalink( $r['topic_id'] ) ) . user_trailingslashit( bbp_get_paged_slug() . '/%#%/' )
 			: add_query_arg( 'paged', '%#%', get_permalink( $r['topic_id'] ) );
 
