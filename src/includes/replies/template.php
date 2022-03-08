@@ -465,7 +465,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		// Get vars needed to support pending topics with unpretty links
 		$has_slug   = ! empty( $topic ) ? $topic->post_name : '';
 		$pretty     = bbp_use_pretty_urls();
-		$published  = ! bbp_is_topic_pending( $topic_id );
+		$published  = bbp_is_topic_public( $topic_id );
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
