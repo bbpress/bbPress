@@ -1353,12 +1353,15 @@ function bbp_reply_author_role( $args = array() ) {
 	 * @return string Reply author role
 	 */
 	function bbp_get_reply_author_role( $args = array() ) {
+		$reply_id = ! empty( $args['reply_id'] ) ? intval( $args['reply_id'] ) : 0;
+		$reply_id    = bbp_get_reply_id( $reply_id );
+		$css_role = strtolower( bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) ) );
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'reply_id' => 0,
 			'class'    => false,
-			'before'   => '<div class="bbp-author-role">',
+			'before'   => '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">',
 			'after'    => '</div>'
 		), 'get_reply_author_role' );
 

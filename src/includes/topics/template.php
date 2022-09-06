@@ -1589,12 +1589,15 @@ function bbp_topic_author_role( $args = array() ) {
 	 * @return string topic author role
 	 */
 	function bbp_get_topic_author_role( $args = array() ) {
+		$topic_id = ! empty( $args['topic_id'] ) ? intval( $args['topic_id'] ) : 0;
+		$topic_id    = bbp_get_topic_id( $topic_id );
+		$css_role = strtolower( bbp_get_user_display_role( bbp_get_topic_author_id( $topic_id ) ) );
 
 		// Parse arguments against default values
 		$r = bbp_parse_args( $args, array(
 			'topic_id' => 0,
 			'class'    => false,
-			'before'   => '<div class="bbp-author-role">',
+			'before'   => '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">',
 			'after'    => '</div>'
 		), 'get_topic_author_role' );
 
