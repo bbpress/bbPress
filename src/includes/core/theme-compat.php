@@ -846,6 +846,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		$template = bbp_get_theme_compat_templates();
 	}
 
+	/*
+	* If the current theme is a WordPress Block Theme, bbPress needs to use
+	* the WordPress template canvas to retrieve the correct content.
+	*/
+	if ( current_theme_supports( 'block-templates' ) ) {
+		$template = ABSPATH . WPINC . '/template-canvas.php';
+	}
+
 	// Filter & return
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
 }
