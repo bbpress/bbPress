@@ -1365,7 +1365,7 @@ function bbp_reply_author_role( $args = array() ) {
 		$role        = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
 		$css_role    = sanitize_key( $role );
 		
-		if( empty( $args['before'] ) ) {
+		if ( empty( $args['before'] ) ) {
 			$r['before'] = '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">';
 		}
 
