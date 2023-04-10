@@ -526,6 +526,7 @@ final class bbPress {
 				'query_var'           => true,
 				'menu_icon'           => '',
 				'source'              => 'bbpress',
+				'show_in_rest'        => true,
 			) )
 		);
 
@@ -552,6 +553,7 @@ final class bbPress {
 				'query_var'           => true,
 				'menu_icon'           => '',
 				'source'              => 'bbpress',
+				'show_in_rest'        => true,
 			) )
 		);
 
@@ -578,6 +580,7 @@ final class bbPress {
 				'query_var'           => true,
 				'menu_icon'           => '',
 				'source'              => 'bbpress',
+				'show_in_rest'        => true,
 			) )
 		);
 	}
