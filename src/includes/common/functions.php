@@ -2520,7 +2520,9 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 				$the_query = bbp_get_view_query_args( $view );
 
 				// Output the feed
-				bbp_display_topics_feed_rss2( $the_query );
+				if ( $the_query ) {
+					bbp_display_topics_feed_rss2( $the_query );
+				}
 			}
 		}
 
