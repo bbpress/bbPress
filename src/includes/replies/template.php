@@ -1100,7 +1100,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 
 		// Encode possible UTF8 display names
 		if ( seems_utf8( $author_name ) === false ) {
-			$author_name = utf8_encode( $author_name );
+			$author_name = mb_convert_encoding( $author_name, 'UTF-8', mb_list_encodings() );
 		}
 
 		// Filter & return
