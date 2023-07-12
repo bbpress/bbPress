@@ -1594,7 +1594,7 @@ function bbp_reply_to_link( $args = array() ) {
 
 		// Build the URI and return value
 		$uri = remove_query_arg( array( 'bbp_reply_to' ) );
-		$uri = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
+		$uri = add_query_arg( array( 'bbp_reply_to' => $reply->ID ), $uri );
 		$uri = wp_nonce_url( $uri, 'respond_id_' . $reply->ID );
 		$uri = $uri . '#new-post';
 
