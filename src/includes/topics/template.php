@@ -2067,7 +2067,7 @@ function bbp_topic_reply_count( $topic_id = 0, $integer = false ) {
 			? 'bbp_get_topic_reply_count_int'
 			: 'bbp_get_topic_reply_count';
 
-		return apply_filters( $filter, $replies, $topic_id );
+		return (int) apply_filters( $filter, $replies, $topic_id );
 	}
 
 /**
@@ -2129,7 +2129,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0, $integer = false ) {
 			? 'bbp_get_topic_reply_count_hidden_int'
 			: 'bbp_get_topic_reply_count_hidden';
 
-		return apply_filters( $filter, $replies, $topic_id );
+		return (int) apply_filters( $filter, $replies, $topic_id );
 	}
 
 /**
