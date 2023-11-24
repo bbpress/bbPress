@@ -1186,7 +1186,7 @@ class BBP_Akismet {
 		$max_exec_time = (float) max( ini_get( 'max_execution_time' ) - 5, 3 );
 
 		// Setup the query
-		$sql = "SELECT m.meta_id, m.post_id, m.meta_key FROM {$wpdb->postmeta} as m LEFT JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE p.ID IS NULL AND m.meta_id > %d ORDER BY m.meta_id LIMIT %d";
+		$sql = "SELECT m.meta_id, m.post_id, m.meta_key FROM {$wpdb->postmeta} as m LEFT JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE p.ID IS NULL AND m.meta_id > %d AND (m.meta_key LIKE 'akismet\\_%' OR m.meta_key LIKE '\\_bbp\\_%' ORDER BY m.meta_id LIMIT %d";
 
 		// Query loop of topic & reply IDs
 		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) {
@@ -1204,11 +1204,6 @@ class BBP_Akismet {
 
 			// Loop through each of the metas
 			foreach ( $spam_meta_results as $spam_meta ) {
-
-				// Skip if not an Akismet key
-				if ( 'akismet_' !== substr( $spam_meta->meta_key, 0, 8 ) ) {
-					continue;
-				}
 
 				// Delete the meta
 				delete_post_meta( $spam_meta->post_id, $spam_meta->meta_key );
