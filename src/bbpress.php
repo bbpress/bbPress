@@ -775,17 +775,21 @@ final class bbPress {
 		);
 
 		/** Post **************************************************************/
-
+		$forum = array_merge($count, array('object_subtype' => 'forum'));
+		$topic = array_merge($count, array('object_subtype' => 'topic'));
+		
 		// Counts
-		register_meta( 'post', '_bbp_topic_count',           $count );
-		register_meta( 'post', '_bbp_reply_count',           $count );
-		register_meta( 'post', '_bbp_total_topic_count',     $count );
-		register_meta( 'post', '_bbp_total_reply_count',     $count );
-		register_meta( 'post', '_bbp_voice_count',           $count );
-		register_meta( 'post', '_bbp_anonymous_reply_count', $count );
-		register_meta( 'post', '_bbp_topic_count_hidden',    $count );
-		register_meta( 'post', '_bbp_reply_count_hidden',    $count );
-		register_meta( 'post', '_bbp_forum_subforum_count',  $count );
+		register_meta( 'post', '_bbp_topic_count', 			 $forum );
+		register_meta( 'post', '_bbp_reply_count',           $forum );
+		register_meta( 'post', '_bbp_reply_count',           $topic );
+		register_meta( 'post', '_bbp_total_topic_count',     $forum );
+		register_meta( 'post', '_bbp_total_reply_count',     $forum );
+		register_meta( 'post', '_bbp_voice_count',           $topic );
+		register_meta( 'post', '_bbp_anonymous_reply_count', $topic );
+		register_meta( 'post', '_bbp_topic_count_hidden',    $forum );
+		register_meta( 'post', '_bbp_reply_count_hidden',    $forum );
+		register_meta( 'post', '_bbp_reply_count_hidden',    $topic );
+		register_meta( 'post', '_bbp_forum_subforum_count',  $forum );
 
 		/* User ***************************************************************/
 
