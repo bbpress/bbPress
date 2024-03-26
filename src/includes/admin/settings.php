@@ -667,9 +667,9 @@ function bbp_admin_setting_callback_editlock() {
 	// Start the output buffer for the second option
 	ob_start(); ?>
 
-	</label>
 	<label for="_bbp_edit_lock">
 		<input name="_bbp_edit_lock" id="_bbp_edit_lock" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_edit_lock' ); ?> />
+	</label>
 
 	<?php $select = ob_get_clean(); ?>
 
@@ -692,9 +692,9 @@ function bbp_admin_setting_callback_throttle() {
 	// Start the output buffer for the second option
 	ob_start(); ?>
 
-	</label>
 	<label for="_bbp_throttle_time">
 		<input name="_bbp_throttle_time" id="_bbp_throttle_time" type="number" min="0" step="1" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text"<?php bbp_maybe_admin_setting_disabled( '_bbp_throttle_time' ); ?> />
+	</label>
 
 	<?php $select = ob_get_clean(); ?>
 
@@ -736,7 +736,6 @@ function bbp_admin_setting_callback_global_access() {
 	// Start the output buffer for the select dropdown
 	ob_start(); ?>
 
-	</label>
 	<label for="_bbp_default_role">
 		<select name="_bbp_default_role" id="_bbp_default_role" <?php bbp_maybe_admin_setting_disabled( '_bbp_default_role' ); ?>>
 		<?php foreach ( $roles as $role => $details ) : ?>
@@ -745,6 +744,7 @@ function bbp_admin_setting_callback_global_access() {
 
 		<?php endforeach; ?>
 		</select>
+	</label>
 
 	<?php $select = ob_get_clean(); ?>
 
@@ -888,7 +888,6 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 	// Start an output buffer for the select dropdown
 	ob_start(); ?>
 
-	</label>
 	<label for="_bbp_thread_replies_depth">
 		<select name="_bbp_thread_replies_depth" id="_bbp_thread_replies_depth" <?php bbp_maybe_admin_setting_disabled( '_bbp_thread_replies_depth' ); ?>>
 		<?php for ( $i = 2; $i <= $max_depth; $i++ ) : ?>
@@ -897,6 +896,7 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 
 		<?php endfor; ?>
 		</select>
+	</label>
 
 	<?php $select = ob_get_clean(); ?>
 
