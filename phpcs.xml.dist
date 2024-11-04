@@ -487,10 +487,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.Arrays.ArrayIndentation.CloseBraceNotAligned">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>

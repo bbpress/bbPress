@@ -741,10 +741,17 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 		if ( ! empty( $email ) && is_email( $email ) ) {
 
 			// Get the meta SQL
-			$clauses = get_meta_sql( array( array(
-				'key'   => '_bbp_anonymous_email',
-				'value' => $email,
-			) ), 'post', $bbp_db->posts, 'ID' );
+			$clauses = get_meta_sql( 
+				array( 
+					array(
+						'key'   => '_bbp_anonymous_email',
+						'value' => $email,
+					) 
+				), 
+				'post', 
+				$bbp_db->posts, 
+				'ID' 
+			);
 
 			// Set clauses
 			$join  = $clauses['join'];
@@ -2386,12 +2393,14 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 							), $select_query_vars ) );
 
 							// Restrict to specific forum ID
-							$meta_query = array( array(
-								'key'     => '_bbp_forum_id',
-								'value'   => bbp_get_forum_id(),
-								'type'    => 'NUMERIC',
-								'compare' => '='
-							) );
+							$meta_query = array( 
+								array(
+									'key'     => '_bbp_forum_id',
+									'value'   => bbp_get_forum_id(),
+									'type'    => 'NUMERIC',
+									'compare' => '='
+								) 
+							);
 						}
 
 						// Only forum replies

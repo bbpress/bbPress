@@ -695,10 +695,12 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_status'    => bbp_get_public_topic_statuses(),
 					'post_parent'    => $settings['parent_forum'],
 					'posts_per_page' => (int) $settings['max_shown'],
-					'meta_query'     => array( array(
-						'key'  => '_bbp_last_active_time',
-						'type' => 'DATETIME'
-					) ),
+					'meta_query'     => array( 
+						array(
+							'key'  => '_bbp_last_active_time',
+							'type' => 'DATETIME'
+						) 
+					),
 
 					// Ordering
 					'orderby' => 'meta_value',
@@ -721,10 +723,12 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_status'    => bbp_get_public_topic_statuses(),
 					'post_parent'    => $settings['parent_forum'],
 					'posts_per_page' => (int) $settings['max_shown'],
-					'meta_query'     => array( array(
-						'key'  => '_bbp_reply_count',
-						'type' => 'NUMERIC'
-					) ),
+					'meta_query'     => array( 
+						array(
+							'key'  => '_bbp_reply_count',
+							'type' => 'NUMERIC'
+						) 
+					),
 
 					// Ordering
 					'orderby' => 'meta_value_num',

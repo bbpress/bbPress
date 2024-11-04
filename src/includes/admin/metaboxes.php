@@ -112,9 +112,9 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['forum_count'];
 					$text = _n( 'Forum', 'Forums', $r['forum_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
-						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
-						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
+					$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
+					$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+					$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -129,9 +129,9 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['topic_count'];
 					$text = _n( 'Topic', 'Topics', $r['topic_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
-						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
-						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
+					$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
+					$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+					$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -146,9 +146,9 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['reply_count'];
 					$text = _n( 'Reply', 'Replies', $r['reply_count_int'], 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
-						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
-						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
-						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
+					$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
+					$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+					$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 					}
 				?>
 
@@ -165,9 +165,9 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['topic_tag_count'];
 						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count_int'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
-							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
-							$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
-							$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
+						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
+						$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 						}
 					?>
 
@@ -197,9 +197,9 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $r['user_count'];
 					$text = _n( 'User', 'Users', $r['user_count_int'], 'bbpress' );
 					if ( current_user_can( 'edit_users' ) ) {
-						$link = admin_url( 'users.php' );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
+					$link = admin_url( 'users.php' );
+					$num  = '<a href="' . $link . '">' . $num  . '</a>';
+					$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
 				?>
 
@@ -217,7 +217,7 @@ function bbp_dashboard_widget_right_now() {
 						$text = _n( 'Hidden Topic', 'Hidden Topics', $r['topic_count_hidden_int'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
-							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
+						$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
 						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_topic_title'] ) . '">' . $text . '</a>';
@@ -239,7 +239,7 @@ function bbp_dashboard_widget_right_now() {
 						$text = _n( 'Hidden Reply', 'Hidden Replies', $r['reply_count_hidden_int'], 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
 						if ( '0' !== $num ) {
-							$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
+						$link = add_query_arg( array( 'post_status' => bbp_get_spam_status_id() ), $link );
 						}
 						$num  = '<a href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '" title="' . esc_attr( $r['hidden_reply_title'] ) . '">' . $text . '</a>';
@@ -354,22 +354,25 @@ function bbp_forum_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum Parent', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( array(
-			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => $post_parent,
-			'numberposts'        => -1,
-			'orderby'            => 'title',
-			'order'              => 'ASC',
-			'walker'             => '',
-			'exclude'            => $post->ID,
+		<?php bbp_dropdown( 
+			array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => $post_parent,
+				'numberposts'        => -1,
+				'orderby'            => 'title',
+				'order'              => 'ASC',
+				'walker'             => '',
+				'exclude'            => $post->ID,
 
-			// Output-related
-			'select_id'          => 'parent_id',
-			'options_only'       => false,
-			'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
-			'disable_categories' => false,
-			'disabled'           => ''
-		) ); ?>
+				// Output-related
+				'select_id'          => 'parent_id',
+				'options_only'       => false,
+				'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
+				'disable_categories' => false,
+				'disabled'           => ''
+			) 
+		); 
+	?>
 	</p>
 
 	<p>
@@ -445,7 +448,7 @@ function bbp_topic_metabox( $post ) {
 			'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
 			'disable_categories' => current_user_can( 'edit_forums' ),
 			'disabled'           => ''
-		) ); ?>
+) ); ?>
 	</p>
 
 	<input name="ping_status" type="hidden" id="ping_status" value="open" />
@@ -509,7 +512,7 @@ function bbp_reply_metabox( $post ) {
 				'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
 				'disable_categories' => current_user_can( 'edit_forums' ),
 				'disabled'           => ''
-			) ); ?>
+) ); ?>
 		</p>
 
 	<?php endif;

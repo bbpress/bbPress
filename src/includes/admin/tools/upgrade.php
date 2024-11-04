@@ -82,17 +82,30 @@ function bbp_admin_upgrade_page() {
 							<input id="cb-select-all-1" type="checkbox">
 						</td>
 						<th scope="col" id="description" class="manage-column column-primary column-description sortable <?php echo ( 'priority' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
-							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
-									'orderby' => 'priority',
-									'order'   => $new_order
-								) ) ); ?>"><span><?php esc_html_e( 'Description', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+							<a href="
+								<?php 
+								echo esc_url( 
+									bbp_get_admin_repair_tool_page_url( 
+										array(
+											'orderby' => 'priority',
+											'order'   => $new_order
+										) 
+									) 
+								); 
+								?>">
+								<span>
+									<?php 
+									esc_html_e( 'Description', 'bbpress' ); 
+									?>
+								</span>
+								<span class="sorting-indicator"></span>
 							</a>
 						</th>
 						<th scope="col" id="version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
 							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
 									'orderby' => 'version',
 									'order'   => $new_order
-								) ) ); ?>"><span><?php esc_html_e( 'Version', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+) ) ); ?>"><span><?php esc_html_e( 'Version', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
 							</a>
 						</th>
 						<th scope="col" id="components" class="manage-column column-components"><?php esc_html_e( 'Components', 'bbpress' ); ?></th>
@@ -100,7 +113,7 @@ function bbp_admin_upgrade_page() {
 							<a href="<?php echo esc_url( bbp_get_admin_repair_tool_page_url( array(
 									'orderby' => 'overhead',
 									'order'   => $new_order
-								) ) ); ?>"><span><?php esc_html_e( 'Overhead', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
+) ) ); ?>"><span><?php esc_html_e( 'Overhead', 'bbpress' ); ?></span><span class="sorting-indicator"></span>
 							</a>
 						</th>
 					</tr>
@@ -122,7 +135,7 @@ function bbp_admin_upgrade_page() {
 
 										// Optional description
 										if ( ! empty( $item['description'] ) ) :
-											echo '<p class="description">' . esc_html( $item['description'] ) . '</p>';
+										echo '<p class="description">' . esc_html( $item['description'] ) . '</p>';
 										endif;
 
 									?><div class="row-actions hide-if-no-js">

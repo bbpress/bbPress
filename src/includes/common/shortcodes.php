@@ -846,11 +846,13 @@ class BBP_Shortcodes {
 	 * @return array
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
-		$args['tax_query'] = array( array(
-			'taxonomy' => bbp_get_topic_tag_tax_id(),
-			'field'    => 'id',
-			'terms'    => bbpress()->current_topic_tag_id
-		) );
+		$args['tax_query'] = array( 
+			array(
+				'taxonomy' => bbp_get_topic_tag_tax_id(),
+				'field'    => 'id',
+				'terms'    => bbpress()->current_topic_tag_id
+			) 
+		);
 
 		return $args;
 	}

@@ -956,20 +956,21 @@ function bbp_get_user_object_ids( $args = array() ) {
 			'fields'         => 'ids',
 			'post_type'      => $r['object_type'],
 			'posts_per_page' => -1,
-			'meta_query'     => array( array(
-				'key'     => $r['rel_key'],
-				'value'   => $r['user_id'],
-				'compare' => 'NUMERIC'
-			),
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		) );
+			'meta_query'     => array( 
+				array(
+					'key'     => $r['rel_key'],
+					'value'   => $r['user_id'],
+					'compare' => 'NUMERIC'
+				),
+				// Performance
+				'nopaging'               => true,
+				'suppress_filters'       => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true
+			)	 
+		);
 	}
 
 	// Parse arguments
