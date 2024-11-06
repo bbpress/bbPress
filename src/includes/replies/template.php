@@ -1001,7 +1001,7 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
  * @param int $reply_id Optional. Reply id
  */
 function bbp_reply_author( $reply_id = 0 ) {
-	echo bbp_get_reply_author( $reply_id );
+	echo bbp_get_reply_author_display_name( $reply_id );
 }
 	/**
 	 * Deprecated. Use bbp_get_reply_author_display_name() instead.
@@ -1101,7 +1101,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 
 		// Encode possible UTF8 display names
 		if ( seems_utf8( $author_name ) === false ) {
-			$author_name = utf8_encode( $author_name );
+			$author_name = mb_convert_encoding( $author_name, 'UTF-8', mb_detect_encoding( $author_name ) );
 		}
 
 		// Filter & return
@@ -2304,7 +2304,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 
 	// If pretty permalinks are enabled, make our pagination pretty
-	if ( bbp_use_pretty_urls() && ! bbp_is_topic_pending( $topic_id )) {
+	if ( bbp_use_pretty_urls() && ! bbp_is_topic_pending( $topic_id ) ) {
 
 		// User's replies
 		if ( bbp_is_single_user_replies() ) {

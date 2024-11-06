@@ -339,7 +339,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Forum root should show', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_show_on_root',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=>'_bbp_show_on_root' )
+				'args'              => array( 'label_for' => '_bbp_show_on_root' )
 			),
 		),
 
@@ -352,7 +352,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_forum_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_forum_slug' )
+				'args'              => array( 'label_for' => '_bbp_forum_slug' )
 			),
 
 			// Topic slug setting
@@ -360,7 +360,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Topic', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_topic_slug' )
+				'args'              => array( 'label_for' => '_bbp_topic_slug' )
 			),
 
 			// Topic tag slug setting
@@ -368,7 +368,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Topic Tag', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_tag_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_topic_tag_slug' )
+				'args'              => array( 'label_for' => '_bbp_topic_tag_slug' )
 			),
 
 			// View slug setting
@@ -376,7 +376,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Topic View', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_view_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_view_slug' )
+				'args'              => array( 'label_for' => '_bbp_view_slug' )
 			),
 
 			// Reply slug setting
@@ -384,7 +384,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => _x( 'Reply', 'noun', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_reply_slug' )
+				'args'              => array( 'label_for' => '_bbp_reply_slug' )
 			),
 
 			// Edit slug setting
@@ -392,7 +392,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Edit', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_edit_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_edit_slug' )
+				'args'              => array( 'label_for' => '_bbp_edit_slug' )
 			),
 
 			// Search slug setting
@@ -400,7 +400,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Search', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_search_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_search_slug' )
+				'args'              => array( 'label_for' => '_bbp_search_slug' )
 			)
 		),
 
@@ -413,7 +413,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'User Base', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_user_slug' )
+				'args'              => array( 'label_for' => '_bbp_user_slug' )
 			),
 
 			// Topics slug setting
@@ -421,7 +421,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Topics Started', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_topic_archive_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_topic_archive_slug' )
+				'args'              => array( 'label_for' => '_bbp_topic_archive_slug' )
 			),
 
 			// Replies slug setting
@@ -429,7 +429,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Replies Created', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_reply_archive_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_reply_archive_slug' )
+				'args'              => array( 'label_for' => '_bbp_reply_archive_slug' )
 			),
 
 			// Favorites slug setting
@@ -437,7 +437,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Favorite Topics', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_favs_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_user_favs_slug' )
+				'args'              => array( 'label_for' => '_bbp_user_favs_slug' )
 			),
 
 			// Subscriptions slug setting
@@ -445,7 +445,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Subscriptions', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_subs_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_user_subs_slug' )
+				'args'              => array( 'label_for' => '_bbp_user_subs_slug' )
 			),
 
 			// Engagements slug setting
@@ -453,7 +453,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Engagements', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_user_engagements_slug',
 				'sanitize_callback' => 'bbp_sanitize_slug',
-				'args'              => array( 'label_for'=>'_bbp_user_engs_slug' )
+				'args'              => array( 'label_for' => '_bbp_user_engs_slug' )
 			)
 		),
 
@@ -474,7 +474,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Primary Forum', 'bbpress' ),
 				'callback'          => 'bbp_admin_setting_callback_group_forums_root_id',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=>'_bbp_group_forums_root_id' )
+				'args'              => array( 'label_for' => '_bbp_group_forums_root_id' )
 			)
 		),
 
@@ -501,7 +501,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Select Platform', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_platform',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_platform' )
+				'args'              => array( 'label_for' => '_bbp_converter_platform' )
 			),
 
 			// Database Server
@@ -509,7 +509,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Server', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbserver',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_server' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_server' )
 			),
 
 			// Database Server Port
@@ -517,7 +517,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Port', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbport',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_port' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_port' )
 			),
 
 			// Database Name
@@ -525,7 +525,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Name', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbname',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_name' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_name' )
 			),
 
 			// Database User
@@ -533,7 +533,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database User', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbuser',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_user' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_user' )
 			),
 
 			// Database Password
@@ -541,7 +541,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Database Password', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbpass',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_pass' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_pass' )
 			),
 
 			// Database Prefix
@@ -549,7 +549,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Table Prefix', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_dbprefix',
 				'sanitize_callback' => 'sanitize_text_field',
-				'args'              => array( 'label_for'=> '_bbp_converter_db_prefix' )
+				'args'              => array( 'label_for' => '_bbp_converter_db_prefix' )
 			)
 		),
 
@@ -561,7 +561,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Rows Limit', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_rows',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_rows' )
+				'args'              => array( 'label_for' => '_bbp_converter_rows' )
 			),
 
 			// Delay Time
@@ -569,7 +569,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Delay Time', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_delay_time',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_delay_time' )
+				'args'              => array( 'label_for' => '_bbp_converter_delay_time' )
 			),
 
 			// Convert Users
@@ -577,7 +577,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Convert Users', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_convert_users',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_convert_users' )
+				'args'              => array( 'label_for' => '_bbp_converter_convert_users' )
 			),
 
 			// Halt
@@ -585,7 +585,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Stop on Error', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_halt',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_halt' )
+				'args'              => array( 'label_for' => '_bbp_converter_halt' )
 			),
 
 			// Restart
@@ -593,7 +593,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Start Over', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_restart',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_restart' )
+				'args'              => array( 'label_for' => '_bbp_converter_restart' )
 			),
 
 			// Clean
@@ -601,7 +601,7 @@ function bbp_admin_get_settings_fields() {
 				'title'             => esc_html__( 'Helper Data', 'bbpress' ),
 				'callback'          => 'bbp_converter_setting_callback_clean',
 				'sanitize_callback' => 'intval',
-				'args'              => array( 'label_for'=> '_bbp_converter_clean' )
+				'args'              => array( 'label_for' => '_bbp_converter_clean' )
 			)
 		)
 	) );

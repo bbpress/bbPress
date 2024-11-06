@@ -240,7 +240,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
-		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] )         : 0;
+		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
 		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
 
 		// Bail if user cannot add favorites for this user
@@ -266,7 +266,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_favorite( $user_id, $object->ID )
 			? bbp_remove_user_favorite( $user_id, $object->ID )
-			:    bbp_add_user_favorite( $user_id, $object->ID );
+			: bbp_add_user_favorite( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -303,7 +303,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
-		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] )         : 0;
+		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
 		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
 
 		// Bail if user cannot add favorites for this user
@@ -329,7 +329,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_subscribed( $user_id, $object->ID )
 			? bbp_remove_user_subscription( $user_id, $object->ID )
-			:    bbp_add_user_subscription( $user_id, $object->ID );
+			: bbp_add_user_subscription( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -353,4 +353,5 @@ class BBP_Default extends BBP_Theme_Compat {
 	}
 }
 new BBP_Default();
-endif;
+
+endif; // class_exists check

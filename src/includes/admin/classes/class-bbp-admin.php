@@ -345,7 +345,7 @@ class BBP_Admin {
 		// One message as string
 		if ( is_string( $message ) ) {
 			$message       = '<p>' . $this->esc_notice( $message ) . '</p>';
-			$default_class ='updated';
+			$default_class = 'updated';
 
 		// Messages as objects
 		} elseif ( is_wp_error( $message ) ) {

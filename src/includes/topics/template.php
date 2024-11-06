@@ -417,7 +417,7 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 
 			// Adjust loop and counts for new sticky positions
 			$query->found_posts = (int) $query->found_posts + (int) $sticky_count;
-			$query->post_count  = (int) $query->post_count  + (int) $sticky_count;
+			$query->post_count  = (int) $query->post_count + (int) $sticky_count;
 		}
 	}
 

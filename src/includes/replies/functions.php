@@ -789,7 +789,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_reply_error', __( '<strong>Error</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
+		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your reply: %s. Please try again.', 'bbpress' ) ), $append_error );
 	}
 }
 

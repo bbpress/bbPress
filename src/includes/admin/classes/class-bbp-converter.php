@@ -388,7 +388,7 @@ class BBP_Converter {
 		// Total mini steps
 		if ( $this->rows_in_step > 0 ) {
 			$total_mini_steps      = ceil( $this->rows_in_step / $this->rows );
-			$current_mini_step     = ceil( $this->start        / $this->rows );
+			$current_mini_step     = ceil( $this->start / $this->rows );
 			$this->step_percentage = round( ( $current_mini_step / $total_mini_steps ) * 100, 2 );
 		} else {
 			$this->step_percentage = 0;

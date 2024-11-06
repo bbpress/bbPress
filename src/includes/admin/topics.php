@@ -621,13 +621,13 @@ class BBP_Topics_Admin {
 				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] )
 					? true
 					: false;
-				$message   = ( true  === $is_sticky )
+				$message   = ( true === $is_sticky )
 					? 'unstuck'
 					: 'stuck';
-				$message   = ( true  === $is_super )
+				$message   = ( true === $is_super )
 					? 'super_sticky'
 					: $message;
-				$success   = ( true  === $is_sticky )
+				$success   = ( true === $is_sticky )
 					? bbp_unstick_topic( $topic_id )
 					: bbp_stick_topic( $topic_id, $is_super );
 

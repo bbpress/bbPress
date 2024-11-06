@@ -604,7 +604,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $forum_id ) && $forum_id->get_error_message() ) ? $forum_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_forum_error', __( '<strong>Error</strong>: The following problem(s) have been found with your forum:' . $append_error . 'Please try again.', 'bbpress' ) );
+		bbp_add_error( 'bbp_forum_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' ) ), $append_error );
 	}
 }
 
@@ -1094,7 +1094,7 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count',       (int) ( $topic_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_topic_count',       (int) ( $topic_count + $difference ) );
 	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) ( $total_topic_count + $difference ) );
 
 	// Check for ancestors
@@ -1216,7 +1216,7 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $upd
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count_hidden',       (int) ( $reply_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_topic_count_hidden',       (int) ( $reply_count + $difference ) );
 	update_post_meta( $forum_id, '_bbp_total_topic_count_hidden', (int) ( $total_topic_count + $difference ) );
 
 	// Check for ancestors
@@ -1339,7 +1339,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_reply_count',       (int) ( $reply_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_reply_count',       (int) ( $reply_count + $difference ) );
 	update_post_meta( $forum_id, '_bbp_total_reply_count', (int) ( $total_reply_count + $difference ) );
 
 	// Check for ancestors
@@ -1398,7 +1398,7 @@ function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $upd
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_reply_count_hidden',       (int) ( $reply_count       + $difference ) );
+	update_post_meta( $forum_id, '_bbp_reply_count_hidden',       (int) ( $reply_count + $difference ) );
 	update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', (int) ( $total_reply_count + $difference ) );
 
 	// Check for ancestors

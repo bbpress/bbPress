@@ -525,7 +525,7 @@ function bbp_admin_repair_user_topic_count() {
 		$insert_values[] = "('{$insert_row->post_author}', '{$key}', '{$insert_row->_count}')";
 	}
 
-	if ( !count( $insert_values ) ) {
+	if ( ! count( $insert_values ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
@@ -575,7 +575,7 @@ function bbp_admin_repair_user_reply_count() {
 		$insert_values[] = "('{$insert_row->post_author}', '{$key}', '{$insert_row->_count}')";
 	}
 
-	if ( !count( $insert_values ) ) {
+	if ( ! count( $insert_values ) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
@@ -645,7 +645,7 @@ function bbp_admin_repair_user_favorites() {
 		unset( $favorites, $favorites_joined );
 	}
 
-	if ( !count( $values ) ) {
+	if ( ! count( $values ) ) {
 		$result = esc_html__( 'Nothing to remove!', 'bbpress' );
 		return array( 0, sprintf( $statement, $result ) );
 	}
@@ -714,7 +714,7 @@ function bbp_admin_repair_user_topic_subscriptions() {
 		unset( $subscriptions, $subscriptions_joined );
 	}
 
-	if ( !count( $values ) ) {
+	if ( ! count( $values ) ) {
 		$result = esc_html__( 'Nothing to remove!', 'bbpress' );
 		return array( 0, sprintf( $statement, $result ) );
 	}
@@ -783,7 +783,7 @@ function bbp_admin_repair_user_forum_subscriptions() {
 		unset( $subscriptions, $subscriptions_joined );
 	}
 
-	if ( !count( $values ) ) {
+	if ( ! count( $values ) ) {
 		$result = esc_html__( 'Nothing to remove!', 'bbpress' );
 		return array( 0, sprintf( $statement, $result ) );
 	}

@@ -654,7 +654,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function create_screen( $group_id = 0 ) {
 
 		// Bail if not looking at this screen
-		if ( !bp_is_group_creation_step( $this->slug ) ) {
+		if ( ! bp_is_group_creation_step( $this->slug ) ) {
 			return false;
 		}
 

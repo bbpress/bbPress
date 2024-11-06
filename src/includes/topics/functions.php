@@ -727,7 +727,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_topic_error', __( '<strong>Error</strong>: The following problem(s) have been found with your topic:' . $append_error . 'Please try again.', 'bbpress' ) );
+ 		bbp_add_error( 'bbp_topic_error', sprintf( esc_html_e( '<strong>Error</strong>: The following problem(s) have been found with your topic: %s. Please try again.', 'bbpress' ) ), $append_error );
 	}
 }
 
@@ -1742,7 +1742,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// Attempt to update the tag
-			$slug        = ! empty( $_POST['tag-slug']        ) ? $_POST['tag-slug']        : '';
+			$slug        = ! empty( $_POST['tag-slug']        ) ? $_POST['tag-slug'] : '';
 			$description = ! empty( $_POST['tag-description'] ) ? $_POST['tag-description'] : '';
 			$tag         = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array(
 				'name'        => $name,
@@ -3819,7 +3819,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_meta( bbp_get_topic_id(), '_bbp_last_active_time', true ), false ); ?></pubDate>
 					<dc:creator><?php the_author(); ?></dc:creator>
 
-					<?php if ( !post_password_required() ) : ?>
+					<?php if ( ! post_password_required() ) : ?>
 
 					<description>
 						<![CDATA[

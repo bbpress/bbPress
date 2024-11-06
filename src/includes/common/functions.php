@@ -590,8 +590,8 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 
 	// Parse arguments against default values
 	$r = bbp_parse_args( $args, array(
-		'bbp_anonymous_name'    => ! empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
-		'bbp_anonymous_email'   => ! empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
+		'bbp_anonymous_name'    => ! empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name'] : false,
+		'bbp_anonymous_email'   => ! empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email'] : false,
 		'bbp_anonymous_website' => ! empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
 	), 'filter_anonymous_post_data' );
 
