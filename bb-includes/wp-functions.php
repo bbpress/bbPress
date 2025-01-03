@@ -1594,8 +1594,6 @@ endif;
 if ( !function_exists( 'wp_parse_str' ) ) : // [WP5709]
 function wp_parse_str( $string, &$array ) {
 	parse_str( $string, $array );
-	if ( get_magic_quotes_gpc() )
-		$array = stripslashes_deep( $array ); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
 	$array = apply_filters( 'wp_parse_str', $array );
 }
 endif;
