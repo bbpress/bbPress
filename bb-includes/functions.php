@@ -6,8 +6,7 @@ function bb_global_sanitize( $array, $trim = true ) {
 		if ( is_array($v) ) {
 			$array[$k] = bb_global_sanitize($v);
 		} else {
-			if ( !get_magic_quotes_gpc() )
-				$array[$k] = addslashes($v);
+			$array[$k] = addslashes($v);
 			if ( $trim )
 				$array[$k] = trim($array[$k]);
 		}
