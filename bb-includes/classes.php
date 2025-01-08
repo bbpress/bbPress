@@ -1187,7 +1187,7 @@ class BB_Loop {
 	var $_preserve = array();
 	var $_looping = false;
 
-	function &start( $elements, $walker = 'BB_Walker_Blank' ) {
+	static function &start( $elements, $walker = 'BB_Walker_Blank' ) {
 		$a = new BB_Loop( $elements );
 		if ( !$a->elements )
 			return null;
