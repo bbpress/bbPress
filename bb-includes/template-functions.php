@@ -1437,7 +1437,7 @@ function user_type( $id = 0 ) {
 
 function get_user_type( $id = 0 ) {
 	if ( $user = bb_get_user( bb_get_user_id( $id ) ) ) :
-		@$caps = array_keys($user->capabilities);
+		$caps = ! empty( $user->capabilities ) ? array_keys( $user->capabilities ) : [];
 		if ( !$caps )
 			$caps[] = 'inactive';
 
