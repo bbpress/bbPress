@@ -6,7 +6,7 @@ License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP:      5.6.20
 Requires at least: 6.0
 Tested up to:      6.5
-Stable tag:        2.6.11
+Stable tag:        2.6.12
 
 bbPress is forum software for WordPress.
 
