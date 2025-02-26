@@ -273,6 +273,11 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
+	// Bail if doing user registration actions
+	if ( doing_action( 'bbp_user_register' ) || doing_action( 'register_new_user' ) ) {
+		return;
+	}
+
 	// Bail if no user ID was passed
 	if ( empty( $user_id ) ) {
 		return;
