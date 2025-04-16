@@ -23,8 +23,8 @@
  * Domain Path:       /languages/
  * Requires PHP:      5.6.20
  * Requires at least: 6.0
- * Tested up to:      6.5
- * Version:           2.6.12
+ * Tested up to:      6.9
+ * Version:           2.6.13
  */
 
 // Exit if accessed directly
