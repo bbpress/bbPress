@@ -126,6 +126,7 @@ function bbp_sanitize_search_request( $query_arg = 's' ) {
 
 	// Maybe implode if an array
 	if ( is_array( $terms ) ) {
+		$terms = array_filter( $terms, 'is_scalar' );
 		$terms = implode( ' ', $terms );
 	}
 
