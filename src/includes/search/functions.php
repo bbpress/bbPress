@@ -124,8 +124,13 @@ function bbp_sanitize_search_request( $query_arg = 's' ) {
 		return false;
 	}
 
-	// Maybe implode if an array
+	// Special case for array of terms
 	if ( is_array( $terms ) ) {
+
+		// Filter out any non-scalar array values, to avoid PHP warnings
+		$terms = array_filter( $terms, 'is_scalar' );
+
+		// Implode terms with spaces, to sanitize later
 		$terms = implode( ' ', $terms );
 	}
 
