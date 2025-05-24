@@ -1611,8 +1611,24 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 		// Loop through children and add together forum reply counts
 		$children = bbp_forum_query_subforum_ids( $forum_id );
 		if ( ! empty( $children ) ) {
+			
+			// We want to record the last active time.
+			$latest_last_active = PHP_INT_MIN;
+			
 			foreach ( $children as $child ) {
-				$children_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive
+				$child_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive.
+				
+				// If the response is invalid.
+				if(!empty($child_last_topic)) {
+					// We need to get the last active time, because we need to compare them.
+					$child_last_active = bbp_get_topic_last_active_time($child_last_topic);
+					
+					// Update the last topic only if it is later.
+					if($child_last_active > $latest_last_active) {
+						$latest_last_active = $child_last_active;
+						$children_last_topic = $child_last_topic;
+					}
+				}
 			}
 		}
 
