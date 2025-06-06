@@ -2329,7 +2329,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		if ( ! empty( $forum_ids ) ) {
 
 			// Get any existing not-in queries
-			$not_in = $posts_query->get( 'post__not_in', array() );
+			$not_in = (array) $posts_query->get( 'post__not_in', array() );
 
 			// Add our not-in to existing
 			$not_in = array_unique( array_merge( $not_in, $forum_ids ) );
