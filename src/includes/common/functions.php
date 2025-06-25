@@ -987,7 +987,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 		// Do some escaping magic so that '#' chars in the
 		// spam words don't break things:
 		$word    = preg_quote( $word, '#' );
-		$pattern = "#{$word}#i";
+		$pattern = "#{$word}#iu";
 
 		// Loop through post data
 		foreach ( $_post as $post_data ) {
