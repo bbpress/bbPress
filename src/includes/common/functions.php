@@ -842,7 +842,7 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
- * @param mixed  $strict  False for moderation_keys. True for disallow_keys.
+ * @param mixed  $strict  False for moderation_keys. True for disallowed_keys.
  *                        String for custom keys.
  * @return bool True if test is passed, false if fail
  */
@@ -866,7 +866,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	// Strict mode uses WordPress "disallow" settings
 	if ( true === $strict ) {
 		$hook_name   = 'blacklist';
-		$option_name = 'disallow_keys';
+		$option_name = 'disallowed_keys';
 
 	// Non-strict uses WordPress "moderation" settings
 	} elseif ( false === $strict ) {
