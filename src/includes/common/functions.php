@@ -2616,9 +2616,14 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
 	if ( isset( $wp_query->bbp_is_404 ) ) {
 
 		// Either force a 404 when 200, or a 200 when 404
-		$override = ( true === $wp_query->bbp_is_404 )
-			? bbp_set_404( $wp_query )
-			: bbp_set_200();
+		if ( true === $wp_query->bbp_is_404 ) {
+			bbp_set_404( $wp_query );
+		} else {
+			bbp_set_200();
+		}
+
+		// Overridden
+		$override = true;
 	}
 
 	// Return, maybe overridden
