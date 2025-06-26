@@ -226,7 +226,7 @@ class BBP_BuddyPress_Members {
 		}
 
 		// Default URL value
-		$url = '';
+		$url = array();
 
 		// BuddyPress < 12.0 (deprecated code is intentionally included)
 		if ( function_exists( 'bp_core_get_user_domain' ) ) {
