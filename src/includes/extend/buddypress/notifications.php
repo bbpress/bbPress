@@ -206,12 +206,13 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 	// Bail if we have errors
 	if ( ! bbp_has_errors() ) {
 
+		// Default to nothing marked
+		$reply_marked = $topic_marked = $marked = false;
+
 		// Get these once
 		$post_type = bbp_get_reply_post_type();
 		$component = bbp_get_component_name();
-
-		// Attempt to clear notifications for this topic
-		$marked    = bp_notifications_mark_notifications_by_type( $user_id, $component, 'bbp_new_reply_' . $topic_id );
+		$c_action  = 'bbp_new_reply_' . $topic_id;
 
 		// Get all reply IDs for the topic
 		$replies   = bbp_get_all_child_ids( $topic_id, $post_type );
@@ -222,14 +223,22 @@ function bbp_buddypress_mark_notifications( $action = '' ) {
 			// Loop through each reply and attempt to mark it
 			foreach ( $replies as $reply_id ) {
 
-				// Attempt to mark notification for this reply ID
-				$marked = bp_notifications_mark_notifications_by_item_id( $user_id, $reply_id, $component, 'bbp_new_reply' );
+				// Attempt to clear notification for this user & reply ID
+				$reply_marked = bp_notifications_mark_notifications_by_item_id( $user_id, $reply_id, $component, $c_action );
 
 				// If marked, redirect to this reply ID
-				if ( ! empty( $marked ) ) {
+				if ( ! empty( $reply_marked ) ) {
 					$redirect_id = $reply_id;
 				}
 			}
+		}
+
+		// Attempt to clear notifications for this user & topic
+		$topic_marked = bp_notifications_mark_notifications_by_type( $user_id, $component, $c_action );
+
+		// Maybe combine updated/marked rows
+		if ( is_numeric( $topic_marked ) || is_numeric( $reply_marked ) ) {
+			$marked = (int) $topic_marked + (int) $reply_marked;
 		}
 
 		// Do additional subscriptions actions
