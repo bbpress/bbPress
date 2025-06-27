@@ -315,8 +315,8 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		do_action( 'bbp_new_forum', array(
 			'forum_id'           => $forum_id,
-			'post_parent'        => $forum_parent_id,
-			'forum_author'       => $forum_author,
+			'post_parent'        => $forum_data['post_parent'],
+			'forum_author'       => $forum_data['post_author'],
 			'last_topic_id'      => 0,
 			'last_reply_id'      => 0,
 			'last_active_id'     => 0,
@@ -383,7 +383,7 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	// Define local variable(s)
 	$anonymous_data = array();
-	$forum = $forum_id = $forum_parent_id = 0;
+	$forum = $forum_id = $forum_author = $forum_parent_id = 0;
 	$forum_title = $forum_content = $forum_edit_reason = '';
 
 	/** Forum *****************************************************************/
@@ -421,6 +421,9 @@ function bbp_edit_forum_handler( $action = '' ) {
 		remove_filter( 'bbp_edit_forum_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_edit_forum_pre_content', 'bbp_filter_kses', 30 );
 	}
+
+	// Get forum author
+	$forum_author = bbp_get_forum_author_id( $forum_id );
 
 	/** Forum Parent ***********************************************************/
 
@@ -518,7 +521,8 @@ function bbp_edit_forum_handler( $action = '' ) {
 		'post_title'   => $forum_title,
 		'post_content' => $forum_content,
 		'post_status'  => $forum_status,
-		'post_parent'  => $forum_parent_id
+		'post_parent'  => $forum_parent_id,
+		'post_author'  => $forum_author
 	) );
 
 	// Insert forum
@@ -531,8 +535,8 @@ function bbp_edit_forum_handler( $action = '' ) {
 		// Update counts, etc...
 		do_action( 'bbp_edit_forum', array(
 			'forum_id'           => $forum_id,
-			'post_parent'        => $forum_parent_id,
-			'forum_author'       => $forum->post_author,
+			'post_parent'        => $forum_data['post_parent'],
+			'forum_author'       => $forum_data['post_author'],
 			'last_topic_id'      => 0,
 			'last_reply_id'      => 0,
 			'last_active_id'     => 0,

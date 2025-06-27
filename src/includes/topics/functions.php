@@ -373,7 +373,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
-		do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
+		do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_data['post_author'] );
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -664,7 +664,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 	if ( ! empty( $topic_id ) && ! is_wp_error( $topic_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_author, true /* Is edit */ );
+		do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic_data['post_author'], true /* Is edit */ );
 
 		/** Revisions *********************************************************/
 
