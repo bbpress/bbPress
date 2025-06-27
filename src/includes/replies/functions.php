@@ -462,7 +462,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
-		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author, false, $reply_to );
+		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], false, $reply_to );
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -743,7 +743,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	if ( ! empty( $reply_id ) && ! is_wp_error( $reply_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author , true, $reply_to );
+		do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_data['post_author'], true, $reply_to );
 
 		/** Revisions *********************************************************/
 
