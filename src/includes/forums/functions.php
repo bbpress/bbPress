@@ -2325,10 +2325,16 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
+	// Compare queried post-types to supported post-types
+	$bbp_post_types = array_diff( $post_types, bbp_get_post_types() );
+
+	// Bail if not a bbPress post type
+	if ( ! empty( $bbp_post_types ) ) {
+		return;
+	}
+
 	// Forums
 	if ( in_array( bbp_get_forum_post_type(), $post_types, true ) ) {
-
-		/** Default ***********************************************************/
 
 		// Add all supported forum visibilities
 		$posts_query->set( 'post_status', array_keys( bbp_get_forum_visibilities() ) );
@@ -2350,24 +2356,20 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		}
 	}
 
-	// Any bbPress post type
-	if ( ! array_diff( $post_types, bbp_get_post_types() ) ) {
+	// Get forums to exclude
+	$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
 
-		// Get forums to exclude
-		$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
+	// Excluding some forums
+	if ( ! empty( $forum_ids ) ) {
 
-		// Excluding some forums
-		if ( ! empty( $forum_ids ) ) {
+		// Get any existing meta queries
+		$meta_query   = (array) $posts_query->get( 'meta_query', array() );
 
-			// Get any existing meta queries
-			$meta_query   = (array) $posts_query->get( 'meta_query', array() );
+		// Add our meta query to existing
+		$meta_query[] = $forum_ids;
 
-			// Add our meta query to existing
-			$meta_query[] = $forum_ids;
-
-			// Set the new meta_query val
-			$posts_query->set( 'meta_query', $meta_query );
-		}
+		// Set the new meta_query val
+		$posts_query->set( 'meta_query', $meta_query );
 	}
 }
 
