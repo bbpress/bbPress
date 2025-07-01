@@ -135,7 +135,7 @@ function bbp_sanitize_search_request( $query_arg = 's' ) {
 	}
 
 	// Sanitize
-	$retval = sanitize_title( trim( $terms ) );
+	$retval = sanitize_text_field( $terms );
 
 	// Filter & return
 	return apply_filters( 'bbp_sanitize_search_request', $retval, $query_arg );
