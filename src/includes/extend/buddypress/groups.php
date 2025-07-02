@@ -1511,14 +1511,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 			// Reply
 			case bbp_get_reply_post_type() :
-				$topic_id = bbp_get_reply_topic_id( $post_id );
 				$forum_id = bbp_get_reply_forum_id( $post_id );
 				$url_end  = trailingslashit( $this->reply_slug ) . get_post_field( 'post_name', $post_id );
 				break;
 
 			// Topic
 			case bbp_get_topic_post_type() :
-				$topic_id = $post_id;
 				$forum_id = bbp_get_topic_forum_id( $post_id );
 				$url_end  = trailingslashit( $this->topic_slug ) . get_post_field( 'post_name', $post_id );
 				break;
