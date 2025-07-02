@@ -1331,11 +1331,6 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 			$author_name = bbp_get_fallback_display_name( $topic_id );
 		}
 
-		// Encode possible UTF8 display names
-		if ( seems_utf8( $author_name ) === false ) {
-			$author_name = utf8_encode( $author_name );
-		}
-
 		// Filter & return
 		return apply_filters( 'bbp_get_topic_author_display_name', $author_name, $topic_id );
 	}

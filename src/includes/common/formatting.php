@@ -782,3 +782,35 @@ function bbp_format_revision_reason( $reason = '' ) {
 
 	return $reason;
 }
+
+/** Users *********************************************************************/
+
+/**
+ * Format the display name of a user.
+ *
+ * Abstracts mbstring library check and fallback to utf8_encode().
+ *
+ * @link https://bbpress.trac.wordpress.org/ticket/2141
+ *
+ * @since 2.6.14
+ *
+ * @param string $display_name The author display
+ * @return string
+ */
+function bbp_format_user_display_name( $display_name = '' ) {
+
+	// Default return value
+	$retval = $display_name;
+
+	// Use the mbstring library if possible
+	if ( function_exists( 'mb_check_encoding' ) && ! mb_check_encoding( $display_name, 'UTF-8' ) ) {
+		$retval = mb_convert_encoding( $display_name, 'UTF-8', 'ISO-8859-1' );
+
+	// Fallback to function that (deprecated in PHP8.2)
+	} elseif ( seems_utf8( $display_name ) === false ) {
+		$retval = utf8_encode( $display_name );
+	}
+
+	// Return
+	return $retval;
+}

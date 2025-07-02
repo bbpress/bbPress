@@ -305,12 +305,14 @@ add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 
 add_filter( 'bbp_get_excluded_forum_ids', 'bbp_allow_forums_of_user', 10, 2 );
 
 // Topic and reply author display names
-add_filter( 'bbp_get_topic_author_display_name', 'wptexturize'   );
-add_filter( 'bbp_get_topic_author_display_name', 'convert_chars' );
-add_filter( 'bbp_get_topic_author_display_name', 'esc_html'      );
-add_filter( 'bbp_get_reply_author_display_name', 'wptexturize'   );
-add_filter( 'bbp_get_reply_author_display_name', 'convert_chars' );
-add_filter( 'bbp_get_reply_author_display_name', 'esc_html'      );
+add_filter( 'bbp_get_topic_author_display_name', 'bbp_format_user_display_name' );
+add_filter( 'bbp_get_topic_author_display_name', 'wptexturize'                  );
+add_filter( 'bbp_get_topic_author_display_name', 'convert_chars'                );
+add_filter( 'bbp_get_topic_author_display_name', 'esc_html'                     );
+add_filter( 'bbp_get_reply_author_display_name', 'bbp_format_user_display_name' );
+add_filter( 'bbp_get_reply_author_display_name', 'wptexturize'                  );
+add_filter( 'bbp_get_reply_author_display_name', 'convert_chars'                );
+add_filter( 'bbp_get_reply_author_display_name', 'esc_html'                     );
 
 /**
  * Add filters to anonymous post author data
