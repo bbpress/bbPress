@@ -1526,7 +1526,7 @@ body.my-account #bbpress-forums {
 		font-size: 14px;
 	}
 	#bbpress-forums p.bbp-topic-meta span {
-		white-space: nowrap;
+		white-space: normal;
 	}
 }
 
