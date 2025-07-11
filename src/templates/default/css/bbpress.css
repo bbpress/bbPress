@@ -1525,6 +1525,9 @@ body.my-account #bbpress-forums {
 	#bbpress-forums div.bbp-reply-title h3 {
 		font-size: 14px;
 	}
+	#bbpress-forums p.bbp-topic-meta span {
+		white-space: nowrap;
+	}
 }
 
 /* =Standard Mobile Portrait
