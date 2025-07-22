@@ -757,7 +757,13 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 				$reason    = $revision_log[ $revision->ID ]['reason'];
 			}
 
-			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
+			// Get author display name directly from author ID
+			$author_name = get_the_author_meta( 'display_name', $author_id );
+			if ( empty( $author_name ) ) {
+				$author_name = get_the_author_meta( 'user_login', $author_id );
+			}
+			
+			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => $author_name, 'post_id' => $author_id ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";

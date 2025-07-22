@@ -924,7 +924,13 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 				$reason    = $revision_log[ $revision->ID ]['reason'];
 			}
 
-			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_topic_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
+			// Get author display name directly from author ID
+			$author_name = get_the_author_meta( 'display_name', $author_id );
+			if ( empty( $author_name ) ) {
+				$author_name = get_the_author_meta( 'user_login', $author_id );
+			}
+			
+			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => $author_name, 'post_id' => $author_id ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
