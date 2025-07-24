@@ -2469,23 +2469,26 @@ function bbp_forum_enforce_hidden() {
 	// Define local variables
 	$forum_id = 0;
 	$wp_query = bbp_get_wp_query();
+	$post_id  = ! empty( $wp_query->post->ID )
+		? $wp_query->post->ID
+		: 0;
 
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$forum_id = bbp_get_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_forum_id( $post_id );
 			break;
 
 		// Topic
 		case bbp_get_topic_post_type() :
-			$forum_id = bbp_get_topic_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_topic_forum_id( $post_id );
 			break;
 
 		// Reply
 		case bbp_get_reply_post_type() :
-			$forum_id = bbp_get_reply_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_reply_forum_id( $post_id );
 			break;
 	}
 
@@ -2511,25 +2514,27 @@ function bbp_forum_enforce_private() {
 	// Define local variables
 	$forum_id = 0;
 	$wp_query = bbp_get_wp_query();
+	$post_id  = ! empty( $wp_query->post->ID )
+		? $wp_query->post->ID
+		: 0;
 
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$forum_id = bbp_get_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_forum_id( $post_id );
 			break;
 
 		// Topic
 		case bbp_get_topic_post_type() :
-			$forum_id = bbp_get_topic_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_topic_forum_id( $post_id );
 			break;
 
 		// Reply
 		case bbp_get_reply_post_type() :
-			$forum_id = bbp_get_reply_forum_id( $wp_query->post->ID );
+			$forum_id = bbp_get_reply_forum_id( $post_id );
 			break;
-
 	}
 
 	// If forum is explicitly hidden and user not capable, set 404
