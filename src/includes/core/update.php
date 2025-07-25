@@ -43,6 +43,8 @@ function bbp_is_update() {
  *
  * @since 2.0.0 bbPress (r3421)
  *
+ * @global string $pagenow The filename of the current screen.
+ *
  * @return bool True if activating bbPress, false if not
  */
 function bbp_is_activation( $basename = '' ) {
@@ -92,6 +94,8 @@ function bbp_is_activation( $basename = '' ) {
  * Determine if bbPress is being deactivated
  *
  * @since 2.0.0 bbPress (r3421)
+ *
+ * @global string $pagenow The filename of the current screen.
  *
  * @return bool True if deactivating bbPress, false if not
  */

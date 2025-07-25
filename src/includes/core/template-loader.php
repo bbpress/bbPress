@@ -129,7 +129,7 @@ function bbp_is_template_included() {
  *
  * @since 2.1.0 bbPress (r3732)
  *
- * @global string $pagenow
+ * @global string $pagenow The filename of the current screen.
  */
 function bbp_load_theme_functions() {
 	global $pagenow;
