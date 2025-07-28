@@ -466,7 +466,7 @@ function bbp_do_activation_redirect() {
 
 /**
  * Hooked to the 'bbp_activate' action, this helper function automatically makes
- * the current user a Key Master in the forums if they just activated bbPress,
+ * the current user a Keymaster in the forums if they just activated bbPress,
  * regardless of the bbp_allow_global_access() setting.
  *
  * @since 2.4.0 bbPress (r4910)
