@@ -110,7 +110,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 		/** Publishing ********************************************************/
 
-		case 'publish_forums'  :
+		case 'publish_forums' :
 
 			// Moderators can always edit
 			if ( user_can( $user_id, 'moderate' ) ) {
@@ -122,12 +122,12 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		/** Editing ***********************************************************/
 
 		// Used primarily in wp-admin
-		case 'edit_forums'         :
-		case 'edit_others_forums'  :
+		case 'edit_forums'        :
+		case 'edit_others_forums' :
 
 			// Moderators can always edit
-			if ( bbp_is_user_keymaster( $user_id ) ) {
-				$caps = array( 'spectate' );
+			if ( user_can( $user_id, 'moderate' ) ) {
+				$caps = array( 'moderate' );
 
 			// Otherwise, block
 			} else {
