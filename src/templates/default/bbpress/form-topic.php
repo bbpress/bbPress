@@ -41,11 +41,11 @@ if ( ! bbp_is_single_forum() ) : ?>
 
 					<?php
 						if ( bbp_is_topic_edit() ) :
-							printf( esc_html__( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() );
+							printf( esc_html__( 'Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() );
 						else :
 							( bbp_is_single_forum() && bbp_get_forum_title() )
-								? printf( esc_html__( 'Create New Topic in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() )
-								: esc_html_e( 'Create New Topic', 'bbpress' );
+								? printf( esc_html__( 'Add Topic in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() )
+								: esc_html_e( 'Add Topic', 'bbpress' );
 						endif;
 					?>
 

@@ -51,7 +51,7 @@ function bbp_get_reply_post_type_labels() {
 		'singular_name'            => esc_attr_x( 'Reply', 'noun',              'bbpress' ),
 		'all_items'                => esc_attr__( 'All Replies',                'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Reply',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Reply',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Reply',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Reply',                  'bbpress' ),

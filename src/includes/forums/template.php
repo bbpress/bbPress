@@ -50,7 +50,7 @@ function bbp_get_forum_post_type_labels() {
 		'singular_name'            => esc_attr__( 'Forum',                      'bbpress' ),
 		'all_items'                => esc_attr__( 'All Forums',                 'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Forum',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Forum',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Forum',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Forum',                  'bbpress' ),

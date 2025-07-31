@@ -49,7 +49,7 @@ function bbp_get_topic_post_type_labels() {
 		'singular_name'            => esc_attr__( 'Topic',                      'bbpress' ),
 		'all_items'                => esc_attr__( 'All Topics',                 'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Topic',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Topic',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Topic',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Topic',                  'bbpress' ),
