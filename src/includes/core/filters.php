@@ -44,7 +44,7 @@ add_filter( 'wp_title',                'bbp_title',              10, 3 );
 add_filter( 'body_class',              'bbp_body_class',         10, 2 );
 add_filter( 'map_meta_cap',            'bbp_map_meta_caps',      10, 4 );
 add_filter( 'allowed_themes',          'bbp_allowed_themes',     10    );
-add_filter( 'redirect_canonical',      'bbp_redirect_canonical', 10    );
+add_filter( 'redirect_canonical',      'bbp_redirect_canonical', 10, 2 );
 add_filter( 'login_redirect',          'bbp_redirect_login',     2,  3 );
 add_filter( 'logout_url',              'bbp_logout_url',         2,  2 );
 add_filter( 'plugin_locale',           'bbp_plugin_locale',      10, 2 );
@@ -104,6 +104,16 @@ add_filter( 'bbp_request', 'bbp_request_feed_trap' );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
 
+/**
+ * Canonical Redirection
+ *
+ * bbPress needs to tweak the way that the default canonical redirect behavior
+ * works for a number of reasons, and they are individually hooked to a
+ * dedicated sub-action to make them easier to customize.
+ */
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',       10, 2 );
+add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations', 10, 2 );
+	
 // Filter bbPress template locations
 add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations' );
 

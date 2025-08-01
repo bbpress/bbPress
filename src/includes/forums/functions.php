@@ -2485,8 +2485,10 @@ function bbp_forum_enforce_hidden() {
 			break;
 	}
 
-	// If forum is explicitly hidden and user not capable, set 404
+	// If forum is explicitly hidden and user not capable...
 	if ( ! empty( $forum_id ) && bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+
+		// Set 404 status
 		bbp_set_404( $wp_query );
 	}
 }
@@ -2530,8 +2532,10 @@ function bbp_forum_enforce_private() {
 			break;
 	}
 
-	// If forum is explicitly hidden and user not capable, set 404
+	// If forum is explicitly private and user not capable
 	if ( ! empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+
+		// Set 404 status
 		bbp_set_404( $wp_query );
 	}
 }
