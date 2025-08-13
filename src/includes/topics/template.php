@@ -3316,9 +3316,22 @@ function bbp_single_topic_description( $args = array() ) {
 
 		// Topic has activity (could be from reply or topic author)
 		$last_active = bbp_get_topic_last_active_id( $topic_id );
-		if ( ! empty( $vc_int ) && ! empty( $last_active ) ) {
-			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
-			$retstr          = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
+		if ( ! empty( $last_active ) ) {
+
+			// Last-updated-by should always exist if last-active does
+			$last_updated_by = bbp_get_author_link( array(
+				'post_id' => $last_active,
+				'size'    => $r['size']
+			) );
+
+			// Voice count is non-zero (registered users engaged)
+			if ( ! empty( $vc_int ) ) {
+				$retstr = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
+
+			// Voice count is zero (anonymous users only)
+			} else {
+				$retstr = sprintf( esc_html__( 'This topic was last updated %1$s by %2$s.', 'bbpress' ), $time_since, $last_updated_by );
+			}
 
 		// Topic has no replies
 		} elseif ( ! empty( $vc_int ) && ! empty( $reply_count ) ) {
