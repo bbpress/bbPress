@@ -196,7 +196,7 @@ function bbp_new_topic_handler( $action = '' ) {
 			// Get the forum id
 			$posted_forum_id = intval( $_POST['bbp_forum_id'] );
 
-			// Forum id is empty
+			// Forum id is 0
 			if ( 0 === $posted_forum_id ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
 
@@ -225,18 +225,18 @@ function bbp_new_topic_handler( $action = '' ) {
 		// Forum is not a category
 		} else {
 
-			// Forum is closed and user cannot access
-			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_topic_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+			// Forum not editable by user
+			if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+
+				// Forum is closed
+				if ( bbp_is_forum_closed( $forum_id ) ) {
+					bbp_add_error( 'bbp_new_topic_forum_closed', __( '<strong>Error</strong>: This forum is closed to new topics.', 'bbpress' ) );
+				}
 			}
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_topic_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
-
-			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_topic_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum not readable by user
+			if ( ! current_user_can( 'read_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_new_topic_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new topics in this forum.', 'bbpress' ) );
 			}
 		}
 	}
@@ -499,14 +499,46 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	// Forum id was passed
 	} elseif ( is_numeric( $_POST['bbp_forum_id'] ) ) {
-		$forum_id = (int) $_POST['bbp_forum_id'];
+
+		// Get the forum id
+		$posted_forum_id = intval( $_POST['bbp_forum_id'] );
+
+		// Forum id is 0
+		if ( 0 === $posted_forum_id ) {
+			bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
+
+		// Forum id is a negative number
+		} elseif ( 0 > $posted_forum_id ) {
+			bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
+
+		// Forum does not exist
+		} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
+			bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
+
+		// Use the POST'ed forum id
+		} else {
+			$forum_id = $posted_forum_id;
+		}
 	}
 
 	// Current forum this topic is in
 	$current_forum_id = bbp_get_topic_forum_id( $topic_id );
 
+	// Forum change
+	if ( $forum_id !== $current_forum_id ) {
+
+		// User cannot edit current forum
+		if ( ! current_user_can( 'edit_forum', $current_forum_id ) ) {
+			bbp_add_error( 'bbp_edit_topic_forum_move_old', __( '<strong>Error</strong>: You do not have the capability to move topics out of this forum.', 'bbpress' ) );
+
+		// User cannot read new forum
+		} elseif ( ! current_user_can( 'read_forum', $forum_id ) ) {
+			bbp_add_error( 'bbp_edit_topic_forum_move_new', __( '<strong>Error</strong>: You do not have the capability to move topics into this forum.', 'bbpress' ) );
+		}
+	}
+
 	// Forum exists
-	if ( ! empty( $forum_id ) && ( $forum_id !== $current_forum_id ) ) {
+	if ( ! empty( $forum_id ) ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_id ) ) {
@@ -515,18 +547,18 @@ function bbp_edit_topic_handler( $action = '' ) {
 		// Forum is not a category
 		} else {
 
-			// Forum is closed and user cannot access
-			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new topics.', 'bbpress' ) );
+			// Forum not editable by user
+			if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+
+				// Forum is closed
+				if ( bbp_is_forum_closed( $forum_id ) ) {
+					bbp_add_error( 'bbp_edit_topic_forum_closed', __( '<strong>Error</strong>: This forum is closed to new topics.', 'bbpress' ) );
+				}
 			}
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
-
-			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new topics in it.', 'bbpress' ) );
+			// Forum not readable by user
+			if ( ! current_user_can( 'read_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_edit_topic_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new topics in this forum.', 'bbpress' ) );
 			}
 		}
 	}

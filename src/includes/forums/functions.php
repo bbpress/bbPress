@@ -186,39 +186,33 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	/** Forum Parent **********************************************************/
 
-	// Forum parent was passed (the norm)
-	if ( ! empty( $_POST['bbp_forum_parent_id'] ) ) {
+	// Forum parent is expected for theme-side submissions
+	if ( ! empty( $_POST['bbp_forum_parent_id'] ) && is_numeric( $_POST['bbp_forum_parent_id'] ) ) {
 		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
 	}
 
 	// Filter and sanitize
 	$forum_parent_id = apply_filters( 'bbp_new_forum_pre_parent_id', $forum_parent_id );
 
-	// No forum parent was passed (should never happen)
+	// Forum parent was not passed (required for theme-side BuddyPress support)
 	if ( empty( $forum_parent_id ) ) {
 		bbp_add_error( 'bbp_new_forum_missing_parent', __( '<strong>Error</strong>: Your forum must have a parent.', 'bbpress' ) );
 
-	// Forum exists
+	// Forum parent exists
 	} elseif ( ! empty( $forum_parent_id ) ) {
 
-		// Forum is a category
-		if ( bbp_is_forum_category( $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_new_forum_forum_category', __( '<strong>Error</strong>: This forum is a category. No forums can be created in this forum.', 'bbpress' ) );
+		// Forum parent not editable by user
+		if ( ! current_user_can( 'edit_forum', $forum_parent_id ) ) {
+
+			// Forum parent is closed
+			if ( bbp_is_forum_closed( $forum_parent_id ) ) {
+				bbp_add_error( 'bbp_new_forum_forum_closed', __( '<strong>Error</strong>: This forum is closed to new forums.', 'bbpress' ) );
+			}
 		}
 
-		// Forum is closed and user cannot access
-		if ( bbp_is_forum_closed( $forum_parent_id ) && ! current_user_can( 'edit_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_new_forum_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new forums.', 'bbpress' ) );
-		}
-
-		// Forum is private and user cannot access
-		if ( bbp_is_forum_private( $forum_parent_id ) && ! current_user_can( 'read_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_new_forum_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new forums in it.', 'bbpress' ) );
-		}
-
-		// Forum is hidden and user cannot access
-		if ( bbp_is_forum_hidden( $forum_parent_id ) && ! current_user_can( 'read_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_new_forum_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new forums in it.', 'bbpress' ) );
+		// Forum parent not readable by user
+		if ( ! current_user_can( 'read_forum', $forum_parent_id ) ) {
+			bbp_add_error( 'bbp_new_forum_forum_read', __( '<strong>Error</strong>: You do not have the capability to create new forums in this forum.', 'bbpress' ) );
 		}
 	}
 
@@ -428,29 +422,28 @@ function bbp_edit_forum_handler( $action = '' ) {
 	/** Forum Parent ***********************************************************/
 
 	// Forum parent id was passed
-	if ( ! empty( $_POST['bbp_forum_parent_id'] ) ) {
+	if ( ! empty( $_POST['bbp_forum_parent_id'] ) && is_numeric( $_POST['bbp_forum_parent_id'] ) ) {
 		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
 	}
 
 	// Current forum this forum is in
 	$current_parent_forum_id = bbp_get_forum_parent_id( $forum_id );
 
-	// Forum exists
+	// Forum parent exists
 	if ( ! empty( $forum_parent_id ) && ( $forum_parent_id !== $current_parent_forum_id ) ) {
 
-		// Forum is closed and user cannot access
-		if ( bbp_is_forum_closed( $forum_parent_id ) && ! current_user_can( 'edit_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_edit_forum_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new forums.', 'bbpress' ) );
+		// Forum parent not editable by user
+		if ( ! current_user_can( 'edit_forum', $forum_parent_id ) ) {
+
+			// Forum is closed
+			if ( bbp_is_forum_closed( $forum_parent_id ) ) {
+				bbp_add_error( 'bbp_edit_forum_forum_closed', __( '<strong>Error</strong>: This forum is closed to new forums.', 'bbpress' ) );
+			}
 		}
 
-		// Forum is private and user cannot access
-		if ( bbp_is_forum_private( $forum_parent_id ) && ! current_user_can( 'read_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_edit_forum_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new forums in it.', 'bbpress' ) );
-		}
-
-		// Forum is hidden and user cannot access
-		if ( bbp_is_forum_hidden( $forum_parent_id ) && ! current_user_can( 'read_forum', $forum_parent_id ) ) {
-			bbp_add_error( 'bbp_edit_forum_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new forums in it.', 'bbpress' ) );
+		// Forum parent not readable by user
+		if ( ! current_user_can( 'read_forum', $forum_parent_id ) ) {
+			bbp_add_error( 'bbp_edit_forum_forum_read', __( '<strong>Error</strong>: You do not have the capability to create new forums in this forum.', 'bbpress' ) );
 		}
 	}
 

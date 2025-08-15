@@ -179,8 +179,12 @@ function bbp_new_reply_handler( $action = '' ) {
 		// Get the topic id
 		$posted_topic_id = intval( $_POST['bbp_topic_id'] );
 
+		// Topic id is 0
+		if ( 0 === $posted_topic_id ) {
+			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic ID is missing.', 'bbpress' ) );
+
 		// Topic id is a negative number
-		if ( 0 > $posted_topic_id ) {
+		} elseif ( 0 > $posted_topic_id ) {
 			bbp_add_error( 'bbp_reply_topic_id', __( '<strong>Error</strong>: Topic ID cannot be a negative number.', 'bbpress' ) );
 
 		// Topic does not exist
@@ -191,6 +195,11 @@ function bbp_new_reply_handler( $action = '' ) {
 		} else {
 			$topic_id = $posted_topic_id;
 		}
+	}
+
+	// User cannot read parent topic ID
+	if ( ! current_user_can( 'read_topic', $topic_id ) ) {
+		bbp_add_error( 'bbp_new_reply_topic_public', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this topic.', 'bbpress' ) );
 	}
 
 	/** Forum ID **************************************************************/
@@ -216,17 +225,17 @@ function bbp_new_reply_handler( $action = '' ) {
 			// Get the forum id
 			$posted_forum_id = intval( $_POST['bbp_forum_id'] );
 
-			// Forum id is empty
+			// Forum id is 0
 			if ( 0 === $posted_forum_id ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
+				bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum ID is missing.', 'bbpress' ) );
 
 			// Forum id is a negative number
 			} elseif ( 0 > $posted_forum_id ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
+				bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum ID cannot be a negative number.', 'bbpress' ) );
 
 			// Forum does not exist
 			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
-				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
+				bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
 
 			// Use the POST'ed forum id
 			} else {
@@ -245,18 +254,18 @@ function bbp_new_reply_handler( $action = '' ) {
 		// Forum is not a category
 		} else {
 
-			// Forum is closed and user cannot access
-			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new replies.', 'bbpress' ) );
+			// Forum not editable by user
+			if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+
+				// Forum is closed
+				if ( bbp_is_forum_closed( $forum_id ) ) {
+					bbp_add_error( 'bbp_new_reply_forum_closed', __( '<strong>Error</strong>: This forum is closed to new replies.', 'bbpress' ) );
+				}
 			}
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
-
-			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+			// Forum not readable by user
+			if ( ! current_user_can( 'read_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_new_reply_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this forum.', 'bbpress' ) );
 			}
 		}
 	}
@@ -268,6 +277,22 @@ function bbp_new_reply_handler( $action = '' ) {
 		remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses'      );
 		remove_filter( 'bbp_new_reply_pre_content', 'bbp_encode_bad',  10 );
 		remove_filter( 'bbp_new_reply_pre_content', 'bbp_filter_kses', 30 );
+	}
+
+	/** Reply To **************************************************************/
+
+	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
+	if ( isset( $_REQUEST['bbp_reply_to'] ) && is_numeric( $_REQUEST['bbp_reply_to'] ) ) {
+		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
+	}
+
+	// Check the Reply To ID
+	if ( ! empty( $reply_to ) ) {
+
+		// User cannot read parent reply ID
+		if ( ! current_user_can( 'read_reply', $reply_to ) ) {
+			bbp_add_error( 'bbp_new_reply_reply_to', __( '<strong>Error</strong>: You do not have the capability to read or create new replies to this reply.', 'bbpress' ) );
+		}
 	}
 
 	/** Reply Title ***********************************************************/
@@ -332,13 +357,6 @@ function bbp_new_reply_handler( $action = '' ) {
 	// Maybe force into pending
 	if ( bbp_is_topic_pending( $topic_id ) || ! bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) ) {
 		$reply_status = bbp_get_pending_status_id();
-	}
-
-	/** Reply To **************************************************************/
-
-	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
-	if ( isset( $_REQUEST['bbp_reply_to'] ) ) {
-		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'] );
 	}
 
 	/** Topic Closed **********************************************************/
@@ -574,6 +592,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
+	// User cannot read parent topic ID
+	if ( ! current_user_can( 'read_topic', $topic_id ) ) {
+		bbp_add_error( 'bbp_edit_reply_topic_read', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this topic.', 'bbpress' ) );
+	}
+
 	/** Topic Forum ***********************************************************/
 
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
@@ -588,19 +611,40 @@ function bbp_edit_reply_handler( $action = '' ) {
 		// Forum is not a category
 		} else {
 
-			// Forum is closed and user cannot access
-			if ( bbp_is_forum_closed( $forum_id ) && ! current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new replies.', 'bbpress' ) );
+			// Forum not editable by user
+			if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+
+				// Forum is closed
+				if ( bbp_is_forum_closed( $forum_id ) ) {
+					bbp_add_error( 'bbp_edit_reply_forum_closed', __( '<strong>Error</strong>: This forum is closed to new replies.', 'bbpress' ) );
+				}
 			}
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
-
-			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+			// Forum not readable by user
+			if ( ! current_user_can( 'read_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_edit_reply_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this forum.', 'bbpress' ) );
 			}
+		}
+	}
+
+	/** Reply To **************************************************************/
+
+	$reply_to = bbp_get_reply_to( $reply_id );
+
+	// Maybe sanitize Reply To, using $_REQUEST for non-JS submissions
+	if ( isset( $_REQUEST['bbp_reply_to'] ) && is_numeric( $_REQUEST['bbp_reply_to'] ) ) {
+		$reply_to = intval( $_REQUEST['bbp_reply_to'] );
+	}
+
+	// Validate Reply To
+	$reply_to = bbp_validate_reply_to( $reply_to, $reply_id );
+
+	// Check the Reply To ID
+	if ( ! empty( $reply_to ) ) {
+
+		// User cannot read parent reply ID
+		if ( ! current_user_can( 'read_reply', $reply_to ) ) {
+			bbp_add_error( 'bbp_edit_reply_reply_to', __( '<strong>Error</strong>: You do not have the capability to read or create new replies to this reply.', 'bbpress' ) );
 		}
 	}
 
@@ -661,15 +705,6 @@ function bbp_edit_reply_handler( $action = '' ) {
 		} else {
 			bbp_add_error( 'bbp_edit_reply_status', __( '<strong>Error</strong>: You do not have permission to do that.', 'bbpress' ) );
 		}
-	}
-
-	/** Reply To **************************************************************/
-
-	// Handle Reply To of the reply; $_REQUEST for non-JS submissions
-	if ( isset( $_REQUEST['bbp_reply_to'] ) && current_user_can( 'moderate', $reply_id ) ) {
-		$reply_to = bbp_validate_reply_to( $_REQUEST['bbp_reply_to'], $reply_id );
-	} elseif ( bbp_thread_replies() ) {
-		$reply_to = bbp_get_reply_to( $reply_id );
 	}
 
 	/** Topic Tags ************************************************************/
