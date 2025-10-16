@@ -43,6 +43,8 @@ function bbp_is_update() {
  *
  * @since 2.0.0 bbPress (r3421)
  *
+ * @global string $pagenow The filename of the current screen.
+ *
  * @return bool True if activating bbPress, false if not
  */
 function bbp_is_activation( $basename = '' ) {
@@ -92,6 +94,8 @@ function bbp_is_activation( $basename = '' ) {
  * Determine if bbPress is being deactivated
  *
  * @since 2.0.0 bbPress (r3421)
+ *
+ * @global string $pagenow The filename of the current screen.
  *
  * @return bool True if deactivating bbPress, false if not
  */
@@ -462,7 +466,7 @@ function bbp_do_activation_redirect() {
 
 /**
  * Hooked to the 'bbp_activate' action, this helper function automatically makes
- * the current user a Key Master in the forums if they just activated bbPress,
+ * the current user a Keymaster in the forums if they just activated bbPress,
  * regardless of the bbp_allow_global_access() setting.
  *
  * @since 2.4.0 bbPress (r4910)

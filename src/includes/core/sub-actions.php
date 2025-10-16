@@ -551,3 +551,23 @@ function bbp_mail( $args = array() ) {
 	// Filter & return
 	return (array) apply_filters( 'bbp_mail', $args );
 }
+
+/**
+ * Redirects incoming links to the proper URL based on the site URL.
+ *
+ * @see redirect_canonical()
+ *
+ * @since 2.0.0 bbPress (r2628)
+ * @since 2.7.0 bbPress {r7345) Converted to a sub-action.
+ *
+ * @param string $redirect_url  The redirect URL.
+ * @param string $requested_url The requested URL.
+ *
+ * @return string Empty string if a topic/forum and their first page,
+ *                 otherwise the redirect URL.
+ */
+function bbp_redirect_canonical( $redirect_url = '', $requested_url = '' ) {
+
+	// Filter & return
+	return (string) apply_filters( 'bbp_redirect_canonical', $redirect_url, $requested_url );
+}

@@ -842,7 +842,7 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
  * @param string $content The content being posted
- * @param mixed  $strict  False for moderation_keys. True for disallow_keys.
+ * @param mixed  $strict  False for moderation_keys. True for disallowed_keys.
  *                        String for custom keys.
  * @return bool True if test is passed, false if fail
  */
@@ -866,7 +866,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 	// Strict mode uses WordPress "disallow" settings
 	if ( true === $strict ) {
 		$hook_name   = 'blacklist';
-		$option_name = 'disallow_keys';
+		$option_name = 'disallowed_keys';
 
 	// Non-strict uses WordPress "moderation" settings
 	} elseif ( false === $strict ) {
@@ -987,7 +987,7 @@ function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $t
 		// Do some escaping magic so that '#' chars in the
 		// spam words don't break things:
 		$word    = preg_quote( $word, '#' );
-		$pattern = "#{$word}#i";
+		$pattern = "#{$word}#iu";
 
 		// Loop through post data
 		foreach ( $_post as $post_data ) {
@@ -2616,9 +2616,14 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
 	if ( isset( $wp_query->bbp_is_404 ) ) {
 
 		// Either force a 404 when 200, or a 200 when 404
-		$override = ( true === $wp_query->bbp_is_404 )
-			? bbp_set_404( $wp_query )
-			: bbp_set_200();
+		if ( true === $wp_query->bbp_is_404 ) {
+			bbp_set_404( $wp_query );
+		} else {
+			bbp_set_200();
+		}
+
+		// Overridden
+		$override = true;
 	}
 
 	// Return, maybe overridden

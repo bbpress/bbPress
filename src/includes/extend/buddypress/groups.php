@@ -116,6 +116,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Group forum pagination
 		add_filter( 'bbp_topic_pagination',      array( $this, 'topic_pagination'   ) );
 		add_filter( 'bbp_replies_pagination',    array( $this, 'replies_pagination' ) );
+		add_filter( 'bbp_get_global_object',     array( $this, 'rewrite_pagination' ), 10, 2 );
 
 		// Tweak the redirect field
 		add_filter( 'bbp_new_topic_redirect_to', array( $this, 'new_topic_redirect_to'        ), 10, 3 );
@@ -613,7 +614,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Redirect after save when not in admin
 		if ( ! is_admin() ) {
-			bp_core_redirect( trailingslashit( bp_get_group_permalink( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
+			bp_core_redirect( trailingslashit( $this->group_url( buddypress()->groups->current_group ) . '/admin/' . $this->slug ) );
 		}
 	}
 
@@ -1269,7 +1270,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( bp_is_group() ) {
 			$topic        = bbp_get_topic( $topic_id );
 			$topic_hash   = '#post-' . $topic_id;
-			$redirect_url = trailingslashit( bp_get_group_permalink( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name ) . $topic_hash;
+			$redirect_url = trailingslashit( $this->group_url( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name ) . $topic_hash;
 		}
 
 		return $redirect_url;
@@ -1288,7 +1289,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			$reply_position = bbp_get_reply_position( $reply_id, $topic_id );
 			$reply_page     = ceil( (int) $reply_position / (int) bbp_get_replies_per_page() );
 			$reply_hash     = '#post-' . $reply_id;
-			$topic_url      = trailingslashit( bp_get_group_permalink( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name );
+			$topic_url      = trailingslashit( $this->group_url( groups_get_current_group() ) ) . trailingslashit( $this->slug ) . trailingslashit( $this->topic_slug ) . trailingslashit( $topic->post_name );
 
 			// Don't include pagination if on first page
 			if ( 1 >= $reply_page ) {
@@ -1444,6 +1445,58 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Permalink Mappers *****************************************************/
 
 	/**
+	 * Get the URL for a group.
+	 *
+	 * @since 2.6.14
+	 *
+	 * @param int $group_id
+	 * @return string
+	 */
+	private function group_url( $group_id = 0 ) {
+
+		// Default return value
+		$retval = '';
+
+		// BuddyPress < 12.0 (deprecated code is intentionally included)
+		if ( function_exists( 'bp_get_group_permalink' ) ) {
+			$retval = bp_get_group_permalink( $group_id );
+
+		// BuddyPress > 12.0 (rewrite rules)
+		} elseif ( function_exists( 'bp_get_group_url' ) ) {
+			$retval = bp_get_group_url( $group_id );
+		}
+
+		// Return
+		return $retval;
+	}
+
+	/**
+	 * Get the management URL for a group.
+	 *
+	 * @since 2.6.14
+	 *
+	 * @param int $group_id
+	 * @return string
+	 */
+	private function group_manage_url( $group_id = 0 ) {
+
+		// Default return value
+		$retval = '';
+
+		// BuddyPress < 12.0 (deprecated code is intentionally included)
+		if ( function_exists( 'bp_get_group_admin_permalink' ) ) {
+			$retval = bp_get_group_admin_permalink( $group_id );
+
+		// BuddyPress > 12.0 (rewrite rules)
+		} elseif ( function_exists( 'bp_get_group_manage_url' ) ) {
+			$retval = bp_get_group_manage_url( $group_id );
+		}
+
+		// Return
+		return $retval;
+	}
+
+	/**
 	 * Maybe map a bbPress forum/topic/reply permalink to the corresponding group
 	 *
 	 * @since 2.2.0 bbPress (r4266)
@@ -1458,14 +1511,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 			// Reply
 			case bbp_get_reply_post_type() :
-				$topic_id = bbp_get_reply_topic_id( $post_id );
 				$forum_id = bbp_get_reply_forum_id( $post_id );
 				$url_end  = trailingslashit( $this->reply_slug ) . get_post_field( 'post_name', $post_id );
 				break;
 
 			// Topic
 			case bbp_get_topic_post_type() :
-				$topic_id = $post_id;
 				$forum_id = bbp_get_topic_forum_id( $post_id );
 				$url_end  = trailingslashit( $this->topic_slug ) . get_post_field( 'post_name', $post_id );
 				break;
@@ -1493,13 +1544,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$group_id = $group_ids[0];
 		$group    = groups_get_group( array( 'group_id' => $group_id ) );
 
-		if ( bp_is_group_admin_screen( $this->slug ) ) {
-			$group_permalink = trailingslashit( bp_get_group_admin_permalink( $group ) );
-		} else {
-			$group_permalink = trailingslashit( bp_get_group_permalink( $group ) );
-		}
+		// Admin
+		$group_permalink = bp_is_group_admin_screen( $this->slug )
+			? $this->group_manage_url( $group )
+			: $this->group_url( $group );
 
-		return trailingslashit( trailingslashit( $group_permalink . $this->slug ) . $url_end );
+		return trailingslashit( trailingslashit( trailingslashit( $group_permalink ) . $this->slug ) . $url_end );
 	}
 
 	/**
@@ -1642,6 +1692,70 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		return $args;
 	}
 
+    /**
+     * Fixes rewrite pagination in BuddyPress Group Forums & Topics.
+	 *
+     * Required for compatibility with BuddyPress > 12.0, where the /groups/
+	 * rewrite rule will be caught before bbPress's /page/ rule.
+	 *
+	 * @since 2.6.14
+	 *
+	 * @param  object object  Verified object
+	 * @param  string $type   Type of variable to check with `is_a()`
+	 * @return mixed  $object Verified object if valid, Default or null if invalid
+     */
+    public function rewrite_pagination( $object, $type = '' ) {
+
+		// Bail if wrong global
+        if ( 'wp_query' !== $type ) {
+            return $object;
+        }
+
+		// Bail if not inside a BuddyPress Group
+        if ( ! bp_is_group() ) {
+            return $object;
+        }
+
+		// Bail if not inside a BuddyPress Group Forum
+        if ( ! bp_is_current_action( 'forum' ) ) {
+            return $object;
+        }
+
+		// Default "paged" value
+        $page_number = null;
+
+        // Can't use bbp_is_single_topic() because it triggers a loop.
+        $is_single_topic = bp_is_action_variable( 'topic', 0 );
+
+		// Single Topic
+        if ( true === $is_single_topic ) {
+
+			// Get the page number from 3rd position
+            if ( bp_is_action_variable( 'page', 2 ) ) {
+                $page_number = bp_action_variable( 3 );
+            }
+
+		// Single Forum
+        } else {
+
+			// Get the page number from 1st position
+            if ( bp_is_action_variable( 'page', 0 ) ) {
+                $page_number = bp_action_variable( 1 );
+            }
+        }
+
+		// Bail if no page number
+        if ( empty( $page_number ) ) {
+            return $object;
+        }
+
+		// Set the 'paged' WP_Query var to the new action-based value
+        $object->set( 'paged', $page_number );
+
+		// Return the filtered/modified object
+        return $object;
+    }
+
 	/**
 	 * Ensure that forum content associated with a BuddyPress group can only be
 	 * viewed via the group URL.
@@ -1680,7 +1794,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Use the first group ID
 		$group_id 	 = $group_ids[0];
 		$group    	 = groups_get_group( array( 'group_id' => $group_id ) );
-		$group_link  = trailingslashit( bp_get_group_permalink( $group ) );
+		$group_link  = trailingslashit( $this->group_url( $group ) );
 		$redirect_to = trailingslashit( $group_link . $this->slug );
 
 		// Add topic slug to URL

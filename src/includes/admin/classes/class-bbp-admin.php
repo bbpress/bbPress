@@ -1067,7 +1067,7 @@ class BBP_Admin {
 		$fields = $search = array( 'ID', 'user_nicename' );
 
 		// Keymasters & Super-Mods can also search by email
-		if ( current_user_can( 'keep_gate' ) || bbp_allow_super_mods() ) {
+		if ( bbp_is_user_keymaster( bbp_get_current_user_id() ) || bbp_allow_super_mods() ) {
 
 			// Add user_email to searchable columns
 			array_push( $search, 'user_email' );
