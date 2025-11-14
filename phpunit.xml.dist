@@ -7,7 +7,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="bbPress Test Suite">
 			<directory suffix=".php">tests/phpunit/testcases/</directory>
 		</testsuite>
 	</testsuites>
@@ -27,9 +27,13 @@
 			<!-- </arguments>-->
 		<!-- </listener>-->
 	<!-- </listeners>-->
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">src</directory>
-		</whitelist>
-	</filter>
+	<coverage>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">./tests</directory>
+            <directory suffix=".php">./vendor</directory>
+        </exclude>
+    </coverage>
 </phpunit>

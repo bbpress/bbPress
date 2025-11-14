@@ -8,6 +8,10 @@
 
 class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 
+	protected $old_current_user;
+	protected $moderator_id;
+	protected $keymaster_id;
+
 	/**
 	 * @covers ::bbp_number_format
 	 * @todo   Implement test_bbp_number_format().

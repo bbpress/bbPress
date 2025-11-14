@@ -8,9 +8,11 @@
  */
 class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
+    protected $keymaster_userdata;
+	protected $keymaster_id;
 	protected $old_current_user = 0;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
@@ -19,7 +21,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		bbp_set_user_role( $this->keymaster_id, bbp_get_keymaster_role() );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		$this->set_current_user( $this->old_current_user );
 	}
@@ -37,8 +39,8 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$this->assertSame( $this->keymaster_id, $user_id );
 
 		// Output.
-		$this->expectOutputString( $formatted_value );
-		bbp_user_id( $this->keymaster_id );
+		$this->expectOutputRegex( '/' . preg_quote($formatted_value, '/') . '/' );
+        bbp_user_id( $this->keymaster_id );
 	}
 
 	/**

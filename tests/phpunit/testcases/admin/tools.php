@@ -7,8 +7,9 @@
  */
 class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	protected $old_current_user = 0;
+	protected $keymaster_id;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
@@ -22,7 +23,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		$this->set_current_user( $this->old_current_user );
 	}

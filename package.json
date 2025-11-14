@@ -30,6 +30,7 @@
 	"devDependencies": {
 		"@wordpress/browserslist-config": "~2.1.3",
 		"@wordpress/stylelint-config": "~22.4.0",
+		"@wordpress/env": "^10.8.0",
 		"autoprefixer": "~8.2.0",
 		"browserslist": "~4.23.2",
 		"grunt": "~1.6.1",
@@ -48,16 +49,21 @@
 		"grunt-postcss": "~0.9.0",
 		"grunt-rtlcss": "~2.0.2",
 		"grunt-sass": "~3.1.0",
-		"grunt-stylelint": "~0.8.0",
+		"grunt-stylelint": "~0.18",
 		"grunt-terser": "~2.0.0",
 		"grunt-wp-i18n": "~1.0.3",
+		"grunt-composer": "~0.4.5",
 		"matchdep": "~2.0.0",
 		"node-sass": "~9.0.0",
 		"postcss": "~8.4.40",
 		"postcss-markdown": "~1.2.0",
 		"postcss-scss": "~1.0.2",
-		"stylelint": "~15.11.0",
-		"stylelint-scss": "~6.4.1",
+		"stylelint": "~14",
+		"stylelint-scss": "~5",
 		"terser": "~5.31.3"
+	},
+	"scripts": {
+		"wp-env": "wp-env",
+		"test-php": "npm run wp-env run cli -- --env-cwd=wp-content/plugins/bbPress composer test"
 	}
 }

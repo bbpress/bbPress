@@ -7,12 +7,12 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Fake WP mail globals, to avoid errors
 	 */
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass(): void {
 		add_filter( 'wp_mail',      array( 'BBP_UnitTestCase', 'setUp_wp_mail'    ) );
 		add_filter( 'wp_mail_from', array( 'BBP_UnitTestCase', 'tearDown_wp_mail' ) );
 	}
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->factory = new BBP_UnitTest_Factory;
@@ -30,7 +30,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		global $wpdb;
 
 		parent::tearDown();
@@ -56,7 +56,7 @@ class BBP_UnitTestCase extends WP_UnitTestCase {
 		parent::clean_up_global_scope();
 	}
 
-	function assertPreConditions() {
+	function assertPreConditions(): void {
 		parent::assertPreConditions();
 	}
 

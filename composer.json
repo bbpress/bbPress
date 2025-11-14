@@ -18,6 +18,18 @@
 		],
 		"lint": [
 			"@php ./vendor/squizlabs/php_codesniffer/bin/phpcs"
-		]
+		],
+		"test": [
+			"@php ./vendor/bin/phpunit -c phpunit.xml.dist"
+		],
+		"phpunit": [
+			"@test"
+ 		]
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }

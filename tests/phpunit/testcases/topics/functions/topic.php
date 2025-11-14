@@ -9,6 +9,9 @@
  */
 class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
+	protected $old_current_user;
+    protected $keymaster_id;
+
 	/**
 	 * @group canonical
 	 * @covers ::bbp_insert_topic
