@@ -247,8 +247,15 @@ class BBP_Akismet {
 		// Result is spam, so set the status as such
 		if ( 'true' === $post_data['bbp_akismet_result'] ) {
 
-			// Let plugins do their thing
-			do_action( 'bbp_akismet_spam_caught' );
+			/**
+			 * Hook that fires after Akismet has caught a post as spammy and
+			 * immediately before its status is set to spam.
+			 *
+			 * @since 2.0.0 bbPress (r3308)
+			 *
+			 * @param array $post_data Post data.
+			 */
+			do_action( 'bbp_akismet_spam_caught', $post_data );
 
 			// Set post_status to spam
 			$post_data['post_status'] = bbp_get_spam_status_id();
@@ -558,6 +565,17 @@ class BBP_Akismet {
 		// the same topic/reply as was checked by BBP_Akismet::check_post()
 		if ( is_object( $_post ) && ! empty( $this->last_post ) && is_array( $as_submitted ) ) {
 
+			/**
+			 * Fires immediately before post meta is updated on a bbPress post
+			 * that Akismet has checked.
+			 *
+			 * @since 2.7.0 bbPress (r7355)
+			 *
+			 * @param int $post_id
+			 * @param object $_post
+			 */
+			do_action( 'bbp_akismet_before_update_post_meta', $post_id, $_post );
+
 			// Get user data
 			$userdata       = get_userdata( $_post->post_author );
 			$anonymous_data = bbp_filter_anonymous_post_data();
@@ -601,7 +619,7 @@ class BBP_Akismet {
 					update_post_meta( $post_id, '_bbp_akismet_result', 'true' );
 					$this->update_post_history(
 						$post_id,
-						esc_html__( 'Akismet caught this post as spam', 'bbpress' ),
+						esc_html__( 'Akismet caught this post as spam.', 'bbpress' ),
 						'check-spam'
 					);
 
@@ -610,7 +628,7 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
-								esc_html__( 'Post status was changed to %s', 'bbpress' ),
+								esc_html__( 'Akismet overruled. Post status overridden to %s.', 'bbpress' ),
 								$_post->post_status
 							),
 							'status-changed-' . $_post->post_status
@@ -624,7 +642,7 @@ class BBP_Akismet {
 					update_post_meta( $post_id, '_bbp_akismet_result', 'false' );
 					$this->update_post_history(
 						$post_id,
-						esc_html__( 'Akismet cleared this post as not spam', 'bbpress' ),
+						esc_html__( 'Akismet cleared this post as not spam.', 'bbpress' ),
 						'check-ham'
 					);
 
@@ -633,7 +651,7 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
-								esc_html__( 'Post status was changed to %s', 'bbpress' ),
+								esc_html__( 'Akismet overruled. Post status overridden to %s.', 'bbpress' ),
 								$_post->post_status
 							),
 							'status-changed-' . $_post->post_status
@@ -663,6 +681,17 @@ class BBP_Akismet {
 					);
 				}
 			}
+
+			/**
+			 * Fires immediately after post meta is updated on a bbPress post
+			 * that Akismet has checked.
+			 *
+			 * @since 2.7.0 bbPress (r7355)
+			 *
+			 * @param int $post_id
+			 * @param object $_post
+			 */
+			do_action( 'bbp_akismet_after_update_post_meta', $post_id, $_post );
 		}
 	}
 
@@ -670,12 +699,13 @@ class BBP_Akismet {
 	 * Update Akismet history of a Post
 	 *
 	 * @since 2.0.0 bbPress (r3308)
+	 * @since 2.7.0 bbPress (r7355) Changed from private to public.
 	 *
 	 * @param int $post_id
 	 * @param string $message
 	 * @param string $event
 	 */
-	private function update_post_history( $post_id = 0, $message = null, $event = null ) {
+	public function update_post_history( $post_id = 0, $message = null, $event = null ) {
 
 		// Define local variable(s)
 		$user = '';
