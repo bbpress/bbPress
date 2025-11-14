@@ -472,7 +472,7 @@ abstract class BBP_Converter_Base {
 
 								// Translates a field from the old forum.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( ( $row['callback_method'] === 'callback_userid' ) && ( false === $this->convert_users ) ) {
+									if ( ( 'callback_userid' === $row['callback_method'] ) && ( false === $this->convert_users ) ) {
 										$insert_postmeta[ $row['to_fieldname'] ] = $forum[ $row['from_fieldname'] ];
 									} else {
 										$insert_postmeta[ $row['to_fieldname'] ] = call_user_func_array( array( $this, $row['callback_method'] ), array( $forum[ $row['from_fieldname'] ], $forum ) );
@@ -489,7 +489,7 @@ abstract class BBP_Converter_Base {
 					/** Step 3 ************************************************/
 
 					// Something to insert into the destination field
-					if ( count( $insert_post ) > 0 || ( $to_type == 'tags' && count( $insert_postmeta ) > 0 ) ) {
+					if ( count( $insert_post ) > 0 || ( 'tags' === $to_type && count( $insert_postmeta ) > 0 ) ) {
 
 						switch ( $to_type ) {
 

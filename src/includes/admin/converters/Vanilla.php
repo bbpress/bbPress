@@ -571,7 +571,7 @@ class Vanilla extends BBP_Converter_Base {
 	 * @return int
 	 */
 	public function callback_forum_parent( $parent = 0 ) {
-		if ( $parent == -1 ) {
+		if ( -1 == $parent ) {
 			return 0;
 		} else {
 			return $parent;

@@ -655,7 +655,7 @@ class vBulletin3 extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
-		return ( $pass_array['hash'] == md5( md5( $password ) . $pass_array['salt'] ) );
+		return ( md5( md5( $password ) . $pass_array['salt'] ) == $pass_array['hash'] );
 	}
 
 	/**
@@ -665,7 +665,7 @@ class vBulletin3 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == -1 ) {
+		if ( -1 == $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';

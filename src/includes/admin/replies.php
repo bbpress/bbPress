@@ -421,7 +421,7 @@ class BBP_Replies_Admin {
 		// Get reply author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
 		$author_id      = bbp_get_reply_author_id( $reply_id );
-		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( $_POST['hidden_post_status'] !== 'draft' ) );
+		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( 'draft' !== $_POST['hidden_post_status'] ) );
 
 		// Formally update the reply
 		bbp_update_reply( $reply_id, $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit, $reply_to );
@@ -558,25 +558,25 @@ class BBP_Replies_Admin {
 
 		switch ( $notice ) {
 			case 'spammed' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
 					: sprintf( esc_html__( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unspammed' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure  )
 					? sprintf( esc_html__( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
 					: sprintf( esc_html__( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'approved' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure  )
 					? sprintf( esc_html__( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
 					: sprintf( esc_html__( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unapproved' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
 					: sprintf( esc_html__( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
 				break;
@@ -584,7 +584,7 @@ class BBP_Replies_Admin {
 
 		// Do additional reply toggle notice filters (admin side)
 		$message = apply_filters( 'bbp_toggle_reply_notice_admin', $message, $reply_id, $notice, $is_failure );
-		$class   = ( $is_failure === true )
+		$class   = ( true === $is_failure )
 			? 'error'
 			: 'updated';
 

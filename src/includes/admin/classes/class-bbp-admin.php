@@ -972,11 +972,11 @@ class BBP_Admin {
 		/** Paths *************************************************************/
 
 		// Forum Archive
-		} elseif ( $post->post_name === bbp_get_root_slug() ) {
+		} elseif ( bbp_get_root_slug() === $post->post_name ) {
 			$retval[] = esc_html_x( 'Forum Archive', 'page label', 'bbpress' );
 
 		// Topic Archive
-		} elseif ( $post->post_name === bbp_get_topic_archive_slug() ) {
+		} elseif ( bbp_get_topic_archive_slug() === $post->post_name ) {
 			$retval[] = esc_html_x( 'Topic Archive', 'page label', 'bbpress' );
 		}
 

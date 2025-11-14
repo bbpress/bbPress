@@ -482,7 +482,7 @@ class Invision extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == -1 ) {
+		if ( -1 == $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';
@@ -536,7 +536,7 @@ class Invision extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
-		return ( $pass_array['hash'] == md5( md5( $pass_array['salt'] ) . md5( $this->to_char( $password ) ) ) );
+		return ( md5( md5( $pass_array['salt'] ) . md5( $this->to_char( $password ) ) ) == $pass_array['hash'] );
 	}
 
 	private function to_char( $input ) {

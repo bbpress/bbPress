@@ -676,7 +676,7 @@ class SMF extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
-		return ( $pass_array['hash'] === sha1( strtolower( $pass_array['username'] ) . $password ) ? true : false );
+		return ( sha1( strtolower( $pass_array['username'] ) . $password ) === $pass_array['hash'] ? true : false );
 	}
 
 	/**

@@ -522,7 +522,7 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 	}
 
 	// Bail if not correct post type
-	if ( $topic->post_type !== bbp_get_topic_post_type() ) {
+	if ( bbp_get_topic_post_type() !== $topic->post_type ) {
 		return null;
 	}
 
@@ -530,11 +530,11 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 	$retval = $topic;
 
 	// Array A
-	if ( $output === ARRAY_A ) {
+	if ( ARRAY_A === $output ) {
 		$retval = get_object_vars( $topic );
 
 	// Array N
-	} elseif ( $output === ARRAY_N ) {
+	} elseif ( ARRAY_N === $output ) {
 		$retval = array_values( get_object_vars( $topic ) );
 	}
 

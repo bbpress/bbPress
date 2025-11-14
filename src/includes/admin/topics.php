@@ -538,7 +538,7 @@ class BBP_Topics_Admin {
 		// Get topic author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
 		$author_id      = bbp_get_topic_author_id( $topic_id );
-		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( $_POST['hidden_post_status'] !== 'draft' ) );
+		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( 'draft' !== $_POST['hidden_post_status'] ) );
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
@@ -709,55 +709,55 @@ class BBP_Topics_Admin {
 		// Which notice?
 		switch ( $notice ) {
 			case 'opened'    :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'closed'    :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'super_sticky' :
-				$message = ( $is_failure === true )
+				$message = ( true ===  $is_failure )
 					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'stuck'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'unstuck' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure  )
 					? sprintf( esc_html__( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'spammed'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unspammed' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'approved'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unapproved' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
 				break;
@@ -765,7 +765,7 @@ class BBP_Topics_Admin {
 
 		// Do additional topic toggle notice filters (admin side)
 		$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic_id, $notice, $is_failure );
-		$class   = ( $is_failure === true )
+		$class   = ( true === $is_failure )
 			? 'error'
 			: 'updated';
 

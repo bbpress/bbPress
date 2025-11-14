@@ -293,7 +293,7 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 	}
 
 	// Bail if not correct post type
-	if ( $forum->post_type !== bbp_get_forum_post_type() ) {
+	if (  bbp_get_forum_post_type() !== $forum->post_type ) {
 		return null;
 	}
 
@@ -301,11 +301,11 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 	$retval = $forum;
 
 	// Array A
-	if ( $output === ARRAY_A ) {
+	if ( ARRAY_A === $output ) {
 		$retval = get_object_vars( $forum );
 
 	// Array N
-	} elseif ( $output === ARRAY_N ) {
+	} elseif ( ARRAY_N === $output ) {
 		$retval = array_values( get_object_vars( $forum ) );
 	}
 
@@ -1599,7 +1599,7 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 				}
 
 				// Break when it reach the max count
-				if ( ( $operator === 'OR' ) && ( $count >= 1 ) ) {
+				if ( ( 'OR' === $operator ) && ( $count >= 1 ) ) {
 					break;
 				}
 			}
@@ -1736,7 +1736,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 				}
 
 				// Break when it reach the max count
-				if ( ( $operator === 'OR' ) && ( $count >= 1 ) ) {
+				if ( ( 'OR' === $operator ) && ( $count >= 1 ) ) {
 					break;
 				}
 			}

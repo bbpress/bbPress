@@ -366,7 +366,7 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 	}
 
 	// Bail if not correct post type
-	if ( $reply->post_type !== bbp_get_reply_post_type() ) {
+	if ( bbp_get_reply_post_type() !== $reply->post_type  ) {
 		return null;
 	}
 
@@ -374,11 +374,11 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 	$retval = $reply;
 
 	// Array A
-	if ( $output === ARRAY_A ) {
+	if ( ARRAY_A === $output ) {
 		$retval = get_object_vars( $reply );
 
 	// Array N
-	} elseif ( $output === ARRAY_N ) {
+	} elseif ( ARRAY_N === $output ) {
 		$retval = array_values( get_object_vars( $reply ) );
 	}
 

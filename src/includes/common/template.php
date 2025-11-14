@@ -195,7 +195,7 @@ function bbp_is_forum_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_forum_edit ) && ( $wp_query->bbp_is_forum_edit === true ) ) {
+	if ( ! empty( $wp_query->bbp_is_forum_edit ) && ( true === $wp_query->bbp_is_forum_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -295,7 +295,7 @@ function bbp_is_topic_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_topic_edit ) && ( $wp_query->bbp_is_topic_edit === true ) ) {
+	if ( ! empty( $wp_query->bbp_is_topic_edit ) && ( true === $wp_query->bbp_is_topic_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
@@ -957,7 +957,7 @@ function bbp_is_edit() {
 	$wp_query = bbp_get_wp_query();
 
 	// Check query
-	if ( ! empty( $wp_query->bbp_is_edit ) && ( $wp_query->bbp_is_edit === true ) ) {
+	if ( ! empty( $wp_query->bbp_is_edit ) && ( true === $wp_query->bbp_is_edit ) ) {
 		$retval = true;
 	}
 
@@ -2317,7 +2317,7 @@ function bbp_breadcrumb( $args = array() ) {
 		}
 
 		// Don't show root if viewing page in place of forum archive
-		if ( ! empty( $root_id ) && ( ( is_single() || is_page() ) && ( $root_id === get_the_ID() ) ) ) {
+		if ( ! empty( $root_id ) && ( ( is_single() || is_page() ) && ( get_the_ID() === $root_id ) ) ) {
 			$pre_include_root = false;
 		}
 

@@ -430,7 +430,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 		// If this reply starts as trash, add it to pre_trashed_replies
 		// for the topic, so it is properly restored.
-		if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] === bbp_get_trash_status_id() ) ) {
+		if ( bbp_is_topic_trash( $topic_id ) || ( bbp_get_trash_status_id() === $reply_data['post_status'] ) ) {
 
 			// Trash the reply
 			wp_trash_post( $reply_id );
@@ -456,7 +456,7 @@ function bbp_new_reply_handler( $action = '' ) {
 		/** Spam Check ********************************************************/
 
 		// If reply or topic are spam, officially spam this reply
-		} elseif ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] === bbp_get_spam_status_id() ) ) {
+		} elseif ( bbp_is_topic_spam( $topic_id ) || ( bbp_get_spam_status_id() === $reply_data['post_status'] ) ) {
 			add_post_meta( $reply_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 			// Only add to pre-spammed array if topic is spam
@@ -602,7 +602,7 @@ function bbp_edit_reply_handler( $action = '' ) {
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 	// Forum exists
-	if ( ! empty( $forum_id ) && ( $forum_id !== bbp_get_reply_forum_id( $reply_id ) ) ) {
+	if ( ! empty( $forum_id ) && ( bbp_get_reply_forum_id( $reply_id ) !== $forum_id ) ) {
 
 		// Forum is a category
 		if ( bbp_is_forum_category( $forum_id ) ) {

@@ -100,7 +100,7 @@ class BBP_User_Query extends WP_User_Query {
 		$this->in_the_loop = true;
 
 		// loop has just started
-		if ( $this->current_user === -1 ) {
+		if ( -1 === $this->current_user ) {
 
 			/**
 			 * Fires once the loop is started.

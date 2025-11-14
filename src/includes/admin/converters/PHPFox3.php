@@ -524,7 +524,7 @@ class PHPFox3 extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
-		return ( $pass_array['hash'] == md5( md5( $password ). $pass_array['salt'] ) );
+		return ( md5( md5( $password ). $pass_array['salt'] ) == $pass_array['hash'] );
 	}
 
 	/**

@@ -471,7 +471,7 @@ function bbp_maybe_intercept( $action = '', $args = array() ) {
 	$filtered = call_user_func_array( 'apply_filters', $args );
 
 	// Return filtered value, or default if not intercepted
-	return ( $filtered === reset( $r ) )
+	return ( reset( $r ) === $filtered )
 		? $default
 		: $filtered;
 }

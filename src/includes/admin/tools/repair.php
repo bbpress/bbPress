@@ -1066,7 +1066,7 @@ function bbp_admin_repair_sticky() {
 
 			// If the topic is not a super sticky, and the forum ID does not
 			// match the topic's forum ID, unset the forum's sticky meta.
-			if ( ! bbp_is_topic_super_sticky( $topic_id ) && ( $forum_id !== bbp_get_topic_forum_id( $topic_id ) ) ) {
+			if ( ! bbp_is_topic_super_sticky( $topic_id ) && ( bbp_get_topic_forum_id( $topic_id ) ) !== $forum_id ) {
 				unset( $forum_stickies[ $forum_id ][ $id ] );
 			}
 		}

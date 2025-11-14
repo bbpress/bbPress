@@ -494,7 +494,7 @@ class Kunena2 extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass($password, $serialized_pass) {
 		$pass_array = unserialize($serialized_pass);
-		return ( $pass_array['hash'] == md5(md5($password) . $pass_array['salt']) );
+		return ( md5(md5($password) . $pass_array['salt']) == $pass_array['hash'] );
 	}
 	/**
 	 * Translate the forum type from Kunena v2.x numerics to WordPress's strings.
@@ -503,7 +503,7 @@ class Kunena2 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == 0 ) {
+		if ( 0 == $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';

@@ -43,7 +43,7 @@ function bbp_check_post_lock( $post_id = 0 ) {
 	$time_window = apply_filters( 'bbp_check_post_lock_window', 3 * MINUTE_IN_SECONDS );
 
 	// Return user who is or last edited
-	if ( ! empty( $time ) && ( $time > ( time() - $time_window ) ) && ( $user !== bbp_get_current_user_id() ) ) {
+	if ( ! empty( $time ) && ( $time > ( time() - $time_window ) ) && ( bbp_get_current_user_id() ) !== $user ) {
 		return (int) $user;
 	}
 

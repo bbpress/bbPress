@@ -699,9 +699,9 @@ class XenForo extends BBP_Converter_Base {
 		$pass_array = unserialize( $serialized_pass );
 		switch ( $pass_array['hashFunc'] ) {
 			case 'sha256':
-				return ( $pass_array['hash'] == hash( 'sha256', hash( 'sha256', $password ) . $pass_array['salt'] ) );
+				return ( hash( 'sha256', hash( 'sha256', $password ) . $pass_array['salt'] ) == $pass_array['hash'] );
 			case 'sha1':
-				return ( $pass_array['hash'] == sha1( sha1( $password ) . $pass_array['salt'] ) );
+				return ( sha1( sha1( $password ) . $pass_array['salt'] ) == $pass_array['hash'] );
 		}
 	}
 

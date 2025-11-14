@@ -595,7 +595,7 @@ class BBP_Akismet {
 				}
 
 				// Normal result: true
-				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'true' ) ) {
+				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( 'true' === $this->last_post['bbp_akismet_result'] ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'true' );
@@ -618,7 +618,7 @@ class BBP_Akismet {
 					}
 
 				// Normal result: false
-				} elseif ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'false' ) ) {
+				} elseif ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( 'false' === $this->last_post['bbp_akismet_result'] ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'false' );

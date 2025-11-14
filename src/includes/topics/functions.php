@@ -342,7 +342,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		/** Close Check *******************************************************/
 
 		// If the topic is closed, close it properly
-		if ( ( get_post_field( 'post_status', $topic_id ) === bbp_get_closed_status_id() ) || ( $topic_data['post_status'] === bbp_get_closed_status_id() ) ) {
+		if ( ( get_post_field( 'post_status', $topic_id ) === bbp_get_closed_status_id() ) || bbp_get_closed_status_id() === ( $topic_data['post_status'] ) ) {
 
 			// Close the topic
 			bbp_close_topic( $topic_id );
@@ -352,7 +352,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 		// If the forum is trash, or the topic_status is switched to
 		// trash, trash the topic properly
-		if ( ( get_post_field( 'post_status', $forum_id ) === bbp_get_trash_status_id() ) || ( $topic_data['post_status'] === bbp_get_trash_status_id() ) ) {
+		if ( ( get_post_field( 'post_status', $forum_id ) === bbp_get_trash_status_id() ) || bbp_get_trash_status_id() === ( $topic_data['post_status'] ) ) {
 
 			// Trash the topic
 			wp_trash_post( $topic_id );
@@ -364,7 +364,7 @@ function bbp_new_topic_handler( $action = '' ) {
 		/** Spam Check ********************************************************/
 
 		// If the topic is spam, officially spam this topic
-		if ( $topic_data['post_status'] === bbp_get_spam_status_id() ) {
+		if ( bbp_get_spam_status_id() === $topic_data['post_status'] ) {
 			add_post_meta( $topic_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 			// Force view=all

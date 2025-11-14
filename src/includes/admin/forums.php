@@ -447,13 +447,13 @@ class BBP_Forums_Admin {
 
 		switch ( $notice ) {
 			case 'opened' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem opening the forum "%1$s".', 'bbpress' ), $forum_title )
 					: sprintf( esc_html__( 'Forum "%1$s" successfully opened.',             'bbpress' ), $forum_title );
 				break;
 
 			case 'closed' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
 					? sprintf( esc_html__( 'There was a problem closing the forum "%1$s".', 'bbpress' ), $forum_title )
 					: sprintf( esc_html__( 'Forum "%1$s" successfully closed.',             'bbpress' ), $forum_title );
 				break;
@@ -461,7 +461,7 @@ class BBP_Forums_Admin {
 
 		// Do additional forum toggle notice filters (admin side)
 		$message = apply_filters( 'bbp_toggle_forum_notice_admin', $message, $forum_id, $notice, $is_failure );
-		$class   = ( $is_failure === true )
+		$class   = ( true === $is_failure )
 			? 'error'
 			: 'updated';
 

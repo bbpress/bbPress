@@ -661,7 +661,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == 1 ) {
+		if ( 1 == $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';

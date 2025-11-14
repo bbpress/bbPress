@@ -286,7 +286,7 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		// If the forum is trash, or the forum_status is switched to
 		// trash, trash it properly
-		if ( ( get_post_field( 'post_status', $forum_id ) === bbp_get_trash_status_id() ) || ( $forum_data['post_status'] === bbp_get_trash_status_id() ) ) {
+		if ( ( get_post_field( 'post_status', $forum_id ) === bbp_get_trash_status_id() ) || ( bbp_get_trash_status_id() === $forum_data['post_status'] ) ) {
 
 			// Trash the reply
 			wp_trash_post( $forum_id );
@@ -298,7 +298,7 @@ function bbp_new_forum_handler( $action = '' ) {
 		/** Spam Check ********************************************************/
 
 		// If reply or forum are spam, officially spam this reply
-		if ( $forum_data['post_status'] === bbp_get_spam_status_id() ) {
+		if ( bbp_get_spam_status_id() === $forum_data['post_status'] ) {
 			add_post_meta( $forum_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 			// Force view=all
