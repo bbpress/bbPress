@@ -33,13 +33,11 @@ if ( bbp_is_forum_edit() ) : ?>
 
 					<?php
 						if ( bbp_is_forum_edit() ) :
-							/* translators: %s: Forum title */
-							printf( esc_html__( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
+							printf( esc_html__( 'Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
 						else :
-							bbp_is_single_forum()
-								/* translators: %s: Parent forum title */
-								? printf( esc_html__( 'Create New Forum in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() )
-								: esc_html_e( 'Create New Forum', 'bbpress' );
+							( bbp_is_single_forum() && bbp_get_forum_title() )
+								? printf( esc_html__( 'Add Forum in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() )
+								: esc_html_e( 'Add Forum', 'bbpress' );
 						endif;
 					?>
 

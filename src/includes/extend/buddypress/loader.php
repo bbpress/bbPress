@@ -32,6 +32,24 @@ if ( ! class_exists( 'BBP_Forums_Component' ) ) :
 class BBP_Forums_Component extends BP_Component {
 
 	/**
+	 * BuddyPress Members component shim
+	 *
+	 * @since 2.0.0
+	 *
+	 * @var void|BBP_BuddyPress_Members
+	 */
+	public $members;
+
+	/**
+	 * BuddyPress Activity component shim
+	 *
+	 * @since 2.0.0
+	 *
+	 * @var void|BBP_BuddyPress_Members
+	 */
+	public $activity;
+
+	/**
 	 * Start the forums component creation process
 	 *
 	 * @since 2.1.0 bbPress (r3552)

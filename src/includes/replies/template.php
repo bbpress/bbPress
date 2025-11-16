@@ -51,7 +51,7 @@ function bbp_get_reply_post_type_labels() {
 		'singular_name'            => esc_attr_x( 'Reply', 'noun',              'bbpress' ),
 		'all_items'                => esc_attr__( 'All Replies',                'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Reply',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Reply',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Reply',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Reply',                  'bbpress' ),
@@ -1106,11 +1106,6 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 			$author_name = bbp_get_fallback_display_name( $reply_id );
 		}
 
-		// Encode possible UTF8 display names
-		if ( seems_utf8( $author_name ) === false ) {
-			$author_name = mb_convert_encoding( $author_name, 'UTF-8', mb_detect_encoding( $author_name ) );
-		}
-
 		// Filter & return
 		return apply_filters( 'bbp_get_reply_author_display_name', $author_name, $reply_id );
 	}
@@ -1604,8 +1599,9 @@ function bbp_reply_to_link( $args = array() ) {
 		}
 
 		// Build the URI and return value
-		$uri = remove_query_arg( array( 'bbp_reply_to' ) );
-		$uri = add_query_arg( array( 'bbp_reply_to' => $reply->ID ) );
+		$uri = bbp_get_reply_url( $reply->ID );
+		$uri = strtok( $uri, "#" );
+		$uri = add_query_arg( array( 'bbp_reply_to' => $reply->ID ), $uri );
 		$uri = wp_nonce_url( $uri, 'respond_id_' . $reply->ID );
 		$uri = $uri . '#new-post';
 

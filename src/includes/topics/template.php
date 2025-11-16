@@ -49,7 +49,7 @@ function bbp_get_topic_post_type_labels() {
 		'singular_name'            => esc_attr__( 'Topic',                      'bbpress' ),
 		'all_items'                => esc_attr__( 'All Topics',                 'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Topic',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Topic',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Topic',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Topic',                  'bbpress' ),
@@ -1336,11 +1336,6 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 		// Fallback if nothing could be found
 		if ( empty( $author_name ) ) {
 			$author_name = bbp_get_fallback_display_name( $topic_id );
-		}
-
-		// Encode possible UTF8 display names
-		if ( seems_utf8( $author_name ) === false ) {
-			$author_name = mb_convert_encoding( $author_name, 'UTF-8', mb_detect_encoding( $author_name ) );
 		}
 
 		// Filter & return
@@ -3330,10 +3325,24 @@ function bbp_single_topic_description( $args = array() ) {
 
 		// Topic has activity (could be from reply or topic author)
 		$last_active = bbp_get_topic_last_active_id( $topic_id );
-		if ( ! empty( $vc_int ) && ! empty( $last_active ) ) {
-			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_active, 'size' => $r['size'] ) );
-			/* translators: 1: Reply count, 2: Voice count, 3: Time since last update, 4: Author link */
-			$retstr          = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
+		if ( ! empty( $last_active ) ) {
+
+			// Last-updated-by should always exist if last-active does
+			$last_updated_by = bbp_get_author_link(
+				array(
+					'post_id' => $last_active,
+					'size'    => $r['size']
+				)
+			);
+
+			// Voice count is non-zero (registered users engaged)
+			if ( ! empty( $vc_int ) ) {
+				$retstr = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
+
+			// Voice count is zero (anonymous users only)
+			} else {
+				$retstr = sprintf( esc_html__( 'This topic was last updated %1$s by %2$s.', 'bbpress' ), $time_since, $last_updated_by );
+			}
 
 		// Topic has no replies
 		} elseif ( ! empty( $vc_int ) && ! empty( $reply_count ) ) {

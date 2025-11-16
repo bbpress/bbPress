@@ -960,13 +960,13 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = 'Sting';
 		$content        = 'Beware, they maybe bees hibernating.';
 
-		update_option( 'disallow_keys',"hibernating\nfoo" );
+		update_option( 'disallowed_keys',"hibernating\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
 		$this->assertFalse( $result );
 
-		update_option( 'disallow_keys',"foo\nbar" );
+		update_option( 'disallowed_keys',"foo\nbar" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -992,7 +992,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"http://example.net/banned\nfoo" );
+		update_option( 'disallowed_keys',"http://example.net/banned\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1018,7 +1018,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"banned@example.net\nfoo" );
+		update_option( 'disallowed_keys',"banned@example.net\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1042,7 +1042,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"127.0.0.1\nfoo" );
+		update_option( 'disallowed_keys',"127.0.0.1\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1070,7 +1070,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"hibernating\nfoo" );
+		update_option( 'disallowed_keys',"hibernating\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1101,7 +1101,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"hibernating\nfoo" );
+		update_option( 'disallowed_keys',"hibernating\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1120,7 +1120,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = 'Sting';
 		$content        = 'Beware, there maybe bees <a href="http://example.com/hibernating/>buzzing</a>, buzzing.';
 
-		update_option( 'disallow_keys',"hibernating\nfoo" );
+		update_option( 'disallowed_keys',"hibernating\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 
@@ -1144,7 +1144,7 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		$title          = bbp_get_topic_title( $t );
 		$content        = bbp_get_topic_content( $t );
 
-		update_option( 'disallow_keys',"hibernating\nfoo" );
+		update_option( 'disallowed_keys',"hibernating\nfoo" );
 
 		$result = bbp_check_for_moderation( $anonymous_data, $author_id, $title, $content, true );
 

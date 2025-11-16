@@ -179,6 +179,8 @@ function bbp_is_single_forum() {
  *
  * @since 2.1.0 bbPress (r3553)
  *
+ * @global string $pagenow The filename of the current screen.
+ *
  * @return bool True if it's the forum edit page, false if not
  */
 function bbp_is_forum_edit() {
@@ -274,6 +276,8 @@ function bbp_is_topic_archive() {
  * Check if current page is a topic edit page.
  *
  * @since 2.0.0 bbPress (r2753)
+ *
+ * @global string $pagenow The filename of the current screen.
  *
  * @return bool True if it's the topic edit page, false if not
  */
@@ -374,6 +378,9 @@ function bbp_is_topic_tag() {
  *
  * @since 2.0.0 bbPress (r3346)
  *
+ * @global string $pagenow The filename of the current screen.
+ * @global string $taxnow  The taxonomy of the current screen.
+ *
  * @return bool True if editing a topic tag, false if not
  */
 function bbp_is_topic_tag_edit() {
@@ -455,6 +462,8 @@ function bbp_is_reply($post_id = 0) {
  * Check if current page is a reply edit page.
  *
  * @since 2.0.0 bbPress (r2753)
+ *
+ * @global string $pagenow The filename of the current screen.
  *
  * @return bool True if it's the reply edit page, false if not
  */

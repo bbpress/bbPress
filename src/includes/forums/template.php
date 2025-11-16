@@ -50,7 +50,7 @@ function bbp_get_forum_post_type_labels() {
 		'singular_name'            => esc_attr__( 'Forum',                      'bbpress' ),
 		'all_items'                => esc_attr__( 'All Forums',                 'bbpress' ),
 		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Create New Forum',           'bbpress' ),
+		'add_new_item'             => esc_attr__( 'Add Forum',                  'bbpress' ),
 		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
 		'edit_item'                => esc_attr__( 'Edit Forum',                 'bbpress' ),
 		'new_item'                 => esc_attr__( 'New Forum',                  'bbpress' ),
@@ -1358,7 +1358,7 @@ function bbp_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $inte
 	 */
 	function bbp_get_forum_topic_count_hidden( $forum_id = 0, $total_count = true, $integer = null ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$meta_key = empty( $total_count ) ? '_bbp_topic_count_hidden' : '_bbp_topic_reply_count_hidden';
+		$meta_key = empty( $total_count ) ? '_bbp_topic_count_hidden' : '_bbp_total_topic_count_hidden';
 		$topics   = (int) get_post_meta( $forum_id, $meta_key, true );
 		$filter   = ( true === $integer )
 			? 'bbp_get_forum_topic_count_hidden_int'

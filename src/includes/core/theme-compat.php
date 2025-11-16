@@ -704,7 +704,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_title'     => esc_html__( 'Replies', 'bbpress' ),
 			'post_author'    => 0,
 			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $bbp_shortcodes->display_reply_index(),
+			'post_content'   => '',
 			'post_type'      => bbp_get_reply_post_type(),
 			'post_status'    => bbp_get_public_status_id(),
 			'is_archive'     => true,
@@ -851,57 +851,82 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	return apply_filters( 'bbp_template_include_theme_compat', $template );
 }
 
-/** Helpers *******************************************************************/
+/** Redirection ***************************************************************/
 
 /**
- * Remove the canonical redirect to allow pretty pagination
+ * Prevent canonical redirection when editing forums, topics, topic-tags,
+ * replies, and users.
  *
- * @since 2.0.0 bbPress (r2628)
+ * @since 2.7.0 bbPress (r7345)
  *
- * @param string $redirect_url Redirect url
+ * @param string $redirect_url The redirect URL.
  *
- * @return bool|string False if it's a topic/forum and their first page,
- *                      otherwise the redirect url
+ * @return string Empty string if cancelling redirection.
  */
-function bbp_redirect_canonical( $redirect_url ) {
+function bbp_do_not_redirect_edits( $redirect_url = '' ) {
 
-	// Canonical is for the beautiful
-	if ( bbp_use_pretty_urls() ) {
+	// Default return value
+	$retval = $redirect_url;
 
-		// If viewing beyond page 1 of several
-		if ( 1 < bbp_get_paged() ) {
+	// Pretty URLs only
+	if ( ! bbp_use_pretty_urls() ) {
+		return $retval;
+	}
 
-			// Only on single topics...
-			if ( bbp_is_single_topic() ) {
-				$redirect_url = false;
+	// If editing a forum, topic, topic-tag, reply, or user
+	if ( bbp_is_edit() ) {
+		$retval = '';
+	}
 
-			// ...and single forums...
-			} elseif ( bbp_is_single_forum() ) {
-				$redirect_url = false;
+	// Return
+	return $retval;
+}
 
-			// ...and single replies...
-			} elseif ( bbp_is_single_reply() ) {
-				$redirect_url = false;
+/**
+ * Prevent canonical redirection to allow pretty pagination of forums & topics.
+ *
+ * @since 2.7.0 bbPress (r7345)
+ *
+ * @param string $redirect_url The redirect URL.
+ *
+ * @return string Empty string if cancelling redirection.
+ */
+function bbp_do_not_redirect_paginations( $redirect_url = '' ) {
 
-			// ...and any single anything else...
-			//
-			// @todo - Find a more accurate way to disable paged canonicals for
-			//          paged shortcode usage within other posts.
-			} elseif ( is_page() || is_singular() ) {
-				$redirect_url = false;
-			}
+	// Default return value
+	$retval = $redirect_url;
 
-		// If editing a topic
-		} elseif ( bbp_is_topic_edit() ) {
-			$redirect_url = false;
+	// Pretty URLs only
+	if ( ! bbp_use_pretty_urls() ) {
+		return $retval;
+	}
 
-		// If editing a reply
-		} elseif ( bbp_is_reply_edit() ) {
-			$redirect_url = false;
+	// If viewing beyond page 1 of several
+	if ( 1 < bbp_get_paged() ) {
+
+		// Only on single topics...
+		if ( bbp_is_single_topic() ) {
+			$retval = '';
+
+		// ...and single forums...
+		} elseif ( bbp_is_single_forum() ) {
+			$retval = '';
+
+		// ...and single replies...
+		} elseif ( bbp_is_single_reply() ) {
+			$retval = '';
+
+		// ...and any single anything else...
+		//
+		// @todo - Find a more accurate way to disable paged canonicals for
+		//          paged shortcode usage within other posts.
+		} elseif ( is_page() || is_singular() ) {
+			$retval = '';
 		}
 	}
 
-	return $redirect_url;
+	// Return
+	return $retval;
 }
 
 /** Filters *******************************************************************/
