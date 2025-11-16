@@ -2300,7 +2300,7 @@ function bbp_reply_class( $reply_id = 0, $classes = array() ) {
 function bbp_get_replies_pagination_base( $topic_id = 0 ) {
 
 	// If pretty permalinks are enabled, make our pagination pretty
-	if ( bbp_use_pretty_urls() && ! bbp_is_topic_pending( $topic_id )) {
+	if ( bbp_use_pretty_urls() && ! bbp_is_topic_pending( $topic_id ) ) {
 
 		// User's replies
 		if ( bbp_is_single_user_replies() ) {

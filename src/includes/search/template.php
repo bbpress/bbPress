@@ -297,7 +297,7 @@ function bbp_search_terms( $search_terms = '' ) {
 			$search_terms = get_query_var( bbp_get_search_rewrite_id(), null );
 
 			// Searching globally
-			if ( ! is_null( $search_terms )  ) {
+			if ( ! is_null( $search_terms ) ) {
 				$search_terms = wp_unslash( $search_terms );
 
 			// Other searches

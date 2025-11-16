@@ -414,7 +414,7 @@ class BBP_Replies_Admin {
 		}
 
 		// Get the reply meta post values
-		$topic_id = ! empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id']    : 0;
+		$topic_id = ! empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id'] : 0;
 		$forum_id = ! empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
 		$reply_to = ! empty( $_POST['bbp_reply_to'] ) ? (int) $_POST['bbp_reply_to'] : 0;
 

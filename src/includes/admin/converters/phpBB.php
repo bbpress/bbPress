@@ -809,7 +809,7 @@ class phpBB extends BBP_Converter_Base {
 			$value = ord( $input[ $i++ ] );
 			$output .= $itoa64[ $value & 0x3f ];
 
-			if ($i < $count) {
+			if ( $i < $count ) {
 				$value |= ord( $input[ $i ] ) << 8;
 			}
 

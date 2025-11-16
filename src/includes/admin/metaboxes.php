@@ -354,22 +354,26 @@ function bbp_forum_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum Parent', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( array(
-			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => $post_parent,
-			'numberposts'        => -1,
-			'orderby'            => 'title',
-			'order'              => 'ASC',
-			'walker'             => '',
-			'exclude'            => $post->ID,
+		<?php 
+		bbp_dropdown( 
+			array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => $post_parent,
+				'numberposts'        => -1,
+				'orderby'            => 'title',
+				'order'              => 'ASC',
+				'walker'             => '',
+				'exclude'            => $post->ID,
 
-			// Output-related
-			'select_id'          => 'parent_id',
-			'options_only'       => false,
-			'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
-			'disable_categories' => false,
-			'disabled'           => ''
-		) ); ?>
+				// Output-related
+				'select_id'          => 'parent_id',
+				'options_only'       => false,
+				'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
+				'disable_categories' => false,
+				'disabled'           => ''
+			) 
+		); 
+		?>
 	</p>
 
 	<p>
@@ -430,14 +434,16 @@ function bbp_topic_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( array(
-			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => bbp_get_topic_forum_id( $post->ID ),
-			'numberposts'        => -1,
-			'orderby'            => 'title',
-			'order'              => 'ASC',
-			'walker'             => '',
-			'exclude'            => '',
+		<?php 
+		bbp_dropdown( 
+			array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => bbp_get_topic_forum_id( $post->ID ),
+				'numberposts'        => -1,
+				'orderby'            => 'title',
+				'order'              => 'ASC',
+				'walker'             => '',
+				'exclude'            => '',
 
 			// Output-related
 			'select_id'          => 'parent_id',
@@ -445,7 +451,9 @@ function bbp_topic_metabox( $post ) {
 			'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
 			'disable_categories' => current_user_can( 'edit_forums' ),
 			'disabled'           => ''
-		) ); ?>
+			) 
+		); 
+		?>
 	</p>
 
 	<input name="ping_status" type="hidden" id="ping_status" value="open" />
@@ -494,22 +502,26 @@ function bbp_reply_metabox( $post ) {
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-			<?php bbp_dropdown( array(
-				'post_type'          => bbp_get_forum_post_type(),
-				'selected'           => $reply_forum_id,
-				'numberposts'        => -1,
-				'orderby'            => 'title',
-				'order'              => 'ASC',
-				'walker'             => '',
-				'exclude'            => '',
+			<?php 
+			bbp_dropdown( 
+				array(
+					'post_type'          => bbp_get_forum_post_type(),
+					'selected'           => $reply_forum_id,
+					'numberposts'        => -1,
+					'orderby'            => 'title',
+					'order'              => 'ASC',
+					'walker'             => '',
+					'exclude'            => '',
 
-				// Output-related
-				'select_id'          => 'bbp_forum_id',
-				'options_only'       => false,
-				'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
-				'disable_categories' => current_user_can( 'edit_forums' ),
-				'disabled'           => ''
-			) ); ?>
+					// Output-related
+					'select_id'          => 'bbp_forum_id',
+					'options_only'       => false,
+					'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
+					'disable_categories' => current_user_can( 'edit_forums' ),
+					'disabled'           => ''
+				) 
+			); 
+			?>
 		</p>
 
 	<?php endif;

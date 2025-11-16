@@ -214,7 +214,7 @@ function bbp_encode_callback( $matches = array() ) {
 	$content = '<code>' . $content . '</code>';
 
 	// Wrap blocks in pre tags
-	if ('`' !== $matches[1] ) {
+	if ( '`' !== $matches[1] ) {
 		$content = "\n<pre>" . $content . "</pre>\n";
 	}
 

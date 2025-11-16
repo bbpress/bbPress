@@ -278,21 +278,25 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'meta_query' => array( array(
-					'key'     => $meta_key,
-					'value'   => bbp_get_user_id( $args, false, false ),
-					'compare' => 'NUMERIC'
-				) )
+				'meta_query' => array( 
+					array(
+						'key'     => $meta_key,
+						'value'   => bbp_get_user_id( $args, false, false ),
+						'compare' => 'NUMERIC'
+					) 
+				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'meta_query' => array( array(
-				'key'     => $meta_key,
-				'value'   => bbp_get_displayed_user_id(),
-				'compare' => 'NUMERIC'
-			) )
+			'meta_query' => array( 
+				array(
+					'key'     => $meta_key,
+					'value'   => bbp_get_displayed_user_id(),
+					'compare' => 'NUMERIC'
+				) 
+			)
 		);
 
 		// Parse arguments
@@ -502,21 +506,25 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'tax_query' => array( array(
-					'taxonomy' => $tax_key,
-					'terms'    => $user_key . bbp_get_user_id( $args, false, false ),
-					'field'    => 'slug'
-				) )
+				'tax_query' => array( 
+					array(
+						'taxonomy' => $tax_key,
+						'terms'    => $user_key . bbp_get_user_id( $args, false, false ),
+						'field'    => 'slug'
+					) 
+				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'tax_query' => array( array(
-				'taxonomy' => $tax_key,
-				'terms'    => $user_key . bbp_get_displayed_user_id(),
-				'field'    => 'slug'
-			) )
+			'tax_query' => array( 
+				array(
+					'taxonomy' => $tax_key,
+					'terms'    => $user_key . bbp_get_displayed_user_id(),
+					'field'    => 'slug'
+				) 
+			)
 		);
 
 		// Parse arguments
