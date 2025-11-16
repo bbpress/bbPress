@@ -71,7 +71,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		case 'read_topic' :
 
 			// User cannot spectate
-			if ( ! user_can( $user_id, 'spectate' ) ) {
+			if ( ! user_can( $user_id, 'spectate' ) && ! bbp_is_anonymous() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Do some post ID based logic
@@ -91,7 +91,15 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 					// Post is public
 					if ( bbp_get_public_status_id() === $_post->post_status ) {
-						$caps = array( 'spectate' );
+
+						// Anonymous users do not have caps, but can 'exist'
+						if ( bbp_is_anonymous() ) {
+							$caps = array( 'exist' );
+
+						// Registered users need the 'spectate' cap
+						} else {
+							$caps = array( 'spectate' );
+						}
 
 					// User is author so allow read
 					} elseif ( (int) $user_id === (int) $_post->post_author ) {

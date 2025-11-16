@@ -819,7 +819,7 @@ function bbp_admin_repair_user_forum_subscriptions() {
 
 /**
  * This repair tool will map each user of the current site to their respective
- * forums role. By default, Admins will be Key Masters, and every other role
+ * forums role. By default, Admins will be Keymasters, and every other role
  * will be the default role defined in Settings > Forums (Participant).
  *
  * @since 2.2.0 bbPress (r4340)
