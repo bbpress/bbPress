@@ -808,7 +808,7 @@ function bbp_format_user_display_name( $display_name = '' ) {
 
 	// Fallback to function that (deprecated in PHP8.2)
 	} elseif ( seems_utf8( $display_name ) === false ) {
-		$retval = utf8_encode( $display_name );
+		$retval = utf8_encode( $display_name ); // phpcs:ignore
 	}
 
 	// Return

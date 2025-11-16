@@ -731,7 +731,7 @@ class BBP_Akismet {
 		);
 
 		// Save the event data
-		add_post_meta( $post_id, '_bbp_akismet_history', $event );
+		add_post_meta( $post_id, '_bbp_akismet_history', $event, false );
 	}
 
 	/**
@@ -746,7 +746,7 @@ class BBP_Akismet {
 	public function get_post_history( $post_id = 0 ) {
 
 		// Retrieve any previous history
-		$history = get_post_meta( $post_id, '_bbp_akismet_history' );
+		$history = get_post_meta( $post_id, '_bbp_akismet_history', false );
 
 		// Sort it by the time recorded
 		usort( $history, 'akismet_cmp_time' );
@@ -1225,15 +1225,15 @@ class BBP_Akismet {
 		$max_exec_time = (float) max( ini_get( 'max_execution_time' ) - 5, 3 );
 
 		// Setup the query
-		$sql = "SELECT m.meta_id, m.post_id, m.meta_key"
-			. " FROM {$wpdb->postmeta} as m"
-			. " LEFT JOIN {$wpdb->posts} as p"
-			. " ON m.post_id = p.ID"
-			. " WHERE p.ID IS NULL"
-			. " AND m.meta_id > %d"
-			. " AND m.meta_key LIKE 'akismet\\_%'"
-			. " ORDER BY m.meta_id"
-			. " LIMIT %d";
+		$sql = "SELECT m.meta_id, m.post_id, m.meta_key
+			FROM {$wpdb->postmeta} as m
+				LEFT JOIN {$wpdb->posts} as p
+				ON m.post_id = p.ID
+			WHERE p.ID IS NULL
+				AND m.meta_id > %d
+				AND m.meta_key LIKE 'akismet\\_%'
+			ORDER BY m.meta_id
+			LIMIT %d";
 
 		// Query loop of topic & reply IDs
 		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) {

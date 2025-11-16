@@ -134,6 +134,7 @@
 	</rule>
 
 	<rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
+		<exclude-pattern>/bbpress\.php$</exclude-pattern>
 		<exclude-pattern>/src/bbpress\.php$</exclude-pattern>
 		<exclude-pattern>/src/includes/admin/converters/bbPress1\.php$</exclude-pattern>
 		<exclude-pattern>/src/includes/admin/converters/e107v1\.php$</exclude-pattern>
@@ -150,6 +151,9 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed">
+		<exclude-pattern>/bbpress\.php</exclude-pattern>
+	</rule>
 
 	<!--
 	#############################################################################
@@ -157,7 +161,7 @@
 	Adjustments which should be removed once the associated issues have been reviewed and resolved.
 	#############################################################################
 	-->
-	
+
 	<rule ref="Generic.CodeAnalysis.AssignmentInCondition.Found">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -487,6 +491,10 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
+	<rule ref="WordPress.Arrays.ArrayIndentation.CloseBraceNotAligned">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -520,7 +528,7 @@
 	</rule>
 
 	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
-    <exclude-pattern>/src/*</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.DB.PreparedSQL.NotPrepared">
@@ -540,7 +548,7 @@
 	</rule>
 
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-    <exclude-pattern>/src/*</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
@@ -556,7 +564,7 @@
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound">
-    <exclude-pattern>/src/*</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">
@@ -674,4 +682,45 @@
 	<rule ref="WordPress.WP.I18n.MissingTranslatorsComment">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
+
+	<rule ref="WordPress.WP.I18n.NonSingularStringLiteralText">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.PostsPerPage.posts_per_page_posts_per_page">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterOpenParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceBeforeCloseParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceBeforeCloseParenthesis">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore">
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 </ruleset>
