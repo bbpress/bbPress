@@ -92,7 +92,13 @@ function bbp_template_include_theme_supports( $template = '' ) {
 		$template = bbp_set_template_included( $new_template );
 	}
 
-	// Filter & return
+	 /**
+     * Filters the path to the template file that is being used.
+     *
+     * @since 2.0.0 bbPress (r3032)
+     *
+     * @param string $template The path to the template file.
+     */
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }
 

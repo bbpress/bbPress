@@ -139,7 +139,14 @@ function bbp_sanitize_slug( $slug = '' ) {
 	$value = ltrim( $value, '/' );
 	$value = rtrim( $value, '/' );
 
-	// Filter & return
+	/**
+	 * Filters the sanitized slug value.
+	 *
+	 * @since 2.6.0 bbPress (r5364)
+	 *
+	 * @param string $value The sanitized slug.
+	 * @param string $slug  The original slug value.
+	 */
 	return apply_filters( 'bbp_sanitize_slug', $value, $slug );
 }
 

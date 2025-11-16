@@ -233,7 +233,14 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 		$retval = $to_validate;
 	}
 
-	// Filter & return
+	/**
+	 * Filters the validated signup role.
+	 *
+	 * @since 2.6.5
+	 *
+	 * @param string $retval The valid role ID if validation passes; otherwise, an empty string.
+	 * @param string $to_validate The role ID that was validated.
+	 */
 	return (string) apply_filters( 'bbp_validate_signup_role', $retval, $to_validate );
 }
 

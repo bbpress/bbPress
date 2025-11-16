@@ -87,8 +87,15 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 			: esc_html( $text );
 	}
 
-	// Filter & return
-	return apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
+	/**
+	 * Filters the "at a glance" dashboard items.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param array $elements The existing "at a glance" dashboard items.
+	 * @param array $r        The statistics array.
+	 */
+	return (array) apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
 }
 
 /**

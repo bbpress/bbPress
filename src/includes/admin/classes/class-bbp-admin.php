@@ -691,7 +691,16 @@ class BBP_Admin {
 				break;
 		}
 
-		// Filter & return
+		/**
+		 * Filters the mapped Settings capabilities.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param array  $caps    The capabilities for meta capability.
+		 * @param string $cap     Capability name.
+		 * @param int    $user_id User ID.
+		 * @param array  $args    Arguments.
+		 */
 		return (array) apply_filters( 'bbp_map_settings_meta_caps', $caps, $cap, $user_id, $args );
 	}
 

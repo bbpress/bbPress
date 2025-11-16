@@ -172,7 +172,14 @@ class BBP_Shortcodes {
 		// Return and flush the output buffer
 		$output = ob_get_clean();
 
-		// Filter & return
+		/**
+		 * Filters the contents of the output buffer before returning.
+		 *
+		 * @since 2.0.0 bbPress (r3079)
+		 *
+		 * @param string $output     The contents of the output buffer.
+		 * @param string $query_name The query name used for this output.
+		 */
 		return apply_filters( 'bbp_display_shortcode', $output, $query_name );
 	}
 

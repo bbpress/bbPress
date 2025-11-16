@@ -482,7 +482,13 @@ class BBP_Forums_Admin {
 	 */
 	private function get_row_action_sort_order() {
 
-		// Filter & return
+		/**
+		 * Filters the row action sort order.
+		 *
+		 * @since 2.6.0 bbPress (r6771)
+		 *
+		 * @param array $order The default sort order.
+		 */
 		return (array) apply_filters( 'bbp_admin_forum_row_action_sort_order', array(
 			'edit',
 			'closed',
@@ -502,8 +508,14 @@ class BBP_Forums_Admin {
 	 */
 	private function get_allowed_notice_toggles() {
 
-		// Filter & return
-		return apply_filters( 'bbp_admin_forums_allowed_notice_toggles', array(
+		/**
+		 * Filters the allowed notice toggles.
+		 *
+		 * @since 2.6.0 bbPress (r6396)
+		 *
+		 * @param array $toggles The default notice toggles.
+		 */
+		return (array) apply_filters( 'bbp_admin_forums_allowed_notice_toggles', array(
 			'opened',
 			'closed'
 		) );
@@ -518,7 +530,13 @@ class BBP_Forums_Admin {
 	 */
 	private function get_allowed_action_toggles() {
 
-		// Filter & return
+		/**
+		 * Filters the allowed action toggles.
+		 *
+		 * @since 2.6.0 bbPress (r6396)
+		 *
+		 * @param array $toggles The default action toggles.
+		 */
 		return apply_filters( 'bbp_admin_forums_allowed_action_toggles', array(
 			'bbp_toggle_forum_close'
 		) );
@@ -552,8 +570,14 @@ class BBP_Forums_Admin {
 			unset( $columns['bbp_forum_mods'] );
 		}
 
-		// Filter & return
-		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
+		/**
+		 * Filters the column headers for the forums page.
+		 *
+		 * @since 2.0.0 bbPress (r2485)
+		 *
+		 * @param array $columns The column headers.
+		 */
+		return (array) apply_filters( 'bbp_admin_forums_column_headers', $columns );
 	}
 
 	/**

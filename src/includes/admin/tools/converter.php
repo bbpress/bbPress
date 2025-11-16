@@ -50,7 +50,13 @@ function bbp_get_converters() {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the array of available converters.
+	 *
+	 * @since 2.6.0 bbPress (r6447)
+	 *
+	 * @param array $files Array of available converters with names as keys and file paths as values.
+	 */
 	return (array) apply_filters( 'bbp_get_converters', $files );
 }
 
@@ -95,6 +101,13 @@ function bbp_new_converter( $platform = '' ) {
 		}
 	}
 
-	// Filter & return
+	/**
+	 * Filters the newly created converter object.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param mixed  $converter The converter object if it exists, null otherwise.
+	 * @param string $platform  Name of the platform class used for conversion.
+	 */
 	return apply_filters( 'bbp_new_converter', $converter, $platform );
 }

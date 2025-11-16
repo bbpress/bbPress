@@ -37,7 +37,14 @@ function bbp_ajax_url() {
 		$base_url = home_url( $url, $ssl );
 		$ajaxurl  = add_query_arg( array( 'bbp-ajax' => 'true' ), $base_url );
 
-		// Filter & return
+		/**
+		 * Filters the URL used for theme-side bbPress AJAX requests.
+		 *
+		 * @since 2.3.0 bbPress (r4543)
+		 *
+		 * @param string $ajaxurl The URL for bbPress AJAX requests.
+		 * @return string The filtered URL for bbPress AJAX requests.
+		 */
 		return apply_filters( 'bbp_get_ajax_url', $ajaxurl );
 	}
 

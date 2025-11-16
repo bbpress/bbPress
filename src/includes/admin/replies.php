@@ -611,7 +611,13 @@ class BBP_Replies_Admin {
 	 */
 	private function get_row_action_sort_order() {
 
-		// Filter & return
+		/**
+		 * Filters the row action sort order for replies.
+		 *
+		 * @since 2.6.0 bbPress (r6771)
+		 *
+		 * @param array $order The default sort order.
+		 */
 		return (array) apply_filters( 'bbp_admin_reply_row_action_sort_order', array(
 			'edit',
 			'approved',
@@ -634,8 +640,14 @@ class BBP_Replies_Admin {
 	 */
 	private function get_allowed_notice_toggles() {
 
-		// Filter & return
-		return apply_filters( 'bbp_admin_replies_allowed_notice_toggles', array(
+		/**
+		 * Filters the allowed notice toggles for replies.
+		 *
+		 * @since 2.6.0 bbPress (r6396)
+		 *
+		 * @param array $toggles The default notice toggles.
+		 */
+		return (array) apply_filters( 'bbp_admin_replies_allowed_notice_toggles', array(
 			'spammed',
 			'unspammed',
 			'approved',
@@ -652,8 +664,14 @@ class BBP_Replies_Admin {
 	 */
 	private function get_allowed_action_toggles() {
 
-		// Filter & return
-		return apply_filters( 'bbp_admin_replies_allowed_action_toggles', array(
+		/**
+		 * Filters the allowed action toggles for replies.
+		 *
+		 * @since 2.6.0 bbPress (r6396)
+		 *
+		 * @param array $toggles The default action toggles.
+		 */
+		return (array) apply_filters( 'bbp_admin_replies_allowed_action_toggles', array(
 			'bbp_toggle_reply_spam',
 			'bbp_toggle_reply_approve'
 		) );
@@ -678,8 +696,14 @@ class BBP_Replies_Admin {
 			'bbp_reply_created' => esc_html__( 'Created', 'bbpress' ),
 		);
 
-		// Filter & return
-		return apply_filters( 'bbp_admin_replies_column_headers', $columns );
+		/**
+		 * Filters the column headers for the replies page.
+		 *
+		 * @since 2.0.0 bbPress (r2577)
+		 *
+		 * @param array $columns The column headers.
+		 */
+		return (array) apply_filters( 'bbp_admin_replies_column_headers', $columns );
 	}
 
 	/**

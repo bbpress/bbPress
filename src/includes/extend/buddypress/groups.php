@@ -303,7 +303,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				break;
 		}
 
-		// Filter & return
+		/**
+		 * Filters the Group Forum Topic meta capabilities.
+		 *
+		 * @since 2.2.0 bbPress (r4434)
+		 *
+		 * @param array  $caps    Capabilities for the meta capability.
+		 * @param string $cap     Capability name.
+		 * @param int    $user_id User ID.
+		 * @param array  $args    Arguments.
+		 */
 		return (array) apply_filters( 'bbp_map_group_forum_topic_meta_caps', $caps, $cap, $user_id, $args );
 	}
 
