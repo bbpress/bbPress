@@ -487,10 +487,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.Arrays.ArrayIndentation.CloseBraceNotAligned">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -678,45 +674,4 @@
 	<rule ref="WordPress.WP.I18n.MissingTranslatorsComment">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
-
-	<rule ref="WordPress.WP.I18n.NonSingularStringLiteralText">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.PostsPerPage.posts_per_page_posts_per_page">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterOpenParenthesis">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceBeforeCloseParenthesis">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceBeforeCloseParenthesis">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-	
 </ruleset>
