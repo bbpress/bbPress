@@ -156,7 +156,17 @@ function bbp_admin_upgrade_page() {
 
 									?><div class="row-actions hide-if-no-js">
 										<span class="run">
-											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>" aria-label="<?php printf( esc_html__( 'Run %s', 'bbpress' ), $item['title'] ); ?>" id="<?php echo esc_attr( $item['id'] ); ?>" ><?php esc_html_e( 'Run', 'bbpress' ); ?></a>
+											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>"
+											id="<?php echo esc_attr( $item['id'] ); ?>"
+											aria-label="<?php 
+											printf(
+												/* translators: %s: Repair tool title */
+												esc_html__( 'Run %s', 'bbpress' ),
+												$item['title']
+											);
+											?>">
+												<?php esc_html_e( 'Run', 'bbpress' ); ?>
+											</a>
 										</span>
 									</div>
 									<button type="button" class="toggle-row">
@@ -241,6 +251,7 @@ function bbp_admin_upgrade_user_engagements() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Upgrading user engagements&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No engagements to upgrade.',            'bbpress' );
 
@@ -275,6 +286,7 @@ function bbp_admin_upgrade_user_engagements() {
 	}
 
 	// Complete results
+	/* translators: %d: Number of upgraded engagements */
 	$result = sprintf( _n( 'Complete! %d engagement upgraded.', 'Complete! %d engagements upgraded.', $engagements, 'bbpress' ), bbp_number_format( $engagements ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -293,6 +305,7 @@ function bbp_admin_upgrade_group_forum_relationships() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Upgrading BuddyPress group-forum relationships&hellip; %s', 'bbpress' );
 	$g_count   = 0;
 	$f_count   = 0;
@@ -414,7 +427,13 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	remove_role( 'keymaster' );
 
 	// Complete results
-	$result = sprintf( esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ), bbp_number_format( $g_count ), bbp_number_format( $f_count ), bbp_number_format( $s_count ) );
+	$result = sprintf( 
+		/* translators: %1$s: Number of groups updated; %2$s: Number of forums updated; %3$s: Number of forum statuses synced */
+		esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ), 
+		bbp_number_format( $g_count ), 
+		bbp_number_format( $f_count ), 
+		bbp_number_format( $s_count ) 
+	);
 	return array( 0, sprintf( $statement, $result ) );
 }
 
@@ -429,6 +448,7 @@ function bbp_admin_upgrade_user_favorites() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Upgrading user favorites&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No favorites to upgrade.',            'bbpress' );
 	$total     = 0;
@@ -473,6 +493,7 @@ function bbp_admin_upgrade_user_favorites() {
 	unset( $favs, $added, $post_ids );
 
 	// Complete results
+	/* translators: %d: Number of upgraded favorites */
 	$result = sprintf( _n( 'Complete! %d favorite upgraded.', 'Complete! %d favorites upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -489,6 +510,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Upgrading user topic subscriptions&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No topic subscriptions to upgrade.',            'bbpress' );
 	$total     = 0;
@@ -533,6 +555,7 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 	unset( $subs, $added, $post_ids );
 
 	// Complete results
+	/* translators: %d: Number of upgraded topic subscriptions */
 	$result = sprintf( _n( 'Complete! %d topic subscription upgraded.', 'Complete! %d topic subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -549,6 +572,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Upgrading user forum subscriptions&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No forum subscriptions to upgrade.',            'bbpress' );
 	$total     = 0;
@@ -593,6 +617,7 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 	unset( $subs, $added, $post_ids );
 
 	// Complete results
+	/* translators: %d: Number of upgraded forum subscriptions */
 	$result = sprintf( _n( 'Complete! %d forum subscription upgraded.', 'Complete! %d forum subscriptions upgraded.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -609,6 +634,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Remove favorites from usermeta&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No favorites to remove.',                   'bbpress' );
 	$total     = 0;
@@ -629,6 +655,7 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 	$total = count( $favs );
 
 	// Complete results
+	/* translators: %d: Number of deleted favorites */
 	$result = sprintf( _n( 'Complete! %d favorite deleted.', 'Complete! %d favorites deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -645,6 +672,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Remove topic subscriptions from usermeta&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No topic subscriptions to remove.',                   'bbpress' );
 	$total     = 0;
@@ -665,6 +693,7 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 	$total = count( $subs );
 
 	// Complete results
+	/* translators: %d: Number of deleted topic subscriptions */
 	$result = sprintf( _n( 'Complete! %d topic subscription deleted.', 'Complete! %d topic subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );
@@ -681,6 +710,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 
 	// Define variables
 	$bbp_db    = bbp_db();
+	/* translators: %s: Status of the upgrade process */
 	$statement = esc_html__( 'Remove forum subscriptions from usermeta&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'No forum subscriptions to remove.',                   'bbpress' );
 	$total     = 0;
@@ -701,6 +731,7 @@ function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 	$total = count( $subs );
 
 	// Complete results
+	/* translators: %d: Number of deleted forum subscriptions */
 	$result = sprintf( _n( 'Complete! %d forum subscription deleted.', 'Complete! %d forum subscriptions deleted.', $total, 'bbpress' ), bbp_number_format( $total ) );
 
 	return array( 0, sprintf( $statement, $result ) );

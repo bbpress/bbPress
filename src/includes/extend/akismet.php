@@ -628,7 +628,8 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
-								esc_html__( 'Akismet overruled. Post status overridden to %s.', 'bbpress' ),
+								/* translators: %s: Post status */
+								esc_html__( 'Post status was changed to %s', 'bbpress' ),
 								$_post->post_status
 							),
 							'status-changed-' . $_post->post_status
@@ -651,7 +652,8 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
-								esc_html__( 'Akismet overruled. Post status overridden to %s.', 'bbpress' ),
+								/* translators: %s: Post status */
+								esc_html__( 'Post status was changed to %s', 'bbpress' ),
 								$_post->post_status
 							),
 							'status-changed-' . $_post->post_status
@@ -665,6 +667,7 @@ class BBP_Akismet {
 					$this->update_post_history(
 						$post_id,
 						sprintf(
+							/* translators: %s: Akismet response */
 							esc_html__( 'Akismet was unable to check this post (response: %s), will automatically retry again later.', 'bbpress' ),
 							$this->last_post['bbp_akismet_result']
 						),

@@ -412,6 +412,7 @@ function bbp_new_topic_handler( $action = '' ) {
 
 	// WP_Error
 	} elseif ( is_wp_error( $topic_id ) ) {
+		/* translators: %s: Error message(s) */
 		bbp_add_error( 'bbp_topic_error', sprintf( __( '<strong>Error</strong>: The following problem(s) occurred: %s', 'bbpress' ), $topic_id->get_error_message() ) );
 
 	// Generic error
@@ -759,6 +760,7 @@ function bbp_edit_topic_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
+		/* translators: %s: Error message(s) */
  		bbp_add_error( 'bbp_topic_error', sprintf( esc_html_e( '<strong>Error</strong>: The following problem(s) have been found with your topic: %s. Please try again.', 'bbpress' ) ), $append_error );
 	}
 }
@@ -1745,6 +1747,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 	// Tag does not exist
 	if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+		/* translators: %s: Error message(s) */
 		bbp_add_error( 'bbp_manage_topic_invalid_tag', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found while getting the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 		return;
 	}
@@ -1784,6 +1787,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Cannot update tag
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+				/* translators: %s: Error message(s) */
 				bbp_add_error( 'bbp_manage_topic_tag_update_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found while updating the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 				return;
 			}
@@ -1824,6 +1828,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Problem inserting the new term
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+				/* translators: %s: Error message(s) */
 				bbp_add_error( 'bbp_manage_topic_tag_merge_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found while merging the tags: %s', 'bbpress' ), $tag->get_error_message() ) );
 				return;
 			}
@@ -1845,6 +1850,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Error merging the terms
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+				/* translators: %s: Error message(s) */
 				bbp_add_error( 'bbp_manage_topic_tag_merge_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found while merging the tags: %s', 'bbpress' ), $tag->get_error_message() ) );
 				return;
 			}
@@ -1877,6 +1883,7 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 
 			// Error deleting term
 			if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+				/* translators: %s: Error message(s) */
 				bbp_add_error( 'bbp_manage_topic_tag_delete_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found while deleting the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 				return;
 			}
@@ -3855,7 +3862,15 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 					<description>
 						<![CDATA[
-						<p><?php printf( esc_html__( 'Replies: %s', 'bbpress' ), bbp_get_topic_reply_count() ); ?></p>
+						<p>
+							<?php
+							printf(
+								/* translators: %s: Number of replies to the topic */
+								esc_html__( 'Replies: %s', 'bbpress' ),
+								bbp_get_topic_reply_count()
+							);
+							?>
+						</p>
 						<?php bbp_topic_content(); ?>
 						]]>
 					</description>

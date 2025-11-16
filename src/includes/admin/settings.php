@@ -675,7 +675,13 @@ function bbp_admin_setting_callback_editlock() {
 
 	<label for="_bbp_allow_content_edit">
 		<input name="_bbp_allow_content_edit" id="_bbp_allow_content_edit" type="checkbox" value="1" <?php checked( bbp_allow_content_edit( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_content_edit' ); ?> />
-		<?php printf( esc_html__( 'Allow users to edit their content for %s minutes after posting', 'bbpress' ), $select ); ?>
+		<?php
+		printf(
+			/* translators: %s: Total minutes to edit a post */
+			esc_html__( 'Allow users to edit their content for %s minutes after posting', 'bbpress' ),
+			$select
+		);
+		?>
 	</label>
 	<p class="description"><?php esc_html_e( 'If checked, setting to "0 minutes" allows editing forever.', 'bbpress' ); ?></p>
 
@@ -700,7 +706,13 @@ function bbp_admin_setting_callback_throttle() {
 
 	<label for="_bbp_allow_content_throttle">
 		<input name="_bbp_allow_content_throttle" id="_bbp_allow_content_throttle" type="checkbox" value="1" <?php checked( bbp_allow_content_throttle( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_content_throttle' ); ?> />
-		<?php printf( esc_html__( 'Allow flood protection by throttling users for %s seconds after posting', 'bbpress' ), $select ); ?>
+		<?php
+		printf(
+			/* translators: %s: Total seconds to throttle a user */
+			esc_html__( 'Allow flood protection by throttling users for %s seconds after posting', 'bbpress' ),
+			$select
+		);
+		?>
 	</label>
 	<p class="description"><?php esc_html_e( 'Use this to discourage users from spamming your forums.', 'bbpress' ); ?></p>
 
@@ -750,7 +762,13 @@ function bbp_admin_setting_callback_global_access() {
 
 	<label for="_bbp_allow_global_access">
 		<input name="_bbp_allow_global_access" id="_bbp_allow_global_access" type="checkbox" value="1" <?php checked( bbp_allow_global_access( true ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_global_access' ); ?> />
-		<?php printf( esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ), $select ); ?>
+		<?php
+		printf(
+			/* translators: %s: Default role name */
+			esc_html__( 'Automatically give registered visitors the %s forum role', 'bbpress' ),
+			$select
+		);
+		?>
 	</label>
 	<p class="description"><?php esc_html_e( 'Uncheck this to manually assign all user access to your forums.', 'bbpress' ); ?></p>
 
@@ -901,8 +919,19 @@ function bbp_admin_setting_callback_thread_replies_depth() {
 	<?php $select = ob_get_clean(); ?>
 
 	<label for="_bbp_allow_threaded_replies">
-		<input name="_bbp_allow_threaded_replies" id="_bbp_allow_threaded_replies" type="checkbox" value="1" <?php checked( '1', bbp_allow_threaded_replies( false ) ); bbp_maybe_admin_setting_disabled( '_bbp_allow_threaded_replies' ); ?> />
-		<?php printf( esc_html__( 'Enable threaded (nested) replies %s levels deep', 'bbpress' ), $select ); ?>
+		<input name="_bbp_allow_threaded_replies" id="_bbp_allow_threaded_replies" type="checkbox" value="1"
+			<?php
+			checked( '1', bbp_allow_threaded_replies( false ) );
+			bbp_maybe_admin_setting_disabled( '_bbp_allow_threaded_replies' );
+			?>
+		/>
+		<?php
+		printf(
+			/* translators: %s: Depth level input field HTML */
+			esc_html__( 'Enable threaded (nested) replies %s levels deep', 'bbpress' ),
+			$select
+		);
+		?>
 	</label>
 
 <?php
@@ -1167,7 +1196,15 @@ function bbp_admin_setting_callback_show_on_root() {
 	// This setting doesn't work if the theme has an archive-forum.php template.
 	if ( ! empty( $forum_archive ) ) : ?>
 
-		<p class="description"><?php printf( esc_html__( 'This setting will be ignored because %s was found in your theme.', 'bbpress' ), '<code>' . $forum_archive . '</code>' ); ?></p>
+		<p class="description">
+			<?php
+			printf(
+				/* translators: %s: Forum archive template file path */
+				esc_html__( 'This setting will be ignored because %s was found in your theme.', 'bbpress' ),
+				'<code>' . $forum_archive . '</code>'
+			);
+			?>
+		</p>
 
 	<?php endif;
 }
@@ -1442,15 +1479,17 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 	}
 
 	// Output the dropdown for all forums
-	$select = bbp_get_dropdown( array(
-		'selected'           => $group_root,
-		'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
-		'orderby'            => 'title',
-		'order'              => 'ASC',
-		'select_id'          => '_bbp_group_forums_root_id',
-		'disable_categories' => false,
-		'disabled'           => '_bbp_group_forums_root_id'
-	) );
+	$select = bbp_get_dropdown(
+		array(
+			'selected'           => $group_root,
+			'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
+			'orderby'            => 'title',
+			'order'              => 'ASC',
+			'select_id'          => '_bbp_group_forums_root_id',
+			'disable_categories' => false,
+			'disabled'           => '_bbp_group_forums_root_id'
+		)
+	);
 
 	// Check cap one time
 	$can_add_new = current_user_can( 'publish_forums' );
@@ -1467,8 +1506,10 @@ function bbp_admin_setting_callback_group_forums_root_id() {
 
 		// Button & text
 		$button = '<a href="' . esc_url( $new_url ) . '">' . esc_html__( 'create a new one', 'bbpress' ) . '</a>';
-		$text   = esc_html__( 'Use %s to contain your group forums, or %s', 'bbpress' ); //phpcs:ignore
+		/* translators: 1: Forum select dropdown HTML, 2: Create new forum link HTML */
+		$text   = esc_html__( 'Use %1$s to contain your group forums, or %2$s', 'bbpress' );
 	} else {
+		/* translators: %s: Forum select dropdown HTML */
 		$text = esc_html__( 'Use %s to contain your group forums', 'bbpress' );
 	}
 
@@ -1583,11 +1624,23 @@ function bbp_converter_setting_callback_platform() {
  */
 function bbp_converter_setting_callback_dbserver() {
 ?>
-
-	<input name="_bbp_converter_db_server" id="_bbp_converter_db_server" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_server' ); ?> />
-	<p class="description"><?php printf( esc_html__( 'Use default %s if same server, or IP or hostname', 'bbpress' ), '<code>localhost</code>' ); ?></p>
-
-<?php
+	<input name="_bbp_converter_db_server"
+		   id="_bbp_converter_db_server"
+		   type="text"
+		   class="code"
+		   value="<?php bbp_form_option( '_bbp_converter_db_server', 'localhost' ); ?>"
+		   <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_server' ); ?>
+	/>
+	<p class="description">
+		<?php
+		printf(
+			/* translators: %s: Default value wrapped in code tags */
+			esc_html__( 'Use default %s if same server, or IP or hostname', 'bbpress' ),
+			'<code>localhost</code>'
+		);
+		?>
+	</p>
+	<?php
 }
 
 /**
@@ -1596,12 +1649,25 @@ function bbp_converter_setting_callback_dbserver() {
  * @since 2.1.0 bbPress (r3813)
  */
 function bbp_converter_setting_callback_dbport() {
-?>
+	?>
+	<input name="_bbp_converter_db_port"
+		   id="_bbp_converter_db_port"
+		   type="text"
+		   class="code"
+		   value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>"
+		   <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_port' ); ?>
+	/>
+	<p class="description">
+		<?php
 
-	<input name="_bbp_converter_db_port" id="_bbp_converter_db_port" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_port', '3306' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_port' ); ?> />
-	<p class="description"><?php printf( esc_html__( 'Use default %s if unsure', 'bbpress' ), '<code>3306</code>' ); ?></p>
-
-<?php
+		printf(
+			/* translators: %s: Default port number wrapped in code tags */
+			esc_html__( 'Use default %s if unsure', 'bbpress' ),
+			'<code>3306</code>'
+		);
+		?>
+	</p>
+	<?php
 }
 
 /**
@@ -1674,7 +1740,12 @@ function bbp_converter_setting_callback_dbprefix() {
 ?>
 
 	<input name="_bbp_converter_db_prefix" id="_bbp_converter_db_prefix" type="text" class="code" value="<?php bbp_form_option( '_bbp_converter_db_prefix' ); ?>" <?php bbp_maybe_admin_setting_disabled( '_bbp_converter_db_prefix' ); ?> />
-	<p class="description"><?php printf( esc_html__( 'Use %s if converting from BuddyPress Legacy', 'bbpress' ), '<code>wp_bb_</code>' ); ?></p>
+	<p class="description">
+		<?php printf(
+			/* translators: %s: Database prefix example wrapped in code tags */
+			esc_html__( 'Use %s if converting from BuddyPress Legacy', 'bbpress' ), '<code>wp_bb_</code>' );
+		?>
+	</p>
 
 <?php
 }
@@ -1785,6 +1856,7 @@ function bbp_converter_settings_page() {
 
 	// Starting or continuing?
 	$status_text = ! empty( $step )
+		/* translators: %s: Current step number */
 		? sprintf( esc_html__( 'Up next: step %s', 'bbpress' ), $step )
 		: esc_html__( 'Ready', 'bbpress' );
 
@@ -1795,6 +1867,7 @@ function bbp_converter_settings_page() {
 
 	// Starting or continuing?
 	$progress_text = ! empty( $step )
+		/* translators: 1: Current step number, 2: Total number of steps */
 		? sprintf( esc_html__( 'Previously stopped at step %1$d of %2$d', 'bbpress' ), $step, $max )
 		: esc_html__( 'Ready to go.', 'bbpress' ); ?>
 
@@ -1963,39 +2036,40 @@ function bbp_maybe_admin_setting_disabled( $option_key = '' ) {
 function bbp_form_option( $option, $default = '', $slug = false ) {
 	echo bbp_get_form_option( $option, $default, $slug );
 }
-	/**
-	 * Return settings API option
-	 *
-	 * @since 2.0.0 bbPress (r3203)
-	 *
-	 * @param string $option
-	 * @param string $default
-	 * @param bool   $is_slug
-	 *
-	 * @return mixed
-	 */
-	function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
 
-		// Get the option and sanitize it
-		$value = get_option( $option, $default );
+/**
+ * Return settings API option
+ *
+ * @since 2.0.0 bbPress (r3203)
+ *
+ * @param string $option
+ * @param string $default
+ * @param bool   $is_slug
+ *
+ * @return mixed
+ */
+function bbp_get_form_option( $option, $default = '', $is_slug = false ) {
 
-		// Slug?
-		if ( true === $is_slug ) {
-			$value = esc_attr( apply_filters( 'editable_slug', $value ) );
+	// Get the option and sanitize it
+	$value = get_option( $option, $default );
 
-		// Not a slug
-		} else {
-			$value = esc_attr( $value );
-		}
+	// Slug?
+	if ( true === $is_slug ) {
+		$value = esc_attr( apply_filters( 'editable_slug', $value ) );
 
-		// Fallback to default, unless numeric (allow zero)
-		if ( empty( $value ) && ! is_numeric( $value ) ) {
-			$value = $default;
-		}
-
-		// Filter & return
-		return apply_filters( 'bbp_get_form_option', $value, $option, $default, $is_slug );
+	// Not a slug
+	} else {
+		$value = esc_attr( $value );
 	}
+
+	// Fallback to default, unless numeric (allow zero)
+	if ( empty( $value ) && ! is_numeric( $value ) ) {
+		$value = $default;
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_form_option', $value, $option, $default, $is_slug );
+}
 
 /**
  * Used to check if a bbPress slug conflicts with an existing known slug.
@@ -2072,6 +2146,7 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 			if ( ! empty( $bp->pages ) ) {
 				foreach ( $bp->pages as $page => $page_data ) {
 					$page_base    = $page . '_base';
+					/* translators: %s: BuddyPress page title */
 					$page_title   = sprintf( esc_html__( '%s page', 'bbpress' ), $page_data->title );
 					$core_slugs[ $page_base ] = array(
 						'name'    => $page_title,
@@ -2093,10 +2168,19 @@ function bbp_form_slug_conflict_check( $slug, $default ) {
 		$slug_check = bbp_get_form_option( $key, $value['default'], true );
 
 		// Compare
-		if ( ( $slug !== $key ) && ( $slug_check === $this_slug ) ) : ?>
-
-			<span class="attention"><?php printf( esc_html__( 'Possible %1$s conflict: %2$s', 'bbpress' ), $value['context'], '<strong>' . $value['name'] . '</strong>' ); ?></span>
-
-		<?php endif;
+		if ( ( $slug !== $key ) && ( $slug_check === $this_slug ) ) :
+			?>
+			<span class="attention">
+				<?php
+				printf(
+					/* translators: 1: Context (e.g., "BuddyPress"), 2: Name of the conflicting item */
+					esc_html__( 'Possible %1$s conflict: %2$s', 'bbpress' ),
+					$value['context'],
+					'<strong>' . $value['name'] . '</strong>'
+				);
+				?>
+			</span>
+			<?php
+		endif;
 	}
 }

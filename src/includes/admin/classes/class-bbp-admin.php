@@ -260,7 +260,8 @@ class BBP_Admin {
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
 			$bbp_dashicon = '<span class="bbpress-logo-icon"></span>';
 			$message      = $bbp_dashicon . sprintf(
-				esc_html__( 'bbPress requires a manual database upgrade. %1$s or %1$s.', 'bbpress' ),
+				/* translators: 1: "Learn More" link, 2: "Hide For Now" link */
+				esc_html__( 'bbPress requires a manual database upgrade. %1$s or %2$s.', 'bbpress' ),
 				$upgrade_link,
 				$dismiss_link
 			);
@@ -1032,6 +1033,7 @@ class BBP_Admin {
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
 			foreach ( (array) $topics as $post ) {
+				/* translators: 1: Topic ID, 2: Topic title */
 				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_topic_id( $post->ID ), bbp_get_topic_title( $post->ID ) . "\n" );
 			}
 		}
@@ -1112,6 +1114,7 @@ class BBP_Admin {
 		// If we found some users, loop through and output them to the AJAX
 		if ( ! empty( $users_query->results ) ) {
 			foreach ( (array) $users_query->results as $user ) {
+				/* translators: 1: User ID, 2: User nicename */
 				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
 			}
 		}
@@ -1130,7 +1133,14 @@ class BBP_Admin {
 	private function screen_header() {
 		list( $display_version ) = explode( '-', bbp_get_version() ); ?>
 
-		<h1 class="wp-heading-inline"><?php printf( esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version ); ?></h1>
+		<h1 class="wp-heading-inline">
+			<?php
+			printf(
+				/* translators: %s: bbPress version number */
+				esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version
+			);
+			?>
+		</h1>
 		<hr class="wp-header-end">
 		<div class="about-text"><?php printf( esc_html__( 'bbPress is fun to use, contains no artificial colors or preservatives, and is absolutely wonderful in every environment. Your community is going to love using it.', 'bbpress' ), $display_version ); ?></div>
 
@@ -1466,7 +1476,14 @@ class BBP_Admin {
 
 							// Site errored out, no response?
 							if ( is_wp_error( $response ) ) {
-								wp_die( sprintf( esc_html__( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ), $site_url, '<em>' . $response->get_error_message() . '</em>' ) );
+								wp_die(
+									sprintf(
+										/* translators: 1: Site URL, 2: Error message */
+										esc_html__( 'Warning! Problem updating %1$s. Your server may not be able to connect to sites running on it. Error message: %2$s', 'bbpress' ),
+										$site_url,
+										'<em>' . $response->get_error_message() . '</em>'
+									)
+								);
 							}
 
 							// Switch to the new site

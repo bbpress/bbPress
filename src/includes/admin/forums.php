@@ -448,13 +448,17 @@ class BBP_Forums_Admin {
 		switch ( $notice ) {
 			case 'opened' :
 				$message = ( true === $is_failure )
+					/* translators: %1$s: Forum title */
 					? sprintf( esc_html__( 'There was a problem opening the forum "%1$s".', 'bbpress' ), $forum_title )
+					/* translators: %1$s: Forum title */
 					: sprintf( esc_html__( 'Forum "%1$s" successfully opened.',             'bbpress' ), $forum_title );
 				break;
 
 			case 'closed' :
 				$message = ( true === $is_failure )
+					/* translators: %1$s: Forum title */
 					? sprintf( esc_html__( 'There was a problem closing the forum "%1$s".', 'bbpress' ), $forum_title )
+					/* translators: %1$s: Forum title */
 					: sprintf( esc_html__( 'Forum "%1$s" successfully closed.',             'bbpress' ), $forum_title );
 				break;
 		}
@@ -722,8 +726,9 @@ class BBP_Forums_Admin {
 			4 => esc_html__( 'Forum updated.', 'bbpress' ),
 
 			// Restored from revision
-			// translators: %s: date and time of the revision
+			/* translators: %s: date and time of the revision */
 			5 => isset( $_GET['revision'] )
+				/* translators: %s: Date and time of the revision */
 				? sprintf( esc_html__( 'Forum restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
 				: false,
 
@@ -750,8 +755,8 @@ class BBP_Forums_Admin {
 			9 => sprintf(
 				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
 				sprintf(
+					/* translators: %s: Publish box date format, see http://php.net/date */
 					esc_html__( 'Forum scheduled for: %s.', 'bbpress' ),
-					// translators: Publish box date format, see http://php.net/date
 					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
 				),
 				$forum_url,

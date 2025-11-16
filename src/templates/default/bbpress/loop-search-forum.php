@@ -14,7 +14,14 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="bbp-forum-header">
 	<div class="bbp-meta">
-		<span class="bbp-forum-post-date"><?php printf( esc_html__( 'Last updated %s', 'bbpress' ), bbp_get_forum_last_active_time() ); ?></span>
+		<span class="bbp-forum-post-date">
+			<?php 
+			printf( 
+				/* translators: %s: Time since last forum update */
+				esc_html__( 'Last updated %s', 'bbpress' ), bbp_get_forum_last_active_time() 
+			); 
+			?>
+		</span>
 		<a href="<?php bbp_forum_permalink(); ?>" class="bbp-forum-permalink">#<?php bbp_forum_id(); ?></a>
 	</div><!-- .bbp-meta -->
 

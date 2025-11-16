@@ -248,9 +248,11 @@ class BBP_Replies_Admin {
 	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
+		/* translators: %s: Number of replies */
 		$bulk_messages['reply']['updated'] = _n( '%s reply updated.', '%s replies updated.', $bulk_counts['updated'], 'bbpress');
 		$bulk_messages['reply']['locked']  = ( 1 === $bulk_counts['locked'] )
 			? __( '1 reply not updated, somebody is editing it.', 'bbpress' )
+			/* translators: %s: Number of replies */
 			: _n( '%s reply not updated, somebody is editing it.', '%s replies not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress' );
 
 		return $bulk_messages;
@@ -559,25 +561,33 @@ class BBP_Replies_Admin {
 		switch ( $notice ) {
 			case 'spammed' :
 				$message = ( true === $is_failure )
+					/* translators: %s: Reply title */
 					? sprintf( esc_html__( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					/* translators: %s: Reply title */
 					: sprintf( esc_html__( 'Reply "%1$s" successfully marked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unspammed' :
 				$message = ( true === $is_failure  )
+					/* translators: %s: Reply title */
 					? sprintf( esc_html__( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title )
+					/* translators: %s: Reply title */
 					: sprintf( esc_html__( 'Reply "%1$s" successfully unmarked as spam.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'approved' :
 				$message = ( true === $is_failure  )
+					/* translators: %s: Reply title */
 					? sprintf( esc_html__( 'There was a problem approving the reply "%1$s".', 'bbpress' ), $reply_title )
+					/* translators: %s: Reply title */
 					: sprintf( esc_html__( 'Reply "%1$s" successfully approved.',             'bbpress' ), $reply_title );
 				break;
 
 			case 'unapproved' :
 				$message = ( true === $is_failure )
+					/* translators: %s: Reply title */
 					? sprintf( esc_html__( 'There was a problem unapproving the reply "%1$s".', 'bbpress' ), $reply_title )
+					/* translators: %s: Reply title */
 					: sprintf( esc_html__( 'Reply "%1$s" successfully unapproved.',             'bbpress' ), $reply_title );
 				break;
 		}
@@ -793,7 +803,18 @@ class BBP_Replies_Admin {
 		}
 
 		// Reply view links to topic
-		$actions['view'] = '<a href="' . esc_url( $view_link ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
+		$view_title = sprintf(
+			/* translators: %s: Reply title */
+			__( 'View &#8220;%s&#8221;', 'bbpress' ),
+			bbp_get_reply_title( $reply->ID )
+		);
+
+		$actions['view'] = sprintf(
+			'<a href="%1$s" title="%2$s" rel="permalink">%3$s</a>',
+			esc_url( $view_link ),
+			esc_attr( $view_title ),
+			esc_html__( 'View', 'bbpress' )
+		);
 
 		// User cannot view replies in trash
 		if ( ( bbp_get_trash_status_id() === $reply->post_status ) && ! current_user_can( 'view_trash' ) ) {
@@ -886,10 +907,12 @@ class BBP_Replies_Admin {
 			: 0;
 
 		// Show the forums dropdown
-		bbp_dropdown( array(
-			'selected'  => $selected,
-			'show_none' => esc_html__( 'In all forums', 'bbpress' )
-		) );
+		bbp_dropdown(
+			array(
+				'selected'  => $selected,
+				'show_none' => esc_html__( 'In all forums', 'bbpress' )
+			)
+		);
 	}
 
 	/**
@@ -983,8 +1006,9 @@ class BBP_Replies_Admin {
 			4 => esc_html__( 'Reply updated.', 'bbpress' ),
 
 			// Restored from revision
-			// translators: %s: date and time of the revision
+			/* translators: %s: date and time of the revision */
 			5 => isset( $_GET['revision'] )
+					/* translators: %s: Date and time of the revision */
 					? sprintf( esc_html__( 'Reply restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
 					: false,
 
@@ -1011,8 +1035,8 @@ class BBP_Replies_Admin {
 			9 => sprintf(
 				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
 				sprintf(
+					/* translators: Publish box date format, see http://php.net/date */
 					esc_html__( 'Reply scheduled for: %s.', 'bbpress' ),
-					// translators: Publish box date format, see http://php.net/date
 					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
 				),
 				$topic_url,

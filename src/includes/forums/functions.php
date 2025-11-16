@@ -354,13 +354,19 @@ function bbp_new_forum_handler( $action = '' ) {
 	/** Errors ****************************************************************/
 
 	// WP_Error
-	} elseif ( is_wp_error( $forum_id ) ) {
-		bbp_add_error( 'bbp_forum_error', sprintf( __( '<strong>Error</strong>: The following problem(s) occurred: %s', 'bbpress' ), $forum_id->get_error_message() ) );
 
-	// Generic error
+	} elseif ( is_wp_error( $forum_id ) ) {
+		bbp_add_error(
+			'bbp_forum_error',
+			sprintf(
+				/* translators: %s: Error message */
+				esc_html__( '<strong>Error</strong>: The following problem(s) occurred: %s', 'bbpress' ),
+				$forum_id->get_error_message()
+			)
+		);
 	} else {
-		bbp_add_error( 'bbp_forum_error', __( '<strong>Error</strong>: The forum was not created.', 'bbpress' ) );
-	}
+			bbp_add_error( 'bbp_forum_error', __( '<strong>Error</strong>: The forum was not created.', 'bbpress' ) );
+		}
 }
 
 /**
@@ -601,7 +607,13 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	} else {
 		$append_error = ( is_wp_error( $forum_id ) && $forum_id->get_error_message() ) ? $forum_id->get_error_message() . ' ' : '';
-		bbp_add_error( 'bbp_forum_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' ) ), $append_error );
+		bbp_add_error(
+			'bbp_forum_error',
+			sprintf(
+				/* translators: %s: Error message */
+				__( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' ) ),
+				$append_error
+		);
 	}
 }
 

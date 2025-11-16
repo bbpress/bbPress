@@ -398,7 +398,13 @@ class BBP_BuddyPress_Activity {
 		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
 
 		// Activity action & text
-		$activity_text    = sprintf( esc_html__( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
+		$activity_text = sprintf(
+			/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+			esc_html__( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ),
+			$user_link,
+			$topic_link,
+			$forum_link
+		);
 		$activity_action  = apply_filters( 'bbp_activity_topic_create',         $activity_text, $user_id,   $topic_id,   $forum_id );
 		$activity_content = apply_filters( 'bbp_activity_topic_create_excerpt', $topic_content                                     );
 
@@ -536,7 +542,13 @@ class BBP_BuddyPress_Activity {
 		$forum_link      = '<a href="' . $forum_permalink . '">' . $forum_title . '</a>';
 
 		// Activity action & text
-		$activity_text    = sprintf( esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' ), $user_link, $topic_link, $forum_link );
+		$activity_text    = sprintf(
+			/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+			esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' ),
+			$user_link,
+			$topic_link,
+			$forum_link
+		);
 		$activity_action  = apply_filters( 'bbp_activity_reply_create',         $activity_text, $user_id, $reply_id,  $topic_id );
 		$activity_content = apply_filters( 'bbp_activity_reply_create_excerpt', $reply_content                                  );
 

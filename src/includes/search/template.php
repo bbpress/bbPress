@@ -173,6 +173,7 @@ function bbp_search_title() {
 
 		// Include search terms in title
 		} else {
+			/* translators: %s: Search query terms */
 			$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 		}
 
@@ -380,44 +381,60 @@ function bbp_search_pagination_count() {
 	echo bbp_get_search_pagination_count();
 }
 
-	/**
-	 * Return the search results pagination count
-	 *
-	 * @since 2.3.0 bbPress (r4579)
-	 *
-	 * @return string Search pagination count
-	 */
-	function bbp_get_search_pagination_count() {
-		$bbp = bbpress();
+/**
+ * Return the search results pagination count
+ *
+ * @since 2.3.0 bbPress (r4579)
+ *
+ * @return string Search pagination count
+ */
+function bbp_get_search_pagination_count() {
+	$bbp = bbpress();
 
-		// Define local variable(s)
-		$retstr = '';
+	// Define local variable(s)
+	$retstr = '';
 
-		// Set pagination values
-		$total_int = intval( $bbp->search_query->found_posts    );
-		$ppp_int   = intval( $bbp->search_query->posts_per_page );
-		$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
-		$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
-				? $total_int
-				: $start_int + ( $ppp_int - 1 ) );
+	// Set pagination values
+	$total_int = intval( $bbp->search_query->found_posts    );
+	$ppp_int   = intval( $bbp->search_query->posts_per_page );
+	$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
+	$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
+			? $total_int
+			: $start_int + ( $ppp_int - 1 ) );
 
-		// Format numbers for display
-		$total_num = bbp_number_format( $total_int );
-		$from_num  = bbp_number_format( $start_int );
-		$to_num    = bbp_number_format( $to_int    );
+	// Format numbers for display
+	$total_num = bbp_number_format( $total_int );
+	$from_num  = bbp_number_format( $start_int );
+	$to_num    = bbp_number_format( $to_int    );
 
-		// Single page of results
-		if ( empty( $to_num ) ) {
-			$retstr = sprintf( _n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ), $total_num );
+	// Single page of results
+	if ( empty( $to_num ) ) {
+		$retstr = sprintf(
+			/* translators: %1$s: Number of results */
+			_n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ),
+			$total_num
+		);
 
-		// Several pages of results
-		} else {
-			$retstr = sprintf( _n( 'Viewing %2$s results (of %4$s total)', 'Viewing %1$s results - %2$s through %3$s (of %4$s total)', $bbp->search_query->post_count, 'bbpress' ), $bbp->search_query->post_count, $from_num, $to_num, $total_num );  //phpcs:ignore
-		}
+	// Several pages of results
+	} else {
+		$retstr = sprintf(
+			/* translators: 1: Number of results being viewed, 2: First result number, 3: Last result number, 4: Total results */
+			_n(
+				'Viewing %1$s result - %2$s through %3$s (of %4$s total)',
+				'Viewing %1$s results - %2$s through %3$s (of %4$s total)',
+				$bbp->search_query->post_count,
+				'bbpress'
+			),
+			$bbp->search_query->post_count,
+			$from_num,
+			$to_num,
+			$total_num
+		);
 
 		// Filter & return
 		return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 	}
+}
 
 /**
  * Output search pagination links

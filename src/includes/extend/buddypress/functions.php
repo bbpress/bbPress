@@ -774,11 +774,20 @@ function bbp_group_is_creator() {
  */
 function bbp_get_activity_actions() {
 
+	// Define activity actions with proper translation support
+	$actions = array(
+
+		'topic' =>
+		/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+		esc_html__( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ),
+
+		'reply' =>
+		/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+		esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
+	);
+
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_activity_actions', array(
-		'topic' => esc_html__( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
-		'reply' => esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
-	) );
+	return (array) apply_filters( 'bbp_get_activity_actions', $actions );
 }
 
 /**

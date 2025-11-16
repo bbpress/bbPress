@@ -801,6 +801,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
 			'post_type'      => '',
+			/* translators: %s: Topic tag name */
 			'post_title'     => sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ),
 			'post_status'    => bbp_get_public_status_id(),
 			'is_tax'         => true,

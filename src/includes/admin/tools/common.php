@@ -73,33 +73,33 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 	echo esc_url( bbp_get_admin_repair_tool_run_url( $component ) );
 }
 
-	/**
-	 * Return the URL to run a specific repair tool
-	 *
-	 * @since 2.6.0 bbPress (r5885)
-	 *
-	 * @param string $component
-	 */
-	function bbp_get_admin_repair_tool_run_url( $component = array() ) {
+/**
+ * Return the URL to run a specific repair tool
+ *
+ * @since 2.6.0 bbPress (r5885)
+ *
+ * @param string $component
+ */
+function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 
-		// Page
-		$page = ( 'repair' === $component['type'] )
-			? 'bbp-repair'
-			: 'bbp-upgrade';
+	// Page
+	$page = ( 'repair' === $component['type'] )
+		? 'bbp-repair'
+		: 'bbp-upgrade';
 
-		// Arguments
-		$args = array(
-			'page'    => $page,
-			'action'  => 'run',
-			'checked' => array( $component['id'] )
-		);
+	// Arguments
+	$args = array(
+		'page'    => $page,
+		'action'  => 'run',
+		'checked' => array( $component['id'] )
+	);
 
-		// Url
-		$nonced = wp_nonce_url( bbp_get_admin_repair_tool_page_url( $args ), 'bbpress-do-counts' );
+	// Url
+	$nonced = wp_nonce_url( bbp_get_admin_repair_tool_page_url( $args ), 'bbpress-do-counts' );
 
-		// Filter & return
-		return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
-	}
+	// Filter & return
+	return apply_filters( 'bbp_get_admin_repair_tool_run_url', $nonced, $component );
+}
 
 /**
  * Assemble the admin notices
@@ -252,7 +252,7 @@ function bbp_get_admin_repair_tool_registered_components() {
  * @since 2.6.0 bbPress (r5885)
  */
 function bbp_admin_repair_list_search_form() {
-	?>
+?>
 
 	<p class="search-box">
 		<label class="screen-reader-text" for="bbp-repair-search-input"><?php esc_html_e( 'Search Tools:', 'bbpress' ); ?></label>
@@ -797,7 +797,21 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Create the "All" link
 	$current = empty( $selected ) ? 'current' : '';
-	$links[] = $r['link_before'] . '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf( esc_html__( 'All %s', 'bbpress' ), $r['count_before'] . count( $tools ) . $r['count_after'] ) . '</a>' . $r['link_after'];
+
+	$all_text = sprintf(
+		/* translators: %s: Number of items */
+		esc_html__( 'All %s', 'bbpress' ),
+		$r['count_before'] . count( $tools ) . $r['count_after']
+	);
+
+	$links[] = sprintf(
+		'%1$s<a href="%2$s" class="%3$s">%4$s</a>%5$s',
+		$r['link_before'],
+		esc_url( $tools_url ),
+		esc_attr( $current ),
+		$all_text,
+		$r['link_after']
+	);
 
 	// Loop through overheads and created links
 	if ( count( $overheads ) ) {
@@ -921,8 +935,21 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 
 	// Define links
 	$links = array(
-		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' . sprintf( esc_html__( 'All %s',     'bbpress' ), $all_count     ) . '</a>' . $r['link_after'],
-		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' . sprintf( esc_html__( 'Pending %s', 'bbpress' ), $pending_count ) . '</a>' . $r['link_after']
+		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' .
+			sprintf(
+				/* translators: %s: Number of items */
+				esc_html__( 'All %s', 'bbpress' ),
+				$all_count
+			) .
+		'</a>' . $r['link_after'],
+
+		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' .
+			sprintf(
+				/* translators: %s: Number of pending items */
+				esc_html__( 'Pending %s', 'bbpress' ),
+				$pending_count
+			) .
+		'</a>' . $r['link_after']
 	);
 
 	// Surround output with before & after strings

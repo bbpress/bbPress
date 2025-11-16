@@ -24,7 +24,15 @@ defined( 'ABSPATH' ) || exit;
 
 				<fieldset class="bbp-form">
 
-					<legend><?php printf( esc_html__( 'Merge topic "%s"', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
+					<legend>
+						<?php 
+						printf( 
+							/* translators: %s: Topic title */
+							esc_html__( 'Merge topic "%s"', 'bbpress' ), 
+							bbp_get_topic_title() 
+						); 
+						?>
+					</legend>
 
 					<div>
 

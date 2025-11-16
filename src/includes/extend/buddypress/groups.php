@@ -483,11 +483,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				<div class="field-group">
 					<label for="bbp_group_forum_id"><?php esc_html_e( 'Group Forum:', 'bbpress' ); ?></label>
 					<?php
-						bbp_dropdown( array(
-							'select_id' => 'bbp_group_forum_id',
-							'show_none' => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
-							'selected'  => $forum_id
-						) );
+						bbp_dropdown(
+							array(
+								'select_id' => 'bbp_group_forum_id',
+								'show_none' => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
+								'selected'  => $forum_id
+							)
+						);
 					?>
 					<p class="description"><?php esc_html_e( 'Network administrators can reconfigure which forum belongs to this group.', 'bbpress' ); ?></p>
 				</div>
@@ -1692,10 +1694,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		return $args;
 	}
 
-    /**
-     * Fixes rewrite pagination in BuddyPress Group Forums & Topics.
+	/**
+	 * Fixes rewrite pagination in BuddyPress Group Forums & Topics.
 	 *
-     * Required for compatibility with BuddyPress > 12.0, where the /groups/
+	 * Required for compatibility with BuddyPress > 12.0, where the /groups/
 	 * rewrite rule will be caught before bbPress's /page/ rule.
 	 *
 	 * @since 2.6.14
@@ -1703,58 +1705,58 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param  object object  Verified object
 	 * @param  string $type   Type of variable to check with `is_a()`
 	 * @return mixed  $object Verified object if valid, Default or null if invalid
-     */
-    public function rewrite_pagination( $object, $type = '' ) {
+	 */
+	public function rewrite_pagination( $object, $type = '' ) {
 
 		// Bail if wrong global
-        if ( 'wp_query' !== $type ) {
-            return $object;
-        }
+		if ( 'wp_query' !== $type ) {
+			return $object;
+		}
 
 		// Bail if not inside a BuddyPress Group
-        if ( ! bp_is_group() ) {
-            return $object;
-        }
+		if ( ! bp_is_group() ) {
+			return $object;
+		}
 
 		// Bail if not inside a BuddyPress Group Forum
-        if ( ! bp_is_current_action( 'forum' ) ) {
-            return $object;
-        }
+		if ( ! bp_is_current_action( 'forum' ) ) {
+			return $object;
+		}
 
 		// Default "paged" value
-        $page_number = null;
+		$page_number = null;
 
-        // Can't use bbp_is_single_topic() because it triggers a loop.
-        $is_single_topic = bp_is_action_variable( 'topic', 0 );
+		// Can't use bbp_is_single_topic() because it triggers a loop.
+		$is_single_topic = bp_is_action_variable( 'topic', 0 );
 
 		// Single Topic
-        if ( true === $is_single_topic ) {
+		if ( true === $is_single_topic ) {
 
 			// Get the page number from 3rd position
-            if ( bp_is_action_variable( 'page', 2 ) ) {
-                $page_number = bp_action_variable( 3 );
-            }
+			if ( bp_is_action_variable( 'page', 2 ) ) {
+				$page_number = bp_action_variable( 3 );
+			}
 
 		// Single Forum
-        } else {
+		} else {
 
 			// Get the page number from 1st position
-            if ( bp_is_action_variable( 'page', 0 ) ) {
-                $page_number = bp_action_variable( 1 );
-            }
-        }
+			if ( bp_is_action_variable( 'page', 0 ) ) {
+				$page_number = bp_action_variable( 1 );
+			}
+		}
 
 		// Bail if no page number
-        if ( empty( $page_number ) ) {
-            return $object;
-        }
+		if ( empty( $page_number ) ) {
+			return $object;
+		}
 
 		// Set the 'paged' WP_Query var to the new action-based value
-        $object->set( 'paged', $page_number );
+		$object->set( 'paged', $page_number );
 
 		// Return the filtered/modified object
-        return $object;
-    }
+		return $object;
+	}
 
 	/**
 	 * Ensure that forum content associated with a BuddyPress group can only be

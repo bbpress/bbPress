@@ -802,7 +802,12 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php if ( ! empty( $author_link ) ) : ?>
 
-						<?php printf( esc_html_x( 'by %1$s', 'widgets', 'bbpress' ), '<span class="topic-author">' . $author_link . '</span>' ); ?>
+						<?php 
+						printf( 
+							/* translators: %1$s: Topic author link wrapped in span tag */
+							esc_html_x( 'by %1$s', 'widgets', 'bbpress' ), '<span class="topic-author">' . $author_link . '</span>' 
+						); 
+						?>
 
 					<?php endif; ?>
 
@@ -1146,7 +1151,7 @@ class BBP_Replies_Widget extends WP_Widget {
 					// Reply author, link, and timestamp
 					if ( ! empty( $settings['show_date'] ) && ! empty( $author_link ) ) :
 
-						// translators: 1: reply author, 2: reply link, 3: reply timestamp
+						/* translators: 1: reply author, 2: reply link, 3: reply timestamp */
 						printf( esc_html_x( '%1$s on %2$s %3$s', 'widgets', 'bbpress' ), $author_link, $reply_link, $show_date );
 
 					// Reply link and timestamp
@@ -1156,7 +1161,7 @@ class BBP_Replies_Widget extends WP_Widget {
 					// Reply author and title
 					elseif ( ! empty( $author_link ) ) :
 
-						// translators: 1: reply author, 2: reply link
+						/* translators: 1: reply author, 2: reply link */
 						printf( esc_html_x( '%1$s on %2$s', 'widgets', 'bbpress' ), $author_link, $reply_link );
 
 					// Only the reply title

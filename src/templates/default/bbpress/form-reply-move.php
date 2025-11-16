@@ -24,7 +24,14 @@ defined( 'ABSPATH' ) || exit;
 
 				<fieldset class="bbp-form">
 
-					<legend><?php printf( esc_html__( 'Move reply "%s"', 'bbpress' ), bbp_get_reply_title() ); ?></legend>
+					<legend>
+						<?php
+						printf(
+							/* translators: %s: Reply title */
+							esc_html__( 'Move reply "%s"', 'bbpress' ), bbp_get_reply_title()
+						);
+						?>
+					</legend>
 
 					<div>
 
@@ -45,8 +52,21 @@ defined( 'ABSPATH' ) || exit;
 
 							<div>
 								<input name="bbp_reply_move_option" id="bbp_reply_move_option_reply" type="radio" checked="checked" value="topic" />
-								<label for="bbp_reply_move_option_reply"><?php printf( esc_html__( 'New topic in %s titled:', 'bbpress' ), bbp_get_forum_title( bbp_get_reply_forum_id( bbp_get_reply_id() ) ) ); ?></label>
-								<input type="text" id="bbp_reply_move_destination_title" value="<?php printf( esc_html__( 'Moved: %s', 'bbpress' ), bbp_get_reply_title() ); ?>" size="35" name="bbp_reply_move_destination_title" />
+								<label for="bbp_reply_move_option_reply">
+									<?php
+									printf(
+										/* translators: %s: Forum title */
+										esc_html__( 'New topic in %s titled:', 'bbpress' ), bbp_get_forum_title( bbp_get_reply_forum_id( bbp_get_reply_id() ) )
+									);
+									?>
+								</label>
+								<input type="text" id="bbp_reply_move_destination_title" value="
+									<?php
+									printf(
+										/* translators: %s: Reply title */
+										esc_html__( 'Moved: %s', 'bbpress' ), bbp_get_reply_title()
+									);
+									?>" size="35" name="bbp_reply_move_destination_title" />
 							</div>
 
 							<?php if ( bbp_has_topics( array( 'show_stickies' => false, 'post_parent' => bbp_get_reply_forum_id( bbp_get_reply_id() ), 'post__not_in' => array( bbp_get_reply_topic_id( bbp_get_reply_id() ) ) ) ) ) : ?>

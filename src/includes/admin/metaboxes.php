@@ -40,6 +40,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Users
 	if ( isset( $r['user_count'] ) ) {
 		$link       = admin_url( 'users.php' );
+		/* translators: %s: Number of users */
 		$text       = sprintf( _n( '%s User', '%s Users', $r['user_count_int'], 'bbpress' ), $r['user_count'] );
 		$elements[] = current_user_can( 'edit_users' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-users">' . esc_html( $text ) . '</a>'
@@ -49,6 +50,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Forums
 	if ( isset( $r['forum_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of forums */
 		$text       = sprintf( _n( '%s Forum', '%s Forums', $r['forum_count_int'], 'bbpress' ), $r['forum_count'] );
 		$elements[] = current_user_can( 'publish_forums' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>'
@@ -58,6 +60,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Topics
 	if ( isset( $r['topic_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of topics */
 		$text       = sprintf( _n( '%s Topic', '%s Topics', $r['topic_count_int'], 'bbpress' ), $r['topic_count'] );
 		$elements[] = current_user_can( 'publish_topics' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>'
@@ -67,6 +70,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Replies
 	if ( isset( $r['reply_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of replies */
 		$text       = sprintf( _n( '%s Reply', '%s Replies', $r['reply_count_int'], 'bbpress' ), $r['reply_count'] );
 		$elements[] = current_user_can( 'publish_replies' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>'
@@ -76,6 +80,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Topic Tags
 	if ( bbp_allow_topic_tags() && isset( $r['topic_tag_count'] ) ) {
 		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+		/* translators: %s: Number of topic tags */
 		$text       = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
 		$elements[] = current_user_can( 'manage_topic_tags' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>'
@@ -282,7 +287,12 @@ function bbp_dashboard_widget_right_now() {
 	<div class="versions">
 
 		<span id="wp-version-message">
-			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() ); ?>
+			<?php 
+			printf( 
+				/* translators: %s: bbPress version */
+				__( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() 
+			); 
+			?>
 		</span>
 
 	</div>

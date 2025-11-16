@@ -645,16 +645,24 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		// Setup the strings
 		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
 		$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
+		/* translators: %s: Time period */
 		$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
 
 		// array of time period chunks
 		$chunks = array(
+			/* translators: %s: Number of years */
 			array( YEAR_IN_SECONDS,   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
+			/* translators: %s: Number of months */
 			array( MONTH_IN_SECONDS,  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
+			/* translators: %s: Number of weeks */
 			array( WEEK_IN_SECONDS,   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
+			/* translators: %s: Number of days */
 			array( DAY_IN_SECONDS,    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
+			/* translators: %s: Number of hours */
 			array( HOUR_IN_SECONDS,   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
+			/* translators: %s: Number of minutes */
 			array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+			/* translators: %s: Number of seconds */
 			array( 1,                 _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
 		);
 

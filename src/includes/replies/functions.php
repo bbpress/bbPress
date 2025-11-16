@@ -506,6 +506,7 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	// WP_Error
 	} elseif ( is_wp_error( $reply_id ) ) {
+		/* translators: %s: Error message(s) */
 		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) occurred: %s', 'bbpress' ), $reply_id->get_error_message() ) );
 
 	// Generic error
@@ -823,7 +824,11 @@ function bbp_edit_reply_handler( $action = '' ) {
 	/** Errors ****************************************************************/
 
 	} else {
-		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
+		$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() )
+			? $reply_id->get_error_message() . ' '
+			: '';
+
+		/* translators: %s: Error message(s) */
 		bbp_add_error( 'bbp_reply_error', sprintf( __( '<strong>Error</strong>: The following problem(s) have been found with your reply: %s. Please try again.', 'bbpress' ) ), $append_error );
 	}
 }
@@ -2240,7 +2245,15 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 						<description>
 							<![CDATA[
-							<p><?php printf( __( 'Replies: %s', 'bbpress' ), bbp_get_topic_reply_count() ); ?></p>
+							<p>
+								<?php
+								printf(
+									/* translators: %s: Number of replies */
+									__( 'Replies: %s', 'bbpress' ),
+									bbp_get_topic_reply_count()
+									);
+								?>
+							</p>
 							<?php bbp_topic_content(); ?>
 							]]>
 						</description>

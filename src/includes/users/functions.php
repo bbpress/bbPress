@@ -415,6 +415,7 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) 
 		'newuseremail' => $r['hash']
 	), $user_url );
 
+	/* translators: 1: Username, 2: Confirmation URL, 3: New email address, 4: Site name, 5: Site URL */
 	$email_text = __( '%1$s
 
 Someone requested a change to the email address on your account.
@@ -450,6 +451,7 @@ The %4$s Team
 	$message = sprintf( $content, $user_login, $confirm_url, $r['newemail'], get_site_option( 'site_name' ), network_home_url() );
 
 	// Build the email subject
+	/* translators: %s: Site name */
 	$subject = sprintf( __( '[%s] New Email Address', 'bbpress' ), wp_specialchars_decode( get_option( 'blogname' ) ) );
 
 	// Send the email

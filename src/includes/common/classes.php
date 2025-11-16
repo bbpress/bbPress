@@ -490,6 +490,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 
 		// Determine reply title (either post_title, or excerpt of post_content)
 		$title = ! empty( $object->post_title ) ? $object->post_title : wp_html_excerpt( $object->post_content, 10 );
+		/* translators: 1: Reply ID, 2: Reply title */
 		$title   = sprintf( esc_html__( '%1$s - %2$s', 'bbpress' ), (int) $object->ID, $title );
 		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $title, $output, $object, $depth, $args );
 

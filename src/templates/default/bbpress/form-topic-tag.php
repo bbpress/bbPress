@@ -16,7 +16,15 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 
 		<fieldset class="bbp-form" id="bbp-edit-topic-tag">
 
-			<legend><?php printf( esc_html__( 'Manage Tag: "%s"', 'bbpress' ), bbp_get_topic_tag_name() ); ?></legend>
+			<legend>
+				<?php 
+				printf( 
+					/* translators: %s: Topic tag name */
+					esc_html__( 'Manage Tag: "%s"', 'bbpress' ), 
+					bbp_get_topic_tag_name() 
+				); 
+				?>
+			</legend>
 
 			<fieldset class="bbp-form" id="tag-rename">
 
@@ -82,10 +90,31 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					</div>
 
 					<div class="bbp-submit-wrapper">
-						<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( esc_html__( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Merge', 'bbpress' ); ?></button>
+						<button type="submit" 
+								class="button submit" 
+								onclick="return confirm('<?php 
+									
+									echo esc_js( 
+										sprintf( 
+										/* translators: %s: Topic tag name */
+											esc_html__( 
+												'Are you sure you want to merge the "%s" tag into the tag you specified?',
+												'bbpress'
+											),
+											bbp_get_topic_tag_name()
+										)
+									);
+								?>');">
+							<?php esc_attr_e( 'Merge', 'bbpress' ); ?>
+						</button>
 
-						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
-						<input type="hidden" name="action" value="bbp-merge-topic-tag" />
+						<input type="hidden" 
+							name="tag-id" 
+							value="<?php bbp_topic_tag_id(); ?>" />
+						
+						<input type="hidden" 
+							name="action" 
+							value="bbp-merge-topic-tag" />
 
 						<?php wp_nonce_field( 'merge-tag_' . bbp_get_topic_tag_id() ); ?>
 					</div>
@@ -112,12 +141,31 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					</div>
 
 					<form id="delete_tag" name="delete_tag" method="post">
-
 						<div class="bbp-submit-wrapper">
-							<button type="submit" class="button submit" onclick="return confirm('<?php echo esc_js( sprintf( esc_html__( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');"><?php esc_attr_e( 'Delete', 'bbpress' ); ?></button>
+							<button type="submit" 
+									class="button submit" 
+									onclick="return confirm('<?php 
+										echo esc_js( 
+											sprintf( 
+												/* translators: %s: Topic tag name */
+												esc_html__( 
+													'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.',
+													'bbpress'
+												),
+												bbp_get_topic_tag_name()
+											)
+										);
+									?>');">
+								<?php esc_attr_e( 'Delete', 'bbpress' ); ?>
+							</button>
 
-							<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
-							<input type="hidden" name="action" value="bbp-delete-topic-tag" />
+							<input type="hidden" 
+								name="tag-id" 
+								value="<?php bbp_topic_tag_id(); ?>" />
+
+							<input type="hidden" 
+								name="action" 
+								value="bbp-delete-topic-tag" />
 
 							<?php wp_nonce_field( 'delete-tag_' . bbp_get_topic_tag_id() ); ?>
 						</div>

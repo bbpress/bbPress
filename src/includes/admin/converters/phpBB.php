@@ -792,8 +792,8 @@ class phpBB extends BBP_Converter_Base {
 			while ( --$count );
 		}
 
-		$output = substr($setting, 0, 12);
-		$output .= $this->_hash_encode64($hash, 16, $itoa64);
+		$output = substr( $setting, 0, 12 );
+		$output .= $this->_hash_encode64( $hash, 16, $itoa64 );
 
 		return $output;
 	}

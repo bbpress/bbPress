@@ -763,6 +763,7 @@ function bbp_topic_post_date( $topic_id = 0, $humanize = false, $gmt = false ) {
 		} else {
 			$date   = get_post_time( get_option( 'date_format' ), $gmt, $topic_id, true );
 			$time   = get_post_time( get_option( 'time_format' ), $gmt, $topic_id, true );
+			/* translators: 1: Date, 2: Time */
 			$result = sprintf( _x( '%1$s at %2$s', 'date at time', 'bbpress' ), $date, $time );
 		}
 
@@ -929,8 +930,10 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 
 			$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
 			if ( ! empty( $reason ) ) {
+				/* translators: 1: Time since modification, 2: Author link, 3: Modification reason */
 				$retval .= "\t\t" . sprintf( esc_html__( 'This topic was modified %1$s by %2$s. Reason: %3$s', 'bbpress' ), esc_html( $since ), $author, esc_html( $reason ) ) . "\n";
 			} else {
+				/* translators: 1: Time since modification, 2: Author link */
 				$retval .= "\t\t" . sprintf( esc_html__( 'This topic was modified %1$s by %2$s.',              'bbpress' ), esc_html( $since ), $author ) . "\n";
 			}
 			$retval .= "\t" . '</li>' . "\n";
@@ -1237,7 +1240,7 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  */
 function bbp_topic_author( $topic_id = 0 ) {
-	echo bbp_get_topic_author( $topic_id );
+	echo bbp_get_topic_author_display_name( $topic_id );
 }
 	/**
 	 * Deprecated. Use bbp_get_topic_author_display_name() instead.
@@ -1425,7 +1428,9 @@ function bbp_topic_author_link( $args = array() ) {
 			if ( empty( $r['link_title'] ) ) {
 				$author = bbp_get_topic_author_display_name( $topic_id );
 				$title  = empty( $anonymous )
+					/* translators: %s: Author's name */
 					? esc_attr__( "View %s's profile",  'bbpress' )
+					/* translators: %s: Author's name */
 					: esc_attr__( "Visit %s's website", 'bbpress' );
 
 				$link_title = sprintf( $title, $author );
@@ -2012,6 +2017,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	function bbp_get_topic_replies_link( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$link     = bbp_get_topic_permalink( $topic_id );
+		/* translators: %s: Number of replies */
 		$replies  = sprintf( _n( '%s reply', '%s replies', bbp_get_topic_reply_count( $topic_id, true ), 'bbpress' ), bbp_get_topic_reply_count( $topic_id, false ) );
 
 		// First link never has view=all
@@ -2027,6 +2033,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 
 			// Hidden replies
 			$deleted_num = bbp_get_topic_reply_count_hidden( $topic_id, false );
+			/* translators: %s: Number of hidden replies */
 			$extra       = ' ' . sprintf( _n( '(+%s hidden)', '(+%s hidden)', $deleted_int, 'bbpress' ), $deleted_num );
 
 			// Hidden link
@@ -2991,6 +2998,7 @@ function bbp_forum_pagination_count() {
 
 			// Several topics in a forum with a single page
 			if ( empty( $to_num ) ) {
+				/* translators: %1$s: Total number of topics */
 				$retstr = sprintf( _n( 'Viewing %1$s topic', 'Viewing %1$s topics', $total_int, 'bbpress' ), $total );
 
 			// Several topics in a forum with several pages
@@ -3312,6 +3320,7 @@ function bbp_single_topic_description( $args = array() ) {
 		$time_since  = bbp_get_topic_freshness_link( $topic_id        );
 
 		// Singular/Plural
+		/* translators: %s: Number of voices/participants */
 		$voice_count = sprintf( _n( '%s voice', '%s voices', $vc_int, 'bbpress' ), $voice_count );
 
 		// Topic has activity (could be from reply or topic author)
@@ -3319,22 +3328,27 @@ function bbp_single_topic_description( $args = array() ) {
 		if ( ! empty( $last_active ) ) {
 
 			// Last-updated-by should always exist if last-active does
-			$last_updated_by = bbp_get_author_link( array(
-				'post_id' => $last_active,
-				'size'    => $r['size']
-			) );
+			$last_updated_by = bbp_get_author_link(
+				array(
+					'post_id' => $last_active,
+					'size'    => $r['size']
+				)
+			);
 
 			// Voice count is non-zero (registered users engaged)
 			if ( ! empty( $vc_int ) ) {
+				/* translators: 1: Reply count, 2: Voice count, 3: Last updated time, 4: Last updated by */
 				$retstr = sprintf( esc_html__( 'This topic has %1$s, %2$s, and was last updated %3$s by %4$s.', 'bbpress' ), $reply_count, $voice_count, $time_since, $last_updated_by );
 
 			// Voice count is zero (anonymous users only)
 			} else {
+				/* translators: 1: Last updated time, 2: Last updated by */
 				$retstr = sprintf( esc_html__( 'This topic was last updated %1$s by %2$s.', 'bbpress' ), $time_since, $last_updated_by );
 			}
 
 		// Topic has no replies
 		} elseif ( ! empty( $vc_int ) && ! empty( $reply_count ) ) {
+			/* translators: 1: Voice count, 2: Reply count */
 			$retstr = sprintf( esc_html__( 'This topic has %1$s and %2$s.', 'bbpress' ), $voice_count, $reply_count );
 
 		// Topic has no replies and no voices
@@ -4034,6 +4048,7 @@ function bbp_topic_lock_description( $topic_id = 0 ) {
 			: bbp_get_user_profile_link( $user_id );
 
 		// Get the text
+		/* translators: %1$s: Person who is editing (user profile link or "Nobody") */
 		$text = sprintf( esc_html__( '%1$s is currently editing this topic.', 'bbpress' ), $person );
 
 		// Filter & return

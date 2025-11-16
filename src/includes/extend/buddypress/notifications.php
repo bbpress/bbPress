@@ -83,17 +83,36 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 	// Cast to int
 	$action_item_count = (int) $action_item_count;
 
-	// Multiple
+	// Multiple replies
 	if ( $action_item_count > 1 ) {
 		$filter = 'bbp_multiple_new_subscription_notification';
-		$text   = sprintf( esc_html__( 'You have %1$d new replies to %2$s', 'bbpress' ), $action_item_count, $topic_title );
+		$text = sprintf(
+			/* translators: 1: Number of replies, 2: Topic title */
+			esc_html__( 'You have %1$d new replies to %2$s', 'bbpress' ),
+			$action_item_count,
+			$topic_title
+		);
 
-	// Single
+	// Single reply
 	} else {
 		$filter = 'bbp_single_new_subscription_notification';
-		$text   = ! empty( $secondary_item_id )
-			? sprintf( esc_html__( 'You have %1$d new reply to %2$s from %3$s', 'bbpress' ), $action_item_count, $topic_title, bp_core_get_user_displayname( $secondary_item_id ) )
-			: sprintf( esc_html__( 'You have %1$d new reply to %2$s',             'bbpress' ), $action_item_count, $topic_title );
+
+		if ( ! empty( $secondary_item_id ) ) {
+			$text = sprintf(
+				/* translators: 1: Number of replies, 2: Topic title, 3: Reply author name */
+				esc_html__( 'You have %1$d new reply to %2$s from %3$s', 'bbpress' ),
+				$action_item_count,
+				$topic_title,
+				bp_core_get_user_displayname( $secondary_item_id )
+			);
+		} else {
+			$text = sprintf(
+				/* translators: 1: Number of replies, 2: Topic title */
+				esc_html__( 'You have %1$d new reply to %2$s', 'bbpress' ),
+				$action_item_count,
+				$topic_title
+			);
+		}
 	}
 
 	// WordPress Toolbar
