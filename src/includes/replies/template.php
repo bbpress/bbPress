@@ -1388,8 +1388,14 @@ function bbp_get_reply_author_role( $args = array() ) {
 		'after'    => '</div>'
 	), 'get_reply_author_role' );
 
-	$reply_id    = bbp_get_reply_id( $r['reply_id'] );
-	$role        = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
+	$reply_id = bbp_get_reply_id( $r['reply_id'] );
+	$role     = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
+	$css_role = sanitize_key( $role );
+
+	// Add role as CSS class to default 'before' value.
+	if ( empty( $args['before'] ) ) {
+		$r['before'] = '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">';
+	}
 
 	// Backwards compatibilty with old 'class' argument
 	if ( ! empty( $r['class'] ) ) {

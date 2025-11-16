@@ -1604,6 +1604,12 @@ function bbp_topic_author_role( $args = array() ) {
 
 		$topic_id = bbp_get_topic_id( $r['topic_id'] );
 		$role     = bbp_get_user_display_role( bbp_get_topic_author_id( $topic_id ) );
+		$css_role = sanitize_key( $role );
+
+		// Add role as CSS class to default 'before' value.
+		if ( empty( $args['before'] ) ) {
+			$r['before'] = '<div class="bbp-author-role bbp-role-' . esc_attr( $css_role ) . '">';
+		}
 
 		// Backwards compatibilty with old 'class' argument
 		if ( ! empty( $r['class'] ) ) {
