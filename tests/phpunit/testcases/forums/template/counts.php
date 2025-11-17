@@ -219,7 +219,7 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$f = $this->factory->forum->create( array(
 			'post_parent' => $c,
 			'forum_meta' => array(
-				'forum_id'   => $c,
+				'forum_id' => $c,
 			),
 		) );
 
@@ -237,22 +237,22 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		// Forum output.
 		$count = bbp_get_forum_topic_count_hidden( $f, false );
 		$this->expectOutputString( $formatted_value );
-		bbp_forum_topic_count_hidden( $f );
+		bbp_forum_topic_count_hidden( $f, false, true );
 
 		// Forum formatted string.
 		$count = bbp_get_forum_topic_count_hidden( $f, false );
 		$this->assertSame( $formatted_value, $count );
 
 		// Forum integer.
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, false, true );
 		$this->assertSame( $int_value, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
 		$this->assertSame( 0, $count );
 
 		// Category total topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
 		$this->assertSame( 0, $count );
 	}
 }

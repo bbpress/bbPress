@@ -66,10 +66,9 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 		$c = $this->factory->forum->create( array(
 			'post_title' => 'Private Category',
 		) );
+		bbp_privatize_forum( $c );
 
 		$category = bbp_get_forum_permalink( $c );
-
-		$forum = bbp_get_forum_permalink( $f );
 		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=private-category', $category );
 
 		// Private forum of private category.

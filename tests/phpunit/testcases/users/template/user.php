@@ -713,7 +713,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		// Pretty permalinks
 		$this->set_permalink_structure( '/%postname%/' );
 		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/users/' . $this->keymaster_userdata->user_nicename . '/" title="View ' . $display_name . '&#039;s profile" class="bbp-author-link"><span class="bbp-author-avatar">' . $wp_avatar .
-			'</span>&nbsp;<span class="bbp-author-name">' . $display_name . '</span></a>';
+			'</span><span class="bbp-author-name">' . $display_name . '</span></a>';
 
 		// String.
 		$this->assertSame( $author_link, bbp_get_author_link( $t ) );
@@ -728,7 +728,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		$this->set_permalink_structure();
 		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '" title="View ' . $display_name .
 			'&#039;s profile" class="bbp-author-link"><span class="bbp-author-avatar">' . $wp_avatar .
-			'</span>&nbsp;<span class="bbp-author-name">' . $display_name . '</span></a>';
+			'</span><span class="bbp-author-name">' . $display_name . '</span></a>';
 
 		// String.
 		$this->assertSame( $author_link, bbp_get_author_link( $t ) );

@@ -37,8 +37,8 @@ class BBP_Core_Cache_Tests extends BBP_UnitTestCase {
 		bbp_get_all_child_ids( $t, $rpt );
 
 		// Setup
-		$f_key        = md5( serialize( array( 'parent_id' => $f, 'post_type' => $tpt ) ) );
-		$t_key        = md5( serialize( array( 'parent_id' => $t, 'post_type' => $rpt ) ) );
+		$f_key        = md5( serialize( array( 'parent_id' => $f, 'post_type' => $tpt, 'post_status' => array( 'draft', 'future' ) ) ) );
+		$t_key        = md5( serialize( array( 'parent_id' => $t, 'post_type' => $rpt, 'post_status' => array( 'draft', 'future' ) ) ) );
 		$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
 
 		// Keys

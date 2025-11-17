@@ -129,7 +129,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		// Category meta
 		$this->assertSame( 1, bbp_get_forum_subforum_count( $category_id, true ) );
 		$this->assertSame( 0, bbp_get_forum_topic_count( $category_id, false, true ) );
-		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $category_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $category_id, true, true ) );
 		$this->assertSame( 0, bbp_get_forum_reply_count( $category_id, false, true ) );
 		$this->assertSame( 1, bbp_get_forum_topic_count( $category_id, true, true ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $category_id, true, true ) );
@@ -145,7 +145,7 @@ class BBP_Tests_Core_Update extends BBP_UnitTestCase {
 		// Forum meta
 		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
 		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
-		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, true, true ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
 		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, true, true ) );
 		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
