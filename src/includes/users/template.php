@@ -1449,13 +1449,13 @@ function bbp_notice_edit_user_pending_email() {
 	<div class="bbp-template-notice info">
 		<ul>
 			<li>
-				<?php 
-				printf( 
+				<?php
+				printf(
 					/* translators: 1: New email address, 2: Dismiss change link */
-					esc_html__( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ), 
-					$coded_email, 
-					$dismiss_link 
-				); 
+					esc_html__( 'There is a pending email address change to %1$s. %2$s', 'bbpress' ),
+					$coded_email,
+					$dismiss_link
+				);
 				?></li>
 		</ul>
 	</div>
@@ -2068,7 +2068,7 @@ function bbp_author_link( $args = array() ) {
 
 			// Empty array
 			$links  = array();
-			$sprint = '<span %1$s>%2$s</span>';
+			$sprint = '<span%1$s>%2$s</span>';
 
 			// Wrap each link
 			foreach ( $author_links as $link => $link_text ) {
