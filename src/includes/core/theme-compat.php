@@ -641,13 +641,13 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 		// ...or use the existing page title?
 		} else {
-			$new_title = apply_filters( 'the_title',   $page->post_title   );
+			$new_title = apply_filters( 'the_title', $page->post_title, $page->ID );
 		}
 
 		// Reset post
 		bbp_theme_compat_reset_post( array(
 			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
-			'post_title'     => bbp_get_topic_archive_title(),
+			'post_title'     => $new_title,
 			'post_author'    => 0,
 			'post_date'      => bbp_get_empty_datetime(),
 			'post_content'   => $new_content,
