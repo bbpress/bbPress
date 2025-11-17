@@ -454,6 +454,8 @@ function bbp_make_emails_clickable( $text = '' ) {
 /**
  * Make mentions clickable in content areas
  *
+ * Allows ' ', '>', '[', and '(' before as '@' username mention
+ *
  * @since 2.6.0 bbPress (r6014)
  *
  * @see make_clickable()
@@ -462,7 +464,11 @@ function bbp_make_emails_clickable( $text = '' ) {
  * @return string
  */
 function bbp_make_mentions_clickable( $text = '' ) {
-	return preg_replace_callback( '#([\s>])@([0-9a-zA-Z-_]+)#i', 'bbp_make_mentions_clickable_callback', $text );
+    return preg_replace_callback(
+        '#([\s>\[\(])\@([0-9a-zA-Z\-_]+)#i',
+        'bbp_make_mentions_clickable_callback',
+        $text
+    );
 }
 
 /**
@@ -507,9 +513,10 @@ function bbp_make_mentions_clickable_callback( $matches = array() ) {
 		: '';
 
 	// Create the link to the user's profile
-	$html   = '<a href="%1$s"' . $class . '>%2$s</a>';
-	$url    = bbp_get_user_profile_url( $user->ID );
-	$anchor = sprintf( $html, esc_url( $url ), esc_html( $matches[0] ) );
+	$html    = '<a href="%1$s"%2$s>%3$s</a>';
+	$url     = bbp_get_user_profile_url( $user->ID );
+	$mention = '@' . $matches[2];
+	$anchor  = sprintf( $html, esc_url( $url ), $class, esc_html( $mention ) );
 
 	// Prevent this link from being followed by bots
 	$link   = bbp_rel_nofollow( $anchor );
