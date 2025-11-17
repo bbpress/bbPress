@@ -341,12 +341,45 @@ function bbp_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 function bbp_get_forum_permalink( $forum_id = 0, $redirect_to = '' ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Default return value
+	$forum_permalink = '';
+
 	// Use the redirect address
 	if ( ! empty( $redirect_to ) ) {
 		$forum_permalink = esc_url_raw( $redirect_to );
 
-	// Use the topic permalink
-	} else {
+	// Plain permalinks: maybe build a slug-based URL using the forum query_var
+	} elseif ( ! get_option( 'permalink_structure' ) ) {
+
+		// Get the forum object
+		$forum = bbp_get_forum( $forum_id );
+
+		// Forum exists
+		if ( ! empty( $forum ) ) {
+
+			// Get the post type object from the forum
+			$post_type = get_post_type_object( $forum->post_type );
+
+			// Publicly queryable by var
+			if ( ! empty( $post_type->query_var ) ) {
+
+				// Use hierarchical path (parent/child/...) when applicable
+				$path = ! empty( $post_type->hierarchical )
+					? get_page_uri( $forum_id )
+					: $forum->post_name;
+
+				// Add path to query var
+				$forum_permalink = add_query_arg(
+					$post_type->query_var,
+					$path,
+					home_url( '/' )
+				);
+			}
+		}
+	}
+
+	// Fallback to forum permalink
+	if ( empty( $forum_permalink ) ) {
 		$forum_permalink = get_permalink( $forum_id );
 	}
 
