@@ -500,7 +500,7 @@ class Drupal7 extends BBP_Converter_Base {
 			'from_fieldname'  => 'pass',
 			'to_type'         => 'user',
 			'to_fieldname'    => '_bbp_password'
-//			'callback_method' => 'callback_savepass'
+			// 'callback_method' => 'callback_savepass'
 		);
 
 		// Store old user salt (This is only used for the SELECT row info for the above password save)

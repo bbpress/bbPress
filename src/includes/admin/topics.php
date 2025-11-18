@@ -115,17 +115,17 @@ class BBP_Topics_Admin {
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
-			'id'		=> 'overview',
-			'title'		=> __( 'Overview', 'bbpress' ),
-			'content'	=>
+			'id'      => 'overview',
+			'title'   => __( 'Overview', 'bbpress' ),
+			'content' =>
 				'<p>' . __( 'This screen displays the individual topics on your site. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
 		) );
 
 		// Screen Content
 		get_current_screen()->add_help_tab( array(
-			'id'		=> 'screen-content',
-			'title'		=> __( 'Screen Content', 'bbpress' ),
-			'content'	=>
+			'id'      => 'screen-content',
+			'title'   => __( 'Screen Content', 'bbpress' ),
+			'content' =>
 				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                               'bbpress' ) . '</li>' .
@@ -137,9 +137,9 @@ class BBP_Topics_Admin {
 
 		// Available Actions
 		get_current_screen()->add_help_tab( array(
-			'id'		=> 'action-links',
-			'title'		=> __( 'Available Actions', 'bbpress' ),
-			'content'	=>
+			'id'      => 'action-links',
+			'title'   => __( 'Available Actions', 'bbpress' ),
+			'content' =>
 				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
 				'<ul>' .
 					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                            'bbpress' ) . '</li>' .
@@ -155,9 +155,9 @@ class BBP_Topics_Admin {
 
 		// Bulk Actions
 		get_current_screen()->add_help_tab( array(
-			'id'		=> 'bulk-actions',
-			'title'		=> __( 'Bulk Actions', 'bbpress' ),
-			'content'	=>
+			'id'      => 'bulk-actions',
+			'title'   => __( 'Bulk Actions', 'bbpress' ),
+			'content' =>
 				'<p>' . __( 'You can also edit, spam, or move multiple topics to the trash at once. Select the topics you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
 				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected topics at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
 		) );

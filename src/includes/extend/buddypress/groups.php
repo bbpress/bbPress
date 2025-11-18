@@ -1803,8 +1803,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Use the first group ID
-		$group_id 	 = $group_ids[0];
-		$group    	 = groups_get_group( array( 'group_id' => $group_id ) );
+		$group_id    = $group_ids[0];
+		$group       = groups_get_group( array( 'group_id' => $group_id ) );
 		$group_link  = trailingslashit( $this->group_url( $group ) );
 		$redirect_to = trailingslashit( $group_link . $this->slug );
 

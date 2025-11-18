@@ -161,7 +161,7 @@ class Example extends BBP_Converter_Base {
 			'join_tablename'  => 'forums_table',
 			'join_type'       => 'INNER',
 			'join_expression' => 'USING groups_table.forum_id = forums_table.forum_id',
-		//	'from_expression' => 'WHERE forums_table.forum_id != 1',
+			// 'from_expression' => 'WHERE forums_table.forum_id != 1',
 			'to_type'         => 'forum'
 		);
 

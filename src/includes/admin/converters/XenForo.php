@@ -521,7 +521,8 @@ class XenForo extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_old_user_id'
 		);
 
-/*		// User password.
+		/*
+		// User password.
 		// Note: We join the 'user_authenticate' table because 'user' does not include password.
 		$this->field_map[] = array(
 			'from_tablename'  => 'user_authenticate',
@@ -549,7 +550,8 @@ class XenForo extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   =>   ''
 		);
-*/
+		*/
+
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'        => 'user',

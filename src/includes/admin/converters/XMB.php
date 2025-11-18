@@ -486,12 +486,14 @@ class XMB extends BBP_Converter_Base {
 		);
 
 		// Store old User Salt (This is only used for the SELECT row info for the above password save)
-//		$this->field_map[] = array(
-//			'from_tablename' => 'members',
-//			'from_fieldname' => 'salt',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => ''
-//		);
+		/*
+		$this->field_map[] = array(
+			'from_tablename' => 'members',
+			'from_fieldname' => 'salt',
+			'to_type'        => 'user',
+			'to_fieldname'   => ''
+		);
+		*/
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(

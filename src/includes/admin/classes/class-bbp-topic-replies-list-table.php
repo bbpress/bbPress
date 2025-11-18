@@ -42,7 +42,8 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		), 'topic_replies_list_table' );
 
 		// Construct the list table
-		parent::__construct( $args );	}
+		parent::__construct( $args );
+	}
 
 	/**
 	 * Setup the list-table columns

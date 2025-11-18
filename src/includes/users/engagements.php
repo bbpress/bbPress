@@ -956,7 +956,7 @@ function bbp_get_user_object_ids( $args = array() ) {
 			'fields'         => 'ids',
 			'post_type'      => $r['object_type'],
 			'posts_per_page' => -1,
-			'meta_query'     => array( 
+			'meta_query'     => array(
 				array(
 					'key'     => $r['rel_key'],
 					'value'   => $r['user_id'],
@@ -969,7 +969,7 @@ function bbp_get_user_object_ids( $args = array() ) {
 				'update_post_meta_cache' => false,
 				'ignore_sticky_posts'    => true,
 				'no_found_rows'          => true
-			)	 
+			)
 		);
 	}
 

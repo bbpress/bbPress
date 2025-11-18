@@ -141,17 +141,17 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname' => 'post_date',
 			'default'      => date( 'Y-m-d H:i:s' )
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
 			'default'      => date( 'Y-m-d H:i:s' )
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
 			'default'      => date( 'Y-m-d H:i:s' )
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
 			'default'      => date( 'Y-m-d H:i:s' )
@@ -509,7 +509,7 @@ class vBulletin extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_modified',
 			'callback_method' => 'callback_datetime'
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'dateline',
 			'to_type'         => 'reply',

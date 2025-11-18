@@ -399,19 +399,21 @@ class Kunena1 extends BBP_Converter_Base {
 		);
 
 		// Store old user salt (This is only used for the SELECT row info for the above password save)
-//		$this->field_map[] = array(
-//			'from_tablename' => 'user',
-//			'from_fieldname' => 'salt',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => ''
-//		);
+		/*
+		$this->field_map[] = array(
+			'from_tablename' => 'user',
+			'from_fieldname' => 'salt',
+			'to_type'        => 'user',
+			'to_fieldname'   => ''
+		);
 
 		// User password verify class (Stored in usermeta for verifying password)
-//		$this->field_map[] = array(
-//			'to_type'      => 'user',
-//			'to_fieldname' => '_bbp_class',
-//			'default'      => 'Kunena1'
-//		);
+		$this->field_map[] = array(
+			'to_type'      => 'user',
+			'to_fieldname' => '_bbp_class',
+			'default'      => 'Kunena1'
+		);
+		*/
 
 		// User name.
 		$this->field_map[] = array(

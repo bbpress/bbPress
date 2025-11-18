@@ -516,7 +516,7 @@ function bbp_add_roles() {
  *
  * This is currently only used when updating, uninstalling, or resetting bbPress.
  *
- * @see	bbp_admin_reset_handler()
+ * @see bbp_admin_reset_handler()
  * @see bbp_do_uninstall()
  * @see bbp_version_updater()
  *

@@ -420,17 +420,19 @@ class PHPWind extends BBP_Converter_Base {
 			'from_fieldname'  => 'password',
 			'to_type'         => 'user',
 			'to_fieldname'    => '_bbp_password'
-//			'callback_method' => 'callback_savepass'
+			// 'callback_method' => 'callback_savepass'
 		);
 
 		// Store old user salt (This is only used for the SELECT row info for the above password save)
-/*		$this->field_map[] = array(
+		/*
+		$this->field_map[] = array(
 			'from_tablename' => 'user',
 			'from_fieldname' => 'pass',
 			'to_type'        => 'user',
 			'to_fieldname'   => ''
 		);
-*/
+		*/
+
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
 			'to_type'      => 'user',
