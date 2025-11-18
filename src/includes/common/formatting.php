@@ -312,8 +312,10 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 	$home_url = home_url();
 
 	// Bail on links that match the current domain
-	if ( preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text ) ||
-		 preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
+	if (
+		preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text )
+		||
+		preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
 	) {
 		return "<a {$text}>";
 	}

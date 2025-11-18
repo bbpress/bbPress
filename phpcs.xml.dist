@@ -475,10 +475,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Universal.WhiteSpace.PrecisionAlignment.Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>

@@ -175,8 +175,11 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 	}
 
 	// Is the post by an anonymous user?
-	if ( ( bbp_get_topic_post_type() === $data['post_type'] && ! bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
-		 ( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $postarr['ID'] ) ) ) {
+	if (
+		( bbp_get_topic_post_type() === $data['post_type'] && ! bbp_is_topic_anonymous( $postarr['ID'] ) )
+		||
+		( bbp_get_reply_post_type() === $data['post_type'] && ! bbp_is_reply_anonymous( $postarr['ID'] ) )
+	) {
 		return $data;
 	}
 
