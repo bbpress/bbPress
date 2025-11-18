@@ -53,7 +53,7 @@
 			 Ref: https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties#minimum-wp-version-to-check-for-usage-of-deprecated-functions-classes-and-function-parameters
 		-->
 		<properties>
-			<property name="minimum_supported_version" value="5.3"/>
+			<property name="minimum_supported_version" value="6.0"/>
 		</properties>
 
 		<!-- Set the custom test class whitelist for all sniffs which use it in one go.
@@ -66,7 +66,7 @@
 	</rule>
 
 	<!-- Check the code for PHP cross-version compatibility. -->
-	<config name="testVersion" value="5.6-"/>
+	<config name="testVersion" value="7.2-"/>
 	<rule ref="PHPCompatibilityWP"/>
 
 
@@ -472,10 +472,6 @@
 	</rule>
 
 	<rule ref="Universal.WhiteSpace.CommaSpacing.TooMuchSpaceAfter">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 

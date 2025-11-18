@@ -21,7 +21,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       bbpress
  * Domain Path:       /languages/
- * Requires PHP:      5.6.20
+ * Requires PHP:      7.2
  * Requires at least: 6.0
  * Tested up to:      6.9
  * Version:           2.7.0-alpha-2
