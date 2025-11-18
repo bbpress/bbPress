@@ -23,7 +23,13 @@ defined( 'ABSPATH' ) || exit;
 
 					<?php do_action( 'bbp_theme_before_topic_favorites_action' ); ?>
 
-					<?php bbp_topic_favorite_link( array( 'before' => '', 'favorite' => '+', 'favorited' => '&times;' ) ); ?>
+					<?php bbp_topic_favorite_link(
+						array(
+							'before'    => '',
+							'favorite'  => '+',
+							'favorited' => '&times;'
+						)
+					); ?>
 
 					<?php do_action( 'bbp_theme_after_topic_favorites_action' ); ?>
 
@@ -35,7 +41,13 @@ defined( 'ABSPATH' ) || exit;
 
 					<?php do_action( 'bbp_theme_before_topic_subscription_action' ); ?>
 
-					<?php bbp_topic_subscription_link( array( 'before' => '', 'subscribe' => '+', 'unsubscribe' => '&times;' ) ); ?>
+					<?php bbp_topic_subscription_link(
+						array(
+							'before'      => '',
+							'subscribe'   => '+',
+							'unsubscribe' => '&times;'
+						)
+					); ?>
 
 					<?php do_action( 'bbp_theme_after_topic_subscription_action' ); ?>
 
@@ -112,7 +124,12 @@ defined( 'ABSPATH' ) || exit;
 
 			<?php do_action( 'bbp_theme_before_topic_freshness_author' ); ?>
 
-			<span class="bbp-topic-freshness-author"><?php bbp_author_link( array( 'post_id' => bbp_get_topic_last_active_id(), 'size' => 14 ) ); ?></span>
+			<span class="bbp-topic-freshness-author"><?php bbp_author_link(
+				array(
+					'post_id' => bbp_get_topic_last_active_id(),
+					'size'    => 14
+				)
+			); ?></span>
 
 			<?php do_action( 'bbp_theme_after_topic_freshness_author' ); ?>
 

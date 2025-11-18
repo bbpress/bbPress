@@ -384,7 +384,11 @@ function bbp_admin_repair_forum_topic_count() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	$forums = get_posts( array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'numberposts' => -1
+	) );
+
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
@@ -472,7 +476,11 @@ function bbp_admin_repair_forum_reply_count() {
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
-	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	$forums = get_posts( array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'numberposts' => -1
+	) );
+
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
@@ -515,7 +523,11 @@ function bbp_admin_repair_forum_hidden_reply_count() {
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
-	$forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) );
+	$forums = get_posts( array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'numberposts' => -1
+	) );
+
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
 			bbp_update_forum_reply_count_hidden( $forum->ID );

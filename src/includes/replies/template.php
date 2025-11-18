@@ -770,8 +770,12 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 			$reason    = $revision_log[ $revision->ID ]['reason'];
 		}
 
-		$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 		$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
+		$author = bbp_get_author_link( array(
+			'size'      => 14,
+			'link_text' => bbp_get_reply_author_display_name( $revision->ID ),
+			'post_id'   => $revision->ID
+		) );
 
 		$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
 		if ( ! empty( $reason ) ) {
@@ -2020,16 +2024,31 @@ function bbp_get_reply_trash_link( $args = array() ) {
 
 	// Trashed
 	if ( bbp_is_reply_trash( $reply->ID ) ) {
-		$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-restore-link">' . $r['restore_text'] . '</a>';
+		$query = array(
+			'action'     => 'bbp_toggle_reply_trash',
+			'sub_action' => 'untrash',
+			'reply_id'   => $reply->ID
+		);
+		$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( $query ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-restore-link">' . $r['restore_text'] . '</a>';
 
 	// Trash
 	} elseif ( ! empty( $trash_days ) ) {
-		$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash',   'reply_id' => $reply->ID ) ), 'trash-'   . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-trash-link">'   . $r['trash_text']   . '</a>';
+		$query = array(
+			'action'     => 'bbp_toggle_reply_trash',
+			'sub_action' => 'trash',
+			'reply_id'   => $reply->ID
+		);
+		$actions['trash']   = '<a title="' . esc_attr__( 'Move this item to the Trash',      'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( $query ), 'trash-'   . $reply->post_type . '_' . $reply->ID ) ) . '" class="bbp-reply-trash-link">'   . $r['trash_text']   . '</a>';
 	}
 
 	// No trash
 	if ( bbp_is_reply_trash( $reply->ID ) || empty( $trash_days ) ) {
-		$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete',  'reply_id' => $reply->ID ) ), 'delete-'  . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-reply-delete-link">' . $r['delete_text'] . '</a>';
+		$query = array(
+			'action'     => 'bbp_toggle_reply_trash',
+			'sub_action' => 'delete',
+			'reply_id'   => $reply->ID
+		);
+		$actions['delete']  = '<a title="' . esc_attr__( 'Delete this item permanently',     'bbpress' ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( $query ), 'delete-'  . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );" class="bbp-reply-delete-link">' . $r['delete_text'] . '</a>';
 	}
 
 	// Process the admin links
@@ -2082,10 +2101,18 @@ function bbp_get_reply_spam_link( $args = array() ) {
 		return;
 	}
 
-	$display = bbp_is_reply_spam( $reply->ID ) ? $r['unspam_text'] : $r['spam_text'];
-	$uri     = add_query_arg( array( 'action' => 'bbp_toggle_reply_spam', 'reply_id' => $reply->ID ) );
-	$uri     = wp_nonce_url( $uri, 'spam-reply_' . $reply->ID );
-	$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-spam-link">' . $display . '</a>' . $r['link_after'];
+	$display = bbp_is_reply_spam( $reply->ID )
+		? $r['unspam_text']
+		: $r['spam_text'];
+	
+	$query = array(
+		'action'   => 'bbp_toggle_reply_spam',
+		'reply_id' => $reply->ID
+	);
+
+	$uri    = add_query_arg( $query );
+	$uri    = wp_nonce_url( $uri, 'spam-reply_' . $reply->ID );
+	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-spam-link">' . $display . '</a>' . $r['link_after'];
 
 	// Filter & return
 	return apply_filters( 'bbp_get_reply_spam_link', $retval, $r, $args );
@@ -2254,10 +2281,18 @@ function bbp_get_reply_approve_link( $args = array() ) {
 		return;
 	}
 
-	$display = bbp_is_reply_pending( $reply->ID ) ? $r['approve_text'] : $r['unapprove_text'];
-	$uri     = add_query_arg( array( 'action' => 'bbp_toggle_reply_approve', 'reply_id' => $reply->ID ) );
-	$uri     = wp_nonce_url( $uri, 'approve-reply_' . $reply->ID );
-	$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-approve-link">' . $display . '</a>' . $r['link_after'];
+	$display = bbp_is_reply_pending( $reply->ID )
+		? $r['approve_text']
+		: $r['unapprove_text'];
+	
+	$query = array(
+		'action'   => 'bbp_toggle_reply_approve',
+		'reply_id' => $reply->ID
+	);
+
+	$uri    = add_query_arg( $query );
+	$uri    = wp_nonce_url( $uri, 'approve-reply_' . $reply->ID );
+	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-reply-approve-link">' . $display . '</a>' . $r['link_after'];
 
 	// Filter & return
 	return apply_filters( 'bbp_get_reply_approve_link', $retval, $r, $args );

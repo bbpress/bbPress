@@ -56,7 +56,12 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 
 					<div>
 						<label for="tag-description"><?php esc_html_e( 'Description:', 'bbpress' ); ?></label>
-						<input type="text" id="tag-description" name="tag-description" size="20" value="<?php echo esc_attr( bbp_get_topic_tag_description( array( 'before' => '', 'after' => '' ) ) ); ?>" />
+						<input type="text" id="tag-description" name="tag-description" size="20" value="<?php echo esc_attr( bbp_get_topic_tag_description(
+							array(
+								'before' => '',
+								'after'  => ''
+							)
+						) ); ?>" />
 					</div>
 
 					<div class="bbp-submit-wrapper">

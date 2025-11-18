@@ -1788,7 +1788,10 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 
 	// Create cache key
 	$parent_id    = absint( $parent_id );
-	$key          = md5( serialize( array( 'parent_id' => $parent_id, 'post_type' => bbp_get_post_types() ) ) );
+	$key          = md5( serialize( array(
+		'parent_id' => $parent_id,
+		'post_type' => bbp_get_post_types()
+	) ) );
 	$last_changed = wp_cache_get_last_changed( 'bbpress_posts' );
 	$cache_key    = "bbp_child_counts:{$key}:{$last_changed}";
 

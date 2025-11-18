@@ -654,7 +654,11 @@ class BBP_Forums_Admin {
 
 			// Show the 'close' and 'open' link on published, private, hidden and closed posts only
 			if ( in_array( $forum->post_status, array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id(), bbp_get_closed_status_id() ), true ) ) {
-				$close_uri = wp_nonce_url( add_query_arg( array( 'forum_id' => $forum->ID, 'action' => 'bbp_toggle_forum_close' ), remove_query_arg( array( 'bbp_forum_toggle_notice', 'forum_id', 'failed', 'super' ) ) ), 'close-forum_' . $forum->ID );
+				$args = array(
+					'forum_id' => $forum->ID,
+					'action'   => 'bbp_toggle_forum_close'
+				);
+				$close_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_forum_toggle_notice', 'forum_id', 'failed', 'super' ) ) ), 'close-forum_' . $forum->ID );
 				if ( bbp_is_forum_open( $forum->ID ) ) {
 					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Close this forum', 'bbpress' ) . '">' . _x( 'Close', 'Close a Forum', 'bbpress' ) . '</a>';
 				} else {

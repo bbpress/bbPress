@@ -794,7 +794,11 @@ class BBP_Topics_Widget extends WP_Widget {
 
 				// Maybe get the topic author
 				if ( ! empty( $settings['show_user'] ) ) :
-					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) );
+					$author_link = bbp_get_topic_author_link( array(
+						'post_id' => $topic_id,
+						'type'    => 'both',
+						'size'    => 14
+					) );
 				endif; ?>
 
 				<li>
@@ -1143,7 +1147,11 @@ class BBP_Replies_Widget extends WP_Widget {
 
 					// Only query user if showing them
 					if ( ! empty( $settings['show_user'] ) ) :
-						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
+						$author_link = bbp_get_reply_author_link( array(
+							'post_id' => $reply_id,
+							'type'    => 'both',
+							'size'    => 14
+						) );
 					else :
 						$author_link = false;
 					endif;

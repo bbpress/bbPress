@@ -18,7 +18,12 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php do_action( 'bbp_template_before_topic_tag_description' ); ?>
 
-	<?php bbp_topic_tag_description( array( 'before' => '<div class="bbp-template-notice info"><ul><li>', 'after' => '</li></ul></div>' ) ); ?>
+	<?php bbp_topic_tag_description(
+		array(
+			'before' => '<div class="bbp-template-notice info"><ul><li>',
+			'after'  => '</li></ul></div>'
+		)
+	); ?>
 
 	<?php do_action( 'bbp_template_after_topic_tag_description' ); ?>
 

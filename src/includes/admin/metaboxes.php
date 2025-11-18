@@ -79,9 +79,14 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Topic Tags
 	if ( bbp_allow_topic_tags() && isset( $r['topic_tag_count'] ) ) {
-		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+		$args = array(
+			'taxonomy'  => bbp_get_topic_tag_tax_id(),
+			'post_type' => bbp_get_topic_post_type()
+		);
+		$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 		/* translators: %s: Number of topic tags */
-		$text       = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
+		$text = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
+
 		$elements[] = current_user_can( 'manage_topic_tags' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
@@ -177,7 +182,11 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['topic_tag_count'];
 						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count_int'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
-							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+							$args = array(
+								'taxonomy'  => bbp_get_topic_tag_tax_id(),
+								'post_type' => bbp_get_topic_post_type()
+							);
+							$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 							$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 							$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 						}
@@ -271,7 +280,11 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $r['empty_topic_tag_count'];
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count_int'], 'bbpress' );
-						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+						$args = array(
+							'taxonomy'  => bbp_get_topic_tag_tax_id(),
+							'post_type' => bbp_get_topic_post_type()
+						);
+						$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '">' . $text . '</a>';
 					?>
@@ -437,7 +450,12 @@ function bbp_topic_metabox( $post ) {
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="bbp_open_close_topic"><?php esc_html_e( 'Select whether to open or close the topic.', 'bbpress' ); ?></label>
-		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post->ID ) ); ?>
+		<?php bbp_form_topic_status_dropdown(
+			array(
+				'select_id' => 'post_status',
+				'topic_id'  => $post->ID
+			)
+		); ?>
 	</p>
 
 	<?php
@@ -504,7 +522,12 @@ function bbp_reply_metabox( $post ) {
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="post_status"><?php esc_html_e( 'Select what status to give the reply.', 'bbpress' ); ?></label>
-		<?php bbp_form_reply_status_dropdown( array( 'select_id' => 'post_status', 'reply_id' => $post->ID ) ); ?>
+		<?php bbp_form_reply_status_dropdown(
+			array(
+				'select_id' => 'post_status',
+				'reply_id'  => $post->ID
+			)
+		); ?>
 	</p>
 
 	<hr />

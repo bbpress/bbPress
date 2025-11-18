@@ -69,7 +69,13 @@ defined( 'ABSPATH' ) || exit;
 									?>" size="35" name="bbp_reply_move_destination_title" />
 							</div>
 
-							<?php if ( bbp_has_topics( array( 'show_stickies' => false, 'post_parent' => bbp_get_reply_forum_id( bbp_get_reply_id() ), 'post__not_in' => array( bbp_get_reply_topic_id( bbp_get_reply_id() ) ) ) ) ) : ?>
+							<?php if ( bbp_has_topics(
+								array(
+									'show_stickies' => false,
+									'post_parent'   => bbp_get_reply_forum_id( bbp_get_reply_id() ),
+									'post__not_in'  => array( bbp_get_reply_topic_id( bbp_get_reply_id() ) )
+								)
+							) ) : ?>
 
 								<div>
 									<input name="bbp_reply_move_option" id="bbp_reply_move_option_existing" type="radio" value="existing" />

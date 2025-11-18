@@ -254,7 +254,11 @@ class BBP_Admin {
 		if ( ( 'bbp-upgrade' !== $page ) && bbp_get_pending_upgrades() && current_user_can( 'bbp_tools_upgrade_page' ) ) {
 
 			// Link to upgrade page
-			$upgrade_url  = add_query_arg( array( 'page' => 'bbp-upgrade', 'status' => 'pending' ), admin_url( 'tools.php' ) );
+			$args = array(
+				'page'   => 'bbp-upgrade',
+				'status' => 'pending'
+			);
+			$upgrade_url  = add_query_arg( $args, admin_url( 'tools.php' ) );
 			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-upgrades' ) ), 'bbp-hide-notice' );
 			$upgrade_link = '<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Learn More',   'bbpress' ) . '</a>';
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
@@ -869,7 +873,11 @@ class BBP_Admin {
 			esc_html_x( 'Mint', 'admin color scheme', 'bbpress' ),
 			$this->styles_url . 'mint/colors' . $suffix . '.css',
 			array( '#4f6d59', '#33834e', '#5FB37C', '#81c498' ),
-			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+			array(
+				'base'    => '#f1f3f2',
+				'focus'   => '#fff',
+				'current' => '#fff'
+			)
 		);
 
 		// Evergreen
@@ -878,7 +886,11 @@ class BBP_Admin {
 			esc_html_x( 'Evergreen', 'admin color scheme', 'bbpress' ),
 			$this->styles_url . 'evergreen/colors' . $suffix . '.css',
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
-			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+			array(
+				'base'    => '#f1f3f2',
+				'focus'   => '#fff',
+				'current' => '#fff'
+			)
 		);
 	}
 

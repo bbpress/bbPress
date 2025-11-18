@@ -475,14 +475,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>

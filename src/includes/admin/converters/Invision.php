@@ -527,7 +527,10 @@ class Invision extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		return array( 'hash' => $field, 'salt' => $row['members_pass_salt'] );
+		return array(
+			'hash' => $field,
+			'salt' => $row['members_pass_salt']
+		);
 	}
 
 	/**

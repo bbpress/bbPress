@@ -849,7 +849,11 @@ class BBP_Replies_Admin {
 		if ( current_user_can( 'moderate', $reply->ID ) ) {
 
 			// Show the 'approve' link on non-published posts only and 'unapprove' on published posts only
-			$approve_uri = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_approve' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'approve-reply_' . $reply->ID );
+			$args = array(
+				'reply_id' => $reply->ID,
+				'action'   => 'bbp_toggle_reply_approve'
+			);
+			$approve_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'approve-reply_' . $reply->ID );
 			if ( bbp_is_reply_public( $reply->ID ) ) {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this reply', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove reply', 'bbpress' ) . '</a>';
 			} else {
@@ -858,7 +862,11 @@ class BBP_Replies_Admin {
 
 			// Show the 'spam' link on published and pending replies and 'not spam' on spammed replies
 			if ( in_array( $reply->post_status, array( bbp_get_public_status_id(), bbp_get_trash_status_id(), bbp_get_pending_status_id(), bbp_get_spam_status_id() ), true ) ) {
-				$spam_uri = wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
+				$args = array(
+					'reply_id' => $reply->ID,
+					'action'   => 'bbp_toggle_reply_spam'
+				);
+				$spam_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID );
 				if ( ! bbp_is_reply_spam( $reply->ID ) ) {
 					$actions['spam']   = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
 				} else {

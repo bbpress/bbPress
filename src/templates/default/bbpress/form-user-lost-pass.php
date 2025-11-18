@@ -12,7 +12,13 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 
-<form method="post" action="<?php bbp_wp_login_action( array( 'action' => 'lostpassword', 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
+<form class="bbp-login-form" method="post" action="<?php bbp_wp_login_action(
+	array(
+		'action' => 'lostpassword',
+		'context' => 'login_post'
+	) );
+?>">
+
 	<fieldset class="bbp-form">
 		<legend><?php esc_html_e( 'Lost Password', 'bbpress' ); ?></legend>
 
@@ -33,4 +39,5 @@ defined( 'ABSPATH' ) || exit;
 
 		</div>
 	</fieldset>
+
 </form>

@@ -27,7 +27,14 @@ get_header(); ?>
 
 					<div id="bbp-topic-hot-tags">
 
-						<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => bbp_get_topic_tag_tax_id() ) ); ?>
+						<?php wp_tag_cloud(
+							array(
+								'smallest' => 9,
+								'largest'  => 38,
+								'number'   => 80,
+								'taxonomy' => bbp_get_topic_tag_tax_id()
+							)
+						); ?>
 
 					</div>
 				</div>

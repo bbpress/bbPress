@@ -1001,7 +1001,11 @@ class BBP_Topics_Admin {
 
 			// Pending
 			// Show the 'approve' and 'view' link on pending posts only and 'unapprove' on published posts only
-			$approve_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_approve' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
+			$args = array(
+				'topic_id' => $topic->ID,
+				'action'   => 'bbp_toggle_topic_approve'
+			);
+			$approve_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
 			if ( bbp_is_topic_public( $topic->ID ) ) {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this topic', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove Topic', 'bbpress' ) . '</a>';
 			} else {
@@ -1019,7 +1023,11 @@ class BBP_Topics_Admin {
 			// Close
 			// Show the 'close' and 'open' link on published and closed posts only
 			if ( bbp_is_topic_public( $topic->ID ) ) {
-				$close_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID );
+				$args = array(
+					'topic_id' => $topic->ID,
+					'action'   => 'bbp_toggle_topic_close'
+				);
+				$close_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID );
 				if ( bbp_is_topic_open( $topic->ID ) ) {
 					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . _x( 'Close', 'Close a Topic', 'bbpress' ) . '</a>';
 				} else {
@@ -1030,17 +1038,30 @@ class BBP_Topics_Admin {
 			// Sticky
 			// Dont show sticky if topic is spam, trash or pending
 			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) ) {
-				$stick_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+				$args = array(
+					'topic_id' => $topic->ID,
+					'action'   => 'bbp_toggle_topic_stick'
+				);
+				$stick_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . esc_html__( 'Unstick', 'bbpress' ) . '</a>';
 				} else {
-					$super_uri        = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+					$args = array(
+						'topic_id' => $topic->ID,
+						'action'   => 'bbp_toggle_topic_stick',
+						'super'    => '1'
+					);
+					$super_uri        = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a> <a href="' . esc_url( $super_uri ) . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( '(to front)', 'bbpress' ) . '</a>';
 				}
 			}
 
 			// Spam
-			$spam_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
+			$args = array(
+				'topic_id' => $topic->ID,
+				'action'   => 'bbp_toggle_topic_spam'
+			);
+			$spam_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
 			if ( ! bbp_is_topic_spam( $topic->ID ) ) {
 				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
 			} else {

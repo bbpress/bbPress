@@ -52,7 +52,13 @@ defined( 'ABSPATH' ) || exit;
 						<fieldset class="bbp-form">
 							<legend><?php esc_html_e( 'Destination', 'bbpress' ); ?></legend>
 							<div>
-								<?php if ( bbp_has_topics( array( 'show_stickies' => false, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'post__not_in' => array( bbp_get_topic_id() ) ) ) ) : ?>
+								<?php if ( bbp_has_topics(
+									array(
+										'show_stickies' => false,
+										'post_parent'   => bbp_get_topic_forum_id( bbp_get_topic_id() ),
+										'post__not_in'  => array( bbp_get_topic_id() )
+									)
+								) ) : ?>
 
 									<label for="bbp_destination_topic"><?php esc_html_e( 'Merge with this topic:', 'bbpress' ); ?></label>
 

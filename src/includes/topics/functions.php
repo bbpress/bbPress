@@ -2835,7 +2835,10 @@ function bbp_update_topic_revision_log( $args = array() ) {
 
 	// Get the logs and append the new one to those
 	$revision_log                      = bbp_get_topic_raw_revision_log( $r['topic_id'] );
-	$revision_log[ $r['revision_id'] ] = array( 'author' => $r['author_id'], 'reason' => $r['reason'] );
+	$revision_log[ $r['revision_id'] ] = array(
+		'author' => $r['author_id'],
+		'reason' => $r['reason']
+	);
 
 	// Finally, update
 	return update_post_meta( $r['topic_id'], '_bbp_revision_log', $revision_log );
