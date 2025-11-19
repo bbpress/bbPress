@@ -16,6 +16,8 @@ if ( ! class_exists( 'BBP_Converter_Base' ) ) :
 /**
  * Base class to be extended by specific individual importers
  *
+ * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+ *
  * @since 2.1.0 bbPress (r3813)
  */
 abstract class BBP_Converter_Base {
@@ -970,7 +972,7 @@ abstract class BBP_Converter_Base {
 	private function get_row( $query = '' ) {
 		$this->update_query( $query );
 
-		return $this->wpdb->get_row( $query );
+		return $this->wpdb->get_row( $query ); // phpcs:ignore
 	}
 
 	/**
@@ -982,7 +984,7 @@ abstract class BBP_Converter_Base {
 	private function get_results( $query = '', $output = OBJECT ) {
 		$this->update_query( $query );
 
-		return (array) $this->wpdb->get_results( $query, $output );
+		return (array) $this->wpdb->get_results( $query, $output ); // phpcs:ignore
 	}
 
 	/**
@@ -993,7 +995,7 @@ abstract class BBP_Converter_Base {
 	private function query( $query = '' ) {
 		$this->update_query( $query );
 
-		return $this->wpdb->query( $query );
+		return $this->wpdb->query( $query ); // phpcs:ignore
 	}
 
 	/**

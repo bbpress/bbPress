@@ -1080,7 +1080,7 @@ class BBP_Akismet {
 		$sql = "SELECT id FROM {$wpdb->posts} WHERE post_type IN ('topic', 'reply') AND post_status = 'spam' AND DATE_SUB(NOW(), INTERVAL %d DAY) > post_date_gmt LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) {
+		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_ids ) ) {
@@ -1106,6 +1106,8 @@ class BBP_Akismet {
 				do_action( '_bbp_akismet_batch_delete', __FUNCTION__, $spam_id );
 			}
 
+			// phpcs:disable
+
 			// Prepared as strings since id is an unsigned BIGINT, and using %
 			// will constrain the value to the maximum signed BIGINT.
 			$format_string = implode( ', ', array_fill( 0, count( $spam_ids ), '%s' ) );
@@ -1113,6 +1115,8 @@ class BBP_Akismet {
 			// Run the delete queries
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->posts} WHERE ID IN ( {$format_string} )", $spam_ids ) );
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( {$format_string} )", $spam_ids ) );
+
+			// phpcs:enable
 
 			// Clean the post cache for these topics & replies
 			clean_post_cache( $spam_ids );
@@ -1161,7 +1165,7 @@ class BBP_Akismet {
 		$sql = "SELECT m.post_id FROM {$wpdb->postmeta} as m INNER JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE m.meta_key = '_bbp_akismet_as_submitted' AND DATE_SUB(NOW(), INTERVAL %d DAY) > p.post_date_gmt LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) {
+		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_ids ) ) {
@@ -1239,7 +1243,7 @@ class BBP_Akismet {
 			LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) {
+		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_meta_results ) ) {

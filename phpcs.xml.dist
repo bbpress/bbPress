@@ -507,18 +507,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.DB.PreparedSQL.NotPrepared">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.DateTime.CurrentTimeTimestamp.Requested">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>

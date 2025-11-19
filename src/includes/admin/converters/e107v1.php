@@ -10,6 +10,8 @@
 /**
  * Implementation of e107 v1.x Forum converter.
  *
+ * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+ *
  * @since 2.6.0 bbPress (r5352)
  *
  * @link Codex Docs https://codex.bbpress.org/import-forums/e107
@@ -580,11 +582,14 @@ class e107v1 extends BBP_Converter_Base {
 		$field = preg_replace( '/(\d+?)+\.[\S\s]+/', '$1', $field );
 
 		if ( ! isset( $this->map_userid[ $field ] ) ) {
+
+			// phpcs:disable
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			} else {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT user_id AS value_id FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			}
+			// phpcs:enable
 
 			if ( ! is_null( $row ) ) {
 				$this->map_userid[ $field ] = $row->value_id;
@@ -596,6 +601,7 @@ class e107v1 extends BBP_Converter_Base {
 				}
 			}
 		}
+
 		return $this->map_userid[ $field ];
 	}
 
