@@ -1136,7 +1136,7 @@ class BBP_Akismet {
 		 *
 		 * @param int Random number between 1 and 5000.
 		 */
-		$optimize = (int) apply_filters( '_bbp_akismet_optimize_tables', mt_rand( 1, 5000 ), array( $wpdb->posts, $wpdb->postmeta ) );
+		$optimize = (int) apply_filters( '_bbp_akismet_optimize_tables', wp_rand( 1, 5000 ), array( $wpdb->posts, $wpdb->postmeta ) );
 
 		// Lucky number 11
 		if ( 11 === $optimize ) {
@@ -1314,7 +1314,7 @@ class BBP_Akismet {
 		 *
 		 * @param int Random number between 1 and 5000.
 		 */
-		$optimize = (int) apply_filters( '_bbp_akismet_optimize_table', mt_rand( 1, 5000 ), $wpdb->postmeta );
+		$optimize = (int) apply_filters( '_bbp_akismet_optimize_table', wp_rand( 1, 5000 ), $wpdb->postmeta );
 
 		// Lucky number 11
 		if ( 11 === $optimize ) {
