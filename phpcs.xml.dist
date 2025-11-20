@@ -471,39 +471,11 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Universal.WhiteSpace.CommaSpacing.TooMuchSpaceAfter">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayIndentation.ItemNotAligned">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayIndentation.MultiLineArrayItemNotAligned">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.NoSpacesAroundArrayKeys">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.SpacesAroundArrayKeys">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.TooMuchSpaceAfterKey">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.MultipleStatementAlignment.MultilineItemSpaceBeforeDoubleArrow">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.MultipleStatementAlignment.SpaceBeforeDoubleArrow">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -516,14 +488,10 @@
 	</rule>
 
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-    <exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound">
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -532,7 +500,7 @@
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound">
-    <exclude-pattern>/src/*</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">

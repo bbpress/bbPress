@@ -446,7 +446,7 @@ class BBP_Admin {
 			$found = array_search( 'tools.php', $menu_item, true );
 
 			if ( false !== $found ) {
-				$menu[ $menu_index ][ 0 ] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][ 0 ] );
+				$menu[ $menu_index ][0] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][0] );
 				continue;
 			}
 		}
@@ -1508,7 +1508,7 @@ class BBP_Admin {
 							}
 
 							// Switch to the new site
-							bbp_switch_to_site( $details[ 'blog_id' ] );
+							bbp_switch_to_site( $details['blog_id'] );
 
 							$basename = bbpress()->basename;
 
@@ -1521,8 +1521,8 @@ class BBP_Admin {
 							bbp_restore_current_site();
 
 							// Do some actions to allow plugins to do things too
-							do_action( 'after_bbpress_upgrade', $response             );
-							do_action( 'bbp_upgrade_site',      $details[ 'blog_id' ] );
+							do_action( 'after_bbpress_upgrade', $response           );
+							do_action( 'bbp_upgrade_site',      $details['blog_id'] );
 
 						endforeach; ?>
 

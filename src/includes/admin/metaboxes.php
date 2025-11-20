@@ -480,12 +480,12 @@ function bbp_topic_metabox( $post ) {
 				'walker'             => '',
 				'exclude'            => '',
 
-			// Output-related
-			'select_id'          => 'parent_id',
-			'options_only'       => false,
-			'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
-			'disable_categories' => current_user_can( 'edit_forums' ),
-			'disabled'           => ''
+				// Output-related
+				'select_id'          => 'parent_id',
+				'options_only'       => false,
+				'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
+				'disable_categories' => current_user_can( 'edit_forums' ),
+				'disabled'           => ''
 			) 
 		); 
 		?>

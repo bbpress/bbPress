@@ -28,27 +28,27 @@ function bbp_kses_allowed_tags() {
 
 		// Links
 		'a' => array(
-			'href'     => true,
-			'title'    => true,
-			'rel'      => true,
-			'target'   => true
+			'href'   => true,
+			'title'  => true,
+			'rel'    => true,
+			'target' => true
 		),
 
 		// Quotes
-		'blockquote'   => array(
-			'cite'     => true
+		'blockquote' => array(
+			'cite' => true
 		),
 
 		// Code
-		'code'         => array(),
-		'pre'          => array(
-			'class'    => true
+		'code' => array(),
+		'pre'  => array(
+			'class' => true
 		),
 
 		// Formatting
-		'em'           => array(),
-		'strong'       => array(),
-		'del'          => array(
+		'em'     => array(),
+		'strong' => array(),
+		'del'    => array(
 			'datetime' => true,
 			'cite'     => true
 		),
@@ -58,19 +58,19 @@ function bbp_kses_allowed_tags() {
 		),
 
 		// Lists
-		'ul'           => array(),
-		'ol'           => array(
-			'start'    => true,
+		'ul' => array(),
+		'ol' => array(
+			'start' => true,
 		),
-		'li'           => array(),
+		'li' => array(),
 
 		// Images
-		'img'          => array(
-			'src'      => true,
-			'border'   => true,
-			'alt'      => true,
-			'height'   => true,
-			'width'    => true,
+		'img' => array(
+			'src'    => true,
+			'border' => true,
+			'alt'    => true,
+			'height' => true,
+			'width'  => true,
 		)
 	) );
 }
@@ -660,19 +660,25 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		// array of time period chunks
 		$chunks = array(
 			/* translators: %s: Number of years */
-			array( YEAR_IN_SECONDS,   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
+			array( YEAR_IN_SECONDS, _n_noop( '%s year', '%s years', 'bbpress' ) ),
+
 			/* translators: %s: Number of months */
-			array( MONTH_IN_SECONDS,  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
+			array( MONTH_IN_SECONDS, _n_noop( '%s month', '%s months', 'bbpress' ) ),
+
 			/* translators: %s: Number of weeks */
-			array( WEEK_IN_SECONDS,   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
+			array( WEEK_IN_SECONDS, _n_noop( '%s week', '%s weeks', 'bbpress' ) ),
+
 			/* translators: %s: Number of days */
-			array( DAY_IN_SECONDS,    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
+			array( DAY_IN_SECONDS, _n_noop( '%s day', '%s days', 'bbpress' ) ),
+
 			/* translators: %s: Number of hours */
-			array( HOUR_IN_SECONDS,   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
+			array( HOUR_IN_SECONDS, _n_noop( '%s hour', '%s hours', 'bbpress' ) ),
+
 			/* translators: %s: Number of minutes */
 			array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+
 			/* translators: %s: Number of seconds */
-			array( 1,                 _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
+			array( 1, _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
 		);
 
 		// Attempt to parse non-numeric older date

@@ -158,7 +158,7 @@ class BBP_User_Query extends WP_User_Query {
 		$this->current_user = -1;
 
 		if ( $this->user_count > 0 ) {
-			$this->user = $this->results[ 0 ];
+			$this->user = $this->results[0];
 		}
 	}
 }

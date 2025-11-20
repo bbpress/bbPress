@@ -389,10 +389,11 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 
 		// Conditionally exclude private/hidden forum ID's
 		$exclude_forum_ids = bbp_exclude_forum_ids( 'array' );
+		$post_parent_id    = $r['post_parent'];
 
 		// Maybe remove the current forum from excluded forum IDs
-		if ( ! empty( $r['post_parent' ] ) ) {
-			unset( $exclude_forum_ids[ $r['post_parent' ] ] );
+		if ( ! empty( $post_parent_id ) ) {
+			unset( $exclude_forum_ids[ $post_parent_id ] );
 		}
 
 		// Maybe exclude specific forums

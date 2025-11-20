@@ -1611,9 +1611,9 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 		$validated = wp_validate_redirect( $filtered, $forum_root );
 
 		// Assemble $redirect_to and add it (encoded) to full $url
-		$appended  = add_query_arg( array( 'loggedout'   => 'true'   ), $validated );
+		$appended  = add_query_arg( array( 'loggedout' => 'true' ), $validated );
 		$encoded   = urlencode( $appended );
-		$url       = add_query_arg( array( 'redirect_to' => $encoded ), $url       );
+		$url       = add_query_arg( array( 'redirect_to' => $encoded ), $url );
 	}
 
 	// Filter & return

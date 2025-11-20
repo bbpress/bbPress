@@ -813,7 +813,7 @@ class phpBB extends BBP_Converter_Base {
 				$value |= ord( $input[ $i ] ) << 8;
 			}
 
-			$output .= $itoa64[( $value >> 6 ) & 0x3f];
+			$output .= $itoa64[ ( $value >> 6 ) & 0x3f ];
 
 			if ( $i++ >= $count ) {
 				break;
@@ -823,13 +823,13 @@ class phpBB extends BBP_Converter_Base {
 				$value |= ord( $input[ $i ] ) << 16;
 			}
 
-			$output .= $itoa64[( $value >> 12 ) & 0x3f];
+			$output .= $itoa64[ ( $value >> 12 ) & 0x3f ];
 
 			if ( $i++ >= $count ) {
 				break;
 			}
 
-			$output .= $itoa64[( $value >> 18 ) & 0x3f];
+			$output .= $itoa64[ ( $value >> 18 ) & 0x3f ];
 		} while ( $i < $count );
 
 		return $output;

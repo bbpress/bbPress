@@ -149,6 +149,7 @@ add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integr
 add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );
 
 // Widgets
+// phpcs:disable Universal.WhiteSpace.CommaSpacing.TooMuchSpaceAfter
 add_action( 'bbp_widgets_init', array( 'BBP_Login_Widget',   'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Views_Widget',   'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Search_Widget',  'register_widget' ), 10 );
@@ -156,6 +157,7 @@ add_action( 'bbp_widgets_init', array( 'BBP_Forums_Widget',  'register_widget' )
 add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
 add_action( 'bbp_widgets_init', array( 'BBP_Stats_Widget',   'register_widget' ), 10 );
+// phpcs:enable
 
 // Notices
 add_action( 'bbp_template_notices', 'bbp_template_notices',                20 );

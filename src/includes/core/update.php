@@ -245,7 +245,7 @@ function bbp_create_initial_content( $args = array() ) {
 			'post_date'    => $topic_time,
 		),
 		array(
-			'forum_id'     => $forum_id
+			'forum_id' => $forum_id
 		)
 	);
 
@@ -258,8 +258,8 @@ function bbp_create_initial_content( $args = array() ) {
 			'post_date'    => $reply_time
 		),
 		array(
-			'forum_id'     => $forum_id,
-			'topic_id'     => $topic_id
+			'forum_id' => $forum_id,
+			'topic_id' => $topic_id
 		)
 	);
 

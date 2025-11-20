@@ -1005,7 +1005,7 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 	if ( isset( $bbp->filters->wp_filter[ $tag ] ) ) {
 
 		// Filters exist in this priority
-		if ( ! empty( $priority ) && isset( $bbp->filters->wp_filter[ $tag ][ $priority  ] ) ) {
+		if ( ! empty( $priority ) && isset( $bbp->filters->wp_filter[ $tag ][ $priority ] ) ) {
 
 			// Store filters in a backup
 			$wp_filter[ $tag ][ $priority ] = $bbp->filters->wp_filter[ $tag ][ $priority ];

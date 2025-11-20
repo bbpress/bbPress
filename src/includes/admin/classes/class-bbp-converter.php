@@ -319,8 +319,8 @@ class BBP_Converter {
 				: 0,
 
 			// Platform
-			'_bbp_converter_platform' => ! empty( $_POST['_bbp_converter_platform' ] )
-				? sanitize_text_field( $_POST['_bbp_converter_platform' ] )
+			'_bbp_converter_platform' => ! empty( $_POST['_bbp_converter_platform'] )
+				? sanitize_text_field( $_POST['_bbp_converter_platform'] )
 				: '',
 
 			// Convert Users

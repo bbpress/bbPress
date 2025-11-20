@@ -176,37 +176,37 @@ function bbp_filter_column_headers( $columns = array() ) {
 	/** Forums ****************************************************************/
 
 	// Forum topic count
-	if ( isset( $columns[ 'bbp_forum_topic_count' ] ) ) {
-		$columns[ 'bbp_forum_topic_count' ] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topics', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topics', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_forum_topic_count'] ) ) {
+		$columns['bbp_forum_topic_count'] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topics', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topics', 'bbpress' ) . '</span></span>';
 	}
 
 	// Forum reply count
-	if ( isset( $columns[ 'bbp_forum_reply_count' ] ) ) {
-		$columns[ 'bbp_forum_reply_count' ] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_forum_reply_count'] ) ) {
+		$columns['bbp_forum_reply_count'] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
 	}
 
 	/** Topics ****************************************************************/
 
 	// Topic forum
-	if ( isset( $columns[ 'bbp_topic_forum' ] ) ) {
-		$columns[ 'bbp_topic_forum' ] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_topic_forum'] ) ) {
+		$columns['bbp_topic_forum'] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
 	}
 
 	// Topic reply count
-	if ( isset( $columns[ 'bbp_topic_reply_count' ] ) ) {
-		$columns[ 'bbp_topic_reply_count' ] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_topic_reply_count'] ) ) {
+		$columns['bbp_topic_reply_count'] = '<span class="vers bbp_replies_column"  title="' . esc_attr__( 'Replies', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Replies', 'bbpress' ) . '</span></span>';
 	}
 
 	/** Replies ***************************************************************/
 
 	// Reply forum
-	if ( isset( $columns[ 'bbp_reply_forum' ] ) ) {
-		$columns[ 'bbp_reply_forum' ] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_reply_forum'] ) ) {
+		$columns['bbp_reply_forum'] = '<span class="vers bbp_forums_column"  title="' . esc_attr__( 'Forum', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Forum', 'bbpress' ) . '</span></span>';
 	}
 
 	// Reply topic
-	if ( isset( $columns[ 'bbp_reply_topic' ] ) ) {
-		$columns[ 'bbp_reply_topic' ] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topic', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topic', 'bbpress' ) . '</span></span>';
+	if ( isset( $columns['bbp_reply_topic'] ) ) {
+		$columns['bbp_reply_topic'] = '<span class="vers bbp_topics_column"  title="' . esc_attr__( 'Topic', 'bbpress' ) . '"><span class="screen-reader-text">' . esc_html__( 'Topic', 'bbpress' ) . '</span></span>';
 	}
 
 	return $columns;
