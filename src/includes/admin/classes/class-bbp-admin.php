@@ -23,91 +23,91 @@ class BBP_Admin {
 	/** Directory *************************************************************/
 
 	/**
-	 * @var string Path to the bbPress admin directory
+	 * @var string Path to the bbPress admin directory.
 	 */
 	public $admin_dir = '';
 
 	/** URLs ******************************************************************/
 
 	/**
-	 * @var string URL to the bbPress admin directory
+	 * @var string URL to the bbPress admin directory.
 	 */
 	public $admin_url = '';
 
 	/**
-	 * @var string URL to the bbPress images directory
+	 * @var string URL to the bbPress images directory.
 	 */
 	public $images_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin styles directory
+	 * @var string URL to the bbPress admin styles directory.
 	 */
 	public $styles_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin css directory
+	 * @var string URL to the bbPress admin css directory.
 	 */
 	public $css_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin js directory
+	 * @var string URL to the bbPress admin js directory.
 	 */
 	public $js_url = '';
 
 	/** Capability ************************************************************/
 
 	/**
-	 * @var bool Minimum capability to access Tools and Settings
+	 * @var bool Minimum capability to access Tools and Settings.
 	 */
 	public $minimum_capability = 'keep_gate';
 
 	/** Separator *************************************************************/
 
 	/**
-	 * @var bool Whether or not to add an extra top level menu separator
+	 * @var bool Whether or not to add an extra top level menu separator.
 	 */
 	public $show_separator = false;
 
 	/** Tools *****************************************************************/
 
 	/**
-	 * @var array Array of available repair tools
+	 * @var array Array of available repair tools.
 	 */
 	public $tools = array();
 
 	/** Notices ***************************************************************/
 
 	/**
-	 * @var array Array of notices to output to the current user
+	 * @var array Array of notices to output to the current user.
 	 */
 	public $notices = array();
 
 	/** Components ************************************************************/
 
 	/**
-	 * @var BBP_Forums_Admin Forums admin
+	 * @var BBP_Forums_Admin Forums admin.
 	 */
 	public $forums = null;
 
 	/**
-	 * @var BBP_Topics_Admin Topics admin
+	 * @var BBP_Topics_Admin Topics admin.
 	 */
 	public $topics = null;
 
 	/**
-	 * @var BBP_Replies_Admin Replies admin
+	 * @var BBP_Replies_Admin Replies admin.
 	 */
 	public $replies = null;
 
 	/**
-	 * @var BBP_Converter Converter admin
+	 * @var BBP_Converter Converter admin.
 	 */
 	public $converter = null;
 
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress admin loader
+	 * The main bbPress admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -118,7 +118,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Admin globals.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -139,7 +139,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Include required files
+	 * Include required files.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -167,7 +167,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -306,7 +306,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Output all admin area notices
+	 * Output all admin area notices.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 */
@@ -334,11 +334,11 @@ class BBP_Admin {
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 *
-	 * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}
-	 * @param string          $class          Optional. A class to be added to the message div
-	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist
+	 * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}.
+	 * @param string          $class          Optional. A class to be added to the message div.
+	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist.
 	 *
-	 * @return void
+	 * @return bool|void False on failure, void otherwise.
 	 */
 	public function add_notice( $message, $class = false, $is_dismissible = true ) {
 
@@ -396,11 +396,11 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Escape message string output
+	 * Escape message string output.
 	 *
 	 * @since 2.6.0 bbPress (r6775)
 	 *
-	 * @param string $message
+	 * @param string $message The message.
 	 *
 	 * @return string
 	 */
@@ -448,7 +448,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add the admin menus
+	 * Add the admin menus.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 */

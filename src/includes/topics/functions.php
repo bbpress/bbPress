@@ -18,8 +18,10 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @param array $topic_data Forum post data
- * @param array $topic_meta Forum meta data
+ * @param array $topic_data Forum post data.
+ * @param array $topic_meta Forum meta data.
+ *
+ * @return int|false Topic ID on success, false on failure.
  */
 function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 
@@ -89,9 +91,9 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 /** Post Form Handlers ********************************************************/
 
 /**
- * Handles the front end topic submission
+ * Handles the front end topic submission.
  *
- * @param string $action The requested action to compare this function to
+ * @param string $action The requested action to compare this function to.
  */
 function bbp_new_topic_handler( $action = '' ) {
 
@@ -421,9 +423,9 @@ function bbp_new_topic_handler( $action = '' ) {
 }
 
 /**
- * Handles the front end edit topic submission
+ * Handles the front end edit topic submission.
  *
- * @param string $action The requested action to compare this function to
+ * @param string $action The requested action to compare this function to.
  */
 function bbp_edit_topic_handler( $action = '' ) {
 
@@ -2364,8 +2366,6 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
- *
- * @return void
  */
 function bbp_increase_topic_reply_count( $topic_id = 0 ) {
 
@@ -2396,8 +2396,6 @@ function bbp_increase_topic_reply_count( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
- *
- * @return void
  */
 function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
 
@@ -2457,8 +2455,6 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
- *
- * @return void
  */
 function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
 
@@ -2489,8 +2485,6 @@ function bbp_increase_topic_reply_count_hidden( $topic_id = 0 ) {
  * @since 2.6.0 bbPress (r6036)
  *
  * @param int $topic_id The topic id.
- *
- * @return void
  */
 function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
 
@@ -2522,8 +2516,6 @@ function bbp_decrease_topic_reply_count_hidden( $topic_id = 0 ) {
  *
  * @param int $topic_id The topic id.
  * @param int $forum_id The forum id.
- *
- * @return void
  */
 function bbp_insert_topic_update_counts( $topic_id = 0, $forum_id = 0 ) {
 

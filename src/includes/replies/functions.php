@@ -18,8 +18,10 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r3349)
  *
- * @param array $reply_data Forum post data
- * @param array $reply_meta Forum meta data
+ * @param array $reply_data Forum post data.
+ * @param array $reply_meta Forum meta data.
+ *
+ * @return int|false Reply ID on success, false on failure.
  */
 function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
@@ -94,8 +96,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @param int $reply_id The reply id.
  * @param int $topic_id The topic id.
  * @param int $forum_id The forum id.
- *
- * @return void
  */
 function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id = 0 ) {
 
@@ -114,13 +114,13 @@ function bbp_insert_reply_update_counts( $reply_id = 0, $topic_id = 0, $forum_id
 /** Post Form Handlers ********************************************************/
 
 /**
- * Handles the front end reply submission
+ * Handles the front end reply submission.
  *
  * @since 2.0.0 bbPress (r2574)
  *
  * @param string $action The requested action to compare this function to
  *                    id, anonymous data, reply author, edit (false), and
- *                    the reply to id
+ *                    the reply to id.
  */
 function bbp_new_reply_handler( $action = '' ) {
 

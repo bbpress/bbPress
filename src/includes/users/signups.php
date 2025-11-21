@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Output the forum-role field when adding a new user
+ * Output the forum-role field when adding a new user.
  *
  * @since 2.6.0 bbPress (r6674)
  */
@@ -60,11 +60,11 @@ function bbp_add_user_form_role_field() {
 }
 
 /**
- * Maybe add forum role to signup meta array
+ * Maybe add forum role to signup meta array.
  *
  * @since 2.6.0 bbPress (r6674)
  *
- * @param array $meta
+ * @param array $meta The signup meta.
  *
  * @return array
  */
@@ -96,7 +96,7 @@ function bbp_user_add_role_to_signup_meta( $meta = array() ) {
 }
 
 /**
- * Add forum meta data when inviting a user to a site
+ * Add forum meta data when inviting a user to a site.
  *
  * @since 2.6.0 bbPress (r6674)
  *
@@ -140,11 +140,11 @@ function bbp_user_add_role_on_invite( $user_id = '', $role = '', $newuser_key = 
 }
 
 /**
- * Single-site handler for adding a new user
+ * Single-site handler for adding a new user.
  *
  * @since 2.6.0 bbPress (r6674)
  *
- * @param int $user_id
+* @param int $user_id The user ID.
  *
  * @return void
  */
@@ -168,13 +168,13 @@ function bbp_user_add_role_on_register( $user_id = '' ) {
 }
 
 /**
- * Multi-site handler for adding a new user
+ * Multi-site handler for adding a new user.
  *
  * @since 2.6.0 bbPress (r6674)
  *
- * @param int    $user_id  User ID
- * @param string $password User password
- * @param array  $meta     Array of metadata
+ * @param int    $user_id  User ID.
+ * @param string $password User password.
+ * @param array  $meta     Array of metadata.
  *
  * @return void
  */
@@ -209,9 +209,9 @@ function bbp_user_add_role_on_activate( $user_id = 0, $password = '', $meta = ar
  *
  * @since 2.6.5
  *
- * @param string $to_validate A role ID to validate
+ * @param string $to_validate A role ID to validate.
  *
- * @return string A valid role ID, or empty string on error
+ * @return string A valid role ID, or empty string on error.
  */
 function bbp_validate_signup_role( $to_validate = '' ) {
 
@@ -238,13 +238,13 @@ function bbp_validate_signup_role( $to_validate = '' ) {
 }
 
 /**
- * Validate the Forum role during the registration process
+ * Validate the Forum role during the registration process.
  *
  * @since 2.6.5
  *
- * @param string $to_validate A role ID to validate
+ * @param string $to_validate A role ID to validate.
  *
- * @return string A valid role ID, or empty string on error
+ * @return string A valid role ID, or empty string on error.
  */
 function bbp_validate_registration_role( $to_validate = '' ) {
 
@@ -265,7 +265,7 @@ function bbp_validate_registration_role( $to_validate = '' ) {
 }
 
 /**
- * Validate the Forum role during multisite activation
+ * Validate the Forum role during multisite activation.
  *
  * This function exists simply for parity with registrations, and to maintain an
  * intentional layer of abstraction from the more generic function it uses.
@@ -275,9 +275,9 @@ function bbp_validate_registration_role( $to_validate = '' ) {
  *
  * @since 2.6.5
  *
- * @param string $to_validate A role ID to validate
+ * @param string $to_validate A role ID to validate.
  *
- * @return string A valid role ID, or empty string on error
+ * @return string A valid role ID, or empty string on error.
  */
 function bbp_validate_activation_role( $to_validate = '' ) {
 

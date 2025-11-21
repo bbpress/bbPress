@@ -96,9 +96,9 @@ final class bbPress {
 	/**
 	 * Main bbPress Instance
 	 *
-	 * bbPress is fun
-	 * Please load it only one time
-	 * For this, we thank you
+	 * bbPress is fun.
+	 * Please load it only one time.
+	 * For this, we thank you.
 	 *
 	 * Insures that only one instance of bbPress exists in memory at any one
 	 * time. Also prevents needing to define globals all over the place.
@@ -107,7 +107,7 @@ final class bbPress {
 	 *
 	 * @staticvar object $instance
 	 * @see bbpress()
-	 * @return bbPress The one true bbPress
+	 * @return bbPress The one true bbPress.
 	 */
 	public static function instance() {
 
