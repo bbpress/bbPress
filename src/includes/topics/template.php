@@ -43,40 +43,43 @@ function bbp_topic_post_type() {
 function bbp_get_topic_post_type_labels() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_post_type_labels', array(
-		'name'                     => esc_attr__( 'Topics',                     'bbpress' ),
-		'menu_name'                => esc_attr__( 'Topics',                     'bbpress' ),
-		'singular_name'            => esc_attr__( 'Topic',                      'bbpress' ),
-		'all_items'                => esc_attr__( 'All Topics',                 'bbpress' ),
-		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Add Topic',                  'bbpress' ),
-		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
-		'edit_item'                => esc_attr__( 'Edit Topic',                 'bbpress' ),
-		'new_item'                 => esc_attr__( 'New Topic',                  'bbpress' ),
-		'view'                     => esc_attr__( 'View Topic',                 'bbpress' ),
-		'view_item'                => esc_attr__( 'View Topic',                 'bbpress' ),
-		'view_items'               => esc_attr__( 'View Topics',                'bbpress' ),
-		'search_items'             => esc_attr__( 'Search Topics',              'bbpress' ),
-		'not_found'                => esc_attr__( 'No topics found',            'bbpress' ),
-		'not_found_in_trash'       => esc_attr__( 'No topics found in Trash',   'bbpress' ),
-		'filter_items_list'        => esc_attr__( 'Filter topics list',         'bbpress' ),
-		'items_list'               => esc_attr__( 'Topics list',                'bbpress' ),
-		'items_list_navigation'    => esc_attr__( 'Topics list navigation',     'bbpress' ),
-		'parent_item_colon'        => esc_attr__( 'Forum:',                     'bbpress' ),
-		'archives'                 => esc_attr__( 'Forum Topics',               'bbpress' ),
-		'attributes'               => esc_attr__( 'Topic Attributes',           'bbpress' ),
-		'insert_into_item'         => esc_attr__( 'Insert into topic',          'bbpress' ),
-		'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this topic',     'bbpress' ),
-		'featured_image'           => esc_attr__( 'Topic Image',                'bbpress' ),
-		'set_featured_image'       => esc_attr__( 'Set topic image',            'bbpress' ),
-		'remove_featured_image'    => esc_attr__( 'Remove topic image',         'bbpress' ),
-		'use_featured_image'       => esc_attr__( 'Use as topic image',         'bbpress' ),
-		'item_published'           => esc_attr__( 'Topic published.',           'bbpress' ),
-		'item_published_privately' => esc_attr__( 'Topic published privately.', 'bbpress' ),
-		'item_reverted_to_draft'   => esc_attr__( 'Topic reverted to draft.',   'bbpress' ),
-		'item_scheduled'           => esc_attr__( 'Topic scheduled.',           'bbpress' ),
-		'item_updated'             => esc_attr__( 'Topic updated.',             'bbpress' )
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_post_type_labels',
+		array(
+			'name'                     => esc_attr__( 'Topics',                     'bbpress' ),
+			'menu_name'                => esc_attr__( 'Topics',                     'bbpress' ),
+			'singular_name'            => esc_attr__( 'Topic',                      'bbpress' ),
+			'all_items'                => esc_attr__( 'All Topics',                 'bbpress' ),
+			'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
+			'add_new_item'             => esc_attr__( 'Add Topic',                  'bbpress' ),
+			'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
+			'edit_item'                => esc_attr__( 'Edit Topic',                 'bbpress' ),
+			'new_item'                 => esc_attr__( 'New Topic',                  'bbpress' ),
+			'view'                     => esc_attr__( 'View Topic',                 'bbpress' ),
+			'view_item'                => esc_attr__( 'View Topic',                 'bbpress' ),
+			'view_items'               => esc_attr__( 'View Topics',                'bbpress' ),
+			'search_items'             => esc_attr__( 'Search Topics',              'bbpress' ),
+			'not_found'                => esc_attr__( 'No topics found',            'bbpress' ),
+			'not_found_in_trash'       => esc_attr__( 'No topics found in Trash',   'bbpress' ),
+			'filter_items_list'        => esc_attr__( 'Filter topics list',         'bbpress' ),
+			'items_list'               => esc_attr__( 'Topics list',                'bbpress' ),
+			'items_list_navigation'    => esc_attr__( 'Topics list navigation',     'bbpress' ),
+			'parent_item_colon'        => esc_attr__( 'Forum:',                     'bbpress' ),
+			'archives'                 => esc_attr__( 'Forum Topics',               'bbpress' ),
+			'attributes'               => esc_attr__( 'Topic Attributes',           'bbpress' ),
+			'insert_into_item'         => esc_attr__( 'Insert into topic',          'bbpress' ),
+			'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this topic',     'bbpress' ),
+			'featured_image'           => esc_attr__( 'Topic Image',                'bbpress' ),
+			'set_featured_image'       => esc_attr__( 'Set topic image',            'bbpress' ),
+			'remove_featured_image'    => esc_attr__( 'Remove topic image',         'bbpress' ),
+			'use_featured_image'       => esc_attr__( 'Use as topic image',         'bbpress' ),
+			'item_published'           => esc_attr__( 'Topic published.',           'bbpress' ),
+			'item_published_privately' => esc_attr__( 'Topic published privately.', 'bbpress' ),
+			'item_reverted_to_draft'   => esc_attr__( 'Topic reverted to draft.',   'bbpress' ),
+			'item_scheduled'           => esc_attr__( 'Topic scheduled.',           'bbpress' ),
+			'item_updated'             => esc_attr__( 'Topic updated.',             'bbpress' )
+		)
+	);
 }
 
 /**
@@ -89,10 +92,13 @@ function bbp_get_topic_post_type_labels() {
 function bbp_get_topic_post_type_rewrite() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_post_type_rewrite', array(
-		'slug'       => bbp_get_topic_slug(),
-		'with_front' => false
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_post_type_rewrite',
+		array(
+			'slug'       => bbp_get_topic_slug(),
+			'with_front' => false
+		)
+	);
 }
 
 /**
@@ -105,11 +111,14 @@ function bbp_get_topic_post_type_rewrite() {
 function bbp_get_topic_post_type_supports() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_post_type_supports', array(
-		'title',
-		'editor',
-		'revisions'
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_post_type_supports',
+		array(
+			'title',
+			'editor',
+			'revisions'
+		)
+	);
 }
 
 /**
@@ -158,8 +167,8 @@ function bbp_has_topics( $args = array() ) {
 		'post_parent'    => $default_post_parent,      // Forum ID
 		'meta_key'       => '_bbp_last_active_time',   // Make sure topic has some last activity time
 		'meta_type'      => 'DATETIME',
-		'orderby'        => 'meta_value',              // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
-		'order'          => 'DESC',                    // 'ASC', 'DESC'
+		'orderby'        => 'meta_value',              // 'meta_value', 'author', 'date', 'title', 'modified', 'parent', 'rand',
+		'order'          => 'DESC',                    // 'ASC' or 'DESC'
 		'posts_per_page' => bbp_get_topics_per_page(), // Topics per page
 		'paged'          => bbp_get_paged(),           // Page Number
 		'show_stickies'  => $default_show_stickies,    // Ignore sticky topics?
@@ -261,16 +270,19 @@ function bbp_has_topics( $args = array() ) {
 			: false;
 
 		// Pagination settings with filter
-		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array(
-			'base'      => bbp_get_topics_pagination_base( $r['post_parent'] ),
-			'format'    => '',
-			'total'     => $total_pages,
-			'current'   => $bbp->topic_query->paged,
-			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
-			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
-			'mid_size'  => 1,
-			'add_args'  => $add_args,
-		) );
+		$bbp_topic_pagination = apply_filters(
+			'bbp_topic_pagination',
+			array(
+				'base'      => bbp_get_topics_pagination_base( $r['post_parent'] ),
+				'format'    => '',
+				'total'     => $total_pages,
+				'current'   => $bbp->topic_query->paged,
+				'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
+				'next_text' => is_rtl() ? '&larr;' : '&rarr;',
+				'mid_size'  => 1,
+				'add_args'  => $add_args,
+			)
+		);
 
 		// Add pagination to query object
 		$bbp->topic_query->pagination_links = bbp_paginate_links( $bbp_topic_pagination );
@@ -328,13 +340,17 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
 	}
 
 	// Parse arguments against what gets used locally
-	$r = bbp_parse_args( $args, array(
-		'post_parent'         => 0,
-		'post_parent__not_in' => array(),
-		'post__not_in'        => array(),
-		'post_status'         => '',
-		'perm'                => ''
-	), 'add_sticky_topics' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'post_parent'         => 0,
+			'post_parent__not_in' => array(),
+			'post__not_in'        => array(),
+			'post_status'         => '',
+			'perm'                => ''
+		),
+		'add_sticky_topics'
+	);
 
 	// Get super stickies and stickies in this forum
 	$super_stickies = bbp_get_super_stickies();
@@ -454,7 +470,7 @@ function bbp_add_sticky_topics( &$query, $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2485)
  */
-function bbp_topic_id( $topic_id = 0) {
+function bbp_topic_id( $topic_id = 0 ) {
 	echo bbp_get_topic_id( $topic_id );
 }
 	/**
@@ -710,7 +726,7 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 			$excerpt = bbp_get_topic_content( $topic_id );
 		}
 
-		$excerpt = trim( strip_tags( $excerpt ) );
+		$excerpt = wp_strip_all_tags( $excerpt );
 
 		// Multibyte support
 		if ( function_exists( 'mb_strlen' ) ) {
@@ -801,11 +817,15 @@ function bbp_topic_pagination( $args = array() ) {
 		}
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'topic_id' => bbp_get_topic_id(),
-			'before'   => '<span class="bbp-topic-pagination">',
-			'after'    => '</span>',
-		), 'get_topic_pagination' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'topic_id' => bbp_get_topic_id(),
+				'before'   => '<span class="bbp-topic-pagination">',
+				'after'    => '</span>',
+			),
+			'get_topic_pagination'
+		);
 
 		// Slug must be checked for topics that have never been approved/published
 		$has_slug = bbp_get_topic( $r['topic_id'] )->post_name;
@@ -823,7 +843,7 @@ function bbp_topic_pagination( $args = array() ) {
 
 		// Bump if topic is in loop
 		if ( ! bbp_show_lead_topic() ) {
-			$total++;
+			++$total;
 		}
 
 		// Total for pagination boundaries
@@ -835,15 +855,18 @@ function bbp_topic_pagination( $args = array() ) {
 			: false;
 
 		// Pagination settings with filter
-		$bbp_topic_pagination = apply_filters( 'bbp_get_topic_pagination', array(
-			'base'      => $base,
-			'total'     => $total_pages,
-			'current'   => 0,
-			'prev_next' => false,
-			'mid_size'  => 2,
-			'end_size'  => 2,
-			'add_args'  => $add_args
-		) );
+		$bbp_topic_pagination = apply_filters(
+			'bbp_get_topic_pagination',
+			array(
+				'base'      => $base,
+				'total'     => $total_pages,
+				'current'   => 0,
+				'prev_next' => false,
+				'mid_size'  => 2,
+				'end_size'  => 2,
+				'add_args'  => $add_args
+			)
+		);
 
 		// Add pagination to query object
 		$pagination_links = bbp_paginate_links( $bbp_topic_pagination );
@@ -927,11 +950,13 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			}
 
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
-			$author = bbp_get_author_link( array(
-				'size'      => 14,
-				'link_text' => bbp_get_topic_author_display_name( $revision->ID ),
-				'post_id'   => $revision->ID
-			) );
+			$author = bbp_get_author_link(
+				array(
+					'size'      => 14,
+					'link_text' => bbp_get_topic_author_display_name( $revision->ID ),
+					'post_id'   => $revision->ID
+				)
+			);
 
 			$retval .= "\t" . '<li id="bbp-topic-revision-log-' . esc_attr( $topic_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-topic-revision-log-item">' . "\n";
 			if ( ! empty( $reason ) ) {
@@ -1405,14 +1430,18 @@ function bbp_topic_author_link( $args = array() ) {
 	function bbp_get_topic_author_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'post_id'    => 0,
-			'link_title' => '',
-			'type'       => 'both',
-			'size'       => 80,
-			'sep'        => '',
-			'show_role'  => false
-		), 'get_topic_author_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'post_id'    => 0,
+				'link_title' => '',
+				'type'       => 'both',
+				'size'       => 80,
+				'sep'        => '',
+				'show_role'  => false
+			),
+			'get_topic_author_link'
+		);
 
 		// Default return value
 		$author_link = '';
@@ -1600,12 +1629,16 @@ function bbp_topic_author_role( $args = array() ) {
 	function bbp_get_topic_author_role( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'topic_id' => 0,
-			'class'    => false,
-			'before'   => '<div class="bbp-author-role">',
-			'after'    => '</div>'
-		), 'get_topic_author_role' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'topic_id' => 0,
+				'class'    => false,
+				'before'   => '<div class="bbp-author-role">',
+				'after'    => '</div>'
+			),
+			'get_topic_author_role'
+		);
 
 		$topic_id = bbp_get_topic_id( $r['topic_id'] );
 		$role     = bbp_get_user_display_role( bbp_get_topic_author_id( $topic_id ) );
@@ -1787,16 +1820,20 @@ function bbp_topic_subscription_link( $args = array() ) {
 			: '';
 
 		// Parse the arguments
-		$r = bbp_parse_args( $args, array(
-			'user_id'     => $user_id,
-			'object_id'   => bbp_get_topic_id(),
-			'object_type' => 'post',
-			'before'      => '&nbsp;|&nbsp;',
-			'after'       => '',
-			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
-			'redirect_to' => $redirect_to
-		), 'get_topic_subscribe_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'user_id'     => $user_id,
+				'object_id'   => bbp_get_topic_id(),
+				'object_type' => 'post',
+				'before'      => '&nbsp;|&nbsp;',
+				'after'       => '',
+				'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+				'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
+				'redirect_to' => $redirect_to
+			),
+			'get_topic_subscribe_link'
+		);
 
 		// Get the link
 		$retval = bbp_get_user_subscribe_link( $r );
@@ -1835,16 +1872,20 @@ function bbp_topic_favorite_link( $args = array() ) {
 			: '';
 
 		// Parse the arguments
-		$r = bbp_parse_args( $args, array(
-			'user_id'     => $user_id,
-			'object_id'   => bbp_get_topic_id(),
-			'object_type' => 'post',
-			'before'      => '',
-			'after'       => '',
-			'favorite'    => esc_html__( 'Favorite',   'bbpress' ),
-			'favorited'   => esc_html__( 'Unfavorite', 'bbpress' ),
-			'redirect_to' => $redirect_to
-		), 'get_topic_favorite_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'user_id'     => $user_id,
+				'object_id'   => bbp_get_topic_id(),
+				'object_type' => 'post',
+				'before'      => '',
+				'after'       => '',
+				'favorite'    => esc_html__( 'Favorite',   'bbpress' ),
+				'favorited'   => esc_html__( 'Unfavorite', 'bbpress' ),
+				'redirect_to' => $redirect_to
+			),
+			'get_topic_favorite_link'
+		);
 
 		// Get the link
 		$retval = bbp_get_user_favorites_link( $r );
@@ -2208,12 +2249,16 @@ function bbp_topic_tag_list( $topic_id = 0, $args = array() ) {
 		}
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'before' => '<div class="bbp-topic-tags"><p>' . esc_html__( 'Tagged:', 'bbpress' ) . '&nbsp;',
-			'sep'    => ', ',
-			'after'  => '</p></div>',
-			'none'   => ''
-		), 'get_topic_tag_list' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'before' => '<div class="bbp-topic-tags"><p>' . esc_html__( 'Tagged:', 'bbpress' ) . '&nbsp;',
+				'sep'    => ', ',
+				'after'  => '</p></div>',
+				'none'   => ''
+			),
+			'get_topic_tag_list'
+		);
 
 		$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -2341,25 +2386,33 @@ function bbp_topic_admin_links( $args = array() ) {
 	function bbp_get_topic_admin_links( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'     => bbp_get_topic_id(),
-			'before' => '<span class="bbp-admin-links">',
-			'after'  => '</span>',
-			'sep'    => ' | ',
-			'links'  => array()
-		), 'get_topic_admin_links' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'     => bbp_get_topic_id(),
+				'before' => '<span class="bbp-admin-links">',
+				'after'  => '</span>',
+				'sep'    => ' | ',
+				'links'  => array()
+			),
+			'get_topic_admin_links'
+		);
 
 		if ( empty( $r['links'] ) ) {
-			$r['links'] = apply_filters( 'bbp_topic_admin_links', array(
-				'edit'    => bbp_get_topic_edit_link   ( $r ),
-				'merge'   => bbp_get_topic_merge_link  ( $r ),
-				'close'   => bbp_get_topic_close_link  ( $r ),
-				'stick'   => bbp_get_topic_stick_link  ( $r ),
-				'trash'   => bbp_get_topic_trash_link  ( $r ),
-				'spam'    => bbp_get_topic_spam_link   ( $r ),
-				'approve' => bbp_get_topic_approve_link( $r ),
-				'reply'   => bbp_get_topic_reply_link  ( $r )
-			), $r['id'] );
+			$r['links'] = apply_filters(
+				'bbp_topic_admin_links',
+				array(
+					'edit'    => bbp_get_topic_edit_link   ( $r ),
+					'merge'   => bbp_get_topic_merge_link  ( $r ),
+					'close'   => bbp_get_topic_close_link  ( $r ),
+					'stick'   => bbp_get_topic_stick_link  ( $r ),
+					'trash'   => bbp_get_topic_trash_link  ( $r ),
+					'spam'    => bbp_get_topic_spam_link   ( $r ),
+					'approve' => bbp_get_topic_approve_link( $r ),
+					'reply'   => bbp_get_topic_reply_link  ( $r )
+				),
+				$r['id']
+			);
 		}
 
 		// See if links need to be unset
@@ -2413,12 +2466,16 @@ function bbp_topic_edit_link( $args = array() ) {
 	function bbp_get_topic_edit_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
-		), 'get_topic_edit_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'           => 0,
+				'link_before'  => '',
+				'link_after'   => '',
+				'edit_text'    => esc_html__( 'Edit', 'bbpress' )
+			),
+			'get_topic_edit_link'
+		);
 
 		// Get the topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2482,10 +2539,13 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_topic_post_type() => $topic->post_name,
-				bbp_get_edit_rewrite_id() => '1'
-			), $topic_link );
+			$url = add_query_arg(
+				array(
+					bbp_get_topic_post_type() => $topic->post_name,
+					bbp_get_edit_rewrite_id() => '1'
+				),
+				$topic_link
+			);
 		}
 
 		// Maybe add view=all
@@ -2524,15 +2584,19 @@ function bbp_topic_trash_link( $args = array() ) {
 	function bbp_get_topic_trash_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'sep'          => ' | ',
-			'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
-			'restore_text' => esc_html__( 'Restore', 'bbpress' ),
-			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
-		), 'get_topic_trash_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'           => 0,
+				'link_before'  => '',
+				'link_after'   => '',
+				'sep'          => ' | ',
+				'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
+				'restore_text' => esc_html__( 'Restore', 'bbpress' ),
+				'delete_text'  => esc_html__( 'Delete',  'bbpress' )
+			),
+			'get_topic_trash_link'
+		);
 
 		// Get topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2546,21 +2610,25 @@ function bbp_topic_trash_link( $args = array() ) {
 		$trash_days = bbp_get_trash_days( bbp_get_topic_post_type() );
 
 		if ( bbp_is_topic_trash( $topic->ID ) ) {
-			$action_url = add_query_arg( array(
-				'action'     => 'bbp_toggle_topic_trash',
-				'sub_action' => 'untrash',
-				'topic_id'   => $topic->ID
-			) );
+			$action_url = add_query_arg(
+				array(
+					'action'     => 'bbp_toggle_topic_trash',
+					'sub_action' => 'untrash',
+					'topic_id'   => $topic->ID
+				)
+			);
 			$action    = 'untrash-' . $topic->post_type . '_' . $topic->ID;
 			$nonce_url = wp_nonce_url( $action_url, $action );
 
 			$actions['untrash'] = '<a title="' . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . '" href="' . esc_url( $nonce_url ) . '" class="bbp-topic-restore-link">' . $r['restore_text'] . '</a>';
 		} elseif ( ! empty( $trash_days ) ) {
-			$action_url = add_query_arg( array(
-				'action'     => 'bbp_toggle_topic_trash',
-				'sub_action' => 'trash',
-				'topic_id'   => $topic->ID
-			) );
+			$action_url = add_query_arg(
+				array(
+					'action'     => 'bbp_toggle_topic_trash',
+					'sub_action' => 'trash',
+					'topic_id'   => $topic->ID
+				)
+			);
 			$action    = 'trash-' . $topic->post_type . '_' . $topic->ID;
 			$nonce_url = wp_nonce_url( $action_url, $action );
 
@@ -2568,11 +2636,13 @@ function bbp_topic_trash_link( $args = array() ) {
 		}
 
 		if ( bbp_is_topic_trash( $topic->ID ) || empty( $trash_days ) ) {
-			$action_url = add_query_arg( array(
-				'action'     => 'bbp_toggle_topic_trash',
-				'sub_action' => 'delete',
-				'topic_id'   => $topic->ID
-			) );
+			$action_url = add_query_arg(
+				array(
+					'action'     => 'bbp_toggle_topic_trash',
+					'sub_action' => 'delete',
+					'topic_id'   => $topic->ID
+				)
+			);
 			$action    = 'delete-' . $topic->post_type . '_' . $topic->ID;
 			$nonce_url = wp_nonce_url( $action_url, $action );
 
@@ -2613,14 +2683,18 @@ function bbp_topic_close_link( $args = array() ) {
 	function bbp_get_topic_close_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'          => 0,
-			'link_before' => '',
-			'link_after'  => '',
-			'sep'         => ' | ',
-			'close_text'  => esc_html_x( 'Close', 'Close the topic', 'bbpress' ),
-			'open_text'   => esc_html_x( 'Open',  'Open the topic', 'bbpress' )
-		), 'get_topic_close_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'          => 0,
+				'link_before' => '',
+				'link_after'  => '',
+				'sep'         => ' | ',
+				'close_text'  => esc_html_x( 'Close', 'Close the topic', 'bbpress' ),
+				'open_text'   => esc_html_x( 'Open',  'Open the topic', 'bbpress' )
+			),
+			'get_topic_close_link'
+		);
 
 		// Get topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2631,10 +2705,12 @@ function bbp_topic_close_link( $args = array() ) {
 		}
 
 		$display = bbp_is_topic_open( $topic->ID ) ? $r['close_text'] : $r['open_text'];
-		$uri     = add_query_arg( array(
-			'action'   => 'bbp_toggle_topic_close',
-			'topic_id' => $topic->ID
-		) );
+		$uri     = add_query_arg(
+			array(
+				'action'   => 'bbp_toggle_topic_close',
+				'topic_id' => $topic->ID
+			)
+		);
 		$uri     = wp_nonce_url( $uri, 'close-topic_' . $topic->ID );
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-close-link">' . $display . '</a>' . $r['link_after'];
 
@@ -2670,14 +2746,18 @@ function bbp_topic_approve_link( $args = array() ) {
 	function bbp_get_topic_approve_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'             => 0,
-			'link_before'    => '',
-			'link_after'     => '',
-			'sep'            => ' | ',
-			'approve_text'   => esc_html_x( 'Approve',   'Approve the topic', 'bbpress' ),
-			'unapprove_text' => esc_html_x( 'Unapprove', 'Unapprove the topic', 'bbpress' )
-		), 'get_topic_approve_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'             => 0,
+				'link_before'    => '',
+				'link_after'     => '',
+				'sep'            => ' | ',
+				'approve_text'   => esc_html_x( 'Approve',   'Approve the topic', 'bbpress' ),
+				'unapprove_text' => esc_html_x( 'Unapprove', 'Unapprove the topic', 'bbpress' )
+			),
+			'get_topic_approve_link'
+		);
 
 		// Get topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2688,10 +2768,12 @@ function bbp_topic_approve_link( $args = array() ) {
 		}
 
 		$display = bbp_is_topic_pending( $topic->ID ) ? $r['approve_text'] : $r['unapprove_text'];
-		$uri     = add_query_arg( array(
-			'action'   => 'bbp_toggle_topic_approve',
-			'topic_id' => $topic->ID
-		) );
+		$uri     = add_query_arg(
+			array(
+				'action'   => 'bbp_toggle_topic_approve',
+				'topic_id' => $topic->ID
+			)
+		);
 		$uri     = wp_nonce_url( $uri, 'approve-topic_' . $topic->ID );
 		$retval  = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-approve-link">' . $display . '</a>' . $r['link_after'];
 
@@ -2728,14 +2810,18 @@ function bbp_topic_stick_link( $args = array() ) {
 	function bbp_get_topic_stick_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'stick_text'   => esc_html__( 'Stick',      'bbpress' ),
-			'unstick_text' => esc_html__( 'Unstick',    'bbpress' ),
-			'super_text'   => esc_html__( '(to front)', 'bbpress' ),
-		), 'get_topic_stick_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'           => 0,
+				'link_before'  => '',
+				'link_after'   => '',
+				'stick_text'   => esc_html__( 'Stick',      'bbpress' ),
+				'unstick_text' => esc_html__( 'Unstick',    'bbpress' ),
+				'super_text'   => esc_html__( '(to front)', 'bbpress' ),
+			),
+			'get_topic_stick_link'
+		);
 
 		// Get topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2747,10 +2833,12 @@ function bbp_topic_stick_link( $args = array() ) {
 
 		$is_sticky = bbp_is_topic_sticky( $topic->ID );
 
-		$stick_uri = add_query_arg( array(
-			'action'   => 'bbp_toggle_topic_stick',
-			'topic_id' => $topic->ID
-		) );
+		$stick_uri = add_query_arg(
+			array(
+				'action'   => 'bbp_toggle_topic_stick',
+				'topic_id' => $topic->ID
+			)
+		);
 		$stick_uri = wp_nonce_url( $stick_uri, 'stick-topic_' . $topic->ID );
 
 		$stick_display = ( true === $is_sticky )
@@ -2759,11 +2847,13 @@ function bbp_topic_stick_link( $args = array() ) {
 		$stick_display = '<a href="' . esc_url( $stick_uri ) . '" class="bbp-topic-sticky-link">' . $stick_display . '</a>';
 
 		if ( empty( $is_sticky ) ) {
-			$super_uri = add_query_arg( array(
-				'action'   => 'bbp_toggle_topic_stick',
-				'topic_id' => $topic->ID,
-				'super'    => 1
-			) );
+			$super_uri = add_query_arg(
+				array(
+					'action'   => 'bbp_toggle_topic_stick',
+					'topic_id' => $topic->ID,
+					'super'    => 1
+				)
+			);
 			$super_uri = wp_nonce_url( $super_uri, 'stick-topic_' . $topic->ID );
 
 			$super_display = ' <a href="' . esc_url( $super_uri ) . '" class="bbp-topic-super-sticky-link">' . $r['super_text'] . '</a>';
@@ -2805,12 +2895,16 @@ function bbp_topic_merge_link( $args = array() ) {
 	function bbp_get_topic_merge_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'merge_text'   => esc_html__( 'Merge', 'bbpress' ),
-		), 'get_topic_merge_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'           => 0,
+				'link_before'  => '',
+				'link_after'   => '',
+				'merge_text'   => esc_html__( 'Merge', 'bbpress' ),
+			),
+			'get_topic_merge_link'
+		);
 
 		// Get topic
 		$topic = bbp_get_topic( $r['id'] );
@@ -2856,14 +2950,18 @@ function bbp_topic_spam_link( $args = array() ) {
 	function bbp_get_topic_spam_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'sep'          => ' | ',
-			'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
-			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
-		), 'get_topic_spam_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'           => 0,
+				'link_before'  => '',
+				'link_after'   => '',
+				'sep'          => ' | ',
+				'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
+				'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
+			),
+			'get_topic_spam_link'
+		);
 
 		$topic = bbp_get_topic( $r['id'] );
 
@@ -2875,10 +2973,12 @@ function bbp_topic_spam_link( $args = array() ) {
 			? $r['unspam_text']
 			: $r['spam_text'];
 
-		$uri = add_query_arg( array(
-			'action'   => 'bbp_toggle_topic_spam',
-			'topic_id' => $topic->ID
-		) );
+		$uri = add_query_arg(
+			array(
+				'action'   => 'bbp_toggle_topic_spam',
+				'topic_id' => $topic->ID
+			)
+		);
 
 		$uri    = wp_nonce_url( $uri, 'spam-topic_' . $topic->ID );
 		$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" class="bbp-topic-spam-link">' . $display . '</a>' . $r['link_after'];
@@ -2910,14 +3010,18 @@ function bbp_topic_reply_link( $args = array() ) {
 	function bbp_get_topic_reply_link( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'id'          => 0,
-			'link_before' => '',
-			'link_after'  => '',
-			'reply_text'  => esc_html_x( 'Reply', 'verb', 'bbpress' ),
-			'add_below'   => 'post',
-			'respond_id'  => 'new-reply-' . bbp_get_topic_id(),
-		), 'get_topic_reply_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'id'          => 0,
+				'link_before' => '',
+				'link_after'  => '',
+				'reply_text'  => esc_html_x( 'Reply', 'verb', 'bbpress' ),
+				'add_below'   => 'post',
+				'respond_id'  => 'new-reply-' . bbp_get_topic_id(),
+			),
+			'get_topic_reply_link'
+		);
 
 		// Get the topic to use it's ID and post_parent
 		$topic = bbp_get_topic( $r['id'] );
@@ -2932,7 +3036,7 @@ function bbp_topic_reply_link( $args = array() ) {
 			? ' onclick="return addReply.cancelForm();"'
 			: '';
 
- 		// Add $uri to the array, to be passed through the filter
+		// Add $uri to the array, to be passed through the filter
 		$r['uri'] = remove_query_arg( array( 'bbp_reply_to', '_wpnonce' ) ) . '#new-post';
 		$retval   = $r['link_before'] . '<a role="button" href="' . esc_url( $r['uri'] ) . '" class="bbp-topic-reply-link"' . $onclick . '>' . $r['reply_text'] . '</a>' . $r['link_after'];
 
@@ -3052,7 +3156,8 @@ function bbp_forum_pagination_count() {
 			$total     = bbp_number_format( $total_int );
 			$to_num    = bbp_number_format( ( $start_num + ( $bbp->topic_query->posts_per_page - 1 ) > $bbp->topic_query->found_posts )
 				? $bbp->topic_query->found_posts
-				: $start_num + ( $bbp->topic_query->posts_per_page - 1 ) );
+				: $start_num + ( $bbp->topic_query->posts_per_page - 1 )
+			);
 
 			// Several topics in a forum with a single page
 			if ( empty( $to_num ) ) {
@@ -3191,13 +3296,17 @@ function bbp_form_topic_type_dropdown( $args = array() ) {
 	function bbp_get_form_topic_type_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'select_id'    => 'bbp_stick_topic',
-			'select_class' => 'bbp_dropdown',
-			'tab'          => false,
-			'topic_id'     => 0,
-			'selected'     => false
-		), 'topic_type_select' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'select_id'    => 'bbp_stick_topic',
+				'select_class' => 'bbp_dropdown',
+				'tab'          => false,
+				'topic_id'     => 0,
+				'selected'     => false
+			),
+			'topic_type_select'
+		);
 
 		// No specific selected value passed
 		if ( empty( $r['selected'] ) ) {
@@ -3280,13 +3389,17 @@ function bbp_form_topic_status_dropdown( $args = array() ) {
 	function bbp_get_form_topic_status_dropdown( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'select_id'    => 'bbp_topic_status',
-			'select_class' => 'bbp_dropdown',
-			'tab'          => false,
-			'topic_id'     => 0,
-			'selected'     => false
-		), 'topic_open_close_select' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'select_id'    => 'bbp_topic_status',
+				'select_class' => 'bbp_dropdown',
+				'tab'          => false,
+				'topic_id'     => 0,
+				'selected'     => false
+			),
+			'topic_open_close_select'
+		);
 
 		// No specific selected value passed
 		if ( empty( $r['selected'] ) ) {
@@ -3358,12 +3471,16 @@ function bbp_single_topic_description( $args = array() ) {
 	function bbp_get_single_topic_description( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'topic_id'  => 0,
-			'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-topic-description">',
-			'after'     => '</li></ul></div>',
-			'size'      => 14
-		), 'get_single_topic_description' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'topic_id'  => 0,
+				'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-topic-description">',
+				'after'     => '</li></ul></div>',
+				'size'      => 14
+			),
+			'get_single_topic_description'
+		);
 
 		// Validate topic_id
 		$topic_id = bbp_get_topic_id( $r['topic_id'] );
@@ -3465,30 +3582,33 @@ function bbp_topic_tag_tax_id() {
 function bbp_get_topic_tag_tax_labels() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_tag_tax_labels', array(
-		'name'                       => esc_attr__( 'Topic Tags',                      'bbpress' ),
-		'menu_name'                  => esc_attr__( 'Topic Tags',                      'bbpress' ),
-		'singular_name'              => esc_attr__( 'Topic Tag',                       'bbpress' ),
-		'search_items'               => esc_attr__( 'Search Tags',                     'bbpress' ),
-		'popular_items'              => esc_attr__( 'Popular Tags',                    'bbpress' ),
-		'all_items'                  => esc_attr__( 'All Tags',                        'bbpress' ),
-		'parent_item'                => esc_attr__( 'Parent Tag',                      'bbpress' ),
-		'parent_item_colon'          => esc_attr__( 'Parent Tag:',                     'bbpress' ),
-		'edit_item'                  => esc_attr__( 'Edit Tag',                        'bbpress' ),
-		'view_item'                  => esc_attr__( 'View Topic Tag',                  'bbpress' ),
-		'update_item'                => esc_attr__( 'Update Tag',                      'bbpress' ),
-		'add_new_item'               => esc_attr__( 'Add New Tag',                     'bbpress' ),
-		'new_item_name'              => esc_attr__( 'New Tag Name',                    'bbpress' ),
-		'separate_items_with_commas' => esc_attr__( 'Separate topic tags with commas', 'bbpress' ),
-		'add_or_remove_items'        => esc_attr__( 'Add or remove tags',              'bbpress' ),
-		'choose_from_most_used'      => esc_attr__( 'Choose from the most used tags',  'bbpress' ),
-		'not_found'                  => esc_attr__( 'No topic tags found.',            'bbpress' ),
-		'no_terms'                   => esc_attr__( 'No topic tags',                   'bbpress' ),
-		'items_list_navigation'      => esc_attr__( 'Topic tags list navigation',      'bbpress' ),
-		'items_list'                 => esc_attr__( 'Topic tags list',                 'bbpress' ),
-		'most_used'                  => esc_attr__( 'Most used topic tags',            'bbpress' ),
-		'back_to_items'              => esc_attr__( '&larr; Back to Tags',             'bbpress' )
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_tag_tax_labels',
+		array(
+			'name'                       => esc_attr__( 'Topic Tags',                      'bbpress' ),
+			'menu_name'                  => esc_attr__( 'Topic Tags',                      'bbpress' ),
+			'singular_name'              => esc_attr__( 'Topic Tag',                       'bbpress' ),
+			'search_items'               => esc_attr__( 'Search Tags',                     'bbpress' ),
+			'popular_items'              => esc_attr__( 'Popular Tags',                    'bbpress' ),
+			'all_items'                  => esc_attr__( 'All Tags',                        'bbpress' ),
+			'parent_item'                => esc_attr__( 'Parent Tag',                      'bbpress' ),
+			'parent_item_colon'          => esc_attr__( 'Parent Tag:',                     'bbpress' ),
+			'edit_item'                  => esc_attr__( 'Edit Tag',                        'bbpress' ),
+			'view_item'                  => esc_attr__( 'View Topic Tag',                  'bbpress' ),
+			'update_item'                => esc_attr__( 'Update Tag',                      'bbpress' ),
+			'add_new_item'               => esc_attr__( 'Add New Tag',                     'bbpress' ),
+			'new_item_name'              => esc_attr__( 'New Tag Name',                    'bbpress' ),
+			'separate_items_with_commas' => esc_attr__( 'Separate topic tags with commas', 'bbpress' ),
+			'add_or_remove_items'        => esc_attr__( 'Add or remove tags',              'bbpress' ),
+			'choose_from_most_used'      => esc_attr__( 'Choose from the most used tags',  'bbpress' ),
+			'not_found'                  => esc_attr__( 'No topic tags found.',            'bbpress' ),
+			'no_terms'                   => esc_attr__( 'No topic tags',                   'bbpress' ),
+			'items_list_navigation'      => esc_attr__( 'Topic tags list navigation',      'bbpress' ),
+			'items_list'                 => esc_attr__( 'Topic tags list',                 'bbpress' ),
+			'most_used'                  => esc_attr__( 'Most used topic tags',            'bbpress' ),
+			'back_to_items'              => esc_attr__( '&larr; Back to Tags',             'bbpress' )
+		)
+	);
 }
 
 /**
@@ -3501,10 +3621,13 @@ function bbp_get_topic_tag_tax_labels() {
 function bbp_get_topic_tag_tax_rewrite() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_tag_tax_rewrite', array(
-		'slug'       => bbp_get_topic_tag_tax_slug(),
-		'with_front' => false
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_tag_tax_rewrite',
+		array(
+			'slug'       => bbp_get_topic_tag_tax_slug(),
+			'with_front' => false
+		)
+	);
 }
 
 /**
@@ -3706,11 +3829,15 @@ function bbp_topic_tag_description( $args = array() ) {
 	function bbp_get_topic_tag_description( $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'before' => '<div class="bbp-topic-tag-description"><p>',
-			'after'  => '</p></div>',
-			'tag'    => ''
-		), 'get_topic_tag_description' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'before' => '<div class="bbp-topic-tag-description"><p>',
+				'after'  => '</p></div>',
+				'tag'    => ''
+			),
+			'get_topic_tag_description'
+		);
 
 		// Get the term
 		if ( ! empty( $r['tag'] ) ) {

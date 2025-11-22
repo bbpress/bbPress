@@ -129,12 +129,14 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 		if ( bp_is_group_forum_topic() || bp_is_group_forum_topic_edit() ) {
 
 			// Get the topic
-			$topic = get_posts( array(
-				'name'        => bp_action_variable( 1 ),
-				'post_status' => array_keys( bbp_get_topic_statuses() ),
-				'post_type'   => bbp_get_topic_post_type(),
-				'numberposts' => 1
-			) );
+			$topic = get_posts(
+				array(
+					'name'        => bp_action_variable( 1 ),
+					'post_status' => array_keys( bbp_get_topic_statuses() ),
+					'post_type'   => bbp_get_topic_post_type(),
+					'numberposts' => 1
+				)
+			);
 
 			// Add the topic title to the <title>
 			$new_title .= bbp_get_topic_title( $topic[0]->ID ) . ' ' . $sep . ' ';
@@ -336,11 +338,7 @@ function bbp_maybe_create_group_forum_root() {
 
 	// Create new forum
 	$forum_id = bbp_insert_forum(
-
-		// Post
 		array( 'post_title' => esc_html__( 'Group Forums', 'bbpress' ) ),
-
-		// Meta
 		array( 'forum_type' => 'category' )
 	);
 
@@ -351,10 +349,15 @@ function bbp_maybe_create_group_forum_root() {
 		update_option( '_bbp_group_forums_root_id', $forum_id );
 
 		// Redirect
-		bbp_redirect( add_query_arg( array(
-			'page'    => 'bbpress',
-			'updated' => true
-		), admin_url( 'options-general.php' ) ) );
+		bbp_redirect(
+			add_query_arg(
+				array(
+					'page'    => 'bbpress',
+					'updated' => true
+				),
+				admin_url( 'options-general.php' )
+			)
+		);
 	}
 }
 
@@ -813,6 +816,7 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 	}
 
 	// Bail if intercepted
+	// phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 	$intercept = bbp_maybe_intercept( __FUNCTION__, func_get_args() );
 	if ( bbp_is_intercepted( $intercept ) ) {
 		return $intercept;

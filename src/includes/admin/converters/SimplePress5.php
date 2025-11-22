@@ -17,14 +17,6 @@
 class SimplePress5 extends BBP_Converter_Base {
 
 	/**
-	 * Main Constructor
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
@@ -137,22 +129,22 @@ class SimplePress5 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 
 		/** Topic Section *****************************************************/

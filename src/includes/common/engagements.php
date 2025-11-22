@@ -278,24 +278,24 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'meta_query' => array( 
+				'meta_query' => array(
 					array(
 						'key'     => $meta_key,
 						'value'   => bbp_get_user_id( $args, false, false ),
 						'compare' => 'NUMERIC'
-					) 
+					)
 				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'meta_query' => array( 
+			'meta_query' => array(
 				array(
 					'key'     => $meta_key,
 					'value'   => bbp_get_displayed_user_id(),
 					'compare' => 'NUMERIC'
-				) 
+				)
 			)
 		);
 
@@ -336,28 +336,32 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		}
 
 		// Register the taxonomy
-		register_taxonomy( $tax_key, 'bbp_' . $object_type, array(
-			'labels'                => array(),
-			'description'           => '',
-			'public'                => false,
-			'publicly_queryable'    => false,
-			'hierarchical'          => false,
-			'show_ui'               => false,
-			'show_in_menu'          => false,
-			'show_in_nav_menus'     => false,
-			'show_tagcloud'         => false,
-			'show_in_quick_edit'    => false,
-			'show_admin_column'     => false,
-			'meta_box_cb'           => false,
-			'capabilities'          => array(),
-			'rewrite'               => false,
-			'query_var'             => '',
-			'update_count_callback' => '',
-			'show_in_rest'          => false,
-			'rest_base'             => false,
-			'rest_controller_class' => false,
-			'_builtin'              => false
-		) );
+		register_taxonomy(
+			$tax_key,
+			'bbp_' . $object_type,
+			array(
+				'labels'                => array(),
+				'description'           => '',
+				'public'                => false,
+				'publicly_queryable'    => false,
+				'hierarchical'          => false,
+				'show_ui'               => false,
+				'show_in_menu'          => false,
+				'show_in_nav_menus'     => false,
+				'show_tagcloud'         => false,
+				'show_in_quick_edit'    => false,
+				'show_admin_column'     => false,
+				'meta_box_cb'           => false,
+				'capabilities'          => array(),
+				'rewrite'               => false,
+				'query_var'             => '',
+				'update_count_callback' => '',
+				'show_in_rest'          => false,
+				'rest_base'             => false,
+				'rest_controller_class' => false,
+				'_builtin'              => false
+			)
+		);
 	}
 
 	/**
@@ -468,10 +472,12 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		$this->jit_taxonomy( $tax_key );
 
 		// Get terms
-		$terms = get_terms( array(
-			'object_ids' => $object_id,
-			'taxonomy'   => $tax_key
-		) );
+		$terms = get_terms(
+			array(
+				'object_ids' => $object_id,
+				'taxonomy'   => $tax_key
+			)
+		);
 
 		// Slug part to replace
 		$user_ids = array();
@@ -506,24 +512,24 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'tax_query' => array( 
+				'tax_query' => array(
 					array(
 						'taxonomy' => $tax_key,
 						'terms'    => $user_key . bbp_get_user_id( $args, false, false ),
 						'field'    => 'slug'
-					) 
+					)
 				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'tax_query' => array( 
+			'tax_query' => array(
 				array(
 					'taxonomy' => $tax_key,
 					'terms'    => $user_key . bbp_get_displayed_user_id(),
 					'field'    => 'slug'
-				) 
+				)
 			)
 		);
 
@@ -742,7 +748,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
-		$exists     = array_search( $object_id, $object_ids );
+		$exists     = array_search( $object_id, $object_ids, true );
 
 		// Not already added, so add it
 		if ( false === $exists ) {
@@ -776,7 +782,7 @@ class BBP_User_Engagements_User extends BBP_User_Engagements_Base {
 		$retval     = false;
 		$option_key = $this->get_user_option_key( $meta_key, $object_id );
 		$object_ids = $this->parse_comma_list( get_user_option( $option_key, $user_id ) );
-		$exists     = array_search( $object_id, $object_ids );
+		$exists     = array_search( $object_id, $object_ids, true );
 
 		// Exists, so remove it
 		if ( false !== $exists ) {

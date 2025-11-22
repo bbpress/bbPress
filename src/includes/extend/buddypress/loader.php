@@ -393,10 +393,12 @@ class BBP_Forums_Component extends BP_Component {
 			if ( bp_is_my_profile() ) {
 				$bp->bp_options_title = esc_html__( 'Forums', 'bbpress' );
 			} elseif ( bp_is_user() ) {
-				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
-					'item_id' => bp_displayed_user_id(),
-					'type'    => 'thumb'
-				) );
+				$bp->bp_options_avatar = bp_core_fetch_avatar(
+					array(
+						'item_id' => bp_displayed_user_id(),
+						'type'    => 'thumb'
+					)
+				);
 				$bp->bp_options_title  = bp_get_displayed_user_fullname();
 			}
 		}

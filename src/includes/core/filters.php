@@ -113,7 +113,7 @@ add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 
  */
 add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_edits',       10, 2 );
 add_filter( 'bbp_redirect_canonical', 'bbp_do_not_redirect_paginations', 10, 2 );
-	
+
 // Filter bbPress template locations
 add_filter( 'bbp_get_template_stack', 'bbp_add_template_stack_locations' );
 

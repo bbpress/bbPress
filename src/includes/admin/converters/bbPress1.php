@@ -17,14 +17,6 @@
 class bbPress1 extends BBP_Converter_Base {
 
 	/**
-	 * Main constructor
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
@@ -142,22 +134,22 @@ class bbPress1 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 
 		/** Forum Subscriptions Section ***************************************/
@@ -661,7 +653,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( 1 == $status ) {
+		if ( 1 === (int) $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';

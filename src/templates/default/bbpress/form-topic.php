@@ -128,10 +128,12 @@ if ( ! bbp_is_single_forum() ) : ?>
 						<p>
 							<label for="bbp_forum_id"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></label><br />
 							<?php
-								bbp_dropdown( array(
+							bbp_dropdown(
+								array(
 									'show_none' => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
 									'selected'  => bbp_get_form_topic_forum()
-								) );
+								)
+							);
 							?>
 						</p>
 

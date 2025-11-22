@@ -28,6 +28,8 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_template_include_theme_supports( $template = '' ) {
 
+	// phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedElseif
+
 	// Editing a user
 	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :  //phpcs:ignore
 
@@ -86,6 +88,8 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	elseif ( bbp_is_topic_tag() && ( $new_template = bbp_get_topic_tag_template()        ) ) :
 	endif;
 
+	// phpcs:enable
+
 	// A bbPress template file was located, so override the WordPress template
 	// and use it to switch off theme compatibility.
 	if ( ! empty( $new_template ) ) {
@@ -93,12 +97,12 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	}
 
 	/**
-     * Filters the path to the template file that is being used.
-     *
-     * @since 2.0.0 bbPress (r3032)
-     *
-     * @param string $template The path to the template file.
-     */
+	 * Filters the path to the template file that is being used.
+	 *
+	 * @since 2.0.0 bbPress (r3032)
+	 *
+	 * @param string $template The path to the template file.
+	 */
 	return apply_filters( 'bbp_template_include_theme_supports', $template );
 }
 

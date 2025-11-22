@@ -19,15 +19,18 @@
 function bbp_get_topic_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_caps', array(
-		'edit_posts'          => 'edit_topics',
-		'edit_others_posts'   => 'edit_others_topics',
-		'publish_posts'       => 'publish_topics',
-		'read_private_posts'  => 'read_private_topics',
-		'read_hidden_posts'   => 'read_hidden_topics',
-		'delete_posts'        => 'delete_topics',
-		'delete_others_posts' => 'delete_others_topics'
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_caps',
+		array(
+			'edit_posts'          => 'edit_topics',
+			'edit_others_posts'   => 'edit_others_topics',
+			'publish_posts'       => 'publish_topics',
+			'read_private_posts'  => 'read_private_topics',
+			'read_hidden_posts'   => 'read_hidden_topics',
+			'delete_posts'        => 'delete_topics',
+			'delete_others_posts' => 'delete_others_topics'
+		)
+	);
 }
 
 /**
@@ -41,12 +44,15 @@ function bbp_get_topic_caps() {
 function bbp_get_topic_tag_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_tag_caps', array(
-		'manage_terms' => 'manage_topic_tags',
-		'edit_terms'   => 'edit_topic_tags',
-		'delete_terms' => 'delete_topic_tags',
-		'assign_terms' => 'assign_topic_tags'
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_tag_caps',
+		array(
+			'manage_terms' => 'manage_topic_tags',
+			'edit_terms'   => 'edit_topic_tags',
+			'delete_terms' => 'delete_topic_tags',
+			'assign_terms' => 'assign_topic_tags'
+		)
+	);
 }
 
 /**
@@ -181,7 +187,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				// User is author so allow edit if not in admin, unless it's past edit lock time
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 
-					// If editing...
+					// When editing...
 					if ( bbp_is_topic_edit() ) {
 
 						// Only allow if not past the edit-lock period

@@ -117,19 +117,23 @@ function bbp_format_buddypress_notifications( $content, $item_id, $secondary_ite
 
 	// WordPress Toolbar
 	if ( 'string' === $format ) {
-		$return = apply_filters( $filter, '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr__( 'Topic Replies', 'bbpress' ) . '">' . esc_html( $text ) . '</a>', $action_item_count, $text, $topic_link );
+		$value = '<a href="' . esc_url( $topic_link ) . '" title="' . esc_attr__( 'Topic Replies', 'bbpress' ) . '">' . esc_html( $text ) . '</a>';
 
 	// Deprecated BuddyBar
 	} else {
-		$return = apply_filters( $filter, array(
+		$value = array(
 			'text' => $text,
 			'link' => $topic_link
-		), $topic_link, $action_item_count, $text, $topic_title );
+		);
 	}
+
+	// Filter the return value
+	$retval = apply_filters( $filter, $value, $action_item_count, $text, $topic_link );
 
 	do_action( 'bbp_format_buddypress_notifications', $component_action_name, $item_id, $secondary_item_id, $action_item_count, $format, $component_action_name, $component_name, $id );
 
-	return $return;
+	// Return
+	return $retval;
 }
 
 /**

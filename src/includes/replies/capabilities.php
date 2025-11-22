@@ -25,14 +25,17 @@ function bbp_get_reply_caps() {
 	 *
 	 * @param array $caps An array of reply capabilities with keys mapping to WordPress capabilities.
 	 */
-	return (array) apply_filters( 'bbp_get_reply_caps', array(
-		'edit_posts'          => 'edit_replies',
-		'edit_others_posts'   => 'edit_others_replies',
-		'publish_posts'       => 'publish_replies',
-		'read_private_posts'  => 'read_private_replies',
-		'delete_posts'        => 'delete_replies',
-		'delete_others_posts' => 'delete_others_replies'
-	) );
+	return (array) apply_filters(
+		'bbp_get_reply_caps',
+		array(
+			'edit_posts'          => 'edit_replies',
+			'edit_others_posts'   => 'edit_others_replies',
+			'publish_posts'       => 'publish_replies',
+			'read_private_posts'  => 'read_private_replies',
+			'delete_posts'        => 'delete_replies',
+			'delete_others_posts' => 'delete_others_replies'
+		)
+	);
 }
 
 /**

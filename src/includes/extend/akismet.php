@@ -111,7 +111,7 @@ class BBP_Akismet {
 		/** Author ************************************************************/
 
 		$user_data['last_active'] = '';
-		$user_data['registered']  = date( 'Y-m-d H:i:s');
+		$user_data['registered']  = gmdate( 'Y-m-d H:i:s' );
 		$user_data['total_posts'] = (int) bbp_get_user_post_count( $post_data['post_author'] );
 
 		// Get user data
@@ -148,7 +148,7 @@ class BBP_Akismet {
 			// Use post parent to get datetime of last reply on this topic
 			$reply_id = bbp_get_topic_last_reply_id( $post_data['post_parent'] );
 			if ( ! empty( $reply_id ) ) {
-				$user_data['last_active'] = get_post_field( 'post_date', $reply_id );
+				$user_data['last_active'] = get_post_field( 'post_date_gmt', $reply_id );
 			}
 		}
 
@@ -156,23 +156,25 @@ class BBP_Akismet {
 		$_post_content = trim( $post_data['post_title'] . "\n\n" . $post_data['post_content'] );
 
 		// Check if the post data is spammy...
-		$_post = $this->maybe_spam( array(
-			'comment_author'                 => $user_data['name'],
-			'comment_author_email'           => $user_data['email'],
-			'comment_author_url'             => $user_data['website'],
-			'comment_content'                => $_post_content,
-			'comment_post_ID'                => $post_data['post_parent'],
-			'comment_type'                   => $post_data['post_type'],
-			'comment_total'                  => $user_data['total_posts'],
-			'comment_last_active_gmt'        => $user_data['last_active'],
-			'comment_account_registered_gmt' => $user_data['registered'],
-			'permalink'                      => $post_permalink,
-			'referrer'                       => wp_get_raw_referer(),
-			'user_agent'                     => bbp_current_author_ua(),
-			'user_ID'                        => $post_data['post_author'],
-			'user_ip'                        => bbp_current_author_ip(),
-			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
-		) );
+		$_post = $this->maybe_spam(
+			array(
+				'comment_author'                 => $user_data['name'],
+				'comment_author_email'           => $user_data['email'],
+				'comment_author_url'             => $user_data['website'],
+				'comment_content'                => $_post_content,
+				'comment_post_ID'                => $post_data['post_parent'],
+				'comment_type'                   => $post_data['post_type'],
+				'comment_total'                  => $user_data['total_posts'],
+				'comment_last_active_gmt'        => $user_data['last_active'],
+				'comment_account_registered_gmt' => $user_data['registered'],
+				'permalink'                      => $post_permalink,
+				'referrer'                       => wp_get_raw_referer(),
+				'user_agent'                     => bbp_current_author_ua(),
+				'user_ID'                        => $post_data['post_author'],
+				'user_ip'                        => bbp_current_author_ip(),
+				'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
+			)
+		);
 
 		// Set the results (from maybe_spam() above)
 		$post_data['bbp_akismet_result_headers'] = $_post['bbp_akismet_result_headers'];
@@ -983,7 +985,7 @@ class BBP_Akismet {
 
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
-									<span title="<?php echo esc_attr( date( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); ?>">
+									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); ?>">
 										<?php bbp_time_since( $row['time'], false, true ); ?>
 									</span>
 								</td>

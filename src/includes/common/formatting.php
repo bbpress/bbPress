@@ -24,55 +24,58 @@ defined( 'ABSPATH' ) || exit;
 function bbp_kses_allowed_tags() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_kses_allowed_tags', array(
+	return (array) apply_filters(
+		'bbp_kses_allowed_tags',
+		array(
 
-		// Links
-		'a' => array(
-			'href'   => true,
-			'title'  => true,
-			'rel'    => true,
-			'target' => true
-		),
+			// Links
+			'a' => array(
+				'href'   => true,
+				'title'  => true,
+				'rel'    => true,
+				'target' => true
+			),
 
-		// Quotes
-		'blockquote' => array(
-			'cite' => true
-		),
+			// Quotes
+			'blockquote' => array(
+				'cite' => true
+			),
 
-		// Code
-		'code' => array(),
-		'pre'  => array(
-			'class' => true
-		),
+			// Code
+			'code' => array(),
+			'pre'  => array(
+				'class' => true
+			),
 
-		// Formatting
-		'em'     => array(),
-		'strong' => array(),
-		'del'    => array(
-			'datetime' => true,
-			'cite'     => true
-		),
-		'ins' => array(
-			'datetime' => true,
-			'cite'     => true
-		),
+			// Formatting
+			'em'     => array(),
+			'strong' => array(),
+			'del'    => array(
+				'datetime' => true,
+				'cite'     => true
+			),
+			'ins' => array(
+				'datetime' => true,
+				'cite'     => true
+			),
 
-		// Lists
-		'ul' => array(),
-		'ol' => array(
-			'start' => true,
-		),
-		'li' => array(),
+			// Lists
+			'ul' => array(),
+			'ol' => array(
+				'start' => true,
+			),
+			'li' => array(),
 
-		// Images
-		'img' => array(
-			'src'    => true,
-			'border' => true,
-			'alt'    => true,
-			'height' => true,
-			'width'  => true,
+			// Images
+			'img' => array(
+				'src'    => true,
+				'border' => true,
+				'alt'    => true,
+				'height' => true,
+				'width'  => true,
+			)
 		)
-	) );
+	);
 }
 
 /**
@@ -277,7 +280,7 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  * @param string $key
  * @param string $preg
  */
-function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '') {
+function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
 		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content );
 	}
@@ -313,9 +316,15 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 
 	// Bail on links that match the current domain
 	if (
-		preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text )
+		preg_match(
+			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http' ), '%' ) . ')%i',
+			$text
+		)
 		||
-		preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
+		preg_match(
+			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ), '%' ) . ')%i',
+			$text
+		)
 	) {
 		return "<a {$text}>";
 	}
@@ -323,7 +332,7 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 	// Avoid collisions with existing "rel" attribute
 	if ( ! empty( $atts['rel'] ) ) {
 		$parts = array_map( 'trim', explode( ' ', $atts['rel'] ) );
-		if ( false === array_search( 'nofollow', $parts ) ) {
+		if ( false === array_search( 'nofollow', $parts, true ) ) {
 			$parts[] = 'nofollow';
 		}
 
@@ -365,9 +374,9 @@ function bbp_make_clickable( $text = '' ) {
 	foreach ( $textarr as $piece ) {
 
 		if ( preg_match( '|^<code[\s>]|i', $piece ) || preg_match( '|^<pre[\s>]|i', $piece ) || preg_match( '|^<script[\s>]|i', $piece ) || preg_match( '|^<style[\s>]|i', $piece ) ) {
-			$nested_code_pre++;
+			++$nested_code_pre;
 		} elseif ( $nested_code_pre && ( '</code>' === strtolower( $piece ) || '</pre>' === strtolower( $piece ) || '</script>' === strtolower( $piece ) || '</style>' === strtolower( $piece ) ) ) {
-			$nested_code_pre--;
+			--$nested_code_pre;
 		}
 
 		if ( $nested_code_pre || empty( $piece ) || ( '<' === $piece[0] && ! preg_match( '|^<\s*[\w]{1,20}+://|', $piece ) ) ) {
@@ -466,11 +475,11 @@ function bbp_make_emails_clickable( $text = '' ) {
  * @return string
  */
 function bbp_make_mentions_clickable( $text = '' ) {
-    return preg_replace_callback(
-        '#([\s>\[\(])\@([0-9a-zA-Z\-_]+)#i',
-        'bbp_make_mentions_clickable_callback',
-        $text
-    );
+	return preg_replace_callback(
+		'#([\s>\[\(])\@([0-9a-zA-Z\-_]+)#i',
+		'bbp_make_mentions_clickable_callback',
+		$text
+	);
 }
 
 /**
@@ -543,6 +552,7 @@ function bbp_number_not_negative( $number = 0 ) {
 
 	// Protect against formatted strings
 	if ( is_string( $number ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 		$number = strip_tags( $number );                    // No HTML
 		$number = preg_replace( '/[^0-9-]/', '', $number ); // No number-format
 
@@ -727,7 +737,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 				// Finding the biggest chunk (if the chunk fits, break)
 				$count = floor( $since / $seconds );
-				if ( 0 != $count ) {
+				if ( 0 !== $count ) {
 					break;
 				}
 			}
@@ -747,7 +757,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
-					if ( 0 != $count2 ) {
+					if ( 0 !== $count2 ) {
 						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
 						$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 					}
@@ -761,7 +771,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 		}
 
 		// Append 'ago' to the end of time-since if not 'right now'
-		if ( $output != $right_now_text ) {
+		if ( $output !== $right_now_text ) {
 			$output = sprintf( $ago_text, $output );
 		}
 

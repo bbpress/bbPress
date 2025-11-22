@@ -25,17 +25,19 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	}
 
 	// Get the statistics
-	$r = bbp_get_statistics( array(
-		'count_pending_topics'  => false,
-		'count_private_topics'  => false,
-		'count_spammed_topics'  => false,
-		'count_trashed_topics'  => false,
-		'count_pending_replies' => false,
-		'count_private_replies' => false,
-		'count_spammed_replies' => false,
-		'count_trashed_replies' => false,
-		'count_empty_tags'      => false
-	) );
+	$r = bbp_get_statistics(
+		array(
+			'count_pending_topics'  => false,
+			'count_private_topics'  => false,
+			'count_spammed_topics'  => false,
+			'count_trashed_topics'  => false,
+			'count_pending_replies' => false,
+			'count_private_replies' => false,
+			'count_spammed_replies' => false,
+			'count_trashed_replies' => false,
+			'count_empty_tags'      => false
+		)
+	);
 
 	// Users
 	if ( isset( $r['user_count'] ) ) {
@@ -307,11 +309,12 @@ function bbp_dashboard_widget_right_now() {
 	<div class="versions">
 
 		<span id="wp-version-message">
-			<?php 
-			printf( 
+			<?php
+			printf(
 				/* translators: %s: bbPress version */
-				__( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() 
-			); 
+				__( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ),
+				bbp_get_version()
+			);
 			?>
 		</span>
 
@@ -384,8 +387,8 @@ function bbp_forum_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum Parent', 'bbpress' ); ?></label>
-		<?php 
-		bbp_dropdown( 
+		<?php
+		bbp_dropdown(
 			array(
 				'post_type'          => bbp_get_forum_post_type(),
 				'selected'           => $post_parent,
@@ -401,8 +404,8 @@ function bbp_forum_metabox( $post ) {
 				'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
 				'disable_categories' => false,
 				'disabled'           => ''
-			) 
-		); 
+			)
+		);
 		?>
 	</p>
 
@@ -469,8 +472,8 @@ function bbp_topic_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-		<?php 
-		bbp_dropdown( 
+		<?php
+		bbp_dropdown(
 			array(
 				'post_type'          => bbp_get_forum_post_type(),
 				'selected'           => bbp_get_topic_forum_id( $post->ID ),
@@ -486,8 +489,8 @@ function bbp_topic_metabox( $post ) {
 				'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
 				'disable_categories' => current_user_can( 'edit_forums' ),
 				'disabled'           => ''
-			) 
-		); 
+			)
+		);
 		?>
 	</p>
 
@@ -542,8 +545,8 @@ function bbp_reply_metabox( $post ) {
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-			<?php 
-			bbp_dropdown( 
+			<?php
+			bbp_dropdown(
 				array(
 					'post_type'          => bbp_get_forum_post_type(),
 					'selected'           => $reply_forum_id,
@@ -559,8 +562,8 @@ function bbp_reply_metabox( $post ) {
 					'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
 					'disable_categories' => current_user_can( 'edit_forums' ),
 					'disabled'           => ''
-				) 
-			); 
+				)
+			);
 			?>
 		</p>
 
@@ -874,9 +877,15 @@ function bbp_metabox_user_links() {
 		// Get the user ID, URL, and Avatar
 		$user_id     = bbp_get_user_id();
 		$user_url    = bbp_get_user_profile_url( $user_id );
-		$user_avatar = get_avatar( $user_id, 32, '', '', array(
-			'force_display' => true
-		) );
+		$user_avatar = get_avatar(
+			$user_id,
+			32,
+			'',
+			'',
+			array(
+				'force_display' => true
+			)
+		);
 
 		// Output a link to the user avatar
 		echo '<a href="' . esc_url( $user_url ) . '">' . $user_avatar . '</a>';

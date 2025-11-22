@@ -67,7 +67,7 @@ function bbp_set_post_lock( $post_id = 0 ) {
 	}
 
 	// Bail if no user
-	if ( 0 == ( $user_id = get_current_user_id() ) ) {
+	if ( 0 === ( $user_id = get_current_user_id() ) ) {
 		return false;
 	}
 

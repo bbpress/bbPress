@@ -162,10 +162,14 @@ function bbp_db() {
  * @return object
  */
 function bbp_rewrite() {
-	return bbp_get_global_object( 'wp_rewrite', 'WP_Rewrite', (object) array(
-		'root'            => '',
-		'pagination_base' => 'page',
-	) );
+	return bbp_get_global_object(
+		'wp_rewrite',
+		'WP_Rewrite',
+		(object) array(
+			'root'            => '',
+			'pagination_base' => 'page',
+		)
+	);
 }
 
 /**
@@ -284,27 +288,31 @@ function bbp_paginate_links( $args = array() ) {
 		: false;
 
 	// Pagination settings with filter
-	$r = bbp_parse_args( $args, array(
+	$r = bbp_parse_args(
+		$args,
+		array(
 
-		// Used by callers
-		'base'      => '',
-		'total'     => 1,
-		'current'   => bbp_get_paged(),
-		'prev_next' => true,
-		'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
-		'next_text' => is_rtl() ? '&larr;' : '&rarr;',
-		'mid_size'  => 1,
-		'end_size'  => 3,
-		'add_args'  => $add_args,
+			// Used by callers
+			'base'      => '',
+			'total'     => 1,
+			'current'   => bbp_get_paged(),
+			'prev_next' => true,
+			'prev_text' => is_rtl() ? '&rarr;' : '&larr;',
+			'next_text' => is_rtl() ? '&larr;' : '&rarr;',
+			'mid_size'  => 1,
+			'end_size'  => 3,
+			'add_args'  => $add_args,
 
-		// Unused by callers
-		'show_all'           => false,
-		'type'               => 'plain',
-		'format'             => '',
-		'add_fragment'       => '',
-		'before_page_number' => '',
-		'after_page_number'  => ''
-	), 'paginate_links' );
+			// Unused by callers
+			'show_all'           => false,
+			'type'               => 'plain',
+			'format'             => '',
+			'add_fragment'       => '',
+			'before_page_number' => '',
+			'after_page_number'  => ''
+		),
+		'paginate_links'
+	);
 
 	// Return paginated links
 	return bbp_make_first_page_canonical( paginate_links( $r ) );

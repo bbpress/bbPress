@@ -140,48 +140,52 @@ class BBP_Converter {
 		wp_enqueue_script( 'bbp-converter' );
 
 		// Localize JS
-		wp_localize_script( 'bbp-converter', 'BBP_Converter', array(
+		wp_localize_script(
+			'bbp-converter',
+			'BBP_Converter',
+			array(
 
-			// Nonce
-			'ajax_nonce' => wp_create_nonce( 'bbp_converter_process' ),
+				// Nonce
+				'ajax_nonce' => wp_create_nonce( 'bbp_converter_process' ),
 
-			// UI State
-			'state' => array(
-				'delay'         => (int)  get_option( '_bbp_converter_delay_time', 2 ),
-				'started'       => (bool) get_option( '_bbp_converter_step',       0 ),
-				'running'       => false,
-				'status'        => false,
-				'step_percent'  => $this->step_percentage,
-				'total_percent' => $this->total_percentage
-			),
+				// UI State
+				'state' => array(
+					'delay'         => (int) get_option( '_bbp_converter_delay_time', 2 ),
+					'started'       => (bool) get_option( '_bbp_converter_step',       0 ),
+					'running'       => false,
+					'status'        => false,
+					'step_percent'  => $this->step_percentage,
+					'total_percent' => $this->total_percentage
+				),
 
-			// Strings
-			'strings' => array(
+				// Strings
+				'strings' => array(
 
-				// Button text
-				'button_start'        => esc_html__( 'Start',    'bbpress' ),
-				'button_continue'     => esc_html__( 'Continue', 'bbpress' ),
+					// Button text
+					'button_start'        => esc_html__( 'Start',    'bbpress' ),
+					'button_continue'     => esc_html__( 'Continue', 'bbpress' ),
 
-				// Start button clicked
-				'start_start'         => esc_html__( 'Starting Import...',   'bbpress' ),
-				'start_continue'      => esc_html__( 'Continuing Import...', 'bbpress' ),
+					// Start button clicked
+					'start_start'         => esc_html__( 'Starting Import...',   'bbpress' ),
+					'start_continue'      => esc_html__( 'Continuing Import...', 'bbpress' ),
 
-				// Import
-				'import_complete'     => esc_html__( 'Import Finished.',            'bbpress' ),
-				'import_stopped_user' => esc_html__( 'Import Stopped (by User.)',   'bbpress' ),
-				'import_error_halt'   => esc_html__( 'Import Halted (Error.)',      'bbpress' ),
-				'import_error_db'     => esc_html__( 'Database Connection Failed.', 'bbpress' ),
+					// Import
+					'import_complete'     => esc_html__( 'Import Finished.',            'bbpress' ),
+					'import_stopped_user' => esc_html__( 'Import Stopped (by User.)',   'bbpress' ),
+					'import_error_halt'   => esc_html__( 'Import Halted (Error.)',      'bbpress' ),
+					'import_error_db'     => esc_html__( 'Database Connection Failed.', 'bbpress' ),
 
-				// Status
-				'status_complete'     => esc_html__( 'Finished',              'bbpress' ),
-				'status_stopped'      => esc_html__( 'Stopped',               'bbpress' ),
-				'status_starting'     => esc_html__( 'Starting',              'bbpress' ),
-				/* translators: %s: Current step number or name */
-				'status_up_next'      => esc_html__( 'Doing step %s...',      'bbpress' ),
-				/* translators: %s: Number of seconds until next action */
-				'status_counting'     => esc_html__( 'Next in %s seconds...', 'bbpress' )
+					// Status
+					'status_complete'     => esc_html__( 'Finished',              'bbpress' ),
+					'status_stopped'      => esc_html__( 'Stopped',               'bbpress' ),
+					'status_starting'     => esc_html__( 'Starting',              'bbpress' ),
+					/* translators: %s: Current step number or name */
+					'status_up_next'      => esc_html__( 'Doing step %s...',      'bbpress' ),
+					/* translators: %s: Number of seconds until next action */
+					'status_counting'     => esc_html__( 'Next in %s seconds...', 'bbpress' )
+				)
 			)
-		) );
+		);
 	}
 
 	/**
@@ -234,15 +238,17 @@ class BBP_Converter {
 		}
 
 		// Output
-		wp_send_json_success( array(
-			'query'         => get_option( '_bbp_converter_query', '' ),
-			'current_step'  => $this->step,
-			'final_step'    => $this->max_steps,
-			'rows_in_step'  => $this->rows_in_step,
-			'step_percent'  => $this->step_percentage,
-			'total_percent' => $this->total_percentage,
-			'progress'      => $progress
-		) );
+		wp_send_json_success(
+			array(
+				'query'         => get_option( '_bbp_converter_query', '' ),
+				'current_step'  => $this->step,
+				'final_step'    => $this->max_steps,
+				'rows_in_step'  => $this->rows_in_step,
+				'step_percent'  => $this->step_percentage,
+				'total_percent' => $this->total_percentage,
+				'progress'      => $progress
+			)
+		);
 	}
 
 	/**
@@ -253,11 +259,14 @@ class BBP_Converter {
 	private function maybe_set_memory() {
 
 		// Filter args
-		$r = apply_filters( 'bbp_converter_php_ini_overrides', array(
-			'implicit_flush'     => '1',
-			'memory_limit'       => '256M',
-			'max_execution_time' => HOUR_IN_SECONDS * 6
-		) );
+		$r = apply_filters(
+			'bbp_converter_php_ini_overrides',
+			array(
+				'implicit_flush'     => '1',
+				'memory_limit'       => '256M',
+				'max_execution_time' => HOUR_IN_SECONDS * 6
+			)
+		);
 
 		// Get disabled PHP functions (to avoid using them)
 		$disabled = explode( ',', @ini_get( 'disable_functions' ) );
@@ -270,6 +279,7 @@ class BBP_Converter {
 		// Maybe set memory & time limits, and flush style (if function is not disabled)
 		if ( ! in_array( 'ini_set', $disabled, true ) ) {
 			foreach ( $r as $key => $value ) {
+				// phpcs:ignore WordPress.PHP.IniSet.Risky
 				@ini_set( $key, $value );
 			}
 		}
@@ -519,7 +529,9 @@ class BBP_Converter {
 				$this->converter_response(
 					sprintf(
 						/* translators: 1: Start number, 2: End number */
-						esc_html__( 'Deleting previously converted data (%1$s through %2$s)', 'bbpress' ), $this->start, $this->max
+						esc_html__( 'Deleting previously converted data (%1$s through %2$s)', 'bbpress' ),
+						$this->start,
+						$this->max
 					)
 				);
 			}

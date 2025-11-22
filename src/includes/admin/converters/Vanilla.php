@@ -17,14 +17,6 @@
 class Vanilla extends BBP_Converter_Base {
 
 	/**
-	 * Main Constructor
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
@@ -567,14 +559,14 @@ class Vanilla extends BBP_Converter_Base {
 	/**
 	 * Clean Root Parent ID -1 to 0
 	 *
-	 * @param int $parent Vanilla v2.x Parent ID
+	 * @param int $parent_id Vanilla v2.x Parent ID
 	 * @return int
 	 */
-	public function callback_forum_parent( $parent = 0 ) {
-		if ( -1 == $parent ) {
+	public function callback_forum_parent( $parent_id = 0 ) {
+		if ( -1 === (int) $parent_id ) {
 			return 0;
 		} else {
-			return $parent;
+			return $parent_id;
 		}
 	}
 

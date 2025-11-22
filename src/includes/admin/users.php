@@ -36,7 +36,7 @@ class BBP_Users_Admin {
 	 *
 	 * @access private
 	 */
-	function setup_actions() {
+	private function setup_actions() {
 
 		// Bail if in network admin
 		if ( is_network_admin() ) {

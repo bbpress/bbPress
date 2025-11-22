@@ -24,17 +24,21 @@ defined( 'ABSPATH' ) || exit;
 function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Forum
-	$forum_data = bbp_parse_args( $forum_data, array(
-		'post_parent'    => 0, // forum ID
-		'post_status'    => bbp_get_public_status_id(),
-		'post_type'      => bbp_get_forum_post_type(),
-		'post_author'    => bbp_get_current_user_id(),
-		'post_password'  => '',
-		'post_content'   => '',
-		'post_title'     => '',
-		'menu_order'     => 0,
-		'comment_status' => 'closed'
-	), 'insert_forum' );
+	$forum_data = bbp_parse_args(
+		$forum_data,
+		array(
+			'post_parent'    => 0, // forum ID
+			'post_status'    => bbp_get_public_status_id(),
+			'post_type'      => bbp_get_forum_post_type(),
+			'post_author'    => bbp_get_current_user_id(),
+			'post_password'  => '',
+			'post_content'   => '',
+			'post_title'     => '',
+			'menu_order'     => 0,
+			'comment_status' => 'closed'
+		),
+		'insert_forum'
+	);
 
 	// Insert forum
 	$forum_id = wp_insert_post( $forum_data, false );
@@ -45,20 +49,24 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	}
 
 	// Forum meta
-	$forum_meta = bbp_parse_args( $forum_meta, array(
-		'forum_type'           => 'forum',
-		'status'               => 'open',
-		'reply_count'          => 0,
-		'topic_count'          => 0,
-		'topic_count_hidden'   => 0,
-		'total_reply_count'    => 0,
-		'total_topic_count'    => 0,
-		'last_topic_id'        => 0,
-		'last_reply_id'        => 0,
-		'last_active_id'       => 0,
-		'last_active_time'     => 0,
-		'forum_subforum_count' => 0,
-	), 'insert_forum_meta' );
+	$forum_meta = bbp_parse_args(
+		$forum_meta,
+		array(
+			'forum_type'           => 'forum',
+			'status'               => 'open',
+			'reply_count'          => 0,
+			'topic_count'          => 0,
+			'topic_count_hidden'   => 0,
+			'total_reply_count'    => 0,
+			'total_topic_count'    => 0,
+			'last_topic_id'        => 0,
+			'last_reply_id'        => 0,
+			'last_active_id'       => 0,
+			'last_active_time'     => 0,
+			'forum_subforum_count' => 0,
+		),
+		'insert_forum_meta'
+	);
 
 	// Insert forum meta
 	foreach ( $forum_meta as $meta_key => $meta_value ) {
@@ -73,10 +81,12 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 	}
 
 	// Update the forum and hierarchy
-	bbp_update_forum( array(
-		'forum_id'    => $forum_id,
-		'post_parent' => $forum_data['post_parent']
-	) );
+	bbp_update_forum(
+		array(
+			'forum_id'    => $forum_id,
+			'post_parent' => $forum_data['post_parent']
+		)
+	);
 
 	// Maybe make private
 	if ( bbp_is_forum_private( $forum_id, false ) ) {
@@ -265,15 +275,18 @@ function bbp_new_forum_handler( $action = '' ) {
 
 	// Add the content of the form to $forum_data as an array
 	// Just in time manipulation of forum data before being created
-	$forum_data = apply_filters( 'bbp_new_forum_pre_insert', array(
-		'post_author'    => $forum_author,
-		'post_title'     => $forum_title,
-		'post_content'   => $forum_content,
-		'post_parent'    => $forum_parent_id,
-		'post_status'    => $forum_status,
-		'post_type'      => bbp_get_forum_post_type(),
-		'comment_status' => 'closed'
-	) );
+	$forum_data = apply_filters(
+		'bbp_new_forum_pre_insert',
+		array(
+			'post_author'    => $forum_author,
+			'post_title'     => $forum_title,
+			'post_content'   => $forum_content,
+			'post_parent'    => $forum_parent_id,
+			'post_status'    => $forum_status,
+			'post_type'      => bbp_get_forum_post_type(),
+			'comment_status' => 'closed'
+		)
+	);
 
 	// Insert forum
 	$forum_id = wp_insert_post( $forum_data, true );
@@ -307,16 +320,19 @@ function bbp_new_forum_handler( $action = '' ) {
 
 		/** Update counts, etc... *********************************************/
 
-		do_action( 'bbp_new_forum', array(
-			'forum_id'           => $forum_id,
-			'post_parent'        => $forum_data['post_parent'],
-			'forum_author'       => $forum_data['post_author'],
-			'last_topic_id'      => 0,
-			'last_reply_id'      => 0,
-			'last_active_id'     => 0,
-			'last_active_time'   => 0,
-			'last_active_status' => bbp_get_public_status_id()
-		) );
+		do_action(
+			'bbp_new_forum',
+			array(
+				'forum_id'           => $forum_id,
+				'post_parent'        => $forum_data['post_parent'],
+				'forum_author'       => $forum_data['post_author'],
+				'last_topic_id'      => 0,
+				'last_reply_id'      => 0,
+				'last_active_id'     => 0,
+				'last_active_time'   => 0,
+				'last_active_status' => bbp_get_public_status_id()
+			)
+		);
 
 		/** Additional Actions (After Save) ***********************************/
 
@@ -515,14 +531,17 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	// Add the content of the form to $forum_data as an array
 	// Just in time manipulation of forum data before being edited
-	$forum_data = apply_filters( 'bbp_edit_forum_pre_insert', array(
-		'ID'           => $forum_id,
-		'post_title'   => $forum_title,
-		'post_content' => $forum_content,
-		'post_status'  => $forum_status,
-		'post_parent'  => $forum_parent_id,
-		'post_author'  => $forum_author
-	) );
+	$forum_data = apply_filters(
+		'bbp_edit_forum_pre_insert',
+		array(
+			'ID'           => $forum_id,
+			'post_title'   => $forum_title,
+			'post_content' => $forum_content,
+			'post_status'  => $forum_status,
+			'post_parent'  => $forum_parent_id,
+			'post_author'  => $forum_author
+		)
+	);
 
 	// Insert forum
 	$forum_id = wp_update_post( $forum_data );
@@ -532,16 +551,19 @@ function bbp_edit_forum_handler( $action = '' ) {
 	if ( ! empty( $forum_id ) && ! is_wp_error( $forum_id ) ) {
 
 		// Update counts, etc...
-		do_action( 'bbp_edit_forum', array(
-			'forum_id'           => $forum_id,
-			'post_parent'        => $forum_data['post_parent'],
-			'forum_author'       => $forum_data['post_author'],
-			'last_topic_id'      => 0,
-			'last_reply_id'      => 0,
-			'last_active_id'     => 0,
-			'last_active_time'   => 0,
-			'last_active_status' => bbp_get_public_status_id()
-		) );
+		do_action(
+			'bbp_edit_forum',
+			array(
+				'forum_id'           => $forum_id,
+				'post_parent'        => $forum_data['post_parent'],
+				'forum_author'       => $forum_data['post_author'],
+				'last_topic_id'      => 0,
+				'last_reply_id'      => 0,
+				'last_active_id'     => 0,
+				'last_active_time'   => 0,
+				'last_active_status' => bbp_get_public_status_id()
+			)
+		);
 
 		/** Revisions *********************************************************/
 
@@ -611,8 +633,9 @@ function bbp_edit_forum_handler( $action = '' ) {
 			'bbp_forum_error',
 			sprintf(
 				/* translators: %s: Error message */
-				__( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' ) ),
-				$append_error
+				__( '<strong>Error</strong>: The following problem(s) have been found with your forum: %s Please try again.', 'bbpress' )
+			),
+			$append_error
 		);
 	}
 }
@@ -998,37 +1021,41 @@ function bbp_repair_forum_visibility() {
 	remove_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
 
 	// Query for private forums
-	$private_forums = new WP_Query( array(
-		'fields'         => 'ids',
-		'post_type'      => bbp_get_forum_post_type(),
-		'post_status'    => bbp_get_private_status_id(),
-		'posts_per_page' => -1,
+	$private_forums = new WP_Query(
+		array(
+			'fields'         => 'ids',
+			'post_type'      => bbp_get_forum_post_type(),
+			'post_status'    => bbp_get_private_status_id(),
+			'posts_per_page' => -1,
 
-		// Performance
-		'nopaging'               => true,
-		'suppress_filters'       => true,
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
+			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		)
+	);
 
 	// Query for hidden forums
-	$hidden_forums = new WP_Query( array(
-		'fields'           => 'ids',
-		'suppress_filters' => true,
-		'post_type'        => bbp_get_forum_post_type(),
-		'post_status'      => bbp_get_hidden_status_id(),
-		'posts_per_page'   => -1,
+	$hidden_forums = new WP_Query(
+		array(
+			'fields'           => 'ids',
+			'suppress_filters' => true,
+			'post_type'        => bbp_get_forum_post_type(),
+			'post_status'      => bbp_get_hidden_status_id(),
+			'posts_per_page'   => -1,
 
-		// Performance
-		'nopaging'               => true,
-		'suppress_filters'       => true,
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
+			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		)
+	);
 
 	// Enable forum visibilty normalization
 	add_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
@@ -1888,22 +1915,26 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 
 		// Get topics of forum
 		if ( ! is_int( $topic_count ) ) {
-			$query = new WP_Query( array(
-				'fields'         => 'ids',
-				'post_parent'    => $forum_id,
-				'post_status'    => bbp_get_non_public_topic_statuses(),
-				'post_type'      => bbp_get_topic_post_type(),
-				'posts_per_page' => -1,
+			$query = new WP_Query(
+				array(
+					'fields'         => 'ids',
+					'post_parent'    => $forum_id,
+					'post_status'    => bbp_get_non_public_topic_statuses(),
+					'post_type'      => bbp_get_topic_post_type(),
+					'posts_per_page' => -1,
 
-				// Performance
-				'nopaging'               => true,
-				'suppress_filters'       => true,
-				'update_post_term_cache' => false,
-				'update_post_meta_cache' => false,
-				'ignore_sticky_posts'    => true,
-				'no_found_rows'          => true
-			) );
+					// Performance
+					'nopaging'               => true,
+					'suppress_filters'       => true,
+					'update_post_term_cache' => false,
+					'update_post_meta_cache' => false,
+					'ignore_sticky_posts'    => true,
+					'no_found_rows'          => true
+				)
+			);
+
 			$topic_count = $query->post_count;
+
 			unset( $query );
 		}
 
@@ -2017,15 +2048,19 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0 ) {
 function bbp_update_forum( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'forum_id'           => 0,
-		'post_parent'        => 0,
-		'last_topic_id'      => 0,
-		'last_reply_id'      => 0,
-		'last_active_id'     => 0,
-		'last_active_time'   => 0,
-		'last_active_status' => bbp_get_public_status_id()
-	), 'update_forum' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'forum_id'           => 0,
+			'post_parent'        => 0,
+			'last_topic_id'      => 0,
+			'last_reply_id'      => 0,
+			'last_active_id'     => 0,
+			'last_active_time'   => 0,
+			'last_active_status' => bbp_get_public_status_id()
+		),
+		'update_forum'
+	);
 
 	// Update the forum parent
 	bbp_update_forum_id( $r['forum_id'], $r['post_parent'] );
@@ -2059,10 +2094,12 @@ function bbp_update_forum( $args = array() ) {
 
 	// Update the parent forum if one was passed
 	if ( ! empty( $r['post_parent'] ) && is_numeric( $r['post_parent'] ) ) {
-		bbp_update_forum( array(
-			'forum_id'    => $r['post_parent'],
-			'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
-		) );
+		bbp_update_forum(
+			array(
+				'forum_id'    => $r['post_parent'],
+				'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
+			)
+		);
 	}
 
 	// Bump the custom query cache
@@ -2086,10 +2123,14 @@ function bbp_update_forum( $args = array() ) {
 function bbp_get_forum_statuses( $forum_id = 0 ) {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_statuses', array(
-		'open'   => _x( 'Open',    'Open the forum',  'bbpress' ),
-		'closed' => _x( 'Closed',  'Close the forum', 'bbpress' )
-	), $forum_id );
+	return (array) apply_filters(
+		'bbp_get_forum_statuses',
+		array(
+			'open'   => _x( 'Open',    'Open the forum',  'bbpress' ),
+			'closed' => _x( 'Closed',  'Close the forum', 'bbpress' )
+		),
+		$forum_id
+	);
 }
 
 /**
@@ -2104,10 +2145,14 @@ function bbp_get_forum_statuses( $forum_id = 0 ) {
 function bbp_get_forum_types( $forum_id = 0 ) {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_types', array(
-		'forum'    => _x( 'Forum',    'Forum accepts new topics', 'bbpress' ),
-		'category' => _x( 'Category', 'Forum is a category',      'bbpress' )
-	), $forum_id );
+	return (array) apply_filters(
+		'bbp_get_forum_types',
+		array(
+			'forum'    => _x( 'Forum',    'Forum accepts new topics', 'bbpress' ),
+			'category' => _x( 'Category', 'Forum is a category',      'bbpress' )
+		),
+		$forum_id
+	);
 }
 
 /**
@@ -2122,14 +2167,18 @@ function bbp_get_forum_types( $forum_id = 0 ) {
  *
  * @return array
  */
-function bbp_get_forum_visibilities( $forum_id = 0) {
+function bbp_get_forum_visibilities( $forum_id = 0 ) {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_visibilities', array(
-		bbp_get_public_status_id()  => _x( 'Public',  'Make forum public',  'bbpress' ),
-		bbp_get_private_status_id() => _x( 'Private', 'Make forum private', 'bbpress' ),
-		bbp_get_hidden_status_id()  => _x( 'Hidden',  'Make forum hidden',  'bbpress' )
-	), $forum_id );
+	return (array) apply_filters(
+		'bbp_get_forum_visibilities',
+		array(
+			bbp_get_public_status_id()  => _x( 'Public',  'Make forum public',  'bbpress' ),
+			bbp_get_private_status_id() => _x( 'Private', 'Make forum private', 'bbpress' ),
+			bbp_get_hidden_status_id()  => _x( 'Hidden',  'Make forum hidden',  'bbpress' )
+		),
+		$forum_id
+	);
 }
 
 /**
@@ -2422,24 +2471,26 @@ function bbp_forum_query_last_reply_id( $forum_id = 0, $topic_ids = 0 ) {
 		$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 	}
 
-	$query = new WP_Query( array(
-		'fields'           => 'ids',
-		'suppress_filters' => true,
-		'post_parent__in'  => $topic_ids,
-		'post_status'      => bbp_get_public_status_id(),
-		'post_type'        => bbp_get_reply_post_type(),
-		'posts_per_page'   => 1,
-		'orderby'          => array(
-			'post_date' => 'DESC',
-			'ID'        => 'DESC'
-		),
+	$query = new WP_Query(
+		array(
+			'fields'           => 'ids',
+			'suppress_filters' => true,
+			'post_parent__in'  => $topic_ids,
+			'post_status'      => bbp_get_public_status_id(),
+			'post_type'        => bbp_get_reply_post_type(),
+			'posts_per_page'   => 1,
+			'orderby'          => array(
+				'post_date' => 'DESC',
+				'ID'        => 'DESC'
+			),
 
-		// Performance
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
+			// Performance
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		)
+	);
 
 	$reply_id = array_shift( $query->posts );
 
@@ -2583,21 +2634,23 @@ function bbp_delete_forum_topics( $forum_id = 0 ) {
 
 	// Forum is being permanently deleted, so its content has go too
 	// Note that we get all post statuses here
-	$topics = new WP_Query( array(
-		'fields'         => 'id=>parent',
-		'post_type'      => bbp_get_topic_post_type(),
-		'post_parent'    => $forum_id,
-		'post_status'    => array_keys( get_post_stati() ),
-		'posts_per_page' => -1,
+	$topics = new WP_Query(
+		array(
+			'fields'         => 'id=>parent',
+			'post_type'      => bbp_get_topic_post_type(),
+			'post_parent'    => $forum_id,
+			'post_status'    => array_keys( get_post_stati() ),
+			'posts_per_page' => -1,
 
-		// Performance
-		'nopaging'               => true,
-		'suppress_filters'       => true,
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
+			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		)
+	);
 
 	// Loop through and delete child topics. Topic replies will get deleted by
 	// the bbp_delete_topic() action.
@@ -2638,21 +2691,23 @@ function bbp_trash_forum_topics( $forum_id = 0 ) {
 	);
 
 	// Forum is being trashed, so its topics (and replies) are trashed too
-	$topics = new WP_Query( array(
-		'fields'         => 'id=>parent',
-		'post_type'      => bbp_get_topic_post_type(),
-		'post_parent'    => $forum_id,
-		'post_status'    => $post_stati,
-		'posts_per_page' => -1,
+	$topics = new WP_Query(
+		array(
+			'fields'         => 'id=>parent',
+			'post_type'      => bbp_get_topic_post_type(),
+			'post_parent'    => $forum_id,
+			'post_status'    => $post_stati,
+			'posts_per_page' => -1,
 
-		// Performance
-		'nopaging'               => true,
-		'suppress_filters'       => true,
-		'update_post_term_cache' => false,
-		'update_post_meta_cache' => false,
-		'ignore_sticky_posts'    => true,
-		'no_found_rows'          => true
-	) );
+			// Performance
+			'nopaging'               => true,
+			'suppress_filters'       => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'ignore_sticky_posts'    => true,
+			'no_found_rows'          => true
+		)
+	);
 
 	// Loop through and trash child topics. Topic replies will get trashed by
 	// the bbp_trash_topic() action.

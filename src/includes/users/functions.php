@@ -121,7 +121,7 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 	// Setup cookie expiration
 	$lifetime = (int) apply_filters( 'comment_cookie_lifetime', 30000000 );
 	$expiry   = time() + $lifetime;
-	$secure   = ( 'https' === parse_url( home_url(), PHP_URL_SCHEME ) );
+	$secure   = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
 
 	// Set the cookies
 	setcookie( 'comment_author_'       . COOKIEHASH, $anonymous_data['bbp_anonymous_name'],    $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure );
@@ -396,10 +396,13 @@ function bbp_user_email_change_handler( $action = '' ) {
 function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args( $args, array(
-		'hash'     => '',
-		'newemail' => '',
-	) );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'hash'     => '',
+			'newemail' => '',
+		)
+	);
 
 	// Bail if any relevant parameters are empty
 	if ( empty( $user_id ) || empty( $r['hash'] ) || empty( $r['newemail'] ) ) {
@@ -410,13 +413,17 @@ function bbp_edit_user_email_send_notification( $user_id = 0, $args = array() ) 
 	// Build the nonced URL to dismiss the pending change
 	$user_login  = bbp_get_displayed_user_field( 'user_login', 'raw' );
 	$user_url    = bbp_get_user_profile_edit_url( $user_id );
-	$confirm_url = add_query_arg( array(
-		'action'       => 'bbp-update-user-email',
-		'newuseremail' => $r['hash']
-	), $user_url );
+	$confirm_url = add_query_arg(
+		array(
+			'action'       => 'bbp-update-user-email',
+			'newuseremail' => $r['hash']
+		),
+		$user_url
+	);
 
 	/* translators: 1: Username, 2: Confirmation URL, 3: New email address, 4: Site name, 5: Site URL */
-	$email_text = __( '%1$s
+	$email_text = __(
+		'%1$s
 
 Someone requested a change to the email address on your account.
 
@@ -429,7 +436,9 @@ This email was sent to: %3$s
 
 Regards,
 The %4$s Team
-%5$s', 'bbpress' );
+%5$s',
+		'bbpress'
+	);
 
 	/**
 	 * Filter the email text sent when a user changes emails.
@@ -577,9 +586,11 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 		$user_nicenames = array_map( 'sanitize_title', $user_nicenames );
 
 		// Get users
-		$users = get_users( array(
-			'nicename__in' => $user_nicenames
-		) );
+		$users = get_users(
+			array(
+				'nicename__in' => $user_nicenames
+			)
+		);
 
 		// Pluck or empty
 		if ( ! empty( $users ) ) {
@@ -610,9 +621,11 @@ function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 	if ( ! empty( $user_ids ) ) {
 
 		// Get users
-		$users = get_users( array(
-			'include' => $user_ids
-		) );
+		$users = get_users(
+			array(
+				'include' => $user_ids
+			)
+		);
 
 		// Pluck or empty
 		if ( ! empty( $users ) ) {

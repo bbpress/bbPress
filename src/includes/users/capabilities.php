@@ -441,13 +441,16 @@ function bbp_get_user_role_map() {
 	$default_role = bbp_get_default_role();
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_user_role_map', array(
-		'administrator' => bbp_get_keymaster_role(),
-		'editor'        => $default_role,
-		'author'        => $default_role,
-		'contributor'   => $default_role,
-		'subscriber'    => $default_role
-	) );
+	return (array) apply_filters(
+		'bbp_get_user_role_map',
+		array(
+			'administrator' => bbp_get_keymaster_role(),
+			'editor'        => $default_role,
+			'author'        => $default_role,
+			'contributor'   => $default_role,
+			'subscriber'    => $default_role
+		)
+	);
 }
 
 /** User Status ***************************************************************/
@@ -856,15 +859,19 @@ function bbp_get_moderators( $object_id = 0, $object_type = 'post' ) {
 
 	// Get global moderators
 	if ( empty( $object_id ) ) {
-		$users = get_users( array(
-			'role__in' => bbp_get_moderator_role(),
-		) );
+		$users = get_users(
+			array(
+				'role__in' => bbp_get_moderator_role(),
+			)
+		);
 
 	// Get object moderators
 	} else {
-		$users = get_users( array(
-			'include' => bbp_get_moderator_ids( $object_id, $object_type ),
-		) );
+		$users = get_users(
+			array(
+				'include' => bbp_get_moderator_ids( $object_id, $object_type ),
+			)
+		);
 	}
 
 	// Filter & return

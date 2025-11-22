@@ -47,50 +47,57 @@ class BBP_Shortcodes {
 	 */
 	private function setup_globals() {
 
+		// phpcs:disable PEAR.Functions.FunctionCallSignature.CloseBracketLine
+
 		// Setup the shortcodes
-		$this->codes = apply_filters( 'bbp_shortcodes', array(
+		$this->codes = apply_filters(
+			'bbp_shortcodes',
+			array(
 
-			/** Forums ********************************************************/
+				/** Forums ****************************************************/
 
-			'bbp-forum-index'      => array( $this, 'display_forum_index'   ), // Forum Index
-			'bbp-forum-form'       => array( $this, 'display_forum_form'    ), // Topic form
-			'bbp-single-forum'     => array( $this, 'display_forum'         ), // Specific forum - pass an 'id' attribute
+				'bbp-forum-index'      => array( $this, 'display_forum_index'   ), // Forum Index
+				'bbp-forum-form'       => array( $this, 'display_forum_form'    ), // Topic form
+				'bbp-single-forum'     => array( $this, 'display_forum'         ), // Specific forum - pass an 'id' attribute
 
-			/** Topics ********************************************************/
+				/** Topics ****************************************************/
 
-			'bbp-topic-index'      => array( $this, 'display_topic_index'   ), // Topic index
-			'bbp-topic-form'       => array( $this, 'display_topic_form'    ), // Topic form
-			'bbp-single-topic'     => array( $this, 'display_topic'         ), // Specific topic - pass an 'id' attribute
+				'bbp-topic-index'      => array( $this, 'display_topic_index'   ), // Topic index
+				'bbp-topic-form'       => array( $this, 'display_topic_form'    ), // Topic form
+				'bbp-single-topic'     => array( $this, 'display_topic'         ), // Specific topic - pass an 'id' attribute
 
-			/** Topic Tags ****************************************************/
+				/** Topic Tags ************************************************/
 
-			'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ), // All topic tags in a cloud
-			'bbp-single-tag'       => array( $this, 'display_topics_of_tag' ), // Topics of Tag
+				'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ), // All topic tags in a cloud
+				'bbp-single-tag'       => array( $this, 'display_topics_of_tag' ), // Topics of Tag
 
-			/** Replies *******************************************************/
+				/** Replies ***************************************************/
 
-			'bbp-reply-form'       => array( $this, 'display_reply_form'    ), // Reply form
-			'bbp-single-reply'     => array( $this, 'display_reply'         ), // Specific reply - pass an 'id' attribute
+				'bbp-reply-form'       => array( $this, 'display_reply_form'    ), // Reply form
+				'bbp-single-reply'     => array( $this, 'display_reply'         ), // Specific reply - pass an 'id' attribute
 
-			/** Views *********************************************************/
+				/** Views *****************************************************/
 
-			'bbp-single-view'      => array( $this, 'display_view'          ), // Single view
+				'bbp-single-view'      => array( $this, 'display_view'          ), // Single view
 
-			/** Search ********************************************************/
+				/** Search ****************************************************/
 
-			'bbp-search-form'      => array( $this, 'display_search_form'   ), // Search form
-			'bbp-search'           => array( $this, 'display_search'        ), // Search
+				'bbp-search-form'      => array( $this, 'display_search_form'   ), // Search form
+				'bbp-search'           => array( $this, 'display_search'        ), // Search
 
-			/** Account *******************************************************/
+				/** Account ***************************************************/
 
-			'bbp-login'            => array( $this, 'display_login'         ), // Login
-			'bbp-register'         => array( $this, 'display_register'      ), // Register
-			'bbp-lost-pass'        => array( $this, 'display_lost_pass'     ), // Lost Password
+				'bbp-login'            => array( $this, 'display_login'         ), // Login
+				'bbp-register'         => array( $this, 'display_register'      ), // Register
+				'bbp-lost-pass'        => array( $this, 'display_lost_pass'     ), // Lost Password
 
-			/** Others *******************************************************/
+				/** Others ****************************************************/
 
-			'bbp-stats'            => array( $this, 'display_stats'         ), // Stats
-		) );
+				'bbp-stats'            => array( $this, 'display_stats'         ), // Stats
+			)
+		);
+
+		// phpcs:enable
 	}
 
 	/**
@@ -513,12 +520,14 @@ class BBP_Shortcodes {
 		$this->start( 'bbp_topic_tags' );
 
 		// Output the topic tags
-		wp_tag_cloud( array(
-			'smallest' => 9,
-			'largest'  => 38,
-			'number'   => 80,
-			'taxonomy' => bbp_get_topic_tag_tax_id()
-		) );
+		wp_tag_cloud(
+			array(
+				'smallest' => 9,
+				'largest'  => 38,
+				'number'   => 80,
+				'taxonomy' => bbp_get_topic_tag_tax_id()
+			)
+		);
 
 		// Return contents of output buffer
 		return $this->end();
@@ -853,12 +862,12 @@ class BBP_Shortcodes {
 	 * @return array
 	 */
 	public function display_topics_of_tag_query( $args = array() ) {
-		$args['tax_query'] = array( 
+		$args['tax_query'] = array(
 			array(
 				'taxonomy' => bbp_get_topic_tag_tax_id(),
 				'field'    => 'id',
 				'terms'    => bbpress()->current_topic_tag_id
-			) 
+			)
 		);
 
 		return $args;

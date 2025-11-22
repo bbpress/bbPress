@@ -41,6 +41,7 @@ function bbp_admin_separator() {
 
 	global $menu;
 
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
 }
 
@@ -91,11 +92,11 @@ function bbp_admin_menu_order( $menu_order ) {
 	foreach ( $menu_order as $item ) {
 
 		// Position bbPress menus above appearance
-		if ( $second_sep == $item ) {
+		if ( $second_sep === $item ) {
 
 			// Add our custom menus
 			foreach ( $custom_menus as $custom_menu ) {
-				if ( array_search( $custom_menu, $menu_order ) ) {
+				if ( array_search( $custom_menu, $menu_order, true ) ) {
 					$bbp_menu_order[] = $custom_menu;
 				}
 			}
@@ -187,6 +188,8 @@ function bbp_tools_modify_menu_highlight() {
 
 	// This tweaks the Tools subnav menu to only show one bbPress menu item
 	if ( ! in_array( $plugin_page, array( 'bbp-settings' ), true ) ) {
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu_file = 'bbp-repair';
 	}
 }

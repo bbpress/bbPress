@@ -79,7 +79,7 @@ class BBP_User_Query extends WP_User_Query {
 	 * @return WP_User Next user.
 	 */
 	public function next_user() {
-		$this->current_user++;
+		++$this->current_user;
 		$this->user = $this->results[ $this->current_user ];
 
 		return $this->user;
@@ -174,13 +174,17 @@ class BBP_User_Query extends WP_User_Query {
 function bbp_has_users( $args = array() ) {
 
 	// Parse arguments with default user query for most circumstances
-	$r = bbp_parse_args( $args, array(
-		'include'     => array(),
-		'orderby'     => 'login',
-		'order'       => 'ASC',
-		'count_total' => false,
-		'fields'      => 'all',
-	), 'has_users' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'include'     => array(),
+			'orderby'     => 'login',
+			'order'       => 'ASC',
+			'count_total' => false,
+			'fields'      => 'all',
+		),
+		'has_users'
+	);
 
 	// Run the query
 	$bbp             = bbpress();
@@ -496,12 +500,16 @@ function bbp_user_nicename( $user_id = 0, $args = array() ) {
 		}
 
 		// Parse default arguments
-		$r = bbp_parse_args( $args, array(
-			'user_id' => $user_id,
-			'before'  => '',
-			'after'   => '',
-			'force'   => ''
-		), 'get_user_nicename' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'user_id' => $user_id,
+				'before'  => '',
+				'after'   => '',
+				'force'   => ''
+			),
+			'get_user_nicename'
+		);
 
 		// Force the nicename (likely from a previous user query)
 		if ( ! empty( $r['force'] ) ) {
@@ -577,9 +585,12 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_user_rewrite_id() => $user_id
-			), home_url( '/' ) );
+			$url = add_query_arg(
+				array(
+					bbp_get_user_rewrite_id() => $user_id
+				),
+				home_url( '/' )
+			);
 		}
 
 		// Filter & return
@@ -678,9 +689,12 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_edit_rewrite_id() => '1'
-			), $profile_url );
+			$url = add_query_arg(
+				array(
+					bbp_get_edit_rewrite_id() => '1'
+				),
+				$profile_url
+			);
 		}
 
 		// Filter & return
@@ -766,11 +780,15 @@ function bbp_admin_link( $args = array() ) {
 		}
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'text'   => esc_html__( 'Admin', 'bbpress' ),
-			'before' => '',
-			'after'  => ''
-		), 'get_admin_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'text'   => esc_html__( 'Admin', 'bbpress' ),
+				'before' => '',
+				'after'  => ''
+			),
+			'get_admin_link'
+		);
 
 		$retval = $r['before'] . '<a href="' . esc_url( admin_url() ) . '">' . $r['text'] . '</a>' . $r['after'];
 
@@ -804,11 +822,15 @@ function bbp_author_ip( $args = array() ) {
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'post_id' => $post_id,
-			'before'  => '<span class="bbp-author-ip">(',
-			'after'   => ')</span>'
-		), 'get_author_ip' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'post_id' => $post_id,
+				'before'  => '<span class="bbp-author-ip">(',
+				'after'   => ')</span>'
+			),
+			'get_author_ip'
+		);
 
 		// Get the author IP meta value
 		$author_ip = get_post_meta( $r['post_id'], '_bbp_author_ip', true );
@@ -1029,7 +1051,7 @@ function bbp_favorites_permalink( $user_id = 0 ) {
 
 		// Get user profile URL & page
 		$profile_url = bbp_get_user_profile_url( $user_id );
-		$page        = (int)  bbpress()->topic_query->paged;
+		$page        = (int) bbpress()->topic_query->paged;
 		$paged       = (bool) bbpress()->topic_query->in_the_loop;
 
 		// Pretty permalinks
@@ -1109,20 +1131,24 @@ function bbp_user_favorites_link( $args = array(), $user_id = 0, $wrap = true ) 
 		}
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'favorite'    => esc_html__( 'Favorite',   'bbpress' ),
-			'favorited'   => esc_html__( 'Unfavorite', 'bbpress' ),
-			'user_id'     => 0,
-			'object_id'   => 0,
-			'object_type' => 'post',
-			'before'      => '',
-			'after'       => '',
-			'redirect_to' => '',
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'favorite'    => esc_html__( 'Favorite',   'bbpress' ),
+				'favorited'   => esc_html__( 'Unfavorite', 'bbpress' ),
+				'user_id'     => 0,
+				'object_id'   => 0,
+				'object_type' => 'post',
+				'before'      => '',
+				'after'       => '',
+				'redirect_to' => '',
 
-			// Deprecated. Use object_id.
-			'forum_id'    => 0,
-			'topic_id'    => 0
-		), 'get_user_favorites_link' );
+				// Deprecated. Use object_id.
+				'forum_id'    => 0,
+				'topic_id'    => 0
+			),
+			'get_user_favorites_link'
+		);
 
 		// Validate user and object ID's
 		$user_id     = bbp_get_user_id( $r['user_id'], true, true );
@@ -1225,11 +1251,11 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 
 		// Get pagination data
 		if ( bbpress()->topic_query->in_the_loop ) {
-			$page  = (int)  bbpress()->topic_query->paged;
+			$page  = (int) bbpress()->topic_query->paged;
 			$paged = (bool) bbpress()->topic_query->in_the_loop;
 
 		} elseif ( bbpress()->forum_query->in_the_loop ) {
-			$page  = (int)  bbpress()->forum_query->paged;
+			$page  = (int) bbpress()->forum_query->paged;
 			$paged = (bool) bbpress()->forum_query->in_the_loop;
 		}
 
@@ -1307,20 +1333,24 @@ function bbp_user_subscribe_link( $args = array(), $user_id = 0, $wrap = true ) 
 		}
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
-			'user_id'     => 0,
-			'object_id'   => 0,
-			'object_type' => 'post',
-			'before'      => '',
-			'after'       => '',
-			'redirect_to' => '',
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+				'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
+				'user_id'     => 0,
+				'object_id'   => 0,
+				'object_type' => 'post',
+				'before'      => '',
+				'after'       => '',
+				'redirect_to' => '',
 
-			// Deprecated. Use object_id.
-			'forum_id'    => 0,
-			'topic_id'    => 0
-		), 'get_user_subscribe_link' );
+				// Deprecated. Use object_id.
+				'forum_id'    => 0,
+				'topic_id'    => 0
+			),
+			'get_user_subscribe_link'
+		);
 
 		// Validate user
 		$user_id     = bbp_get_user_id( $r['user_id'], true, true );
@@ -1675,9 +1705,12 @@ function bbp_user_topics_created_url( $user_id = 0 ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_user_topics_rewrite_id() => '1',
-			), $profile_url );
+			$url = add_query_arg(
+				array(
+					bbp_get_user_topics_rewrite_id() => '1',
+				),
+				$profile_url
+			);
 		}
 
 		// Filter & return
@@ -1728,9 +1761,12 @@ function bbp_user_replies_created_url( $user_id = 0 ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_user_replies_rewrite_id() => '1',
-			), $profile_url );
+			$url = add_query_arg(
+				array(
+					bbp_get_user_replies_rewrite_id() => '1',
+				),
+				$profile_url
+			);
 		}
 
 		// Filter & return
@@ -1781,9 +1817,12 @@ function bbp_user_engagements_url( $user_id = 0 ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_user_engagements_rewrite_id() => '1',
-			), $profile_url );
+			$url = add_query_arg(
+				array(
+					bbp_get_user_engagements_rewrite_id() => '1',
+				),
+				$profile_url
+			);
 		}
 
 		// Filter & return
@@ -1839,15 +1878,19 @@ function bbp_user_languages_dropdown( $args = array() ) {
 		unset( $args['user_id'] );
 
 		// Parse arguments
-		$r = bbp_parse_args( $args, array(
-			'name'                        => 'locale',
-			'id'                          => 'locale',
-			'selected'                    => $user_locale,
-			'languages'                   => $languages,
-			'echo'                        => false,
-			'show_available_translations' => false,
-			'show_option_site_default'    => true
-		), 'user_languages_dropdown' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'name'                        => 'locale',
+				'id'                          => 'locale',
+				'selected'                    => $user_locale,
+				'languages'                   => $languages,
+				'echo'                        => false,
+				'show_available_translations' => false,
+				'show_option_site_default'    => true
+			),
+			'user_languages_dropdown'
+		);
 
 		// Get the markup for the languages drop-down
 		$retval = wp_dropdown_languages( $r );
@@ -2010,13 +2053,17 @@ function bbp_author_link( $args = array() ) {
 		$post_id = is_numeric( $args ) ? (int) $args : 0;
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'post_id'    => $post_id,
-			'link_title' => '',
-			'type'       => 'both',
-			'size'       => 80,
-			'sep'        => ''
-		), 'get_author_link' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'post_id'    => $post_id,
+				'link_title' => '',
+				'type'       => 'both',
+				'size'       => 80,
+				'sep'        => ''
+			),
+			'get_author_link'
+		);
 
 		// Confirmed topic
 		if ( bbp_is_topic( $r['post_id'] ) ) {
@@ -2108,11 +2155,15 @@ function bbp_author_link( $args = array() ) {
 function bbp_user_can_view_forum( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'user_id'         => bbp_get_current_user_id(),
-		'forum_id'        => bbp_get_forum_id(),
-		'check_ancestors' => false
-	), 'user_can_view_forum' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'user_id'         => bbp_get_current_user_id(),
+			'forum_id'        => bbp_get_forum_id(),
+			'check_ancestors' => false
+		),
+		'user_can_view_forum'
+	);
 
 	// Validate parsed values
 	$user_id  = bbp_get_user_id( $r['user_id'], false, false );
@@ -2243,12 +2294,16 @@ function bbp_current_user_can_publish_replies() {
 function bbp_get_forums_for_current_user( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'post_type'    => bbp_get_forum_post_type(),
-		'post_status'  => bbp_get_public_status_id(),
-		'post__not_in' => bbp_exclude_forum_ids( 'array' ),
-		'numberposts'  => -1
-	), 'get_forums_for_current_user' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'post_type'    => bbp_get_forum_post_type(),
+			'post_status'  => bbp_get_public_status_id(),
+			'post__not_in' => bbp_exclude_forum_ids( 'array' ),
+			'numberposts'  => -1
+		),
+		'get_forums_for_current_user'
+	);
 
 	// Get the forums
 	$forums = get_posts( $r );
@@ -2413,12 +2468,16 @@ function bbp_moderator_list( $forum_id = 0, $args = array() ) {
 	function bbp_get_moderator_list( $object_id = 0, $args = array() ) {
 
 		// Parse arguments against default values
-		$r = bbp_parse_args( $args, array(
-			'before' => '<div class="bbp-moderators"><p>' . esc_html__( 'Moderators:', 'bbpress' ) . '&nbsp;',
-			'sep'    => ', ',
-			'after'  => '</p></div>',
-			'none'   => ''
-		), 'get_moderator_list' );
+		$r = bbp_parse_args(
+			$args,
+			array(
+				'before' => '<div class="bbp-moderators"><p>' . esc_html__( 'Moderators:', 'bbpress' ) . '&nbsp;',
+				'sep'    => ', ',
+				'after'  => '</p></div>',
+				'none'   => ''
+			),
+			'get_moderator_list'
+		);
 
 		// Get forum moderators
 		$user_ids = bbp_get_moderator_ids( $object_id );

@@ -17,12 +17,12 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 		<fieldset class="bbp-form" id="bbp-edit-topic-tag">
 
 			<legend>
-				<?php 
-				printf( 
+				<?php
+				printf(
 					/* translators: %s: Topic tag name */
-					esc_html__( 'Manage Tag: "%s"', 'bbpress' ), 
-					bbp_get_topic_tag_name() 
-				); 
+					esc_html__( 'Manage Tag: "%s"', 'bbpress' ),
+					bbp_get_topic_tag_name()
+				);
 				?>
 			</legend>
 
@@ -56,12 +56,16 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 
 					<div>
 						<label for="tag-description"><?php esc_html_e( 'Description:', 'bbpress' ); ?></label>
-						<input type="text" id="tag-description" name="tag-description" size="20" value="<?php echo esc_attr( bbp_get_topic_tag_description(
-							array(
-								'before' => '',
-								'after'  => ''
+						<input type="text" id="tag-description" name="tag-description" size="20" value="<?php
+						echo esc_attr(
+							bbp_get_topic_tag_description(
+								array(
+									'before' => '',
+									'after'  => ''
+								)
 							)
-						) ); ?>" />
+						);
+						?>" />
 					</div>
 
 					<div class="bbp-submit-wrapper">
@@ -95,14 +99,14 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					</div>
 
 					<div class="bbp-submit-wrapper">
-						<button type="submit" 
-								class="button submit" 
-								onclick="return confirm('<?php 
-									
-									echo esc_js( 
-										sprintf( 
+						<button type="submit"
+								class="button submit"
+								onclick="return confirm('<?php
+
+									echo esc_js(
+										sprintf(
 										/* translators: %s: Topic tag name */
-											esc_html__( 
+											esc_html__(
 												'Are you sure you want to merge the "%s" tag into the tag you specified?',
 												'bbpress'
 											),
@@ -113,12 +117,12 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 							<?php esc_attr_e( 'Merge', 'bbpress' ); ?>
 						</button>
 
-						<input type="hidden" 
-							name="tag-id" 
+						<input type="hidden"
+							name="tag-id"
 							value="<?php bbp_topic_tag_id(); ?>" />
-						
-						<input type="hidden" 
-							name="action" 
+
+						<input type="hidden"
+							name="action"
 							value="bbp-merge-topic-tag" />
 
 						<?php wp_nonce_field( 'merge-tag_' . bbp_get_topic_tag_id() ); ?>
@@ -147,13 +151,13 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 
 					<form id="delete_tag" name="delete_tag" method="post">
 						<div class="bbp-submit-wrapper">
-							<button type="submit" 
-									class="button submit" 
-									onclick="return confirm('<?php 
-										echo esc_js( 
-											sprintf( 
+							<button type="submit"
+									class="button submit"
+									onclick="return confirm('<?php
+										echo esc_js(
+											sprintf(
 												/* translators: %s: Topic tag name */
-												esc_html__( 
+												esc_html__(
 													'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.',
 													'bbpress'
 												),
@@ -164,12 +168,12 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 								<?php esc_attr_e( 'Delete', 'bbpress' ); ?>
 							</button>
 
-							<input type="hidden" 
-								name="tag-id" 
+							<input type="hidden"
+								name="tag-id"
 								value="<?php bbp_topic_tag_id(); ?>" />
 
-							<input type="hidden" 
-								name="action" 
+							<input type="hidden"
+								name="action"
 								value="bbp-delete-topic-tag" />
 
 							<?php wp_nonce_field( 'delete-tag_' . bbp_get_topic_tag_id() ); ?>

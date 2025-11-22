@@ -15,12 +15,12 @@ get_header(); ?>
 
 	<div id="topic-tag" class="bbp-topic-tag">
 		<h1 class="entry-title">
-			<?php 
-			printf( 
+			<?php
+			printf(
 				/* translators: %s - topic tag name */
-				esc_html__( 'Topic Tag: %s', 'bbpress' ), 
-				'<span>' . bbp_get_topic_tag_name() . '</span>' 
-			); 
+				esc_html__( 'Topic Tag: %s', 'bbpress' ),
+				'<span>' . bbp_get_topic_tag_name() . '</span>'
+			);
 			?>
 		</h1>
 		<div class="entry-content">

@@ -177,40 +177,48 @@ function bbp_admin_reset_database() {
 		$sql_meta = implode( "', '", $sql_meta );
 
 		// Delete posts
-		$messages[] = bbp_admin_reset_query_feedback( array(
-			'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')",
-			/* translators: %s: Status of the deletion process */
-			'message' => esc_html__( 'Removing Forums, Topics, and Replies&hellip; %s', 'bbpress' )
-		) );
+		$messages[] = bbp_admin_reset_query_feedback(
+			array(
+				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_type` IN ('{$fpt}', '{$tpt}', '{$rpt}')",
+				/* translators: %s: Status of the deletion process */
+				'message' => esc_html__( 'Removing Forums, Topics, and Replies&hellip; %s', 'bbpress' )
+			)
+		);
 
 		/** Post Meta *********************************************************/
 
 		if ( ! empty( $sql_posts ) ) {
-			$messages[] = bbp_admin_reset_query_feedback( array(
-				'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
-				/* translators: %s: Status of the meta deletion process */
-				'message' => esc_html__( 'Removing Forum, Topic, and Reply Meta Data&hellip; %s', 'bbpress' )
-			) );
+			$messages[] = bbp_admin_reset_query_feedback(
+				array(
+					'query'   => "DELETE FROM `{$bbp_db->postmeta}` WHERE `post_id` IN ('{$sql_meta}')",
+					/* translators: %s: Status of the meta deletion process */
+					'message' => esc_html__( 'Removing Forum, Topic, and Reply Meta Data&hellip; %s', 'bbpress' )
+				)
+			);
 		}
 
 		/** Post Revisions ****************************************************/
 
 		if ( ! empty( $sql_posts ) ) {
-			$messages[] = bbp_admin_reset_query_feedback( array(
-				'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
-				/* translators: %s: Status of the revision deletion process */
-				'message' => esc_html__( 'Removing Revision Data&hellip; %s', 'bbpress' )
-			) );
+			$messages[] = bbp_admin_reset_query_feedback(
+				array(
+					'query'   => "DELETE FROM `{$bbp_db->posts}` WHERE `post_parent` IN ('{$sql_meta}') AND `post_type` = 'revision'",
+					/* translators: %s: Status of the revision deletion process */
+					'message' => esc_html__( 'Removing Revision Data&hellip; %s', 'bbpress' )
+				)
+			);
 		}
 	}
 
 	// Topic Tags
 
-	$messages[] = bbp_admin_reset_query_feedback( array(
-		'query'   => "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'",
-		/* translators: %s: Status of the tag deletion process */
-		'message' => esc_html__( 'Deleting Topic Tags&hellip; %s', 'bbpress' )
-	) );
+	$messages[] = bbp_admin_reset_query_feedback(
+		array(
+			'query'   => "DELETE a,b,c FROM `{$bbp_db->terms}` AS a LEFT JOIN `{$bbp_db->term_taxonomy}` AS c ON a.term_id = c.term_id LEFT JOIN `{$bbp_db->term_relationships}` AS b ON b.term_taxonomy_id = c.term_taxonomy_id WHERE c.taxonomy = 'topic-tag'",
+			/* translators: %s: Status of the tag deletion process */
+			'message' => esc_html__( 'Deleting Topic Tags&hellip; %s', 'bbpress' )
+		)
+	);
 
 	// User
 
@@ -226,40 +234,48 @@ function bbp_admin_reset_database() {
 
 			// Users
 			$sql_meta   = implode( "', '", $sql_meta );
-			$messages[] = bbp_admin_reset_query_feedback( array(
-				'query'   => "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')",
-				/* translators: %s: Status of the user deletion process */
-				'message' => esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' )
-			) );
+			$messages[] = bbp_admin_reset_query_feedback(
+				array(
+					'query'   => "DELETE FROM `{$bbp_db->users}` WHERE `ID` IN ('{$sql_meta}')",
+					/* translators: %s: Status of the user deletion process */
+					'message' => esc_html__( 'Deleting Imported Users&hellip; %s', 'bbpress' )
+				)
+			);
 
 			// User meta
-			$messages[] = bbp_admin_reset_query_feedback( array(
-				'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')",
-				/* translators: %s: Status of the user meta deletion process */
-				'message' => esc_html__( 'Deleting Imported User Meta&hellip; %s', 'bbpress' )
-			) );
+			$messages[] = bbp_admin_reset_query_feedback(
+				array(
+					'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `user_id` IN ('{$sql_meta}')",
+					/* translators: %s: Status of the user meta deletion process */
+					'message' => esc_html__( 'Deleting Imported User Meta&hellip; %s', 'bbpress' )
+				)
+			);
 		}
 	}
 
 	// Next, if we still have users that were not imported delete that meta data
-	$messages[] = bbp_admin_reset_query_feedback( array(
-		'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'",
-		/* translators: %s: Status of the user meta deletion process */
-		'message' => esc_html__( 'Deleting bbPress Specific User Meta&hellip; %s', 'bbpress' )
-	) );
+	$messages[] = bbp_admin_reset_query_feedback(
+		array(
+			'query'   => "DELETE FROM `{$bbp_db->usermeta}` WHERE `meta_key` LIKE '%%_bbp_%%'",
+			/* translators: %s: Status of the user meta deletion process */
+			'message' => esc_html__( 'Deleting bbPress Specific User Meta&hellip; %s', 'bbpress' )
+		)
+	);
 
 	// Converter
 
 	$table_name = $bbp_db->prefix . 'bbp_converter_translator';
 	if ( $bbp_db->get_var( "SHOW TABLES LIKE '{$table_name}'" ) === $table_name ) {
-		$messages[] = bbp_admin_reset_query_feedback( array(
-			'query'   => "DROP TABLE {$table_name}",
-			/* translators: %s: Status of the table deletion process */
-			'message' => esc_html__( 'Dropping Conversion Table&hellip; %s', 'bbpress' )
-		) );
+		$messages[] = bbp_admin_reset_query_feedback(
+			array(
+				'query'   => "DROP TABLE {$table_name}",
+				/* translators: %s: Status of the table deletion process */
+				'message' => esc_html__( 'Dropping Conversion Table&hellip; %s', 'bbpress' )
+			)
+		);
 	}
 
-	// Options 
+	// Options
 
 	bbp_delete_options();
 	$messages[] = esc_html__( 'Deleting Settings&hellip; Success!', 'bbpress' );

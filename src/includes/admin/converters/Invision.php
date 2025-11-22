@@ -17,14 +17,6 @@
 class Invision extends BBP_Converter_Base {
 
 	/**
-	 * Main Constructor
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Sets up the field mappings
 	 */
 	public function setup_globals() {
@@ -137,24 +129,24 @@ class Invision extends BBP_Converter_Base {
 
 		// Forum dates.
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_date',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_date',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_date_gmt',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_date_gmt',
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_modified',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_modified',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_modified_gmt',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_modified_gmt',
+			'default'      => gmdate( 'Y-m-d H:i:s' )
 		);
 
 		/** Topic Section *****************************************************/
@@ -482,7 +474,7 @@ class Invision extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( -1 == $status ) {
+		if ( -1 === (int) $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';
@@ -539,7 +531,7 @@ class Invision extends BBP_Converter_Base {
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
 		$pass_array = unserialize( $serialized_pass );
-		return ( md5( md5( $pass_array['salt'] ) . md5( $this->to_char( $password ) ) ) == $pass_array['hash'] );
+		return ( md5( md5( $pass_array['salt'] ) . md5( $this->to_char( $password ) ) ) === $pass_array['hash'] );
 	}
 
 	private function to_char( $input ) {

@@ -30,27 +30,27 @@ class BBP_Component {
 	 * @var string Unique name (for internal identification)
 	 * @internal
 	 */
-	var $name;
+	public $name;
 
 	/**
 	 * @var Unique ID (normally for custom post type)
 	 */
-	var $id;
+	public $id;
 
 	/**
 	 * @var string Unique slug (used in query string and permalinks)
 	 */
-	var $slug;
+	public $slug;
 
 	/**
 	 * @var WP_Query The loop for this component
 	 */
-	var $query;
+	public $query;
 
 	/**
 	 * @var string The current ID of the queried object
 	 */
-	var $current_id;
+	public $current_id;
 
 
 	/** Methods ***************************************************************/
@@ -364,7 +364,7 @@ class BBP_Walker_Reply extends Walker {
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
 		// Set up reply
-		$depth++;
+		++$depth;
 		bbpress()->reply_query->reply_depth = (int) $depth;
 		bbpress()->reply_query->post        = $object;
 		bbpress()->current_reply_id         = $object->ID;
@@ -472,7 +472,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
 		// Set up reply
-		$depth++;
+		++$depth;
 
 		// Get the reply ID
 		if ( isset( $args['exclude'][0] ) ) {
@@ -501,7 +501,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 		// Start an output buffer to make late escaping easier
 		ob_start(); ?>
 
-		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
+		<option class="<?php echo esc_attr( $class ); ?>" value="<?php echo esc_attr( $value ); ?>"<?php selected( $args['selected'], $object->ID ); ?> <?php disabled( in_array( $reply_id, $ancestors, true ), true ); ?>><?php echo $pad . esc_html( $title ); ?></option>
 
 		<?php
 

@@ -96,11 +96,14 @@ function bbp_has_search_results( $args = array() ) {
 			: ceil( $bbp->search_query->found_posts / $bbp->search_query->posts_per_page );
 
 		// Pagination settings with filter
-		$bbp_search_pagination = apply_filters( 'bbp_search_results_pagination', array(
-			'base'    => bbp_get_search_pagination_base(),
-			'total'   => $total_pages,
-			'current' => $bbp->search_query->paged
-		) );
+		$bbp_search_pagination = apply_filters(
+			'bbp_search_results_pagination',
+			array(
+				'base'    => bbp_get_search_pagination_base(),
+				'total'   => $total_pages,
+				'current' => $bbp->search_query->paged
+			)
+		);
 
 		// Add pagination to query object
 		$bbp->search_query->pagination_links = bbp_paginate_links( $bbp_search_pagination );
@@ -208,9 +211,12 @@ function bbp_search_url() {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_search_rewrite_id() => ''
-			), home_url( '/' ) );
+			$url = add_query_arg(
+				array(
+					bbp_get_search_rewrite_id() => ''
+				),
+				home_url( '/' )
+			);
 		}
 
 		// Filter & return
@@ -254,9 +260,12 @@ function bbp_search_results_url() {
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array(
-				bbp_get_search_rewrite_id() => urlencode( $search_terms )
-			), home_url( '/' ) );
+			$url = add_query_arg(
+				array(
+					bbp_get_search_rewrite_id() => urlencode( $search_terms )
+				),
+				home_url( '/' )
+			);
 		}
 
 		// Filter & return
@@ -400,7 +409,8 @@ function bbp_get_search_pagination_count() {
 	$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
 	$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
 			? $total_int
-			: $start_int + ( $ppp_int - 1 ) );
+			: $start_int + ( $ppp_int - 1 )
+	);
 
 	// Format numbers for display
 	$total_num = bbp_number_format( $total_int );

@@ -31,6 +31,8 @@ function bbp_get_converters() {
 
 		// Look for the converter file in the converters directory
 		if ( false !== $curdir ) {
+
+			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			while ( $file = readdir( $curdir ) ) {
 				if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === false ) {
 					$name = preg_replace( '/.php/', '', $file );

@@ -72,12 +72,12 @@ defined( 'ABSPATH' ) || exit;
 			<?php do_action( 'bbp_theme_before_topic_started_by' ); ?>
 
 			<span class="bbp-topic-started-by">
-				<?php 
-				printf( 
+				<?php
+				printf(
 					/* translators: %1$s: Topic author link */
-					esc_html__( 'Started by: %1$s', 'bbpress' ), 
-					bbp_get_topic_author_link( array( 'size' => '14' ) ) 
-				); 
+					esc_html__( 'Started by: %1$s', 'bbpress' ),
+					bbp_get_topic_author_link( array( 'size' => '14' ) )
+				);
 				?>
 			</span>
 
@@ -88,12 +88,12 @@ defined( 'ABSPATH' ) || exit;
 				<?php do_action( 'bbp_theme_before_topic_started_in' ); ?>
 
 				<span class="bbp-topic-started-in">
-					<?php 
-					printf( 
+					<?php
+					printf(
 						/* translators: %1$s: Forum link with title */
-						esc_html__( 'in: %1$s', 'bbpress' ), 
-						'<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>' 
-					); 
+						esc_html__( 'in: %1$s', 'bbpress' ),
+						'<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>'
+					);
 					?>
 				</span>
 				<?php do_action( 'bbp_theme_after_topic_started_in' ); ?>

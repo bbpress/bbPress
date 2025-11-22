@@ -83,15 +83,15 @@ function bbp_admin_upgrade_page() {
 						</td>
 						<th scope="col" id="description" class="manage-column column-primary column-description sortable <?php echo ( 'priority' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
 							<a href="
-								<?php 
-								echo esc_url( 
-									bbp_get_admin_repair_tool_page_url( 
+								<?php
+								echo esc_url(
+									bbp_get_admin_repair_tool_page_url(
 										array(
 											'orderby' => 'priority',
 											'order'   => $new_order
-										) 
-									) 
-								); 
+										)
+									)
+								);
 								?>">
 								<span><?php esc_html_e( 'Description', 'bbpress' ); ?></span>
 								<span class="sorting-indicator"></span>
@@ -99,15 +99,15 @@ function bbp_admin_upgrade_page() {
 						</th>
 						<th scope="col" id="version" class="manage-column column-version sortable <?php echo ( 'version' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
 							<a href="
-								<?php 
-								echo esc_url( 
-									bbp_get_admin_repair_tool_page_url( 
+								<?php
+								echo esc_url(
+									bbp_get_admin_repair_tool_page_url(
 										array(
 											'orderby' => 'version',
 											'order'   => $new_order
-										) 
-									) 
-								); 
+										)
+									)
+								);
 								?>">
 								<span><?php esc_html_e( 'Version', 'bbpress' ); ?></span>
 								<span class="sorting-indicator"></span>
@@ -118,15 +118,15 @@ function bbp_admin_upgrade_page() {
 						</th>
 						<th scope="col" id="overhead" class="manage-column column-overhead sortable <?php echo ( 'overhead' === $orderby ) ? esc_attr( $order ) : 'asc'; ?>">
 							<a href="
-								<?php 
-								echo esc_url( 
-									bbp_get_admin_repair_tool_page_url( 
+								<?php
+								echo esc_url(
+									bbp_get_admin_repair_tool_page_url(
 										array(
 											'orderby' => 'overhead',
 											'order'   => $new_order
-										) 
-									) 
-								); 
+										)
+									)
+								);
 								?>">
 								<span><?php esc_html_e( 'Overhead', 'bbpress' ); ?></span>
 								<span class="sorting-indicator"></span>
@@ -158,7 +158,7 @@ function bbp_admin_upgrade_page() {
 										<span class="run">
 											<a href="<?php bbp_admin_repair_tool_run_url( $item ); ?>"
 											id="<?php echo esc_attr( $item['id'] ); ?>"
-											aria-label="<?php 
+											aria-label="<?php
 											printf(
 												/* translators: %s: Repair tool title */
 												esc_html__( 'Run %s', 'bbpress' ),
@@ -317,13 +317,15 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	$groups_meta_table = $prefix . 'bp_groups_groupmeta';
 
 	// Get the converted forum IDs
-	$forum_ids = $bbp_db->query( "SELECT `forum`.`ID`, `forummeta`.`meta_value`
-								FROM `{$bbp_db->posts}` AS `forum`
-									LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
-										ON `forum`.`ID` = `forummeta`.`post_id`
-										AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
-								WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
-								GROUP BY `forum`.`ID`" );
+	$forum_ids = $bbp_db->query(
+		"SELECT `forum`.`ID`, `forummeta`.`meta_value`
+			FROM `{$bbp_db->posts}` AS `forum`
+				LEFT JOIN `{$bbp_db->postmeta}` AS `forummeta`
+					ON `forum`.`ID` = `forummeta`.`post_id`
+					AND `forummeta`.`meta_key` = '_bbp_old_forum_id'
+			WHERE `forum`.`post_type` = '" . bbp_get_forum_post_type() . "'
+			GROUP BY `forum`.`ID`"
+	);
 
 	// Bail if forum IDs returned an error
 	if ( is_wp_error( $forum_ids ) || empty( $bbp_db->last_result ) ) {
@@ -395,24 +397,28 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	}
 
 	// Try to get the group root forum
-	$posts = get_posts( array(
-		'post_type'   => bbp_get_forum_post_type(),
-		'meta_key'    => '_bbp_old_forum_id',
-		'meta_type'   => 'NUMERIC',
-		'meta_value'  => $old_default_forum_id,
-		'numberposts' => 1
-	) );
+	$posts = get_posts(
+		array(
+			'post_type'   => bbp_get_forum_post_type(),
+			'meta_key'    => '_bbp_old_forum_id',
+			'meta_type'   => 'NUMERIC',
+			'meta_value'  => $old_default_forum_id,
+			'numberposts' => 1
+		)
+	);
 
 	// Found the group root forum
 	if ( ! empty( $posts ) ) {
 
 		// Rename 'Default Forum'  since it's now visible in sitewide forums
 		if ( 'Default Forum' === $posts[0]->post_title ) {
-			wp_update_post( array(
-				'ID'         => $posts[0]->ID,
-				'post_title' => esc_html__( 'Group Forums', 'bbpress' ),
-				'post_name'  => esc_html__( 'group-forums', 'bbpress' ),
-			) );
+			wp_update_post(
+				array(
+					'ID'         => $posts[0]->ID,
+					'post_title' => esc_html__( 'Group Forums', 'bbpress' ),
+					'post_name'  => esc_html__( 'group-forums', 'bbpress' ),
+				)
+			);
 		}
 
 		// Update the group forums root metadata
@@ -427,13 +433,15 @@ function bbp_admin_upgrade_group_forum_relationships() {
 	remove_role( 'keymaster' );
 
 	// Complete results
-	$result = sprintf( 
+	$result = sprintf(
 		/* translators: %1$s: Number of groups updated; %2$s: Number of forums updated; %3$s: Number of forum statuses synced */
-		esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ), 
-		bbp_number_format( $g_count ), 
-		bbp_number_format( $f_count ), 
-		bbp_number_format( $s_count ) 
+		esc_html__( 'Complete! %1$s groups updated; %2$s forums updated; %3$s forum statuses synced.', 'bbpress' ),
+		bbp_number_format( $g_count ),
+		bbp_number_format( $f_count ),
+		bbp_number_format( $s_count )
 	);
+
+	// Return
 	return array( 0, sprintf( $statement, $result ) );
 }
 

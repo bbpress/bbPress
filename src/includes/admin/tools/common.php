@@ -55,9 +55,12 @@ function bbp_get_admin_repair_tool_page_id() {
 function bbp_get_admin_repair_tool_page_url( $args = array() ) {
 
 	// Parse arguments
-	$r = wp_parse_args( $args, array(
-		'page' => bbp_get_admin_repair_tool_page()
-	) );
+	$r = wp_parse_args(
+		$args,
+		array(
+			'page' => bbp_get_admin_repair_tool_page()
+		)
+	);
 
 	return add_query_arg( $r, admin_url( 'tools.php' ) );
 }
@@ -743,18 +746,22 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args( $args, array(
-		'before'       => '<ul class="subsubsub">',
-		'after'        => '</ul>',
-		'link_before'  => '<li>',
-		'link_after'   => '</li>',
-		'count_before' => ' <span class="count">(',
-		'count_after'  => ')</span>',
-		'sep'          => ' | ',
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'       => '<ul class="subsubsub">',
+			'after'        => '</ul>',
+			'link_before'  => '<li>',
+			'link_after'   => '</li>',
+			'count_before' => ' <span class="count">(',
+			'count_after'  => ')</span>',
+			'sep'          => ' | ',
 
-		// Retired, use 'sep' instead
-		'separator'    => false
-	), 'get_admin_repair_tool_overhead_filters' );
+			// Retired, use 'sep' instead
+			'separator'    => false
+		),
+		'get_admin_repair_tool_overhead_filters'
+	);
 
 	/**
 	 * Necessary for backwards compatibility
@@ -786,7 +793,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 			}
 
 			// Bump the overhead count
-			$overheads[ $overhead ]++;
+			++$overheads[ $overhead ];
 		}
 	}
 
@@ -873,18 +880,22 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args( $args, array(
-		'before'       => '<ul class="subsubsub">',
-		'after'        => '</ul>',
-		'link_before'  => '<li>',
-		'link_after'   => '</li>',
-		'count_before' => ' <span class="count">(',
-		'count_after'  => ')</span>',
-		'sep'          => ' | ',
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'       => '<ul class="subsubsub">',
+			'after'        => '</ul>',
+			'link_before'  => '<li>',
+			'link_after'   => '</li>',
+			'count_before' => ' <span class="count">(',
+			'count_after'  => ')</span>',
+			'sep'          => ' | ',
 
-		// Retired, use 'sep' instead
-		'separator'    => false
-	), 'get_admin_repair_tool_status_filters' );
+			// Retired, use 'sep' instead
+			'separator'    => false
+		),
+		'get_admin_repair_tool_status_filters'
+	);
 
 	/**
 	 * Necessary for backwards compatibility
@@ -925,9 +936,12 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 	ksort( $pending );
 
 	// Build the filter URL
-	$filter_url = add_query_arg( array(
-		'status' => 'pending'
-	), $tools_url );
+	$filter_url = add_query_arg(
+		array(
+			'status' => 'pending'
+		),
+		$tools_url
+	);
 
 	// Count HTML
 	$all_count     = $r['count_before'] . count( $tools   ) . $r['count_after'];

@@ -137,42 +137,56 @@ final class bbPress {
 	 * @see bbPress::instance()
 	 * @see bbpress();
 	 */
-	private function __construct() { /* Do nothing here */ }
+	private function __construct() {
+		/* Do nothing here */
+	}
 
 	/**
 	 * A dummy magic method to prevent bbPress from being cloned
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 */
-	public function __clone() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' ); }
+	public function __clone() {
+		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' );
+	}
 
 	/**
 	 * A dummy magic method to prevent bbPress from being unserialized
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 */
-	public function __wakeup() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' ); }
+	public function __wakeup() {
+		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'bbpress' ), '2.1' );
+	}
 
 	/**
 	 * Magic method for checking the existence of a certain custom field
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
-	public function __isset( $key ) { return isset( $this->data[ $key ] ); }
+	public function __isset( $key ) {
+		return isset( $this->data[ $key ] );
+	}
 
 	/**
 	 * Magic method for getting bbPress variables
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
-	public function __get( $key ) { return isset( $this->data[ $key ] ) ? $this->data[ $key ] : null; }
+	public function __get( $key ) {
+		return isset( $this->data[ $key ] )
+			? $this->data[ $key ]
+			: null;
+	}
 
 	/**
 	 * Magic method for setting bbPress variables
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
-	public function __set( $key, $value ) { $this->data[ $key ] = $value; }
+	public function __set( $key, $value ) {
+		$this->data[ $key ] = $value;
+	}
 
 	/**
 	 * Magic method for unsetting bbPress variables
@@ -190,7 +204,10 @@ final class bbPress {
 	 *
 	 * @since 2.2.0 bbPress (r4252)
 	 */
-	public function __call( $name = '', $args = array() ) { unset( $name, $args ); return null; }
+	public function __call( $name = '', $args = array() ) {
+		unset( $name, $args );
+		return null;
+	}
 
 	/** Private Methods *******************************************************/
 
@@ -447,13 +464,15 @@ final class bbPress {
 		bbp_register_template_stack( 'get_template_directory',   8 );
 
 		// Register the default theme compatibility package
-		bbp_register_theme_package( array(
-			'id'      => 'default',
-			'name'    => 'bbPress Default',
-			'version' => bbp_get_version(),
-			'dir'     => trailingslashit( $this->themes_dir . 'default' ),
-			'url'     => trailingslashit( $this->themes_url . 'default' )
-		) );
+		bbp_register_theme_package(
+			array(
+				'id'      => 'default',
+				'name'    => 'bbPress Default',
+				'version' => bbp_get_version(),
+				'dir'     => trailingslashit( $this->themes_dir . 'default' ),
+				'url'     => trailingslashit( $this->themes_url . 'default' )
+			)
+		);
 	}
 
 	/**
@@ -509,25 +528,28 @@ final class bbPress {
 		// Register Forum content type
 		register_post_type(
 			bbp_get_forum_post_type(),
-			apply_filters( 'bbp_register_forum_post_type', array(
-				'labels'              => bbp_get_forum_post_type_labels(),
-				'rewrite'             => bbp_get_forum_post_type_rewrite(),
-				'supports'            => bbp_get_forum_post_type_supports(),
-				'description'         => esc_html__( 'bbPress Forums', 'bbpress' ),
-				'capabilities'        => bbp_get_forum_caps(),
-				'capability_type'     => array( 'forum', 'forums' ),
-				'menu_position'       => 555555,
-				'has_archive'         => bbp_get_root_slug(),
-				'exclude_from_search' => true,
-				'show_in_nav_menus'   => true,
-				'public'              => true,
-				'show_ui'             => current_user_can( 'bbp_forums_admin' ),
-				'can_export'          => true,
-				'hierarchical'        => true,
-				'query_var'           => true,
-				'menu_icon'           => '',
-				'source'              => 'bbpress',
-			) )
+			apply_filters(
+				'bbp_register_forum_post_type',
+				array(
+					'labels'              => bbp_get_forum_post_type_labels(),
+					'rewrite'             => bbp_get_forum_post_type_rewrite(),
+					'supports'            => bbp_get_forum_post_type_supports(),
+					'description'         => esc_html__( 'bbPress Forums', 'bbpress' ),
+					'capabilities'        => bbp_get_forum_caps(),
+					'capability_type'     => array( 'forum', 'forums' ),
+					'menu_position'       => 555555,
+					'has_archive'         => bbp_get_root_slug(),
+					'exclude_from_search' => true,
+					'show_in_nav_menus'   => true,
+					'public'              => true,
+					'show_ui'             => current_user_can( 'bbp_forums_admin' ),
+					'can_export'          => true,
+					'hierarchical'        => true,
+					'query_var'           => true,
+					'menu_icon'           => '',
+					'source'              => 'bbpress',
+				)
+			)
 		);
 
 		/** Topics ************************************************************/
@@ -535,25 +557,28 @@ final class bbPress {
 		// Register Topic content type
 		register_post_type(
 			bbp_get_topic_post_type(),
-			apply_filters( 'bbp_register_topic_post_type', array(
-				'labels'              => bbp_get_topic_post_type_labels(),
-				'rewrite'             => bbp_get_topic_post_type_rewrite(),
-				'supports'            => bbp_get_topic_post_type_supports(),
-				'description'         => esc_html__( 'bbPress Topics', 'bbpress' ),
-				'capabilities'        => bbp_get_topic_caps(),
-				'capability_type'     => array( 'topic', 'topics' ),
-				'menu_position'       => 555555,
-				'has_archive'         => ( 'forums' === bbp_show_on_root() ) ? bbp_get_topic_archive_slug() : false,
-				'exclude_from_search' => true,
-				'show_in_nav_menus'   => false,
-				'public'              => true,
-				'show_ui'             => current_user_can( 'bbp_topics_admin' ),
-				'can_export'          => true,
-				'hierarchical'        => false,
-				'query_var'           => true,
-				'menu_icon'           => '',
-				'source'              => 'bbpress',
-			) )
+			apply_filters(
+				'bbp_register_topic_post_type',
+				array(
+					'labels'              => bbp_get_topic_post_type_labels(),
+					'rewrite'             => bbp_get_topic_post_type_rewrite(),
+					'supports'            => bbp_get_topic_post_type_supports(),
+					'description'         => esc_html__( 'bbPress Topics', 'bbpress' ),
+					'capabilities'        => bbp_get_topic_caps(),
+					'capability_type'     => array( 'topic', 'topics' ),
+					'menu_position'       => 555555,
+					'has_archive'         => ( 'forums' === bbp_show_on_root() ) ? bbp_get_topic_archive_slug() : false,
+					'exclude_from_search' => true,
+					'show_in_nav_menus'   => false,
+					'public'              => true,
+					'show_ui'             => current_user_can( 'bbp_topics_admin' ),
+					'can_export'          => true,
+					'hierarchical'        => false,
+					'query_var'           => true,
+					'menu_icon'           => '',
+					'source'              => 'bbpress',
+				)
+			)
 		);
 
 		/** Replies ***********************************************************/
@@ -561,25 +586,28 @@ final class bbPress {
 		// Register reply content type
 		register_post_type(
 			bbp_get_reply_post_type(),
-			apply_filters( 'bbp_register_reply_post_type', array(
-				'labels'              => bbp_get_reply_post_type_labels(),
-				'rewrite'             => bbp_get_reply_post_type_rewrite(),
-				'supports'            => bbp_get_reply_post_type_supports(),
-				'description'         => esc_html__( 'bbPress Replies', 'bbpress' ),
-				'capabilities'        => bbp_get_reply_caps(),
-				'capability_type'     => array( 'reply', 'replies' ),
-				'menu_position'       => 555555,
-				'exclude_from_search' => true,
-				'has_archive'         => false,
-				'show_in_nav_menus'   => false,
-				'public'              => true,
-				'show_ui'             => current_user_can( 'bbp_replies_admin' ),
-				'can_export'          => true,
-				'hierarchical'        => false,
-				'query_var'           => true,
-				'menu_icon'           => '',
-				'source'              => 'bbpress',
-			) )
+			apply_filters(
+				'bbp_register_reply_post_type',
+				array(
+					'labels'              => bbp_get_reply_post_type_labels(),
+					'rewrite'             => bbp_get_reply_post_type_rewrite(),
+					'supports'            => bbp_get_reply_post_type_supports(),
+					'description'         => esc_html__( 'bbPress Replies', 'bbpress' ),
+					'capabilities'        => bbp_get_reply_caps(),
+					'capability_type'     => array( 'reply', 'replies' ),
+					'menu_position'       => 555555,
+					'exclude_from_search' => true,
+					'has_archive'         => false,
+					'show_in_nav_menus'   => false,
+					'public'              => true,
+					'show_ui'             => current_user_can( 'bbp_replies_admin' ),
+					'can_export'          => true,
+					'hierarchical'        => false,
+					'query_var'           => true,
+					'menu_icon'           => '',
+					'source'              => 'bbpress',
+				)
+			)
 		);
 	}
 
@@ -596,60 +624,72 @@ final class bbPress {
 		// Closed
 		register_post_status(
 			bbp_get_closed_status_id(),
-			apply_filters( 'bbp_register_closed_post_status', array(
-				'label'                     => _x( 'Closed', 'post', 'bbpress' ),
-				/* translators: %s: Number of closed items */
-				'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'bbpress' ),
-				'public'                    => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => true,
-				'source'                    => 'bbpress'
-			) )
+			apply_filters(
+				'bbp_register_closed_post_status',
+				array(
+					'label'                     => _x( 'Closed', 'post', 'bbpress' ),
+					/* translators: %s: Number of closed items */
+					'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'bbpress' ),
+					'public'                    => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all_list'    => true,
+					'source'                    => 'bbpress'
+				)
+			)
 		);
 
 		// Spam
 		register_post_status(
 			bbp_get_spam_status_id(),
-			apply_filters( 'bbp_register_spam_post_status', array(
-				'label'                     => _x( 'Spam', 'post', 'bbpress' ),
-				/* translators: %s: Number of spammed items */
-				'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'post', 'bbpress' ),
-				'protected'                 => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false,
-				'source'                    => 'bbpress'
-			) )
+			apply_filters(
+				'bbp_register_spam_post_status',
+				array(
+					'label'                     => _x( 'Spam', 'post', 'bbpress' ),
+					/* translators: %s: Number of spammed items */
+					'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'post', 'bbpress' ),
+					'protected'                 => true,
+					'exclude_from_search'       => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all_list'    => false,
+					'source'                    => 'bbpress'
+				)
+			)
 		);
 
 		// Orphan
 		register_post_status(
 			bbp_get_orphan_status_id(),
-			apply_filters( 'bbp_register_orphan_post_status', array(
-				'label'                     => _x( 'Orphan', 'post', 'bbpress' ),
-				/* translators: %s: Number of orphaned items */
-				'label_count'               => _nx_noop( 'Orphan <span class="count">(%s)</span>', 'Orphans <span class="count">(%s)</span>', 'post', 'bbpress' ),
-				'protected'                 => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false,
-				'source'                    => 'bbpress'
-			) )
+			apply_filters(
+				'bbp_register_orphan_post_status',
+				array(
+					'label'                     => _x( 'Orphan', 'post', 'bbpress' ),
+					/* translators: %s: Number of orphaned items */
+					'label_count'               => _nx_noop( 'Orphan <span class="count">(%s)</span>', 'Orphans <span class="count">(%s)</span>', 'post', 'bbpress' ),
+					'protected'                 => true,
+					'exclude_from_search'       => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all_list'    => false,
+					'source'                    => 'bbpress'
+				)
+			)
 		);
 
 		// Hidden
 		register_post_status(
 			bbp_get_hidden_status_id(),
-			apply_filters( 'bbp_register_hidden_post_status', array(
-				'label'                     => _x( 'Hidden', 'post', 'bbpress' ),
-				/* translators: %s: Number of hidden items */
-				'label_count'               => _nx_noop( 'Hidden <span class="count">(%s)</span>', 'Hidden <span class="count">(%s)</span>', 'post', 'bbpress' ),
-				'private'                   => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => true,
-				'source'                    => 'bbpress'
-			) )
+			apply_filters(
+				'bbp_register_hidden_post_status',
+				array(
+					'label'                     => _x( 'Hidden', 'post', 'bbpress' ),
+					/* translators: %s: Number of hidden items */
+					'label_count'               => _nx_noop( 'Hidden <span class="count">(%s)</span>', 'Hidden <span class="count">(%s)</span>', 'post', 'bbpress' ),
+					'private'                   => true,
+					'exclude_from_search'       => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all_list'    => true,
+					'source'                    => 'bbpress'
+				)
+			)
 		);
 
 		/**
@@ -687,20 +727,23 @@ final class bbPress {
 		register_taxonomy(
 			bbp_get_topic_tag_tax_id(),
 			bbp_get_topic_post_type(),
-			apply_filters( 'bbp_register_topic_taxonomy', array(
-				'labels'                => bbp_get_topic_tag_tax_labels(),
-				'rewrite'               => bbp_get_topic_tag_tax_rewrite(),
-				'capabilities'          => bbp_get_topic_tag_caps(),
-				'update_count_callback' => 'bbp_update_topic_tag_count',
-				'query_var'             => true,
-				'show_tagcloud'         => true,
-				'hierarchical'          => false,
-				'show_in_nav_menus'     => false,
-				'public'                => true,
-				'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
-				'source'                => 'bbpress'
+			apply_filters(
+				'bbp_register_topic_taxonomy',
+				array(
+					'labels'                => bbp_get_topic_tag_tax_labels(),
+					'rewrite'               => bbp_get_topic_tag_tax_rewrite(),
+					'capabilities'          => bbp_get_topic_tag_caps(),
+					'update_count_callback' => 'bbp_update_topic_tag_count',
+					'query_var'             => true,
+					'show_tagcloud'         => true,
+					'hierarchical'          => false,
+					'show_in_nav_menus'     => false,
+					'public'                => true,
+					'show_ui'               => bbp_allow_topic_tags() && current_user_can( 'bbp_topic_tags_admin' ),
+					'source'                => 'bbpress'
+				)
 			)
-		) );
+		);
 	}
 
 	/**
@@ -714,28 +757,34 @@ final class bbPress {
 		bbp_register_view(
 			'popular',
 			esc_html__( 'Most popular topics', 'bbpress' ),
-			apply_filters( 'bbp_register_view_popular', array(
-				'meta_key'      => '_bbp_reply_count',
-				'meta_type'     => 'NUMERIC',
-				'max_num_pages' => 1,
-				'orderby'       => 'meta_value_num',
-				'show_stickies' => false
+			apply_filters(
+				'bbp_register_view_popular',
+				array(
+					'meta_key'      => '_bbp_reply_count',
+					'meta_type'     => 'NUMERIC',
+					'max_num_pages' => 1,
+					'orderby'       => 'meta_value_num',
+					'show_stickies' => false
+				)
 			)
-		) );
+		);
 
 		// Topics with no replies
 		bbp_register_view(
 			'no-replies',
 			esc_html__( 'Topics with no replies', 'bbpress' ),
-			apply_filters( 'bbp_register_view_no_replies', array(
-				'meta_key'      => '_bbp_reply_count',
-				'meta_type'     => 'NUMERIC',
-				'meta_value'    => 1,
-				'meta_compare'  => '<',
-				'orderby'       => '',
-				'show_stickies' => false
+			apply_filters(
+				'bbp_register_view_no_replies',
+				array(
+					'meta_key'      => '_bbp_reply_count',
+					'meta_type'     => 'NUMERIC',
+					'meta_value'    => 1,
+					'meta_compare'  => '<',
+					'orderby'       => '',
+					'show_stickies' => false
+				)
 			)
-		) );
+		);
 	}
 
 	/**
@@ -805,14 +854,18 @@ final class bbPress {
 		register_meta( 'user', '_bbp_reply_count', $count );
 
 		// Activity
-		register_meta( 'user', '_bbp_last_posted', array(
-			'type'              => 'integer',
-			'description'       => esc_html__( 'bbPress User Activity', 'bbpress' ),
-			'single'            => true,
-			'show_in_rest'      => true,
-			'sanitize_callback' => 'bbp_number_not_negative',
-			'auth_callback'     => '__return_true'
-		) );
+		register_meta(
+			'user',
+			'_bbp_last_posted',
+			array(
+				'type'              => 'integer',
+				'description'       => esc_html__( 'bbPress User Activity', 'bbpress' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'bbp_number_not_negative',
+				'auth_callback'     => '__return_true'
+			)
+		);
 	}
 
 	/**
@@ -854,11 +907,13 @@ final class bbPress {
 		$blocked     = bbp_get_blocked_role();
 
 		// Build the roles into one useful array
+		// phpcs:disable WordPress.Arrays.ArrayKeySpacingRestrictions.TooMuchSpaceAfterKey
 		$this->roles[ $keymaster   ] = new WP_Role( 'Keymaster',   bbp_get_caps_for_role( $keymaster   ) );
 		$this->roles[ $moderator   ] = new WP_Role( 'Moderator',   bbp_get_caps_for_role( $moderator   ) );
 		$this->roles[ $participant ] = new WP_Role( 'Participant', bbp_get_caps_for_role( $participant ) );
 		$this->roles[ $spectator   ] = new WP_Role( 'Spectator',   bbp_get_caps_for_role( $spectator   ) );
 		$this->roles[ $blocked     ] = new WP_Role( 'Blocked',     bbp_get_caps_for_role( $blocked     ) );
+		// phpcs:enable
 	}
 
 	/** Custom Rewrite Rules **************************************************/
@@ -1008,37 +1063,49 @@ final class bbPress {
 		$search_slug = bbp_get_search_slug();
 
 		// User Permastruct
-		add_permastruct( $user_id, $user_slug . '/%' . $user_id . '%', array(
-			'with_front'  => false,
-			'ep_mask'     => EP_NONE,
-			'paged'       => false,
-			'feed'        => false,
-			'forcomments' => false,
-			'walk_dirs'   => true,
-			'endpoints'   => false,
-		) );
+		add_permastruct(
+			$user_id,
+			$user_slug . '/%' . $user_id . '%',
+			array(
+				'with_front'  => false,
+				'ep_mask'     => EP_NONE,
+				'paged'       => false,
+				'feed'        => false,
+				'forcomments' => false,
+				'walk_dirs'   => true,
+				'endpoints'   => false,
+			)
+		);
 
 		// Topic View Permastruct
-		add_permastruct( $view_id, $view_slug . '/%' . $view_id . '%', array(
-			'with_front'  => false,
-			'ep_mask'     => EP_NONE,
-			'paged'       => false,
-			'feed'        => false,
-			'forcomments' => false,
-			'walk_dirs'   => true,
-			'endpoints'   => false,
-		) );
+		add_permastruct(
+			$view_id,
+			$view_slug . '/%' . $view_id . '%',
+			array(
+				'with_front'  => false,
+				'ep_mask'     => EP_NONE,
+				'paged'       => false,
+				'feed'        => false,
+				'forcomments' => false,
+				'walk_dirs'   => true,
+				'endpoints'   => false,
+			)
+		);
 
 		// Search Permastruct
-		add_permastruct( $search_id, $search_slug . '/%' . $search_id . '%', array(
-			'with_front'  => false,
-			'ep_mask'     => EP_NONE,
-			'paged'       => true,
-			'feed'        => false,
-			'forcomments' => false,
-			'walk_dirs'   => true,
-			'endpoints'   => false,
-		) );
+		add_permastruct(
+			$search_id,
+			$search_slug . '/%' . $search_id . '%',
+			array(
+				'with_front'  => false,
+				'ep_mask'     => EP_NONE,
+				'paged'       => true,
+				'feed'        => false,
+				'forcomments' => false,
+				'walk_dirs'   => true,
+				'endpoints'   => false,
+			)
+		);
 	}
 }
 

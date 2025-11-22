@@ -310,7 +310,12 @@ function bbp_admin_repair_topic_voice_count() {
 				AND postmeta.meta_key = '_bbp_topic_id'
 			WHERE posts.post_type IN (%s, %s)
 				AND posts.post_status IN (%s, %s)
-			GROUP BY postmeta.meta_value, posts.post_author)", $tpt, $rpt, $pps, $cps );
+			GROUP BY postmeta.meta_value, posts.post_author)",
+		$tpt,
+		$rpt,
+		$pps,
+		$cps
+	);
 
 	if ( is_wp_error( $bbp_db->query( $engagements_sql ) ) ) {
 		return array( 2, sprintf( $statement, $result ) );
@@ -384,10 +389,12 @@ function bbp_admin_repair_forum_topic_count() {
 		return array( 1, sprintf( $statement, $result ) );
 	}
 
-	$forums = get_posts( array(
-		'post_type'   => bbp_get_forum_post_type(),
-		'numberposts' => -1
-	) );
+	$forums = get_posts(
+		array(
+			'post_type'   => bbp_get_forum_post_type(),
+			'numberposts' => -1
+		)
+	);
 
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
@@ -415,10 +422,17 @@ function bbp_admin_repair_topic_tag_count() {
 	$statement = esc_html__( 'Counting the number of topics in each topic-tag&hellip; %s', 'bbpress' );
 	$result    = esc_html__( 'Failed!', 'bbpress' );
 	$tax_id    = bbp_get_topic_tag_tax_id();
-	$terms     = get_terms( $tax_id, array( 'hide_empty' => false ) );
-	$tt_ids    = wp_list_pluck( $terms, 'term_taxonomy_id' );
-	$ints      = array_map( 'intval', $tt_ids );
-	$taxonomy  = get_taxonomy( $tax_id );
+	$terms     = get_terms(
+		array(
+			'taxonomy'   => $tax_id,
+			'hide_empty' => false
+		)
+	);
+
+	// Get the term IDs
+	$tt_ids   = wp_list_pluck( $terms, 'term_taxonomy_id' );
+	$ints     = array_map( 'intval', $tt_ids );
+	$taxonomy = get_taxonomy( $tax_id );
 
 	// Bail if taxonomy does not exist
 	if ( empty( $taxonomy ) ) {
@@ -476,10 +490,12 @@ function bbp_admin_repair_forum_reply_count() {
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
-	$forums = get_posts( array(
-		'post_type'   => bbp_get_forum_post_type(),
-		'numberposts' => -1
-	) );
+	$forums = get_posts(
+		array(
+			'post_type'   => bbp_get_forum_post_type(),
+			'numberposts' => -1
+		)
+	);
 
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
@@ -523,10 +539,12 @@ function bbp_admin_repair_forum_hidden_reply_count() {
 	}
 
 	// Recalculate the metas key _bbp_reply_count and _bbp_total_reply_count for each forum
-	$forums = get_posts( array(
-		'post_type'   => bbp_get_forum_post_type(),
-		'numberposts' => -1
-	) );
+	$forums = get_posts(
+		array(
+			'post_type'   => bbp_get_forum_post_type(),
+			'numberposts' => -1
+		)
+	);
 
 	if ( ! empty( $forums ) ) {
 		foreach ( $forums as $forum ) {
@@ -886,12 +904,15 @@ function bbp_admin_repair_user_roles() {
 			: $default_role;
 
 		// Get users of this site, limited to 1000
-		while ( $users = get_users( array(
-			'role'   => $role,
-			'fields' => 'ID',
-			'number' => 1000,
-			'offset' => $offset
-		) ) ) {
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( $users = get_users(
+			array(
+				'role'   => $role,
+				'fields' => 'ID',
+				'number' => 1000,
+				'offset' => $offset
+			)
+		) ) {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
@@ -915,13 +936,16 @@ function bbp_admin_repair_user_roles() {
 	if ( ! is_multisite() ) {
 
 		// Get users with missing capabilities on this site, limited to 1000
-		while ( $users = get_users( array(
-			'meta_key'     => $cap_key,
-			'meta_compare' => 'NOT EXISTS',
-			'fields'       => 'ID',
-			'number'       => 1000,
-			'offset'       => $offset
-		) ) ) {
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( $users = get_users(
+			array(
+				'meta_key'     => $cap_key,
+				'meta_compare' => 'NOT EXISTS',
+				'fields'       => 'ID',
+				'number'       => 1000,
+				'offset'       => $offset
+			)
+		) ) {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
@@ -939,13 +963,16 @@ function bbp_admin_repair_user_roles() {
 	} else {
 
 		// Get users with empty capabilities on this site, limited to 1000
-		while ( $users = get_users( array(
-			'meta_key'   => $cap_key,
-			'meta_value' => 'a:0:{}',
-			'fields'     => 'ID',
-			'number'     => 1000,
-			'offset'     => $offset
-		) ) ) {
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( $users = get_users(
+			array(
+				'meta_key'   => $cap_key,
+				'meta_value' => 'a:0:{}',
+				'fields'     => 'ID',
+				'number'     => 1000,
+				'offset'     => $offset
+			)
+		) ) {
 
 			// Iterate through each user of $role and try to set it
 			foreach ( (array) $users as $user_id ) {
@@ -958,6 +985,7 @@ function bbp_admin_repair_user_roles() {
 			$offset = $offset + 1000;
 		}
 	}
+
 	/* translators: %s: Number of updated users */
 	$result = sprintf( esc_html__( 'Complete! %s users updated.', 'bbpress' ), bbp_number_format( $changed ) );
 
@@ -991,74 +1019,106 @@ function bbp_admin_repair_freshness() {
 	$pps = bbp_get_public_status_id();
 
 	// Next, give all the topics with replies the ID their last reply.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )" ) ) ) {
+			GROUP BY `topic`.`ID` )"
+		)
+	) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
 	// For any remaining topics, give a reply ID of 0.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_reply_id', 0
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
+		)
+	) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	// Now we give all the forums with topics the ID their last topic.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', MAX( `topic`.`ID` )
 			FROM `{$bbp_db->posts}` AS `forum` INNER JOIN `{$bbp_db->posts}` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
 			WHERE `topic`.`post_status` = '{$pps}' AND `forum`.`post_type` = '{$fpt}' AND `topic`.`post_type` = '{$tpt}'
-			GROUP BY `forum`.`ID` )" ) ) ) {
+			GROUP BY `forum`.`ID` )"
+		)
+	) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
 	// For any remaining forums, give a topic ID of 0.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_topic_id', 0
 			FROM `{$bbp_db->posts}` AS `forum` LEFT JOIN `{$bbp_db->postmeta}` AS `topic`
 			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
-			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' )" ) ) ) {
+			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = '{$fpt}' )"
+		)
+	) ) {
 		return array( 5, sprintf( $statement, $result ) );
 	}
 
 	// After that, we give all the topics with replies the ID their last reply (again, this time for a different reason).
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )" ) ) ) {
+			GROUP BY `topic`.`ID` )"
+		)
+	) ) {
 		return array( 6, sprintf( $statement, $result ) );
 	}
 
 	// For any remaining topics, give a reply ID of themself.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_active_id', `ID`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
+		)
+	) ) {
 		return array( 7, sprintf( $statement, $result ) );
 	}
 
 	// Give topics with replies their last update time.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
 			FROM `{$bbp_db->posts}` AS `topic` INNER JOIN `{$bbp_db->posts}` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
 			WHERE `reply`.`post_status` = '{$pps}' AND `topic`.`post_type` = '{$tpt}' AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `topic`.`ID` )" ) ) ) {
+			GROUP BY `topic`.`ID` )"
+		)
+	) ) {
 		return array( 8, sprintf( $statement, $result ) );
 	}
 
 	// Give topics without replies their last update time.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `ID`, '_bbp_last_active_time', `post_date`
 			FROM `{$bbp_db->posts}` AS `topic` LEFT JOIN `{$bbp_db->postmeta}` AS `reply`
 			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
-			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )" ) ) ) {
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = '{$tpt}' )"
+		)
+	) ) {
 		return array( 9, sprintf( $statement, $result ) );
 	}
 
@@ -1248,27 +1308,37 @@ function bbp_admin_repair_forum_meta() {
 	$fmt = bbp_get_forum_post_type();
 
 	// Next, give all the topics their parent forum id.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
 			FROM `$bbp_db->posts`
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
-			GROUP BY `topic`.`ID` )" ) ) ) {
+			GROUP BY `topic`.`ID` )"
+		)
+	) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
 	// Next, give all the forums their parent forum id.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_forum_id', `forum`.`post_parent`
 			FROM `$bbp_db->posts`
 				AS `forum`
 			WHERE `forum`.`post_type` = '{$fmt}'
-			GROUP BY `forum`.`ID` )" ) ) ) {
+			GROUP BY `forum`.`ID` )"
+		)
+	) ) {
 		return array( 2, sprintf( $statement, $result ) );
 	}
 
 	// Next, give all the replies their parent forum id.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `reply`.`ID`, '_bbp_forum_id', `topic`.`post_parent`
 			FROM `$bbp_db->posts`
 				AS `reply`
@@ -1277,7 +1347,9 @@ function bbp_admin_repair_forum_meta() {
 				ON `reply`.`post_parent` = `topic`.`ID`
 			WHERE `topic`.`post_type` = '{$tpt}'
 				AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `reply`.`ID` )" ) ) ) {
+			GROUP BY `reply`.`ID` )"
+		)
+	) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
@@ -1310,17 +1382,23 @@ function bbp_admin_repair_topic_meta() {
 	$rpt = bbp_get_reply_post_type();
 
 	// Next, give all the topics with replies the ID their last reply.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_topic_id', `topic`.`ID`
 			FROM `$bbp_db->posts`
 				AS `topic`
 			WHERE `topic`.`post_type` = '{$tpt}'
-			GROUP BY `topic`.`ID` )" ) ) ) {
+			GROUP BY `topic`.`ID` )"
+		)
+	) ) {
 		return array( 3, sprintf( $statement, $result ) );
 	}
 
 	// Next, give all the topics with replies the ID their last reply.
-	if ( is_wp_error( $bbp_db->query( "INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
+	if ( is_wp_error(
+		$bbp_db->query(
+			"INSERT INTO `{$bbp_db->postmeta}` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `reply`.`ID`, '_bbp_topic_id', `topic`.`ID`
 			FROM `$bbp_db->posts`
 				AS `reply`
@@ -1329,7 +1407,9 @@ function bbp_admin_repair_topic_meta() {
 				ON `reply`.`post_parent` = `topic`.`ID`
 			WHERE `topic`.`post_type` = '{$tpt}'
 				AND `reply`.`post_type` = '{$rpt}'
-			GROUP BY `reply`.`ID` )" ) ) ) {
+			GROUP BY `reply`.`ID` )"
+		)
+	) ) {
 		return array( 4, sprintf( $statement, $result ) );
 	}
 
@@ -1361,16 +1441,19 @@ function bbp_admin_repair_reply_menu_order() {
 	$rpt = bbp_get_reply_post_type();
 
 	// Get an array of reply id's to update the menu oder for each reply
-	$replies = $bbp_db->get_results( "SELECT `a`.`ID` FROM `{$bbp_db->posts}` AS `a`
-										INNER JOIN (
-											SELECT `menu_order`, `post_parent`
-											FROM `{$bbp_db->posts}`
-											GROUP BY `menu_order`, `post_parent`
-											HAVING COUNT( * ) >1
-										)`b`
-										ON `a`.`menu_order` = `b`.`menu_order`
-										AND `a`.`post_parent` = `b`.`post_parent`
-										WHERE `post_type` = '{$rpt}'", OBJECT_K );
+	$replies = $bbp_db->get_results(
+		"SELECT `a`.`ID` FROM `{$bbp_db->posts}` AS `a`
+		INNER JOIN (
+			SELECT `menu_order`, `post_parent`
+			FROM `{$bbp_db->posts}`
+			GROUP BY `menu_order`, `post_parent`
+			HAVING COUNT( * ) >1
+		)`b`
+		ON `a`.`menu_order` = `b`.`menu_order`
+		AND `a`.`post_parent` = `b`.`post_parent`
+		WHERE `post_type` = '{$rpt}'",
+		OBJECT_K
+	);
 
 	// Bail if no replies returned
 	if ( empty( $replies ) ) {

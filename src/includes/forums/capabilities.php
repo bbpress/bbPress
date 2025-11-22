@@ -19,15 +19,18 @@
 function bbp_get_forum_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_caps', array(
-		'edit_posts'          => 'edit_forums',
-		'edit_others_posts'   => 'edit_others_forums',
-		'publish_posts'       => 'publish_forums',
-		'read_private_posts'  => 'read_private_forums',
-		'read_hidden_posts'   => 'read_hidden_forums',
-		'delete_posts'        => 'delete_forums',
-		'delete_others_posts' => 'delete_others_forums'
-	) );
+	return (array) apply_filters(
+		'bbp_get_forum_caps',
+		array(
+			'edit_posts'          => 'edit_forums',
+			'edit_others_posts'   => 'edit_others_forums',
+			'publish_posts'       => 'publish_forums',
+			'read_private_posts'  => 'read_private_forums',
+			'read_hidden_posts'   => 'read_hidden_forums',
+			'delete_posts'        => 'delete_forums',
+			'delete_others_posts' => 'delete_others_forums'
+		)
+	);
 }
 
 /**

@@ -21,6 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $slug
  * @param string $name Optional. Default null
+ * @return string The template filename if one is located.
  */
 function bbp_get_template_part( $slug, $name = null ) {
 
@@ -342,6 +343,7 @@ function bbp_get_template_stack() {
 	$args = $stack = array();
 
 	// Add 'bbp_template_stack' to the current filter array
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	$wp_current_filter[] = $tag;
 
 	// Bail if no stack setup
@@ -358,6 +360,8 @@ function bbp_get_template_stack() {
 		// Sort
 		if ( ! isset( $merged_filters[ $tag ] ) ) {
 			ksort( $filter );
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$merged_filters[ $tag ] = true;
 		}
 	}
@@ -392,22 +396,25 @@ function bbp_get_template_stack() {
  *
  * @param string $slug
  * @param string $name
+ * @param string $display
  * @return string
  */
-function bbp_buffer_template_part( $slug, $name = null, $echo = true ) {
+function bbp_buffer_template_part( $slug, $name = null, $display = true ) {
 	ob_start();
 
+	// Load the template part
 	bbp_get_template_part( $slug, $name );
 
 	// Get the output buffer contents
-	$output = ob_get_clean();
+	$retval = ob_get_clean();
 
-	// Echo or return the output buffer contents
-	if ( true === $echo ) {
-		echo $output;
-	} else {
-		return $output;
+	// Maybe display the output buffer contents
+	if ( true === $display ) {
+		echo $retval;
 	}
+
+	// Return the buffer contents
+	return $retval;
 }
 
 /**

@@ -44,40 +44,43 @@ function bbp_get_forum_post_type() {
 function bbp_get_forum_post_type_labels() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_post_type_labels', array(
-		'name'                     => esc_attr__( 'Forums',                     'bbpress' ),
-		'menu_name'                => esc_attr__( 'Forums',                     'bbpress' ),
-		'singular_name'            => esc_attr__( 'Forum',                      'bbpress' ),
-		'all_items'                => esc_attr__( 'All Forums',                 'bbpress' ),
-		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Add Forum',                  'bbpress' ),
-		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
-		'edit_item'                => esc_attr__( 'Edit Forum',                 'bbpress' ),
-		'new_item'                 => esc_attr__( 'New Forum',                  'bbpress' ),
-		'view'                     => esc_attr__( 'View Forum',                 'bbpress' ),
-		'view_item'                => esc_attr__( 'View Forum',                 'bbpress' ),
-		'view_items'               => esc_attr__( 'View Forums',                'bbpress' ),
-		'search_items'             => esc_attr__( 'Search Forums',              'bbpress' ),
-		'not_found'                => esc_attr__( 'No forums found',            'bbpress' ),
-		'not_found_in_trash'       => esc_attr__( 'No forums found in Trash',   'bbpress' ),
-		'filter_items_list'        => esc_attr__( 'Filter forums list',         'bbpress' ),
-		'items_list'               => esc_attr__( 'Forums list',                'bbpress' ),
-		'items_list_navigation'    => esc_attr__( 'Forums list navigation',     'bbpress' ),
-		'parent_item_colon'        => esc_attr__( 'Parent Forum:',              'bbpress' ),
-		'archives'                 => esc_attr__( 'Forums',                     'bbpress' ),
-		'attributes'               => esc_attr__( 'Forum Attributes',           'bbpress' ),
-		'insert_into_item'         => esc_attr__( 'Insert into forum',          'bbpress' ),
-		'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this forum',     'bbpress' ),
-		'featured_image'           => esc_attr__( 'Forum Image',                'bbpress' ),
-		'set_featured_image'       => esc_attr__( 'Set forum image',            'bbpress' ),
-		'remove_featured_image'    => esc_attr__( 'Remove forum image',         'bbpress' ),
-		'use_featured_image'       => esc_attr__( 'Use as forum image',         'bbpress' ),
-		'item_published'           => esc_attr__( 'Forum published.',           'bbpress' ),
-		'item_published_privately' => esc_attr__( 'Forum published privately.', 'bbpress' ),
-		'item_reverted_to_draft'   => esc_attr__( 'Forum reverted to draft.',   'bbpress' ),
-		'item_scheduled'           => esc_attr__( 'Forum scheduled.',           'bbpress' ),
-		'item_updated'             => esc_attr__( 'Forum updated.',             'bbpress' )
-	) );
+	return (array) apply_filters(
+		'bbp_get_forum_post_type_labels',
+		array(
+			'name'                     => esc_attr__( 'Forums',                     'bbpress' ),
+			'menu_name'                => esc_attr__( 'Forums',                     'bbpress' ),
+			'singular_name'            => esc_attr__( 'Forum',                      'bbpress' ),
+			'all_items'                => esc_attr__( 'All Forums',                 'bbpress' ),
+			'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
+			'add_new_item'             => esc_attr__( 'Add Forum',                  'bbpress' ),
+			'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
+			'edit_item'                => esc_attr__( 'Edit Forum',                 'bbpress' ),
+			'new_item'                 => esc_attr__( 'New Forum',                  'bbpress' ),
+			'view'                     => esc_attr__( 'View Forum',                 'bbpress' ),
+			'view_item'                => esc_attr__( 'View Forum',                 'bbpress' ),
+			'view_items'               => esc_attr__( 'View Forums',                'bbpress' ),
+			'search_items'             => esc_attr__( 'Search Forums',              'bbpress' ),
+			'not_found'                => esc_attr__( 'No forums found',            'bbpress' ),
+			'not_found_in_trash'       => esc_attr__( 'No forums found in Trash',   'bbpress' ),
+			'filter_items_list'        => esc_attr__( 'Filter forums list',         'bbpress' ),
+			'items_list'               => esc_attr__( 'Forums list',                'bbpress' ),
+			'items_list_navigation'    => esc_attr__( 'Forums list navigation',     'bbpress' ),
+			'parent_item_colon'        => esc_attr__( 'Parent Forum:',              'bbpress' ),
+			'archives'                 => esc_attr__( 'Forums',                     'bbpress' ),
+			'attributes'               => esc_attr__( 'Forum Attributes',           'bbpress' ),
+			'insert_into_item'         => esc_attr__( 'Insert into forum',          'bbpress' ),
+			'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this forum',     'bbpress' ),
+			'featured_image'           => esc_attr__( 'Forum Image',                'bbpress' ),
+			'set_featured_image'       => esc_attr__( 'Set forum image',            'bbpress' ),
+			'remove_featured_image'    => esc_attr__( 'Remove forum image',         'bbpress' ),
+			'use_featured_image'       => esc_attr__( 'Use as forum image',         'bbpress' ),
+			'item_published'           => esc_attr__( 'Forum published.',           'bbpress' ),
+			'item_published_privately' => esc_attr__( 'Forum published privately.', 'bbpress' ),
+			'item_reverted_to_draft'   => esc_attr__( 'Forum reverted to draft.',   'bbpress' ),
+			'item_scheduled'           => esc_attr__( 'Forum scheduled.',           'bbpress' ),
+			'item_updated'             => esc_attr__( 'Forum updated.',             'bbpress' )
+		)
+	);
 }
 
 /**
@@ -90,10 +93,13 @@ function bbp_get_forum_post_type_labels() {
 function bbp_get_forum_post_type_rewrite() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_post_type_rewrite', array(
-		'slug'       => bbp_get_forum_slug(),
-		'with_front' => false
-	) );
+	return (array) apply_filters(
+		'bbp_get_forum_post_type_rewrite',
+		array(
+			'slug'       => bbp_get_forum_slug(),
+			'with_front' => false
+		)
+	);
 }
 
 /**
@@ -106,11 +112,14 @@ function bbp_get_forum_post_type_rewrite() {
 function bbp_get_forum_post_type_supports() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_forum_post_type_supports', array(
-		'title',
-		'editor',
-		'revisions'
-	) );
+	return (array) apply_filters(
+		'bbp_get_forum_post_type_supports',
+		array(
+			'title',
+			'editor',
+			'revisions'
+		)
+	);
 }
 
 /** Forum Loop ****************************************************************/
@@ -584,7 +593,7 @@ function bbp_get_forum_last_active_time( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id
  */
-function bbp_forum_freshness_link( $forum_id = 0) {
+function bbp_forum_freshness_link( $forum_id = 0 ) {
 	echo bbp_get_forum_freshness_link( $forum_id );
 }
 
@@ -710,15 +719,19 @@ function bbp_forum_get_subforums( $args = array() ) {
 	}
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'post_parent'         => 0,
-		'post_type'           => bbp_get_forum_post_type(),
-		'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
-		'orderby'             => 'menu_order title',
-		'order'               => 'ASC',
-		'ignore_sticky_posts' => true,
-		'no_found_rows'       => true
-	), 'forum_get_subforums' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'post_parent'         => 0,
+			'post_type'           => bbp_get_forum_post_type(),
+			'posts_per_page'      => get_option( '_bbp_forums_per_page', 50 ),
+			'orderby'             => 'menu_order title',
+			'order'               => 'ASC',
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true
+		),
+		'forum_get_subforums'
+	);
 
 	// Ensure post_parent is properly set
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
@@ -754,23 +767,27 @@ function bbp_forum_get_subforums( $args = array() ) {
 function bbp_list_forums( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'before'           => '<ul class="bbp-forums-list">',
-		'after'            => '</ul>',
-		'link_before'      => '<li class="bbp-forum css-sep">',
-		'link_after'       => '</li>',
-		'sep'              => '',
-		'count_before'     => ' (',
-		'count_after'      => ')',
-		'count_sep'        => ', ',
-		'forum_id'         => bbp_get_forum_id(),
-		'show_topic_count' => true,
-		'show_reply_count' => true,
-		'echo'             => true,
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'           => '<ul class="bbp-forums-list">',
+			'after'            => '</ul>',
+			'link_before'      => '<li class="bbp-forum css-sep">',
+			'link_after'       => '</li>',
+			'sep'              => '',
+			'count_before'     => ' (',
+			'count_after'      => ')',
+			'count_sep'        => ', ',
+			'forum_id'         => bbp_get_forum_id(),
+			'show_topic_count' => true,
+			'show_reply_count' => true,
+			'echo'             => true,
 
-		// Retired, use 'sep' instead
-		'separator'        => false
-	), 'list_forums' );
+			// Retired, use 'sep' instead
+			'separator'        => false
+		),
+		'list_forums'
+	);
 
 	/**
 	 * Necessary for backwards compatibility
@@ -870,16 +887,20 @@ function bbp_get_forum_subscription_link( $args = array() ) {
 		: '';
 
 	// Parse the arguments
-	$r = bbp_parse_args( $args, array(
-		'user_id'     => bbp_get_current_user_id(),
-		'object_id'   => bbp_get_forum_id(),
-		'object_type' => 'post',
-		'before'      => '',
-		'after'       => '',
-		'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
-		'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
-		'redirect_to' => $redirect_to
-	), 'get_forum_subscribe_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'user_id'     => bbp_get_current_user_id(),
+			'object_id'   => bbp_get_forum_id(),
+			'object_type' => 'post',
+			'before'      => '',
+			'after'       => '',
+			'subscribe'   => esc_html__( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => esc_html__( 'Unsubscribe', 'bbpress' ),
+			'redirect_to' => $redirect_to
+		),
+		'get_forum_subscribe_link'
+	);
 
 	// No link for categories until we support subscription hierarchy
 	// @see https://bbpress.trac.wordpress.org/ticket/2475
@@ -1632,7 +1653,7 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 	// Quickly compare statuses of first forum ID
 	if ( $status_name === $forum_status ) {
 		$retval = true;
-		$count++;
+		++$count;
 	}
 
 	// Let's check the forum's ancestors too
@@ -1662,7 +1683,7 @@ function bbp_is_forum_status( $forum_id, $status_name, $check_ancestors = true, 
 					// Check the ancestor forum status
 					$retval = bbp_is_forum_status( $ancestor, $status_name, false );
 					if ( true === $retval ) {
-						$count++;
+						++$count;
 					}
 				}
 
@@ -1767,7 +1788,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 	// Quickly compare visibility of first forum ID
 	if ( $status_name === $visibility ) {
 		$retval = true;
-		$count++;
+		++$count;
 	}
 
 	// Let's check the forum's ancestors too
@@ -1799,7 +1820,7 @@ function bbp_is_forum_visibility( $forum_id, $status_name, $check_ancestors = tr
 					// Check the forum visibility
 					$retval = bbp_is_forum_visibility( $ancestor, $status_name, false );
 					if ( true === $retval ) {
-						$count++;
+						++$count;
 					}
 				}
 
@@ -2048,13 +2069,17 @@ function bbp_single_forum_description( $args = array() ) {
 function bbp_get_single_forum_description( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'forum_id'  => 0,
-		'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-forum-description">',
-		'after'     => '</li></ul></div>',
-		'size'      => 14,
-		'feed'      => true
-	), 'get_single_forum_description' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'forum_id'  => 0,
+			'before'    => '<div class="bbp-template-notice info"><ul><li class="bbp-forum-description">',
+			'after'     => '</li></ul></div>',
+			'size'      => 14,
+			'feed'      => true
+		),
+		'get_single_forum_description'
+	);
 
 	// Validate forum_id
 	$forum_id = bbp_get_forum_id( $r['forum_id'] );
@@ -2079,10 +2104,12 @@ function bbp_get_single_forum_description( $args = array() ) {
 	if ( ! empty( $last_active ) ) {
 		$topic_text      = bbp_get_forum_topics_link( $forum_id );
 		$time_since      = bbp_get_forum_freshness_link( $forum_id );
-		$last_updated_by = bbp_get_author_link( array(
-			'post_id' => $last_active,
-			'size'    => $r['size']
-		) );
+		$last_updated_by = bbp_get_author_link(
+			array(
+				'post_id' => $last_active,
+				'size'    => $r['size']
+			)
+		);
 
 	// Forum has no last active data
 	} else {
@@ -2451,13 +2478,17 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 	}
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'select_id'    => 'bbp_forum_type',
-		'select_class' => 'bbp_dropdown',
-		'tab'          => false,
-		'forum_id'     => $forum_id,
-		'selected'     => false
-	), 'forum_type_select' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'select_id'    => 'bbp_forum_type',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		),
+		'forum_type_select'
+	);
 
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
@@ -2538,13 +2569,17 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 	}
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'select_id'    => 'bbp_forum_status',
-		'select_class' => 'bbp_dropdown',
-		'tab'          => false,
-		'forum_id'     => $forum_id,
-		'selected'     => false
-	), 'forum_status_select' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'select_id'    => 'bbp_forum_status',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		),
+		'forum_status_select'
+	);
 
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
@@ -2625,13 +2660,17 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 	}
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'select_id'    => 'bbp_forum_visibility',
-		'select_class' => 'bbp_dropdown',
-		'tab'          => false,
-		'forum_id'     => $forum_id,
-		'selected'     => false
-	), 'forum_type_select' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'select_id'    => 'bbp_forum_visibility',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'forum_id'     => $forum_id,
+			'selected'     => false
+		),
+		'forum_type_select'
+	);
 
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {
@@ -2748,10 +2787,14 @@ function bbp_get_forum_topics_feed_link( $forum_id = 0 ) {
 
 			// Unpretty permalinks
 		} else {
-			$url = home_url( add_query_arg( array(
-				'feed'                    => 'rss2',
-				bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
-			) ) );
+			$url = home_url(
+				add_query_arg(
+					array(
+						'feed'                    => 'rss2',
+						bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
+					)
+				)
+			);
 		}
 
 		$link = '<a href="' . esc_url( $url ) . '" class="bbp-forum-rss-link topics"><span>' . esc_attr__( 'Topics', 'bbpress' ) . '</span></a>';
@@ -2802,11 +2845,15 @@ function bbp_get_forum_replies_feed_link( $forum_id = 0 ) {
 
 		// Unpretty permalinks
 		} else {
-			$url = home_url( add_query_arg( array(
-				'type'                    => 'reply',
-				'feed'                    => 'rss2',
-				bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
-			) ) );
+			$url = home_url(
+				add_query_arg(
+					array(
+						'type'                    => 'reply',
+						'feed'                    => 'rss2',
+						bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
+					)
+				)
+			);
 		}
 
 		$link = '<a href="' . esc_url( $url ) . '" class="bbp-forum-rss-link replies"><span>' . esc_html__( 'Replies', 'bbpress' ) . '</span></a>';

@@ -46,7 +46,7 @@ class BBP_Theme_Compat {
 	 * );
 	 * @var array
 	 */
-	private $_data = array();
+	private $_data = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Pass the $properties to the object on creation.
@@ -446,6 +446,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 		return;
 	}
 
+	// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+
 	// Set the $post global
 	$post = new WP_Post( (object) $dummy );
 
@@ -464,6 +466,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	// Reset is_singular based on page/single args
 	// https://bbpress.trac.wordpress.org/ticket/2545
 	$wp_query->is_singular = $wp_query->is_single;
+
+	// phpcs:enable
 
 	// Clean up the dummy post
 	unset( $dummy );
@@ -517,17 +521,19 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => bbp_buffer_template_part( 'content', 'single-user', false ),
-			'post_type'      => '',
-			'post_title'     => bbp_get_displayed_user_field( 'display_name' ),
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => false,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => bbp_buffer_template_part( 'content', 'single-user', false ),
+				'post_type'      => '',
+				'post_title'     => bbp_get_displayed_user_field( 'display_name' ),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => false,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Forums ************************************************************/
 
@@ -572,33 +578,37 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
-			'post_title'     => $new_title,
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $new_content,
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $new_content,
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	// Single Forum
 	} elseif ( bbp_is_forum_edit() ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => bbp_get_forum_id(),
-			'post_title'     => bbp_get_forum_title(),
-			'post_author'    => bbp_get_forum_author_id(),
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $bbp_shortcodes->display_forum_form(),
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_forum_visibility(),
-			'is_single'      => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => bbp_get_forum_id(),
+				'post_title'     => bbp_get_forum_title(),
+				'post_author'    => bbp_get_forum_author_id(),
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $bbp_shortcodes->display_forum_form(),
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_forum_visibility(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 		// Lock the forum from other edits
 		bbp_set_post_lock( bbp_get_forum_id() );
@@ -606,17 +616,19 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	} elseif ( bbp_is_single_forum() ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => bbp_get_forum_id(),
-			'post_title'     => bbp_get_forum_title(),
-			'post_author'    => bbp_get_forum_author_id(),
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $bbp_shortcodes->display_forum( array( 'id' => bbp_get_forum_id() ) ),
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_forum_visibility(),
-			'is_single'      => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => bbp_get_forum_id(),
+				'post_title'     => bbp_get_forum_title(),
+				'post_author'    => bbp_get_forum_author_id(),
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $bbp_shortcodes->display_forum( array( 'id' => bbp_get_forum_id() ) ),
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_forum_visibility(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Topics ************************************************************/
 
@@ -645,17 +657,19 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
-			'post_title'     => $new_title,
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $new_content,
-			'post_type'      => bbp_get_topic_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => ! empty( $page->ID ) ? $page->ID : 0,
+				'post_title'     => $new_title,
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $new_content,
+				'post_type'      => bbp_get_topic_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	// Single Topic
 	} elseif ( bbp_is_topic_edit() || bbp_is_single_topic() ) {
@@ -681,17 +695,19 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => bbp_get_topic_id(),
-			'post_title'     => bbp_get_topic_title(),
-			'post_author'    => bbp_get_topic_author_id(),
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $new_content,
-			'post_type'      => bbp_get_topic_post_type(),
-			'post_status'    => bbp_get_topic_status(),
-			'is_single'      => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => bbp_get_topic_id(),
+				'post_title'     => bbp_get_topic_title(),
+				'post_author'    => bbp_get_topic_author_id(),
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $new_content,
+				'post_type'      => bbp_get_topic_post_type(),
+				'post_status'    => bbp_get_topic_status(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Replies ***********************************************************/
 
@@ -699,17 +715,19 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_title'     => esc_html__( 'Replies', 'bbpress' ),
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => '',
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_title'     => esc_html__( 'Replies', 'bbpress' ),
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => '',
+				'post_type'      => bbp_get_reply_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	// Single Reply
 	} elseif ( bbp_is_reply_edit() || bbp_is_single_reply() ) {
@@ -731,51 +749,57 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => bbp_get_reply_id(),
-			'post_title'     => bbp_get_reply_title(),
-			'post_author'    => bbp_get_reply_author_id(),
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $new_content,
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_reply_status(),
-			'is_single'      => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => bbp_get_reply_id(),
+				'post_title'     => bbp_get_reply_title(),
+				'post_author'    => bbp_get_reply_author_id(),
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $new_content,
+				'post_type'      => bbp_get_reply_post_type(),
+				'post_status'    => bbp_get_reply_status(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Views *************************************************************/
 
 	} elseif ( bbp_is_single_view() ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_title'     => bbp_get_view_title(),
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( bbp_get_view_rewrite_id() ) ) ),
-			'post_type'      => '',
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_title'     => bbp_get_view_title(),
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $bbp_shortcodes->display_view( array( 'id' => get_query_var( bbp_get_view_rewrite_id() ) ) ),
+				'post_type'      => '',
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Search ************************************************************/
 
 	} elseif ( bbp_is_search() ) {
 
 		// Reset post
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_title'     => bbp_get_search_title(),
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( bbp_get_search_rewrite_id() ) ) ),
-			'post_type'      => '',
-			'post_status'    => bbp_get_public_status_id(),
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_title'     => bbp_get_search_title(),
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $bbp_shortcodes->display_search( array( 'search' => get_query_var( bbp_get_search_rewrite_id() ) ) ),
+				'post_type'      => '',
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 
 	/** Topic Tags ********************************************************/
 
@@ -795,19 +819,21 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		}
 
 		// Reset the post with our new title
-		bbp_theme_compat_reset_post( array(
-			'ID'             => 0,
-			'post_author'    => 0,
-			'post_date'      => bbp_get_empty_datetime(),
-			'post_content'   => $new_content,
-			'post_type'      => '',
-			/* translators: %s: Topic tag name */
-			'post_title'     => sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ),
-			'post_status'    => bbp_get_public_status_id(),
-			'is_tax'         => true,
-			'is_archive'     => true,
-			'comment_status' => 'closed'
-		) );
+		bbp_theme_compat_reset_post(
+			array(
+				'ID'             => 0,
+				'post_author'    => 0,
+				'post_date'      => bbp_get_empty_datetime(),
+				'post_content'   => $new_content,
+				'post_type'      => '',
+				/* translators: %s: Topic tag name */
+				'post_title'     => sprintf( esc_html__( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_tax'         => true,
+				'is_archive'     => true,
+				'comment_status' => 'closed'
+			)
+		);
 	}
 
 	/**
@@ -999,6 +1025,8 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
 function bbp_restore_all_filters( $tag, $priority = false ) {
 	global $wp_filter, $merged_filters;
 
+	// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+
 	$bbp = bbpress();
 
 	// Filters exist
@@ -1033,6 +1061,8 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 		// Unset the filters
 		unset( $bbp->filters->merged_filters[ $tag ] );
 	}
+
+	// phpcs:enable
 
 	return true;
 }

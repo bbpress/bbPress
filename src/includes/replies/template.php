@@ -46,40 +46,43 @@ function bbp_get_reply_post_type() {
 function bbp_get_reply_post_type_labels() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_reply_post_type_labels', array(
-		'name'                     => esc_attr__( 'Replies',                    'bbpress' ),
-		'menu_name'                => esc_attr__( 'Replies',                    'bbpress' ),
-		'singular_name'            => esc_attr_x( 'Reply', 'noun',              'bbpress' ),
-		'all_items'                => esc_attr__( 'All Replies',                'bbpress' ),
-		'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
-		'add_new_item'             => esc_attr__( 'Add Reply',                  'bbpress' ),
-		'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
-		'edit_item'                => esc_attr__( 'Edit Reply',                 'bbpress' ),
-		'new_item'                 => esc_attr__( 'New Reply',                  'bbpress' ),
-		'view'                     => esc_attr__( 'View Reply',                 'bbpress' ),
-		'view_item'                => esc_attr__( 'View Reply',                 'bbpress' ),
-		'view_items'               => esc_attr__( 'View Replies',               'bbpress' ),
-		'search_items'             => esc_attr__( 'Search Replies',             'bbpress' ),
-		'not_found'                => esc_attr__( 'No replies found',           'bbpress' ),
-		'not_found_in_trash'       => esc_attr__( 'No replies found in Trash',  'bbpress' ),
-		'filter_items_list'        => esc_attr__( 'Filter replies list',        'bbpress' ),
-		'items_list'               => esc_attr__( 'Replies list',               'bbpress' ),
-		'items_list_navigation'    => esc_attr__( 'Replies list navigation',    'bbpress' ),
-		'parent_item_colon'        => esc_attr__( 'Parent Topic:',              'bbpress' ),
-		'archives'                 => esc_attr__( 'Forum Replies',              'bbpress' ),
-		'attributes'               => esc_attr__( 'Reply Attributes',           'bbpress' ),
-		'insert_into_item'         => esc_attr__( 'Insert into reply',          'bbpress' ),
-		'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this reply',     'bbpress' ),
-		'featured_image'           => esc_attr__( 'Reply Image',                'bbpress' ),
-		'set_featured_image'       => esc_attr__( 'Set reply image',            'bbpress' ),
-		'remove_featured_image'    => esc_attr__( 'Remove reply image',         'bbpress' ),
-		'use_featured_image'       => esc_attr__( 'Use as reply image',         'bbpress' ),
-		'item_published'           => esc_attr__( 'Reply published.',           'bbpress' ),
-		'item_published_privately' => esc_attr__( 'Reply published privately.', 'bbpress' ),
-		'item_reverted_to_draft'   => esc_attr__( 'Reply reverted to draft.',   'bbpress' ),
-		'item_scheduled'           => esc_attr__( 'Reply scheduled.',           'bbpress' ),
-		'item_updated'             => esc_attr__( 'Reply updated.',             'bbpress' )
-	) );
+	return (array) apply_filters(
+		'bbp_get_reply_post_type_labels',
+		array(
+			'name'                     => esc_attr__( 'Replies',                    'bbpress' ),
+			'menu_name'                => esc_attr__( 'Replies',                    'bbpress' ),
+			'singular_name'            => esc_attr_x( 'Reply', 'noun',              'bbpress' ),
+			'all_items'                => esc_attr__( 'All Replies',                'bbpress' ),
+			'add_new'                  => esc_attr__( 'Add New',                    'bbpress' ),
+			'add_new_item'             => esc_attr__( 'Add Reply',                  'bbpress' ),
+			'edit'                     => esc_attr__( 'Edit',                       'bbpress' ),
+			'edit_item'                => esc_attr__( 'Edit Reply',                 'bbpress' ),
+			'new_item'                 => esc_attr__( 'New Reply',                  'bbpress' ),
+			'view'                     => esc_attr__( 'View Reply',                 'bbpress' ),
+			'view_item'                => esc_attr__( 'View Reply',                 'bbpress' ),
+			'view_items'               => esc_attr__( 'View Replies',               'bbpress' ),
+			'search_items'             => esc_attr__( 'Search Replies',             'bbpress' ),
+			'not_found'                => esc_attr__( 'No replies found',           'bbpress' ),
+			'not_found_in_trash'       => esc_attr__( 'No replies found in Trash',  'bbpress' ),
+			'filter_items_list'        => esc_attr__( 'Filter replies list',        'bbpress' ),
+			'items_list'               => esc_attr__( 'Replies list',               'bbpress' ),
+			'items_list_navigation'    => esc_attr__( 'Replies list navigation',    'bbpress' ),
+			'parent_item_colon'        => esc_attr__( 'Parent Topic:',              'bbpress' ),
+			'archives'                 => esc_attr__( 'Forum Replies',              'bbpress' ),
+			'attributes'               => esc_attr__( 'Reply Attributes',           'bbpress' ),
+			'insert_into_item'         => esc_attr__( 'Insert into reply',          'bbpress' ),
+			'uploaded_to_this_item'    => esc_attr__( 'Uploaded to this reply',     'bbpress' ),
+			'featured_image'           => esc_attr__( 'Reply Image',                'bbpress' ),
+			'set_featured_image'       => esc_attr__( 'Set reply image',            'bbpress' ),
+			'remove_featured_image'    => esc_attr__( 'Remove reply image',         'bbpress' ),
+			'use_featured_image'       => esc_attr__( 'Use as reply image',         'bbpress' ),
+			'item_published'           => esc_attr__( 'Reply published.',           'bbpress' ),
+			'item_published_privately' => esc_attr__( 'Reply published privately.', 'bbpress' ),
+			'item_reverted_to_draft'   => esc_attr__( 'Reply reverted to draft.',   'bbpress' ),
+			'item_scheduled'           => esc_attr__( 'Reply scheduled.',           'bbpress' ),
+			'item_updated'             => esc_attr__( 'Reply updated.',             'bbpress' )
+		)
+	);
 }
 
 /**
@@ -92,10 +95,13 @@ function bbp_get_reply_post_type_labels() {
 function bbp_get_reply_post_type_rewrite() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_reply_post_type_rewrite', array(
-		'slug'       => bbp_get_reply_slug(),
-		'with_front' => false
-	) );
+	return (array) apply_filters(
+		'bbp_get_reply_post_type_rewrite',
+		array(
+			'slug'       => bbp_get_reply_slug(),
+			'with_front' => false
+		)
+	);
 }
 
 /**
@@ -108,11 +114,14 @@ function bbp_get_reply_post_type_rewrite() {
 function bbp_get_reply_post_type_supports() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_reply_post_type_supports', array(
-		'title',
-		'editor',
-		'revisions'
-	) );
+	return (array) apply_filters(
+		'bbp_get_reply_post_type_supports',
+		array(
+			'title',
+			'editor',
+			'revisions'
+		)
+	);
 }
 
 /** Reply Loop Functions ******************************************************/
@@ -246,11 +255,14 @@ function bbp_has_replies( $args = array() ) {
 				: ceil( $bbp->reply_query->found_posts / $bbp->reply_query->posts_per_page );
 
 			// Pagination settings with filter
-			$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
-				'base'    => bbp_get_replies_pagination_base( bbp_get_topic_id() ),
-				'total'   => $total_pages,
-				'current' => $bbp->reply_query->paged
-			) );
+			$bbp_replies_pagination = apply_filters(
+				'bbp_replies_pagination',
+				array(
+					'base'    => bbp_get_replies_pagination_base( bbp_get_topic_id() ),
+					'total'   => $total_pages,
+					'current' => $bbp->reply_query->paged
+				)
+			);
 
 			// Add pagination to query object
 			$bbp->reply_query->pagination_links = bbp_paginate_links( $bbp_replies_pagination );
@@ -628,7 +640,7 @@ function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
 		$excerpt = bbp_get_reply_content( $reply_id );
 	}
 
-	$excerpt = trim( strip_tags( $excerpt ) );
+	$excerpt = wp_strip_all_tags( $excerpt );
 
 	// Multibyte support
 	if ( function_exists( 'mb_strlen' ) ) {
@@ -771,11 +783,13 @@ function bbp_get_reply_revision_log( $reply_id = 0 ) {
 		}
 
 		$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
-		$author = bbp_get_author_link( array(
-			'size'      => 14,
-			'link_text' => bbp_get_reply_author_display_name( $revision->ID ),
-			'post_id'   => $revision->ID
-		) );
+		$author = bbp_get_author_link(
+			array(
+				'size'      => 14,
+				'link_text' => bbp_get_reply_author_display_name( $revision->ID ),
+				'post_id'   => $revision->ID
+			)
+		);
 
 		$r .= "\t" . '<li id="bbp-reply-revision-log-' . esc_attr( $reply_id ) . '-item-' . esc_attr( $revision->ID ) . '" class="bbp-reply-revision-log-item">' . "\n";
 		if ( ! empty( $reason ) ) {
@@ -1189,14 +1203,18 @@ function bbp_reply_author_link( $args = array() ) {
 function bbp_get_reply_author_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'post_id'    => 0,
-		'link_title' => '',
-		'type'       => 'both',
-		'size'       => 80,
-		'sep'        => '',
-		'show_role'  => false
-	), 'get_reply_author_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'post_id'    => 0,
+			'link_title' => '',
+			'type'       => 'both',
+			'size'       => 80,
+			'sep'        => '',
+			'show_role'  => false
+		),
+		'get_reply_author_link'
+	);
 
 	// Default return value
 	$author_link = '';
@@ -1385,12 +1403,16 @@ function bbp_reply_author_role( $args = array() ) {
 function bbp_get_reply_author_role( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'reply_id' => 0,
-		'class'    => false,
-		'before'   => '<div class="bbp-author-role">',
-		'after'    => '</div>'
-	), 'get_reply_author_role' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'reply_id' => 0,
+			'class'    => false,
+			'before'   => '<div class="bbp-author-role">',
+			'after'    => '</div>'
+		),
+		'get_reply_author_role'
+	);
 
 	$reply_id = bbp_get_reply_id( $r['reply_id'] );
 	$role     = bbp_get_user_display_role( bbp_get_reply_author_id( $reply_id ) );
@@ -1547,6 +1569,8 @@ function bbp_get_reply_ancestor_id( $reply_id = 0 ) {
 
 	// Find highest reply ancestor
 	$ancestor_id = $reply_id;
+
+	// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 	while ( $parent_id = bbp_get_reply_to( $ancestor_id ) ) {
 		if ( empty( $parent_id ) || ( $parent_id === $ancestor_id ) || ( bbp_get_reply_topic_id( $reply_id ) === $parent_id ) || ( $parent_id === $reply_id ) ) {
 			break;
@@ -1616,15 +1640,19 @@ function bbp_reply_to_link( $args = array() ) {
 function bbp_get_reply_to_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'          => 0,
-		'link_before' => '',
-		'link_after'  => '',
-		'reply_text'  => esc_html_x( 'Reply', 'verb', 'bbpress' ),
-		'depth'       => 0,
-		'add_below'   => 'post',
-		'respond_id'  => 'new-reply-' . bbp_get_topic_id(),
-	), 'get_reply_to_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'reply_text'  => esc_html_x( 'Reply', 'verb', 'bbpress' ),
+			'depth'       => 0,
+			'add_below'   => 'post',
+			'respond_id'  => 'new-reply-' . bbp_get_topic_id(),
+		),
+		'get_reply_to_link'
+	);
 
 	// Get the reply to use it's ID and post_parent
 	$reply    = bbp_get_reply( $r['id'] );
@@ -1765,7 +1793,7 @@ function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 	// Bump the position by one if the topic is included in the reply loop
 	if ( ! bbp_show_lead_topic() ) {
-		$reply_position++;
+		++$reply_position;
 	}
 
 	// Filter & return
@@ -1803,13 +1831,17 @@ function bbp_reply_admin_links( $args = array() ) {
 function bbp_get_reply_admin_links( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'     => 0,
-		'before' => '<span class="bbp-admin-links">',
-		'after'  => '</span>',
-		'sep'    => ' | ',
-		'links'  => array()
-	), 'get_reply_admin_links' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'     => 0,
+			'before' => '<span class="bbp-admin-links">',
+			'after'  => '</span>',
+			'sep'    => ' | ',
+			'links'  => array()
+		),
+		'get_reply_admin_links'
+	);
 
 	$r['id'] = bbp_get_reply_id( $r['id'] );
 
@@ -1830,15 +1862,19 @@ function bbp_get_reply_admin_links( $args = array() ) {
 
 	// If no links were passed, default to the standard
 	if ( empty( $r['links'] ) ) {
-		$r['links'] = apply_filters( 'bbp_reply_admin_links', array(
-			'edit'    => bbp_get_reply_edit_link   ( $r ),
-			'move'    => bbp_get_reply_move_link   ( $r ),
-			'split'   => bbp_get_topic_split_link  ( $r ),
-			'trash'   => bbp_get_reply_trash_link  ( $r ),
-			'spam'    => bbp_get_reply_spam_link   ( $r ),
-			'approve' => bbp_get_reply_approve_link( $r ),
-			'reply'   => bbp_get_reply_to_link     ( $r )
-		), $r['id'] );
+		$r['links'] = apply_filters(
+			'bbp_reply_admin_links',
+			array(
+				'edit'    => bbp_get_reply_edit_link   ( $r ),
+				'move'    => bbp_get_reply_move_link   ( $r ),
+				'split'   => bbp_get_topic_split_link  ( $r ),
+				'trash'   => bbp_get_reply_trash_link  ( $r ),
+				'spam'    => bbp_get_reply_spam_link   ( $r ),
+				'approve' => bbp_get_reply_approve_link( $r ),
+				'reply'   => bbp_get_reply_to_link     ( $r )
+			),
+			$r['id']
+		);
 	}
 
 	// See if links need to be unset
@@ -1889,12 +1925,16 @@ function bbp_reply_edit_link( $args = array() ) {
 function bbp_get_reply_edit_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'           => 0,
-		'link_before'  => '',
-		'link_after'   => '',
-		'edit_text'    => esc_html__( 'Edit', 'bbpress' )
-	), 'get_reply_edit_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'edit_text'    => esc_html__( 'Edit', 'bbpress' )
+		),
+		'get_reply_edit_link'
+	);
 
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
@@ -1959,10 +1999,13 @@ function bbp_get_reply_edit_url( $reply_id = 0 ) {
 
 	// Unpretty permalinks
 	} else {
-		$url = add_query_arg( array(
-			bbp_get_reply_post_type() => $reply->post_name,
-			bbp_get_edit_rewrite_id() => '1'
-		), $reply_link );
+		$url = add_query_arg(
+			array(
+				bbp_get_reply_post_type() => $reply->post_name,
+				bbp_get_edit_rewrite_id() => '1'
+			),
+			$reply_link
+		);
 	}
 
 	// Maybe add view all
@@ -2001,15 +2044,19 @@ function bbp_reply_trash_link( $args = array() ) {
 function bbp_get_reply_trash_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'           => 0,
-		'link_before'  => '',
-		'link_after'   => '',
-		'sep'          => ' | ',
-		'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
-		'restore_text' => esc_html__( 'Restore', 'bbpress' ),
-		'delete_text'  => esc_html__( 'Delete',  'bbpress' )
-	), 'get_reply_trash_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'sep'          => ' | ',
+			'trash_text'   => esc_html__( 'Trash',   'bbpress' ),
+			'restore_text' => esc_html__( 'Restore', 'bbpress' ),
+			'delete_text'  => esc_html__( 'Delete',  'bbpress' )
+		),
+		'get_reply_trash_link'
+	);
 
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
@@ -2085,13 +2132,17 @@ function bbp_reply_spam_link( $args = array() ) {
 function bbp_get_reply_spam_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'           => 0,
-		'link_before'  => '',
-		'link_after'   => '',
-		'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
-		'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
-	), 'get_reply_spam_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'spam_text'    => esc_html__( 'Spam',   'bbpress' ),
+			'unspam_text'  => esc_html__( 'Unspam', 'bbpress' )
+		),
+		'get_reply_spam_link'
+	);
 
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
@@ -2104,7 +2155,7 @@ function bbp_get_reply_spam_link( $args = array() ) {
 	$display = bbp_is_reply_spam( $reply->ID )
 		? $r['unspam_text']
 		: $r['spam_text'];
-	
+
 	$query = array(
 		'action'   => 'bbp_toggle_reply_spam',
 		'reply_id' => $reply->ID
@@ -2149,13 +2200,17 @@ function bbp_reply_move_link( $args = array() ) {
 function bbp_get_reply_move_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'          => 0,
-		'link_before' => '',
-		'link_after'  => '',
-		'split_text'  => esc_html__( 'Move',            'bbpress' ),
-		'split_title' => esc_attr__( 'Move this reply', 'bbpress' )
-	), 'get_reply_move_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'split_text'  => esc_html__( 'Move',            'bbpress' ),
+			'split_title' => esc_attr__( 'Move this reply', 'bbpress' )
+		),
+		'get_reply_move_link'
+	);
 
 	// Get IDs
 	$reply_id = bbp_get_reply_id( $r['id'] );
@@ -2166,10 +2221,13 @@ function bbp_get_reply_move_link( $args = array() ) {
 		return;
 	}
 
-	$uri = add_query_arg( array(
-		'action'   => 'move',
-		'reply_id' => $reply_id
-	), bbp_get_reply_edit_url( $reply_id ) );
+	$uri = add_query_arg(
+		array(
+			'action'   => 'move',
+			'reply_id' => $reply_id
+		),
+		bbp_get_reply_edit_url( $reply_id )
+	);
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-reply-move-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
@@ -2208,13 +2266,17 @@ function bbp_topic_split_link( $args = array() ) {
 function bbp_get_topic_split_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'          => 0,
-		'link_before' => '',
-		'link_after'  => '',
-		'split_text'  => esc_html__( 'Split',                           'bbpress' ),
-		'split_title' => esc_attr__( 'Split the topic from this reply', 'bbpress' )
-	), 'get_topic_split_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'split_text'  => esc_html__( 'Split',                           'bbpress' ),
+			'split_title' => esc_attr__( 'Split the topic from this reply', 'bbpress' )
+		),
+		'get_topic_split_link'
+	);
 
 	// Get IDs
 	$reply_id = bbp_get_reply_id( $r['id'] );
@@ -2225,10 +2287,13 @@ function bbp_get_topic_split_link( $args = array() ) {
 		return;
 	}
 
-	$uri = add_query_arg( array(
-		'action'   => 'split',
-		'reply_id' => $reply_id
-	), bbp_get_topic_edit_url( $topic_id ) );
+	$uri = add_query_arg(
+		array(
+			'action'   => 'split',
+			'reply_id' => $reply_id
+		),
+		bbp_get_topic_edit_url( $topic_id )
+	);
 
 	$retval = $r['link_before'] . '<a href="' . esc_url( $uri ) . '" title="' . $r['split_title'] . '" class="bbp-topic-split-link">' . $r['split_text'] . '</a>' . $r['link_after'];
 
@@ -2264,14 +2329,18 @@ function bbp_reply_approve_link( $args = array() ) {
 function bbp_get_reply_approve_link( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'id'             => 0,
-		'link_before'    => '',
-		'link_after'     => '',
-		'sep'            => ' | ',
-		'approve_text'   => _x( 'Approve',   'Pending Status', 'bbpress' ),
-		'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
-	), 'get_reply_approve_link' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'id'             => 0,
+			'link_before'    => '',
+			'link_after'     => '',
+			'sep'            => ' | ',
+			'approve_text'   => _x( 'Approve',   'Pending Status', 'bbpress' ),
+			'unapprove_text' => _x( 'Unapprove', 'Pending Status', 'bbpress' )
+		),
+		'get_reply_approve_link'
+	);
 
 	// Get reply
 	$reply = bbp_get_reply( $r['id'] );
@@ -2284,7 +2353,7 @@ function bbp_get_reply_approve_link( $args = array() ) {
 	$display = bbp_is_reply_pending( $reply->ID )
 		? $r['approve_text']
 		: $r['unapprove_text'];
-	
+
 	$query = array(
 		'action'   => 'bbp_toggle_reply_approve',
 		'reply_id' => $reply->ID
@@ -2445,7 +2514,8 @@ function bbp_get_topic_pagination_count() {
 	$start_int = intval( ( $bbp->reply_query->paged - 1 ) * $ppp_int ) + 1;
 	$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
 		? $total_int
-		: $start_int + ( $ppp_int - 1 ) );
+		: $start_int + ( $ppp_int - 1 )
+	);
 
 	// Format numbers for display
 	$count_num = bbp_number_format( $count_int );
@@ -2624,14 +2694,16 @@ function bbp_get_reply_to_dropdown( $reply_id = 0 ) {
 	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 	// Get the replies
-	$posts = get_posts( array(
-		'post_type'   => bbp_get_reply_post_type(),
-		'post_status' => bbp_get_public_status_id(),
-		'post_parent' => $topic_id,
-		'numberposts' => -1,
-		'orderby'     => 'menu_order',
-		'order'       => 'ASC',
-	) );
+	$posts = get_posts(
+		array(
+			'post_type'   => bbp_get_reply_post_type(),
+			'post_status' => bbp_get_public_status_id(),
+			'post_parent' => $topic_id,
+			'numberposts' => -1,
+			'orderby'     => 'menu_order',
+			'order'       => 'ASC',
+		)
+	);
 
 	// Append `reply_to` for each reply so it can be walked
 	foreach ( $posts as &$post ) {
@@ -2774,13 +2846,17 @@ function bbp_form_reply_status_dropdown( $args = array() ) {
 function bbp_get_form_reply_status_dropdown( $args = array() ) {
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'select_id'    => 'bbp_reply_status',
-		'select_class' => 'bbp_dropdown',
-		'tab'          => false,
-		'reply_id'     => 0,
-		'selected'     => false
-	), 'reply_status_dropdown' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'select_id'    => 'bbp_reply_status',
+			'select_class' => 'bbp_dropdown',
+			'tab'          => false,
+			'reply_id'     => 0,
+			'selected'     => false
+		),
+		'reply_status_dropdown'
+	);
 
 	// No specific selected value passed
 	if ( empty( $r['selected'] ) ) {

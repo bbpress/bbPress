@@ -28,7 +28,8 @@ defined( 'ABSPATH' ) || exit;
 						<?php
 						printf(
 							/* translators: %s: Reply title */
-							esc_html__( 'Move reply "%s"', 'bbpress' ), bbp_get_reply_title()
+							esc_html__( 'Move reply "%s"', 'bbpress' ),
+							bbp_get_reply_title()
 						);
 						?>
 					</legend>
@@ -56,7 +57,8 @@ defined( 'ABSPATH' ) || exit;
 									<?php
 									printf(
 										/* translators: %s: Forum title */
-										esc_html__( 'New topic in %s titled:', 'bbpress' ), bbp_get_forum_title( bbp_get_reply_forum_id( bbp_get_reply_id() ) )
+										esc_html__( 'New topic in %s titled:', 'bbpress' ),
+										bbp_get_forum_title( bbp_get_reply_forum_id( bbp_get_reply_id() ) )
 									);
 									?>
 								</label>
@@ -64,7 +66,8 @@ defined( 'ABSPATH' ) || exit;
 									<?php
 									printf(
 										/* translators: %s: Reply title */
-										esc_html__( 'Moved: %s', 'bbpress' ), bbp_get_reply_title()
+										esc_html__( 'Moved: %s', 'bbpress' ),
+										bbp_get_reply_title()
 									);
 									?>" size="35" name="bbp_reply_move_destination_title" />
 							</div>
@@ -82,13 +85,15 @@ defined( 'ABSPATH' ) || exit;
 									<label for="bbp_reply_move_option_existing"><?php esc_html_e( 'Use an existing topic in this forum:', 'bbpress' ); ?></label>
 
 									<?php
-										bbp_dropdown( array(
+									bbp_dropdown(
+										array(
 											'post_type'   => bbp_get_topic_post_type(),
 											'post_parent' => bbp_get_reply_forum_id( bbp_get_reply_id() ),
 											'selected'    => -1,
 											'exclude'     => bbp_get_reply_topic_id( bbp_get_reply_id() ),
 											'select_id'   => 'bbp_destination_topic'
-										) );
+										)
+									);
 									?>
 
 								</div>

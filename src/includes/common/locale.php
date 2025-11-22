@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  * @return string Translated role name on success, original name on failure.
  */
 function bbp_translate_user_role( $name ) {
-	// WordPress.WP.I18n.NoEmptyStrings 
+	// WordPress.WP.I18n.NoEmptyStrings
 	// -- empty string is intentional here as actual content comes from database
 	return _x( before_last_bar( $name ), 'User role', 'bbpress' ); // phpcs:ignore
 }

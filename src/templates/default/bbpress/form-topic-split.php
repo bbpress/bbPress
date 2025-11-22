@@ -57,7 +57,8 @@ defined( 'ABSPATH' ) || exit;
 									<?php
 									printf(
 										/* translators: %s: Forum title */
-										esc_html__( 'New topic in %s titled:', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id( bbp_get_topic_id() ) )
+										esc_html__( 'New topic in %s titled:', 'bbpress' ),
+										bbp_get_forum_title( bbp_get_topic_forum_id( bbp_get_topic_id() ) )
 									);
 									?>
 								</label>
@@ -65,7 +66,8 @@ defined( 'ABSPATH' ) || exit;
 								<?php
 								printf(
 									/* translators: %s: Original topic title */
-									esc_html__( 'Split: %s', 'bbpress' ), bbp_get_topic_title()
+									esc_html__( 'Split: %s', 'bbpress' ),
+									bbp_get_topic_title()
 								);
 								?>" size="35" name="bbp_topic_split_destination_title" />
 							</div>

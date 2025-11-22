@@ -446,6 +446,8 @@ class BBP_Admin {
 			$found = array_search( 'tools.php', $menu_item, true );
 
 			if ( false !== $found ) {
+
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $menu_index ][0] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][0] );
 				continue;
 			}
@@ -912,10 +914,12 @@ class BBP_Admin {
 		$version = bbp_get_asset_version();
 
 		// Header JS
+		// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter
 		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
 		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
 		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
 		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
+		// phpcs:enable
 
 		// Footer JS
 		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge' . $suffix . '.js', array(), $version, true );
@@ -1037,19 +1041,21 @@ class BBP_Admin {
 		$number = (int) apply_filters( 'bbp_suggest_topic_count', 10 );
 
 		// Try to get some topics
-		$topics = get_posts( array(
-			's'              => bbp_db()->esc_like( $request ),
-			'post_type'      => bbp_get_topic_post_type(),
-			'posts_per_page' => $number,
+		$topics = get_posts(
+			array(
+				's'              => bbp_db()->esc_like( $request ),
+				'post_type'      => bbp_get_topic_post_type(),
+				'posts_per_page' => $number,
 
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		) );
+				// Performance
+				'nopaging'               => true,
+				'suppress_filters'       => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true
+			)
+		);
 
 		// If we found some topics, loop through and display them
 		if ( ! empty( $topics ) ) {
@@ -1123,20 +1129,26 @@ class BBP_Admin {
 		$number = (int) apply_filters( 'bbp_suggest_user_count', 10 );
 
 		// Query database for users based on above criteria
-		$users_query = new WP_User_Query( array(
-			'search'         => '*' . bbp_db()->esc_like( $suggest ) . '*',
-			'fields'         => $fields,
-			'search_columns' => $search,
-			'orderby'        => 'ID',
-			'number'         => $number,
-			'count_total'    => false
-		) );
+		$users_query = new WP_User_Query(
+			array(
+				'search'         => '*' . bbp_db()->esc_like( $suggest ) . '*',
+				'fields'         => $fields,
+				'search_columns' => $search,
+				'orderby'        => 'ID',
+				'number'         => $number,
+				'count_total'    => false
+			)
+		);
 
 		// If we found some users, loop through and output them to the AJAX
 		if ( ! empty( $users_query->results ) ) {
 			foreach ( (array) $users_query->results as $user ) {
-				/* translators: 1: User ID, 2: User nicename */
-				printf( esc_html__( '%1$s - %2$s', 'bbpress' ), bbp_get_user_id( $user->ID ), bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n" );
+				printf(
+					/* translators: 1: User ID, 2: User nicename */
+					esc_html__( '%1$s - %2$s', 'bbpress' ),
+					bbp_get_user_id( $user->ID ),
+					bbp_get_user_nicename( $user->ID, array( 'force' => $user->user_nicename ) ) . "\n"
+				);
 			}
 		}
 		die();
@@ -1158,7 +1170,8 @@ class BBP_Admin {
 			<?php
 			printf(
 				/* translators: %s: bbPress version number */
-				esc_html__( 'Welcome to bbPress %s', 'bbpress' ), $display_version
+				esc_html__( 'Welcome to bbPress %s', 'bbpress' ),
+				$display_version
 			);
 			?>
 		</h1>
@@ -1477,10 +1490,13 @@ class BBP_Admin {
 							// Get site URLs
 							$site_url   = get_site_url( $details['blog_id'] );
 							$admin_url  = get_site_url( $details['blog_id'], 'wp-admin.php', 'admin' );
-							$remote_url = add_query_arg( array(
-								'page'   => 'bbp-update',
-								'action' => 'bbp-update'
-							), $admin_url ); ?>
+							$remote_url = add_query_arg(
+								array(
+									'page'   => 'bbp-update',
+									'action' => 'bbp-update'
+								),
+								$admin_url
+							); ?>
 
 							<li><?php echo esc_html( $site_url ); ?></li>
 

@@ -105,6 +105,80 @@
 		</properties>
 	</rule>
 
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*/includes/admin/converters/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+
+				<!-- Primary bbPress Admin caps -->
+				<element value="assign_moderators" />
+				<element value="bbp_forums_admin" />
+				<element value="bbp_topics_admin" />
+				<element value="bbp_replies_admin" />
+				<element value="bbp_topic_tags_admin" />
+				<element value="bbp_about_page" />
+				<element value="bbp_settings_page" />
+				<element value="bbp_tools_page" />
+				<element value="bbp_tools_import_page" />
+				<element value="bbp_tools_upgrade_page" />
+
+				<!-- Primary bbPress Role caps -->
+				<element value="spectate" />
+				<element value="participate" />
+				<element value="moderate" />
+				<element value="keep_gate" />
+				<element value="throttle" />
+				<element value="view_trash" />
+
+				<!-- Forum caps -->
+				<element value="publish_forums" />
+				<element value="edit_forum" />
+				<element value="edit_forums" />
+				<element value="edit_others_forums" />
+				<element value="delete_forum" />
+				<element value="delete_forums" />
+				<element value="delete_others_forums" />
+				<element value="read_forum" />
+				<element value="read_private_forums" />
+				<element value="read_hidden_forums" />
+
+				<!-- Topic caps -->
+				<element value="publish_topics" />
+				<element value="edit_topic" />
+				<element value="edit_topics" />
+				<element value="edit_others_topics" />
+				<element value="delete_topic" />
+				<element value="delete_topics" />
+				<element value="delete_others_topics" />
+				<element value="read_topic" />
+				<element value="read_private_topics" />
+				<element value="read_hidden_topics" />
+
+				<!-- Reply caps -->
+				<element value="publish_replies" />
+				<element value="edit_reply" />
+				<element value="edit_replies" />
+				<element value="edit_others_replies" />
+				<element value="delete_reply" />
+				<element value="delete_replies" />
+				<element value="delete_others_replies" />
+				<element value="read_reply" />
+				<element value="read_private_replies" />
+
+				<!-- Topic tag caps -->
+				<element value="manage_topic_tags" />
+				<element value="edit_topic_tag" />
+				<element value="edit_topic_tags" />
+				<element value="delete_topic_tag" />
+				<element value="delete_topic_tags" />
+				<element value="assign_topic_tags" />
+			</property>
+		</properties>
+	</rule>
+
 
 	<!--
 	#############################################################################
@@ -166,31 +240,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedElseif">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedIf">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence.MissingParentheses">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.ControlStructures.InlineControlStructure.NotAllowed">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.Files.LineEndings.InvalidEOLChar">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -198,35 +248,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Generic.Formatting.DisallowMultipleStatements.SameLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.Formatting.SpaceAfterCast.TooMuchSpace">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie.ContentAfterBrace">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing.SpaceAfterArrayOpenerMultiLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing.SpaceAfterArrayOpenerSingleLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="NormalizedArrays.Arrays.ArrayBraceSpacing.SpaceBeforeArrayCloserMultiLine">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -238,16 +260,8 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="NormalizedArrays.Arrays.CommaAfterLast.MissingMultiLineCloserSameLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="PEAR.Files.IncludingFile.UseRequire">
 		<exclude-pattern>/bbpress\.php$</exclude-pattern>
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PEAR.Functions.FunctionCallSignature.CloseBracketLine">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -255,19 +269,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="PEAR.Functions.FunctionCallSignature.EmptyLine">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="PEAR.Functions.FunctionCallSignature.FirstArgumentPosition">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PEAR.Functions.FunctionCallSignature.Indent">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PEAR.Functions.FunctionCallSignature.MultipleArguments">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -287,43 +289,11 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PHPCompatibility.Syntax.RemovedCurlyBraceArrayAccess.Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.Classes.PropertyDeclaration.ScopeMissing">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.Classes.PropertyDeclaration.VarUsed">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BreakIndent">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -339,27 +309,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="PSR2.Methods.MethodDeclaration.Underscore">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterOpen">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingBeforeClose">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -372,10 +322,6 @@
 	</rule>
 
 	<rule ref="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.PHP.DisallowSizeFunctionsInLoops.Found">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -399,15 +345,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Squiz.Scope.MethodScope.Missing">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Squiz.Strings.ConcatenationSpacing.PaddingFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -423,10 +361,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.arrayFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.classFound">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -435,15 +369,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.echoFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.objectFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.parentFound">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -451,71 +377,11 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.stringFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostDecrementFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.Operators.DisallowStandalonePostIncrementDecrement.PostIncrementFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.Operators.StrictComparisons.LooseEqual">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.Operators.StrictComparisons.LooseNotEqual">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Arrays.ArrayKeySpacingRestrictions.TooMuchSpaceAfterKey">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.DateTime.CurrentTimeTimestamp.Requested">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.DateTime.RestrictedFunctions.date_date">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -531,19 +397,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.PHP.IniSet.Risky">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.PHP.PregQuoteDelimiter.Missing">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.PHP.StrictInArray.MissingTrueStrict">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -564,54 +418,6 @@
 	</rule>
 
 	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.AlternativeFunctions.parse_url_parse_url">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.AlternativeFunctions.rand_mt_rand">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.AlternativeFunctions.strip_tags_strip_tag">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.AlternativeFunctions.strip_tags_strip_tags">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.Capabilities.Unknown">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.DeprecatedParameters.Get_termsParam2Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.DeprecatedParameters.Wp_count_termsParam2Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.DiscouragedFunctions.query_posts_query_posts">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.EnqueuedResourceParameters.NotInFooter">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.GlobalVariablesOverride.Prohibited">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.WP.I18n.LowLevelTranslationFunction">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 

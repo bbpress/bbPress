@@ -604,12 +604,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			}
 
 			// Create the initial forum
-			$forum_id = bbp_insert_forum( array(
-				'post_parent'  => bbp_get_group_forums_root_id(),
-				'post_title'   => $group->name,
-				'post_content' => $group->description,
-				'post_status'  => $status
-			) );
+			$forum_id = bbp_insert_forum(
+				array(
+					'post_parent'  => bbp_get_group_forums_root_id(),
+					'post_title'   => $group->name,
+					'post_content' => $group->description,
+					'post_status'  => $status
+				)
+			);
 
 			// Setup forum args with forum ID
 			$new_forum_args = array( 'forum_id' => $forum_id );
@@ -738,12 +740,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				}
 
 				// Create the initial forum
-				$forum_id = bbp_insert_forum( array(
-					'post_parent'  => bbp_get_group_forums_root_id(),
-					'post_title'   => bp_get_new_group_name(),
-					'post_content' => bp_get_new_group_description(),
-					'post_status'  => $status
-				) );
+				$forum_id = bbp_insert_forum(
+					array(
+						'post_parent'  => bbp_get_group_forums_root_id(),
+						'post_title'   => bp_get_new_group_name(),
+						'post_content' => bp_get_new_group_description(),
+						'post_status'  => $status
+					)
+				);
 
 				// Run the BP-specific functions for new groups
 				$this->new_forum( array( 'forum_id' => $forum_id ) );
@@ -811,7 +815,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
-		$group_id = ! empty( $forum_args['group_id'] ) ? $forum_args['group_id'] : bp_get_current_group_id();
+		$group_id = ! empty( $forum_args['group_id'] )
+			? $forum_args['group_id']
+			: bp_get_current_group_id();
 
 		bbp_add_forum_id_to_group( $group_id, $forum_id );
 		bbp_add_group_id_to_forum( $forum_id, $group_id );
@@ -835,7 +841,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
-		$group_id = ! empty( $forum_args['group_id'] ) ? $forum_args['group_id'] : bp_get_current_group_id();
+		$group_id = ! empty( $forum_args['group_id'] )
+			? $forum_args['group_id']
+			: bp_get_current_group_id();
 
 		bbp_remove_forum_id_from_group( $group_id, $forum_id );
 		bbp_remove_group_id_from_forum( $forum_id, $group_id );
@@ -864,11 +872,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Get the first forum ID
-		$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
-		$this->remove_forum( array(
-			'forum_id' => $forum_id,
-			'group_id' => $group_id
-		) );
+		$forum_id = (int) is_array( $forum_ids )
+			? $forum_ids[0]
+			: $forum_ids;
+
+		$this->remove_forum(
+			array(
+				'forum_id' => $forum_id,
+				'group_id' => $group_id
+			)
+		);
 	}
 
 	/**
@@ -1016,10 +1029,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$forum_id     = array_shift( $forum_ids );
 
 		// Always load up the group forum
-		bbp_has_forums( array(
-			'p'           => $forum_id,
-			'post_parent' => null
-		) );
+		bbp_has_forums(
+			array(
+				'p'           => $forum_id,
+				'post_parent' => null
+			)
+		);
 
 		// Set the global forum ID
 		$bbp->current_forum_id = $forum_id;
@@ -1076,11 +1091,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					add_filter( 'bbp_get_topic_stick_link', array( $this, 'hide_super_sticky_admin_link' ), 10, 2 );
 
 					// Get the topic
-					bbp_has_topics( array(
-						'name'           => bp_action_variable( $offset + 1 ),
-						'posts_per_page' => 1,
-						'show_stickies'  => false
-					) );
+					bbp_has_topics(
+						array(
+							'name'           => bp_action_variable( $offset + 1 ),
+							'posts_per_page' => 1,
+							'show_stickies'  => false
+						)
+					);
 
 					// If no topic, 404
 					if ( ! bbp_topics() ) {
@@ -1151,10 +1168,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				case $this->reply_slug :
 
 					// Get the reply
-					bbp_has_replies( array(
-						'name'           => bp_action_variable( $offset + 1 ),
-						'posts_per_page' => 1
-					) );
+					bbp_has_replies(
+						array(
+							'name'           => bp_action_variable( $offset + 1 ),
+							'posts_per_page' => 1
+						)
+					);
 
 					// If no topic, 404
 					if ( ! bbp_replies() ) {
@@ -1207,6 +1226,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			endswitch;
 
 			// Reset the query
+			// phpcs:ignore WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query
 			wp_reset_query(); ?>
 
 		</div><!-- #bbpress-forums -->

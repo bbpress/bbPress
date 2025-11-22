@@ -142,12 +142,14 @@ if ( bbp_is_forum_edit() ) : ?>
 						<label for="bbp_forum_parent_id"><?php esc_html_e( 'Parent Forum:', 'bbpress' ); ?></label><br />
 
 						<?php
-							bbp_dropdown( array(
+						bbp_dropdown(
+							array(
 								'select_id' => 'bbp_forum_parent_id',
 								'show_none' => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
 								'selected'  => bbp_get_form_forum_parent(),
 								'exclude'   => bbp_get_forum_id()
-							) );
+							)
+						);
 						?>
 					</p>
 

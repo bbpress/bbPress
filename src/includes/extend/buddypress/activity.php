@@ -212,19 +212,23 @@ class BBP_BuddyPress_Activity {
 	private function record_activity( $args = array() ) {
 
 		// Default activity args
-		$activity = bbp_parse_args( $args, array(
-			'id'                => null,
-			'user_id'           => bbp_get_current_user_id(),
-			'type'              => '',
-			'action'            => '',
-			'item_id'           => '',
-			'secondary_item_id' => '',
-			'content'           => '',
-			'primary_link'      => '',
-			'component'         => $this->component,
-			'recorded_time'     => bp_core_current_time(),
-			'hide_sitewide'     => false
-		), 'record_activity' );
+		$activity = bbp_parse_args(
+			$args,
+			array(
+				'id'                => null,
+				'user_id'           => bbp_get_current_user_id(),
+				'type'              => '',
+				'action'            => '',
+				'item_id'           => '',
+				'secondary_item_id' => '',
+				'content'           => '',
+				'primary_link'      => '',
+				'component'         => $this->component,
+				'recorded_time'     => bp_core_current_time(),
+				'hide_sitewide'     => false
+			),
+			'record_activity'
+		);
 
 		// Add the activity
 		return bp_activity_add( $activity );
@@ -242,13 +246,17 @@ class BBP_BuddyPress_Activity {
 	public function delete_activity( $args = array() ) {
 
 		// Default activity args
-		$activity = bbp_parse_args( $args, array(
-			'item_id'           => false,
-			'component'         => $this->component,
-			'type'              => false,
-			'user_id'           => false,
-			'secondary_item_id' => false
-		), 'delete_activity' );
+		$activity = bbp_parse_args(
+			$args,
+			array(
+				'item_id'           => false,
+				'component'         => $this->component,
+				'type'              => false,
+				'user_id'           => false,
+				'secondary_item_id' => false
+			),
+			'delete_activity'
+		);
 
 		// Delete the activity
 		bp_activity_delete_by_item_id( $activity );
@@ -409,18 +417,20 @@ class BBP_BuddyPress_Activity {
 		$activity_content = apply_filters( 'bbp_activity_topic_create_excerpt', $topic_content                                     );
 
 		// Compile and record the activity stream results
-		$activity_id = $this->record_activity( array(
-			'id'                => $this->get_activity_id( $topic_id ),
-			'user_id'           => $user_id,
-			'action'            => $activity_action,
-			'content'           => $activity_content,
-			'primary_link'      => $topic_permalink,
-			'type'              => $this->topic_create,
-			'item_id'           => $topic_id,
-			'secondary_item_id' => $forum_id,
-			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
-			'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
-		) );
+		$activity_id = $this->record_activity(
+			array(
+				'id'                => $this->get_activity_id( $topic_id ),
+				'user_id'           => $user_id,
+				'action'            => $activity_action,
+				'content'           => $activity_content,
+				'primary_link'      => $topic_permalink,
+				'type'              => $this->topic_create,
+				'item_id'           => $topic_id,
+				'secondary_item_id' => $forum_id,
+				'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $topic_id ),
+				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
+			)
+		);
 
 		// Add the activity entry ID as a meta value to the topic
 		if ( ! empty( $activity_id ) ) {
@@ -553,18 +563,20 @@ class BBP_BuddyPress_Activity {
 		$activity_content = apply_filters( 'bbp_activity_reply_create_excerpt', $reply_content                                  );
 
 		// Compile and record the activity stream results
-		$activity_id = $this->record_activity( array(
-			'id'                => $this->get_activity_id( $reply_id ),
-			'user_id'           => $user_id,
-			'action'            => $activity_action,
-			'content'           => $activity_content,
-			'primary_link'      => $reply_url,
-			'type'              => $this->reply_create,
-			'item_id'           => $reply_id,
-			'secondary_item_id' => $topic_id,
-			'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
-			'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
-		) );
+		$activity_id = $this->record_activity(
+			array(
+				'id'                => $this->get_activity_id( $reply_id ),
+				'user_id'           => $user_id,
+				'action'            => $activity_action,
+				'content'           => $activity_content,
+				'primary_link'      => $reply_url,
+				'type'              => $this->reply_create,
+				'item_id'           => $reply_id,
+				'secondary_item_id' => $topic_id,
+				'recorded_time'     => get_post_time( 'Y-m-d H:i:s', true, $reply_id ),
+				'hide_sitewide'     => ! bbp_is_forum_public( $forum_id, false )
+			)
+		);
 
 		// Add the activity entry ID as a meta value to the reply
 		if ( ! empty( $activity_id ) ) {

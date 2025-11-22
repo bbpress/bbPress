@@ -25,12 +25,12 @@ defined( 'ABSPATH' ) || exit;
 				<fieldset class="bbp-form">
 
 					<legend>
-						<?php 
-						printf( 
+						<?php
+						printf(
 							/* translators: %s: Topic title */
-							esc_html__( 'Merge topic "%s"', 'bbpress' ), 
-							bbp_get_topic_title() 
-						); 
+							esc_html__( 'Merge topic "%s"', 'bbpress' ),
+							bbp_get_topic_title()
+						);
 						?>
 					</legend>
 
@@ -63,14 +63,16 @@ defined( 'ABSPATH' ) || exit;
 									<label for="bbp_destination_topic"><?php esc_html_e( 'Merge with this topic:', 'bbpress' ); ?></label>
 
 									<?php
-										bbp_dropdown( array(
+									bbp_dropdown(
+										array(
 											'post_type'   => bbp_get_topic_post_type(),
 											'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
 											'post_status' => bbp_get_public_topic_statuses(),
 											'selected'    => -1,
 											'exclude'     => bbp_get_topic_id(),
 											'select_id'   => 'bbp_destination_topic'
-										) );
+										)
+									);
 									?>
 
 								<?php else : ?>
