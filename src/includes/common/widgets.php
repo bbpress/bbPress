@@ -570,7 +570,9 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		<ul class="bbp-forums-widget">
 
-			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
+			<?php while ( $widget_query->have_posts() ) :
+
+				$widget_query->the_post(); ?>
 
 				<li <?php echo ( bbp_get_forum_id() === $widget_query->post->ID ? ' class="bbp-forum-widget-current-forum"' : '' ); ?>>
 					<a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>">
@@ -1185,7 +1187,9 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		<ul class="bbp-replies-widget">
 
-			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
+			<?php while ( $widget_query->have_posts() ) :
+
+				$widget_query->the_post(); ?>
 
 				<li>
 

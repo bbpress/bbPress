@@ -2497,18 +2497,14 @@ function bbp_get_form_forum_type_dropdown( $args = array() ) {
 		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
-		// No Post value was passed
+		// Edit topic
+		} elseif ( bbp_is_forum_edit() ) {
+			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+			$r['selected'] = bbp_get_forum_type( $r['forum_id'] );
+
+		// New topic
 		} else {
-
-			// Edit topic
-			if ( bbp_is_forum_edit() ) {
-				$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-				$r['selected'] = bbp_get_forum_type( $r['forum_id'] );
-
-			// New topic
-			} else {
-				$r['selected'] = bbp_get_public_status_id();
-			}
+			$r['selected'] = bbp_get_public_status_id();
 		}
 	}
 
@@ -2588,18 +2584,14 @@ function bbp_get_form_forum_status_dropdown( $args = array() ) {
 		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
-		// No Post value was passed
+		// Edit topic
+		} elseif ( bbp_is_forum_edit() ) {
+			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+			$r['selected'] = bbp_get_forum_status( $r['forum_id'] );
+
+		// New topic
 		} else {
-
-			// Edit topic
-			if ( bbp_is_forum_edit() ) {
-				$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-				$r['selected'] = bbp_get_forum_status( $r['forum_id'] );
-
-			// New topic
-			} else {
-				$r['selected'] = bbp_get_public_status_id();
-			}
+			$r['selected'] = bbp_get_public_status_id();
 		}
 	}
 
@@ -2679,18 +2671,14 @@ function bbp_get_form_forum_visibility_dropdown( $args = array() ) {
 		if ( bbp_is_forum_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
-		// No Post value was passed
+		// Edit topic
+		} elseif ( bbp_is_forum_edit() ) {
+			$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
+			$r['selected'] = bbp_get_forum_visibility( $r['forum_id'] );
+
+		// New topic
 		} else {
-
-			// Edit topic
-			if ( bbp_is_forum_edit() ) {
-				$r['forum_id'] = bbp_get_forum_id( $r['forum_id'] );
-				$r['selected'] = bbp_get_forum_visibility( $r['forum_id'] );
-
-			// New topic
-			} else {
-				$r['selected'] = bbp_get_public_status_id();
-			}
+			$r['selected'] = bbp_get_public_status_id();
 		}
 	}
 

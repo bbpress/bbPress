@@ -499,7 +499,6 @@ class MyBB extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_mybb_user_sig',
 			'callback_method' => 'callback_html'
 		);
-
 	}
 
 	/**

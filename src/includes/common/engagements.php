@@ -58,7 +58,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -74,7 +74,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -89,7 +89,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -105,7 +105,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -119,7 +119,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -134,7 +134,7 @@ class BBP_User_Engagements_Base {
 	 * @return array Returns ids of users
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -149,7 +149,7 @@ class BBP_User_Engagements_Base {
 	 * @return array
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 }
 

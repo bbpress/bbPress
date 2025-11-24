@@ -496,6 +496,7 @@ function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 		}
 
 	// Include pagination
+	// phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 	} else {
 
 		// Pretty permalinks
@@ -2545,6 +2546,7 @@ function bbp_get_topic_pagination_count() {
 		}
 
 	// We are including the lead topic
+	// phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 	} else {
 
 		// Several posts in a topic with a single page
@@ -2865,18 +2867,14 @@ function bbp_get_form_reply_status_dropdown( $args = array() ) {
 		if ( bbp_is_reply_form_post_request() && isset( $_POST[ $r['select_id'] ] ) ) {
 			$r['selected'] = sanitize_key( $_POST[ $r['select_id'] ] );
 
-		// No Post value was passed
+		// Edit reply
+		} elseif ( bbp_is_reply_edit() ) {
+			$r['reply_id'] = bbp_get_reply_id( $r['reply_id'] );
+			$r['selected'] = bbp_get_reply_status( $r['reply_id'] );
+
+		// New reply
 		} else {
-
-			// Edit reply
-			if ( bbp_is_reply_edit() ) {
-				$r['reply_id'] = bbp_get_reply_id( $r['reply_id'] );
-				$r['selected'] = bbp_get_reply_status( $r['reply_id'] );
-
-			// New reply
-			} else {
-				$r['selected'] = bbp_get_public_status_id();
-			}
+			$r['selected'] = bbp_get_public_status_id();
 		}
 	}
 

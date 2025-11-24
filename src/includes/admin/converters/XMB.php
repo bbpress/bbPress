@@ -608,7 +608,6 @@ class XMB extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_xmb_user_mood'
 		);
-
 	}
 
 	/**

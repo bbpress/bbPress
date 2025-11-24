@@ -2788,6 +2788,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 			}
 
 		// User "home"
+		// phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 		} else {
 			if ( true === $is_user_home ) {
 				$new_title['text'] = esc_attr__( 'Your Profile', 'bbpress' );

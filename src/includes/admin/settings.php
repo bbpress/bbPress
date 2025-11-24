@@ -1601,7 +1601,7 @@ function bbp_admin_settings() {
 function bbp_converter_setting_callback_main_section() {
 ?>
 
-	<p><?php _e( 'Information about the database for your previous forums so they can be converted.', 'bbpress' ); ?></p>
+	<p><?php esc_html_e( 'Information about the database for your previous forums so they can be converted.', 'bbpress' ); ?></p>
 
 <?php
 }

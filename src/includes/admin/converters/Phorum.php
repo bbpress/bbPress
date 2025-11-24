@@ -501,7 +501,6 @@ class Phorum extends BBP_Converter_Base {
 			'to_fieldname'   => '_bbp_phorum_user_sig',
 			'callback_method' => 'callback_html'
 		);
-
 	}
 
 	/**

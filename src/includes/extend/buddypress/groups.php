@@ -1731,25 +1731,25 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14
 	 *
-	 * @param  object object  Verified object
-	 * @param  string $type   Type of variable to check with `is_a()`
-	 * @return mixed  $object Verified object if valid, Default or null if invalid
+	 * @param  object $query  Verified query object
+	 * @param  string $type   Type of variable to compare to
+	 * @return mixed  Verified object if valid, Default or null if invalid
 	 */
-	public function rewrite_pagination( $object, $type = '' ) {
+	public function rewrite_pagination( $query, $type = '' ) {
 
 		// Bail if wrong global
 		if ( 'wp_query' !== $type ) {
-			return $object;
+			return $query;
 		}
 
 		// Bail if not inside a BuddyPress Group
 		if ( ! bp_is_group() ) {
-			return $object;
+			return $query;
 		}
 
 		// Bail if not inside a BuddyPress Group Forum
 		if ( ! bp_is_current_action( 'forum' ) ) {
-			return $object;
+			return $query;
 		}
 
 		// Default "paged" value
@@ -1766,25 +1766,21 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				$page_number = bp_action_variable( 3 );
 			}
 
-		// Single Forum
-		} else {
-
-			// Get the page number from 1st position
-			if ( bp_is_action_variable( 'page', 0 ) ) {
-				$page_number = bp_action_variable( 1 );
-			}
+		// Default (Single Forum)
+		} elseif ( bp_is_action_variable( 'page', 0 ) ) {
+			$page_number = bp_action_variable( 1 );
 		}
 
 		// Bail if no page number
 		if ( empty( $page_number ) ) {
-			return $object;
+			return $query;
 		}
 
 		// Set the 'paged' WP_Query var to the new action-based value
-		$object->set( 'paged', $page_number );
+		$query->set( 'paged', $page_number );
 
 		// Return the filtered/modified object
-		return $object;
+		return $query;
 	}
 
 	/**

@@ -833,6 +833,7 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 		}
 
 	// General component (bbpress/forums/other)
+	// phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 	} else {
 		if ( 'topic' === $type ) {
 			$topic_id = bbp_get_topic_id( $activity->item_id );

@@ -862,8 +862,13 @@ class BBP_Akismet {
 		}
 
 		// Maybe HTTPS if not disabled
-		if ( empty( $ssl_disabled_time ) && ( $is_ssl = wp_http_supports( array( 'ssl' ) ) ) ) {
-			$akismet_url = set_url_scheme( $akismet_url, 'https' );
+		if ( empty( $ssl_disabled_time ) ) {
+			$is_ssl = wp_http_supports( array( 'ssl' ) );
+
+			// Use SSL
+			if ( ! empty( $is_ssl ) ) {
+				$akismet_url = set_url_scheme( $akismet_url, 'https' );
+			}
 		}
 
 		// Initial remote request

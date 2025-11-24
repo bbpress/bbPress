@@ -570,27 +570,23 @@ function bbp_edit_reply_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_reply_not_found', __( '<strong>Error</strong>: The reply you want to edit was not found.', 'bbpress' ) );
 		return;
 
-	// Reply exists
+	// Check users ability to create new reply
+	} elseif ( ! bbp_is_reply_anonymous( $reply_id ) ) {
+
+		// User cannot edit this reply
+		if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
+			bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+			return;
+		}
+
+		// Set reply author
+		$reply_author = bbp_get_reply_author_id( $reply_id );
+
+	// It is an anonymous post
 	} else {
 
-		// Check users ability to create new reply
-		if ( ! bbp_is_reply_anonymous( $reply_id ) ) {
-
-			// User cannot edit this reply
-			if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
-				return;
-			}
-
-			// Set reply author
-			$reply_author = bbp_get_reply_author_id( $reply_id );
-
-		// It is an anonymous post
-		} else {
-
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data();
-		}
+		// Filter anonymous data
+		$anonymous_data = bbp_filter_anonymous_post_data();
 	}
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified
@@ -1399,7 +1395,6 @@ function bbp_move_reply_handler( $action = '' ) {
 			// Move reply to a new topic
 			case 'topic' :
 			default :
-
 				// User needs to be able to publish topics
 				if ( current_user_can( 'publish_topics' ) ) {
 
@@ -2319,7 +2314,9 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 		<?php endif; ?>
 
 		<?php if ( bbp_has_replies( $replies_query ) ) : ?>
-			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
+			<?php while ( bbp_replies() ) :
+
+				bbp_the_reply(); ?>
 
 				<item>
 					<guid><?php bbp_reply_url(); ?></guid>

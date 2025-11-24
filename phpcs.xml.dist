@@ -217,12 +217,21 @@
 		<exclude-pattern>/src/includes/admin/converters/vBulletin3\.php$</exclude-pattern>
 	</rule>
 
+	<rule ref="PEAR.Files.IncludingFile.UseRequire">
+		<exclude-pattern>/bbpress\.php$</exclude-pattern>
+		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
 	<rule ref="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="Squiz.PHP.EmbeddedPhp.ContentBeforeOpen">
 		<exclude-pattern>/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+		<exclude-pattern>/src/templates/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed">
@@ -260,11 +269,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="PEAR.Files.IncludingFile.UseRequire">
-		<exclude-pattern>/bbpress\.php$</exclude-pattern>
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -293,23 +297,11 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineDEFAULT">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonCASE">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
 	<rule ref="PSR2.ControlStructures.SwitchDeclaration.SpaceBeforeColonDEFAULT">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="PSR2.Methods.FunctionClosingBrace.SpacingBeforeClose">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -321,10 +313,6 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Squiz.PHP.EmbeddedPhp.ContentAfterEnd">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
@@ -333,27 +321,11 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Squiz.PHP.EmbeddedPhp.MultipleStatements">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Squiz.PHP.EmbeddedPhp.SpacingAfterOpen">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="Squiz.PHP.NonExecutableCode.Unreachable">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="Squiz.Strings.ConcatenationSpacing.PaddingFound">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.Arrays.DuplicateArrayKey.Found">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="Universal.ControlStructures.DisallowLonelyIf.Found">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
@@ -397,15 +369,7 @@
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 
-	<rule ref="WordPress.PHP.NoSilencedErrors.Discouraged">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
 	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
-		<exclude-pattern>/src/*</exclude-pattern>
-	</rule>
-
-	<rule ref="WordPress.Security.EscapeOutput.UnsafePrintingFunction">
 		<exclude-pattern>/src/*</exclude-pattern>
 	</rule>
 

@@ -88,14 +88,19 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	 * @return array An associative array containing all the bulk actions
 	 */
 	public function get_bulk_actions() {
-		return array();
 
-		// @todo cap checks
-		return array(
+		// Default bulk actions
+		$retval = array(
 			'unapprove' => esc_html__( 'Unapprove', 'bbpress' ),
 			'spam'      => esc_html__( 'Spam',      'bbpress' ),
 			'trash'     => esc_html__( 'Trash',     'bbpress' )
 		);
+
+		// Override to empty
+		$retval = array();
+
+		// Return
+		return $retval;
 	}
 
 	/**

@@ -585,12 +585,10 @@ class e107v1 extends BBP_Converter_Base {
 
 			if ( ! is_null( $row ) ) {
 				$this->map_userid[ $field ] = $row->value_id;
+			} elseif ( true === $this->convert_users ) {
+				$this->map_userid[ $field ] = 0;
 			} else {
-				if ( true === $this->convert_users ) {
-					$this->map_userid[ $field ] = 0;
-				} else {
-					$this->map_userid[ $field ] = $field;
-				}
+				$this->map_userid[ $field ] = $field;
 			}
 		}
 

@@ -94,6 +94,8 @@ class BBP_Forums_Component extends BP_Component {
 
 		// Require files if they exist
 		foreach ( $includes as $file ) {
+
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			if ( @is_file( $this->path . $file ) ) {
 				require $this->path . $file;
 			}

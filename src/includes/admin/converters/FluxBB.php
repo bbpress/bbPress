@@ -575,7 +575,6 @@ class FluxBB extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_fluxbb_user_admin_note'
 		);
-
 	}
 
 	/**

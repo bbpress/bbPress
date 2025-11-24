@@ -489,7 +489,6 @@ class PHPFox3 extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => 'display_name'
 		);
-
 	}
 
 	/**

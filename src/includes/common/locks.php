@@ -23,12 +23,14 @@ defined( 'ABSPATH' ) || exit;
 function bbp_check_post_lock( $post_id = 0 ) {
 
 	// Bail if no post
-	if ( ! $post = get_post( $post_id ) ) {
+	$post = get_post( $post_id );
+	if ( empty( $post ) ) {
 		return false;
 	}
 
 	// Bail if no lock
-	if ( ! $lock = get_post_meta( $post->ID, '_edit_lock', true ) ) {
+	$lock = get_post_meta( $post->ID, '_edit_lock', true );
+	if ( empty( $lock ) ) {
 		return false;
 	}
 
@@ -62,12 +64,14 @@ function bbp_check_post_lock( $post_id = 0 ) {
 function bbp_set_post_lock( $post_id = 0 ) {
 
 	// Bail if no post
-	if ( ! $post = get_post( $post_id ) ) {
+	$post = get_post( $post_id );
+	if ( empty( $post ) ) {
 		return false;
 	}
 
 	// Bail if no user
-	if ( 0 === ( $user_id = get_current_user_id() ) ) {
+	$user_id = get_current_user_id();
+	if ( empty( $user_id ) ) {
 		return false;
 	}
 

@@ -553,7 +553,6 @@ class AEF extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_aef_user_private_text'
 		);
-
 	}
 
 	/**

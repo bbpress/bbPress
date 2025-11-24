@@ -121,8 +121,8 @@ function bbp_do_ajax( $action = '' ) {
 function bbp_ajax_headers() {
 
 	// Set the header content type
-	@header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
-	@header( 'X-Robots-Tag: noindex' );
+	header( 'Content-Type: ' . get_option( 'html_type' ) . '; charset=' . get_option( 'blog_charset' ) );
+	header( 'X-Robots-Tag: noindex' );
 
 	// Disable content sniffing in browsers that support it
 	send_nosniff_header();
@@ -160,7 +160,7 @@ function bbp_ajax_response( $success = false, $content = '', $status = -1, $extr
 	}
 
 	// Send back the JSON
-	@header( 'Content-type: application/json' );
+	header( 'Content-type: application/json' );
 	echo json_encode( $response );
 	die();
 }

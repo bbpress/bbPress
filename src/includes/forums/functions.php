@@ -1041,11 +1041,10 @@ function bbp_repair_forum_visibility() {
 	// Query for hidden forums
 	$hidden_forums = new WP_Query(
 		array(
-			'fields'           => 'ids',
-			'suppress_filters' => true,
-			'post_type'        => bbp_get_forum_post_type(),
-			'post_status'      => bbp_get_hidden_status_id(),
-			'posts_per_page'   => -1,
+			'fields'         => 'ids',
+			'post_type'      => bbp_get_forum_post_type(),
+			'post_status'    => bbp_get_hidden_status_id(),
+			'posts_per_page' => -1,
 
 			// Performance
 			'nopaging'               => true,

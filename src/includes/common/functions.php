@@ -1716,10 +1716,10 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
  *
  * @global WP $wp
  * @param string $where
- * @param WP_Query $object
+ * @param WP_Query $query
  * @return string
  */
-function bbp_query_post_parent__in( $where, $object = '' ) {
+function bbp_query_post_parent__in( $where, $query = '' ) {
 	global $wp;
 
 	// Noop if WP core supports this already
@@ -1728,12 +1728,12 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 	}
 
 	// Bail if no object passed
-	if ( empty( $object ) ) {
+	if ( empty( $query ) ) {
 		return $where;
 	}
 
 	// Only 1 post_parent so return $where
-	if ( is_numeric( $object->query_vars['post_parent'] ) ) {
+	if ( is_numeric( $query->query_vars['post_parent'] ) ) {
 		return $where;
 	}
 
@@ -1741,13 +1741,13 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 	$bbp_db = bbp_db();
 
 	// Including specific post_parent's
-	if ( ! empty( $object->query_vars['post_parent__in'] ) ) {
-		$ids    = implode( ',', wp_parse_id_list( $object->query_vars['post_parent__in'] ) );
+	if ( ! empty( $query->query_vars['post_parent__in'] ) ) {
+		$ids    = implode( ',', wp_parse_id_list( $query->query_vars['post_parent__in'] ) );
 		$where .= " AND {$bbp_db->posts}.post_parent IN ($ids)";
 
 	// Excluding specific post_parent's
-	} elseif ( ! empty( $object->query_vars['post_parent__not_in'] ) ) {
-		$ids    = implode( ',', wp_parse_id_list( $object->query_vars['post_parent__not_in'] ) );
+	} elseif ( ! empty( $query->query_vars['post_parent__not_in'] ) ) {
+		$ids    = implode( ',', wp_parse_id_list( $query->query_vars['post_parent__not_in'] ) );
 		$where .= " AND {$bbp_db->posts}.post_parent NOT IN ($ids)";
 	}
 

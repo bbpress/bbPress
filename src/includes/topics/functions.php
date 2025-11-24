@@ -468,26 +468,22 @@ function bbp_edit_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_topic_not_found', __( '<strong>Error</strong>: The topic you want to edit was not found.', 'bbpress' ) );
 		return;
 
-	// Topic exists
+	// Check users ability to create new topic
+	} elseif ( ! bbp_is_topic_anonymous( $topic_id ) ) {
+
+		// User cannot edit this topic
+		if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
+			bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
+		}
+
+		// Set topic author
+		$topic_author = bbp_get_topic_author_id( $topic_id );
+
+	// It is an anonymous post
 	} else {
 
-		// Check users ability to create new topic
-		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
-
-			// User cannot edit this topic
-			if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
-			}
-
-			// Set topic author
-			$topic_author = bbp_get_topic_author_id( $topic_id );
-
-		// It is an anonymous post
-		} else {
-
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data();
-		}
+		// Filter anonymous data
+		$anonymous_data = bbp_filter_anonymous_post_data();
 	}
 
 	// Nonce check
@@ -1174,9 +1170,13 @@ function bbp_merge_topic_handler( $action = '' ) {
 	if ( ! bbp_verify_nonce_request( 'bbp-merge-topic_' . $source_topic_id ) ) {
 		bbp_add_error( 'bbp_merge_topic_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
+	}
+
+	// Get source topic
+	$source_topic = bbp_get_topic( $source_topic_id );
 
 	// Source topic not found
-	} elseif ( ! $source_topic = bbp_get_topic( $source_topic_id ) ) {
+	if ( empty( $source_topic ) ) {
 		bbp_add_error( 'bbp_merge_topic_source_not_found', __( '<strong>Error</strong>: The topic you want to merge was not found.', 'bbpress' ) );
 		return;
 	}
@@ -1196,8 +1196,11 @@ function bbp_merge_topic_handler( $action = '' ) {
 		$destination_topic_id = (int) $_POST['bbp_destination_topic'];
 	}
 
+	// Get the destination topic
+	$destination_topic = bbp_get_topic( $destination_topic_id );
+
 	// Destination topic not found
-	if ( ! $destination_topic = bbp_get_topic( $destination_topic_id ) ) {
+	if ( empty( $destination_topic ) ) {
 		bbp_add_error( 'bbp_merge_topic_destination_not_found', __( '<strong>Error</strong>: The topic you want to merge to was not found.', 'bbpress' ) );
 	}
 
@@ -1506,7 +1509,6 @@ function bbp_split_topic_handler( $action = '' ) {
 			// Split at reply into a new topic
 			case 'reply' :
 			default :
-
 				// User needs to be able to publish topics
 				if ( current_user_can( 'publish_topics' ) ) {
 
@@ -1811,12 +1813,13 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// No tag name was provided
-			if ( empty( $_POST['tag-name'] ) || ! $name = $_POST['tag-name'] ) {
+			if ( empty( $_POST['tag-name'] ) || ! is_scalar( $_POST['tag-name'] ) ) {
 				bbp_add_error( 'bbp_manage_topic_tag_update_name', __( '<strong>Error</strong>: You need to enter a tag name.', 'bbpress' ) );
 				return;
 			}
 
 			// Attempt to update the tag
+			$name        = $_POST['tag-name'];
 			$slug        = ! empty( $_POST['tag-slug']        ) ? $_POST['tag-slug'] : '';
 			$description = ! empty( $_POST['tag-description'] ) ? $_POST['tag-description'] : '';
 			$tag         = wp_update_term(
@@ -1860,13 +1863,17 @@ function bbp_edit_topic_tag_handler( $action = '' ) {
 			}
 
 			// No tag name was provided
-			if ( empty( $_POST['tag-existing-name'] ) || ! $name = $_POST['tag-existing-name'] ) {
+			if ( empty( $_POST['tag-existing-name'] ) || ! is_scalar( $_POST['tag-existing-name'] ) ) {
 				bbp_add_error( 'bbp_manage_topic_tag_merge_name', __( '<strong>Error</strong>: You need to enter a tag name.', 'bbpress' ) );
 				return;
 			}
 
+			// Unsanitized name of existing tag
+			$name = $_POST['tag-existing-name'];
+
 			// If term does not exist, create it
-			if ( ! $tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) ) {
+			$tag = term_exists( $name, bbp_get_topic_tag_tax_id() );
+			if ( empty( $tag ) ) {
 				$tag = wp_insert_term( $name, bbp_get_topic_tag_tax_id() );
 			}
 
@@ -3930,7 +3937,9 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 
 		<?php if ( bbp_has_topics( $topics_query ) ) : ?>
 
-			<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
+			<?php while ( bbp_topics() ) :
+
+				bbp_the_topic(); ?>
 
 				<item>
 					<guid><?php bbp_topic_permalink(); ?></guid>

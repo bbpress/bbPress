@@ -1433,7 +1433,8 @@ class BBP_Admin {
 				break;
 
 			case 'show' :
-			default : ?>
+			default :
+			?>
 
 				<p><?php esc_html_e( 'You can update your forum through this page. Hit the link below to update.', 'bbpress' ); ?></p>
 				<p><a class="button" href="index.php?page=bbp-update&amp;action=bbp-update"><?php esc_html_e( 'Update Forum', 'bbpress' ); ?></a></p>
@@ -1562,8 +1563,8 @@ class BBP_Admin {
 				break;
 
 			case 'show' :
-			default : ?>
-
+			default :
+			?>
 				<p><?php esc_html_e( 'You can update all the forums on your network through this page. It works by calling the update script of each site automatically. Hit the link below to update.', 'bbpress' ); ?></p>
 				<p><a class="button" href="update-core.php?page=bbpress-update&amp;action=bbpress-update"><?php esc_html_e( 'Update Forums', 'bbpress' ); ?></a></p>
 
