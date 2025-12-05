@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Reply Capabilites
+ * bbPress Reply Capabilities.
  *
  * Used to map reply capabilities to WordPress's existing capabilities.
  *
@@ -10,11 +10,11 @@
  */
 
 /**
- * Return reply capabilities
+ * Return reply capabilities.
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @return array Reply capabilities
+ * @return array Reply capabilities.
  */
 function bbp_get_reply_caps() {
 
@@ -39,7 +39,7 @@ function bbp_get_reply_caps() {
 }
 
 /**
- * Maps topic capabilities
+ * Maps topic capabilities.
  *
  * @since 2.2.0 bbPress (r4242)
  *
@@ -48,7 +48,7 @@ function bbp_get_reply_caps() {
  * @param int    $user_id User id.
  * @param array  $args    Arguments.
  *
- * @return array Actual capabilities for meta capability
+ * @return array Actual capabilities for meta capability.
  */
 function bbp_map_reply_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 

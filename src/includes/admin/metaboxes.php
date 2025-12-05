@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Metaboxes
+ * bbPress Admin Metaboxes.
  *
  * @package bbPress
  * @subpackage Administration
@@ -106,9 +106,9 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 }
 
 /**
- * bbPress Dashboard Right Now Widget
+ * bbPress Dashboard Right Now Widget.
  *
- * Adds a dashboard widget with forum statistics
+ * Adds a dashboard widget with forum statistics.
  *
  * @since 2.0.0 bbPress (r2770)
  *
@@ -330,9 +330,9 @@ function bbp_dashboard_widget_right_now() {
 /** Forums ********************************************************************/
 
 /**
- * Forum meta-box
+ * Forum meta-box.
  *
- * The meta-box that holds all of the additional forum information
+ * The meta-box that holds all of the additional forum information.
  *
  * @since 2.0.0 bbPress (r2744)
  */
@@ -425,9 +425,9 @@ function bbp_forum_metabox( $post ) {
 /** Topics ********************************************************************/
 
 /**
- * Topic meta-box
+ * Topic meta-box.
  *
- * The meta-box that holds all of the additional topic information
+ * The meta-box that holds all of the additional topic information.
  *
  * @since 2.0.0 bbPress (r2464)
  */
@@ -504,9 +504,9 @@ function bbp_topic_metabox( $post ) {
 /** Replies *******************************************************************/
 
 /**
- * Reply meta-box
+ * Reply meta-box.
  *
- * The meta-box that holds all of the additional reply information
+ * The meta-box that holds all of the additional reply information.
  *
  * @since 2.0.0 bbPress (r2464)
  */
@@ -606,7 +606,7 @@ function bbp_reply_metabox( $post ) {
 }
 
 /**
- * Output the topic replies meta-box
+ * Output the topic replies meta-box.
  *
  * @since 2.6.0 bbPress (r5886)
  *
@@ -647,11 +647,11 @@ function bbp_topic_replies_metabox( $topic = false ) {
 /** Users *********************************************************************/
 
 /**
- * Anonymous user information meta-box
+ * Anonymous user information meta-box.
  *
  * @since 2.0.0 bbPress (r2828)
  *
- * @param WP_Post $post The current post object
+ * @param WP_Post $post The current post object.
  */
 function bbp_author_metabox( $post ) {
 
@@ -698,7 +698,7 @@ function bbp_author_metabox( $post ) {
 }
 
 /**
- * Moderator assignment meta-box
+ * Moderator assignment meta-box.
  *
  * @since 2.6.0 bbPress (r2828)
  */
@@ -721,7 +721,7 @@ function bbp_moderator_assignment_metabox( $post ) {
 }
 
 /**
- * See who engaged with a topic
+ * See who engaged with a topic.
  *
  * @since 2.6.0 bbPress (r6333)
  */
@@ -753,7 +753,7 @@ function bbp_topic_engagements_metabox( $post ) {
 }
 
 /**
- * See who marked a topic as a favorite
+ * See who marked a topic as a favorite.
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
@@ -786,7 +786,7 @@ function bbp_topic_favorites_metabox( $post ) {
 }
 
 /**
- * See who is subscribed to a topic
+ * See who is subscribed to a topic.
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
@@ -826,7 +826,7 @@ function bbp_topic_subscriptions_metabox( $post ) {
 }
 
 /**
- * See who is subscribed to a forum
+ * See who is subscribed to a forum.
  *
  * @since 2.6.0 bbPress (r6197)
  * @since 2.6.0 bbPress (r6333) Updated to use BBP_User_Query
@@ -859,7 +859,7 @@ function bbp_forum_subscriptions_metabox( $post ) {
 }
 
 /**
- * Loop through queried metabox users, and output links to their avatars
+ * Loop through queried metabox users, and output links to their avatars.
  *
  * Developers Note: This function may change in a future release to include
  * additional actions, so do not use this function in any third party plugin.

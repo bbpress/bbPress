@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The bbPress Plugin
+ * The bbPress Plugin.
  *
  * bbPress is forum software with a twist from the creators of WordPress.
  *

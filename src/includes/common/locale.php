@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Localization
+ * bbPress Localization.
  *
  * @package bbPress
  * @subpackage Localization

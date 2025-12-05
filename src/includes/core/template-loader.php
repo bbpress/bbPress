@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Template Loader
+ * bbPress Template Loader.
  *
  * @package bbPress
  * @subpackage TemplateLoader
@@ -11,11 +11,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Possibly intercept the template being loaded
+ * Possibly intercept the template being loaded.
  *
  * Listens to the 'template_include' filter and waits for any bbPress specific
  * template condition to be met. If one is met and the template file exists,
- * it will be used; otherwise
+ * it will be used; otherwise.
  *
  * Note that the _edit() checks are ahead of their counterparts, to prevent them
  * from being stomped on accident.
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param string $template
  *
- * @return string The path to the template file that is being used
+ * @return string The path to the template file that is being used.
  */
 function bbp_template_include_theme_supports( $template = '' ) {
 
@@ -107,12 +107,12 @@ function bbp_template_include_theme_supports( $template = '' ) {
 }
 
 /**
- * Set the included template
+ * Set the included template.
  *
  * @since 2.4.0 bbPress (r4975)
  *
- * @param mixed $template Default false
- * @return mixed False if empty. Template name if template included
+ * @param mixed $template Default false.
+ * @return mixed False if empty. Template name if template included.
  */
 function bbp_set_template_included( $template = false ) {
 	bbpress()->theme_compat->bbpress_template = $template;
@@ -125,7 +125,7 @@ function bbp_set_template_included( $template = false ) {
  *
  * @since 2.4.0 bbPress (r4975)
  *
- * @return bool True if yes, false if no
+ * @return bool True if yes, false if no.
  */
 function bbp_is_template_included() {
 	return ! empty( bbpress()->theme_compat->bbpress_template );
@@ -157,11 +157,11 @@ function bbp_load_theme_functions() {
 /** Individual Templates ******************************************************/
 
 /**
- * Get the user profile template
+ * Get the user profile template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_user_template() {
 	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
@@ -176,11 +176,11 @@ function bbp_get_single_user_template() {
 }
 
 /**
- * Get the user profile edit template
+ * Get the user profile edit template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_user_edit_template() {
 	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
@@ -196,11 +196,11 @@ function bbp_get_single_user_edit_template() {
 }
 
 /**
- * Get the user favorites template
+ * Get the user favorites template.
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_favorites_template() {
 	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
@@ -217,11 +217,11 @@ function bbp_get_favorites_template() {
 }
 
 /**
- * Get the user subscriptions template
+ * Get the user subscriptions template.
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_subscriptions_template() {
 	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
@@ -238,11 +238,11 @@ function bbp_get_subscriptions_template() {
 }
 
 /**
- * Get the view template
+ * Get the view template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_view_template() {
 	$view_id   = bbp_get_view_id();
@@ -256,11 +256,11 @@ function bbp_get_single_view_template() {
 }
 
 /**
- * Get the search template
+ * Get the search template.
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_search_template() {
 	$templates = array(
@@ -271,11 +271,11 @@ function bbp_get_search_template() {
 }
 
 /**
- * Get the single forum template
+ * Get the single forum template.
  *
  * @since 2.1.0 bbPress (r3922)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_forum_template() {
 	$templates = array(
@@ -285,11 +285,11 @@ function bbp_get_single_forum_template() {
 }
 
 /**
- * Get the forum archive template
+ * Get the forum archive template.
  *
  * @since 2.1.0 bbPress (r3922)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_forum_archive_template() {
 	$templates = array(
@@ -299,11 +299,11 @@ function bbp_get_forum_archive_template() {
 }
 
 /**
- * Get the forum edit template
+ * Get the forum edit template.
  *
  * @since 2.1.0 bbPress (r3566)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_forum_edit_template() {
 	$templates = array(
@@ -313,11 +313,11 @@ function bbp_get_forum_edit_template() {
 }
 
 /**
- * Get the single topic template
+ * Get the single topic template.
  *
  * @since 2.1.0 bbPress (r3922)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_topic_template() {
 	$templates = array(
@@ -327,11 +327,11 @@ function bbp_get_single_topic_template() {
 }
 
 /**
- * Get the topic archive template
+ * Get the topic archive template.
  *
  * @since 2.1.0 bbPress (r3922)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_archive_template() {
 	$templates = array(
@@ -341,11 +341,11 @@ function bbp_get_topic_archive_template() {
 }
 
 /**
- * Get the topic edit template
+ * Get the topic edit template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_edit_template() {
 	$templates = array(
@@ -355,11 +355,11 @@ function bbp_get_topic_edit_template() {
 }
 
 /**
- * Get the topic split template
+ * Get the topic split template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_split_template() {
 	$templates = array(
@@ -369,11 +369,11 @@ function bbp_get_topic_split_template() {
 }
 
 /**
- * Get the topic merge template
+ * Get the topic merge template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_merge_template() {
 	$templates = array(
@@ -383,11 +383,11 @@ function bbp_get_topic_merge_template() {
 }
 
 /**
- * Get the single reply template
+ * Get the single reply template.
  *
  * @since 2.1.0 bbPress (r3922)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_single_reply_template() {
 	$templates = array(
@@ -397,11 +397,11 @@ function bbp_get_single_reply_template() {
 }
 
 /**
- * Get the reply edit template
+ * Get the reply edit template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
-* @return string Path to template file
+* @return string Path to template file.
  */
 function bbp_get_reply_edit_template() {
 	$templates = array(
@@ -411,11 +411,11 @@ function bbp_get_reply_edit_template() {
 }
 
 /**
- * Get the reply move template
+ * Get the reply move template.
  *
  * @since 2.3.0 bbPress (r4521)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_reply_move_template() {
 	$templates = array(
@@ -425,11 +425,11 @@ function bbp_get_reply_move_template() {
 }
 
 /**
- * Get the topic template
+ * Get the topic template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_tag_template() {
 	$tt_slug   = bbp_get_topic_tag_slug();
@@ -442,11 +442,11 @@ function bbp_get_topic_tag_template() {
 }
 
 /**
- * Get the topic edit template
+ * Get the topic edit template.
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_topic_tag_edit_template() {
 	$tt_slug   = bbp_get_topic_tag_slug();
@@ -459,12 +459,12 @@ function bbp_get_topic_tag_edit_template() {
 }
 
 /**
- * Get the templates to use as the endpoint for bbPress template parts
+ * Get the templates to use as the endpoint for bbPress template parts.
  *
  * @since 2.0.0 bbPress (r3311)
  * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
  *
- * @return string Path to template file
+ * @return string Path to template file.
  */
 function bbp_get_theme_compat_templates() {
 	$templates = array(

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Capabilites
+ * bbPress Capabilities.
  *
  * The functions in this file are used primarily as convenient wrappers for
  * capability output in user profiles. This includes mapping capabilities and
@@ -21,11 +21,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0.0 bbPress (r2994)
  *
- * @todo Map all of these and deprecate
+ * @todo Map all of these and deprecate.
  *
- * @param string $role Optional. Defaults to The role to load caps for
+ * @param string $role Optional. Defaults to The role to load caps for.
  *
- * @return array Capabilities for $role
+ * @return array Capabilities for $role.
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
@@ -245,7 +245,7 @@ function bbp_remove_caps() {
 }
 
 /**
- * Get the available roles, minus the dynamic roles that come with bbPress
+ * Get the available roles, minus the dynamic roles that come with bbPress.
  *
  * @since 2.4.0 bbPress (r5064)
  *
@@ -279,9 +279,9 @@ function bbp_get_blog_roles() {
  *
  * @since 2.2.0 bbPress (r4290)
  *
- * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized
+ * @param WP_Roles $wp_roles The array of WP_Role objects that was initialized.
  *
- * @return WP_Roles The main $wp_roles global
+ * @return WP_Roles The main $wp_roles global.
  */
 function bbp_add_forums_roles( $wp_roles = null ) {
 
@@ -310,7 +310,7 @@ function bbp_add_forums_roles( $wp_roles = null ) {
 }
 
 /**
- * Helper function to add filter to option_wp_user_roles
+ * Helper function to add filter to option_wp_user_roles.
  *
  * @since 2.2.0 bbPress (r4363)
  * @deprecated 2.6.0 bbPress (r6105)
@@ -342,10 +342,10 @@ function bbp_filter_user_roles_option() {
  * @since 2.2.0 bbPress (r4363)
  * @deprecated 2.6.0 bbPress (r6105)
  *
- * @internal Used by bbPress to reinitialize dynamic roles on blog switch
+ * @internal Used by bbPress to reinitialize dynamic roles on blog switch.
  *
  * @param array $roles
- * @return array Combined array of database roles and dynamic bbPress roles
+ * @return array Combined array of database roles and dynamic bbPress roles.
  */
 function _bbp_reinit_dynamic_roles( $roles = array() ) {
 	foreach ( bbp_get_dynamic_roles() as $role_id => $details ) {
@@ -388,13 +388,13 @@ function bbp_get_dynamic_roles() {
 }
 
 /**
- * Gets a translated role name from a role ID
+ * Gets a translated role name from a role ID.
  *
  * @since 2.3.0 bbPress (r4792)
  * @since 2.6.0 bbPress (r6117) Use bbp_translate_user_role()
  *
  * @param string $role_id
- * @return string Translated role name
+ * @return string Translated role name.
  */
 function bbp_get_dynamic_role_name( $role_id = '' ) {
 	$roles = bbp_get_dynamic_roles();
@@ -407,14 +407,14 @@ function bbp_get_dynamic_role_name( $role_id = '' ) {
 }
 
 /**
- * Removes the bbPress roles from the editable roles array
+ * Removes the bbPress roles from the editable roles array.
  *
  * This used to use array_diff_assoc() but it randomly broke before 2.2 release.
  * Need to research what happened, and if there's a way to speed this up.
  *
  * @since 2.2.0 bbPress (r4303)
  *
- * @param array $all_roles All registered roles
+ * @param array $all_roles All registered roles.
  * @return array
  */
 function bbp_filter_blog_editable_roles( $all_roles = array() ) {
@@ -436,7 +436,7 @@ function bbp_filter_blog_editable_roles( $all_roles = array() ) {
 }
 
 /**
- * The keymaster role for bbPress users
+ * The keymaster role for bbPress users.
  *
  * @since 2.2.0 bbPress (r4284)
  *
@@ -449,7 +449,7 @@ function bbp_get_keymaster_role() {
 }
 
 /**
- * The moderator role for bbPress users
+ * The moderator role for bbPress users.
  *
  * @since 2.0.0 bbPress (r3410)
  *
@@ -462,7 +462,7 @@ function bbp_get_moderator_role() {
 }
 
 /**
- * The participant role for registered user that can participate in forums
+ * The participant role for registered user that can participate in forums.
  *
  * @since 2.0.0 bbPress (r3410)
  *
@@ -475,7 +475,7 @@ function bbp_get_participant_role() {
 }
 
 /**
- * The spectator role is for registered users without any capabilities
+ * The spectator role is for registered users without any capabilities.
  *
  * @since 2.1.0 bbPress (r3860)
  *
@@ -488,7 +488,7 @@ function bbp_get_spectator_role() {
 }
 
 /**
- * The blocked role is for registered users that cannot spectate or participate
+ * The blocked role is for registered users that cannot spectate or participate.
  *
  * @since 2.2.0 bbPress (r4284)
  *

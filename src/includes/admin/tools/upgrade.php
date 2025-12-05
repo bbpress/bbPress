@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Upgrade Functions
+ * bbPress Admin Upgrade Functions.
  *
  * @package bbPress
  * @subpackage Administration
@@ -11,10 +11,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Admin repair page
+ * Admin repair page.
  *
  * @since 2.6.0 bbPress (r6278)
- *
  */
 function bbp_admin_upgrade_page() {
 
@@ -241,11 +240,11 @@ function bbp_admin_upgrade_page() {
 }
 
 /**
- * Upgrade user engagements for bbPress 2.6 and higher
+ * Upgrade user engagements for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6320)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_engagements() {
 
@@ -293,13 +292,13 @@ function bbp_admin_upgrade_user_engagements() {
 }
 
 /**
- * Upgrade group forum ID mappings after a bbPress 1.x to bbPress 2.x conversion
+ * Upgrade group forum ID mappings after a bbPress 1.x to bbPress 2.x conversion.
  *
- * Previously named: bbp_admin_repair_group_forum_relationships()
+ * Previously named: bbp_admin_repair_group_forum_relationships().
  *
  * @since 2.6.0 bbPress (r4395)
  *
- * @return If a wp_error() occurs and no converted forums are found
+ * @return If a wp_error() occurs and no converted forums are found.
  */
 function bbp_admin_upgrade_group_forum_relationships() {
 
@@ -446,11 +445,11 @@ function bbp_admin_upgrade_group_forum_relationships() {
 }
 
 /**
- * Upgrade user favorites for bbPress 2.6 and higher
+ * Upgrade user favorites for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6174)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_favorites() {
 
@@ -508,11 +507,11 @@ function bbp_admin_upgrade_user_favorites() {
 }
 
 /**
- * Upgrade user topic subscriptions for bbPress 2.6 and higher
+ * Upgrade user topic subscriptions for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6174)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_topic_subscriptions() {
 
@@ -570,11 +569,11 @@ function bbp_admin_upgrade_user_topic_subscriptions() {
 }
 
 /**
- * Upgrade user forum subscriptions for bbPress 2.6 and higher
+ * Upgrade user forum subscriptions for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6193)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_user_forum_subscriptions() {
 
@@ -632,11 +631,11 @@ function bbp_admin_upgrade_user_forum_subscriptions() {
 }
 
 /**
- * Remove favorites data from user meta for bbPress 2.6 and higher
+ * Remove favorites data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 
@@ -670,11 +669,11 @@ function bbp_admin_upgrade_remove_favorites_from_usermeta() {
 }
 
 /**
- * Remove topic subscriptions data from user meta for bbPress 2.6 and higher
+ * Remove topic subscriptions data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 
@@ -708,11 +707,11 @@ function bbp_admin_upgrade_remove_topic_subscriptions_from_usermeta() {
 }
 
 /**
- * Remove topic subscriptions data from user meta for bbPress 2.6 and higher
+ * Remove topic subscriptions data from user meta for bbPress 2.6 and higher.
  *
  * @since 2.6.0 bbPress (r6281)
  *
- * @return array An array of the status code and the message
+ * @return array An array of the status code and the message.
  */
 function bbp_admin_upgrade_remove_forum_subscriptions_from_usermeta() {
 

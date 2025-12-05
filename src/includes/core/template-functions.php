@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Template Functions
+ * bbPress Template Functions.
  *
  * This file contains functions necessary to mirror the WordPress core template
  * loading process. Many of those functions are not filterable, and even then
@@ -15,12 +15,12 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Adds bbPress theme support to any active WordPress theme
+ * Adds bbPress theme support to any active WordPress theme.
  *
  * @since 2.0.0 bbPress (r3032)
  *
  * @param string $slug
- * @param string $name Optional. Default null
+ * @param string $name Optional. Default null.
  * @return string The template filename if one is located.
  */
 function bbp_get_template_part( $slug, $name = null ) {
@@ -165,7 +165,7 @@ function bbp_locate_enqueueable( $file = '' ) {
 }
 
 /**
- * Convert an enqueueable file path to a URL
+ * Convert an enqueueable file path to a URL.
  *
  * @since 2.6.0
  * @param string $file
@@ -307,9 +307,9 @@ function bbp_register_template_stack( $location_callback = '', $priority = 10 ) 
  *
  * @since 2.3.0 bbPress (r4652)
  *
- * @param string $location_callback Callback function that returns the
+ * @param string $location_callback Callback function that returns the.
  * @param int $priority
- * @return bool Whether stack was removed
+ * @return bool Whether stack was removed.
  */
 function bbp_deregister_template_stack( $location_callback = '', $priority = 10 ) {
 
@@ -329,9 +329,9 @@ function bbp_deregister_template_stack( $location_callback = '', $priority = 10 
  * @since 2.2.0 bbPress (r4323)
  * @since 2.6.0 bbPress (r5944) Added support for `WP_Hook`
  *
- * @global array $wp_filter Stores all of the filters
+ * @global array $wp_filter Stores all of the filters.
  * @global array $merged_filters Merges the filter hooks using this function.
- * @global array $wp_current_filter stores the list of current filters with the current one last
+ * @global array $wp_current_filter stores the list of current filters with the current one last.
  *
  * @return array The filtered value after all hooked functions are applied to it.
  */
@@ -390,7 +390,7 @@ function bbp_get_template_stack() {
 }
 
 /**
- * Get a template part in an output buffer, and return it
+ * Get a template part in an output buffer, and return it.
  *
  * @since 2.4.0 bbPress (r5043)
  *
@@ -418,7 +418,7 @@ function bbp_buffer_template_part( $slug, $name = null, $display = true ) {
 }
 
 /**
- * Retrieve path to a template
+ * Retrieve path to a template.
  *
  * Used to quickly retrieve the path of a template without including the file
  * extension. It will also check the parent theme and theme-compat theme with
@@ -428,7 +428,7 @@ function bbp_buffer_template_part( $slug, $name = null, $display = true ) {
  * @since 2.1.0 bbPress (r3629)
  *
  * @param string $type Filename without extension.
- * @param array $templates An optional list of template candidates
+ * @param array $templates An optional list of template candidates.
  * @return string Full path to file.
  */
 function bbp_get_query_template( $type, $templates = array() ) {
@@ -456,12 +456,12 @@ function bbp_get_query_template( $type, $templates = array() ) {
 }
 
 /**
- * Get the possible subdirectories to check for templates in
+ * Get the possible subdirectories to check for templates in.
  *
  * @since 2.1.0 bbPress (r3738)
  *
- * @param array $templates Templates we are looking for
- * @return array Possible subdirectories to look in
+ * @param array $templates Templates we are looking for.
+ * @return array Possible subdirectories to look in.
  */
 function bbp_get_template_locations( $templates = array() ) {
 	$locations = array(
@@ -475,7 +475,7 @@ function bbp_get_template_locations( $templates = array() ) {
 }
 
 /**
- * Add template locations to template files being searched for
+ * Add template locations to template files being searched for.
  *
  * @since 2.1.0 bbPress (r3738)
  *
@@ -500,7 +500,7 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
 }
 
 /**
- * Add checks for bbPress conditions to parse_query action
+ * Add checks for bbPress conditions to parse_query action.
  *
  * If it's a user page, WP_Query::bbp_is_single_user is set to true.
  *
@@ -518,8 +518,8 @@ function bbp_add_template_stack_locations( $stacks = array() ) {
  * If it's a topic edit, WP_Query::bbp_is_topic_edit is set to true
  * If it's a reply edit, WP_Query::bbp_is_reply_edit is set to true.
  *
- * If it's a view page, WP_Query::bbp_is_view is set to true
- * If it's a search page, WP_Query::bbp_is_search is set to true
+ * If it's a view page, WP_Query::bbp_is_view is set to true.
+ * If it's a search page, WP_Query::bbp_is_search is set to true.
  *
  * @since 2.0.0 bbPress (r2688)
  *

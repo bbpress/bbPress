@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress User Options
+ * bbPress User Options.
  *
  * @package bbPress
  * @subpackage UserOptions
@@ -11,11 +11,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Get the default user options and their values
+ * Get the default user options and their values.
  *
  * @since 2.1.0 bbPress (r3910)
  *
- * @return array Filtered user option names and values
+ * @return array Filtered user option names and values.
  */
 function bbp_get_default_user_options() {
 
@@ -31,7 +31,7 @@ function bbp_get_default_user_options() {
 }
 
 /**
- * Add default user options
+ * Add default user options.
  *
  * This is destructive, so existing bbPress user options will be overridden.
  *
@@ -55,7 +55,7 @@ function bbp_add_user_options( $user_id = 0 ) {
 }
 
 /**
- * Delete default user options
+ * Delete default user options.
  *
  * Hooked to bbp_uninstall, it is only called once when bbPress is uninstalled.
  * This is destructive, so existing bbPress user options will be destroyed.
@@ -102,8 +102,8 @@ function bbp_setup_user_option_filters() {
  *
  * @since 2.1.0 bbPress (r3910)
  *
- * @param bool $value Optional. Default value false
- * @return mixed false if not overloaded, mixed if set
+ * @param bool $value Optional. Default value false.
+ * @return mixed false if not overloaded, mixed if set.
  */
 function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
 	$bbp = bbpress();
@@ -120,7 +120,7 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
 /** Post Counts ***************************************************************/
 
 /**
- * Update the topic count for a user
+ * Update the topic count for a user.
  *
  * @since 2.6.0 bbPress (r5309)
  *
@@ -149,11 +149,11 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false ) {
 }
 
 /**
- * Update the reply count for a user
+ * Update the reply count for a user.
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param int $user_id
+ * @param int $user_id User id.
  * @param mixed $count
  * @return boolean
  */
@@ -178,90 +178,92 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false ) {
 }
 
 /**
- * Output a users topic count
+ * Output a users topic count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id
- * @param boolean $integer Optional. Whether or not to format the result
+ * @param int $user_id User id.
+ * @param boolean $integer Optional. Whether or not to format the result.
  *
  * @return string
  */
 function bbp_user_topic_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_topic_count( $user_id, $integer ) );
 }
-	/**
-	 * Return a users reply count
-	 *
-	 * @since 2.1.0 bbPress (r3632)
-	 *
-	 * @param int $user_id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 *
-	 * @return string
-	 */
-	function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
-
-		// Validate user id
-		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) ) {
-			return false;
-		}
-
-		$count  = get_user_option( '_bbp_topic_count', $user_id );
-		$filter = ( true === $integer )
-			? 'bbp_get_user_topic_count_int'
-			: 'bbp_get_user_topic_count';
-
-		// Filter & return
-		return apply_filters( $filter, $count, $user_id );
-	}
 
 /**
- * Output a users reply count
+ * Return a users reply count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id
- * @param boolean $integer Optional. Whether or not to format the result
+ * @param int $user_id User id.
+ * @param boolean $integer Optional. Whether or not to format the result.
+ *
+ * @return string
+ */
+function bbp_get_user_topic_count( $user_id = 0, $integer = false ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	$count  = get_user_option( '_bbp_topic_count', $user_id );
+	$filter = ( true === $integer )
+		? 'bbp_get_user_topic_count_int'
+		: 'bbp_get_user_topic_count';
+
+	// Filter & return
+	return apply_filters( $filter, $count, $user_id );
+}
+
+/**
+ * Output a users reply count.
+ *
+ * @since 2.1.0 bbPress (r3632)
+ *
+ * @param int $user_id User id.
+ * @param boolean $integer Optional. Whether or not to format the result.
  *
  * @return string
  */
 function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_reply_count( $user_id, $integer ) );
 }
-	/**
-	 * Return a users reply count
-	 *
-	 * @since 2.1.0 bbPress (r3632)
-	 *
-	 * @param int $user_id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 *
-	 * @return string
-	 */
-	function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
-
-		// Validate user id
-		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) ) {
-			return false;
-		}
-
-		$count  = get_user_option( '_bbp_reply_count', $user_id );
-		$filter = ( true === $integer )
-			? 'bbp_get_user_reply_count_int'
-			: 'bbp_get_user_reply_count';
-
-		return apply_filters( $filter, $count, $user_id );
-	}
 
 /**
- * Output a users total post count
+ * Return a users reply count.
  *
  * @since 2.1.0 bbPress (r3632)
  *
- * @param int $user_id
+ * @param int $user_id User id.
+ * @param boolean $integer Optional. Whether or not to format the result.
+ *
+ * @return string
+ */
+function bbp_get_user_reply_count( $user_id = 0, $integer = false ) {
+
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	$count  = get_user_option( '_bbp_reply_count', $user_id );
+	$filter = ( true === $integer )
+		? 'bbp_get_user_reply_count_int'
+		: 'bbp_get_user_reply_count';
+
+	return apply_filters( $filter, $count, $user_id );
+}
+
+/**
+ * Output a users total post count.
+ *
+ * @since 2.1.0 bbPress (r3632)
+ *
+ * @param int $user_id User id.
  * @param boolean $integer Optional. Whether or not to format the result
  *
  * @return string
@@ -269,44 +271,45 @@ function bbp_user_reply_count( $user_id = 0, $integer = false ) {
 function bbp_user_post_count( $user_id = 0, $integer = false ) {
 	echo esc_html( bbp_get_user_post_count( $user_id, $integer ) );
 }
-	/**
-	 * Return a users total post count
-	 *
-	 * @since 2.1.0 bbPress (r3632)
-	 *
-	 * @param int $user_id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 *
-	 * @return string
-	 */
-	function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 
-		// Validate user id
-		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) ) {
-			return false;
-		}
+/**
+ * Return a users total post count.
+ *
+ * @since 2.1.0 bbPress (r3632)
+ *
+ * @param int $user_id User id.
+ * @param boolean $integer Optional. Whether or not to format the result.
+ *
+ * @return string
+ */
+function bbp_get_user_post_count( $user_id = 0, $integer = false ) {
 
-		$topics  = bbp_get_user_topic_count( $user_id, true );
-		$replies = bbp_get_user_reply_count( $user_id, true );
-		$count   = $topics + $replies;
-		$filter  = ( true === $integer )
-			? 'bbp_get_user_post_count_int'
-			: 'bbp_get_user_post_count';
-
-		return apply_filters( $filter, $count, $user_id );
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
 	}
+
+	$topics  = bbp_get_user_topic_count( $user_id, true );
+	$replies = bbp_get_user_reply_count( $user_id, true );
+	$count   = $topics + $replies;
+	$filter  = ( true === $integer )
+		? 'bbp_get_user_post_count_int'
+		: 'bbp_get_user_post_count';
+
+	return apply_filters( $filter, $count, $user_id );
+}
 
 /** Last Posted ***************************************************************/
 
 /**
- * Update a users last posted time, for use with post throttling
+ * Update a users last posted time, for use with post throttling.
  *
  * @since 2.1.0 bbPress (r3910)
  *
- * @param int $user_id User ID to update
- * @param int $time Time in time() format
- * @return bool False if no user or failure, true if successful
+ * @param int $user_id User ID to update.
+ * @param int $time Time in time() format.
+ * @return bool False if no user or failure, true if successful.
  */
 function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
 
@@ -329,30 +332,30 @@ function bbp_update_user_last_posted( $user_id = 0, $time = 0 ) {
  *
  * @since 2.1.0 bbPress (r3910)
  *
- * @param int $user_id User ID to retrieve value for
+ * @param int $user_id User ID to retrieve value for.
  */
 function bbp_user_last_posted( $user_id = 0 ) {
 	echo esc_html( bbp_get_user_last_posted( $user_id ) );
 }
 
-	/**
-	 * Return the raw value of the last posted time.
-	 *
-	 * @since 2.1.0 bbPress (r3910)
-	 *
-	 * @param int $user_id User ID to retrieve value for
-	 * @return mixed False if no user, time() format if exists
-	 */
-	function bbp_get_user_last_posted( $user_id = 0 ) {
+/**
+ * Return the raw value of the last posted time.
+ *
+ * @since 2.1.0 bbPress (r3910)
+ *
+ * @param int $user_id User ID to retrieve value for.
+ * @return mixed False if no user, time() format if exists.
+ */
+function bbp_get_user_last_posted( $user_id = 0 ) {
 
-		// Validate user id
-		$user_id = bbp_get_user_id( $user_id );
-		if ( empty( $user_id ) ) {
-			return false;
-		}
-
-		$time = get_user_option( '_bbp_last_posted', $user_id );
-
-		// Filter & return
-		return apply_filters( 'bbp_get_user_last_posted', $time, $user_id );
+	// Validate user id
+	$user_id = bbp_get_user_id( $user_id );
+	if ( empty( $user_id ) ) {
+		return false;
 	}
+
+	$time = get_user_option( '_bbp_last_posted', $user_id );
+
+	// Filter & return
+	return apply_filters( 'bbp_get_user_last_posted', $time, $user_id );
+}

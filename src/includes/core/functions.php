@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Core Functions
+ * bbPress Core Functions.
  *
  * @package bbPress
  * @subpackage Functions
@@ -13,92 +13,96 @@ defined( 'ABSPATH' ) || exit;
 /** Versions ******************************************************************/
 
 /**
- * Output the bbPress version
+ * Output the bbPress version.
  *
  * @since 2.0.0 bbPress (r3468)
  */
 function bbp_version() {
 	echo bbp_get_version();
 }
-	/**
-	 * Return the bbPress version
-	 *
-	 * @since 2.0.0 bbPress (r3468)
-	 *
-	 * @retrun string The bbPress version
-	 */
-	function bbp_get_version() {
-		return bbpress()->version;
-	}
 
 /**
- * Output the bbPress asset version
+ * Return the bbPress version.
+ *
+ * @since 2.0.0 bbPress (r3468)
+ *
+ * @return string The bbPress version.
+ */
+function bbp_get_version() {
+	return bbpress()->version;
+}
+
+/**
+ * Output the bbPress asset version.
  *
  * @since 2.6.7 bbPress (r7188)
  */
 function bbp_asset_version() {
 	echo bbp_get_asset_version();
 }
-	/**
-	 * Return the bbPress asset version
-	 *
-	 * @since 2.6.7 bbPress (r7188)
-	 *
-	 * @retrun string The bbPress asset version
-	 */
-	function bbp_get_asset_version() {
-		return bbp_doing_script_debug()
-			? (string) time()
-			: bbp_get_version();
-	}
 
 /**
- * Output the bbPress database version
+ * Return the bbPress asset version.
+ *
+ * @since 2.6.7 bbPress (r7188)
+ *
+ * @return string The bbPress asset version.
+ */
+function bbp_get_asset_version() {
+	return bbp_doing_script_debug()
+		? (string) time()
+		: bbp_get_version();
+}
+
+/**
+ * Output the bbPress database version.
  *
  * @since 2.0.0 bbPress (r3468)
  */
 function bbp_db_version() {
 	echo bbp_get_db_version();
 }
-	/**
-	 * Return the bbPress database version
-	 *
-	 * @since 2.0.0 bbPress (r3468)
-	 *
-	 * @retrun string The bbPress version
-	 */
-	function bbp_get_db_version() {
-		return bbpress()->db_version;
-	}
 
 /**
- * Output the bbPress database version directly from the database
+ * Return the bbPress database version.
+ *
+ * @since 2.0.0 bbPress (r3468)
+ *
+ * @return string The bbPress version.
+ */
+function bbp_get_db_version() {
+	return bbpress()->db_version;
+}
+
+/**
+ * Output the bbPress database version directly from the database.
  *
  * @since 2.0.0 bbPress (r3468)
  */
 function bbp_db_version_raw() {
 	echo bbp_get_db_version_raw();
 }
-	/**
-	 * Return the bbPress database version directly from the database
-	 *
-	 * @since 2.0.0 bbPress (r3468)
-	 *
-	 * @retrun string The current bbPress version
-	 */
-	function bbp_get_db_version_raw() {
-		return get_option( '_bbp_db_version', '' );
-	}
+
+/**
+ * Return the bbPress database version directly from the database.
+ *
+ * @since 2.0.0 bbPress (r3468)
+ *
+ * @return string The current bbPress version.
+ */
+function bbp_get_db_version_raw() {
+	return get_option( '_bbp_db_version', '' );
+}
 
 /** Post Meta *****************************************************************/
 
 /**
- * Update the forum meta ID of a post
+ * Update the forum meta ID of a post.
  *
  * @since 2.0.0 bbPress (r3181)
  *
- * @param int $post_id  The post to update
- * @param int $forum_id The forum
+ * @param int $post_id  The post to update.
+ * @param int $forum_id The forum id.
  */
 function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 
@@ -112,12 +116,12 @@ function bbp_update_forum_id( $post_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Update the topic meta ID of a post
+ * Update the topic meta ID of a post.
  *
  * @since 2.0.0 bbPress (r3181)
  *
- * @param int $post_id  The post to update
- * @param int $topic_id The topic
+ * @param int $post_id  The post to update.
+ * @param int $topic_id The topic id.
  */
 function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 
@@ -131,12 +135,12 @@ function bbp_update_topic_id( $post_id = 0, $topic_id = 0 ) {
 }
 
 /**
- * Update the reply meta ID of a post
+ * Update the reply meta ID of a post.
  *
  * @since 2.0.0 bbPress (r3181)
  *
- * @param int $post_id  The post to update
- * @param int $reply_id The reply
+ * @param int $post_id  The post to update.
+ * @param int $reply_id The reply id.
  */
 function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 
@@ -150,12 +154,12 @@ function bbp_update_reply_id( $post_id = 0, $reply_id = 0 ) {
 }
 
 /**
- * Update the reply-to meta ID of a post
+ * Update the reply-to meta ID of a post.
  *
  * @since 2.6.0 bbPress (r5735)
  *
- * @param int $post_id  The post to update
- * @param int $reply_id The reply ID
+ * @param int $post_id  The post to update.
+ * @param int $reply_id The reply id.
  */
 function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
 
@@ -171,30 +175,30 @@ function bbp_update_reply_to_id( $post_id = 0, $reply_id = 0 ) {
 /** Views *********************************************************************/
 
 /**
- * Get the registered views
+ * Get the registered views.
  *
- * Does nothing much other than return the {@link $bbp->views} variable
+ * Does nothing much other than return the {@link $bbp->views} variable.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @return array Views
+ * @return array Views.
  */
 function bbp_get_views() {
 	return bbpress()->views;
 }
 
 /**
- * Register a bbPress view
+ * Register a bbPress view.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view View name
- * @param string $title View title
+ * @param string $view View name.
+ * @param string $title View title.
  * @param mixed $query_args {@link bbp_has_topics()} arguments.
  * @param bool $feed Have a feed for the view? Defaults to true.
- * @param string $capability Capability that the current user must have
+ * @param string $capability Capability that the current user must have.
  *
- * @return array The just registered (but processed) view
+ * @return array The just registered (but processed) view.
  */
 function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capability = '' ) {
 
@@ -228,12 +232,13 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true, $capa
 }
 
 /**
- * Deregister a bbPress view
+ * Deregister a bbPress view.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view View name
- * @return bool False if the view doesn't exist, true on success
+ * @param string $view View name.
+ *
+ * @return bool False if the view doesn't exist, true on success.
  */
 function bbp_deregister_view( $view ) {
 	$bbp  = bbpress();
@@ -249,13 +254,14 @@ function bbp_deregister_view( $view ) {
 }
 
 /**
- * Run the query of a topic-view
+ * Run the query of a topic-view.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
+ * @param string $view Optional. View id.
  * @param mixed $new_args New arguments. See {@link bbp_has_topics()}
- * @return bool False if the view doesn't exist, otherwise if topics are there
+ *
+ * @return bool False if the view doesn't exist, otherwise if topics are there.
  */
 function bbp_view_query( $view = '', $new_args = '' ) {
 
@@ -276,12 +282,13 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 }
 
 /**
- * Return the query arguments of a topic-view
+ * Return the query arguments of a topic-view.
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view View name
- * @return array Query arguments
+ * @param string $view View name.
+ *
+ * @return array Query arguments.
  */
 function bbp_get_view_query_args( $view = '' ) {
 	$bbp    = bbpress();
@@ -297,22 +304,22 @@ function bbp_get_view_query_args( $view = '' ) {
 /** Errors ********************************************************************/
 
 /**
- * Adds an error message to later be output in the theme
+ * Adds an error message to later be output in the theme.
  *
  * @since 2.0.0 bbPress (r3381)
  *
  * @see WP_Error()
  *
- * @param string $code Unique code for the error message
- * @param string $message Translated error message
- * @param string $data Any additional data passed with the error message
+ * @param string $code Unique code for the error message.
+ * @param string $message Translated error message.
+ * @param string $data Any additional data passed with the error message.
  */
 function bbp_add_error( $code = '', $message = '', $data = '' ) {
 	bbpress()->errors->add( $code, $message, $data );
 }
 
 /**
- * Check if error messages exist in queue
+ * Check if error messages exist in queue.
  *
  * @since 2.0.0 bbPress (r3381)
  *
@@ -337,7 +344,7 @@ function bbp_has_errors() {
  * @since 2.4.0 bbPress (r4997)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
- * @return string Pattern to match usernames with
+ * @return string Pattern to match usernames with.
  */
 function bbp_find_mentions_pattern() {
 
@@ -351,7 +358,8 @@ function bbp_find_mentions_pattern() {
  * @since 2.2.0 bbPress (r4323)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
- * @param string $content The content
+ * @param string $content The content.
+ *
  * @return bool|array $usernames Existing usernames. False if no matches.
  */
 function bbp_find_mentions( $content = '' ) {
@@ -369,12 +377,12 @@ function bbp_find_mentions( $content = '' ) {
 }
 
 /**
- * Finds and links @-mentioned users in the content
+ * Finds and links @-mentioned users in the content.
  *
  * @since 2.2.0 bbPress (r4323)
  * @deprecated 2.6.0 bbp_make_clickable()
  *
- * @return string $content Content filtered for mentions
+ * @return string $content Content filtered for mentions.
  */
 function bbp_mention_filter( $content = '' ) {
 
@@ -410,7 +418,7 @@ function bbp_mention_filter( $content = '' ) {
 /** Post Statuses *************************************************************/
 
 /**
- * Return the public post status ID
+ * Return the public post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -421,7 +429,7 @@ function bbp_get_public_status_id() {
 }
 
 /**
- * Return the pending post status ID
+ * Return the pending post status ID.
  *
  * @since 2.1.0 bbPress (r3581)
  *
@@ -432,7 +440,7 @@ function bbp_get_pending_status_id() {
 }
 
 /**
- * Return the private post status ID
+ * Return the private post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -443,7 +451,7 @@ function bbp_get_private_status_id() {
 }
 
 /**
- * Return the hidden post status ID
+ * Return the hidden post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -454,7 +462,7 @@ function bbp_get_hidden_status_id() {
 }
 
 /**
- * Return the closed post status ID
+ * Return the closed post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -465,7 +473,7 @@ function bbp_get_closed_status_id() {
 }
 
 /**
- * Return the spam post status ID
+ * Return the spam post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -476,7 +484,7 @@ function bbp_get_spam_status_id() {
 }
 
 /**
- * Return the trash post status ID
+ * Return the trash post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -487,7 +495,7 @@ function bbp_get_trash_status_id() {
 }
 
 /**
- * Return the orphan post status ID
+ * Return the orphan post status ID.
  *
  * @since 2.0.0 bbPress (r3504)
  *
@@ -500,7 +508,7 @@ function bbp_get_orphan_status_id() {
 /** Rewrite IDs ***************************************************************/
 
 /**
- * Return the unique ID for user profile rewrite rules
+ * Return the unique ID for user profile rewrite rules.
  *
  * @since 2.1.0 bbPress (r3762)
  *
@@ -522,7 +530,7 @@ function bbp_get_edit_rewrite_id() {
 }
 
 /**
- * Return the unique ID for all search rewrite rules
+ * Return the unique ID for all search rewrite rules.
  *
  * @since 2.3.0 bbPress (r4579)
  *
@@ -533,7 +541,7 @@ function bbp_get_search_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user topics rewrite rules
+ * Return the unique ID for user topics rewrite rules.
  *
  * @since 2.2.0 bbPress (r4321)
  *
@@ -544,7 +552,7 @@ function bbp_get_user_topics_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user replies rewrite rules
+ * Return the unique ID for user replies rewrite rules.
  *
  * @since 2.2.0 bbPress (r4321)
  *
@@ -555,7 +563,7 @@ function bbp_get_user_replies_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user favorites rewrite rules
+ * Return the unique ID for user favorites rewrite rules.
  *
  * @since 2.2.0 bbPress (r4181)
  *
@@ -566,7 +574,7 @@ function bbp_get_user_favorites_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user subscriptions rewrite rules
+ * Return the unique ID for user subscriptions rewrite rules.
  *
  * @since 2.2.0 bbPress (r4181)
  *
@@ -577,7 +585,7 @@ function bbp_get_user_subscriptions_rewrite_id() {
 }
 
 /**
- * Return the unique ID for user engagement rewrite rules
+ * Return the unique ID for user engagement rewrite rules.
  *
  * @since 2.6.0 bbPress (r6320)
  *
@@ -588,7 +596,7 @@ function bbp_get_user_engagements_rewrite_id() {
 }
 
 /**
- * Return the unique ID for topic view rewrite rules
+ * Return the unique ID for topic view rewrite rules.
  *
  * @since 2.1.0 bbPress (r3762)
  *
@@ -601,7 +609,7 @@ function bbp_get_view_rewrite_id() {
 /** Rewrite Extras ************************************************************/
 
 /**
- * Get the id used for paginated requests
+ * Get the id used for paginated requests.
  *
  * @since 2.4.0 bbPress (r4926)
  *
@@ -624,7 +632,7 @@ function bbp_delete_rewrite_rules() {
 /** Requests ******************************************************************/
 
 /**
- * Return true|false if this is a POST request
+ * Return true|false if this is a POST request.
  *
  * @since 2.3.0 bbPress (r4790)
  *
@@ -635,7 +643,7 @@ function bbp_is_post_request() {
 }
 
 /**
- * Return true|false if this is a GET request
+ * Return true|false if this is a GET request.
  *
  * @since 2.3.0 bbPress (r4790)
  *
@@ -648,7 +656,7 @@ function bbp_is_get_request() {
 /** Redirection ***************************************************************/
 
 /**
- * Perform a safe, local redirect somewhere inside the current site
+ * Perform a safe, local redirect somewhere inside the current site.
  *
  * On some setups, passing the value of wp_get_referer() may result in an empty
  * value for $location, which results in an error on redirection. If $location
@@ -680,7 +688,7 @@ function bbp_redirect( $location = '', $status = 302 ) {
 /** Global Helpers ************************************************************/
 
 /**
- * Return if debugging scripts or not
+ * Return if debugging scripts or not.
  *
  * @since 2.6.7 (r7188)
  *
@@ -691,7 +699,7 @@ function bbp_doing_script_debug() {
 }
 
 /**
- * Return if auto-saving or not
+ * Return if auto-saving or not.
  *
  * @since 2.6.7 (r7188)
  *

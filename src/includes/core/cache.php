@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Cache Helpers
+ * bbPress Cache Helpers.
  *
  * Helper functions used to communicate with WordPress's various caches. Many
  * of these functions are used to work around specific WordPress nuances. They
@@ -33,12 +33,12 @@ defined( 'ABSPATH' ) || exit;
 class BBP_Skip_Children {
 
 	/**
-	 * @var int Post ID being updated
+	 * @var int Post ID being updated.
 	 */
 	private $updating_post = 0;
 
 	/**
-	 * @var bool The original value of $_wp_suspend_cache_invalidation global
+	 * @var bool The original value of $_wp_suspend_cache_invalidation global.
 	 */
 	private $original_cache_invalidation = false;
 
@@ -62,8 +62,7 @@ class BBP_Skip_Children {
 	 *
 	 * @since 2.1.0 bbPress (r4011)
 	 *
-	 * @param int $post_id The post ID being updated
-	 * @return If invalid post data
+	 * @param int $post_id The post ID being updated.
 	 */
 	public function pre_post_update( $post_id = 0 ) {
 
@@ -86,8 +85,7 @@ class BBP_Skip_Children {
 	 *
 	 * @since 2.1.0 bbPress (r4011)
 	 *
-	 * @param int $post_id The post ID of the cache being invalidated
-	 * @return If invalid post data
+	 * @param int $post_id The post ID of the cache being invalidated.
 	 */
 	public function skip_related_posts( $post_id = 0 ) {
 

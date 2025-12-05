@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Common Functions
+ * bbPress Common Functions.
  *
  * Common functions are ones that are used by more than one component, like
  * forums, topics, replies, users, topic tags, etc...
@@ -14,11 +14,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Return array of bbPress registered post types
+ * Return array of bbPress registered post types.
  *
  * @since 2.6.0 bbPress (r6813)
  *
- * @param array $args Array of arguments to pass into `get_post_types()`
+ * @param array $args Array of arguments to pass into `get_post_types()`.
  *
  * @return array
  */
@@ -40,11 +40,11 @@ function bbp_get_post_types( $args = array() ) {
 /** URLs **********************************************************************/
 
 /**
- * Return the unescaped redirect_to request value
+ * Return the unescaped redirect_to request value.
  *
  * @bbPress (r4655)
  *
- * @return string The URL to redirect to, if set
+ * @return string The URL to redirect to, if set.
  */
 function bbp_get_redirect_to() {
 
@@ -62,9 +62,9 @@ function bbp_get_redirect_to() {
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @param string $original_link Original Link to be modified
- * @param bool $force Override bbp_get_view_all() check
- * @return string The link with 'view=all' appended if necessary
+ * @param string $original_link Original Link to be modified.
+ * @param bool $force Override bbp_get_view_all() check.
+ * @return string The link with 'view=all' appended if necessary.
  */
 function bbp_add_view_all( $original_link = '', $force = false ) {
 
@@ -78,12 +78,12 @@ function bbp_add_view_all( $original_link = '', $force = false ) {
 }
 
 /**
- * Remove 'view=all' from query string
+ * Remove 'view=all' from query string.
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @param string $original_link Original Link to be modified
- * @return string The link with 'view=all' appended if necessary
+ * @param string $original_link Original Link to be modified.
+ * @return string The link with 'view=all' appended if necessary.
  */
 function bbp_remove_view_all( $original_link = '' ) {
 
@@ -95,13 +95,12 @@ function bbp_remove_view_all( $original_link = '' ) {
 }
 
 /**
- * If current user can and is viewing all topics/replies
+ * If current user can and is viewing all topics/replies.
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @param string $cap Capability used to ensure user can view all
- *
- * @return bool Whether current user can and is viewing all
+ * @param string $cap Capability used to ensure user can view all.
+ * @return bool Whether current user can and is viewing all.
  */
 function bbp_get_view_all( $cap = 'moderate' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) && current_user_can( $cap ) ) );
@@ -111,11 +110,11 @@ function bbp_get_view_all( $cap = 'moderate' ) {
 }
 
 /**
- * Assist pagination by returning correct page number
+ * Assist pagination by returning correct page number.
  *
  * @since 2.0.0 bbPress (r2628)
  *
- * @return int Current page number
+ * @return int Current page number.
  */
 function bbp_get_paged() {
 	$wp_query = bbp_get_wp_query();
@@ -145,7 +144,7 @@ function bbp_get_paged() {
  *
  * @since 2.6.0 bbPress (r6481)
  *
- * @param array $arr Array to get values of
+ * @param array $arr Array to get values of.
  *
  * @return array
  */
@@ -154,7 +153,7 @@ function bbp_get_unique_array_values( $arr = array() ) {
 }
 
 /**
- * Fix post author id on post save
+ * Fix post author id on post save.
  *
  * When a logged in user changes the status of an anonymous reply or topic, or
  * edits it, the post_author field is set to the logged in user's id. This
@@ -162,9 +161,9 @@ function bbp_get_unique_array_values( $arr = array() ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $data Post data
- * @param array $postarr Original post array (includes post id)
- * @return array Data
+ * @param array $data Post data.
+ * @param array $postarr Original post array (includes post id).
+ * @return array Data.
  */
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 
@@ -202,9 +201,9 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  *
  * @since 2.6.10 bbPress (r7233)
  *
- * @param string $new_status      New status to use when untrashing. Default: 'draft'
- * @param int    $post_id         Post ID
- * @param string $previous_status Previous post status from '_wp_trash_meta_status' meta key. Default: 'pending'
+ * @param string $new_status      New status to use when untrashing. Default: 'draft'.
+ * @param int    $post_id         Post ID.
+ * @param string $previous_status Previous post status from '_wp_trash_meta_status' meta key. Default: 'pending'.
  */
 function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $previous_status = 'pending' ) {
 
@@ -230,7 +229,7 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
  * @since 2.0.0 bbPress (r3133)
  * @since 2.6.0 bbPress (r6868) Inverted some logic and added unit tests
  *
- * @param string  $datetime Gets run through strtotime()
+ * @param string  $datetime Gets run through strtotime().
  * @param boolean $utc      Default true. Is the timestamp in UTC?
  *
  * @return bool True by default, if date is past, or editing is disabled.
@@ -290,8 +289,8 @@ function bbp_past_edit_lock( $datetime = '', $utc = true ) {
  *
  * @since 2.6.0 bbPress (r6424)
  *
- * @param string $context Provide context for additional filtering
- * @return int Number of days items remain in trash
+ * @param string $context Provide context for additional filtering.
+ * @return int Number of days items remain in trash.
  */
 function bbp_get_trash_days( $context = 'forum' ) {
 
@@ -310,7 +309,7 @@ function bbp_get_trash_days( $context = 'forum' ) {
 /** Statistics ****************************************************************/
 
 /**
- * Get the forum statistics
+ * Get the forum statistics.
  *
  * @since 2.0.0 bbPress (r2769)
  * @since 2.6.0 bbPress (r6055)  Added:
@@ -601,7 +600,7 @@ function bbp_get_statistics( $args = array() ) {
 /** New/edit topic/reply helpers **********************************************/
 
 /**
- * Filter anonymous post data
+ * Filter anonymous post data.
  *
  * We use REMOTE_ADDR here directly. If you are behind a proxy, you should
  * ensure that it is properly set, such as in wp-config.php, for your
@@ -614,8 +613,8 @@ function bbp_get_statistics( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2734)
  *
- * @param array $args Optional. If no args are there, then $_POST values are
- * @return bool|array False on errors, values in an array on success
+ * @param array $args Optional. If no args are there, then $_POST values are.
+ * @return bool|array False on errors, values in an array on success.
  */
 function bbp_filter_anonymous_post_data( $args = array() ) {
 
@@ -653,7 +652,7 @@ function bbp_filter_anonymous_post_data( $args = array() ) {
 }
 
 /**
- * Sanitize an array of anonymous post author data
+ * Sanitize an array of anonymous post author data.
  *
  * @since 2.6.0 bbPress (r6400)
  *
@@ -692,7 +691,7 @@ function bbp_sanitize_anonymous_post_author( $anonymous_data = array() ) {
 }
 
 /**
- * Update the relevant meta-data for an anonymous post author
+ * Update the relevant meta-data for an anonymous post author.
  *
  * @since 2.6.0 bbPress (r6400)
  *
@@ -738,14 +737,14 @@ function bbp_update_anonymous_post_author( $post_id = 0, $anonymous_data = array
 }
 
 /**
- * Check for duplicate topics/replies
+ * Check for duplicate topics/replies.
  *
- * Check to make sure that a user is not making a duplicate post
+ * Check to make sure that a user is not making a duplicate post.
  *
  * @since 2.0.0 bbPress (r2763)
  *
- * @param array $post_data Contains information about the comment
- * @return bool True if it is not a duplicate, false if it is
+ * @param array $post_data Contains information about the comment.
+ * @return bool True if it is not a duplicate, false if it is.
  */
 function bbp_check_for_duplicate( $post_data = array() ) {
 
@@ -831,7 +830,7 @@ function bbp_check_for_duplicate( $post_data = array() ) {
 }
 
 /**
- * Check for flooding
+ * Check for flooding.
  *
  * Check to make sure that a user is not making too many posts in a short amount
  * of time.
@@ -840,10 +839,10 @@ function bbp_check_for_duplicate( $post_data = array() ) {
  *
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
  * @param int $author_id Optional. Supply if it's a post by a logged in user.
  *                        Do not supply if supplying $anonymous_data.
- * @return bool True if there is no flooding, false if there is
+ * @return bool True if there is no flooding, false if there is.
  */
 function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 
@@ -882,19 +881,19 @@ function bbp_check_for_flood( $anonymous_data = array(), $author_id = 0 ) {
 }
 
 /**
- * Checks topics and replies against the discussion moderation of blocked keys
+ * Checks topics and replies against the discussion moderation of blocked keys.
  *
  * @since 2.1.0 bbPress (r3581)
  *
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $author_id Topic or reply author ID
- * @param string $title The title of the content
- * @param string $content The content being posted
+ * @param int $author_id Topic or reply author ID.
+ * @param string $title The title of the content.
+ * @param string $content The content being posted.
  * @param mixed  $strict  False for moderation_keys. True for disallowed_keys.
  *                        String for custom keys.
- * @return bool True if test is passed, false if fail
+ * @return bool True if test is passed, false if fail.
  */
 function bbp_check_for_moderation( $anonymous_data = array(), $author_id = 0, $title = '', $content = '', $strict = false ) {
 
@@ -1098,10 +1097,10 @@ function bbp_get_do_not_reply_address() {
 }
 
 /**
- * Sends notification emails for new replies to subscribed topics
+ * Sends notification emails for new replies to subscribed topics.
  *
  * Gets new post ID and check if there are subscribed users to that topic, and
- * if there are, send notifications
+ * if there are, send notifications.
  *
  * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
  * with everyone BCC'd. This may have negative repercussions for email services
@@ -1111,14 +1110,14 @@ function bbp_get_do_not_reply_address() {
  *
  * @since 2.6.0 bbPress (r5413)
  *
- * @param int $reply_id ID of the newly made reply
- * @param int $topic_id ID of the topic of the reply
- * @param int $forum_id ID of the forum of the reply
+ * @param int $reply_id ID of the newly made reply.
+ * @param int $topic_id ID of the topic of the reply.
+ * @param int $forum_id ID of the forum of the reply.
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $reply_author ID of the topic author ID
- * @return bool True on success, false on failure
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
+ * @param int $reply_author ID of the topic author ID.
+ * @return bool True on success, false on failure.
  */
 function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 
@@ -1272,10 +1271,10 @@ Login and visit the topic to unsubscribe from these emails.',
 }
 
 /**
- * Sends notification emails for new topics to subscribed forums
+ * Sends notification emails for new topics to subscribed forums.
  *
  * Gets new post ID and check if there are subscribed users to that forum, and
- * if there are, send notifications
+ * if there are, send notifications.
  *
  * Note: in bbPress 2.6, we've moved away from 1 email per subscriber to 1 email
  * with everyone BCC'd. This may have negative repercussions for email services
@@ -1285,13 +1284,13 @@ Login and visit the topic to unsubscribe from these emails.',
  *
  * @since 2.5.0 bbPress (r5156)
  *
- * @param int $topic_id ID of the newly made reply
- * @param int $forum_id ID of the forum for the topic
+ * @param int $topic_id ID of the newly made reply.
+ * @param int $forum_id ID of the forum for the topic.
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
  *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $topic_author ID of the topic author ID
- * @return bool True on success, false on failure
+ * @param int $topic_author ID of the topic author ID.
+ * @return bool True on success, false on failure.
  */
 function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author = 0 ) {
 
@@ -1444,30 +1443,30 @@ Login and visit the topic to unsubscribe from these emails.',
 }
 
 /**
- * Sends notification emails for new replies to subscribed topics
+ * Sends notification emails for new replies to subscribed topics.
  *
- * This function is deprecated. Please use: bbp_notify_topic_subscribers()
+ * This function is deprecated. Please use: bbp_notify_topic_subscribers().
  *
  * @since 2.0.0 bbPress (r2668)
  *
  * @deprecated 2.6.0 bbPress (r5412)
  *
- * @param int $reply_id ID of the newly made reply
- * @param int $topic_id ID of the topic of the reply
- * @param int $forum_id ID of the forum of the reply
+ * @param int $reply_id ID of the newly made reply.
+ * @param int $topic_id ID of the topic of the reply.
+ * @param int $forum_id ID of the forum of the reply.
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
- * @param int $reply_author ID of the topic author ID
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
+ * @param int $reply_author ID of the topic author ID.
  *
- * @return bool True on success, false on failure
+ * @return bool True on success, false on failure.
  */
 function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author = 0 ) {
 	return bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 }
 
 /**
- * Return an array of user email addresses from an array of user IDs
+ * Return an array of user email addresses from an array of user IDs.
  *
  * @since 2.6.0 bbPress (r6722)
  *
@@ -1610,7 +1609,7 @@ function bbp_get_email_header() {
 /** Login *********************************************************************/
 
 /**
- * Return a clean and reliable logout URL
+ * Return a clean and reliable logout URL.
  *
  * This function is used to filter `logout_url`. If no $redirect_to value is
  * passed, it will default to the request uri, then the forum root.
@@ -1619,10 +1618,10 @@ function bbp_get_email_header() {
  *
  * @since 2.1.0 bbPress (2815)
  *
- * @param string $url URL used to log out
+ * @param string $url URL used to log out.
  * @param string $redirect_to Where to redirect to?
  *
- * @return string The url
+ * @return string The url.
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
 
@@ -1672,9 +1671,9 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  *
  * @since 2.1.0 bbPress (r3839)
  *
- * @param string|array $args Value to merge with $defaults
+ * @param string|array $args Value to merge with $defaults.
  * @param array $defaults Array that serves as the defaults.
- * @param string $filter_key String to key the filters from
+ * @param string $filter_key String to key the filters from.
  * @return array Merged user defined values with defaults.
  */
 function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
@@ -1708,7 +1707,7 @@ function bbp_parse_args( $args, $defaults = array(), $filter_key = '' ) {
 }
 
 /**
- * Adds ability to include or exclude specific post_parent ID's
+ * Adds ability to include or exclude specific post_parent ID's.
  *
  * @since 2.0.0 bbPress (r2996)
  *
@@ -1756,14 +1755,14 @@ function bbp_query_post_parent__in( $where, $query = '' ) {
 }
 
 /**
- * Query the DB and get the last public post_id that has parent_id as post_parent
+ * Query the DB and get the last public post_id that has parent_id as post_parent.
  *
  * @since 2.0.0 bbPress (r2868)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The last active post_id
+ * @return int The last active post_id.
  */
 function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 
@@ -1820,7 +1819,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the database for child counts, grouped by type & status
+ * Query the database for child counts, grouped by type & status.
  *
  * @since 2.6.0 bbPress (r6826)
  *
@@ -1891,13 +1890,13 @@ function bbp_get_child_counts( $parent_id = 0 ) {
 }
 
 /**
- * Filter a list of child counts, from `bbp_get_child_counts()`
+ * Filter a list of child counts, from `bbp_get_child_counts()`.
  *
  * @since 2.6.0 bbPress (r6826)
  *
- * @param int    $parent_id  ID of post to get child counts from
- * @param array  $types      Optional. An array of post types to filter by
- * @param array  $statuses   Optional. An array of post statuses to filter by
+ * @param int    $parent_id  ID of post to get child counts from.
+ * @param array  $types      Optional. An array of post types to filter by.
+ * @param array  $statuses   Optional. An array of post statuses to filter by.
  *
  * @return array A list of objects or object fields.
  */
@@ -1931,14 +1930,14 @@ function bbp_filter_child_counts_list( $parent_id = 0, $types = array( 'post' ),
 }
 
 /**
- * Query the DB and get a count of public children
+ * Query the DB and get a count of public children.
  *
  * @since 2.0.0 bbPress (r2868)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The number of children
+ * @return int The number of children.
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
@@ -1977,14 +1976,14 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	return (int) apply_filters( 'bbp_get_public_child_count', $child_count, $parent_id, $post_type );
 }
 /**
- * Query the DB and get a count of public children
+ * Query the DB and get a count of public children.
  *
  * @since 2.0.0 bbPress (r2868)
- * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
+ * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects.
  *
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
- * @return int The number of children
+ * @return int The number of children.
  */
 function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
@@ -2028,7 +2027,7 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the DB and get the child id's of public children
+ * Query the DB and get the child id's of public children.
  *
  * @since 2.0.0 bbPress (r2868)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
@@ -2036,7 +2035,7 @@ function bbp_get_non_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  * @param int    $parent_id Parent id.
  * @param string $post_type Post type. Defaults to 'post'.
  *
- * @return array The array of children
+ * @return array The array of children.
  */
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
@@ -2098,14 +2097,14 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the DB and get the child id's of all children
+ * Query the DB and get the child id's of all children.
  *
  * @since 2.0.0 bbPress (r3325)
  *
- * @param int $parent_id  Parent id
- * @param string $post_type Post type. Defaults to 'post'
+ * @param int $parent_id  Parent id.
+ * @param string $post_type Post type. Defaults to 'post'.
  *
- * @return array The array of children
+ * @return array The array of children.
  */
 function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
@@ -2168,9 +2167,9 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @since 2.6.0 bbPress (r6699)
  *
- * @param array $objects Array of objects, fresh from a query
+ * @param array $objects Array of objects, fresh from a query.
  *
- * @return bool True if some IDs were cached
+ * @return bool True if some IDs were cached.
  */
 function bbp_update_post_family_caches( $objects = array() ) {
 
@@ -2241,9 +2240,9 @@ function bbp_update_post_family_caches( $objects = array() ) {
  *
  * @since 2.6.0 bbPress (r6699)
  *
- * @param array $objects Array of objects, fresh from a query
+ * @param array $objects Array of objects, fresh from a query.
  *
- * @return bool True if some IDs were cached
+ * @return bool True if some IDs were cached.
  */
 function bbp_update_post_author_caches( $objects = array() ) {
 
@@ -2286,15 +2285,15 @@ function bbp_update_post_author_caches( $objects = array() ) {
 /** Globals *******************************************************************/
 
 /**
- * Get the unfiltered value of a global $post's key
+ * Get the unfiltered value of a global $post's key.
  *
- * Used most frequently when editing a forum/topic/reply
+ * Used most frequently when editing a forum/topic/reply.
  *
  * @since 2.1.0 bbPress (r3694)
  *
- * @param string $field Name of the key
- * @param string $context How to sanitize - raw|edit|db|display|attribute|js
- * @return string Field value
+ * @param string $field Name of the key.
+ * @param string $context How to sanitize - raw|edit|db|display|attribute|js.
+ * @return string Field value.
  */
 function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 
@@ -2317,8 +2316,8 @@ function bbp_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  *
  * @since 2.1.0 bbPress (r4022)
  *
- * @param string $action Action nonce
- * @param string $query_arg where to look for nonce in $_REQUEST
+ * @param string $action Action nonce.
+ * @param string $query_arg where to look for nonce in $_REQUEST.
  */
 function bbp_verify_nonce_request( $action = '', $query_arg = '_wpnonce' ) {
 
@@ -2631,12 +2630,12 @@ function bbp_request_feed_trap( $query_vars = array() ) {
 /** Templates ******************************************************************/
 
 /**
- * Used to guess if page exists at requested path
+ * Used to guess if page exists at requested path.
  *
  * @since 2.0.0 bbPress (r3304)
  *
  * @param string $path
- * @return mixed False if no page, Page object if true
+ * @return mixed False if no page, Page object if true.
  */
 function bbp_get_page_by_path( $path = '' ) {
 
@@ -2664,9 +2663,9 @@ function bbp_get_page_by_path( $path = '' ) {
  * @since 2.0.0 bbPress (r3051)
  * @since 2.6.0 bbPress (r6583) Use status_header() & nocache_headers()
  *
- * @param WP_Query $query  The query being checked
+ * @param WP_Query $query  The query being checked.
  *
- * @return bool Always returns true
+ * @return bool Always returns true.
  */
 function bbp_set_404( $query = null ) {
 
@@ -2693,17 +2692,17 @@ function bbp_set_200() {
 }
 
 /**
- * Maybe handle the default 404 handling for some bbPress conditions
+ * Maybe handle the default 404 handling for some bbPress conditions.
  *
  * Some conditions (like private/hidden forums and edits) have their own checks
  * on `bbp_template_redirect` and are not currently 404s.
  *
  * @since 2.6.0 bbPress (r6555)
  *
- * @param bool $override Whether to override the default handler
- * @param WP_Query $wp_query The posts query being referenced
+ * @param bool $override Whether to override the default handler.
+ * @param WP_Query $wp_query The posts query being referenced.
  *
- * @return bool False to leave alone, true to override
+ * @return bool False to leave alone, true to override.
  */
 function bbp_pre_handle_404( $override = false, $wp_query = false ) {
 
@@ -2733,7 +2732,7 @@ function bbp_pre_handle_404( $override = false, $wp_query = false ) {
  *
  * @since 2.6.0 bbPress (r6580)
  *
- * @param mixed $posts Default null. Array of posts (possibly empty)
+ * @param mixed $posts Default null. Array of posts (possibly empty).
  * @param WP_Query $wp_query
  *
  * @return mixed Null if no override. Array if overridden.

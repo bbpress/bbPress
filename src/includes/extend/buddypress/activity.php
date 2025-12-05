@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress BuddyPress Activity Class
+ * bbPress BuddyPress Activity Class.
  *
  * @package bbPress
  * @subpackage BuddyPress
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_BuddyPress_Activity' ) ) :
 /**
- * Loads BuddyPress Activity extension
+ * Loads BuddyPress Activity extension.
  *
  * @since 2.0.0 bbPress (r3395)
  *
@@ -24,56 +24,56 @@ class BBP_BuddyPress_Activity {
 	/** Variables *************************************************************/
 
 	/**
-	 * The name of the BuddyPress component, used in activity streams
+	 * The name of the BuddyPress component, used in activity streams.
 	 *
 	 * @var string
 	 */
 	private $component = '';
 
 	/**
-	 * Forum Create Activity Action
+	 * Forum Create Activity Action.
 	 *
 	 * @var string
 	 */
 	private $forum_create = '';
 
 	/**
-	 * Topic Create Activity Action
+	 * Topic Create Activity Action.
 	 *
 	 * @var string
 	 */
 	private $topic_create = '';
 
 	/**
-	 * Topic Close Activity Action
+	 * Topic Close Activity Action.
 	 *
 	 * @var string
 	 */
 	private $topic_close = '';
 
 	/**
-	 * Topic Edit Activity Action
+	 * Topic Edit Activity Action.
 	 *
 	 * @var string
 	 */
 	private $topic_edit = '';
 
 	/**
-	 * Topic Open Activity Action
+	 * Topic Open Activity Action.
 	 *
 	 * @var string
 	 */
 	private $topic_open = '';
 
 	/**
-	 * Reply Create Activity Action
+	 * Reply Create Activity Action.
 	 *
 	 * @var string
 	 */
 	private $reply_create = '';
 
 	/**
-	 * Reply Edit Activity Action
+	 * Reply Edit Activity Action.
 	 *
 	 * @var string
 	 */
@@ -82,7 +82,7 @@ class BBP_BuddyPress_Activity {
 	/** Setup Methods *********************************************************/
 
 	/**
-	 * The bbPress BuddyPress Activity loader
+	 * The bbPress BuddyPress Activity loader.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 */
@@ -94,7 +94,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Extension variables
+	 * Extension variables.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -120,7 +120,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Setup the actions
+	 * Setup the actions.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -145,7 +145,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Setup the filters
+	 * Setup the filters.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -173,7 +173,7 @@ class BBP_BuddyPress_Activity {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Register our activity actions with BuddyPress
+	 * Register our activity actions with BuddyPress.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 */
@@ -201,13 +201,13 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Wrapper for recoding bbPress actions to the BuddyPress activity stream
+	 * Wrapper for recoding bbPress actions to the BuddyPress activity stream.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
-	 * @param  array $args Array of arguments for bp_activity_add()
+	 * @param  array $args Array of arguments for bp_activity_add().
 	 *
-	 * @return int   Activity ID if successful, false if not
+	 * @return int   Activity ID if successful, false if not.
 	 */
 	private function record_activity( $args = array() ) {
 
@@ -235,13 +235,13 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Wrapper for deleting bbPress actions from BuddyPress activity stream
+	 * Wrapper for deleting bbPress actions from BuddyPress activity stream.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
-	 * @param  array $args Array of arguments for bp_activity_add()
+	 * @param  array $args Array of arguments for bp_activity_add().
 	 *
-	 * @return int   Activity ID if successful, false if not
+	 * @return int   Activity ID if successful, false if not.
 	 */
 	public function delete_activity( $args = array() ) {
 
@@ -263,10 +263,10 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Check for an existing activity stream entry for a given post_id
+	 * Check for an existing activity stream entry for a given post_id.
 	 *
-	 * @param int $post_id ID of the topic or reply
-	 * @return int if an activity id is verified, false if not
+	 * @param int $post_id ID of the topic or reply.
+	 * @return int if an activity id is verified, false if not.
 	 */
 	private static function get_activity_id( $post_id = 0 ) {
 
@@ -289,7 +289,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Maybe disable activity stream comments on select actions
+	 * Maybe disable activity stream comments on select actions.
 	 *
 	 * @since 2.0.0 bbPress (r3399)
 	 *
@@ -327,13 +327,13 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Maybe link directly to topics and replies in activity stream entries
+	 * Maybe link directly to topics and replies in activity stream entries.
 	 *
 	 * @since 2.0.0 bbPress (r3399)
 	 *
 	 * @param string $link
 	 * @param mixed $activity_object
-	 * @return string The link to the activity stream item
+	 * @return string The link to the activity stream item.
 	 */
 	public function activity_get_permalink( $link = '', $activity_object = false ) {
 
@@ -354,7 +354,7 @@ class BBP_BuddyPress_Activity {
 	/** Topics ****************************************************************/
 
 	/**
-	 * Record an activity stream entry when a topic is created or updated
+	 * Record an activity stream entry when a topic is created or updated.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -362,7 +362,7 @@ class BBP_BuddyPress_Activity {
 	 * @param int $forum_id
 	 * @param array $anonymous_data
 	 * @param int $topic_author_id
-	 * @return Bail early if topic is by anonymous user
+	 * @return Bail early if topic is by anonymous user.
 	 */
 	public function topic_create( $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $topic_author_id = 0 ) {
 
@@ -439,7 +439,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted
+	 * Delete the activity stream entry when a topic is spammed, trashed, or deleted.
 	 *
 	 * @param int $topic_id
 	 */
@@ -455,11 +455,11 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Update the activity stream entry when a topic status changes
+	 * Update the activity stream entry when a topic status changes.
 	 *
 	 * @param int $topic_id
 	 * @param obj $post
-	 * @return Bail early if not a topic, or topic is by anonymous user
+	 * @return Bail early if not a topic, or topic is by anonymous user.
 	 */
 	public function topic_update( $topic_id = 0, $post = null ) {
 
@@ -496,7 +496,7 @@ class BBP_BuddyPress_Activity {
 	/** Replies ***************************************************************/
 
 	/**
-	 * Record an activity stream entry when a reply is created
+	 * Record an activity stream entry when a reply is created.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -504,7 +504,7 @@ class BBP_BuddyPress_Activity {
 	 * @param int $forum_id
 	 * @param array $anonymous_data
 	 * @param int $topic_author_id
-	 * @return Bail early if topic is by anonymous user
+	 * @return Bail early if topic is by anonymous user.
 	 */
 	public function reply_create( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = array(), $reply_author_id = 0 ) {
 
@@ -585,7 +585,7 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted
+	 * Delete the activity stream entry when a reply is spammed, trashed, or deleted.
 	 *
 	 * @param int $reply_id
 	 */
@@ -601,11 +601,11 @@ class BBP_BuddyPress_Activity {
 	}
 
 	/**
-	 * Update the activity stream entry when a reply status changes
+	 * Update the activity stream entry when a reply status changes.
 	 *
 	 * @param int $reply_id
 	 * @param obj $post
-	 * @return Bail early if not a reply, or reply is by anonymous user
+	 * @return Bail early if not a reply, or reply is by anonymous user.
 	 */
 	public function reply_update( $reply_id, $post ) {
 

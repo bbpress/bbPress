@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress User Capabilities
+ * bbPress User Capabilities.
  *
  * Used to map user capabilities to WordPress's existing capabilities.
  *
@@ -10,7 +10,7 @@
  */
 
 /**
- * Maps primary capabilities
+ * Maps primary capabilities.
  *
  * @since 2.2.0 bbPress (r4242)
  *
@@ -19,7 +19,7 @@
  * @param int    $user_id User id.
  * @param array  $args Arguments.
  *
- * @return array Actual capabilities for meta capability
+ * @return array Actual capabilities for meta capability.
  */
 function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -142,11 +142,11 @@ function bbp_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 }
 
 /**
- * Set a user's role in the forums
+ * Set a user's role in the forums.
  *
  * @since 2.1.0 bbPress (r3860)
  *
- * @param int $user_id
+ * @param int $user_id User id.
  *
  * @return mixed False if no change. String of new role if changed.
  */
@@ -190,11 +190,11 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 }
 
 /**
- * Return a user's forums role
+ * Return a user's forums role.
  *
  * @since 2.1.0 bbPress (r3860)
  *
- * @param int $user_id
+ * @param int $user_id User id.
  *
  * @return string
  */
@@ -227,11 +227,11 @@ function bbp_get_user_role( $user_id = 0 ) {
 }
 
 /**
- * Return a user's blog role
+ * Return a user's blog role.
  *
  * @since 2.3.0 bbPress (r4446)
  *
- * @param int $user_id
+ * @param int $user_id User id.
  *
  * @return string
  */
@@ -269,7 +269,7 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  *
  * @since 2.2.0 bbPress (r4235)
  *
- * @param int $user_id
+ * @param int $user_id User id.
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
@@ -312,7 +312,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
 }
 
 /**
- * Check if a role ID is valid
+ * Check if a role ID is valid.
  *
  * This helper function accepts a role ID as a string, and compares it against
  * the array of registered dynamic roles.
@@ -323,7 +323,7 @@ function bbp_profile_update_role( $user_id = 0 ) {
  *
  * @since 2.6.5
  *
- * @param string $role A well-formed (string) role ID to validate
+ * @param string $role A well-formed (string) role ID to validate.
  *
  * @return bool True if role is valid. False if role is not valid.
  */
@@ -351,14 +351,14 @@ function bbp_is_valid_role( $role = '' ) {
 }
 
 /**
- * Add the default role to the current user if needed
+ * Add the default role to the current user if needed.
  *
  * This function will bail if the forum is not global in a multisite
  * installation of WordPress, or if the user is marked as spam or deleted.
  *
  * @since 2.0.0 bbPress (r3380)
  *
- * @return If not multisite, not global, or user is deleted/spammed
+ * @return If not multisite, not global, or user is deleted/spammed.
  */
 function bbp_set_current_user_default_role() {
 
@@ -433,7 +433,7 @@ function bbp_set_current_user_default_role() {
  *
  * @since 2.2.0 bbPress (r4334)
  *
- * @return array Filtered array of WordPress roles to bbPress roles
+ * @return array Filtered array of WordPress roles to bbPress roles.
  */
 function bbp_get_user_role_map() {
 
@@ -495,7 +495,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 }
 
 /**
- * Mark a users topics and replies as spam when the user is marked as spam
+ * Mark a users topics and replies as spam when the user is marked as spam.
  *
  * @since 2.0.0 bbPress (r3405)
  *
@@ -580,7 +580,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 }
 
 /**
- * Mark a users topics and replies as spam when the user is marked as spam
+ * Mark a users topics and replies as spam when the user is marked as spam.
  *
  * @since 2.0.0 bbPress (r3405)
  *
@@ -708,12 +708,12 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 }
 
 /**
- * Checks if user is active
+ * Checks if user is active.
  *
  * @since 2.0.0 bbPress (r3502)
  *
- * @param int $user_id The user ID to check
- * @return bool True if public, false if not
+ * @param int $user_id The user ID to check.
+ * @return bool True if public, false if not.
  */
 function bbp_is_user_active( $user_id = 0 ) {
 
@@ -742,20 +742,20 @@ function bbp_is_user_active( $user_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r3502)
  *
- * @param int $user_id The user ID to check. Defaults to current user ID
- * @return bool True if inactive, false if active
+ * @param int $user_id The user ID to check. Defaults to current user ID.
+ * @return bool True if inactive, false if active.
  */
 function bbp_is_user_inactive( $user_id = 0 ) {
 	return ! bbp_is_user_active( $user_id );
 }
 
 /**
- * Checks if user is a keymaster
+ * Checks if user is a keymaster.
  *
  * @since 2.3.0 bbPress (r4783)
  *
- * @param int $user_id
- * @return bool True if keymaster, false if not
+ * @param int $user_id The user ID to check. Defaults to current user ID.
+ * @return bool True if keymaster, false if not.
  */
 function bbp_is_user_keymaster( $user_id = 0 ) {
 	$_user_id = bbp_get_user_id( $user_id, false, true );
@@ -766,11 +766,11 @@ function bbp_is_user_keymaster( $user_id = 0 ) {
 }
 
 /**
- * Does a user have a profile for the current site
+ * Does a user have a profile for the current site.
  *
  * @since 2.2.0 bbPress (r4362)
  *
- * @param int $user_id User ID to check
+ * @param int $user_id User ID to check.
  *
  * @return bool Whether or not the user has a profile on this blog_id.
  */
@@ -801,13 +801,13 @@ function bbp_user_has_profile( $user_id = 0 ) {
 /** Moderators ****************************************************************/
 
 /**
- * Add a moderator to an object
+ * Add a moderator to an object.
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param int    $object_id   Traditionally a post ID
- * @param int    $user_id     User ID
- * @param string $object_type Type of meta (post,term,user,comment)
+ * @param int    $object_id   Traditionally a post ID.
+ * @param int    $user_id     User ID.
+ * @param string $object_type Type of meta (post,term,user,comment).
  *
  * @return bool
  */
@@ -816,13 +816,13 @@ function bbp_add_moderator( $object_id = 0, $user_id = 0, $object_type = 'post' 
 }
 
 /**
- * Remove a moderator user ID from an object
+ * Remove a moderator user ID from an object.
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param int    $object_id   Traditionally a post ID
- * @param int    $user_id     User ID
- * @param string $object_type Type of meta (post,term,user,comment)
+ * @param int    $object_id   Traditionally a post ID.
+ * @param int    $user_id     User ID.
+ * @param string $object_type Type of meta (post,term,user,comment).
  *
  * @return bool
  */
@@ -831,12 +831,12 @@ function bbp_remove_moderator( $object_id = 0, $user_id = 0, $object_type = 'pos
 }
 
 /**
- * Get user IDs of moderators for an object
+ * Get user IDs of moderators for an object.
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param int    $object_id   Traditionally a post ID
- * @param string $object_type Type of meta (post,term,user,comment)
+ * @param int    $object_id   Traditionally a post ID.
+ * @param string $object_type Type of meta (post,term,user,comment).
  *
  * @return array
  */
@@ -850,8 +850,8 @@ function bbp_get_moderator_ids( $object_id = 0, $object_type = 'post' ) {
  *
  * @since 2.6.0 bbPress (r6056)
  *
- * @param int    $object_id   Traditionally a post ID
- * @param string $object_type Type of meta (post,term,user,comment)
+ * @param int    $object_id   Traditionally a post ID.
+ * @param string $object_type Type of meta (post,term,user,comment).
  *
  * @return array
  */

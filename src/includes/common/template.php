@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @param string $path Additional path with leading slash
+ * @param string $path Additional path with leading slash.
  */
 function bbp_forums_url( $path = '/' ) {
 	echo esc_url( bbp_get_forums_url( $path ) );
@@ -28,7 +28,7 @@ function bbp_forums_url( $path = '/' ) {
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @param string $path Additional path with leading slash
+ * @param string $path Additional path with leading slash.
  */
 function bbp_get_forums_url( $path = '/' ) {
 	return home_url( bbp_get_root_slug() . $path );
@@ -39,7 +39,7 @@ function bbp_get_forums_url( $path = '/' ) {
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @param string $path Additional path with leading slash
+ * @param string $path Additional path with leading slash.
  */
 function bbp_topics_url( $path = '/' ) {
 	echo esc_url( bbp_get_topics_url( $path ) );
@@ -50,9 +50,9 @@ function bbp_topics_url( $path = '/' ) {
  *
  * @since 2.1.0 bbPress (r3979)
  *
- * @param string $path Additional path with leading slash
+ * @param string $path Additional path with leading slash.
  *
- * @return The URL to the topics archive
+ * @return The URL to the topics archive.
  */
 function bbp_get_topics_url( $path = '/' ) {
 	return home_url( bbp_get_topic_archive_slug() . $path );
@@ -87,7 +87,7 @@ function bbp_footer() {
  *
  * @param int $site_id
  *
- * @return bool True if site is public, false if private
+ * @return bool True if site is public, false if private.
  */
 function bbp_is_site_public( $site_id = 0 ) {
 
@@ -110,9 +110,9 @@ function bbp_is_site_public( $site_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2549)
  *
- * @param int $post_id Possible post_id to check
+ * @param int $post_id Possible post_id to check.
  *
- * @return bool True if it's a forum page, false if not
+ * @return bool True if it's a forum page, false if not.
  */
 function bbp_is_forum( $post_id = 0 ) {
 
@@ -185,7 +185,7 @@ function bbp_is_single_forum() {
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @return bool True if it's the forum edit page, false if not
+ * @return bool True if it's the forum edit page, false if not.
  */
 function bbp_is_forum_edit() {
 	global $pagenow;
@@ -214,9 +214,9 @@ function bbp_is_forum_edit() {
  *
  * @since 2.0.0 bbPress (r2549)
  *
- * @param int $post_id Possible post_id to check
+ * @param int $post_id Possible post_id to check.
  *
- * @return bool True if it's a topic page, false if not
+ * @return bool True if it's a topic page, false if not.
  */
 function bbp_is_topic( $post_id = 0 ) {
 
@@ -286,7 +286,7 @@ function bbp_is_topic_archive() {
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @return bool True if it's the topic edit page, false if not
+ * @return bool True if it's the topic edit page, false if not.
  */
 function bbp_is_topic_edit() {
 	global $pagenow;
@@ -315,7 +315,7 @@ function bbp_is_topic_edit() {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @return bool True if it's the topic merge page, false if not
+ * @return bool True if it's the topic merge page, false if not.
  */
 function bbp_is_topic_merge() {
 
@@ -336,7 +336,7 @@ function bbp_is_topic_merge() {
  *
  * @since 2.0.0 bbPress (r2756)
  *
- * @return bool True if it's the topic split page, false if not
+ * @return bool True if it's the topic split page, false if not.
  */
 function bbp_is_topic_split() {
 
@@ -357,7 +357,7 @@ function bbp_is_topic_split() {
  *
  * @since 2.0.0 bbPress (r3311)
  *
- * @return bool True if it's a topic tag, false if not
+ * @return bool True if it's a topic tag, false if not.
  */
 function bbp_is_topic_tag() {
 
@@ -391,7 +391,7 @@ function bbp_is_topic_tag() {
  * @global string $pagenow The filename of the current screen.
  * @global string $taxnow  The taxonomy of the current screen.
  *
- * @return bool True if editing a topic tag, false if not
+ * @return bool True if editing a topic tag, false if not.
  */
 function bbp_is_topic_tag_edit() {
 	global $pagenow, $taxnow;
@@ -454,9 +454,9 @@ function bbp_is_custom_post_type( $the_post = false ) {
  *
  * @since 2.0.0 bbPress (r2549)
  *
- * @param int $post_id Possible post_id to check
+ * @param int $post_id Possible post_id to check.
  *
- * @return bool True if it's a reply page, false if not
+ * @return bool True if it's a reply page, false if not.
  */
 function bbp_is_reply( $post_id = 0 ) {
 
@@ -479,7 +479,7 @@ function bbp_is_reply( $post_id = 0 ) {
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @return bool True if it's the reply edit page, false if not
+ * @return bool True if it's the reply edit page, false if not.
  */
 function bbp_is_reply_edit() {
 	global $pagenow;
@@ -506,7 +506,7 @@ function bbp_is_reply_edit() {
 /**
  * Check if current page is a reply move page.
  *
- * @return bool True if it's the reply move page, false if not
+ * @return bool True if it's the reply move page, false if not.
  */
 function bbp_is_reply_move() {
 
@@ -553,7 +553,7 @@ function bbp_is_single_reply() {
  *
  * @since 2.0.0 bbPress (r2652)
  *
- * @return bool True if it's the favorites page, false if not
+ * @return bool True if it's the favorites page, false if not.
  */
 function bbp_is_favorites() {
 
@@ -577,7 +577,7 @@ function bbp_is_favorites() {
  *
  * @since 2.0.0 bbPress (r2652)
  *
- * @return bool True if it's the subscriptions page, false if not
+ * @return bool True if it's the subscriptions page, false if not.
  */
 function bbp_is_subscriptions() {
 
@@ -602,7 +602,7 @@ function bbp_is_subscriptions() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return bool True if it's the topics created page, false if not
+ * @return bool True if it's the topics created page, false if not.
  */
 function bbp_is_topics_created() {
 
@@ -627,7 +627,7 @@ function bbp_is_topics_created() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return bool True if it's the replies created page, false if not
+ * @return bool True if it's the replies created page, false if not.
  */
 function bbp_is_replies_created() {
 
@@ -651,7 +651,7 @@ function bbp_is_replies_created() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return bool True if it's the user's home, false if not
+ * @return bool True if it's the user's home, false if not.
  */
 function bbp_is_user_home() {
 
@@ -675,7 +675,7 @@ function bbp_is_user_home() {
  *
  * @since 2.1.0 bbPress (r3918)
  *
- * @return bool True if it's the user's home, false if not
+ * @return bool True if it's the user's home, false if not.
  */
 function bbp_is_user_home_edit() {
 
@@ -695,7 +695,7 @@ function bbp_is_user_home_edit() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return bool True if it's a user's profile page, false if not
+ * @return bool True if it's a user's profile page, false if not.
  */
 function bbp_is_single_user() {
 
@@ -719,7 +719,7 @@ function bbp_is_single_user() {
  *
  * @since 2.0.0 bbPress (r2688)
  *
- * @return bool True if it's a user's profile edit page, false if not
+ * @return bool True if it's a user's profile edit page, false if not.
  */
 function bbp_is_single_user_edit() {
 
@@ -743,7 +743,7 @@ function bbp_is_single_user_edit() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return bool True if it's a user's profile page, false if not
+ * @return bool True if it's a user's profile page, false if not.
  */
 function bbp_is_single_user_profile() {
 
@@ -767,7 +767,7 @@ function bbp_is_single_user_profile() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return bool True if it's a user's topics page, false if not
+ * @return bool True if it's a user's topics page, false if not.
  */
 function bbp_is_single_user_topics() {
 
@@ -791,7 +791,7 @@ function bbp_is_single_user_topics() {
  *
  * @since 2.2.0 bbPress (r4225)
  *
- * @return bool True if it's a user's replies page, false if not
+ * @return bool True if it's a user's replies page, false if not.
  */
 function bbp_is_single_user_replies() {
 
@@ -815,7 +815,7 @@ function bbp_is_single_user_replies() {
  *
  * @since 2.6.0 bbPress (r6320)
  *
- * @return bool True if it's a user's replies page, false if not
+ * @return bool True if it's a user's replies page, false if not.
  */
 function bbp_is_single_user_engagements() {
 
@@ -839,7 +839,7 @@ function bbp_is_single_user_engagements() {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true.
  *
  * @return bool Is it a view page?
  */
@@ -870,7 +870,7 @@ function bbp_is_single_view() {
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true.
  *
  * @return bool Is it a search page?
  */
@@ -914,7 +914,7 @@ function bbp_is_search() {
  *
  * @since 2.4.0 bbPress (r4919)
  *
- * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_search is true.
  *
  * @return bool Is it a search page?
  */
@@ -955,7 +955,7 @@ function bbp_is_search_results() {
  *
  * @since 2.1.0 bbPress (r3585)
  *
- * @return bool True if it's the edit page, false if not
+ * @return bool True if it's the edit page, false if not.
  */
 function bbp_is_edit() {
 
@@ -1173,7 +1173,7 @@ function bbp_has_shortcode( $text = '' ) {
  *
  * @since 2.0.0 bbPress (r3344)
  *
- * @return bool In a bbPress page
+ * @return bool In a bbPress page.
  */
 function is_bbpress() {
 
@@ -1311,7 +1311,7 @@ function bbp_get_wp_login_action( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param string $redirect_to Pass a URL to redirect to
+ * @param string $redirect_to Pass a URL to redirect to.
  */
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
@@ -1360,7 +1360,7 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
  * @param string $input_type Type of input. Default: text. Accepts:
  *                           textarea|password|select|radio|checkbox
  *
- * @return string Sanitized value ready for screen display
+ * @return string Sanitized value ready for screen display.
  */
 function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
 
@@ -1404,7 +1404,7 @@ function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
  * @see https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
  *
  * @param int $auto_increment Optional. Default true. Set to false to prevent
- *                            increment
+ *                            increment.
  */
 function bbp_tab_index( $auto_increment = true ) {
 	echo bbp_get_tab_index( $auto_increment );
@@ -1422,9 +1422,9 @@ function bbp_tab_index( $auto_increment = true ) {
  * @see https://bbpress.trac.wordpress.org/attachment/ticket/2714 Trac Ticket
  *
  * @param int $auto_increment Optional. Default true. Set to false to
- *                            prevent the increment
+ *                            prevent the increment.
  *
- * @return int $bbp->tab_index The global tab index
+ * @return int $bbp->tab_index The global tab index.
  */
 function bbp_get_tab_index( $auto_increment = true ) {
 	$bbp = bbpress();
@@ -1447,7 +1447,7 @@ function bbp_get_tab_index( $auto_increment = true ) {
  *
  * @since 2.6.0 bbPress (r6424)
  *
- * @param mixed $tab False to skip, any integer to use
+ * @param mixed $tab False to skip, any integer to use.
  */
 function bbp_tab_index_attribute( $tab = false ) {
 	echo bbp_get_tab_index_attribute( $tab );
@@ -1463,7 +1463,7 @@ function bbp_tab_index_attribute( $tab = false ) {
  *
  * @since 2.6.0 bbPress (r6424)
  *
- * @param mixed $tab False to skip, any integer to use
+ * @param mixed $tab False to skip, any integer to use.
  *
  * @return string
  */
@@ -1486,7 +1486,7 @@ function bbp_get_tab_index_attribute( $tab = false ) {
  *
  * @since 2.0.0 bbPress (r2746)
  *
- * @param array $args See {@link bbp_get_dropdown()} for arguments
+ * @param array $args See {@link bbp_get_dropdown()} for arguments.
  */
 function bbp_dropdown( $args = array() ) {
 	echo bbp_get_dropdown( $args );
@@ -1796,7 +1796,7 @@ function bbp_edit_user_form_fields() {
 /**
  * Merge topic form fields.
  *
- * Output the required hidden fields when merging a topic
+ * Output the required hidden fields when merging a topic.
  *
  * @since 2.0.0 bbPress (r2756)
  */
@@ -1812,7 +1812,7 @@ function bbp_merge_topic_form_fields() {
 /**
  * Split topic form fields.
  *
- * Output the required hidden fields when splitting a topic
+ * Output the required hidden fields when splitting a topic.
  *
  * @since 2.0.0 bbPress (r2756)
  */
@@ -1828,7 +1828,9 @@ function bbp_split_topic_form_fields() {
 /**
  * Move reply form fields.
  *
- * Output the required hidden fields when moving a reply
+ * Output the required hidden fields when moving a reply.
+ *
+ * @since 2.1.0 bbPress (r3586)
  */
 function bbp_move_reply_form_fields() {
 ?>
@@ -2056,7 +2058,7 @@ function bbp_get_quicktags_settings( $settings = array() ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
+ * @param string $view Optional. View id.
  */
 function bbp_view_id( $view = '' ) {
 	echo bbp_get_view_id( $view );
@@ -2071,7 +2073,7 @@ function bbp_view_id( $view = '' ) {
  *
  * @param string $view Optional. View id.
  *
- * @return bool|string ID on success, false on failure
+ * @return bool|string ID on success, false on failure.
  */
 function bbp_get_view_id( $view = '' ) {
 	$bbp = bbpress();
@@ -2098,7 +2100,7 @@ function bbp_get_view_id( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
+ * @param string $view Optional. View id.
  */
 function bbp_view_title( $view = '' ) {
 	echo bbp_get_view_title( $view );
@@ -2112,9 +2114,9 @@ function bbp_view_title( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
+ * @param string $view Optional. View id.
  *
- * @return bool|string Title on success, false on failure
+ * @return bool|string Title on success, false on failure.
  */
 function bbp_get_view_title( $view = '' ) {
 	$bbp = bbpress();
@@ -2132,7 +2134,7 @@ function bbp_get_view_title( $view = '' ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
+ * @param string $view Optional. View id.
  */
 function bbp_view_url( $view = false ) {
 	echo esc_url( bbp_get_view_url( $view ) );
@@ -2142,10 +2144,9 @@ function bbp_view_url( $view = false ) {
  *
  * @since 2.0.0 bbPress (r2789)
  *
- * @param string $view Optional. View id
- *                     used view id
+ * @param string $view Optional. View id.
  *
- * @return string View url (or home url if the view was not found )
+ * @return string View url (or home url if the view was not found).
  */
 function bbp_get_view_url( $view = false ) {
 
@@ -2182,7 +2183,7 @@ function bbp_get_view_url( $view = false ) {
  *
  * @since 2.0.0 bbPress (r2980)
  *
- * @return bool True if match, false if not
+ * @return bool True if match, false if not.
  */
 function bbp_is_query_name( $name = '' ) {
 	return (bool) ( bbp_get_query_name() === $name );
@@ -2193,7 +2194,7 @@ function bbp_is_query_name( $name = '' ) {
  *
  * @since 2.0.0 bbPress (r2695)
  *
- * @return string To return the query var value
+ * @return string To return the query var value.
  */
 function bbp_get_query_name() {
 	return get_query_var( '_bbp_query_name' );
@@ -2204,7 +2205,7 @@ function bbp_get_query_name() {
  *
  * @since 2.0.0 bbPress (r2692)
  *
- * @param string $name What to set the query var to
+ * @param string $name What to set the query var to.
  */
 function bbp_set_query_name( $name = '' ) {
 	set_query_var( '_bbp_query_name', $name );
@@ -2244,11 +2245,11 @@ function bbp_breadcrumb( $args = array() ) {
  *
  * @since 2.0.0 bbPress (r2589)
  *
- * @param string $sep Separator. Defaults to '&larr;'
- * @param bool $current_page Include the current item
- * @param bool $root Include the root page if one exists
+ * @param string $sep Separator. Defaults to '&larr;'.
+ * @param bool $current_page Include the current item.
+ * @param bool $root Include the root page if one exists.
  *
- * @return string Breadcrumbs
+ * @return string Breadcrumbs.
  */
 function bbp_get_breadcrumb( $args = array() ) {
 
@@ -2546,7 +2547,7 @@ function bbp_allowed_tags() {
  *
  * @since 2.0.0 bbPress (r2780)
  *
- * @return string HTML allowed tags entity encoded
+ * @return string HTML allowed tags entity encoded.
  */
 function bbp_get_allowed_tags() {
 	$allowed = '';
@@ -2635,7 +2636,7 @@ function bbp_template_notices() {
  *
  * @since 2.0.0 bbPress (r2827)
  *
- * @param string $redirect_to Redirect to url
+ * @param string $redirect_to Redirect to url.
  */
 function bbp_logout_link( $redirect_to = '' ) {
 	echo bbp_get_logout_link( $redirect_to );
@@ -2646,10 +2647,10 @@ function bbp_logout_link( $redirect_to = '' ) {
  *
  * @since 2.0.0 bbPress (r2827)
  *
- * @param string $redirect_to Redirect to url
- *                            redirect to url
+ * @param string $redirect_to Redirect to url.
+ *                            redirect to url.
  *
- * @return string The logout link
+ * @return string The logout link.
  */
 function bbp_get_logout_link( $redirect_to = '' ) {
 
@@ -2671,9 +2672,9 @@ function bbp_get_logout_link( $redirect_to = '' ) {
  * @param string $sep         Optional, default is '&raquo;'. How to separate the
  *                            various items within the page title.
  * @param string $seplocation Optional. Direction to display title, 'right'.
- *                            separator and separator location
+ *                            separator and separator location.
  *
- * @return string The title
+ * @return string The title.
  */
 function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
@@ -2885,8 +2886,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
  *
  * @since 2.7.0
  *
- * @param string      $prepend text displayed before a post title
- * @param int|WP_Post $post    current post object
+ * @param string      $prepend text displayed before a post title.
+ * @param int|WP_Post $post    current post object.
  *
  * @return string
  */

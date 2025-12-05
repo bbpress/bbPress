@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Main bbPress BuddyPress Class
+ * Main bbPress BuddyPress Class.
  *
  * @package bbPress
  * @subpackage BuddyPress
@@ -23,7 +23,7 @@ add_action( 'bbp_delete_forum',           'bbp_maybe_delete_group_forum_root' );
 /** BuddyPress Helpers ********************************************************/
 
 /**
- * Return component name/ID ('forums' by default)
+ * Return component name/ID ('forums' by default).
  *
  * This is used primarily for Notifications integration.
  *
@@ -43,7 +43,7 @@ function bbp_get_component_name() {
 }
 
 /**
- * Filter the current bbPress user ID with the current BuddyPress user ID
+ * Filter the current bbPress user ID with the current BuddyPress user ID.
  *
  * @since 2.1.0 bbPress (r3552)
  *
@@ -79,12 +79,12 @@ function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $cur
 }
 
 /**
- * Filter the bbPress is_single_user function with BuddyPress equivalent
+ * Filter the bbPress is_single_user function with BuddyPress equivalent.
  *
  * @since 2.1.0 bbPress (r3552)
  *
- * @param bool $is Optional. Default false
- * @return bool True if viewing single user, false if not
+ * @param bool $is Optional. Default false.
+ * @return bool True if viewing single user, false if not.
  */
 function bbp_filter_is_single_user( $is = false ) {
 	if ( ! empty( $is ) ) {
@@ -95,12 +95,12 @@ function bbp_filter_is_single_user( $is = false ) {
 }
 
 /**
- * Filter the bbPress is_user_home function with BuddyPress equivalent
+ * Filter the bbPress is_user_home function with BuddyPress equivalent.
  *
  * @since 2.1.0 bbPress (r3552)
  *
- * @param bool $is Optional. Default false
- * @return bool True if viewing single user, false if not
+ * @param bool $is Optional. Default false.
+ * @return bool True if viewing single user, false if not.
  */
 function bbp_filter_is_user_home( $is = false ) {
 	if ( ! empty( $is ) ) {
@@ -111,14 +111,14 @@ function bbp_filter_is_user_home( $is = false ) {
 }
 
 /**
- * Add the topic title to the <title> if viewing a single group forum topic
+ * Add the topic title to the <title> if viewing a single group forum topic.
  *
  * @since 2.5.0 bbPress (r5161)
  *
- * @param string $new_title The title to filter
- * @param string $old_title (Not used)
- * @param string $sep The separator to use
- * @return string The possibly modified title
+ * @param string $new_title The title to filter.
+ * @param string $old_title (Not used).
+ * @param string $sep The separator to u.se
+ * @return string The possibly modified title.
  */
 function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = '' ) {
 
@@ -150,7 +150,7 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 /** BuddyPress Screens ********************************************************/
 
 /**
- * Hook bbPress topics template into plugins template
+ * Hook bbPress topics template into plugins template.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -160,7 +160,7 @@ function bbp_member_forums_screen_topics() {
 }
 
 /**
- * Hook bbPress replies template into plugins template
+ * Hook bbPress replies template into plugins template.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -170,7 +170,7 @@ function bbp_member_forums_screen_replies() {
 }
 
 /**
- * Hook bbPress engagements template into plugins template
+ * Hook bbPress engagements template into plugins template.
  *
  * @since 2.6.0 bbPress (r6320)
  */
@@ -180,7 +180,7 @@ function bbp_member_forums_screen_engagements() {
 }
 
 /**
- * Hook bbPress favorites template into plugins template
+ * Hook bbPress favorites template into plugins template.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -190,7 +190,7 @@ function bbp_member_forums_screen_favorites() {
 }
 
 /**
- * Hook bbPress subscriptions template into plugins template
+ * Hook bbPress subscriptions template into plugins template.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -202,7 +202,7 @@ function bbp_member_forums_screen_subscriptions() {
 /** BuddyPress Templates ******************************************************/
 
 /**
- * Get the topics created template part
+ * Get the topics created template part.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -219,7 +219,7 @@ function bbp_member_forums_topics_content() {
 }
 
 /**
- * Get the topics replied to template part
+ * Get the topics replied to template part.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -236,7 +236,7 @@ function bbp_member_forums_replies_content() {
 }
 
 /**
- * Get the topic engagements template part
+ * Get the topic engagements template part.
  *
  * @since 2.6.0 bbPress (r6320)
  */
@@ -253,7 +253,7 @@ function bbp_member_forums_engagements_content() {
 }
 
 /**
- * Get the topics favorited template part
+ * Get the topics favorited template part.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -270,7 +270,7 @@ function bbp_member_forums_favorites_content() {
 }
 
 /**
- * Get the topics subscribed template part
+ * Get the topics subscribed template part.
  *
  * @since 2.1.0 bbPress (r3552)
  */
@@ -289,11 +289,11 @@ function bbp_member_forums_subscriptions_content() {
 /** Forum Group Root **********************************************************/
 
 /**
- * Clean up the group root setting if the forum is being deleted
+ * Clean up the group root setting if the forum is being deleted.
  *
  * @since 2.6.0 bbPress (r6479)
  *
- * @param int $forum_id The forum ID being deleted
+ * @param int $forum_id The forum ID being deleted.
  */
 function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
 
@@ -313,7 +313,7 @@ function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
 }
 
 /**
- * Handle the new group forum root creation
+ * Handle the new group forum root creation.
  *
  * @since 2.6.0 bbPress (r6479)
  *
@@ -371,11 +371,11 @@ function bbp_maybe_create_group_forum_root() {
  */
 
 /**
- * Get forum ID's for a group
+ * Get forum ID's for a group.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_get_group_forum_ids( $group_id = 0 ) {
 
@@ -400,11 +400,11 @@ function bbp_get_group_forum_ids( $group_id = 0 ) {
 }
 
 /**
- * Get group ID's for a forum
+ * Get group ID's for a forum.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $forum_id
+ * @param int $forum_id Forum id.
  */
 function bbp_get_forum_group_ids( $forum_id = 0 ) {
 
@@ -429,11 +429,11 @@ function bbp_get_forum_group_ids( $forum_id = 0 ) {
 }
 
 /**
- * Get forum ID's for a group
+ * Get forum ID's for a group.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 
@@ -450,11 +450,11 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
 }
 
 /**
- * Update group ID's for a forum
+ * Update group ID's for a forum.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $forum_id
+ * @param int $forum_id Forum id.
  */
 function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -467,11 +467,11 @@ function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
 }
 
 /**
- * Add a group to a forum
+ * Add a group to a forum.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 
@@ -494,11 +494,11 @@ function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
 }
 
 /**
- * Remove a forum from a group
+ * Remove a forum from a group.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 
@@ -521,11 +521,11 @@ function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Remove a group from a forum
+ * Remove a group from a forum.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 
@@ -548,11 +548,11 @@ function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
 }
 
 /**
- * Remove a forum from a group
+ * Remove a forum from a group.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 
@@ -575,11 +575,11 @@ function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Remove a group from all forums
+ * Remove a group from all forums.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $group_id
+ * @param int $group_id Group id.
  */
 function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 
@@ -598,11 +598,11 @@ function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
 }
 
 /**
- * Remove a forum from all groups
+ * Remove a forum from all groups.
  *
  * @since 2.1.0 bbPress (r3653)
  *
- * @param int $forum_id
+ * @param int $forum_id Forum id.
  */
 function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 
@@ -617,12 +617,12 @@ function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
 }
 
 /**
- * Return true if a forum is a group forum
+ * Return true if a forum is a group forum.
  *
  * @since 2.3.0 bbPress (r4571)
  *
- * @param int $forum_id
- * @return bool True if it is a group forum, false if not
+ * @param int $forum_id Forum id.
+ * @return bool True if it is a group forum, false if not.
  */
 function bbp_is_forum_group_forum( $forum_id = 0 ) {
 
@@ -642,11 +642,11 @@ function bbp_is_forum_group_forum( $forum_id = 0 ) {
 /*** Group Member Status ******************************************************/
 
 /**
- * Is the current user an admin of the current group
+ * Is the current user an admin of the current group.
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @return bool If current user is an admin of the current group
+ * @return bool If current user is an admin of the current group.
  */
 function bbp_group_is_admin() {
 
@@ -667,11 +667,11 @@ function bbp_group_is_admin() {
 }
 
 /**
- * Is the current user a moderator of the current group
+ * Is the current user a moderator of the current group.
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @return bool If current user is a moderator of the current group
+ * @return bool If current user is a moderator of the current group.
  */
 function bbp_group_is_mod() {
 
@@ -692,11 +692,11 @@ function bbp_group_is_mod() {
 }
 
 /**
- * Is the current user a member of the current group
+ * Is the current user a member of the current group.
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @return bool If current user is a member of the current group
+ * @return bool If current user is a member of the current group.
  */
 function bbp_group_is_member() {
 
@@ -717,11 +717,11 @@ function bbp_group_is_member() {
 }
 
 /**
- * Is the current user banned from the current group
+ * Is the current user banned from the current group.
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @return bool If current user is banned from the current group
+ * @return bool If current user is banned from the current group.
  */
 function bbp_group_is_banned() {
 
@@ -742,11 +742,11 @@ function bbp_group_is_banned() {
 }
 
 /**
- * Is the current user the creator of the current group
+ * Is the current user the creator of the current group.
  *
  * @since 2.3.0 bbPress (r4632)
  *
- * @return bool If current user the creator of the current group
+ * @return bool If current user the creator of the current group.
  */
 function bbp_group_is_creator() {
 
@@ -769,7 +769,7 @@ function bbp_group_is_creator() {
 /* BuddyPress Activity Action Callbacks ***************************************/
 
 /**
- * Return an array of allowed activity actions
+ * Return an array of allowed activity actions.
  *
  * @since 2.6.0 bbPress (r6370)
  *
@@ -865,7 +865,7 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 	 *
 	 * @since 2.6.0 bbPress (r6370)
 	 *
-	 * @param string               $activity_action Activity action string value
+	 * @param string               $activity_action Activity action string value.
 	 * @param string               $type            The type of post. Expects `topic` or `reply`.
 	 * @param string               $action          The current action string.
 	 * @param BP_Activity_Activity $activity        The BuddyPress activity object.
@@ -878,8 +878,8 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
  *
  * @since 2.6.0 bbPress (r6370)
  *
- * @param string $action   The current action string
- * @param object $activity The BuddyPress activity object
+ * @param string $action   The current action string.
+ * @param object $activity The BuddyPress activity object.
  *
  * @return string The formatted activity action.
  */
@@ -902,8 +902,8 @@ function bbp_format_activity_action_new_topic( $action, $activity ) {
  *
  * @since 2.6.0 bbPress (r6370)
  *
- * @param string $action   The current action string
- * @param object $activity The BuddyPress activity object
+ * @param string $action   The current action string.
+ * @param object $activity The BuddyPress activity object.
  *
  * @return string The formatted activity action
  */

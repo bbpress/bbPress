@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Topic Capabilites
+ * bbPress Topic Capabilities.
  *
  * Used to map topic capabilities to WordPress's existing capabilities.
  *
@@ -10,11 +10,11 @@
  */
 
 /**
- * Return topic capabilities
+ * Return topic capabilities.
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @return array Topic capabilities
+ * @return array Topic capabilities.
  */
 function bbp_get_topic_caps() {
 
@@ -34,12 +34,11 @@ function bbp_get_topic_caps() {
 }
 
 /**
- * Return topic tag capabilities
+ * Return topic tag capabilities.
  *
  * @since 2.0.0 bbPress (r2593)
  *
- *
- * @return array Topic tag capabilities
+ * @return array Topic tag capabilities.
  */
 function bbp_get_topic_tag_caps() {
 
@@ -56,7 +55,7 @@ function bbp_get_topic_tag_caps() {
 }
 
 /**
- * Maps topic capabilities
+ * Maps topic capabilities.
  *
  * @since 2.2.0 bbPress (r4242)
  *
@@ -65,7 +64,7 @@ function bbp_get_topic_tag_caps() {
  * @param int    $user_id User id.
  * @param array  $args    Arguments.
  *
- * @return array Actual capabilities for meta capability
+ * @return array Actual capabilities for meta capability.
  */
 function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -267,16 +266,16 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 }
 
 /**
- * Maps topic tag capabilities
+ * Maps topic tag capabilities.
  *
  * @since 2.2.0 bbPress (r4242)
  *
- * @param array $caps Capabilities for meta capability
- * @param string $cap Capability name
- * @param int $user_id User id
- * @param array $args Arguments
+ * @param array $caps Capabilities for meta capability.
+ * @param string $cap Capability name.
+ * @param int $user_id User id.
+ * @param array $args Arguments.
  *
- * @return array Actual capabilities for meta capability
+ * @return array Actual capabilities for meta capability.
  */
 function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 

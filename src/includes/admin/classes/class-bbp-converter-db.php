@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Converter Database
+ * bbPress Converter Database.
  *
  * @package bbPress
  * @subpackage Administration
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Converter_DB' ) && class_exists( 'wpdb' ) ) :
 /**
- * bbPress Converter Database Access Abstraction Object
+ * bbPress Converter Database Access Abstraction Object.
  *
  * @since 2.6.0 bbPress (r6784)
  */

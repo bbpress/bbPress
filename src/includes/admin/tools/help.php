@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Tools Help
+ * bbPress Admin Tools Help.
  *
  * @package bbPress
  * @subpackage Administration
@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Contextual help for Repair Forums tools page
+ * Contextual help for Repair Forums tools page.
  *
  * @since 2.6.0 bbPress (r5314)
  */
@@ -50,7 +50,7 @@ function bbp_admin_tools_repair_help() {
 }
 
 /**
- * Contextual help for Reset Forums tools page
+ * Contextual help for Reset Forums tools page.
  *
  * @since 2.6.0 bbPress (r5314)
  */
@@ -81,7 +81,7 @@ function bbp_admin_tools_reset_help() {
 }
 
 /**
- * Contextual help for Import Forums tools page
+ * Contextual help for Import Forums tools page.
  *
  * @since 2.6.0 bbPress (r5314)
  */

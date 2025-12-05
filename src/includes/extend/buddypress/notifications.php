@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress BuddyPress Notifications
+ * bbPress BuddyPress Notifications.
  *
  * @package bbPress
  * @subpackage BuddyPress
@@ -43,7 +43,7 @@ function bbp_filter_notifications_get_registered_components( $component_names = 
 }
 
 /**
- * Format the BuddyBar/Toolbar notifications
+ * Format the BuddyBar/Toolbar notifications.
  *
  * @since 2.5.0 bbPress (r5155)
  *
@@ -192,11 +192,11 @@ function bbp_buddypress_add_notification( $reply_id = 0, $topic_id = 0, $forum_i
 }
 
 /**
- * Mark notifications as read when reading a topic
+ * Mark notifications as read when reading a topic.
  *
  * @since 2.5.0 bbPress (r5155)
  *
- * @return If not trying to mark a notification as read
+ * @return If not trying to mark a notification as read.
  */
 function bbp_buddypress_mark_notifications( $action = '' ) {
 

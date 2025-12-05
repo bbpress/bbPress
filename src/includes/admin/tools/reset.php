@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Tools Reset
+ * bbPress Admin Tools Reset.
  *
  * @package bbPress
  * @subpackage Administration
@@ -11,10 +11,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Admin reset page
+ * Admin reset page.
  *
  * @since 2.0.0 bbPress (r2613)
- *
  */
 function bbp_admin_reset_page() {
 ?>
@@ -105,7 +104,7 @@ function bbp_admin_reset_handler() {
  *
  * @since 2.6.0 bbPress (r6758)
  *
- * @param array $args Array of query, message, and possible responses
+ * @param array $args Array of query, message, and possible responses.
  *
  * @return string
  */

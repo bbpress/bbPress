@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Users Admin Class
+ * bbPress Users Admin Class.
  *
  * @package bbPress
  * @subpackage Administration
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Users_Admin' ) ) :
 /**
- * Loads bbPress users admin area
+ * Loads bbPress users admin area.
  *
  * @package bbPress
  * @subpackage Administration
@@ -21,7 +21,7 @@ if ( ! class_exists( 'BBP_Users_Admin' ) ) :
 class BBP_Users_Admin {
 
 	/**
-	 * The bbPress users admin loader
+	 * The bbPress users admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -30,7 +30,7 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -68,7 +68,7 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Default interface for setting a forum role
+	 * Default interface for setting a forum role.
 	 *
 	 * @since 2.2.0 bbPress (r4285)
 	 *
@@ -129,7 +129,7 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Add bulk forums role dropdown to the WordPress users table
+	 * Add bulk forums role dropdown to the WordPress users table.
 	 *
 	 * @since 2.2.0 bbPress (r4360)
 	 * @since 2.6.0 bbPress (r6055) Introduced the `$which` parameter.
@@ -173,12 +173,9 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Process bulk dropdown form submission from the WordPress Users
-	 * Table
+	 * Process bulk dropdown form submission from the WordPress Users Table.
 	 *
 	 * @since 2.2.0 bbPress (r4365)
-	 *
-	 * @return bool Always false
 	 */
 	public function user_role_bulk_change() {
 
@@ -242,14 +239,14 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Add a "View" link for each user
+	 * Add a "View" link for each user.
 	 *
 	 * @since 2.6.0 bbPress (r6502)
 	 *
 	 * @param array   $actions
 	 * @param WP_User $user
 	 *
-	 * @return array Actions with 'view' link added to them
+	 * @return array Actions with 'view' link added to them.
 	 */
 	public function user_row_actions( $actions = array(), $user = false ) {
 
@@ -265,11 +262,11 @@ class BBP_Users_Admin {
 
 	/**
 	 * Add Forum Role column to the WordPress Users table, and change the
-	 * core role title to "Site Role"
+	 * core role title to "Site Role".
 	 *
 	 * @since 2.2.0 bbPress (r4337)
 	 *
-	 * @param array $columns Users table columns
+	 * @param array $columns Users table columns.
 	 * @return array $columns
 	 */
 	public static function user_role_column( $columns = array() ) {
@@ -292,7 +289,7 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Return user's forums role for display in the WordPress Users list table
+	 * Return user's forums role for display in the WordPress Users list table.
 	 *
 	 * @since 2.2.0 bbPress (r4337)
 	 *
@@ -300,7 +297,7 @@ class BBP_Users_Admin {
 	 * @param string $column_name
 	 * @param int $user_id
 	 *
-	 * @return string Displayable bbPress user role
+	 * @return string Displayable bbPress user role.
 	 */
 	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
@@ -323,10 +320,10 @@ class BBP_Users_Admin {
 	}
 
 	/**
-	 * Filter the list of roles included in the WordPress site role list
+	 * Filter the list of roles included in the WordPress site role list.
 	 *
 	 * Ensures forum roles are only displayed under the Forum Role list in the
-	 * WordPress Users list table
+	 * WordPress Users list table.
 	 *
 	 * @since 2.6.0 bbPress (r6051)
 	 *

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Search Functions
+ * bbPress Search Functions.
  *
  * @package bbPress
  * @subpackage Functions
@@ -13,12 +13,12 @@ defined( 'ABSPATH' ) || exit;
 /** Query *********************************************************************/
 
 /**
- * Run the search query
+ * Run the search query.
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @param mixed $new_args New arguments
- * @return bool False if no results, otherwise if search results are there
+ * @param mixed $new_args New arguments.
+ * @return bool False if no results, otherwise if search results are there.
  */
 function bbp_search_query( $new_args = array() ) {
 
@@ -35,11 +35,11 @@ function bbp_search_query( $new_args = array() ) {
 }
 
 /**
- * Return the search query args
+ * Return the search query arguments.
  *
  * @since 2.3.0 bbPress (r4579)
  *
- * @return array Query arguments
+ * @return array Query arguments.
  */
 function bbp_get_search_query_args() {
 
@@ -54,11 +54,11 @@ function bbp_get_search_query_args() {
 }
 
 /**
- * Redirect to search results page if needed
+ * Redirect to search results page if needed.
  *
  * @since 2.4.0 bbPress (r4928)
  *
- * @return If a redirect is not needed
+ * @return If a redirect is not needed.
  */
 function bbp_search_results_redirect() {
 
@@ -83,7 +83,7 @@ function bbp_search_results_redirect() {
 }
 
 /**
- * Return an array of search types
+ * Return an array of search types.
  *
  * @since 2.6.0 bbPress (r6903)
  *
@@ -100,7 +100,7 @@ function bbp_get_search_type_ids() {
  *
  * @since 2.6.0 bbPress (r6903)
  *
- * @param string $query_arg s|fs|ts|rs
+ * @param string $query_arg s|fs|ts|rs.
  *
  * @return mixed
  */

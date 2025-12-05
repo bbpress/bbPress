@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Forum Admin Class
+ * bbPress Forum Admin Class.
  *
  * @package bbPress
  * @subpackage Administration
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Forums_Admin' ) ) :
 /**
- * Loads bbPress forums admin area
+ * Loads bbPress forums admin area.
  *
  * @package bbPress
  * @subpackage Administration
@@ -23,14 +23,14 @@ class BBP_Forums_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var string The post type of this admin component
+	 * @var string The post type of this admin component.
 	 */
 	private $post_type = '';
 
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress forums admin loader
+	 * The main bbPress forums admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -40,7 +40,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -76,7 +76,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Admin globals.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -89,7 +89,7 @@ class BBP_Forums_Admin {
 	/** Contextual Help *******************************************************/
 
 	/**
-	 * Contextual help for bbPress forum edit page
+	 * Contextual help for bbPress forum edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -156,7 +156,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Contextual help for bbPress forum edit page
+	 * Contextual help for bbPress forum edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -220,7 +220,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the forum attributes meta-box
+	 * Add the forum attributes meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 */
@@ -236,7 +236,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the forum moderators meta-box
+	 * Add the forum moderators meta-box.
 	 *
 	 * @since 2.6.0 bbPress
 	 */
@@ -259,7 +259,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Add the subscriptions meta-box
+	 * Add the subscriptions meta-box.
 	 *
 	 * Allows viewing of users who have subscribed to a forum.
 	 *
@@ -289,7 +289,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Remove comments & discussion meta-boxes if comments are not supported
+	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
 	 */
@@ -301,12 +301,12 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Pass the forum attributes for processing
+	 * Pass the forum attributes for processing.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 *
-	 * @param int $forum_id Forum id
-	 * @return int Forum id
+	 * @param int $forum_id Forum id.
+	 * @return int Forum id.
 	 */
 	public function save_meta_boxes( $forum_id ) {
 
@@ -354,9 +354,9 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Toggle forum
+	 * Toggle forum.
 	 *
-	 * Handles the admin-side opening/closing of forums
+	 * Handles the admin-side opening/closing of forums.
 	 *
 	 * @since 2.6.0 bbPress (r5254)
 	 */
@@ -427,7 +427,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Toggle forum notices
+	 * Toggle forum notices.
 	 *
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_forum()}
@@ -492,7 +492,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Returns an array of keys used to sort row actions
+	 * Returns an array of keys used to sort row actions.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 *
@@ -521,7 +521,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -546,7 +546,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -570,13 +570,13 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Manage the column headers for the forums page
+	 * Manage the column headers for the forums page.
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param array $columns The columns
+	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress forum columns
+	 * @return array $columns bbPress forum columns.
 	 */
 	public function column_headers( $columns ) {
 
@@ -608,12 +608,12 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Print extra columns for the forums page
+	 * Print extra columns for the forums page.
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param string $column Column
-	 * @param int $forum_id Forum id
+	 * @param string $column Column.
+	 * @param int $forum_id Forum id.
 	 */
 	public function column_data( $column, $forum_id ) {
 
@@ -663,17 +663,17 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Forum Row actions
+	 * Forum Row actions.
 	 *
 	 * Remove the quick-edit action link and display the description under
-	 * the forum title and add the open/close links
+	 * the forum title and add the open/close links.
 	 *
 	 * @since 2.0.0 bbPress (r2577)
 	 *
-	 * @param array  $actions Actions
-	 * @param object $forum   Forum object
+	 * @param array  $actions Actions.
+	 * @param object $forum   Forum object.
 	 *
-	 * @return array $actions Actions
+	 * @return array $actions Actions.
 	 */
 	public function row_actions( $actions = array(), $forum = false ) {
 
@@ -715,11 +715,11 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Sort row actions by key
+	 * Sort row actions by key.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $actions
+	 * @param array $actions.
 	 *
 	 * @return array
 	 */
@@ -744,7 +744,7 @@ class BBP_Forums_Admin {
 	}
 
 	/**
-	 * Custom user feedback messages for forum post type
+	 * Custom user feedback messages for forum post type.
 	 *
 	 * @since 2.0.0 bbPress (r3080)
 	 *
@@ -837,14 +837,14 @@ class BBP_Forums_Admin {
 endif; // class_exists check
 
 /**
- * Setup bbPress Forums Admin
+ * Setup bbPress Forums Admin.
  *
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
  * @since 2.0.0 bbPress (r2596)
  *
- * @param WP_Screen $current_screen Current screen object
+ * @param WP_Screen $current_screen Current screen object.
  */
 function bbp_admin_forums( $current_screen ) {
 

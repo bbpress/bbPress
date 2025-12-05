@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.6.0 bbPress (r6340)
  *
- * @param int $post_id ID of the post to check for editing
+ * @param int $post_id ID of the post to check for editing.
  * @return integer False: not locked or locked by current user. Int: user ID of user with lock.
  */
 function bbp_check_post_lock( $post_id = 0 ) {
@@ -53,11 +53,11 @@ function bbp_check_post_lock( $post_id = 0 ) {
 }
 
 /**
- * Mark the post as currently being edited by the current user
+ * Mark the post as currently being edited by the current user.
  *
  * @since 2.6.0 bbPress (r6340)
  *
- * @param int $post_id ID of the post to being edited
+ * @param int $post_id ID of the post to being edited.
  * @return bool|array Returns false if the post doesn't exist of there is no current user, or
  *                     an array of the lock time and the user ID.
  */

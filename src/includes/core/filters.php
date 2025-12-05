@@ -376,12 +376,12 @@ add_filter( 'bbp_make_clickable', 'bbp_make_mentions_clickable',  8 ); // @jjj
  */
 
 /**
- * Deprecated locale filter
+ * Deprecated locale filter.
  *
  * @since 2.2.0 bbPress (r4213)
  *
  * @param string $locale
- * @return string  $domain
+ * @return string $domain
  */
 function _bbp_filter_locale( $locale = '', $domain = '' ) {
 
@@ -395,7 +395,7 @@ function _bbp_filter_locale( $locale = '', $domain = '' ) {
 add_filter( 'bbp_plugin_locale', '_bbp_filter_locale', 10, 1 );
 
 /**
- * Deprecated forums query filter
+ * Deprecated forums query filter.
  *
  * @since 2.1.0 bbPress (r3961)
  *
@@ -410,7 +410,7 @@ function _bbp_has_forums_query( $args = array() ) {
 add_filter( 'bbp_after_has_forums_parse_args', '_bbp_has_forums_query' );
 
 /**
- * Deprecated topics query filter
+ * Deprecated topics query filter.
  *
  * @since 2.1.0 bbPress (r3961)
  *
@@ -425,7 +425,7 @@ function _bbp_has_topics_query( $args = array() ) {
 add_filter( 'bbp_after_has_topics_parse_args', '_bbp_has_topics_query' );
 
 /**
- * Deprecated replies query filter
+ * Deprecated replies query filter.
  *
  * @since 2.1.0 bbPress (r3961)
  *

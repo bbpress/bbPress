@@ -1,9 +1,9 @@
 <?php
 
 /**
- * bbPress Converter Base Class
+ * bbPress Converter Base Class.
  *
- * Based on the hard work of Adam Ellis
+ * Based on the hard work of Adam Ellis.
  *
  * @package bbPress
  * @subpackage Administration
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Converter_Base' ) ) :
 /**
- * Base class to be extended by specific individual importers
+ * Base class to be extended by specific individual importers.
  *
  * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
  *
@@ -264,68 +264,68 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Setup global values
+	 * Setup global values.
 	 */
 	public function setup_globals() {}
 
 	/**
-	 * Convert Forums
+	 * Convert Forums.
 	 */
 	public function convert_forums( $start = 1 ) {
 		return $this->convert_table( 'forum', $start );
 	}
 
 	/**
-	 * Convert Topics / Threads
+	 * Convert Topics / Threads.
 	 */
 	public function convert_topics( $start = 1 ) {
 		return $this->convert_table( 'topic', $start );
 	}
 
 	/**
-	 * Convert Posts
+	 * Convert Posts.
 	 */
 	public function convert_replies( $start = 1 ) {
 		return $this->convert_table( 'reply', $start );
 	}
 
 	/**
-	 * Convert Users
+	 * Convert Users.
 	 */
 	public function convert_users( $start = 1 ) {
 		return $this->convert_table( 'user', $start );
 	}
 
 	/**
-	 * Convert Topic Tags
+	 * Convert Topic Tags.
 	 */
 	public function convert_tags( $start = 1 ) {
 		return $this->convert_table( 'tags', $start );
 	}
 
 	/**
-	 * Convert Forum Subscriptions
+	 * Convert Forum Subscriptions.
 	 */
 	public function convert_forum_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'forum_subscriptions', $start );
 	}
 
 	/**
-	 * Convert Topic Subscriptions
+	 * Convert Topic Subscriptions.
 	 */
 	public function convert_topic_subscriptions( $start = 1 ) {
 		return $this->convert_table( 'topic_subscriptions', $start );
 	}
 
 	/**
-	 * Convert Favorites
+	 * Convert Favorites.
 	 */
 	public function convert_favorites( $start = 1 ) {
 		return $this->convert_table( 'favorites', $start );
 	}
 
 	/**
-	 * Convert Table
+	 * Convert Table.
 	 *
 	 * @param string to type
 	 * @param int Start row
@@ -952,9 +952,9 @@ abstract class BBP_Converter_Base {
 	abstract protected function info();
 
 	/**
-	 * This method grabs appropriate fields from the table specified
+	 * This method grabs appropriate fields from the table specified.
 	 *
-	 * @param string The table name to grab fields from
+	 * @param string The table name to grab fields from.
 	 */
 	private function get_fields( $tablename = '' ) {
 		$retval      = array();
@@ -986,7 +986,7 @@ abstract class BBP_Converter_Base {
 	/** Database Wrappers *****************************************************/
 
 	/**
-	 * Update the last query option and return results
+	 * Update the last query option and return results.
 	 *
 	 * @param string $query
 	 * @param string $output
@@ -998,7 +998,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Update the last query option and return results
+	 * Update the last query option and return results.
 	 *
 	 * @param string $query
 	 * @param string $output
@@ -1010,7 +1010,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Update the last query option and do a general query
+	 * Update the last query option and do a general query.
 	 *
 	 * @param string $query
 	 */
@@ -1021,11 +1021,11 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Update the last query ran
+	 * Update the last query ran.
 	 *
 	 * @since 2.6.0 bbPress (r6637)
 	 *
-	 * @param string $query The literal MySQL query
+	 * @param string $query The literal MySQL query.
 	 * @return bool
 	 */
 	private function update_query( $query = '' ) {
@@ -1033,11 +1033,11 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Update the number of rows in the current step
+	 * Update the number of rows in the current step.
 	 *
 	 * @since 2.6.0 bbPress (r6637)
 	 *
-	 * @param string $query The literal MySQL query
+	 * @param string $query The literal MySQL query.
 	 * @return bool
 	 */
 	private function count_rows_by_results( $query = '' ) {
@@ -1049,11 +1049,11 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Update the number of rows in the current step
+	 * Update the number of rows in the current step.
 	 *
 	 * @since 2.6.0 bbPress (r6637)
 	 *
-	 * @param string $table_name The literal MySQL query
+	 * @param string $table_name The literal MySQL query.
 	 * @return bool
 	 */
 	private function count_rows_by_table( $table_name = '' ) {
@@ -1065,7 +1065,7 @@ abstract class BBP_Converter_Base {
 	/** Callbacks *************************************************************/
 
 	/**
-	 * Run password through wp_hash_password()
+	 * Run password through wp_hash_password().
 	 *
 	 * @param string $username
 	 * @param string $password
@@ -1106,7 +1106,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls to forum ID's
+	 * A mini cache system to reduce database calls to forum ID's.
 	 *
 	 * @param string $field
 	 * @return string
@@ -1126,7 +1126,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls to topic ID's
+	 * A mini cache system to reduce database calls to topic ID's.
 	 *
 	 * @param string $field
 	 * @return string
@@ -1168,7 +1168,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls to user ID's
+	 * A mini cache system to reduce database calls to user ID's.
 	 *
 	 * @param string $field
 	 * @return string
@@ -1192,7 +1192,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * Check if the topic or reply author is anonymous
+	 * Check if the topic or reply author is anonymous.
 	 *
 	 * @since 2.6.0 bbPress (r5544)
 	 *
@@ -1208,7 +1208,7 @@ abstract class BBP_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls map topics ID's to forum ID's
+	 * A mini cache system to reduce database calls map topics ID's to forum ID's.
 	 *
 	 * @param string $field
 	 * @return string

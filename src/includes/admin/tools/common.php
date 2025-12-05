@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Tools Common
+ * bbPress Admin Tools Common.
  *
  * @package bbPress
  * @subpackage Administration
@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Return the current admin repair tool page
+ * Return the current admin repair tool page.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -22,7 +22,7 @@ function bbp_get_admin_repair_tool_page() {
 }
 
 /**
- * Return the current admin repair tool page ID
+ * Return the current admin repair tool page ID.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -44,7 +44,7 @@ function bbp_get_admin_repair_tool_page_id() {
 }
 
 /**
- * Return a URL to the repair tool page
+ * Return a URL to the repair tool page.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -66,7 +66,7 @@ function bbp_get_admin_repair_tool_page_url( $args = array() ) {
 }
 
 /**
- * Output the URL to run a specific repair tool
+ * Output the URL to run a specific repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -77,7 +77,7 @@ function bbp_admin_repair_tool_run_url( $component = array() ) {
 }
 
 /**
- * Return the URL to run a specific repair tool
+ * Return the URL to run a specific repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -105,7 +105,7 @@ function bbp_get_admin_repair_tool_run_url( $component = array() ) {
 }
 
 /**
- * Assemble the admin notices
+ * Assemble the admin notices.
  *
  * @since 2.0.0 bbPress (r2613)
  *
@@ -120,7 +120,7 @@ function bbp_admin_tools_feedback( $message, $class = false, $is_dismissible = t
 }
 
 /**
- * Handle the processing and feedback of the admin tools page
+ * Handle the processing and feedback of the admin tools page.
  *
  * @since 2.0.0 bbPress (r2613)
  *
@@ -186,7 +186,7 @@ function bbp_admin_repair_handler() {
 }
 
 /**
- * Get the array of available repair tools
+ * Get the array of available repair tools.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -210,7 +210,7 @@ function bbp_get_admin_repair_tools( $type = '' ) {
 }
 
 /**
- * Return array of components from the array of registered tools
+ * Return array of components from the array of registered tools.
  *
  * @since 2.5.0 bbPress (r5885)
  *
@@ -250,7 +250,7 @@ function bbp_get_admin_repair_tool_registered_components() {
 }
 
 /**
- * Output the repair list search form
+ * Output the repair list search form.
  *
  * @since 2.6.0 bbPress (r5885)
  */
@@ -267,7 +267,7 @@ function bbp_admin_repair_list_search_form() {
 }
 
 /**
- * Output a select drop-down of components to filter by
+ * Output a select drop-down of components to filter by.
  *
  * @since 2.5.0 bbPress (r5885)
  */
@@ -302,7 +302,7 @@ function bbp_admin_repair_list_components_filter() {
 }
 
 /**
- * Return array of versions from the array of registered tools
+ * Return array of versions from the array of registered tools.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -353,7 +353,7 @@ function bbp_get_admin_repair_tool_registered_versions() {
 }
 
 /**
- * Output a select drop-down of versions to filter by
+ * Output a select drop-down of versions to filter by.
  *
  * @since 2.5.0 bbPress (r6894)
  */
@@ -390,7 +390,7 @@ function bbp_admin_repair_list_versions_filter() {
 /** Translations **************************************************************/
 
 /**
- * Maybe translate a repair tool overhead name
+ * Maybe translate a repair tool overhead name.
  *
  * @since 2.6.0 bbPress (r6177)
  *
@@ -419,7 +419,7 @@ function bbp_admin_repair_tool_translate_overhead( $overhead = '' ) {
 }
 
 /**
- * Maybe translate a repair tool component name
+ * Maybe translate a repair tool component name.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -466,7 +466,7 @@ function bbp_admin_repair_tool_translate_component( $component = '' ) {
 }
 
 /**
- * Maybe translate a repair tool overhead name
+ * Maybe translate a repair tool overhead name.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -503,7 +503,7 @@ function bbp_admin_repair_tool_translate_version( $version = '' ) {
  *
  * @since 2.0.0 bbPress (r2613)
  *
- * @return array Repair list of options
+ * @return array Repair list of options.
  */
 function bbp_admin_repair_list( $type = 'repair' ) {
 
@@ -612,7 +612,7 @@ function bbp_admin_repair_list( $type = 'repair' ) {
 }
 
 /**
- * Get filter links for components for a specific admin repair tool
+ * Get filter links for components for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -649,7 +649,7 @@ function bbp_get_admin_repair_tool_components( $item = array() ) {
 }
 
 /**
- * Get filter links for versions for a specific admin repair tool
+ * Get filter links for versions for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r6894)
  *
@@ -686,7 +686,7 @@ function bbp_get_admin_repair_tool_version( $item = array() ) {
 }
 
 /**
- * Get filter links for overhead for a specific admin repair tool
+ * Get filter links for overhead for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -725,7 +725,7 @@ function bbp_get_admin_repair_tool_overhead( $item = array() ) {
 /** Overhead ******************************************************************/
 
 /**
- * Output filter links for overheads for a specific admin repair tool
+ * Output filter links for overheads for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -736,7 +736,7 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 }
 
 /**
- * Get filter links for overheads for a specific admin repair tool
+ * Get filter links for overheads for a specific admin repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -859,7 +859,7 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 /** Pending ******************************************************************/
 
 /**
- * Output filter links for statuses
+ * Output filter links for statuses.
  *
  * @since 2.6.0 bbPress (r6925)
  *
@@ -870,7 +870,7 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
 }
 
 /**
- * Get filter links for statuses
+ * Get filter links for statuses.
  *
  * @since 2.6.0 bbPress (r5885)
  *

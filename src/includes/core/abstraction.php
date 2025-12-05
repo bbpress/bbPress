@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Abstractions
+ * bbPress Abstractions.
  *
  * This file contains functions for abstracting WordPress core functionality
  * into convenient wrappers so they can be used more reliably.
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Setup Admin
+ * Setup Admin.
  *
  * This exists outside of "/includes/admin/" because the converter may need to
  * be setup to convert the passwords of users that were migrated from another
@@ -45,7 +45,7 @@ function bbp_setup_admin() {
 }
 
 /**
- * Setup Converter
+ * Setup Converter.
  *
  * This exists outside of "/includes/admin/" because the converter may need to
  * be setup to convert the passwords of users that were migrated from another
@@ -78,15 +78,15 @@ function bbp_setup_converter() {
 /** Globals *******************************************************************/
 
 /**
- * Lookup and return a global variable
+ * Lookup and return a global variable.
  *
  * @since 2.5.8 bbPress (r5814)
  *
- * @param  string  $name     Name of global variable
- * @param  string  $type     Type of variable to check with `is_a()`
- * @param  mixed   $default  Default value to return if no global found
+ * @param  string  $name     Name of global variable.
+ * @param  string  $type     Type of variable to check with `is_a()`.
+ * @param  mixed   $default  Default value to return if no global found.
  *
- * @return mixed   Verified object if valid, Default or null if invalid
+ * @return mixed   Verified object if valid, Default or null if invalid.
  */
 function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 
@@ -112,7 +112,7 @@ function bbp_get_global_object( $name = '', $type = '', $default = null ) {
 }
 
 /**
- * Get the `$wp_query` global without needing to declare it everywhere
+ * Get the `$wp_query` global without needing to declare it everywhere.
  *
  * @since 2.6.0 bbPress (r6582)
  *
@@ -123,7 +123,7 @@ function bbp_get_wp_query() {
 }
 
 /**
- * Get the `$wp_roles` global without needing to declare it everywhere
+ * Get the `$wp_roles` global without needing to declare it everywhere.
  *
  * @since 2.2.0 bbPress (r4293)
  *
@@ -173,7 +173,7 @@ function bbp_rewrite() {
 }
 
 /**
- * Get the root URL
+ * Get the root URL.
  *
  * @since 2.5.8 bbPress (r5814)
  *
@@ -195,7 +195,7 @@ function bbp_get_root_url() {
 }
 
 /**
- * Get the slug used for paginated requests
+ * Get the slug used for paginated requests.
  *
  * @since 2.4.0 bbPress (r4926)
  *
@@ -221,7 +221,7 @@ function bbp_get_paged_slug() {
  *
  * @since 2.5.8 bbPress (r5814)
  *
- * @global object $wp_rewrite The WP_Rewrite object
+ * @global object $wp_rewrite The WP_Rewrite object.
  *
  * @return bool
  */
@@ -250,7 +250,7 @@ function bbp_use_pretty_urls() {
  *
  * @since 2.6.0 bbPress (r6678)
  *
- * @param string $pagination_links The HTML links used for pagination
+ * @param string $pagination_links The HTML links used for pagination.
  *
  * @return string
  */
@@ -319,7 +319,7 @@ function bbp_paginate_links( $args = array() ) {
 }
 
 /**
- * Parse the WordPress core version number
+ * Parse the WordPress core version number.
  *
  * @since 2.6.0 bbPress (r6051)
  *
@@ -340,7 +340,7 @@ function bbp_get_major_wp_version() {
  *
  * @since 2.6.0 bbPress (r6242)
  *
- * @return bool True if more than 10000 users, false not
+ * @return bool True if more than 10000 users, false not.
  */
 function bbp_is_large_install() {
 
@@ -354,11 +354,11 @@ function bbp_is_large_install() {
 }
 
 /**
- * Get the total number of users on the forums
+ * Get the total number of users on the forums.
  *
  * @since 2.0.0 bbPress (r2769)
  *
- * @return int Total number of users
+ * @return int Total number of users.
  */
 function bbp_get_total_users() {
 	$bbp_db = bbp_db();
@@ -407,7 +407,7 @@ function bbp_restore_current_site() {
  *
  * @since 2.6.0
  *
- * @staticvar mixed $rand Null by default, random string on first call
+ * @staticvar mixed $rand Null by default, random string on first call.
  *
  * @return string
  */
@@ -436,7 +436,7 @@ function bbp_default_intercept() {
 }
 
 /**
- * Whether a value has been intercepted
+ * Whether a value has been intercepted.
  *
  * @since 2.6.0
  *
@@ -451,8 +451,8 @@ function bbp_is_intercepted( $value = '' ) {
  *
  * @since 2.6.0
  *
- * @param string $action Typically the name of the caller function
- * @param array  $args   Typically the results of caller function func_get_args()
+ * @param string $action Typically the name of the caller function.
+ * @param array  $args   Typically the results of caller function func_get_args().
  *
  * @return mixed         Intercept results. Default bbp_default_intercept().
  */

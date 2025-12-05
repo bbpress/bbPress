@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Functions
+ * bbPress Admin Functions.
  *
  * @package bbPress
  * @subpackage Administration
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /** Admin Menus ***************************************************************/
 
 /**
- * Add a separator to the WordPress admin menus
+ * Add a separator to the WordPress admin menus.
  *
  * @since 2.0.0 bbPress (r2957)
  */
@@ -46,12 +46,12 @@ function bbp_admin_separator() {
 }
 
 /**
- * Tell WordPress we have a custom menu order
+ * Tell WordPress we have a custom menu order.
  *
  * @since 2.0.0 bbPress (r2957)
  *
- * @param bool $menu_order Menu order
- * @return mixed True if separator, false if not
+ * @param bool $menu_order Menu order.
+ * @return mixed True if separator, false if not.
  */
 function bbp_admin_custom_menu_order( $menu_order = false ) {
 	if ( false === bbp_admin()->show_separator ) {
@@ -62,12 +62,12 @@ function bbp_admin_custom_menu_order( $menu_order = false ) {
 }
 
 /**
- * Move our custom separator above our custom post types
+ * Move our custom separator above our custom post types.
  *
  * @since 2.0.0 bbPress (r2957)
  *
- * @param array $menu_order Menu Order
- * @return array Modified menu order
+ * @param array $menu_order Menu Order.
+ * @return array Modified menu order.
  */
 function bbp_admin_menu_order( $menu_order ) {
 
@@ -156,7 +156,7 @@ function bbp_sanitize_slug( $slug = '' ) {
  *
  * @since 2.1.0 bbPress (r3765)
  *
- * @param int $site_id
+ * @param int $site_id Site id.
  */
 function bbp_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) ) {

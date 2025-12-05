@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Formatting
+ * bbPress Formatting.
  *
  * @package bbPress
  * @subpackage Formatting
@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
 /** Kses **********************************************************************/
 
 /**
- * Custom allowed tags for forum topics and replies
+ * Custom allowed tags for forum topics and replies.
  *
- * Allows all users to post links, quotes, code, formatting, lists, and images
+ * Allows all users to post links, quotes, code, formatting, lists, and images.
  *
  * @since 2.3.0 bbPress (r4603)
  *
- * @return array Associative array of allowed tags and attributes
+ * @return array Associative array of allowed tags and attributes.
  */
 function bbp_kses_allowed_tags() {
 
@@ -79,24 +79,24 @@ function bbp_kses_allowed_tags() {
 }
 
 /**
- * Custom kses filter for forum topics and replies, for filtering incoming data
+ * Custom kses filter for forum topics and replies, for filtering incoming data.
  *
  * @since 2.3.0 bbPress (r4603)
  *
- * @param string $data Content to filter, expected to be escaped with slashes
- * @return string Filtered content
+ * @param string $data Content to filter, expected to be escaped with slashes.
+ * @return string Filtered content.
  */
 function bbp_filter_kses( $data = '' ) {
 	return wp_slash( wp_kses( wp_unslash( $data ), bbp_kses_allowed_tags() ) );
 }
 
 /**
- * Custom kses filter for forum topics and replies, for raw data
+ * Custom kses filter for forum topics and replies, for raw data.
  *
  * @since 2.3.0 bbPress (r4603)
  *
- * @param string $data Content to filter, expected to not be escaped
- * @return string Filtered content
+ * @param string $data Content to filter, expected to not be escaped.
+ * @return string Filtered content.
  */
 function bbp_kses_data( $data = '' ) {
 	return wp_kses( $data, bbp_kses_allowed_tags() );
@@ -105,12 +105,12 @@ function bbp_kses_data( $data = '' ) {
 /** Formatting ****************************************************************/
 
 /**
- * Filter the topic or reply content and output code and pre tags
+ * Filter the topic or reply content and output code and pre tags.
  *
  * @since 2.3.0 bbPress (r4641)
  *
- * @param string $content Topic and reply content
- * @return string Partially encoded content
+ * @param string $content Topic and reply content.
+ * @return string Partially encoded content.
  */
 function bbp_code_trick( $content = '' ) {
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
@@ -126,8 +126,8 @@ function bbp_code_trick( $content = '' ) {
  *
  * @since 2.3.0 bbPress (r4641)
  *
- * @param string $content Topic and reply content
- * @return string Partially encoded content
+ * @param string $content Topic and reply content.
+ * @return string Partially encoded content.
  */
 function bbp_code_trick_reverse( $content = '' ) {
 
@@ -146,12 +146,12 @@ function bbp_code_trick_reverse( $content = '' ) {
 }
 
 /**
- * Filter the content and encode any bad HTML tags
+ * Filter the content and encode any bad HTML tags.
  *
  * @since 2.3.0 bbPress (r4641)
  *
- * @param string $content Topic and reply content
- * @return string Partially encoded content
+ * @param string $content Topic and reply content.
+ * @return string Partially encoded content.
  */
 function bbp_encode_bad( $content = '' ) {
 
@@ -189,7 +189,7 @@ function bbp_encode_bad( $content = '' ) {
 /** Code Callbacks ************************************************************/
 
 /**
- * Callback to encode the tags in topic or reply content
+ * Callback to encode the tags in topic or reply content.
  *
  * @since 2.3.0 bbPress (r4641)
  *
@@ -225,7 +225,7 @@ function bbp_encode_callback( $matches = array() ) {
 }
 
 /**
- * Callback to decode the tags in topic or reply content
+ * Callback to decode the tags in topic or reply content.
  *
  * @since 2.3.0 bbPress (r4641)
  *
@@ -254,7 +254,7 @@ function bbp_decode_callback( $matches = array() ) {
 }
 
 /**
- * Callback to replace empty HTML tags in a content string
+ * Callback to replace empty HTML tags in a content string.
  *
  * @since 2.3.0 bbPress (r4641)
  *
@@ -270,7 +270,7 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
 }
 
 /**
- * Callback to replace normal HTML tags in a content string
+ * Callback to replace normal HTML tags in a content string.
  *
  * @since 2.3.0 bbPress (r4641)
  *
@@ -289,24 +289,24 @@ function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 /** No Follow *****************************************************************/
 
 /**
- * Catches links so rel=nofollow can be added (on output, not save)
+ * Catches links so rel=nofollow can be added (on output, not save).
  *
  * @since 2.3.0 bbPress (r4865)
  *
- * @param string $text Post text
- * @return string $text Text with rel=nofollow added to any links
+ * @param string $text Post text.
+ * @return string $text Text with rel=nofollow added to any links.
  */
 function bbp_rel_nofollow( $text = '' ) {
 	return preg_replace_callback( '|<a (.+?)>|i', 'bbp_rel_nofollow_callback', $text );
 }
 
 /**
- * Adds rel=nofollow to a link
+ * Adds rel=nofollow to a link.
  *
  * @since 2.3.0 bbPress (r4865)
  *
  * @param array $matches
- * @return string $text Link with rel=nofollow added
+ * @return string $text Link with rel=nofollow added.
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
 	$text     = $matches[1];
@@ -407,7 +407,7 @@ function bbp_make_clickable( $text = '' ) {
 }
 
 /**
- * Make URLs clickable in content areas
+ * Make URLs clickable in content areas.
  *
  * @since 2.6.0 bbPress (r6014)
  *
@@ -435,7 +435,7 @@ function bbp_make_urls_clickable( $text = '' ) {
 }
 
 /**
- * Make FTP clickable in content areas
+ * Make FTP clickable in content areas.
  *
  * @since 2.6.0 bbPress (r6014)
  *
@@ -449,7 +449,7 @@ function bbp_make_ftps_clickable( $text = '' ) {
 }
 
 /**
- * Make emails clickable in content areas
+ * Make emails clickable in content areas.
  *
  * @since 2.6.0 bbPress (r6014)
  *
@@ -463,9 +463,9 @@ function bbp_make_emails_clickable( $text = '' ) {
 }
 
 /**
- * Make mentions clickable in content areas
+ * Make mentions clickable in content areas.
  *
- * Allows ' ', '>', '[', and '(' before as '@' username mention
+ * Allows ' ', '>', '[', and '(' before as '@' username mention.
  *
  * @since 2.6.0 bbPress (r6014)
  *
@@ -572,14 +572,14 @@ function bbp_number_not_negative( $number = 0 ) {
 }
 
 /**
- * A bbPress specific method of formatting numeric values
+ * A bbPress specific method of formatting numeric values.
  *
  * @since 2.0.0 bbPress (r2486)
  *
- * @param string $number Number to format
- * @param string $decimals Optional. Display decimals
+ * @param string $number Number to format.
+ * @param string $decimals Optional. Display decimals.
  *
- * @return string Formatted string
+ * @return string Formatted string.
  */
 function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
 
@@ -593,14 +593,14 @@ function bbp_number_format( $number = 0, $decimals = false, $dec_point = '.', $t
 }
 
 /**
- * A bbPress specific method of formatting numeric values
+ * A bbPress specific method of formatting numeric values.
  *
  * @since 2.1.0 bbPress (r3857)
  *
- * @param string $number Number to format
- * @param string $decimals Optional. Display decimals
+ * @param string $number Number to format.
+ * @param string $decimals Optional. Display decimals.
  *
- * @return string Formatted string
+ * @return string Formatted string.
  */
 function bbp_number_format_i18n( $number = 0, $decimals = false ) {
 
@@ -625,7 +625,7 @@ function bbp_number_format_i18n( $number = 0, $decimals = false ) {
  *                             format
  * @param bool $translate Optional. Default is false. Whether to translate the
  *
- * @return string Returns timestamp
+ * @return string Returns timestamp.
  */
 function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 	$new_time = mysql2date( $d, $time, $translate );
@@ -737,7 +737,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
 				// Finding the biggest chunk (if the chunk fits, break)
 				$count = floor( $since / $seconds );
-				if ( 0 !== $count ) {
+				if ( ! empty( $count ) ) {
 					break;
 				}
 			}
@@ -757,7 +757,7 @@ function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
 					// Add to output var
-					if ( 0 !== $count2 ) {
+					if ( ! empty( $count2 ) ) {
 						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
 						$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 					}
@@ -827,7 +827,7 @@ function bbp_format_revision_reason( $reason = '' ) {
  *
  * @since 2.6.14
  *
- * @param string $display_name The author display
+ * @param string $display_name The author display.
  * @return string
  */
 function bbp_format_user_display_name( $display_name = '' ) {

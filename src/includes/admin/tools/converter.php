@@ -1,9 +1,9 @@
 <?php
 
 /**
- * bbPress Converter
+ * bbPress Converter.
  *
- * Based on the hard work of Adam Ellis
+ * Based on the hard work of Adam Ellis.
  *
  * @package bbPress
  * @subpackage Administration
@@ -13,7 +13,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Return an array of available converters
+ * Return an array of available converters.
  *
  * @since 2.6.0 bbPress (r6447)
  *

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Actions
+ * bbPress Admin Actions.
  *
  * This file contains the actions that are used through-out bbPress Admin. They
  * are consolidated here to make searching for them easier, and to help developers
@@ -118,7 +118,7 @@ add_action( 'wp_ajax_bbp_converter_process', 'bbp_setup_converter', 2 );
 add_action( 'user_new_form', 'bbp_add_user_form_role_field', 10, 1 );
 
 /**
- * Setup bbPress admin
+ * Setup bbPress admin.
  *
  * @since 2.0.0 bbPress (r1000)
  * @since 2.6.0 bbPress (r6598) Moved to actions.php
@@ -129,7 +129,7 @@ function bbp_admin() {
 
 /**
  * When a new site is created in a multisite installation, run the activation
- * routine on that site
+ * routine on that site.
  *
  * @since 2.0.0 bbPress (r3283)
  *
@@ -158,13 +158,13 @@ function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 }
 
 /**
- * Show icons in list-table column headers instead of strings
+ * Show icons in list-table column headers instead of strings.
  *
  * @since 2.6.0 bbPress (r5833)
  *
- * @param  array $columns Column headers fed into list-table objects
+ * @param  array $columns Column headers fed into list-table objects.
  *
- * @return array Possibly altered column headers
+ * @return array Possibly altered column headers.
  */
 function bbp_filter_column_headers( $columns = array() ) {
 
@@ -217,12 +217,12 @@ function bbp_filter_column_headers( $columns = array() ) {
  *
  * @since 2.0.0 bbPress (r3336)
  *
- * @param string $post_link Custom post type permalink
- * @param object $_post Post data object
+ * @param string $post_link Custom post type permalink.
+ * @param object $_post Post data object.
  * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
  * @param bool $sample Optional, defaults to false. Is it a sample permalink.
  *
- * @return string The custom post type permalink
+ * @return string The custom post type permalink.
  */
 function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
@@ -238,7 +238,7 @@ function bbp_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
 /** Sub-Actions ***************************************************************/
 
 /**
- * Piggy back admin_init action
+ * Piggy back admin_init action.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -247,7 +247,7 @@ function bbp_admin_init() {
 }
 
 /**
- * Piggy back admin_menu action
+ * Piggy back admin_menu action.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -256,7 +256,7 @@ function bbp_admin_menu() {
 }
 
 /**
- * Piggy back admin_head action
+ * Piggy back admin_head action.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -265,7 +265,7 @@ function bbp_admin_head() {
 }
 
 /**
- * Piggy back admin_notices action
+ * Piggy back admin_notices action.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -274,7 +274,7 @@ function bbp_admin_notices() {
 }
 
 /**
- * Dedicated action to register bbPress importers
+ * Dedicated action to register bbPress importers.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -283,14 +283,14 @@ function bbp_register_importers() {
 }
 
 /**
- * Dedicated action to register admin styles
+ * Dedicated action to register admin styles.
  *
  * @since 2.6.0 bbPress (r6912)
  */
 function bbp_register_admin_styles() {
 
 	/**
-	 * Action used to register the admin styling
+	 * Action used to register the admin styling.
 	 *
 	 * @since 2.1.0
 	 * @deprecated 2.6.0
@@ -298,7 +298,7 @@ function bbp_register_admin_styles() {
 	do_action( 'bbp_register_admin_style' );
 
 	/**
-	 * Action used to register all admin styling
+	 * Action used to register all admin styling.
 	 *
 	 * @since 2.6.0
 	 */
@@ -306,7 +306,7 @@ function bbp_register_admin_styles() {
 }
 
 /**
- * Dedicated action to register admin scripts
+ * Dedicated action to register admin scripts.
  *
  * @since 2.6.0 bbPress (r6912)
  */
@@ -315,7 +315,7 @@ function bbp_register_admin_scripts() {
 }
 
 /**
- * Dedicated action to register admin settings
+ * Dedicated action to register admin settings.
  *
  * @since 2.1.0 bbPress (r3766)
  */
@@ -324,7 +324,7 @@ function bbp_register_admin_settings() {
 }
 
 /**
- * Dedicated action to output admin tools.php sections
+ * Dedicated action to output admin tools.php sections.
  *
  * @since 2.6.0 bbPress (r6273)
  */
@@ -333,7 +333,7 @@ function bbp_admin_tool_box() {
 }
 
 /**
- * Dedicated action to hook into the current screen
+ * Dedicated action to hook into the current screen.
  *
  * @since 2.6.0 bbPress (r6185)
  *

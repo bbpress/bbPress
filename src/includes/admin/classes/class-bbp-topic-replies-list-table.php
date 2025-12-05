@@ -18,7 +18,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 
 if ( class_exists( 'WP_List_Table' ) ) :
 /**
- * Topic replies list table
+ * Topic replies list table.
  *
  * This list table is responsible for showing the replies to a topic in a
  * meta-box, similar to comments in posts and pages.
@@ -28,7 +28,7 @@ if ( class_exists( 'WP_List_Table' ) ) :
 class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 	/**
-	 * The main constructor method
+	 * The main constructor method.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -50,7 +50,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Setup the list-table columns
+	 * Setup the list-table columns.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
@@ -68,11 +68,11 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Allow `bbp_reply_created` to be sortable
+	 * Allow `bbp_reply_created` to be sortable.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @return array An associative array containing the `bbp_reply_created` column
+	 * @return array An associative array containing the `bbp_reply_created` column.
 	 */
 	public function get_sortable_columns() {
 		return array(
@@ -81,11 +81,11 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Setup the bulk actions
+	 * Setup the bulk actions.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 *
-	 * @return array An associative array containing all the bulk actions
+	 * @return array An associative array containing all the bulk actions.
 	 */
 	public function get_bulk_actions() {
 
@@ -104,7 +104,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the check-box column for bulk actions (if we implement them)
+	 * Output the check-box column for bulk actions (if we implement them).
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -117,7 +117,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the contents of the `bbp_topic_reply_author` column
+	 * Output the contents of the `bbp_topic_reply_author` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -131,7 +131,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the contents of the `bbp_reply_created` column
+	 * Output the contents of the `bbp_reply_created` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -143,7 +143,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output the contents of the `bbp_reply_content` column
+	 * Output the contents of the `bbp_reply_content` column.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -169,7 +169,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Handle bulk action requests
+	 * Handle bulk action requests.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -185,7 +185,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Prepare the list-table items for display
+	 * Prepare the list-table items for display.
 	 *
 	 * @since 2.6.0 bbPress (r5886)
 	 */
@@ -255,7 +255,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Message to be displayed when there are no items
+	 * Message to be displayed when there are no items.
 	 *
 	 * @since 2.6.0 bbPress (r5930)
 	 */
@@ -264,7 +264,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Display the list table
+	 * Display the list table.
 	 *
 	 * This custom method is necessary because the one in `WP_List_Table` comes
 	 * with a nonce and check that we do not need.
@@ -301,7 +301,7 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Generate the table navigation above or below the table
+	 * Generate the table navigation above or below the table.
 	 *
 	 * This custom method is necessary because the one in `WP_List_Table` comes
 	 * with a nonce and check that we do not need.
@@ -325,12 +325,12 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Generates content for a single row of the table
+	 * Generates content for a single row of the table.
 	 *
 	 * @since 2.6.0
 	 * @access public
 	 *
-	 * @param object $item The current item
+	 * @param object $item The current item.
 	 */
 	public function single_row( $item ) {
 

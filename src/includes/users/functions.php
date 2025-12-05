@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress User Functions
+ * bbPress User Functions.
  *
  * @package bbPress
  * @subpackage Functions
@@ -11,13 +11,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Redirect back to $url when attempting to use the login page
+ * Redirect back to $url when attempting to use the login page.
  *
  * @since 2.0.0 bbPress (r2815)
  *
- * @param string $url The url
- * @param string $raw_url Raw url
- * @param object $user User object
+ * @param string $url The url.
+ * @param string $raw_url Raw url.
+ * @param object $user User object.
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
 
@@ -44,7 +44,7 @@ function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
  * @since 2.0.0 bbPress (r2688)
  *
  * @return bool True if anonymous is allowed and user is not logged in, false if
- *               anonymous is not allowed or user is logged in
+ *               anonymous is not allowed or user is logged in.
  */
 function bbp_is_anonymous() {
 	$is_anonymous = ( ! is_user_logged_in() && bbp_allow_anonymous() );
@@ -54,7 +54,7 @@ function bbp_is_anonymous() {
 }
 
 /**
- * Echoes the values for current poster (uses WP comment cookies)
+ * Echoes the values for current poster (uses WP comment cookies).
  *
  * @since 2.0.0 bbPress (r2734)
  *
@@ -64,52 +64,52 @@ function bbp_current_anonymous_user_data( $key = '' ) {
 	echo esc_attr( bbp_get_current_anonymous_user_data( $key ) );
 }
 
-	/**
-	 * Get the cookies for current poster (uses WP comment cookies).
-	 *
-	 * @since 2.0.0 bbPress (r2734)
-	 *
-	 * @param string $key Optional. Which value to get? If not given, then
-	 *                     an array is returned.
-	 * @return string|array Cookie(s) for current poster
-	 */
-	function bbp_get_current_anonymous_user_data( $key = '' ) {
+/**
+ * Get the cookies for current poster (uses WP comment cookies).
+ *
+ * @since 2.0.0 bbPress (r2734)
+ *
+ * @param string $key Optional. Which value to get? If not given, then
+ *                     an array is returned.
+ * @return string|array Cookie(s) for current poster.
+ */
+function bbp_get_current_anonymous_user_data( $key = '' ) {
 
-		// Array of allowed cookie names
-		$cookie_names = array(
-			'name'  => 'comment_author',
-			'email' => 'comment_author_email',
-			'url'   => 'comment_author_url',
+	// Array of allowed cookie names
+	$cookie_names = array(
+		'name'  => 'comment_author',
+		'email' => 'comment_author_email',
+		'url'   => 'comment_author_url',
 
-			// Here just for the sake of them, use the above ones
-			'comment_author'       => 'comment_author',
-			'comment_author_email' => 'comment_author_email',
-			'comment_author_url'   => 'comment_author_url',
-		);
+		// Here just for the sake of them, use the above ones
+		'comment_author'       => 'comment_author',
+		'comment_author_email' => 'comment_author_email',
+		'comment_author_url'   => 'comment_author_url',
+	);
 
-		// Get the current poster's info from the cookies
-		$bbp_current_poster = wp_get_current_commenter();
+	// Get the current poster's info from the cookies
+	$bbp_current_poster = wp_get_current_commenter();
 
-		// Sanitize the cookie key being retrieved
-		$key = sanitize_key( $key );
+	// Sanitize the cookie key being retrieved
+	$key = sanitize_key( $key );
 
-		// Maybe return a specific key
-		if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ), true ) ) {
-			return $bbp_current_poster[ $cookie_names[ $key ] ];
-		}
-
-		// Return all keys
-		return $bbp_current_poster;
+	// Maybe return a specific key
+	if ( ! empty( $key ) && in_array( $key, array_keys( $cookie_names ), true ) ) {
+		return $bbp_current_poster[ $cookie_names[ $key ] ];
 	}
 
+	// Return all keys
+	return $bbp_current_poster;
+}
+
 /**
- * Set the cookies for current poster (uses WP comment cookies)
+ * Set the cookies for current poster (uses WP comment cookies).
  *
  * @since 2.0.0 bbPress (r2734)
  *
  * @param array $anonymous_data Optional - if it's an anonymous post. Do not
  *                              supply if supplying $author_id. Should be
- *                              sanitized (see {@link bbp_filter_anonymous_post_data()}
+ *                              sanitized (see {@link bbp_filter_anonymous_post_data()}.
  */
 function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 
@@ -130,7 +130,7 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 }
 
 /**
- * Get the poster IP address
+ * Get the poster IP address.
  *
  * @since 2.0.0 bbPress (r3120)
  * @since 2.6.0 bbPress (r5609) Added `empty()` check for unit tests
@@ -152,7 +152,7 @@ function bbp_current_author_ip() {
 }
 
 /**
- * Get the poster user agent
+ * Get the poster user agent.
  *
  * @since 2.0.0 bbPress (r3446)
  *
@@ -170,11 +170,11 @@ function bbp_current_author_ua() {
 /** Edit **********************************************************************/
 
 /**
- * Handles the front end user editing from POST requests
+ * Handles the front end user editing from POST requests.
  *
  * @since 2.0.0 bbPress (r2790)
  *
- * @param string $action The requested action to compare this function to
+ * @param string $action The requested action to compare this function to.
  */
 function bbp_edit_user_handler( $action = '' ) {
 
@@ -287,7 +287,7 @@ function bbp_edit_user_handler( $action = '' ) {
 }
 
 /**
- * Handles user email address updating from GET requests
+ * Handles user email address updating from GET requests.
  *
  * @since 2.6.0 bbPress (r5660)
  *
@@ -387,7 +387,7 @@ function bbp_user_email_change_handler( $action = '' ) {
 }
 
 /**
- * Sends an email when an email address change occurs on POST requests
+ * Sends an email when an email address change occurs on POST requests.
  *
  * @since 2.6.0 bbPress (r5660)
  *
@@ -469,7 +469,7 @@ The %4$s Team
 
 /**
  * Conditionally hook the core WordPress output actions to the end of the
- * default user's edit profile template
+ * default user's edit profile template.
  *
  * This allows clever plugin authors to conditionally unhook the WordPress core
  * output actions if they don't want any unexpected junk to appear there, and
@@ -486,14 +486,14 @@ function bbp_user_edit_after() {
 /** User Queries **************************************************************/
 
 /**
- * Get the topics that a user created
+ * Get the topics that a user created.
  *
  * @since 2.0.0 bbPress (r2660)
  * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param array $args    Optional. Arguments to pass into bbp_has_topics()
+ * @param array $args    Optional. Arguments to pass into bbp_has_topics().
  *
- * @return bool True if user has started topics, otherwise false
+ * @return bool True if user has started topics, otherwise false.
  */
 function bbp_get_user_topics_started( $args = array() ) {
 
@@ -521,14 +521,14 @@ function bbp_get_user_topics_started( $args = array() ) {
 }
 
 /**
- * Get the replies that a user created
+ * Get the replies that a user created.
  *
  * @since 2.2.0 bbPress (r4225)
  * @since 2.6.0 bbPress (r6618) Signature changed to accept an array of arguments
  *
- * @param array $args Optional. Arguments to pass into bbp_has_replies()
+ * @param array $args Optional. Arguments to pass into bbp_has_replies().
  *
- * @return bool True if user has created replies, otherwise false
+ * @return bool True if user has created replies, otherwise false.
  */
 function bbp_get_user_replies_created( $args = array() ) {
 
@@ -560,9 +560,9 @@ function bbp_get_user_replies_created( $args = array() ) {
 }
 
 /**
- * Get user IDs from nicenames
+ * Get user IDs from nicenames.
  *
- * This function is primarily used when saving object moderators
+ * This function is primarily used when saving object moderators.
  *
  * @since 2.6.0 bbPress
  *
@@ -603,13 +603,13 @@ function bbp_get_user_ids_from_nicenames( $user_nicenames = array() ) {
 }
 
 /**
- * Get user nicenames from IDs
+ * Get user nicenames from IDs.
  *
- * This function is primarily used when saving object moderators
+ * This function is primarily used when saving object moderators.
  *
  * @since 2.6.0 bbPress
  *
- * @param mixed $user_ids
+ * @param mixed $user_ids User ids.
  * @return array
  */
 function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
@@ -640,13 +640,13 @@ function bbp_get_user_nicenames_from_ids( $user_ids = array() ) {
 /** Post Counts ***************************************************************/
 
 /**
- * Return the raw database count of topics by a user
+ * Return the raw database count of topics by a user.
  *
  * @since 2.1.0 bbPress (r3633)
  *
- * @param int $user_id User ID to get count for
+ * @param int $user_id User ID to get count for.
  *
- * @return int Raw DB count of topics
+ * @return int Raw DB count of topics.
  */
 function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id );
@@ -666,13 +666,13 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 }
 
 /**
- * Return the raw database count of replies by a user
+ * Return the raw database count of replies by a user.
  *
  * @since 2.1.0 bbPress (r3633)
  *
- * @param int $user_id User ID to get count for
+ * @param int $user_id User ID to get count for.
  *
- * @return int Raw DB count of replies
+ * @return int Raw DB count of replies.
  */
 function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 	$user_id = bbp_get_user_id( $user_id );
@@ -696,8 +696,8 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param int $user_id
- * @param int $difference
+ * @param int $user_id    User id.
+ * @param int $difference Optional. Default 1. Number to bump.
  */
 function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 
@@ -732,8 +732,8 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param int $user_id
- * @param int $difference
+ * @param int $user_id    User id.
+ * @param int $difference Optional. Default 1. Number to bump.
  */
 function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 
@@ -784,7 +784,7 @@ function bbp_increase_user_topic_count( $topic_id = 0 ) {
  * Helper function used to increase (by one) the count of replies for a user when
  * a reply is published.
  *
- * This is a helper function, hooked to `bbp_new_reply`
+ * This is a helper function, hooked to `bbp_new_reply`.
  *
  * @since 2.6.0 bbPress (r5309)
  *
@@ -827,7 +827,7 @@ function bbp_decrease_user_reply_count( $reply_id = 0 ) {
 /** Permissions ***************************************************************/
 
 /**
- * Redirect if unauthorized user is attempting to edit another user
+ * Redirect if unauthorized user is attempting to edit another user.
  *
  * This is hooked to 'bbp_template_redirect' and controls the conditions under
  * which a user can edit another user (or themselves.) If these conditions are

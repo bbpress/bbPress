@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress BuddyPress Component Class
+ * bbPress BuddyPress Component Class.
  *
  * bbPress and BuddyPress are designed to connect together seamlessly and
  * invisibly, and this is the hunk of code necessary to make that happen.
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Forums_Component' ) ) :
 /**
- * Loads Forums Component
+ * Loads Forums Component.
  *
  * @since 2.1.0 bbPress (r3552)
  *
@@ -32,7 +32,7 @@ if ( ! class_exists( 'BBP_Forums_Component' ) ) :
 class BBP_Forums_Component extends BP_Component {
 
 	/**
-	 * BuddyPress Members component shim
+	 * BuddyPress Members component shim.
 	 *
 	 * @since 2.0.0
 	 *
@@ -41,7 +41,7 @@ class BBP_Forums_Component extends BP_Component {
 	public $members;
 
 	/**
-	 * BuddyPress Activity component shim
+	 * BuddyPress Activity component shim.
 	 *
 	 * @since 2.0.0
 	 *
@@ -50,7 +50,7 @@ class BBP_Forums_Component extends BP_Component {
 	public $activity;
 
 	/**
-	 * Start the forums component creation process
+	 * Start the forums component creation process.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */
@@ -67,7 +67,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Include BuddyPress classes and functions
+	 * Include BuddyPress classes and functions.
 	 */
 	public function includes( $includes = array() ) {
 
@@ -110,7 +110,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Setup globals
+	 * Setup globals.
 	 *
 	 * The BP_FORUMS_SLUG constant is deprecated, and only used here for
 	 * backwards compatibility.
@@ -143,7 +143,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Setup the actions
+	 * Setup the actions.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 *
@@ -159,7 +159,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Instantiate classes for BuddyPress integration
+	 * Instantiate classes for BuddyPress integration.
 	 *
 	 * @since 2.0.0 bbPress (r3395)
 	 */
@@ -190,7 +190,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Setup BuddyBar navigation
+	 * Setup BuddyBar navigation.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */
@@ -291,7 +291,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Set up the admin bar
+	 * Set up the admin bar.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */
@@ -383,7 +383,7 @@ class BBP_Forums_Component extends BP_Component {
 	}
 
 	/**
-	 * Sets up the title for pages and <title>
+	 * Sets up the title for pages and <title>.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */

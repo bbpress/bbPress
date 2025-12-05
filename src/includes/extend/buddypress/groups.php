@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress BuddyPress Group Extension Class
+ * bbPress BuddyPress Group Extension Class.
  *
  * This file is responsible for connecting bbPress to the BuddyPress Groups
  * Component. It's a great example of how to perform both simple and advanced
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Forums_Group_Extension' ) && class_exists( 'BP_Group_Extension' ) ) :
 /**
- * Loads Group Extension for Forums Component
+ * Loads Group Extension for Forums Component.
  *
  * @since 2.1.0 bbPress (r3552)
  *
@@ -28,7 +28,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Setup bbPress group extension variables
+	 * Setup bbPress group extension variables.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */
@@ -41,7 +41,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Setup the group forums class variables
+	 * Setup the group forums class variables.
 	 *
 	 * @since 2.1.0 bbPress (r3552)
 	 */
@@ -74,7 +74,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Setup the group forums class actions
+	 * Setup the group forums class actions.
 	 *
 	 * @since 2.3.0 bbPress (r4552)
 	 */
@@ -107,7 +107,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Setup the group forums class filters
+	 * Setup the group forums class filters.
 	 *
 	 * @since 2.3.0 bbPress (r4552)
 	 */
@@ -209,7 +209,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * The primary display function for group forums
+	 * The primary display function for group forums.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 *
@@ -234,11 +234,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Maybe unset the group forum nav item if group does not have a forum
+	 * Maybe unset the group forum nav item if group does not have a forum.
 	 *
 	 * @since 2.3.0 bbPress (r4552)
 	 *
-	 * @return If not viewing a single group
+	 * @return If not viewing a single group.
 	 */
 	public function maybe_unset_forum_menu() {
 
@@ -338,7 +338,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14
 	 *
-	 * @param int $topic_id
+	 * @param int $topic_id Topic id.
 	 */
 	public function validate_topic_forum_id( $topic_id = 0 ) {
 
@@ -399,7 +399,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14
 	 *
-	 * @param int $reply_id
+	 * @param int $reply_id Reply id.
 	 */
 	public function validate_reply_to_id( $reply_id = 0 ) {
 
@@ -455,7 +455,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Edit ******************************************************************/
 
 	/**
-	 * Show forums and new forum form when editing a group
+	 * Show forums and new forum form when editing a group.
 	 *
 	 * @since 2.1.0 bbPress (r3563)
 	 *
@@ -521,11 +521,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Save the Group Forum data on edit
+	 * Save the Group Forum data on edit.
 	 *
 	 * @since 2.0.0 bbPress (r3465)
 	 *
-	 * @param int $group_id (to handle Group Admin UI hook bp_group_admin_edit_after )
+	 * @param int $group_id (to handle Group Admin UI hook bp_group_admin_edit_after).
 	 */
 	public function edit_screen_save( $group_id = 0 ) {
 
@@ -632,7 +632,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Adds a meta-box to BuddyPress Group Admin UI
+	 * Adds a meta-box to BuddyPress Group Admin UI.
 	 *
 	 * @since 2.3.0 bbPress (r4814)
 	 */
@@ -648,11 +648,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Displays the bbPress meta-box in BuddyPress Group Admin UI
+	 * Displays the bbPress meta-box in BuddyPress Group Admin UI.
 	 *
 	 * @since 2.3.0 bbPress (r4814)
 	 *
-	 * @param object $item (group object)
+	 * @param object $item (group object).
 	 */
 	public function group_admin_ui_display_metabox( $item ) {
 		$this->edit_screen( $item );
@@ -661,7 +661,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Create ****************************************************************/
 
 	/**
-	 * Show forums and new forum form when creating a group
+	 * Show forums and new forum form when creating a group.
 	 *
 	 * @since 2.0.0 bbPress (r3465)
 	 */
@@ -691,7 +691,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Save the Group Forum data on create
+	 * Save the Group Forum data on create.
 	 *
 	 * @since 2.0.0 bbPress (r3465)
 	 */
@@ -780,7 +780,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Used to start an output buffer
+	 * Used to start an output buffer.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 */
@@ -789,7 +789,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Used to end an output buffer
+	 * Used to end an output buffer.
 	 *
 	 * @since 2.1.0 bbPress (r3746)
 	 */
@@ -798,13 +798,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Creating a group forum or category (including root for group)
+	 * Creating a group forum or category (including root for group).
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 *
 	 * @param array $forum_args
 	 *
-	 * @return void if no forum_id is available
+	 * @return void if no forum_id is available.
 	 */
 	public function new_forum( $forum_args = array() ) {
 
@@ -824,13 +824,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Removing a group forum or category (including root for group)
+	 * Removing a group forum or category (including root for group).
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 *
 	 * @param array $forum_args
 	 *
-	 * @return void if no forum_id is available
+	 * @return void if no forum_id is available.
 	 */
 	public function remove_forum( $forum_args = array() ) {
 
@@ -850,11 +850,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Listening to BuddyPress Group deletion to remove the forum
+	 * Listening to BuddyPress Group deletion to remove the forum.
 	 *
 	 * @since 2.3.0 bbPress (r4815)
 	 *
-	 * @param int $group_id The group ID
+	 * @param int $group_id The group ID.
 	 */
 	public function disconnect_forum_from_group( $group_id = 0 ) {
 
@@ -887,7 +887,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/**
 	 * Update forum attributes to match those of the associated group.
 	 *
-	 * Fired whenever a group is saved
+	 * Fired whenever a group is saved.
 	 *
 	 * @since 2.6.7 bbPress (r7208)
 	 *
@@ -967,13 +967,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Toggle the enable_forum group setting on or off
+	 * Toggle the enable_forum group setting on or off.
 	 *
 	 * @since 2.3.0 bbPress (r4612)
 	 *
-	 * @param int $group_id The group to toggle
-	 * @param bool $enabled True for on, false for off
-	 * @return False if group is not found, otherwise return the group
+	 * @param int $group_id The group to toggle.
+	 * @param bool $enabled True for on, false for off.
+	 * @return False if group is not found, otherwise return the group.
 	 */
 	public function toggle_group_forum( $group_id = 0, $enabled = false ) {
 
@@ -1006,7 +1006,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Display Methods *******************************************************/
 
 	/**
-	 * Output the forums for a group in the edit screens
+	 * Output the forums for a group in the edit screens.
 	 *
 	 * As of right now, bbPress only supports 1-to-1 group forum relationships.
 	 * In the future, many-to-many should be allowed.
@@ -1240,12 +1240,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Super sticky filters ***************************************************/
 
 	/**
-	 * Strip super stickies from the topic query
+	 * Strip super stickies from the topic query.
 	 *
 	 * @since 2.3.0 bbPress (r4810)
 	 *
 	 * @access private
-	 * @param array $super the super sticky post ID's
+	 * @param array $super the super sticky post ID's.
 	 * @return array (empty)
 	 */
 	public function no_super_stickies( $super = array() ) {
@@ -1254,13 +1254,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Unset the type super sticky from topic type
+	 * Unset the type super sticky from topic type.
 	 *
 	 * @since 2.3.0 bbPress (r4810)
 	 *
 	 * @access private
 	 * @param array $args
-	 * @return array $args without the to-front link
+	 * @return array $args without the to-front link.
 	 */
 	public function unset_super_sticky( $args = array() ) {
 		if ( isset( $args['super'] ) ) {
@@ -1270,14 +1270,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Ugly preg_replace to hide the to front admin link
+	 * Ugly preg_replace to hide the to front admin link.
 	 *
 	 * @since 2.3.0 bbPress (r4810)
 	 *
 	 * @access private
 	 * @param string $retval
 	 * @param array $args
-	 * @return string $retval without the to-front link
+	 * @return string $retval without the to-front link.
 	 */
 	public function hide_super_sticky_admin_link( $retval = '', $args = array() ) {
 		if ( strpos( $retval, '(' ) ) {
@@ -1290,7 +1290,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	/** Redirect Helpers ******************************************************/
 
 	/**
-	 * Redirect to the group forum screen
+	 * Redirect to the group forum screen.
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 *
@@ -1308,7 +1308,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Redirect to the group forum screen
+	 * Redirect to the group forum screen.
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 */
@@ -1341,7 +1341,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Redirect to the group admin forum edit screen
+	 * Redirect to the group admin forum edit screen.
 	 *
 	 * @since 2.1.0 bbPress (r3653)
 	 */
@@ -1528,12 +1528,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Maybe map a bbPress forum/topic/reply permalink to the corresponding group
+	 * Maybe map a bbPress forum/topic/reply permalink to the corresponding group.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
 	 * @param int $post_id
-	 * @return Bail early if not a group forum post
+	 * @return Bail early if not a group forum post.
 	 * @return string
 	 */
 	private function maybe_map_permalink_to_group( $post_id = 0, $url = false ) {
@@ -1584,7 +1584,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a forum permalink to its corresponding group
+	 * Map a forum permalink to its corresponding group.
 	 *
 	 * @since 2.1.0 bbPress (r3802)
 	 *
@@ -1597,7 +1597,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a topic permalink to its group forum
+	 * Map a topic permalink to its group forum.
 	 *
 	 * @since 2.1.0 bbPress (r3802)
 	 *
@@ -1610,7 +1610,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a reply permalink to its group forum
+	 * Map a reply permalink to its group forum.
 	 *
 	 * @since 2.1.0 bbPress (r3802)
 	 *
@@ -1623,7 +1623,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a reply edit link to its group forum
+	 * Map a reply edit link to its group forum.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1642,7 +1642,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a post link to its group forum
+	 * Map a post link to its group forum.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1656,7 +1656,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a page link to its group forum
+	 * Map a page link to its group forum.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1670,7 +1670,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Map a custom post type link to its group forum
+	 * Map a custom post type link to its group forum.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1685,7 +1685,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Fix pagination of topics on forum view
+	 * Fix pagination of topics on forum view.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1705,7 +1705,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	/**
-	 * Fix pagination of replies on topic view
+	 * Fix pagination of replies on topic view.
 	 *
 	 * @since 2.2.0 bbPress (r4266)
 	 *
@@ -1731,9 +1731,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since 2.6.14
 	 *
-	 * @param  object $query  Verified query object
-	 * @param  string $type   Type of variable to compare to
-	 * @return mixed  Verified object if valid, Default or null if invalid
+	 * @param  object $query  Verified query object.
+	 * @param  string $type   Type of variable to compare to.
+	 * @return mixed  Verified object if valid, Default or null if invalid.
 	 */
 	public function rewrite_pagination( $query, $type = '' ) {
 

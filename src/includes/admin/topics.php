@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Topics Admin Class
+ * bbPress Topics Admin Class.
  *
  * @package bbPress
  * @subpackage Administration
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Topics_Admin' ) ) :
 /**
- * Loads bbPress topics admin area
+ * Loads bbPress topics admin area.
  *
  * @package bbPress
  * @subpackage Administration
@@ -23,14 +23,14 @@ class BBP_Topics_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var The post type of this admin component
+	 * @var The post type of this admin component.
 	 */
 	private $post_type = '';
 
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress topics admin loader
+	 * The main bbPress topics admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -40,7 +40,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
@@ -94,7 +94,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Admin globals.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -107,7 +107,7 @@ class BBP_Topics_Admin {
 	/** Contextual Help *******************************************************/
 
 	/**
-	 * Contextual help for bbPress topic edit page
+	 * Contextual help for bbPress topic edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -179,7 +179,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Contextual help for bbPress topic edit page
+	 * Contextual help for bbPress topic edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -355,7 +355,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the topic attributes meta-box
+	 * Add the topic attributes meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r2744)
 	 */
@@ -371,7 +371,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the author info meta-box
+	 * Add the author info meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r2828)
 	 */
@@ -394,7 +394,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the replies meta-box
+	 * Add the replies meta-box.
 	 *
 	 * Allows viewing & moderating of replies to a topic, based on the way
 	 * comments are visible on a blog post.
@@ -420,7 +420,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the engagements meta-box
+	 * Add the engagements meta-box.
 	 *
 	 * Allows viewing of users who have engaged in a topic.
 	 *
@@ -450,7 +450,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the favorites meta-box
+	 * Add the favorites meta-box.
 	 *
 	 * Allows viewing of users who have favorited a topic.
 	 *
@@ -480,7 +480,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add the subscriptions meta-box
+	 * Add the subscriptions meta-box.
 	 *
 	 * Allows viewing of users who have subscribed to a topic.
 	 *
@@ -510,7 +510,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Remove comments & discussion meta-boxes if comments are not supported
+	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
 	 */
@@ -522,12 +522,12 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Pass the topic attributes for processing
+	 * Pass the topic attributes for processing.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 *
-	 * @param int $topic_id Topic id
-	 * @return int Parent id
+	 * @param int $topic_id Topic id.
+	 * @return int Parent id.
 	 */
 	public function save_meta_boxes( $topic_id ) {
 
@@ -575,10 +575,10 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Toggle topic
+	 * Toggle topic.
 	 *
 	 * Handles the admin-side opening/closing, sticking/unsticking and
-	 * spamming/unspamming of topics
+	 * spamming/unspamming of topics.
 	 *
 	 * @since 2.0.0 bbPress (r2727)
 	 */
@@ -694,7 +694,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Toggle topic notices
+	 * Toggle topic notices.
 	 *
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_topic()}
@@ -816,7 +816,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Returns an array of keys used to sort row actions
+	 * Returns an array of keys used to sort row actions.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 *
@@ -844,7 +844,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -870,7 +870,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -891,13 +891,13 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Manage the column headers for the topics page
+	 * Manage the column headers for the topics page.
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param array $columns The columns
+	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress topic columns
+	 * @return array $columns bbPress topic columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -916,12 +916,12 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Print extra columns for the topics page
+	 * Print extra columns for the topics page.
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param string $column Column
-	 * @param int $topic_id Topic id
+	 * @param string $column Column.
+	 * @param int $topic_id Topic id.
 	 */
 	public function column_data( $column, $topic_id ) {
 
@@ -996,17 +996,17 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Topic Row actions
+	 * Topic Row actions.
 	 *
 	 * Remove the quick-edit action link under the topic title and add the
-	 * content and close/stick/spam links
+	 * content and close/stick/spam links.
 	 *
 	 * @since 2.0.0 bbPress (r2485)
 	 *
-	 * @param array  $actions Actions
-	 * @param object $topic   Topic object
+	 * @param array  $actions Actions.
+	 * @param object $topic   Topic object.
 	 *
-	 * @return array $actions Actions
+	 * @return array $actions Actions.
 	 */
 	public function row_actions( $actions = array(), $topic = false ) {
 
@@ -1121,7 +1121,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Sort row actions by key
+	 * Sort row actions by key.
 	 *
 	 * @since 2.6.0
 	 *
@@ -1150,11 +1150,11 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add forum dropdown to topic and reply list table filters
+	 * Add forum dropdown to topic and reply list table filters.
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @return bool False. If post type is not topic or reply
+	 * @return bool False. If post type is not topic or reply.
 	 */
 	public function filter_dropdown() {
 
@@ -1173,7 +1173,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Add "Empty Spam" button for moderators
+	 * Add "Empty Spam" button for moderators.
 	 *
 	 * @since 2.6.0 bbPress (r6791)
 	 */
@@ -1209,12 +1209,12 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Adjust the request query and include the forum id
+	 * Adjust the request query and include the forum id.
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @return array Processed Query Vars
+	 * @param array $query_vars Query variables from {@link WP_Query}.
+	 * @return array Processed Query Vars.
 	 */
 	public function filter_post_rows( $query_vars ) {
 
@@ -1230,7 +1230,7 @@ class BBP_Topics_Admin {
 	}
 
 	/**
-	 * Custom user feedback messages for topic post type
+	 * Custom user feedback messages for topic post type.
 	 *
 	 * @since 2.0.0 bbPress (r3080)
 	 *
@@ -1323,14 +1323,14 @@ class BBP_Topics_Admin {
 endif; // class_exists check
 
 /**
- * Setup bbPress Topics Admin
+ * Setup bbPress Topics Admin.
  *
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
  * @since 2.0.0 bbPress (r2596)
  *
- * @param WP_Screen $current_screen Current screen object
+ * @param WP_Screen $current_screen Current screen object.
  */
 function bbp_admin_topics( $current_screen ) {
 

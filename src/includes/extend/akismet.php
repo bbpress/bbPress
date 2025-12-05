@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Main bbPress Akismet Class
+ * Main bbPress Akismet Class.
  *
  * @package bbPress
  * @subpackage Akismet
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Akismet' ) ) :
 /**
- * Loads Akismet extension
+ * Loads Akismet extension.
  *
  * @since 2.0.0 bbPress (r3277)
  *
@@ -31,7 +31,7 @@ class BBP_Akismet {
 	protected $last_post = array();
 
 	/**
-	 * The main bbPress Akismet loader
+	 * The main bbPress Akismet loader.
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 */
@@ -40,7 +40,7 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Setup the admin hooks
+	 * Setup the admin hooks.
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 *
@@ -89,13 +89,13 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Converts topic/reply data into Akismet comment checking format
+	 * Converts topic/reply data into Akismet comment checking format.
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param array $post_data
 	 *
-	 * @return array Array of post data
+	 * @return array Array of post data.
 	 */
 	public function check_post( $post_data = array() ) {
 
@@ -271,18 +271,18 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Submit a post for spamming or hamming
+	 * Submit a post for spamming or hamming.
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 *
-	 * @param int $post_id
+	 * @param int $post_id Post id.
 	 *
 	 * @global string $akismet_api_host
 	 * @global string $akismet_api_port
 	 * @global object $current_user
 	 * @global object $current_site
 	 *
-	 * @return array Array of existing topic terms
+	 * @return array Array of existing topic terms.
 	 */
 	public function submit_post( $post_id = 0 ) {
 		global $current_user, $current_site;
@@ -437,18 +437,18 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Ping Akismet service and check for spam/ham response
+	 * Ping Akismet service and check for spam/ham response.
 	 *
 	 * @since 2.0.0 bbPress (r3277)
 	 *
 	 * @param array $post_data
-	 * @param string $check Accepts check|submit
-	 * @param string $spam Accepts spam|ham
+	 * @param string $check Accepts check|submit.
+	 * @param string $spam Accepts spam|ham.
 	 *
 	 * @global string $akismet_api_host
 	 * @global string $akismet_api_port
 	 *
-	 * @return array Array of post data
+	 * @return array Array of post data.
 	 */
 	private function maybe_spam( $post_data = array(), $check = 'check', $spam = 'spam' ) {
 		global $akismet_api_host, $akismet_api_port;
@@ -536,11 +536,11 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Update post meta after a spam check
+	 * Update post meta after a spam check.
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param int $post_id
+	 * @param int $post_id Post id.
 	 * @param object $_post
 	 *
 	 * @global object $this->last_post
@@ -701,7 +701,7 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Update Akismet history of a Post
+	 * Update Akismet history of a Post.
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 * @since 2.7.0 bbPress (r7355) Changed from private to public.
@@ -740,13 +740,13 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Get the Akismet history of a Post
+	 * Get the Akismet history of a Post.
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
 	 * @param int $post_id
 	 *
-	 * @return array Array of Akismet history
+	 * @return array Array of Akismet history.
 	 */
 	public function get_post_history( $post_id = 0 ) {
 
@@ -760,15 +760,15 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Handle any terms submitted with a post flagged as spam
+	 * Handle any terms submitted with a post flagged as spam.
 	 *
 	 * @since 2.0.0 bbPress (r3308)
 	 *
-	 * @param string $terms Comma-separated list of terms
+	 * @param string $terms Comma-separated list of terms.
 	 * @param int $topic_id
 	 * @param int $reply_id
 	 *
-	 * @return array Array of existing topic terms
+	 * @return array Array of existing topic terms.
 	 */
 	public function filter_post_terms( $terms = '', $topic_id = 0, $reply_id = 0 ) {
 
@@ -789,19 +789,19 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Submit data to Akismet service with unique bbPress User Agent
+	 * Submit data to Akismet service with unique bbPress User Agent.
 	 *
 	 * This code is directly taken from the akismet_http_post() function and
 	 * documented to bbPress 2.0 standard.
 	 *
 	 * @since 2.0.0 bbPress (r3466)
 	 *
-	 * @param string $request The request we are sending
-	 * @param string $host The host to send our request to
-	 * @param string $path The path from the host
-	 * @param string $port The port to use
-	 * @param string $ip Optional Override $host with an IP address
-	 * @return mixed WP_Error on error, array on success, empty on failure
+	 * @param string $request The request we are sending.
+	 * @param string $host The host to send our request to.
+	 * @param string $path The path from the host.
+	 * @param string $port The port to use.
+	 * @param string $ip Optional Override $host with an IP address.
+	 * @return mixed WP_Error on error, array on success, empty on failure.
 	 */
 	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
 
@@ -841,8 +841,8 @@ class BBP_Akismet {
 	 *
 	 * @since 2.6.7 (bbPress r7194)
 	 *
-	 * @param string $host_and_path Scheme-less URL
-	 * @param array  $http_args     Array of arguments for wp_remote_post()
+	 * @param string $host_and_path Scheme-less URL.
+	 * @param array  $http_args     Array of arguments for wp_remote_post().
 	 * @return array
 	 */
 	private function get_response( $host_and_path = '', $http_args = array() ) {
@@ -907,11 +907,11 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Return a user's roles on this site (including super_admin)
+	 * Return a user's roles on this site (including super_admin).
 	 *
 	 * @since 2.3.0 bbPress (r4812)
 	 *
-	 * @param int $user_id
+	 * @param int $user_id User id.
 	 *
 	 * @return boolean
 	 */
@@ -942,7 +942,7 @@ class BBP_Akismet {
 	/** Admin *****************************************************************/
 
 	/**
-	 * Add Aksimet History meta-boxes to topics and replies
+	 * Add Aksimet History meta-boxes to topics and replies.
 	 *
 	 * @since 2.4.0 bbPress (r5049)
 	 */
@@ -970,7 +970,7 @@ class BBP_Akismet {
 	}
 
 	/**
-	 * Output for Akismet History meta-box
+	 * Output for Akismet History meta-box.
 	 *
 	 * @since 2.4.0 bbPress (r5049)
 	 */

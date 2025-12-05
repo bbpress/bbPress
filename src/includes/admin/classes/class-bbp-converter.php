@@ -19,62 +19,86 @@ if ( ! class_exists( 'BBP_Converter' ) ) :
 class BBP_Converter {
 
 	/**
-	 * @var int Number of rows
+	 * Number of rows.
+	 *
+	 * @var int
 	 */
 	public $max = 0;
 
 	/**
-	 * @var int Start
+	 * Start.
+	 *
+	 * @var int
 	 */
 	public $start = 0;
 
 	/**
-	 * @var int Step in converter process
+	 * Step in converter process.
+	 *
+	 * @var int
 	 */
 	public $step = 0;
 
 	/**
-	 * @var int Number of rows
+	 * Number of rows.
+	 *
+	 * @var int
 	 */
 	public $rows = 0;
 
 	/**
-	 * @var int Maximum number of converter steps
+	 * Maximum number of converter steps.
+	 *
+	 * @var int
 	 */
 	public $max_steps = 17;
 
 	/**
-	 * @var int Number of rows in the current step
+	 * Number of rows in the current step.
+	 *
+	 * @var int
 	 */
 	public $rows_in_step = 0;
 
 	/**
-	 * @var int Percent complete of current step
+	 * Percent complete of current step.
+	 *
+	 * @var int
 	 */
 	public $step_percentage = 0;
 
 	/**
-	 * @var int Percent complete of all step
+	 * Percent complete of all step.
+	 *
+	 * @var int
 	 */
 	public $total_percentage = 0;
 
 	/**
-	 * @var int Name of source forum platform
+	 * Name of source forum platform.
+	 *
+	 * @var int
 	 */
 	public $platform = '';
 
 	/**
-	 * @var BBP_Converter_Base Type of converter to use
+	 * Type of converter to use.
+	 *
+	 * @var BBP_Converter_Base
 	 */
 	public $converter = null;
 
 	/**
-	 * @var string Path to included platforms
+	 * Path to included platforms.
+	 *
+	 * @var string
 	 */
 	public $converters_dir = '';
 
 	/**
-	 * @var array Map of steps to methods
+	 * Map of steps to methods.
+	 *
+	 * @var array
 	 */
 	private $steps = array(
 		1  => 'sync_table',

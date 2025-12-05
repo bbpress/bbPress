@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Admin Tools Page
+ * bbPress Admin Tools Page.
  *
  * @package bbPress
  * @subpackage Administration
@@ -11,7 +11,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Output a bbPress specific tools box
+ * Output a bbPress specific tools box.
  *
  * @since 2.6.0 bbPress (r6273)
  */
@@ -53,7 +53,7 @@ function bbp_admin_tools_box() {
 }
 
 /**
- * Register an admin area repair tool
+ * Register an admin area repair tool.
  *
  * @since 2.6.0 bbPress (r5885)
  *
@@ -106,7 +106,7 @@ function bbp_register_repair_tool( $args = array() ) {
 }
 
 /**
- * Register the default repair tools
+ * Register the default repair tools.
  *
  * @since 2.6.0 bbPress (r5885)
  */
@@ -514,22 +514,22 @@ function bbp_register_default_repair_tools() {
 }
 
 /**
- * Output the tabs in the admin area
+ * Output the tabs in the admin area.
  *
  * @since 2.1.0 bbPress (r3872)
  *
- * @param string $active_tab Name of the tab that is active
+ * @param string $active_tab Name of the tab that is active.
  */
 function bbp_tools_admin_tabs( $active_tab = '' ) {
 	echo bbp_get_tools_admin_tabs( $active_tab );
 }
 
 	/**
-	 * Output the tabs in the admin area
+	 * Output the tabs in the admin area.
 	 *
 	 * @since 2.1.0 bbPress (r3872)
 	 *
-	 * @param string $active_tab Name of the tab that is active
+	 * @param string $active_tab Name of the tab that is active.
 	 */
 	function bbp_get_tools_admin_tabs( $active_tab = '' ) {
 
@@ -563,7 +563,7 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 	}
 
 /**
- * Return possible tools pages
+ * Return possible tools pages.
  *
  * @since 2.6.0 bbPress (r6273)
  *

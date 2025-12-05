@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The bbPress Plugin
+ * The bbPress Plugin.
  *
  * bbPress is forum software with a twist from the creators of WordPress.
  *
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'bbPress' ) ) :
 /**
- * Main bbPress Class
+ * Main bbPress Class.
  *
  * "Word hard. Stay bumble."
  *
@@ -57,7 +57,7 @@ final class bbPress {
 	/** Not Magic *************************************************************/
 
 	/**
-	 * @var mixed False when not logged in; WP_User object when logged in
+	 * @var mixed False when not logged in; WP_User object when logged in.
 	 */
 	public $current_user = false;
 
@@ -67,38 +67,38 @@ final class bbPress {
 	public $extend;
 
 	/**
-	 * @var array Topic views
+	 * @var array Topic views.
 	 */
 	public $views = array();
 
 	/**
-	 * @var array Overloads get_option()
+	 * @var array Overloads get_option().
 	 */
 	public $options = array();
 
 	/**
-	 * @var array Storage of options not in the database
+	 * @var array Storage of options not in the database.
 	 */
 	public $not_options = array();
 
 	/**
-	 * @var array Overloads get_user_meta()
+	 * @var array Overloads get_user_meta().
 	 */
 	public $user_options = array();
 
 	/**
-	 * @var array Dynamically initialized user roles
+	 * @var array Dynamically initialized user roles.
 	 */
 	public $roles = array();
 
 	/** Singleton *************************************************************/
 
 	/**
-	 * Main bbPress Instance
+	 * Main bbPress Instance.
 	 *
-	 * bbPress is fun
-	 * Please load it only one time
-	 * For this, we thank you
+	 * bbPress is fun.
+	 * Please load it only one time.
+	 * For this, we thank you.
 	 *
 	 * Insures that only one instance of bbPress exists in memory at any one
 	 * time. Also prevents needing to define globals all over the place.
@@ -107,7 +107,7 @@ final class bbPress {
 	 *
 	 * @staticvar object $instance
 	 * @see bbpress()
-	 * @return bbPress The one true bbPress
+	 * @return bbPress The one true bbPress.
 	 */
 	public static function instance() {
 
@@ -142,7 +142,7 @@ final class bbPress {
 	}
 
 	/**
-	 * A dummy magic method to prevent bbPress from being cloned
+	 * A dummy magic method to prevent bbPress from being cloned.
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 */
@@ -151,7 +151,7 @@ final class bbPress {
 	}
 
 	/**
-	 * A dummy magic method to prevent bbPress from being unserialized
+	 * A dummy magic method to prevent bbPress from being unserialized.
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 */
@@ -160,7 +160,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Magic method for checking the existence of a certain custom field
+	 * Magic method for checking the existence of a certain custom field.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
@@ -169,7 +169,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Magic method for getting bbPress variables
+	 * Magic method for getting bbPress variables.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
@@ -180,7 +180,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Magic method for setting bbPress variables
+	 * Magic method for setting bbPress variables.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
 	 */
@@ -189,7 +189,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Magic method for unsetting bbPress variables
+	 * Magic method for unsetting bbPress variables.
 	 *
 	 * @since 2.3.0 bbPress (r4628)
 	 */
@@ -200,7 +200,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Magic method to prevent notices and errors from invalid method calls
+	 * Magic method to prevent notices and errors from invalid method calls.
 	 *
 	 * @since 2.2.0 bbPress (r4252)
 	 */
@@ -324,7 +324,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Include required files
+	 * Include required files.
 	 *
 	 * @since 2.0.0 bbPress (r2626)
 	 *
@@ -401,7 +401,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Setup the default hooks and actions
+	 * Setup the default hooks and actions.
 	 *
 	 * @since 2.0.0 bbPress (r2644)
 	 *
@@ -449,7 +449,7 @@ final class bbPress {
 	/** Public Methods ********************************************************/
 
 	/**
-	 * Register bundled theme packages
+	 * Register bundled theme packages.
 	 *
 	 * Note that since we currently have complete control over bbp-themes and
 	 * the bbp-theme-compat folders, it's fine to hardcode these here. If at a
@@ -517,7 +517,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Setup the post types for forums, topics and replies
+	 * Setup the post types for forums, topics and replies.
 	 *
 	 * @since 2.0.0 bbPress (r2597)
 	 */
@@ -612,7 +612,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the post statuses used by bbPress
+	 * Register the post statuses used by bbPress.
 	 *
 	 * We do some manipulation of the 'trash' status so trashed topics and
 	 * replies can be viewed from within the theme.
@@ -693,7 +693,7 @@ final class bbPress {
 		);
 
 		/**
-		 * Trash fix
+		 * Trash fix.
 		 *
 		 * We need to remove the internal arg and change that to
 		 * protected so that the users with 'view_trash' cap can view
@@ -717,7 +717,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the topic tag and forum moderator taxonomies
+	 * Register the topic tag and forum moderator taxonomies.
 	 *
 	 * @since 2.0.0 bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
 	 */
@@ -747,7 +747,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the bbPress views
+	 * Register the bbPress views.
 	 *
 	 * @since 2.0.0 bbPress (r2789)
 	 */
@@ -788,7 +788,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the bbPress shortcodes
+	 * Register the bbPress shortcodes.
 	 *
 	 * @since 2.0.0 bbPress (r3031)
 	 */
@@ -797,9 +797,9 @@ final class bbPress {
 	}
 
 	/**
-	 * Register bbPress meta-data
+	 * Register bbPress meta-data.
 	 *
-	 * Counts added in 2.6.0 to avoid negative values
+	 * Counts added in 2.6.0 to avoid negative values.
 	 *
 	 * @since 2.6.0 bbPress (r6300)
 	 */
@@ -869,7 +869,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Setup the currently logged-in user
+	 * Setup the currently logged-in user.
 	 *
 	 * @since 2.0.0 bbPress (r2697)
 	 */
@@ -878,7 +878,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Setup the user engagements strategy
+	 * Setup the user engagements strategy.
 	 *
 	 * @since 2.6.0 bbPress (r6875)
 	 */
@@ -893,7 +893,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Initialize forum-specific roles
+	 * Initialize forum-specific roles.
 	 *
 	 * @since 2.6.0
 	 */
@@ -919,7 +919,7 @@ final class bbPress {
 	/** Custom Rewrite Rules **************************************************/
 
 	/**
-	 * Add the bbPress-specific rewrite tags
+	 * Add the bbPress-specific rewrite tags.
 	 *
 	 * @since 2.0.0 bbPress (r2753)
 	 */

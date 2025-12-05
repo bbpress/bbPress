@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Actions
+ * bbPress Actions.
  *
  * This file contains the actions that are used through-out bbPress. They are
  * consolidated here to make searching for them easier, and to help developers
@@ -22,7 +22,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Attach bbPress to WordPress
+ * Attach bbPress to WordPress.
  *
  * bbPress uses its own internal actions to help aid in third-party plugin
  * development, and to limit the amount of potential future code changes when
@@ -56,7 +56,7 @@ add_action( 'wp_footer',                'bbp_footer',                 10    );
 add_action( 'transition_post_status',   'bbp_transition_post_status', 10, 3 );
 
 /**
- * bbp_loaded - Attached to 'plugins_loaded' above
+ * bbp_loaded - Attached to 'plugins_loaded' above.
  *
  * Attach various loader actions to the bbp_loaded action.
  * The load order helps to execute code at the correct time.
@@ -71,7 +71,7 @@ add_action( 'bbp_loaded', 'bbp_setup_user_option_filters', 12 );
 add_action( 'bbp_loaded', 'bbp_pre_load_options',          14 );
 
 /**
- * bbp_init - Attached to 'init' above
+ * bbp_init - Attached to 'init' above.
  *
  * Attach various initialization actions to the init action.
  * The load order helps to execute code at the correct time.
@@ -86,7 +86,7 @@ add_action( 'bbp_init', 'bbp_setup_engagements', 50  );
 add_action( 'bbp_init', 'bbp_ready',             999 );
 
 /**
- * bbp_setup_theme - Attached to 'setup_theme' above
+ * bbp_setup_theme - Attached to 'setup_theme' above.
  *
  * Attach various theme related actions to the setup_theme action.
  * The load order helps to execute code at the correct time.
@@ -95,7 +95,7 @@ add_action( 'bbp_init', 'bbp_ready',             999 );
 add_action( 'bbp_setup_theme', 'bbp_register_theme_packages', 2 ); // Lower than 5
 
 /**
- * bbp_roles_init - Attached to 'wp_roles_init' above
+ * bbp_roles_init - Attached to 'wp_roles_init' above.
  *
  * Attach various role related actions to the wp_roles_init action.
  * The load order helps to execute code at the correct time.
@@ -112,7 +112,7 @@ add_action( 'bbp_roles_init', 'bbp_add_forums_roles', 8 );
 add_action( 'bbp_setup_current_user', 'bbp_set_current_user_default_role' );
 
 /**
- * bbp_register - Attached to 'init' above on 0 priority
+ * bbp_register - Attached to 'init' above on 0 priority.
  *
  * Attach various initialization actions early to the init action.
  * The load order helps to execute code at the correct time.
@@ -134,7 +134,7 @@ add_action( 'wp_body_open', 'bbp_swap_no_js_body_class' );
 add_action( 'bbp_footer',   'bbp_swap_no_js_body_class' );
 
 /**
- * bbp_ready - attached to end 'bbp_init' above
+ * bbp_ready - attached to end 'bbp_init' above.
  *
  * Attach actions to the ready action after bbPress has fully initialized.
  * The load order helps to execute code at the correct time.

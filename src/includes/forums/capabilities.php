@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Forum Capabilites
+ * bbPress Forum Capabilities.
  *
  * Used to map forum capabilities to WordPress's existing capabilities.
  *
@@ -10,11 +10,11 @@
  */
 
 /**
- * Return forum capabilities
+ * Return forum capabilities.
  *
  * @since 2.0.0 bbPress (r2593)
  *
- * @return array Forum capabilities
+ * @return array Forum capabilities.
  */
 function bbp_get_forum_caps() {
 
@@ -34,15 +34,15 @@ function bbp_get_forum_caps() {
 }
 
 /**
- * Maps forum capabilities
+ * Maps forum capabilities.
  *
  * @since 2.2.0 bbPress (r4242)
  *
- * @param array $caps Capabilities for meta capability
- * @param string $cap Capability name
- * @param int $user_id User id
- * @param array $args Arguments
- * @return array Actual capabilities for meta capability
+ * @param array $caps Capabilities for meta capability.
+ * @param string $cap Capability name.
+ * @param int $user_id User id.
+ * @param array $args Arguments.
+ * @return array Actual capabilities for meta capability.
  */
 function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -235,7 +235,7 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
  * @param int $user_id User id.
  * @param int $forum_id Forum id.
  *
- * @return bool Return true if user is moderator of forum
+ * @return bool Return true if user is moderator of forum.
  */
 function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
 	$user_id  = bbp_get_user_id( $user_id, false, empty( $user_id ) );
@@ -259,8 +259,8 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6426)
  *
- * @param array $forum_ids Forum IDs to check if the user ID is a moderator of
- * @param int   $user_id   User ID to check if is a moderator of forums
+ * @param array $forum_ids Forum IDs to check if the user ID is a moderator of.
+ * @param int   $user_id   User ID to check if is a moderator of forums.
  *
  * @return array
  */

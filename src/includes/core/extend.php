@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Extentions
+ * bbPress Extensions.
  *
  * There's a world of really cool plugins out there, and bbPress comes with
  * support for some of the most popular ones.
@@ -14,11 +14,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Loads Akismet inside the bbPress global class
+ * Loads Akismet inside the bbPress global class.
  *
  * @since 2.0.0 bbPress (r3277)
  *
- * @return If bbPress is not active
+ * @return If bbPress is not active.
  */
 function bbp_setup_akismet() {
 
@@ -41,11 +41,11 @@ function bbp_setup_akismet() {
 
 /**
  * Requires and creates the BuddyPress extension, and adds component creation
- * action to bp_init hook. @see bbp_setup_buddypress_component()
+ * action to bp_init hook. @see bbp_setup_buddypress_component().
  *
  * @since 2.0.0 bbPress (r3395)
  *
- * @return If BuddyPress is not active
+ * @return If BuddyPress is not active.
  */
 function bbp_setup_buddypress() {
 

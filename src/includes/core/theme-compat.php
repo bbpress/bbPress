@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Theme Compatibility
+ * bbPress Theme Compatibility.
  *
  * @package bbPress
  * @subpackage Core
@@ -25,10 +25,10 @@ defined( 'ABSPATH' ) || exit;
 /** Base Class ****************************************************************/
 
 /**
- * Theme Compatibility base class
+ * Theme Compatibility base class.
  *
  * This is only intended to be extended, and is included here as a basic guide
- * for future Template Packs to use. @link bbp_setup_theme_compat()
+ * for future Template Packs to use. @link bbp_setup_theme_compat().
  *
  * @since 2.0.0 bbPress (r3506)
  */
@@ -230,7 +230,7 @@ function bbp_get_theme_compat_url() {
 }
 
 /**
- * Gets true/false if page is currently inside theme compatibility
+ * Gets true/false if page is currently inside theme compatibility.
  *
  * @since 2.0.0 bbPress (r3265)
  *
@@ -247,7 +247,7 @@ function bbp_is_theme_compat_active() {
 }
 
 /**
- * Sets true/false if page is currently inside theme compatibility
+ * Sets true/false if page is currently inside theme compatibility.
  *
  * @since 2.0.0 bbPress (r3265)
  *
@@ -261,7 +261,7 @@ function bbp_set_theme_compat_active( $set = true ) {
 }
 
 /**
- * Set the theme compat templates global
+ * Set the theme compat templates global.
  *
  * Stash possible template files for the current query. Useful if plugins want
  * to override them, or see what files are being scanned for inclusion.
@@ -275,7 +275,7 @@ function bbp_set_theme_compat_templates( $templates = array() ) {
 }
 
 /**
- * Set the theme compat template global
+ * Set the theme compat template global.
  *
  * Stash the template file for the current query. Useful if plugins want
  * to override it, or see what file is being included.
@@ -289,7 +289,7 @@ function bbp_set_theme_compat_template( $template = '' ) {
 }
 
 /**
- * Set the theme compat original_template global
+ * Set the theme compat original_template global.
  *
  * Stash the original template file for the current query. Useful for checking
  * if bbPress was able to find a more appropriate template.
@@ -303,7 +303,7 @@ function bbp_set_theme_compat_original_template( $template = '' ) {
 }
 
 /**
- * Is a template the original_template global
+ * Is a template the original_template global.
  *
  * Stash the original template file for the current query. Useful for checking
  * if bbPress was able to find a more appropriate template.
@@ -322,7 +322,7 @@ function bbp_is_theme_compat_original_template( $template = '' ) {
 }
 
 /**
- * Register a new bbPress theme package to the active theme packages array
+ * Register a new bbPress theme package to the active theme packages array.
  *
  * @since 2.1.0 bbPress (r3829)
  *
@@ -516,7 +516,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		return $template;
 	}
 
-	/** Users *************************************************************/
+	/** Users *****************************************************************/
 
 	if ( bbp_is_single_user_edit() || bbp_is_single_user() ) {
 
@@ -535,7 +535,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Forums ************************************************************/
+	/** Forums ****************************************************************/
 
 	// Forum archive
 	} elseif ( bbp_is_forum_archive() ) {
@@ -630,7 +630,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Topics ************************************************************/
+	/** Topics ****************************************************************/
 
 	// Topic archive
 	} elseif ( bbp_is_topic_archive() ) {
@@ -709,7 +709,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Replies ***********************************************************/
+	/** Replies ***************************************************************/
 
 	// Reply archive
 	} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
@@ -763,7 +763,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Views *************************************************************/
+	/** Views *****************************************************************/
 
 	} elseif ( bbp_is_single_view() ) {
 
@@ -782,7 +782,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Search ************************************************************/
+	/** Search ****************************************************************/
 
 	} elseif ( bbp_is_search() ) {
 
@@ -801,7 +801,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			)
 		);
 
-	/** Topic Tags ********************************************************/
+	/** Topic Tags ************************************************************/
 
 	// Topic Tag Edit
 	} elseif ( bbp_is_topic_tag_edit() || bbp_is_topic_tag() ) {
@@ -1012,7 +1012,7 @@ function bbp_remove_all_filters( $tag, $priority = false ) {
 
 /**
  * Restores filters from the $bbp global that were removed using
- * bbp_remove_all_filters()
+ * bbp_remove_all_filters().
  *
  * @since 2.0.0 bbPress (r3251)
  *
@@ -1068,7 +1068,7 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 }
 
 /**
- * Force comments_status to 'closed' for bbPress post types
+ * Force comments_status to 'closed' for bbPress post types.
  *
  * @since 2.1.0 bbPress (r3589)
  *

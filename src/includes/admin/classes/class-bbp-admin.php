@@ -23,91 +23,119 @@ class BBP_Admin {
 	/** Directory *************************************************************/
 
 	/**
-	 * @var string Path to the bbPress admin directory
+	 * Path to the bbPress admin directory.
+	 *
+	 * @var string
 	 */
 	public $admin_dir = '';
 
 	/** URLs ******************************************************************/
 
 	/**
-	 * @var string URL to the bbPress admin directory
+	 * URL to the bbPress admin directory.
+	 *
+	 * @var string
 	 */
 	public $admin_url = '';
 
 	/**
-	 * @var string URL to the bbPress images directory
+	 * URL to the bbPress images directory.
+	 *
+	 * @var string
 	 */
 	public $images_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin styles directory
+	 * URL to the bbPress admin styles directory.
+	 *
+	 * @var string
 	 */
 	public $styles_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin css directory
+	 * URL to the bbPress admin css directory.
+	 *
+	 * @var string
 	 */
 	public $css_url = '';
 
 	/**
-	 * @var string URL to the bbPress admin js directory
+	 * URL to the bbPress admin js directory.
+	 *
+	 * @var string
 	 */
 	public $js_url = '';
 
 	/** Capability ************************************************************/
 
 	/**
-	 * @var bool Minimum capability to access Tools and Settings
+	 * Minimum capability to access Tools and Settings.
+	 *
+	 * @var bool
 	 */
 	public $minimum_capability = 'keep_gate';
 
 	/** Separator *************************************************************/
 
 	/**
-	 * @var bool Whether or not to add an extra top level menu separator
+	 * Whether or not to add an extra top level menu separator.
+	 *
+	 * @var bool
 	 */
 	public $show_separator = false;
 
 	/** Tools *****************************************************************/
 
 	/**
-	 * @var array Array of available repair tools
+	 * Array of available repair tools.
+	 *
+	 * @var array
 	 */
 	public $tools = array();
 
 	/** Notices ***************************************************************/
 
 	/**
-	 * @var array Array of notices to output to the current user
+	 * Array of notices to output to the current user.
+	 *
+	 * @var array
 	 */
 	public $notices = array();
 
 	/** Components ************************************************************/
 
 	/**
-	 * @var BBP_Forums_Admin Forums admin
+	 * Forums admin.
+	 *
+	 * @var BBP_Forums_Admin
 	 */
 	public $forums = null;
 
 	/**
-	 * @var BBP_Topics_Admin Topics admin
+	 * Topics admin.
+	 *
+	 * @var BBP_Topics_Admin
 	 */
 	public $topics = null;
 
 	/**
-	 * @var BBP_Replies_Admin Replies admin
+	 * Replies admin.
+	 *
+	 * @var BBP_Replies_Admin
 	 */
 	public $replies = null;
 
 	/**
-	 * @var BBP_Converter Converter admin
+	 * Converter admin.
+	 *
+	 * @var BBP_Converter
 	 */
 	public $converter = null;
 
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress admin loader
+	 * The main bbPress admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -118,7 +146,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Admin globals.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -139,7 +167,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Include required files
+	 * Include required files.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -167,7 +195,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -311,7 +339,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Output all admin area notices
+	 * Output all admin area notices.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 */
@@ -335,15 +363,15 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add a notice to the notices array
+	 * Add a notice to the notices array.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 *
-	 * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}
-	 * @param string          $class          Optional. A class to be added to the message div
-	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist
+	 * @param string|WP_Error $message        A message to be displayed or {@link WP_Error}.
+	 * @param string          $class          Optional. A class to be added to the message div.
+	 * @param bool            $is_dismissible Optional. True to dismiss, false to persist.
 	 *
-	 * @return void
+	 * @return bool|void False on failure, void otherwise.
 	 */
 	public function add_notice( $message, $class = false, $is_dismissible = true ) {
 
@@ -401,11 +429,11 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Escape message string output
+	 * Escape message string output.
 	 *
 	 * @since 2.6.0 bbPress (r6775)
 	 *
-	 * @param string $message
+	 * @param string $message The message.
 	 *
 	 * @return string
 	 */
@@ -455,7 +483,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add the admin menus
+	 * Add the admin menus.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 */
@@ -552,7 +580,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add the network admin menus
+	 * Add the network admin menus.
 	 *
 	 * @since 2.1.0 bbPress (r3689)
 	 */
@@ -574,11 +602,11 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Register the settings
+	 * Register the settings.
 	 *
 	 * @since 2.0.0 bbPress (r2737)
 	 *
-	 * @todo Put fields into multidimensional array
+	 * @todo Put fields into multidimensional array.
 	 */
 	public static function register_admin_settings() {
 
@@ -635,16 +663,16 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Maps settings capabilities
+	 * Maps settings capabilities.
 	 *
 	 * @since 2.2.0 bbPress (r4242)
 	 *
-	 * @param array $caps Capabilities for meta capability
-	 * @param string $cap Capability name
-	 * @param int $user_id User id
-	 * @param array $args Arguments
+	 * @param array $caps Capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int $user_id User id.
+	 * @param array $args Arguments.
 	 *
-	 * @return array Actual capabilities for meta capability
+	 * @return array Actual capabilities for meta capability.
 	 */
 	public static function map_settings_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
@@ -711,7 +739,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Register the importers
+	 * Register the importers.
 	 *
 	 * @since 2.0.0 bbPress (r2737)
 	 */
@@ -745,13 +773,13 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Add Settings link to plugins area
+	 * Add Settings link to plugins area.
 	 *
 	 * @since 2.0.0 bbPress (r2737)
 	 *
-	 * @param array $links Links array in which we would prepend our link
-	 * @param string $file Current plugin basename
-	 * @return array Processed links
+	 * @param array $links Links array in which we would prepend our link.
+	 * @param string $file Current plugin basename.
+	 * @return array Processed links.
 	 */
 	public static function modify_plugin_action_links( $links, $file ) {
 
@@ -778,7 +806,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Enqueue any admin scripts we might need
+	 * Enqueue any admin scripts we might need.
 	 *
 	 * @since 2.2.0 bbPress (r4260)
 	 */
@@ -818,7 +846,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Enqueue any admin scripts we might need
+	 * Enqueue any admin scripts we might need.
 	 *
 	 * @since 2.6.0 bbPress (r5224)
 	 */
@@ -828,7 +856,7 @@ class BBP_Admin {
 
 	/**
 	 * Remove the individual recount and converter menus.
-	 * They are grouped together by h2 tabs
+	 * They are grouped together by h2 tabs.
 	 *
 	 * @since 2.0.0 bbPress (r2464)
 	 */
@@ -845,7 +873,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Registers the bbPress admin styling and color schemes
+	 * Registers the bbPress admin styling and color schemes.
 	 *
 	 * Because wp-content can exist outside of the WordPress root, there is no
 	 * way to be certain what the relative path of admin images is.
@@ -897,7 +925,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Registers the bbPress admin color schemes
+	 * Registers the bbPress admin color schemes.
 	 *
 	 * Because wp-content can exist outside of the WordPress root there is no
 	 * way to be certain what the relative path of the admin images is.
@@ -926,12 +954,12 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Allow keymaster role to save Forums settings
+	 * Allow keymaster role to save Forums settings.
 	 *
 	 * @since 2.3.0 bbPress (r4678)
 	 *
-	 * @param string $capability
-	 * @return string Return minimum capability
+	 * @param string $capability Optional. Default 'manage_options'.
+	 * @return string Return minimum capability.
 	 */
 	public function option_page_capability_bbpress( $capability = 'manage_options' ) {
 		$capability = $this->minimum_capability;
@@ -1013,7 +1041,7 @@ class BBP_Admin {
 	/** Ajax ******************************************************************/
 
 	/**
-	 * Ajax action for facilitating the forum auto-suggest
+	 * Ajax action for facilitating the forum auto-suggest.
 	 *
 	 * @since 2.2.0 bbPress (r4261)
 	 */
@@ -1068,7 +1096,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Ajax action for facilitating the topic and reply author auto-suggest
+	 * Ajax action for facilitating the topic and reply author auto-suggest.
 	 *
 	 * @since 2.4.0 bbPress (r5014)
 	 */
@@ -1157,9 +1185,9 @@ class BBP_Admin {
 	/** About *****************************************************************/
 
 	/**
-	 * Output the shared screen header for about_screen() & credits_screen()
+	 * Output the shared screen header for about_screen() & credits_screen().
 	 *
-	 * Contains title, subtitle, and badge area
+	 * Contains title, subtitle, and badge area.
 	 *
 	 * @since 2.6.0 bbPress (r6604)
 	 */
@@ -1187,7 +1215,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Output the about screen
+	 * Output the about screen.
 	 *
 	 * @since 2.2.0 bbPress (r4159)
 	 *
@@ -1261,7 +1289,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Output the credits screen
+	 * Output the credits screen.
 	 *
 	 * @since 2.2.0 bbPress (r4159)
 	 *
@@ -1403,7 +1431,7 @@ class BBP_Admin {
 	/** Updaters **************************************************************/
 
 	/**
-	 * Update all bbPress forums across all sites
+	 * Update all bbPress forums across all sites.
 	 *
 	 * @since 2.1.0 bbPress (r3689)
 	 */
@@ -1447,7 +1475,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Update all bbPress forums across all sites
+	 * Update all bbPress forums across all sites.
 	 *
 	 * @since 2.1.0 bbPress (r3689)
 	 */

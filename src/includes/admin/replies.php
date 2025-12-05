@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Replies Admin Class
+ * bbPress Replies Admin Class.
  *
  * @package bbPress
  * @subpackage Administration
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Replies_Admin' ) ) :
 /**
- * Loads bbPress replies admin area
+ * Loads bbPress replies admin area.
  *
  * @package bbPress
  * @subpackage Administration
@@ -23,14 +23,14 @@ class BBP_Replies_Admin {
 	/** Variables *************************************************************/
 
 	/**
-	 * @var The post type of this admin component
+	 * @var The post type of this admin component.
 	 */
 	private $post_type = '';
 
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress admin loader
+	 * The main bbPress admin loader.
 	 *
 	 * @since 2.0.0 bbPress (r2515)
 	 */
@@ -40,7 +40,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Setup the admin hooks, actions and filters
+	 * Setup the admin hooks, actions and filters.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 * @since 2.6.0 bbPress (r6101) Added bulk actions
@@ -90,7 +90,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Admin globals
+	 * Admin globals.
 	 *
 	 * @since 2.0.0 bbPress (r2646)
 	 *
@@ -103,7 +103,7 @@ class BBP_Replies_Admin {
 	/** Contextual Help *******************************************************/
 
 	/**
-	 * Contextual help for bbPress reply edit page
+	 * Contextual help for bbPress reply edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -173,7 +173,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Contextual help for bbPress reply edit page
+	 * Contextual help for bbPress reply edit page.
 	 *
 	 * @since 2.0.0 bbPress (r3119)
 	 */
@@ -350,7 +350,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Add the reply attributes meta-box
+	 * Add the reply attributes meta-box.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 */
@@ -366,9 +366,9 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Add the author info meta-box
+	 * Add the author info meta-box.
 	 *
-	 * Allows editing of information about an author
+	 * Allows editing of information about an author.
 	 *
 	 * @since 2.0.0 bbPress (r2828)
 	 */
@@ -391,7 +391,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Remove comments & discussion meta-boxes if comments are not supported
+	 * Remove comments & discussion meta-boxes if comments are not supported.
 	 *
 	 * @since 2.6.0 bbPress (r6186)
 	 */
@@ -403,12 +403,12 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Pass the reply attributes for processing
+	 * Pass the reply attributes for processing.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 *
-	 * @param int $reply_id Reply id
-	 * @return int Parent id
+	 * @param int $reply_id Reply id.
+	 * @return int Parent id.
 	 */
 	public function save_meta_boxes( $reply_id ) {
 
@@ -458,9 +458,9 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Toggle reply
+	 * Toggle reply.
 	 *
-	 * Handles the admin-side spamming/unspamming of replies
+	 * Handles the admin-side spamming/unspamming of replies.
 	 *
 	 * @since 2.0.0 bbPress (r2740)
 	 */
@@ -544,7 +544,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Toggle reply notices
+	 * Toggle reply notices.
 	 *
 	 * Display the success/error notices from
 	 * {@link BBP_Admin::toggle_reply()}
@@ -625,7 +625,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Returns an array of keys used to sort row actions
+	 * Returns an array of keys used to sort row actions.
 	 *
 	 * @since 2.6.0 bbPress (r6771)
 	 *
@@ -657,7 +657,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -684,7 +684,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Returns an array of notice toggles
+	 * Returns an array of notice toggles.
 	 *
 	 * @since 2.6.0 bbPress (r6396)
 	 *
@@ -709,13 +709,13 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Manage the column headers for the replies page
+	 * Manage the column headers for the replies page.
 	 *
 	 * @since 2.0.0 bbPress (r2577)
 	 *
-	 * @param array $columns The columns
+	 * @param array $columns The columns.
 	 *
-	 * @return array $columns bbPress reply columns
+	 * @return array $columns bbPress reply columns.
 	 */
 	public function column_headers( $columns ) {
 		$columns = array(
@@ -738,12 +738,12 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Print extra columns for the replies page
+	 * Print extra columns for the replies page.
 	 *
 	 * @since 2.0.0 bbPress (r2577)
 	 *
-	 * @param string $column Column
-	 * @param int $reply_id reply id
+	 * @param string $column Column.
+	 * @param int $reply_id Reply id.
 	 */
 	public function column_data( $column, $reply_id ) {
 
@@ -832,17 +832,17 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Reply Row actions
+	 * Reply Row actions.
 	 *
 	 * Remove the quick-edit action link under the reply title and add the
-	 * content and spam link
+	 * content and spam link.
 	 *
 	 * @since 2.0.0 bbPress (r2577)
 	 *
-	 * @param array  $actions Actions
-	 * @param object $reply   Reply object
+	 * @param array  $actions Actions.
+	 * @param object $reply   Reply object.
 	 *
-	 * @return array $actions Actions
+	 * @return array $actions Actions.
 	 */
 	public function row_actions( $actions = array(), $reply = false ) {
 
@@ -927,7 +927,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Sort row actions by key
+	 * Sort row actions by key.
 	 *
 	 * @since 2.6.0
 	 *
@@ -956,11 +956,11 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Add forum dropdown to topic and reply list table filters
+	 * Add forum dropdown to topic and reply list table filters.
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @return bool False. If post type is not topic or reply
+	 * @return bool False. If post type is not topic or reply.
 	 */
 	public function filter_dropdown() {
 
@@ -979,7 +979,7 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Add "Empty Spam" button for moderators
+	 * Add "Empty Spam" button for moderators.
 	 *
 	 * @since 2.6.0 bbPress (r6791)
 	 */
@@ -1015,12 +1015,12 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Adjust the request query and include the forum id
+	 * Adjust the request query and include the forum id.
 	 *
 	 * @since 2.0.0 bbPress (r2991)
 	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @return array Processed Query Vars
+	 * @param array $query_vars Query variables from {@link WP_Query}.
+	 * @return array Processed Query Vars.
 	 */
 	public function filter_post_rows( $query_vars ) {
 
@@ -1036,11 +1036,11 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Custom user feedback messages for reply post type
+	 * Custom user feedback messages for reply post type.
 	 *
 	 * @since 2.0.0 bbPress (r3080)
 	 *
-	 * @global int $post_ID
+	 * @global int $post_ID.
 	 *
 	 * @param array $messages
 	 *
@@ -1129,14 +1129,14 @@ class BBP_Replies_Admin {
 endif; // class_exists check
 
 /**
- * Setup bbPress Replies Admin
+ * Setup bbPress Replies Admin.
  *
  * This is currently here to make hooking and unhooking of the admin UI easy.
  * It could use dependency injection in the future, but for now this is easier.
  *
  * @since 2.0.0 bbPress (r2596)
  *
- * @param WP_Screen $current_screen Current screen object
+ * @param WP_Screen $current_screen Current screen object.
  */
 function bbp_admin_replies( $current_screen ) {
 

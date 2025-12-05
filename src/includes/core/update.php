@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Updater
+ * bbPress Updater.
  *
  * @package bbPress
  * @subpackage Core
@@ -11,22 +11,22 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * If there is no raw DB version, this is the first installation
+ * If there is no raw DB version, this is the first installation.
  *
  * @since 2.1.0 bbPress (r3764)
  *
- * @return bool True if update, False if not
+ * @return bool True if update, False if not.
  */
 function bbp_is_install() {
 	return ! bbp_get_db_version_raw();
 }
 
 /**
- * Compare the bbPress version to the DB version to determine if updating
+ * Compare the bbPress version to the DB version to determine if updating.
  *
  * @since 2.0.0 bbPress (r3421)
  *
- * @return bool True if update, False if not
+ * @return bool True if update, False if not.
  */
 function bbp_is_update() {
 	$raw    = (int) bbp_get_db_version_raw();
@@ -36,7 +36,7 @@ function bbp_is_update() {
 }
 
 /**
- * Determine if bbPress is being activated
+ * Determine if bbPress is being activated.
  *
  * Note that this function currently is not used in bbPress core and is here
  * for third party plugins to use to check for bbPress activation.
@@ -45,7 +45,9 @@ function bbp_is_update() {
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @return bool True if activating bbPress, false if not
+ * @param string $basename Plugin base name.
+ *
+ * @return bool True if activating bbPress, false if not.
  */
 function bbp_is_activation( $basename = '' ) {
 	global $pagenow;
@@ -91,13 +93,15 @@ function bbp_is_activation( $basename = '' ) {
 }
 
 /**
- * Determine if bbPress is being deactivated
+ * Determine if bbPress is being deactivated.
  *
  * @since 2.0.0 bbPress (r3421)
  *
  * @global string $pagenow The filename of the current screen.
  *
- * @return bool True if deactivating bbPress, false if not
+ * @param string $basename Plugin base name.
+ *
+ * @return bool True if deactivating bbPress, false if not.
  */
 function bbp_is_deactivation( $basename = '' ) {
 	global $pagenow;
@@ -143,7 +147,7 @@ function bbp_is_deactivation( $basename = '' ) {
 }
 
 /**
- * Update the DB to the latest version
+ * Update the DB to the latest version.
  *
  * @since 2.0.0 bbPress (r3421)
  */
@@ -152,7 +156,7 @@ function bbp_version_bump() {
 }
 
 /**
- * Setup the bbPress updater
+ * Setup the bbPress updater.
  *
  * @since 2.0.0 bbPress (r3419)
  */
@@ -169,9 +173,11 @@ function bbp_setup_updater() {
 
 /**
  * Runs when a new site is created in a multisite network, and bbPress is active
- * on that site (hooked to `bbp_new_site`)
+ * on that site (hooked to `bbp_new_site`).
  *
  * @since 2.6.0 bbPress (r6779)
+ *
+ * @param int $site_id Side id.
  */
 function bbp_setup_new_site( $site_id = 0 ) {
 
@@ -192,11 +198,11 @@ function bbp_setup_new_site( $site_id = 0 ) {
 }
 
 /**
- * Create a default forum, topic, and reply
+ * Create a default forum, topic, and reply.
  *
  * @since 2.1.0 bbPress (r3767)
  *
- * @param array $args Array of arguments to override default values
+ * @param array $args Array of arguments to override default values.
  */
 function bbp_create_initial_content( $args = array() ) {
 
@@ -424,13 +430,13 @@ function bbp_version_updater() {
 }
 
 /**
- * Redirect user to the "What's New" page on activation
+ * Redirect user to the "What's New" page on activation.
  *
  * @since 2.2.0 bbPress (r4389)
  *
- * @internal Used internally to redirect bbPress to the about page on activation
+ * @internal Used internally to redirect bbPress to the about page on activation.
  *
- * @return If network admin or bulk activation
+ * @return If network admin or bulk activation.
  */
 function bbp_add_activation_redirect() {
 
@@ -444,13 +450,13 @@ function bbp_add_activation_redirect() {
 }
 
 /**
- * Redirect user to "What's New" page on activation
+ * Redirect user to "What's New" page on activation.
  *
  * @since 2.2.0 bbPress (r4389)
  *
- * @internal Used internally to redirect bbPress to the about page on activation
+ * @internal Used internally to redirect bbPress to the about page on activation.
  *
- * @return If no transient, or in network admin, or is bulk activation
+ * @return If no transient, or in network admin, or is bulk activation.
  */
 function bbp_do_activation_redirect() {
 
@@ -483,9 +489,9 @@ function bbp_do_activation_redirect() {
  *
  * @since 2.4.0 bbPress (r4910)
  *
- * @internal Used to internally make the current user a keymaster on activation
+ * @internal Used to internally make the current user a keymaster on activation.
  *
- * @return If user can't activate plugins or is already a keymaster
+ * @return If user can't activate plugins or is already a keymaster.
  */
 function bbp_make_current_user_keymaster() {
 
@@ -531,11 +537,11 @@ function bbp_make_current_user_keymaster() {
 /** Pending Upgrades **********************************************************/
 
 /**
- * Return the number of pending upgrades
+ * Return the number of pending upgrades.
  *
  * @since 2.6.0 bbPress (r6895)
  *
- * @param string $type Type of pending upgrades (upgrade|repair|empty)
+ * @param string $type Type of pending upgrades (upgrade|repair|empty).
  *
  * @return int
  */
@@ -544,11 +550,11 @@ function bbp_get_pending_upgrade_count( $type = '' ) {
 }
 
 /**
- * Return an array of pending upgrades
+ * Return an array of pending upgrades.
  *
  * @since 2.6.0 bbPress (r6895)
  *
- * @param string $type Type of pending upgrades (upgrade|repair|empty)
+ * @param string $type Type of pending upgrades (upgrade|repair|empty).
  *
  * @return array
  */
@@ -568,7 +574,7 @@ function bbp_get_pending_upgrades( $type = '' ) {
 }
 
 /**
- * Add an upgrade ID to pending upgrades array
+ * Add an upgrade ID to pending upgrades array.
  *
  * @since 2.6.0 bbPress (r6895)
  *
@@ -589,7 +595,7 @@ function bbp_add_pending_upgrade( $upgrade_id = '' ) {
 }
 
 /**
- * Add an upgrade ID to pending upgrades array
+ * Add an upgrade ID to pending upgrades array.
  *
  * @since 2.6.0 bbPress (r6895)
  *
@@ -613,7 +619,7 @@ function bbp_remove_pending_upgrade( $upgrade_id = '' ) {
 }
 
 /**
- * Delete all pending upgrades
+ * Delete all pending upgrades.
  *
  * @since 2.6.0 bbPress (r6895)
  */
@@ -622,12 +628,12 @@ function bbp_clear_pending_upgrades() {
 }
 
 /**
- * Maybe append an upgrade count to a string
+ * Maybe append an upgrade count to a string.
  *
  * @since 2.6.0 bbPress (r6896)
  *
- * @param string $text Text to append count to
- * @param string $type Type of pending upgrades (upgrade|repair|empty)
+ * @param string $text Text to append count to.
+ * @param string $type Type of pending upgrades (upgrade|repair|empty).
  *
  * @return string
  */

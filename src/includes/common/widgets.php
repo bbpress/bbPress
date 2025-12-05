@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Widgets
+ * bbPress Widgets.
  *
  * Contains the forum list, topic list, reply list and login form widgets.
  *
@@ -13,18 +13,18 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * bbPress Login Widget
+ * bbPress Login Widget.
  *
- * Adds a widget which displays the login form
+ * Adds a widget which displays the login form.
  *
  * @since 2.0.0 bbPress (r2827)
  */
 class BBP_Login_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Login Widget
+	 * bbPress Login Widget.
 	 *
-	 * Registers the login widget
+	 * Registers the login widget.
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 */
@@ -42,7 +42,7 @@ class BBP_Login_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3389)
 	 */
@@ -51,12 +51,12 @@ class BBP_Login_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the login form
+	 * Displays the output, the login form.
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param array $args Arguments
-	 * @param array $instance Instance
+	 * @param array $args Arguments.
+	 * @param array $instance Instance.
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -146,12 +146,12 @@ class BBP_Login_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the login widget options
+	 * Update the login widget options.
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance             = $old_instance;
@@ -163,11 +163,11 @@ class BBP_Login_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the login widget options form
+	 * Output the login widget options form.
 	 *
 	 * @since 2.0.0 bbPress (r2827)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance = array() ) {
 
@@ -197,7 +197,7 @@ class BBP_Login_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -213,18 +213,18 @@ class BBP_Login_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Views Widget
+ * bbPress Views Widget.
  *
- * Adds a widget which displays the view list
+ * Adds a widget which displays the view list.
  *
  * @since 2.0.0 bbPress (r3020)
  */
 class BBP_Views_Widget extends WP_Widget {
 
 	/**
-	 * bbPress View Widget
+	 * bbPress View Widget.
 	 *
-	 * Registers the view widget
+	 * Registers the view widget.
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 */
@@ -242,7 +242,7 @@ class BBP_Views_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3389)
 	 */
@@ -251,12 +251,12 @@ class BBP_Views_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the view list
+	 * Displays the output, the view list.
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param array $args Arguments
-	 * @param array $instance Instance
+	 * @param array $args Arguments.
+	 * @param array $instance Instance.
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -300,12 +300,12 @@ class BBP_Views_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the view widget options
+	 * Update the view widget options.
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance          = $old_instance;
@@ -315,11 +315,11 @@ class BBP_Views_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the view widget options form
+	 * Output the view widget options form.
 	 *
 	 * @since 2.0.0 bbPress (r3020)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance = array() ) {
 
@@ -340,7 +340,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -354,18 +354,18 @@ class BBP_Views_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Search Widget
+ * bbPress Search Widget.
  *
- * Adds a widget which displays the forum search form
+ * Adds a widget which displays the forum search form.
  *
  * @since 2.3.0 bbPress (r4579)
  */
 class BBP_Search_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Search Widget
+	 * bbPress Search Widget.
 	 *
-	 * Registers the search widget
+	 * Registers the search widget.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 */
@@ -383,7 +383,7 @@ class BBP_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 */
@@ -392,7 +392,7 @@ class BBP_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the search form
+	 * Displays the output, the search form.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 */
@@ -424,12 +424,12 @@ class BBP_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the widget options
+	 * Update the widget options.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = $old_instance;
@@ -439,11 +439,11 @@ class BBP_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the search widget options form
+	 * Output the search widget options form.
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance ) {
 
@@ -464,7 +464,7 @@ class BBP_Search_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -478,18 +478,18 @@ class BBP_Search_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Forum Widget
+ * bbPress Forum Widget.
  *
- * Adds a widget which displays the forum list
+ * Adds a widget which displays the forum list.
  *
  * @since 2.0.0 bbPress (r2653)
  */
 class BBP_Forums_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Forum Widget
+	 * bbPress Forum Widget.
 	 *
-	 * Registers the forum widget
+	 * Registers the forum widget.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 */
@@ -507,7 +507,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3389)
 	 */
@@ -516,12 +516,12 @@ class BBP_Forums_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the forum list
+	 * Displays the output, the forum list.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $args Arguments
-	 * @param array $instance Instance
+	 * @param array $args Arguments.
+	 * @param array $instance Instance.
 	 */
 	public function widget( $args, $instance ) {
 
@@ -591,12 +591,12 @@ class BBP_Forums_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the forum widget options
+	 * Update the forum widget options.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
@@ -612,11 +612,11 @@ class BBP_Forums_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the forum widget options form
+	 * Output the forum widget options form.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance ) {
 
@@ -647,7 +647,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -662,18 +662,18 @@ class BBP_Forums_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Topic Widget
+ * bbPress Topic Widget.
  *
- * Adds a widget which displays the topic list
+ * Adds a widget which displays the topic list.
  *
  * @since 2.0.0 bbPress (r2653)
  */
 class BBP_Topics_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Topic Widget
+	 * bbPress Topic Widget.
 	 *
-	 * Registers the topic widget
+	 * Registers the topic widget.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 */
@@ -691,7 +691,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3389)
 	 */
@@ -700,7 +700,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the topic list
+	 * Displays the output, the topic list.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
@@ -875,12 +875,12 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the topic widget options
+	 * Update the topic widget options.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance                 = $old_instance;
@@ -908,11 +908,11 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the topic widget options form
+	 * Output the topic widget options form.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance = array() ) {
 
@@ -952,7 +952,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -971,18 +971,18 @@ class BBP_Topics_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Statistics Widget
+ * bbPress Statistics Widget.
  *
- * Adds a widget which displays the forum statistics
+ * Adds a widget which displays the forum statistics.
  *
  * @since 2.3.0 bbPress (r4509)
  */
 class BBP_Stats_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Statistics Widget
+	 * bbPress Statistics Widget.
 	 *
-	 * Registers the statistics widget
+	 * Registers the statistics widget.
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 */
@@ -1000,7 +1000,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 */
@@ -1009,12 +1009,12 @@ class BBP_Stats_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the statistics
+	 * Displays the output, the statistics.
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 *
-	 * @param array $args     Arguments
-	 * @param array $instance Instance
+	 * @param array $args     Arguments.
+	 * @param array $instance Instance.
 	 */
 	public function widget( $args = array(), $instance = array() ) {
 
@@ -1039,12 +1039,12 @@ class BBP_Stats_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the statistics widget options
+	 * Update the statistics widget options.
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 *
 	 * @return array
 	 */
@@ -1056,7 +1056,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the statistics widget options form
+	 * Output the statistics widget options form.
 	 *
 	 * @since 2.3.0 bbPress (r4509)
 	 *
@@ -1083,7 +1083,7 @@ class BBP_Stats_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(
@@ -1097,18 +1097,18 @@ class BBP_Stats_Widget extends WP_Widget {
 }
 
 /**
- * bbPress Replies Widget
+ * bbPress Replies Widget.
  *
- * Adds a widget which displays the replies list
+ * Adds a widget which displays the replies list.
  *
  * @since 2.0.0 bbPress (r2653)
  */
 class BBP_Replies_Widget extends WP_Widget {
 
 	/**
-	 * bbPress Replies Widget
+	 * bbPress Replies Widget.
 	 *
-	 * Registers the replies widget
+	 * Registers the replies widget.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 */
@@ -1126,7 +1126,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Register the widget
+	 * Register the widget.
 	 *
 	 * @since 2.0.0 bbPress (r3389)
 	 */
@@ -1135,7 +1135,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Displays the output, the replies list
+	 * Displays the output, the replies list.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
@@ -1253,12 +1253,12 @@ class BBP_Replies_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Update the reply widget options
+	 * Update the reply widget options.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param array $new_instance The new instance options
-	 * @param array $old_instance The old instance options
+	 * @param array $new_instance The new instance options.
+	 * @param array $old_instance The old instance options.
 	 */
 	public function update( $new_instance = array(), $old_instance = array() ) {
 		$instance              = $old_instance;
@@ -1279,11 +1279,11 @@ class BBP_Replies_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the reply widget options form
+	 * Output the reply widget options form.
 	 *
 	 * @since 2.0.0 bbPress (r2653)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function form( $instance = array() ) {
 
@@ -1303,7 +1303,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0 bbPress (r4802)
 	 *
-	 * @param $instance Instance
+	 * @param $instance Instance.
 	 */
 	public function parse_settings( $instance = array() ) {
 		return bbp_parse_args(

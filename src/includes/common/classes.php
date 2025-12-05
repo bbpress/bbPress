@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress Classes
+ * bbPress Classes.
  *
  * @package bbPress
  * @subpackage Classes
@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'BBP_Component' ) ) :
 /**
- * bbPress Component Class
+ * bbPress Component Class.
  *
  * The bbPress component class is responsible for simplifying the creation
  * of components that share similar behaviors and routines. It is used
@@ -27,28 +27,28 @@ if ( ! class_exists( 'BBP_Component' ) ) :
 class BBP_Component {
 
 	/**
-	 * @var string Unique name (for internal identification)
+	 * @var string Unique name (for internal identification).
 	 * @internal
 	 */
 	public $name;
 
 	/**
-	 * @var Unique ID (normally for custom post type)
+	 * @var Unique ID (normally for custom post type).
 	 */
 	public $id;
 
 	/**
-	 * @var string Unique slug (used in query string and permalinks)
+	 * @var string Unique slug (used in query string and permalinks).
 	 */
 	public $slug;
 
 	/**
-	 * @var WP_Query The loop for this component
+	 * @var WP_Query The loop for this component.
 	 */
 	public $query;
 
 	/**
-	 * @var string The current ID of the queried object
+	 * @var string The current ID of the queried object.
 	 */
 	public $current_id;
 
@@ -56,7 +56,7 @@ class BBP_Component {
 	/** Methods ***************************************************************/
 
 	/**
-	 * bbPress Component loader
+	 * bbPress Component loader.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 *
@@ -78,7 +78,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Component global variables
+	 * Component global variables.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 *
@@ -91,7 +91,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Include required files
+	 * Include required files.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 *
@@ -102,7 +102,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Setup the actions
+	 * Setup the actions.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 *
@@ -119,7 +119,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Setup the component post types
+	 * Setup the component post types.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 */
@@ -128,7 +128,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Register component specific taxonomies
+	 * Register component specific taxonomies.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 */
@@ -137,7 +137,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Add any additional rewrite tags
+	 * Add any additional rewrite tags.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 */
@@ -146,7 +146,7 @@ class BBP_Component {
 	}
 
 	/**
-	 * Generate any additional rewrite rules
+	 * Generate any additional rewrite rules.
 	 *
 	 * @since 2.0.0 bbPress (r2700)
 	 */
@@ -191,7 +191,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Set the tree_type
+	 * Set the tree_type.
 	 *
 	 * @since 2.0.0 bbPress (r2746)
 	 */
@@ -272,7 +272,7 @@ class BBP_Walker_Reply extends Walker {
 	);
 
 	/**
-	 * Confirm the tree_type
+	 * Confirm the tree_type.
 	 *
 	 * @since 2.6.0 bbPress (r5389)
 	 */
@@ -285,9 +285,9 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @since 2.4.0 bbPress (r4944)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content
-	 * @param int $depth Depth of reply
-	 * @param array $args Uses 'style' argument for type of HTML list
+	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param int $depth Depth of reply.
+	 * @param array $args Uses 'style' argument for type of HTML list.
 	 */
 	public function start_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -310,9 +310,9 @@ class BBP_Walker_Reply extends Walker {
 	 *
 	 * @since 2.4.0 bbPress (r4944)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content
-	 * @param int $depth Depth of reply
-	 * @param array $args Will only append content if style argument value is 'ol' or 'ul'
+	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param int $depth Depth of reply.
+	 * @param array $args Will only append content if style argument value is 'ol' or 'ul'.
 	 */
 	public function end_lvl( &$output = '', $depth = 0, $args = array() ) {
 		bbpress()->reply_query->reply_depth = (int) $depth + 1;
@@ -443,7 +443,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Confirm the tree_type
+	 * Confirm the tree_type.
 	 *
 	 * @since 2.6.0 bbPress (r5389)
 	 */
@@ -467,7 +467,7 @@ class BBP_Walker_Reply_Dropdown extends Walker {
 	 * @param array  $args   Uses 'selected' argument for selected post to set
 	 *                       selected HTML attribute for option element.
 	 *
-	 * @param int    $current_object_id Not Used
+	 * @param int    $current_object_id Not Used.
 	 */
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 

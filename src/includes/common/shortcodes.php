@@ -21,7 +21,9 @@ class BBP_Shortcodes {
 	/** Vars ******************************************************************/
 
 	/**
-	 * @var array Shortcode => function
+	 * Shortcode => function.
+	 *
+	 * @var array
 	 */
 	public $codes = array();
 
