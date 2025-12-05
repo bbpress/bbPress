@@ -647,137 +647,138 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
 }
-	/**
-	 * Return formatted time to display human readable time difference.
-	 *
-	 * @since 2.0.0 bbPress (r2544)
-	 *
-	 * @param string $older_date Unix timestamp from which the difference begins.
-	 * @param string $newer_date Optional. Unix timestamp from which the
-	 *                            difference ends. False for current time.
-	 * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
-	 *
-	 * @return string Formatted time
-	 */
-	function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
-		// Setup the strings
-		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
-		$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
-		/* translators: %s: Time period */
-		$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
+/**
+ * Return formatted time to display human readable time difference.
+ *
+ * @since 2.0.0 bbPress (r2544)
+ *
+ * @param string $older_date Unix timestamp from which the difference begins.
+ * @param string $newer_date Optional. Unix timestamp from which the
+ *                            difference ends. False for current time.
+ * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
+ *
+ * @return string Formatted time
+ */
+function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
-		// array of time period chunks
-		$chunks = array(
-			/* translators: %s: Number of years */
-			array( YEAR_IN_SECONDS, _n_noop( '%s year', '%s years', 'bbpress' ) ),
+	// Setup the strings
+	$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
+	$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
+	/* translators: %s: Time period */
+	$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
 
-			/* translators: %s: Number of months */
-			array( MONTH_IN_SECONDS, _n_noop( '%s month', '%s months', 'bbpress' ) ),
+	// array of time period chunks
+	$chunks = array(
+		/* translators: %s: Number of years */
+		array( YEAR_IN_SECONDS, _n_noop( '%s year', '%s years', 'bbpress' ) ),
 
-			/* translators: %s: Number of weeks */
-			array( WEEK_IN_SECONDS, _n_noop( '%s week', '%s weeks', 'bbpress' ) ),
+		/* translators: %s: Number of months */
+		array( MONTH_IN_SECONDS, _n_noop( '%s month', '%s months', 'bbpress' ) ),
 
-			/* translators: %s: Number of days */
-			array( DAY_IN_SECONDS, _n_noop( '%s day', '%s days', 'bbpress' ) ),
+		/* translators: %s: Number of weeks */
+		array( WEEK_IN_SECONDS, _n_noop( '%s week', '%s weeks', 'bbpress' ) ),
 
-			/* translators: %s: Number of hours */
-			array( HOUR_IN_SECONDS, _n_noop( '%s hour', '%s hours', 'bbpress' ) ),
+		/* translators: %s: Number of days */
+		array( DAY_IN_SECONDS, _n_noop( '%s day', '%s days', 'bbpress' ) ),
 
-			/* translators: %s: Number of minutes */
-			array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+		/* translators: %s: Number of hours */
+		array( HOUR_IN_SECONDS, _n_noop( '%s hour', '%s hours', 'bbpress' ) ),
 
-			/* translators: %s: Number of seconds */
-			array( 1, _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
-		);
+		/* translators: %s: Number of minutes */
+		array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
 
-		// Attempt to parse non-numeric older date
-		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
-			$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
-			$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
-			$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+		/* translators: %s: Number of seconds */
+		array( 1, _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
+	);
+
+	// Attempt to parse non-numeric older date
+	if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
+		$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
+		$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
+		$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+	}
+
+	// Attempt to parse non-numeric newer date
+	if ( ! empty( $newer_date ) && ! is_numeric( $newer_date ) ) {
+		$time_chunks = explode( ':', str_replace( ' ', ':', $newer_date ) );
+		$date_chunks = explode( '-', str_replace( ' ', '-', $newer_date ) );
+		$newer_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+	}
+
+	// Set newer date to current time
+	if ( empty( $newer_date ) ) {
+		$newer_date = strtotime( current_time( 'mysql', $gmt ) );
+	}
+
+	// Cast both dates to ints to avoid notices & errors with invalid values
+	$newer_date = intval( $newer_date );
+	$older_date = intval( $older_date );
+
+	// Difference in seconds
+	$since = intval( $newer_date - $older_date );
+
+	// Something went wrong with date calculation and we ended up with a negative date.
+	if ( 0 > $since ) {
+		$output = $unknown_text;
+
+	// We only want to output two chunks of time here, eg:
+	//     x years, xx months
+	//     x days, xx hours
+	// so there's only two bits of calculation below:
+	} else {
+
+		// Default count values
+		$count  = 0;
+		$count2 = 0;
+
+		// Step one: the first chunk
+		for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
+			$seconds = $chunks[ $i ][0];
+
+			// Finding the biggest chunk (if the chunk fits, break)
+			$count = floor( $since / $seconds );
+			if ( ! empty( $count ) ) {
+				break;
+			}
 		}
 
-		// Attempt to parse non-numeric newer date
-		if ( ! empty( $newer_date ) && ! is_numeric( $newer_date ) ) {
-			$time_chunks = explode( ':', str_replace( ' ', ':', $newer_date ) );
-			$date_chunks = explode( '-', str_replace( ' ', '-', $newer_date ) );
-			$newer_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
-		}
+		// If $i iterates all the way to $j, then the event happened 0 seconds ago
+		if ( ! isset( $chunks[ $i ] ) ) {
+			$output = $right_now_text;
 
-		// Set newer date to current time
-		if ( empty( $newer_date ) ) {
-			$newer_date = strtotime( current_time( 'mysql', $gmt ) );
-		}
-
-		// Cast both dates to ints to avoid notices & errors with invalid values
-		$newer_date = intval( $newer_date );
-		$older_date = intval( $older_date );
-
-		// Difference in seconds
-		$since = intval( $newer_date - $older_date );
-
-		// Something went wrong with date calculation and we ended up with a negative date.
-		if ( 0 > $since ) {
-			$output = $unknown_text;
-
-		// We only want to output two chunks of time here, eg:
-		//     x years, xx months
-		//     x days, xx hours
-		// so there's only two bits of calculation below:
 		} else {
 
-			// Default count values
-			$count  = 0;
-			$count2 = 0;
+			// Set output var
+			$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
 
-			// Step one: the first chunk
-			for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
-				$seconds = $chunks[ $i ][0];
+			// Step two: the second chunk
+			if ( $i + 2 < $j ) {
+				$seconds2 = $chunks[ $i + 1 ][0];
+				$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
-				// Finding the biggest chunk (if the chunk fits, break)
-				$count = floor( $since / $seconds );
-				if ( ! empty( $count ) ) {
-					break;
+				// Add to output var
+				if ( ! empty( $count2 ) ) {
+					$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
+					$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 				}
 			}
 
-			// If $i iterates all the way to $j, then the event happened 0 seconds ago
-			if ( ! isset( $chunks[ $i ] ) ) {
+			// Empty counts, so fallback to right now
+			if ( empty( $count ) && empty( $count2 ) ) {
 				$output = $right_now_text;
-
-			} else {
-
-				// Set output var
-				$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
-
-				// Step two: the second chunk
-				if ( $i + 2 < $j ) {
-					$seconds2 = $chunks[ $i + 1 ][0];
-					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
-
-					// Add to output var
-					if ( ! empty( $count2 ) ) {
-						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
-						$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
-					}
-				}
-
-				// Empty counts, so fallback to right now
-				if ( empty( $count ) && empty( $count2 ) ) {
-					$output = $right_now_text;
-				}
 			}
 		}
-
-		// Append 'ago' to the end of time-since if not 'right now'
-		if ( $output !== $right_now_text ) {
-			$output = sprintf( $ago_text, $output );
-		}
-
-		// Filter & return
-		return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
 	}
+
+	// Append 'ago' to the end of time-since if not 'right now'
+	if ( $output !== $right_now_text ) {
+		$output = sprintf( $ago_text, $output );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
+}
 
 /** Revisions *****************************************************************/
 

@@ -524,43 +524,43 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
 	echo bbp_get_tools_admin_tabs( $active_tab );
 }
 
-	/**
-	 * Output the tabs in the admin area.
-	 *
-	 * @since 2.1.0 bbPress (r3872)
-	 *
-	 * @param string $active_tab Name of the tab that is active.
-	 */
-	function bbp_get_tools_admin_tabs( $active_tab = '' ) {
+/**
+ * Output the tabs in the admin area.
+ *
+ * @since 2.1.0 bbPress (r3872)
+ *
+ * @param string $active_tab Name of the tab that is active.
+ */
+function bbp_get_tools_admin_tabs( $active_tab = '' ) {
 
-		// Declare local variables
-		$tabs_html    = '';
-		$idle_class   = 'nav-tab';
-		$active_class = 'nav-tab nav-tab-active';
+	// Declare local variables
+	$tabs_html    = '';
+	$idle_class   = 'nav-tab';
+	$active_class = 'nav-tab nav-tab-active';
 
-		// Setup core admin tabs
-		$tabs = bbp_get_tools_admin_pages();
+	// Setup core admin tabs
+	$tabs = bbp_get_tools_admin_pages();
 
-		// Loop through tabs and build navigation
-		foreach ( $tabs as $tab ) {
+	// Loop through tabs and build navigation
+	foreach ( $tabs as $tab ) {
 
-			// Skip if user cannot visit page
-			if ( ! current_user_can( $tab['cap'] ) ) {
-				continue;
-			}
-
-			// Setup tab HTML
-			$is_current = (bool) ( $tab['page'] === $active_tab );
-			$tab_class  = $is_current ? $active_class : $idle_class;
-			$tab_url    = add_query_arg( array( 'page' => $tab['page'] ), admin_url( 'tools.php' ) );
-
-			// Tab name is not escaped - may contain HTML
-			$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . $tab['name'] . '</a>';
+		// Skip if user cannot visit page
+		if ( ! current_user_can( $tab['cap'] ) ) {
+			continue;
 		}
 
-		// Output the tabs
-		return $tabs_html;
+		// Setup tab HTML
+		$is_current = (bool) ( $tab['page'] === $active_tab );
+		$tab_class  = $is_current ? $active_class : $idle_class;
+		$tab_url    = add_query_arg( array( 'page' => $tab['page'] ), admin_url( 'tools.php' ) );
+
+		// Tab name is not escaped - may contain HTML
+		$tabs_html .= '<a href="' . esc_url( $tab_url ) . '" class="' . esc_attr( $tab_class ) . '">' . $tab['name'] . '</a>';
 	}
+
+	// Output the tabs
+	return $tabs_html;
+}
 
 /**
  * Return possible tools pages.
