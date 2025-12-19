@@ -65,6 +65,11 @@ class BBP_Users_Admin {
 		// User List Table
 		add_action( 'load-users.php',   array( $this, 'user_role_bulk_change' ), 10, 1 );
 		add_action( 'user_row_actions', array( $this, 'user_row_actions'      ), 10, 2 );
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_admin_users_loaded', array( &$this ) );
 	}
 
 	/**

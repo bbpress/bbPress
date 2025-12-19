@@ -151,6 +151,11 @@ class BBP_Converter {
 
 		// Attach to the admin ajax request to process cycles
 		add_action( 'wp_ajax_bbp_converter_process', array( $this, 'process_callback' ) );
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_admin_converter_loaded', array( &$this ) );
 	}
 
 	/**

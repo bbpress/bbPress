@@ -73,6 +73,11 @@ class BBP_Forums_Admin {
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
 		add_action( 'load-post.php',     array( $this, 'new_help'  ) );
 		add_action( 'load-post-new.php', array( $this, 'new_help'  ) );
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_admin_forums_loaded', array( &$this ) );
 	}
 
 	/**

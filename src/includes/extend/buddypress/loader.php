@@ -155,6 +155,11 @@ class BBP_Forums_Component extends BP_Component {
 		// Setup the components
 		add_action( 'bp_init', array( $this, 'setup_components' ), 7 );
 
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_extend_buddypress_loaded', array( &$this ) );
+
 		parent::setup_actions();
 	}
 

@@ -86,6 +86,11 @@ class BBP_Akismet {
 		if ( is_admin() ) {
 			add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
 		}
+
+		/** Dependencies ******************************************************/
+
+		// Allow plugins to modify these actions
+		do_action_ref_array( 'bbp_extend_akismet_loaded', array( &$this ) );
 	}
 
 	/**
