@@ -61,14 +61,90 @@
 	font-size: 13px;
 }
 
+/* When forms render without the bbpress-forums wrapper (common in blocks), keep the same normalization */
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) {
+	font-size: 13px;
+}
+
 .bbpress-block__preview #bbpress-forums input[type="text"],
 .bbpress-block__preview #bbpress-forums textarea,
-.bbpress-block__preview #bbpress-forums select {
+.bbpress-block__preview #bbpress-forums select,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="text"],
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select,
+.bbpress-block__preview #bbpress-forums input[type="password"],
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="password"] {
 	max-width: 100%;
 	width: 100%;
 	box-sizing: border-box;
 	border-radius: 4px;
+	border: 1px solid #cfd2d6;
+	background: #fff;
+	color: #1d2327;
+	padding: 8px 10px;
+	font-size: 13px;
+	line-height: 1.4;
+	height: 38px;
 	transition: border-color 0.15s ease;
+}
+
+.bbpress-block__preview #bbpress-forums label,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) label {
+	display: block;
+	margin: 0 0 5px;
+	padding: 0;
+	font-weight: 400;
+	color: #2c3338;
+}
+
+.bbpress-block__preview #bbpress-forums input[type="checkbox"],
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="checkbox"] {
+	display: inline-block;
+	width: auto;
+	height: auto;
+	margin: 0 6px 0 0;
+	vertical-align: middle;
+}
+
+.bbpress-block__preview #bbpress-forums input[type="checkbox"] + label,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="checkbox"] + label {
+	display: inline;
+	margin: 0;
+	font-weight: 400;
+	vertical-align: middle;
+}
+
+.bbpress-block__preview #bbpress-forums label + br,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) label + br {
+	display: none;
+}
+
+.bbpress-block__preview #bbpress-forums fieldset p,
+.bbpress-block__preview #bbpress-forums .bbp-form p,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) fieldset p,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-form p {
+	margin: 0 0 12px;
+	padding: 0;
+}
+
+.bbpress-block__preview #bbpress-forums textarea,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea {
+	height: auto;
+	max-height: 120px;
+	min-height: 120px;
+	resize: vertical;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-the-content-wrapper,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-the-content-wrapper {
+	margin-bottom: 8px;
+}
+
+/* WYSIWYG-style textareas in bbPress forms: square corners, no grab handles */
+.bbpress-block__preview #bbpress-forums .bbp-the-content-wrapper textarea,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-the-content-wrapper textarea {
+	border-radius: 0;
+	resize: none;
 }
 
 .bbpress-block__preview #bbpress-forums .button,
@@ -77,7 +153,25 @@
 	border: 1px solid #d0d1d3;
 	border-radius: 5px;
 	color: #1d2327;
-	padding: 6px 12px;
+	padding: 0 12px;
+	height: 38px;
+	line-height: 38px;
+	cursor: default;
+	font-weight: 500;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	transition: all 0.15s ease;
+}
+
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .button,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="submit"],
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button[type="submit"] {
+	background: linear-gradient(to bottom, #f8f9fa, #f0f1f2);
+	border: 1px solid #d0d1d3;
+	border-radius: 5px;
+	color: #1d2327;
+	padding: 0 12px;
+	height: 38px;
+	line-height: 38px;
 	cursor: default;
 	font-weight: 500;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -86,8 +180,19 @@
 
 /* Avoid nested editor spacing looking cramped */
 .bbpress-block__preview #bbpress-forums fieldset,
-.bbpress-block__preview #bbpress-forums .bbp-form {
-	margin: 8px 0;
+.bbpress-block__preview #bbpress-forums .bbp-form,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) fieldset,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-form {
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+.bbpress-block__preview #bbpress-forums fieldset legend,
+.bbpress-block__preview #bbpress-forums .bbp-form legend,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) fieldset legend,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-form legend {
+	display: none;
 }
 
 /* Minimal columned layout for forum/topic lists */
@@ -300,6 +405,14 @@
 	box-shadow: none;
 }
 
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a {
+	pointer-events: none;
+	cursor: default;
+	text-decoration: none;
+	border-bottom: 0;
+	box-shadow: none;
+}
+
 /* Disable form interactions (show controls but non-interactive) */
 .bbpress-block__preview #bbpress-forums form,
 .bbpress-block__preview #bbpress-forums input,
@@ -309,12 +422,29 @@
 	pointer-events: none;
 }
 
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) form,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button {
+	pointer-events: none;
+}
+
 /* Non-interactive preview: remove focus outlines */
 .bbpress-block__preview #bbpress-forums a:focus,
 .bbpress-block__preview #bbpress-forums button:focus,
 .bbpress-block__preview #bbpress-forums input:focus,
 .bbpress-block__preview #bbpress-forums textarea:focus,
 .bbpress-block__preview #bbpress-forums select:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a:focus,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button:focus,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input:focus,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea:focus,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select:focus {
 	outline: none !important;
 	box-shadow: none !important;
 }
@@ -330,6 +460,16 @@
 	cursor: default;
 }
 
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) form {
+	pointer-events: none;
+	cursor: default;
+}
+
 /* Footer spacer rows - neutralize WP admin padding */
 .bbpress-block__preview #bbpress-forums li.bbp-footer {
 	padding: 4px 8px 0 8px;
@@ -337,10 +477,17 @@
 }
 
 /* Notices: remove default UL padding/margins inside template notices */
-.bbpress-block__preview #bbpress-forums .bbp-template-notice ul {
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-template-notice {
+	display: none;
+}
+
+.bbpress-block__preview .bbp-template-notice ul,
+.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-template-notice ul {
 	margin: 0;
 	padding-left: 0;
 	padding-right: 0;
+	list-style: none;
+	font-size: 13px;
 }
 
 /* Inline search input and button in previews */
