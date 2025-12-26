@@ -212,6 +212,15 @@ function bbp_register_shortcodes() {
 }
 
 /**
+ * Register the default bbPress blocks.
+ *
+ * @since 2.7.0 bbPress (r7382)
+ */
+function bbp_register_blocks() {
+	do_action( 'bbp_register_blocks' );
+}
+
+/**
  * Register the default bbPress meta-data.
  *
  * @since 2.6.0 bbPress (r46300)
@@ -257,7 +266,7 @@ function bbp_add_permastructs() {
 }
 
 /**
- * Add the bbPress-specific login forum action
+ * Add the bbPress-specific login forum action.
  *
  * @since 2.0.0 bbPress (r2753)
  */

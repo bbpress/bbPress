@@ -889,8 +889,9 @@ class BBP_Admin {
 		// Get the version to use for JS
 		$version = bbp_get_asset_version();
 
-		// Register admin CSS with dashicons dependency
-		wp_register_style( 'bbp-admin-css', $this->css_url . 'admin' . $suffix . '.css', array( 'dashicons' ), $version );
+		// Register admin CSS
+		wp_register_style( 'bbp-admin-css',    $this->css_url . 'admin'  . $suffix . '.css', array( 'dashicons' ), $version );
+		wp_register_style( 'bbp-admin-blocks', $this->css_url . 'blocks' . $suffix . '.css', array(),              $version );
 
 		// Color schemes are not available when running out of src
 		if ( false !== strpos( plugin_basename( bbpress()->file ), 'src' ) ) {
@@ -925,11 +926,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * Registers the bbPress admin color schemes.
-	 *
-	 * Because wp-content can exist outside of the WordPress root there is no
-	 * way to be certain what the relative path of the admin images is.
-	 * We are including the two most common configurations here, just in case.
+	 * Registers the bbPress admin scripts.
 	 *
 	 * @since 2.6.0 bbPress (r2521)
 	 */
@@ -942,11 +939,12 @@ class BBP_Admin {
 		$version = bbp_get_asset_version();
 
 		// Header JS
-		// phpcs:disable WordPress.WP.EnqueuedResourceParameters.NotInFooter
-		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
-		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
-		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
-		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
+		// phpcs:disable
+		wp_register_script( 'bbp-admin-blocks',     $this->js_url . 'blocks'    . $suffix . '.js', array( 'wp-blocks', 'wp-components', 'wp-i18n', 'wp-element', 'wp-server-side-render' ), $version );
+		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'                     ), $version );
+		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                                ), $version );
+		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'                     ), $version );
+		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard'        ), $version );
 		// phpcs:enable
 
 		// Footer JS

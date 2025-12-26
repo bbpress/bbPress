@@ -123,6 +123,7 @@ add_action( 'bbp_register', 'bbp_register_post_statuses',  4  );
 add_action( 'bbp_register', 'bbp_register_taxonomies',     6  );
 add_action( 'bbp_register', 'bbp_register_views',          8  );
 add_action( 'bbp_register', 'bbp_register_shortcodes',     10 );
+add_action( 'bbp_register', 'bbp_register_blocks',         10 );
 add_action( 'bbp_register', 'bbp_register_meta',           12 );
 
 // Autoembeds

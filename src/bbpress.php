@@ -349,6 +349,7 @@ final class bbPress {
 
 		// Common
 		require $this->includes_dir . 'common/ajax.php';
+		require $this->includes_dir . 'common/blocks.php';
 		require $this->includes_dir . 'common/classes.php';
 		require $this->includes_dir . 'common/engagements.php';
 		require $this->includes_dir . 'common/functions.php';
@@ -429,6 +430,7 @@ final class bbPress {
 			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
 			'register_taxonomies',      // Register taxonomies (topic-tag)
 			'register_shortcodes',      // Register shortcodes (bbp-login)
+			'register_blocks',          // Register blocks (bbp-login)
 			'register_views',           // Register the views (no-replies)
 			'register_theme_packages',  // Register bundled theme packages (bbp-theme-compat/bbp-themes)
 			'load_textdomain',          // Load textdomain (bbpress)
@@ -543,6 +545,7 @@ final class bbPress {
 					'show_in_nav_menus'   => true,
 					'public'              => true,
 					'show_ui'             => current_user_can( 'bbp_forums_admin' ),
+					'show_in_rest'        => true,
 					'can_export'          => true,
 					'hierarchical'        => true,
 					'query_var'           => true,
@@ -572,6 +575,7 @@ final class bbPress {
 					'show_in_nav_menus'   => false,
 					'public'              => true,
 					'show_ui'             => current_user_can( 'bbp_topics_admin' ),
+					'show_in_rest'        => true,
 					'can_export'          => true,
 					'hierarchical'        => false,
 					'query_var'           => true,
@@ -601,6 +605,7 @@ final class bbPress {
 					'show_in_nav_menus'   => false,
 					'public'              => true,
 					'show_ui'             => current_user_can( 'bbp_replies_admin' ),
+					'show_in_rest'        => true,
 					'can_export'          => true,
 					'hierarchical'        => false,
 					'query_var'           => true,
@@ -797,7 +802,16 @@ final class bbPress {
 	}
 
 	/**
-	 * Register bbPress meta-data.
+	 * Register the bbPress blocks.
+	 *
+	 * @since 2.7.0 bbPress (r7382)
+	 */
+	public function register_blocks() {
+		$this->blocks = new BBP_Blocks();
+	}
+
+	/**
+	 * Register bbPress meta-data
 	 *
 	 * Counts added in 2.6.0 to avoid negative values.
 	 *

@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bbpress/single-reply",
+	"title": "Single Reply",
+	"category": "bbpress",
+	"icon": "admin-comments",
+	"description": "Shows a specific reply.",
+	"keywords": [ "reply", "comment", "bbpress" ],
+	"textdomain": "bbpress",
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": [ "wide", "full" ],
+		"color": false,
+		"spacing": false,
+		"typography": false
+	},
+	"attributes": {
+		"id": {
+			"type": "integer",
+			"default": 0
+		}
+	},
+	"example": {
+		"attributes": {
+			"id": 1
+		}
+	},
+	"editorScript": "bbp-admin-blocks",
+	"editorStyle": "bbp-admin-blocks"
+}

@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bbpress/lost-pass",
+	"title": "Lost Password",
+	"category": "bbpress",
+	"icon": "admin-users",
+	"description": "Shows the lost password form.",
+	"keywords": [ "password", "reset", "form", "user", "bbpress" ],
+	"textdomain": "bbpress",
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": [ "wide", "full" ],
+		"color": false,
+		"spacing": false,
+		"typography": false
+	},
+	"attributes": {},
+	"example": {
+		"attributes": {}
+	},
+	"editorScript": "bbp-admin-blocks",
+	"editorStyle": "bbp-admin-blocks"
+}

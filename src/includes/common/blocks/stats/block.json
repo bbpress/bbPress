@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bbpress/stats",
+	"title": "Statistics",
+	"category": "bbpress",
+	"icon": "chart-pie",
+	"description": "Shows the forum statistics.",
+	"keywords": [ "stats", "statistics", "numbers", "bbpress" ],
+	"textdomain": "bbpress",
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": [ "wide", "full" ],
+		"color": false,
+		"spacing": false,
+		"typography": false
+	},
+	"attributes": {},
+	"example": {
+		"attributes": {}
+	},
+	"editorScript": "bbp-admin-blocks",
+	"editorStyle": "bbp-admin-blocks"
+}
