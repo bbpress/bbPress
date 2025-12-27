@@ -362,7 +362,7 @@ class BBP_Replies_Admin {
 	public function attributes_metabox() {
 		add_meta_box(
 			'bbp_reply_attributes',
-			esc_html__( 'Reply Attributes', 'bbpress' ),
+			esc_html__( 'Attributes', 'bbpress' ),
 			'bbp_reply_metabox',
 			$this->post_type,
 			'side',
@@ -387,7 +387,7 @@ class BBP_Replies_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_author_metabox',
-			esc_html__( 'Author Information', 'bbpress' ),
+			esc_html__( 'Author', 'bbpress' ),
 			'bbp_author_metabox',
 			$this->post_type,
 			'side',

@@ -367,7 +367,7 @@ class BBP_Topics_Admin {
 	public function attributes_metabox() {
 		add_meta_box(
 			'bbp_topic_attributes',
-			esc_html__( 'Topic Attributes', 'bbpress' ),
+			esc_html__( 'Attributes', 'bbpress' ),
 			'bbp_topic_metabox',
 			$this->post_type,
 			'side',
@@ -390,7 +390,7 @@ class BBP_Topics_Admin {
 		// Add the meta-box
 		add_meta_box(
 			'bbp_author_metabox',
-			esc_html__( 'Author Information', 'bbpress' ),
+			esc_html__( 'Author', 'bbpress' ),
 			'bbp_author_metabox',
 			$this->post_type,
 			'side',

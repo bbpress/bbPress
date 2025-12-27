@@ -956,7 +956,7 @@ class BBP_Akismet {
 		// Topics
 		add_meta_box(
 			'bbp_akismet_topic_history',
-			__( 'Akismet History', 'bbpress' ),
+			__( 'History', 'bbpress' ),
 			array( $this, 'history_metabox' ),
 			bbp_get_topic_post_type(),
 			'normal',
@@ -966,7 +966,7 @@ class BBP_Akismet {
 		// Replies
 		add_meta_box(
 			'bbp_akismet_reply_history',
-			__( 'Akismet History', 'bbpress' ),
+			__( 'History', 'bbpress' ),
 			array( $this, 'history_metabox' ),
 			bbp_get_reply_post_type(),
 			'normal',

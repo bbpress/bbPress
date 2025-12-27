@@ -232,7 +232,7 @@ class BBP_Forums_Admin {
 	public function attributes_metabox() {
 		add_meta_box(
 			'bbp_forum_attributes',
-			esc_html__( 'Forum Attributes', 'bbpress' ),
+			esc_html__( 'Attributes', 'bbpress' ),
 			'bbp_forum_metabox',
 			$this->post_type,
 			'side',
@@ -255,7 +255,7 @@ class BBP_Forums_Admin {
 		// Moderators
 		add_meta_box(
 			'bbp_moderator_assignment_metabox',
-			esc_html__( 'Forum Moderators', 'bbpress' ),
+			esc_html__( 'Moderators', 'bbpress' ),
 			'bbp_moderator_assignment_metabox',
 			$this->post_type,
 			'side',

@@ -639,7 +639,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function group_admin_ui_edit_screen() {
 		add_meta_box(
 			'bbpress_group_admin_ui_meta_box',
-			_x( 'Discussion Forum', 'group admin edit screen', 'bbpress' ),
+			esc_html_x( 'Forum', 'group admin edit screen', 'bbpress' ),
 			array( $this, 'group_admin_ui_display_metabox' ),
 			get_current_screen()->id,
 			'side',
