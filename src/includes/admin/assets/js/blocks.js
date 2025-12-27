@@ -14,7 +14,13 @@
 		useRef,
 		Fragment,
 	} = wp.element;
-	const { InspectorControls, useBlockProps } = wp.blockEditor;
+	const blockEditor = wp.blockEditor || wp.editor;
+
+	if ( !blockEditor || !blockEditor.useBlockProps ) {
+		return;
+	}
+
+	const { InspectorControls, useBlockProps } = blockEditor;
 	const {
 		PanelBody,
 		SelectControl,

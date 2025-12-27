@@ -938,17 +938,27 @@ class BBP_Admin {
 		// Get the version to use for JS
 		$version = bbp_get_asset_version();
 
+		// Array of JS dependencies for blocks
+		$block_js_dependencies = array(
+			'wp-blocks',
+			'wp-block-editor',
+			'wp-components',
+			'wp-i18n',
+			'wp-element',
+			'wp-server-side-render'
+		);
+
 		// Header JS
 		// phpcs:disable
-		wp_register_script( 'bbp-admin-blocks',     $this->js_url . 'blocks'    . $suffix . '.js', array( 'wp-blocks', 'wp-components', 'wp-i18n', 'wp-element', 'wp-server-side-render' ), $version );
-		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'                     ), $version );
-		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                                ), $version );
-		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'                     ), $version );
-		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard'        ), $version );
+		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
+		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
+		wp_register_script( 'bbp-converter',        $this->js_url . 'converter' . $suffix . '.js', array( 'jquery', 'postbox', 'dashboard' ), $version );
 		// phpcs:enable
 
 		// Footer JS
-		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge' . $suffix . '.js', array(), $version, true );
+		wp_register_script( 'bbp-admin-blocks',     $this->js_url . 'blocks' . $suffix . '.js', $block_js_dependencies, $version, true );
+		wp_register_script( 'bbp-admin-badge-js',   $this->js_url . 'badge'  . $suffix . '.js', array(),                $version, true );
 	}
 
 	/**

@@ -14,8 +14,7 @@
 		"align": [ "wide", "full" ],
 		"color": false,
 		"spacing": false,
-		"typography": false,
-		"postTypes": [ "post", "page" ]
+		"typography": false
 	},
 	"attributes": {
 		"forum_id": {
