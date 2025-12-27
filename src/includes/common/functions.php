@@ -1637,9 +1637,14 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 			// Check for a valid referer
 			$redirect_to = wp_get_referer();
 
-			// Fallback to request uri if invalid referer
-			if ( false === $redirect_to ) {
-				$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			// Maybe use current host
+			if ( ( false === $redirect_to ) && ! empty( $_SERVER['HTTP_HOST'] ) ) {
+				$redirect_to = bbp_get_url_scheme() . $_SERVER['HTTP_HOST'];
+
+				// Maybe also use request URI
+				if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
+					$redirect_to .= $_SERVER['REQUEST_URI'];
+				}
 			}
 		}
 
