@@ -14,7 +14,8 @@
 		"align": [ "wide", "full" ],
 		"color": false,
 		"spacing": false,
-		"typography": false
+		"typography": false,
+		"postTypes": [ "post", "page" ]
 	},
 	"attributes": {
 		"id": {
