@@ -42,7 +42,7 @@ function bbp_get_post_types( $args = array() ) {
 /**
  * Return the unescaped redirect_to request value
  *
- * @bbPress (r4655)
+ * @since bbPress (r4655)
  *
  * @return string The URL to redirect to, if set
  */
