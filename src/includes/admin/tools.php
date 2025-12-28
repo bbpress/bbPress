@@ -58,7 +58,7 @@ function bbp_admin_tools_box() {
  * @since 2.6.0 bbPress (r5885)
  *
  * @param array $args
- * @return
+ * @return void
  */
 function bbp_register_repair_tool( $args = array() ) {
 

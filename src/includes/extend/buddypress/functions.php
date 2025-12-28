@@ -317,7 +317,7 @@ function bbp_maybe_delete_group_forum_root( $forum_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r6479)
  *
- * @return
+ * @return void
  */
 function bbp_maybe_create_group_forum_root() {
 
