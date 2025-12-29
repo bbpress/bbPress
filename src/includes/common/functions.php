@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Return array of bbPress registered post types.
+ * Return array of bbPress registered post type names.
  *
  * @since 2.6.0 bbPress (r6813)
  *
@@ -138,6 +138,39 @@ function bbp_get_paged() {
 }
 
 /** Misc **********************************************************************/
+
+/**
+ * Filters whether or not to use the block editor for bbPress post types.
+ *
+ * As of 2.7.0 this is explicitly false, because the `show_in_rest` property
+ * of each post type is now set to true, and because support for blocks in
+ * user-facing forum content is not properly handled yet.
+ *
+ * The default return value of this function is highly likely to change once
+ * the block editor is integrated into the Forum/Topic/Reply experience.
+ *
+ * If you're feeling adventurous or working on this feature, override this
+ * filter with
+ *
+ * @since 2.7.0 bbPress (r7388)
+ *
+ * @param bool   $use       Optional. Default false. If using.
+ * @param string $post_type Optional. Default empty string. The post type to check.
+ *
+ * @return bool
+ */
+function bbp_filter_use_block_editor_for_post_type( $use = false, $post_type = '' ) {
+
+	// Get bbPress post types
+	$bbp_post_types = bbp_get_post_types();
+
+	// Compare post types
+	$is_post_type = in_array( $post_type, $bbp_post_types, true );
+	$retval       = ! $is_post_type;
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_filter_use_block_editor_for_post_type', $retval, $is_post_type, $use, $post_type );
+}
 
 /**
  * Return the unique non-empty values of an array.

@@ -75,6 +75,9 @@ add_action( 'posts_pre_query', 'bbp_posts_pre_query', 10, 2 );
 // User Creation
 add_filter( 'signup_user_meta', 'bbp_user_add_role_to_signup_meta', 10 );
 
+// No block editor for bbPress post types
+add_filter( 'use_block_editor_for_post_type', 'bbp_filter_use_block_editor_for_post_type', 10, 2 );
+
 /**
  * Emails
  *
