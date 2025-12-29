@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
  * Output a bbPress specific tools box.
  *
  * @since 2.6.0 bbPress (r6273)
+ *
+ * @return void
  */
 function bbp_admin_tools_box() {
 
@@ -58,7 +60,7 @@ function bbp_admin_tools_box() {
  * @since 2.6.0 bbPress (r5885)
  *
  * @param array $args
- * @return
+ * @return void
  */
 function bbp_register_repair_tool( $args = array() ) {
 
@@ -530,6 +532,8 @@ function bbp_tools_admin_tabs( $active_tab = '' ) {
  * @since 2.1.0 bbPress (r3872)
  *
  * @param string $active_tab Name of the tab that is active.
+ *
+ * @return string
  */
 function bbp_get_tools_admin_tabs( $active_tab = '' ) {
 
