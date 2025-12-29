@@ -1113,7 +1113,7 @@ function bbp_swap_no_js_body_class() {
 
 	?>
 
-<script type="text/javascript" id="bbp-swap-no-js-body-class">
+<script id="bbp-swap-no-js-body-class">
 	document.body.className = document.body.className.replace( 'bbp-no-js', 'bbp-js' );
 </script>
 
