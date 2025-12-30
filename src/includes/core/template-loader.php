@@ -28,72 +28,39 @@ defined( 'ABSPATH' ) || exit;
  */
 function bbp_template_include_theme_supports( $template = '' ) {
 
-	// phpcs:disable
+	// Default return value
+	$retval = $template;
 
-	// Editing a user
-	if     ( bbp_is_single_user_edit() && ( $new_template = bbp_get_single_user_edit_template() ) ) :  //phpcs:ignore
+	// Get the templates
+	$bbp_templates = bbp_get_template_include_templates();
 
-	// User favorites
-	elseif ( bbp_is_favorites() && ( $new_template = bbp_get_favorites_template()        ) ) :
+	// Loop through each of the template conditionals
+	if ( ! empty( $bbp_templates ) ) {
+		foreach ( $bbp_templates as $checker => $getter ) {
 
-	// User favorites
-	elseif ( bbp_is_subscriptions() && ( $new_template = bbp_get_subscriptions_template()    ) ) :
+			// Skip if check fails
+			if ( ! function_exists( $checker ) || ! call_user_func( $checker ) ) {
+				continue;
+			}
 
-	// Viewing a user
-	elseif ( bbp_is_single_user() && ( $new_template = bbp_get_single_user_template()      ) ) :
+			// Maybe get a template file
+			$new_template = function_exists( $getter )
+				? call_user_func( $getter )
+				: '';
 
-	// Single View
-	elseif ( bbp_is_single_view() && ( $new_template = bbp_get_single_view_template()      ) ) :
+			// Skip if new template not found
+			if ( empty( $new_template ) ) {
+				continue;
+			}
 
-	// Search
-	elseif ( bbp_is_search() && ( $new_template = bbp_get_search_template()           ) ) :
+			// A bbPress template file was located, so set the return value
+			// that will override the WordPress template, and switches off
+			// theme compatibility.
+			$retval = bbp_set_template_included( $new_template );
 
-	// Forum edit
-	elseif ( bbp_is_forum_edit() && ( $new_template = bbp_get_forum_edit_template()       ) ) :
-
-	// Single Forum
-	elseif ( bbp_is_single_forum() && ( $new_template = bbp_get_single_forum_template()     ) ) :
-
-	// Forum Archive
-	elseif ( bbp_is_forum_archive() && ( $new_template = bbp_get_forum_archive_template()    ) ) :
-
-	// Topic merge
-	elseif ( bbp_is_topic_merge() && ( $new_template = bbp_get_topic_merge_template()      ) ) :
-
-	// Topic split
-	elseif ( bbp_is_topic_split() && ( $new_template = bbp_get_topic_split_template()      ) ) :
-
-	// Topic edit
-	elseif ( bbp_is_topic_edit() && ( $new_template = bbp_get_topic_edit_template()       ) ) :
-
-	// Single Topic
-	elseif ( bbp_is_single_topic() && ( $new_template = bbp_get_single_topic_template()     ) ) :
-
-	// Topic Archive
-	elseif ( bbp_is_topic_archive() && ( $new_template = bbp_get_topic_archive_template()    ) ) :
-
-	// Reply move
-	elseif ( bbp_is_reply_move() && ( $new_template = bbp_get_reply_move_template()       ) ) :
-
-	// Editing a reply
-	elseif ( bbp_is_reply_edit() && ( $new_template = bbp_get_reply_edit_template()       ) ) :
-
-	// Single Reply
-	elseif ( bbp_is_single_reply() && ( $new_template = bbp_get_single_reply_template()     ) ) :
-
-	// Editing a topic tag
-	elseif ( bbp_is_topic_tag_edit() && ( $new_template = bbp_get_topic_tag_edit_template()   ) ) :
-
-	// Viewing a topic tag
-	elseif ( bbp_is_topic_tag() && ( $new_template = bbp_get_topic_tag_template()        ) ) :
-	endif;
-
-	// phpcs:enable
-
-	// A bbPress template file was located, so override the WordPress template
-	// and use it to switch off theme compatibility.
-	if ( ! empty( $new_template ) ) {
-		$template = bbp_set_template_included( $new_template );
+			// Exit the loop
+			break;
+		}
 	}
 
 	/**
@@ -101,9 +68,10 @@ function bbp_template_include_theme_supports( $template = '' ) {
 	 *
 	 * @since 2.0.0 bbPress (r3032)
 	 *
-	 * @param string $template The path to the template file.
+	 * @param string $retval   Path to the filtered template file.
+	 * @param string $template Path to the original template file.
 	 */
-	return apply_filters( 'bbp_template_include_theme_supports', $template );
+	return apply_filters( 'bbp_template_include_theme_supports', $retval, $template );
 }
 
 /**
@@ -459,14 +427,13 @@ function bbp_get_topic_tag_edit_template() {
 }
 
 /**
- * Get the templates to use as the endpoint for bbPress template parts.
+ * Get the template to use as the wrapper for bbPress template parts.
  *
- * @since 2.0.0 bbPress (r3311)
- * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
+ * @since 2.7.0 bbPress (r7393)
  *
  * @return string Path to template file.
  */
-function bbp_get_theme_compat_templates() {
+function bbp_get_theme_compat_template() {
 	$templates = array(
 		'plugin-bbpress.php',
 		'bbpress.php',
@@ -480,3 +447,91 @@ function bbp_get_theme_compat_templates() {
 	);
 	return bbp_get_query_template( 'bbpress', $templates );
 }
+
+/**
+ * Get the theme canvas template, used for Block Themes.
+ *
+ * @since 2.7.0 bbPress (r7383)
+ *
+ * @return string Path to canvas file.
+ */
+function bbp_get_theme_canvas_template() {
+
+	// Default WordPress Canvas
+	$template = ABSPATH . WPINC . '/template-canvas.php';
+
+	// Filter & return
+	return apply_filters( 'bbp_get_theme_canvas_template', $template );
+}
+
+/**
+ * Get the array of _is_ functions and their template finders.
+ *
+ * This function abstracts the template checkers & getters to allow third-party
+ * plugins to add their own bbPress component functionality more easily.
+ *
+ * @since 2.7.0 bbPress (r7393)
+ *
+ * @return array Key => Value array of checkers & getters.
+ */
+function bbp_get_template_include_templates() {
+
+	// Possible templates: checker => getter
+	$templates = array(
+
+		// User
+		'bbp_is_single_user_edit' => 'bbp_get_single_user_edit_template',
+		'bbp_is_favorites'        => 'bbp_get_favorites_template',
+		'bbp_is_subscriptions'    => 'bbp_get_subscriptions_template',
+		'bbp_is_single_user'      => 'bbp_get_single_user_template',
+
+		// Topic view
+		'bbp_is_single_view'      => 'bbp_get_single_view_template',
+
+		// Search
+		'bbp_is_search'           => 'bbp_get_search_template',
+
+		// Forum
+		'bbp_is_forum_edit'       => 'bbp_get_forum_edit_template',
+		'bbp_is_single_forum'     => 'bbp_get_single_forum_template',
+		'bbp_is_forum_archive'    => 'bbp_get_forum_archive_template',
+
+		// Topic
+		'bbp_is_topic_merge'      => 'bbp_get_topic_merge_template',
+		'bbp_is_topic_split'      => 'bbp_get_topic_split_template',
+		'bbp_is_topic_edit'       => 'bbp_get_topic_edit_template',
+		'bbp_is_single_topic'     => 'bbp_get_single_topic_template',
+		'bbp_is_topic_archive'    => 'bbp_get_topic_archive_template',
+
+		// Reply
+		'bbp_is_reply_move'       => 'bbp_get_reply_move_template',
+		'bbp_is_reply_edit'       => 'bbp_get_reply_edit_template',
+		'bbp_is_single_reply'     => 'bbp_get_single_reply_template',
+
+		// Topic tag
+		'bbp_is_topic_tag_edit'   => 'bbp_get_topic_tag_edit_template',
+		'bbp_is_topic_tag'        => 'bbp_get_topic_tag_template',
+	);
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_template_include_templates', $templates );
+}
+
+/** Deprecated ****************************************************************/
+
+/**
+ * Get the templates to use as the endpoint for bbPress template parts.
+ *
+ * This function was deprecated because it was named plural when it should have
+ * been singular, as it only returns the path to a single file.
+ *
+ * @since 2.0.0 bbPress (r3311)
+ * @since 2.6.0 bbPress (r5950) Added `singular.php` to template stack
+ * @deprecated 2.7.0 bbPress (r7393)
+ *
+ * @return string Path to template file.
+ */
+function bbp_get_theme_compat_templates() {
+	return bbp_get_theme_compat_template();
+}
+

@@ -481,16 +481,20 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * template part as needed.
  *
  * @since 2.0.0 bbPress (r3032)
+ * @since 2.7.0 bbPress (r7393) Added support for Block Themes
  *
  * @param string $template
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
 	/**
-	 * Bail if a root template was already found. This prevents unintended
-	 * recursive filtering of 'the_content'.
+	 * Bail if the template already matches a bbPress template. This includes
+	 * archive-* and single-* WordPress post_type matches (allowing
+	 * themes to use the expected format) as well as all bbPress-specific
+	 * template files for users, topics, forums, etc...
 	 *
-	 * @link https://bbpress.trac.wordpress.org/ticket/2429
+	 * @see https://bbpress.trac.wordpress.org/ticket/1478
+	 * @see https://bbpress.trac.wordpress.org/ticket/2429
 	 */
 	if ( bbp_is_template_included() ) {
 		return $template;
@@ -837,40 +841,36 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	}
 
 	/**
-	 * Bail if the template already matches a bbPress template. This includes
-	 * archive-* and single-* WordPress post_type matches (allowing
-	 * themes to use the expected format) as well as all bbPress-specific
-	 * template files for users, topics, forums, etc...
-	 *
-	 * We do this after the above checks to prevent incorrect 404 body classes
-	 * and header statuses, as well as to set the post global as needed.
-	 *
-	 * @see https://bbpress.trac.wordpress.org/ticket/1478/
-	 */
-	if ( bbp_is_template_included() ) {
-		return $template;
-
-	/**
 	 * If we are relying on the built-in theme compatibility API to load
 	 * the proper content, we need to intercept the_content, replace the
 	 * output, and display ours instead.
 	 *
 	 * To do this, we first remove all filters from 'the_content' and hook
 	 * our own function into it, which runs a series of checks to determine
-	 * the context, and then uses the built in shortcodes to output the
-	 * correct results from inside an output buffer.
+	 * the context, and then uses the shortcodes API to output the correct
+	 * results from inside an output buffer.
 	 *
-	 * Uses bbp_get_theme_compat_templates() to provide fall-backs that
+	 * Uses bbp_get_theme_compat_template() to provide fall-backs that
 	 * should be coded without superfluous mark-up and logic (prev/next
 	 * navigation, comments, date/time, etc...)
 	 *
-	 * Hook into the 'bbp_get_bbpress_template' to override the array of
+	 * Hook into the 'bbp_get_bbpress_template' filter to override the array of
 	 * possible templates, or 'bbp_bbpress_template' to override the result.
+	 *
+	 * This is Block Theme aware as of 2.7.0 and will use the Canvas file that
+	 * block themes expect instead of a theme-compat template.
 	 */
-	} elseif ( bbp_is_theme_compat_active() ) {
+	if ( bbp_is_theme_compat_active() ) {
 		bbp_remove_all_filters( 'the_content' );
 
-		$template = bbp_get_theme_compat_templates();
+		// Block themes
+		if ( current_theme_supports( 'block-templates' ) ) {
+			$template = bbp_get_theme_canvas_template();
+
+		// Non-block themes
+		} else {
+			$template = bbp_get_theme_compat_template();
+		}
 	}
 
 	// Filter & return
