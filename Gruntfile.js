@@ -1,5 +1,3 @@
-/* jshint node:true */
-/* global module */
 module.exports = function( grunt ) {
 	var path = require( 'path' ),
 		SOURCE_DIR = 'src/',
@@ -28,7 +26,6 @@ module.exports = function( grunt ) {
 			'!**/.{svn,git}/**',
 			'!.editorconfig',
 			'!.gitignore',
-			'!.jshintrc',
 			'!.travis.yml',
 			'!build/**',
 			'!Gruntfile.js',
@@ -134,8 +131,10 @@ module.exports = function( grunt ) {
 				src: BBP_RTL_CSS
 			}
 		},
-		jshint: {
-			options: grunt.file.readJSON( '.jshintrc' ),
+		eslint: {
+			options: {
+				overrideConfigFile: '.eslintrc.json'
+			},
 			grunt: {
 				src: [ 'Gruntfile.js' ]
 			},
@@ -145,13 +144,13 @@ module.exports = function( grunt ) {
 				src: BBP_JS,
 
 				/**
-				 * Limit JSHint's run to a single specified file:
+				 * Limit ESLint's run to a single specified file:
 				 *
-				 * grunt jshint:core --file=filename.js
+				 * grunt eslint:core --file=filename.js
 				 *
 				 * Optionally, include the file path:
 				 *
-				 * grunt jshint:core --file=path/to/filename.js
+				 * grunt eslint:core --file=path/to/filename.js
 				 *
 				 * @param {String} filepath
 				 * @returns {Bool}
@@ -159,38 +158,18 @@ module.exports = function( grunt ) {
 				filter: function( filepath ) {
 					var index, file = grunt.option( 'file' );
 
-					// Don't filter when no target file is specified
 					if ( ! file ) {
 						return true;
 					}
 
-					// Normalise filepath for Windows
 					filepath = filepath.replace( /\\/g, '/' );
 					index = filepath.lastIndexOf( '/' + file );
 
-					// Match only the filename passed from cli
 					if ( filepath === file || ( -1 !== index && index === filepath.length - ( file.length + 1 ) ) ) {
 						return true;
 					}
 
 					return false;
-				}
-			}
-		},
-		jsvalidate:{
-			options:{
-				globals: {},
-				esprimaOptions:{},
-				verbose: false
-			},
-			build: {
-				files: {
-					src: BUILD_DIR + '/**/*.js'
-				}
-			},
-			src: {
-				files: {
-					src: SOURCE_DIR + '/**/*.js'
 				}
 			}
 		},
@@ -223,21 +202,21 @@ module.exports = function( grunt ) {
 		},
 		phpcs: {
 			'default': {
-				cmd: 'phpcs',
+				cmd: 'vendor/bin/phpcs',
 				args: [ '--report-summary', '--report-source', '--cache=.phpcscache' ]
 			}
 		},
 		phpunit: {
 			'default': {
-				cmd: 'phpunit',
+				cmd: 'vendor/bin/phpunit',
 				args: [ '-c', 'phpunit.xml.dist' ]
 			},
 			buddypress: {
-				cmd: 'phpunit',
+				cmd: 'vendor/bin/phpunit',
 				args: [ '-c', 'tests/phpunit/buddypress.xml' ]
 			},
 			multisite: {
-				cmd: 'phpunit',
+				cmd: 'vendor/bin/phpunit',
 				args: [ '-c', 'tests/phpunit/multisite.xml' ]
 			}
 		},
@@ -391,9 +370,9 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'colors', [ 'sass:colors', 'postcss:colors' ] );
 
 	// Build tasks.
-	grunt.registerTask( 'src',     [ 'checkDependencies', 'jsvalidate:src', 'jshint', 'stylelint' ] );
+	grunt.registerTask( 'src',     [ 'checkDependencies', 'eslint:grunt', 'eslint:core', 'stylelint' ] );
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain', 'postcss:core' ] );
-	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'terser:core', 'jsvalidate:build', 'makepot' ] );
+	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'terser:core', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
 
 	// PHPCS test task.
@@ -415,10 +394,10 @@ module.exports = function( grunt ) {
 	} );
 
 	// JavaScript test task.
-	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'jsvalidate:src', 'jshint' ] );
+	grunt.registerTask( 'jstest', 'Runs all JavaScript tasks.', [ 'eslint:grunt', 'eslint:core' ] );
 
 	// Travis CI Task
-	grunt.registerTask( 'travis', [ 'jsvalidate:src', 'jshint', 'checktextdomain', 'phpunit' ] );
+	grunt.registerTask( 'travis', [ 'eslint:grunt', 'eslint:core', 'checktextdomain', 'phpunit' ] );
 
 	// Patch task.
 	grunt.renameTask( 'patch_wordpress', 'patch' );

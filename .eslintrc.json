@@ -1,0 +1,39 @@
+{
+	"root": true,
+	"env": {
+		"browser": true,
+		"es6": true,
+		"jquery": true
+	},
+	"extends": [
+		"eslint:recommended"
+	],
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "script"
+	},
+	"globals": {
+		"_": "readonly",
+		"Backbone": "readonly",
+		"BBP_Converter": "readonly",
+		"QTags": "readonly",
+		"ajaxurl": "readonly",
+		"bbpBlocksJS": "readonly",
+		"bbpEngagementJS": "readonly",
+		"edButtons": "readonly",
+		"switchEditors": "readonly",
+		"tinymce": "readonly",
+		"tinyMCE": "readonly",
+		"wp": "readonly"
+	},
+	"overrides": [
+		{
+			"files": [
+				"Gruntfile.js"
+			],
+			"env": {
+				"node": true
+			}
+		}
+	]
+}

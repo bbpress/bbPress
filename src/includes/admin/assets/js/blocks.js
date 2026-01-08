@@ -1,6 +1,3 @@
-
-/* global bbpBlocksJS, wp */
-
 (function() {
 	if ( typeof wp === 'undefined' || !wp.blocks || !bbpBlocksJS ) {
 		return;

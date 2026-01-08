@@ -1,5 +1,4 @@
-/* globals tinyMCE */
-addReply = {
+var addReply = {
 
 	/**
 	 * Move the reply form when "Reply" is clicked.
@@ -119,9 +118,10 @@ addReply = {
 			elemRect    = form.getBoundingClientRect(),
 			position    = (window.pageYOffset || document.scrollTop)  - (document.clientTop || 0),
 			destination = ( position + elemRect.top ),
-			negative    = ( destination < position ), // jshint ignore:line
+			negative    = ( destination < position ),
 			adminbar    = t.getElement( 'wpadminbar'),
-			offset      = 0;
+			offset      = 0,
+			distance    = 0;
 
 		/* Offset by the adminbar */
 		if ( adminbar && ( typeof ( adminbar ) !== 'undefined' ) ) {
@@ -129,10 +129,7 @@ addReply = {
 		}
 
 		/* Compute the difference, depending on direction */
-		/* jshint ignore:start */
-		distance = ( true === negative )
-			? ( position - destination )
-			: ( destination - position );
+		distance = true === negative ? ( position - destination ) : ( destination - position );
 
 		/* Do some math to compute the animation steps */
 		var vast       = ( distance > 800 ),
@@ -141,6 +138,10 @@ addReply = {
 			step       = Math.round( distance / speed_step ),
 			steps      = [],
 			timer      = 0;
+
+		function scrollStep() {
+			window.scrollTo( 0, steps.shift() );
+		}
 
 		/* Scroll up */
 		if ( true === negative ) {
@@ -153,9 +154,7 @@ addReply = {
 
 				steps.push( position - offset );
 
-				setTimeout( function() {
-					window.scrollTo( 0, steps.shift() );
-				}, timer * speed );
+				setTimeout( scrollStep, timer * speed );
 
 				timer++;
 			}
@@ -171,14 +170,11 @@ addReply = {
 
 				steps.push( position - offset );
 
-				setTimeout( function() {
-					window.scrollTo( 0, steps.shift() );
-				}, timer * speed );
+				setTimeout( scrollStep, timer * speed );
 
 				timer++;
 			}
 		}
-		/* jshint ignore:end */
 	},
 
 	/**

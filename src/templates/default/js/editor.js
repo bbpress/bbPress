@@ -1,4 +1,3 @@
-/* global edButtons, QTags, tinymce */
 jQuery(document).ready( function() {
 
 	/* Use backticks instead of <code> for the Code button in the editor */

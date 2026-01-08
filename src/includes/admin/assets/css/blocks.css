@@ -1,55 +1,103 @@
 
 .bbpress-block {
-	background: #fff;
-	border: 1px solid #e0e0e3;
-	border-radius: 6px;
-	padding: 16px 18px;
-	margin: 12px 0;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+	/* Token set */
+	--bbp-color-bg: #fff;
+	--bbp-color-bg-soft: #fafbfc;
+	--bbp-color-border: #e0e0e3;
+	--bbp-color-border-soft: #dfe1e4;
+	--bbp-color-text: #1d2327;
+	--bbp-color-text-muted: #646970;
+	--bbp-color-link: #2271b1;
+	--bbp-color-link-dark: #135e96;
+	--bbp-color-input-border: #cfd2d6;
+	--bbp-color-row-sep: #f0f1f3;
+	/* Stronger zebra for readability in editor */
+	--bbp-color-row-alt: rgba(0, 0, 0, 0.03);
+	--bbp-color-row-hover: rgba(46, 112, 177, 0.03);
+
+	--bbp-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+	--bbp-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+
+	--bbp-radius-md: 0.375rem; /* 6px */
+	--bbp-radius-sm: 0.25rem;  /* 4px */
+
+	--bbp-space-1: 0.25rem;   /* 4px */
+	--bbp-space-2: 0.5rem;    /* 8px */
+	--bbp-space-3: 0.625rem;  /* 10px */
+	--bbp-space-4: 0.75rem;   /* 12px */
+	--bbp-space-5: 0.875rem;  /* 14px */
+	--bbp-space-6: 1rem;      /* 16px */
+	--bbp-space-7: 1.125rem;  /* 18px */
+
+	--bbp-control-height: 2.375rem;   /* 38px */
+	--bbp-control-height-sm: 2.25rem; /* 36px */
+
+	--bbp-font-size-sm: 0.75rem;      /* 12px */
+	--bbp-font-size-base: 0.8125rem;  /* 13px */
+	--bbp-font-size-h3: 0.9375rem;    /* 15px */
+
+	--bbp-button-grad-start: #f8f9fa;
+	--bbp-button-grad-end: #f0f1f2;
+	--bbp-button-border: #d0d1d3;
+	--bbp-color-bg-soft-strong: #f5f6f7;
+
+	/* Indentation used for threaded/nested replies in preview */
+	--bbp-thread-indent: 18px;
+	/* Author column width to keep header/content aligned */
+	--bbp-author-col: 140px;
+
+	background: var(--bbp-color-bg);
+	border: 1px solid var(--bbp-color-border);
+	border-radius: var(--bbp-radius-md);
+	padding-block: var(--bbp-space-6);
+	padding-inline: var(--bbp-space-7);
+	margin-block: var(--bbp-space-4);
+	box-shadow: var(--bbp-shadow-card);
 	transition: box-shadow 0.2s ease;
 }
 
 .bbpress-block.is-selected::after {
-	border-radius: 6px !important;
+	border-radius: var(--bbp-radius-md) !important;
 }
 
 .bbpress-block h3 {
-	color: #1d2327;
-	margin: 0 0 10px;
-	font-size: 15px;
+	color: var(--bbp-color-text);
+	margin: 0 0 var(--bbp-space-3);
+	font-size: var(--bbp-font-size-h3);
 	font-weight: 600;
 	letter-spacing: -0.01em;
 }
 
 .bbpress-block__description {
-	color: #646970;
-	font-size: 13px;
-	margin: 0 0 14px;
+	color: var(--bbp-color-text-muted);
+	font-size: var(--bbp-font-size-base);
+	margin: 0;
+	margin-block-end: var(--bbp-space-5);
 	line-height: 1.5;
 }
 
 .bbpress-block__placeholder {
-	padding: 14px;
+	padding: var(--bbp-space-5);
 	margin: 0;
 	text-align: center;
 	color: #50575e;
-	font-size: 15px;
+	font-size: var(--bbp-font-size-h3);
 	font-weight: 500;
 	letter-spacing: -0.005em;
-	background: #fafbfc;
-	border: 1px solid #e8e9eb;
-	border-radius: 6px;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+	background: var(--bbp-color-bg-soft);
+	border: 1px solid var(--bbp-color-border-soft);
+	border-radius: var(--bbp-radius-md);
+	box-shadow: var(--bbp-shadow-inset);
 }
 
 .bbpress-block__preview {
-	border: 1px solid #e8e9eb;
-	border-radius: 6px;
-	padding: 14px;
-	background: #fafbfc;
+	border: 1px solid var(--bbp-color-border-soft);
+	border-radius: var(--bbp-radius-md);
+	padding: var(--bbp-space-5);
+	background: var(--bbp-color-bg-soft);
 	position: relative;
 	overflow: auto;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+	box-shadow: var(--bbp-shadow-inset);
 	min-height: 26px;
 	/* Wrapper remains clickable; child interactive elements disabled below */
 	pointer-events: auto;
@@ -58,12 +106,12 @@
 /* Lightly normalize bbPress preview forms inside the editor */
 .bbpress-block__preview #bbpress-forums,
 .block-editor .bbpress-block__preview #bbpress-forums {
-	font-size: 13px;
+	font-size: var(--bbp-font-size-base);
 }
 
 /* When forms render without the bbpress-forums wrapper (common in blocks), keep the same normalization */
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) {
-	font-size: 13px;
+	font-size: var(--bbp-font-size-base);
 }
 
 .bbpress-block__preview #bbpress-forums input[type="text"],
@@ -77,14 +125,14 @@
 	max-width: 100%;
 	width: 100%;
 	box-sizing: border-box;
-	border-radius: 4px;
-	border: 1px solid #cfd2d6;
-	background: #fff;
-	color: #1d2327;
+	border-radius: var(--bbp-radius-sm);
+	border: 1px solid var(--bbp-color-input-border);
+	background: var(--bbp-color-bg);
+	color: var(--bbp-color-text);
 	padding: 8px 10px;
-	font-size: 13px;
+	font-size: var(--bbp-font-size-base);
 	line-height: 1.4;
-	height: 38px;
+	height: var(--bbp-control-height);
 	transition: border-color 0.15s ease;
 }
 
@@ -94,7 +142,7 @@
 	margin: 0 0 5px;
 	padding: 0;
 	font-weight: 400;
-	color: #2c3338;
+	color: var(--bbp-color-text);
 }
 
 .bbpress-block__preview #bbpress-forums input[type="checkbox"],
@@ -123,7 +171,8 @@
 .bbpress-block__preview #bbpress-forums .bbp-form p,
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) fieldset p,
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-form p {
-	margin: 0 0 12px;
+	margin: 0;
+	margin-block-end: var(--bbp-space-4);
 	padding: 0;
 }
 
@@ -137,7 +186,7 @@
 
 .bbpress-block__preview #bbpress-forums .bbp-the-content-wrapper,
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-the-content-wrapper {
-	margin-bottom: 8px;
+	margin-block-end: var(--bbp-space-2);
 }
 
 /* WYSIWYG-style textareas in bbPress forms: square corners, no grab handles */
@@ -149,13 +198,13 @@
 
 .bbpress-block__preview #bbpress-forums .button,
 .bbpress-block__preview #bbpress-forums input[type="submit"] {
-	background: linear-gradient(to bottom, #f8f9fa, #f0f1f2);
-	border: 1px solid #d0d1d3;
+	background: linear-gradient(to bottom, var(--bbp-button-grad-start), var(--bbp-button-grad-end));
+	border: 1px solid var(--bbp-button-border);
 	border-radius: 5px;
-	color: #1d2327;
+	color: var(--bbp-color-text);
 	padding: 0 12px;
-	height: 38px;
-	line-height: 38px;
+	height: var(--bbp-control-height);
+	line-height: var(--bbp-control-height);
 	cursor: default;
 	font-weight: 500;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -165,10 +214,10 @@
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .button,
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input[type="submit"],
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button[type="submit"] {
-	background: linear-gradient(to bottom, #f8f9fa, #f0f1f2);
-	border: 1px solid #d0d1d3;
+	background: linear-gradient(to bottom, var(--bbp-button-grad-start), var(--bbp-button-grad-end));
+	border: 1px solid var(--bbp-button-border);
 	border-radius: 5px;
-	color: #1d2327;
+	color: var(--bbp-color-text);
 	padding: 0 12px;
 	height: 38px;
 	line-height: 38px;
@@ -205,6 +254,278 @@
 	padding: 0;
 }
 
+/* Normalize containers: forums/topics match replies styling */
+.bbpress-block__preview #bbpress-forums ul.bbp-forums,
+.bbpress-block__preview #bbpress-forums ul.bbp-topics,
+.bbpress-block__preview #bbpress-forums ul.bbp-replies,
+.bbpress-block__preview :where(ul.bbp-replies) {
+	border: 1px solid var(--bbp-color-border-soft);
+	background: #fff;
+	margin: 12px 0 0;
+}
+
+/* Header/footer base for replies table */
+.bbpress-block__preview #bbpress-forums ul.bbp-replies > li.bbp-header,
+.bbpress-block__preview #bbpress-forums ul.bbp-replies > li.bbp-footer,
+.bbpress-block__preview :where(ul.bbp-replies) > li.bbp-header,
+.bbpress-block__preview :where(ul.bbp-replies) > li.bbp-footer {
+	padding: 10px 12px;
+	background: linear-gradient(to bottom, var(--bbp-color-bg-soft), var(--bbp-color-bg-soft-strong));
+	border-bottom: 1px solid var(--bbp-color-border-soft);
+	color: #1d2327;
+	font-weight: 600;
+}
+
+/* Footer: add top border for visual closure */
+.bbpress-block__preview #bbpress-forums ul.bbp-replies > li.bbp-footer,
+.bbpress-block__preview :where(ul.bbp-replies) > li.bbp-footer {
+	border-top: 1px solid var(--bbp-color-border-soft);
+	border-bottom: none;
+	clear: both;
+}
+
+/* Contain header/footer floats */
+.bbpress-block__preview #bbpress-forums ul.bbp-replies > li.bbp-header::after,
+.bbpress-block__preview #bbpress-forums ul.bbp-replies > li.bbp-footer::after,
+.bbpress-block__preview :where(ul.bbp-replies) > li.bbp-header::after,
+.bbpress-block__preview :where(ul.bbp-replies) > li.bbp-footer::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+/* Two-column layout: author (fixed) + content (fluid) */
+.bbpress-block__preview #bbpress-forums .bbp-reply-author,
+.bbpress-block__preview :where(.bbp-reply-author) {
+	float: left;
+	width: var(--bbp-author-col);
+	box-sizing: border-box;
+	text-align: left;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-reply-content,
+.bbpress-block__preview :where(.bbp-reply-content) {
+	float: left;
+	width: calc(100% - var(--bbp-author-col));
+	box-sizing: border-box;
+}
+
+/* Ensure topic rows use the same two-column widths */
+.bbpress-block__preview #bbpress-forums .bbp-topic-author,
+.bbpress-block__preview :where(.bbp-topic-author) {
+	float: left;
+	width: var(--bbp-author-col);
+	box-sizing: border-box;
+	text-align: left;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-topic-content,
+.bbpress-block__preview :where(.bbp-topic-content) {
+	float: left;
+	width: calc(100% - var(--bbp-author-col));
+	box-sizing: border-box;
+}
+
+/* Header column spacing */
+.bbpress-block__preview #bbpress-forums li.bbp-header .bbp-reply-author,
+.bbpress-block__preview #bbpress-forums li.bbp-header .bbp-reply-content,
+.bbpress-block__preview li.bbp-header .bbp-reply-author,
+.bbpress-block__preview li.bbp-header .bbp-reply-content {
+	padding: 0;
+	margin: 0;
+}
+
+/* Body rows: spacing and separators */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul, /* replies list */
+.bbpress-block__preview li.bbp-body > ul {
+	margin: 0;
+	padding: 0;
+}
+
+/* Each reply row */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li, /* each reply row */
+.bbpress-block__preview li.bbp-body > ul > li {
+	position: relative;
+	padding: 0; /* columns handle internal padding */
+	margin: 0; /* table-like alignment */
+	background: #fff;
+}
+
+/* Subtle zebra by shading the content column only */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li:nth-child(even) .bbp-reply-content {
+	background: rgba(0, 0, 0, 0.01);
+}
+
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li::after, /* clearfix */
+.bbpress-block__preview li.bbp-body > ul > li::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-reply-author,
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-reply-content,
+.bbpress-block__preview li.bbp-body .bbp-reply-author,
+.bbpress-block__preview li.bbp-body .bbp-reply-content {
+	padding: 10px 12px;
+}
+
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-topic-author,
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-topic-content,
+.bbpress-block__preview li.bbp-body .bbp-topic-author,
+.bbpress-block__preview li.bbp-body .bbp-topic-content {
+	padding: 10px 12px;
+}
+
+/* Align per-reply/topic headers inside content column and separate rows */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-reply-header,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-topic-header,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-reply-header,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-topic-header,
+.bbpress-block__preview li.bbp-body > .bbp-reply-header,
+.bbpress-block__preview li.bbp-body > .bbp-topic-header {
+	margin: 0; /* reset */
+	padding: 0 12px 0 calc(var(--bbp-author-col) + 12px); /* align text with content column while keeping full-width border */
+	margin-left: 0;
+	clear: both; /* ensure header sits above next row, not beside floats */
+	border-top: 1px solid var(--bbp-color-row-sep);
+	color: var(--bbp-color-text-muted);
+	font-size: var(--bbp-font-size-sm);
+}
+
+/* No top border on the very first header inside the body */
+.bbpress-block__preview li.bbp-body > .bbp-reply-header:first-of-type,
+.bbpress-block__preview li.bbp-body > .bbp-topic-header:first-of-type { border-top: 0; }
+
+/* Make header meta inline, left-aligned, and non-floating */
+.bbpress-block__preview .bbp-reply-header .bbp-meta,
+.bbpress-block__preview .bbp-topic-header .bbp-meta {
+	display: flex !important;
+	align-items: center;
+	gap: 8px;
+	float: none !important;
+	justify-content: flex-start;
+	text-align: left;
+}
+
+.bbpress-block__preview .bbp-reply-header .bbp-reply-post-date,
+.bbpress-block__preview .bbp-reply-header .bbp-reply-permalink,
+.bbpress-block__preview .bbp-topic-header .bbp-topic-permalink {
+	float: none !important;
+	display: inline-block;
+	margin: 0;
+}
+
+/* Defensive: clear any remaining floats inside headers in preview */
+.bbpress-block__preview .bbp-reply-header *,
+.bbpress-block__preview .bbp-topic-header * {
+	float: none !important;
+}
+
+/* Ensure header meta stacks and doesn't float */
+.bbpress-block__preview #bbpress-forums .bbp-reply-header .bbp-meta,
+.bbpress-block__preview #bbpress-forums .bbp-topic-header .bbp-meta,
+.bbpress-block__preview .bbp-reply-header .bbp-meta,
+.bbpress-block__preview .bbp-topic-header .bbp-meta {
+	float: none !important;
+	display: block;
+}
+
+/* Remove previous cell separators to avoid double borders */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-reply-author,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-reply-content,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-topic-author,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li .bbp-topic-content,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-reply-author,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-reply-content,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-topic-author,
+.bbpress-block__preview li.bbp-body > ul > li .bbp-topic-content {
+	border-top: 0 !important;
+}
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-topic-author,
+.bbpress-block__preview #bbpress-forums li.bbp-body .bbp-topic-content {
+	padding: 10px 12px;
+}
+
+/* Meta (timestamp/permalink) should not disrupt columns */
+.bbpress-block__preview #bbpress-forums .bbp-reply-content .bbp-meta,
+.bbpress-block__preview #bbpress-forums .bbp-topic-content .bbp-meta {
+	float: none !important;
+	display: block;
+	margin: 0 0 6px;
+	padding: 0;
+	color: var(--bbp-color-text-muted);
+	font-size: var(--bbp-font-size-sm);
+}
+
+/* Fallback: ensure meta inside replies container behaves even without headers */
+.bbpress-block__preview :where(ul.bbp-replies) .bbp-meta {
+    float: none !important;
+    display: block;
+    margin: 0;
+    color: var(--bbp-color-text-muted);
+    font-size: var(--bbp-font-size-sm);
+}
+
+/* Override front-end float-right permalink inside preview */
+.bbpress-block__preview .bbp-reply-header a.bbp-reply-permalink,
+.bbpress-block__preview .bbp-topic-header a.bbp-topic-permalink {
+	float: none !important;
+}
+
+/* Neutralize default odd/even zebra backgrounds in preview (but keep .reply rows eligible) */
+.bbpress-block__preview :is(div.odd, div.even):not(.reply),
+.bbpress-block__preview :is(ul.odd, ul.even) {
+	background: transparent !important;
+}
+
+/* Subtle zebra striping for replies only (not lead topic) */
+.bbpress-block__preview .reply.type-reply.odd { background: transparent !important; }
+.bbpress-block__preview .reply.type-reply.even { background: var(--bbp-color-row-alt) !important; }
+.bbpress-block__preview .reply.type-reply:hover { background: var(--bbp-color-row-hover) !important; }
+
+.bbpress-block__preview #bbpress-forums .bbp-reply-content .bbp-reply-post-date,
+.bbpress-block__preview #bbpress-forums .bbp-reply-content .bbp-reply-permalink {
+	display: inline;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-topic-content .bbp-reply-post-date,
+.bbpress-block__preview #bbpress-forums .bbp-topic-content .bbp-reply-permalink {
+	display: inline;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-reply-content p {
+	margin: 0 0 8px;
+}
+
+/* Hierarchical replies (threaded) — indent nested levels when present */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li ul {
+	margin: 8px 0 0 var(--bbp-thread-indent);
+	padding: 0;
+}
+
+/* Common class patterns used by bbPress for depths; best-effort preview-only */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.bbp-reply-depth-2,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.depth-2 { margin-left: calc(var(--bbp-thread-indent) * 1); }
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.bbp-reply-depth-3,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.depth-3 { margin-left: calc(var(--bbp-thread-indent) * 2); }
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.bbp-reply-depth-4,
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li.depth-4 { margin-left: calc(var(--bbp-thread-indent) * 3); }
+
+/* Hide moderator/admin links and reply controls in preview */
+.bbpress-block__preview #bbpress-forums .bbp-admin-links,
+.bbpress-block__preview #bbpress-forums .bbp-reply-admin-links,
+.bbpress-block__preview #bbpress-forums a.bbp-reply-to-link,
+.bbpress-block__preview #bbpress-forums .bbp-row-actions,
+.bbpress-block__preview .bbp-admin-links,
+.bbpress-block__preview .bbp-reply-admin-links,
+.bbpress-block__preview a.bbp-reply-to-link,
+.bbpress-block__preview .bbp-row-actions { display: none !important; }
+
+/* Hide favorites/subscriptions toggles in preview */
+.bbpress-block__preview #bbpress-forums #favorite-toggle,
+.bbpress-block__preview #bbpress-forums #subscription-toggle { display: none !important; }
+
 /* Remove list markers globally inside previews */
 .bbpress-block__preview #bbpress-forums ul,
 .bbpress-block__preview #bbpress-forums li {
@@ -230,29 +551,30 @@
 
 /* Headers */
 .bbpress-block__preview #bbpress-forums li.bbp-header ul.forum-titles li {
-	padding: 8px 10px;
-	color: #1d2327;
+	padding: 10px 12px;
+	color: var(--bbp-color-text);
 	font-weight: 600;
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
+	font-size: var(--bbp-font-size-sm);
+	text-transform: none;
+	letter-spacing: normal;
 }
 
 /* Header separator under titles */
 .bbpress-block__preview #bbpress-forums li.bbp-header {
-	border-bottom: 2px solid #e8e9eb;
-	background: linear-gradient(to bottom, #fafbfc, #f5f6f7);
-	margin-bottom: 2px;
+	border-bottom: 1px solid var(--bbp-color-border-soft);
+	background: linear-gradient(to bottom, var(--bbp-color-bg-soft), var(--bbp-color-bg-soft-strong));
+	margin-bottom: 0;
+	color: #1d2327;
 }
 
 /* Body rows */
 .bbpress-block__preview #bbpress-forums li.bbp-body ul li {
-	padding: 10px 12px;
+	padding: var(--bbp-space-3) var(--bbp-space-4);
 }
 
 /* Row separators use top borders to avoid uneven bottoms */
 .bbpress-block__preview #bbpress-forums li.bbp-body ul {
-	border-top: 1px solid #f0f1f3;
+	border-top: 1px solid var(--bbp-color-row-sep);
 	transition: background-color 0.15s ease;
 }
 
@@ -261,11 +583,11 @@
 }
 
 .bbpress-block__preview #bbpress-forums li.bbp-body ul:nth-child(even) {
-	background: rgba(0, 0, 0, 0.01);
+	background: var(--bbp-color-row-alt);
 }
 
 .bbpress-block__preview #bbpress-forums li.bbp-body ul:hover {
-	background: rgba(46, 112, 177, 0.03);
+	background: var(--bbp-color-row-hover);
 }
 
 /* Forums: columns (info | topics | replies | freshness) */
@@ -361,7 +683,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	font-weight: 500;
-	color: #2271b1;
+	color: var(--bbp-color-link);
 	transition: color 0.15s ease;
 }
 .bbpress-block__preview #bbpress-forums li.bbp-body ul li.bbp-topic-title .bbp-topic-meta {
@@ -375,8 +697,8 @@
 .bbpress-block__preview #bbpress-forums li.bbp-body ul li.bbp-forum-freshness .bbp-topic-meta,
 .bbpress-block__preview #bbpress-forums li.bbp-body ul li.bbp-topic-freshness .bbp-topic-meta {
 	margin-top: 4px;
-	color: #646970;
-	font-size: 12px;
+	color: var(--bbp-color-text-muted);
+	font-size: var(--bbp-font-size-sm);
 }
 
 /* Pagination and long meta can break narrow previews; hide */
@@ -390,14 +712,8 @@
 	text-overflow: ellipsis;
 }
 
-/* Hide avatars in previews for clean appearance */
-.bbpress-block__preview #bbpress-forums img.avatar,
-.bbpress-block__preview #bbpress-forums .bbp-author-avatar {
-	display: none;
-}
-
 /* Disable link interactions inside previews */
-.bbpress-block__preview #bbpress-forums a {
+.bbpress-block__preview :is(#bbpress-forums, .bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a {
 	pointer-events: none;
 	cursor: default;
 	text-decoration: none;
@@ -405,75 +721,71 @@
 	box-shadow: none;
 }
 
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a {
-	pointer-events: none;
-	cursor: default;
-	text-decoration: none;
-	border-bottom: 0;
-	box-shadow: none;
-}
+/* Preview: hide timestamps and permalinks in reply/topic headers */
+.bbpress-block__preview .bbp-replies .bbp-reply-post-date,
+.bbpress-block__preview .bbp-replies .bbp-reply-permalink,
+.bbpress-block__preview .bbp-replies .bbp-topic-permalink { display: none !important; }
+
+/* Preview: hide author avatar, display name, and IP address */
+.bbpress-block__preview #bbpress-forums img.avatar,
+.bbpress-block__preview #bbpress-forums .bbp-author-avatar,
+.bbpress-block__preview #bbpress-forums .bbp-author-link,
+.bbpress-block__preview .bbp-author-link,
+.bbpress-block__preview img.avatar,
+.bbpress-block__preview .bbp-author-avatar,
+.bbpress-block__preview .bbp-reply-ip,
+.bbpress-block__preview .bbp-author-ip { display: none !important; }
+
+/* Preview: ensure each reply row has a comfortable height while still growing with content */
+.bbpress-block__preview #bbpress-forums li.bbp-body > ul > li,
+.bbpress-block__preview li.bbp-body > ul > li { min-height: 68px; }
 
 /* Disable form interactions (show controls but non-interactive) */
-.bbpress-block__preview #bbpress-forums form,
-.bbpress-block__preview #bbpress-forums input,
-.bbpress-block__preview #bbpress-forums textarea,
-.bbpress-block__preview #bbpress-forums select,
-.bbpress-block__preview #bbpress-forums button {
+.bbpress-block__preview :is(#bbpress-forums, .bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) :is(form, input, textarea, select, button) {
 	pointer-events: none;
-}
-
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) form,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button {
-	pointer-events: none;
+	cursor: default;
 }
 
 /* Non-interactive preview: remove focus outlines */
-.bbpress-block__preview #bbpress-forums a:focus,
-.bbpress-block__preview #bbpress-forums button:focus,
-.bbpress-block__preview #bbpress-forums input:focus,
-.bbpress-block__preview #bbpress-forums textarea:focus,
-.bbpress-block__preview #bbpress-forums select:focus {
-	outline: none !important;
-	box-shadow: none !important;
-}
-
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a:focus,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button:focus,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input:focus,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea:focus,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select:focus {
+.bbpress-block__preview :is(#bbpress-forums, .bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) :is(a:focus, button:focus, input:focus, textarea:focus, select:focus) {
 	outline: none !important;
 	box-shadow: none !important;
 }
 
 /* Non-interactive preview: disable pointer events on interactive children */
-.bbpress-block__preview #bbpress-forums a,
-.bbpress-block__preview #bbpress-forums button,
-.bbpress-block__preview #bbpress-forums input,
-.bbpress-block__preview #bbpress-forums textarea,
-.bbpress-block__preview #bbpress-forums select,
-.bbpress-block__preview #bbpress-forums form {
+/* Consolidated non-interactive children across bbPress preview contexts */
+.bbpress-block__preview :is(#bbpress-forums, .bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) :is(a, button, input, textarea, select, form) {
 	pointer-events: none;
 	cursor: default;
 }
 
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) a,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) button,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) input,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) textarea,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) select,
-.bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) form {
-	pointer-events: none;
-	cursor: default;
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+	.bbpress-block {
+		transition: none !important;
+	}
+	.bbpress-block__preview {
+		transition: none !important;
+	}
+	.bbpress-block__preview :is(#bbpress-forums, .bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) :is(input[type="text"], input[type="password"], textarea, select, .button, input[type="submit"], button[type="submit"]) {
+		transition: none !important;
+	}
+	.bbpress-block__preview #bbpress-forums li.bbp-body ul,
+	.bbpress-block__preview #bbpress-forums li.bbp-body ul:hover,
+	.bbpress-block__preview #bbpress-forums li.bbp-body ul li.bbp-topic-title .bbp-topic-permalink {
+		transition: none !important;
+	}
 }
 
 /* Footer spacer rows - neutralize WP admin padding */
 .bbpress-block__preview #bbpress-forums li.bbp-footer {
-	padding: 4px 8px 0 8px;
+	padding: 10px 12px;
 	margin: 0;
+}
+
+.bbpress-block__preview #bbpress-forums .bbp-forums li.bbp-footer,
+.bbpress-block__preview #bbpress-forums .bbp-topics li.bbp-footer {
+	display: none;
 }
 
 /* Notices: remove default UL padding/margins inside template notices */
@@ -484,10 +796,9 @@
 .bbpress-block__preview .bbp-template-notice ul,
 .bbpress-block__preview :where(.bbp-topic-form, .bbp-reply-form, .bbp-forum-form, .bbp-login-form) .bbp-template-notice ul {
 	margin: 0;
-	padding-left: 0;
-	padding-right: 0;
+	padding-inline: 0;
 	list-style: none;
-	font-size: 13px;
+	font-size: var(--bbp-font-size-base);
 }
 
 /* Inline search input and button in previews */
@@ -495,8 +806,8 @@
 .bbpress-block__preview #bbpress-forums form[role="search"] {
 	display: flex;
 	align-items: stretch; /* ensure input and button match heights */
-	gap: 10px;
-	margin: 8px 0;
+	gap: var(--bbp-space-3);
+	margin-block: var(--bbp-space-2);
 }
 
 .bbpress-block__preview #bbpress-forums #bbp-search-form input[type="text"],
@@ -504,10 +815,10 @@
 	flex: 1 1 auto;
 	width: auto;
 	max-width: 100%;
-	height: 36px; /* match WordPress admin control height */
-	border-radius: 6px;
-	border: 1px solid #d0d1d3;
-	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+	height: var(--bbp-control-height-sm); /* match WordPress admin control height */
+	border-radius: var(--bbp-radius-md);
+	border: 1px solid var(--bbp-button-border);
+	box-shadow: var(--bbp-shadow-inset);
 }
 
 .bbpress-block__preview #bbpress-forums #bbp-search-form .button,
@@ -515,11 +826,39 @@
 .bbpress-block__preview #bbpress-forums #bbp-search-form input[type="submit"],
 .bbpress-block__preview #bbpress-forums form[role="search"] input[type="submit"] {
 	white-space: nowrap;
-	height: 36px; /* match input height */
-	line-height: 36px; /* center text vertically */
-	padding: 0 16px; /* remove vertical padding to match height */
-	background: linear-gradient(to bottom, #2271b1, #135e96);
-	border-color: #135e96;
+	height: var(--bbp-control-height-sm); /* match input height */
+	line-height: var(--bbp-control-height-sm); /* center text vertically */
+	padding-inline: var(--bbp-space-6); /* remove vertical padding to match height */
+	background: linear-gradient(to bottom, var(--bbp-color-link), var(--bbp-color-link-dark));
+	border-color: var(--bbp-color-link-dark);
 	color: #fff;
 	font-weight: 500;
 }
+
+/* Optional future interaction: hover color token */
+.bbpress-block__preview #bbpress-forums li.bbp-body ul li.bbp-topic-title .bbp-topic-permalink:hover {
+    color: var(--bbp-color-link-dark);
+}
+
+/* Dark mode token overrides
+@media (prefers-color-scheme: dark) {
+	.bbpress-block {
+		--bbp-color-bg: #1b1d21;
+		--bbp-color-bg-soft: #23262b;
+		--bbp-color-border: #2f3238;
+		--bbp-color-border-soft: #2a2d33;
+		--bbp-color-text: #e7eaf0;
+		--bbp-color-text-muted: #9aa3ad;
+		--bbp-color-link: #79b0ff;
+		--bbp-color-link-dark: #4b86c8;
+		--bbp-color-input-border: #3a3d44;
+		--bbp-color-row-sep: #2f3238;
+		--bbp-color-row-alt: rgba(255, 255, 255, 0.03);
+		--bbp-color-row-hover: rgba(121, 176, 255, 0.06);
+
+		--bbp-button-grad-start: #1e5f98;
+		--bbp-button-grad-end: #144a77;
+		--bbp-button-border: #144a77;
+	}
+}
+*/

@@ -1,5 +1,3 @@
-/*jshint sub:true*/
-/* global document, jQuery, ajaxurl, BBP_Converter */
 jQuery( document ).ready( function ( $ ) {
 	'use strict';
 
@@ -222,7 +220,6 @@ jQuery( document ).ready( function ( $ ) {
 
 		start.hide();
 		stop.show();
-console.log( fields );
 		spinner.css( 'visibility', 'visible' );
 		fields.prop( 'readonly', true );
 

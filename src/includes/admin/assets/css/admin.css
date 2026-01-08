@@ -8,8 +8,13 @@
 #poststuff #bbp_reply_attributes input#bbp_forum_id,
 #poststuff #bbp_reply_attributes input#bbp_topic_id,
 #poststuff #bbp_author_metabox input#bbp_author_id,
-#poststuff #bbp_author_metabox input#bbp_author_ip_address {
-	max-width: 170px;
+#poststuff #bbp_author_metabox input#bbp_author_ip_address,
+#poststuff #bbp_author_metabox input#bbp_anonymous_name,
+#poststuff #bbp_author_metabox input#bbp_anonymous_email,
+#poststuff #bbp_author_metabox input#bbp_anonymous_website {
+	max-width: 165px;
+	padding: 0 8px;
+	box-sizing: border-box;
 }
 
 /* Version Badge */
