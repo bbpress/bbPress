@@ -534,4 +534,3 @@ function bbp_get_template_include_templates() {
 function bbp_get_theme_compat_templates() {
 	return bbp_get_theme_compat_template();
 }
-

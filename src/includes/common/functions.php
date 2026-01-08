@@ -154,12 +154,12 @@ function bbp_get_paged() {
  *
  * @since 2.7.0 bbPress (r7388)
  *
- * @param bool   $use       Optional. Default false. If using.
+ * @param bool   $using     Optional. Default false. If using.
  * @param string $post_type Optional. Default empty string. The post type to check.
  *
  * @return bool
  */
-function bbp_filter_use_block_editor_for_post_type( $use = false, $post_type = '' ) {
+function bbp_filter_use_block_editor_for_post_type( $using = false, $post_type = '' ) {
 
 	// Get bbPress post types
 	$bbp_post_types = bbp_get_post_types();
@@ -169,7 +169,7 @@ function bbp_filter_use_block_editor_for_post_type( $use = false, $post_type = '
 	$retval       = ! $is_post_type;
 
 	// Filter & return
-	return (bool) apply_filters( 'bbp_filter_use_block_editor_for_post_type', $retval, $is_post_type, $use, $post_type );
+	return (bool) apply_filters( 'bbp_filter_use_block_editor_for_post_type', $retval, $is_post_type, $using, $post_type );
 }
 
 /**

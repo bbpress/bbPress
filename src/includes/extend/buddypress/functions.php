@@ -461,7 +461,7 @@ function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
  * @since 2.1.0 bbPress (r3653)
  *
  * @param int $forum_id Forum id.
- * 
+ *
  * @return int|bool
  */
 function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
