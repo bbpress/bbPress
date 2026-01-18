@@ -623,6 +623,8 @@ final class bbPress {
 	 * replies can be viewed from within the theme.
 	 *
 	 * @since 2.0.0 bbPress (r2727)
+	 * 
+	 * @global WP_Post_Status[] $wp_post_statuses
 	 */
 	public static function register_post_statuses() {
 
