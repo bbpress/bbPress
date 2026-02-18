@@ -2804,8 +2804,10 @@ function bbp_get_url_scheme() {
 /**
  * Is a title longer that the maximum title length?
  *
- * Uses mb_strlen() in `8bit` mode to treat strings as raw. This matches the
- * behavior present in Comments, PHPMailer, RandomCompat, and others.
+ * Uses mb_strlen() in `utf-8` mode to treat strings as is. This differs from
+ * the behavior present in Comments, PHPMailer, RandomCompat, and others,
+ * because the database column used by titles (posts.post_title) is
+ * TEXT (characters) and not VARCHAR (bytes).
  *
  * @since 2.6.0 bbPress (r6783)
  *
@@ -2814,7 +2816,7 @@ function bbp_get_url_scheme() {
  */
 function bbp_is_title_too_long( $title = '' ) {
 	$max    = bbp_get_title_max_length();
-	$len    = mb_strlen( $title, '8bit' );
+	$len    = mb_strlen( $title, 'utf-8' );
 	$result = ( $len > $max );
 
 	// Filter & return
