@@ -191,8 +191,8 @@ function bbp_edit_user_handler( $action = '' ) {
 	// Get the displayed user ID
 	$user_id = bbp_get_displayed_user_id();
 
-	// Nonce check
-	if ( ! bbp_verify_nonce_request( 'update-user_' . $user_id ) ) {
+	// Request check
+	if ( ! bbp_is_user_profile_form_post_request( $user_id ) ) {
 		bbp_add_error( 'bbp_update_user_nonce', __( '<strong>Error</strong>: Are you sure you wanted to do that?', 'bbpress' ) );
 		return;
 	}

@@ -180,7 +180,7 @@ function bbp_set_user_role( $user_id = 0, $new_role = '' ) {
 			}
 		}
 
-	// User does don exist so return false
+	// User does not exist so return false
 	} else {
 		$new_role = false;
 	}
@@ -264,36 +264,28 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
 }
 
 /**
- * Helper function hooked to 'bbp_profile_update' action to save or
- * update user roles and capabilities.
+ * Helper function to save or update user roles and capabilities.
+ *
+ * By default, this is hooked to the `bbp_profile_update` action which fires
+ * after a user profile is updated to avoid being stomped by set_role().
  *
  * @since 2.2.0 bbPress (r4235)
  *
  * @param int $user_id
+ *
+ * @return void If no user ID passed, invalid request, trying to set own role,
+ *              current user cannot promote the passing user, or no role passed
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
-	// Bail if doing user registration actions
-	if ( doing_action( 'bbp_user_register' ) || doing_action( 'register_new_user' ) ) {
-		return;
-	}
-
-	// Bail if no user ID was passed
+	// Bail if no user ID
+	$user_id = bbp_get_user_id( $user_id, false, false );
 	if ( empty( $user_id ) ) {
 		return;
 	}
 
-	// Bail if no role
-	if ( ! isset( $_POST['bbp-forums-role'] ) ) {
-		return;
-	}
-
-	// Forums role we want the user to have
-	$new_role    = sanitize_key( $_POST['bbp-forums-role'] );
-	$forums_role = bbp_get_user_role( $user_id );
-
-	// Bail if no role change
-	if ( $new_role === $forums_role ) {
+	// Bail if not a user profile form post request
+	if ( ! bbp_is_user_profile_form_post_request( $user_id ) ) {
 		return;
 	}
 
@@ -306,6 +298,14 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	if ( ! current_user_can( 'promote_user', $user_id ) ) {
 		return;
 	}
+
+	// Bail if no role
+	if ( ! isset( $_POST['bbp-forums-role'] ) || ! is_string( $_POST['bbp-forums-role'] ) ) {
+		return;
+	}
+
+	// Forums role we want the user to have
+	$new_role = sanitize_key( $_POST['bbp-forums-role'] );
 
 	// Set the new forums role
 	bbp_set_user_role( $user_id, $new_role );
@@ -351,7 +351,7 @@ function bbp_is_valid_role( $role = '' ) {
  *
  * @since 2.0.0 bbPress (r3380)
  *
- * @return If not multisite, not global, or user is deleted/spammed
+ * @return void If not multisite, not global, or user is deleted/spammed
  */
 function bbp_set_current_user_default_role() {
 
