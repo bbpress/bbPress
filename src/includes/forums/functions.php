@@ -2292,19 +2292,14 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 		// Store return values in static types array
 		if ( ! empty( $forum_ids ) ) {
 
-			// Comparison
-			$compare = ( 1 < count( $forum_ids ) )
-				? 'NOT IN'
-				: '!=';
-
 			// Setup types
 			$types['array']      = $forum_ids;
 			$types['string']     = implode( ',', $forum_ids );
 			$types['meta_query'] = array(
 				'key'     => '_bbp_forum_id',
-				'value'   => $types['string'],
+				'value'   => $forum_ids,
 				'type'    => 'NUMERIC',
-				'compare' => $compare
+				'compare' => 'NOT IN'
 			);
 		}
 	}
@@ -2357,12 +2352,20 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Compare queried post-types to supported post-types
-	$bbp_post_types = array_diff( $post_types, bbp_get_post_types() );
+	$bbp_post_types = array_intersect( $post_types, bbp_get_post_types() );
 
-	// Bail if not a bbPress post type
-	if ( ! empty( $bbp_post_types ) ) {
+	// Bail if no bbPress post type is being queried
+	if ( empty( $bbp_post_types ) ) {
 		return;
 	}
+
+	// Bail if this query has already been normalized
+	if ( $posts_query->get( '_bbp_forum_visibility_normalized' ) ) {
+		return;
+	}
+
+	// Mark this query as normalized
+	$posts_query->set( '_bbp_forum_visibility_normalized', true );
 
 	// Forums
 	if ( in_array( bbp_get_forum_post_type(), $post_types, true ) ) {
@@ -2380,7 +2383,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 			$not_in = (array) $posts_query->get( 'post__not_in', array() );
 
 			// Add our not-in to existing
-			$not_in = array_unique( array_merge( $not_in, $forum_ids ) );
+			$not_in = wp_parse_id_list( array_merge( $not_in, $forum_ids ) );
 
 			// Set the new not-in val
 			$posts_query->set( 'post__not_in', $not_in );
@@ -2388,16 +2391,16 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	}
 
 	// Get forums to exclude
-	$forum_ids = bbp_exclude_forum_ids( 'meta_query' );
+	$forum_meta_query = bbp_exclude_forum_ids( 'meta_query' );
 
 	// Excluding some forums
-	if ( ! empty( $forum_ids ) ) {
+	if ( is_array( $forum_meta_query ) && ! empty( $forum_meta_query['key'] ) && ! empty( $forum_meta_query['value'] ) ) {
 
 		// Get any existing meta queries
 		$meta_query   = (array) $posts_query->get( 'meta_query', array() );
 
 		// Add our meta query to existing
-		$meta_query[] = $forum_ids;
+		$meta_query[] = $forum_meta_query;
 
 		// Set the new meta_query val
 		$posts_query->set( 'meta_query', $meta_query );
