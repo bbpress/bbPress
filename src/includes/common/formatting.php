@@ -788,13 +788,15 @@ function bbp_format_revision_reason( $reason = '' ) {
 /**
  * Format the display name of a user.
  *
- * Abstracts mbstring library check and fallback to utf8_encode().
+ * Prefers wp_is_valid_utf8() from WordPress 6.9, falls back to mbstring
+ * library, and uses seems_utf8() & utf8_encode() as a last resort.
  *
  * @link https://bbpress.trac.wordpress.org/ticket/2141
  *
  * @since 2.6.14
  *
- * @param string $display_name The author display
+ * @param string $display_name The author display name
+ *
  * @return string
  */
 function bbp_format_user_display_name( $display_name = '' ) {
@@ -802,13 +804,21 @@ function bbp_format_user_display_name( $display_name = '' ) {
 	// Default return value
 	$retval = $display_name;
 
-	// Use the mbstring library if possible
-	if ( function_exists( 'mb_check_encoding' ) && ! mb_check_encoding( $display_name, 'UTF-8' ) ) {
-		$retval = mb_convert_encoding( $display_name, 'UTF-8', 'ISO-8859-1' );
+	// WordPress 6.9 and higher
+	if ( function_exists( 'wp_is_valid_utf8' ) ) {
+		if ( ! wp_is_valid_utf8( $display_name ) ) {
+			$retval = _wp_utf8_encode_fallback( $display_name );
+		}
 
-	// Fallback to function that (deprecated in PHP8.2)
+	// Fallback to mbstring library if extension is loaded
+	} elseif ( function_exists( 'mb_check_encoding' ) ) {
+		if ( ! mb_check_encoding( $display_name, 'UTF-8' ) ) {
+			$retval = mb_convert_encoding( $display_name, 'UTF-8', 'ISO-8859-1' );
+		}
+
+	// Fallback to deprecated WordPress & PHP functions
 	} elseif ( seems_utf8( $display_name ) === false ) {
-		$retval = utf8_encode( $display_name );
+		$retval = utf8_encode( $display_name ); // phpcs:ignore
 	}
 
 	// Return
