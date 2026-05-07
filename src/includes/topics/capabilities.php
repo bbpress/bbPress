@@ -170,11 +170,15 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				} elseif ( user_can( $user_id, 'moderate', $_post->ID ) ) {
 					$caps = array( 'spectate' );
 
-				// User is author so allow edit if not in admin, unless it's past edit lock time
+				// User is author so allow edit if not in admin
 				} elseif ( ! is_admin() && ( (int) $user_id === (int) $_post->post_author ) ) {
 
+					// If merging or splitting...
+					if ( bbp_is_topic_merge() || bbp_is_topic_split() ) {
+						$caps = array( 'moderate' );
+
 					// If editing...
-					if ( bbp_is_topic_edit() ) {
+					} elseif ( bbp_is_topic_edit() ) {
 
 						// Only allow if not past the edit-lock period
 						$caps = ! bbp_past_edit_lock( $_post->post_date_gmt )
