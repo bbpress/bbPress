@@ -1679,6 +1679,48 @@ function bbp_edit_user_language( $args = array() ) {
 	bbp_user_languages_dropdown( $args );
 }
 
+/** Requests ******************************************************************/
+
+/**
+ * Verify if a POST request came from a user profile edit form.
+ *
+ * Used to avoid cross-site request forgeries when checking posted user profile
+ * form content.
+ *
+ * @since 2.6.15 bbPress
+ *
+ * @param int $user_id User id.
+ *
+ * @return bool True if this is a user profile post request with valid nonce.
+ */
+function bbp_is_user_profile_form_post_request( $user_id = 0 ) {
+
+	// Bail if no user ID was passed.
+	if ( empty( $user_id ) ) {
+		return false;
+	}
+
+	// Bail if not a post request.
+	if ( ! bbp_is_post_request() ) {
+		return false;
+	}
+
+	// Build the nonce action string.
+	$action = 'update-user_' . $user_id;
+
+	// User role updates rely on the user profile nonce.
+	if ( bbp_verify_nonce_request( $action ) ) {
+		return true;
+	}
+
+	// Fallback for admin profile requests where URL validation can vary.
+	if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], $action ) ) {
+		return true;
+	}
+
+	return false;
+}
+
 /** Topics Created ************************************************************/
 
 /**

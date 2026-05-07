@@ -273,27 +273,14 @@ function bbp_get_user_blog_role( $user_id = 0 ) {
  */
 function bbp_profile_update_role( $user_id = 0 ) {
 
-	// Bail if doing user registration actions
-	if ( doing_action( 'bbp_user_register' ) || doing_action( 'register_new_user' ) ) {
-		return;
-	}
-
-	// Bail if no user ID was passed
+	// Bail if no user ID
+	$user_id = bbp_get_user_id( $user_id, false, false );
 	if ( empty( $user_id ) ) {
 		return;
 	}
 
-	// Bail if no role
-	if ( ! isset( $_POST['bbp-forums-role'] ) ) {
-		return;
-	}
-
-	// Forums role we want the user to have
-	$new_role    = sanitize_key( $_POST['bbp-forums-role'] );
-	$forums_role = bbp_get_user_role( $user_id );
-
-	// Bail if no role change
-	if ( $new_role === $forums_role ) {
+	// Bail if not a user profile form post request
+	if ( ! bbp_is_user_profile_form_post_request( $user_id ) ) {
 		return;
 	}
 
@@ -306,6 +293,14 @@ function bbp_profile_update_role( $user_id = 0 ) {
 	if ( ! current_user_can( 'promote_user', $user_id ) ) {
 		return;
 	}
+
+	// Bail if no role
+	if ( ! isset( $_POST['bbp-forums-role'] ) || ! is_string( $_POST['bbp-forums-role'] ) ) {
+		return;
+	}
+
+	// Forums role we want the user to have
+	$new_role = sanitize_key( $_POST['bbp-forums-role'] );
 
 	// Set the new forums role
 	bbp_set_user_role( $user_id, $new_role );
