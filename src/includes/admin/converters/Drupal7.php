@@ -584,8 +584,23 @@ class Drupal7 extends BBP_Converter_Base {
 	 * to a pass the user has typed in.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
-		$pass_array = unserialize( $serialized_pass );
-		return ( $pass_array['hash'] == md5( md5( $password ). $pass_array['salt'] ) );
+
+		// Unserialize the password, with safeguards
+		$pass_array = unserialize( $serialized_pass, array(
+			'allowed_classes' => false,
+			'max_depth'       => 1
+		) );
+
+		// Bail if missing values
+		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
+			return false;
+		}
+
+		// Return comparison
+		return hash_equals(
+			$pass_array['hash'],
+			md5( md5( $password ) . $pass_array['salt'] )
+		);
 	}
 
 	/**

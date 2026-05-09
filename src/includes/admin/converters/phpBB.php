@@ -729,7 +729,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Check for correct password
 	 *
 	 * @param string $password The password in plain text
-	 * @param string $hash The stored password hash
+	 * @param string $serialized_pass The stored password hash
 	 *
 	 * @link Original source for password functions http://openwall.com/phpass/
 	 * @link phpass is now included in WP Core https://core.trac.wordpress.org/browser/trunk/wp-includes/class-phpass.php
@@ -737,13 +737,31 @@ class phpBB extends BBP_Converter_Base {
 	 * @return bool Returns true if the password is correct, false if not.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
-		$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-		$pass_array = unserialize( $serialized_pass );
-		if ( strlen( $pass_array['hash'] ) == 34 ) {
-			return ( $this->_hash_crypt_private( $password, $pass_array['hash'], $itoa64 ) === $pass_array['hash'] ) ? true : false;
+
+		// Unserialize the password, with safeguards
+		$pass_array = unserialize( $serialized_pass, array(
+			'allowed_classes' => false,
+			'max_depth'       => 1
+		) );
+
+		// Encrypted
+		if ( strlen( $pass_array['hash'] ) === 34 ) {
+
+			// ASCII
+			$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+			// Compare using private crypt
+			return hash_equals(
+				$this->_hash_crypt_private( $password, $pass_array['hash'], $itoa64 ),
+				$pass_array['hash']
+			);
 		}
 
-		return ( md5( $password ) === $pass_array['hash'] ) ? true : false;
+		// Unencrypted
+		return hash_equals(
+			md5( $password ), 
+			$pass_array['hash']
+		);
 	}
 
 	/**
@@ -753,7 +771,7 @@ class phpBB extends BBP_Converter_Base {
 		$output = '*';
 
 		// Check for correct hash
-		if ( substr( $setting, 0, 3 ) != '$H$' ) {
+		if ( substr( $setting, 0, 3 ) !== '$H$' ) {
 			return $output;
 		}
 
@@ -766,7 +784,7 @@ class phpBB extends BBP_Converter_Base {
 		$count = 1 << $count_log2;
 		$salt  = substr( $setting, 4, 8 );
 
-		if ( strlen( $salt ) != 8 ) {
+		if ( strlen( $salt ) !== 8 ) {
 			return $output;
 		}
 
@@ -792,8 +810,8 @@ class phpBB extends BBP_Converter_Base {
 			while ( --$count );
 		}
 
-		$output = substr($setting, 0, 12);
-		$output .= $this->_hash_encode64($hash, 16, $itoa64);
+		$output = substr( $setting, 0, 12 );
+		$output .= $this->_hash_encode64( $hash, 16, $itoa64 );
 
 		return $output;
 	}
