@@ -721,7 +721,7 @@ class phpBB extends BBP_Converter_Base {
 	 * Check for correct password
 	 *
 	 * @param string $password The password in plain text
-	 * @param string $hash The stored password hash
+	 * @param string $serialized_pass The stored password hash
 	 *
 	 * @link Original source for password functions http://openwall.com/phpass/
 	 * @link phpass is now included in WP Core https://core.trac.wordpress.org/browser/trunk/wp-includes/class-phpass.php
@@ -729,13 +729,31 @@ class phpBB extends BBP_Converter_Base {
 	 * @return bool Returns true if the password is correct, false if not.
 	 */
 	public function authenticate_pass( $password, $serialized_pass ) {
-		$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-		$pass_array = unserialize( $serialized_pass );
+
+		// Unserialize the password, with safeguards
+		$pass_array = unserialize( $serialized_pass, array(
+			'allowed_classes' => false,
+			'max_depth'       => 1
+		) );
+
+		// Encrypted
 		if ( strlen( $pass_array['hash'] ) === 34 ) {
-			return ( $this->hash_crypt_private( $password, $pass_array['hash'], $itoa64 ) === $pass_array['hash'] ) ? true : false;
+
+			// ASCII
+			$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+			// Compare using private crypt
+			return hash_equals(
+				$this->hash_crypt_private( $password, $pass_array['hash'], $itoa64 ),
+				$pass_array['hash']
+			);
 		}
 
-		return ( md5( $password ) === $pass_array['hash'] ) ? true : false;
+		// Unencrypted
+		return hash_equals(
+			md5( $password ), 
+			$pass_array['hash']
+		);
 	}
 
 	/**

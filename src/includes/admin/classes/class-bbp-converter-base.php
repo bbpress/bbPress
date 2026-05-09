@@ -38,6 +38,11 @@ abstract class BBP_Converter_Base {
 	protected $opdb;
 
 	/**
+	 * @var int Halt on error. Default 0.
+	 */
+	protected $halt = 0;
+
+	/**
 	 * @var int Maximum number of rows to convert at 1 time. Default 100.
 	 */
 	protected $max_rows = 100;
@@ -68,7 +73,7 @@ abstract class BBP_Converter_Base {
 	protected $map_userid = array();
 
 	/**
-	 * @var str This is the charset for your wp database.
+	 * @var string This is the charset for your wp database.
 	 */
 	public $charset = '';
 
@@ -78,7 +83,7 @@ abstract class BBP_Converter_Base {
 	public $sync_table = false;
 
 	/**
-	 * @var str Sync table name.
+	 * @var string Sync table name.
 	 */
 	public $sync_table_name = '';
 
@@ -327,8 +332,8 @@ abstract class BBP_Converter_Base {
 	/**
 	 * Convert Table.
 	 *
-	 * @param string to type
-	 * @param int Start row
+	 * @param string $to_type The destination type
+	 * @param int $start Start row
 	 */
 	public function convert_table( $to_type, $start ) {
 
@@ -917,7 +922,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method deletes passwords from the wp database.
 	 *
-	 * @param int Start row
+	 * @param int $start Start row
 	 */
 	public function clean_passwords( $start = 1 ) {
 		$has_delete = false;
@@ -942,7 +947,8 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method implements the authentication for the different forums.
 	 *
-	 * @param string Un-encoded password.
+	 * @param string $password Password.
+	 * @param string $hash Password hash.
 	 */
 	abstract protected function authenticate_pass( $password, $hash );
 
@@ -954,7 +960,7 @@ abstract class BBP_Converter_Base {
 	/**
 	 * This method grabs appropriate fields from the table specified.
 	 *
-	 * @param string The table name to grab fields from.
+	 * @param string $tablename The table name to grab fields from.
 	 */
 	private function get_fields( $tablename = '' ) {
 		$retval      = array();
@@ -989,7 +995,6 @@ abstract class BBP_Converter_Base {
 	 * Update the last query option and return results.
 	 *
 	 * @param string $query
-	 * @param string $output
 	 */
 	private function get_row( $query = '' ) {
 		$this->update_query( $query );
@@ -1038,7 +1043,7 @@ abstract class BBP_Converter_Base {
 	 * @since 2.6.0 bbPress (r6637)
 	 *
 	 * @param string $query The literal MySQL query.
-	 * @return bool
+	 * @return array
 	 */
 	private function count_rows_by_results( $query = '' ) {
 		$results = $this->get_results( $query );
@@ -1084,7 +1089,17 @@ abstract class BBP_Converter_Base {
 			return;
 		}
 
-		// Bail if auth fails
+		// Bail if meta is not a string
+		if ( empty( $usermeta->meta_value ) || ! is_serialized( $usermeta->meta_value ) ) {
+			return;
+		}
+
+		// Bail if meta is suspiciously long
+		if ( strlen( $usermeta->meta_value ) > 512 ) {
+			return;
+		}
+
+		// Bail if platform-specific auth fails
 		if ( ! $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
 			return;
 		}
