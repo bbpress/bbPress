@@ -1,0 +1,126 @@
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+
+jobs:
+  phpunit:
+    name: PHP ${{ matrix.php }} / WP ${{ matrix.wp }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ]
+        wp: [ 'trunk' ]
+        experimental: [ false ]
+        include:
+          # PHP 8.5 is bleeding-edge: allow failures while still surfacing results.
+          - php: '8.5'
+            wp: 'trunk'
+            experimental: true
+        exclude:
+          - php: '8.5'
+            wp: 'trunk'
+            experimental: false
+
+    continue-on-error: ${{ matrix.experimental }}
+
+    env:
+      WP_DEVELOP_DIR: ${{ github.workspace }}/wordpress-develop
+      PLUGIN_SLUG: bbpress
+
+    steps:
+      - name: Checkout bbPress
+        uses: actions/checkout@v6
+        with:
+          path: plugin-src
+
+      - name: Checkout WordPress (${{ matrix.wp }})
+        uses: actions/checkout@v6
+        with:
+          repository: WordPress/wordpress-develop
+          ref: ${{ matrix.wp }}
+          path: wordpress-develop
+
+      - name: Move plugin into WordPress develop tree
+        run: |
+          mkdir -p "${WP_DEVELOP_DIR}/src/wp-content/plugins"
+          mv plugin-src "${WP_DEVELOP_DIR}/src/wp-content/plugins/${PLUGIN_SLUG}"
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+          extensions: mysqli, mbstring, intl, curl, dom, json, libxml, xml, zip
+          ini-values: error_reporting=E_ALL, display_errors=On
+
+      - name: Get composer cache directory
+        id: composer-cache
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+
+      - name: Install composer dependencies
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Configure WordPress tests
+        working-directory: ${{ env.WP_DEVELOP_DIR }}
+        run: |
+          cp wp-tests-config-sample.php wp-tests-config.php
+          sed -i "s/youremptytestdbnamehere/wordpress_test/" wp-tests-config.php
+          sed -i "s/yourusernamehere/root/" wp-tests-config.php
+          sed -i "s/yourpasswordhere/root/" wp-tests-config.php
+          sed -i "s|localhost|127.0.0.1|" wp-tests-config.php
+
+      - name: Wait for MariaDB to be ready
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -P 3306 -uroot -proot --silent; then
+              echo "MariaDB is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MariaDB did not become ready in time" >&2
+          exit 1
+
+      - name: Show tool versions
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: |
+          php --version
+          composer --version
+          vendor/bin/phpunit --version
+          mysql --version
+
+      - name: Run PHPUnit
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: composer test

@@ -55,10 +55,10 @@
 		"grunt-terser": "~2.0.0",
 		"grunt-wp-i18n": "~1.0.3",
 		"matchdep": "~2.0.0",
-		"node-sass": "~9.0.0",
 		"postcss": "~8.4.40",
 		"postcss-markdown": "~1.2.0",
 		"postcss-scss": "~1.0.2",
+		"sass": "~1.80.0",
 		"stylelint": "~14",
 		"stylelint-scss": "~5",
 		"terser": "~5.31.3"

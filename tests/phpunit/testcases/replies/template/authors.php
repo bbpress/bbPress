@@ -45,8 +45,6 @@ class BBP_Tests_Replies_Template_Authors extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_reply_author_display_name
 	 */
 	public function test_bbp_get_reply_author_display_name() {
-		$this->setExpectedDeprecated( 'seems_utf8' );
-
 		$u = $this->factory->user->create( array(
 			'display_name' => 'Barry B. Benson',
 		) );
