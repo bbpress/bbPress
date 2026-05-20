@@ -704,8 +704,6 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 	 * @covers ::bbp_get_author_link
 	 */
 	public function test_bbp_get_author_link() {
-		$this->setExpectedDeprecated( 'seems_utf8' );
-
 		$t = $this->factory->topic->create();
 
 		$display_name = $this->keymaster_userdata->display_name;
