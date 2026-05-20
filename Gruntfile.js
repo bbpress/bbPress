@@ -25,8 +25,8 @@ module.exports = function( grunt ) {
 			// Ignore these
 			'!**/.{svn,git}/**',
 			'!.editorconfig',
+			'!.github/**',
 			'!.gitignore',
-			'!.travis.yml',
 			'!build/**',
 			'!Gruntfile.js',
 			'!node_modules/**',
