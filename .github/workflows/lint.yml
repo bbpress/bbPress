@@ -96,10 +96,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm dependencies
-        # --ignore-scripts skips node-sass's postinstall (no prebuilt binary
-        # for Node 24 yet); the lint job only runs eslint/checktextdomain so
-        # we don't need a working sass compiler here.
-        run: npm ci --ignore-scripts
+        run: npm ci
 
       - name: Run ESLint
         run: npx grunt eslint:grunt eslint:core
