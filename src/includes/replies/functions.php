@@ -2471,8 +2471,13 @@ function bbp_get_reply_position_raw( $reply_id = 0, $topic_id = 0 ) {
 				$topic_replies  = array_reverse( $topic_replies );
 				$reply_position = array_search( $reply_id, $topic_replies, true );
 
-				// Bump the position to compensate for the lead topic post
-				++$reply_position;
+				// Bump the position to compensate for the lead topic post,
+				// or reset to 0 if the reply was not found in the children list.
+				if ( false !== $reply_position ) {
+					++$reply_position;
+				} else {
+					$reply_position = 0;
+				}
 			}
 		}
 	}
