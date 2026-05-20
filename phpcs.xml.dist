@@ -40,6 +40,9 @@
 	<!-- Show progress, show the error codes for each message (source). -->
 	<arg value="ps"/>
 
+	<!-- Surface warnings in reports, but only fail the build on errors. -->
+	<config name="ignore_warnings_on_exit" value="1"/>
+
 
 	<!--
 	#############################################################################
