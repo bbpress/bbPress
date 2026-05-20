@@ -728,13 +728,9 @@ class BBP_Akismet {
 			$user = $current_user->user_login;
 		}
 
-		// This used to be akismet_microtime() but it was removed in 3.0
-		$mtime        = explode( ' ', microtime() );
-		$message_time = $mtime[1] + $mtime[0];
-
 		// Setup the event to be saved
 		$event = array(
-			'time'    => $message_time,
+			'time'    => time(),
 			'message' => $message,
 			'event'   => $event,
 			'user'    => $user,
@@ -995,8 +991,8 @@ class BBP_Akismet {
 
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
-									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); ?>">
-										<?php bbp_time_since( $row['time'], false, true ); ?>
+									<span title="<?php echo esc_attr( gmdate( 'D d M Y @ h:i:m a', (int) $row['time'] ) . ' GMT' ); ?>">
+										<?php bbp_time_since( (int) $row['time'], false, true ); ?>
 									</span>
 								</td>
 								<td style="padding-left: 5px;">
