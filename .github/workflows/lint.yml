@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Need history on PRs so we can diff against the base ref.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -38,8 +41,44 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
+      - name: Determine PHP files to scan
+        id: scan
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            FILES=$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- '*.php' | tr '\n' ' ')
+            echo "Changed PHP files vs $BASE_SHA: $FILES"
+            {
+              echo "files<<EOF"
+              echo "$FILES"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "Full-tree scan (push event)."
+          fi
+
       - name: Run PHPCS
-        run: composer lint -- -q --report=checkstyle | cs2pr
+        id: phpcs
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FILES="${{ steps.scan.outputs.files }}"
+            if [ -z "${FILES// }" ]; then
+              echo "No PHP files changed in this PR; skipping PHPCS."
+              exit 0
+            fi
+            vendor/bin/phpcs --report-full --report-checkstyle=phpcs-report.xml $FILES
+          else
+            vendor/bin/phpcs --report-full --report-checkstyle=phpcs-report.xml
+          fi
+        continue-on-error: true
+
+      - name: Annotate PR with PHPCS results
+        if: always() && hashFiles('phpcs-report.xml') != ''
+        run: cs2pr --graceful-warnings phpcs-report.xml
+
+      - name: Fail if PHPCS reported issues
+        if: steps.phpcs.outcome == 'failure'
+        run: exit 1
 
   js-lint:
     name: ESLint & checktextdomain
