@@ -731,10 +731,13 @@ class phpBB extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1,
+			)
+		);
 
 		// Encrypted
 		if ( strlen( $pass_array['hash'] ) === 34 ) {
@@ -751,7 +754,7 @@ class phpBB extends BBP_Converter_Base {
 
 		// Unencrypted
 		return hash_equals(
-			md5( $password ), 
+			md5( $password ),
 			$pass_array['hash']
 		);
 	}
