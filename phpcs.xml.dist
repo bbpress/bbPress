@@ -234,8 +234,12 @@
 		<exclude-pattern>/src/templates/*</exclude-pattern>
 	</rule>
 
+	<!--
+	"bbp" is the deliberately chosen project prefix. Suppress the ShortPrefixPassed
+	warning that WPCS 3.0+ raises for prefixes shorter than 4 characters.
+	-->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed">
-		<exclude-pattern>/bbpress\.php</exclude-pattern>
+		<severity>0</severity>
 	</rule>
 
 	<!--
