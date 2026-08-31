@@ -2328,6 +2328,13 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
+	// Remove bbPress post types from unsupported mixed post-type queries
+	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
+	if ( ! empty( $non_bbp_post_types ) ) {
+		$posts_query->set( 'post_type', $non_bbp_post_types );
+		return;
+	}
+
 	// Bail if this query has already been normalized
 	if ( $posts_query->get( '_bbp_forum_visibility_normalized' ) ) {
 		return;
