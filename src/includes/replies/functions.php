@@ -540,27 +540,20 @@ function bbp_edit_reply_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_reply_not_found', __( '<strong>Error</strong>: The reply you want to edit was not found.', 'bbpress' ) );
 		return;
 
-	// Reply exists
+	// User cannot edit this reply
+	} elseif ( ! current_user_can( 'edit_reply', $reply_id ) ) {
+		bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+		return;
+
+	// It is an anonymous post
+	} elseif ( bbp_is_reply_anonymous( $reply_id ) ) {
+
+		// Filter anonymous data
+		$anonymous_data = bbp_filter_anonymous_post_data();
+
+	// Set reply author
 	} else {
-
-		// Check users ability to create new reply
-		if ( ! bbp_is_reply_anonymous( $reply_id ) ) {
-
-			// User cannot edit this reply
-			if ( ! current_user_can( 'edit_reply', $reply_id ) ) {
-				bbp_add_error( 'bbp_edit_reply_permission', __( '<strong>Error</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
-				return;
-			}
-
-			// Set reply author
-			$reply_author = bbp_get_reply_author_id( $reply_id );
-
-		// It is an anonymous post
-		} else {
-
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data();
-		}
+		$reply_author = bbp_get_reply_author_id( $reply_id );
 	}
 
 	// Remove kses filters from title and content for capable users and if the nonce is verified

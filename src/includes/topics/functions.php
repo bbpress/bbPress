@@ -456,26 +456,20 @@ function bbp_edit_topic_handler( $action = '' ) {
 		bbp_add_error( 'bbp_edit_topic_not_found', __( '<strong>Error</strong>: The topic you want to edit was not found.', 'bbpress' ) );
 		return;
 
-	// Topic exists
+	// User cannot edit this topic
+	} elseif ( ! current_user_can( 'edit_topic', $topic_id ) ) {
+		bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
+		return;
+
+	// It is an anonymous post
+	} elseif ( bbp_is_topic_anonymous( $topic_id ) ) {
+
+		// Filter anonymous data
+		$anonymous_data = bbp_filter_anonymous_post_data();
+
+	// Set topic author
 	} else {
-
-		// Check users ability to create new topic
-		if ( ! bbp_is_topic_anonymous( $topic_id ) ) {
-
-			// User cannot edit this topic
-			if ( ! current_user_can( 'edit_topic', $topic_id ) ) {
-				bbp_add_error( 'bbp_edit_topic_permission', __( '<strong>Error</strong>: You do not have permission to edit that topic.', 'bbpress' ) );
-			}
-
-			// Set topic author
-			$topic_author = bbp_get_topic_author_id( $topic_id );
-
-		// It is an anonymous post
-		} else {
-
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data();
-		}
+		$topic_author = bbp_get_topic_author_id( $topic_id );
 	}
 
 	// Nonce check
