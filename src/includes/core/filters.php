@@ -335,7 +335,8 @@ add_filter( 'bbp_pre_anonymous_post_author_website', 'esc_url_raw',         10 )
 add_filter( 'bbp_pre_anonymous_post_author_website', 'wp_filter_kses',      10 );
 
 // Queries
-add_filter( 'posts_request', '_bbp_has_replies_where', 10, 2 );
+add_filter( 'posts_where',   '_bbp_forum_visibility_where', 10, 2 );
+add_filter( 'posts_request', '_bbp_has_replies_where',       10, 2 );
 
 // Capabilities
 add_filter( 'bbp_map_meta_caps', 'bbp_map_primary_meta_caps',   10, 4 ); // Primary caps

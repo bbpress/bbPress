@@ -2312,8 +2312,14 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
-	// Get query post types as an array.
-	$post_types = array_filter( (array) $posts_query->get( 'post_type' ) );
+	// Get the raw query post types.
+	$post_type_query_var = $posts_query->get( 'post_type' );
+	$post_types          = array_filter( (array) $post_type_query_var );
+
+	// Resolve the post types included in "any" and implicit search queries.
+	if ( ( 'any' === $post_type_query_var ) || ( empty( $post_types ) && $posts_query->is_search() ) ) {
+		$post_types = get_post_types( array( 'exclude_from_search' => false ) );
+	}
 
 	// Bail if no post types to normalize
 	if ( empty( $post_types ) ) {
@@ -2328,13 +2334,6 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		return;
 	}
 
-	// Remove bbPress post types from unsupported mixed post-type queries
-	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
-	if ( ! empty( $non_bbp_post_types ) ) {
-		$posts_query->set( 'post_type', $non_bbp_post_types );
-		return;
-	}
-
 	// Bail if this query has already been normalized
 	if ( $posts_query->get( '_bbp_forum_visibility_normalized' ) ) {
 		return;
@@ -2343,14 +2342,29 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 	// Mark this query as normalized
 	$posts_query->set( '_bbp_forum_visibility_normalized', true );
 
+	// Separate non-bbPress post types from supported bbPress post types.
+	$non_bbp_post_types = array_diff( $post_types, $bbp_post_types );
+
+	/**
+	 * Clause filters do not run when a query suppresses filters. Remove bbPress
+	 * post types from mixed queries so protected content continues to fail closed
+	 * without changing the requested non-bbPress post types.
+	 */
+	if ( ! empty( $non_bbp_post_types ) && $posts_query->get( 'suppress_filters' ) ) {
+		$posts_query->set( 'post_type', array_values( $non_bbp_post_types ) );
+		return;
+	}
+
+	// Get forums to exclude.
+	$forum_ids = bbp_exclude_forum_ids( 'array' );
+
 	// Forums
 	if ( in_array( bbp_get_forum_post_type(), $post_types, true ) ) {
 
-		// Add all supported forum visibilities
-		$posts_query->set( 'post_status', array_keys( bbp_get_forum_visibilities() ) );
-
-		// Get forums to exclude
-		$forum_ids = bbp_exclude_forum_ids( 'array' );
+		// Add all supported forum visibilities to bbPress-only queries.
+		if ( empty( $non_bbp_post_types ) ) {
+			$posts_query->set( 'post_status', array_keys( bbp_get_forum_visibilities() ) );
+		}
 
 		// Excluding some forums
 		if ( ! empty( $forum_ids ) ) {
@@ -2366,7 +2380,28 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		}
 	}
 
-	// Get forums to exclude
+	// Bail if there are no forums to exclude.
+	if ( empty( $forum_ids ) ) {
+		return;
+	}
+
+	/**
+	 * Mixed queries need a post-type-aware SQL clause. A meta query would use an
+	 * inner join and unintentionally remove non-bbPress posts that do not have
+	 * bbPress forum metadata.
+	 */
+	if ( ! empty( $non_bbp_post_types ) ) {
+		$content_post_types = array_intersect(
+			$bbp_post_types,
+			array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+		);
+
+		$posts_query->set( '_bbp_forum_visibility_post_types', $content_post_types );
+		$posts_query->set( '_bbp_forum_visibility_forum_ids',  $forum_ids          );
+		return;
+	}
+
+	// Get forum meta query.
 	$forum_meta_query = bbp_exclude_forum_ids( 'meta_query' );
 
 	// Excluding some forums
@@ -2381,6 +2416,101 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		// Set the new meta_query val
 		$posts_query->set( 'meta_query', $meta_query );
 	}
+}
+
+/**
+ * Excludes protected bbPress content from mixed post-type queries.
+ *
+ * A normal meta query cannot scope its join to bbPress post types, causing
+ * unrelated WordPress posts and third-party post types without `_bbp_forum_id`
+ * metadata to be removed. This clause leaves forums and non-bbPress rows
+ * untouched while requiring topic and reply rows to have forum metadata that
+ * does not reference an excluded forum. Forums are excluded by ID before this
+ * clause runs.
+ *
+ * Queries with `suppress_filters` enabled are handled conservatively in
+ * bbp_pre_get_posts_normalize_forum_visibility(), because this filter will not
+ * run for those queries.
+ *
+ * @since 2.6.15 bbPress
+ *
+ * @param string   $where       SQL WHERE clause.
+ * @param WP_Query $posts_query WordPress posts query.
+ * @return string SQL WHERE clause.
+ */
+function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
+
+	// Bail if $posts_query is not an object or of incorrect class
+	if ( ! is_object( $posts_query ) || ! is_a( $posts_query, 'WP_Query' ) ) {
+		return $where;
+	}
+
+	// Get the query-specific visibility constraints.
+	$post_types = array_filter( (array) $posts_query->get( '_bbp_forum_visibility_post_types' ) );
+	$forum_ids  = wp_parse_id_list( $posts_query->get( '_bbp_forum_visibility_forum_ids' ) );
+
+	// Bail if this query does not need a post-type-aware visibility clause.
+	if ( empty( $post_types ) || empty( $forum_ids ) ) {
+		return $where;
+	}
+
+	// Get the database object.
+	$bbp_db = bbp_db();
+
+	// Prepare post-type and forum-ID placeholders.
+	$post_type_placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+	$forum_id_placeholders  = implode( ', ', array_fill( 0, count( $forum_ids  ), '%d' ) );
+
+	// Prepare values in the same order as their placeholders.
+	$values = array_merge( $post_types, $forum_ids );
+
+	/**
+	 * Require topic and reply rows to have forum metadata, and exclude rows with
+	 * forum metadata pointing at a forum the current user cannot view. All other
+	 * rows bypass these checks and retain their original query behavior.
+	 */
+	$visibility_where = $bbp_db->prepare(
+		" AND (
+			{$bbp_db->posts}.post_type NOT IN ({$post_type_placeholders})
+			OR (
+				EXISTS (
+					SELECT 1
+					FROM {$bbp_db->postmeta} AS bbp_forum_visibility_exists
+					WHERE bbp_forum_visibility_exists.post_id = {$bbp_db->posts}.ID
+						AND bbp_forum_visibility_exists.meta_key = '_bbp_forum_id'
+				)
+				AND NOT EXISTS (
+					SELECT 1
+					FROM {$bbp_db->postmeta} AS bbp_forum_visibility_excluded
+					WHERE bbp_forum_visibility_excluded.post_id = {$bbp_db->posts}.ID
+						AND bbp_forum_visibility_excluded.meta_key = '_bbp_forum_id'
+						AND CAST( bbp_forum_visibility_excluded.meta_value AS UNSIGNED ) IN ({$forum_id_placeholders})
+				)
+			)
+		)",
+		$values
+	);
+
+	/**
+	 * Filters the forum visibility SQL appended to mixed post-type queries.
+	 *
+	 * @since 2.6.15 bbPress
+	 *
+	 * @param string   $visibility_where Forum visibility SQL clause.
+	 * @param WP_Query $posts_query      WordPress posts query.
+	 * @param string[] $post_types       bbPress post types protected by the clause.
+	 * @param int[]    $forum_ids        Forum IDs excluded from the query.
+	 */
+	$visibility_where = apply_filters(
+		'bbp_forum_visibility_posts_where',
+		$visibility_where,
+		$posts_query,
+		$post_types,
+		$forum_ids
+	);
+
+	// Append the visibility clause.
+	return $where . $visibility_where;
 }
 
 /**
