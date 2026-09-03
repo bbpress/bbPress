@@ -175,19 +175,21 @@ module.exports = function( grunt ) {
 		},
 		makepot: {
 			target: {
-				options: {
-					cwd: BUILD_DIR,
-					domainPath: '.',
-					mainFile: 'bbpress.php',
-					potFilename: 'bbpress.pot',
-					processPot: function( pot ) {
-						pot.headers['report-msgid-bugs-to'] = 'https://bbpress.trac.wordpress.org';
-						pot.headers['last-translator'] = 'JOHN JAMES JACOBY <jjj@bbpress.org>';
-						pot.headers['language-team'] = 'ENGLISH <jjj@bbpress.org>';
-						return pot;
-					},
-					type: 'wp-plugin'
-				}
+				cmd: 'wp',
+				args: [
+					'i18n',
+					'make-pot',
+					BUILD_DIR,
+					BUILD_DIR + 'bbpress.pot',
+					'--slug=bbpress',
+					'--domain=bbpress',
+					'--allow-root',
+					'--headers=' + JSON.stringify( {
+						'Report-Msgid-Bugs-To': 'https://bbpress.trac.wordpress.org',
+						'Last-Translator': 'JOHN JAMES JACOBY <jjj@bbpress.org>',
+						'Language-Team': 'ENGLISH <jjj@bbpress.org>'
+					} )
+				]
 			}
 		},
 		patch: {
@@ -374,6 +376,25 @@ module.exports = function( grunt ) {
 	grunt.registerTask( 'commit',  [ 'src', 'checktextdomain', 'postcss:core' ] );
 	grunt.registerTask( 'build',   [ 'commit', 'clean:all', 'copy:files', 'colors', 'rtlcss:core', 'cssmin:ltr', 'cssmin:rtl', 'terser:core', 'makepot' ] );
 	grunt.registerTask( 'release', [ 'build' ] );
+
+	// Translation template task.
+	grunt.registerMultiTask( 'makepot', 'Generates the translation template with WP-CLI.', function() {
+		var done = this.async();
+
+		grunt.util.spawn( {
+			cmd:  this.data.cmd,
+			args: this.data.args,
+			opts: { stdio: 'inherit' }
+		}, function( error, result, code ) {
+			if ( error || 0 !== code ) {
+				grunt.log.error( 'POT generation failed. Confirm WP-CLI is installed and can execute.' );
+				done( false );
+				return;
+			}
+
+			done();
+		} );
+	} );
 
 	// PHPCS test task.
 	grunt.registerMultiTask( 'phpcs', 'Runs PHPCS tests.', function() {
