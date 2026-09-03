@@ -23,7 +23,7 @@
  * Domain Path:       /languages/
  * Requires PHP:      7.2
  * Requires at least: 6.0
- * Tested up to:      6.9
+ * Tested up to:      7.1
  * Version:           2.7.0-alpha-2
  */
 
