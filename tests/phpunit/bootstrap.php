@@ -11,7 +11,8 @@ $GLOBALS['wp_tests_options'] = array(
 
 // Bail if test suite cannot be found
 if ( ! file_exists( WP_TESTS_DIR . '/includes/functions.php' ) ) {
-	die( "The WordPress PHPUnit test suite could not be found.\n" );
+	fwrite( STDERR, "The WordPress PHPUnit test suite could not be found.\n" );
+	exit( 1 );
 } else {
 	echo "Loading WordPress PHPUnit test suite...\n";
 	require( WP_TESTS_DIR . '/includes/functions.php' );
@@ -27,7 +28,21 @@ function _load_loader() {
 
 		// If BuddyPress is found, set it up and require it.
 		if ( defined( 'BP_TESTS_DIR' ) ) {
+			if ( ! defined( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+				define( 'WP_TESTS_CONFIG_FILE_PATH', WP_TESTS_CONFIG_PATH );
+			}
+
+			set_error_handler(
+				function( $error_level, $message ) {
+					return ( E_WARNING === $error_level )
+						&& ( 0 === strpos( $message, 'Constant WP_' ) )
+						&& ( false !== strpos( $message, 'already defined' ) );
+				},
+				E_WARNING
+			);
+
 			require BP_TESTS_DIR . '/includes/loader.php';
+			restore_error_handler();
 		}
 	}
 

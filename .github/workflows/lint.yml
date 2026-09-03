@@ -5,6 +5,14 @@ on:
     branches:
       - trunk
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   phpcs:
@@ -100,6 +108,9 @@ jobs:
 
       - name: Run ESLint
         run: npx grunt eslint:grunt eslint:core
+
+      - name: Run stylelint
+        run: npx grunt stylelint
 
       - name: Run checktextdomain
         run: npx grunt checktextdomain

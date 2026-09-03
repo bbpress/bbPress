@@ -10,7 +10,7 @@
 		<const name="BBP_TESTS_BUDDYPRESS" value="1" />
 	</php>
 	<testsuites>
-		<testsuite>
+		<testsuite name="bbPress BuddyPress Test Suite">
 			<directory suffix=".php">./testcases/</directory>
 		</testsuite>
 	</testsuites>
@@ -19,15 +19,4 @@
 			<group>buddypress</group>
 		</include>
 	</groups>
-	<listeners>
-		<listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">
-			<arguments>
-				<array>
-					<element key="slowThreshold">
-						<integer>100</integer>
-					</element>
-				</array>
-			</arguments>
-		</listener>
-	</listeners>
 </phpunit>

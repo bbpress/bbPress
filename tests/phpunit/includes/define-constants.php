@@ -50,7 +50,8 @@ if ( file_exists( WP_ROOT_DIR . '/wp-tests-config.php' ) ) {
 
 // No test config found.
 } else {
-	die( "wp-tests-config.php could not be found.\n" );
+	fwrite( STDERR, "wp-tests-config.php could not be found.\n" );
+	exit( 1 );
 }
 
 // Determine whether BuddyPress is present.

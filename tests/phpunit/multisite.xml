@@ -10,7 +10,7 @@
 		<const name="WP_TESTS_MULTISITE" value="1" />
 	</php>
 	<testsuites>
-		<testsuite>
+		<testsuite name="bbPress Multisite Test Suite">
 			<directory suffix=".php">./testcases/</directory>
 		</testsuite>
 	</testsuites>
@@ -19,15 +19,4 @@
 			<group>buddypress</group>
 		</exclude>
 	</groups>
-	<listeners>
-		<listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">
-			<arguments>
-				<array>
-					<element key="slowThreshold">
-						<integer>250</integer>
-					</element>
-				</array>
-			</arguments>
-		</listener>
-	</listeners>
 </phpunit>

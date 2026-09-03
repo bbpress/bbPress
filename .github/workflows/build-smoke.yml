@@ -1,0 +1,135 @@
+name: Build and Smoke Test
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-smoke:
+    name: Release package and runtime smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_smoke
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: wp-cli
+          coverage: none
+          extensions: mysqli, mbstring, curl, dom, json, libxml, xml, zip
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify version metadata
+        run: php tests/ci/check-versions.php
+
+      - name: Build release package
+        run: npx grunt release
+
+      - name: Verify package contents and translation template
+        run: |
+          git diff --exit-code -- src
+          test -f build/bbpress.php
+          test -f build/readme.txt
+          test -s build/bbpress.pot
+          test ! -e build/Gruntfile.js
+          test ! -e build/package.json
+          test ! -e build/tests
+          grep -q 'msgid "Forum Form"' build/bbpress.pot
+          grep -q 'msgid "Topic Index"' build/bbpress.pot
+
+      - name: Create release ZIP
+        run: |
+          mkdir -p dist/bbpress
+          cp -R build/. dist/bbpress/
+          cd dist || exit 1
+          zip -qr bbpress.zip bbpress
+          unzip -t bbpress.zip
+
+      - name: Upload release ZIP
+        uses: actions/upload-artifact@v6
+        with:
+          name: bbpress-release-${{ github.sha }}
+          path: dist/bbpress.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Install WordPress and built bbPress package
+        env:
+          WP_ROOT: ${{ runner.temp }}/wordpress
+        run: |
+          wp core download --path="$WP_ROOT"
+          wp config create --path="$WP_ROOT" --dbname=wordpress_smoke --dbuser=root --dbpass=root --dbhost=127.0.0.1
+          wp core install --path="$WP_ROOT" --url=http://127.0.0.1:8890 --title="bbPress Smoke Test" --admin_user=admin --admin_password=password --admin_email=admin@example.com
+          wp theme install twentytwentyone --path="$WP_ROOT" --activate
+          cp -R build "$WP_ROOT/wp-content/plugins/bbpress"
+          wp plugin activate bbpress --path="$WP_ROOT"
+          wp plugin is-active bbpress --path="$WP_ROOT"
+
+      - name: Create and verify forum content
+        id: content
+        env:
+          WP_ROOT: ${{ runner.temp }}/wordpress
+        run: |
+          FORUM_URL=$(wp eval-file tests/smoke/cli.php --path="$WP_ROOT")
+          echo "Forum URL: $FORUM_URL"
+          echo "forum_url=$FORUM_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Verify front-end response
+        env:
+          FORUM_URL: ${{ steps.content.outputs.forum_url }}
+          WP_ROOT: ${{ runner.temp }}/wordpress
+        run: |
+          wp server --path="$WP_ROOT" --host=127.0.0.1 --port=8890 >"$RUNNER_TEMP/wp-server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$FORUM_URL" --output "$RUNNER_TEMP/forum.html"; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl --fail --silent --show-error "$FORUM_URL" --output "$RUNNER_TEMP/forum.html"
+          grep -q 'Smoke Forum' "$RUNNER_TEMP/forum.html"
+          grep -q 'Smoke Topic' "$RUNNER_TEMP/forum.html"
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/wp-server.log" 2>/dev/null || true
