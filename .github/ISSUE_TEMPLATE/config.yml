@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a bbPress bug or enhancement
+    url: https://bbpress.trac.wordpress.org/newticket
+    about: Trac is the authoritative tracker for reproducible bugs, enhancements, and patches.
+  - name: Ask for bbPress support
+    url: https://bbpress.org/forums/
+    about: Get community help with installation, configuration, themes, plugins, upgrades, and troubleshooting.
+  - name: Read the bbPress documentation
+    url: https://codex.bbpress.org/
+    about: Search installation, configuration, shortcode, theme, import, and developer documentation.
+  - name: Report a security vulnerability privately
+    url: https://hackerone.com/wordpress
+    about: Never disclose a suspected vulnerability in a public GitHub issue, Trac ticket, or forum topic.
