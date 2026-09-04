@@ -2463,7 +2463,7 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
  * bbp_pre_get_posts_normalize_forum_visibility(), because this filter will not
  * run for those queries.
  *
- * @since 2.7.0 bbPress
+ * @since 2.6.15 bbPress
  *
  * @param string   $where       SQL WHERE clause.
  * @param WP_Query $posts_query WordPress posts query.
@@ -2525,7 +2525,7 @@ function _bbp_forum_visibility_where( $where = '', $posts_query = null ) {
 	/**
 	 * Filters the forum visibility SQL appended to mixed post-type queries.
 	 *
-	 * @since 2.7.0 bbPress
+	 * @since 2.6.15 bbPress
 	 *
 	 * @param string   $visibility_where Forum visibility SQL clause.
 	 * @param WP_Query $posts_query      WordPress posts query.
