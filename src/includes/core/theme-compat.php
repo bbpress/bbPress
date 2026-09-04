@@ -477,6 +477,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * template part as needed.
  *
  * @since 2.0.0 bbPress (r3032)
+ * @since 2.6.16 bbPress Added support for Block Themes
  *
  * @param string $template
  */
@@ -843,7 +844,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	} elseif ( bbp_is_theme_compat_active() ) {
 		bbp_remove_all_filters( 'the_content' );
 
-		$template = bbp_get_theme_compat_templates();
+		// Block themes
+		if ( wp_is_block_theme() ) {
+			$template = bbp_get_theme_canvas_template();
+
+		// Non-block themes
+		} else {
+			$template = bbp_get_theme_compat_templates();
+		}
 	}
 
 	// Filter & return

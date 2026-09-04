@@ -470,3 +470,19 @@ function bbp_get_theme_compat_templates() {
 	);
 	return bbp_get_query_template( 'bbpress', $templates );
 }
+
+/**
+ * Get the theme canvas template, used for Block Themes.
+ *
+ * @since 2.6.16 bbPress
+ *
+ * @return string Path to canvas file.
+ */
+function bbp_get_theme_canvas_template() {
+
+	// Default WordPress Canvas
+	$template = ABSPATH . WPINC . '/template-canvas.php';
+
+	// Filter & return
+	return apply_filters( 'bbp_get_theme_canvas_template', $template );
+}
