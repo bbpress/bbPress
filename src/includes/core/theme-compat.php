@@ -481,7 +481,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * template part as needed.
  *
  * @since 2.0.0 bbPress (r3032)
- * @since 2.7.0 bbPress (r7393) Added support for Block Themes
+ * @since 2.6.16 bbPress Added support for Block Themes
  *
  * @param string $template
  */
@@ -864,7 +864,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 		bbp_remove_all_filters( 'the_content' );
 
 		// Block themes
-		if ( current_theme_supports( 'block-templates' ) ) {
+		if ( wp_is_block_theme() ) {
 			$template = bbp_get_theme_canvas_template();
 
 		// Non-block themes

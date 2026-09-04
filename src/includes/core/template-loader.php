@@ -451,7 +451,7 @@ function bbp_get_theme_compat_template() {
 /**
  * Get the theme canvas template, used for Block Themes.
  *
- * @since 2.7.0 bbPress (r7383)
+ * @since 2.6.16 bbPress
  *
  * @return string Path to canvas file.
  */
