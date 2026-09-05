@@ -3,6 +3,8 @@
 # Install the exact candidate ZIP in a disposable WordPress site.
 set -euo pipefail
 
+: "${BBPRESS_SMOKE_DB_PASSWORD:?Set the disposable database password.}"
+
 [[ $# -eq 2 ]] || { echo "Usage: $0 CANDIDATE_ZIP EMPTY_WORDPRESS_DIRECTORY" >&2; exit 2; }
 candidate_zip="$(cd "$(dirname "$1")" && pwd -P)/$(basename "$1")"
 wp_root="$2"
@@ -15,8 +17,8 @@ mkdir -p "$wp_root"
 wp_root="$(cd "$wp_root" && pwd -P)"
 
 wp core download --path="$wp_root"
-wp config create --path="$wp_root" --dbname="${BBPRESS_SMOKE_DB_NAME:-wordpress_smoke}" --dbuser="${BBPRESS_SMOKE_DB_USER:-root}" --dbpass="${BBPRESS_SMOKE_DB_PASSWORD:-root}" --dbhost="${BBPRESS_SMOKE_DB_HOST:-127.0.0.1}"
-wp core install --path="$wp_root" --url="http://127.0.0.1:$port" --title="bbPress Smoke Test" --admin_user=admin --admin_password=password --admin_email=admin@example.com
+printf '%s\n' "${BBPRESS_SMOKE_DB_PASSWORD}" | wp config create --prompt=dbpass --path="$wp_root" --dbname="${BBPRESS_SMOKE_DB_NAME:-wordpress_smoke}" --dbuser="${BBPRESS_SMOKE_DB_USER:-root}" --dbhost="${BBPRESS_SMOKE_DB_HOST:-127.0.0.1}"
+openssl rand -base64 24 | wp core install --prompt=admin_password --path="$wp_root" --url="http://127.0.0.1:$port" --title="bbPress Smoke Test" --admin_user=admin --admin_email=admin@example.com
 wp theme install twentytwentyone --path="$wp_root" --activate
 wp plugin install "$candidate_zip" --path="$wp_root" --activate
 wp plugin is-active bbpress --path="$wp_root"

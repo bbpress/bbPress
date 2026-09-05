@@ -87,6 +87,8 @@ jobs:
           unzip -t bbpress.zip
 
       - name: Smoke-test the candidate ZIP
+        env:
+          BBPRESS_SMOKE_DB_PASSWORD: root
         run: |
           set -euo pipefail
           bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
