@@ -5,6 +5,13 @@ humans and coding agents working on bbPress. Prefer repository evidence over
 memory, keep public changes reviewable, and leave the project easier to release
 than you found it.
 
+For WordPress development practices not covered here, consult the
+[WordPress Core Contributor Handbook](https://make.wordpress.org/core/handbook/)
+and [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/).
+Read only the sections relevant to the task; these references are not required
+reading for every request. bbPress-specific guidance and established repository
+conventions take precedence.
+
 ## Mission
 
 bbPress is long-lived WordPress infrastructure. Optimize for compatibility,
@@ -45,7 +52,7 @@ Plugin SVN into canonical development history.
   merge or close, Trac mutation, release, deployment, site publication,
   permission change, or public infrastructure change. One clear approval may
   cover a named sequence; ask again if its target or scope changes.
-- Never expose credentials in command arguments, tracked files, patches, logs,
+- Never expose passwords or authentication tokens in command arguments, tracked files, patches, logs,
   chat, or shell history. Let approved credential helpers or interactive tools
   handle authentication.
 - Treat release tags as immutable records. Correct forward unless a maintainer
@@ -117,6 +124,8 @@ For every issue, capture:
 
 GitHub pull requests are useful review and CI surfaces, but Trac and canonical
 SVN remain authoritative. Reference the PR from the SVN commit when one exists.
+
+Dependabot pull requests on the GitHub mirror are advisory. Review and test dependency updates, then land accepted changes through canonical Subversion. Do not enable auto-merge or merge these pull requests directly into the mirror.
 
 ## Setup and Everyday Commands
 
@@ -329,8 +338,7 @@ Follow established bbPress history. A typical message contains:
 ```text
 Component: concise imperative summary.
 
-Explain the behavior, motivation, compatibility considerations, and why this
-approach is safe.
+Explain the behavior, motivation, compatibility considerations, and why this approach is safe.
 
 In trunk, for 2.7.
 
@@ -343,6 +351,8 @@ Use only applicable trailers. Use `See #1234.` when the commit does not close
 the ticket. Preserve maintainer judgment about capitalization and component
 names. After committing, record the revision, inspect `svn log -r <revision>`
 on the changed path, and ensure `svn status` is clean.
+
+Keep the first line of a commit message concise and informative. Aim for about 50 characters and stop at 70. Do not hard-wrap the explanatory paragraphs that follow; keep each paragraph on one physical line.
 
 ## Release Procedure
 

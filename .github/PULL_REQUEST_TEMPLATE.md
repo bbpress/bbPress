@@ -30,6 +30,10 @@ https://bbpress.trac.wordpress.org/ticket/
 
 <!-- Add before/after screenshots for visible changes. Remove this section when it is not applicable. -->
 
+## Use of AI tools
+
+<!-- AI-assisted contributions are welcome, but you remain responsible for understanding, reviewing, and testing the result. If AI tools materially assisted this contribution, name the tools and models and briefly describe how they were used. See https://make.wordpress.org/ai/handbook/ai-guidelines/ -->
+
 ---
 
 This pull request is a review and CI surface. bbPress maintainers commit accepted
