@@ -240,6 +240,15 @@ module.exports = function( grunt ) {
 				src: [ [ BBP_LTR_CSS ], 'includes/admin/styles/*/colors.scss' ]
 			},
 			colors: {
+				options: {
+					processors: [
+						autoprefixer({
+							browsers: ['extends @wordpress/browserslist-config'],
+							cascade: false
+						}),
+						require( './bin/normalize-colors' )
+					]
+				},
 				expand: true,
 				cwd: BUILD_DIR,
 				dest: BUILD_DIR,

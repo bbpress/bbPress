@@ -61,6 +61,9 @@ jobs:
       - name: Verify version metadata
         run: php tests/ci/check-versions.php
 
+      - name: Verify generated color normalization
+        run: node tests/ci/check-colors.js
+
       - name: Build release package
         run: npx grunt release
 
