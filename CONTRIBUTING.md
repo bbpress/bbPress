@@ -60,13 +60,13 @@ Sign in at `/wp-admin/` using the local defaults `admin` and `password`. These
 credentials are for the disposable development site only. Verify activation:
 
 ```sh
-npm run wp-env run cli wp plugin is-active bbPress
+npm run wp-env -- run cli wp plugin is-active bbPress
 ```
 
 For an initial front-end check, activate a classic theme:
 
 ```sh
-npm run wp-env run cli wp theme install twentytwentyone --activate
+npm run wp-env -- run cli wp theme install twentytwentyone --activate
 ```
 
 In the dashboard, create a published forum under **Forums → Add New**, then
@@ -75,7 +75,7 @@ the administrator for this first check. The test environment is separate from
 this development site; run a focused forum test there:
 
 ```sh
-npm run test-php -- --filter test_bbp_get_forum_statuses
+npm run test-php -- --filter test_bbp_get_forum_author_id
 ```
 
 Stop the containers when finished; this preserves the local site:
