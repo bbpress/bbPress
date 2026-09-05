@@ -73,29 +73,11 @@ bbPress requires WordPress 6.0 or newer and PHP 7.2 or newer at runtime. Local
 development also requires Node.js, npm, Composer, and Docker for the repository’s
 WordPress environment.
 
-Install the pinned dependencies and start WordPress:
-
-```sh
-composer install
-npm ci
-npm run wp-env start
-```
-
-Run the main PHP test suite:
-
-```sh
-npm run test-php
-```
-
-Common quality checks include:
-
-```sh
-composer lint
-npx grunt eslint:grunt eslint:core
-npx grunt stylelint
-npx grunt checktextdomain
-php tests/ci/check-versions.php
-```
+Use Node.js 24, matching `.nvmrc` and CI. Follow the
+[development setup walkthrough](CONTRIBUTING.md#development-setup) to check out
+trunk, install dependencies, open the local site, verify bbPress, run a focused
+test, and stop the environment. The same guide lists the
+[quality checks](CONTRIBUTING.md#test-your-work) to run for your change.
 
 Build a release-shaped package with:
 

@@ -34,13 +34,54 @@ against it or copy its generated contents into canonical source.
 
 ## Development setup
 
-You will need PHP, Composer, Node.js, npm, and Docker. Install the pinned
-dependencies and start the repository’s WordPress environment:
+Install PHP, Composer, Node.js, npm, Subversion, and Docker, and start Docker.
+Check out canonical trunk into a directory named `bbPress` so the environment
+commands below match the plugin directory:
+
+```sh
+svn checkout https://bbpress.svn.wordpress.org/trunk bbPress
+cd bbPress
+```
+
+Use Node.js 24, as recommended by `.nvmrc` and CI. If you use nvm, run
+`nvm install` followed by `nvm use`. The older minimum in `package.json` is not
+the recommended version for the current development tools.
+
+Install dependencies and start the repository’s WordPress environment:
 
 ```sh
 composer install
 npm ci
 npm run wp-env start
+```
+
+Open the development URL printed by `wp-env` (normally `http://localhost:8888`).
+Sign in at `/wp-admin/` using the local defaults `admin` and `password`. These
+credentials are for the disposable development site only. Verify activation:
+
+```sh
+npm run wp-env run cli wp plugin is-active bbPress
+```
+
+For an initial front-end check, activate a classic theme:
+
+```sh
+npm run wp-env run cli wp theme install twentytwentyone --activate
+```
+
+In the dashboard, create a published forum under **Forums → Add New**, then
+use **View Forum** to verify its title and topic form appear. Stay signed in as
+the administrator for this first check. The test environment is separate from
+this development site; run a focused forum test there:
+
+```sh
+npm run test-php -- --filter test_bbp_get_forum_statuses
+```
+
+Stop the containers when finished; this preserves the local site:
+
+```sh
+npm run wp-env stop
 ```
 
 The plugin’s authoritative runtime source is under `src/`. Root `bbpress.php`

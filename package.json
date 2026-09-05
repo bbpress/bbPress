@@ -63,6 +63,6 @@
 	},
 	"scripts": {
 		"wp-env": "wp-env",
-		"test-php": "npm run wp-env run cli -- --env-cwd=wp-content/plugins/bbPress composer test"
+		"test-php": "npm run wp-env run tests-cli -- --env-cwd=wp-content/plugins/bbPress composer test"
 	}
 }
