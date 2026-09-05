@@ -249,7 +249,8 @@ module.exports = function( grunt ) {
 				processors: [
 					autoprefixer({
 						browsers: ['extends @wordpress/browserslist-config'],
-						cascade: false
+						cascade: false,
+						remove: false
 					})
 				],
 				failOnError: false
@@ -261,6 +262,16 @@ module.exports = function( grunt ) {
 				src: [ [ BBP_LTR_CSS ], 'includes/admin/styles/*/colors.scss' ]
 			},
 			colors: {
+				options: {
+					processors: [
+						autoprefixer({
+							browsers: ['extends @wordpress/browserslist-config'],
+							cascade: false,
+							remove: false
+						}),
+						require( './bin/normalize-colors' )
+					]
+				},
 				expand: true,
 				cwd: BUILD_DIR,
 				dest: BUILD_DIR,
@@ -299,7 +310,7 @@ module.exports = function( grunt ) {
 				ext: '.css',
 				src: [ 'includes/admin/styles/*/colors.scss' ],
 				options: {
-					implementation: require('node-sass'),
+					implementation: require('sass'),
 					outputStyle: 'expanded'
 				}
 			}

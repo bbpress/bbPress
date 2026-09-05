@@ -1,0 +1,111 @@
+name: Build and Smoke Test
+
+on:
+  push:
+    branches:
+      - '2.6'
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: build-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-smoke:
+    name: Release package and runtime smoke test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11@sha256:2439dcd7d14010ecd1ff7a4e1c5abe8e208c34fe35290744deeeaac3569043c3 # 11.8.9
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_smoke
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: wp-cli
+          coverage: none
+          extensions: mysqli, mbstring, curl, dom, json, libxml, xml, zip
+
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          package-manager-cache: false
+          node-version: '24'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify version metadata
+        run: php tests/ci/check-versions.php
+
+      - name: Verify color normalization
+        run: node tests/ci/check-colors.js
+
+      - name: Build release package
+        run: npx grunt release
+
+      - name: Verify package contents and translation template
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- src
+          test -f build/bbpress.php
+          test -f build/readme.txt
+          test -s build/bbpress.pot
+          test ! -e build/Gruntfile.js
+          test ! -e build/package.json
+          test ! -e build/tests
+          grep -q 'msgid "Forums"' build/bbpress.pot
+          grep -q 'msgid "Topics"' build/bbpress.pot
+
+      - name: Create release ZIP
+        run: |
+          set -euo pipefail
+          mkdir -p dist/bbpress
+          cp -R build/. dist/bbpress/
+          cd dist || exit 1
+          zip -qr bbpress.zip bbpress
+          unzip -t bbpress.zip
+
+      - name: Smoke-test the candidate ZIP
+        env:
+          BBPRESS_SMOKE_DB_PASSWORD: root
+        run: |
+          set -euo pipefail
+          bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
+
+      - name: Upload release ZIP
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: bbpress-release-${{ github.sha }}
+          path: |
+            dist/bbpress.zip
+            dist/smoke-test.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/wordpress/server.log" 2>/dev/null || true
