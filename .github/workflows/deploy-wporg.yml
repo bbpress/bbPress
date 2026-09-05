@@ -1,0 +1,286 @@
+name: Deploy to WordPress.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Stable version in x.y.z format
+        required: true
+        type: string
+      source_revision:
+        description: Canonical Subversion revision that created the source tag
+        required: true
+        type: string
+      deploy:
+        description: Commit the verified candidate to Plugin SVN
+        required: true
+        default: false
+        type: boolean
+
+permissions: {}
+
+concurrency:
+  group: bbpress-wordpress-org-deployment
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare canonical release candidate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    outputs:
+      series: ${{ steps.release.outputs.series }}
+      checksum: ${{ steps.package.outputs.checksum }}
+
+    services:
+      mariadb:
+        image: mariadb:11@sha256:2439dcd7d14010ecd1ff7a4e1c5abe8e208c34fe35290744deeeaac3569043c3 # 11.8.9
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_smoke
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Check out automation
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          path: automation
+
+      - name: Validate release inputs
+        id: release
+        env:
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version must use the x.y.z format." >&2
+            exit 1
+          fi
+          if [[ ! "$SOURCE_REVISION" =~ ^[0-9]+$ ]]; then
+            echo "Source revision must be numeric." >&2
+            exit 1
+          fi
+          echo "series=${VERSION%.*}" >> "$GITHUB_OUTPUT"
+
+      - name: Export canonical source tag
+        env:
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          SOURCE_URL="https://bbpress.svn.wordpress.org/tags/$VERSION"
+          LAST_CHANGED_REVISION=$(svn info -r "$SOURCE_REVISION" --show-item last-changed-revision "$SOURCE_URL@$SOURCE_REVISION")
+          if [[ "$LAST_CHANGED_REVISION" != "$SOURCE_REVISION" ]]; then
+            echo "The source tag was last changed in r$LAST_CHANGED_REVISION, not r$SOURCE_REVISION." >&2
+            exit 1
+          fi
+          svn log --xml --verbose -r "$SOURCE_REVISION" "$SOURCE_URL@$SOURCE_REVISION" > "$RUNNER_TEMP/source-tag.xml"
+          python3 - "$RUNNER_TEMP/source-tag.xml" "$VERSION" <<'PYTHON'
+          import sys, xml.etree.ElementTree as ET
+          history = ET.parse(sys.argv[1])
+          version = sys.argv[2]
+          paths = history.findall(".//path")
+          if not any(path.text == f"/tags/{version}" and path.get("action") == "A" and path.get("copyfrom-path") == f"/branches/{version.rsplit('.', 1)[0]}" for path in paths):
+              sys.exit("The revision must create the source tag by copying its maintenance branch.")
+          PYTHON
+          svn export -r "$SOURCE_REVISION" "$SOURCE_URL@$SOURCE_REVISION" source
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: wp-cli
+          coverage: none
+          extensions: mysqli, mbstring, curl, dom, json, libxml, xml, zip
+
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          package-manager-cache: false
+          node-version-file: automation/.nvmrc
+
+      - name: Install build dependencies
+        working-directory: source
+        run: npm ci
+
+      - name: Verify source version metadata
+        working-directory: source
+        run: php tests/ci/check-versions.php
+
+      - name: Build release package
+        working-directory: source
+        run: |
+          set -euo pipefail
+          cp -R src "$RUNNER_TEMP/src-before-build"
+          npx grunt release
+          diff -qr "$RUNNER_TEMP/src-before-build" src
+
+      - name: Verify package contents
+        working-directory: source
+        run: |
+          set -euo pipefail
+          test -f build/bbpress.php
+          test -f build/readme.txt
+          test -s build/bbpress.pot
+          test ! -e build/.github
+          test ! -e build/Gruntfile.js
+          test ! -e build/package.json
+          test ! -e build/tests
+          grep -q 'msgid "Forums"' build/bbpress.pot
+          grep -q 'msgid "Topics"' build/bbpress.pot
+          if [[ -f src/includes/common/blocks/forum-form/block.json ]]; then
+            grep -q 'msgid "Forum Form"' build/bbpress.pot
+            grep -q 'msgid "Topic Index"' build/bbpress.pot
+          fi
+
+      - name: Package candidate
+        id: package
+        run: |
+          set -euo pipefail
+          mkdir -p dist/bbpress
+          cp -R source/build/. dist/bbpress/
+          cd dist
+          zip -qr bbpress.zip bbpress
+          unzip -t bbpress.zip
+          sha256sum bbpress.zip > bbpress.zip.sha256
+          echo "checksum=$(cut -d ' ' -f 1 bbpress.zip.sha256)" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke-test the candidate ZIP
+        env:
+          BBPRESS_SMOKE_DB_PASSWORD: root
+        run: |
+          set -euo pipefail
+          automation/bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
+
+      - name: Stage prospective Plugin SVN deployment
+        env:
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+          SERIES: ${{ steps.release.outputs.series }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          svn checkout --depth immediates https://plugins.svn.wordpress.org/bbpress plugin-svn
+          svn update --set-depth infinity plugin-svn/trunk
+          svn update --set-depth immediates plugin-svn/branches
+          svn update --set-depth infinity "plugin-svn/branches/$SERIES"
+          svn update --set-depth immediates plugin-svn/tags
+          automation/bin/prepare-plugin-svn-release.sh dist/bbpress plugin-svn "$VERSION" "$SERIES" | tee dist/plugin-svn-status.txt
+          printf 'bbPress: deploy %s to branch, trunk, and tag.\n' "$VERSION" > dist/deployment-message.txt
+          printf 'Source: https://bbpress.svn.wordpress.org/tags/%s@%s\n' "$VERSION" "$SOURCE_REVISION" > dist/source.txt
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: bbpress-${{ inputs.version }}-r${{ inputs.source_revision }}
+          path: |
+            dist/bbpress.zip
+            dist/bbpress.zip.sha256
+            dist/plugin-svn-status.txt
+            dist/smoke-test.txt
+            dist/source.txt
+            dist/deployment-message.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  deploy:
+    name: Deploy verified candidate
+    if: ${{ inputs.deploy && github.ref == 'refs/heads/trunk' }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    environment: wordpress.org plugin
+
+    steps:
+      - name: Check out automation
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          path: automation
+
+      - name: Download release evidence
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: bbpress-${{ inputs.version }}-r${{ inputs.source_revision }}
+          path: candidate
+
+      - name: Verify candidate checksum
+        working-directory: candidate
+        env:
+          EXPECTED_CHECKSUM: ${{ needs.prepare.outputs.checksum }}
+        run: |
+          set -euo pipefail
+          sha256sum -c bbpress.zip.sha256
+          test "$(cut -d ' ' -f 1 bbpress.zip.sha256)" = "$EXPECTED_CHECKSUM"
+          unzip -q bbpress.zip
+          test -s smoke-test.txt
+
+      - name: Stage Plugin SVN deployment
+        env:
+          SERIES: ${{ needs.prepare.outputs.series }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          svn checkout --depth immediates https://plugins.svn.wordpress.org/bbpress plugin-svn
+          svn update --set-depth infinity plugin-svn/trunk
+          svn update --set-depth immediates plugin-svn/branches
+          svn update --set-depth infinity "plugin-svn/branches/$SERIES"
+          svn update --set-depth immediates plugin-svn/tags
+          automation/bin/prepare-plugin-svn-release.sh candidate/bbpress plugin-svn "$VERSION" "$SERIES"
+
+      - name: Commit Plugin SVN deployment
+        env:
+          SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}
+          SVN_USERNAME: ${{ secrets.WPORG_SVN_USERNAME }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$SVN_USERNAME" || -z "$SVN_PASSWORD" ]]; then
+            echo "The wordpress.org plugin environment is missing Subversion credentials." >&2
+            exit 1
+          fi
+          cd plugin-svn
+          printf '%s' "$SVN_PASSWORD" | svn commit --file ../candidate/deployment-message.txt --username "$SVN_USERNAME" --password-from-stdin --no-auth-cache --non-interactive
+
+      - name: Verify Plugin SVN deployment
+        env:
+          SERIES: ${{ needs.prepare.outputs.series }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          test -z "$(svn status plugin-svn)"
+          DEPLOYMENT_REVISION=$(svn info --show-item last-changed-revision "plugin-svn/tags/$VERSION")
+          svn log -r "$DEPLOYMENT_REVISION" "https://plugins.svn.wordpress.org/bbpress/tags/$VERSION@$DEPLOYMENT_REVISION"
+          for target in "branches/$SERIES" trunk "tags/$VERSION"; do
+            svn export -r "$DEPLOYMENT_REVISION" "https://plugins.svn.wordpress.org/bbpress/$target@$DEPLOYMENT_REVISION" "$RUNNER_TEMP/verified-${target//\//-}"
+            diff -qr candidate/bbpress "$RUNNER_TEMP/verified-${target//\//-}"
+          done
+
+      - name: Verify public package propagation
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error --location "https://downloads.wordpress.org/plugin/bbpress.$VERSION.zip" --output public.zip; then
+              PUBLIC_DIR="$RUNNER_TEMP/public-$attempt"
+              mkdir "$PUBLIC_DIR"
+              unzip -q public.zip -d "$PUBLIC_DIR"
+              if diff -qr candidate/bbpress "$PUBLIC_DIR/bbpress"; then
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "The public WordPress.org package did not match the candidate within five minutes." >&2
+          exit 1

@@ -73,6 +73,7 @@ Plugin SVN into canonical development history.
 - `tests/ci/check-versions.php` validates duplicated version metadata.
 - `tests/smoke/cli.php` exercises an installed release build with WP-CLI.
 - `.github/workflows/` is the executable truth for the current CI matrix.
+- `.github/workflows/deploy-wporg.yml` prepares releases from exact canonical Subversion tags and requires an explicit deployment input plus protected environment approval before changing Plugin SVN.
 - `Gruntfile.js` defines linting, asset compilation, POT generation, build, and
   release-package behavior.
 
@@ -370,9 +371,7 @@ URL, checksum, test result, and manual approval.
    tree/POT, compare with the previous release, install the ZIP, and smoke-test.
 4. Create the canonical source tag with `svn copy` from the exact recorded branch
    revision. Never manufacture the tag in GitHub.
-5. Deploy only the verified `build/` contents to Plugin SVN. Keep its maintenance
-   branch and trunk synchronized when that is the release convention, then make
-   the deployment tag from the exact reviewed state.
+5. Deploy only the verified `build/` contents to Plugin SVN. Keep its maintenance branch and trunk synchronized when that is the release convention, then make the deployment tag from the exact reviewed state. The guarded `Deploy to WordPress.org` workflow may perform this step after a successful credential-free preparation run and explicit environment approval.
 6. Verify WordPress.org reports the version. Download the public ZIP and compare
    its checksum and file manifest with the candidate.
 7. Verify activation and a front-end forum from the public ZIP.
