@@ -26,6 +26,7 @@ module.exports = function( grunt ) {
 			'!**/.{svn,git}/**',
 			'!.editorconfig',
 			'!.github/**',
+			'!.wordpress-org/**',
 			'!.gitignore',
 			'!build/**',
 			'!Gruntfile.js',

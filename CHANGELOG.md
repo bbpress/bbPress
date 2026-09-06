@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added a populated WordPress Playground preview for the Plugin Directory.
 - Added Block Theme support while continuing to use bbPress PHP templates for
   classic and hybrid themes.
 
