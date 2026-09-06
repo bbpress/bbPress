@@ -143,7 +143,7 @@ add_action( 'bbp_footer',   'bbp_swap_no_js_body_class' );
 add_action( 'bbp_ready',  'bbp_setup_akismet',    2  ); // Spam prevention for topics and replies
 
 // Setup BuddyPress using its own hook
-add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integration
+add_action( 'bp_init',    'bbp_setup_buddypress', 0  ); // Social network integration
 
 // Try to load the bbpress-functions.php file from the active themes
 add_action( 'bbp_after_setup_theme', 'bbp_load_theme_functions', 10 );

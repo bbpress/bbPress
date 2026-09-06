@@ -17,6 +17,11 @@ Development for the next bbPress release is in progress. See the active
 
 - Updated the 2.6 development and CI environment to match trunk.
 
+### Fixed
+
+- Prevented BuddyPress integration from loading bbPress translations before
+  WordPress initialization.
+
 ## 2.6.15 - 2026-09-03
 
 ### Security
