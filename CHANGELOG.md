@@ -13,9 +13,15 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Added
+
+- Added Block Theme support while continuing to use bbPress PHP templates for
+  classic and hybrid themes.
+
 ### Changed
 
-- Updated the 2.6 development and CI environment to match trunk.
+- Updated the 2.6 build, lint, test, translation, and installed-package smoke
+  test tooling.
 
 ### Fixed
 
