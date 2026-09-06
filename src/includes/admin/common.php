@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Add a separator to the WordPress admin menus.
  *
  * @since 2.0.0 bbPress (r2957)
+ *
+ * @global menu $menu
  */
 function bbp_admin_separator() {
 

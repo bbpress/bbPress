@@ -85,6 +85,8 @@ class BBP_Skip_Children {
 	 *
 	 * @since 2.1.0 bbPress (r4011)
 	 *
+	 * @global bool $_wp_suspend_cache_invalidation
+	 *
 	 * @param int $post_id The post ID of the cache being invalidated.
 	 */
 	public function skip_related_posts( $post_id = 0 ) {
