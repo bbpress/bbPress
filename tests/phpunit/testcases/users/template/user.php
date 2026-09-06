@@ -8,6 +8,8 @@
  */
 class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
+	protected $keymaster_userdata;
+	protected $keymaster_id;
 	protected $old_current_user = 0;
 
 	public function setUp(): void {
