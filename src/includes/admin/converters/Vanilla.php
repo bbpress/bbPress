@@ -570,11 +570,11 @@ class Vanilla extends BBP_Converter_Base {
 	 * @param int $parent Vanilla v2.x Parent ID
 	 * @return int
 	 */
-	public function callback_forum_parent( $parent = 0 ) {
-		if ( $parent == -1 ) {
+	public function callback_forum_parent( $parent_id = 0 ) {
+		if ( -1 === (int) $parent_id ) {
 			return 0;
 		} else {
-			return $parent;
+			return $parent_id;
 		}
 	}
 

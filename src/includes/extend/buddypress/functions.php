@@ -129,12 +129,14 @@ function bbp_filter_modify_page_title( $new_title = '', $old_title = '', $sep = 
 		if ( bp_is_group_forum_topic() || bp_is_group_forum_topic_edit() ) {
 
 			// Get the topic
-			$topic = get_posts( array(
-				'name'        => bp_action_variable( 1 ),
-				'post_status' => array_keys( bbp_get_topic_statuses() ),
-				'post_type'   => bbp_get_topic_post_type(),
-				'numberposts' => 1
-			) );
+			$topic = get_posts(
+				array(
+					'name'        => bp_action_variable( 1 ),
+					'post_status' => array_keys( bbp_get_topic_statuses() ),
+					'post_type'   => bbp_get_topic_post_type(),
+					'numberposts' => 1
+				)
+			);
 
 			// Add the topic title to the <title>
 			$new_title .= bbp_get_topic_title( $topic[0]->ID ) . ' ' . $sep . ' ';
@@ -336,11 +338,7 @@ function bbp_maybe_create_group_forum_root() {
 
 	// Create new forum
 	$forum_id = bbp_insert_forum(
-
-		// Post
 		array( 'post_title' => esc_html__( 'Group Forums', 'bbpress' ) ),
-
-		// Meta
 		array( 'forum_type' => 'category' )
 	);
 
@@ -351,10 +349,15 @@ function bbp_maybe_create_group_forum_root() {
 		update_option( '_bbp_group_forums_root_id', $forum_id );
 
 		// Redirect
-		bbp_redirect( add_query_arg( array(
-			'page'    => 'bbpress',
-			'updated' => true
-		), admin_url( 'options-general.php' ) ) );
+		bbp_redirect(
+			add_query_arg(
+				array(
+					'page'    => 'bbpress',
+					'updated' => true
+				),
+				admin_url( 'options-general.php' )
+			)
+		);
 	}
 }
 
@@ -775,10 +778,18 @@ function bbp_group_is_creator() {
 function bbp_get_activity_actions() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_activity_actions', array(
-		'topic' => esc_html__( '%1$s started the topic %2$s in the forum %3$s',    'bbpress' ),
-		'reply' => esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
-	) );
+	return (array) apply_filters( 'bbp_get_activity_actions',
+		array(
+
+			'topic' =>
+			/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+			esc_html__( '%1$s started the topic %2$s in the forum %3$s', 'bbpress' ),
+
+			'reply' =>
+			/* translators: 1: User linked profile, 2: Topic linked title, 3: Forum linked title */
+			esc_html__( '%1$s replied to the topic %2$s in the forum %3$s', 'bbpress' )
+		)
+	);
 }
 
 /**
@@ -820,14 +831,12 @@ function bbp_format_activity_action_new_post( $type = '', $action = '', $activit
 		}
 
 	// General component (bbpress/forums/other)
-	} else {
-		if ( 'topic' === $type ) {
+	} elseif ( 'topic' === $type ) {
 			$topic_id = bbp_get_topic_id( $activity->item_id );
 			$forum_id = bbp_get_forum_id( $activity->secondary_item_id );
 		} else {
-			$topic_id = bbp_get_topic_id( $activity->secondary_item_id );
-			$forum_id = bbp_get_topic_forum_id( $topic_id );
-		}
+		$topic_id = bbp_get_topic_id( $activity->secondary_item_id );
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 	}
 
 	// User link for topic author

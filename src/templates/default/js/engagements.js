@@ -1,4 +1,3 @@
-/* global bbpEngagementJS */
 jQuery( document ).ready( function ( $ ) {
 
 	function bbp_ajax_call( action, object, type, nonce, update_selector ) {

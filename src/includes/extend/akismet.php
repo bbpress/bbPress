@@ -111,7 +111,7 @@ class BBP_Akismet {
 		/** Author ************************************************************/
 
 		$user_data['last_active'] = '';
-		$user_data['registered']  = date( 'Y-m-d H:i:s');
+		$user_data['registered']  = date( 'Y-m-d H:i:s' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		$user_data['total_posts'] = (int) bbp_get_user_post_count( $post_data['post_author'] );
 
 		// Get user data
@@ -156,23 +156,25 @@ class BBP_Akismet {
 		$_post_content = trim( $post_data['post_title'] . "\n\n" . $post_data['post_content'] );
 
 		// Check if the post data is spammy...
-		$_post = $this->maybe_spam( array(
-			'comment_author'                 => $user_data['name'],
-			'comment_author_email'           => $user_data['email'],
-			'comment_author_url'             => $user_data['website'],
-			'comment_content'                => $_post_content,
-			'comment_post_ID'                => $post_data['post_parent'],
-			'comment_type'                   => $post_data['post_type'],
-			'comment_total'                  => $user_data['total_posts'],
-			'comment_last_active_gmt'        => $user_data['last_active'],
-			'comment_account_registered_gmt' => $user_data['registered'],
-			'permalink'                      => $post_permalink,
-			'referrer'                       => wp_get_raw_referer(),
-			'user_agent'                     => bbp_current_author_ua(),
-			'user_ID'                        => $post_data['post_author'],
-			'user_ip'                        => bbp_current_author_ip(),
-			'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
-		) );
+		$_post = $this->maybe_spam(
+			array(
+				'comment_author'                 => $user_data['name'],
+				'comment_author_email'           => $user_data['email'],
+				'comment_author_url'             => $user_data['website'],
+				'comment_content'                => $_post_content,
+				'comment_post_ID'                => $post_data['post_parent'],
+				'comment_type'                   => $post_data['post_type'],
+				'comment_total'                  => $user_data['total_posts'],
+				'comment_last_active_gmt'        => $user_data['last_active'],
+				'comment_account_registered_gmt' => $user_data['registered'],
+				'permalink'                      => $post_permalink,
+				'referrer'                       => wp_get_raw_referer(),
+				'user_agent'                     => bbp_current_author_ua(),
+				'user_ID'                        => $post_data['post_author'],
+				'user_ip'                        => bbp_current_author_ip(),
+				'user_role'                      => $this->get_user_roles( $post_data['post_author'] ),
+			)
+		);
 
 		// Set the results (from maybe_spam() above)
 		$post_data['bbp_akismet_result_headers'] = $_post['bbp_akismet_result_headers'];
@@ -595,7 +597,7 @@ class BBP_Akismet {
 				}
 
 				// Normal result: true
-				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'true' ) ) {
+				if ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( 'true' === $this->last_post['bbp_akismet_result'] ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'true' );
@@ -610,6 +612,7 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
+								/* translators: %s: Post status */
 								esc_html__( 'Post status was changed to %s', 'bbpress' ),
 								$_post->post_status
 							),
@@ -618,7 +621,7 @@ class BBP_Akismet {
 					}
 
 				// Normal result: false
-				} elseif ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( $this->last_post['bbp_akismet_result'] === 'false' ) ) {
+				} elseif ( ! empty( $this->last_post['bbp_akismet_result'] ) && ( 'false' === $this->last_post['bbp_akismet_result'] ) ) {
 
 					// Leave a trail so other's know what we did
 					update_post_meta( $post_id, '_bbp_akismet_result', 'false' );
@@ -633,6 +636,7 @@ class BBP_Akismet {
 						$this->update_post_history(
 							$post_id,
 							sprintf(
+								/* translators: %s: Post status */
 								esc_html__( 'Post status was changed to %s', 'bbpress' ),
 								$_post->post_status
 							),
@@ -647,6 +651,7 @@ class BBP_Akismet {
 					$this->update_post_history(
 						$post_id,
 						sprintf(
+							/* translators: %s: Akismet response */
 							esc_html__( 'Akismet was unable to check this post (response: %s), will automatically retry again later.', 'bbpress' ),
 							$this->last_post['bbp_akismet_result']
 						),
@@ -827,8 +832,13 @@ class BBP_Akismet {
 		}
 
 		// Maybe HTTPS if not disabled
-		if ( empty( $ssl_disabled_time ) && ( $is_ssl = wp_http_supports( array( 'ssl' ) ) ) ) {
-			$akismet_url = set_url_scheme( $akismet_url, 'https' );
+		if ( empty( $ssl_disabled_time ) ) {
+			$is_ssl = wp_http_supports( array( 'ssl' ) );
+
+			// Use SSL
+			if ( ! empty( $is_ssl ) ) {
+				$akismet_url = set_url_scheme( $akismet_url, 'https' );
+			}
 		}
 
 		// Initial remote request
@@ -950,7 +960,7 @@ class BBP_Akismet {
 
 							<tr>
 								<td style="color: #999; text-align: right; white-space: nowrap;">
-									<span title="<?php echo esc_attr( date( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); ?>">
+									<span title="<?php echo esc_attr( date( 'D d M Y @ h:i:m a', $row['time'] ) . ' GMT' ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date ?>">
 										<?php bbp_time_since( $row['time'], false, true ); ?>
 									</span>
 								</td>
@@ -1047,7 +1057,7 @@ class BBP_Akismet {
 		$sql = "SELECT id FROM {$wpdb->posts} WHERE post_type IN ('topic', 'reply') AND post_status = 'spam' AND DATE_SUB(NOW(), INTERVAL %d DAY) > post_date_gmt LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) {
+		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_ids ) ) {
@@ -1072,6 +1082,8 @@ class BBP_Akismet {
 				 */
 				do_action( '_bbp_akismet_batch_delete', __FUNCTION__, $spam_id );
 			}
+
+			// phpcs:disable
 
 			// Prepared as strings since id is an unsigned BIGINT, and using %
 			// will constrain the value to the maximum signed BIGINT.
@@ -1128,7 +1140,7 @@ class BBP_Akismet {
 		$sql = "SELECT m.post_id FROM {$wpdb->postmeta} as m INNER JOIN {$wpdb->posts} as p ON m.post_id = p.ID WHERE m.meta_key = '_bbp_akismet_as_submitted' AND DATE_SUB(NOW(), INTERVAL %d DAY) > p.post_date_gmt LIMIT %d";
 
 		// Query loop of topic & reply IDs
-		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) {
+		while ( $spam_ids = $wpdb->get_col( $wpdb->prepare( $sql, $delete_interval, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_ids ) ) {
@@ -1195,18 +1207,18 @@ class BBP_Akismet {
 		$max_exec_time = (float) max( ini_get( 'max_execution_time' ) - 5, 3 );
 
 		// Setup the query
-		$sql = "SELECT m.meta_id, m.post_id, m.meta_key"
+		$sql = 'SELECT m.meta_id, m.post_id, m.meta_key'
 			. " FROM {$wpdb->postmeta} as m"
 			. " LEFT JOIN {$wpdb->posts} as p"
-			. " ON m.post_id = p.ID"
-			. " WHERE p.ID IS NULL"
-			. " AND m.meta_id > %d"
+			. ' ON m.post_id = p.ID'
+			. ' WHERE p.ID IS NULL'
+			. ' AND m.meta_id > %d'
 			. " AND m.meta_key LIKE 'akismet\\_%'"
-			. " ORDER BY m.meta_id"
-			. " LIMIT %d";
+			. ' ORDER BY m.meta_id'
+			. ' LIMIT %d';
 
 		// Query loop of topic & reply IDs
-		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) {
+		while ( $spam_meta_results = $wpdb->get_results( $wpdb->prepare( $sql, $last_meta_id, $delete_limit ) ) ) { // phpcs:ignore
 
 			// Exit loop if no spam IDs
 			if ( empty( $spam_meta_results ) ) {

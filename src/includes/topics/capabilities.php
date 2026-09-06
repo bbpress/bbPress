@@ -19,15 +19,18 @@
 function bbp_get_topic_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_caps', array(
-		'edit_posts'          => 'edit_topics',
-		'edit_others_posts'   => 'edit_others_topics',
-		'publish_posts'       => 'publish_topics',
-		'read_private_posts'  => 'read_private_topics',
-		'read_hidden_posts'   => 'read_hidden_topics',
-		'delete_posts'        => 'delete_topics',
-		'delete_others_posts' => 'delete_others_topics'
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_caps',
+		array(
+			'edit_posts'          => 'edit_topics',
+			'edit_others_posts'   => 'edit_others_topics',
+			'publish_posts'       => 'publish_topics',
+			'read_private_posts'  => 'read_private_topics',
+			'read_hidden_posts'   => 'read_hidden_topics',
+			'delete_posts'        => 'delete_topics',
+			'delete_others_posts' => 'delete_others_topics'
+		)
+	);
 }
 
 /**
@@ -41,12 +44,15 @@ function bbp_get_topic_caps() {
 function bbp_get_topic_tag_caps() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_topic_tag_caps', array(
-		'manage_terms' => 'manage_topic_tags',
-		'edit_terms'   => 'edit_topic_tags',
-		'delete_terms' => 'delete_topic_tags',
-		'assign_terms' => 'assign_topic_tags'
-	) );
+	return (array) apply_filters(
+		'bbp_get_topic_tag_caps',
+		array(
+			'manage_terms' => 'manage_topic_tags',
+			'edit_terms'   => 'edit_topic_tags',
+			'delete_terms' => 'delete_topic_tags',
+			'assign_terms' => 'assign_topic_tags'
+		)
+	);
 }
 
 /**

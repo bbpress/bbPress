@@ -43,13 +43,19 @@ class BBP_Default extends BBP_Theme_Compat {
 	 */
 	public function __construct( $properties = array() ) {
 
-		parent::__construct( bbp_parse_args( $properties, array(
-			'id'      => 'default',
-			'name'    => 'bbPress Default',
-			'version' => bbp_get_asset_version(),
-			'dir'     => trailingslashit( bbpress()->themes_dir . 'default' ),
-			'url'     => trailingslashit( bbpress()->themes_url . 'default' ),
-		), 'default_theme' ) );
+		parent::__construct(
+			bbp_parse_args(
+				$properties,
+				array(
+					'id'      => 'default',
+					'name'    => 'bbPress Default',
+					'version' => bbp_get_asset_version(),
+					'dir'     => trailingslashit( bbpress()->themes_dir . 'default' ),
+					'url'     => trailingslashit( bbpress()->themes_url . 'default' ),
+				),
+				'default_theme'
+			)
+		);
 
 		$this->setup_actions();
 	}
@@ -213,11 +219,15 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Single forum or topic
 		if ( bbp_is_single_forum() || bbp_is_single_topic() ) {
-			wp_localize_script( 'bbpress-engagements', 'bbpEngagementJS', array(
-				'object_id'          => get_the_ID(),
-				'bbp_ajaxurl'        => bbp_get_ajax_url(),
-				'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
-			) );
+			wp_localize_script(
+				'bbpress-engagements',
+				'bbpEngagementJS',
+				array(
+					'object_id'          => get_the_ID(),
+					'bbp_ajaxurl'        => bbp_get_ajax_url(),
+					'generic_ajax_error' => esc_html__( 'Something went wrong. Refresh your browser and try again.', 'bbpress' ),
+				)
+			);
 		}
 	}
 
@@ -240,7 +250,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
-		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] )         : 0;
+		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
 		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
 
 		// Bail if user cannot add favorites for this user
@@ -266,7 +276,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_favorite( $user_id, $object->ID )
 			? bbp_remove_user_favorite( $user_id, $object->ID )
-			:    bbp_add_user_favorite( $user_id, $object->ID );
+			: bbp_add_user_favorite( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {
@@ -303,7 +313,7 @@ class BBP_Default extends BBP_Theme_Compat {
 
 		// Get user and topic data
 		$user_id = bbp_get_current_user_id();
-		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] )         : 0;
+		$id      = ! empty( $_POST['id']   ) ? intval( $_POST['id'] ) : 0;
 		$type    = ! empty( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'post';
 
 		// Bail if user cannot add favorites for this user
@@ -329,7 +339,7 @@ class BBP_Default extends BBP_Theme_Compat {
 		// Take action
 		$status = bbp_is_user_subscribed( $user_id, $object->ID )
 			? bbp_remove_user_subscription( $user_id, $object->ID )
-			:    bbp_add_user_subscription( $user_id, $object->ID );
+			: bbp_add_user_subscription( $user_id, $object->ID );
 
 		// Bail if action failed
 		if ( empty( $status ) ) {

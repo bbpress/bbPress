@@ -141,22 +141,22 @@ class phpBB extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Forum Subscriptions Section ***************************************/
@@ -739,10 +739,13 @@ class phpBB extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1
+			)
+		);
 
 		// Encrypted
 		if ( strlen( $pass_array['hash'] ) === 34 ) {
@@ -759,7 +762,7 @@ class phpBB extends BBP_Converter_Base {
 
 		// Unencrypted
 		return hash_equals(
-			md5( $password ), 
+			md5( $password ),
 			$pass_array['hash']
 		);
 	}
@@ -800,14 +803,12 @@ class phpBB extends BBP_Converter_Base {
 			$hash = md5( $salt . $password, true );
 			do {
 				$hash = md5( $hash . $password, true );
-			}
-			while ( --$count );
+			} while ( --$count );
 		} else {
 			$hash = pack( 'H*', md5( $salt . $password ) );
 			do {
 				$hash = pack( 'H*', md5( $hash . $password ) );
-			}
-			while ( --$count );
+			} while ( --$count );
 		}
 
 		$output = substr( $setting, 0, 12 );
@@ -827,11 +828,11 @@ class phpBB extends BBP_Converter_Base {
 			$value = ord( $input[ $i++ ] );
 			$output .= $itoa64[ $value & 0x3f ];
 
-			if ($i < $count) {
+			if ( $i < $count ) {
 				$value |= ord( $input[ $i ] ) << 8;
 			}
 
-			$output .= $itoa64[( $value >> 6 ) & 0x3f];
+			$output .= $itoa64[ ( $value >> 6 ) & 0x3f ];
 
 			if ( $i++ >= $count ) {
 				break;
@@ -841,13 +842,13 @@ class phpBB extends BBP_Converter_Base {
 				$value |= ord( $input[ $i ] ) << 16;
 			}
 
-			$output .= $itoa64[( $value >> 12 ) & 0x3f];
+			$output .= $itoa64[ ( $value >> 12 ) & 0x3f ];
 
 			if ( $i++ >= $count ) {
 				break;
 			}
 
-			$output .= $itoa64[($value >> 18) & 0x3f];
+			$output .= $itoa64[ ( $value >> 18 ) & 0x3f ];
 		} while ( $i < $count );
 
 		return $output;

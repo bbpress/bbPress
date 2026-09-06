@@ -96,11 +96,14 @@ function bbp_has_search_results( $args = array() ) {
 			: ceil( $bbp->search_query->found_posts / $bbp->search_query->posts_per_page );
 
 		// Pagination settings with filter
-		$bbp_search_pagination = apply_filters( 'bbp_search_results_pagination', array(
-			'base'    => bbp_get_search_pagination_base(),
-			'total'   => $total_pages,
-			'current' => $bbp->search_query->paged
-		) );
+		$bbp_search_pagination = apply_filters(
+			'bbp_search_results_pagination',
+			array(
+				'base'    => bbp_get_search_pagination_base(),
+				'total'   => $total_pages,
+				'current' => $bbp->search_query->paged
+			)
+		);
 
 		// Add pagination to query object
 		$bbp->search_query->pagination_links = bbp_paginate_links( $bbp_search_pagination );
@@ -162,23 +165,24 @@ function bbp_search_title() {
 	 *
 	 * @since 2.3.0 bbPress (r4579)
 	 */
-	function bbp_get_search_title() {
+function bbp_get_search_title() {
 
-		// Get search terms
-		$search_terms = bbp_get_search_terms();
+	// Get search terms
+	$search_terms = bbp_get_search_terms();
 
-		// No search terms specified
-		if ( empty( $search_terms ) ) {
-			$title = esc_html__( 'Search', 'bbpress' );
+	// No search terms specified
+	if ( empty( $search_terms ) ) {
+		$title = esc_html__( 'Search', 'bbpress' );
 
-		// Include search terms in title
-		} else {
-			$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
-		}
-
-		// Filter & return
-		return apply_filters( 'bbp_get_search_title', $title, $search_terms );
+	// Include search terms in title
+	} else {
+		/* translators: %s: Search query terms */
+		$title = sprintf( esc_html__( "Search Results for '%s'", 'bbpress' ), esc_attr( $search_terms ) );
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_title', $title, $search_terms );
+}
 
 /**
  * Output the search url
@@ -195,26 +199,29 @@ function bbp_search_url() {
 	 *
 	 * @return string Search url
 	 */
-	function bbp_get_search_url() {
+function bbp_get_search_url() {
 
-		// Pretty permalinks
-		if ( bbp_use_pretty_urls() ) {
+	// Pretty permalinks
+	if ( bbp_use_pretty_urls() ) {
 
-			// Run through home_url()
-			$url = bbp_get_root_url() . bbp_get_search_slug();
-			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
+		// Run through home_url()
+		$url = bbp_get_root_url() . bbp_get_search_slug();
+		$url = user_trailingslashit( $url );
+		$url = home_url( $url );
 
-		// Unpretty permalinks
-		} else {
-			$url = add_query_arg( array(
+	// Unpretty permalinks
+	} else {
+		$url = add_query_arg(
+			array(
 				bbp_get_search_rewrite_id() => ''
-			), home_url( '/' ) );
-		}
-
-		// Filter & return
-		return apply_filters( 'bbp_get_search_url', $url );
+			),
+			home_url( '/' )
+		);
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_url', $url );
+}
 
 /**
  * Output the search results url
@@ -231,36 +238,39 @@ function bbp_search_results_url() {
 	 *
 	 * @return string Search url
 	 */
-	function bbp_get_search_results_url() {
+function bbp_get_search_results_url() {
 
-		// Get the search terms
-		$search_terms = bbp_get_search_terms();
+	// Get the search terms
+	$search_terms = bbp_get_search_terms();
 
-		// Pretty permalinks
-		if ( bbp_use_pretty_urls() ) {
+	// Pretty permalinks
+	if ( bbp_use_pretty_urls() ) {
 
-			// Root search URL
-			$url = bbp_get_root_url() . bbp_get_search_slug();
+		// Root search URL
+		$url = bbp_get_root_url() . bbp_get_search_slug();
 
-			// Append search terms
-			if ( ! empty( $search_terms ) ) {
-				$url = trailingslashit( $url ) . urlencode( $search_terms );
-			}
-
-			// Run through home_url()
-			$url = user_trailingslashit( $url );
-			$url = home_url( $url );
-
-		// Unpretty permalinks
-		} else {
-			$url = add_query_arg( array(
-				bbp_get_search_rewrite_id() => urlencode( $search_terms )
-			), home_url( '/' ) );
+		// Append search terms
+		if ( ! empty( $search_terms ) ) {
+			$url = trailingslashit( $url ) . urlencode( $search_terms );
 		}
 
-		// Filter & return
-		return apply_filters( 'bbp_get_search_results_url', $url );
+		// Run through home_url()
+		$url = user_trailingslashit( $url );
+		$url = home_url( $url );
+
+	// Unpretty permalinks
+	} else {
+		$url = add_query_arg(
+			array(
+				bbp_get_search_rewrite_id() => urlencode( $search_terms )
+			),
+			home_url( '/' )
+		);
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_results_url', $url );
+}
 
 /**
  * Output the search terms
@@ -284,57 +294,57 @@ function bbp_search_terms( $search_terms = '' ) {
 	 * @param string $passed_terms Optional. Search terms
 	 * @return bool|string Search terms on success, false on failure
 	 */
-	function bbp_get_search_terms( $passed_terms = '' ) {
+function bbp_get_search_terms( $passed_terms = '' ) {
 
-		// Sanitize terms if they were passed in
-		if ( ! empty( $passed_terms ) ) {
-			$search_terms = sanitize_title( $passed_terms );
+	// Sanitize terms if they were passed in
+	if ( ! empty( $passed_terms ) ) {
+		$search_terms = sanitize_title( $passed_terms );
 
-		// Use query variable if not
+	// Use query variable if not
+	} else {
+
+		// Global
+		$search_terms = get_query_var( bbp_get_search_rewrite_id(), null );
+
+		// Searching globally
+		if ( ! is_null( $search_terms ) ) {
+			$search_terms = wp_unslash( $search_terms );
+
+		// Other searches
 		} else {
 
-			// Global
-			$search_terms = get_query_var( bbp_get_search_rewrite_id(), null );
+			// Get known search type IDs
+			$types = bbp_get_search_type_ids();
 
-			// Searching globally
-			if ( ! is_null( $search_terms )  ) {
-				$search_terms = wp_unslash( $search_terms );
+			// Filterable, so make sure types exist
+			if ( ! empty( $types ) ) {
 
-			// Other searches
-			} else {
+				// Loop through types
+				foreach ( $types as $type ) {
 
-				// Get known search type IDs
-				$types = bbp_get_search_type_ids();
+					// Look for search terms
+					$terms = bbp_sanitize_search_request( $type );
 
-				// Filterable, so make sure types exist
-				if ( ! empty( $types ) ) {
-
-					// Loop through types
-					foreach ( $types as $type ) {
-
-						// Look for search terms
-						$terms = bbp_sanitize_search_request( $type );
-
-						// Skip if no terms
-						if ( empty( $terms ) ) {
-							continue;
-						}
-
-						// Set terms if not empty
-						$search_terms = $terms;
+					// Skip if no terms
+					if ( empty( $terms ) ) {
+						continue;
 					}
+
+					// Set terms if not empty
+					$search_terms = $terms;
 				}
 			}
 		}
-
-		// Trim whitespace & decode if non-empty string, or set to false
-		$search_terms = ! empty( $search_terms ) && is_string( $search_terms )
-			? urldecode( trim( $search_terms ) )
-			: false;
-
-		// Filter & return
-		return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
 	}
+
+	// Trim whitespace & decode if non-empty string, or set to false
+	$search_terms = ! empty( $search_terms ) && is_string( $search_terms )
+		? urldecode( trim( $search_terms ) )
+		: false;
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_terms', $search_terms, $passed_terms );
+}
 
 /** Pagination ****************************************************************/
 
@@ -387,37 +397,55 @@ function bbp_search_pagination_count() {
 	 *
 	 * @return string Search pagination count
 	 */
-	function bbp_get_search_pagination_count() {
-		$bbp = bbpress();
+function bbp_get_search_pagination_count() {
+	$bbp = bbpress();
 
-		// Define local variable(s)
-		$retstr = '';
+	// Define local variable(s)
+	$retstr = '';
 
-		// Set pagination values
-		$total_int = intval( $bbp->search_query->found_posts    );
-		$ppp_int   = intval( $bbp->search_query->posts_per_page );
-		$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
-		$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
-				? $total_int
-				: $start_int + ( $ppp_int - 1 ) );
+	// Set pagination values
+	$total_int = intval( $bbp->search_query->found_posts    );
+	$ppp_int   = intval( $bbp->search_query->posts_per_page );
+	$start_int = intval( ( $bbp->search_query->paged - 1 ) * $ppp_int ) + 1;
+	$to_int    = intval( ( $start_int + ( $ppp_int - 1 ) > $total_int )
+			? $total_int
+			: $start_int + ( $ppp_int - 1 )
+	);
 
-		// Format numbers for display
-		$total_num = bbp_number_format( $total_int );
-		$from_num  = bbp_number_format( $start_int );
-		$to_num    = bbp_number_format( $to_int    );
+	// Format numbers for display
+	$total_num = bbp_number_format( $total_int );
+	$from_num  = bbp_number_format( $start_int );
+	$to_num    = bbp_number_format( $to_int    );
 
-		// Single page of results
-		if ( empty( $to_num ) ) {
-			$retstr = sprintf( _n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ), $total_num );
+	// Single page of results
+	if ( empty( $to_num ) ) {
+		$retstr = sprintf(
+			/* translators: %1$s: Number of results */
+			_n( 'Viewing %1$s result', 'Viewing %1$s results', $total_int, 'bbpress' ),
+			$total_num
+		);
 
-		// Several pages of results
-		} else {
-			$retstr = sprintf( _n( 'Viewing %2$s results (of %4$s total)', 'Viewing %1$s results - %2$s through %3$s (of %4$s total)', $bbp->search_query->post_count, 'bbpress' ), $bbp->search_query->post_count, $from_num, $to_num, $total_num );
-		}
+	// Several pages of results
+	} else {
+		$retstr = sprintf(
+			/* translators: 1: Number of results being viewed, 2: First result number, 3: Last result number, 4: Total results */
+			_n(
+				'Viewing %2$s results (of %4$s total)',
+				'Viewing %1$s results - %2$s through %3$s (of %4$s total)',
+				$bbp->search_query->post_count,
+				'bbpress'
+			),
+			$bbp->search_query->post_count,
+			$from_num,
+			$to_num,
+			$total_num
+		);
 
-		// Filter & return
-		return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
 	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_search_pagination_count', esc_html( $retstr ) );
+}
 
 /**
  * Output search pagination links
@@ -436,12 +464,12 @@ function bbp_search_pagination_links() {
 	 * @return string Search pagination links
 	 */
 	function bbp_get_search_pagination_links() {
-		$bbp = bbpress();
+	$bbp = bbpress();
 
-		if ( ! isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) ) {
-			return false;
+	if ( ! isset( $bbp->search_query->pagination_links ) || empty( $bbp->search_query->pagination_links ) ) {
+		return false;
 		}
 
-		// Filter & return
-		return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
+	// Filter & return
+	return apply_filters( 'bbp_get_search_pagination_links', $bbp->search_query->pagination_links );
 	}

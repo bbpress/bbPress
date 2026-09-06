@@ -17,17 +17,9 @@
 class Mingle extends BBP_Converter_Base {
 
 	/**
-	 * Main constructor
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
-	/**
 	 * Sets up the field mappings
 	 */
-	public function setup_globals()	{
+	public function setup_globals() {
 
 		// Setup smiley URL & path
 		$this->bbcode_parser_properties = array(
@@ -104,22 +96,22 @@ class Mingle extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'post_date',
-			'default'        => date('Y-m-d H:i:s')
+			'default'        => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'post_date_gmt',
-			'default'        => date('Y-m-d H:i:s')
+			'default'        => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'post_modified',
-			'default'        => date('Y-m-d H:i:s')
+			'default'        => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'        => 'forum',
 			'to_fieldname'   => 'post_modified_gmt',
-			'default'        => date('Y-m-d H:i:s')
+			'default'        => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Topic Section ******************************************************/

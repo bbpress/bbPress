@@ -137,24 +137,24 @@ class Invision extends BBP_Converter_Base {
 
 		// Forum dates.
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_date',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_date',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_date_gmt',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_date_gmt',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_modified',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_modified',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
-			'to_type'         => 'forum',
-			'to_fieldname'    => 'post_modified_gmt',
-			'default' => date('Y-m-d H:i:s')
+			'to_type'      => 'forum',
+			'to_fieldname' => 'post_modified_gmt',
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Topic Section *****************************************************/
@@ -482,7 +482,7 @@ class Invision extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == -1 ) {
+		if ( -1 === (int) $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';
@@ -527,7 +527,10 @@ class Invision extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		return array( 'hash' => $field, 'salt' => $row['members_pass_salt'] );
+		return array(
+			'hash' => $field,
+			'salt' => $row['members_pass_salt']
+		);
 	}
 
 	/**
@@ -537,10 +540,13 @@ class Invision extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1
+			)
+		);
 
 		// Bail if missing values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
@@ -555,16 +561,16 @@ class Invision extends BBP_Converter_Base {
 	}
 
 	private function to_char( $input ) {
-		$output = "";
-		for ( $i = 0; $i < strlen( $input ); $i++ ) {
-			$j = ord( $input[$i] );
+		$output = '';
+		$length = strlen( $input );
+		for ( $i = 0; $i < $length; $i++ ) {
+			$j = ord( $input[ $i ] );
 			if ( ( $j >= 65 && $j <= 90 )
 				|| ( $j >= 97 && $j <= 122 )
-				|| ( $j >= 48 && $j <= 57 ) )
-			{
-				$output .= $input[$i];
+				|| ( $j >= 48 && $j <= 57 ) ) {
+				$output .= $input[ $i ];
 			} else {
-				$output .= "&#" . ord( $input[$i] ) . ";";
+				$output .= '&#' . ord( $input[ $i ] ) . ';';
 			}
 		}
 		return $output;

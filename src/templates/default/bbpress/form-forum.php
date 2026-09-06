@@ -33,9 +33,11 @@ if ( bbp_is_forum_edit() ) : ?>
 
 					<?php
 						if ( bbp_is_forum_edit() ) :
-							printf( esc_html__( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
+						/* translators: %s: Forum title */
+						printf( esc_html__( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
 						else :
 							bbp_is_single_forum()
+								/* translators: %s: Forum title */
 								? printf( esc_html__( 'Create New Forum in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() )
 								: esc_html_e( 'Create New Forum', 'bbpress' );
 						endif;
@@ -72,7 +74,11 @@ if ( bbp_is_forum_edit() ) : ?>
 					<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
 
 					<p>
-						<label for="bbp_forum_title"><?php printf( esc_html__( 'Forum Name (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
+						<label for="bbp_forum_title"><?php                          printf(
+								/* translators: %s: Maximum length of forum title */
+							esc_html__( 'Forum Name (Maximum Length: %d):', 'bbpress' ),
+							bbp_get_title_max_length()
+						); ?></label><br />
 						<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
 					</p>
 
@@ -132,12 +138,14 @@ if ( bbp_is_forum_edit() ) : ?>
 						<label for="bbp_forum_parent_id"><?php esc_html_e( 'Parent Forum:', 'bbpress' ); ?></label><br />
 
 						<?php
-							bbp_dropdown( array(
+						bbp_dropdown(
+							array(
 								'select_id' => 'bbp_forum_parent_id',
 								'show_none' => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
 								'selected'  => bbp_get_form_forum_parent(),
 								'exclude'   => bbp_get_forum_id()
-							) );
+							)
+						);
 						?>
 					</p>
 
@@ -173,7 +181,11 @@ if ( bbp_is_forum_edit() ) : ?>
 	<div id="no-forum-<?php bbp_forum_id(); ?>" class="bbp-no-forum">
 		<div class="bbp-template-notice">
 			<ul>
-				<li><?php printf( esc_html__( 'The forum &#8216;%s&#8217; is closed to new content.', 'bbpress' ), bbp_get_forum_title() ); ?></li>
+				<li><?php                   printf(
+						/* translators: %s: Forum title */
+					esc_html__( 'The forum &#8216;%s&#8217; is closed to new content.', 'bbpress' ),
+					bbp_get_forum_title()
+				); ?></li>
 			</ul>
 		</div>
 	</div>

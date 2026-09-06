@@ -24,55 +24,58 @@ defined( 'ABSPATH' ) || exit;
 function bbp_kses_allowed_tags() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_kses_allowed_tags', array(
+	return (array) apply_filters(
+		'bbp_kses_allowed_tags',
+		array(
 
-		// Links
-		'a' => array(
-			'href'     => true,
-			'title'    => true,
-			'rel'      => true,
-			'target'   => true
-		),
+			// Links
+			'a' => array(
+				'href'   => true,
+				'title'  => true,
+				'rel'    => true,
+				'target' => true
+			),
 
-		// Quotes
-		'blockquote'   => array(
-			'cite'     => true
-		),
+			// Quotes
+			'blockquote' => array(
+				'cite' => true
+			),
 
-		// Code
-		'code'         => array(),
-		'pre'          => array(
-			'class'    => true
-		),
+			// Code
+			'code' => array(),
+			'pre'  => array(
+				'class' => true
+			),
 
-		// Formatting
-		'em'           => array(),
-		'strong'       => array(),
-		'del'          => array(
-			'datetime' => true,
-			'cite'     => true
-		),
-		'ins' => array(
-			'datetime' => true,
-			'cite'     => true
-		),
+			// Formatting
+			'em'     => array(),
+			'strong' => array(),
+			'del'    => array(
+				'datetime' => true,
+				'cite'     => true
+			),
+			'ins' => array(
+				'datetime' => true,
+				'cite'     => true
+			),
 
-		// Lists
-		'ul'           => array(),
-		'ol'           => array(
-			'start'    => true,
-		),
-		'li'           => array(),
+			// Lists
+			'ul' => array(),
+			'ol' => array(
+				'start' => true,
+			),
+			'li' => array(),
 
-		// Images
-		'img'          => array(
-			'src'      => true,
-			'border'   => true,
-			'alt'      => true,
-			'height'   => true,
-			'width'    => true,
+			// Images
+			'img' => array(
+				'src'    => true,
+				'border' => true,
+				'alt'    => true,
+				'height' => true,
+				'width'  => true,
+			)
 		)
-	) );
+	);
 }
 
 /**
@@ -96,7 +99,7 @@ function bbp_filter_kses( $data = '' ) {
  * @return string Filtered content
  */
 function bbp_kses_data( $data = '' ) {
-	return wp_kses( $data , bbp_kses_allowed_tags() );
+	return wp_kses( $data, bbp_kses_allowed_tags() );
 }
 
 /** Formatting ****************************************************************/
@@ -111,7 +114,7 @@ function bbp_kses_data( $data = '' ) {
  */
 function bbp_code_trick( $content = '' ) {
 	$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
-	$content = preg_replace_callback( "|(`)(.*?)`|",      'bbp_encode_callback', $content );
+	$content = preg_replace_callback('|(`)(.*?)`|',      'bbp_encode_callback', $content );
 	$content = preg_replace_callback( "!(^|\n)`(.*?)`!s", 'bbp_encode_callback', $content );
 
 	return $content;
@@ -130,7 +133,7 @@ function bbp_code_trick_reverse( $content = '' ) {
 
 	// Setup variables
 	$openers = array( '<p>', '<br />' );
-	$content = preg_replace_callback( "!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bbp_decode_callback', $content );
+	$content = preg_replace_callback( '!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s', 'bbp_decode_callback', $content );
 
 	// Do the do
 	$content = str_replace( $openers,       '',       $content );
@@ -196,7 +199,7 @@ function bbp_encode_bad( $content = '' ) {
 function bbp_encode_callback( $matches = array() ) {
 
 	// Trim inline code, not pre blocks (to prevent removing indentation)
-	if ( "`" === $matches[1] ) {
+	if ( '`' === $matches[1] ) {
 		$content = trim( $matches[2] );
 	} else {
 		$content = $matches[2];
@@ -214,7 +217,7 @@ function bbp_encode_callback( $matches = array() ) {
 	$content = '<code>' . $content . '</code>';
 
 	// Wrap blocks in pre tags
-	if ( "`" !== $matches[1] ) {
+	if ( '`' !== $matches[1] ) {
 		$content = "\n<pre>" . $content . "</pre>\n";
 	}
 
@@ -234,8 +237,8 @@ function bbp_decode_callback( $matches = array() ) {
 
 	// Setup variables
 	$trans_table = array_flip( get_html_translation_table( HTML_ENTITIES ) );
-	$amps        = array( '&#38;','&#038;', '&amp;' );
-	$single      = array( '&#39;','&#039;'          );
+	$amps        = array( '&#38;', '&#038;', '&amp;' );
+	$single      = array( '&#39;', '&#039;'          );
 	$content     = $matches[2];
 	$content     = strtr( $content, $trans_table );
 
@@ -277,7 +280,7 @@ function bbp_encode_empty_callback( &$content = '', $key = '', $preg = '' ) {
  * @param string $key
  * @param string $preg
  */
-function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '') {
+function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 	if ( strpos( $content, '`' ) !== 0 ) {
 		$content = preg_replace( "|&lt;(/?{$preg})&gt;|i", '<$1>', $content );
 	}
@@ -312,8 +315,16 @@ function bbp_rel_nofollow_callback( $matches = array() ) {
 	$home_url = home_url();
 
 	// Bail on links that match the current domain
-	if ( preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http'  ) ) . ')%i', $text ) ||
-	     preg_match( '%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', $text )
+	if (
+		preg_match(
+			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http' ) ) . ')%i', // phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
+			$text
+		)
+		||
+		preg_match(
+			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', // phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
+			$text
+		)
 	) {
 		return "<a {$text}>";
 	}
@@ -363,12 +374,12 @@ function bbp_make_clickable( $text = '' ) {
 	foreach ( $textarr as $piece ) {
 
 		if ( preg_match( '|^<code[\s>]|i', $piece ) || preg_match( '|^<pre[\s>]|i', $piece ) || preg_match( '|^<script[\s>]|i', $piece ) || preg_match( '|^<style[\s>]|i', $piece ) ) {
-			$nested_code_pre++;
+			++$nested_code_pre;
 		} elseif ( $nested_code_pre && ( '</code>' === strtolower( $piece ) || '</pre>' === strtolower( $piece ) || '</script>' === strtolower( $piece ) || '</style>' === strtolower( $piece ) ) ) {
-			$nested_code_pre--;
+			--$nested_code_pre;
 		}
 
-		if ( $nested_code_pre || empty( $piece ) || ( $piece[0] === '<' && ! preg_match( '|^<\s*[\w]{1,20}+://|', $piece ) ) ) {
+		if ( $nested_code_pre || empty( $piece ) || ( '<' === $piece[0] && ! preg_match( '|^<\s*[\w]{1,20}+://|', $piece ) ) ) {
 			$r .= $piece;
 			continue;
 		}
@@ -387,12 +398,12 @@ function bbp_make_clickable( $text = '' ) {
 			$ret = " {$piece} "; // Pad with whitespace to simplify the regexes
 			$ret = apply_filters( 'bbp_make_clickable', $ret, $text );
 			$ret = substr( $ret, 1, -1 ); // Remove our whitespace padding.
-			$r .= $ret;
+			$r  .= $ret;
 		}
 	}
 
 	// Cleanup of accidental links within links
-	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', "$1$3$4</a>", $r );
+	return preg_replace( '#(<a([ \r\n\t]+[^>]+?>|>))<a [^>]+?>([^>]+?)</a>([^<]*)</a>#i', '$1$3$4</a>', $r );
 }
 
 /**
@@ -628,123 +639,138 @@ function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 function bbp_time_since( $older_date, $newer_date = false, $gmt = false ) {
 	echo bbp_get_time_since( $older_date, $newer_date, $gmt );
 }
-	/**
-	 * Return formatted time to display human readable time difference.
-	 *
-	 * @since 2.0.0 bbPress (r2544)
-	 *
-	 * @param string $older_date Unix timestamp from which the difference begins.
-	 * @param string $newer_date Optional. Unix timestamp from which the
-	 *                            difference ends. False for current time.
-	 * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
-	 *
-	 * @return string Formatted time
-	 */
-	function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
-		// Setup the strings
-		$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
-		$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
-		$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
+/**
+ * Return formatted time to display human readable time difference.
+ *
+ * @since 2.0.0 bbPress (r2544)
+ *
+ * @param string $older_date Unix timestamp from which the difference begins.
+ * @param string $newer_date Optional. Unix timestamp from which the
+ *                            difference ends. False for current time.
+ * @param int $gmt Optional. Whether to use GMT timezone. Default is false.
+ *
+ * @return string Formatted time
+ */
+function bbp_get_time_since( $older_date, $newer_date = false, $gmt = false ) {
 
-		// array of time period chunks
-		$chunks = array(
-			array( YEAR_IN_SECONDS,   _n_noop( '%s year',   '%s years',   'bbpress' ) ),
-			array( MONTH_IN_SECONDS,  _n_noop( '%s month',  '%s months',  'bbpress' ) ),
-			array( WEEK_IN_SECONDS,   _n_noop( '%s week',   '%s weeks',   'bbpress' ) ),
-			array( DAY_IN_SECONDS,    _n_noop( '%s day',    '%s days',    'bbpress' ) ),
-			array( HOUR_IN_SECONDS,   _n_noop( '%s hour',   '%s hours',   'bbpress' ) ),
-			array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
-			array( 1,                 _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
-		);
+	// Setup the strings
+	$unknown_text   = apply_filters( 'bbp_core_time_since_unknown_text',   esc_html__( 'sometime',  'bbpress' ) );
+	$right_now_text = apply_filters( 'bbp_core_time_since_right_now_text', esc_html__( 'right now', 'bbpress' ) );
+	/* translators: %s: Time period */
+	$ago_text       = apply_filters( 'bbp_core_time_since_ago_text',       esc_html__( '%s ago',    'bbpress' ) );
 
-		// Attempt to parse non-numeric older date
-		if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
-			$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
-			$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
-			$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+	// array of time period chunks
+	$chunks = array(
+		/* translators: %s: Number of years */
+		array( YEAR_IN_SECONDS, _n_noop( '%s year', '%s years', 'bbpress' ) ),
+
+		/* translators: %s: Number of months */
+		array( MONTH_IN_SECONDS, _n_noop( '%s month', '%s months', 'bbpress' ) ),
+
+		/* translators: %s: Number of weeks */
+		array( WEEK_IN_SECONDS, _n_noop( '%s week', '%s weeks', 'bbpress' ) ),
+
+		/* translators: %s: Number of days */
+		array( DAY_IN_SECONDS, _n_noop( '%s day', '%s days', 'bbpress' ) ),
+
+		/* translators: %s: Number of hours */
+		array( HOUR_IN_SECONDS, _n_noop( '%s hour', '%s hours', 'bbpress' ) ),
+
+		/* translators: %s: Number of minutes */
+		array( MINUTE_IN_SECONDS, _n_noop( '%s minute', '%s minutes', 'bbpress' ) ),
+
+		/* translators: %s: Number of seconds */
+		array( 1, _n_noop( '%s second', '%s seconds', 'bbpress' ) ),
+	);
+
+	// Attempt to parse non-numeric older date
+	if ( ! empty( $older_date ) && ! is_numeric( $older_date ) ) {
+		$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
+		$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
+		$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+	}
+
+	// Attempt to parse non-numeric newer date
+	if ( ! empty( $newer_date ) && ! is_numeric( $newer_date ) ) {
+		$time_chunks = explode( ':', str_replace( ' ', ':', $newer_date ) );
+		$date_chunks = explode( '-', str_replace( ' ', '-', $newer_date ) );
+		$newer_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
+	}
+
+	// Set newer date to current time
+	if ( empty( $newer_date ) ) {
+		$newer_date = strtotime( current_time( 'mysql', $gmt ) );
+	}
+
+	// Cast both dates to ints to avoid notices & errors with invalid values
+	$newer_date = intval( $newer_date );
+	$older_date = intval( $older_date );
+
+	// Difference in seconds
+	$since = intval( $newer_date - $older_date );
+
+	// Something went wrong with date calculation and we ended up with a negative date.
+	if ( 0 > $since ) {
+		$output = $unknown_text;
+
+	// We only want to output two chunks of time here, eg:
+	//     x years, xx months
+	//     x days, xx hours
+	// so there's only two bits of calculation below:
+	} else {
+
+		// Default count values
+		$count  = 0;
+		$count2 = 0;
+
+		// Step one: the first chunk
+		for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
+			$seconds = $chunks[ $i ][0];
+
+			// Finding the biggest chunk (if the chunk fits, break)
+			$count = floor( $since / $seconds );
+			if ( 0 != $count ) {
+				break;
+			}
 		}
 
-		// Attempt to parse non-numeric newer date
-		if ( ! empty( $newer_date ) && ! is_numeric( $newer_date ) ) {
-			$time_chunks = explode( ':', str_replace( ' ', ':', $newer_date ) );
-			$date_chunks = explode( '-', str_replace( ' ', '-', $newer_date ) );
-			$newer_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
-		}
+		// If $i iterates all the way to $j, then the event happened 0 seconds ago
+		if ( ! isset( $chunks[ $i ] ) ) {
+			$output = $right_now_text;
 
-		// Set newer date to current time
-		if ( empty( $newer_date ) ) {
-			$newer_date = strtotime( current_time( 'mysql', $gmt ) );
-		}
-
-		// Cast both dates to ints to avoid notices & errors with invalid values
-		$newer_date = intval( $newer_date );
-		$older_date = intval( $older_date );
-
-		// Difference in seconds
-		$since = intval( $newer_date - $older_date );
-
-		// Something went wrong with date calculation and we ended up with a negative date.
-		if ( 0 > $since ) {
-			$output = $unknown_text;
-
-		// We only want to output two chunks of time here, eg:
-		//     x years, xx months
-		//     x days, xx hours
-		// so there's only two bits of calculation below:
 		} else {
 
-			// Default count values
-			$count  = 0;
-			$count2 = 0;
+			// Set output var
+			$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
 
-			// Step one: the first chunk
-			for ( $i = 0, $j = count( $chunks ); $i < $j; ++$i ) {
-				$seconds = $chunks[ $i ][0];
+			// Step two: the second chunk
+			if ( $i + 2 < $j ) {
+				$seconds2 = $chunks[ $i + 1 ][0];
+				$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
 
-				// Finding the biggest chunk (if the chunk fits, break)
-				$count = floor( $since / $seconds );
-				if ( 0 != $count ) {
-					break;
+				// Add to output var
+				if ( 0 != $count2 ) {
+					$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
+					$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
 				}
 			}
 
-			// If $i iterates all the way to $j, then the event happened 0 seconds ago
-			if ( ! isset( $chunks[ $i ] ) ) {
+			// Empty counts, so fallback to right now
+			if ( empty( $count ) && empty( $count2 ) ) {
 				$output = $right_now_text;
-
-			} else {
-
-				// Set output var
-				$output = sprintf( translate_nooped_plural( $chunks[ $i ][1], $count, 'bbpress' ), bbp_number_format_i18n( $count ) );
-
-				// Step two: the second chunk
-				if ( $i + 2 < $j ) {
-					$seconds2 = $chunks[ $i + 1 ][0];
-					$count2   = floor( ( $since - ( $seconds * $count ) ) / $seconds2 );
-
-					// Add to output var
-					if ( 0 != $count2 ) {
-						$output .= _x( ',', 'Separator in time since', 'bbpress' ) . ' ';
-						$output .= sprintf( translate_nooped_plural( $chunks[ $i + 1 ][1], $count2, 'bbpress' ), bbp_number_format_i18n( $count2 ) );
-					}
-				}
-
-				// Empty counts, so fallback to right now
-				if ( empty( $count ) && empty( $count2 ) ) {
-					$output = $right_now_text;
-				}
 			}
 		}
-
-		// Append 'ago' to the end of time-since if not 'right now'
-		if ( $output != $right_now_text ) {
-			$output = sprintf( $ago_text, $output );
-		}
-
-		// Filter & return
-		return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
 	}
+
+	// Append 'ago' to the end of time-since if not 'right now'
+		if ( $output != $right_now_text ) {
+		$output = sprintf( $ago_text, $output );
+	}
+
+	// Filter & return
+	return apply_filters( 'bbp_get_time_since', $output, $older_date, $newer_date );
+}
 
 /** Revisions *****************************************************************/
 

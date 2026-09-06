@@ -1,0 +1,11 @@
+{
+	"extends": [ "@wordpress/stylelint-config/scss" ],
+	"rules": {
+		"font-family-no-missing-generic-family-keyword": null,
+		"no-descending-specificity": null,
+		"selector-id-pattern": null,
+		"selector-class-pattern": null,
+		"property-no-unknown": true,
+		"scss/no-global-function-names": null
+	}
+}

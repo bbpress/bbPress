@@ -16,32 +16,77 @@ do_action( 'bbp_template_before_user_profile' ); ?>
 	<h2 class="entry-title">@<?php bbp_displayed_user_field( 'user_nicename' ); ?></h2>
 	<div class="bbp-user-section">
 		<h3><?php esc_html_e( 'Profile', 'bbpress' ); ?></h3>
-		<p class="bbp-user-forum-role"><?php  printf( esc_html__( 'Registered: %s', 'bbpress' ), bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ) ) ); ?></p>
+
+		<p class="bbp-user-forum-role">
+			<?php
+			printf(
+				/* translators: %s: Registration date in "time ago" format */
+				esc_html__( 'Registered: %s', 'bbpress' ),
+				bbp_get_time_since( bbp_get_displayed_user_field( 'user_registered' ) )
+			);
+			?>
+		</p>
 
 		<?php if ( bbp_get_displayed_user_field( 'description' ) ) : ?>
-
-			<p class="bbp-user-description"><?php echo bbp_rel_nofollow( bbp_get_displayed_user_field( 'description' ) ); ?></p>
-
+			<p class="bbp-user-description">
+				<?php echo bbp_rel_nofollow( bbp_get_displayed_user_field( 'description' ) ); ?>
+			</p>
 		<?php endif; ?>
 
 		<?php if ( bbp_get_displayed_user_field( 'user_url' ) ) : ?>
-
-			<p class="bbp-user-website"><?php  printf( esc_html__( 'Website: %s', 'bbpress' ), bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field( 'user_url' ) ) ) ); ?></p>
-
+			<p class="bbp-user-website">
+				<?php
+				printf(
+					/* translators: %s: User's website URL */
+					esc_html__( 'Website: %s', 'bbpress' ),
+					bbp_rel_nofollow( bbp_make_clickable( bbp_get_displayed_user_field( 'user_url' ) ) )
+				);
+				?>
+			</p>
 		<?php endif; ?>
 
 		<hr>
 		<h3><?php esc_html_e( 'Forums', 'bbpress' ); ?></h3>
 
 		<?php if ( bbp_get_user_last_posted() ) : ?>
-
-			<p class="bbp-user-last-activity"><?php printf( esc_html__( 'Last Activity: %s',  'bbpress' ), bbp_get_time_since( bbp_get_user_last_posted(), false, true ) ); ?></p>
-
+			<p class="bbp-user-last-activity">
+				<?php
+				printf(
+					/* translators: %s: Last activity time in "time ago" format */
+					esc_html__( 'Last Activity: %s', 'bbpress' ),
+					bbp_get_time_since( bbp_get_user_last_posted(), false, true )
+				);
+				?>
+			</p>
 		<?php endif; ?>
 
-		<p class="bbp-user-topic-count"><?php printf( esc_html__( 'Topics Started: %s',  'bbpress' ), bbp_get_user_topic_count() ); ?></p>
-		<p class="bbp-user-reply-count"><?php printf( esc_html__( 'Replies Created: %s', 'bbpress' ), bbp_get_user_reply_count() ); ?></p>
-		<p class="bbp-user-forum-role"><?php  printf( esc_html__( 'Forum Role: %s',      'bbpress' ), bbp_get_user_display_role() ); ?></p>
+		<p class="bbp-user-topic-count">
+			<?php
+			printf(
+				/* translators: %s: Number of topics */
+				esc_html__( 'Topics Started: %s', 'bbpress' ),
+				bbp_get_user_topic_count()
+			);
+			?>
+		</p>
+		<p class="bbp-user-reply-count">
+			<?php
+			printf(
+				/* translators: %s: Number of replies */
+				esc_html__( 'Replies Created: %s', 'bbpress' ),
+				bbp_get_user_reply_count()
+			);
+			?>
+		</p>
+		<p class="bbp-user-forum-role">
+			<?php
+			printf(
+				/* translators: %s: User's forum role */
+				esc_html__( 'Forum Role: %s', 'bbpress' ),
+				bbp_get_user_display_role()
+			);
+			?>
+		</p>
 	</div>
 </div><!-- #bbp-author-topics-started -->
 

@@ -7,7 +7,7 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
+		<testsuite name="bbPress Test Suite">
 			<directory suffix=".php">tests/phpunit/testcases/</directory>
 		</testsuite>
 	</testsuites>
@@ -16,20 +16,24 @@
 			<group>buddypress</group>
 		</exclude>
 	</groups>
-	<listeners>
-		<listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">
-			<arguments>
-				<array>
-					<element key="slowThreshold">
-						<integer>500</integer>
-					</element>
-				</array>
-			</arguments>
-		</listener>
-	</listeners>
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">src</directory>
-		</whitelist>
-	</filter>
+	<!-- <listeners>-->
+		<!-- <listener class="SpeedTrapListener" file="tests/phpunit/includes/speed-trap-listener.php">-->
+			<!-- <arguments>-->
+				<!-- <array>-->
+					<!-- <element key="slowThreshold">-->
+						<!-- <integer>500</integer>-->
+					<!-- </element>-->
+				<!-- </array>-->
+			<!-- </arguments>-->
+		<!-- </listener>-->
+	<!-- </listeners>-->
+	<coverage>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">./tests</directory>
+            <directory suffix=".php">./vendor</directory>
+        </exclude>
+    </coverage>
 </phpunit>

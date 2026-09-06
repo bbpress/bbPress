@@ -342,6 +342,7 @@ function bbp_get_template_stack() {
 	$args = $stack = array();
 
 	// Add 'bbp_template_stack' to the current filter array
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	$wp_current_filter[] = $tag;
 
 	// Bail if no stack setup
@@ -358,6 +359,8 @@ function bbp_get_template_stack() {
 		// Sort
 		if ( ! isset( $merged_filters[ $tag ] ) ) {
 			ksort( $filter );
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$merged_filters[ $tag ] = true;
 		}
 	}
@@ -382,7 +385,7 @@ function bbp_get_template_stack() {
 	$stack = array_unique( array_filter( $stack ) );
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_template_stack', $stack ) ;
+	return (array) apply_filters( 'bbp_get_template_stack', $stack );
 }
 
 /**

@@ -195,7 +195,7 @@ class BBP_Forums_Component extends BP_Component {
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
 		// Stop if there is no user displayed or logged in
-		if ( ! is_user_logged_in() && !bp_displayed_user_id() ) {
+		if ( ! is_user_logged_in() && ! bp_displayed_user_id() ) {
 			return;
 		}
 
@@ -260,7 +260,7 @@ class BBP_Forums_Component extends BP_Component {
 		}
 
 		// Favorite topics
-		if ( bbp_is_favorites_active() ){
+		if ( bbp_is_favorites_active() ) {
 			$sub_nav[] = array(
 				'name'            => esc_html__( 'Favorites', 'bbpress' ),
 				'slug'            => bbp_get_user_favorites_slug(),
@@ -393,11 +393,13 @@ class BBP_Forums_Component extends BP_Component {
 			if ( bp_is_my_profile() ) {
 				$bp->bp_options_title = esc_html__( 'Forums', 'bbpress' );
 			} elseif ( bp_is_user() ) {
-				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
-					'item_id' => bp_displayed_user_id(),
-					'type'    => 'thumb'
-				) );
-				$bp->bp_options_title = bp_get_displayed_user_fullname();
+				$bp->bp_options_avatar = bp_core_fetch_avatar(
+					array(
+						'item_id' => bp_displayed_user_id(),
+						'type'    => 'thumb'
+					)
+				);
+				$bp->bp_options_title  = bp_get_displayed_user_fullname();
 			}
 		}
 

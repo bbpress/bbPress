@@ -23,12 +23,12 @@ defined( 'ABSPATH' ) || exit;
 function bbp_check_post_lock( $post_id = 0 ) {
 
 	// Bail if no post
-	if ( !$post = get_post( $post_id ) ) {
+	if ( ! $post = get_post( $post_id ) ) {
 		return false;
 	}
 
 	// Bail if no lock
-	if ( !$lock = get_post_meta( $post->ID, '_edit_lock', true ) ) {
+	if ( ! $lock = get_post_meta( $post->ID, '_edit_lock', true ) ) {
 		return false;
 	}
 
@@ -57,12 +57,12 @@ function bbp_check_post_lock( $post_id = 0 ) {
  *
  * @param int $post_id ID of the post to being edited
  * @return bool|array Returns false if the post doesn't exist of there is no current user, or
- * 	an array of the lock time and the user ID.
+ *  an array of the lock time and the user ID.
  */
 function bbp_set_post_lock( $post_id = 0 ) {
 
 	// Bail if no post
-	if ( !$post = get_post( $post_id ) ) {
+	if ( ! $post = get_post( $post_id ) ) {
 		return false;
 	}
 

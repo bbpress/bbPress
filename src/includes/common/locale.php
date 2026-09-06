@@ -30,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
  * @return string Translated role name on success, original name on failure.
  */
 function bbp_translate_user_role( $name ) {
-	return translate_with_gettext_context( before_last_bar( $name ), 'User role', 'bbpress' );
+	return translate_with_gettext_context( before_last_bar( $name ), 'User role', 'bbpress' ); // phpcs:ignore WordPress.WP.I18n.LowLevelTranslationFunction,WordPress.WP.I18n.NonSingularStringLiteralText
 }
 
 /**

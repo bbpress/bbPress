@@ -27,7 +27,18 @@ if ( bbp_is_reply_edit() ) : ?>
 			<?php do_action( 'bbp_theme_before_reply_form' ); ?>
 
 			<fieldset class="bbp-form">
-				<legend><?php printf( esc_html__( 'Reply To: %s', 'bbpress' ), ( bbp_get_form_reply_to() ) ? sprintf( esc_html__( 'Reply #%1$s in %2$s', 'bbpress' ), bbp_get_form_reply_to(), bbp_get_topic_title() ) : bbp_get_topic_title() ); ?></legend>
+				<legend><?php printf(
+					/* translators: %s: Reply reference (includes reply number and topic title) */
+					esc_html__( 'Reply To: %s', 'bbpress' ),
+					( bbp_get_form_reply_to() ) ?
+						sprintf(
+							/* translators: 1: Reply number, 2: Topic title */
+							esc_html__( 'Reply #%1$s in %2$s', 'bbpress' ),
+							bbp_get_form_reply_to(),
+							bbp_get_topic_title()
+						) :
+						bbp_get_topic_title()
+				); ?></legend>
 
 				<?php do_action( 'bbp_theme_before_reply_form_notices' ); ?>
 
@@ -190,7 +201,11 @@ if ( bbp_is_reply_edit() ) : ?>
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<div class="bbp-template-notice">
 			<ul>
-				<li><?php printf( esc_html__( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ), bbp_get_topic_title() ); ?></li>
+				<li><?php                   printf(
+						/* translators: %s: Topic title */
+					esc_html__( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ),
+					bbp_get_topic_title()
+				); ?></li>
 			</ul>
 		</div>
 	</div>
@@ -200,7 +215,11 @@ if ( bbp_is_reply_edit() ) : ?>
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<div class="bbp-template-notice">
 			<ul>
-				<li><?php printf( esc_html__( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?></li>
+				<li><?php                   printf(
+						/* translators: %s: Forum title */
+					esc_html__( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ),
+					bbp_get_forum_title( bbp_get_topic_forum_id() )
+				); ?></li>
 			</ul>
 		</div>
 	</div>

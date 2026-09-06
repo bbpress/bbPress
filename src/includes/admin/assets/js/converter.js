@@ -1,5 +1,3 @@
-/*jshint sub:true*/
-/* global document, jQuery, ajaxurl, BBP_Converter */
 jQuery( document ).ready( function ( $ ) {
 	'use strict';
 

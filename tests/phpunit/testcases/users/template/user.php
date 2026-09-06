@@ -10,7 +10,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 	protected $old_current_user = 0;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
@@ -19,7 +19,7 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		bbp_set_user_role( $this->keymaster_id, bbp_get_keymaster_role() );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		$this->set_current_user( $this->old_current_user );
 	}
@@ -710,8 +710,8 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 
 		// Pretty permalinks
 		$this->set_permalink_structure( '/%postname%/' );
-		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/users/' . $this->keymaster_userdata->user_nicename . '/" title="View ' . $display_name . '&#039;s profile" class="bbp-author-link"><span class="bbp-author-avatar">' . $wp_avatar .
-			'</span>&nbsp;<span class="bbp-author-name">' . $display_name . '</span></a>';
+		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/forums/users/' . $this->keymaster_userdata->user_nicename . '/" title="View ' . $display_name . '&#039;s profile" class="bbp-author-link"><span  class="bbp-author-avatar">' . $wp_avatar .
+			'</span><span  class="bbp-author-name">' . $display_name . '</span></a>';
 
 		// String.
 		$this->assertSame( $author_link, bbp_get_author_link( $t ) );
@@ -725,8 +725,8 @@ class BBP_Tests_Users_Template_User extends BBP_UnitTestCase {
 		// Ugly permalinks
 		$this->set_permalink_structure();
 		$author_link = '<a href="http://' . WP_TESTS_DOMAIN . '/?bbp_user=' . $this->keymaster_id . '" title="View ' . $display_name .
-			'&#039;s profile" class="bbp-author-link"><span class="bbp-author-avatar">' . $wp_avatar .
-			'</span>&nbsp;<span class="bbp-author-name">' . $display_name . '</span></a>';
+			'&#039;s profile" class="bbp-author-link"><span  class="bbp-author-avatar">' . $wp_avatar .
+			'</span><span  class="bbp-author-name">' . $display_name . '</span></a>';
 
 		// String.
 		$this->assertSame( $author_link, bbp_get_author_link( $t ) );

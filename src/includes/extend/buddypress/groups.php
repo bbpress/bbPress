@@ -483,11 +483,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				<div class="field-group">
 					<label for="bbp_group_forum_id"><?php esc_html_e( 'Group Forum:', 'bbpress' ); ?></label>
 					<?php
-						bbp_dropdown( array(
-							'select_id' => 'bbp_group_forum_id',
-							'show_none' => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
-							'selected'  => $forum_id
-						) );
+						bbp_dropdown(
+							array(
+								'select_id' => 'bbp_group_forum_id',
+								'show_none' => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
+								'selected'  => $forum_id
+							)
+						);
 					?>
 					<p class="description"><?php esc_html_e( 'Network administrators can reconfigure which forum belongs to this group.', 'bbpress' ); ?></p>
 				</div>
@@ -593,12 +595,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			}
 
 			// Create the initial forum
-			$forum_id = bbp_insert_forum( array(
-				'post_parent'  => bbp_get_group_forums_root_id(),
-				'post_title'   => $group->name,
-				'post_content' => $group->description,
-				'post_status'  => $status
-			) );
+			$forum_id = bbp_insert_forum(
+				array(
+					'post_parent'  => bbp_get_group_forums_root_id(),
+					'post_title'   => $group->name,
+					'post_content' => $group->description,
+					'post_status'  => $status
+				)
+			);
 
 			// Setup forum args with forum ID
 			$new_forum_args = array( 'forum_id' => $forum_id );
@@ -655,7 +659,7 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	public function create_screen( $group_id = 0 ) {
 
 		// Bail if not looking at this screen
-		if ( !bp_is_group_creation_step( $this->slug ) ) {
+		if ( ! bp_is_group_creation_step( $this->slug ) ) {
 			return false;
 		}
 
@@ -727,12 +731,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				}
 
 				// Create the initial forum
-				$forum_id = bbp_insert_forum( array(
-					'post_parent'  => bbp_get_group_forums_root_id(),
-					'post_title'   => bp_get_new_group_name(),
-					'post_content' => bp_get_new_group_description(),
-					'post_status'  => $status
-				) );
+				$forum_id = bbp_insert_forum(
+					array(
+						'post_parent'  => bbp_get_group_forums_root_id(),
+						'post_title'   => bp_get_new_group_name(),
+						'post_content' => bp_get_new_group_description(),
+						'post_status'  => $status
+					)
+				);
 
 				// Run the BP-specific functions for new groups
 				$this->new_forum( array( 'forum_id' => $forum_id ) );
@@ -853,11 +859,16 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Get the first forum ID
-		$forum_id = (int) is_array( $forum_ids ) ? $forum_ids[0] : $forum_ids;
-		$this->remove_forum( array(
-			'forum_id' => $forum_id,
-			'group_id' => $group_id
-		) );
+		$forum_id = (int) is_array( $forum_ids )
+			? $forum_ids[0]
+			: $forum_ids;
+
+		$this->remove_forum(
+			array(
+				'forum_id' => $forum_id,
+				'group_id' => $group_id
+			)
+		);
 	}
 
 	/**
@@ -1005,10 +1016,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		$forum_id     = array_shift( $forum_ids );
 
 		// Always load up the group forum
-		bbp_has_forums( array(
-			'p'           => $forum_id,
-			'post_parent' => null
-		) );
+		bbp_has_forums(
+			array(
+				'p'           => $forum_id,
+				'post_parent' => null
+			)
+		);
 
 		// Set the global forum ID
 		$bbp->current_forum_id = $forum_id;
@@ -1065,11 +1078,13 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					add_filter( 'bbp_get_topic_stick_link', array( $this, 'hide_super_sticky_admin_link' ), 10, 2 );
 
 					// Get the topic
-					bbp_has_topics( array(
-						'name'           => bp_action_variable( $offset + 1 ),
-						'posts_per_page' => 1,
-						'show_stickies'  => false
-					) );
+					bbp_has_topics(
+						array(
+							'name'           => bp_action_variable( $offset + 1 ),
+							'posts_per_page' => 1,
+							'show_stickies'  => false
+						)
+					);
 
 					// If no topic, 404
 					if ( ! bbp_topics() ) {
@@ -1140,10 +1155,12 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 				case $this->reply_slug :
 
 					// Get the reply
-					bbp_has_replies( array(
-						'name'           => bp_action_variable( $offset + 1 ),
-						'posts_per_page' => 1
-					) );
+					bbp_has_replies(
+						array(
+							'name'           => bp_action_variable( $offset + 1 ),
+							'posts_per_page' => 1
+						)
+					);
 
 					// If no topic, 404
 					if ( ! bbp_replies() ) {
@@ -1692,10 +1709,10 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		return $args;
 	}
 
-    /**
-     * Fixes rewrite pagination in BuddyPress Group Forums & Topics.
+	/**
+	 * Fixes rewrite pagination in BuddyPress Group Forums & Topics.
 	 *
-     * Required for compatibility with BuddyPress > 12.0, where the /groups/
+	 * Required for compatibility with BuddyPress > 12.0, where the /groups/
 	 * rewrite rule will be caught before bbPress's /page/ rule.
 	 *
 	 * @since 2.6.14
@@ -1703,58 +1720,54 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @param  object object  Verified object
 	 * @param  string $type   Type of variable to check with `is_a()`
 	 * @return mixed  $object Verified object if valid, Default or null if invalid
-     */
-    public function rewrite_pagination( $object, $type = '' ) {
+	 */
+	public function rewrite_pagination( $query, $type = '' ) {
 
 		// Bail if wrong global
-        if ( 'wp_query' !== $type ) {
-            return $object;
-        }
+		if ( 'wp_query' !== $type ) {
+			return $query;
+		}
 
 		// Bail if not inside a BuddyPress Group
-        if ( ! bp_is_group() ) {
-            return $object;
-        }
+		if ( ! bp_is_group() ) {
+			return $query;
+		}
 
 		// Bail if not inside a BuddyPress Group Forum
-        if ( ! bp_is_current_action( 'forum' ) ) {
-            return $object;
-        }
+		if ( ! bp_is_current_action( 'forum' ) ) {
+			return $query;
+		}
 
 		// Default "paged" value
-        $page_number = null;
+		$page_number = null;
 
-        // Can't use bbp_is_single_topic() because it triggers a loop.
-        $is_single_topic = bp_is_action_variable( 'topic', 0 );
+		// Can't use bbp_is_single_topic() because it triggers a loop.
+		$is_single_topic = bp_is_action_variable( 'topic', 0 );
 
 		// Single Topic
-        if ( true === $is_single_topic ) {
+		if ( true === $is_single_topic ) {
 
 			// Get the page number from 3rd position
-            if ( bp_is_action_variable( 'page', 2 ) ) {
-                $page_number = bp_action_variable( 3 );
-            }
+			if ( bp_is_action_variable( 'page', 2 ) ) {
+				$page_number = bp_action_variable( 3 );
+			}
 
-		// Single Forum
-        } else {
-
-			// Get the page number from 1st position
-            if ( bp_is_action_variable( 'page', 0 ) ) {
-                $page_number = bp_action_variable( 1 );
-            }
-        }
+		// Default (Single Forum)
+		} elseif ( bp_is_action_variable( 'page', 0 ) ) {
+			$page_number = bp_action_variable( 1 );
+		}
 
 		// Bail if no page number
-        if ( empty( $page_number ) ) {
-            return $object;
-        }
+		if ( empty( $page_number ) ) {
+			return $query;
+		}
 
 		// Set the 'paged' WP_Query var to the new action-based value
-        $object->set( 'paged', $page_number );
+		$query->set( 'paged', $page_number );
 
 		// Return the filtered/modified object
-        return $object;
-    }
+		return $query;
+	}
 
 	/**
 	 * Ensure that forum content associated with a BuddyPress group can only be
@@ -1792,8 +1805,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		}
 
 		// Use the first group ID
-		$group_id 	 = $group_ids[0];
-		$group    	 = groups_get_group( array( 'group_id' => $group_id ) );
+		$group_id    = $group_ids[0];
+		$group       = groups_get_group( array( 'group_id' => $group_id ) );
 		$group_link  = trailingslashit( $this->group_url( $group ) );
 		$redirect_to = trailingslashit( $group_link . $this->slug );
 

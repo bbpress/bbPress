@@ -13,7 +13,7 @@ class BBP_Tests_Common_Anonymous_Editing extends BBP_UnitTestCase {
 	protected $old_server;
 	protected $old_errors;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->old_post    = $_POST;
@@ -22,7 +22,7 @@ class BBP_Tests_Common_Anonymous_Editing extends BBP_UnitTestCase {
 		$this->old_errors  = bbpress()->errors;
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		$_POST             = $this->old_post;
 		$_REQUEST          = $this->old_request;
 		$_SERVER           = $this->old_server;
@@ -143,11 +143,10 @@ class BBP_Tests_Common_Anonymous_Editing extends BBP_UnitTestCase {
 		update_option( '_bbp_allow_anonymous', true );
 		$this->set_current_user( 0 );
 		bbpress()->errors = new WP_Error();
+		$this->go_to( home_url( '/' ) );
 
-		$_SERVER['HTTP_HOST']   = wp_parse_url( home_url(), PHP_URL_HOST );
-		$_SERVER['REQUEST_URI'] = '/';
-		$_POST['bbp_reply_id']  = $reply_id;
-		$_REQUEST['_wpnonce']   = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
+		$_POST['bbp_reply_id'] = $reply_id;
+		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
 
 		bbp_edit_reply_handler( 'bbp-edit-reply' );
 

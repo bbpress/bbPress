@@ -89,7 +89,7 @@ class BBP_Tests_Forums_Template_Forum extends BBP_UnitTestCase {
 
 		bbp_hide_forum( $c );
 		$category = bbp_get_forum_permalink( $c );
-		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?forum=hidden-category', $category );
+		$this->assertSame( 'http://' . WP_TESTS_DOMAIN . '/?post_type=forum&p=' . $c, $category );
 
 		// Hidden forum of hidden category.
 		$f = $this->factory->forum->create( array(

@@ -137,22 +137,22 @@ class SimplePress5 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forums',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Topic Section *****************************************************/
@@ -586,10 +586,10 @@ class SimplePress5 extends BBP_Converter_Base {
 		$simplepress_markup = html_entity_decode( $simplepress_markup );
 
 		// Replace any SimplePress smilies from path '/sp-resources/forum-smileys/sf-smily.gif' with the equivelant WordPress Smilie
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused\.gif(.*?)\" \/>/',     ':?' ,     $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-confused\.gif(.*?)\" \/>/',     ':?',      $simplepress_markup );
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cool\.gif(.*?)\" \/>/',        ':cool:',   $simplepress_markup );
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-cry\.gif(.*?)\" \/>/',         ':cry:',    $simplepress_markup );
-		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed\.gif(.*?)\" \/>/' , ':oops:',   $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-embarassed\.gif(.*?)\" \/>/',  ':oops:',   $simplepress_markup );
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-frown\.gif(.*?)\" \/>/',       ':(',       $simplepress_markup );
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-kiss\.gif(.*?)\" \/>/',        ':P',       $simplepress_markup );
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-laugh\.gif(.*?)\" \/>/',       ':D',       $simplepress_markup );
@@ -599,7 +599,7 @@ class SimplePress5 extends BBP_Converter_Base {
 		$simplepress_markup = preg_replace( '/\<img src=(.*?)\/sp-resources\/forum-smileys\/sf-yell\.gif(.*?)\" \/>/',         ':x',      $simplepress_markup );
 
 		// Replace '<div class="sfcode">example code</div>' with '<code>*</code>'
-		$simplepress_markup = preg_replace( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/' , '<code>$1</code>' , $simplepress_markup );
+		$simplepress_markup = preg_replace( '/\<div class\=\"sfcode\"\>(.*?)\<\/div\>/', '<code>$1</code>', $simplepress_markup );
 
 		// Replace '<strong>username said </strong>' with '@username said:'
 		$simplepress_markup = preg_replace( '/\<strong\>(.*?)\ said\ \<\/strong\>/',     '@$1 said:',        $simplepress_markup );

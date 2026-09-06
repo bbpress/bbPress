@@ -1,5 +1,4 @@
-/* globals tinyMCE */
-addReply = {
+var addReply = {
 
 	/**
 	 * Move the reply form when "Reply" is clicked.
@@ -121,7 +120,8 @@ addReply = {
 			destination = ( position + elemRect.top ),
 			negative    = ( destination < position ), // jshint ignore:line
 			adminbar    = t.getElement( 'wpadminbar'),
-			offset      = 0;
+			offset      = 0,
+			distance    = 0;
 
 		/* Offset by the adminbar */
 		if ( adminbar && ( typeof ( adminbar ) !== 'undefined' ) ) {

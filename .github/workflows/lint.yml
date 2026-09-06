@@ -1,0 +1,111 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - '2.6'
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: lint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpcs:
+    name: PHPCS (WordPress Coding Standards)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          # Need history on PRs so we can diff against the base ref.
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2, cs2pr
+          coverage: none
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-phpcs-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-phpcs-
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHPCS
+        id: phpcs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git diff --name-only -z --diff-filter=ACMR "$BASE_SHA" HEAD -- '*.php' > "$RUNNER_TEMP/php-files"
+            mapfile -d '' -t files < "$RUNNER_TEMP/php-files"
+            if [[ ${#files[@]} -eq 0 ]]; then
+              echo "No PHP files changed in this PR; skipping PHPCS."
+              exit 0
+            fi
+            vendor/bin/phpcs --report-full --report-checkstyle=phpcs-report.xml "${files[@]/#/./}"
+          else
+            vendor/bin/phpcs --report-full --report-checkstyle=phpcs-report.xml
+          fi
+        continue-on-error: true
+
+      - name: Annotate PR with PHPCS results
+        if: always() && hashFiles('phpcs-report.xml') != ''
+        run: cs2pr --graceful-warnings phpcs-report.xml
+
+      - name: Fail if PHPCS reported issues
+        if: steps.phpcs.outcome == 'failure'
+        run: exit 1
+
+  js-lint:
+    name: ESLint & checktextdomain
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npx grunt eslint:grunt eslint:core
+
+      - name: Run stylelint
+        run: npx grunt stylelint
+
+      - name: Run checktextdomain
+        run: npx grunt checktextdomain

@@ -934,14 +934,18 @@ function bbp_get_user_object_ids( $args = array() ) {
 	$object_ids = $defaults = array();
 
 	// Parse arguments
-	$r = bbp_parse_args( $args, array(
-		'user_id'     => 0,
-		'object_type' => bbp_get_topic_post_type(),
-		'rel_key'     => '',
-		'rel_type'    => 'post',
-		'filter'      => 'user_object_ids',
-		'args'        => array()
-	), 'get_user_object_ids' );
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'user_id'     => 0,
+			'object_type' => bbp_get_topic_post_type(),
+			'rel_key'     => '',
+			'rel_type'    => 'post',
+			'filter'      => 'user_object_ids',
+			'args'        => array()
+		),
+		'get_user_object_ids'
+	);
 
 	// Sanitize arguments
 	$r['user_id']     = bbp_get_user_id( $r['user_id'] );
@@ -956,20 +960,21 @@ function bbp_get_user_object_ids( $args = array() ) {
 			'fields'         => 'ids',
 			'post_type'      => $r['object_type'],
 			'posts_per_page' => -1,
-			'meta_query'     => array( array(
-				'key'     => $r['rel_key'],
-				'value'   => $r['user_id'],
-				'compare' => 'NUMERIC'
-			),
-
-			// Performance
-			'nopaging'               => true,
-			'suppress_filters'       => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true
-		) );
+			'meta_query'     => array(
+				array(
+					'key'     => $r['rel_key'],
+					'value'   => $r['user_id'],
+					'compare' => 'NUMERIC'
+				),
+				// Performance
+				'nopaging'               => true,
+				'suppress_filters'       => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true
+			)
+		);
 	}
 
 	// Parse arguments
@@ -995,12 +1000,14 @@ function bbp_get_user_object_ids( $args = array() ) {
  * @return array Return array of forum ids, or empty array
  */
 function bbp_get_moderator_forum_ids( $user_id = 0 ) {
-	return bbp_get_user_object_ids( array(
-		'user_id'     => $user_id,
-		'rel_key'     => '_bbp_moderator_id',
-		'object_type' => bbp_get_forum_post_type(),
-		'filter'      => 'moderator_forum_ids'
-	) );
+	return bbp_get_user_object_ids(
+		array(
+			'user_id'     => $user_id,
+			'rel_key'     => '_bbp_moderator_id',
+			'object_type' => bbp_get_forum_post_type(),
+			'filter'      => 'moderator_forum_ids'
+		)
+	);
 }
 
 /**
@@ -1013,11 +1020,13 @@ function bbp_get_moderator_forum_ids( $user_id = 0 ) {
  * @return array Return array of topic ids, or empty array
  */
 function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
-	return bbp_get_user_object_ids( array(
-		'user_id' => $user_id,
-		'rel_key' => '_bbp_engagement',
-		'filter'  => 'user_engaged_topic_ids'
-	) );
+	return bbp_get_user_object_ids(
+		array(
+			'user_id' => $user_id,
+			'rel_key' => '_bbp_engagement',
+			'filter'  => 'user_engaged_topic_ids'
+		)
+	);
 }
 
 /**
@@ -1030,11 +1039,13 @@ function bbp_get_user_engaged_topic_ids( $user_id = 0 ) {
  * @return array Return array of favorite topic ids, or empty array
  */
 function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
-	return bbp_get_user_object_ids( array(
-		'user_id' => $user_id,
-		'rel_key' => '_bbp_favorite',
-		'filter'  => 'user_favorites_topic_ids'
-	) );
+	return bbp_get_user_object_ids(
+		array(
+			'user_id' => $user_id,
+			'rel_key' => '_bbp_favorite',
+			'filter'  => 'user_favorites_topic_ids'
+		)
+	);
 }
 
 /**
@@ -1047,12 +1058,14 @@ function bbp_get_user_favorites_topic_ids( $user_id = 0 ) {
  * @return array Return array of subscribed forum ids, or empty array
  */
 function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
-	return bbp_get_user_object_ids( array(
-		'user_id'     => $user_id,
-		'rel_key'     => '_bbp_subscription',
-		'object_type' => bbp_get_forum_post_type(),
-		'filter'      => 'user_subscribed_forum_ids'
-	) );
+	return bbp_get_user_object_ids(
+		array(
+			'user_id'     => $user_id,
+			'rel_key'     => '_bbp_subscription',
+			'object_type' => bbp_get_forum_post_type(),
+			'filter'      => 'user_subscribed_forum_ids'
+		)
+	);
 }
 
 /**
@@ -1065,11 +1078,13 @@ function bbp_get_user_subscribed_forum_ids( $user_id = 0 ) {
  * @return array Return array of subscribed topic ids, or empty array
  */
 function bbp_get_user_subscribed_topic_ids( $user_id = 0 ) {
-	return bbp_get_user_object_ids( array(
-		'user_id' => $user_id,
-		'rel_key' => '_bbp_subscription',
-		'filter'  => 'user_subscribed_topic_ids'
-	) );
+	return bbp_get_user_object_ids(
+		array(
+			'user_id' => $user_id,
+			'rel_key' => '_bbp_subscription',
+			'filter'  => 'user_subscribed_topic_ids'
+		)
+	);
 }
 
 /** Deprecated ****************************************************************/

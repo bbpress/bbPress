@@ -1,0 +1,264 @@
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - '2.6'
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: phpunit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHP ${{ matrix.php }} / WP ${{ matrix.wp }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11@sha256:2439dcd7d14010ecd1ff7a4e1c5abe8e208c34fe35290744deeeaac3569043c3 # 11.8.9
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '7.4'
+            wp: '6.0'
+            experimental: false
+          - php: '8.1'
+            wp: '6.8'
+            experimental: false
+          - php: '8.3'
+            wp: '7.0'
+            experimental: false
+          - php: '8.4'
+            wp: '7.1'
+            experimental: false
+          - php: '7.4'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.0'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.1'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.2'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.3'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.4'
+            wp: 'trunk'
+            experimental: false
+          - php: '8.5'
+            wp: 'trunk'
+            experimental: true
+
+    continue-on-error: ${{ matrix.experimental }}
+
+    env:
+      WP_DEVELOP_DIR: ${{ github.workspace }}/wordpress-develop
+      PLUGIN_SLUG: bbpress
+
+    steps:
+      - name: Checkout bbPress
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          path: plugin-src
+
+      - name: Checkout WordPress (${{ matrix.wp }})
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          repository: WordPress/wordpress-develop
+          ref: ${{ matrix.wp }}
+          path: wordpress-develop
+
+      - name: Move plugin into WordPress develop tree
+        run: |
+          mkdir -p "${WP_DEVELOP_DIR}/src/wp-content/plugins"
+          mv plugin-src "${WP_DEVELOP_DIR}/src/wp-content/plugins/${PLUGIN_SLUG}"
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+          extensions: mysqli, mbstring, intl, curl, dom, json, libxml, xml, zip
+          ini-values: error_reporting=E_ALL, display_errors=On
+
+      - name: Get composer cache directory
+        id: composer-cache
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+
+      - name: Install composer dependencies
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Configure WordPress tests
+        working-directory: ${{ env.WP_DEVELOP_DIR }}
+        run: |
+          cp wp-tests-config-sample.php wp-tests-config.php
+          sed -i "s/youremptytestdbnamehere/wordpress_test/" wp-tests-config.php
+          sed -i "s/yourusernamehere/root/" wp-tests-config.php
+          sed -i "s/yourpasswordhere/root/" wp-tests-config.php
+          sed -i "s|localhost|127.0.0.1|" wp-tests-config.php
+
+      - name: Wait for MariaDB to be ready
+        run: |
+          for _attempt in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -P 3306 -uroot -proot --silent; then
+              echo "MariaDB is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MariaDB did not become ready in time" >&2
+          exit 1
+
+      - name: Show tool versions
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: |
+          php --version
+          composer --version
+          vendor/bin/phpunit --version
+          mysql --version
+
+      - name: Run PHPUnit
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: composer test
+
+  integration:
+    name: ${{ matrix.name }} / PHP 8.4 / WP trunk
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+
+    services:
+      mariadb:
+        image: mariadb:11@sha256:2439dcd7d14010ecd1ff7a4e1c5abe8e208c34fe35290744deeeaac3569043c3 # 11.8.9
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Multisite
+            config: tests/phpunit/multisite.xml
+            buddypress: false
+          - name: BuddyPress
+            config: tests/phpunit/buddypress.xml
+            buddypress: true
+
+    env:
+      WP_DEVELOP_DIR: ${{ github.workspace }}/wordpress-develop
+      PLUGIN_SLUG: bbpress
+
+    steps:
+      - name: Checkout bbPress
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          path: plugin-src
+
+      - name: Checkout WordPress trunk
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          repository: WordPress/wordpress-develop
+          ref: trunk
+          path: wordpress-develop
+
+      - name: Checkout BuddyPress
+        if: matrix.buddypress
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          repository: buddypress/buddypress
+          path: wordpress-develop/src/wp-content/plugins/buddypress
+
+      - name: Move bbPress into WordPress develop tree
+        run: |
+          mkdir -p "${WP_DEVELOP_DIR}/src/wp-content/plugins"
+          mv plugin-src "${WP_DEVELOP_DIR}/src/wp-content/plugins/${PLUGIN_SLUG}"
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+          extensions: mysqli, mbstring, intl, curl, dom, json, libxml, xml, zip
+          ini-values: error_reporting=E_ALL, display_errors=On
+
+      - name: Get composer cache directory
+        id: composer-cache
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-integration-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-integration-
+
+      - name: Install composer dependencies
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Configure WordPress tests
+        working-directory: ${{ env.WP_DEVELOP_DIR }}
+        run: |
+          cp wp-tests-config-sample.php wp-tests-config.php
+          sed -i "s/youremptytestdbnamehere/wordpress_test/" wp-tests-config.php
+          sed -i "s/yourusernamehere/root/" wp-tests-config.php
+          sed -i "s/yourpasswordhere/root/" wp-tests-config.php
+          sed -i "s|localhost|127.0.0.1|" wp-tests-config.php
+
+      - name: Run ${{ matrix.name }} tests
+        working-directory: ${{ env.WP_DEVELOP_DIR }}/src/wp-content/plugins/${{ env.PLUGIN_SLUG }}
+        env:
+          PHPUNIT_CONFIG: ${{ matrix.config }}
+        run: vendor/bin/phpunit -c "$PHPUNIT_CONFIG"

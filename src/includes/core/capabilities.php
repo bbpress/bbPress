@@ -285,7 +285,7 @@ function bbp_get_blog_roles() {
  */
 function bbp_add_forums_roles( $wp_roles = null ) {
 
-	// Maybe initialize WP_Roles just-in-time, but 
+	// Maybe initialize WP_Roles just-in-time, but
 	if ( empty( $wp_roles ) && ! doing_action( 'wp_roles_init' ) ) {
 		$wp_roles = wp_roles();
 	}
@@ -516,7 +516,7 @@ function bbp_add_roles() {
  *
  * This is currently only used when updating, uninstalling, or resetting bbPress.
  *
- * @see	bbp_admin_reset_handler()
+ * @see bbp_admin_reset_handler()
  * @see bbp_do_uninstall()
  * @see bbp_version_updater()
  *

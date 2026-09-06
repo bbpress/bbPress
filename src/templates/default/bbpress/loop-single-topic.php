@@ -23,7 +23,13 @@ defined( 'ABSPATH' ) || exit;
 
 					<?php do_action( 'bbp_theme_before_topic_favorites_action' ); ?>
 
-					<?php bbp_topic_favorite_link( array( 'before' => '', 'favorite' => '+', 'favorited' => '&times;' ) ); ?>
+					<?php bbp_topic_favorite_link(
+						array(
+							'before'    => '',
+							'favorite'  => '+',
+							'favorited' => '&times;'
+						)
+					); ?>
 
 					<?php do_action( 'bbp_theme_after_topic_favorites_action' ); ?>
 
@@ -35,7 +41,13 @@ defined( 'ABSPATH' ) || exit;
 
 					<?php do_action( 'bbp_theme_before_topic_subscription_action' ); ?>
 
-					<?php bbp_topic_subscription_link( array( 'before' => '', 'subscribe' => '+', 'unsubscribe' => '&times;' ) ); ?>
+					<?php bbp_topic_subscription_link(
+						array(
+							'before'      => '',
+							'subscribe'   => '+',
+							'unsubscribe' => '&times;'
+						)
+					); ?>
 
 					<?php do_action( 'bbp_theme_after_topic_subscription_action' ); ?>
 
@@ -59,7 +71,15 @@ defined( 'ABSPATH' ) || exit;
 
 			<?php do_action( 'bbp_theme_before_topic_started_by' ); ?>
 
-			<span class="bbp-topic-started-by"><?php printf( esc_html__( 'Started by: %1$s', 'bbpress' ), bbp_get_topic_author_link( array( 'size' => '14' ) ) ); ?></span>
+			<span class="bbp-topic-started-by">
+				<?php
+				printf(
+					/* translators: %1$s: Topic author link */
+					esc_html__( 'Started by: %1$s', 'bbpress' ),
+					bbp_get_topic_author_link( array( 'size' => '14' ) )
+				);
+				?>
+			</span>
 
 			<?php do_action( 'bbp_theme_after_topic_started_by' ); ?>
 
@@ -67,7 +87,15 @@ defined( 'ABSPATH' ) || exit;
 
 				<?php do_action( 'bbp_theme_before_topic_started_in' ); ?>
 
-				<span class="bbp-topic-started-in"><?php printf( esc_html__( 'in: %1$s', 'bbpress' ), '<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>' ); ?></span>
+				<span class="bbp-topic-started-in">
+					<?php
+					printf(
+						/* translators: %1$s: Forum link with title */
+						esc_html__( 'in: %1$s', 'bbpress' ),
+						'<a href="' . bbp_get_forum_permalink( bbp_get_topic_forum_id() ) . '">' . bbp_get_forum_title( bbp_get_topic_forum_id() ) . '</a>'
+					);
+					?>
+				</span>
 				<?php do_action( 'bbp_theme_after_topic_started_in' ); ?>
 
 			<?php endif; ?>
@@ -96,7 +124,12 @@ defined( 'ABSPATH' ) || exit;
 
 			<?php do_action( 'bbp_theme_before_topic_freshness_author' ); ?>
 
-			<span class="bbp-topic-freshness-author"><?php bbp_author_link( array( 'post_id' => bbp_get_topic_last_active_id(), 'size' => 14 ) ); ?></span>
+			<span class="bbp-topic-freshness-author"><?php bbp_author_link(
+				array(
+					'post_id' => bbp_get_topic_last_active_id(),
+					'size'    => 14
+				)
+			); ?></span>
 
 			<?php do_action( 'bbp_theme_after_topic_freshness_author' ); ?>
 

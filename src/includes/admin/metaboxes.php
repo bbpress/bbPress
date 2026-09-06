@@ -25,21 +25,24 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	}
 
 	// Get the statistics
-	$r = bbp_get_statistics( array(
-		'count_pending_topics'  => false,
-		'count_private_topics'  => false,
-		'count_spammed_topics'  => false,
-		'count_trashed_topics'  => false,
-		'count_pending_replies' => false,
-		'count_private_replies' => false,
-		'count_spammed_replies' => false,
-		'count_trashed_replies' => false,
-		'count_empty_tags'      => false
-	) );
+	$r = bbp_get_statistics(
+		array(
+			'count_pending_topics'  => false,
+			'count_private_topics'  => false,
+			'count_spammed_topics'  => false,
+			'count_trashed_topics'  => false,
+			'count_pending_replies' => false,
+			'count_private_replies' => false,
+			'count_spammed_replies' => false,
+			'count_trashed_replies' => false,
+			'count_empty_tags'      => false
+		)
+	);
 
 	// Users
 	if ( isset( $r['user_count'] ) ) {
 		$link       = admin_url( 'users.php' );
+		/* translators: %s: Number of users */
 		$text       = sprintf( _n( '%s User', '%s Users', $r['user_count_int'], 'bbpress' ), $r['user_count'] );
 		$elements[] = current_user_can( 'edit_users' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-users">' . esc_html( $text ) . '</a>'
@@ -49,6 +52,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Forums
 	if ( isset( $r['forum_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of forums */
 		$text       = sprintf( _n( '%s Forum', '%s Forums', $r['forum_count_int'], 'bbpress' ), $r['forum_count'] );
 		$elements[] = current_user_can( 'publish_forums' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-forums">' . esc_html( $text ) . '</a>'
@@ -58,6 +62,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Topics
 	if ( isset( $r['topic_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of topics */
 		$text       = sprintf( _n( '%s Topic', '%s Topics', $r['topic_count_int'], 'bbpress' ), $r['topic_count'] );
 		$elements[] = current_user_can( 'publish_topics' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topics">' . esc_html( $text ) . '</a>'
@@ -67,6 +72,7 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 	// Replies
 	if ( isset( $r['reply_count'] ) ) {
 		$link       = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) );
+		/* translators: %s: Number of replies */
 		$text       = sprintf( _n( '%s Reply', '%s Replies', $r['reply_count_int'], 'bbpress' ), $r['reply_count'] );
 		$elements[] = current_user_can( 'publish_replies' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-replies">' . esc_html( $text ) . '</a>'
@@ -75,15 +81,28 @@ function bbp_filter_dashboard_glance_items( $elements = array() ) {
 
 	// Topic Tags
 	if ( bbp_allow_topic_tags() && isset( $r['topic_tag_count'] ) ) {
-		$link       = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
-		$text       = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
+		$args = array(
+			'taxonomy'  => bbp_get_topic_tag_tax_id(),
+			'post_type' => bbp_get_topic_post_type()
+		);
+		$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
+		/* translators: %s: Number of topic tags */
+		$text = sprintf( _n( '%s Topic Tag', '%s Topic Tags', $r['topic_tag_count_int'], 'bbpress' ), $r['topic_tag_count'] );
+
 		$elements[] = current_user_can( 'manage_topic_tags' )
 			? '<a href="' . esc_url( $link ) . '" class="bbp-glance-topic-tags">' . esc_html( $text ) . '</a>'
 			: esc_html( $text );
 	}
 
-	// Filter & return
-	return apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
+	/**
+	 * Filters the "at a glance" dashboard items.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param array $elements The existing "at a glance" dashboard items.
+	 * @param array $r        The statistics array.
+	 */
+	return (array) apply_filters( 'bbp_dashboard_at_a_glance', $elements, $r );
 }
 
 /**
@@ -165,7 +184,11 @@ function bbp_dashboard_widget_right_now() {
 						$num  = $r['topic_tag_count'];
 						$text = _n( 'Topic Tag', 'Topic Tags', $r['topic_tag_count_int'], 'bbpress' );
 						if ( current_user_can( 'manage_topic_tags' ) ) {
-							$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+							$args = array(
+								'taxonomy'  => bbp_get_topic_tag_tax_id(),
+								'post_type' => bbp_get_topic_post_type()
+							);
+							$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 							$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 							$text = '<a href="' . esc_url( $link ) . '">' . $text . '</a>';
 						}
@@ -259,7 +282,11 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $r['empty_topic_tag_count'];
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $r['empty_topic_tag_count_int'], 'bbpress' );
-						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit-tags.php' ) );
+						$args = array(
+							'taxonomy'  => bbp_get_topic_tag_tax_id(),
+							'post_type' => bbp_get_topic_post_type()
+						);
+						$link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 						$num  = '<a href="' . esc_url( $link ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . esc_url( $link ) . '">' . $text . '</a>';
 					?>
@@ -282,7 +309,13 @@ function bbp_dashboard_widget_right_now() {
 	<div class="versions">
 
 		<span id="wp-version-message">
-			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() ); ?>
+			<?php
+			printf(
+				/* translators: %s: bbPress version */
+				__( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ),
+				bbp_get_version()
+			);
+			?>
 		</span>
 
 	</div>
@@ -315,7 +348,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Type:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_type_select"><?php esc_html_e( 'Type:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_type_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
@@ -327,7 +360,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_status_select"><?php esc_html_e( 'Status:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_status_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
@@ -339,7 +372,7 @@ function bbp_forum_metabox( $post ) {
 
 	<p>
 		<strong class="label"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></strong>
-		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ) ?></label>
+		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php esc_html_e( 'Visibility:', 'bbpress' ); ?></label>
 		<?php bbp_form_forum_visibility_dropdown( array( 'forum_id' => $post->ID ) ); ?>
 	</p>
 
@@ -354,22 +387,26 @@ function bbp_forum_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Parent:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum Parent', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( array(
-			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => $post_parent,
-			'numberposts'        => -1,
-			'orderby'            => 'title',
-			'order'              => 'ASC',
-			'walker'             => '',
-			'exclude'            => $post->ID,
+		<?php
+		bbp_dropdown(
+			array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => $post_parent,
+				'numberposts'        => -1,
+				'orderby'            => 'title',
+				'order'              => 'ASC',
+				'walker'             => '',
+				'exclude'            => $post->ID,
 
-			// Output-related
-			'select_id'          => 'parent_id',
-			'options_only'       => false,
-			'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
-			'disable_categories' => false,
-			'disabled'           => ''
-		) ); ?>
+				// Output-related
+				'select_id'          => 'parent_id',
+				'options_only'       => false,
+				'show_none'          => esc_html__( '&mdash; No parent &mdash;', 'bbpress' ),
+				'disable_categories' => false,
+				'disabled'           => ''
+			)
+		);
+		?>
 	</p>
 
 	<p>
@@ -416,7 +453,12 @@ function bbp_topic_metabox( $post ) {
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="bbp_open_close_topic"><?php esc_html_e( 'Select whether to open or close the topic.', 'bbpress' ); ?></label>
-		<?php bbp_form_topic_status_dropdown( array( 'select_id' => 'post_status', 'topic_id' => $post->ID ) ); ?>
+		<?php bbp_form_topic_status_dropdown(
+			array(
+				'select_id' => 'post_status',
+				'topic_id'  => $post->ID
+			)
+		); ?>
 	</p>
 
 	<?php
@@ -430,22 +472,26 @@ function bbp_topic_metabox( $post ) {
 	<p>
 		<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-		<?php bbp_dropdown( array(
-			'post_type'          => bbp_get_forum_post_type(),
-			'selected'           => bbp_get_topic_forum_id( $post->ID ),
-			'numberposts'        => -1,
-			'orderby'            => 'title',
-			'order'              => 'ASC',
-			'walker'             => '',
-			'exclude'            => '',
+		<?php
+		bbp_dropdown(
+			array(
+				'post_type'          => bbp_get_forum_post_type(),
+				'selected'           => bbp_get_topic_forum_id( $post->ID ),
+				'numberposts'        => -1,
+				'orderby'            => 'title',
+				'order'              => 'ASC',
+				'walker'             => '',
+				'exclude'            => '',
 
-			// Output-related
-			'select_id'          => 'parent_id',
-			'options_only'       => false,
-			'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
-			'disable_categories' => current_user_can( 'edit_forums' ),
-			'disabled'           => ''
-		) ); ?>
+				// Output-related
+				'select_id'          => 'parent_id',
+				'options_only'       => false,
+				'show_none'          => esc_html__( '&mdash; No forum &mdash;', 'bbpress' ),
+				'disable_categories' => current_user_can( 'edit_forums' ),
+				'disabled'           => ''
+			)
+		);
+		?>
 	</p>
 
 	<input name="ping_status" type="hidden" id="ping_status" value="open" />
@@ -479,7 +525,12 @@ function bbp_reply_metabox( $post ) {
 		<strong class="label"><?php esc_html_e( 'Status:', 'bbpress' ); ?></strong>
 		<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ( 'auto-draft' === $post->post_status ) ? 'draft' : $post->post_status ); ?>" />
 		<label class="screen-reader-text" for="post_status"><?php esc_html_e( 'Select what status to give the reply.', 'bbpress' ); ?></label>
-		<?php bbp_form_reply_status_dropdown( array( 'select_id' => 'post_status', 'reply_id' => $post->ID ) ); ?>
+		<?php bbp_form_reply_status_dropdown(
+			array(
+				'select_id' => 'post_status',
+				'reply_id'  => $post->ID
+			)
+		); ?>
 	</p>
 
 	<hr />
@@ -494,22 +545,26 @@ function bbp_reply_metabox( $post ) {
 		<p>
 			<strong class="label"><?php esc_html_e( 'Forum:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="bbp_forum_id"><?php esc_html_e( 'Forum', 'bbpress' ); ?></label>
-			<?php bbp_dropdown( array(
-				'post_type'          => bbp_get_forum_post_type(),
-				'selected'           => $reply_forum_id,
-				'numberposts'        => -1,
-				'orderby'            => 'title',
-				'order'              => 'ASC',
-				'walker'             => '',
-				'exclude'            => '',
+			<?php
+			bbp_dropdown(
+				array(
+					'post_type'          => bbp_get_forum_post_type(),
+					'selected'           => $reply_forum_id,
+					'numberposts'        => -1,
+					'orderby'            => 'title',
+					'order'              => 'ASC',
+					'walker'             => '',
+					'exclude'            => '',
 
-				// Output-related
-				'select_id'          => 'bbp_forum_id',
-				'options_only'       => false,
-				'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
-				'disable_categories' => current_user_can( 'edit_forums' ),
-				'disabled'           => ''
-			) ); ?>
+					// Output-related
+					'select_id'          => 'bbp_forum_id',
+					'options_only'       => false,
+					'show_none'          => esc_html__( '&mdash; No reply &mdash;', 'bbpress' ),
+					'disable_categories' => current_user_can( 'edit_forums' ),
+					'disabled'           => ''
+				)
+			);
+			?>
 		</p>
 
 	<?php endif;
@@ -822,9 +877,15 @@ function bbp_metabox_user_links() {
 		// Get the user ID, URL, and Avatar
 		$user_id     = bbp_get_user_id();
 		$user_url    = bbp_get_user_profile_url( $user_id );
-		$user_avatar = get_avatar( $user_id, 32, '', '', array(
-			'force_display' => true
-		) );
+		$user_avatar = get_avatar(
+			$user_id,
+			32,
+			'',
+			'',
+			array(
+				'force_display' => true
+			)
+		);
 
 		// Output a link to the user avatar
 		echo '<a href="' . esc_url( $user_url ) . '">' . $user_avatar . '</a>';

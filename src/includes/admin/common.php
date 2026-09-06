@@ -41,6 +41,7 @@ function bbp_admin_separator() {
 
 	global $menu;
 
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
 }
 
@@ -180,6 +181,8 @@ function bbp_tools_modify_menu_highlight() {
 
 	// This tweaks the Tools subnav menu to only show one bbPress menu item
 	if ( ! in_array( $plugin_page, array( 'bbp-settings' ), true ) ) {
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu_file = 'bbp-repair';
 	}
 }

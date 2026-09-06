@@ -55,9 +55,12 @@ function bbp_get_admin_repair_tool_page_id() {
 function bbp_get_admin_repair_tool_page_url( $args = array() ) {
 
 	// Parse arguments
-	$r = wp_parse_args( $args, array(
-		'page' => bbp_get_admin_repair_tool_page()
-	) );
+	$r = wp_parse_args(
+		$args,
+		array(
+			'page' => bbp_get_admin_repair_tool_page()
+		)
+	);
 
 	return add_query_arg( $r, admin_url( 'tools.php' ) );
 }
@@ -743,18 +746,22 @@ function bbp_admin_repair_tool_overhead_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args( $args, array(
-		'before'       => '<ul class="subsubsub">',
-		'after'        => '</ul>',
-		'link_before'  => '<li>',
-		'link_after'   => '</li>',
-		'count_before' => ' <span class="count">(',
-		'count_after'  => ')</span>',
-		'sep'          => ' | ',
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'       => '<ul class="subsubsub">',
+			'after'        => '</ul>',
+			'link_before'  => '<li>',
+			'link_after'   => '</li>',
+			'count_before' => ' <span class="count">(',
+			'count_after'  => ')</span>',
+			'sep'          => ' | ',
 
-		// Retired, use 'sep' instead
-		'separator'    => false
-	), 'get_admin_repair_tool_overhead_filters' );
+			// Retired, use 'sep' instead
+			'separator'    => false
+		),
+		'get_admin_repair_tool_overhead_filters'
+	);
 
 	/**
 	 * Necessary for backwards compatibility
@@ -797,7 +804,11 @@ function bbp_get_admin_repair_tool_overhead_filters( $args = array() ) {
 
 	// Create the "All" link
 	$current = empty( $selected ) ? 'current' : '';
-	$links[] = $r['link_before'] . '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf( esc_html__( 'All %s', 'bbpress' ), $r['count_before'] . count( $tools ) . $r['count_after'] ) . '</a>' . $r['link_after'];
+	$links[] = $r['link_before'] . '<a href="' . esc_url( $tools_url ) . '" class="' . esc_attr( $current ) . '">' . sprintf(
+		/* translators: %s: Number of items */
+		esc_html__( 'All %s', 'bbpress' ),
+		$r['count_before'] . count( $tools ) . $r['count_after']
+	) . '</a>' . $r['link_after'];
 
 	// Loop through overheads and created links
 	if ( count( $overheads ) ) {
@@ -859,18 +870,22 @@ function bbp_admin_repair_tool_status_filters( $args = array() ) {
 function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 
 	// Parse args
-	$r = bbp_parse_args( $args, array(
-		'before'       => '<ul class="subsubsub">',
-		'after'        => '</ul>',
-		'link_before'  => '<li>',
-		'link_after'   => '</li>',
-		'count_before' => ' <span class="count">(',
-		'count_after'  => ')</span>',
-		'sep'          => ' | ',
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'before'       => '<ul class="subsubsub">',
+			'after'        => '</ul>',
+			'link_before'  => '<li>',
+			'link_after'   => '</li>',
+			'count_before' => ' <span class="count">(',
+			'count_after'  => ')</span>',
+			'sep'          => ' | ',
 
-		// Retired, use 'sep' instead
-		'separator'    => false
-	), 'get_admin_repair_tool_status_filters' );
+			// Retired, use 'sep' instead
+			'separator'    => false
+		),
+		'get_admin_repair_tool_status_filters'
+	);
 
 	/**
 	 * Necessary for backwards compatibility
@@ -911,9 +926,12 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 	ksort( $pending );
 
 	// Build the filter URL
-	$filter_url = add_query_arg( array(
-		'status' => 'pending'
-	), $tools_url );
+	$filter_url = add_query_arg(
+		array(
+			'status' => 'pending'
+		),
+		$tools_url
+	);
 
 	// Count HTML
 	$all_count     = $r['count_before'] . count( $tools   ) . $r['count_after'];
@@ -921,8 +939,21 @@ function bbp_get_admin_repair_tool_status_filters( $args = array() ) {
 
 	// Define links
 	$links = array(
-		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' . sprintf( esc_html__( 'All %s',     'bbpress' ), $all_count     ) . '</a>' . $r['link_after'],
-		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' . sprintf( esc_html__( 'Pending %s', 'bbpress' ), $pending_count ) . '</a>' . $r['link_after']
+		$r['link_before'] . '<a href="' . esc_url( $tools_url  ) . '" class="' . esc_attr( $all_current     ) . '">' .
+			sprintf(
+				/* translators: %s: Number of items */
+				esc_html__( 'All %s', 'bbpress' ),
+				$all_count
+			) .
+		'</a>' . $r['link_after'],
+
+		$r['link_before'] . '<a href="' . esc_url( $filter_url ) . '" class="' . esc_attr( $pending_current ) . '">' .
+			sprintf(
+				/* translators: %s: Number of pending items */
+				esc_html__( 'Pending %s', 'bbpress' ),
+				$pending_count
+			) .
+		'</a>' . $r['link_after']
 	);
 
 	// Surround output with before & after strings

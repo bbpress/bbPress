@@ -29,11 +29,14 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2827)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_login_widget_options', array(
-			'classname'                   => 'bbp_widget_login',
-			'description'                 => esc_html__( 'A simple login form with optional links to sign-up and lost password pages.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_login_widget_options',
+			array(
+				'classname'                   => 'bbp_widget_login',
+				'description'                 => esc_html__( 'A simple login form with optional links to sign-up and lost password pages.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Login Widget', 'bbpress' ), $widget_ops );
 	}
@@ -197,11 +200,15 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title'    => '',
-			'register' => '',
-			'lostpass' => ''
-		), 'login_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title'    => '',
+				'register' => '',
+				'lostpass' => ''
+			),
+			'login_widget_settings'
+		);
 	}
 }
 
@@ -222,11 +229,14 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r3020)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_views_widget_options', array(
-			'classname'                   => 'widget_display_views',
-			'description'                 => esc_html__( 'A list of registered optional topic views.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_views_widget_options',
+			array(
+				'classname'                   => 'widget_display_views',
+				'description'                 => esc_html__( 'A list of registered optional topic views.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Topic Views List', 'bbpress' ), $widget_ops );
 	}
@@ -333,9 +343,13 @@ class BBP_Views_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title' => ''
-		), 'view_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title' => ''
+			),
+			'view_widget_settings'
+		);
 	}
 }
 
@@ -356,11 +370,14 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4579)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_search_widget_options', array(
-			'classname'                   => 'widget_display_search',
-			'description'                 => esc_html__( 'The bbPress forum search form.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_search_widget_options',
+			array(
+				'classname'                   => 'widget_display_search',
+				'description'                 => esc_html__( 'The bbPress forum search form.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Forum Search Form', 'bbpress' ), $widget_ops );
 	}
@@ -450,9 +467,13 @@ class BBP_Search_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title' => esc_html__( 'Search Forums', 'bbpress' )
-		), 'search_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title' => esc_html__( 'Search Forums', 'bbpress' )
+			),
+			'search_widget_settings'
+		);
 	}
 }
 
@@ -473,11 +494,14 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_forums_widget_options', array(
-			'classname'                   => 'widget_display_forums',
-			'description'                 => esc_html__( 'A list of forums with an option to set the parent.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_forums_widget_options',
+			array(
+				'classname'                   => 'widget_display_forums',
+				'description'                 => esc_html__( 'A list of forums with an option to set the parent.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Forums List', 'bbpress' ), $widget_ops );
 	}
@@ -512,24 +536,26 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_normalize_forum_visibility action and function.
-		$widget_query = new WP_Query( array(
+		$widget_query = new WP_Query(
+			array(
 
-			// What and how
-			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_public_status_id(),
-			'post_parent'    => $settings['parent_forum'],
-			'posts_per_page' => (int) get_option( '_bbp_forums_per_page', 50 ),
+				// What and how
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'post_parent'    => $settings['parent_forum'],
+				'posts_per_page' => (int) get_option( '_bbp_forums_per_page', 50 ),
 
-			// Order
-			'orderby' => 'menu_order title',
-			'order'   => 'ASC',
+				// Order
+				'orderby' => 'menu_order title',
+				'order'   => 'ASC',
 
-			// Performance
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false
-		) );
+				// Performance
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false
+			)
+		);
 
 		// Bail if no posts
 		if ( ! $widget_query->have_posts() ) {
@@ -544,7 +570,9 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		<ul class="bbp-forums-widget">
 
-			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
+			<?php while ( $widget_query->have_posts() ) :
+
+				$widget_query->the_post(); ?>
 
 				<li <?php echo ( bbp_get_forum_id() === $widget_query->post->ID ? ' class="bbp-forum-widget-current-forum"' : '' ); ?>>
 					<a class="bbp-forum-title" href="<?php bbp_forum_permalink( $widget_query->post->ID ); ?>">
@@ -622,10 +650,14 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title'        => esc_html__( 'Forums', 'bbpress' ),
-			'parent_forum' => 0
-		), 'forum_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title'        => esc_html__( 'Forums', 'bbpress' ),
+				'parent_forum' => 0
+			),
+			'forum_widget_settings'
+		);
 	}
 }
 
@@ -646,11 +678,14 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_topics_widget_options', array(
-			'classname'                   => 'widget_display_topics',
-			'description'                 => esc_html__( 'A list of recent topics, sorted by: newness, popularity, or recent replies.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_topics_widget_options',
+			array(
+				'classname'                   => 'widget_display_topics',
+				'description'                 => esc_html__( 'A list of recent topics, sorted by: newness, popularity, or recent replies.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Recent Topics', 'bbpress' ), $widget_ops );
 	}
@@ -695,10 +730,12 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_status'    => bbp_get_public_topic_statuses(),
 					'post_parent'    => $settings['parent_forum'],
 					'posts_per_page' => (int) $settings['max_shown'],
-					'meta_query'     => array( array(
-						'key'  => '_bbp_last_active_time',
-						'type' => 'DATETIME'
-					) ),
+					'meta_query'     => array(
+						array(
+							'key'  => '_bbp_last_active_time',
+							'type' => 'DATETIME'
+						)
+					),
 
 					// Ordering
 					'orderby' => 'meta_value',
@@ -721,10 +758,12 @@ class BBP_Topics_Widget extends WP_Widget {
 					'post_status'    => bbp_get_public_topic_statuses(),
 					'post_parent'    => $settings['parent_forum'],
 					'posts_per_page' => (int) $settings['max_shown'],
-					'meta_query'     => array( array(
-						'key'  => '_bbp_reply_count',
-						'type' => 'NUMERIC'
-					) ),
+					'meta_query'     => array(
+						array(
+							'key'  => '_bbp_reply_count',
+							'type' => 'NUMERIC'
+						)
+					),
 
 					// Ordering
 					'orderby' => 'meta_value_num',
@@ -790,7 +829,13 @@ class BBP_Topics_Widget extends WP_Widget {
 
 				// Maybe get the topic author
 				if ( ! empty( $settings['show_user'] ) ) :
-					$author_link = bbp_get_topic_author_link( array( 'post_id' => $topic_id, 'type' => 'both', 'size' => 14 ) );
+					$author_link = bbp_get_topic_author_link(
+						array(
+							'post_id' => $topic_id,
+							'type'    => 'both',
+							'size'    => 14
+						)
+					);
 				endif; ?>
 
 				<li>
@@ -798,7 +843,13 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php if ( ! empty( $author_link ) ) : ?>
 
-						<?php printf( esc_html_x( 'by %1$s', 'widgets', 'bbpress' ), '<span class="topic-author">' . $author_link . '</span>' ); ?>
+						<?php
+						printf(
+							/* translators: %1$s: Topic author link wrapped in span tag */
+							esc_html_x( 'by %1$s', 'widgets', 'bbpress' ),
+							'<span class="topic-author">' . $author_link . '</span>'
+						);
+						?>
 
 					<?php endif; ?>
 
@@ -904,14 +955,18 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title'        => esc_html__( 'Recent Topics', 'bbpress' ),
-			'max_shown'    => 5,
-			'show_date'    => false,
-			'show_user'    => false,
-			'parent_forum' => 'any',
-			'order_by'     => false
-		), 'topic_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title'        => esc_html__( 'Recent Topics', 'bbpress' ),
+				'max_shown'    => 5,
+				'show_date'    => false,
+				'show_user'    => false,
+				'parent_forum' => 'any',
+				'order_by'     => false
+			),
+			'topic_widget_settings'
+		);
 	}
 }
 
@@ -932,11 +987,14 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * @since 2.3.0 bbPress (r4509)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_stats_widget_options', array(
-			'classname'                   => 'widget_display_stats',
-			'description'                 => esc_html__( 'Some statistics from your forum.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_stats_widget_options',
+			array(
+				'classname'                   => 'widget_display_stats',
+				'description'                 => esc_html__( 'Some statistics from your forum.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Statistics', 'bbpress' ), $widget_ops );
 	}
@@ -1028,9 +1086,13 @@ class BBP_Stats_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title' => esc_html__( 'Forum Statistics', 'bbpress' )
-		), 'stats_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title' => esc_html__( 'Forum Statistics', 'bbpress' )
+			),
+			'stats_widget_settings'
+		);
 	}
 }
 
@@ -1051,11 +1113,14 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @since 2.0.0 bbPress (r2653)
 	 */
 	public function __construct() {
-		$widget_ops = apply_filters( 'bbp_replies_widget_options', array(
-			'classname'                   => 'widget_display_replies',
-			'description'                 => esc_html__( 'A list of the most recent replies.', 'bbpress' ),
-			'customize_selective_refresh' => true
-		) );
+		$widget_ops = apply_filters(
+			'bbp_replies_widget_options',
+			array(
+				'classname'                   => 'widget_display_replies',
+				'description'                 => esc_html__( 'A list of the most recent replies.', 'bbpress' ),
+				'customize_selective_refresh' => true
+			)
+		);
 
 		parent::__construct( false, esc_html__( '(bbPress) Recent Replies', 'bbpress' ), $widget_ops );
 	}
@@ -1090,19 +1155,21 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		// Note: private and hidden forums will be excluded via the
 		// bbp_pre_get_posts_normalize_forum_visibility action and function.
-		$widget_query = new WP_Query( array(
+		$widget_query = new WP_Query(
+			array(
 
-			// What and when
-			'post_type'      => bbp_get_reply_post_type(),
-			'post_status'    => bbp_get_public_reply_statuses(),
-			'posts_per_page' => (int) $settings['max_shown'],
+				// What and when
+				'post_type'      => bbp_get_reply_post_type(),
+				'post_status'    => bbp_get_public_reply_statuses(),
+				'posts_per_page' => (int) $settings['max_shown'],
 
-			// Performance
-			'ignore_sticky_posts'    => true,
-			'no_found_rows'          => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false
-		) );
+				// Performance
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false
+			)
+		);
 
 		// Bail if no replies
 		if ( ! $widget_query->have_posts() ) {
@@ -1120,7 +1187,9 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		<ul class="bbp-replies-widget">
 
-			<?php while ( $widget_query->have_posts() ) : $widget_query->the_post(); ?>
+			<?php while ( $widget_query->have_posts() ) :
+
+				$widget_query->the_post(); ?>
 
 				<li>
 
@@ -1134,7 +1203,13 @@ class BBP_Replies_Widget extends WP_Widget {
 
 					// Only query user if showing them
 					if ( ! empty( $settings['show_user'] ) ) :
-						$author_link = bbp_get_reply_author_link( array( 'post_id' => $reply_id, 'type' => 'both', 'size' => 14 ) );
+						$author_link = bbp_get_reply_author_link(
+							array(
+								'post_id' => $reply_id,
+								'type'    => 'both',
+								'size'    => 14
+							)
+						);
 					else :
 						$author_link = false;
 					endif;
@@ -1231,11 +1306,15 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @param $instance Instance
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bbp_parse_args( $instance, array(
-			'title'     => esc_html__( 'Recent Replies', 'bbpress' ),
-			'max_shown' => 5,
-			'show_date' => false,
-			'show_user' => false
-		), 'replies_widget_settings' );
+		return bbp_parse_args(
+			$instance,
+			array(
+				'title'     => esc_html__( 'Recent Replies', 'bbpress' ),
+				'max_shown' => 5,
+				'show_date' => false,
+				'show_user' => false
+			),
+			'replies_widget_settings'
+		);
 	}
 }

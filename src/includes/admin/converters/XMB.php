@@ -133,22 +133,22 @@ class XMB extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Topic Section *****************************************************/
@@ -486,12 +486,12 @@ class XMB extends BBP_Converter_Base {
 		);
 
 		// Store old User Salt (This is only used for the SELECT row info for the above password save)
-//		$this->field_map[] = array(
-//			'from_tablename' => 'members',
-//			'from_fieldname' => 'salt',
-//			'to_type'        => 'user',
-//			'to_fieldname'   => ''
-//		);
+//      $this->field_map[] = array(
+//          'from_tablename' => 'members',
+//          'from_fieldname' => 'salt',
+//          'to_type'        => 'user',
+//          'to_fieldname'   => ''
+//      );
 
 		// User password verify class (Stored in usermeta for verifying password)
 		$this->field_map[] = array(
@@ -614,7 +614,6 @@ class XMB extends BBP_Converter_Base {
 			'to_type'        => 'user',
 			'to_fieldname'   => '_bbp_xmb_user_mood'
 		);
-
 	}
 
 	/**
@@ -631,7 +630,11 @@ class XMB extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
+		$pass_array = array(
+			'hash' => $field,
+			'salt' => $row['salt']
+		);
+
 		return $pass_array;
 	}
 
@@ -642,10 +645,13 @@ class XMB extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1
+			)
+		);
 
 		// Bail if missing values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {

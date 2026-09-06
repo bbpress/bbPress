@@ -58,7 +58,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function add_user_to_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post', $unique = false ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -74,7 +74,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_object( $object_id = 0, $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -89,7 +89,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_user_from_all_objects( $user_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -105,7 +105,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -119,7 +119,7 @@ class BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure
 	 */
 	public function remove_all_users_from_all_objects( $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -134,7 +134,7 @@ class BBP_User_Engagements_Base {
 	 * @return array Returns ids of users
 	 */
 	public function get_users_for_object( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 
 	/**
@@ -149,7 +149,7 @@ class BBP_User_Engagements_Base {
 	 * @return array
 	 */
 	public function get_query( $args = array(), $context_key = '', $meta_key = '', $meta_type = 'post' ) {
-
+		// Intentionally empty
 	}
 }
 
@@ -278,21 +278,25 @@ class BBP_User_Engagements_Meta extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'meta_query' => array( array(
-					'key'     => $meta_key,
-					'value'   => bbp_get_user_id( $args, false, false ),
-					'compare' => 'NUMERIC'
-				) )
+				'meta_query' => array(
+					array(
+						'key'     => $meta_key,
+						'value'   => bbp_get_user_id( $args, false, false ),
+						'compare' => 'NUMERIC'
+					)
+				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'meta_query' => array( array(
-				'key'     => $meta_key,
-				'value'   => bbp_get_displayed_user_id(),
-				'compare' => 'NUMERIC'
-			) )
+			'meta_query' => array(
+				array(
+					'key'     => $meta_key,
+					'value'   => bbp_get_displayed_user_id(),
+					'compare' => 'NUMERIC'
+				)
+			)
 		);
 
 		// Parse arguments
@@ -332,28 +336,32 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		}
 
 		// Register the taxonomy
-		register_taxonomy( $tax_key, 'bbp_' . $object_type, array(
-			'labels'                => array(),
-			'description'           => '',
-			'public'                => false,
-			'publicly_queryable'    => false,
-			'hierarchical'          => false,
-			'show_ui'               => false,
-			'show_in_menu'          => false,
-			'show_in_nav_menus'     => false,
-			'show_tagcloud'         => false,
-			'show_in_quick_edit'    => false,
-			'show_admin_column'     => false,
-			'meta_box_cb'           => false,
-			'capabilities'          => array(),
-			'rewrite'               => false,
-			'query_var'             => '',
-			'update_count_callback' => '',
-			'show_in_rest'          => false,
-			'rest_base'             => false,
-			'rest_controller_class' => false,
-			'_builtin'              => false
-		) );
+		register_taxonomy(
+			$tax_key,
+			'bbp_' . $object_type,
+			array(
+				'labels'                => array(),
+				'description'           => '',
+				'public'                => false,
+				'publicly_queryable'    => false,
+				'hierarchical'          => false,
+				'show_ui'               => false,
+				'show_in_menu'          => false,
+				'show_in_nav_menus'     => false,
+				'show_tagcloud'         => false,
+				'show_in_quick_edit'    => false,
+				'show_admin_column'     => false,
+				'meta_box_cb'           => false,
+				'capabilities'          => array(),
+				'rewrite'               => false,
+				'query_var'             => '',
+				'update_count_callback' => '',
+				'show_in_rest'          => false,
+				'rest_base'             => false,
+				'rest_controller_class' => false,
+				'_builtin'              => false
+			)
+		);
 	}
 
 	/**
@@ -464,10 +472,12 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		$this->jit_taxonomy( $tax_key );
 
 		// Get terms
-		$terms = get_terms( array(
-			'object_ids' => $object_id,
-			'taxonomy'   => $tax_key
-		) );
+		$terms = get_terms(
+			array(
+				'object_ids' => $object_id,
+				'taxonomy'   => $tax_key
+			)
+		);
 
 		// Slug part to replace
 		$user_ids = array();
@@ -502,21 +512,25 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 		// Backwards compat for pre-2.6.0
 		if ( is_numeric( $args ) ) {
 			$args = array(
-				'tax_query' => array( array(
-					'taxonomy' => $tax_key,
-					'terms'    => $user_key . bbp_get_user_id( $args, false, false ),
-					'field'    => 'slug'
-				) )
+				'tax_query' => array(
+					array(
+						'taxonomy' => $tax_key,
+						'terms'    => $user_key . bbp_get_user_id( $args, false, false ),
+						'field'    => 'slug'
+					)
+				)
 			);
 		}
 
 		// Default arguments
 		$defaults = array(
-			'tax_query' => array( array(
-				'taxonomy' => $tax_key,
-				'terms'    => $user_key . bbp_get_displayed_user_id(),
-				'field'    => 'slug'
-			) )
+			'tax_query' => array(
+				array(
+					'taxonomy' => $tax_key,
+					'terms'    => $user_key . bbp_get_displayed_user_id(),
+					'field'    => 'slug'
+				)
+			)
 		);
 
 		// Parse arguments

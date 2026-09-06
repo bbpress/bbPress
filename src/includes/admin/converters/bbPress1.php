@@ -142,22 +142,22 @@ class bbPress1 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Forum Subscriptions Section ***************************************/
@@ -661,7 +661,7 @@ class bbPress1 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == 1 ) {
+		if ( 1 === (int) $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';

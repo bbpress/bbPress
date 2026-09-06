@@ -35,14 +35,19 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 	public function __construct( $args = array() ) {
 
 		// Parse arguments
-		$args = bbp_parse_args( $args, array(
-			'singular' => 'reply',
-			'plural'   => 'replies',
-			'ajax'     => false
-		), 'topic_replies_list_table' );
+		$args = bbp_parse_args(
+			$args,
+			array(
+				'singular' => 'reply',
+				'plural'   => 'replies',
+				'ajax'     => false
+			),
+			'topic_replies_list_table'
+		);
 
 		// Construct the list table
-		parent::__construct( $args );	}
+		parent::__construct( $args );
+	}
 
 	/**
 	 * Setup the list-table columns
@@ -214,17 +219,19 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		}
 
 		// Query for replies
-		$reply_query  = new WP_Query( array(
-			'post_type'           => bbp_get_reply_post_type(),
-			'post_status'         => $statuses,
-			'post_parent'         => $topic_id,
-			'posts_per_page'      => $per_page,
-			'paged'               => $current_page,
-			'orderby'             => $orderby,
-			'order'               => ucwords( $order ),
-			'hierarchical'        => false,
-			'ignore_sticky_posts' => true
-		) );
+		$reply_query  = new WP_Query(
+			array(
+				'post_type'           => bbp_get_reply_post_type(),
+				'post_status'         => $statuses,
+				'post_parent'         => $topic_id,
+				'posts_per_page'      => $per_page,
+				'paged'               => $current_page,
+				'orderby'             => $orderby,
+				'order'               => ucwords( $order ),
+				'hierarchical'        => false,
+				'ignore_sticky_posts' => true
+			)
+		);
 
 		// Get the total number of replies, for pagination
 		$total_items = bbp_get_topic_reply_count( $topic_id );
@@ -233,11 +240,13 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 		$this->items = $reply_query->posts;
 
 		// Set the pagination arguments
-		$this->set_pagination_args( array(
-			'total_items' => $total_items,
-			'per_page'    => $per_page,
-			'total_pages' => ceil( $total_items / $per_page )
-		) );
+		$this->set_pagination_args(
+			array(
+				'total_items' => $total_items,
+				'per_page'    => $per_page,
+				'total_pages' => ceil( $total_items / $per_page )
+			)
+		);
 	}
 
 	/**
@@ -330,10 +339,10 @@ class BBP_Topic_Replies_List_Table extends WP_List_Table {
 
 		// Hierarchy
 		if ( ! empty( $item->post_parent ) ) {
-		    $count    = count( get_post_ancestors( $item->ID ) );
-		    $classes .= ' level-'. $count;
+			$count    = count( get_post_ancestors( $item->ID ) );
+			$classes .= ' level-'. $count;
 		} else {
-		    $classes .= ' level-0';
+			$classes .= ' level-0';
 		} ?>
 
 		<tr id="post-<?php echo esc_attr( $item->ID ); ?>" class="<?php echo implode( ' ', get_post_class( $classes, $item->ID ) ); ?>">

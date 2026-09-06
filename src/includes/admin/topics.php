@@ -114,53 +114,61 @@ class BBP_Topics_Admin {
 	public function edit_help() {
 
 		// Overview
-		get_current_screen()->add_help_tab( array(
-			'id'		=> 'overview',
-			'title'		=> __( 'Overview', 'bbpress' ),
-			'content'	=>
-				'<p>' . __( 'This screen displays the individual topics on your site. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'overview',
+				'title'   => __( 'Overview', 'bbpress' ),
+				'content' =>
+					'<p>' . __( 'This screen displays the individual topics on your site. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
+			)
+		);
 
 		// Screen Content
-		get_current_screen()->add_help_tab( array(
-			'id'		=> 'screen-content',
-			'title'		=> __( 'Screen Content', 'bbpress' ),
-			'content'	=>
-				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
-				'<ul>' .
-					'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                               'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, Draft, Pending, Trashed, Closed, or Spam  topics. The default view is to show all topics.', 'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can view topics in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                    'bbpress' ) . '</li>' .
-					'<li>' . __( 'You can refine the list to show only topics in a specific forum or from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection.',                 'bbpress' ) . '</li>' .
-				'</ul>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'screen-content',
+				'title'   => __( 'Screen Content', 'bbpress' ),
+				'content' =>
+					'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:', 'bbpress' ) . '</p>' .
+					'<ul>' .
+						'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                               'bbpress' ) . '</li>' .
+						'<li>' . __( 'You can filter the list of topics by topic status using the text links in the upper left to show All, Published, Draft, Pending, Trashed, Closed, or Spam  topics. The default view is to show all topics.', 'bbpress' ) . '</li>' .
+						'<li>' . __( 'You can view topics in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                    'bbpress' ) . '</li>' .
+						'<li>' . __( 'You can refine the list to show only topics in a specific forum or from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection.',                 'bbpress' ) . '</li>' .
+					'</ul>'
+			)
+		);
 
 		// Available Actions
-		get_current_screen()->add_help_tab( array(
-			'id'		=> 'action-links',
-			'title'		=> __( 'Available Actions', 'bbpress' ),
-			'content'	=>
-				'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
-				'<ul>' .
-					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                            'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.', 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                                        'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the ability to post new replies to it.',                                  'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                              'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                  'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>View</strong> will take you to your live site to view the topic.',                                                                                        'bbpress' ) . '</li>' .
-				'</ul>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'action-links',
+				'title'   => __( 'Available Actions', 'bbpress' ),
+				'content' =>
+					'<p>' . __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
+					'<ul>' .
+						'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                            'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Stick</strong> will keep the selected topic &#8217;pinned&#8217; to the top the parent forum topic list.',                                                'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected topic &#8217;pinned&#8217; to the top of ALL forums and be visable in any forums topics list.', 'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Approve</strong> will change the status from pending to publish.',                                                                                        'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Close</strong> will mark the selected topic as &#8217;closed&#8217; and disable the ability to post new replies to it.',                                  'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                              'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                  'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>View</strong> will take you to your live site to view the topic.',                                                                                        'bbpress' ) . '</li>' .
+					'</ul>'
+			)
+		);
 
 		// Bulk Actions
-		get_current_screen()->add_help_tab( array(
-			'id'		=> 'bulk-actions',
-			'title'		=> __( 'Bulk Actions', 'bbpress' ),
-			'content'	=>
-				'<p>' . __( 'You can also edit, spam, or move multiple topics to the trash at once. Select the topics you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
-				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected topics at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'bulk-actions',
+				'title'   => __( 'Bulk Actions', 'bbpress' ),
+				'content' =>
+					'<p>' . __( 'You can also edit, spam, or move multiple topics to the trash at once. Select the topics you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
+					'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected topics at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
+			)
+		);
 
 		// Help Sidebar
 		get_current_screen()->set_help_sidebar(
@@ -179,19 +187,23 @@ class BBP_Topics_Admin {
 
 		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		get_current_screen()->add_help_tab( array(
-			'id'      => 'customize-display',
-			'title'   => __( 'Customizing This Display', 'bbpress' ),
-			'content' => $customize_display,
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'customize-display',
+				'title'   => __( 'Customizing This Display', 'bbpress' ),
+				'content' => $customize_display,
+			)
+		);
 
-		get_current_screen()->add_help_tab( array(
-			'id'      => 'title-topic-editor',
-			'title'   => __( 'Title and Topic Editor', 'bbpress' ),
-			'content' =>
-				'<p>' . __( '<strong>Title</strong> - Enter a title for your topic. After you enter a title, you&#8217;ll see the permalink below, which you can edit.', 'bbpress' ) . '</p>' .
-				'<p>' . __( '<strong>Topic Editor</strong> - Enter the text for your topic. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The HTML mode allows you to enter raw HTML along with your topic text. You can insert media files by clicking the icons above the topic editor and following the directions. You can go to the distraction-free writing screen via the Fullscreen icon in Visual mode (second to last in the top row) or the Fullscreen button in HTML mode (last in the row). Once there, you can make buttons visible by hovering over the top area. Exit Fullscreen back to the regular topic editor.', 'bbpress' ) . '</p>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'title-topic-editor',
+				'title'   => __( 'Title and Topic Editor', 'bbpress' ),
+				'content' =>
+					'<p>' . __( '<strong>Title</strong> - Enter a title for your topic. After you enter a title, you&#8217;ll see the permalink below, which you can edit.', 'bbpress' ) . '</p>' .
+					'<p>' . __( '<strong>Topic Editor</strong> - Enter the text for your topic. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The HTML mode allows you to enter raw HTML along with your topic text. You can insert media files by clicking the icons above the topic editor and following the directions. You can go to the distraction-free writing screen via the Fullscreen icon in Visual mode (second to last in the top row) or the Fullscreen button in HTML mode (last in the row). Once there, you can make buttons visible by hovering over the top area. Exit Fullscreen back to the regular topic editor.', 'bbpress' ) . '</p>'
+			)
+		);
 
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your topic in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a topic or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a topic to be published in the future or backdate a topic.', 'bbpress' ) . '</p>';
 
@@ -199,22 +211,26 @@ class BBP_Topics_Admin {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
 
-		get_current_screen()->add_help_tab( array(
-			'id'      => 'topic-attributes',
-			'title'   => __( 'Topic Attributes', 'bbpress' ),
-			'content' =>
-				'<p>' . __( 'Select the attributes that your topic should have:', 'bbpress' ) . '</p>' .
-				'<ul>' .
-					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default "No forum" to post the topic without an assigned forum.', 'bbpress' ) . '</li>' .
-					'<li>' . __( '<strong>Topic Type</strong> dropdown indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' ) . '</li>' .
-				'</ul>'
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'topic-attributes',
+				'title'   => __( 'Topic Attributes', 'bbpress' ),
+				'content' =>
+					'<p>' . __( 'Select the attributes that your topic should have:', 'bbpress' ) . '</p>' .
+					'<ul>' .
+						'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default "No forum" to post the topic without an assigned forum.', 'bbpress' ) . '</li>' .
+						'<li>' . __( '<strong>Topic Type</strong> dropdown indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' ) . '</li>' .
+					'</ul>'
+			)
+		);
 
-		get_current_screen()->add_help_tab( array(
-			'id'      => 'publish-box',
-			'title'   => __( 'Publish Box', 'bbpress' ),
-			'content' => $publish_box,
-		) );
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'publish-box',
+				'title'   => __( 'Publish Box', 'bbpress' ),
+				'content' => $publish_box,
+			)
+		);
 
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
@@ -253,9 +269,11 @@ class BBP_Topics_Admin {
 	 * @param array $bulk_counts   Array of item counts for each message, used to build internationalized strings.
 	 */
 	public function bulk_post_updated_messages( $bulk_messages, $bulk_counts ) {
+		/* translators: %s: Number of topics */
 		$bulk_messages['topic']['updated'] = _n( '%s topic updated.', '%s topics updated.', $bulk_counts['updated'], 'bbpress' );
 		$bulk_messages['topic']['locked']  = ( 1 === $bulk_counts['locked'] )
 			? __( '1 topic not updated, somebody is editing it.', 'bbpress' )
+			/* translators: %s: Number of topics */
 			: _n( '%s topic not updated, somebody is editing it.', '%s topics not updated, somebody is editing them.', $bulk_counts['locked'], 'bbpress' );
 
 		return $bulk_messages;
@@ -292,14 +310,17 @@ class BBP_Topics_Admin {
 					wp_die( esc_html__( 'Error in spamming topic.', 'bbpress' ) );
 				}
 
-				$updated++;
+				++$updated;
 			}
 
-			$sendback = add_query_arg( array(
-				'updated' => $updated,
-				'ids'     => implode( ',', $post_ids ),
-				'locked'  => $locked
-			), $sendback );
+			$sendback = add_query_arg(
+				array(
+					'updated' => $updated,
+					'ids'     => implode( ',', $post_ids ),
+					'locked'  => $locked
+				),
+				$sendback
+			);
 
 		} elseif ( 'unspam' === $doaction ) {
 
@@ -317,14 +338,17 @@ class BBP_Topics_Admin {
 					wp_die( esc_html__( 'Error in unspamming topic.', 'bbpress' ) );
 				}
 
-				$updated++;
+				++$updated;
 			}
 
-			$sendback = add_query_arg( array(
-				'updated' => $updated,
-				'ids'     => implode( ',', $post_ids ),
-				'locked'  => $locked
-			), $sendback );
+			$sendback = add_query_arg(
+				array(
+					'updated' => $updated,
+					'ids'     => implode( ',', $post_ids ),
+					'locked'  => $locked
+				),
+				$sendback
+			);
 		}
 
 		return $sendback;
@@ -538,7 +562,7 @@ class BBP_Topics_Admin {
 		// Get topic author data
 		$anonymous_data = bbp_filter_anonymous_post_data();
 		$author_id      = bbp_get_topic_author_id( $topic_id );
-		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( $_POST['hidden_post_status'] !== 'draft' ) );
+		$is_edit        = ( isset( $_POST['hidden_post_status'] ) && ( 'draft' !== $_POST['hidden_post_status'] ) );
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id, $anonymous_data, $author_id, $is_edit );
@@ -618,16 +642,16 @@ class BBP_Topics_Admin {
 				check_admin_referer( 'stick-topic_' . $topic_id );
 
 				$is_sticky = bbp_is_topic_sticky( $topic_id );
-				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( "1" === $_GET['super'] )
+				$is_super  = ( false === $is_sticky ) && ! empty( $_GET['super'] ) && ( '1' === $_GET['super'] )
 					? true
 					: false;
-				$message   = ( true  === $is_sticky )
+				$message   = ( true === $is_sticky )
 					? 'unstuck'
 					: 'stuck';
-				$message   = ( true  === $is_super )
+				$message   = ( true === $is_super )
 					? 'super_sticky'
 					: $message;
-				$success   = ( true  === $is_sticky )
+				$success   = ( true === $is_sticky )
 					? bbp_unstick_topic( $topic_id )
 					: bbp_stick_topic( $topic_id, $is_super );
 
@@ -692,7 +716,7 @@ class BBP_Topics_Admin {
 
 		// Bail if no topic_id or notice
 		$topic_id = bbp_get_topic_id( $_GET['topic_id'] );
-		if (  empty( $topic_id ) ) {
+		if ( empty( $topic_id ) ) {
 			return;
 		}
 
@@ -709,63 +733,81 @@ class BBP_Topics_Admin {
 		// Which notice?
 		switch ( $notice ) {
 			case 'opened'    :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully opened.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'closed'    :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully closed.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'super_sticky' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck to front.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'stuck'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem sticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully stuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'unstuck' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure  )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem unsticking the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unstuck.',               'bbpress' ), $topic_title );
 				break;
 
 			case 'spammed'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully marked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unspammed' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unmarked as spam.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'approved'   :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem approving the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully approved.',             'bbpress' ), $topic_title );
 				break;
 
 			case 'unapproved' :
-				$message = ( $is_failure === true )
+				$message = ( true === $is_failure )
+					/* translators: %1$s: Topic title */
 					? sprintf( esc_html__( 'There was a problem unapproving the topic "%1$s".', 'bbpress' ), $topic_title )
+					/* translators: %1$s: Topic title */
 					: sprintf( esc_html__( 'Topic "%1$s" successfully unapproved.',             'bbpress' ), $topic_title );
 				break;
 		}
 
 		// Do additional topic toggle notice filters (admin side)
 		$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic_id, $notice, $is_failure );
-		$class   = ( $is_failure === true )
+		$class   = ( true === $is_failure )
 			? 'error'
 			: 'updated';
 
@@ -783,19 +825,22 @@ class BBP_Topics_Admin {
 	private function get_row_action_sort_order() {
 
 		// Filter & return
-		return (array) apply_filters( 'bbp_admin_topics_row_action_sort_order', array(
-			'edit',
-			'stick',
-			'approved',
-			'unapproved',
-			'closed',
-			'spam',
-			'unspam',
-			'trash',
-			'untrash',
-			'delete',
-			'view'
-		) );
+		return (array) apply_filters(
+			'bbp_admin_topics_row_action_sort_order',
+			array(
+				'edit',
+				'stick',
+				'approved',
+				'unapproved',
+				'closed',
+				'spam',
+				'unspam',
+				'trash',
+				'untrash',
+				'delete',
+				'view'
+			)
+		);
 	}
 
 	/**
@@ -808,17 +853,20 @@ class BBP_Topics_Admin {
 	private function get_allowed_notice_toggles() {
 
 		// Filter & return
-		return (array) apply_filters( 'bbp_admin_topics_allowed_notice_toggles', array(
-			'opened',
-			'closed',
-			'super_sticky',
-			'stuck',
-			'unstuck',
-			'spammed',
-			'unspammed',
-			'approved',
-			'unapproved'
-		) );
+		return (array) apply_filters(
+			'bbp_admin_topics_allowed_notice_toggles',
+			array(
+				'opened',
+				'closed',
+				'super_sticky',
+				'stuck',
+				'unstuck',
+				'spammed',
+				'unspammed',
+				'approved',
+				'unapproved'
+			)
+		);
 	}
 
 	/**
@@ -831,12 +879,15 @@ class BBP_Topics_Admin {
 	private function get_allowed_action_toggles() {
 
 		// Filter & return
-		return (array) apply_filters( 'bbp_admin_topics_allowed_action_toggles', array(
-			'bbp_toggle_topic_close',
-			'bbp_toggle_topic_stick',
-			'bbp_toggle_topic_spam',
-			'bbp_toggle_topic_approve'
-		) );
+		return (array) apply_filters(
+			'bbp_admin_topics_allowed_action_toggles',
+			array(
+				'bbp_toggle_topic_close',
+				'bbp_toggle_topic_stick',
+				'bbp_toggle_topic_spam',
+				'bbp_toggle_topic_approve'
+			)
+		);
 	}
 
 	/**
@@ -972,6 +1023,7 @@ class BBP_Topics_Admin {
 
 		// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 		if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() === $topic->post_status ) && current_user_can( 'view_trash' ) ) {
+			/* translators: %s: Topic title */
 			$actions['view'] = '<a href="' . esc_url( $view_link ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 		}
 
@@ -980,7 +1032,11 @@ class BBP_Topics_Admin {
 
 			// Pending
 			// Show the 'approve' and 'view' link on pending posts only and 'unapprove' on published posts only
-			$approve_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_approve' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
+			$args = array(
+				'topic_id' => $topic->ID,
+				'action'   => 'bbp_toggle_topic_approve'
+			);
+			$approve_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'approve-topic_' . $topic->ID );
 			if ( bbp_is_topic_public( $topic->ID ) ) {
 				$actions['unapproved'] = '<a href="' . esc_url( $approve_uri ) . '" title="' . esc_attr__( 'Unapprove this topic', 'bbpress' ) . '">' . _x( 'Unapprove', 'Unapprove Topic', 'bbpress' ) . '</a>';
 			} else {
@@ -991,13 +1047,18 @@ class BBP_Topics_Admin {
 				}
 
 				// Modify the view link
+				/* translators: %s: Topic title */
 				$actions['view'] = '<a href="' . esc_url( $view_link   ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . esc_html__( 'View', 'bbpress' ) . '</a>';
 			}
 
 			// Close
 			// Show the 'close' and 'open' link on published and closed posts only
 			if ( bbp_is_topic_public( $topic->ID ) ) {
-				$close_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID );
+				$args = array(
+					'topic_id' => $topic->ID,
+					'action'   => 'bbp_toggle_topic_close'
+				);
+				$close_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID );
 				if ( bbp_is_topic_open( $topic->ID ) ) {
 					$actions['closed'] = '<a href="' . esc_url( $close_uri ) . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . _x( 'Close', 'Close a Topic', 'bbpress' ) . '</a>';
 				} else {
@@ -1008,17 +1069,30 @@ class BBP_Topics_Admin {
 			// Sticky
 			// Dont show sticky if topic is spam, trash or pending
 			if ( ! bbp_is_topic_spam( $topic->ID ) && ! bbp_is_topic_trash( $topic->ID ) && ! bbp_is_topic_pending( $topic->ID ) ) {
-				$stick_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+				$args = array(
+					'topic_id' => $topic->ID,
+					'action'   => 'bbp_toggle_topic_stick'
+				);
+				$stick_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 				if ( bbp_is_topic_sticky( $topic->ID ) ) {
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . esc_html__( 'Unstick', 'bbpress' ) . '</a>';
 				} else {
-					$super_uri        = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
+					$args = array(
+						'topic_id' => $topic->ID,
+						'action'   => 'bbp_toggle_topic_stick',
+						'super'    => '1'
+					);
+					$super_uri        = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID );
 					$actions['stick'] = '<a href="' . esc_url( $stick_uri ) . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . esc_html__( 'Stick', 'bbpress' ) . '</a> <a href="' . esc_url( $super_uri ) . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . esc_html__( '(to front)', 'bbpress' ) . '</a>';
 				}
 			}
 
 			// Spam
-			$spam_uri = wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
+			$args = array(
+				'topic_id' => $topic->ID,
+				'action'   => 'bbp_toggle_topic_spam'
+			);
+			$spam_uri = wp_nonce_url( add_query_arg( $args, remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID );
 			if ( ! bbp_is_topic_spam( $topic->ID ) ) {
 				$actions['spam'] = '<a href="' . esc_url( $spam_uri ) . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . esc_html__( 'Spam',     'bbpress' ) . '</a>';
 			} else {
@@ -1032,13 +1106,13 @@ class BBP_Topics_Admin {
 
 			if ( bbp_get_trash_status_id() === $topic->post_status ) {
 				$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . "</a>";
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'bbpress' ) . "' href='" . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ), 'untrash-post_' . $topic->ID ) ) . "'>" . esc_html__( 'Restore', 'bbpress' ) . '</a>';
 			} elseif ( ! empty( $trash_days ) ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . "</a>";
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID ) ) . "'>" . esc_html__( 'Trash', 'bbpress' ) . '</a>';
 			}
 
 			if ( ( bbp_get_trash_status_id() === $topic->post_status ) || empty( $trash_days ) ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . "</a>";
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'bbpress' ) . "' href='" . esc_url( get_delete_post_link( $topic->ID, '', true ) ) . "'>" . esc_html__( 'Delete Permanently', 'bbpress' ) . '</a>';
 			}
 		}
 
@@ -1090,10 +1164,12 @@ class BBP_Topics_Admin {
 			: 0;
 
 		// Show the forums dropdown
-		bbp_dropdown( array(
-			'selected'  => $selected,
-			'show_none' => esc_html__( 'In all forums', 'bbpress' )
-		) );
+		bbp_dropdown(
+			array(
+				'selected'  => $selected,
+				'show_none' => esc_html__( 'In all forums', 'bbpress' )
+			)
+		);
 	}
 
 	/**
@@ -1132,7 +1208,7 @@ class BBP_Topics_Admin {
 	 * @param array $query_vars Query variables from {@link WP_Query}
 	 * @return array Processed Query Vars
 	 */
-	function filter_post_rows( $query_vars ) {
+	public function filter_post_rows( $query_vars ) {
 
 		// Add post_parent query_var if one is present
 		if ( ! empty( $_GET['bbp_forum_id'] ) ) {
@@ -1167,10 +1243,10 @@ class BBP_Topics_Admin {
 
 		// Messages array
 		$messages[ $this->post_type ] = array(
-			0 =>  '', // Left empty on purpose
+			0 => '', // Left empty on purpose
 
 			// Updated
-			1 =>  sprintf(
+			1 => sprintf(
 				'%1$s <a href="%2$s">%3$s</a>',
 				esc_html__( 'Topic updated.', 'bbpress' ),
 				$topic_url,
@@ -1187,8 +1263,9 @@ class BBP_Topics_Admin {
 			4 => esc_html__( 'Topic updated.', 'bbpress' ),
 
 			// Restored from revision
-			// translators: %s: date and time of the revision
+			/* translators: %s: date and time of the revision */
 			5 => isset( $_GET['revision'] )
+					/* translators: %s: Date and time of the revision */
 					? sprintf( esc_html__( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
 					: false,
 
@@ -1215,8 +1292,8 @@ class BBP_Topics_Admin {
 			9 => sprintf(
 				'%1$s <a target="_blank" href="%2$s">%3$s</a>',
 				sprintf(
+					/* translators: Publish box date format, see http://php.net/date */
 					esc_html__( 'Topic scheduled for: %s.', 'bbpress' ),
-					// translators: Publish box date format, see http://php.net/date
 					'<strong>' . date_i18n( __( 'M j, Y @ G:i', 'bbpress' ), strtotime( $post_date ) ) . '</strong>'
 				),
 				$topic_url,

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Search 
+ * Search
  *
  * @package bbPress
  * @subpackage Theme

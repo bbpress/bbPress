@@ -104,25 +104,52 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 			),
 		) );
 
+		// Before topic is spammed
+		$last_reply_id = bbp_get_forum_last_reply_id( $f );
+		$this->assertSame( $r[1], $last_reply_id );
+
+		$last_active_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r[1], $last_active_id );
+
+		$last_active_time = bbp_get_forum_last_active_time( $f );
+		$this->assertSame( $reply_time, $last_active_time );
+
+		$count = bbp_get_topic_reply_count( $t, true, true );
+		$this->assertSame( 2, $count );
+
+		$count = bbp_get_topic_reply_count_hidden( $t, true, true );
+		$this->assertSame( 0, $count );
+
+		$last_reply_id = bbp_get_forum_last_reply_id( $f );
+		$this->assertSame( $r[1], $last_reply_id );
+
+		$last_active_id = bbp_get_forum_last_active_id( $f );
+		$this->assertSame( $r[1], $last_active_id );
+
+		$last_active_time = bbp_get_forum_last_active_time( $f );
+		$this->assertSame( $reply_time, $last_active_time );
+
+		// Do the spamming
 		bbp_spam_topic( $t );
 
+		// After topic is spammed
 		$count = bbp_get_forum_topic_count( $f, false, true );
 		$this->assertSame( 0, $count );
 
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_reply_count( $f, false, true );
 		$this->assertSame( 0, $count );
 
 		$last_topic_id = bbp_get_forum_last_topic_id( $f );
-		$this->assertSame( $t, $last_topic_id );
+		$this->assertSame( 0, $last_topic_id );
 
 		$last_reply_id = bbp_get_forum_last_reply_id( $f );
-		$this->assertSame( $t, $last_reply_id );
+		$this->assertSame( 0, $last_reply_id );
 
 		$last_active_id = bbp_get_forum_last_active_id( $f );
-		$this->assertSame( $t, $last_active_id );
+		$this->assertSame( 0, $last_active_id );
 
 		$last_active_time = bbp_get_forum_last_active_time( $f );
 		$this->assertSame( $topic_time, $last_active_time );
@@ -270,7 +297,7 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count( $f, false, true );
 		$this->assertSame( 1, $count );
 
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
 
 		$count = bbp_get_forum_reply_count( $f, false, true );

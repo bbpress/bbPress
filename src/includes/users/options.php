@@ -20,11 +20,14 @@ defined( 'ABSPATH' ) || exit;
 function bbp_get_default_user_options() {
 
 	// Filter & return
-	return (array) apply_filters( 'bbp_get_default_user_options', array(
-		'_bbp_last_posted' => '0', // For checking flooding
-		'_bbp_topic_count' => '0', // Total topics per site
-		'_bbp_reply_count' => '0'  // Total replies per site
-	) );
+	return (array) apply_filters(
+		'bbp_get_default_user_options',
+		array(
+			'_bbp_last_posted' => '0', // For checking flooding
+			'_bbp_topic_count' => '0', // Total topics per site
+			'_bbp_reply_count' => '0'  // Total replies per site
+		)
+	);
 }
 
 /**

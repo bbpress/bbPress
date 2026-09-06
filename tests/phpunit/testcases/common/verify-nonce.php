@@ -10,7 +10,7 @@ class BBP_Tests_Common_Functions_BBPVerifyNonceRequest extends BBP_UnitTestCase 
 	private $server_port = '';
 	private $request_uri = '';
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
@@ -26,7 +26,7 @@ class BBP_Tests_Common_Functions_BBPVerifyNonceRequest extends BBP_UnitTestCase 
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 			$_SERVER['HTTP_HOST'] = $this->http_host;
 
 			$_SERVER['SERVER_PORT'] = $this->server_port;

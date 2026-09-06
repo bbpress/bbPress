@@ -27,7 +27,7 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 	 */
 	private $theme_root;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->original_theme             = get_stylesheet();
@@ -38,7 +38,7 @@ class BBP_Tests_Core_Theme_Compat extends BBP_UnitTestCase {
 		wp_clean_themes_cache();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		bbp_restore_all_filters( 'the_content' );
 		bbp_set_theme_compat_active( false );
 		bbp_set_template_included( false );

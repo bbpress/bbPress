@@ -251,13 +251,18 @@ class BBP_Admin {
 		if ( ( 'bbp-upgrade' !== $page ) && bbp_get_pending_upgrades() && current_user_can( 'bbp_tools_upgrade_page' ) ) {
 
 			// Link to upgrade page
-			$upgrade_url  = add_query_arg( array( 'page' => 'bbp-upgrade', 'status' => 'pending' ), admin_url( 'tools.php' ) );
+			$args = array(
+				'page'   => 'bbp-upgrade',
+				'status' => 'pending'
+			);
+			$upgrade_url  = add_query_arg( $args, admin_url( 'tools.php' ) );
 			$dismiss_url  = wp_nonce_url( add_query_arg( array( 'bbp-hide-notice' => 'bbp-skip-upgrades' ) ), 'bbp-hide-notice' );
 			$upgrade_link = '<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Learn More',   'bbpress' ) . '</a>';
 			$dismiss_link = '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Hide For Now', 'bbpress' ) . '</a>';
 			$bbp_dashicon = '<span class="bbpress-logo-icon"></span>';
 			$message      = $bbp_dashicon . sprintf(
-				esc_html__( 'bbPress requires a manual database upgrade. %s or %s.', 'bbpress' ),
+				/* translators: 1: "Learn More" link, 2: "Hide For Now" link */
+				esc_html__( 'bbPress requires a manual database upgrade. %1$s or %2$s.', 'bbpress' ),
 				$upgrade_link,
 				$dismiss_link
 			);
@@ -342,11 +347,11 @@ class BBP_Admin {
 		// One message as string
 		if ( is_string( $message ) ) {
 			$message       = '<p>' . $this->esc_notice( $message ) . '</p>';
-			$default_class ='updated';
+			$default_class = 'updated';
 
 		// Messages as objects
 		} elseif ( is_wp_error( $message ) ) {
-			$errors  = $message->get_error_messages();
+			$errors = $message->get_error_messages();
 
 			switch ( count( $errors ) ) {
 				case 0:
@@ -438,7 +443,9 @@ class BBP_Admin {
 			$found = array_search( 'tools.php', $menu_item, true );
 
 			if ( false !== $found ) {
-				$menu[ $menu_index ][ 0 ] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][ 0 ] );
+
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][0] = bbp_maybe_append_pending_upgrade_count( $menu[ $menu_index ][0] );
 				continue;
 			}
 		}
@@ -856,7 +863,11 @@ class BBP_Admin {
 			esc_html_x( 'Mint', 'admin color scheme', 'bbpress' ),
 			$this->styles_url . 'mint/colors' . $suffix . '.css',
 			array( '#4f6d59', '#33834e', '#5FB37C', '#81c498' ),
-			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+			array(
+				'base'    => '#f1f3f2',
+				'focus'   => '#fff',
+				'current' => '#fff'
+			)
 		);
 
 		// Evergreen
@@ -865,7 +876,11 @@ class BBP_Admin {
 			esc_html_x( 'Evergreen', 'admin color scheme', 'bbpress' ),
 			$this->styles_url . 'evergreen/colors' . $suffix . '.css',
 			array( '#324d3a', '#446950', '#56b274', '#324d3a' ),
-			array( 'base' => '#f1f3f2', 'focus' => '#fff', 'current' => '#fff' )
+			array(
+				'base'    => '#f1f3f2',
+				'focus'   => '#fff',
+				'current' => '#fff'
+			)
 		);
 	}
 
@@ -884,9 +899,11 @@ class BBP_Admin {
 		$suffix  = bbp_doing_script_debug() ? '' : '.min';
 
 		// Get the version to use for JS
-		$version = bbp_get_asset_version();
+		$version = bbp_get_asset_version(
+		);
 
 		// Header JS
+		// phpcs:disable
 		wp_register_script( 'bbp-admin-common-js',  $this->js_url . 'common'    . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );
 		wp_register_script( 'bbp-admin-topics-js',  $this->js_url . 'topics'    . $suffix . '.js', array( 'jquery'                         ), $version );
 		wp_register_script( 'bbp-admin-replies-js', $this->js_url . 'replies'   . $suffix . '.js', array( 'jquery', 'suggest'              ), $version );

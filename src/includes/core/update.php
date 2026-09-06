@@ -63,12 +63,12 @@ function bbp_is_activation( $basename = '' ) {
 	}
 
 	// Bail if not activating
-	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected', true ) ) ) {
+	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected' ), true ) ) {
 		return false;
 	}
 
 	// The plugin(s) being activated
-	if ( $action === 'activate' ) {
+	if ( 'activate' === $action ) {
 		$plugins = isset( $_GET['plugin'] ) ? array( $_GET['plugin'] ) : array();
 	} else {
 		$plugins = isset( $_POST['checked'] ) ? (array) $_POST['checked'] : array();
@@ -118,7 +118,7 @@ function bbp_is_deactivation( $basename = '' ) {
 	}
 
 	// The plugin(s) being deactivated
-	if ( $action === 'deactivate' ) {
+	if ( 'deactivate' === $action ) {
 		$plugins = isset( $_GET['plugin'] ) ? array( $_GET['plugin'] ) : array();
 	} else {
 		$plugins = isset( $_POST['checked'] ) ? (array) $_POST['checked'] : array();
@@ -200,36 +200,44 @@ function bbp_create_initial_content( $args = array() ) {
 	$user_id = get_current_user_id();
 
 	// Parse arguments against default values
-	$r = bbp_parse_args( $args, array(
-		'forum_author'  => $user_id,
-		'forum_parent'  => 0,
-		'forum_status'  => 'publish',
-		'forum_title'   => esc_html__( 'General',            'bbpress' ),
-		'forum_content' => esc_html__( 'General Discussion', 'bbpress' ),
+	$r = bbp_parse_args(
+		$args,
+		array(
+			'forum_author'  => $user_id,
+			'forum_parent'  => 0,
+			'forum_status'  => 'publish',
+			'forum_title'   => esc_html__( 'General',            'bbpress' ),
+			'forum_content' => esc_html__( 'General Discussion', 'bbpress' ),
 
-		'topic_author'  => $user_id,
-		'topic_title'   => esc_html__( 'Hello World!',                                  'bbpress' ),
-		'topic_content' => esc_html__( 'This is the very first topic in these forums.', 'bbpress' ),
+			'topic_author'  => $user_id,
+			'topic_title'   => esc_html__( 'Hello World!',                                  'bbpress' ),
+			'topic_content' => esc_html__( 'This is the very first topic in these forums.', 'bbpress' ),
 
-		'reply_author'  => $user_id,
-		'reply_content' => esc_html__( 'And this is the very first reply.', 'bbpress' ),
-	), 'create_initial_content' );
+			'reply_author'  => $user_id,
+			'reply_content' => esc_html__( 'And this is the very first reply.', 'bbpress' ),
+		),
+		'create_initial_content'
+	);
 
 	// Use the same time for each post
+	// phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date
 	$current_time = time();
 	$forum_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 80 );
 	$topic_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 60 );
 	$reply_time   = date( 'Y-m-d H:i:s', $current_time - 60 * 60 * 40 );
+	// phpcs:enable
 
 	// Create the initial forum
-	$forum_id = bbp_insert_forum( array(
-		'post_author'  => $r['forum_author'],
-		'post_parent'  => $r['forum_parent'],
-		'post_status'  => $r['forum_status'],
-		'post_title'   => $r['forum_title'],
-		'post_content' => $r['forum_content'],
-		'post_date'    => $forum_time
-	) );
+	$forum_id = bbp_insert_forum(
+		array(
+			'post_author'  => $r['forum_author'],
+			'post_parent'  => $r['forum_parent'],
+			'post_status'  => $r['forum_status'],
+			'post_title'   => $r['forum_title'],
+			'post_content' => $r['forum_content'],
+			'post_date'    => $forum_time
+		)
+	);
 
 	// Create the initial topic
 	$topic_id = bbp_insert_topic(
@@ -286,6 +294,7 @@ function bbp_version_updater() {
 		/** 2.0 Branch ********************************************************/
 
 		// 2.0, 2.0.1, 2.0.2, 2.0.3
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 		if ( $raw_db_version < 200 ) {
 			// No changes
 		}
@@ -318,6 +327,7 @@ function bbp_version_updater() {
 		/** 2.3 Branch ********************************************************/
 
 		// 2.3.x
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 		if ( $raw_db_version < 230 ) {
 			// No changes
 		}
@@ -325,6 +335,7 @@ function bbp_version_updater() {
 		/** 2.4 Branch ********************************************************/
 
 		// 2.4.x
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 		if ( $raw_db_version < 240 ) {
 			// No changes
 		}
@@ -332,6 +343,7 @@ function bbp_version_updater() {
 		/** 2.5 Branch ********************************************************/
 
 		// 2.5.x
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 		if ( $raw_db_version < 250 ) {
 			// No changes
 		}

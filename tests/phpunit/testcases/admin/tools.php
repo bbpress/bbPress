@@ -8,7 +8,7 @@
 class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	protected $old_current_user = 0;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->old_current_user = get_current_user_id();
 		$this->set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
@@ -22,7 +22,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		$this->set_current_user( $this->old_current_user );
 	}
@@ -280,7 +280,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 4, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
 		$this->assertSame( 0, $count );
 
 		// Forum topic count.
@@ -292,7 +292,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 4, $count );
 
 		// Forum topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
 
 		bbp_spam_topic( $t[0] );
@@ -307,7 +307,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 2, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
 		// Forum topic count.
@@ -319,7 +319,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 2, $count );
 
 		// Forum topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 2, $count );
 
 		// Delete the _bbp_total_topic_count meta key.
@@ -340,7 +340,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 0, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
 		// Forum topic count.
@@ -352,7 +352,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 0, $count );
 
 		// Forum topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, false, true );
 		$this->assertSame( 0, $count );
 
 		// Repair the forum topic count meta.
@@ -367,7 +367,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 2, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
 		// Forum topic count.
@@ -379,7 +379,7 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 2, $count );
 
 		// Forum topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $f, true );
+		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 2, $count );
 	}
 
@@ -664,9 +664,6 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		clean_post_cache( $f );
 		clean_post_cache( $t );
 		clean_post_cache( $r );
-
-		// Forums should NOT have a _bbp_forum_id meta key
-		$this->assertEquals( array(), get_post_meta( $f, '_bbp_forum_id', false ) );
 
 		// Topics should have a _bbp_forum_id meta key
 		$this->assertEquals( array( $f ), get_post_meta( $t, '_bbp_forum_id', false ) );

@@ -139,22 +139,22 @@ class e107v1 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date('Y-m-d H:i:s')
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Topic Section *****************************************************/
@@ -479,7 +479,11 @@ class e107v1 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array( 'hash' => $field, 'salt' => $row['salt'] );
+		$pass_array = array(
+			'hash' => $field,
+			'salt' => $row['salt']
+		);
+
 		return $pass_array;
 	}
 
@@ -490,10 +494,13 @@ class e107v1 extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1
+			)
+		);
 
 		// Bail if missing values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
@@ -514,7 +521,7 @@ class e107v1 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == 0 ) {
+		if ( empty( $status ) ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';
@@ -591,22 +598,24 @@ class e107v1 extends BBP_Converter_Base {
 		$field = preg_replace( '/(\d+?)+\.[\S\s]+/', '$1', $field );
 
 		if ( ! isset( $this->map_userid[ $field ] ) ) {
+
+			// phpcs:disable
 			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT value_id, meta_value FROM {$this->sync_table_name} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			} else {
 				$row = $this->wpdb->get_row( $this->wpdb->prepare( "SELECT user_id AS value_id FROM {$this->wpdb->usermeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1", '_bbp_old_user_id', $field ) );
 			}
+			// phpcs:enable
 
 			if ( ! is_null( $row ) ) {
 				$this->map_userid[ $field ] = $row->value_id;
+			} elseif ( true === $this->convert_users ) {
+				$this->map_userid[ $field ] = 0;
 			} else {
-				if ( true === $this->convert_users ) {
-					$this->map_userid[ $field ] = 0;
-				} else {
-					$this->map_userid[ $field ] = $field;
-				}
+				$this->map_userid[ $field ] = $field;
 			}
 		}
+
 		return $this->map_userid[ $field ];
 	}
 
@@ -627,7 +636,7 @@ class e107v1 extends BBP_Converter_Base {
 		// Replace '[quote$1=$2]' with '<em>$2 wrote:</em><blockquote>"
 		$e107v1_markup = preg_replace( '/\[quote(.*?)=(.*?)\]/', '<em>@$2 wrote:</em><blockquote>', $e107v1_markup );
 		// Replace '[/quote$1]' with '</blockquote>"
-		$e107v1_markup = preg_replace( '/\[\/quote(.*?)\]/' ,    '</blockquote>',                   $e107v1_markup );
+		$e107v1_markup = preg_replace( '/\[\/quote(.*?)\]/',     '</blockquote>',                   $e107v1_markup );
 
 		// Remove '[justify]'
 		$e107v1_markup = preg_replace( '/\[justify\]/',   '', $e107v1_markup );

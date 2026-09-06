@@ -1,57 +1,175 @@
-# Contributing to bbPress 2.6
+# Contributing to bbPress
 
-Use [bbPress Trac](https://bbpress.trac.wordpress.org/) for bugs, patches, and
-maintenance-release scope. Follow [SECURITY.md](SECURITY.md) for private security
-reports. GitHub pull requests are review surfaces; accepted changes land in
-canonical Subversion.
+Thank you for helping improve forum software for WordPress.
 
-## Check out and build
+## Choose the right channel
 
-Install Node.js 24, npm, PHP with mbstring, WP-CLI with its i18n command, and
-Subversion. These are development tools; they do not change the plugin's runtime
-requirements. Use a separate working copy for the maintenance branch:
+- Use [bbPress Trac](https://bbpress.trac.wordpress.org/) for reproducible bugs,
+  enhancements, patches, and development discussion.
+- Use the [support forums](https://bbpress.org/forums/) for installation,
+  configuration, compatibility, and troubleshooting questions.
+- Use [Translate WordPress](https://translate.wordpress.org/projects/wp-plugins/bbpress/)
+  for translations.
+- Follow [SECURITY.md](SECURITY.md) for vulnerabilities. Never disclose a
+  vulnerability in Trac, GitHub, or a public forum.
+
+Search existing Trac tickets before opening a new one. A useful report includes
+the affected bbPress, WordPress, and PHP versions; precise reproduction steps;
+the expected result; the actual result; and any relevant multisite, theme,
+plugin, role, or permission context.
+
+## Understand the repository model
+
+[Canonical Subversion](https://bbpress.svn.wordpress.org/) is the source of
+truth. GitHub is a mirror used for code review and CI. Trac is the authoritative
+issue tracker.
+
+GitHub pull requests are welcome when they make review or automated testing
+easier, but they must reference a Trac ticket. An accepted change is committed
+to canonical Subversion and then arrives back on GitHub through the mirror. Do
+not expect a pull request to be merged directly into the GitHub `trunk` branch.
+
+Plugin SVN is only for built WordPress.org release packages. Never develop
+against it or copy its generated contents into canonical source.
+
+## Development setup
+
+Install PHP, Composer, Node.js, npm, Subversion, and Docker, and start Docker.
+Check out the canonical 2.6 branch into a directory named `bbPress` so the environment
+commands below match the plugin directory:
 
 ```sh
-svn checkout https://bbpress.svn.wordpress.org/branches/2.6 bbPress-2.6
-cd bbPress-2.6
-npm ci
-php tests/ci/check-versions.php
-npx grunt release
-svn status
+svn checkout https://bbpress.svn.wordpress.org/branches/2.6 bbPress
+cd bbPress
 ```
 
-If you use nvm, run `nvm install` and `nvm use` before installing dependencies.
-The build generates `build/`, including CSS, JavaScript, and the translation
-template. Do not edit or commit that output to canonical source. Inspect source
-changes after building; PostCSS can update source CSS.
+Use Node.js 24, as recommended by `.nvmrc` and CI. If you use nvm, run
+`nvm install` followed by `nvm use`. The older minimum in `package.json` is not
+the recommended version for the current development tools.
 
-## Verify the package
+Install dependencies and start the repository’s WordPress environment:
 
-Install the resulting package in a disposable WordPress site. Activate bbPress
-and a compatible classic theme, create a forum, topic, and reply, check the
-counts, and verify the front end. The Build and Smoke Test workflow performs
-these checks against an installed ZIP and uploads the ZIP only after success.
+```sh
+composer install
+npm ci
+npm run wp-env start
+```
 
-The legacy PHPUnit suite remains under `tests/phpunit/` and requires a compatible
-WordPress test installation. This branch does not provide Composer dependencies,
-wp-env, or `npm run test-php`; trunk's setup commands do not apply here. Record
-the test environment and any coverage gaps with the patch.
+Open the development URL printed by `wp-env` (normally `http://localhost:8888`).
+Sign in at `/wp-admin/` using the local defaults `admin` and `password`. These
+credentials are for the disposable development site only. Verify activation:
 
-## Prepare a backport
+```sh
+npm run wp-env -- run cli wp plugin is-active bbPress
+```
 
-Normally fix and test the issue on trunk first, then prepare an intentional
-backport for 2.6. Identify the Trac ticket, originating changeset, compatibility
-impact, and intended maintenance release. Preserve public hooks and runtime
-compatibility. Do not edit existing release tags or change versions as part of
-routine tooling work.
+For an initial front-end check, activate a classic theme:
 
-Review the complete diff and proposed commit message before requesting a
-canonical commit. Use unwrapped explanatory paragraphs and applicable `Props`,
-`Fixes`, `See`, and `Merges` trailers following branch history.
+```sh
+npm run wp-env -- run cli wp theme install twentytwentyone --activate
+```
+
+In the dashboard, create a published forum under **Forums → Add New**, then
+use **View Forum** to verify its title and topic form appear. Stay signed in as
+the administrator for this first check. The test environment is separate from
+this development site; run a focused forum test there:
+
+```sh
+npm run test-php -- --filter test_bbp_get_forum_author_id
+```
+
+Stop the containers when finished; this preserves the local site:
+
+```sh
+npm run wp-env stop
+```
+
+The plugin’s authoritative runtime source is under `src/`. Root `bbpress.php`
+is a development loader, and `build/` is generated release output.
+
+Read the [Contributor and Agent Handbook](AGENTS.md) before changing code. It
+contains the detailed repository map, compatibility rules, test expectations,
+canonical commit workflow, and release procedure.
+
+## Make a focused change
+
+1. Create or select a Trac ticket and confirm its target milestone.
+2. Reproduce the problem with the smallest deterministic case available.
+3. Change the narrowest reasonable surface while preserving public hooks,
+   filters, return shapes, and capability behavior.
+4. Add a regression test when practical. If a test is not feasible, document
+   precise manual verification steps.
+5. Add a concise entry under `Unreleased` in [CHANGELOG.md](CHANGELOG.md) for a
+   notable user-visible change. Do not disclose embargoed security details.
+6. Run the focused test, then the applicable broader checks.
+7. Review the complete diff for generated churn, credentials, debug output,
+   unrelated formatting, and accidental version changes.
+8. Attach a patch to Trac or open a linked GitHub pull request for review.
+
+New features normally target `trunk`. Fixes intended for a supported patch
+release need an intentional, separately reviewed maintenance-branch backport.
+Do not edit release tags.
 
 The deployment workflow is maintained on trunk. A future 2.6 source tag must
-include the compatible build tools and version checks before that workflow can
-build it. Existing release tags remain immutable.
+contain the compatible build tools and version checks before that workflow can
+build it.
 
-By contributing, you agree to license your work under the
+## Test your work
+
+Run the main PHP suite inside the development environment:
+
+```sh
+npm run test-php
+```
+
+Run checks appropriate to the changed files:
+
+```sh
+composer lint
+npx grunt eslint:grunt eslint:core
+npx grunt stylelint
+npx grunt checktextdomain
+php tests/ci/check-versions.php
+```
+
+Build or release-tooling changes also require a release build and an installed
+package smoke test:
+
+```sh
+npx grunt release
+```
+
+The GitHub Actions workflows under `.github/workflows/` define the current CI
+matrix. A green build is required, but it does not replace review of security,
+permissions, compatibility, extension points, or data changes.
+
+## Patches and pull requests
+
+Keep each contribution small enough to understand and revert. Include:
+
+- the Trac ticket URL and intended milestone;
+- the user-visible outcome and why the change is needed;
+- compatibility or extension-point considerations;
+- automated tests added or changed;
+- exact commands run and manual verification performed;
+- screenshots for visible interface changes;
+- anything important that remains untested.
+
+Do not include generated release packages, local configuration, credentials,
+private vulnerability details, or unrelated cleanup.
+
+AI-assisted contributions are welcome, but the contributor remains responsible
+for understanding the change, reviewing every line, testing it, and disclosing
+security issues privately.
+
+## Coding and attribution
+
+Follow the [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/)
+and the repository’s `phpcs.xml.dist`. Preserve the `bbpress` text domain and
+regenerate the POT when translatable strings change.
+
+Contributors receive props in canonical commit history. Use the WordPress.org
+username by which you want to be credited on the Trac ticket.
+
+By contributing, you agree that your contribution is licensed under the
 [GNU General Public License version 2 or later](LICENSE).

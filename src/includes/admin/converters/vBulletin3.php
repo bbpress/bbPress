@@ -139,22 +139,22 @@ class vBulletin3 extends BBP_Converter_Base {
 		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date',
-			'default'      => date( 'Y-m-d H:i:s' )
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_date_gmt',
-			'default'      => date( 'Y-m-d H:i:s' )
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified',
-			'default'      => date( 'Y-m-d H:i:s' )
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'to_type'      => 'forum',
 			'to_fieldname' => 'post_modified_gmt',
-			'default'      => date( 'Y-m-d H:i:s' )
+			'default'      => date( 'Y-m-d H:i:s' ) // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		);
 
 		/** Forum Subscriptions Section ***************************************/
@@ -509,7 +509,7 @@ class vBulletin3 extends BBP_Converter_Base {
 			'to_fieldname'    => 'post_modified',
 			'callback_method' => 'callback_datetime'
 		);
-		$this->field_map[]	 = array(
+		$this->field_map[] = array(
 			'from_tablename'  => 'post',
 			'from_fieldname'  => 'dateline',
 			'to_type'         => 'reply',
@@ -640,7 +640,11 @@ class vBulletin3 extends BBP_Converter_Base {
 	 * as one value. Array values are auto sanitized by WordPress.
 	 */
 	public function callback_savepass( $field, $row ) {
-		$pass_array = array( 'hash'	 => $field, 'salt'	 => $row['salt'] );
+		$pass_array = array(
+			'hash' => $field,
+			'salt' => $row['salt']
+		);
+
 		return $pass_array;
 	}
 
@@ -656,10 +660,13 @@ class vBulletin3 extends BBP_Converter_Base {
 	public function authenticate_pass( $password, $serialized_pass ) {
 
 		// Unserialize the password, with safeguards
-		$pass_array = unserialize( $serialized_pass, array(
-			'allowed_classes' => false,
-			'max_depth'       => 1
-		) );
+		$pass_array = unserialize(
+			$serialized_pass,
+			array(
+				'allowed_classes' => false,
+				'max_depth'       => 1
+			)
+		);
 
 		// Bail if missing values
 		if ( ! is_array( $pass_array ) || ! isset( $pass_array['hash'], $pass_array['salt'] ) ) {
@@ -680,7 +687,7 @@ class vBulletin3 extends BBP_Converter_Base {
 	 * @return string WordPress safe
 	 */
 	public function callback_forum_type( $status = 0 ) {
-		if ( $status == -1 ) {
+		if ( -1 === (int) $status ) {
 			$status = 'category';
 		} else {
 			$status = 'forum';
@@ -751,7 +758,7 @@ class vBulletin3 extends BBP_Converter_Base {
 		// Replace '[QUOTE]' with '<blockquote>'
 		$vbulletin_markup = preg_replace( '/\[QUOTE\]/', '<blockquote>', $vbulletin_markup );
 		// Replace '[QUOTE=User Name($1);PostID($2)]' with '<em>@$1 $2 wrote:</em><blockquote>"
-		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/' , '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
+		$vbulletin_markup = preg_replace( '/\[QUOTE=(.*?);(.*?)\]/', '<em>@$1 $2 wrote:</em><blockquote>', $vbulletin_markup );
 		// Replace '[/QUOTE]' with '</blockquote>'
 		$vbulletin_markup = preg_replace( '/\[\/QUOTE\]/', '</blockquote>', $vbulletin_markup );
 		// Replace '[MENTION=###($1)]User Name($2)[/MENTION]' with '@$2"
