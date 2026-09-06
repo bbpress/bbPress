@@ -13,8 +13,54 @@ a WordPress plugin. Earlier standalone releases are preserved in the
 Development for the next bbPress release is in progress. See the active
 [Trac milestones](https://bbpress.trac.wordpress.org/roadmap) for planned work.
 
+### Added
+
+- Added 17 editor blocks for forum and topic indexes, forms, search, login,
+  registration, password recovery, statistics, tags, views, forums, topics,
+  and replies.
+- Added Block Theme support while continuing to use bbPress PHP templates for
+  classic and hybrid themes.
+- Added user-role CSS classes to topic and reply author details.
+- Added post-state labels for Pages used as forum and topic archives.
+- Added hooks after bbPress administration classes load and dedicated hooks
+  for canonical redirects.
+- Added contributor, security, support, governance, and repository guidance.
+
+### Changed
+
+- Raised the minimum requirements to WordPress 6.0 and PHP 7.2.
+- Kept the classic editor for forums, topics, and replies while making bbPress
+  blocks available in Posts and Pages.
+- Shortened new-content labels and administration metabox titles.
+- Removed WordPress "Private" and "Protected" prefixes from bbPress content
+  titles.
+- Improved Akismet history descriptions when moderators override spam results.
+- Updated the development and release workflow with wp-env, GitHub Actions,
+  WP-CLI translation generation, installed-package smoke tests, and guarded
+  WordPress.org deployment preparation.
+
+### Security
+
+- Prevented users from creating or moving forums, topics, and replies into
+  parent content they cannot read.
+
 ### Fixed
 
+- Restored the Forums administration menu for moderators.
+- Used the selected WordPress Page title for topic archives.
+- Prevented duplicate forum-root breadcrumbs on archive subpages.
+- Applied filtered topic permalinks in subscriptions and topic pagination.
+- Prevented anonymous topics from incorrectly appearing empty.
+- Respected filtered Keymaster checks in administration user suggestions.
+- Scoped registered forum, topic, and reply metadata to the correct post type.
+- Counted multibyte title characters correctly and improved UTF-8 display-name
+  handling on modern WordPress and PHP versions.
+- Prevented warnings when building BuddyPress member URLs and when bbPress
+  runtime data is accessed before initialization.
+- Prevented PHP warnings when building logout URLs without expected server
+  variables.
+- Prevented PHP deprecation notices in Akismet history and reply-position
+  calculations.
 - Prevented BuddyPress integration from loading bbPress translations before
   WordPress initialization.
 
