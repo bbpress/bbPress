@@ -15,6 +15,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Added
 
+- Added a populated WordPress Playground preview for the Plugin Directory.
 - Added 17 editor blocks for forum and topic indexes, forms, search, login,
   registration, password recovery, statistics, tags, views, forums, topics,
   and replies.

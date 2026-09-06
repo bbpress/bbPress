@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-	echo "Usage: $0 CANDIDATE_DIR PLUGIN_SVN_WORKING_COPY VERSION SERIES" >&2
+	echo "Usage: $0 CANDIDATE_DIR PLUGIN_SVN_WORKING_COPY VERSION SERIES BLUEPRINT_FILE" >&2
 	exit 2
 }
 
@@ -12,23 +12,27 @@ fail() {
 	exit 1
 }
 
-[[ $# -eq 4 ]] || usage
+[[ $# -eq 5 ]] || usage
 
 candidate_dir="$1"
 working_copy="$2"
 version="$3"
 series="$4"
+blueprint_file="$5"
 
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Version must use the x.y.z format."
 [[ "$series" =~ ^[0-9]+\.[0-9]+$ ]] || fail "Series must use the x.y format."
 [[ "$version" == "$series".* ]] || fail "Version $version does not belong to series $series."
+[[ -f "$blueprint_file" ]] || fail "Blueprint file is not available."
 
 candidate_dir="$(cd "$candidate_dir" && pwd -P)"
 working_copy="$(cd "$working_copy" && pwd -P)"
+blueprint_file="$(cd "$(dirname "$blueprint_file")" && pwd -P)/$(basename "$blueprint_file")"
 
 [[ "$candidate_dir" != "/" ]] || fail "Candidate directory cannot be the filesystem root."
 [[ "$working_copy" != "/" ]] || fail "Working copy cannot be the filesystem root."
 [[ -d "$working_copy/.svn" ]] || fail "$working_copy is not a Subversion working copy."
+python3 -m json.tool "$blueprint_file" >/dev/null || fail "Blueprint is not valid JSON."
 
 case "$candidate_dir/" in "$working_copy/"*) fail "Candidate cannot be inside the working copy." ;; esac
 case "$working_copy/" in "$candidate_dir/"*) fail "Working copy cannot be inside the candidate." ;; esac
@@ -54,9 +58,11 @@ grep -Eq "^Stable tag:[[:space:]]+$escaped_version$" "$candidate_dir/readme.txt"
 trunk="$working_copy/trunk"
 branch="$working_copy/branches/$series"
 tag="$working_copy/tags/$version"
+assets="$working_copy/assets"
 
 [[ -d "$trunk" ]] || fail "Plugin SVN trunk is not available."
 [[ -d "$branch" ]] || fail "Plugin SVN branch $series is not available."
+[[ -d "$assets" ]] || fail "Plugin SVN assets are not available."
 [[ ! -e "$tag" ]] || fail "Plugin SVN tag $version already exists."
 
 svn list --xml "$expected_url/tags" | python3 -c '
@@ -66,7 +72,7 @@ if any(entry.findtext("name") == sys.argv[1] for entry in ET.parse(sys.stdin).fi
 ' "$version"
 
 # Require complete, unswitched deployment trees before synchronizing files.
-for target in "$trunk" "$branch"; do
+for target in "$trunk" "$branch" "$assets"; do
 	[[ "$(svn info --show-item url "$target")" == "$expected_url/${target#"$working_copy/"}" ]] || fail "Unexpected deployment target URL."
 	[[ "$(svn info --show-item depth "$target")" == "infinity" ]] || fail "Deployment target is sparse."
 	svn info --xml --depth infinity "$target" | python3 -c '
@@ -96,8 +102,13 @@ sync_tree "$trunk"
 sync_tree "$branch"
 svn copy "$branch" "$tag" >/dev/null
 
+mkdir -p "$assets/blueprints"
+cp "$blueprint_file" "$assets/blueprints/blueprint.json"
+svn add --force --parents "$assets/blueprints/blueprint.json" >/dev/null
+
 diff -qr --exclude=.svn "$candidate_dir" "$trunk" >/dev/null || fail "Staged trunk differs from the candidate."
 diff -qr --exclude=.svn "$candidate_dir" "$branch" >/dev/null || fail "Staged branch differs from the candidate."
 diff -qr --exclude=.svn "$candidate_dir" "$tag" >/dev/null || fail "Staged tag differs from the candidate."
+cmp "$blueprint_file" "$assets/blueprints/blueprint.json" >/dev/null || fail "Staged blueprint differs from canonical source."
 
 ( cd "$working_copy" && svn status && svn diff )

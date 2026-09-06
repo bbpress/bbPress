@@ -1,0 +1,43 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/forums/forum/bbpress-playground/",
+	"preferredVersions": {
+		"php": "8.0",
+		"wp": "latest"
+	},
+	"login": true,
+	"steps": [
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "bbPress Playground",
+				"blogdescription": "A temporary forum for trying bbPress",
+				"permalink_structure": "/%postname%/"
+			}
+		},
+		{
+			"step": "installTheme",
+			"themeData": {
+				"resource": "wordpress.org/themes",
+				"slug": "twentytwentyone"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "bbpress"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nwp_set_current_user( 1 );\n\n$forum_id = bbp_insert_forum( array(\n\t'post_title'   => 'bbPress Playground',\n\t'post_name'    => 'bbpress-playground',\n\t'post_content' => 'This temporary forum is yours to explore. Open the sample topic below, or create a topic of your own.',\n) );\n\n$topic_id = bbp_insert_topic( array(\n\t'post_parent'  => $forum_id,\n\t'post_title'   => 'Welcome to bbPress',\n\t'post_content' => 'This sample topic was created by the bbPress Playground preview. Try replying below.',\n), array(\n\t'forum_id' => $forum_id,\n) );\n\n$reply_id = bbp_insert_reply( array(\n\t'post_parent'  => $topic_id,\n\t'post_title'   => 'Re: Welcome to bbPress',\n\t'post_content' => 'Everything in this site is temporary, so feel free to experiment.',\n), array(\n\t'forum_id' => $forum_id,\n\t'topic_id' => $topic_id,\n) );\n\nif ( empty( $forum_id ) || empty( $topic_id ) || empty( $reply_id ) ) {\n\tthrow new RuntimeException( 'Unable to create the bbPress Playground content.' );\n}\n\nif ( 1 !== bbp_get_forum_topic_count( $forum_id, true, true ) || 1 !== bbp_get_topic_reply_count( $topic_id, true ) ) {\n\tthrow new RuntimeException( 'The bbPress Playground content counts are incorrect.' );\n}\n\nflush_rewrite_rules();"
+		}
+	]
+}

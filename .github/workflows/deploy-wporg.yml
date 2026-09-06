@@ -133,6 +133,7 @@ jobs:
           test -f build/readme.txt
           test -s build/bbpress.pot
           test ! -e build/.github
+          test ! -e build/.wordpress-org
           test ! -e build/Gruntfile.js
           test ! -e build/package.json
           test ! -e build/tests
@@ -155,12 +156,24 @@ jobs:
           sha256sum bbpress.zip > bbpress.zip.sha256
           echo "checksum=$(cut -d ' ' -f 1 bbpress.zip.sha256)" >> "$GITHUB_OUTPUT"
 
+      - name: Prepare Playground blueprint
+        run: |
+          set -euo pipefail
+          python3 -m json.tool source/.wordpress-org/blueprints/blueprint.json >/dev/null
+          cp source/.wordpress-org/blueprints/blueprint.json dist/blueprint.json
+
       - name: Smoke-test the candidate ZIP
         env:
           BBPRESS_SMOKE_DB_PASSWORD: root
         run: |
           set -euo pipefail
           automation/bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
+
+      - name: Test the Playground blueprint
+        run: |
+          set -euo pipefail
+          python3 source/tests/ci/prepare-playground-blueprint.py dist/blueprint.json dist/bbpress.zip "$RUNNER_TEMP/bbpress-playground"
+          npx --yes @wp-playground/cli@3.1.52 run-blueprint --blueprint="$RUNNER_TEMP/bbpress-playground/blueprint.json" --blueprint-may-read-adjacent-files
 
       - name: Stage prospective Plugin SVN deployment
         env:
@@ -174,8 +187,9 @@ jobs:
           svn update --set-depth immediates plugin-svn/branches
           svn update --set-depth infinity "plugin-svn/branches/$SERIES"
           svn update --set-depth immediates plugin-svn/tags
-          automation/bin/prepare-plugin-svn-release.sh dist/bbpress plugin-svn "$VERSION" "$SERIES" | tee dist/plugin-svn-status.txt
-          printf 'bbPress: deploy %s to branch, trunk, and tag.\n' "$VERSION" > dist/deployment-message.txt
+          svn update --set-depth infinity plugin-svn/assets
+          automation/bin/prepare-plugin-svn-release.sh dist/bbpress plugin-svn "$VERSION" "$SERIES" dist/blueprint.json | tee dist/plugin-svn-status.txt
+          printf 'bbPress: deploy %s and its Playground preview.\n' "$VERSION" > dist/deployment-message.txt
           printf 'Source: https://bbpress.svn.wordpress.org/tags/%s@%s\n' "$VERSION" "$SOURCE_REVISION" > dist/source.txt
 
       - name: Upload release evidence
@@ -185,6 +199,7 @@ jobs:
           path: |
             dist/bbpress.zip
             dist/bbpress.zip.sha256
+            dist/blueprint.json
             dist/plugin-svn-status.txt
             dist/smoke-test.txt
             dist/source.txt
@@ -225,6 +240,7 @@ jobs:
           test "$(cut -d ' ' -f 1 bbpress.zip.sha256)" = "$EXPECTED_CHECKSUM"
           unzip -q bbpress.zip
           test -s smoke-test.txt
+          python3 -m json.tool blueprint.json >/dev/null
 
       - name: Stage Plugin SVN deployment
         env:
@@ -237,7 +253,8 @@ jobs:
           svn update --set-depth immediates plugin-svn/branches
           svn update --set-depth infinity "plugin-svn/branches/$SERIES"
           svn update --set-depth immediates plugin-svn/tags
-          automation/bin/prepare-plugin-svn-release.sh candidate/bbpress plugin-svn "$VERSION" "$SERIES"
+          svn update --set-depth infinity plugin-svn/assets
+          automation/bin/prepare-plugin-svn-release.sh candidate/bbpress plugin-svn "$VERSION" "$SERIES" candidate/blueprint.json
 
       - name: Commit Plugin SVN deployment
         env:
@@ -265,6 +282,8 @@ jobs:
             svn export -r "$DEPLOYMENT_REVISION" "https://plugins.svn.wordpress.org/bbpress/$target@$DEPLOYMENT_REVISION" "$RUNNER_TEMP/verified-${target//\//-}"
             diff -qr candidate/bbpress "$RUNNER_TEMP/verified-${target//\//-}"
           done
+          svn cat "https://plugins.svn.wordpress.org/bbpress/assets/blueprints/blueprint.json@$DEPLOYMENT_REVISION" > "$RUNNER_TEMP/verified-blueprint.json"
+          cmp candidate/blueprint.json "$RUNNER_TEMP/verified-blueprint.json"
 
       - name: Verify public package propagation
         env:

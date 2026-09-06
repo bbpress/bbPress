@@ -74,6 +74,7 @@ jobs:
           test -f build/bbpress.php
           test -f build/readme.txt
           test -s build/bbpress.pot
+          test ! -e build/.wordpress-org
           test ! -e build/Gruntfile.js
           test ! -e build/package.json
           test ! -e build/tests
@@ -95,6 +96,12 @@ jobs:
         run: |
           set -euo pipefail
           bin/smoke-test-plugin.sh dist/bbpress.zip "$RUNNER_TEMP/wordpress" | tee dist/smoke-test.txt
+
+      - name: Test the Playground blueprint
+        run: |
+          set -euo pipefail
+          python3 tests/ci/prepare-playground-blueprint.py .wordpress-org/blueprints/blueprint.json dist/bbpress.zip "$RUNNER_TEMP/bbpress-playground"
+          npx --yes @wp-playground/cli@3.1.52 run-blueprint --blueprint="$RUNNER_TEMP/bbpress-playground/blueprint.json" --blueprint-may-read-adjacent-files
 
       - name: Upload release ZIP
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
