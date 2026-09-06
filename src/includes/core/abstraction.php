@@ -361,11 +361,10 @@ function bbp_is_large_install() {
  * @return int Total number of users.
  */
 function bbp_get_total_users() {
-	$bbp_db = bbp_db();
-	$count  = $bbp_db->get_var( "SELECT COUNT(ID) as c FROM {$bbp_db->users} WHERE user_status = '0'" );
+	$user_counts = count_users();
 
 	// Filter & return
-	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
+	return (int) apply_filters( 'bbp_get_total_users', (int) $user_counts['total_users'] );
 }
 
 /**
