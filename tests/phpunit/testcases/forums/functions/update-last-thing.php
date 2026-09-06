@@ -175,14 +175,11 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		$r1_time_raw       = get_post_field( 'post_date', $r1 );
-		$r1_time_formatted = bbp_get_time_since( bbp_convert_date( $r1_time_raw ) );
+		$r1_time_raw = get_post_field( 'post_date', $r1 );
 
 		$time = bbp_update_forum_last_active_time( $f1, $r1_time_raw );
 		$this->assertSame( $r1_time_raw, $time );
-
-		$time = bbp_get_forum_last_active_time( $f1 );
-		$this->assertSame( $r1_time_formatted, $time );
+		$this->assertSame( $r1_time_raw, get_post_meta( $f1, '_bbp_last_active_time', true ) );
 
 		$t2 = $this->factory->topic->create( array(
 			'post_parent' => $f2,
@@ -198,15 +195,14 @@ class BBP_Tests_Forums_Functions_Update_Forum_Last_Thing extends BBP_UnitTestCas
 			),
 		) );
 
-		$r2_time_raw       = get_post_field( 'post_date', $r2 );
-		$r2_time_formatted = bbp_get_time_since( bbp_convert_date( $r2_time_raw ) );
+		$r2_time_raw = get_post_field( 'post_date', $r2 );
 
-		bbp_update_forum_last_active_time( $f2 );
-		$time = bbp_get_forum_last_active_time( $f2 );
-		$this->assertSame( $r2_time_formatted, $time );
+		$time = bbp_update_forum_last_active_time( $f2 );
+		$this->assertSame( $r2_time_raw, $time );
+		$this->assertSame( $r2_time_raw, get_post_meta( $f2, '_bbp_last_active_time', true ) );
 
-		bbp_update_forum_last_active_time( $f1 );
-		$time = bbp_get_forum_last_active_time( $f1 );
-		$this->assertSame( $r2_time_formatted, $time );
+		$time = bbp_update_forum_last_active_time( $f1 );
+		$this->assertSame( $r2_time_raw, $time );
+		$this->assertSame( $r2_time_raw, get_post_meta( $f1, '_bbp_last_active_time', true ) );
 	}
 }
