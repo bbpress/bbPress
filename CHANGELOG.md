@@ -18,6 +18,7 @@ Development for the next bbPress release is in progress. See the active
 - Added a populated WordPress Playground preview for the Plugin Directory.
 - Added Block Theme support while continuing to use bbPress PHP templates for
   classic and hybrid themes.
+- Added `bbp_post_updated` with the post ID and before/after post objects.
 
 ### Changed
 
@@ -31,6 +32,11 @@ Development for the next bbPress release is in progress. See the active
 - Prevented stale post caches during nested updates and repeated moderation.
 - Kept public, hidden, and author contribution counts accurate when topics and
   replies change moderation status or are permanently deleted.
+- Kept subforum counts accurate across public, private, hidden, trashed, moved,
+  restored, and permanently deleted forums.
+- Corrected count repair tools to clear stale metadata caches, exclude anonymous
+  authors from voice counts, honor reply-status filters, rebuild private and
+  hidden forums, and preserve similarly named metadata on other post types.
 - Prevented BuddyPress integration from loading bbPress translations before
   WordPress initialization.
 

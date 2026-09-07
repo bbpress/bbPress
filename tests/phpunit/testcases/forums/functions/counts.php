@@ -10,6 +10,29 @@
 class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
+	 * @covers ::bbp_get_countable_forum_statuses
+	 */
+	public function test_bbp_get_countable_forum_statuses() {
+		$include_private = function ( $statuses ) {
+			$statuses[] = bbp_get_private_status_id();
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_public_forum_statuses', $include_private );
+		$statuses = bbp_get_countable_forum_statuses();
+		remove_filter( 'bbp_get_public_forum_statuses', $include_private );
+
+		$this->assertSame(
+			array(
+				bbp_get_public_status_id(),
+				bbp_get_private_status_id(),
+				bbp_get_hidden_status_id()
+			),
+			$statuses
+		);
+	}
+
+	/**
 	 * Generic function to test the forum counts with a new topic
 	 *
 	 * @covers ::bbp_update_counts_on_transition_post_status
@@ -416,6 +439,7 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_forum_subforum_count
+	 * @ticket BBP2649
 	 */
 	public function test_bbp_update_forum_subforum_count() {
 		$f1 = $this->factory->forum->create();
@@ -439,6 +463,123 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 
 		$count = bbp_get_forum_subforum_count( $f1, true );
 		$this->assertSame( 3, $count );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_subforum_count
+	 * @ticket BBP2649
+	 */
+	public function test_bbp_update_forum_subforum_count_includes_supported_visibilities() {
+		$forum_id = $this->factory->forum->create();
+
+		foreach ( array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) as $status ) {
+			$subforum_id = $this->factory->forum->create( array(
+				'post_parent' => $forum_id,
+				'post_status' => $status,
+			) );
+		}
+
+		// Count the canonical hierarchy once, even if relationship meta is duplicated
+		add_post_meta( $subforum_id, '_bbp_forum_id', $forum_id );
+
+		$trashed_id = $this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+		wp_trash_post( $trashed_id );
+
+		bbp_update_forum_subforum_count( $forum_id );
+
+		$this->assertSame( 3, bbp_get_forum_subforum_count( $forum_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_parent_forum_subforum_count
+	 * @covers ::bbp_update_forum_subforum_count_on_transition_post_status
+	 * @ticket BBP2649
+	 */
+	public function test_subforum_count_tracks_trash_restore_and_deletion() {
+		$forum_id    = $this->factory->forum->create();
+		$subforum_id = $this->factory->forum->create( array( 'post_parent' => $forum_id ) );
+
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $forum_id, true ) );
+
+		wp_trash_post( $subforum_id );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+
+		wp_untrash_post( $subforum_id );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $forum_id, true ) );
+
+		wp_update_post( array(
+			'ID'          => $subforum_id,
+			'post_status' => 'draft',
+		) );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+
+		wp_publish_post( $subforum_id );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $forum_id, true ) );
+
+		wp_delete_post( $subforum_id, true );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $forum_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_reparent_forum_subforums
+	 * @covers ::bbp_update_parent_forum_subforum_count
+	 * @ticket BBP2649
+	 */
+	public function test_deleting_forum_reparents_child_forum_metadata_and_count() {
+		$grandparent_id = $this->factory->forum->create();
+		$parent_id      = $this->factory->forum->create( array( 'post_parent' => $grandparent_id ) );
+		$child_id       = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+
+		wp_delete_post( $parent_id, true );
+
+		$this->assertSame( $grandparent_id, (int) get_post_field( 'post_parent', $child_id ) );
+		$this->assertSame( $grandparent_id, bbp_get_forum_parent_id( $child_id ) );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $grandparent_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_subforum_counts_on_post_updated
+	 * @ticket BBP2649
+	 */
+	public function test_subforum_count_tracks_parent_changes() {
+		$old_parent_id = $this->factory->forum->create();
+		$new_parent_id = $this->factory->forum->create();
+		$subforum_id   = $this->factory->forum->create( array( 'post_parent' => $old_parent_id ) );
+
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $old_parent_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $new_parent_id, true ) );
+
+		wp_update_post( array(
+			'ID'          => $subforum_id,
+			'post_parent' => $new_parent_id,
+		) );
+
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $old_parent_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $new_parent_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_forum_subforum_counts_on_post_updated
+	 * @ticket BBP2649
+	 */
+	public function test_subforum_count_tracks_post_type_changes() {
+		$parent_id   = $this->factory->forum->create();
+		$subforum_id = $this->factory->forum->create( array( 'post_parent' => $parent_id ) );
+
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $parent_id, true ) );
+
+		wp_update_post( array(
+			'ID'        => $subforum_id,
+			'post_type' => 'post',
+		) );
+		$this->assertSame( 0, bbp_get_forum_subforum_count( $parent_id, true ) );
+
+		wp_update_post( array(
+			'ID'        => $subforum_id,
+			'post_type' => bbp_get_forum_post_type(),
+		) );
+		$this->assertSame( $parent_id, bbp_get_forum_parent_id( $subforum_id ) );
+		$this->assertSame( 1, bbp_get_forum_subforum_count( $parent_id, true ) );
 	}
 
 	/**

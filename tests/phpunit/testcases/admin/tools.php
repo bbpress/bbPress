@@ -106,17 +106,33 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_reply_count
-	 * @todo   Implement test_bbp_admin_repair_topic_reply_count().
+	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_reply_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create_many( 2, array( 'post_parent' => $topic_id ) );
+		$this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_pending_status_id(),
+		) );
+		bbp_update_topic_reply_count( $topic_id, 9 );
+
+		$public_statuses = function ( $statuses ) {
+			$statuses[] = bbp_get_pending_status_id();
+			return $statuses;
+		};
+		add_filter( 'bbp_get_public_reply_statuses', $public_statuses );
+		$result = bbp_admin_repair_topic_reply_count();
+		remove_filter( 'bbp_get_public_reply_statuses', $public_statuses );
+
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( 3, bbp_get_topic_reply_count( $topic_id, true ) );
 	}
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_voice_count() {
 		$u = $this->factory->user->create_many( 2 );
@@ -151,6 +167,17 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_topic_voice_count( $t );
 		$this->assertSame( '3', $count );
 
+		$pending_user_id = $this->factory->user->create();
+		$this->factory->reply->create( array(
+			'post_author' => $pending_user_id,
+			'post_parent' => $t,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta'  => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
 		// Delete the topic _bbp_voice_count meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_voice_count' ) );
 
@@ -158,16 +185,48 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( '0', $count );
 
 		// Repair the topic voice count meta.
+		$public_statuses = function ( $statuses ) {
+			$statuses[] = bbp_get_pending_status_id();
+			return $statuses;
+		};
+		add_filter( 'bbp_get_public_reply_statuses', $public_statuses );
 		bbp_admin_repair_topic_voice_count();
-
-		clean_post_cache( $t );
+		remove_filter( 'bbp_get_public_reply_statuses', $public_statuses );
 
 		$count = bbp_get_topic_voice_count( $t );
-		$this->assertSame( '3', $count );
+		$this->assertSame( '4', $count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 */
+	public function test_bbp_admin_repair_topic_voice_count_excludes_anonymous_authors() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => 0,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		$this->factory->reply->create( array(
+			'post_author' => 0,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		bbp_admin_repair_topic_voice_count();
+
+		$this->assertSame( 0, bbp_get_topic_voice_count( $topic_id, true ) );
 	}
 
 	/**
 	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_topic_hidden_reply_count() {
 
@@ -212,9 +271,9 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$this->assertSame( 0, $count );
 
 		// Repair the topic hidden reply count meta.
+		add_filter( 'bbp_get_non_public_topic_statuses', '__return_empty_array' );
 		bbp_admin_repair_topic_hidden_reply_count();
-
-		clean_post_cache( $t );
+		remove_filter( 'bbp_get_non_public_topic_statuses', '__return_empty_array' );
 
 		$count = bbp_get_topic_reply_count_hidden( $t, true );
 		$this->assertSame( 2, $count );
@@ -510,25 +569,167 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_admin_repair_forum_topic_count
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
+	 */
+	public function test_forum_count_repairs_include_private_and_hidden_forums() {
+		$forum_ids = array();
+
+		foreach ( array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ) as $status ) {
+			$forum_id   = $this->factory->forum->create( array( 'post_status' => $status ) );
+			$forum_ids[] = $forum_id;
+			$topic_id   = $this->factory->topic->create( array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			) );
+
+			$this->factory->reply->create( array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			) );
+			$this->factory->reply->create( array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_spam_status_id(),
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			) );
+		}
+
+		bbp_admin_repair_forum_topic_count();
+		bbp_admin_repair_forum_reply_count();
+		bbp_admin_repair_forum_hidden_reply_count();
+
+		foreach ( $forum_ids as $forum_id ) {
+			$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, true, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, true, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, true, true ) );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_topic_voice_count
+	 * @covers ::bbp_admin_repair_topic_hidden_reply_count
+	 * @covers ::bbp_admin_repair_forum_topic_count
+	 * @covers ::bbp_admin_repair_forum_reply_count
+	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
+	 * @ticket BBP2586
+	 */
+	public function test_count_repairs_preserve_non_bbp_post_meta() {
+		$this->factory->forum->create();
+		$post_id  = $this->factory->post->create();
+		$reply_id = $this->factory->post->create( array(
+			'post_author' => $this->factory->user->create(),
+			'post_parent' => $post_id,
+			'post_status' => bbp_get_public_status_id(),
+			'post_type'   => bbp_get_reply_post_type(),
+		) );
+
+		update_post_meta( $reply_id, '_bbp_topic_id', $post_id );
+		$this->factory->post->create( array(
+			'post_parent' => $post_id,
+			'post_status' => bbp_get_spam_status_id(),
+			'post_type'   => bbp_get_reply_post_type(),
+		) );
+
+		$metadata = array(
+			'_bbp_reply_count_hidden'       => 4,
+			'_bbp_voice_count'              => 5,
+			'_bbp_engagement'               => 6,
+			'_bbp_total_reply_count'        => 7,
+			'_bbp_total_reply_count_hidden' => 8,
+			'_bbp_topic_count'              => 9,
+			'_bbp_total_topic_count'        => 10,
+			'_bbp_topic_count_hidden'       => 11,
+		);
+
+		foreach ( $metadata as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+
+		bbp_admin_repair_topic_voice_count();
+		bbp_admin_repair_topic_hidden_reply_count();
+		bbp_admin_repair_forum_topic_count();
+		bbp_admin_repair_forum_reply_count();
+		bbp_admin_repair_forum_hidden_reply_count();
+
+		foreach ( $metadata as $key => $value ) {
+			$this->assertSame( array( (string) $value ), get_post_meta( $post_id, $key, false ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_admin_repair_user_topic_count
-	 * @todo   Implement test_bbp_admin_repair_user_topic_count().
+	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_user_topic_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$user_id = $this->factory->user->create();
+
+		$this->factory->topic->create_many( 2, array( 'post_author' => $user_id ) );
+		$this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_status' => bbp_get_spam_status_id(),
+		) );
+		bbp_update_user_topic_count( $user_id, 9 );
+		$this->assertSame( 9, bbp_get_user_topic_count( $user_id, true ) );
+
+		$result = bbp_admin_repair_user_topic_count();
+
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( 2, bbp_get_user_topic_count( $user_id, true ) );
 	}
 
 	/**
 	 * @covers ::bbp_admin_repair_user_reply_count
-	 * @todo   Implement test_bbp_admin_repair_user_reply_count().
+	 * @ticket BBP2664
 	 */
 	public function test_bbp_admin_repair_user_reply_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$user_id = $this->factory->user->create();
+		$topic_id = $this->factory->topic->create();
+
+		$this->factory->reply->create_many( 2, array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+		) );
+		$this->factory->reply->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_spam_status_id(),
+		) );
+		bbp_update_user_reply_count( $user_id, 9 );
+		$this->assertSame( 9, bbp_get_user_reply_count( $user_id, true ) );
+
+		$result = bbp_admin_repair_user_reply_count();
+
+		$this->assertSame( 0, $result[0] );
+		$this->assertSame( 2, bbp_get_user_reply_count( $user_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_user_topic_count
+	 * @covers ::bbp_admin_repair_user_reply_count
+	 * @ticket BBP2664
+	 */
+	public function test_user_count_repairs_clear_stale_counts_without_public_posts() {
+		$user_id = $this->factory->user->create();
+
+		bbp_update_user_topic_count( $user_id, 7 );
+		bbp_update_user_reply_count( $user_id, 8 );
+		$this->assertSame( 7, bbp_get_user_topic_count( $user_id, true ) );
+		$this->assertSame( 8, bbp_get_user_reply_count( $user_id, true ) );
+
+		$topic_result = bbp_admin_repair_user_topic_count();
+		$reply_result = bbp_admin_repair_user_reply_count();
+
+		$this->assertSame( 0, $topic_result[0] );
+		$this->assertSame( 0, $reply_result[0] );
+		$this->assertSame( 0, bbp_get_user_topic_count( $user_id, true ) );
+		$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
 	}
 
 	/**

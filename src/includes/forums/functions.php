@@ -1836,18 +1836,37 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
  * Update the forum sub-forum count
  *
  * @since 2.0.0 bbPress (r2625)
+ * @since 2.6.16 Count supported forum visibilities from the post hierarchy.
  *
- * @param int $forum_id Optional. Forum id
- * @param int $subforums Optional. Number of subforums
- * @return bool True on success, false on failure
- */
+ * @param int      $forum_id Optional. Forum ID.
+ * @param int|bool $subforums Optional. Number of subforums, or false to query.
+	 * @return int|false Number of subforums, or false on query failure.
+*/
 function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Maybe query for counts
-	$subforums = ! is_int( $subforums )
-		? bbp_get_public_child_count( $forum_id, bbp_get_forum_post_type() )
-		: (int) $subforums;
+	if ( ! is_int( $subforums ) ) {
+		$bbp_db    = bbp_db();
+		$post_type = bbp_get_forum_post_type();
+		$statuses  = bbp_get_countable_forum_statuses();
+
+		if ( ! empty( $statuses ) ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+			$sql           = "SELECT COUNT(*) FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$placeholders})";
+			$query         = $bbp_db->prepare( $sql, array_merge( array( $forum_id, $post_type ), $statuses ) );
+			$subforums     = $bbp_db->get_var( $query );
+
+			// Bail if the count query failed
+			if ( ! empty( $bbp_db->last_error ) ) {
+				return false;
+			}
+
+			$subforums = bbp_number_not_negative( $subforums );
+		} else {
+			$subforums = 0;
+		}
+	}
 
 	update_post_meta( $forum_id, '_bbp_forum_subforum_count', $subforums );
 
@@ -1856,8 +1875,129 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = false ) {
 }
 
 /**
- * Adjust the total topic count of a forum
+ * Synchronize child-forum metadata after WordPress reparents deleted children.
  *
+ * @since 2.6.16
+ *
+ * @param int     $forum_id Deleted forum ID.
+ * @param WP_Post $forum    Deleted forum post object.
+ */
+function bbp_reparent_forum_subforums( $forum_id = 0, $forum = false ) {
+	$bbp_db    = bbp_db();
+	$post_type = bbp_get_forum_post_type();
+	$meta_key  = '_bbp_forum_id';
+	$sql       = "SELECT posts.ID
+		FROM {$bbp_db->posts} AS posts
+		INNER JOIN {$bbp_db->postmeta} AS postmeta
+			ON posts.ID = postmeta.post_id
+			AND postmeta.meta_key = %s
+		WHERE posts.post_type = %s
+			AND posts.post_parent = %d
+			AND postmeta.meta_value = %d";
+	$query     = $bbp_db->prepare( $sql, $meta_key, $post_type, $forum->post_parent, $forum_id );
+
+	foreach ( wp_parse_id_list( $bbp_db->get_col( $query ) ) as $subforum_id ) {
+		bbp_update_forum_id( $subforum_id, $forum->post_parent );
+	}
+}
+
+/**
+ * Update a parent forum's subforum count after a child is permanently deleted.
+ *
+ * @since 2.6.16
+ *
+ * @param int          $forum_id Forum ID.
+ * @param WP_Post|bool $forum    Optional. Forum post object.
+ * @return int|false Updated subforum count, or false if there is no parent.
+ */
+function bbp_update_parent_forum_subforum_count( $forum_id = 0, $forum = false ) {
+	$forum = ( $forum instanceof WP_Post )
+		? $forum
+		: get_post( $forum_id );
+
+	// Bail if the forum has no parent
+	if ( empty( $forum ) || empty( $forum->post_parent ) ) {
+		return false;
+	}
+
+	return bbp_update_forum_subforum_count( $forum->post_parent );
+}
+
+/**
+ * Update a parent forum's subforum count after a child changes count status.
+ *
+ * @since 2.6.16
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Old post status.
+ * @param WP_Post $forum      Forum post object.
+ * @return int|false Updated subforum count, or false when no update is needed.
+ */
+function bbp_update_forum_subforum_count_on_transition_post_status( $new_status = '', $old_status = '', $forum = false ) {
+
+	// Bail if this is not a child forum
+	if ( ( bbp_get_forum_post_type() !== $forum->post_type ) || empty( $forum->post_parent ) ) {
+		return false;
+	}
+
+	$statuses    = bbp_get_countable_forum_statuses();
+	$was_counted = in_array( $old_status, $statuses, true );
+	$is_counted  = in_array( $new_status, $statuses, true );
+
+	// Bail if subforum count membership did not change
+	if ( $was_counted === $is_counted ) {
+		return false;
+	}
+
+	return bbp_update_forum_subforum_count( $forum->post_parent );
+}
+
+/**
+ * Update subforum counts after a forum changes parent or post type.
+ *
+ * @since 2.6.16
+ *
+ * @param int     $forum_id     Forum ID.
+ * @param WP_Post $forum_after  Forum object following the update.
+ * @param WP_Post $forum_before Forum object before the update.
+ */
+function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum_after = false, $forum_before = false ) {
+	$post_type    = bbp_get_forum_post_type();
+	$parent_moved = ( $forum_after->post_parent !== $forum_before->post_parent );
+
+	// Bail if forum hierarchy membership did not change
+	if ( ! $parent_moved && ( $forum_after->post_type === $forum_before->post_type ) ) {
+		return false;
+	}
+
+	// Synchronize parent metadata when the updated post remains a forum
+	if ( ( $post_type === $forum_after->post_type ) && ( $parent_moved || ( $post_type !== $forum_before->post_type ) ) ) {
+		bbp_update_forum_id( $forum_id, $forum_after->post_parent );
+	}
+
+	$statuses    = bbp_get_countable_forum_statuses();
+	$was_counted = ( $post_type === $forum_before->post_type ) && in_array( $forum_before->post_status, $statuses, true );
+	$is_counted  = ( $post_type === $forum_after->post_type ) && in_array( $forum_after->post_status, $statuses, true );
+
+	// Include the previous parent when it formerly contained this subforum
+	$parent_ids = $was_counted
+		? array( $forum_before->post_parent )
+		: array();
+
+	// Include the new parent when it now contains this subforum
+	if ( $is_counted ) {
+		$parent_ids[] = $forum_after->post_parent;
+	}
+
+	// Recount each affected parent once
+	foreach ( array_filter( array_unique( $parent_ids ) ) as $parent_id ) {
+		bbp_update_forum_subforum_count( $parent_id );
+	}
+}
+
+/**
+ * Adjust the total topic count of a forum.
+*
  * @since 2.0.0 bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
@@ -2218,6 +2358,20 @@ function bbp_get_non_public_forum_statuses() {
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_non_public_forum_statuses', $statuses );
+}
+
+/**
+ * Return forum statuses included in forum and subforum counts.
+ *
+ * @since 2.6.16
+ *
+ * @return array
+ */
+function bbp_get_countable_forum_statuses() {
+	$statuses = array_values( array_unique( array_merge( bbp_get_public_forum_statuses(), bbp_get_non_public_forum_statuses() ) ) );
+
+	// Filter & return
+	return (array) apply_filters( 'bbp_get_countable_forum_statuses', $statuses );
 }
 
 /** Queries *******************************************************************/
@@ -2984,15 +3138,23 @@ function bbp_untrash_forum( $forum_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3668)
  * @since 2.6.0 bbPress (r6526) Not recommend for usage
+ * @since 2.6.16 Added the `$forum` parameter and passed it to the action.
+ *
+ * @param int          $forum_id Forum ID.
+ * @param WP_Post|bool $forum    Optional. Deleted forum post object.
+ * @return false|null False if the post is not a forum, otherwise null.
  */
-function bbp_deleted_forum( $forum_id = 0 ) {
+function bbp_deleted_forum( $forum_id = 0, $forum = false ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$forum    = ( $forum instanceof WP_Post )
+		? $forum
+		: get_post( $forum_id );
 
-	if ( empty( $forum_id ) || ! bbp_is_forum( $forum_id ) ) {
+	if ( empty( $forum_id ) || ! $forum || ( bbp_get_forum_post_type() !== $forum->post_type ) ) {
 		return false;
 	}
 
-	do_action( 'bbp_deleted_forum', $forum_id );
+	do_action( 'bbp_deleted_forum', $forum_id, $forum );
 }
 
 /**
