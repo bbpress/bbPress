@@ -622,6 +622,25 @@ td.bbp-topic-counts {
 	white-space: nowrap;
 }
 
+/* Keep metadata within its column while preserving single-line text. */
+#bbpress-forums p.bbp-topic-meta > span {
+	display: inline-block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
+}
+
+/* Reveal full metadata when a link receives focus. */
+#bbpress-forums p.bbp-topic-meta > span:focus-within,
+#bbpress-forums p.bbp-topic-meta > span:focus-within span {
+	white-space: normal;
+}
+
+#bbpress-forums p.bbp-topic-meta > span:focus-within {
+	overflow: visible;
+}
+
 /* =Pagination
 -------------------------------------------------------------- */
 

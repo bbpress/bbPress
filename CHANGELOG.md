@@ -47,6 +47,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Show an ellipsis for long topic metadata in the default templates, revealing
+  the full text when a link receives focus.
 - Restored the Forums administration menu for moderators.
 - Used the selected WordPress Page title for topic archives.
 - Prevented duplicate forum-root breadcrumbs on archive subpages.
