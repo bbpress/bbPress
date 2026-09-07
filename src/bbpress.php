@@ -57,7 +57,7 @@ final class bbPress {
 	/** Not Magic *************************************************************/
 
 	/**
-	 * @var mixed False when not logged in; WP_User object when logged in.
+	 * @var WP_User|false Current user object after setup; false before setup.
 	 */
 	public $current_user = false;
 
@@ -105,7 +105,7 @@ final class bbPress {
 	 *
 	 * @since 2.1.0 bbPress (r3757)
 	 *
-	 * @staticvar object $instance
+	 * @staticvar bbPress|null $instance Singleton instance, created on first use.
 	 * @see bbpress()
 	 * @return bbPress The one true bbPress.
 	 */
@@ -163,6 +163,9 @@ final class bbPress {
 	 * Magic method for checking the existence of a certain custom field.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
+	 *
+	 * @param string $key Runtime data key.
+	 * @return bool Whether the key has a non-null value.
 	 */
 	public function __isset( $key ) {
 		return isset( $this->data[ $key ] );
@@ -172,6 +175,9 @@ final class bbPress {
 	 * Magic method for getting bbPress variables.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
+	 *
+	 * @param string $key Runtime data key.
+	 * @return mixed Stored value, or null if the key is not set.
 	 */
 	public function __get( $key ) {
 		return isset( $this->data[ $key ] )
@@ -183,6 +189,9 @@ final class bbPress {
 	 * Magic method for setting bbPress variables.
 	 *
 	 * @since 2.1.0 bbPress (r3951)
+	 *
+	 * @param string $key   Runtime data key.
+	 * @param mixed  $value Value to store.
 	 */
 	public function __set( $key, $value ) {
 		$this->data[ $key ] = $value;
@@ -192,6 +201,8 @@ final class bbPress {
 	 * Magic method for unsetting bbPress variables.
 	 *
 	 * @since 2.3.0 bbPress (r4628)
+	 *
+	 * @param string $key Runtime data key to remove.
 	 */
 	public function __unset( $key ) {
 		if ( isset( $this->data[ $key ] ) ) {
@@ -203,6 +214,10 @@ final class bbPress {
 	 * Magic method to prevent notices and errors from invalid method calls.
 	 *
 	 * @since 2.2.0 bbPress (r4252)
+	 *
+	 * @param string $name Name of the inaccessible method.
+	 * @param array  $args Arguments passed to the method.
+	 * @return null
 	 */
 	public function __call( $name = '', $args = array() ) {
 		unset( $name, $args );
@@ -623,6 +638,8 @@ final class bbPress {
 	 * replies can be viewed from within the theme.
 	 *
 	 * @since 2.0.0 bbPress (r2727)
+	 *
+	 * @global stdClass[] $wp_post_statuses Registered post status objects, keyed by status name.
 	 */
 	public static function register_post_statuses() {
 
@@ -722,7 +739,7 @@ final class bbPress {
 	}
 
 	/**
-	 * Register the topic tag and forum moderator taxonomies.
+	 * Register the topic tag taxonomy.
 	 *
 	 * @since 2.0.0 bbPress (r2464) Added bbp_get_topic_tag_tax_id() taxonomy
 	 */

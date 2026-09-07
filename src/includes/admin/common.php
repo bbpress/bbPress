@@ -16,6 +16,8 @@ defined( 'ABSPATH' ) || exit;
  * Add a separator to the WordPress admin menus.
  *
  * @since 2.0.0 bbPress (r2957)
+ *
+ * @global array $menu WordPress admin menu entries.
  */
 function bbp_admin_separator() {
 
@@ -51,7 +53,7 @@ function bbp_admin_separator() {
  * @since 2.0.0 bbPress (r2957)
  *
  * @param bool $menu_order Menu order.
- * @return mixed True if separator, false if not.
+ * @return bool True when the bbPress separator is shown; otherwise the original value.
  */
 function bbp_admin_custom_menu_order( $menu_order = false ) {
 	if ( false === bbp_admin()->show_separator ) {
@@ -119,8 +121,8 @@ function bbp_admin_menu_order( $menu_order ) {
  *
  * @since 2.6.0 bbPress (r5364)
  *
- * @param string $slug
- * @return string
+ * @param string $slug Optional. Permalink slug to sanitize. Default empty.
+ * @return string Sanitized slug without leading or trailing slashes.
  */
 function bbp_sanitize_slug( $slug = '' ) {
 
@@ -156,7 +158,7 @@ function bbp_sanitize_slug( $slug = '' ) {
  *
  * @since 2.1.0 bbPress (r3765)
  *
- * @param int $site_id Site id.
+ * @param int $site_id Optional. Site ID to uninstall. Defaults to the current site.
  */
 function bbp_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) ) {
@@ -180,8 +182,8 @@ function bbp_do_uninstall( $site_id = 0 ) {
  *
  * @since 2.1.0 bbPress (r3888)
  *
- * @global string $plugin_page
- * @global array $submenu_file
+ * @global string $plugin_page  Current plugin admin page.
+ * @global string $submenu_file Submenu item to highlight.
  */
 function bbp_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;

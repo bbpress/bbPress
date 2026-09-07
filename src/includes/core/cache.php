@@ -80,10 +80,14 @@ class BBP_Skip_Children {
 	}
 
 	/**
-	 * Skip cache invalidation of related posts if the post ID being invalidated
-	 * is not the one that was just updated.
+	 * Suspend child post cache invalidation after the updated post is cleaned.
+	 *
+	 * The updated post triggers this callback first. Suspending invalidation here
+	 * prevents WordPress from clearing its children during the same update.
 	 *
 	 * @since 2.1.0 bbPress (r4011)
+	 *
+	 * @global bool $_wp_suspend_cache_invalidation Whether cache invalidation is suspended.
 	 *
 	 * @param int $post_id The post ID of the cache being invalidated.
 	 */
@@ -121,15 +125,16 @@ new BBP_Skip_Children();
 /** General *******************************************************************/
 
 /**
- * Will clean a post in the cache.
+ * Invalidate parent post caches after a bbPress post cache is cleaned.
  *
- * Will call to clean the term object cache associated with the post ID.
+ * Recurses through parent posts and updates the bbpress_posts last_changed
+ * cache value when the forum root is reached. Runs on clean_post_cache.
  *
  * @since 2.1.0 bbPress (r4040)
  * @since 2.6.0 bbPress (r6053) Introduced the `$post_id` parameter.
  *
- * @param int     $post_id The post id.
- * @param WP_Post $post    The WP_Post object.
+ * @param int     $post_id ID supplied by clean_post_cache. The post object supplies the ID used here.
+ * @param WP_Post $post    Required post object supplied by clean_post_cache.
  */
 function bbp_clean_post_cache( $post_id = null, $post = null ) {
 
