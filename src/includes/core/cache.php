@@ -18,14 +18,15 @@ defined( 'ABSPATH' ) || exit;
 /** Helpers *******************************************************************/
 
 /**
- * Skip invalidation of child post content when editing a parent.
+ * Legacy workaround to skip invalidation of child posts when editing a parent.
  *
- * This prevents invalidating caches for topics and replies when editing a forum
- * or a topic. Without this in place, WordPress will attempt to invalidate all
- * child posts whenever a parent post is modified. This can cause thousands of
- * cache invalidations to occur on a single edit, which is no good for anyone.
+ * Older WordPress versions invalidated child post caches when updating a parent,
+ * which could clear thousands of topic and reply caches during a single edit.
+ * Supported WordPress versions no longer need this workaround.
  *
  * @since 2.1.0 bbPress (r4011)
+ * @deprecated 2.7.0 WordPress no longer invalidates child post caches on update.
+ *                   Retained for compatibility; bbPress no longer instantiates it.
  *
  * @package bbPress
  * @subpackage Cache
@@ -120,7 +121,6 @@ class BBP_Skip_Children {
 		wp_suspend_cache_invalidation( $this->original_cache_invalidation );
 	}
 }
-new BBP_Skip_Children();
 
 /** General *******************************************************************/
 

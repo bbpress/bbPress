@@ -107,4 +107,20 @@ class BBP_Tests_Forums_Functions_Status extends BBP_UnitTestCase {
 			'This test has not been implemented yet.'
 		);
 	}
+
+	/**
+	 * @dataProvider restored_forum_statuses
+	 */
+	public function test_restore_preserves_forum_visibility( $status ) {
+		$forum_id = $this->factory->forum->create( array( 'post_status' => $status ) );
+		wp_trash_post( $forum_id );
+		$this->assertSame( 'trash', get_post_status( $forum_id ) );
+		wp_untrash_post( $forum_id );
+		$this->assertSame( $status, get_post_status( $forum_id ) );
+	}
+
+	public static function restored_forum_statuses() {
+		return array( array( 'publish' ), array( 'private' ), array( 'hidden' ) );
+	}
+
 }

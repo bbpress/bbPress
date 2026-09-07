@@ -58,6 +58,100 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 */
+	public function test_status_transitions_update_reply_counts_once() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_ids = $this->factory->reply->create_many( 2, array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		bbp_update_topic_reply_count( $topic_id );
+		bbp_update_topic_reply_count_hidden( $topic_id );
+		bbp_update_forum_reply_count( $forum_id );
+		bbp_update_forum_reply_count_hidden( $forum_id );
+		bbp_update_user_reply_count( $user_id, 2 );
+
+		wp_trash_post( $reply_ids[0] );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
+
+		bbp_spam_reply( $reply_ids[0] );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
+
+		bbp_unspam_reply( $reply_ids[0] );
+		wp_untrash_post( $reply_ids[0] );
+		$this->assertSame( 2, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 2, bbp_get_user_reply_count( $user_id, true ) );
+
+		bbp_unapprove_reply( $reply_ids[0] );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
+
+		bbp_spam_reply( $reply_ids[0] );
+		bbp_unspam_reply( $reply_ids[0] );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
+
+		bbp_approve_reply( $reply_ids[0] );
+		$this->assertSame( 2, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 2, bbp_get_user_reply_count( $user_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_update_reply_walker
+	 */
+	public function test_deleting_hidden_reply_recounts_hidden_totals() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		bbp_spam_reply( $reply_id );
+		wp_delete_post( $reply_id, true );
+
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_unspam_reply
 	 */
 	public function test_bbp_unspam_reply() {

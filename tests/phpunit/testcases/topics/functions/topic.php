@@ -101,13 +101,23 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_topic_walker
-	 * @todo   Implement test_bbp_update_topic_walker().
 	 */
 	public function test_bbp_update_topic_walker() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$forum_id = $this->factory->forum->create();
+		$topic_id = wp_insert_post( array(
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_public_status_id(),
+			'post_type'   => bbp_get_topic_post_type(),
+			'post_title'  => 'Topic walker',
+		) );
+		$active_time = get_post_field( 'post_date', $topic_id );
+
+		bbp_update_topic_walker( $topic_id, $active_time, $forum_id, 0, false );
+
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
 	}
 
 	/**

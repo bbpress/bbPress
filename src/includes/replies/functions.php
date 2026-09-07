@@ -1049,7 +1049,8 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 
 				// Only update reply count if we've deleted a reply
 				if ( in_array( current_filter(), array( 'bbp_deleted_reply', 'save_post' ), true ) ) {
-					bbp_update_forum_reply_count( $ancestor );
+					bbp_update_forum_reply_count(        $ancestor );
+					bbp_update_forum_reply_count_hidden( $ancestor );
 				}
 			}
 		}

@@ -248,11 +248,11 @@ class BBP_Tests_Forums_Template_Counts extends BBP_UnitTestCase {
 		$this->assertSame( $int_value, $count );
 
 		// Category topic count hidden.
-		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
+		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
 		// Category total topic count hidden.
 		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
-		$this->assertSame( 0, $count );
+		$this->assertSame( $int_value, $count );
 	}
 }
