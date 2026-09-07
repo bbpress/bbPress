@@ -256,7 +256,7 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
 /**
  * Update related counts when a topic or reply is created or changes status.
  *
- * @since 2.7.0
+ * @since 2.6.16
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.

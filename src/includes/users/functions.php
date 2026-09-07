@@ -695,7 +695,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  * Bump the topic count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.7.0 Rebuild the count when the user option is missing.
+ * @since 2.6.16 Rebuild the count when the user option is missing.
  *
  * @param int $user_id    User id.
  * @param int $difference Optional. Default 1. Number to bump.
@@ -731,7 +731,7 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  * Bump the reply count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
- * @since 2.7.0 Rebuild the count when the user option is missing.
+ * @since 2.6.16 Rebuild the count when the user option is missing.
  *
  * @param int $user_id    User id.
  * @param int $difference Optional. Default 1. Number to bump.
