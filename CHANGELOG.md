@@ -47,6 +47,9 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Cache a distinct count of current-site forum-role holders for forum statistics,
+  invalidating it when users or their capabilities change. Use the WordPress
+  installation count for large-installation upgrade decisions.
 - Show an ellipsis for long topic metadata in the default templates, revealing
   the full text when a link receives focus.
 - Restored the Forums administration menu for moderators.

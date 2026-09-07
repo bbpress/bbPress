@@ -169,3 +169,27 @@ function bbp_clean_post_cache( $post_id = null, $post = null ) {
 		wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
 	}
 }
+
+/**
+ * Invalidate cached forum-user counts across sites sharing the users table.
+ *
+ * @since 2.7.0
+ */
+function bbp_clean_user_count_cache() {
+	wp_cache_set( 'bbp_forum_users_last_changed', microtime(), 'users' );
+}
+
+/**
+ * Invalidate forum-user counts after capabilities metadata changes.
+ *
+ * @since 2.7.0
+ *
+ * @param int|array $meta_id  Metadata ID or IDs.
+ * @param int       $user_id User ID.
+ * @param string    $key     Metadata key.
+ */
+function bbp_clean_user_count_cache_on_meta_change( $meta_id, $user_id, $key ) {
+	if ( preg_match( '/(^|_)capabilities$/', $key ) ) {
+		bbp_clean_user_count_cache();
+	}
+}

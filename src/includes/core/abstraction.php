@@ -344,28 +344,81 @@ function bbp_get_major_wp_version() {
  */
 function bbp_is_large_install() {
 
-	// Multisite has a function specifically for this
+	// Preserve the network filter on multisite and use the core user threshold
 	$retval = function_exists( 'wp_is_large_network' )
 		? wp_is_large_network( 'users' )
-		: ( bbp_get_total_users() > 10000 );
+		: wp_is_large_user_count();
 
 	// Filter & return
 	return (bool) apply_filters( 'bbp_is_large_install', $retval );
 }
 
 /**
- * Get the total number of users on the forums.
+ * Get the cached installation-wide user count maintained by WordPress.
+ *
+ * On multisite, this is the network count, not the current site forum-role count.
  *
  * @since 2.0.0 bbPress (r2769)
  *
  * @return int Total number of users.
  */
 function bbp_get_total_users() {
-	$bbp_db = bbp_db();
-	$count  = $bbp_db->get_var( "SELECT COUNT(ID) as c FROM {$bbp_db->users} WHERE user_status = '0'" );
+	$count = get_user_count();
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_get_total_users', (int) $count );
+}
+
+/**
+ * Count users with a forum role on the current site.
+ *
+ * Includes blocked users and counts users with multiple forum roles only once.
+ * Role membership is matched in stored capabilities, as in count_users().
+ *
+ * @since 2.7.0
+ *
+ * @return int Total number of forum-role holders.
+ */
+function bbp_get_total_forum_users() {
+	$bbp_db = bbp_db();
+	$roles  = array_keys( bbp_get_dynamic_roles() );
+	$count  = 0;
+
+	if ( ! empty( $roles ) ) {
+		sort( $roles );
+
+		// Use the global users group so changes on other sites invalidate counts
+		$last_changed = wp_cache_get( 'bbp_forum_users_last_changed', 'users' );
+		if ( false === $last_changed ) {
+			wp_cache_add( 'bbp_forum_users_last_changed', microtime(), 'users' );
+			$last_changed = wp_cache_get( 'bbp_forum_users_last_changed', 'users' );
+		}
+
+		$meta_key  = $bbp_db->get_blog_prefix() . 'capabilities';
+		$cache_key = 'bbp_forum_users:' . md5( serialize( array( $bbp_db->users, $bbp_db->usermeta, $meta_key, $roles, $last_changed ) ) );
+		$count     = wp_cache_get( $cache_key, 'users' );
+
+		if ( false === $count ) {
+			$clauses = array();
+			foreach ( $roles as $role ) {
+				$clauses[] = $bbp_db->prepare( 'meta_value LIKE %s', '%' . $bbp_db->esc_like( '"' . $role . '"' ) . '%' );
+			}
+
+			// Match any forum role without returning users or pagination totals
+			$role_sql = implode( ' OR ', $clauses );
+			$key_sql  = $bbp_db->prepare( 'meta_key = %s', $meta_key );
+			$count    = $bbp_db->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$bbp_db->usermeta} INNER JOIN {$bbp_db->users} ON user_id = ID WHERE {$key_sql} AND ({$role_sql})" );
+
+			// Do not cache failed queries; expire superseded cache generations
+			if ( null !== $count ) {
+				$count = (int) $count;
+				wp_cache_set( $cache_key, $count, 'users', HOUR_IN_SECONDS );
+			}
+		}
+	}
+
+	// Filter the result after caching so request-specific overrides stay local
+	return (int) apply_filters( 'bbp_get_total_forum_users', (int) $count );
 }
 
 /**

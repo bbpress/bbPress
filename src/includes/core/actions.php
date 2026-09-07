@@ -416,6 +416,12 @@ add_action( 'bbp_user_edit_after', 'bbp_user_edit_after' );
 // Clean bbPress post caches when WordPress's is cleaned
 add_action( 'clean_post_cache', 'bbp_clean_post_cache', 10, 2 );
 
+// Invalidate forum-user counts after users or their capabilities change
+add_action( 'clean_user_cache',  'bbp_clean_user_count_cache' );
+add_action( 'added_user_meta',   'bbp_clean_user_count_cache_on_meta_change', 10, 3 );
+add_action( 'updated_user_meta', 'bbp_clean_user_count_cache_on_meta_change', 10, 3 );
+add_action( 'deleted_user_meta', 'bbp_clean_user_count_cache_on_meta_change', 10, 3 );
+
 // User Registration
 add_action( 'added_existing_user', 'bbp_user_add_role_on_register', 10, 1 );
 add_action( 'bbp_user_register',   'bbp_user_add_role_on_register', 10, 1 );

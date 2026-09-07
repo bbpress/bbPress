@@ -444,9 +444,9 @@ function bbp_get_statistics( $args = array() ) {
 	$spam    = bbp_get_spam_status_id();
 	$trash   = bbp_get_trash_status_id();
 
-	// Users
+	// Users with a forum role on the current site
 	$user_count = ! empty( $r['count_users'] )
-		? bbp_get_total_users()
+		? bbp_get_total_forum_users()
 		: 0;
 
 	// Forums

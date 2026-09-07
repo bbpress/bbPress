@@ -157,9 +157,10 @@ class BBP_Tests_Users_Functions_Counts extends BBP_UnitTestCase {
 	public function test_bbp_get_total_users() {
 		$this->factory->user->create_many( 3 );
 
+		wp_update_user_counts();
 		$users = (int) bbp_get_total_users();
 
-		// 15 + 1, the + 1 is the default admin user
+		// Three users plus the default administrator
 		$this->assertSame( 4, $users );
 	}
 
