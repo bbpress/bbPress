@@ -36,13 +36,22 @@ class BBP_Tests_Replies_Template_Links extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_reply_admin_links
 	 * @covers ::bbp_get_reply_admin_links
-	 * @todo   Implement test_bbp_get_reply_admin_links().
 	 */
 	public function test_bbp_get_reply_admin_links() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$old_user_id = get_current_user_id();
+		$user_id     = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$forum_id    = $this->factory->forum->create();
+		$topic_id    = $this->factory->topic->create( array( 'post_parent' => $forum_id ) );
+		$reply_id    = $this->factory->reply->create( array( 'post_parent' => $topic_id ) );
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+		wp_trash_post( $reply_id );
+
+		$links = bbp_get_reply_admin_links( array( 'id' => $reply_id ) );
+
+		$this->set_current_user( $old_user_id );
+		$this->assertStringContainsString( 'bbp-reply-spam-link', $links );
 	}
 
 	/**
