@@ -195,7 +195,7 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 }
 
 /**
- * Use the previous status when restoring a topic or reply.
+ * Use the previous status when restoring a forum, topic, or reply.
  *
  * Fixes an issue since WordPress 5.6.0. See
  * {@link https://bbpress.trac.wordpress.org/ticket/3433}.
@@ -208,8 +208,8 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  */
 function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $previous_status = 'pending' ) {
 
-	// Bail if not Topic or Reply
-	if ( ! bbp_is_topic( $post_id ) && ! bbp_is_reply( $post_id ) ) {
+	// Bail if not a forum, topic, or reply
+	if ( ! bbp_is_forum( $post_id ) && ! bbp_is_topic( $post_id ) && ! bbp_is_reply( $post_id ) ) {
 		return $new_status;
 	}
 
@@ -219,6 +219,107 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
 		: $new_status;
 
 	return $retval;
+}
+
+/**
+ * Update related counts when a topic or reply is created or changes status.
+ *
+ * @since 2.6.16
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Old post status.
+ * @param WP_Post $post       Post object.
+ */
+function bbp_update_counts_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
+
+	// Bail if the status did not change
+	if ( $new_status === $old_status ) {
+		return;
+	}
+
+	$is_new = ( 'new' === $old_status );
+
+	// Topic counts
+	if ( bbp_get_topic_post_type() === $post->post_type ) {
+		$was_public        = in_array( $old_status, bbp_get_public_topic_statuses(), true );
+		$is_public         = in_array( $new_status, bbp_get_public_topic_statuses(), true );
+		$public_difference = (int) $is_public - (int) $was_public;
+		$hidden_difference = $is_new
+			? (int) ! $is_public
+			: - $public_difference;
+
+		// A new topic or public boundary crossing changes at least one count
+		if ( ! empty( $public_difference ) || ! empty( $hidden_difference ) ) {
+			$forum_id = $is_new
+				? $post->post_parent
+				: bbp_get_topic_forum_id( $post->ID );
+
+			// Update the forum's public topic count
+			if ( ! empty( $forum_id ) && ! empty( $public_difference ) ) {
+				bbp_bump_forum_topic_count( $forum_id, $public_difference );
+			}
+
+			// Update the forum's hidden topic count
+			if ( ! empty( $forum_id ) && ! empty( $hidden_difference ) ) {
+				bbp_bump_forum_topic_count_hidden( $forum_id, $hidden_difference );
+			}
+
+			// User counts only include public topics
+			if ( ! empty( $public_difference ) ) {
+				bbp_bump_user_topic_count( $post->post_author, $public_difference );
+			}
+
+			// Topic approval does not change its replies' statuses
+			if ( ! $is_new && in_array( bbp_get_pending_status_id(), array( $old_status, $new_status ), true ) ) {
+				$reply_count = bbp_get_public_child_count( $post->ID, bbp_get_reply_post_type() );
+				bbp_bump_forum_reply_count( $forum_id, $reply_count * $public_difference );
+			}
+		}
+
+	// Reply counts
+	} elseif ( bbp_get_reply_post_type() === $post->post_type ) {
+		$was_public        = in_array( $old_status, bbp_get_public_reply_statuses(), true );
+		$is_public         = in_array( $new_status, bbp_get_public_reply_statuses(), true );
+		$public_difference = (int) $is_public - (int) $was_public;
+		$hidden_difference = $is_new
+			? (int) ! $is_public
+			: - $public_difference;
+
+		// A new reply or public boundary crossing changes at least one count
+		if ( ! empty( $public_difference ) || ! empty( $hidden_difference ) ) {
+			$topic_id = $is_new
+				? $post->post_parent
+				: bbp_get_reply_topic_id( $post->ID );
+			$forum_id = $is_new
+				? bbp_get_topic_forum_id( $topic_id )
+				: bbp_get_reply_forum_id( $post->ID );
+
+			// Update the topic's public reply count
+			if ( ! empty( $topic_id ) && ! empty( $public_difference ) ) {
+				bbp_bump_topic_reply_count( $topic_id, $public_difference );
+			}
+
+			// Update the topic's hidden reply count
+			if ( ! empty( $topic_id ) && ! empty( $hidden_difference ) ) {
+				bbp_bump_topic_reply_count_hidden( $topic_id, $hidden_difference );
+			}
+
+			// Update the forum's public reply count
+			if ( ! empty( $forum_id ) && ! empty( $public_difference ) ) {
+				bbp_bump_forum_reply_count( $forum_id, $public_difference );
+			}
+
+			// Update the forum's hidden reply count
+			if ( ! empty( $forum_id ) && ! empty( $hidden_difference ) ) {
+				bbp_bump_forum_reply_count_hidden( $forum_id, $hidden_difference );
+			}
+
+			// User counts only include public replies
+			if ( ! empty( $public_difference ) ) {
+				bbp_bump_user_reply_count( $post->post_author, $public_difference );
+			}
+		}
+	}
 }
 
 /**

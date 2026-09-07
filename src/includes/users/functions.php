@@ -654,11 +654,11 @@ function bbp_get_user_topic_count_raw( $user_id = 0 ) {
 	$statii  = "'" . implode( "', '", bbp_get_public_topic_statuses() ) . "'";
 	$sql     = "SELECT COUNT(*)
 			FROM {$bbp_db->posts}
-			WHERE post_author = %d
-				AND post_type = %s
-				AND post_status IN ({$statii})";
+			WHERE post_type = %s
+				AND post_status IN ({$statii})
+				AND post_author = %d";
 
-	$query   = $bbp_db->prepare( $sql, $user_id, bbp_get_topic_post_type() );
+	$query   = $bbp_db->prepare( $sql, bbp_get_topic_post_type(), $user_id );
 	$count   = (int) $bbp_db->get_var( $query );
 
 	// Filter & return
@@ -680,11 +680,11 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
 	$statii  = "'" . implode( "', '", bbp_get_public_reply_statuses() ) . "'";
 	$sql     = "SELECT COUNT(*)
 			FROM {$bbp_db->posts}
-			WHERE post_author = %d
-				AND post_type = %s
-				AND post_status IN ({$statii})";
+			WHERE post_type = %s
+				AND post_status IN ({$statii})
+				AND post_author = %d";
 
-	$query   = $bbp_db->prepare( $sql, $user_id, bbp_get_reply_post_type() );
+	$query   = $bbp_db->prepare( $sql, bbp_get_reply_post_type(), $user_id );
 	$count   = (int) $bbp_db->get_var( $query );
 
 	// Filter & return
@@ -695,6 +695,7 @@ function bbp_get_user_reply_count_raw( $user_id = 0 ) {
  * Bump the topic count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
+ * @since 2.6.16 Rebuild the count when the user option is missing.
  *
  * @param int $user_id
  * @param int $difference
@@ -712,14 +713,13 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 		return false;
 	}
 
-	// Check meta for count, or query directly if not found
-	$count = bbp_get_user_topic_count( $user_id, true );
-	if ( empty( $count ) ) {
-		$count = bbp_get_user_topic_count_raw( $user_id );
-	}
+	// Get the current count, accounting for persisted changes if it is missing
+	$difference = (int) $difference;
+	$count      = ( false === get_user_option( '_bbp_topic_count', $user_id ) )
+		? bbp_get_user_topic_count_raw( $user_id ) - $difference
+		: bbp_get_user_topic_count( $user_id, true );
 
-	$difference       = (int) $difference;
-	$user_topic_count = (int) ( $count + $difference );
+	$user_topic_count = bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
 	$new_count = (int) apply_filters( 'bbp_bump_user_topic_count', $user_topic_count, $user_id, $difference, $count );
@@ -731,6 +731,7 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
  * Bump the reply count for a user by a certain amount.
  *
  * @since 2.6.0 bbPress (r5309)
+ * @since 2.6.16 Rebuild the count when the user option is missing.
  *
  * @param int $user_id
  * @param int $difference
@@ -748,14 +749,13 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 		return false;
 	}
 
-	// Check meta for count, or query directly if not found
-	$count = bbp_get_user_reply_count( $user_id, true );
-	if ( empty( $count ) ) {
-		$count = bbp_get_user_reply_count_raw( $user_id );
-	}
+	// Get the current count, accounting for persisted changes if it is missing
+	$difference = (int) $difference;
+	$count      = ( false === get_user_option( '_bbp_reply_count', $user_id ) )
+		? bbp_get_user_reply_count_raw( $user_id ) - $difference
+		: bbp_get_user_reply_count( $user_id, true );
 
-	$difference       = (int) $difference;
-	$user_reply_count = (int) ( $count + $difference );
+	$user_reply_count = bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
 	$new_count = (int) apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
@@ -769,13 +769,15 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @access
- * @param $topic_id
- * @param $forum_id
- * @param $anonymous_data
- * @param $topic_author
+ * @param int $topic_id Topic ID.
  */
 function bbp_increase_user_topic_count( $topic_id = 0 ) {
+
+	// Bail if topic is not public
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
+		return false;
+	}
+
 	$user_id = bbp_get_topic_author_id( $topic_id );
 	return bbp_bump_user_topic_count( $user_id, 1 );
 }
@@ -784,16 +786,17 @@ function bbp_increase_user_topic_count( $topic_id = 0 ) {
  * Helper function used to increase (by one) the count of replies for a user when
  * a reply is published.
  *
- * This is a helper function, hooked to `bbp_new_reply`
- *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param $topic_id
- * @param $forum_id
- * @param $anonymous_data
- * @param $topic_author
+ * @param int $reply_id Reply ID.
  */
 function bbp_increase_user_reply_count( $reply_id = 0 ) {
+
+	// Bail if reply is not public
+	if ( ! bbp_is_reply_public( $reply_id ) ) {
+		return false;
+	}
+
 	$user_id = bbp_get_reply_author_id( $reply_id );
 	return bbp_bump_user_reply_count( $user_id, 1 );
 }
@@ -804,22 +807,34 @@ function bbp_increase_user_reply_count( $reply_id = 0 ) {
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param $topic_id
+ * @param int $topic_id Topic ID.
  */
 function bbp_decrease_user_topic_count( $topic_id = 0 ) {
+
+	// Bail if topic is not public
+	if ( ! bbp_is_topic_public( $topic_id ) ) {
+		return false;
+	}
+
 	$user_id = bbp_get_topic_author_id( $topic_id );
 	return bbp_bump_user_topic_count( $user_id, -1 );
 }
 
 /**
- * Helper function used to increase (by one) the count of replies for a user when
- * a topic is unpublished.
+ * Helper function used to decrease (by one) the count of replies for a user when
+ * a reply is unpublished.
  *
  * @since 2.6.0 bbPress (r5309)
  *
- * @param $reply_id
+ * @param int $reply_id Reply ID.
  */
 function bbp_decrease_user_reply_count( $reply_id = 0 ) {
+
+	// Bail if reply is not public
+	if ( ! bbp_is_reply_public( $reply_id ) ) {
+		return false;
+	}
+
 	$user_id = bbp_get_reply_author_id( $reply_id );
 	return bbp_bump_user_reply_count( $user_id, -1 );
 }

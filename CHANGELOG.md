@@ -26,6 +26,11 @@ Development for the next bbPress release is in progress. See the active
 
 ### Fixed
 
+- Allowed moderators to mark trashed replies as spam from the front end.
+- Preserved forum visibility when restoring a forum from the trash.
+- Prevented stale post caches during nested updates and repeated moderation.
+- Kept public, hidden, and author contribution counts accurate when topics and
+  replies change moderation status or are permanently deleted.
 - Prevented BuddyPress integration from loading bbPress translations before
   WordPress initialization.
 

@@ -187,13 +187,31 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 	}
 	/**
 	 * @covers ::bbp_delete_forum_topics
-	 * @todo   Implement test_bbp_delete_forum_topics().
+	 * @ticket BBP2944
 	 */
 	public function test_bbp_delete_forum_topics() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$bbp_db   = bbp_db();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		wp_delete_post( $forum_id, true );
+
+		foreach ( array( $forum_id, $topic_id, $reply_id ) as $post_id ) {
+			$this->assertNull( get_post( $post_id ) );
+
+			$meta_keys = $bbp_db->get_col( $bbp_db->prepare( "SELECT meta_key FROM {$bbp_db->postmeta} WHERE post_id = %d", $post_id ) );
+			$this->assertSame( array(), $meta_keys, "Orphaned metadata for post {$post_id}" );
+		}
 	}
 
 	/**

@@ -11,12 +11,12 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
 	 * Generic function to test the forum counts with a new topic
+	 *
+	 * @covers ::bbp_update_counts_on_transition_post_status
 	 */
 	public function test_bbp_forum_new_topic_counts() {
-		remove_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10 );
-
 		$f = $this->factory->forum->create();
-		$t1 = $this->factory->topic->create( array(
+		$this->factory->topic->create( array(
 			'post_parent' => $f,
 			'post_author' => bbp_get_current_user_id(),
 			'topic_meta' => array(
@@ -25,19 +25,13 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 		) );
 		$u = $this->factory->user->create();
 
-		// Don't attempt to send an email. This is for speed and PHP errors.
-		remove_action( 'bbp_new_topic', 'bbp_notify_forum_subscribers', 11, 4 );
-
-		// Simulate the 'bbp_new_topic' action.
-		do_action( 'bbp_new_topic', $t1, $f, false, bbp_get_current_user_id(), $t1 );
-
 		$count = bbp_get_forum_topic_count( $f, true, true );
 		$this->assertSame( 1, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
 
-		$t2 = $this->factory->topic->create( array(
+		$this->factory->topic->create( array(
 			'post_parent' => $f,
 			'post_author' => $u,
 			'topic_meta' => array(
@@ -45,18 +39,30 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Simulate the 'bbp_new_topic' action.
-		do_action( 'bbp_new_topic', $t2, $f, false, $u , $t2 );
-
 		$count = bbp_get_forum_topic_count( $f, true, true );
 		$this->assertSame( 2, $count );
 
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 0, $count );
+	}
 
-		// Re-add removed actions.
-		add_action( 'bbp_insert_topic', 'bbp_insert_topic_update_counts', 10, 2 );
-		add_action( 'bbp_new_topic',    'bbp_notify_forum_subscribers',   11, 4 );
+	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 */
+	public function test_bbp_forum_new_pending_topic_counts() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+
+		$this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		$this->assertSame( 0, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_user_topic_count( $user_id, true ) );
 	}
 
 	/**

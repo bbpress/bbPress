@@ -11,10 +11,10 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 	/**
 	 * Generic function to test the topics counts with a new reply
+	 *
+	 * @covers ::bbp_update_counts_on_transition_post_status
 	 */
 	public function test_bbp_topic_new_reply_counts() {
-		remove_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10 );
-
 		$u  = $this->factory->user->create();
 		$u2 = $this->factory->user->create();
 		$f  = $this->factory->forum->create();
@@ -25,7 +25,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 				'forum_id' => $f,
 			),
 		) );
-		$r1 = $this->factory->reply->create( array(
+		$this->factory->reply->create( array(
 			'post_parent' => $t,
 			'post_author' => $u,
 			'reply_meta' => array(
@@ -34,12 +34,6 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Don't attempt to send an email. This is for speed and PHP errors.
-		remove_action( 'bbp_new_reply', 'bbp_notify_topic_subscribers', 11, 5 );
-
-		// Simulate the 'bbp_new_reply' action.
-		do_action( 'bbp_new_reply', $r1, $t, $f, false, bbp_get_current_user_id() );
-
 		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( 1, $count );
 
@@ -49,7 +43,7 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		$count = bbp_get_topic_voice_count( $t, true );
 		$this->assertSame( 1, $count );
 
-		$r2 = $this->factory->reply->create( array(
+		$this->factory->reply->create( array(
 			'post_parent' => $t,
 			'post_author' => $u2,
 			'reply_meta' => array(
@@ -58,9 +52,6 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 			),
 		) );
 
-		// Simulate the 'bbp_new_topic' action.
-		do_action( 'bbp_new_reply', $r2, $t, $f, false, $u2 );
-
 		$count = bbp_get_topic_reply_count( $t, true );
 		$this->assertSame( 2, $count );
 
@@ -69,10 +60,34 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 
 		$count = bbp_get_topic_voice_count( $t, true );
 		$this->assertSame( 2, $count );
+	}
 
-		// Re-add removed actions.
-		add_action( 'bbp_insert_reply', 'bbp_insert_reply_update_counts', 10, 2 );
-		add_action( 'bbp_new_reply',    'bbp_notify_topic_subscribers',   11, 5 );
+	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 */
+	public function test_bbp_topic_new_pending_reply_counts() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+
+		$this->factory->reply->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		$this->assertSame( 0, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
 	}
 
 	/**

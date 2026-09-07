@@ -86,13 +86,29 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_reply_walker
-	 * @todo   Implement test_bbp_update_reply_walker().
 	 */
 	public function test_bbp_update_reply_walker() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = wp_insert_post( array(
+			'post_parent' => $topic_id,
+			'post_status' => bbp_get_public_status_id(),
+			'post_type'   => bbp_get_reply_post_type(),
+			'post_title'  => 'Reply walker',
+		) );
+		$active_time = get_post_field( 'post_date', $reply_id );
+
+		bbp_update_reply_walker( $reply_id, $active_time, $forum_id, $topic_id, false );
+
+		$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( $reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $forum_id ) );
 	}
 
 	/**
