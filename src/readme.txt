@@ -43,6 +43,22 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 * You may want to customize the register/activation/sign-in/lost-password flows, to better suit your site. bbPress comes with a bevy of shortcodes to make this possible, listed here: https://codex.bbpress.org/shortcodes/
 * bbPress also comes with built-in support for Akismet and BuddyPress, two very popular and very powerful WordPress plugins. If you're using either, visit your Forum Settings page and ensure that integration appears correct.
 
+== Developer Notes ==
+
+= Count updates in 2.6.16 =
+
+bbPress now synchronizes its built-in public and hidden topic and reply counts, aggregate forum counts, and user contribution counts on `bbp_transition_post_status` at priority 10, after WordPress persists the new post status. This action receives the new status, old status, and `WP_Post` object.
+
+The existing `bbp_new_*`, `bbp_insert_*`, `bbp_trash_*`, `bbp_untrash_*`, `bbp_spam_*`, `bbp_unspam_*`, `bbp_approve_*`, and `bbp_unapprove_*` topic and reply actions continue to fire with their existing arguments and timing. Their corresponding completed actions, such as `bbp_trashed_*`, also remain available. The public count helper functions also remain callable.
+
+bbPress no longer attaches its built-in increase, decrease, and insertion count callbacks to those creation and moderation actions. Manually firing one of those actions without changing the post status therefore no longer updates counts. Extensions that need finalized counts after creation or moderation should use `bbp_transition_post_status` at priority 11 or later.
+
+Permanent deletion does not produce a post-status transition. Its count maintenance continues through the existing `bbp_deleted_topic` and `bbp_deleted_reply` actions.
+
+= Subforum counts in 2.6.16 =
+
+bbPress now maintains subforum counts when forums are trashed, restored, permanently deleted, or moved between parents. The new `bbp_post_updated` action receives the post ID, the updated `WP_Post` object, and the previous `WP_Post` object after any bbPress post type is updated.
+
 == Screenshots ==
 
 1. Forums - Admin Interface
@@ -56,3 +72,9 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 == Changelog ==
 
 Check out the [releases page](https://codex.bbpress.org/releases/)
+
+== Upgrade Notice ==
+
+= 2.6.16 =
+
+Count maintenance now uses the bbPress post-status transition action. Extensions that customize topic or reply counts should review the Developer Notes.

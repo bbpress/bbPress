@@ -25,11 +25,18 @@ Development for the next bbPress release is in progress. See the active
 - Added post-state labels for Pages used as forum and topic archives.
 - Added hooks after bbPress administration classes load and dedicated hooks
   for canonical redirects.
+- Added `bbp_post_updated` with the post ID and before/after post objects.
 - Added contributor, security, support, governance, and repository guidance.
 
 ### Changed
 
 - Raised the minimum requirements to WordPress 6.0 and PHP 7.2.
+- Moved built-in topic, reply, forum, and user count synchronization to
+  `bbp_transition_post_status`. Existing creation and moderation actions still
+  fire, but no longer host bbPress's core count callbacks. Extensions that need
+  finalized counts should use the transition action at priority 11 or later;
+  permanent deletion continues through `bbp_deleted_topic` and
+  `bbp_deleted_reply`.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.
@@ -52,6 +59,11 @@ Development for the next bbPress release is in progress. See the active
 - Prevented stale post caches during nested updates and repeated moderation.
 - Kept public, hidden, and author contribution counts accurate when topics and
   replies change moderation status or are permanently deleted.
+- Kept subforum counts accurate across public, private, hidden, trashed, moved,
+  restored, and permanently deleted forums.
+- Corrected count repair tools to clear stale metadata caches, exclude anonymous
+  authors from voice counts, honor reply-status filters, rebuild private and
+  hidden forums, and preserve similarly named metadata on other post types.
 
 - Cache a distinct count of current-site forum-role holders for forum statistics,
   invalidating it when users or their capabilities change. Use the WordPress

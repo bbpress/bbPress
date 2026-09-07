@@ -298,6 +298,27 @@ function bbp_transition_post_status( $new_status = '', $old_status = '', $post =
 	do_action( 'bbp_transition_post_status', $new_status, $old_status, $post );
 }
 
+/**
+ * Add the bbPress-specific post updated action.
+ *
+ * @since 2.6.16
+ *
+ * @param int     $post_id     Post ID.
+ * @param WP_Post $post_after  Post object following the update.
+ * @param WP_Post $post_before Post object before the update.
+ */
+function bbp_post_updated( $post_id = 0, $post_after = false, $post_before = false ) {
+	$post_types = bbp_get_post_types();
+
+	// Bail if neither version is a bbPress post type
+	if ( ! in_array( $post_after->post_type, $post_types, true ) && ! in_array( $post_before->post_type, $post_types, true ) ) {
+		return;
+	}
+
+	// Do the action
+	do_action( 'bbp_post_updated', $post_id, $post_after, $post_before );
+}
+
 /** User Actions **************************************************************/
 
 /**
