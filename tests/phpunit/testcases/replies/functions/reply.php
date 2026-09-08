@@ -112,6 +112,66 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_reply
+	 * @covers ::bbp_update_reply_walker
+	 */
+	public function test_bbp_new_reply_updates_each_ancestor_once() {
+		$root_id  = $this->factory->forum->create();
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_parent' => $root_id,
+			)
+		);
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id )
+			)
+		);
+		$reply_id = wp_insert_post(
+			array(
+				'post_parent' => $topic_id,
+				'post_status' => bbp_get_public_status_id(),
+				'post_type'   => bbp_get_reply_post_type(),
+				'post_title'  => 'Nested reply walker'
+			)
+		);
+
+		$topic_updates  = array();
+		$forum_updates  = array();
+		$voice_counts   = 0;
+		$topic_callback = function( $last_reply_id, $updated_topic_id ) use ( &$topic_updates ) {
+			$topic_updates[] = $updated_topic_id;
+			return $last_reply_id;
+		};
+		$forum_callback = function( $last_reply_id, $updated_forum_id ) use ( &$forum_updates ) {
+			$forum_updates[] = $updated_forum_id;
+			return $last_reply_id;
+		};
+		$voice_callback = function( $count ) use ( &$voice_counts ) {
+			$voice_counts++;
+			return $count;
+		};
+
+		add_filter( 'bbp_update_topic_last_reply_id', $topic_callback, 10, 2 );
+		add_filter( 'bbp_update_forum_last_reply_id', $forum_callback, 10, 2 );
+		add_filter( 'bbp_update_topic_voice_count', $voice_callback );
+
+		do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, array(), 0, false, 0 );
+
+		remove_filter( 'bbp_update_topic_last_reply_id', $topic_callback, 10 );
+		remove_filter( 'bbp_update_forum_last_reply_id', $forum_callback, 10 );
+		remove_filter( 'bbp_update_topic_voice_count', $voice_callback, 10 );
+
+		$this->assertSame( array( $topic_id ), $topic_updates );
+		$this->assertSame( array( $forum_id, $root_id ), $forum_updates );
+		$this->assertSame( 1, $voice_counts );
+		$this->assertSame( $reply_id, bbp_get_topic_last_reply_id( $topic_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertSame( $reply_id, bbp_get_forum_last_reply_id( $root_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_update_reply_forum_id
 	 */
 	public function test_bbp_update_reply_forum_id() {

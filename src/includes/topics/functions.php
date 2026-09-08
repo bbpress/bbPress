@@ -866,7 +866,8 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = array
 		bbp_update_topic_last_active_time   ( $topic_id, $last_active );
 		bbp_update_topic_reply_count        ( $topic_id, 0            );
 		bbp_update_topic_reply_count_hidden ( $topic_id, 0            );
-		bbp_update_topic_voice_count        ( $topic_id               );
+
+		// Voice count is updated after engagements on bbp_new_topic and bbp_insert_topic.
 
 		// Walk up ancestors and do the dirty work
 		bbp_update_topic_walker( $topic_id, $last_active, $forum_id, 0, false );
@@ -910,9 +911,6 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 		$active_id = empty( $reply_id ) ? $topic_id : $reply_id;
 	}
 
-	// Get topic ancestors
-	$ancestors = array_values( array_unique( array_merge( array( $forum_id ), (array) get_post_ancestors( $topic_id ) ) ) );
-
 	// Topic status
 	$topic_status = get_post_status( $topic_id );
 
@@ -922,30 +920,20 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 		$topic_status = bbp_get_public_status_id();
 	}
 
-	// Loop through ancestors
-	if ( ! empty( $ancestors ) ) {
-		foreach ( $ancestors as $ancestor ) {
-
-			// If ancestor is a forum, update counts
-			if ( bbp_is_forum( $ancestor ) ) {
-
-				// Get the forum
-				$forum = bbp_get_forum( $ancestor );
-
-				// Update the forum
-				bbp_update_forum(
-					array(
-						'forum_id'           => $forum->ID,
-						'post_parent'        => $forum->post_parent,
-						'last_topic_id'      => $topic_id,
-						'last_reply_id'      => $reply_id,
-						'last_active_id'     => $active_id,
-						'last_active_time'   => $last_active_time,
-						'last_active_status' => $topic_status
-					)
-				);
-			}
-		}
+	// Update this forum and its ancestors
+	$forum = bbp_get_forum( $forum_id );
+	if ( ! empty( $forum ) ) {
+		bbp_update_forum(
+			array(
+				'forum_id'           => $forum->ID,
+				'post_parent'        => $forum->post_parent,
+				'last_topic_id'      => $topic_id,
+				'last_reply_id'      => $reply_id,
+				'last_active_id'     => $active_id,
+				'last_active_time'   => $last_active_time,
+				'last_active_status' => $topic_status
+			)
+		);
 	}
 }
 

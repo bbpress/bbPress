@@ -2227,8 +2227,8 @@ function bbp_update_forum( $args = array() ) {
 		bbp_update_forum_last_active_time( $r['forum_id'], $r['last_active_time'] );
 	}
 
-	// Counts
-	bbp_update_forum_subforum_count( $r['forum_id'] );
+	// Subforum counts are updated on bbp_transition_post_status,
+	// bbp_post_updated, and bbp_deleted_forum.
 
 	// Only update topic count if we've deleted a topic
 	if ( in_array( current_filter(), array( 'bbp_deleted_topic', 'save_post' ), true ) ) {
@@ -2238,18 +2238,39 @@ function bbp_update_forum( $args = array() ) {
 		bbp_update_forum_reply_count_hidden( $r['forum_id'] );
 	}
 
-	// Update the parent forum if one was passed
-	if ( ! empty( $r['post_parent'] ) && is_numeric( $r['post_parent'] ) ) {
-		bbp_update_forum(
-			array(
-				'forum_id'    => $r['post_parent'],
-				'post_parent' => get_post_field( 'post_parent', $r['post_parent'] )
-			)
-		);
-	}
+	// Update parent forums
+	bbp_update_forum_walker( $r );
 
 	// Bump the custom query cache
 	wp_cache_set( 'last_changed', microtime(), 'bbpress_posts' );
+}
+
+/**
+ * Walk up the forum hierarchy and update parent forums.
+ *
+ * @since 2.6.16
+ *
+ * @param array $args Parsed arguments from bbp_update_forum().
+ * @return false|null False if there is no parent forum, otherwise null.
+ */
+function bbp_update_forum_walker( $args = array() ) {
+
+	// Bail if this forum has no parent
+	if ( empty( $args['post_parent'] ) ) {
+		return false;
+	}
+
+	// Update the parent and continue walking
+	$args['forum_id'] = bbp_get_forum_id( $args['post_parent'] );
+
+	// Bail if the parent is not a forum
+	if ( empty( $args['forum_id'] ) ) {
+		return false;
+	}
+
+	$args['post_parent'] = get_post_field( 'post_parent', $args['forum_id'] );
+
+	bbp_update_forum( $args );
 }
 
 /** Helpers *******************************************************************/

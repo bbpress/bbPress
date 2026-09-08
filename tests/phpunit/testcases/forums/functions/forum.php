@@ -166,12 +166,51 @@ class BBP_Tests_Forums_Functions_Forum extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_update_forum
-	 * @todo   Implement test_bbp_update_forum().
+	 * @covers ::bbp_update_forum_walker
 	 */
 	public function test_bbp_update_forum() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$root_id  = $this->factory->forum->create();
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_parent' => $root_id,
+			)
+		);
+		$active_time  = '2026-09-08 12:00:00';
+		$forum_updates = array();
+		$callback      = function( $last_topic_id, $updated_forum_id ) use ( &$forum_updates ) {
+			$forum_updates[] = $updated_forum_id;
+			return $last_topic_id;
+		};
+
+		add_filter( 'bbp_update_forum_last_topic_id', $callback, 10, 2 );
+
+		bbp_update_forum(
+			array(
+				'forum_id'         => $forum_id,
+				'post_parent'      => $root_id,
+				'last_topic_id'    => 100,
+				'last_reply_id'    => 101,
+				'last_active_id'   => 101,
+				'last_active_time' => $active_time
+			)
+		);
+
+		remove_filter( 'bbp_update_forum_last_topic_id', $callback, 10 );
+
+		$this->assertSame( array( $forum_id, $root_id ), $forum_updates );
+		$this->assertSame( 100, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertSame( 100, bbp_get_forum_last_topic_id( $root_id ) );
+		$this->assertSame( 101, bbp_get_forum_last_reply_id( $forum_id ) );
+		$this->assertSame( 101, bbp_get_forum_last_reply_id( $root_id ) );
+		$this->assertSame( $active_time, get_post_meta( $forum_id, '_bbp_last_active_time', true ) );
+		$this->assertSame( $active_time, get_post_meta( $root_id, '_bbp_last_active_time', true ) );
+		$this->assertFalse(
+			bbp_update_forum_walker(
+				array(
+					'forum_id'    => $root_id,
+					'post_parent' => 0
+				)
+			)
 		);
 	}
 

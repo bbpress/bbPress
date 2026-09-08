@@ -118,6 +118,61 @@ class BBP_Tests_Topics_Functions_Topic extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_topic_walker
+	 * @covers ::bbp_update_forum
+	 */
+	public function test_bbp_new_topic_updates_each_forum_ancestor_once() {
+		$root_id  = $this->factory->forum->create();
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_parent' => $root_id,
+			)
+		);
+		$topic_id = wp_insert_post(
+			array(
+				'post_parent' => $forum_id,
+				'post_status' => bbp_get_public_status_id(),
+				'post_type'   => bbp_get_topic_post_type(),
+				'post_title'  => 'Nested topic walker',
+			)
+		);
+
+		$forum_updates   = array();
+		$subforum_counts = 0;
+		$voice_counts    = 0;
+		$forum_callback  = function( $last_topic_id, $updated_forum_id ) use ( &$forum_updates ) {
+			$forum_updates[] = $updated_forum_id;
+			return $last_topic_id;
+		};
+		$subforum_callback = function( $count ) use ( &$subforum_counts ) {
+			$subforum_counts++;
+			return $count;
+		};
+		$voice_callback = function( $count ) use ( &$voice_counts ) {
+			$voice_counts++;
+			return $count;
+		};
+
+		add_filter( 'bbp_update_forum_last_topic_id', $forum_callback, 10, 2 );
+		add_filter( 'bbp_update_forum_subforum_count', $subforum_callback );
+		add_filter( 'bbp_update_topic_voice_count', $voice_callback );
+
+		do_action( 'bbp_new_topic', $topic_id, $forum_id, array(), 0 );
+
+		remove_filter( 'bbp_update_forum_last_topic_id', $forum_callback, 10 );
+		remove_filter( 'bbp_update_forum_subforum_count', $subforum_callback, 10 );
+		remove_filter( 'bbp_update_topic_voice_count', $voice_callback, 10 );
+
+		$this->assertSame( array( $forum_id, $root_id ), $forum_updates );
+		$this->assertSame( 0, $subforum_counts );
+		$this->assertSame( 1, $voice_counts );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $forum_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_topic_id( $root_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $forum_id ) );
+		$this->assertSame( $topic_id, bbp_get_forum_last_active_id( $root_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_move_topic_handler
 	 */
 	public function test_bbp_move_topic_handler() {
