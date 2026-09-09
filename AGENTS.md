@@ -401,6 +401,18 @@ identities, patches, tests, and coordination plans are confidential.
   before any public commit. Never publish or deploy early merely because a patch
   is ready.
 
+For valid HackerOne reports that are ready to resolve:
+
+- calculate a recommended bounty from the applicable program guidelines,
+  severity, impact, privileges required, and any relevant bounty ranges;
+- record the recommended amount and reasoning in a team-only comment;
+- reply to the reporter with the disposition, fix references, and contributor
+  credit when disclosure coordination permits it;
+- resolve the report when the fix has reached the state required by the program;
+- assign the resolved report to **Bounty Admins** for final bounty review and
+  payment. Do not award the bounty directly unless a maintainer explicitly asks
+  for that report and amount.
+
 ## Documentation and Public Sites
 
 Treat Codex and bbPress.org edits like code changes:
