@@ -201,6 +201,11 @@ function bbp_new_reply_handler( $action = '' ) {
 		}
 	}
 
+	// User cannot read parent topic ID
+	if ( ! current_user_can( 'read_topic', $topic_id ) ) {
+		bbp_add_error( 'bbp_new_reply_topic_public', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this topic.', 'bbpress' ) );
+	}
+
 	/** Forum ID **************************************************************/
 
 	// Try to use the forum id of the topic
