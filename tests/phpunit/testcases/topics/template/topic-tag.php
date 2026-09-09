@@ -72,13 +72,29 @@ class BBP_Tests_Topic_Tags_Template_Topic_Tag extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_topic_tag_name
 	 * @covers ::bbp_get_topic_tag_name
-	 * @todo   Implement test_bbp_get_topic_tag_name().
 	 */
 	public function test_bbp_get_topic_tag_name() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$term = wp_insert_term(
+			'Rock & Roll\'s &lt;tag&gt;',
+			bbp_get_topic_tag_tax_id(),
+			array( 'slug' => 'rock-and-roll' )
 		);
+
+		$this->assertFalse( is_wp_error( $term ) );
+		$topic_tag_name = bbp_get_topic_tag_name( 'rock-and-roll' );
+
+		$this->assertSame( 'Rock &amp; Roll&#039;s &lt;tag&gt;', $topic_tag_name );
+		$this->assertSame( 'Rock &amp; Roll&#039;s &lt;tag&gt;', esc_attr( $topic_tag_name ) );
+
+		$filter = static function() {
+			return '<img src=x onerror=alert(document.domain)>';
+		};
+
+		add_filter( 'bbp_get_topic_tag_name', $filter, 9 );
+		$topic_tag_name = bbp_get_topic_tag_name( 'rock-and-roll' );
+		remove_filter( 'bbp_get_topic_tag_name', $filter, 9 );
+
+		$this->assertSame( '&lt;img src=x onerror=alert(document.domain)&gt;', $topic_tag_name );
 	}
 
 	/**
