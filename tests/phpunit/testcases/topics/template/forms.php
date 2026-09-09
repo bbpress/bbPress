@@ -10,6 +10,51 @@
 class BBP_Tests_Topics_Template_Forms extends BBP_UnitTestCase {
 
 	/**
+	 * Topic tag name used by the topic-tag form test.
+	 *
+	 * @var string
+	 */
+	protected $topic_tag_name = '';
+
+	/**
+	 * Filters the topic tag name used by the topic-tag form test.
+	 *
+	 * @return string
+	 */
+	public function filter_topic_tag_name() {
+		return $this->topic_tag_name;
+	}
+
+	/**
+	 * @coversNothing
+	 * @group bbp_xss
+	 */
+	public function test_topic_tag_name_is_not_included_in_javascript_confirmations() {
+		$user_id  = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$old_user = get_current_user_id();
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+		$this->topic_tag_name = 'qa&#092;&#039;+alert(document.domain))//';
+		add_filter( 'bbp_get_topic_tag_name', array( $this, 'filter_topic_tag_name' ) );
+
+		ob_start();
+		require bbpress()->themes_dir . 'default/bbpress/form-topic-tag.php';
+		$output = ob_get_clean();
+
+		remove_filter( 'bbp_get_topic_tag_name', array( $this, 'filter_topic_tag_name' ) );
+		$this->set_current_user( $old_user );
+
+		preg_match_all( '/onclick="([^"]+)"/', $output, $matches );
+
+		$this->assertCount( 2, $matches[1] );
+		$this->assertStringNotContainsString( $this->topic_tag_name, implode( '', $matches[1] ) );
+		$this->assertStringNotContainsString( 'alert(document.domain)', implode( '', $matches[1] ) );
+		$this->assertStringContainsString( 'merge this tag', $matches[1][0] );
+		$this->assertStringContainsString( 'delete this tag', $matches[1][1] );
+	}
+
+	/**
 	 * @coversNothing
 	 * @group bbp_xss
 	 */

@@ -101,19 +101,7 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 					<div class="bbp-submit-wrapper">
 						<button type="submit"
 								class="button submit"
-								onclick="return confirm('<?php
-
-									echo esc_js(
-										sprintf(
-										/* translators: %s: Topic tag name */
-											esc_html__(
-												'Are you sure you want to merge the "%s" tag into the tag you specified?',
-												'bbpress'
-											),
-											bbp_get_topic_tag_name()
-										)
-									);
-								?>');">
+								onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to merge this tag into the tag you specified?', 'bbpress' ) ); ?>');">
 							<?php esc_attr_e( 'Merge', 'bbpress' ); ?>
 						</button>
 
@@ -153,18 +141,7 @@ if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 						<div class="bbp-submit-wrapper">
 							<button type="submit"
 									class="button submit"
-									onclick="return confirm('<?php
-										echo esc_js(
-											sprintf(
-												/* translators: %s: Topic tag name */
-												esc_html__(
-													'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.',
-													'bbpress'
-												),
-												bbp_get_topic_tag_name()
-											)
-										);
-									?>');">
+									onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete this tag? This is permanent and cannot be undone.', 'bbpress' ) ); ?>');">
 								<?php esc_attr_e( 'Delete', 'bbpress' ); ?>
 							</button>
 
