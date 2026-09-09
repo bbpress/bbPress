@@ -229,6 +229,8 @@ add_filter( 'bbp_get_form_reply_edit_reason', 'esc_attr' );
 add_filter( 'bbp_get_form_reply_edit_reason', 'trim'     );
 add_filter( 'bbp_get_form_topic_edit_reason', 'esc_attr' );
 add_filter( 'bbp_get_form_topic_edit_reason', 'trim'     );
+add_filter( 'bbp_get_form_forum_title',       'esc_attr' );
+add_filter( 'bbp_get_form_forum_title',       'trim'     );
 add_filter( 'bbp_get_form_topic_title',       'esc_attr' );
 add_filter( 'bbp_get_form_topic_title',       'trim'     );
 add_filter( 'bbp_get_form_topic_tags',        'esc_attr' );

@@ -25,6 +25,10 @@ Development for the next bbPress release is in progress. See the active
 - Updated the 2.6 build, lint, test, translation, and installed-package smoke
   test tooling.
 
+### Security
+
+- Escaped forum, topic, and reply titles in form fields.
+
 ### Fixed
 
 - Allowed moderators to mark trashed replies as spam from the front end.
