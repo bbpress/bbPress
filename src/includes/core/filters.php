@@ -230,6 +230,9 @@ if ( is_admin() ) {
 	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  99,  2 );
 }
 
+// Topic tag output - sanitize
+add_filter( 'bbp_get_topic_tag_name', 'esc_html' );
+
 // Form textarea output - undo the code-trick done pre-save, and sanitize
 add_filter( 'bbp_get_form_forum_content', 'bbp_code_trick_reverse' );
 add_filter( 'bbp_get_form_forum_content', 'esc_textarea'           );
