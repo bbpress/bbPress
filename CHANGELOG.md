@@ -49,6 +49,7 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Escaped forum, topic, and reply titles in form fields.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
 

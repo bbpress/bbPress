@@ -62,12 +62,11 @@ defined( 'ABSPATH' ) || exit;
 									);
 									?>
 								</label>
-								<input type="text" id="bbp_reply_move_destination_title" value="
-									<?php
+								<input type="text" id="bbp_reply_move_destination_title" value="<?php
 									printf(
 										/* translators: %s: Reply title */
-										esc_html__( 'Moved: %s', 'bbpress' ),
-										bbp_get_reply_title()
+										esc_attr__( 'Moved: %s', 'bbpress' ),
+										esc_attr( bbp_get_reply_title() )
 									);
 									?>" size="35" name="bbp_reply_move_destination_title" />
 							</div>

@@ -62,12 +62,11 @@ defined( 'ABSPATH' ) || exit;
 									);
 									?>
 								</label>
-								<input type="text" id="bbp_topic_split_destination_title" value="
-								<?php
+								<input type="text" id="bbp_topic_split_destination_title" value="<?php
 								printf(
 									/* translators: %s: Original topic title */
-									esc_html__( 'Split: %s', 'bbpress' ),
-									bbp_get_topic_title()
+									esc_attr__( 'Split: %s', 'bbpress' ),
+									esc_attr( bbp_get_topic_title() )
 								);
 								?>" size="35" name="bbp_topic_split_destination_title" />
 							</div>

@@ -12,14 +12,25 @@ class BBP_Tests_Forums_Template_Forms extends BBP_UnitTestCase {
 	/**
 	 * @covers ::bbp_form_forum_title
 	 * @covers ::bbp_get_form_forum_title
-	 * @todo   Implement test_bbp_form_forum_title().
-	 * @todo   Implement test_bbp_get_form_forum_title().
+	 * @group  bbp_xss
 	 */
 	public function test_bbp_get_form_forum_title() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+		$forum_id = $this->factory->forum->create(
+			array(
+				'post_title' => 'Forum " autofocus onfocus="alert(1)',
+			)
 		);
+		$old_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+
+		add_filter( 'bbp_is_forum_edit', '__return_true' );
+		$GLOBALS['post'] = get_post( $forum_id );
+		setup_postdata( $GLOBALS['post'] );
+
+		$this->assertSame( 'Forum &quot; autofocus onfocus=&quot;alert(1)', bbp_get_form_forum_title() );
+
+		$GLOBALS['post'] = $old_post;
+		wp_reset_postdata();
+		remove_filter( 'bbp_is_forum_edit', '__return_true' );
 	}
 
 	/**
