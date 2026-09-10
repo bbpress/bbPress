@@ -2886,7 +2886,8 @@ function bbp_forum_query_topic_ids( $forum_id ) {
  * Only forums with countable statuses are returned.
  *
  * @since 2.0.0 bbPress (r2908)
- * @since 2.6.16 Exclude forums with uncountable statuses.
+ * @since 2.6.16 Restrict results to countable statuses instead of using
+ *               bbp_get_all_child_ids().
  *
  * @param int $forum_id Forum id.
  */

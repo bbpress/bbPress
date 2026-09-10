@@ -162,6 +162,7 @@ function bbp_db() {
  * metadata is added through add_metadata() so its standard lifecycle continues
  * to run. Existing metadata uses a conditional database update while preserving
  * the standard update metadata short-circuit filter and before/after actions.
+ * The short-circuit filter runs once against the first sanitized candidate.
  * Before actions run for every conditional attempt, while after actions run
  * only after a successful write. Metadata caches are cleared between attempts
  * and after successful writes. Values are sanitized through sanitize_meta(),
