@@ -862,13 +862,15 @@ final class bbPress {
 
 		// Forum
 		$count['object_subtype'] = bbp_get_forum_post_type();
-		register_meta( 'post', '_bbp_topic_count',           $count );
-		register_meta( 'post', '_bbp_reply_count',           $count );
-		register_meta( 'post', '_bbp_total_topic_count',     $count );
-		register_meta( 'post', '_bbp_total_reply_count',     $count );
-		register_meta( 'post', '_bbp_topic_count_hidden',    $count );
-		register_meta( 'post', '_bbp_reply_count_hidden',    $count );
-		register_meta( 'post', '_bbp_forum_subforum_count',  $count );
+		register_meta( 'post', '_bbp_topic_count',              $count );
+		register_meta( 'post', '_bbp_reply_count',              $count );
+		register_meta( 'post', '_bbp_total_topic_count',        $count );
+		register_meta( 'post', '_bbp_total_reply_count',        $count );
+		register_meta( 'post', '_bbp_topic_count_hidden',       $count );
+		register_meta( 'post', '_bbp_reply_count_hidden',       $count );
+		register_meta( 'post', '_bbp_total_topic_count_hidden', $count );
+		register_meta( 'post', '_bbp_total_reply_count_hidden', $count );
+		register_meta( 'post', '_bbp_forum_subforum_count',     $count );
 
 		// Topic
 		$count['object_subtype'] = bbp_get_topic_post_type();

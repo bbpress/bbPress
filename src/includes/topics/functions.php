@@ -1367,20 +1367,26 @@ function bbp_merge_topic_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.0.0 bbPress (r2756)
+ * @since 2.6.16 Recount both forums and topic engagements.
  *
  * @param int $destination_topic_id Destination topic id.
  * @param int $source_topic_id Source topic id.
  * @param int $source_topic_forum_id Source topic's forum id.
  */
 function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source_topic_forum_id ) {
+	$destination_forum_id = bbp_get_topic_forum_id( $destination_topic_id );
 
 	/** Source Topic **********************************************************/
 
 	// Forum Topic Counts
-	bbp_update_forum_topic_count( $source_topic_forum_id );
+	bbp_update_forum_topic_count( $source_topic_forum_id, true );
+	bbp_update_forum_topic_count_hidden( $source_topic_forum_id, false, true );
 
 	// Forum Reply Counts
-	bbp_update_forum_reply_count( $source_topic_forum_id );
+	foreach ( bbp_get_unique_array_values( array( $source_topic_forum_id, $destination_forum_id ) ) as $forum_id ) {
+		bbp_update_forum_reply_count( $forum_id, true );
+		bbp_update_forum_reply_count_hidden( $forum_id, true );
+	}
 
 	/** Destination Topic *****************************************************/
 
@@ -1390,8 +1396,16 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 	// Topic Hidden Reply Counts
 	bbp_update_topic_reply_count_hidden( $destination_topic_id );
 
-	// Topic Voice Counts
+	// Topic Engagement and Voice Counts
+	bbp_recalculate_topic_engagements( $destination_topic_id );
 	bbp_update_topic_voice_count( $destination_topic_id );
+
+	// Transfer the converted source topic author's contribution to replies
+	if ( bbp_is_reply_published( $source_topic_id ) ) {
+		$user_id = bbp_get_reply_author_id( $source_topic_id );
+		bbp_bump_user_topic_count( $user_id, -1 );
+		bbp_bump_user_reply_count( $user_id, 1 );
+	}
 
 	do_action( 'bbp_merge_topic_count', $destination_topic_id, $source_topic_id, $source_topic_forum_id );
 }
@@ -1717,18 +1731,34 @@ function bbp_split_topic_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.0.0 bbPress (r2756)
+ * @since 2.6.16 Recount both forums and topic engagements.
  *
  * @param int $from_reply_id From reply id.
  * @param int $source_topic_id Source topic id.
  * @param int $destination_topic_id Destination topic id.
  */
 function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_topic_id ) {
+	$source_forum_id      = bbp_get_topic_forum_id( $source_topic_id );
+	$destination_forum_id = bbp_get_topic_forum_id( $destination_topic_id );
 
-	// Forum Topic Counts
-	bbp_update_forum_topic_count( bbp_get_topic_forum_id( $destination_topic_id ) );
+	// A reply converted into a topic changes its forum's topic counts
+	if ( bbp_is_topic( $from_reply_id ) ) {
+		bbp_update_forum_topic_count( $destination_forum_id, true );
+		bbp_update_forum_topic_count_hidden( $destination_forum_id, false, true );
 
-	// Forum Reply Counts
-	bbp_update_forum_reply_count( bbp_get_topic_forum_id( $destination_topic_id ) );
+		// Transfer the public contribution between count types
+		if ( bbp_is_topic_published( $from_reply_id ) ) {
+			$user_id = bbp_get_topic_author_id( $from_reply_id );
+			bbp_bump_user_reply_count( $user_id, -1 );
+			bbp_bump_user_topic_count( $user_id, 1 );
+		}
+	}
+
+	// Recount replies in both forums
+	foreach ( bbp_get_unique_array_values( array( $source_forum_id, $destination_forum_id ) ) as $forum_id ) {
+		bbp_update_forum_reply_count( $forum_id, true );
+		bbp_update_forum_reply_count_hidden( $forum_id, true );
+	}
 
 	// Topic Reply Counts
 	bbp_update_topic_reply_count( $source_topic_id      );
@@ -1738,7 +1768,9 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 	bbp_update_topic_reply_count_hidden( $source_topic_id      );
 	bbp_update_topic_reply_count_hidden( $destination_topic_id );
 
-	// Topic Voice Counts
+	// Topic Engagement and Voice Counts
+	bbp_recalculate_topic_engagements( $source_topic_id      );
+	bbp_recalculate_topic_engagements( $destination_topic_id );
 	bbp_update_topic_voice_count( $source_topic_id      );
 	bbp_update_topic_voice_count( $destination_topic_id );
 
@@ -2404,6 +2436,7 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
  * Bump the total reply count of a topic.
  *
  * @since 2.1.0 bbPress (r3825)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1.
@@ -2421,10 +2454,10 @@ function bbp_bump_topic_reply_count( $topic_id = 0, $difference = 1 ) {
 	$topic_id    = bbp_get_topic_id( $topic_id );
 	$reply_count = bbp_get_topic_reply_count( $topic_id, true );
 	$difference  = (int) $difference;
-	$new_count   = (int) ( $reply_count + $difference );
+	$new_count   = bbp_number_not_negative( $reply_count + $difference );
 
 	// Update this topic id's reply count
-	update_post_meta( $topic_id, '_bbp_reply_count', $new_count );
+	bbp_bump_count_meta( 'post', $topic_id, '_bbp_reply_count', $difference, $reply_count );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_topic_reply_count', $new_count, $topic_id, $difference );
@@ -2494,6 +2527,7 @@ function bbp_decrease_topic_reply_count( $topic_id = 0 ) {
  * Bump the total hidden reply count of a topic.
  *
  * @since 2.1.0 bbPress (r3825)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $topic_id   Optional. Topic id.
  * @param int $difference Optional. Default 1.
@@ -2511,10 +2545,10 @@ function bbp_bump_topic_reply_count_hidden( $topic_id = 0, $difference = 1 ) {
 	$topic_id    = bbp_get_topic_id( $topic_id );
 	$reply_count = bbp_get_topic_reply_count_hidden( $topic_id, true );
 	$difference  = (int) $difference;
-	$new_count   = (int) ( $reply_count + $difference );
+	$new_count   = bbp_number_not_negative( $reply_count + $difference );
 
 	// Update this topic id's hidden reply count
-	update_post_meta( $topic_id, '_bbp_reply_count_hidden', $new_count );
+	bbp_bump_count_meta( 'post', $topic_id, '_bbp_reply_count_hidden', $difference, $reply_count );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_topic_reply_count_hidden', $new_count, $topic_id, $difference );

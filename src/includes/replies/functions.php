@@ -1525,18 +1525,34 @@ function bbp_move_reply_handler( $action = '' ) {
  * and their forums.
  *
  * @since 2.3.0 bbPress (r4521)
+ * @since 2.6.16 Recount both forums and topic engagements.
  *
  * @param int $move_reply_id Move reply id.
  * @param int $source_topic_id Source topic id.
  * @param int $destination_topic_id Destination topic id.
  */
 function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_topic_id ) {
+	$source_forum_id      = bbp_get_topic_forum_id( $source_topic_id );
+	$destination_forum_id = bbp_get_topic_forum_id( $destination_topic_id );
 
-	// Forum topic counts
-	bbp_update_forum_topic_count( bbp_get_topic_forum_id( $destination_topic_id ) );
+	// A reply converted into a topic changes its forum's topic counts
+	if ( bbp_is_topic( $move_reply_id ) ) {
+		bbp_update_forum_topic_count( $destination_forum_id, true );
+		bbp_update_forum_topic_count_hidden( $destination_forum_id, false, true );
 
-	// Forum reply counts
-	bbp_update_forum_reply_count( bbp_get_topic_forum_id( $destination_topic_id ) );
+		// Transfer the public contribution between count types
+		if ( bbp_is_topic_published( $move_reply_id ) ) {
+			$user_id = bbp_get_topic_author_id( $move_reply_id );
+			bbp_bump_user_reply_count( $user_id, -1 );
+			bbp_bump_user_topic_count( $user_id, 1 );
+		}
+	}
+
+	// Recount replies in both forums
+	foreach ( bbp_get_unique_array_values( array( $source_forum_id, $destination_forum_id ) ) as $forum_id ) {
+		bbp_update_forum_reply_count( $forum_id, true );
+		bbp_update_forum_reply_count_hidden( $forum_id, true );
+	}
 
 	// Topic reply counts
 	bbp_update_topic_reply_count( $source_topic_id      );
@@ -1546,7 +1562,9 @@ function bbp_move_reply_count( $move_reply_id, $source_topic_id, $destination_to
 	bbp_update_topic_reply_count_hidden( $source_topic_id      );
 	bbp_update_topic_reply_count_hidden( $destination_topic_id );
 
-	// Topic voice counts
+	// Topic engagement and voice counts
+	bbp_recalculate_topic_engagements( $source_topic_id      );
+	bbp_recalculate_topic_engagements( $destination_topic_id );
 	bbp_update_topic_voice_count( $source_topic_id      );
 	bbp_update_topic_voice_count( $destination_topic_id );
 

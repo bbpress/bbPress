@@ -275,12 +275,12 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 	if ( bbp_get_topic_post_type() === $post->post_type ) {
 		$was_public        = in_array( $old_status, bbp_get_public_topic_statuses(), true );
 		$is_public         = in_array( $new_status, bbp_get_public_topic_statuses(), true );
+		$was_hidden        = in_array( $old_status, bbp_get_non_public_topic_statuses(), true );
+		$is_hidden         = in_array( $new_status, bbp_get_non_public_topic_statuses(), true );
 		$public_difference = (int) $is_public - (int) $was_public;
-		$hidden_difference = $is_new
-			? (int) ! $is_public
-			: - $public_difference;
+		$hidden_difference = (int) $is_hidden - (int) $was_hidden;
 
-		// A new topic or public boundary crossing changes at least one count
+		// A new topic or count boundary crossing changes at least one count
 		if ( ! empty( $public_difference ) || ! empty( $hidden_difference ) ) {
 			$forum_id = $is_new
 				? $post->post_parent
@@ -301,10 +301,9 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 				bbp_bump_user_topic_count( $post->post_author, $public_difference );
 			}
 
-			// Topic approval does not change its replies' statuses
-			if ( ! $is_new && in_array( bbp_get_pending_status_id(), array( $old_status, $new_status ), true ) ) {
-				$reply_count = bbp_get_public_child_count( $post->ID, bbp_get_reply_post_type() );
-				bbp_bump_forum_reply_count( $forum_id, $reply_count * $public_difference );
+			// Recount replies after their parent topic crosses the public boundary
+			if ( ! $is_new && ! empty( $forum_id ) && ! empty( $public_difference ) ) {
+				bbp_update_forum_reply_count( $forum_id, true );
 			}
 		}
 
@@ -312,12 +311,12 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 	} elseif ( bbp_get_reply_post_type() === $post->post_type ) {
 		$was_public        = in_array( $old_status, bbp_get_public_reply_statuses(), true );
 		$is_public         = in_array( $new_status, bbp_get_public_reply_statuses(), true );
+		$was_hidden        = in_array( $old_status, bbp_get_non_public_reply_statuses(), true );
+		$is_hidden         = in_array( $new_status, bbp_get_non_public_reply_statuses(), true );
 		$public_difference = (int) $is_public - (int) $was_public;
-		$hidden_difference = $is_new
-			? (int) ! $is_public
-			: - $public_difference;
+		$hidden_difference = (int) $is_hidden - (int) $was_hidden;
 
-		// A new reply or public boundary crossing changes at least one count
+		// A new reply or count boundary crossing changes at least one count
 		if ( ! empty( $public_difference ) || ! empty( $hidden_difference ) ) {
 			$topic_id = $is_new
 				? $post->post_parent
@@ -325,6 +324,9 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 			$forum_id = $is_new
 				? bbp_get_topic_forum_id( $topic_id )
 				: bbp_get_reply_forum_id( $post->ID );
+			$forum_public_difference = bbp_is_topic_public( $topic_id )
+				? $public_difference
+				: 0;
 
 			// Update the topic's public reply count
 			if ( ! empty( $topic_id ) && ! empty( $public_difference ) ) {
@@ -337,8 +339,8 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 			}
 
 			// Update the forum's public reply count
-			if ( ! empty( $forum_id ) && ! empty( $public_difference ) ) {
-				bbp_bump_forum_reply_count( $forum_id, $public_difference );
+			if ( ! empty( $forum_id ) && ! empty( $forum_public_difference ) ) {
+				bbp_bump_forum_reply_count( $forum_id, $forum_public_difference );
 			}
 
 			// Update the forum's hidden reply count

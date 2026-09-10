@@ -1110,6 +1110,7 @@ function bbp_remove_forum_from_all_subscriptions( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1
@@ -1131,8 +1132,8 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count',       (int) ( $topic_count + $difference ) );
-	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) ( $total_topic_count + $difference ) );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_topic_count',       $difference, $topic_count       );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_total_topic_count', $difference, $total_topic_count );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1149,17 +1150,17 @@ function bbp_bump_forum_topic_count( $forum_id = 0, $difference = 1, $update_anc
 				if ( ! bbp_is_forum_category( $parent_forum_id ) ) {
 
 					$parent_topic_count = bbp_get_forum_topic_count( $parent_forum_id, false, true );
-					update_post_meta( $parent_forum_id, '_bbp_topic_count', (int) ( $parent_topic_count + $difference ) );
+					bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_topic_count', $difference, $parent_topic_count );
 				}
 
 				// Update the total topic count.
 				$parent_total_topic_count = bbp_get_forum_topic_count( $parent_forum_id, true,  true );
-				update_post_meta( $parent_forum_id, '_bbp_total_topic_count', (int) ( $parent_total_topic_count + $difference ) );
+				bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_total_topic_count', $difference, $parent_total_topic_count );
 			}
 		}
 	}
 
-	$forum_topic_count = (int) ( $total_topic_count + $difference );
+	$forum_topic_count = bbp_number_not_negative( $total_topic_count + $difference );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_forum_topic_count', $forum_topic_count, $forum_id, $difference, $update_ancestors );
@@ -1229,6 +1230,7 @@ function bbp_decrease_forum_topic_count( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1
@@ -1250,8 +1252,8 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $upd
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_topic_count_hidden',       (int) ( $reply_count + $difference ) );
-	update_post_meta( $forum_id, '_bbp_total_topic_count_hidden', (int) ( $total_topic_count + $difference ) );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_topic_count_hidden',       $difference, $reply_count       );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_total_topic_count_hidden', $difference, $total_topic_count );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1268,17 +1270,17 @@ function bbp_bump_forum_topic_count_hidden( $forum_id = 0, $difference = 1, $upd
 				if ( ! bbp_is_forum_category( $parent_forum_id ) ) {
 
 					$parent_topic_count = bbp_get_forum_topic_count_hidden( $parent_forum_id, false, true );
-					update_post_meta( $parent_forum_id, '_bbp_topic_count_hidden', (int) ( $parent_topic_count + $difference ) );
+					bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_topic_count_hidden', $difference, $parent_topic_count );
 				}
 
 				// Update the total topic count.
 				$parent_total_topic_count = bbp_get_forum_topic_count_hidden( $parent_forum_id, true, true );
-				update_post_meta( $parent_forum_id, '_bbp_total_topic_count_hidden', (int) ( $parent_total_topic_count + $difference ) );
+				bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_total_topic_count_hidden', $difference, $parent_total_topic_count );
 			}
 		}
 	}
 
-	$forum_topic_count = (int) ( $total_topic_count + $difference );
+	$forum_topic_count = bbp_number_not_negative( $total_topic_count + $difference );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_forum_topic_count_hidden', $forum_topic_count, $forum_id, $difference, $update_ancestors );
@@ -1348,6 +1350,7 @@ function bbp_decrease_forum_topic_count_hidden( $forum_id = 0 ) {
  * Bump the total topic count of a forum.
  *
  * @since 2.1.0 bbPress (r3825)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1.
@@ -1369,8 +1372,8 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_reply_count',       (int) ( $reply_count + $difference ) );
-	update_post_meta( $forum_id, '_bbp_total_reply_count', (int) ( $total_reply_count + $difference ) );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_reply_count',       $difference, $reply_count       );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_total_reply_count', $difference, $total_reply_count );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1387,17 +1390,17 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
 				if ( ! bbp_is_forum_category( $parent_forum_id ) ) {
 
 					$parent_reply_count = bbp_get_forum_reply_count( $parent_forum_id, false, true );
-					update_post_meta( $parent_forum_id, '_bbp_reply_count', (int) ( $parent_reply_count + $difference ) );
+					bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_reply_count', $difference, $parent_reply_count );
 				}
 
 				// Update the total reply count.
 				$parent_total_reply_count = bbp_get_forum_reply_count( $parent_forum_id, true,  true );
-				update_post_meta( $parent_forum_id, '_bbp_total_reply_count', (int) ( $parent_total_reply_count + $difference ) );
+				bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_total_reply_count', $difference, $parent_total_reply_count );
 			}
 		}
 	}
 
-	$forum_reply_count = (int) ( $total_reply_count + $difference );
+	$forum_reply_count = bbp_number_not_negative( $total_reply_count + $difference );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_forum_reply_count', $forum_reply_count, $forum_id, $difference, $update_ancestors );
@@ -1407,6 +1410,7 @@ function bbp_bump_forum_reply_count( $forum_id = 0, $difference = 1, $update_anc
  * Bump the total topic count of a forum.
  *
  * @since 2.6.0 bbPress (r6922)
+ * @since 2.6.16 Use atomic metadata writes and non-negative counts.
  *
  * @param int $forum_id Optional. Forum id.
  * @param int $difference Optional. Default 1.
@@ -1428,8 +1432,8 @@ function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $upd
 	$difference        = (int) $difference;
 
 	// Update this forum id
-	update_post_meta( $forum_id, '_bbp_reply_count_hidden',       (int) ( $reply_count + $difference ) );
-	update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', (int) ( $total_reply_count + $difference ) );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_reply_count_hidden',       $difference, $reply_count       );
+	bbp_bump_count_meta( 'post', $forum_id, '_bbp_total_reply_count_hidden', $difference, $total_reply_count );
 
 	// Check for ancestors
 	if ( true === $update_ancestors ) {
@@ -1446,20 +1450,76 @@ function bbp_bump_forum_reply_count_hidden( $forum_id = 0, $difference = 1, $upd
 				if ( ! bbp_is_forum_category( $parent_forum_id ) ) {
 
 					$parent_reply_count = bbp_get_forum_reply_count_hidden( $parent_forum_id, false, true );
-					update_post_meta( $parent_forum_id, '_bbp_reply_count_hidden', (int) ( $parent_reply_count + $difference ) );
+					bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_reply_count_hidden', $difference, $parent_reply_count );
 				}
 
 				// Update the total reply count.
 				$parent_total_reply_count = bbp_get_forum_reply_count_hidden( $parent_forum_id, true,  true );
-				update_post_meta( $parent_forum_id, '_bbp_total_reply_count_hidden', (int) ( $parent_total_reply_count + $difference ) );
+				bbp_bump_count_meta( 'post', $parent_forum_id, '_bbp_total_reply_count_hidden', $difference, $parent_total_reply_count );
 			}
 		}
 	}
 
-	$forum_reply_count = (int) ( $total_reply_count + $difference );
+	$forum_reply_count = bbp_number_not_negative( $total_reply_count + $difference );
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_bump_forum_reply_count_hidden', $forum_reply_count, $forum_id, $difference, $update_ancestors );
+}
+
+/**
+ * Bump one total count through a forum's ancestors.
+ *
+ * This is used after recounting a forum that may be nested as a subforum. The
+ * starting forum's total has already been updated, so only its parent forums
+ * receive the difference between the old and new totals. The supplied metadata
+ * key identifies which total topic or reply count is propagated.
+ *
+ * Forum hierarchy is stored in `post_parent`, making get_post_ancestors() the
+ * canonical, cache-aware way to walk from a subforum toward its root forum.
+ * Only parent forums are traversed: topics and replies are never ancestors in
+ * a valid forum hierarchy, even when the metadata key stores their totals. The
+ * walk stops if a malformed parent relationship leaves the forum post type.
+ *
+ * @since 2.6.16
+ *
+ * @param int    $forum_id   Starting forum ID. Its own count is not changed.
+ * @param string $meta_key   Topic or reply total count metadata key.
+ * @param int    $difference Amount to add to the stored value.
+ * @return bool True when all ancestor counts were updated, false otherwise.
+ */
+function bbp_bump_forum_ancestor_count( $forum_id = 0, $meta_key = '', $difference = 0 ) {
+	$forum_id   = bbp_get_forum_id( $forum_id );
+	$difference = (int) $difference;
+
+	// Bail if nothing can change
+	if ( empty( $forum_id ) || empty( $meta_key ) || empty( $difference ) ) {
+		return false;
+	}
+
+	$updated      = true;
+	$ancestor_ids = get_post_ancestors( $forum_id );
+
+	// Return if this forum has no ancestors
+	if ( empty( $ancestor_ids ) ) {
+		return $updated;
+	}
+
+	// Update only total counts on ancestor forums
+	foreach ( $ancestor_ids as $ancestor_id ) {
+
+		// Stop if malformed data leaves the subforum hierarchy
+		if ( ! bbp_is_forum( $ancestor_id ) ) {
+			break;
+		}
+
+		$count = (int) get_post_meta( $ancestor_id, $meta_key, true );
+
+		if ( ! bbp_bump_count_meta( 'post', $ancestor_id, $meta_key, $difference, $count ) ) {
+			$updated = false;
+		}
+	}
+
+	return $updated;
 }
 
 /**
@@ -1977,16 +2037,21 @@ function bbp_update_forum_subforum_counts_on_post_updated( $forum_id = 0, $forum
  * Adjust the total topic count of a forum.
  *
  * @since 2.0.0 bbPress (r2464)
+ * @since 2.6.16 Optionally update ancestor forum totals.
  *
  * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
- * @param bool $total_count Optional. To return the total count or normal count.
+ * @param bool $update_ancestors Optional. Whether to update ancestor totals.
  * @return int Forum topic count.
  */
-function bbp_update_forum_topic_count( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
+function bbp_update_forum_topic_count( $forum_id = 0, $update_ancestors = false ) {
+	$forum_id             = bbp_get_forum_id( $forum_id );
+	$old_total_topics     = ( true === $update_ancestors )
+		? (int) get_post_meta( $forum_id, '_bbp_total_topic_count', true )
+		: 0;
 	$children_topic_count = 0;
+	$total_topics         = 0;
 
 	// Loop through subforums and add together forum topic counts
 	$children = bbp_forum_query_subforum_ids( $forum_id );
@@ -2006,6 +2071,11 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	update_post_meta( $forum_id, '_bbp_topic_count',       $topics       );
 	update_post_meta( $forum_id, '_bbp_total_topic_count', $total_topics );
 
+	// Update ancestor total counts by the persisted difference
+	if ( true === $update_ancestors ) {
+		bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_topic_count', $total_topics - $old_total_topics );
+	}
+
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_forum_topic_count', $total_topics, $forum_id );
 }
@@ -2016,13 +2086,15 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  *
  * @since 2.0.0 bbPress (r2888)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects
+ * @since 2.6.16 Optionally update ancestor forum totals.
  *
  * @param int $forum_id Optional. Topic id to update.
  * @param int $topic_count Optional. Set the topic count manually.
+ * @param bool $update_ancestors Optional. Whether to update ancestor totals.
  *
  * @return int Topic hidden topic count.
  */
-function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = false ) {
+function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = false, $update_ancestors = false ) {
 
 	// If topic_id was passed as $forum_id, then get its forum
 	if ( bbp_is_topic( $forum_id ) ) {
@@ -2034,8 +2106,23 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 		$forum_id = bbp_get_forum_id( $forum_id );
 	}
 
+	$children_topic_count = 0;
+	$total_topics         = 0;
+	$old_total_topics     = ( true === $update_ancestors )
+		? (int) get_post_meta( $forum_id, '_bbp_total_topic_count_hidden', true )
+		: 0;
+
 	// Can't update what isn't there
 	if ( ! empty( $forum_id ) ) {
+
+		// Loop through children and add together hidden topic counts
+		$children = bbp_forum_query_subforum_ids( $forum_id );
+		if ( ! empty( $children ) ) {
+			foreach ( (array) $children as $child ) {
+				bbp_update_forum_topic_count_hidden( $child );
+				$children_topic_count += bbp_get_forum_topic_count_hidden( $child, true, true );
+			}
+		}
 
 		// Get topics of forum
 		if ( ! is_int( $topic_count ) ) {
@@ -2062,10 +2149,17 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
 			unset( $query );
 		}
 
-		$topic_count = (int) $topic_count;
+		$topic_count  = (int) $topic_count;
+		$total_topics = (int) ( $topic_count + $children_topic_count );
 
-		// Update the count
-		update_post_meta( $forum_id, '_bbp_topic_count_hidden', $topic_count );
+		// Update the counts
+		update_post_meta( $forum_id, '_bbp_topic_count_hidden',       $topic_count  );
+		update_post_meta( $forum_id, '_bbp_total_topic_count_hidden', $total_topics );
+
+		// Update ancestor total counts by the persisted difference
+		if ( true === $update_ancestors ) {
+			bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_topic_count_hidden', $total_topics - $old_total_topics );
+		}
 	}
 
 	// Filter & return
@@ -2077,16 +2171,22 @@ function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = fals
  *
  * @since 2.0.0 bbPress (r2464)
  * @since 2.6.0 bbPress (r5954) Replace direct queries with WP_Query() objects.
+ * @since 2.6.16 Count replies only when their parent topics are public.
+ * @since 2.6.16 Optionally update ancestor forum totals.
  *
  * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
+ * @param bool $update_ancestors Optional. Whether to update ancestor totals.
  *
  * @return int Forum reply count.
  */
-function bbp_update_forum_reply_count( $forum_id = 0 ) {
+function bbp_update_forum_reply_count( $forum_id = 0, $update_ancestors = false ) {
 
-	$forum_id = bbp_get_forum_id( $forum_id );
+	$forum_id             = bbp_get_forum_id( $forum_id );
+	$old_total_replies    = ( true === $update_ancestors )
+		? (int) get_post_meta( $forum_id, '_bbp_total_reply_count', true )
+		: 0;
 	$children_reply_count = 0;
 
 	// Loop through children and add together forum reply counts
@@ -2098,9 +2198,39 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	}
 
 	// Don't count replies if the forum is a category
-	$reply_count = ! bbp_is_forum_category( $forum_id )
-		? bbp_get_public_child_count( $forum_id, bbp_get_reply_post_type() )
-		: 0;
+	if ( bbp_is_forum_category( $forum_id ) ) {
+		$reply_count = 0;
+
+	// Count public replies whose parent topics are also public
+	} else {
+		$bbp_db         = bbp_db();
+		$reply_statuses = bbp_get_public_reply_statuses();
+		$topic_statuses = bbp_get_public_topic_statuses();
+
+		if ( empty( $reply_statuses ) || empty( $topic_statuses ) ) {
+			$reply_count = 0;
+		} else {
+			$reply_placeholders = implode( ', ', array_fill( 0, count( $reply_statuses ), '%s' ) );
+			$topic_placeholders = implode( ', ', array_fill( 0, count( $topic_statuses ), '%s' ) );
+			$sql                = "SELECT COUNT(*) FROM {$bbp_db->posts} AS replies
+				INNER JOIN {$bbp_db->posts} AS topics ON replies.post_parent = topics.ID
+				WHERE topics.post_parent = %d
+					AND topics.post_type = %s
+					AND topics.post_status IN ({$topic_placeholders})
+					AND replies.post_type = %s
+					AND replies.post_status IN ({$reply_placeholders})";
+			$query              = $bbp_db->prepare(
+				$sql,
+				array_merge(
+					array( $forum_id, bbp_get_topic_post_type() ),
+					$topic_statuses,
+					array( bbp_get_reply_post_type() ),
+					$reply_statuses
+				)
+			);
+			$reply_count = bbp_number_not_negative( $bbp_db->get_var( $query ) );
+		}
+	}
 
 	// Calculate total replies in this forum
 	$total_replies = (int) ( $reply_count + $children_reply_count );
@@ -2108,6 +2238,11 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	// Update the counts
 	update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
 	update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
+
+	// Update ancestor total counts by the persisted difference
+	if ( true === $update_ancestors ) {
+		bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_reply_count', $total_replies - $old_total_replies );
+	}
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_forum_reply_count', $total_replies, $forum_id );
@@ -2117,16 +2252,21 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  * Adjust the total hidden reply count of a forum.
  *
  * @since 2.6.0 bbPress (r6922)
+ * @since 2.6.16 Optionally update ancestor forum totals.
  *
  * @param int  $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
+ * @param bool $update_ancestors Optional. Whether to update ancestor totals.
  *
  * @return int Forum reply count.
  */
-function bbp_update_forum_reply_count_hidden( $forum_id = 0 ) {
+function bbp_update_forum_reply_count_hidden( $forum_id = 0, $update_ancestors = false ) {
 
-	$forum_id = bbp_get_forum_id( $forum_id );
+	$forum_id             = bbp_get_forum_id( $forum_id );
+	$old_total_replies    = ( true === $update_ancestors )
+		? (int) get_post_meta( $forum_id, '_bbp_total_reply_count_hidden', true )
+		: 0;
 	$children_reply_count = 0;
 
 	// Loop through children and add together forum reply counts
@@ -2148,6 +2288,11 @@ function bbp_update_forum_reply_count_hidden( $forum_id = 0 ) {
 	// Update the counts
 	update_post_meta( $forum_id, '_bbp_reply_count_hidden',       $reply_count   );
 	update_post_meta( $forum_id, '_bbp_total_reply_count_hidden', $total_replies );
+
+	// Update ancestor total counts by the persisted difference
+	if ( true === $update_ancestors ) {
+		bbp_bump_forum_ancestor_count( $forum_id, '_bbp_total_reply_count_hidden', $total_replies - $old_total_replies );
+	}
 
 	// Filter & return
 	return (int) apply_filters( 'bbp_update_forum_reply_count_hidden', $total_replies, $forum_id );
@@ -2738,14 +2883,46 @@ function bbp_forum_query_topic_ids( $forum_id ) {
 /**
  * Returns the forum's subforum ids.
  *
- * Only forums with published status are returned.
+ * Only forums with countable statuses are returned.
  *
  * @since 2.0.0 bbPress (r2908)
+ * @since 2.6.16 Exclude forums with uncountable statuses.
  *
  * @param int $forum_id Forum id.
  */
 function bbp_forum_query_subforum_ids( $forum_id ) {
-	$subforum_ids = bbp_get_all_child_ids( $forum_id, bbp_get_forum_post_type() );
+	$forum_id     = bbp_get_forum_id( $forum_id );
+	$statuses     = bbp_get_countable_forum_statuses();
+	$subforum_ids = array();
+
+	// Query and cache countable subforums. The public child-ID helper excludes
+	// private and hidden forums, while the all-child helper includes trash, so
+	// neither existing helper represents the statuses counted here.
+	if ( ! empty( $forum_id ) && ! empty( $statuses ) ) {
+		$key = md5(
+			serialize(
+				array(
+					'parent_id'   => $forum_id,
+					'post_type'   => bbp_get_forum_post_type(),
+					'post_status' => $statuses
+				)
+			)
+		);
+		$cache_key    = "bbp_child_ids:{$key}:" . wp_cache_get_last_changed( 'bbpress_posts' );
+		$subforum_ids = wp_cache_get( $cache_key, 'bbpress_posts' );
+
+		if ( false === $subforum_ids ) {
+			$bbp_db       = bbp_db();
+			$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+			$query        = $bbp_db->prepare(
+				"SELECT ID FROM {$bbp_db->posts} WHERE post_parent = %d AND post_type = %s AND post_status IN ({$placeholders}) ORDER BY ID DESC",
+				array_merge( array( $forum_id, bbp_get_forum_post_type() ), $statuses )
+			);
+			$subforum_ids = (array) $bbp_db->get_col( $query );
+
+			wp_cache_set( $cache_key, $subforum_ids, 'bbpress_posts' );
+		}
+	}
 
 	// Filter & return
 	return (array) apply_filters( 'bbp_forum_query_subforum_ids', $subforum_ids, $forum_id );

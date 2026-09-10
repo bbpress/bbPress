@@ -429,6 +429,7 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * Remove an object from all users.
 	 *
 	 * @since 2.6.0 bbPress (r6737)
+	 * @since 2.6.16 Limit removal to the requested relationship taxonomy.
 	 *
 	 * @param int    $object_id The object id.
 	 * @param int    $user_id   The user id.
@@ -438,7 +439,10 @@ class BBP_User_Engagements_Term extends BBP_User_Engagements_Base {
 	 * @return bool Returns true on success, false on failure.
 	 */
 	public function remove_object_from_all_users( $object_id = 0, $meta_key = '', $meta_type = 'post' ) {
-		return wp_delete_object_term_relationships( $object_id, get_object_taxonomies( 'bbp_user' ) );
+		$tax_key = "{$meta_key}_{$meta_type}";
+		$this->jit_taxonomy( $tax_key );
+
+		return wp_delete_object_term_relationships( $object_id, $tax_key );
 	}
 
 	/**
