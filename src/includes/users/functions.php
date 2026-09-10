@@ -719,12 +719,17 @@ function bbp_bump_user_topic_count( $user_id = 0, $difference = 1 ) {
 		? bbp_get_user_topic_count_raw( $user_id ) - $difference
 		: bbp_get_user_topic_count( $user_id, true );
 
-	$user_topic_count = bbp_number_not_negative( $count + $difference );
+	$user_topic_count = (int) bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
 	$new_count = (int) apply_filters( 'bbp_bump_user_topic_count', $user_topic_count, $user_id, $difference, $count );
 
-	return bbp_update_user_topic_count( $user_id, $new_count );
+	// Preserve absolute count filters before using the atomic difference
+	$difference = ( $new_count === $user_topic_count )
+		? $new_count - $count
+		: false;
+
+	return bbp_update_user_topic_count( $user_id, $new_count, $difference );
 }
 
 /**
@@ -755,12 +760,175 @@ function bbp_bump_user_reply_count( $user_id = 0, $difference = 1 ) {
 		? bbp_get_user_reply_count_raw( $user_id ) - $difference
 		: bbp_get_user_reply_count( $user_id, true );
 
-	$user_reply_count = bbp_number_not_negative( $count + $difference );
+	$user_reply_count = (int) bbp_number_not_negative( $count + $difference );
 
 	// Add them up and filter them
 	$new_count = (int) apply_filters( 'bbp_bump_user_reply_count', $user_reply_count, $user_id, $difference, $count );
 
-	return bbp_update_user_reply_count( $user_id, $new_count );
+	// Preserve absolute count filters before using the atomic difference
+	$difference = ( $new_count === $user_reply_count )
+		? $new_count - $count
+		: false;
+
+	return bbp_update_user_reply_count( $user_id, $new_count, $difference );
+}
+
+/**
+ * Update user counts when a topic or reply changes authors.
+ *
+ * @since 2.6.16
+ *
+ * @param int     $post_id     Post ID.
+ * @param WP_Post $post_after  Post object following the update.
+ * @param WP_Post $post_before Post object before the update.
+ */
+function bbp_update_counts_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
+
+	// Bail if the author or post type did not change as expected
+	if ( ( $post_after->post_author === $post_before->post_author ) || ( $post_after->post_type !== $post_before->post_type ) ) {
+		return;
+	}
+
+	// Set topic public membership
+	if ( bbp_get_topic_post_type() === $post_after->post_type ) {
+		$public_statuses = bbp_get_public_topic_statuses();
+		$was_public      = in_array( $post_before->post_status, $public_statuses, true );
+		$is_public       = in_array( $post_after->post_status,  $public_statuses, true );
+		$is_topic        = true;
+
+	// Set reply public membership
+	} elseif ( bbp_get_reply_post_type() === $post_after->post_type ) {
+		$public_statuses = bbp_get_public_reply_statuses();
+		$was_public      = in_array( $post_before->post_status, $public_statuses, true );
+		$is_public       = in_array( $post_after->post_status,  $public_statuses, true );
+		$is_topic        = false;
+
+	// Bail if this is not a topic or reply
+	} else {
+		return;
+	}
+
+	// The transition callback already handles posts that were not public
+	if ( ! $was_public ) {
+		return;
+	}
+
+	// Transfer a public contribution between authors
+	if ( $is_public ) {
+		if ( $is_topic ) {
+			bbp_bump_user_topic_count( $post_before->post_author, -1 );
+			bbp_bump_user_topic_count( $post_after->post_author,   1 );
+		} else {
+			bbp_bump_user_reply_count( $post_before->post_author, -1 );
+			bbp_bump_user_reply_count( $post_after->post_author,   1 );
+		}
+
+	// Repair both authors after the transition callback targeted the new author
+	} else {
+		foreach ( bbp_get_unique_array_values( array( $post_before->post_author, $post_after->post_author ) ) as $user_id ) {
+			if ( $is_topic ) {
+				bbp_update_user_topic_count( $user_id, bbp_get_user_topic_count_raw( $user_id ) );
+			} else {
+				bbp_update_user_reply_count( $user_id, bbp_get_user_reply_count_raw( $user_id ) );
+			}
+		}
+	}
+}
+
+/**
+ * Update topic engagements when a topic or reply changes authors.
+ *
+ * @since 2.6.16
+ *
+ * @param int     $post_id     Post ID.
+ * @param WP_Post $post_after  Post object following the update.
+ * @param WP_Post $post_before Post object before the update.
+ */
+function bbp_recalculate_engagements_on_post_author_change( $post_id = 0, $post_after = false, $post_before = false ) {
+
+	// Bail if the author did not change
+	if ( $post_after->post_author === $post_before->post_author ) {
+		return;
+	}
+
+	// Get the topic ID from a topic or reply
+	if ( bbp_get_topic_post_type() === $post_after->post_type ) {
+		$topic_id = $post_id;
+	} elseif ( bbp_get_reply_post_type() === $post_after->post_type ) {
+		$topic_id = bbp_get_reply_topic_id( $post_id );
+	} else {
+		return;
+	}
+
+	// Recalculate engagements and their count
+	bbp_recalculate_topic_engagements( $topic_id );
+	bbp_update_topic_voice_count( $topic_id );
+}
+
+/**
+ * Update counts and engagements when a deleted user's posts are reassigned.
+ *
+ * WordPress reassigns post authors directly in the database, bypassing the
+ * normal post update actions. Record affected topics before that write, then
+ * repair the replacement user's counts and those topics after it completes.
+ *
+ * @since 2.6.16
+ *
+ * @param int      $user_id  ID of the user being deleted.
+ * @param int|null $reassign ID of the user receiving the posts.
+ */
+function bbp_update_counts_on_user_reassignment( $user_id = 0, $reassign = null ) {
+	static $topic_ids = array();
+
+	$user_id = (int) $user_id;
+	$reassign = (int) $reassign;
+
+	// Bail if posts are not being reassigned to another user
+	if ( empty( $user_id ) || empty( $reassign ) || ( $user_id === $reassign ) ) {
+		return;
+	}
+
+	$key = get_current_blog_id() . ':' . $user_id . ':' . $reassign;
+
+	// Record affected topics before WordPress changes their authors directly
+	if ( 'delete_user' === current_filter() ) {
+		$bbp_db     = bbp_db();
+		$topic_type = bbp_get_topic_post_type();
+		$reply_type = bbp_get_reply_post_type();
+		$query      = $bbp_db->prepare(
+			"SELECT DISTINCT CASE WHEN post_type = %s THEN ID ELSE post_parent END FROM {$bbp_db->posts} WHERE post_author = %d AND post_type IN ( %s, %s )",
+			$topic_type,
+			$user_id,
+			$topic_type,
+			$reply_type
+		);
+
+		$topic_ids[ $key ] = wp_parse_id_list( array_filter( $bbp_db->get_col( $query ) ) );
+		return;
+	}
+
+	// Bail unless WordPress completed the reassignment recorded above
+	if ( ( 'deleted_user' !== current_filter() ) || ! isset( $topic_ids[ $key ] ) ) {
+		return;
+	}
+
+	$affected_topic_ids = $topic_ids[ $key ];
+	unset( $topic_ids[ $key ] );
+
+	// Bail if the deleted user did not author any topics or replies
+	if ( empty( $affected_topic_ids ) ) {
+		return;
+	}
+
+	// Recount contributions for the replacement user
+	bbp_update_user_topic_count( $reassign, bbp_get_user_topic_count_raw( $reassign ) );
+	bbp_update_user_reply_count( $reassign, bbp_get_user_reply_count_raw( $reassign ) );
+
+	// Rebuild engagements and voices for each affected topic
+	foreach ( $affected_topic_ids as $topic_id ) {
+		bbp_recalculate_topic_engagements( $topic_id, true );
+		bbp_update_topic_voice_count( $topic_id );
+	}
 }
 
 /**

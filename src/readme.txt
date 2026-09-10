@@ -55,9 +55,13 @@ bbPress no longer attaches its built-in increase, decrease, and insertion count 
 
 Permanent deletion does not produce a post-status transition. Its count maintenance continues through the existing `bbp_deleted_topic` and `bbp_deleted_reply` actions.
 
+Count bump functions now use conditional metadata writes and bounded retries so simultaneous requests do not overwrite each other's existing count changes. Existing bbPress count filters and the standard WordPress metadata filters and actions continue to run. WordPress metadata tables do not enforce unique object-and-key pairs, so simultaneous first-time inserts retain the same limitation as the core metadata API. The `bbp_pre_bump_count_meta` filter can short-circuit an update, the `bbp_bump_count_meta_max_attempts` filter controls the default limit of five write attempts, and the `bbp_bump_count_meta_types` filter controls the post, user, term, and comment metadata types supported by default. `bbp_update_user_topic_count()` and `bbp_update_user_reply_count()` accept an optional third `$difference` argument for this internal bump lifecycle; existing calls remain compatible.
+
+Post-author changes and user deletion with post reassignment now reconcile affected user contribution, topic engagement, and voice counts. Moderator move, merge, and split operations also reconcile source, destination, and ancestor forum counts. Forum count updater functions accept an optional final argument for propagating a recount's difference through ancestor totals; existing calls remain compatible. Forum reply recounts include public replies only when their parent topics are also public. A public reply beneath a non-public topic is excluded from the public forum total without being included in the pending, spammed, and trashed reply count. Topic engagement recounts honor filtered public topic and reply statuses, and preserve other term-backed relationships.
+
 = Subforum counts in 2.6.16 =
 
-bbPress now maintains subforum counts when forums are trashed, restored, permanently deleted, or moved between parents. The new `bbp_post_updated` action receives the post ID, the updated `WP_Post` object, and the previous `WP_Post` object after any bbPress post type is updated.
+bbPress now maintains subforum counts when forums are trashed, restored, permanently deleted, or moved between parents. Recursive forum counts include public, private, and hidden subforums while excluding subforums with uncountable statuses. The new `bbp_post_updated` action receives the post ID, the updated `WP_Post` object, and the previous `WP_Post` object after any bbPress post type is updated.
 
 == Screenshots ==
 

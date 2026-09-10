@@ -123,12 +123,14 @@ function bbp_filter_get_user_option( $value = false, $option = '', $user = 0 ) {
  * Update the topic count for a user
  *
  * @since 2.6.0 bbPress (r5309)
+ * @since 2.6.16 Support atomic count differences.
  *
- * @param int $user_id
- * @param mixed $count
+ * @param int       $user_id    User ID.
+ * @param mixed     $count      New topic count.
+ * @param int|false $difference Optional. Difference from the previous count.
  * @return boolean
  */
-function bbp_update_user_topic_count( $user_id = 0, $count = false ) {
+function bbp_update_user_topic_count( $user_id = 0, $count = false, $difference = false ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id );
@@ -137,6 +139,7 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false ) {
 	}
 
 	// Just in time filtering of the user's topic count
+	$unfiltered_count = $count;
 	$count = apply_filters( 'bbp_update_user_topic_count', $count, $user_id );
 
 	// Bail if no count was passed
@@ -144,20 +147,31 @@ function bbp_update_user_topic_count( $user_id = 0, $count = false ) {
 		return false;
 	}
 
+	// Atomically bump an unfiltered user option
+	if ( ( false !== $difference ) && ( $count === $unfiltered_count ) ) {
+		$default  = (int) $unfiltered_count - (int) $difference;
+		$meta_key = bbp_db()->get_blog_prefix() . '_bbp_topic_count';
+		$result   = bbp_bump_count_meta( 'user', $user_id, $meta_key, $difference, $default );
+
+		return $result;
+	}
+
 	// Return the updated user option
 	return update_user_option( $user_id, '_bbp_topic_count', $count );
 }
 
 /**
- * Update the reply count for a user
+ * Update the reply count for a user.
  *
  * @since 2.6.0 bbPress (r5309)
+ * @since 2.6.16 Support atomic count differences.
  *
- * @param int $user_id
- * @param mixed $count
+ * @param int       $user_id    User ID.
+ * @param mixed     $count      New reply count.
+ * @param int|false $difference Optional. Difference from the previous count.
  * @return boolean
  */
-function bbp_update_user_reply_count( $user_id = 0, $count = false ) {
+function bbp_update_user_reply_count( $user_id = 0, $count = false, $difference = false ) {
 
 	// Validate user id
 	$user_id = bbp_get_user_id( $user_id );
@@ -166,11 +180,21 @@ function bbp_update_user_reply_count( $user_id = 0, $count = false ) {
 	}
 
 	// Just in time filtering of the user's reply count
+	$unfiltered_count = $count;
 	$count = apply_filters( 'bbp_update_user_reply_count', $count, $user_id );
 
 	// Bail if no count was passed
 	if ( false === $count ) {
 		return false;
+	}
+
+	// Atomically bump an unfiltered user option
+	if ( ( false !== $difference ) && ( $count === $unfiltered_count ) ) {
+		$default  = (int) $unfiltered_count - (int) $difference;
+		$meta_key = bbp_db()->get_blog_prefix() . '_bbp_reply_count';
+		$result   = bbp_bump_count_meta( 'user', $user_id, $meta_key, $difference, $default );
+
+		return $result;
 	}
 
 	// Return the updated user option

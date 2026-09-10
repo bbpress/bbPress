@@ -68,6 +68,36 @@ class BBP_Tests_Forums_Functions_Query extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_forum_query_subforum_ids
+	 * @ticket BBP3678
+	 */
+	public function test_bbp_forum_query_subforum_ids_excludes_uncountable_statuses() {
+		$this->assertSame( array(), bbp_forum_query_subforum_ids( 0 ) );
+
+		$parent_id = $this->factory->forum->create();
+		$public_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		$hidden_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$private_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+			'post_status' => bbp_get_private_status_id(),
+		) );
+		$trash_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		wp_update_post( array(
+			'ID'          => $trash_id,
+			'post_status' => bbp_get_trash_status_id(),
+		) );
+
+		$this->assertEqualSets( array( $public_id, $private_id, $hidden_id ), bbp_forum_query_subforum_ids( $parent_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_forum_query_last_reply_id
 	 */
 	public function test_bbp_forum_query_last_reply_id() {

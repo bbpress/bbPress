@@ -39,11 +39,21 @@ Development for the next bbPress release is in progress. See the active
 - Prevented stale post caches during nested updates and repeated moderation.
 - Kept public, hidden, and author contribution counts accurate when topics and
   replies change moderation status or are permanently deleted.
-- Kept subforum counts accurate across public, private, hidden, trashed, moved,
-  restored, and permanently deleted forums.
+- Prevented simultaneous topic and reply submissions from overwriting each
+  other's existing stored count changes.
+- Kept forum, ancestor, contribution, engagement, and voice counts synchronized
+  when moderators move replies or merge and split topics.
+- Reconciled replacement-user contribution, engagement, and voice counts when
+  a deleted user's posts are reassigned.
+- Excluded replies beneath non-public topics from forum reply counts during
+  moderation and repair recounts.
+- Kept subforum counts and recursive forum aggregates accurate across public,
+  private, hidden, trashed, moved, restored, and permanently deleted forums.
 - Corrected count repair tools to clear stale metadata caches, exclude anonymous
   authors from voice counts, honor reply-status filters, rebuild private and
   hidden forums, and preserve similarly named metadata on other post types.
+- Made topic engagement and voice recounts honor filtered public reply statuses.
+- Preserved term-backed favorites and subscriptions during engagement recounts.
 - Prevented BuddyPress integration from loading bbPress translations before
   WordPress initialization.
 

@@ -249,13 +249,127 @@ class BBP_Tests_Replies_Functions_Reply extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_move_reply_count
-	 * @todo   Implement test_bbp_move_reply_count().
 	 */
 	public function test_bbp_move_reply_count() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$topic_author_id       = $this->factory->user->create();
+		$reply_author_id       = $this->factory->user->create();
+		$destination_author_id = $this->factory->user->create();
+		$source_parent_id      = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$destination_parent_id = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$source_forum_id       = $this->factory->forum->create( array( 'post_parent' => $source_parent_id ) );
+		$destination_forum_id  = $this->factory->forum->create( array( 'post_parent' => $destination_parent_id ) );
+		$source_topic_id      = $this->factory->topic->create( array(
+			'post_author' => $topic_author_id,
+			'post_parent' => $source_forum_id,
+			'topic_meta'  => array( 'forum_id' => $source_forum_id ),
+		) );
+		$destination_topic_id = $this->factory->topic->create( array(
+			'post_author' => $destination_author_id,
+			'post_parent' => $destination_forum_id,
+			'topic_meta'  => array( 'forum_id' => $destination_forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_author' => $reply_author_id,
+			'post_parent' => $source_topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $source_forum_id,
+				'topic_id' => $source_topic_id,
+			),
+		) );
+
+		wp_update_post( array(
+			'ID'          => $reply_id,
+			'post_parent' => $destination_topic_id,
+		) );
+		bbp_update_reply_topic_id( $reply_id, $destination_topic_id );
+		bbp_update_reply_forum_id( $reply_id, $destination_forum_id );
+		bbp_move_reply_count( $reply_id, $source_topic_id, $destination_topic_id );
+
+		$this->assertSame( 0, bbp_get_forum_reply_count( $source_forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $destination_forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $source_parent_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $destination_parent_id, true, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count( $source_topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count( $destination_topic_id, true ) );
+		$this->assertEqualSets( array( $topic_author_id ), bbp_get_topic_engagements( $source_topic_id ) );
+		$this->assertEqualSets( array( $reply_author_id, $destination_author_id ), bbp_get_topic_engagements( $destination_topic_id ) );
+		$this->assertSame( 1, bbp_get_topic_voice_count( $source_topic_id, true ) );
+		$this->assertSame( 2, bbp_get_topic_voice_count( $destination_topic_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_count
+	 */
+	public function test_bbp_move_reply_count_updates_hidden_counts() {
+		$source_parent_id      = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$destination_parent_id = $this->factory->forum->create( array( 'forum_meta' => array( 'forum_type' => 'category' ) ) );
+		$source_forum_id       = $this->factory->forum->create( array( 'post_parent' => $source_parent_id ) );
+		$destination_forum_id  = $this->factory->forum->create( array( 'post_parent' => $destination_parent_id ) );
+		$source_topic_id      = $this->factory->topic->create( array(
+			'post_parent' => $source_forum_id,
+			'topic_meta'  => array( 'forum_id' => $source_forum_id ),
+		) );
+		$destination_topic_id = $this->factory->topic->create( array(
+			'post_parent' => $destination_forum_id,
+			'topic_meta'  => array( 'forum_id' => $destination_forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $source_topic_id,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta'  => array(
+				'forum_id' => $source_forum_id,
+				'topic_id' => $source_topic_id,
+			),
+		) );
+
+		wp_update_post( array(
+			'ID'          => $reply_id,
+			'post_parent' => $destination_topic_id,
+		) );
+		bbp_update_reply_topic_id( $reply_id, $destination_topic_id );
+		bbp_update_reply_forum_id( $reply_id, $destination_forum_id );
+		bbp_move_reply_count( $reply_id, $source_topic_id, $destination_topic_id );
+
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $source_forum_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $destination_forum_id, true, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $source_parent_id, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $destination_parent_id, true, true ) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $source_topic_id, true ) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $destination_topic_id, true ) );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_count
+	 */
+	public function test_bbp_move_reply_count_transfers_contribution_when_converted_to_topic() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		wp_update_post( array(
+			'ID'          => $reply_id,
+			'post_parent' => $forum_id,
+			'post_type'   => bbp_get_topic_post_type(),
+		) );
+		bbp_update_topic_forum_id( $reply_id, $forum_id );
+		bbp_update_topic_topic_id( $reply_id );
+		bbp_move_reply_count( $reply_id, $topic_id, $reply_id );
+
+		$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
+		$this->assertSame( 1, bbp_get_user_topic_count( $user_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, true, true ) );
+		$this->assertSame( 2, bbp_get_forum_topic_count( $forum_id, true, true ) );
 	}
 
 	/**

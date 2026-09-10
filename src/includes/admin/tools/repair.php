@@ -426,7 +426,7 @@ function bbp_admin_repair_forum_topic_count() {
 	$sql_delete = "DELETE `postmeta` FROM `{$bbp_db->postmeta}` AS `postmeta`
 						LEFT JOIN `{$bbp_db->posts}` AS `posts` ON `posts`.`ID` = `postmeta`.`post_id`
 						WHERE `posts`.`post_type` = '{$fpt}'
-						AND `postmeta`.`meta_key` IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden' )";
+						AND `postmeta`.`meta_key` IN ( '_bbp_topic_count', '_bbp_total_topic_count', '_bbp_topic_count_hidden', '_bbp_total_topic_count_hidden' )";
 	if ( false === $bbp_db->query( $sql_delete ) ) {
 		return array( 1, sprintf( $statement, $result ) );
 	}

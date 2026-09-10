@@ -91,6 +91,42 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 */
+	public function test_bbp_topic_draft_reply_is_not_counted_as_hidden() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'post_status' => 'draft',
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+
+		wp_update_post( array(
+			'ID'          => $reply_id,
+			'post_status' => bbp_get_pending_status_id(),
+		) );
+		$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+
+		wp_update_post( array(
+			'ID'          => $reply_id,
+			'post_status' => 'draft',
+		) );
+		$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+	}
+
+	/**
 	 * Generic function to test the topic counts on a deleted reply
 	 */
 	public function test_bbp_topic_deleted_reply_counts() {
@@ -379,6 +415,29 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_bump_topic_reply_count
+	 * @ticket BBP3678
+	 */
+	public function test_bbp_bump_topic_reply_count_preserves_an_interleaved_update() {
+		$topic_id   = $this->factory->topic->create();
+		$interleaved = false;
+		$callback    = function( $count, $filtered_topic_id ) use ( &$interleaved ) {
+			if ( ! $interleaved ) {
+				$interleaved = true;
+				bbp_bump_topic_reply_count( $filtered_topic_id );
+			}
+
+			return $count;
+		};
+
+		add_filter( 'bbp_get_topic_reply_count_int', $callback, 10, 2 );
+		bbp_bump_topic_reply_count( $topic_id );
+		remove_filter( 'bbp_get_topic_reply_count_int', $callback, 10 );
+
+		$this->assertSame( 2, bbp_get_topic_reply_count( $topic_id, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_decrease_topic_reply_count
 	 */
 	public function test_bbp_decrease_topic_reply_count() {
@@ -588,6 +647,49 @@ class BBP_Tests_Topics_Functions_Counts extends BBP_UnitTestCase {
 		bbp_update_topic_voice_count( $t );
 		$count = bbp_get_topic_voice_count( $t );
 		$this->assertSame( '2', $count );
+	}
+
+	/**
+	 * @covers ::bbp_get_topic_engagements_raw
+	 * @covers ::bbp_recalculate_topic_engagements
+	 * @covers ::bbp_update_topic_voice_count
+	 * @ticket BBP3678
+	 */
+	public function test_topic_voice_count_honors_filtered_public_reply_statuses() {
+		$topic_author_id = $this->factory->user->create();
+		$reply_author_id = $this->factory->user->create();
+		$forum_id        = $this->factory->forum->create();
+		$topic_id        = $this->factory->topic->create( array(
+			'post_author' => $topic_author_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$public_statuses = function( $statuses ) {
+			$statuses[] = 'private';
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_public_reply_statuses', $public_statuses );
+
+		try {
+			$this->factory->reply->create( array(
+				'post_author' => $reply_author_id,
+				'post_parent' => $topic_id,
+				'post_status' => 'private',
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			) );
+
+			bbp_recalculate_topic_engagements( $topic_id, true );
+			bbp_update_topic_voice_count( $topic_id );
+		} finally {
+			remove_filter( 'bbp_get_public_reply_statuses', $public_statuses, 10 );
+		}
+
+		$this->assertSame( array( $topic_author_id, $reply_author_id ), bbp_get_topic_engagements( $topic_id ) );
+		$this->assertSame( 2, bbp_get_topic_voice_count( $topic_id, true ) );
 	}
 
 	/**

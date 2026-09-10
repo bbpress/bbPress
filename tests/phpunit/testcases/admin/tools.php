@@ -369,6 +369,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
+		// Category total topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
+		$this->assertSame( 2, $count );
+
 		// Forum topic count.
 		$count = bbp_get_forum_topic_count( $f, false, true );
 		$this->assertSame( 2, $count );
@@ -381,8 +385,11 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 2, $count );
 
-		// Delete the _bbp_total_topic_count meta key.
+		// Delete the _bbp_topic_count_hidden meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_topic_count_hidden' ) );
+
+		// Delete the _bbp_total_topic_count_hidden meta key.
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_topic_count_hidden' ) );
 
 		// Delete the _bbp_total_topic_count meta key.
 		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_topic_count' ) );
@@ -400,6 +407,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 
 		// Category topic count hidden.
 		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
+		$this->assertSame( 0, $count );
+
+		// Category total topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
 		$this->assertSame( 0, $count );
 
 		// Forum topic count.
@@ -429,6 +440,10 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		$count = bbp_get_forum_topic_count_hidden( $c, false, true );
 		$this->assertSame( 0, $count );
 
+		// Category total topic count hidden.
+		$count = bbp_get_forum_topic_count_hidden( $c, true, true );
+		$this->assertSame( 2, $count );
+
 		// Forum topic count.
 		$count = bbp_get_forum_topic_count( $f, false, true );
 		$this->assertSame( 2, $count );
@@ -440,6 +455,47 @@ class BBP_Tests_Admin_Tools extends BBP_UnitTestCase {
 		// Forum topic count hidden.
 		$count = bbp_get_forum_topic_count_hidden( $f, true, true );
 		$this->assertSame( 2, $count );
+	}
+
+	/**
+	 * @covers ::bbp_admin_repair_forum_hidden_reply_count
+	 */
+	public function test_bbp_admin_repair_forum_hidden_reply_count() {
+		$c = $this->factory->forum->create( array(
+			'forum_meta' => array( 'forum_type' => 'category' ),
+		) );
+		$f = $this->factory->forum->create( array(
+			'post_parent' => $c,
+			'forum_meta'  => array( 'forum_id' => $c ),
+		) );
+		$t = $this->factory->topic->create( array(
+			'post_parent' => $f,
+			'topic_meta'  => array( 'forum_id' => $f ),
+		) );
+
+		$this->factory->reply->create( array(
+			'post_parent' => $t,
+			'post_status' => bbp_get_pending_status_id(),
+			'reply_meta'  => array(
+				'forum_id' => $f,
+				'topic_id' => $t,
+			),
+		) );
+
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $c, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $c, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $f, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $f, true, true ) );
+
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_reply_count_hidden' ) );
+		$this->assertTrue( delete_post_meta_by_key( '_bbp_total_reply_count_hidden' ) );
+
+		bbp_admin_repair_forum_hidden_reply_count();
+
+		$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $c, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $c, true, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $f, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $f, true, true ) );
 	}
 
 	/**

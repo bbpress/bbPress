@@ -285,6 +285,12 @@ add_action( 'bbp_post_updated',    'bbp_update_forum_subforum_counts_on_post_upd
 // Update user topic & reply counts
 add_action( 'bbp_deleted_topic', 'bbp_decrease_user_topic_count' );
 add_action( 'bbp_deleted_reply', 'bbp_decrease_user_reply_count' );
+add_action( 'bbp_post_updated',  'bbp_update_counts_on_post_author_change', 10, 3 );
+add_action( 'bbp_post_updated',  'bbp_recalculate_engagements_on_post_author_change', 20, 3 );
+
+// Update counts and engagements after WordPress reassigns a deleted user's posts
+add_action( 'delete_user',  'bbp_update_counts_on_user_reassignment', 10, 2 );
+add_action( 'deleted_user', 'bbp_update_counts_on_user_reassignment', 10, 2 );
 
 // Topic status transition helpers for replies
 add_action( 'bbp_trash_topic',   'bbp_trash_topic_replies'   );
