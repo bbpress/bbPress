@@ -79,6 +79,13 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				$_post = get_post( $args[0] );
 				if ( ! empty( $_post ) ) {
 
+					// Check whether the user can read restricted ancestors
+					$parent_id = bbp_get_forum_parent_id( $_post->ID );
+					if ( ! empty( $parent_id ) && bbp_is_forum_restricted( $parent_id, true ) && ! bbp_is_user_forum_moderator( $user_id, $_post->ID ) && ! user_can( $user_id, 'read_forum', $parent_id ) ) {
+						$caps = array( 'do_not_allow' );
+						break;
+					}
+
 					// Get caps for post type object
 					$post_type = get_post_type_object( $_post->post_type );
 
@@ -257,6 +264,7 @@ function bbp_is_user_forum_moderator( $user_id = 0, $forum_id = 0 ) {
  * @return array
  */
 function bbp_allow_forums_of_user( $forum_ids = array(), $user_id = 0 ) {
+	$user_id = bbp_get_user_id( $user_id, false, empty( $user_id ) );
 
 	// Store the original forum IDs
 	$original_forum_ids = $forum_ids;
@@ -267,8 +275,8 @@ function bbp_allow_forums_of_user( $forum_ids = array(), $user_id = 0 ) {
 		// Loop through forum IDs
 		foreach ( $forum_ids as $key => $forum_id ) {
 
-			// Unset forum ID if user is a moderator
-			if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) ) {
+			// Unset forum ID if user is a moderator or can otherwise read it
+			if ( bbp_is_user_forum_moderator( $user_id, $forum_id ) || user_can( $user_id, 'read_forum', $forum_id ) ) {
 				unset( $forum_ids[ $key ] );
 			}
 		}

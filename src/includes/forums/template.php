@@ -1697,6 +1697,23 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 }
 
 /**
+ * Is the forum private or hidden?
+ *
+ * @since 2.6.16
+ *
+ * @param int  $forum_id Optional. Forum id.
+ * @param bool $check_ancestors Whether to check the forum ancestors.
+ * @return bool True if private or hidden, false if not.
+ */
+function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$retval   = bbp_is_forum_private( $forum_id, $check_ancestors ) || bbp_is_forum_hidden( $forum_id, $check_ancestors );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_forum_restricted', $retval, $forum_id, $check_ancestors );
+}
+
+/**
  * Check the forum visibility ID
  *
  * @since 2.6.0 bbPress (r5499)
@@ -1853,16 +1870,9 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', 
 		}
 	}
 
-	// Include ancestors in case a public forum is below a restricted forum
-	$forum_ids = array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
-
-	foreach ( $forum_ids as $check_id ) {
-		$restricted = bbp_is_forum_private( $check_id, false ) || bbp_is_forum_hidden( $check_id, false );
-
-		if ( $restricted && ! current_user_can( 'read_forum', $check_id ) ) {
-			$retval = '-';
-			break;
-		}
+	// Suppress if this forum or an ancestor is restricted from the current user
+	if ( bbp_is_forum_restricted( $forum_id, true ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+		$retval = '-';
 	}
 
 	// Filter & return
@@ -1906,16 +1916,9 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 				break;
 		}
 
-		// Include ancestors in case a public forum is below a restricted forum
-		$forum_ids = array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
-
-		foreach ( $forum_ids as $check_id ) {
-			$restricted = bbp_is_forum_private( $check_id, false ) || bbp_is_forum_hidden( $check_id, false );
-
-			if ( $restricted && ! current_user_can( 'read_forum', $check_id ) ) {
-				$retval = '';
-				break;
-			}
+		// Suppress if this forum or an ancestor is restricted from the current user
+		if ( bbp_is_forum_restricted( $forum_id, true ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+			$retval = '';
 		}
 	}
 
