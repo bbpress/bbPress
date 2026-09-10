@@ -299,6 +299,42 @@ class BBP_Tests_Forums_Functions_Counts extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 * @ticket BBP3678
+	 */
+	public function test_bbp_status_transition_counts_can_be_short_circuited() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$short_circuit = '__return_false';
+		add_filter( 'bbp_pre_update_counts_on_transition_post_status', $short_circuit );
+
+		try {
+			bbp_unapprove_topic( $topic_id );
+		} finally {
+			remove_filter( 'bbp_pre_update_counts_on_transition_post_status', $short_circuit );
+		}
+
+		$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+		$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		$this->assertSame( 1, bbp_get_user_topic_count( $user_id, true ) );
+	}
+
+	/**
 	 * Generic function to test the forum counts on a approved/unapproved topic
 	 */
 	public function test_bbp_forum_approved_unapproved_topic_counts() {

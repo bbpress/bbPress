@@ -24,6 +24,13 @@ Development for the next bbPress release is in progress. See the active
 
 - Updated the 2.6 build, lint, test, translation, and installed-package smoke
   test tooling.
+- Moved built-in topic, reply, forum, and user count synchronization to
+  `bbp_transition_post_status`. Existing creation and moderation actions still
+  fire, but no longer host bbPress's core count callbacks. Topic transitions
+  apply the stored reply-count difference to forum aggregates instead of
+  recounting every reply. Extensions that need finalized counts should use the
+  transition action at priority 11 or later; permanent deletion continues
+  through `bbp_deleted_topic` and `bbp_deleted_reply`.
 
 ### Security
 

@@ -232,6 +232,25 @@ function bbp_fix_untrash_post_status( $new_status = 'draft', $post_id = 0, $prev
  */
 function bbp_update_counts_on_transition_post_status( $new_status = '', $old_status = '', $post = false ) {
 
+	/**
+	 * Short-circuits count updates for a persisted post-status transition.
+	 *
+	 * Returning a non-null value prevents the normal topic and reply count
+	 * updates. This allows integrations with custom post-status lifecycles or
+	 * count storage to replace the complete transition operation.
+	 *
+	 * @since 2.6.16
+	 *
+	 * @param null|bool $check      Whether to short-circuit count updates.
+	 * @param string    $new_status New post status.
+	 * @param string    $old_status Old post status.
+	 * @param WP_Post   $post       Post object.
+	 */
+	$check = apply_filters( 'bbp_pre_update_counts_on_transition_post_status', null, $new_status, $old_status, $post );
+	if ( null !== $check ) {
+		return (bool) $check;
+	}
+
 	// Bail if the status did not change
 	if ( $new_status === $old_status ) {
 		return;
@@ -269,9 +288,14 @@ function bbp_update_counts_on_transition_post_status( $new_status = '', $old_sta
 				bbp_bump_user_topic_count( $post->post_author, $public_difference );
 			}
 
-			// Recount replies after their parent topic crosses the public boundary
+			// Apply every public reply when its topic crosses the public boundary
 			if ( ! $is_new && ! empty( $forum_id ) && ! empty( $public_difference ) ) {
-				bbp_update_forum_reply_count( $forum_id, true );
+				$reply_count      = bbp_get_topic_reply_count( $post->ID, true );
+				$reply_difference = $reply_count * $public_difference;
+
+				if ( ! empty( $reply_difference ) ) {
+					bbp_bump_forum_reply_count( $forum_id, $reply_difference );
+				}
 			}
 		}
 

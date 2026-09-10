@@ -47,7 +47,7 @@ bbPress is intentionally simple yet infinitely powerful forum software, built by
 
 = Count updates in 2.6.16 =
 
-bbPress now synchronizes its built-in public and hidden topic and reply counts, aggregate forum counts, and user contribution counts on `bbp_transition_post_status` at priority 10, after WordPress persists the new post status. This action receives the new status, old status, and `WP_Post` object.
+bbPress now synchronizes its built-in public and hidden topic and reply counts, aggregate forum counts, and user contribution counts on `bbp_transition_post_status` at priority 10, after WordPress persists the new post status. When a topic crosses the public status boundary, its stored public reply count is applied to the forum aggregate instead of recounting every reply. The action receives the new status, old status, and `WP_Post` object. The `bbp_pre_update_counts_on_transition_post_status` filter can short-circuit the complete topic or reply count operation for custom status lifecycles or count storage.
 
 The existing `bbp_new_*`, `bbp_insert_*`, `bbp_trash_*`, `bbp_untrash_*`, `bbp_spam_*`, `bbp_unspam_*`, `bbp_approve_*`, and `bbp_unapprove_*` topic and reply actions continue to fire with their existing arguments and timing. Their corresponding completed actions, such as `bbp_trashed_*`, also remain available. The public count helper functions also remain callable.
 

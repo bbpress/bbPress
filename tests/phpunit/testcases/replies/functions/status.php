@@ -128,6 +128,60 @@ class BBP_Tests_Replies_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 * @ticket BBP3678
+	 */
+	public function test_custom_non_public_status_updates_reply_counts() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+		$add_archived = function( $statuses ) {
+			$statuses[] = 'archived';
+
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_non_public_reply_statuses', $add_archived );
+
+		try {
+			wp_update_post( array(
+				'ID'          => $reply_id,
+				'post_status' => 'archived',
+			) );
+
+			$this->assertSame( 0, bbp_get_topic_reply_count( $topic_id, true ) );
+			$this->assertSame( 1, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+			$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+			$this->assertSame( 0, bbp_get_user_reply_count( $user_id, true ) );
+
+			wp_update_post( array(
+				'ID'          => $reply_id,
+				'post_status' => bbp_get_public_status_id(),
+			) );
+
+			$this->assertSame( 1, bbp_get_topic_reply_count( $topic_id, true ) );
+			$this->assertSame( 0, bbp_get_topic_reply_count_hidden( $topic_id, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 0, bbp_get_forum_reply_count_hidden( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_user_reply_count( $user_id, true ) );
+		} finally {
+			remove_filter( 'bbp_get_non_public_reply_statuses', $add_archived );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_update_reply_walker
 	 */
 	public function test_deleting_hidden_reply_recounts_hidden_totals() {
