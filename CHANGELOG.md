@@ -33,10 +33,11 @@ Development for the next bbPress release is in progress. See the active
 - Raised the minimum requirements to WordPress 6.0 and PHP 7.2.
 - Moved built-in topic, reply, forum, and user count synchronization to
   `bbp_transition_post_status`. Existing creation and moderation actions still
-  fire, but no longer host bbPress's core count callbacks. Extensions that need
-  finalized counts should use the transition action at priority 11 or later;
-  permanent deletion continues through `bbp_deleted_topic` and
-  `bbp_deleted_reply`.
+  fire, but no longer host bbPress's core count callbacks. Topic transitions
+  apply the stored reply-count difference to forum aggregates instead of
+  recounting every reply. Extensions that need finalized counts should use the
+  transition action at priority 11 or later; permanent deletion continues
+  through `bbp_deleted_topic` and `bbp_deleted_reply`.
 - Kept the classic editor for forums, topics, and replies while making bbPress
   blocks available in Posts and Pages.
 - Shortened new-content labels and administration metabox titles.

@@ -77,6 +77,7 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_spam_topic
+	 * @covers ::bbp_update_counts_on_transition_post_status
 	 */
 	public function test_bbp_spam_topic() {
 		$f = $this->factory->forum->create();
@@ -232,6 +233,58 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 * @ticket BBP3678
+	 */
+	public function test_custom_non_public_status_updates_topic_and_forum_counts() {
+		$user_id  = $this->factory->user->create();
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_author' => $user_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+		$add_archived = function( $statuses ) {
+			$statuses[] = 'archived';
+
+			return $statuses;
+		};
+
+		add_filter( 'bbp_get_non_public_topic_statuses', $add_archived );
+
+		try {
+			wp_update_post( array(
+				'ID'          => $topic_id,
+				'post_status' => 'archived',
+			) );
+
+			$this->assertSame( 0, bbp_get_forum_topic_count( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+			$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 0, bbp_get_user_topic_count( $user_id, true ) );
+
+			wp_update_post( array(
+				'ID'          => $topic_id,
+				'post_status' => bbp_get_public_status_id(),
+			) );
+
+			$this->assertSame( 1, bbp_get_forum_topic_count( $forum_id, false, true ) );
+			$this->assertSame( 0, bbp_get_forum_topic_count_hidden( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_forum_reply_count( $forum_id, false, true ) );
+			$this->assertSame( 1, bbp_get_user_topic_count( $user_id, true ) );
+		} finally {
+			remove_filter( 'bbp_get_non_public_topic_statuses', $add_archived );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_spam_topic_replies
 	 */
 	public function test_bbp_spam_topic_replies() {
@@ -305,6 +358,7 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 
 	/**
 	 * @covers ::bbp_unspam_topic
+	 * @covers ::bbp_update_counts_on_transition_post_status
 	 */
 	public function test_bbp_unspam_topic() {
 		$f = $this->factory->forum->create();
@@ -380,6 +434,39 @@ class BBP_Tests_Topics_Functions_Status extends BBP_UnitTestCase {
 
 		$last_active_time = bbp_get_topic_last_active_time( $t );
 		$this->assertSame( $reply_time, $last_active_time );
+	}
+
+	/**
+	 * @covers ::bbp_update_counts_on_transition_post_status
+	 * @ticket BBP3678
+	 */
+	public function test_repeated_topic_status_cascades_do_not_drift_forum_reply_count() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array( 'forum_id' => $forum_id ),
+		) );
+		$this->factory->reply->create_many( 2, array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			bbp_spam_topic( $topic_id );
+			$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+
+			bbp_unspam_topic( $topic_id );
+			$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+
+			wp_trash_post( $topic_id );
+			$this->assertSame( 0, bbp_get_forum_reply_count( $forum_id, false, true ) );
+
+			wp_untrash_post( $topic_id );
+			$this->assertSame( 2, bbp_get_forum_reply_count( $forum_id, false, true ) );
+		}
 	}
 
 	/**
