@@ -144,8 +144,14 @@ class BBP_Tests_Common_Anonymous_Editing extends BBP_UnitTestCase {
 		$this->set_current_user( 0 );
 		bbpress()->errors = new WP_Error();
 
-		$_SERVER['HTTP_HOST']   = wp_parse_url( home_url(), PHP_URL_HOST );
-		$_SERVER['REQUEST_URI'] = '/';
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI'] = $home_url['path'];
 		$_POST['bbp_reply_id']  = $reply_id;
 		$_REQUEST['_wpnonce']   = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
 

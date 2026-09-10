@@ -57,8 +57,14 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 
 		$this->assertFalse( current_user_can( 'read_topic', $topic_id ) );
 
-		$_SERVER['HTTP_HOST']       = wp_parse_url( home_url(), PHP_URL_HOST );
-		$_SERVER['REQUEST_URI']     = '/';
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI']     = $home_url['path'];
 		$_POST['bbp_topic_id']      = $topic_id;
 		$_POST['bbp_reply_content'] = 'A reply to a private topic.';
 		$_REQUEST['_wpnonce']       = wp_create_nonce( 'bbp-new-reply' );
