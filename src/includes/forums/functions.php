@@ -2579,6 +2579,22 @@ function bbp_get_excluded_forum_ids() {
 		? array_filter( wp_parse_id_list( array_merge( $private, $hidden ) ) )
 		: array();
 
+	// Include descendants of private and hidden forums
+	$parents = $forum_ids;
+	while ( ! empty( $parents ) ) {
+		$parent_id = array_shift( $parents );
+
+		foreach ( bbp_forum_query_subforum_ids( $parent_id ) as $forum_id ) {
+			if ( ! in_array( $forum_id, $forum_ids, true ) ) {
+				$forum_ids[] = $forum_id;
+				$parents[]   = $forum_id;
+			}
+		}
+	}
+
+	// Normalize forum IDs after adding descendants
+	$forum_ids = wp_parse_id_list( $forum_ids );
+
 	// Filter & return
 	return (array) apply_filters( 'bbp_get_excluded_forum_ids', $forum_ids, $private, $hidden );
 }

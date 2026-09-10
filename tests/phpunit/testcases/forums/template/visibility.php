@@ -58,6 +58,31 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_forum_restricted
+	 */
+	public function test_bbp_is_forum_restricted() {
+		$public_id  = $this->factory->forum->create();
+		$private_id = $this->factory->forum->create( array(
+			'post_parent' => $public_id,
+			'post_status' => bbp_get_private_status_id(),
+		) );
+		$child_id   = $this->factory->forum->create( array(
+			'post_parent' => $private_id,
+		) );
+		$hidden_id  = $this->factory->forum->create( array(
+			'post_parent' => $child_id,
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+
+		$this->assertFalse( bbp_is_forum_restricted( $public_id ) );
+		$this->assertTrue( bbp_is_forum_restricted( $private_id ) );
+		$this->assertFalse( bbp_is_forum_restricted( $child_id ) );
+		$this->assertTrue( bbp_is_forum_restricted( $child_id, true ) );
+		$this->assertTrue( bbp_is_forum_restricted( $hidden_id ) );
+		$this->assertTrue( bbp_is_forum_restricted( $hidden_id, true ) );
+	}
+
+	/**
 	 * @covers ::bbp_suppress_private_forum_meta
 	 */
 	public function test_bbp_suppress_private_forum_meta() {

@@ -49,6 +49,266 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Create a restricted forum with public descendants and content.
+	 *
+	 * @param string $status Parent forum status.
+	 * @return int[] Forum, topic, and reply IDs.
+	 */
+	protected function create_inherited_visibility_test_posts( $status = 'hidden' ) {
+		$parent_id = $this->factory->forum->create( array(
+			'post_status' => $status,
+		) );
+		$child_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		$grandchild_id = $this->factory->forum->create( array(
+			'post_parent' => $child_id,
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $grandchild_id,
+			'topic_meta'  => array(
+				'forum_id' => $grandchild_id,
+			),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $grandchild_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		return compact( 'parent_id', 'child_id', 'grandchild_id', 'topic_id', 'reply_id' );
+	}
+
+	/**
+	 * @covers ::bbp_get_excluded_forum_ids
+	 */
+	public function test_bbp_get_excluded_forum_ids_includes_public_descendants_of_hidden_forum() {
+		$posts = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+
+		$this->set_current_user( 0 );
+
+		$this->assertEqualSets(
+			array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ),
+			bbp_get_excluded_forum_ids()
+		);
+	}
+
+	/**
+	 * @covers ::bbp_get_excluded_forum_ids
+	 */
+	public function test_bbp_get_excluded_forum_ids_includes_public_descendants_of_private_forum() {
+		$posts = $this->create_inherited_visibility_test_posts( bbp_get_private_status_id() );
+
+		$this->set_current_user( 0 );
+
+		$this->assertEqualSets(
+			array( $posts['parent_id'], $posts['child_id'], $posts['grandchild_id'] ),
+			bbp_get_excluded_forum_ids()
+		);
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 */
+	public function test_participant_cannot_read_public_descendants_of_hidden_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$this->assertFalse( current_user_can( 'read_forum', $posts['child_id'] ) );
+		$this->assertFalse( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 */
+	public function test_participant_can_read_public_descendants_of_private_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_private_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['child_id'] ) );
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 */
+	public function test_keymaster_can_read_public_descendants_of_hidden_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['child_id'] ) );
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_allow_forums_of_user
+	 */
+	public function test_parent_forum_moderator_can_read_public_descendants_of_hidden_forum() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_add_moderator( $posts['parent_id'], $user_id );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['child_id'] ) );
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+		$this->assertEmpty( bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_allow_forums_of_user
+	 */
+	public function test_descendant_forum_moderator_can_read_descendant_of_hidden_parent() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_add_moderator( $posts['grandchild_id'], $user_id );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+		$this->assertNotContains( $posts['grandchild_id'], bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::bbp_allow_forums_of_user
+	 */
+	public function test_filtered_forum_moderator_is_removed_from_excluded_forums() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create();
+		$filter  = function( $retval, $check_user_id, $forum_id ) use ( $user_id, $posts ) {
+			return ( ( $user_id === $check_user_id ) && ( $posts['grandchild_id'] === $forum_id ) )
+				? true
+				: $retval;
+		};
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+		add_filter( 'bbp_is_user_forum_moderator', $filter, 10, 3 );
+
+		$excluded = bbp_get_excluded_forum_ids();
+
+		$this->assertContains( $posts['parent_id'], $excluded );
+		$this->assertNotContains( $posts['grandchild_id'], $excluded );
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+
+		remove_filter( 'bbp_is_user_forum_moderator', $filter, 10 );
+	}
+
+	/**
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::_bbp_forum_visibility_where
+	 */
+	public function test_query_excludes_content_in_public_descendants_of_hidden_forum() {
+		$posts = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertNotContains( $posts['topic_id'], $query->posts );
+		$this->assertNotContains( $posts['reply_id'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_get_excluded_forum_ids
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::_bbp_forum_visibility_where
+	 */
+	public function test_query_excludes_content_in_public_descendants_of_private_forum() {
+		$posts = $this->create_inherited_visibility_test_posts( bbp_get_private_status_id() );
+
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertNotContains( $posts['topic_id'], $query->posts );
+		$this->assertNotContains( $posts['reply_id'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_allow_forums_of_user
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 * @covers ::_bbp_forum_visibility_where
+	 */
+	public function test_query_includes_descendant_content_for_parent_forum_moderator() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_add_moderator( $posts['parent_id'], $user_id );
+		$this->set_current_user( $user_id );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertContains( $posts['topic_id'], $query->posts );
+		$this->assertContains( $posts['reply_id'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_get_excluded_forum_ids
+	 */
+	public function test_public_forum_tree_remains_readable() {
+		$posts   = $this->create_inherited_visibility_test_posts( bbp_get_public_status_id() );
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		$this->set_current_user( $user_id );
+
+		$this->assertTrue( current_user_can( 'read_forum', $posts['child_id'] ) );
+		$this->assertTrue( current_user_can( 'read_forum', $posts['grandchild_id'] ) );
+		$this->assertEmpty( bbp_get_excluded_forum_ids() );
+	}
+
+	/**
+	 * @covers ::bbp_get_excluded_forum_ids
+	 */
+	public function test_bbp_get_excluded_forum_ids_ignores_non_countable_descendants() {
+		$posts = $this->create_inherited_visibility_test_posts( bbp_get_hidden_status_id() );
+
+		wp_trash_post( $posts['child_id'] );
+		$this->set_current_user( 0 );
+
+		$this->assertContains( $posts['parent_id'], bbp_get_excluded_forum_ids() );
+		$this->assertNotContains( $posts['child_id'], bbp_get_excluded_forum_ids() );
+		$this->assertNotContains( $posts['grandchild_id'], bbp_get_excluded_forum_ids() );
+	}
+
+	/**
 	 * @covers ::bbp_repair_forum_visibility
 	 * @todo   Implement test_bbp_repair_forum_visibility().
 	 */
