@@ -914,9 +914,9 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	// Topic status
 	$topic_status = get_post_status( $topic_id );
 
-	// If we want a full refresh, unset any of the possibly passed variables
+	// If we want a full refresh, retain the resolved forum and query its values
 	if ( true === $refresh ) {
-		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
+		$topic_id = $reply_id = $active_id = $last_active_time = 0;
 		$topic_status = bbp_get_public_status_id();
 	}
 
