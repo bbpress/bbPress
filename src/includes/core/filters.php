@@ -318,7 +318,7 @@ add_filter( 'bbp_get_displayed_user_field', 'bbp_sanitize_displayed_user_field',
 add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta',  10, 2 );
 add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta',  10, 2 );
 add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta',  10, 2 );
-add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  10, 2 );
+add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  10, 6 );
 add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 2 );
 add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 2 );
 add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );

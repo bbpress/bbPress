@@ -1895,16 +1895,43 @@ function bbp_get_forum_author_display_name( $forum_id = 0 ) {
 /**
  * Replace forum meta details for users that cannot view them.
  *
+ * Forum visibility is inherited from every ancestor. A public descendant of a
+ * private or hidden forum remains restricted to users who can read the
+ * restricting ancestor. Aggregate metadata must therefore be checked against
+ * the forum that supplied it, rather than only the forum where it is rendered.
+ *
  * @since 2.0.0 bbPress (r3162)
  *
  * @param string $retval
  * @param int $forum_id
+ * @param string $time_since
+ * @param string $link_url
+ * @param string $title
+ * @param int $active_id
  *
  * @return string
  */
-function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
-	if ( bbp_is_forum_private( $forum_id, false ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-		$retval = '-';
+function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', $link_url = '', $title = '', $active_id = 0 ) {
+
+	// Check the source forum when filtering a freshness link
+	if ( ! empty( $active_id ) ) {
+		if ( bbp_is_topic( $active_id ) ) {
+			$forum_id = bbp_get_topic_forum_id( $active_id );
+		} elseif ( bbp_is_reply( $active_id ) ) {
+			$forum_id = bbp_get_reply_forum_id( $active_id );
+		}
+	}
+
+	// Include ancestors in case a public forum is below a restricted forum
+	$forum_ids = array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
+
+	foreach ( $forum_ids as $check_id ) {
+		$restricted = bbp_is_forum_private( $check_id, false ) || bbp_is_forum_hidden( $check_id, false );
+
+		if ( $restricted && ! current_user_can( 'read_forum', $check_id ) ) {
+			$retval = '-';
+			break;
+		}
 	}
 
 	// Filter & return
@@ -1927,7 +1954,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 	$retval = $author_link;
 
 	// Show the normal author link
-	if ( ! empty( $args['post_id'] ) && ! current_user_can( 'read_private_forums' ) ) {
+	if ( ! empty( $args['post_id'] ) ) {
 
 		// What post type are we looking at?
 		switch ( get_post_type( $args['post_id'] ) ) {
@@ -1948,9 +1975,16 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 				break;
 		}
 
-		// Hide if forum is private
-		if ( bbp_is_forum_private( $forum_id ) ) {
-			$retval = '';
+		// Include ancestors in case a public forum is below a restricted forum
+		$forum_ids = array_merge( array( $forum_id ), bbp_get_forum_ancestors( $forum_id ) );
+
+		foreach ( $forum_ids as $check_id ) {
+			$restricted = bbp_is_forum_private( $check_id, false ) || bbp_is_forum_hidden( $check_id, false );
+
+			if ( $restricted && ! current_user_can( 'read_forum', $check_id ) ) {
+				$retval = '';
+				break;
+			}
 		}
 	}
 

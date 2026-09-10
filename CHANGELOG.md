@@ -49,6 +49,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Enforced inherited private and hidden forum visibility when displaying
+  descendant activity metadata through public parent forums.
 - Hardened topic-tag name output with consistent HTML escaping.
 - Prevented topic-tag names from being interpreted as JavaScript in confirmation
   prompts.
