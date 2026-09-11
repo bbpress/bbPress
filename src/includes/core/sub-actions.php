@@ -124,6 +124,19 @@ function bbp_rest_api_init() {
 }
 
 /**
+ * Pass an XML-RPC request through bbPress.
+ *
+ * @since 2.7.0 bbPress
+ *
+ * @param string            $method XML-RPC method name.
+ * @param array             $args   XML-RPC method arguments.
+ * @param wp_xmlrpc_server  $server XML-RPC server instance.
+ */
+function bbp_xmlrpc_call( $method = '', $args = array(), $server = null ) {
+	do_action( 'bbp_xmlrpc_call', $method, $args, $server );
+}
+
+/**
  * Initialize roles.
  *
  * @since 2.6.0 bbPress (r6106)
