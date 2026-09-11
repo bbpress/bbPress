@@ -61,6 +61,8 @@ Development for the next bbPress release is in progress. See the active
 - Escaped forum, topic, and reply titles in form fields.
 - Prevented users from creating or moving forums, topics, and replies into
   parent content they cannot read.
+- Prevented failed reply-move and topic-split authorization checks from changing
+  content.
 
 ### Fixed
 

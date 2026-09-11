@@ -1367,6 +1367,11 @@ function bbp_move_reply_handler( $action = '' ) {
 					bbp_add_error( 'bbp_move_reply_destination_permission', __( '<strong>Error</strong>: You do not have permission to edit the destination topic.', 'bbpress' ) );
 				}
 
+				// Bail before moving the reply if there are errors
+				if ( bbp_has_errors() ) {
+					break;
+				}
+
 				// Bump the reply position
 				$reply_position = bbp_get_topic_reply_count( $destination_topic->ID, true ) + 1;
 
@@ -1393,6 +1398,11 @@ function bbp_move_reply_handler( $action = '' ) {
 			default :
 				// User needs to be able to publish topics
 				if ( current_user_can( 'publish_topics' ) ) {
+
+					// Bail before converting the reply if there are errors
+					if ( bbp_has_errors() ) {
+						break;
+					}
 
 					// Use the new title that was passed
 					if ( ! empty( $_POST['bbp_reply_move_destination_title'] ) ) {

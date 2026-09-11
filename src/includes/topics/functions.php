@@ -1514,6 +1514,11 @@ function bbp_split_topic_handler( $action = '' ) {
 				// User needs to be able to publish topics
 				if ( current_user_can( 'publish_topics' ) ) {
 
+					// Bail before converting the reply if there are errors
+					if ( bbp_has_errors() ) {
+						break;
+					}
+
 					// Use the new title that was passed
 					if ( ! empty( $_POST['bbp_topic_split_destination_title'] ) ) {
 						$destination_topic_title = sanitize_text_field( $_POST['bbp_topic_split_destination_title'] );
