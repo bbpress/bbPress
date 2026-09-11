@@ -43,6 +43,8 @@ Development for the next bbPress release is in progress. See the active
 - Prevented topic-tag names from being interpreted as JavaScript in confirmation
   prompts.
 - Escaped forum, topic, and reply titles in form fields.
+- Prevented failed reply-move and topic-split authorization checks from changing
+  content.
 
 ### Fixed
 
