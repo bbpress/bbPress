@@ -356,6 +356,7 @@ final class bbPress {
 		require $this->includes_dir . 'common/formatting.php';
 		require $this->includes_dir . 'common/locale.php';
 		require $this->includes_dir . 'common/locks.php';
+		require $this->includes_dir . 'common/rest.php';
 		require $this->includes_dir . 'common/template.php';
 		require $this->includes_dir . 'common/widgets.php';
 		require $this->includes_dir . 'common/shortcodes.php';
@@ -532,23 +533,24 @@ final class bbPress {
 			apply_filters(
 				'bbp_register_forum_post_type',
 				array(
-					'labels'              => bbp_get_forum_post_type_labels(),
-					'rewrite'             => bbp_get_forum_post_type_rewrite(),
-					'supports'            => bbp_get_forum_post_type_supports(),
-					'description'         => esc_html__( 'bbPress Forums', 'bbpress' ),
-					'capabilities'        => bbp_get_forum_caps(),
-					'capability_type'     => array( 'forum', 'forums' ),
-					'menu_position'       => 555555,
-					'has_archive'         => bbp_get_root_slug(),
-					'exclude_from_search' => true,
-					'show_in_nav_menus'   => true,
-					'public'              => true,
-					'show_ui'             => current_user_can( 'bbp_forums_admin' ),
-					'can_export'          => true,
-					'hierarchical'        => true,
-					'query_var'           => true,
-					'menu_icon'           => '',
-					'source'              => 'bbpress',
+					'labels'                => bbp_get_forum_post_type_labels(),
+					'rewrite'               => bbp_get_forum_post_type_rewrite(),
+					'supports'              => bbp_get_forum_post_type_supports(),
+					'description'           => esc_html__( 'bbPress Forums', 'bbpress' ),
+					'capabilities'          => bbp_get_forum_caps(),
+					'capability_type'       => array( 'forum', 'forums' ),
+					'menu_position'         => 555555,
+					'has_archive'           => bbp_get_root_slug(),
+					'exclude_from_search'   => true,
+					'show_in_nav_menus'     => true,
+					'public'                => true,
+					'show_ui'               => current_user_can( 'bbp_forums_admin' ),
+					'rest_controller_class' => 'BBP_REST_Posts_Controller',
+					'can_export'            => true,
+					'hierarchical'          => true,
+					'query_var'             => true,
+					'menu_icon'             => '',
+					'source'                => 'bbpress',
 				)
 			)
 		);
@@ -561,23 +563,24 @@ final class bbPress {
 			apply_filters(
 				'bbp_register_topic_post_type',
 				array(
-					'labels'              => bbp_get_topic_post_type_labels(),
-					'rewrite'             => bbp_get_topic_post_type_rewrite(),
-					'supports'            => bbp_get_topic_post_type_supports(),
-					'description'         => esc_html__( 'bbPress Topics', 'bbpress' ),
-					'capabilities'        => bbp_get_topic_caps(),
-					'capability_type'     => array( 'topic', 'topics' ),
-					'menu_position'       => 555555,
-					'has_archive'         => ( 'forums' === bbp_show_on_root() ) ? bbp_get_topic_archive_slug() : false,
-					'exclude_from_search' => true,
-					'show_in_nav_menus'   => false,
-					'public'              => true,
-					'show_ui'             => current_user_can( 'bbp_topics_admin' ),
-					'can_export'          => true,
-					'hierarchical'        => false,
-					'query_var'           => true,
-					'menu_icon'           => '',
-					'source'              => 'bbpress',
+					'labels'                => bbp_get_topic_post_type_labels(),
+					'rewrite'               => bbp_get_topic_post_type_rewrite(),
+					'supports'              => bbp_get_topic_post_type_supports(),
+					'description'           => esc_html__( 'bbPress Topics', 'bbpress' ),
+					'capabilities'          => bbp_get_topic_caps(),
+					'capability_type'       => array( 'topic', 'topics' ),
+					'menu_position'         => 555555,
+					'has_archive'           => ( 'forums' === bbp_show_on_root() ) ? bbp_get_topic_archive_slug() : false,
+					'exclude_from_search'   => true,
+					'show_in_nav_menus'     => false,
+					'public'                => true,
+					'show_ui'               => current_user_can( 'bbp_topics_admin' ),
+					'rest_controller_class' => 'BBP_REST_Posts_Controller',
+					'can_export'            => true,
+					'hierarchical'          => false,
+					'query_var'             => true,
+					'menu_icon'             => '',
+					'source'                => 'bbpress',
 				)
 			)
 		);
@@ -590,23 +593,24 @@ final class bbPress {
 			apply_filters(
 				'bbp_register_reply_post_type',
 				array(
-					'labels'              => bbp_get_reply_post_type_labels(),
-					'rewrite'             => bbp_get_reply_post_type_rewrite(),
-					'supports'            => bbp_get_reply_post_type_supports(),
-					'description'         => esc_html__( 'bbPress Replies', 'bbpress' ),
-					'capabilities'        => bbp_get_reply_caps(),
-					'capability_type'     => array( 'reply', 'replies' ),
-					'menu_position'       => 555555,
-					'exclude_from_search' => true,
-					'has_archive'         => false,
-					'show_in_nav_menus'   => false,
-					'public'              => true,
-					'show_ui'             => current_user_can( 'bbp_replies_admin' ),
-					'can_export'          => true,
-					'hierarchical'        => false,
-					'query_var'           => true,
-					'menu_icon'           => '',
-					'source'              => 'bbpress',
+					'labels'                => bbp_get_reply_post_type_labels(),
+					'rewrite'               => bbp_get_reply_post_type_rewrite(),
+					'supports'              => bbp_get_reply_post_type_supports(),
+					'description'           => esc_html__( 'bbPress Replies', 'bbpress' ),
+					'capabilities'          => bbp_get_reply_caps(),
+					'capability_type'       => array( 'reply', 'replies' ),
+					'menu_position'         => 555555,
+					'exclude_from_search'   => true,
+					'has_archive'           => false,
+					'show_in_nav_menus'     => false,
+					'public'                => true,
+					'show_ui'               => current_user_can( 'bbp_replies_admin' ),
+					'rest_controller_class' => 'BBP_REST_Posts_Controller',
+					'can_export'            => true,
+					'hierarchical'          => false,
+					'query_var'             => true,
+					'menu_icon'             => '',
+					'source'                => 'bbpress',
 				)
 			)
 		);
