@@ -34,6 +34,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Enforced bbPress posting and moderation rules for XML-RPC topic and reply
+  edits.
 - Enforced private and hidden forum read permissions in REST API responses.
 - Enforced inherited private and hidden forum visibility across descendant
   content, queries, and activity metadata.

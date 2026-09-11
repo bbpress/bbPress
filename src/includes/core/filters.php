@@ -349,6 +349,10 @@ add_filter( 'bbp_map_meta_caps', 'bbp_map_forum_meta_caps',     10, 4 ); // Foru
 add_filter( 'bbp_map_meta_caps', 'bbp_map_topic_meta_caps',     10, 4 ); // Topics
 add_filter( 'bbp_map_meta_caps', 'bbp_map_topic_tag_meta_caps', 10, 4 ); // Topic tags
 add_filter( 'bbp_map_meta_caps', 'bbp_map_reply_meta_caps',     10, 4 ); // Replies
+add_filter( 'bbp_map_meta_caps', 'bbp_map_xmlrpc_meta_caps',   999, 4 ); // XML-RPC
+
+// Apply bbPress moderation decisions to XML-RPC edits
+add_filter( 'xmlrpc_wp_insert_post_data', 'bbp_xmlrpc_wp_insert_post_data' );
 
 // Clickables
 add_filter( 'bbp_make_clickable', 'bbp_make_urls_clickable',      2 ); // https://bbpress.org
