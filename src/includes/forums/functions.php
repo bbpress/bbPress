@@ -449,13 +449,17 @@ function bbp_edit_forum_handler( $action = '' ) {
 
 	/** Forum Parent ***********************************************************/
 
-	// Forum parent id was passed
-	if ( ! empty( $_POST['bbp_forum_parent_id'] ) ) {
-		$forum_parent_id = bbp_get_forum_id( $_POST['bbp_forum_parent_id'] );
-	}
-
 	// Current forum this forum is in
 	$current_parent_forum_id = bbp_get_forum_parent_id( $forum_id );
+
+	// Only users who can assign forum moderators can change forum structure
+	if ( current_user_can( 'assign_moderators' ) ) {
+		$forum_parent_id = ! empty( $_POST['bbp_forum_parent_id'] )
+			? bbp_get_forum_id( $_POST['bbp_forum_parent_id'] )
+			: 0;
+	} else {
+		$forum_parent_id = $current_parent_forum_id;
+	}
 
 	// Forum exists
 	if ( ! empty( $forum_parent_id ) && ( $forum_parent_id !== $current_parent_forum_id ) ) {
@@ -648,6 +652,43 @@ function bbp_edit_forum_handler( $action = '' ) {
 }
 
 /**
+ * Filter forum data submitted through the WordPress administration area.
+ *
+ * @since 2.6.16 bbPress
+ *
+ * @param array $data    Sanitized post data.
+ * @param array $postarr Raw post data.
+ * @return array Filtered post data.
+ */
+function bbp_filter_admin_forum_post_data( $data = array(), $postarr = array() ) {
+
+	// Bail unless an existing forum is being updated in wp-admin
+	if ( ! is_admin() || empty( $postarr['ID'] ) || empty( $data['post_type'] ) || ( bbp_get_forum_post_type() !== $data['post_type'] ) ) {
+		return $data;
+	}
+
+	$forum_id = bbp_get_forum_id( $postarr['ID'] );
+	$forum    = bbp_get_forum( $forum_id );
+
+	if ( empty( $forum ) ) {
+		return $data;
+	}
+
+	// Preserve structure unless the user can assign forum moderators
+	if ( ! current_user_can( 'assign_moderators' ) ) {
+		$data['post_parent'] = $forum->post_parent;
+		$data['menu_order']  = $forum->menu_order;
+	}
+
+	// Preserve visibility unless the user can manage forum attributes
+	if ( ! current_user_can( 'manage_forum_attributes', $forum_id ) ) {
+		$data['post_status'] = $forum->post_status;
+	}
+
+	return $data;
+}
+
+/**
  * Handle the saving of core forum metadata (Status, Visibility, and Type)
  *
  * @since 2.1.0 bbPress (r3678)
@@ -667,7 +708,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Status **********************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ), true ) ) {
+	if ( current_user_can( 'manage_forum_attributes', $forum_id ) && ! empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ), true ) ) {
 		if ( 'closed' === $_POST['bbp_forum_status'] && ! bbp_is_forum_closed( $forum_id, false ) ) {
 			bbp_close_forum( $forum_id );
 		} elseif ( 'open' === $_POST['bbp_forum_status'] && bbp_is_forum_open( $forum_id, false ) ) {
@@ -679,7 +720,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Type ************************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ), true ) ) {
+	if ( current_user_can( 'manage_forum_attributes', $forum_id ) && ! empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ), true ) ) {
 		if ( 'category' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
 			bbp_categorize_forum( $forum_id );
 		} elseif ( 'forum' === $_POST['bbp_forum_type'] && ! bbp_is_forum_category( $forum_id ) ) {
@@ -691,7 +732,7 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 
 	/** Forum Visibility ******************************************************/
 
-	if ( ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ), true ) ) {
+	if ( current_user_can( 'manage_forum_attributes', $forum_id ) && ! empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array_keys( bbp_get_forum_visibilities() ), true ) ) {
 
 		// Get forums current visibility
 		$old_visibility = bbp_get_forum_visibility( $forum_id );
@@ -734,8 +775,8 @@ function bbp_save_forum_extras( $forum_id = 0 ) {
 	/** Forum Moderators ******************************************************/
 
 	// Either replace terms
-	if ( bbp_allow_forum_mods() ) {
-		if ( current_user_can( 'assign_moderators' ) && ! empty( $_POST['bbp_moderators'] ) ) {
+	if ( bbp_allow_forum_mods() && current_user_can( 'assign_moderators' ) ) {
+		if ( ! empty( $_POST['bbp_moderators'] ) ) {
 
 			// Escape tag input
 			$users    = sanitize_text_field( $_POST['bbp_moderators'] );

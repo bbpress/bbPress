@@ -58,7 +58,7 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 
 	$post_type = $post->post_type;
 
-	if ( ! in_array( $post_type, array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
+	if ( ! in_array( $post_type, array( bbp_get_forum_post_type(), bbp_get_topic_post_type(), bbp_get_reply_post_type() ), true ) ) {
 		return;
 	}
 
@@ -69,6 +69,27 @@ function bbp_validate_xmlrpc_post( $method = '', $args = array() ) {
 	$status_changed = isset( $post_data['post_status'] ) && ( $post_data['post_status'] !== $post->post_status );
 	$order_changed  = isset( $post_data['menu_order'] ) && ( (int) $post_data['menu_order'] !== (int) $post->menu_order );
 	$invalid        = false;
+
+	// Validate forum structure and visibility changes
+	if ( bbp_get_forum_post_type() === $post_type ) {
+		if ( ! $is_restore && $parent_changed && ! current_user_can( 'assign_moderators' ) ) {
+			$invalid = true;
+		}
+
+		if ( ! $is_restore && $status_changed && ! current_user_can( 'manage_forum_attributes', $post_id ) ) {
+			$invalid = true;
+		}
+
+		if ( ! $is_restore && $order_changed && ! current_user_can( 'assign_moderators' ) ) {
+			$invalid = true;
+		}
+
+		if ( $invalid ) {
+			$bbp_xmlrpc_error_post_id = $post_id;
+		}
+
+		return;
+	}
 
 	// Structural changes require bbPress lifecycle handlers to keep related metadata and counts synchronized
 	if ( ! $is_restore && ( $parent_changed || $status_changed || $order_changed ) ) {

@@ -76,6 +76,24 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Dispatch a REST update request for a bbPress post.
+	 *
+	 * @param string $post_type Post type route base.
+	 * @param int    $post_id   Post ID.
+	 * @param int    $user_id   User ID.
+	 * @param array  $params    Request parameters.
+	 * @return WP_REST_Response REST response.
+	 */
+	protected function update_item( $post_type, $post_id, $user_id, $params ) {
+		$this->set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/' . $post_type . '/' . $post_id );
+		$request->set_body_params( $params );
+
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
 	 * Create a forum, topic, and reply with the requested forum status.
 	 *
 	 * @param string $status    Forum status.
@@ -435,5 +453,87 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNotContains( $posts['topic_id'], $ids );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 * @dataProvider data_forum_attribute_fields
+	 *
+	 * @param string $field Field to update.
+	 */
+	public function test_per_forum_moderator_cannot_change_forum_structure_through_rest( $field ) {
+		$old_parent_id = $this->factory->forum->create();
+		$new_parent_id = $this->factory->forum->create();
+		$forum_id      = $this->factory->forum->create(
+			array(
+				'post_parent' => $old_parent_id,
+				'menu_order'  => 1,
+			)
+		);
+		$user_id       = $this->factory->user->create();
+		$values        = array(
+			'parent'     => $new_parent_id,
+			'status'     => bbp_get_private_status_id(),
+			'menu_order' => 99,
+		);
+
+		bbp_set_user_role( $user_id, bbp_get_participant_role() );
+		bbp_add_moderator( $forum_id, $user_id );
+
+		$response = $this->update_item(
+			bbp_get_forum_post_type(),
+			$forum_id,
+			$user_id,
+			array( $field => $values[ $field ] )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( $old_parent_id, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertTrue( bbp_is_forum_public( $forum_id, false ) );
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $forum_id ) );
+	}
+
+	/**
+	 * Data provider for forum attribute fields exposed by REST.
+	 *
+	 * @return array[] Field names.
+	 */
+	public function data_forum_attribute_fields() {
+		return array(
+			array( 'parent' ),
+			array( 'status' ),
+			array( 'menu_order' ),
+		);
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 */
+	public function test_global_moderator_can_change_forum_structure_through_rest() {
+		$old_parent_id = $this->factory->forum->create();
+		$new_parent_id = $this->factory->forum->create();
+		$forum_id      = $this->factory->forum->create(
+			array(
+				'post_parent' => $old_parent_id,
+				'menu_order'  => 1,
+			)
+		);
+		$user_id       = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+
+		$response = $this->update_item(
+			bbp_get_forum_post_type(),
+			$forum_id,
+			$user_id,
+			array(
+				'parent'     => $new_parent_id,
+				'status'     => bbp_get_private_status_id(),
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $new_parent_id, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertTrue( bbp_is_forum_private( $forum_id, false ) );
 	}
 }

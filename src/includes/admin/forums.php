@@ -225,6 +225,12 @@ class BBP_Forums_Admin {
 	 * @since 2.0.0 bbPress (r2746)
 	 */
 	public function attributes_metabox() {
+
+		// Bail if the current user cannot edit forum structure
+		if ( ! current_user_can( 'assign_moderators' ) ) {
+			return;
+		}
+
 		add_meta_box(
 			'bbp_forum_attributes',
 			esc_html__( 'Forum Attributes', 'bbpress' ),
@@ -335,6 +341,11 @@ class BBP_Forums_Admin {
 			return $forum_id;
 		}
 
+		// Bail if current user cannot edit forum structure
+		if ( ! current_user_can( 'assign_moderators' ) ) {
+			return $forum_id;
+		}
+
 		// Parent ID
 		$parent_id = ( ! empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) )
 			? (int) $_POST['parent_id']
@@ -380,7 +391,7 @@ class BBP_Forums_Admin {
 		}
 
 		// What is the user doing here?
-		if ( ! current_user_can( 'edit_forum', $forum_id ) ) {
+		if ( ! current_user_can( 'manage_forum_attributes', $forum_id ) ) {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'bbpress' ) );
 		}
 

@@ -301,6 +301,14 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 					$caps = array( 'participate' );
 				}
 				break;
+
+			// If user is a group admin, allow them to manage forum attributes.
+			case 'manage_forum_attributes' :
+				$forum_id = ! empty( $args[0] ) ? bbp_get_forum_id( $args[0] ) : 0;
+				if ( bbp_is_forum( $forum_id ) && bbp_group_is_admin() && in_array( $forum_id, bbp_get_group_forum_ids(), true ) ) {
+					$caps = array( 'participate' );
+				}
+				break;
 		}
 
 		// Filter & return

@@ -81,6 +81,20 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Create a per-forum moderator with XML-RPC credentials.
+	 *
+	 * @param int $forum_id Forum ID.
+	 * @return int User ID.
+	 */
+	protected function create_forum_moderator( $forum_id ) {
+		$user_id = $this->create_participant();
+
+		bbp_add_moderator( $forum_id, $user_id );
+
+		return $user_id;
+	}
+
+	/**
 	 * Edit a post through the XML-RPC wp.editPost method.
 	 *
 	 * @param int   $post_id Post ID.
@@ -521,5 +535,77 @@ class BBP_Tests_Common_XMLRPC extends BBP_UnitTestCase {
 
 		$this->assertNotInstanceOf( 'IXR_Error', $result );
 		$this->assertSame( 'Updated blog post content.', get_post_field( 'post_content', $post_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 * @dataProvider data_forum_attribute_fields
+	 *
+	 * @param string $field Field to update.
+	 */
+	public function test_per_forum_moderator_cannot_change_forum_structure_through_xmlrpc( $field ) {
+		$old_parent_id = $this->factory->forum->create();
+		$new_parent_id = $this->factory->forum->create();
+		$forum_id      = $this->factory->forum->create(
+			array(
+				'post_parent' => $old_parent_id,
+				'menu_order'  => 1,
+			)
+		);
+		$values        = array(
+			'post_parent' => $new_parent_id,
+			'post_status' => bbp_get_private_status_id(),
+			'menu_order'  => 99,
+		);
+
+		$this->create_forum_moderator( $forum_id );
+
+		$result = $this->edit_post( $forum_id, array( $field => $values[ $field ] ) );
+
+		$this->assertInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( $old_parent_id, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertTrue( bbp_is_forum_public( $forum_id, false ) );
+		$this->assertSame( 1, (int) get_post_field( 'menu_order', $forum_id ) );
+	}
+
+	/**
+	 * Data provider for forum attribute fields exposed by XML-RPC.
+	 *
+	 * @return array[] Field names.
+	 */
+	public function data_forum_attribute_fields() {
+		return array(
+			array( 'post_parent' ),
+			array( 'post_status' ),
+			array( 'menu_order' ),
+		);
+	}
+
+	/**
+	 * @covers ::bbp_validate_xmlrpc_post
+	 */
+	public function test_keymaster_can_change_forum_structure_through_xmlrpc() {
+		$old_parent_id = $this->factory->forum->create();
+		$new_parent_id = $this->factory->forum->create();
+		$forum_id      = $this->factory->forum->create(
+			array(
+				'post_parent' => $old_parent_id,
+				'menu_order'  => 1,
+			)
+		);
+
+		$this->create_keymaster();
+
+		$result = $this->edit_post(
+			$forum_id,
+			array(
+				'post_parent' => $new_parent_id,
+				'post_status' => bbp_get_private_status_id(),
+			)
+		);
+
+		$this->assertNotInstanceOf( 'IXR_Error', $result );
+		$this->assertSame( $new_parent_id, bbp_get_forum_parent_id( $forum_id ) );
+		$this->assertTrue( bbp_is_forum_private( $forum_id, false ) );
 	}
 }
