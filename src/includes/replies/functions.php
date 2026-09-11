@@ -212,12 +212,13 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Forum ID **************************************************************/
 
-	// Try to use the forum id of the topic
-	if ( ! isset( $_POST['bbp_forum_id'] ) && ! empty( $topic_id ) ) {
+	// Use the forum id of the topic
+	if ( ! empty( $topic_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
+	}
 
 	// Error check the POST'ed forum id
-	} elseif ( isset( $_POST['bbp_forum_id'] ) ) {
+	if ( isset( $_POST['bbp_forum_id'] ) ) {
 
 		// Empty Forum id was passed
 		if ( empty( $_POST['bbp_forum_id'] ) ) {
@@ -245,9 +246,6 @@ function bbp_new_reply_handler( $action = '' ) {
 			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
 				bbp_add_error( 'bbp_reply_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
 
-			// Use the POST'ed forum id
-			} else {
-				$forum_id = $posted_forum_id;
 			}
 		}
 	}
