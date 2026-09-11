@@ -18,6 +18,51 @@ defined( 'ABSPATH' ) || exit;
 class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 	/**
+	 * Checks if a post can be updated.
+	 *
+	 * @since 2.7.0
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return true|WP_Error True if the request has access to update the item, WP_Error object otherwise.
+	 */
+	public function update_item_permissions_check( $request ) {
+		$retval = parent::update_item_permissions_check( $request );
+
+		if ( is_wp_error( $retval ) ) {
+			return $retval;
+		}
+
+		$forum_id = isset( $request['id'] ) ? bbp_get_forum_id( $request['id'] ) : 0;
+		$forum    = bbp_get_forum( $forum_id );
+
+		if ( empty( $forum ) ) {
+			return $retval;
+		}
+
+		$parent_changed = $request->has_param( 'parent' ) && ( (int) $request['parent'] !== (int) $forum->post_parent );
+		$status_changed = $request->has_param( 'status' ) && ( $request['status'] !== $forum->post_status );
+		$order_changed  = $request->has_param( 'menu_order' ) && ( (int) $request['menu_order'] !== (int) $forum->menu_order );
+
+		if ( ( $parent_changed || $order_changed ) && ! current_user_can( 'assign_moderators' ) ) {
+			return new WP_Error(
+				'bbp_rest_cannot_edit_forum_structure',
+				esc_html__( 'You are not allowed to change this forum structure.', 'bbpress' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( $status_changed && ! current_user_can( 'manage_forum_attributes', $forum_id ) ) {
+			return new WP_Error(
+				'bbp_rest_cannot_edit_forum_visibility',
+				esc_html__( 'You are not allowed to change this forum visibility.', 'bbpress' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return $retval;
+	}
+
+	/**
 	 * Checks if a post type is allowed for permission checks.
 	 *
 	 * bbPress posts may be attachment parents even when their own REST routes

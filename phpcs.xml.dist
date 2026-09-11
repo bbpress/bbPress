@@ -137,6 +137,7 @@
 				<element value="view_trash" />
 
 				<!-- Forum caps -->
+				<element value="manage_forum_attributes" />
 				<element value="publish_forums" />
 				<element value="edit_forum" />
 				<element value="edit_forums" />

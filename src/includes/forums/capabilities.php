@@ -154,6 +154,23 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 			break;
 
+		// Used for forum status, type, and visibility
+		case 'manage_forum_attributes' :
+
+			// Bail if no forum ID
+			if ( empty( $args[0] ) ) {
+				$caps = array( 'do_not_allow' );
+				break;
+			}
+
+			// Only allow this capability for forums
+			$_post = get_post( $args[0] );
+			$caps  = ( ! empty( $_post ) && ( bbp_get_forum_post_type() === $_post->post_type ) )
+				? array( 'assign_moderators' )
+				: array( 'do_not_allow' );
+
+			break;
+
 		// Used everywhere
 		case 'edit_forum' :
 

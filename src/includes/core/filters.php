@@ -49,8 +49,9 @@ add_filter( 'login_redirect',          'bbp_redirect_login',     2,  3 );
 add_filter( 'logout_url',              'bbp_logout_url',         2,  2 );
 add_filter( 'plugin_locale',           'bbp_plugin_locale',      10, 2 );
 
-// Fix post author id for anonymous posts (set it back to 0) when the post status is changed
-add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
+// Filter WordPress post data for forums and anonymous posts
+add_filter( 'wp_insert_post_data', 'bbp_filter_admin_forum_post_data', 20, 2 );
+add_filter( 'wp_insert_post_data', 'bbp_fix_post_author',              30, 2 );
 
 // Fix untrash post status after a topic or reply is re-instated
 add_filter( 'wp_untrash_post_status', 'bbp_fix_untrash_post_status', 10, 3 );
