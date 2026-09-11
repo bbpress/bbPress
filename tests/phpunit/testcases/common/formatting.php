@@ -230,3 +230,59 @@ class BBP_Tests_Common_Functions_Make_Clickable extends BBP_UnitTestCase {
 		remove_filter( 'bbp_make_mentions_clickable_classes', '__return_empty_array' );
 	}
 }
+
+/**
+ * @group common
+ * @group functions
+ * @group bbp_rel_nofollow
+ */
+class BBP_Tests_Common_Functions_Rel_Nofollow extends BBP_UnitTestCase {
+
+	/**
+	 * @covers ::bbp_rel_nofollow
+	 */
+	public function test_bbp_rel_nofollow_adds_relationship_to_external_link() {
+		$link = '<a href="https://example.com/">Link</a>';
+
+		$this->assertSame( '<a href="https://example.com/" rel="nofollow">Link</a>', bbp_rel_nofollow( $link ) );
+	}
+
+	/**
+	 * @covers ::bbp_rel_nofollow
+	 */
+	public function test_bbp_rel_nofollow_preserves_internal_link() {
+		$link = '<a href="' . home_url( '/forums/' ) . '">Forums</a>';
+
+		$this->assertSame( $link, bbp_rel_nofollow( $link ) );
+	}
+
+	/**
+	 * @covers ::bbp_rel_nofollow
+	 */
+	public function test_bbp_rel_nofollow_merges_existing_relationship() {
+		$link = '<a href="https://example.com/" rel="ugc">Link</a>';
+
+		$this->assertSame( '<a href="https://example.com/" rel="ugc nofollow">Link</a>', bbp_rel_nofollow( $link ) );
+	}
+
+	/**
+	 * @covers ::bbp_rel_nofollow
+	 */
+	public function test_bbp_rel_nofollow_preserves_valueless_attribute() {
+		$link = '<a href="https://example.com/" data-example>Link</a>';
+
+		$this->assertSame( '<a href="https://example.com/" data-example rel="nofollow">Link</a>', bbp_rel_nofollow( $link ) );
+	}
+
+	/**
+	 * @covers ::bbp_rel_nofollow
+	 */
+	public function test_bbp_rel_nofollow_does_not_decode_escaped_attribute_characters() {
+		$link   = '<a rel="nofollow x=\\x22\\x3Eimg\\x3Cimg src=x onerror=alert(1)\\x3E\\x3Cb\\x3Ex\\x3C/b\\x3E" href="https://example.com/">Link</a>';
+		$output = bbp_rel_nofollow( $link );
+
+		$this->assertStringNotContainsString( '<img', $output );
+		$this->assertStringContainsString( '\\x22', $output );
+		$this->assertStringContainsString( 'rel="nofollow', $output );
+	}
+}

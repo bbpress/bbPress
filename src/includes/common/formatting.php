@@ -291,7 +291,7 @@ function bbp_encode_normal_callback( &$content = '', $key = '', $preg = '' ) {
 /**
  * Catches links so rel=nofollow can be added (on output, not save)
  *
- * @since 2.3.0 bbPress (r4865)
+ * @since 2.3.0 bbPress (r4866)
  *
  * @param string $text Post text
  * @return string $text Text with rel=nofollow added to any links
@@ -303,51 +303,14 @@ function bbp_rel_nofollow( $text = '' ) {
 /**
  * Adds rel=nofollow to a link
  *
- * @since 2.3.0 bbPress (r4865)
+ * @since 2.3.0 bbPress (r4866)
+ * @since 2.6.16 Use the WordPress link relationship callback.
  *
  * @param array $matches
  * @return string $text Link with rel=nofollow added
  */
 function bbp_rel_nofollow_callback( $matches = array() ) {
-	$text     = $matches[1];
-	$atts     = shortcode_parse_atts( $matches[1] );
-	$rel      = 'nofollow';
-	$home_url = home_url();
-
-	// Bail on links that match the current domain
-	if (
-		preg_match(
-			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'http' ) ) . ')%i', // phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
-			$text
-		)
-		||
-		preg_match(
-			'%href=["\'](' . preg_quote( set_url_scheme( $home_url, 'https' ) ) . ')%i', // phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
-			$text
-		)
-	) {
-		return "<a {$text}>";
-	}
-
-	// Avoid collisions with existing "rel" attribute
-	if ( ! empty( $atts['rel'] ) ) {
-		$parts = array_map( 'trim', explode( ' ', $atts['rel'] ) );
-		if ( false === array_search( 'nofollow', $parts ) ) {
-			$parts[] = 'nofollow';
-		}
-
-		$rel = implode( ' ', $parts );
-		unset( $atts['rel'] );
-
-		$html = '';
-		foreach ( $atts as $name => $value ) {
-			$html .= "{$name}=\"{$value}\" ";
-		}
-
-		$text = trim( $html );
-	}
-
-	return "<a {$text} rel=\"{$rel}\">";
+	return wp_rel_callback( $matches, 'nofollow' );
 }
 
 /** Make Clickable ************************************************************/
