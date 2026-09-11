@@ -208,12 +208,13 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Forum ID **************************************************************/
 
-	// Try to use the forum id of the topic
-	if ( ! isset( $_POST['bbp_forum_id'] ) && ! empty( $topic_id ) ) {
+	// Use the forum id of the topic
+	if ( ! empty( $topic_id ) ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
+	}
 
 	// Error check the POST'ed forum id
-	} elseif ( isset( $_POST['bbp_forum_id'] ) ) {
+	if ( isset( $_POST['bbp_forum_id'] ) ) {
 
 		// Empty Forum id was passed
 		if ( empty( $_POST['bbp_forum_id'] ) ) {
@@ -241,9 +242,6 @@ function bbp_new_reply_handler( $action = '' ) {
 			} elseif ( ! bbp_get_forum( $posted_forum_id ) ) {
 				bbp_add_error( 'bbp_topic_forum_id', __( '<strong>Error</strong>: Forum does not exist.', 'bbpress' ) );
 
-			// Use the POST'ed forum id
-			} else {
-				$forum_id = $posted_forum_id;
 			}
 		}
 	}
@@ -263,13 +261,9 @@ function bbp_new_reply_handler( $action = '' ) {
 				bbp_add_error( 'bbp_new_reply_forum_closed', __( '<strong>Error</strong>: This forum has been closed to new replies.', 'bbpress' ) );
 			}
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_private', __( '<strong>Error</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
-
-			// Forum is hidden and user cannot access
-			} elseif ( bbp_is_forum_hidden( $forum_id ) && ! current_user_can( 'read_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_new_reply_forum_hidden', __( '<strong>Error</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+			// Forum not readable by user
+			if ( ! current_user_can( 'read_forum', $forum_id ) ) {
+				bbp_add_error( 'bbp_new_reply_forum_read', __( '<strong>Error</strong>: You do not have the capability to read or create new replies in this forum.', 'bbpress' ) );
 			}
 		}
 	}
