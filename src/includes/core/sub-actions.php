@@ -115,6 +115,15 @@ function bbp_init() {
 }
 
 /**
+ * Initialize the bbPress REST API.
+ *
+ * @since 2.7.0
+ */
+function bbp_rest_api_init() {
+	do_action( 'bbp_rest_api_init' );
+}
+
+/**
  * Initialize roles.
  *
  * @since 2.6.0 bbPress (r6106)

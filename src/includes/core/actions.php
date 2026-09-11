@@ -53,6 +53,7 @@ add_action( 'wp_roles_init',            'bbp_roles_init',             10    );
 add_action( 'wp_enqueue_scripts',       'bbp_enqueue_scripts',        10    );
 add_action( 'wp_head',                  'bbp_head',                   10    );
 add_action( 'wp_footer',                'bbp_footer',                 10    );
+add_action( 'rest_api_init',            'bbp_rest_api_init',          10    );
 add_action( 'transition_post_status',   'bbp_transition_post_status', 10, 3 );
 add_action( 'post_updated',             'bbp_post_updated',           10, 3 );
 
@@ -85,6 +86,11 @@ add_action( 'bbp_init', 'bbp_add_rewrite_rules', 30  );
 add_action( 'bbp_init', 'bbp_add_permastructs',  40  );
 add_action( 'bbp_init', 'bbp_setup_engagements', 50  );
 add_action( 'bbp_init', 'bbp_ready',             999 );
+
+/**
+ * bbp_rest_api_init - Attached to 'rest_api_init' above.
+ */
+add_action( 'bbp_rest_api_init', 'bbp_register_rest_attachment_controller', 5 );
 
 /**
  * bbp_setup_theme - Attached to 'setup_theme' above.
