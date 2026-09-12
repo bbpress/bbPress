@@ -33,6 +33,7 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		if ( isset( $this->group_extension ) ) {
 			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 10 );
 			remove_filter( 'bbp_map_meta_caps', array( $this->group_extension, 'map_group_forum_meta_caps' ), 99 );
+			remove_filter( 'bbp_subscription_user_can_view_forum', array( $this->group_extension, 'subscription_user_can_view_forum' ), 10 );
 		}
 
 		unset( buddypress()->groups->current_group );
@@ -102,6 +103,64 @@ class BBP_Tests_Extend_BuddyPress_Groups extends BBP_UnitTestCase {
 		}
 
 		remove_filter( 'wp_redirect', $prevent_redirect );
+	}
+
+	/**
+	 * @covers ::BBP_Forums_Group_Extension::subscription_user_can_view_forum
+	 * @covers ::bbp_filter_subscription_user_ids
+	 */
+	public function test_group_forum_subscription_users_require_current_access() {
+		$creator_id       = $this->factory->user->create();
+		$member_id        = $this->factory->user->create();
+		$banned_id        = $this->factory->user->create();
+		$former_id        = $this->factory->user->create();
+		$moderator_id     = $this->factory->user->create();
+		$other_creator_id = $this->factory->user->create();
+		$other_member_id  = $this->factory->user->create();
+		$group_id         = $this->bp_factory->group->create( array( 'creator_id' => $creator_id ) );
+		$other_group_id   = $this->bp_factory->group->create( array( 'creator_id' => $other_creator_id ) );
+		$forum_id         = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$other_forum_id   = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+
+		bbp_set_user_role( $creator_id, bbp_get_participant_role() );
+		bbp_set_user_role( $member_id, bbp_get_participant_role() );
+		bbp_set_user_role( $banned_id, bbp_get_participant_role() );
+		bbp_set_user_role( $former_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $other_creator_id, bbp_get_participant_role() );
+		bbp_set_user_role( $other_member_id, bbp_get_participant_role() );
+
+		groups_join_group( $group_id, $member_id );
+		groups_join_group( $group_id, $banned_id );
+		groups_ban_member( $banned_id, $group_id, $creator_id );
+		groups_join_group( $other_group_id, $other_member_id );
+		$this->attach_forum_to_group( $forum_id, $group_id );
+		$this->attach_forum_to_group( $other_forum_id, $other_group_id );
+		$this->set_group_context( $group_id, $creator_id );
+
+		$this->assertSame(
+			array( $other_member_id ),
+			array_values( bbp_filter_subscription_user_ids( array( $member_id, $other_member_id ), $other_forum_id ) )
+		);
+
+		$this->assertSame(
+			array( $creator_id, $member_id, $moderator_id ),
+			array_values( bbp_filter_subscription_user_ids( array( $creator_id, $member_id, $banned_id, $former_id, $moderator_id ), $forum_id ) )
+		);
+
+		unset( buddypress()->groups->current_group );
+		buddypress()->current_component = '';
+		buddypress()->current_item      = '';
+		buddypress()->current_action    = '';
+
+		$this->assertSame(
+			array( $creator_id, $member_id, $moderator_id ),
+			array_values( bbp_filter_subscription_user_ids( array( $creator_id, $member_id, $banned_id, $former_id, $moderator_id ), $forum_id ) )
+		);
 	}
 
 	/**

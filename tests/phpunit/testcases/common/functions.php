@@ -1181,25 +1181,206 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::bbp_notify_topic_subscribers
-	 * @todo   Implement test_bbp_notify_topic_subscribers().
+	 * @covers ::bbp_filter_subscription_user_ids
 	 */
-	public function test_bbp_notify_topic_subscribers() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
+	public function test_bbp_filter_subscription_user_ids() {
+		$participant_id = $this->factory->user->create();
+		$forum_mod_id   = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create();
+		$blocked_id     = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $forum_mod_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		bbp_set_user_role( $blocked_id, bbp_get_blocked_role() );
+
+		$parent_id = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$forum_id  = $this->factory->forum->create( array(
+			'post_parent' => $parent_id,
+		) );
+		$topic_id  = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+		$reply_id  = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		bbp_add_moderator( $forum_id, $forum_mod_id );
+
+		$this->assertSame(
+			array( $forum_mod_id, $moderator_id, $keymaster_id ),
+			array_values(
+				bbp_filter_subscription_user_ids(
+					array( $participant_id, $forum_mod_id, $moderator_id, $keymaster_id ),
+					$forum_id,
+					$topic_id,
+					$reply_id
+				)
+			)
+		);
+
+		$public_id = $this->factory->forum->create();
+
+		$this->assertSame(
+			array( $participant_id ),
+			array_values( bbp_filter_subscription_user_ids( array( $participant_id, $blocked_id ), $public_id ) )
+		);
+
+		$public_topic_id = $this->factory->topic->create( array(
+			'post_parent' => $public_id,
+			'topic_meta'  => array(
+				'forum_id' => $public_id,
+			),
+		) );
+		$public_reply_id = $this->factory->reply->create( array(
+			'post_parent' => $public_topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $public_id,
+				'topic_id' => $public_topic_id,
+			),
+		) );
+		$denied_cap    = 'read_topic';
+		$filter_args   = array();
+		$deny_read_cap = function( $caps, $cap, $user_id ) use ( &$denied_cap, $participant_id ) {
+			if ( ( $cap === $denied_cap ) && ( $user_id === $participant_id ) ) {
+				$caps = array( 'do_not_allow' );
+			}
+
+			return $caps;
+		};
+		$capture_args  = function( $can_view, $user_id, $forum_id, $topic_id, $reply_id ) use ( &$filter_args ) {
+			$filter_args = compact( 'user_id', 'forum_id', 'topic_id', 'reply_id' );
+
+			return $can_view;
+		};
+
+		add_filter( 'bbp_map_meta_caps', $deny_read_cap, 99, 3 );
+		add_filter( 'bbp_subscription_user_can_view_forum', $capture_args, 10, 5 );
+		$topic_results = array_values( bbp_filter_subscription_user_ids( array( $participant_id ), $public_id, $public_topic_id, $public_reply_id ) );
+
+		$denied_cap = 'read_reply';
+		$reply_results = array_values( bbp_filter_subscription_user_ids( array( $participant_id ), $public_id, $public_topic_id, $public_reply_id ) );
+		remove_filter( 'bbp_map_meta_caps', $deny_read_cap, 99 );
+		remove_filter( 'bbp_subscription_user_can_view_forum', $capture_args, 10 );
+
+		$this->assertSame( array(), $topic_results );
+		$this->assertSame( array(), $reply_results );
+		$this->assertSame(
+			array(
+				'user_id'  => $participant_id,
+				'forum_id' => $public_id,
+				'topic_id' => $public_topic_id,
+				'reply_id' => $public_reply_id,
+			),
+			$filter_args
 		);
 	}
 
 	/**
+	 * @covers ::bbp_notify_topic_subscribers
+	 */
+	public function test_bbp_notify_topic_subscribers() {
+		$participant_id = $this->factory->user->create( array(
+			'user_email' => 'participant@example.org',
+		) );
+		$moderator_id   = $this->factory->user->create( array(
+			'user_email' => 'moderator@example.org',
+		) );
+		$author_id      = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $author_id, bbp_get_keymaster_role() );
+		$forum_id       = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$topic_id       = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+		$reply_id       = $this->factory->reply->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		bbp_add_user_topic_subscription( $participant_id, $topic_id );
+		bbp_add_user_topic_subscription( $moderator_id, $topic_id );
+
+		$mail = null;
+		$pre_wp_mail = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+			return true;
+		};
+		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+
+		$result = bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, array(), $author_id );
+		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
+		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
+	}
+
+	/**
 	 * @covers ::bbp_notify_forum_subscribers
-	 * @todo   Implement test_bbp_notify_forum_subscribers().
 	 */
 	public function test_bbp_notify_forum_subscribers() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$participant_id = $this->factory->user->create( array(
+			'user_email' => 'participant@example.org',
+		) );
+		$moderator_id   = $this->factory->user->create( array(
+			'user_email' => 'moderator@example.org',
+		) );
+		$author_id      = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_moderator_role() );
+		bbp_set_user_role( $author_id, bbp_get_keymaster_role() );
+		$forum_id       = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$topic_id       = $this->factory->topic->create( array(
+			'post_author' => $author_id,
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		bbp_add_user_forum_subscription( $participant_id, $forum_id );
+		bbp_add_user_forum_subscription( $moderator_id, $forum_id );
+
+		$mail = null;
+		$pre_wp_mail = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+			return true;
+		};
+		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+
+		$result = bbp_notify_forum_subscribers( $topic_id, $forum_id, array(), $author_id );
+		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertContains( 'Bcc: moderator@example.org', $mail['headers'] );
+		$this->assertNotContains( 'Bcc: participant@example.org', $mail['headers'] );
 	}
 
 	/**

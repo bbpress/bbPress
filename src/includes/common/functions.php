@@ -1257,6 +1257,60 @@ function bbp_get_do_not_reply_address() {
 }
 
 /**
+ * Remove subscribers who cannot read notification content.
+ *
+ * Subscription relationships can outlive a user's access to a forum. Check
+ * current access immediately before preparing a notification so restricted
+ * content is not sent to former participants.
+ *
+ * @since 2.6.16
+ *
+ * @param array $user_ids Subscriber user IDs.
+ * @param int   $forum_id Forum ID.
+ * @param int   $topic_id Topic ID.
+ * @param int   $reply_id Reply ID.
+ * @return array User IDs that can read the notification content.
+ */
+function bbp_filter_subscription_user_ids( $user_ids = array(), $forum_id = 0, $topic_id = 0, $reply_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	foreach ( $user_ids as $key => $user_id ) {
+		$can_view_forum = user_can( $user_id, 'read_forum', $forum_id );
+
+		/**
+		 * Filters whether a subscription recipient can view a forum.
+		 *
+		 * @since 2.6.16
+		 *
+		 * @param bool $can_view Whether the user can view the forum.
+		 * @param int  $user_id  User ID.
+		 * @param int  $forum_id Forum ID.
+		 * @param int  $topic_id Topic ID.
+		 * @param int  $reply_id Reply ID.
+		 */
+		$can_view_forum = (bool) apply_filters( 'bbp_subscription_user_can_view_forum', $can_view_forum, $user_id, $forum_id, $topic_id, $reply_id );
+
+		$can_view = user_can( $user_id, 'spectate' ) && $can_view_forum;
+
+		if ( ! empty( $topic_id ) ) {
+			$can_view = $can_view && user_can( $user_id, 'read_topic', $topic_id );
+		}
+
+		if ( ! empty( $reply_id ) ) {
+			$can_view = $can_view && user_can( $user_id, 'read_reply', $reply_id );
+		}
+
+		if ( false === $can_view ) {
+			unset( $user_ids[ $key ] );
+		}
+	}
+
+	return $user_ids;
+}
+
+/**
  * Sends notification emails for new replies to subscribed topics.
  *
  * Gets new post ID and check if there are subscribed users to that topic, and
@@ -1327,6 +1381,9 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_topic_subscription_user_ids', $user_ids, $reply_id, $topic_id );
+
+	// Remove subscribers who cannot read the notification content
+	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id, $reply_id );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {
@@ -1499,6 +1556,9 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	// Dedicated filter to manipulate user ID's to send emails to
 	$user_ids = (array) apply_filters( 'bbp_forum_subscription_user_ids', $user_ids, $topic_id, $forum_id );
+
+	// Remove subscribers who cannot read the notification content
+	$user_ids = bbp_filter_subscription_user_ids( $user_ids, $forum_id, $topic_id );
 
 	// Bail of the reply author was the only one subscribed.
 	if ( empty( $user_ids ) ) {

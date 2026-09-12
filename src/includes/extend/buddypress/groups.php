@@ -138,6 +138,9 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		// Map group forum activity items to groups
 		add_filter( 'bbp_before_record_activity_parse_args', array( $this, 'map_activity_to_group' ) );
 
+		// Allow group members to receive group forum notifications
+		add_filter( 'bbp_subscription_user_can_view_forum', array( $this, 'subscription_user_can_view_forum' ), 10, 3 );
+
 		/** Caps **************************************************************/
 
 		// Only add these filters if inside a group forum
@@ -156,6 +159,46 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 			add_filter( 'bbp_current_user_can_access_create_topic_form', array( $this, 'form_permissions' ) );
 			add_filter( 'bbp_current_user_can_access_create_reply_form', array( $this, 'form_permissions' ) );
 		}
+	}
+
+	/**
+	 * Allow a group member to receive notifications from an attached forum.
+	 *
+	 * Unlike the request-specific capability mapping, this check accepts an
+	 * explicit user ID so it can validate subscription recipients.
+	 *
+	 * @since 2.6.16
+	 *
+	 * @param bool $retval   Whether the user can view the forum.
+	 * @param int  $user_id  User ID.
+	 * @param int  $forum_id Forum ID.
+	 * @return bool Whether the user can view the forum.
+	 */
+	public function subscription_user_can_view_forum( $retval, $user_id, $forum_id ) {
+		$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+		// Keep the normal bbPress result for forums not attached to a group
+		if ( empty( $group_ids ) ) {
+			return $retval;
+		}
+
+		// Check every group attached to this forum
+		foreach ( $group_ids as $group_id ) {
+			if ( false === groups_is_user_banned( $user_id, $group_id ) && false !== groups_is_user_member( $user_id, $group_id ) ) {
+				return true;
+			}
+		}
+
+		// Preserve access for global and per-forum moderators
+		$forum_role = bbp_get_user_role( $user_id );
+		$is_global  = in_array( $forum_role, array( bbp_get_keymaster_role(), bbp_get_moderator_role() ), true );
+		$is_forum   = bbp_is_object_of_user( $forum_id, $user_id, '_bbp_moderator_id' );
+
+		if ( true === $retval && ( $is_global || $is_forum ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
