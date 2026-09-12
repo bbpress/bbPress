@@ -2777,6 +2777,17 @@ function bbp_pre_get_posts_normalize_forum_visibility( $posts_query = null ) {
 		// Excluding some forums
 		if ( ! empty( $forum_ids ) ) {
 
+			/**
+			 * WordPress ignores post__not_in when an explicit post ID is
+			 * queried. Replace an inaccessible forum ID with an impossible
+			 * inclusion so the restricted forum is not loaded into the query.
+			 */
+			$forum_id = absint( $posts_query->get( 'p' ) );
+			if ( ! empty( $forum_id ) && in_array( $forum_id, $forum_ids, true ) ) {
+				$posts_query->set( 'p', 0 );
+				$posts_query->set( 'post__in', array( 0 ) );
+			}
+
 			// Get any existing not-in queries
 			$not_in = (array) $posts_query->get( 'post__not_in', array() );
 

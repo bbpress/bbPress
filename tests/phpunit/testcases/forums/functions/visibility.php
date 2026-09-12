@@ -254,6 +254,48 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_explicit_forum_id_query_excludes_restricted_forums() {
+		$posts = $this->create_visibility_test_posts();
+
+		$this->set_current_user( 0 );
+
+		foreach ( array( 'private_forum', 'hidden_forum' ) as $forum ) {
+			$query = new WP_Query(
+				array(
+					'post_type' => bbp_get_forum_post_type(),
+					'p'         => $posts[ $forum ],
+				)
+			);
+
+			$this->assertEmpty( $query->posts );
+		}
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_explicit_forum_id_query_includes_readable_forums() {
+		$posts   = $this->create_visibility_test_posts();
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+
+		bbp_set_user_role( $user_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $user_id );
+
+		foreach ( array( 'public_forum', 'private_forum', 'hidden_forum' ) as $forum ) {
+			$query = new WP_Query(
+				array(
+					'post_type' => bbp_get_forum_post_type(),
+					'p'         => $posts[ $forum ],
+				)
+			);
+
+			$this->assertSame( array( $posts[ $forum ] ), wp_list_pluck( $query->posts, 'ID' ) );
+		}
+	}
+
+	/**
 	 * @covers ::bbp_allow_forums_of_user
 	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
 	 * @covers ::_bbp_forum_visibility_where
