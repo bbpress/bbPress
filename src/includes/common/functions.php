@@ -2839,6 +2839,29 @@ function bbp_get_page_by_path( $path = '' ) {
 }
 
 /**
+ * Prevent WordPress from guessing permalinks for bbPress post types.
+ *
+ * bbPress post types are excluded from search because their visibility depends
+ * on forum access. Older versions of WordPress may otherwise guess a restricted
+ * forum or topic permalink from a partial slug and expose its full title.
+ *
+ * @since 2.6.16 bbPress
+ *
+ * @param bool $do_redirect_guess Whether to attempt to guess a redirect URL.
+ *
+ * @return bool Whether to attempt to guess a redirect URL.
+ */
+function bbp_do_not_guess_404_permalink( $do_redirect_guess = true ) {
+	$post_types = (array) get_query_var( 'post_type' );
+
+	if ( bbp_is_custom_post_type( $post_types ) ) {
+		$do_redirect_guess = false;
+	}
+
+	return $do_redirect_guess;
+}
+
+/**
  * Sets the 404 status.
  *
  * Used primarily with topics/replies inside hidden forums.

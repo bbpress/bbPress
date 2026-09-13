@@ -418,33 +418,36 @@ function bbp_is_topic_tag_edit() {
 }
 
 /**
- * Check if the current post type is one that comes with bbPress
+ * Check if the current post type is one that comes with bbPress.
  *
  * @since 2.0.0 bbPress (r3311)
+ * @since 2.6.16 bbPress Added support for post-type names and arrays.
  *
- * @param mixed $the_post Optional. Post object or post ID.
+ * @param mixed $post_types Optional. Post object, post ID, post-type name, or
+ *                          an array of post-type names.
  *
  * @return bool
  */
-function bbp_is_custom_post_type( $the_post = false ) {
+function bbp_is_custom_post_type( $post_types = false ) {
+	$original_post_types = $post_types;
 
-	// Assume false
-	$retval = false;
+	// Preserve the existing scalar post object or ID behavior
+	if ( ! is_array( $post_types ) ) {
+		$post_type = get_post_type( $post_types );
 
-	// Viewing one of the bbPress post types
-	if ( in_array( get_post_type( $the_post ),
-		array(
-			bbp_get_forum_post_type(),
-			bbp_get_topic_post_type(),
-			bbp_get_reply_post_type()
-		),
-		true
-	) ) {
-		$retval = true;
+		// Use a supplied post-type name if it is not a post object or ID
+		$post_types = empty( $post_type ) && is_string( $post_types )
+			? array( $post_types )
+			: array( $post_type );
 	}
 
+	// Compare post types
+	$post_types     = array_filter( $post_types, 'is_string' );
+	$bbp_post_types = bbp_get_post_types();
+	$retval         = ! empty( array_intersect( $post_types, $bbp_post_types ) );
+
 	// Filter & return
-	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $the_post );
+	return (bool) apply_filters( 'bbp_is_custom_post_type', $retval, $original_post_types );
 }
 
 /**

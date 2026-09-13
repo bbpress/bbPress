@@ -1457,6 +1457,57 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_custom_post_type
+	 */
+	public function test_bbp_is_custom_post_type() {
+		$forum_id      = $this->factory->forum->create();
+		$forum_object  = (object) get_post( $forum_id )->to_array();
+		$original_post = isset( $GLOBALS['post'] )
+			? $GLOBALS['post']
+			: null;
+
+		try {
+			$GLOBALS['post'] = get_post( $forum_id );
+			$this->assertTrue( bbp_is_custom_post_type() );
+			$this->assertTrue( bbp_is_custom_post_type( $forum_id ) );
+			$this->assertTrue( bbp_is_custom_post_type( (float) $forum_id ) );
+			$this->assertTrue( bbp_is_custom_post_type( (string) $forum_id ) );
+			$this->assertTrue( bbp_is_custom_post_type( get_post( $forum_id ) ) );
+			$this->assertTrue( bbp_is_custom_post_type( $forum_object ) );
+			$this->assertTrue( bbp_is_custom_post_type( bbp_get_forum_post_type() ) );
+			$this->assertTrue( bbp_is_custom_post_type( array( 'post', bbp_get_topic_post_type() ) ) );
+			$this->assertFalse( bbp_is_custom_post_type( 'post' ) );
+			$this->assertFalse( bbp_is_custom_post_type( array( 'post', 'page' ) ) );
+			$this->assertFalse( bbp_is_custom_post_type( array() ) );
+			$this->assertFalse( bbp_is_custom_post_type( array( true, new stdClass() ) ) );
+			$this->assertTrue( bbp_is_custom_post_type( array( true, new stdClass(), bbp_get_reply_post_type() ) ) );
+		} finally {
+			$GLOBALS['post'] = $original_post;
+		}
+	}
+
+	/**
+	 * @covers ::bbp_do_not_guess_404_permalink
+	 */
+	public function test_bbp_do_not_guess_404_permalink() {
+		$original_post_type = get_query_var( 'post_type' );
+
+		set_query_var( 'post_type', 'post' );
+		$this->assertTrue( bbp_do_not_guess_404_permalink( true ) );
+		$this->assertFalse( bbp_do_not_guess_404_permalink( false ) );
+
+		foreach ( bbp_get_post_types() as $post_type ) {
+			set_query_var( 'post_type', $post_type );
+			$this->assertFalse( apply_filters( 'do_redirect_guess_404_permalink', true ) );
+		}
+
+		set_query_var( 'post_type', array( 'post', bbp_get_topic_post_type() ) );
+		$this->assertFalse( bbp_do_not_guess_404_permalink( true ) );
+
+		set_query_var( 'post_type', $original_post_type );
+	}
+
+	/**
 	 * @covers ::bbp_set_404
 	 * @todo   Implement test_bbp_set_404().
 	 */
