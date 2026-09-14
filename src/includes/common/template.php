@@ -454,6 +454,63 @@ function bbp_is_custom_post_type( $post_types = false ) {
 }
 
 /**
+ * Check if a bbPress object or any of its parents is password protected.
+ *
+ * @since 2.6.16
+ *
+ * @param int    $object_id   Optional. Object ID. Defaults to the current post.
+ * @param string $object_type Optional. Object type. Defaults to 'post'.
+ * @return bool True if the object is password protected, otherwise false.
+ */
+function bbp_is_password_protected( $object_id = 0, $object_type = 'post' ) {
+	$retval = false;
+
+	// Posts
+	if ( 'post' === $object_type ) {
+		$post     = get_post( $object_id );
+		$post_ids = array();
+		$forum_id = 0;
+
+		// Include the object
+		if ( ! empty( $post ) && bbp_is_custom_post_type( $post ) ) {
+			$object_id = $post->ID;
+			$post_ids  = array( $object_id );
+
+			// Include the topic and forum for replies
+			if ( bbp_is_reply( $object_id ) ) {
+				$post_ids[] = bbp_get_reply_topic_id( $object_id );
+				$forum_id   = bbp_get_reply_forum_id( $object_id );
+
+			// Include the forum for topics
+			} elseif ( bbp_is_topic( $object_id ) ) {
+				$forum_id = bbp_get_topic_forum_id( $object_id );
+
+			// Include the forum itself
+			} elseif ( bbp_is_forum( $object_id ) ) {
+				$forum_id = $object_id;
+			}
+
+			// Include the forum and its ancestors
+			if ( ! empty( $forum_id ) ) {
+				$post_ids[] = $forum_id;
+				$post_ids   = array_merge( $post_ids, bbp_get_forum_ancestors( $forum_id ) );
+			}
+		}
+
+		// Check the object and its parents
+		foreach ( array_unique( array_filter( $post_ids ) ) as $post_id ) {
+			if ( ! empty( get_post_field( 'post_password', $post_id ) ) ) {
+				$retval = true;
+				break;
+			}
+		}
+	}
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_password_protected', $retval, $object_id, $object_type );
+}
+
+/**
  * Check if current page is a bbPress reply.
  *
  * @since 2.0.0 bbPress (r2549)

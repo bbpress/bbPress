@@ -1384,6 +1384,112 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_notify_topic_subscribers
+	 */
+	public function test_bbp_notify_topic_subscribers_redacts_password_protected_content() {
+		$subscriber_id = $this->factory->user->create( array(
+			'user_email' => 'subscriber@example.org',
+		) );
+		$author_id = $this->factory->user->create( array(
+			'display_name' => 'Secret Author',
+		) );
+
+		bbp_set_user_role( $subscriber_id, bbp_get_participant_role() );
+		bbp_set_user_role( $author_id, bbp_get_keymaster_role() );
+
+		$forum_id = $this->factory->forum->create( array(
+			'post_title' => 'Protected Forum',
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_author'   => $author_id,
+			'post_parent'   => $forum_id,
+			'post_password' => 'password',
+			'post_title'    => 'Protected Topic',
+			'topic_meta'    => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_author'  => $author_id,
+			'post_content' => 'Confidential reply body',
+			'post_parent'  => $topic_id,
+			'reply_meta'   => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+
+		$this->assertTrue( bbp_add_user_topic_subscription( $subscriber_id, $topic_id ) );
+
+		$mail = null;
+		$pre_wp_mail = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+			return true;
+		};
+		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+
+		$result = bbp_notify_topic_subscribers( $reply_id, $topic_id, $forum_id, array(), $author_id );
+		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertStringContainsString( 'Protected Forum', $mail['subject'] );
+		$this->assertStringContainsString( 'Protected Topic', $mail['subject'] );
+		$this->assertStringContainsString( 'password-protected discussion', $mail['message'] );
+		$this->assertStringContainsString( bbp_get_reply_url( $reply_id ), $mail['message'] );
+		$this->assertStringNotContainsString( 'Secret Author', $mail['message'] );
+		$this->assertStringNotContainsString( 'Confidential reply body', $mail['message'] );
+	}
+
+	/**
+	 * @covers ::bbp_notify_forum_subscribers
+	 */
+	public function test_bbp_notify_forum_subscribers_redacts_password_protected_content() {
+		$subscriber_id = $this->factory->user->create( array(
+			'user_email' => 'subscriber@example.org',
+		) );
+		$author_id = $this->factory->user->create( array(
+			'display_name' => 'Secret Author',
+		) );
+
+		bbp_set_user_role( $subscriber_id, bbp_get_participant_role() );
+		bbp_set_user_role( $author_id, bbp_get_keymaster_role() );
+
+		$forum_id = $this->factory->forum->create( array(
+			'post_password' => 'password',
+			'post_title'    => 'Protected Forum',
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_author'  => $author_id,
+			'post_content' => 'Confidential topic body',
+			'post_parent'  => $forum_id,
+			'post_title'   => 'Protected Topic',
+			'topic_meta'   => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+
+		$this->assertTrue( bbp_add_user_forum_subscription( $subscriber_id, $forum_id ) );
+
+		$mail = null;
+		$pre_wp_mail = function( $return, $atts ) use ( &$mail ) {
+			$mail = $atts;
+			return true;
+		};
+		add_filter( 'pre_wp_mail', $pre_wp_mail, 10, 2 );
+
+		$result = bbp_notify_forum_subscribers( $topic_id, $forum_id, array(), $author_id );
+		remove_filter( 'pre_wp_mail', $pre_wp_mail, 10 );
+
+		$this->assertTrue( $result );
+		$this->assertStringContainsString( 'Protected Forum', $mail['subject'] );
+		$this->assertStringContainsString( 'Protected Topic', $mail['subject'] );
+		$this->assertStringContainsString( 'password-protected discussion', $mail['message'] );
+		$this->assertStringContainsString( bbp_get_topic_permalink( $topic_id ), $mail['message'] );
+		$this->assertStringNotContainsString( 'Secret Author', $mail['message'] );
+		$this->assertStringNotContainsString( 'Confidential topic body', $mail['message'] );
+	}
+
+	/**
 	 * @covers ::bbp_notify_subscribers
 	 * @todo   Implement test_bbp_notify_subscribers().
 	 */
@@ -1488,6 +1594,54 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 		} finally {
 			$GLOBALS['post'] = $original_post;
 		}
+	}
+
+	/**
+	 * @covers ::bbp_is_password_protected
+	 */
+	public function test_bbp_is_password_protected() {
+		$parent_forum_id = $this->factory->forum->create( array(
+			'post_password' => 'password',
+		) );
+		$forum_id = $this->factory->forum->create( array(
+			'post_parent' => $parent_forum_id,
+		) );
+		$topic_id = $this->factory->topic->create( array(
+			'post_parent' => $forum_id,
+			'topic_meta'  => array(
+				'forum_id' => $forum_id,
+			),
+		) );
+		$reply_id = $this->factory->reply->create( array(
+			'post_parent' => $topic_id,
+			'reply_meta'  => array(
+				'forum_id' => $forum_id,
+				'topic_id' => $topic_id,
+			),
+		) );
+		$post_id = $this->factory->post->create( array(
+			'post_password' => 'password',
+		) );
+
+		$this->assertTrue( bbp_is_password_protected( $parent_forum_id ) );
+		$this->assertTrue( bbp_is_password_protected( $forum_id ) );
+		$this->assertTrue( bbp_is_password_protected( $topic_id ) );
+		$this->assertTrue( bbp_is_password_protected( $reply_id ) );
+		$this->assertFalse( bbp_is_password_protected( $post_id ) );
+		$this->assertFalse( bbp_is_password_protected( 999999 ) );
+
+		$filter = function( $retval, $object_id, $object_type ) {
+			$this->assertFalse( $retval );
+			$this->assertSame( 123, $object_id );
+			$this->assertSame( 'term', $object_type );
+
+			return true;
+		};
+		add_filter( 'bbp_is_password_protected', $filter, 10, 3 );
+
+		$this->assertTrue( bbp_is_password_protected( 123, 'term' ) );
+
+		remove_filter( 'bbp_is_password_protected', $filter, 10 );
 	}
 
 	/**
