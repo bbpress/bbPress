@@ -1567,6 +1567,16 @@ class BBP_Tests_Common_Functions extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_get_string_array_values
+	 */
+	public function test_bbp_get_string_array_values() {
+		$values = array( '', '0', 'topic', true, false, 12, null, array(), new stdClass() );
+
+		$this->assertSame( array( '0', 'topic' ), bbp_get_string_array_values( $values ) );
+		$this->assertSame( array( 'topic' ), bbp_get_string_array_values( 'topic' ) );
+	}
+
+	/**
 	 * @covers ::bbp_is_custom_post_type
 	 */
 	public function test_bbp_is_custom_post_type() {

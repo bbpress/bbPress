@@ -10,6 +10,47 @@
 class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 
 	/**
+	 * Create public, closed, private, and hidden content in a public forum.
+	 *
+	 * @return int[] Forum, topic, and reply IDs keyed by status.
+	 */
+	protected function create_status_test_posts() {
+		$posts       = array();
+		$forum_id    = $this->factory->forum->create();
+		$post_status = array(
+			'public'  => bbp_get_public_status_id(),
+			'closed'  => bbp_get_closed_status_id(),
+			'private' => bbp_get_private_status_id(),
+			'hidden'  => bbp_get_hidden_status_id(),
+		);
+
+		$posts['forum'] = $forum_id;
+
+		foreach ( $post_status as $status => $status_id ) {
+			$topic_id = $this->factory->topic->create( array(
+				'post_parent' => $forum_id,
+				'post_status' => $status_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			) );
+			$reply_id = $this->factory->reply->create( array(
+				'post_parent' => $topic_id,
+				'post_status' => $status_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			) );
+
+			$posts[ "{$status}_topic" ] = $topic_id;
+			$posts[ "{$status}_reply" ] = $reply_id;
+		}
+
+		return $posts;
+	}
+
+	/**
 	 * Create public, private, and hidden forum content for visibility tests.
 	 *
 	 * @return int[] Forum, topic, and reply IDs keyed by visibility.
@@ -416,6 +457,116 @@ class BBP_Tests_Forums_Functions_Visibility extends BBP_UnitTestCase {
 		$this->assertNotContains( $posts['private_reply'], $query->posts );
 		$this->assertNotContains( $posts['hidden_topic'], $query->posts );
 		$this->assertNotContains( $posts['hidden_reply'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_bbp_pre_get_posts_normalize_forum_visibility_with_mixed_bbp_post_types() {
+		$posts = $this->create_status_test_posts();
+
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => bbp_get_post_types(),
+				'post_status'    => bbp_get_public_topic_statuses(),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertContains( $posts['forum'], $query->posts );
+		$this->assertContains( $posts['public_topic'], $query->posts );
+		$this->assertContains( $posts['public_reply'], $query->posts );
+		$this->assertContains( $posts['closed_topic'], $query->posts );
+		$this->assertContains( $posts['closed_reply'], $query->posts );
+		$this->assertNotContains( $posts['private_topic'], $query->posts );
+		$this->assertNotContains( $posts['hidden_topic'], $query->posts );
+		$this->assertNotContains( $posts['private_reply'], $query->posts );
+		$this->assertNotContains( $posts['hidden_reply'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_bbp_pre_get_posts_normalize_forum_visibility_with_any_status() {
+		$posts = $this->create_status_test_posts();
+
+		$this->set_current_user( 0 );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => bbp_get_post_types(),
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertContains( $posts['public_topic'], $query->posts );
+		$this->assertContains( $posts['public_reply'], $query->posts );
+		$this->assertContains( $posts['private_topic'], $query->posts );
+		$this->assertContains( $posts['private_reply'], $query->posts );
+		$this->assertNotContains( $posts['hidden_topic'], $query->posts );
+		$this->assertNotContains( $posts['hidden_reply'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_bbp_pre_get_posts_normalize_forum_visibility_preserves_private_status() {
+		$posts   = $this->create_status_test_posts();
+		$user_id = $this->factory->user->create();
+
+		bbp_set_user_role( $user_id, bbp_get_moderator_role() );
+		$this->set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'read_private_topics' ) );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => bbp_get_post_types(),
+				'post_status'    => array_merge( bbp_get_public_topic_statuses(), array( bbp_get_private_status_id() ) ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertContains( $posts['public_topic'], $query->posts );
+		$this->assertContains( $posts['public_reply'], $query->posts );
+		$this->assertContains( $posts['private_topic'], $query->posts );
+		$this->assertContains( $posts['private_reply'], $query->posts );
+		$this->assertNotContains( $posts['hidden_topic'], $query->posts );
+		$this->assertNotContains( $posts['hidden_reply'], $query->posts );
+	}
+
+	/**
+	 * @covers ::bbp_pre_get_posts_normalize_forum_visibility
+	 */
+	public function test_bbp_pre_get_posts_normalize_forum_visibility_preserves_hidden_status() {
+		$posts   = $this->create_status_test_posts();
+		$user_id = $this->factory->user->create();
+		$user     = get_user_by( 'id', $user_id );
+
+		$user->add_cap( 'read_hidden_topics' );
+		$this->set_current_user( $user_id );
+		$this->assertTrue( current_user_can( 'read_hidden_topics' ) );
+
+		$query = new WP_Query(
+			array(
+				'post_type'      => bbp_get_post_types(),
+				'post_status'    => array_merge( bbp_get_public_topic_statuses(), array( bbp_get_hidden_status_id() ) ),
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$this->assertContains( $posts['public_topic'], $query->posts );
+		$this->assertContains( $posts['public_reply'], $query->posts );
+		$this->assertContains( $posts['hidden_topic'], $query->posts );
+		$this->assertContains( $posts['hidden_reply'], $query->posts );
+		$this->assertNotContains( $posts['private_topic'], $query->posts );
+		$this->assertNotContains( $posts['private_reply'], $query->posts );
 	}
 
 	/**

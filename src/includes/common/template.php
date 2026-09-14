@@ -445,7 +445,7 @@ function bbp_is_custom_post_type( $post_types = false ) {
 	}
 
 	// Compare post types
-	$post_types     = array_filter( $post_types, 'is_string' );
+	$post_types     = bbp_get_string_array_values( $post_types );
 	$bbp_post_types = bbp_get_post_types();
 	$retval         = ! empty( array_intersect( $post_types, $bbp_post_types ) );
 
