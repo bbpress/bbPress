@@ -34,6 +34,8 @@ Development for the next bbPress release is in progress. See the active
 
 ### Security
 
+- Validated and filtered topic titles when converting replies or splitting
+  topics.
 - Prevented subscription emails from disclosing content to users who can no
   longer access a restricted forum.
 - Hardened link relationship rewriting for topic and reply content.
