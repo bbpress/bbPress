@@ -77,7 +77,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 		case 'read_topic' :
 
 			// User cannot spectate
-			if ( ! user_can( $user_id, 'spectate' ) ) {
+			if ( ! user_can( $user_id, 'spectate' ) && ! bbp_is_anonymous() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Do some post ID based logic
@@ -97,7 +97,15 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 					// Post is public
 					if ( bbp_get_public_status_id() === $_post->post_status ) {
-						$caps = array( 'spectate' );
+
+						// Anonymous users do not have caps, but can 'exist'
+						if ( bbp_is_anonymous() ) {
+							$caps = array( 'exist' );
+
+						// Registered users need the 'spectate' cap
+						} else {
+							$caps = array( 'spectate' );
+						}
 
 					// User is author so allow read
 					} elseif ( (int) $user_id === (int) $_post->post_author ) {
@@ -308,6 +316,34 @@ function bbp_map_topic_tag_meta_caps( $caps, $cap, $user_id, $args ) {
 			// Do not allow if topic tags are disabled
 			} elseif ( ! bbp_allow_topic_tags() ) {
 				$caps = array( 'do_not_allow' );
+			}
+
+			break;
+
+		case 'remove_topic_tag' :
+
+			$topic_id = ! empty( $args[0] )
+				? bbp_get_topic_id( $args[0] )
+				: 0;
+			$tag_id   = ! empty( $args[1] )
+				? absint( $args[1] )
+				: 0;
+
+			// Do not allow invalid topic-tag relationships
+			if ( empty( $topic_id ) || empty( $tag_id ) || ! has_term( $tag_id, bbp_get_topic_tag_tax_id(), $topic_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Add 'do_not_allow' cap if user is spam or deleted
+			} elseif ( bbp_is_user_inactive( $user_id ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Moderators can always remove
+			} elseif ( user_can( $user_id, 'moderate', $topic_id ) ) {
+				$caps = array( 'moderate' );
+
+			// Fallback to assigning topic tags
+			} else {
+				$caps = array( 'assign_topic_tags' );
 			}
 
 			break;

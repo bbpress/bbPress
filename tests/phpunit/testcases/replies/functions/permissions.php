@@ -13,14 +13,20 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 	protected $old_request;
 	protected $old_server;
 	protected $old_errors;
+	protected $old_allow_anonymous;
+	protected $old_allow_content_throttle;
+	protected $blocked_topic_tag_id;
 
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->old_post    = $_POST;
-		$this->old_request = $_REQUEST;
-		$this->old_server  = $_SERVER;
-		$this->old_errors  = bbpress()->errors;
+		$this->old_post                   = $_POST;
+		$this->old_request                = $_REQUEST;
+		$this->old_server                 = $_SERVER;
+		$this->old_errors                 = bbpress()->errors;
+		$this->old_allow_anonymous        = get_option( '_bbp_allow_anonymous' );
+		$this->old_allow_content_throttle = get_option( '_bbp_allow_content_throttle' );
+		$this->blocked_topic_tag_id       = 0;
 	}
 
 	public function tearDown(): void {
@@ -28,8 +34,24 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$_REQUEST         = $this->old_request;
 		$_SERVER          = $this->old_server;
 		bbpress()->errors = $this->old_errors;
+		update_option( '_bbp_allow_anonymous', $this->old_allow_anonymous );
+		update_option( '_bbp_allow_content_throttle', $this->old_allow_content_throttle );
+		remove_filter( 'wp_redirect', array( $this, 'filter_reply_edit_redirect' ) );
+		remove_filter( 'bbp_map_topic_tag_meta_caps', array( $this, 'filter_remove_topic_tag_caps' ), 10 );
 
 		parent::tearDown();
+	}
+
+	public function filter_reply_edit_redirect( $location ) {
+		throw new RuntimeException( 'Reply edit redirect.' );
+	}
+
+	public function filter_remove_topic_tag_caps( $caps, $cap, $user_id, $args ) {
+		if ( ( 'remove_topic_tag' === $cap ) && ( $this->blocked_topic_tag_id === $args[1] ) ) {
+			$caps = array( 'do_not_allow' );
+		}
+
+		return $caps;
 	}
 
 	protected function submit_reply( $topic_id, $forum_id = null, $content = '', $anonymous_data = array() ) {
@@ -74,6 +96,39 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 
 		remove_filter( 'wp_redirect', $prevent_redirect );
 		remove_filter( 'bbp_filter_anonymous_post_data', $prevent_cookies );
+
+		return $did_redirect;
+	}
+
+	protected function submit_reply_edit( $reply_id, $content = '', $post_data = array() ) {
+		$home_url             = wp_parse_url( home_url( '/' ) );
+		$_SERVER['HTTP_HOST'] = $home_url['host'];
+
+		if ( isset( $home_url['port'] ) ) {
+			$_SERVER['HTTP_HOST'] .= ':' . $home_url['port'];
+		}
+
+		$_SERVER['REQUEST_URI']     = $home_url['path'];
+		$_POST['bbp_reply_id']      = $reply_id;
+		$_POST['bbp_reply_content'] = $content;
+		$_REQUEST['_wpnonce']       = wp_create_nonce( 'bbp-edit-reply_' . $reply_id );
+		$_POST                      = array_merge( $_POST, $post_data );
+
+		$did_redirect = false;
+
+		add_filter( 'wp_redirect', array( $this, 'filter_reply_edit_redirect' ) );
+
+		try {
+			bbp_edit_reply_handler( 'bbp-edit-reply' );
+		} catch ( RuntimeException $exception ) {
+			if ( 'Reply edit redirect.' !== $exception->getMessage() ) {
+				throw $exception;
+			}
+
+			$did_redirect = true;
+		}
+
+		remove_filter( 'wp_redirect', array( $this, 'filter_reply_edit_redirect' ) );
 
 		return $did_redirect;
 	}
@@ -444,6 +499,196 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->assertSame( array(), $reply_ids );
 		$this->assertContains( 'bbp_new_reply_forum_read', bbpress()->errors->get_error_codes() );
 		$this->assertFalse( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 */
+	public function test_anonymous_user_cannot_remove_topic_tags_without_capability() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$tag_ids  = wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+
+		update_option( '_bbp_allow_anonymous', true );
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( 0 );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertFalse( current_user_can( 'assign_topic_tags', $topic_id ) );
+		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
+		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[1] ) );
+		$this->assertSame( array( 'alpha', 'beta' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+
+		$did_redirect = $this->submit_reply(
+			$topic_id,
+			$forum_id,
+			'An anonymous reply with an unauthorized topic-tag field.',
+			array(
+				'bbp_anonymous_name'  => 'Anonymous User',
+				'bbp_anonymous_email' => 'anonymous@example.org',
+				'bbp_topic_tags'      => 'unauthorized-field-injection',
+			)
+		);
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertCount( 1, $this->get_reply_ids( $topic_id ) );
+		$this->assertSame( array( 'alpha', 'beta' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_map_forum_meta_caps
+	 * @covers ::bbp_map_topic_meta_caps
+	 * @covers ::bbp_map_reply_meta_caps
+	 */
+	public function test_anonymous_user_can_read_public_forum_topic_and_reply() {
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		update_option( '_bbp_allow_anonymous', true );
+		$this->set_current_user( 0 );
+
+		$this->assertTrue( current_user_can( 'read_forum', $forum_id ) );
+		$this->assertTrue( current_user_can( 'read_topic', $topic_id ) );
+		$this->assertTrue( current_user_can( 'read_reply', $reply_id ) );
+	}
+
+	/**
+	 * @covers ::bbp_new_reply_handler
+	 * @covers ::bbp_get_topic_tag_names_for_update
+	 */
+	public function test_participant_can_remove_topic_tags_when_replying() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$tag_ids  = wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$this->assertTrue( current_user_can( 'assign_topic_tags', $topic_id ) );
+		$this->assertTrue( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
+
+		$did_redirect = $this->submit_reply(
+			$topic_id,
+			$forum_id,
+			'A participant reply that clears the topic tags.',
+			array( 'bbp_topic_tags' => '' )
+		);
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertCount( 1, $this->get_reply_ids( $topic_id ) );
+		$this->assertSame( array(), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_get_topic_tag_names_for_update
+	 */
+	public function test_malformed_topic_tag_input_preserves_existing_tags() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+		$taxonomy = bbp_get_topic_tag_tax_id();
+
+		wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+		$this->set_current_user( $user_id );
+
+		$tag_names = bbp_get_topic_tag_names_for_update( $topic_id, array( 'malformed' ) );
+		wp_set_post_terms( $topic_id, $tag_names, $taxonomy );
+
+		$this->assertSame( array( 'alpha', 'beta' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+	}
+
+	/**
+	 * @covers ::bbp_edit_reply_handler
+	 * @covers ::bbp_get_topic_tag_names_for_update
+	 * @covers ::bbp_map_topic_tag_meta_caps
+	 */
+	public function test_topic_tag_removal_can_be_filtered_per_term() {
+		$user_id  = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id = $this->factory->forum->create();
+		$topic_id = $this->factory->topic->create(
+			array(
+				'post_parent' => $forum_id,
+				'topic_meta'  => array(
+					'forum_id' => $forum_id,
+				),
+			)
+		);
+		$reply_id = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+		$taxonomy = bbp_get_topic_tag_tax_id();
+		$tag_ids  = wp_set_post_terms( $topic_id, array( 'alpha', 'beta' ), $taxonomy );
+
+		update_option( '_bbp_allow_content_throttle', false );
+		$this->set_current_user( $user_id );
+		bbpress()->errors           = new WP_Error();
+		$this->blocked_topic_tag_id = $tag_ids[1];
+
+		add_filter( 'bbp_map_topic_tag_meta_caps', array( $this, 'filter_remove_topic_tag_caps' ), 10, 4 );
+
+		$this->assertTrue( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[0] ) );
+		$this->assertFalse( current_user_can( 'remove_topic_tag', $topic_id, $tag_ids[1] ) );
+
+		$did_redirect = $this->submit_reply_edit(
+			$reply_id,
+			'A participant edit with a filtered topic-tag removal.',
+			array( 'bbp_topic_tags' => 'gamma' )
+		);
+
+		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
+		$this->assertSame( 'A participant edit with a filtered topic-tag removal.', get_post_field( 'post_content', $reply_id ) );
+		$this->assertSame( array( 'beta', 'gamma' ), wp_get_post_terms( $topic_id, $taxonomy, array( 'fields' => 'names' ) ) );
+		$this->assertTrue( $did_redirect );
 	}
 
 }

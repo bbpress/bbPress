@@ -50,9 +50,11 @@ Development for the next bbPress release is in progress. See the active
 - Escaped forum, topic, and reply titles in form fields.
 - Prevented failed reply-move and topic-split authorization checks from changing
   content.
+- Prevented unauthorized reply submissions from removing topic tags.
 
 ### Fixed
 
+- Restored anonymous read capability mapping for public forum content.
 - Allowed moderators to mark trashed replies as spam from the front end.
 - Preserved forum visibility when restoring a forum from the trash.
 - Prevented stale post caches during nested updates and repeated moderation.

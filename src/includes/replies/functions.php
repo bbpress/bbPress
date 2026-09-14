@@ -357,13 +357,9 @@ function bbp_new_reply_handler( $action = '' ) {
 
 	/** Topic Tags ************************************************************/
 
-	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
-		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
-
-	// ...or remove them.
-	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
-		$terms = '';
+	// Replace allowed terms
+	if ( bbp_allow_topic_tags() && isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = bbp_get_topic_tag_names_for_update( $topic_id, $_POST['bbp_topic_tags'] );
 
 	// Existing terms
 	} else {
@@ -678,13 +674,9 @@ function bbp_edit_reply_handler( $action = '' ) {
 
 	/** Topic Tags ************************************************************/
 
-	// Either replace terms
-	if ( bbp_allow_topic_tags() && current_user_can( 'assign_topic_tags', $topic_id ) && ! empty( $_POST['bbp_topic_tags'] ) ) {
-		$terms = sanitize_text_field( $_POST['bbp_topic_tags'] );
-
-	// ...or remove them.
-	} elseif ( isset( $_POST['bbp_topic_tags'] ) ) {
-		$terms = '';
+	// Replace allowed terms
+	if ( bbp_allow_topic_tags() && isset( $_POST['bbp_topic_tags'] ) ) {
+		$terms = bbp_get_topic_tag_names_for_update( $topic_id, $_POST['bbp_topic_tags'] );
 
 	// Existing terms
 	} else {
