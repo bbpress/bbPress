@@ -32,7 +32,16 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			return $retval;
 		}
 
-		$forum_id = isset( $request['id'] ) ? bbp_get_forum_id( $request['id'] ) : 0;
+		$post = isset( $request['id'] ) ? get_post( $request['id'] ) : null;
+		if ( ! empty( $post ) && ! $this->check_read_permission( $post ) ) {
+			return new WP_Error(
+				'bbp_rest_cannot_edit_forum_content',
+				esc_html__( 'You are not allowed to edit this forum content.', 'bbpress' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		$forum_id = ! empty( $post ) ? bbp_get_forum_id( $post->ID ) : 0;
 		$forum    = bbp_get_forum( $forum_id );
 
 		if ( empty( $forum ) ) {
@@ -102,6 +111,7 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		}
 
 		$can_read = parent::check_read_permission( $post );
+		$user_id  = bbp_get_current_user_id();
 
 		// Get the forum ID for this post
 		switch ( $post->post_type ) {
@@ -124,18 +134,18 @@ class BBP_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 		// Check access to restricted forums and their ancestors
 		$restricted = ! empty( $forum_id ) && bbp_is_forum_restricted( $forum_id, true );
-		$moderator  = $restricted && is_user_logged_in() && bbp_is_user_forum_moderator( bbp_get_current_user_id(), $forum_id );
+		$moderator  = $restricted && is_user_logged_in() && bbp_is_user_forum_moderator( $user_id, $forum_id );
 
 		// Allow filtered moderators to read the restricted forum object
 		$moderator_can_read = $moderator
 			&& ( bbp_get_forum_post_type() === $post->post_type )
 			&& in_array( $post->post_status, array( bbp_get_private_status_id(), bbp_get_hidden_status_id() ), true );
 
-		if ( ( ! $can_read && ! $moderator_can_read ) || ( $restricted && ! $moderator && ! current_user_can( 'read_forum', $forum_id ) ) ) {
+		if ( ! $can_read && ! $moderator_can_read ) {
 			return false;
 		}
 
-		return true;
+		return ! bbp_is_forum_restricted_for_user( $forum_id, $user_id );
 	}
 }
 

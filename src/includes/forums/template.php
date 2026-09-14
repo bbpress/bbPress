@@ -1781,6 +1781,32 @@ function bbp_is_forum_restricted( $forum_id = 0, $check_ancestors = false ) {
 }
 
 /**
+ * Is the forum restricted from a user?
+ *
+ * Checks the forum and its ancestors for private or hidden visibility, and
+ * whether the user is a forum moderator or can otherwise read the forum.
+ *
+ * @since 2.6.16
+ *
+ * @param int $forum_id Optional. Forum ID.
+ * @param int $user_id  Optional. User ID. Defaults to 0.
+ * @return bool True if the forum is restricted from the user, false if not.
+ */
+function bbp_is_forum_restricted_for_user( $forum_id = 0, $user_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$user_id  = ! empty( $user_id )
+		? bbp_get_user_id( $user_id, false, false )
+		: 0;
+	$retval   = ! empty( $forum_id )
+		&& bbp_is_forum_restricted( $forum_id, true )
+		&& ( empty( $user_id ) || ! bbp_is_user_forum_moderator( $user_id, $forum_id ) )
+		&& ! user_can( $user_id, 'read_forum', $forum_id );
+
+	// Filter & return
+	return (bool) apply_filters( 'bbp_is_forum_restricted_for_user', $retval, $forum_id, $user_id );
+}
+
+/**
  * Check the forum visibility ID.
  *
  * @since 2.6.0 bbPress (r5499)
@@ -1940,7 +1966,7 @@ function bbp_suppress_private_forum_meta( $retval, $forum_id, $time_since = '', 
 	}
 
 	// Suppress if this forum or an ancestor is restricted from the current user
-	if ( bbp_is_forum_restricted( $forum_id, true ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+	if ( bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() ) ) {
 		$retval = '-';
 	}
 
@@ -1986,7 +2012,7 @@ function bbp_suppress_private_author_link( $author_link = '', $args = array() ) 
 		}
 
 		// Suppress if this forum or an ancestor is restricted from the current user
-		if ( bbp_is_forum_restricted( $forum_id, true ) && ! current_user_can( 'read_forum', $forum_id ) ) {
+		if ( bbp_is_forum_restricted_for_user( $forum_id, bbp_get_current_user_id() ) ) {
 			$retval = '';
 		}
 	}
