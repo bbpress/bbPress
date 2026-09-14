@@ -1313,6 +1313,7 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$password_protected = bbp_is_password_protected( $reply_id );
 
 	/** Topic *****************************************************************/
 
@@ -1370,16 +1371,37 @@ function bbp_notify_topic_subscribers( $reply_id = 0, $topic_id = 0, $forum_id =
 	// Strip tags from text and setup mail data
 	$forum_title       = wp_specialchars_decode( strip_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 	$topic_title       = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
-	$reply_author_name = wp_specialchars_decode( strip_tags( $reply_author_name ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
-	$reply_content     = wp_specialchars_decode( strip_tags( bbp_get_reply_content( $reply_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 	$reply_url         = bbp_get_reply_url( $reply_id );
 
-	// For plugins to filter messages per reply/topic/user
-	$message = sprintf(
+	// Do not include protected content in subscription emails
+	if ( ! empty( $password_protected ) ) {
+		$message = sprintf(
 
-		/* translators: 1: Reply author name, 2: Reply content, 3: Reply URL */
-		esc_html__(
-			'%1$s wrote:
+			/* translators: %s: Reply URL */
+			esc_html__(
+				'A new reply was posted in a password-protected discussion.
+
+Post Link: %s
+
+-----------
+
+You are receiving this email because you subscribed to a forum topic.
+
+Login and visit the topic to unsubscribe from these emails.',
+				'bbpress'
+			),
+			$reply_url
+		);
+
+	// Include the reply details in normal subscription emails
+	} else {
+		$reply_author_name = wp_specialchars_decode( strip_tags( $reply_author_name ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+		$reply_content     = wp_specialchars_decode( strip_tags( bbp_get_reply_content( $reply_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+		$message           = sprintf(
+
+			/* translators: 1: Reply author name, 2: Reply content, 3: Reply URL */
+			esc_html__(
+				'%1$s wrote:
 
 %2$s
 
@@ -1390,13 +1412,15 @@ Post Link: %3$s
 You are receiving this email because you subscribed to a forum topic.
 
 Login and visit the topic to unsubscribe from these emails.',
-			'bbpress'
-		),
-		$reply_author_name,
-		$reply_content,
-		$reply_url
-	);
+				'bbpress'
+			),
+			$reply_author_name,
+			$reply_content,
+			$reply_url
+		);
+	}
 
+	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_subscription_mail_message', $message, $reply_id, $topic_id );
 	if ( empty( $message ) ) {
 		return;
@@ -1488,6 +1512,7 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$password_protected = bbp_is_password_protected( $topic_id );
 
 	/**
 	 * Necessary for backwards compatibility
@@ -1545,16 +1570,37 @@ function bbp_notify_forum_subscribers( $topic_id = 0, $forum_id = 0, $anonymous_
 	// Strip tags from text and setup mail data
 	$forum_title       = wp_specialchars_decode( strip_tags( bbp_get_forum_title( $forum_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 	$topic_title       = wp_specialchars_decode( strip_tags( bbp_get_topic_title( $topic_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
-	$topic_author_name = wp_specialchars_decode( strip_tags( $topic_author_name ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
-	$topic_content     = wp_specialchars_decode( strip_tags( bbp_get_topic_content( $topic_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 	$topic_url         = get_permalink( $topic_id );
 
-	// For plugins to filter messages per reply/topic/user
-	$message = sprintf(
+	// Do not include protected content in subscription emails
+	if ( ! empty( $password_protected ) ) {
+		$message = sprintf(
 
-		/* translators: 1: Topic author name, 2: Topic content, 3: Topic URL */
-		esc_html__(
-			'%1$s wrote:
+			/* translators: %s: Topic URL */
+			esc_html__(
+				'A new topic was posted in a password-protected discussion.
+
+Topic Link: %s
+
+-----------
+
+You are receiving this email because you subscribed to a forum.
+
+Login and visit the topic to unsubscribe from these emails.',
+				'bbpress'
+			),
+			$topic_url
+		);
+
+	// Include the topic details in normal subscription emails
+	} else {
+		$topic_author_name = wp_specialchars_decode( strip_tags( $topic_author_name ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+		$topic_content     = wp_specialchars_decode( strip_tags( bbp_get_topic_content( $topic_id ) ), ENT_QUOTES ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+		$message           = sprintf(
+
+			/* translators: 1: Topic author name, 2: Topic content, 3: Topic URL */
+			esc_html__(
+				'%1$s wrote:
 
 %2$s
 
@@ -1565,13 +1611,15 @@ Topic Link: %3$s
 You are receiving this email because you subscribed to a forum.
 
 Login and visit the topic to unsubscribe from these emails.',
-			'bbpress'
-		),
-		$topic_author_name,
-		$topic_content,
-		$topic_url
-	);
+				'bbpress'
+			),
+			$topic_author_name,
+			$topic_content,
+			$topic_url
+		);
+	}
 
+	// For plugins to filter messages per reply/topic/user
 	$message = apply_filters( 'bbp_forum_subscription_mail_message', $message, $topic_id, $forum_id, $user_id );
 	if ( empty( $message ) ) {
 		return;
