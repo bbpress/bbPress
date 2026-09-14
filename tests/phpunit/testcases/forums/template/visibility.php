@@ -83,6 +83,53 @@ class BBP_Tests_Forums_Template_Visibility extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * @covers ::bbp_is_forum_restricted_for_user
+	 */
+	public function test_bbp_is_forum_restricted_for_user() {
+		$public_id      = $this->factory->forum->create();
+		$hidden_id      = $this->factory->forum->create( array(
+			'post_status' => bbp_get_hidden_status_id(),
+		) );
+		$child_id       = $this->factory->forum->create( array(
+			'post_parent' => $hidden_id,
+		) );
+		$participant_id = $this->factory->user->create();
+		$keymaster_id   = $this->factory->user->create( array(
+			'role' => 'administrator',
+		) );
+		$blocked_id     = $this->factory->user->create();
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $keymaster_id, bbp_get_keymaster_role() );
+		bbp_set_user_role( $blocked_id, bbp_get_blocked_role() );
+
+		$this->assertFalse( bbp_is_forum_restricted_for_user( $public_id, $participant_id ) );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $hidden_id, $participant_id ) );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $child_id, $participant_id ) );
+		$this->assertFalse( bbp_is_forum_restricted_for_user( $hidden_id, $keymaster_id ) );
+		$this->assertFalse( user_can( $blocked_id, 'read_forum', $hidden_id ) );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $hidden_id, $blocked_id ) );
+
+		wp_set_current_user( $keymaster_id );
+		$this->assertTrue( bbp_is_forum_restricted_for_user( $hidden_id ) );
+
+		$bbp             = bbpress();
+		$user_query      = $bbp->user_query;
+		$bbp->user_query = (object) array(
+			'user'        => get_user_by( 'id', $keymaster_id ),
+			'in_the_loop' => true,
+		);
+		$restricted = bbp_is_forum_restricted_for_user( $hidden_id, 0 );
+		$bbp->user_query = $user_query;
+
+		$this->assertTrue( $restricted );
+
+		bbp_add_moderator( $child_id, $participant_id );
+
+		$this->assertFalse( bbp_is_forum_restricted_for_user( $child_id, $participant_id ) );
+	}
+
+	/**
 	 * @covers ::bbp_suppress_private_forum_meta
 	 */
 	public function test_bbp_suppress_private_forum_meta() {

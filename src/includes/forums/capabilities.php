@@ -79,9 +79,9 @@ function bbp_map_forum_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 				$_post = get_post( $args[0] );
 				if ( ! empty( $_post ) ) {
 
-					// Check whether the user can read restricted ancestors
+					// Allow moderators of this forum through restricted ancestors
 					$parent_id = bbp_get_forum_parent_id( $_post->ID );
-					if ( ! empty( $parent_id ) && bbp_is_forum_restricted( $parent_id, true ) && ! bbp_is_user_forum_moderator( $user_id, $_post->ID ) && ! user_can( $user_id, 'read_forum', $parent_id ) ) {
+					if ( ! empty( $parent_id ) && ! bbp_is_user_forum_moderator( $user_id, $_post->ID ) && bbp_is_forum_restricted_for_user( $parent_id, $user_id ) ) {
 						$caps = array( 'do_not_allow' );
 						break;
 					}

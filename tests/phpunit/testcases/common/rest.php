@@ -94,6 +94,24 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 	}
 
 	/**
+	 * Dispatch a REST request.
+	 *
+	 * @param string $method  HTTP method.
+	 * @param string $route   REST route.
+	 * @param int    $user_id User ID.
+	 * @param array  $params  Request parameters.
+	 * @return WP_REST_Response REST response.
+	 */
+	protected function dispatch_request( $method, $route, $user_id = 0, $params = array() ) {
+		$this->set_current_user( $user_id );
+
+		$request = new WP_REST_Request( $method, $route );
+		$request->set_body_params( $params );
+
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
 	 * Create a forum, topic, and reply with the requested forum status.
 	 *
 	 * @param string $status    Forum status.
@@ -535,5 +553,90 @@ class BBP_Tests_Common_REST extends BBP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( $new_parent_id, bbp_get_forum_parent_id( $forum_id ) );
 		$this->assertTrue( bbp_is_forum_private( $forum_id, false ) );
+	}
+
+	/**
+	 * @covers BBP_REST_Posts_Controller::update_item_permissions_check
+	 * @covers ::bbp_map_topic_meta_caps
+	 * @covers ::bbp_map_reply_meta_caps
+	 */
+	public function test_participant_cannot_access_rest_edit_surfaces_after_topic_moves_to_hidden_forum() {
+		$participant_id = $this->factory->user->create();
+		$moderator_id   = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$public_forum   = $this->factory->forum->create();
+		$hidden_forum   = $this->factory->forum->create(
+			array(
+				'post_status' => bbp_get_hidden_status_id(),
+			)
+		);
+		$topic_id      = $this->factory->topic->create(
+			array(
+				'post_author'  => $participant_id,
+				'post_parent'  => $public_forum,
+				'post_content' => 'Original topic content.',
+				'topic_meta'   => array( 'forum_id' => $public_forum ),
+			)
+		);
+		$reply_id      = $this->factory->reply->create(
+			array(
+				'post_author'  => $participant_id,
+				'post_parent'  => $topic_id,
+				'post_content' => 'Original reply content.',
+				'reply_meta'   => array(
+					'forum_id' => $public_forum,
+					'topic_id' => $topic_id,
+				),
+			)
+		);
+
+		bbp_set_user_role( $participant_id, bbp_get_participant_role() );
+		bbp_set_user_role( $moderator_id, bbp_get_keymaster_role() );
+		$this->set_current_user( $participant_id );
+		$this->assertTrue( current_user_can( 'edit_topic', $topic_id ) );
+		$this->assertTrue( current_user_can( 'edit_reply', $reply_id ) );
+
+		$this->set_current_user( $moderator_id );
+		bbp_move_topic_handler( $topic_id, $public_forum, $hidden_forum );
+
+		$posts = array(
+			bbp_get_topic_post_type() => $topic_id,
+			bbp_get_reply_post_type() => $reply_id,
+		);
+
+		foreach ( $posts as $post_type => $post_id ) {
+			$this->set_current_user( $moderator_id );
+			wp_update_post(
+				array(
+					'ID'           => $post_id,
+					'post_content' => 'Moderator hidden content.',
+				)
+			);
+			$revision_ids = array_keys( wp_get_post_revisions( $post_id ) );
+			$autosave_id  = wp_create_post_autosave(
+				array(
+					'post_ID'      => $post_id,
+					'post_type'    => $post_type,
+					'post_title'   => get_the_title( $post_id ),
+					'content'      => 'Moderator unpublished autosave.',
+				)
+			);
+
+			$this->assertNotEmpty( $revision_ids );
+			$this->assertIsInt( $autosave_id );
+			$this->set_current_user( $participant_id );
+			$this->assertFalse( current_user_can( "edit_{$post_type}", $post_id ) );
+			$this->assertSame( 403, $this->get_item( $post_type, $post_id, $participant_id )->get_status() );
+			$this->assertSame( 403, $this->update_item( $post_type, $post_id, $participant_id, array() )->get_status() );
+			$this->assertSame( 403, $this->update_item( $post_type, $post_id, $participant_id, array( 'content' => 'Participant overwrite.' ) )->get_status() );
+			$this->assertSame( 'Moderator hidden content.', get_post_field( 'post_content', $post_id ) );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions", $participant_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions/{$revision_ids[0]}", $participant_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves", $participant_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves/{$autosave_id}", $participant_id )->get_status() );
+			$this->assertSame( 403, $this->dispatch_request( 'POST', "/wp/v2/{$post_type}/{$post_id}/autosaves", $participant_id, array( 'content' => 'Participant autosave.' ) )->get_status() );
+
+			$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/revisions", $moderator_id )->get_status() );
+			$this->assertSame( 200, $this->dispatch_request( 'GET', "/wp/v2/{$post_type}/{$post_id}/autosaves", $moderator_id )->get_status() );
+		}
 	}
 }

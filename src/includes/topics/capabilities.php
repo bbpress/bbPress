@@ -167,6 +167,7 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Get caps for post type object
 				$post_type = get_post_type_object( $_post->post_type );
+				$forum_id  = bbp_get_topic_forum_id( $_post->ID );
 
 				// Anonymous users cannot edit existing topics
 				if ( empty( $user_id ) ) {
@@ -174,6 +175,10 @@ function bbp_map_topic_meta_caps( $caps = array(), $cap = '', $user_id = 0, $arg
 
 				// Add 'do_not_allow' cap if user is spam or deleted
 				} elseif ( bbp_is_user_inactive( $user_id ) ) {
+					$caps = array( 'do_not_allow' );
+
+				// User cannot edit a topic in a restricted forum they cannot read
+				} elseif ( bbp_is_forum_restricted_for_user( $forum_id, $user_id ) ) {
 					$caps = array( 'do_not_allow' );
 
 				// Moderators can always edit forum content
