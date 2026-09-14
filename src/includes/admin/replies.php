@@ -1033,7 +1033,7 @@ class BBP_Replies_Admin {
 		if ( ! empty( $_GET['bbp_forum_id'] ) ) {
 			$query_vars['meta_key']   = '_bbp_forum_id';
 			$query_vars['meta_type']  = 'NUMERIC';
-			$query_vars['meta_value'] = $_GET['bbp_forum_id'];
+			$query_vars['meta_value'] = (int) $_GET['bbp_forum_id'];
 		}
 
 		// Return manipulated query_vars

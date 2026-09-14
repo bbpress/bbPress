@@ -53,6 +53,7 @@ Development for the next bbPress release is in progress. See the active
 - Prevented subscription emails from disclosing content to users who can no
   longer access a restricted forum.
 - Hardened link relationship rewriting for topic and reply content.
+- Normalized forum IDs used by administration list filters.
 - Restricted forum hierarchy and attribute changes to users with the appropriate forum authority.
 - Enforced bbPress posting and moderation rules for XML-RPC topic and reply
   edits.
