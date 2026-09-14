@@ -144,7 +144,7 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		);
 	}
 
-	protected function submit_reply_move( $reply_id, $move_option, $destination_topic_id = 0 ) {
+	protected function submit_reply_move( $reply_id, $move_option, $destination_topic_id = 0, $destination_title = null ) {
 		$home_url             = wp_parse_url( home_url( '/' ) );
 		$_SERVER['HTTP_HOST'] = $home_url['host'];
 
@@ -157,6 +157,10 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$_POST['bbp_reply_move_option']     = $move_option;
 		$_POST['bbp_destination_topic']     = $destination_topic_id;
 		$_REQUEST['_wpnonce']               = wp_create_nonce( 'bbp-move-reply_' . $reply_id );
+
+		if ( null !== $destination_title ) {
+			$_POST['bbp_reply_move_destination_title'] = $destination_title;
+		}
 
 		$did_redirect     = false;
 		$prevent_redirect = function() use ( &$did_redirect ) {
@@ -345,13 +349,56 @@ class BBP_Tests_Replies_Functions_Permissions extends BBP_UnitTestCase {
 		$this->set_current_user( $user_id );
 		bbpress()->errors = new WP_Error();
 
-		$did_redirect = $this->submit_reply_move( $reply_id, 'topic' );
+		$filter_title = function( $title ) {
+			return $title . ' filtered';
+		};
+
+		add_filter( 'bbp_new_topic_pre_title', $filter_title );
+		$did_redirect = $this->submit_reply_move( $reply_id, 'topic', 0, 'Converted reply' );
+		remove_filter( 'bbp_new_topic_pre_title', $filter_title );
 
 		$this->assertSame( array(), bbpress()->errors->get_error_codes() );
 		$this->assertSame( bbp_get_topic_post_type(), get_post_type( $reply_id ) );
+		$this->assertSame( 'Converted reply filtered', get_post_field( 'post_title', $reply_id ) );
 		$this->assertSame( $forum_id, wp_get_post_parent_id( $reply_id ) );
 		$this->assertSame( $reply_id, (int) get_post_meta( $reply_id, '_bbp_topic_id', true ) );
 		$this->assertTrue( $did_redirect );
+	}
+
+	/**
+	 * @covers ::bbp_move_reply_handler
+	 */
+	public function test_participant_cannot_convert_reply_to_topic_with_long_title() {
+		$user_id         = $this->factory->user->create( array( 'role' => bbp_get_participant_role() ) );
+		$forum_id        = $this->factory->forum->create();
+		$source_topic_id = $this->factory->topic->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $forum_id,
+				'topic_meta'  => array( 'forum_id' => $forum_id ),
+			)
+		);
+		$reply_id        = $this->factory->reply->create(
+			array(
+				'post_author' => $user_id,
+				'post_parent' => $source_topic_id,
+				'reply_meta'  => array(
+					'forum_id' => $forum_id,
+					'topic_id' => $source_topic_id,
+				),
+			)
+		);
+
+		$this->set_current_user( $user_id );
+		bbpress()->errors = new WP_Error();
+
+		$did_redirect = $this->submit_reply_move( $reply_id, 'topic', 0, str_repeat( 'a', bbp_get_title_max_length() + 1 ) );
+
+		$this->assertContains( 'bbp_topic_title', bbpress()->errors->get_error_codes() );
+		$this->assertSame( bbp_get_reply_post_type(), get_post_type( $reply_id ) );
+		$this->assertSame( $source_topic_id, wp_get_post_parent_id( $reply_id ) );
+		$this->assertSame( $source_topic_id, bbp_get_reply_topic_id( $reply_id ) );
+		$this->assertFalse( $did_redirect );
 	}
 
 	/**
